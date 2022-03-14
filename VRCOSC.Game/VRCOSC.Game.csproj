@@ -8,7 +8,4 @@
   <ItemGroup>
     <PackageReference Include="ppy.osu.Framework" Version="2022.308.0" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Graphics\Drawables" />
-  </ItemGroup>
 </Project>
