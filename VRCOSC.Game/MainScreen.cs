@@ -1,9 +1,9 @@
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Shapes;
-using osu.Framework.Graphics.Sprites;
 using osu.Framework.Screens;
 using osuTK.Graphics;
+using VRCOSC.Game.Graphics.Containers;
 
 namespace VRCOSC.Game;
 
@@ -16,16 +16,17 @@ public class MainScreen : Screen
         {
             new Box
             {
-                Colour = Color4.Violet,
-                RelativeSizeAxes = Axes.Both
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                RelativeSizeAxes = Axes.Both,
+                Colour = Color4.Gray
             },
-            new SpriteText
+            new SenderFlowContainer
             {
-                Y = 20,
-                Text = "Main Screen",
-                Anchor = Anchor.TopCentre,
-                Origin = Anchor.TopCentre,
-                Font = FontUsage.Default.With(size: 40)
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                RelativeSizeAxes = Axes.Both,
+                Padding = new MarginPadding(20)
             }
         };
     }

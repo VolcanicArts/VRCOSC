@@ -5,10 +5,10 @@
     <GenerateProgramFile>false</GenerateProgramFile>
   </PropertyGroup>
   <ItemGroup Label="Project References">
-    <ProjectReference Include="..\VRCOSC.Game\VRCOSC.Game.csproj"/>
+    <ProjectReference Include="..\VRCOSC.Game\VRCOSC.Game.csproj" />
   </ItemGroup>
   <ItemGroup Label="Package References">
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0"/>
-    <PackageReference Include="NUnit3TestAdapter" Version="4.2.1"/>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.2.1" />
   </ItemGroup>
 </Project>
