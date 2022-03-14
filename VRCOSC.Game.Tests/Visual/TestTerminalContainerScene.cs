@@ -43,9 +43,9 @@ public class TestTerminalContainerScene : VRCOSCTestScene
     [Test]
     public void TestTextLogging()
     {
-        AddStep("Add nominal text", () => TerminalContainer.Log("This is some text"));
-        AddStep("Add important text", () => TerminalContainer.Log("This is important text", LogState.Important));
-        AddStep("Add error text", () => TerminalContainer.Log("This is an error", LogState.Error));
+        AddStep("Add nominal text", () => TerminalContainer.Log("Test", "This is some text"));
+        AddStep("Add important text", () => TerminalContainer.Log("Test", "This is important text", LogState.Important));
+        AddStep("Add error text", () => TerminalContainer.Log("Test", "This is an error", LogState.Error));
     }
 
     [Test]

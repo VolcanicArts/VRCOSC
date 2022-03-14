@@ -52,14 +52,14 @@ public class TerminalContainer : Container
         };
     }
 
-    public void Log(string text, LogState state = LogState.Nominal)
+    public void Log(string moduleName, string text, LogState state = LogState.Nominal)
     {
-        Scheduler.Add(() => log(text, state));
+        Scheduler.Add(() => log(moduleName, text, state));
     }
 
-    private void log(string text, LogState state)
+    private void log(string moduleName, string text, LogState state)
     {
-        var formattedText = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}]: {text}\n";
+        var formattedText = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] [{moduleName}]: {text}\n";
         terminalFlow.AddText(formattedText, t => t.Colour = getColourOfLogState(state));
         Scheduler.Add(() => scrollContainer.ScrollToEnd());
     }

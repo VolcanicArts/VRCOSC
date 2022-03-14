@@ -1,7 +1,9 @@
 using osu.Framework.Allocation;
+using osu.Framework.Configuration;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.IO.Stores;
+using osu.Framework.Platform;
 using osuTK;
 using VRCOSC.Resources;
 
@@ -20,8 +22,9 @@ public class VRCOSCGameBase : osu.Framework.Game
     protected override Container<Drawable> Content { get; }
 
     [BackgroundDependencyLoader]
-    private void load()
+    private void load(FrameworkConfigManager configManager)
     {
+        configManager.GetBindable<ExecutionMode>(FrameworkSetting.ExecutionMode).Value = ExecutionMode.SingleThread;
         Resources.AddStore(new DllResourceStore(typeof(VRCOSCResources).Assembly));
     }
 }

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup Label="Project">
     <TargetFramework>net6.0</TargetFramework>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <AssemblyName>VRCOSC</AssemblyName>
     <ApplicationIcon>game.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -9,9 +9,9 @@
     <FileVersion>0.0.0</FileVersion>
   </PropertyGroup>
   <ItemGroup Label="Project References">
-    <ProjectReference Include="..\VRCOSC.Game\VRCOSC.Game.csproj"/>
+    <ProjectReference Include="..\VRCOSC.Game\VRCOSC.Game.csproj" />
   </ItemGroup>
   <ItemGroup Label="Resources">
-    <EmbeddedResource Include="game.ico"/>
+    <EmbeddedResource Include="game.ico" />
   </ItemGroup>
 </Project>

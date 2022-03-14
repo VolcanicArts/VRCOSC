@@ -6,16 +6,31 @@ using osu.Framework.Screens;
 using osuTK.Graphics;
 using VRCOSC.Game.Graphics.Containers;
 using VRCOSC.Game.Graphics.Containers.Terminal;
+using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game;
 
 public class MainScreen : Screen
 {
+    [Cached]
+    private TerminalContainer terminalContainer = new()
+    {
+        Anchor = Anchor.Centre,
+        Origin = Anchor.Centre,
+        RelativeSizeAxes = Axes.Both,
+        Masking = true,
+        CornerRadius = 20
+    };
+
+    [Cached]
+    private ModuleManager moduleManager = new();
+
     [BackgroundDependencyLoader]
     private void load()
     {
         InternalChildren = new Drawable[]
         {
+            moduleManager,
             new Box
             {
                 Anchor = Anchor.Centre,
@@ -35,14 +50,7 @@ public class MainScreen : Screen
                     Left = 10,
                     Right = 10
                 },
-                Child = new TerminalContainer
-                {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    RelativeSizeAxes = Axes.Both,
-                    Masking = true,
-                    CornerRadius = 20
-                }
+                Child = terminalContainer
             },
             new MainScreenFooter
             {
