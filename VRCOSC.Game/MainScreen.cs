@@ -3,7 +3,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Screens;
 using osuTK.Graphics;
-using VRCOSC.Game.Graphics.Containers;
+using VRCOSC.Game.Graphics.Containers.Modules;
 
 namespace VRCOSC.Game;
 
@@ -21,7 +21,7 @@ public class MainScreen : Screen
                 RelativeSizeAxes = Axes.Both,
                 Colour = Color4.Gray
             },
-            new SenderFlowContainer
+            new ModuleFlowContainer
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,

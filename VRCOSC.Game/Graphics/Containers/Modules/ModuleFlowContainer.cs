@@ -2,15 +2,14 @@
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Effects;
 using osuTK;
-using VRCOSC.Game.Graphics.Drawables;
 
-namespace VRCOSC.Game.Graphics.Containers;
+namespace VRCOSC.Game.Graphics.Containers.Modules;
 
-public class SenderFlowContainer : Container
+public class ModuleFlowContainer : Container
 {
     private readonly FillFlowContainer senderFlow;
 
-    public SenderFlowContainer()
+    public ModuleFlowContainer()
     {
         Child = new BasicScrollContainer
         {
@@ -32,6 +31,12 @@ public class SenderFlowContainer : Container
         };
     }
 
+    protected override void LoadComplete()
+    {
+        base.LoadComplete();
+        for (int i = 0; i < 10; i++) AddSender();
+    }
+
     public void AddSender()
     {
         Scheduler.Add(addSender);
@@ -39,7 +44,7 @@ public class SenderFlowContainer : Container
 
     private void addSender()
     {
-        senderFlow.Add(new SenderContainer()
+        senderFlow.Add(new ModuleContainer()
         {
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,

@@ -1,18 +1,18 @@
 ﻿using NUnit.Framework;
 using osu.Framework.Graphics;
 using osu.Framework.Testing;
-using VRCOSC.Game.Graphics.Containers;
+using VRCOSC.Game.Graphics.Containers.Modules;
 
 namespace VRCOSC.Game.Tests.Visual;
 
-public class TestSenderFlowContainer : VRCOSCTestScene
+public class TestModuleFlowContainer : VRCOSCTestScene
 {
-    private SenderFlowContainer senderFlowContainer;
+    private ModuleFlowContainer senderFlowContainer;
 
     [SetUpSteps]
     public void SetUp()
     {
-        Add(senderFlowContainer = new SenderFlowContainer
+        Add(senderFlowContainer = new ModuleFlowContainer
         {
             Anchor = Anchor.Centre,
             Origin = Anchor.Centre,
