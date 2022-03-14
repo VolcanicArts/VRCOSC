@@ -1,0 +1,11 @@
+﻿{
+  "solution": {
+    "path": "VRCOSC.sln",
+    "projects": [
+      "VRCOSC.Desktop\\VRCOSC.Desktop.csproj",
+      "VRCOSC.Game\\VRCOSC.Game.csproj",
+      "VRCOSC.Game.Tests\\VRCOSC.Game.Tests.csproj",
+      "VRCOSC.Resources\\VRCOSC.Resources.csproj"
+    ]
+  }
+}
