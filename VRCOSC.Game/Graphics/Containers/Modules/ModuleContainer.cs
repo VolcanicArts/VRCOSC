@@ -1,6 +1,5 @@
 ﻿using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Effects;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
@@ -50,13 +49,6 @@ public class ModuleContainer : Container
                         Size = new Vector2(50),
                         Masking = true,
                         CornerRadius = 10,
-                        EdgeEffect = new EdgeEffectParameters
-                        {
-                            Colour = Colour4.Black,
-                            Radius = 2.5f,
-                            Type = EdgeEffectType.Shadow,
-                            Offset = new Vector2(0.0f, 1.5f)
-                        },
                         Colour = Colour4.Gray.Darken(0.5f),
                         Icon = FontAwesome.Solid.Check
                     },
@@ -67,13 +59,6 @@ public class ModuleContainer : Container
                         Size = new Vector2(50),
                         Masking = true,
                         CornerRadius = 10,
-                        EdgeEffect = new EdgeEffectParameters
-                        {
-                            Colour = Colour4.Black,
-                            Radius = 2.5f,
-                            Type = EdgeEffectType.Shadow,
-                            Offset = new Vector2(0.0f, 1.5f)
-                        },
                         Colour = Colour4.Gray.Darken(0.5f),
                         Icon = FontAwesome.Solid.Edit
                     }

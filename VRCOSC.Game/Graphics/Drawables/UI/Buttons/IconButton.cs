@@ -4,6 +4,8 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.UserInterface;
+using osu.Framework.Input.Events;
+using VRCOSC.Game.Graphics.EdgeEffects;
 
 namespace VRCOSC.Game.Graphics.Drawables.UI.Buttons;
 
@@ -40,5 +42,36 @@ public class IconButton : Button
                 }
             }
         };
+    }
+
+    protected override bool OnClick(ClickEvent e)
+    {
+        Action?.Invoke();
+        if (!IsHovered) return true;
+
+        this.MoveToY(-1.5f, 100, Easing.InCubic);
+        TweenEdgeEffectTo(BasicEdgeEffects.BasicShadow, 100, Easing.InCubic);
+        return true;
+    }
+
+    protected override bool OnMouseDown(MouseDownEvent e)
+    {
+        this.MoveToY(0, 100, Easing.OutCubic);
+        TweenEdgeEffectTo(BasicEdgeEffects.NoShadow, 100, Easing.OutCubic);
+        return true;
+    }
+
+    protected override bool OnHover(HoverEvent e)
+    {
+        this.MoveToY(-1.5f, 100, Easing.InCubic);
+        TweenEdgeEffectTo(BasicEdgeEffects.BasicShadow, 100, Easing.InCubic);
+        return true;
+    }
+
+    protected override void OnHoverLost(HoverLostEvent e)
+    {
+        this.MoveToY(0, 100, Easing.OutCubic);
+        TweenEdgeEffectTo(BasicEdgeEffects.NoShadow, 100, Easing.OutCubic);
+        base.OnHoverLost(e);
     }
 }
