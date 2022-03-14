@@ -157,7 +157,7 @@ public class ModuleContainer : Container
             }
         };
 
-        SourceModule.Settings.ForEach(setting =>
+        SourceModule.SettingsManager.Settings.ForEach(setting =>
         {
             if (setting.GetType() == typeof(ModuleSettingString))
             {
@@ -182,7 +182,7 @@ public class ModuleContainer : Container
             }
         });
 
-        SourceModule.Parameters.ForEach(parameter =>
+        SourceModule.ParametersManager.Parameters.ForEach(parameter =>
         {
             parameterFlow.Add(new ModuleOscParameterContainer
             {
