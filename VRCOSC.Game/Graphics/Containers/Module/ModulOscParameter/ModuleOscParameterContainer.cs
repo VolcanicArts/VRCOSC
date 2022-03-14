@@ -74,6 +74,8 @@ public class ModuleOscParameterContainer : Container
             }
         };
 
+        textBox.Text = SourceParameter.Address;
+
         textBox.OnCommit += (_, _) =>
         {
             SourceParameter.Address = textBox.Current.Value;

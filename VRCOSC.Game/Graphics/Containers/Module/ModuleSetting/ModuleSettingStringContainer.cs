@@ -72,6 +72,8 @@ public class ModuleSettingStringContainer : ModuleSettingContainer
             }
         };
 
+        textBox.Text = SourceSetting.Value.Value;
+
         textBox.OnCommit += (_, _) =>
         {
             SourceSetting.Value.Value = textBox.Current.Value;

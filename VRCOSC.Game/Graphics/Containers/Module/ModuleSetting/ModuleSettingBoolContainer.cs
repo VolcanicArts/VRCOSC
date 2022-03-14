@@ -69,6 +69,8 @@ public class ModuleSettingBoolContainer : ModuleSettingContainer
             }
         };
 
+        checkBox.Current.Value = SourceSetting.Value.Value;
+
         checkBox.Current.BindValueChanged((e) => SourceSetting.Value.Value = e.NewValue);
     }
 }

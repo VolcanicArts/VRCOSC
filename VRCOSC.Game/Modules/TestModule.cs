@@ -18,7 +18,7 @@ public class TestModule : Module
     {
         new ModuleSettingBool("testboolean", "Test Boolean", "This is to test booleans"),
         new ModuleSettingInt("testint", "Test Integer", "This is to test integers"),
-        new ModuleSettingString("teststring", "Test String", "This is to test strings")
+        new ModuleSettingString("teststring", "Test String", "This is to test strings", "This is a default value test")
     };
 
     public override OrderedList<ModuleOscParameter> Parameters => new()
