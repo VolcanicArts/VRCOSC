@@ -37,8 +37,8 @@ public class ModuleContainer : Container
                 RelativeSizeAxes = Axes.Both,
                 Padding = new MarginPadding
                 {
-                    Vertical = 30,
-                    Horizontal = 10
+                    Vertical = 10,
+                    Horizontal = 30
                 },
                 Child = new FillFlowContainer
                 {
@@ -50,7 +50,7 @@ public class ModuleContainer : Container
                     Direction = FillDirection.Vertical,
                     Children = new Drawable[]
                     {
-                        new TextFlowContainer(t => t.Font = FrameworkFont.Regular.With(size: 50))
+                        new TextFlowContainer(t => t.Font = FrameworkFont.Regular.With(size: 75))
                         {
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
@@ -87,6 +87,15 @@ public class ModuleContainer : Container
                                 RelativeSizeAxes = Axes.Both,
                                 Colour = VRCOSCColour.Gray1,
                             }
+                        },
+                        new TextFlowContainer(t => t.Font = FrameworkFont.Regular.With(size: 50))
+                        {
+                            Anchor = Anchor.TopCentre,
+                            Origin = Anchor.TopCentre,
+                            TextAnchor = Anchor.TopCentre,
+                            RelativeSizeAxes = Axes.X,
+                            AutoSizeAxes = Axes.Y,
+                            Text = "Settings"
                         },
                         settingsFlow = new FillFlowContainer<ModuleSettingContainer>
                         {
