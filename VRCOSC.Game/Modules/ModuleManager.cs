@@ -4,8 +4,7 @@ using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Platform;
 using osu.Framework.Threading;
-using VRCOSC.Game.Modules.Modules;
-using VRCOSC.Game.Modules.Modules.Clock;
+using VRCOSC.Game.Util;
 
 namespace VRCOSC.Game.Modules;
 
@@ -14,17 +13,18 @@ public class ModuleManager
 {
     public Dictionary<ModuleType, OrderedList<Module>> Modules { get; } = new();
 
-    public readonly BindableBool Running = new();
+    private readonly BindableBool Running = new();
 
     public ModuleManager(Storage storage)
     {
-        addModule(new TestModule(storage));
-        addModule(new HypeRateModule(storage));
-        addModule(new ClockModule(storage));
+        IEnumerable<Module> modules = ReflectiveEnumerator.GetEnumerableOfType<Module>(storage);
+        modules.ForEach(addModule);
     }
 
-    private void addModule(Module module)
+    private void addModule(Module? module)
     {
+        if (module == null) return;
+
         var list = Modules.GetValueOrDefault(module.Type, new OrderedList<Module>());
         list.Add(module);
         Modules.TryAdd(module.Type, list);
