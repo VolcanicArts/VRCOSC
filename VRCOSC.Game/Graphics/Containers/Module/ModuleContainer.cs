@@ -6,6 +6,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osuTK;
 using VRCOSC.Game.Graphics.Containers.Module.ModulOscParameter;
+using VRCOSC.Game.Graphics.Drawables;
 
 namespace VRCOSC.Game.Graphics.Containers.Module;
 
@@ -81,21 +82,12 @@ public class ModuleContainer : Container
                                 AutoSizeAxes = Axes.Y,
                                 Text = SourceModule.Description
                             },
-                            new Container
+                            new LineSeparator
                             {
                                 Anchor = Anchor.TopCentre,
                                 Origin = Anchor.TopCentre,
                                 RelativeSizeAxes = Axes.X,
-                                Size = new Vector2(0.95f, 5),
-                                Masking = true,
-                                CornerRadius = 4,
-                                Child = new Box
-                                {
-                                    Anchor = Anchor.Centre,
-                                    Origin = Anchor.Centre,
-                                    RelativeSizeAxes = Axes.Both,
-                                    Colour = VRCOSCColour.Gray1,
-                                }
+                                Size = new Vector2(0.95f, 5)
                             },
                             new TextFlowContainer(t => t.Font = FrameworkFont.Regular.With(size: 50))
                             {
@@ -116,21 +108,12 @@ public class ModuleContainer : Container
                                 Direction = FillDirection.Vertical,
                                 Spacing = new Vector2(0, 5)
                             },
-                            new Container
+                            new LineSeparator
                             {
                                 Anchor = Anchor.TopCentre,
                                 Origin = Anchor.TopCentre,
                                 RelativeSizeAxes = Axes.X,
-                                Size = new Vector2(0.95f, 5),
-                                Masking = true,
-                                CornerRadius = 4,
-                                Child = new Box
-                                {
-                                    Anchor = Anchor.Centre,
-                                    Origin = Anchor.Centre,
-                                    RelativeSizeAxes = Axes.Both,
-                                    Colour = VRCOSCColour.Gray1,
-                                }
+                                Size = new Vector2(0.95f, 5)
                             },
                             new TextFlowContainer(t => t.Font = FrameworkFont.Regular.With(size: 50))
                             {

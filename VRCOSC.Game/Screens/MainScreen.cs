@@ -7,9 +7,9 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Screens;
 using osuTK;
 using osuTK.Graphics;
-using VRCOSC.Game.Graphics;
 using VRCOSC.Game.Graphics.Containers;
 using VRCOSC.Game.Graphics.Containers.Module;
+using VRCOSC.Game.Graphics.Drawables;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game;
@@ -104,21 +104,12 @@ public class MainScreen : Screen
                 });
             });
 
-            moduleCardFlow.Add(new Container
+            moduleCardFlow.Add(new LineSeparator
             {
                 Anchor = Anchor.TopCentre,
                 Origin = Anchor.TopCentre,
                 RelativeSizeAxes = Axes.X,
-                Size = new Vector2(0.95f, 5),
-                Masking = true,
-                CornerRadius = 4,
-                Child = new Box
-                {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    RelativeSizeAxes = Axes.Both,
-                    Colour = VRCOSCColour.Gray1,
-                }
+                Size = new Vector2(0.95f, 5)
             });
         });
 
