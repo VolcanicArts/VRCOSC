@@ -3,8 +3,10 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Screens;
+using osuTK;
 using osuTK.Graphics;
 using VRCOSC.Game.Graphics.Containers;
+using VRCOSC.Game.Graphics.Containers.Module;
 using VRCOSC.Game.Graphics.Containers.Terminal;
 using VRCOSC.Game.Modules;
 
@@ -30,6 +32,8 @@ public class MainScreen : Screen
     [BackgroundDependencyLoader]
     private void load()
     {
+        FillFlowContainer<ModuleCard> moduleCardFlow;
+
         InternalChildren = new Drawable[]
         {
             new Box
@@ -39,19 +43,43 @@ public class MainScreen : Screen
                 RelativeSizeAxes = Axes.Both,
                 Colour = Color4.Gray
             },
-            new Container
+            // new Container
+            // {
+            //     Anchor = Anchor.Centre,
+            //     Origin = Anchor.Centre,
+            //     RelativeSizeAxes = Axes.Both,
+            //     Padding = new MarginPadding
+            //     {
+            //         Top = 10,
+            //         Bottom = 10 + footer_height,
+            //         Left = 10,
+            //         Right = 10
+            //     },
+            //     Child = terminalContainer
+            // },
+            new BasicScrollContainer
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
-                Padding = new MarginPadding
+                ClampExtension = 20,
+                ScrollbarVisible = false,
+                Child = moduleCardFlow = new FillFlowContainer<ModuleCard>
                 {
-                    Top = 10,
-                    Bottom = 10 + footer_height,
-                    Left = 10,
-                    Right = 10
-                },
-                Child = terminalContainer
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    RelativeSizeAxes = Axes.X,
+                    AutoSizeAxes = Axes.Y,
+                    Direction = FillDirection.Vertical,
+                    Spacing = new Vector2(10),
+                    Padding = new MarginPadding
+                    {
+                        Top = 10,
+                        Bottom = 10 + footer_height,
+                        Left = 10,
+                        Right = 10
+                    }
+                }
             },
             new MainScreenFooter
             {
@@ -61,5 +89,17 @@ public class MainScreen : Screen
                 Height = footer_height
             }
         };
+
+        moduleManager.Modules.ForEach(module =>
+        {
+            moduleCardFlow.Add(new ModuleCard
+            {
+                Anchor = Anchor.TopCentre,
+                Origin = Anchor.TopCentre,
+                RelativeSizeAxes = Axes.X,
+                AutoSizeAxes = Axes.Y,
+                SourceModule = module
+            });
+        });
     }
 }

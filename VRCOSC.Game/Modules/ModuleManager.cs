@@ -12,6 +12,8 @@ public class ModuleManager
     {
         Modules = new OrderedList<Module>
         {
+            new TestModule(),
+            new TestModule(),
             new TestModule()
         };
     }
