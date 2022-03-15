@@ -6,12 +6,13 @@ namespace VRCOSC.Game;
 
 public class VRCOSCGame : VRCOSCGameBase
 {
-    private ScreenStack screenStack;
+    [Cached]
+    private ScreenStack screenStack = new() { RelativeSizeAxes = Axes.Both };
 
     [BackgroundDependencyLoader]
     private void load()
     {
-        Child = screenStack = new ScreenStack { RelativeSizeAxes = Axes.Both };
+        Child = screenStack;
     }
 
     protected override void LoadComplete()

@@ -1,20 +1,14 @@
-﻿using osu.Framework.Allocation;
-using osu.Framework.Extensions.IEnumerableExtensions;
-using osu.Framework.Graphics.Containers;
-using VRCOSC.Game.Graphics.Containers.Terminal;
+﻿using Markdig.Helpers;
 
 namespace VRCOSC.Game.Modules;
 
-public class ModuleManager : Container<Module>
+public class ModuleManager
 {
-    [Resolved]
-    private TerminalContainer terminalContainer { get; set; }
-
-    private const string module_name = nameof(ModuleManager);
+    public OrderedList<Module> Modules { get; }
 
     public ModuleManager()
     {
-        Children = new Module[]
+        Modules = new OrderedList<Module>
         {
             new TestModule()
         };
@@ -22,7 +16,6 @@ public class ModuleManager : Container<Module>
 
     public void Start()
     {
-        terminalContainer.Log(module_name, "Starting all modules", LogState.Important);
-        Children.ForEach(module => module.Start());
+        Modules.ForEach(module => module.Start());
     }
 }
