@@ -183,5 +183,15 @@ public class ModuleContainer : Container
                 });
             }
         });
+
+        SourceModule.Parameters.Keys.ForEach(key =>
+        {
+            var moduleOscParameter = SourceModule.Parameters[key];
+
+            parameterFlow.Add(new ModuleOscParameterContainer
+            {
+                ModuleOscParameter = moduleOscParameter
+            });
+        });
     }
 }

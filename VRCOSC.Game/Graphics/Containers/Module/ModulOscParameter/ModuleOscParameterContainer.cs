@@ -10,7 +10,7 @@ namespace VRCOSC.Game.Graphics.Containers.Module.ModulOscParameter;
 
 public class ModuleOscParameterContainer : Container
 {
-    public ModuleOscParameter SourceParameter { get; init; }
+    public ModuleOscParameter ModuleOscParameter { get; init; }
 
     [BackgroundDependencyLoader]
     private void load()
@@ -50,7 +50,7 @@ public class ModuleOscParameterContainer : Container
                         Anchor = Anchor.TopLeft,
                         Origin = Anchor.TopLeft,
                         AutoSizeAxes = Axes.Both,
-                        Text = SourceParameter.DisplayName
+                        Text = ModuleOscParameter.DisplayName
                     },
                     new TextFlowContainer(t =>
                     {
@@ -61,24 +61,23 @@ public class ModuleOscParameterContainer : Container
                         Anchor = Anchor.CentreLeft,
                         Origin = Anchor.CentreLeft,
                         AutoSizeAxes = Axes.Both,
-                        Text = SourceParameter.Description
+                        Text = ModuleOscParameter.Description
                     },
                     textBox = new VRCOSCTextBox
                     {
                         Anchor = Anchor.CentreRight,
                         Origin = Anchor.CentreRight,
                         RelativeSizeAxes = Axes.Both,
-                        Size = new Vector2(0.5f, 0.8f)
+                        Size = new Vector2(0.5f, 0.8f),
+                        Text = ModuleOscParameter.Address
                     }
                 }
             }
         };
 
-        textBox.Text = SourceParameter.Address;
-
         textBox.OnCommit += (_, _) =>
         {
-            SourceParameter.Address = textBox.Current.Value;
+            ModuleOscParameter.Address = textBox.Text;
         };
     }
 }

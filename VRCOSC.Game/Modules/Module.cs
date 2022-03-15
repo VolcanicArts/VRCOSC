@@ -9,7 +9,7 @@ public abstract class Module
     public virtual string Title => "Unknown";
     public virtual string Description => "Unknown description";
     public Dictionary<string, ModuleSetting> Settings { get; } = new();
-    public virtual ModuleParametersManager ParametersManager => new();
+    public Dictionary<string, ModuleOscParameter> Parameters { get; } = new();
 
     public abstract void Start();
     public abstract void Stop();
@@ -25,5 +25,17 @@ public abstract class Module
             Type = defaultValue.GetType()
         };
         Settings.Add(key, moduleSetting);
+    }
+
+    protected void CreateParameter(string key, string displayName, string description, string defaultAddress)
+    {
+        var moduleOscParameter = new ModuleOscParameter
+        {
+            Key = key,
+            DisplayName = displayName,
+            Description = description,
+            Address = defaultAddress
+        };
+        Parameters.Add(key, moduleOscParameter);
     }
 }
