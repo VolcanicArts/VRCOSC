@@ -52,16 +52,14 @@ public class TerminalScreen : Screen
     {
         this.MoveToY(1).Then().MoveToY(0, 1000, Easing.OutQuint).Finally((_) =>
         {
-            moduleManager.Start();
-            Scheduler.AddDelayed(moduleManager.Update, (1d / 5d) * 1000d, true);
+            moduleManager.Start(Scheduler);
         });
     }
 
     public override bool OnExiting(IScreen next)
     {
-        moduleManager.Stop();
+        moduleManager.Stop(Scheduler);
         this.MoveToY(1, 1000, Easing.InQuint);
-        Scheduler.CancelDelayedTasks();
         return false;
     }
 }

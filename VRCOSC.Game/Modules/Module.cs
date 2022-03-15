@@ -22,6 +22,11 @@ public abstract class Module
     public virtual Colour4 Colour => Colour4.Black;
     public virtual ModuleType Type => ModuleType.General;
 
+    /// <summary>
+    /// The time between updates in milliseconds
+    /// </summary>
+    public virtual double DeltaUpdate => double.PositiveInfinity;
+
     public ModuleMetadata Metadata = new();
     public ModuleData Data = new();
 
@@ -41,9 +46,6 @@ public abstract class Module
         Terminal.Log("Starting");
     }
 
-    /// <summary>
-    /// Called 5 times per second
-    /// </summary>
     public virtual void Update() { }
 
     public virtual void Stop()

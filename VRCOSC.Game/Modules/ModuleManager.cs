@@ -3,11 +3,14 @@ using Markdig.Helpers;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Platform;
+using osu.Framework.Threading;
 using VRCOSC.Game.Modules.Modules;
+using VRCOSC.Game.Modules.Modules.Clock;
 
 namespace VRCOSC.Game.Modules;
 
 public class ModuleManager
+
 {
     public Dictionary<ModuleType, OrderedList<Module>> Modules { get; } = new();
 
@@ -17,6 +20,7 @@ public class ModuleManager
     {
         addModule(new TestModule(storage));
         addModule(new HypeRateModule(storage));
+        addModule(new ClockModule(storage));
     }
 
     private void addModule(Module module)
@@ -26,35 +30,25 @@ public class ModuleManager
         Modules.TryAdd(module.Type, list);
     }
 
-    public void Start()
+    public void Start(Scheduler scheduler)
     {
         Running.Value = true;
         Modules.Values.ForEach(modules =>
         {
             modules.ForEach(module =>
             {
-                if (module.Data.Enabled) module.Start();
+                if (!module.Data.Enabled) return;
+
+                module.Start();
+                if (!double.IsPositiveInfinity(module.DeltaUpdate)) scheduler.AddDelayed(module.Update, module.DeltaUpdate, true);
             });
         });
     }
 
-    public void Update()
-    {
-        if (Running.Value)
-        {
-            Modules.Values.ForEach(modules =>
-            {
-                modules.ForEach(module =>
-                {
-                    if (module.Data.Enabled) module.Update();
-                });
-            });
-        }
-    }
-
-    public void Stop()
+    public void Stop(Scheduler scheduler)
     {
         Running.Value = false;
+        scheduler.CancelDelayedTasks();
         Modules.Values.ForEach(modules =>
         {
             modules.ForEach(module =>

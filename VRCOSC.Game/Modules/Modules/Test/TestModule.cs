@@ -7,6 +7,8 @@ public class TestModule : Module
     public override string Title => "Test";
     public override string Description => "A test module";
 
+    public override double DeltaUpdate => 1000d;
+
     public TestModule(Storage storage)
         : base(storage)
     {
