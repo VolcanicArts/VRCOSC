@@ -27,6 +27,8 @@ public class TerminalContainer : Container
                 log(logEntry.Message);
         };
 
+        Padding = new MarginPadding(40);
+
         InternalChild = new Container
         {
             Anchor = Anchor.Centre,
@@ -34,6 +36,8 @@ public class TerminalContainer : Container
             RelativeSizeAxes = Axes.Both,
             Masking = true,
             CornerRadius = 20,
+            EdgeEffect = VRCOSCEdgeEffects.DispersedShadow,
+            BorderThickness = 3,
             Children = new Drawable[]
             {
                 new Box
