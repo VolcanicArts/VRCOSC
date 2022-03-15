@@ -9,6 +9,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Platform;
 using VRCOSC.Game.Util;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable MemberCanBePrivate.Global
 
 namespace VRCOSC.Game.Modules;
@@ -24,9 +25,9 @@ public abstract class Module
     public BindableBool Enabled = new(true);
 
     protected UdpClient OscClient = new(IPAddress.Loopback.ToString(), 9000);
-    protected TerminalLogger terminal;
+    protected TerminalLogger? Terminal;
 
-    private Storage ModuleStorage;
+    private readonly Storage ModuleStorage;
 
     protected Module(Storage storage)
     {
@@ -35,8 +36,8 @@ public abstract class Module
 
     public virtual void Start()
     {
-        terminal = new TerminalLogger(GetType().Name);
-        terminal.Log("Starting");
+        Terminal = new TerminalLogger(GetType().Name);
+        Terminal.Log("Starting");
     }
 
     /// <summary>
@@ -46,7 +47,7 @@ public abstract class Module
 
     public virtual void Stop()
     {
-        terminal.Log("Stopping");
+        Terminal!.Log("Stopping");
     }
 
     protected void CreateSetting(string key, string displayName, string description, object defaultValue)
