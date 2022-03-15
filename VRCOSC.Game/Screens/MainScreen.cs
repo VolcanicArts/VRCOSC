@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using osu.Framework.Allocation;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
@@ -16,16 +15,14 @@ namespace VRCOSC.Game;
 
 public class MainScreen : Screen
 {
+    private readonly FillFlowContainer moduleCardFlow;
     private const float footer_height = 50;
 
     [Resolved]
     private ModuleManager moduleManager { get; set; }
 
-    [BackgroundDependencyLoader]
-    private void load(ScreenStack screenStack)
+    public MainScreen()
     {
-        FillFlowContainer moduleCardFlow;
-
         InternalChildren = new Drawable[]
         {
             new Box
@@ -67,32 +64,29 @@ public class MainScreen : Screen
                 Height = footer_height
             }
         };
+    }
 
-        var sortedModules = new Dictionary<ModuleType, List<Module>>();
-
-        moduleManager.Modules.ForEach(module =>
+    [BackgroundDependencyLoader]
+    private void load(ScreenStack screenStack)
+    {
+        moduleManager.Running.BindValueChanged(e =>
         {
-            var list = sortedModules.GetValueOrDefault(module.Type, new List<Module>());
-            list.Add(module);
-            sortedModules.TryAdd(module.Type, list);
+            if (e.NewValue) screenStack.Push(new TerminalScreen());
         });
 
-        sortedModules.ForEach(pair =>
+        moduleManager.Modules.ForEach(pair =>
         {
-            var (key, value) = pair;
+            var (moduleType, modules) = pair;
 
-            moduleCardFlow.Add(new TextFlowContainer(t =>
-            {
-                t.Font = FrameworkFont.Regular.With(size: 50);
-            })
+            moduleCardFlow.Add(new TextFlowContainer(t => t.Font = FrameworkFont.Regular.With(size: 50))
             {
                 Anchor = Anchor.TopCentre,
                 Origin = Anchor.TopCentre,
                 AutoSizeAxes = Axes.Both,
-                Text = key.ToString()
+                Text = moduleType.ToString()
             });
 
-            value.ForEach(module =>
+            modules.ForEach(module =>
             {
                 moduleCardFlow.Add(new ModuleCard
                 {
@@ -111,11 +105,6 @@ public class MainScreen : Screen
                 RelativeSizeAxes = Axes.X,
                 Size = new Vector2(0.95f, 5)
             });
-        });
-
-        moduleManager.Running.BindValueChanged(e =>
-        {
-            if (e.NewValue) screenStack.Push(new TerminalScreen());
         });
     }
 }
