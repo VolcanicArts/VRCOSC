@@ -5,6 +5,9 @@ namespace VRCOSC.Game.Modules;
 
 public class ModuleData
 {
+    [JsonProperty("enabled")]
+    public bool Enabled = true;
+
     [JsonProperty("settings")]
     public Dictionary<string, object> Settings { get; } = new();
 

@@ -1,4 +1,5 @@
-﻿using osu.Framework.Allocation;
+﻿using System;
+using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -8,7 +9,8 @@ namespace VRCOSC.Game.Graphics.Containers.UI.Checkbox;
 
 public class ToggleCheckbox : Container
 {
-    public Bindable<bool> State { get; init; }
+    public Bindable<bool> State = new();
+    public Action<bool> ValueChange;
     private Box ToggleColour;
 
     [BackgroundDependencyLoader]
@@ -17,6 +19,7 @@ public class ToggleCheckbox : Container
         State.BindValueChanged(_ =>
         {
             ToggleColour.Colour = getColourFromState();
+            ValueChange?.Invoke(State.Value);
         });
         Child = new CircularContainer
         {

@@ -1,4 +1,4 @@
-﻿using Markdig.Helpers;
+using Markdig.Helpers;
 using osu.Framework.Bindables;
 using osu.Framework.Platform;
 using VRCOSC.Game.Modules.Modules;
@@ -25,7 +25,7 @@ public class ModuleManager
         Running.Value = true;
         Modules.ForEach(module =>
         {
-            if (module.Enabled.Value) module.Start();
+            if (module.Data.Enabled) module.Start();
         });
     }
 
@@ -40,7 +40,7 @@ public class ModuleManager
         Running.Value = false;
         Modules.ForEach(module =>
         {
-            if (module.Enabled.Value) module.Stop();
+            if (module.Data.Enabled) module.Stop();
         });
     }
 }

@@ -99,7 +99,8 @@ public class ModuleCard : Container
                                 Anchor = Anchor.CentreRight,
                                 Origin = Anchor.CentreRight,
                                 Size = new Vector2(50),
-                                State = SourceModule.Enabled.GetBoundCopy()
+                                State = { Value = SourceModule.Data.Enabled },
+                                ValueChange = (state => SourceModule.SetEnabled(state))
                             }
                         }
                     }
