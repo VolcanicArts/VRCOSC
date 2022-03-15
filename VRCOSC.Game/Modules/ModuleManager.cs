@@ -6,6 +6,8 @@ public class ModuleManager
 {
     public OrderedList<Module> Modules { get; }
 
+    private bool running = false;
+
     public ModuleManager()
     {
         Modules = new OrderedList<Module>
@@ -16,6 +18,15 @@ public class ModuleManager
 
     public void Start()
     {
-        Modules.ForEach(module => module.Start());
+        if (!running)
+            Modules.ForEach(module => module.Start());
+        running = true;
+    }
+
+    public void Stop()
+    {
+        if (running)
+            Modules.ForEach(module => module.Stop());
+        running = false;
     }
 }

@@ -1,7 +1,10 @@
-﻿namespace VRCOSC.Game.Modules;
+﻿using osu.Framework.Logging;
+
+namespace VRCOSC.Game.Modules;
 
 public abstract class Module
 {
+    protected Logger Terminal = Logger.GetLogger("terminal");
     public virtual string Title => "Unknown";
     public virtual string Description => "Unknown description";
     public virtual ModuleSettingsManager SettingsManager => new();

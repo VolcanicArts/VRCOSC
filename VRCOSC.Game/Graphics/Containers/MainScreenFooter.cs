@@ -2,7 +2,6 @@
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
-using osu.Framework.Screens;
 using osuTK;
 using VRCOSC.Game.Graphics.Containers.UI;
 using VRCOSC.Game.Modules;
@@ -12,7 +11,7 @@ namespace VRCOSC.Game.Graphics.Containers;
 public class MainScreenFooter : Container
 {
     [BackgroundDependencyLoader]
-    private void load(ScreenStack screenStack)
+    private void load(ModuleManager moduleManager)
     {
         Children = new Drawable[]
         {
@@ -40,10 +39,7 @@ public class MainScreenFooter : Container
                         CornerRadius = 5,
                         BackgroundColour = VRCOSCColour.GreenDark,
                         Text = "Run",
-                        Action = () => screenStack.Push(new ModuleScreen
-                        {
-                            SourceModule = new TestModule()
-                        })
+                        Action = moduleManager.Start
                     }
                 }
             }

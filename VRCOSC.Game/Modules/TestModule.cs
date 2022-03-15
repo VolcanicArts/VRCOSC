@@ -1,5 +1,4 @@
 ﻿using Markdig.Helpers;
-using osu.Framework.Logging;
 
 namespace VRCOSC.Game.Modules;
 
@@ -24,11 +23,11 @@ public class TestModule : Module
 
     public override void Start()
     {
-        Logger.Log("Starting test module");
+        Terminal.Add("Starting test module");
     }
 
     public override void Stop()
     {
-        Logger.Log("Stopping test module");
+        Terminal.Add("Stopping test module");
     }
 }
