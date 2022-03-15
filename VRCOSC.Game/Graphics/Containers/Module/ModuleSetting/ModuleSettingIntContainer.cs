@@ -68,7 +68,7 @@ public class ModuleSettingIntContainer : ModuleSettingContainer
         textBox.OnCommit += (_, _) =>
         {
             if (int.TryParse(textBox.Text, out var newValue))
-                ModuleSetting.Value = newValue;
+                ModuleSetting.Value.Value = newValue;
         };
     }
 }

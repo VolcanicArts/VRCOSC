@@ -45,7 +45,7 @@ public abstract class Module
             Key = key,
             DisplayName = displayName,
             Description = description,
-            Value = defaultValue,
+            Value = { Value = defaultValue },
             Type = defaultValue.GetType()
         };
         Settings.Add(key, moduleSetting);
@@ -65,7 +65,7 @@ public abstract class Module
 
     protected T GetSettingValue<T>(string key)
     {
-        return (T)Settings[key].Value;
+        return (T)Settings[key].Value.Value;
     }
 
     protected string GetParameterAddress(string key)

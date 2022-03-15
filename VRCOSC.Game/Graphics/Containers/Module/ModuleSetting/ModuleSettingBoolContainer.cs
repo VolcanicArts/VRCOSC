@@ -57,11 +57,11 @@ public class ModuleSettingBoolContainer : ModuleSettingContainer
                     {
                         Anchor = Anchor.CentreRight,
                         Origin = Anchor.CentreRight,
-                        Current = { Value = (bool)ModuleSetting.Value }
+                        Current = { Value = (bool)ModuleSetting.Value.Value }
                     }
                 }
             }
         };
-        checkBox.Current.BindValueChanged((e) => ModuleSetting.Value = e.NewValue);
+        checkBox.Current.BindValueChanged((e) => ModuleSetting.Value.Value = e.NewValue);
     }
 }

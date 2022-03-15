@@ -60,7 +60,7 @@ public class ModuleSettingStringContainer : ModuleSettingContainer
                         Origin = Anchor.CentreRight,
                         RelativeSizeAxes = Axes.Both,
                         Size = new Vector2(0.5f, 0.8f),
-                        Text = (string)ModuleSetting.Value
+                        Text = (string)ModuleSetting.Value.Value
                     }
                 }
             }
@@ -68,7 +68,7 @@ public class ModuleSettingStringContainer : ModuleSettingContainer
 
         textBox.OnCommit += (_, _) =>
         {
-            ModuleSetting.Value = textBox.Text;
+            ModuleSetting.Value.Value = textBox.Text;
         };
     }
 }
