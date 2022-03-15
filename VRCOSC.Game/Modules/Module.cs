@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using CoreOSC;
@@ -63,7 +64,7 @@ public abstract class Module
         Metadata.Settings.Add(key, moduleSettingMetadata);
     }
 
-    protected void CreateParameter(string key, string displayName, string description, string defaultAddress)
+    protected void CreateParameter(Enum key, string displayName, string description, string defaultAddress)
     {
         var moduleOscParameterMetadata = new ModuleAttributeMetadata
         {
@@ -71,8 +72,8 @@ public abstract class Module
             Description = description,
         };
 
-        Data.Parameters.Add(key, defaultAddress);
-        Metadata.Parameters.Add(key, moduleOscParameterMetadata);
+        Data.Parameters.Add(key.ToString().ToLower(), defaultAddress);
+        Metadata.Parameters.Add(key.ToString().ToLower(), moduleOscParameterMetadata);
     }
 
     public void UpdateSetting(string key, object value)
@@ -117,14 +118,14 @@ public abstract class Module
         return (T)Data.Settings[key];
     }
 
-    protected void SendParameter(string key, bool value)
+    protected void SendParameter(Enum key, bool value)
     {
         SendParameter(key, value ? OscTrue.True : OscFalse.False);
     }
 
-    protected void SendParameter(string key, object value)
+    protected void SendParameter(Enum key, object value)
     {
-        var address = new Address(Data.Parameters[key]);
+        var address = new Address(Data.Parameters[key.ToString().ToLower()]);
         var message = new OscMessage(address, new[] { value });
         OscClient.SendMessageAsync(message);
     }
