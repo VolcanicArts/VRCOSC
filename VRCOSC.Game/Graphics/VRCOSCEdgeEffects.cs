@@ -27,7 +27,7 @@ public static class VRCOSCEdgeEffects
 
     public static readonly EdgeEffectParameters DispersedShadow = new()
     {
-        Colour = Color4.Black.Opacity(0.25f),
+        Colour = Color4.Black.Opacity(0.5f),
         Radius = 20,
         Type = EdgeEffectType.Shadow,
         Offset = new Vector2(0.0f, 5.0f)
