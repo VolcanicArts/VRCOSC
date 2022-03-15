@@ -14,8 +14,6 @@ public class ModuleManager
     {
         Modules = new OrderedList<Module>
         {
-            new TestModule(),
-            new TestModule(),
             new TestModule()
         };
     }
@@ -23,6 +21,12 @@ public class ModuleManager
     public void Start()
     {
         Modules.ForEach(module => module.Start());
+    }
+
+    public void Update()
+    {
+        if (Running.Value)
+            Modules.ForEach(module => module.Update());
     }
 
     public void Stop()

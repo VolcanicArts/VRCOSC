@@ -11,14 +11,20 @@ public class TestModule : Module
         CreateSetting("testbool", "Test Bool", "This is a test boolean", false);
         CreateSetting("testint", "Test Int", "This is a test integer", 0);
 
-        CreateParameter("testparameter", "Test Parameter", "A parameter that is the first one in this module", "/test/parameter");
-        CreateParameter("testparameter2", "Another Test Parameter", "Another parameter that comes second", "/test/parameter2");
-        CreateParameter("testparameter3", "One More Test Parameter", "The final parameter in this module", "/test/parameter3");
+        CreateParameter("testparameter", "Test Parameter", "A parameter that is the first one in this module", "/avatar/parameters/test");
+        CreateParameter("testparameter2", "Another Test Parameter", "Another parameter that comes second", "/avatar/parameters/test2");
+        CreateParameter("testparameter3", "One More Test Parameter", "The final parameter in this module", "/avatar/parameters/test3");
     }
 
     public override void Start()
     {
         Terminal.Add("Starting test module");
+    }
+
+    public override void Update()
+    {
+        Terminal.Add("Sending parameter testparameter");
+        SendParameter("testparameter", true);
     }
 
     public override void Stop()

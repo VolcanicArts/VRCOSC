@@ -15,8 +15,8 @@ public class MainScreen : Screen
 {
     private const float footer_height = 50;
 
-    [Cached]
-    private ModuleManager moduleManager = new();
+    [Resolved]
+    private ModuleManager moduleManager { get; set; }
 
     [BackgroundDependencyLoader]
     private void load(ScreenStack screenStack)

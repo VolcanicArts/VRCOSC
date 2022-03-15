@@ -1,4 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Net;
+using System.Net.Sockets;
+using CoreOSC;
+using CoreOSC.IO;
 using osu.Framework.Logging;
 
 namespace VRCOSC.Game.Modules;
@@ -11,7 +15,15 @@ public abstract class Module
     public Dictionary<string, ModuleSetting> Settings { get; } = new();
     public Dictionary<string, ModuleOscParameter> Parameters { get; } = new();
 
+    protected UdpClient OscClient = new(IPAddress.Loopback.ToString(), 9000);
+
     public abstract void Start();
+
+    /// <summary>
+    /// Called 5 times per second
+    /// </summary>
+    public abstract void Update();
+
     public abstract void Stop();
 
     protected void CreateSetting(string key, string displayName, string description, object defaultValue)
@@ -47,5 +59,17 @@ public abstract class Module
     protected string GetParameterAddress(string key)
     {
         return Parameters[key].Address;
+    }
+
+    protected void SendParameter(string key, bool value)
+    {
+        SendParameter(key, value ? OscTrue.True : OscFalse.False);
+    }
+
+    protected void SendParameter(string key, object value)
+    {
+        var address = new Address(Parameters[key].Address);
+        var message = new OscMessage(address, new[] { value });
+        OscClient.SendMessageAsync(message);
     }
 }
