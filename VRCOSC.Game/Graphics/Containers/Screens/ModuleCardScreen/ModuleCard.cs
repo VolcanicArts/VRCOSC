@@ -11,6 +11,8 @@ namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleCardScreen;
 
 public class ModuleCard : Container
 {
+    [Resolved]
+    private ScreenManager ScreenManager { get; set; }
     public Modules.Module SourceModule { get; init; }
 
     [BackgroundDependencyLoader]
@@ -74,7 +76,8 @@ public class ModuleCard : Container
                                 Anchor = Anchor.CentreRight,
                                 Origin = Anchor.CentreRight,
                                 Size = new Vector2(50),
-                                Icon = FontAwesome.Solid.Edit
+                                Icon = FontAwesome.Solid.Edit,
+                                Action = () => ScreenManager.EditModule(SourceModule)
                             },
                             new ToggleCheckbox
                             {

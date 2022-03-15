@@ -10,6 +10,9 @@ namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleCardScreen;
 
 public class ModuleCardListingFooter : Container
 {
+    [Resolved]
+    private ScreenManager ScreenManager { get; set; }
+
     [BackgroundDependencyLoader]
     private void load(ModuleManager moduleManager)
     {
@@ -39,7 +42,7 @@ public class ModuleCardListingFooter : Container
                         CornerRadius = 5,
                         BackgroundColour = VRCOSCColour.GreenDark,
                         Text = "Run",
-                        Action = moduleManager.Running.Toggle
+                        Action = ScreenManager.ShowTerminal
                     }
                 }
             }

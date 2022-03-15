@@ -1,16 +1,20 @@
-﻿using System.Linq;
-using osu.Framework.Allocation;
+﻿using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
-using VRCOSC.Game.Modules;
+using osu.Framework.Input.Events;
+using osuTK.Input;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditScreen;
 
 public class ModuleEditContainer : Container
 {
     [Resolved]
-    private ModuleManager moduleManager { get; set; }
+    private ScreenManager ScreenManager { get; set; }
+
+    private Container<ModuleEditInnerContainer> contentContainer;
+    public Bindable<Modules.Module> SourceModule { get; } = new();
 
     [BackgroundDependencyLoader]
     private void load()
@@ -24,7 +28,7 @@ public class ModuleEditContainer : Container
                 RelativeSizeAxes = Axes.Both,
                 Colour = VRCOSCColour.Gray3,
             },
-            new Container
+            contentContainer = new Container<ModuleEditInnerContainer>
             {
                 Name = "Content",
                 Anchor = Anchor.Centre,
@@ -34,15 +38,30 @@ public class ModuleEditContainer : Container
                 {
                     Vertical = 10,
                     Horizontal = 30
-                },
-                Child = new ModuleEditInnerContainer
-                {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    RelativeSizeAxes = Axes.Both,
-                    SourceModule = moduleManager.Modules.First().Value.First()
                 }
             }
         };
+
+        SourceModule.BindValueChanged(fillContentContainer);
+    }
+
+    private void fillContentContainer(ValueChangedEvent<Modules.Module> e)
+    {
+        if (contentContainer.Count == 1) contentContainer.Child.RemoveAndDisposeImmediately();
+        contentContainer.Child = new ModuleEditInnerContainer
+        {
+            Anchor = Anchor.Centre,
+            Origin = Anchor.Centre,
+            RelativeSizeAxes = Axes.Both,
+            SourceModule = e.NewValue
+        };
+    }
+
+    protected override bool OnKeyDown(KeyDownEvent e)
+    {
+        if (e.Key != Key.Escape) return base.OnKeyDown(e);
+
+        ScreenManager.FinishEditingModule();
+        return true;
     }
 }

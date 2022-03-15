@@ -4,12 +4,17 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using osu.Framework.Input.Events;
 using osu.Framework.Logging;
+using osuTK.Input;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.TerminalScreen;
 
 public class TerminalContainer : Container
 {
+    [Resolved]
+    private ScreenManager ScreenManager { get; set; }
+
     private BasicScrollContainer terminalScroll;
     private FillFlowContainer<SpriteText> terminalFlow;
 
@@ -82,5 +87,13 @@ public class TerminalContainer : Container
             });
             Scheduler.Add(() => terminalScroll.ScrollToEnd());
         });
+    }
+
+    protected override bool OnKeyDown(KeyDownEvent e)
+    {
+        if (e.Key != Key.Escape) return base.OnKeyDown(e);
+
+        ScreenManager.HideTerminal();
+        return true;
     }
 }
