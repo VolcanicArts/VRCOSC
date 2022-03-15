@@ -8,7 +8,7 @@ using VRCOSC.Game.Graphics.Containers.UI;
 using VRCOSC.Game.Graphics.Containers.UI.Checkbox;
 using VRCOSC.Game.Graphics.Drawables.Triangles;
 
-namespace VRCOSC.Game.Graphics.Containers.Module;
+namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleCardScreen;
 
 public class ModuleCard : Container
 {
@@ -20,12 +20,7 @@ public class ModuleCard : Container
     [BackgroundDependencyLoader]
     private void load()
     {
-        Masking = true;
-        CornerRadius = 10;
-        EdgeEffect = VRCOSCEdgeEffects.BasicShadow;
-        BorderThickness = 3;
-
-        Children = new Drawable[]
+        InternalChildren = new Drawable[]
         {
             new TrianglesBackground
             {
@@ -49,32 +44,24 @@ public class ModuleCard : Container
                 },
                 Children = new Drawable[]
                 {
-                    new TextFlowContainer(t =>
-                    {
-                        t.Font = FrameworkFont.Regular.With(size: 35);
-                        t.Shadow = true;
-                        t.ShadowColour = Colour4.Black.Opacity(0.5f);
-                        t.ShadowOffset = new Vector2(0.0f, 0.025f);
-                    })
+                    new SpriteText
                     {
                         Anchor = Anchor.TopLeft,
                         Origin = Anchor.TopLeft,
-                        TextAnchor = Anchor.TopLeft,
-                        AutoSizeAxes = Axes.Both,
+                        Font = FrameworkFont.Regular.With(size: 35),
+                        Shadow = true,
+                        ShadowColour = Colour4.Black.Opacity(0.5f),
+                        ShadowOffset = new Vector2(0.0f, 0.025f),
                         Text = SourceModule.Title
                     },
-                    new TextFlowContainer(t =>
-                    {
-                        t.Font = FrameworkFont.Regular.With(size: 25);
-                        t.Shadow = true;
-                        t.ShadowColour = Colour4.Black.Opacity(0.5f);
-                        t.ShadowOffset = new Vector2(0.0f, 0.025f);
-                    })
+                    new SpriteText
                     {
                         Anchor = Anchor.BottomLeft,
                         Origin = Anchor.BottomLeft,
-                        TextAnchor = Anchor.BottomLeft,
-                        AutoSizeAxes = Axes.Both,
+                        Font = FrameworkFont.Regular.With(size: 25),
+                        Shadow = true,
+                        ShadowColour = Colour4.Black.Opacity(0.5f),
+                        ShadowOffset = new Vector2(0.0f, 0.025f),
                         Text = SourceModule.Description
                     },
                     new FillFlowContainer

@@ -6,14 +6,14 @@ using osuTK;
 using VRCOSC.Game.Graphics.Containers.UI;
 using VRCOSC.Game.Modules;
 
-namespace VRCOSC.Game.Graphics.Containers;
+namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleCardScreen;
 
-public class MainScreenFooter : Container
+public class ModuleCardListingFooter : Container
 {
     [BackgroundDependencyLoader]
     private void load(ModuleManager moduleManager)
     {
-        Children = new Drawable[]
+        InternalChildren = new Drawable[]
         {
             new Box
             {
