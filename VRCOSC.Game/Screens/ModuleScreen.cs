@@ -1,10 +1,11 @@
 ﻿using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.UserInterface;
+using osu.Framework.Graphics.Sprites;
 using osu.Framework.Screens;
 using osuTK;
 using VRCOSC.Game.Graphics.Containers.Module;
+using VRCOSC.Game.Graphics.Containers.UI;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game;
@@ -35,13 +36,20 @@ public class ModuleScreen : Screen
                     CornerRadius = 10,
                     SourceModule = SourceModule
                 },
-                new BasicButton
+                new Container
                 {
                     Anchor = Anchor.TopLeft,
                     Origin = Anchor.TopLeft,
-                    Size = new Vector2(100, 75),
-                    Enabled = { Value = true },
-                    Action = this.Exit
+                    Size = new Vector2(100),
+                    Padding = new MarginPadding(10),
+                    Child = new IconButton
+                    {
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.Centre,
+                        RelativeSizeAxes = Axes.Both,
+                        Icon = FontAwesome.Solid.ArrowCircleLeft,
+                        Action = this.Exit
+                    }
                 }
             }
         };
