@@ -16,9 +16,9 @@ public class TestModule : Module
 
     public TestModule()
     {
-        CreateSetting("teststring", "This is a test string");
-        CreateSetting("testbool", false);
-        CreateSetting("testing", 0);
+        CreateSetting("teststring", "Test String", "This is a test string", "This is a test string");
+        CreateSetting("testbool", "Test Bool", "This is a test boolean", false);
+        CreateSetting("testint", "Test Int", "This is a test integer", 0);
     }
 
     public override void Start()

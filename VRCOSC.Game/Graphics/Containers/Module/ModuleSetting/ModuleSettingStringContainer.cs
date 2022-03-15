@@ -41,7 +41,7 @@ public class ModuleSettingStringContainer : ModuleSettingContainer
                         Anchor = Anchor.TopLeft,
                         Origin = Anchor.TopLeft,
                         AutoSizeAxes = Axes.Both,
-                        Text = "SourceSetting.DisplayName"
+                        Text = SourceModule.SettingsMetadata[Key].DisplayName
                     },
                     new TextFlowContainer(t =>
                     {
@@ -52,7 +52,7 @@ public class ModuleSettingStringContainer : ModuleSettingContainer
                         Anchor = Anchor.CentreLeft,
                         Origin = Anchor.CentreLeft,
                         AutoSizeAxes = Axes.Both,
-                        Text = "SourceSetting.Description"
+                        Text = SourceModule.SettingsMetadata[Key].Description
                     },
                     textBox = new VRCOSCTextBox
                     {
