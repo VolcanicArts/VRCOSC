@@ -61,6 +61,14 @@ public class ModuleEditInnerContainer : Container
                                 Colour = VRCOSCColour.Gray9,
                                 Text = SourceModule.Description
                             },
+                            new()
+                            {
+                                Anchor = Anchor.TopCentre,
+                                Origin = Anchor.TopCentre,
+                                Font = FrameworkFont.Regular.With(size: 30),
+                                Colour = VRCOSCColour.Gray9,
+                                Text = $"Made by: {SourceModule.Author}"
+                            }
                         }
                     },
                     moduleEditSettingsContainerLineSeparator = new LineSeparator

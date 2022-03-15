@@ -9,6 +9,7 @@ public class ClockModule : Module
 {
     public override string Title => "Clock";
     public override string Description => "Sends hours and minutes in individual digits to VRChat";
+    public override string Author => "VolcanicArts";
     public override Colour4 Colour => Colour4.LightGray;
     public override ModuleType Type => ModuleType.General;
     public override double DeltaUpdate => 1000d;

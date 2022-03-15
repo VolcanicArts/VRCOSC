@@ -19,6 +19,7 @@ public abstract class Module
 {
     public virtual string Title => string.Empty;
     public virtual string Description => string.Empty;
+    public virtual string Author => string.Empty;
     public virtual Colour4 Colour => Colour4.Black;
     public virtual ModuleType Type => ModuleType.General;
 
