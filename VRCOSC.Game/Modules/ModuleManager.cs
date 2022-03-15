@@ -1,5 +1,6 @@
 ﻿using Markdig.Helpers;
 using osu.Framework.Bindables;
+using osu.Framework.Platform;
 using VRCOSC.Game.Modules.Modules;
 
 namespace VRCOSC.Game.Modules;
@@ -10,12 +11,12 @@ public class ModuleManager
 
     public readonly BindableBool Running = new();
 
-    public ModuleManager()
+    public ModuleManager(Storage storage)
     {
         Modules = new OrderedList<Module>
         {
-            new TestModule(),
-            new HypeRateModule()
+            new TestModule(storage),
+            new HypeRateModule(storage)
         };
     }
 

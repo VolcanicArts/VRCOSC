@@ -1,4 +1,5 @@
 ﻿using osu.Framework.Graphics;
+using osu.Framework.Platform;
 
 namespace VRCOSC.Game.Modules.Modules;
 
@@ -10,12 +11,15 @@ public class HypeRateModule : Module
 
     private HypeRateProvider hypeRateProvider;
 
-    public HypeRateModule()
+    public HypeRateModule(Storage storage)
+        : base(storage)
     {
         CreateSetting("id", "HypeRate ID", "Your HypeRate ID given on your device", string.Empty);
         CreateSetting("apikey", "Api Key", "Your API key from HypeRate", string.Empty);
 
         CreateParameter("heartrate", "Heartrate", "The raw Heartrate value", "/avatar/parameters/Heartrate");
+
+        LoadData();
     }
 
     public override void Start()

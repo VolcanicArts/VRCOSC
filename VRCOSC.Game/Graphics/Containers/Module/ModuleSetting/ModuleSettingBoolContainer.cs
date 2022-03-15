@@ -40,7 +40,7 @@ public class ModuleSettingBoolContainer : ModuleSettingContainer
                         Anchor = Anchor.TopLeft,
                         Origin = Anchor.TopLeft,
                         AutoSizeAxes = Axes.Both,
-                        Text = ModuleSetting.DisplayName
+                        Text = SourceModule.Metadata.Settings[Key].DisplayName
                     },
                     new TextFlowContainer(t =>
                     {
@@ -51,17 +51,17 @@ public class ModuleSettingBoolContainer : ModuleSettingContainer
                         Anchor = Anchor.CentreLeft,
                         Origin = Anchor.CentreLeft,
                         AutoSizeAxes = Axes.Both,
-                        Text = ModuleSetting.Description
+                        Text = SourceModule.Metadata.Settings[Key].Description
                     },
                     checkBox = new BasicCheckbox
                     {
                         Anchor = Anchor.CentreRight,
                         Origin = Anchor.CentreRight,
-                        Current = { Value = (bool)ModuleSetting.Value.Value }
+                        Current = { Value = (bool)SourceModule.Data.Settings[Key].Value }
                     }
                 }
             }
         };
-        checkBox.Current.BindValueChanged((e) => ModuleSetting.Value.Value = e.NewValue);
+        checkBox.Current.BindValueChanged((e) => SourceModule.UpdateSetting(Key, e.NewValue));
     }
 }

@@ -157,40 +157,42 @@ public class ModuleContainer : Container
             }
         };
 
-        SourceModule.Settings.Keys.ForEach(key =>
+        SourceModule.Data.Settings.Keys.ForEach(key =>
         {
-            var moduleSetting = SourceModule.Settings[key];
+            var moduleSettingData = SourceModule.Data.Settings[key];
 
-            if (moduleSetting.Type == typeof(string))
+            if (moduleSettingData.Type == typeof(string))
             {
                 settingsFlow.Add(new ModuleSettingStringContainer
                 {
-                    ModuleSetting = moduleSetting
+                    Key = key,
+                    SourceModule = SourceModule
                 });
             }
-            else if (moduleSetting.Type == typeof(bool))
+            else if (moduleSettingData.Type == typeof(bool))
             {
                 settingsFlow.Add(new ModuleSettingBoolContainer
                 {
-                    ModuleSetting = moduleSetting
+                    Key = key,
+                    SourceModule = SourceModule
                 });
             }
-            else if (moduleSetting.Type == typeof(int))
+            else if (moduleSettingData.Type == typeof(int))
             {
                 settingsFlow.Add(new ModuleSettingIntContainer
                 {
-                    ModuleSetting = moduleSetting
+                    Key = key,
+                    SourceModule = SourceModule
                 });
             }
         });
 
-        SourceModule.Parameters.Keys.ForEach(key =>
+        SourceModule.Data.Parameters.Keys.ForEach(key =>
         {
-            var moduleOscParameter = SourceModule.Parameters[key];
-
             parameterFlow.Add(new ModuleOscParameterContainer
             {
-                ModuleOscParameter = moduleOscParameter
+                Key = key,
+                SourceModule = SourceModule
             });
         });
     }

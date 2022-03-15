@@ -4,13 +4,13 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osuTK;
 using VRCOSC.Game.Graphics.Containers.UI.TextBox;
-using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Module.ModulOscParameter;
 
 public class ModuleOscParameterContainer : Container
 {
-    public ModuleOscParameter ModuleOscParameter { get; init; }
+    public string Key { get; init; }
+    public Modules.Module SourceModule { get; init; }
 
     [BackgroundDependencyLoader]
     private void load()
@@ -50,7 +50,7 @@ public class ModuleOscParameterContainer : Container
                         Anchor = Anchor.TopLeft,
                         Origin = Anchor.TopLeft,
                         AutoSizeAxes = Axes.Both,
-                        Text = ModuleOscParameter.DisplayName
+                        Text = SourceModule.Metadata.Parameters[Key].DisplayName
                     },
                     new TextFlowContainer(t =>
                     {
@@ -61,7 +61,7 @@ public class ModuleOscParameterContainer : Container
                         Anchor = Anchor.CentreLeft,
                         Origin = Anchor.CentreLeft,
                         AutoSizeAxes = Axes.Both,
-                        Text = ModuleOscParameter.Description
+                        Text = SourceModule.Metadata.Parameters[Key].Description
                     },
                     textBox = new VRCOSCTextBox
                     {
@@ -69,7 +69,7 @@ public class ModuleOscParameterContainer : Container
                         Origin = Anchor.CentreRight,
                         RelativeSizeAxes = Axes.Both,
                         Size = new Vector2(0.5f, 0.8f),
-                        Text = ModuleOscParameter.Address
+                        Text = SourceModule.Data.Parameters[Key].Address
                     }
                 }
             }
@@ -77,7 +77,7 @@ public class ModuleOscParameterContainer : Container
 
         textBox.OnCommit += (_, _) =>
         {
-            ModuleOscParameter.Address = textBox.Text;
+            SourceModule.UpdateParameter(Key, textBox.Text);
         };
     }
 }

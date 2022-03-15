@@ -12,8 +12,7 @@ namespace VRCOSC.Game;
 
 public class VRCOSCGameBase : osu.Framework.Game
 {
-    [Cached]
-    private ModuleManager moduleManager = new();
+    private DependencyContainer dependencyContainer;
 
     protected VRCOSCGameBase()
     {
@@ -25,10 +24,16 @@ public class VRCOSCGameBase : osu.Framework.Game
 
     protected override Container<Drawable> Content { get; }
 
+    protected override IReadOnlyDependencyContainer CreateChildDependencies(IReadOnlyDependencyContainer parent)
+    {
+        return dependencyContainer = new DependencyContainer(base.CreateChildDependencies(parent));
+    }
+
     [BackgroundDependencyLoader]
-    private void load(FrameworkConfigManager configManager)
+    private void load(FrameworkConfigManager configManager, Storage storage)
     {
         configManager.GetBindable<ExecutionMode>(FrameworkSetting.ExecutionMode).Value = ExecutionMode.SingleThread;
+        dependencyContainer.CacheAs(new ModuleManager(storage));
         Resources.AddStore(new DllResourceStore(typeof(VRCOSCResources).Assembly));
     }
 }
