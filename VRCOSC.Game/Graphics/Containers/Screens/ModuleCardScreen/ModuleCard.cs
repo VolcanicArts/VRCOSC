@@ -1,4 +1,7 @@
-﻿using osu.Framework.Allocation;
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// See the LICENSE file in the repository root for full license text.
+
+using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
@@ -13,6 +16,7 @@ public class ModuleCard : Container
 {
     [Resolved]
     private ScreenManager ScreenManager { get; set; }
+
     public Modules.Module SourceModule { get; init; }
 
     [BackgroundDependencyLoader]
@@ -85,7 +89,7 @@ public class ModuleCard : Container
                                 Origin = Anchor.CentreRight,
                                 Size = new Vector2(50),
                                 State = { Value = SourceModule.Data.Enabled },
-                                ValueChange = (state => SourceModule.SetEnabled(state))
+                                ValueChange = state => SourceModule.SetEnabled(state)
                             }
                         }
                     }
