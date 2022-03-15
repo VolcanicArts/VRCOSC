@@ -8,9 +8,11 @@ A modular OSC provider primarly made for VRChat.
 ## Getting Started
 - To create a module, fork this repo and create a new folder inside the [Modules](https://github.com/VolcanicArts/VRCOSC/tree/master/VRCOSC.Game/Modules/Modules) folder.
 - Create a class and have it extend the Module class.
-- You can now override Start, Update, and Stop, which are called respectively.
-- Each update tick can be controlled via overriding the UpdateDelta property.
-- You can also change the colour of your module by overriding the Colour property. This alters how it will appear inside the app.
+- You can now override `Start()`, `Update()`, and `Stop()`.
+- Each `Update()` call can be controlled via overriding the `UpdateDelta` property.
+- You can also change the colour of your module by overriding the `Colour` property. This alters how it will appear inside the app.
+- Make sure to sign your module with your name by override the `Author` property.
+- Modules also have a `ModuleType`. If your module fits into an existing type, use that. If you believe your module needs a new type, make one by editing the `ModuleType` enum.
 - To create settings for your module (such as having the user enter an API key), can be done by calling the `CreateSetting()` method inside your module's contructor.
 - The same can be done for parameters, however you're required to create a parameter enum.
 - Each setting and parameter has an option for a title and description to let the user know what does what in your module.
