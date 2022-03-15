@@ -3,6 +3,7 @@ using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Graphics.Sprites;
 using osu.Framework.Logging;
 
 namespace VRCOSC.Game.Graphics.Containers.Terminal;
@@ -11,7 +12,7 @@ public class TerminalContainer : Container
 {
     private BasicScrollContainer scrollContainer { get; set; }
 
-    private TextFlowContainer terminalFlow { get; set; }
+    private FillFlowContainer<SpriteText> terminalFlow { get; set; }
 
     public TerminalContainer()
     {
@@ -46,13 +47,14 @@ public class TerminalContainer : Container
                         RelativeSizeAxes = Axes.Both,
                         ClampExtension = 20,
                         ScrollbarVisible = false,
-                        Child = terminalFlow = new TextFlowContainer(t => t.Font = FrameworkFont.Regular.With(size: 20))
+                        Child = terminalFlow = new FillFlowContainer<SpriteText>
                         {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
+                            Anchor = Anchor.TopCentre,
+                            Origin = Anchor.TopCentre,
                             RelativeSizeAxes = Axes.X,
-                            AutoSizeAxes = Axes.Y
-                        },
+                            AutoSizeAxes = Axes.Y,
+                            Direction = FillDirection.Vertical
+                        }
                     }
                 }
             }
@@ -63,8 +65,16 @@ public class TerminalContainer : Container
     {
         Scheduler.Add(() =>
         {
-            var formattedText = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {text}\n";
-            terminalFlow.AddText(formattedText, t => t.Colour = getColourOfLogState(state));
+            if (terminalFlow.Count >= 50) terminalFlow[0].RemoveAndDisposeImmediately();
+            var formattedText = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {text}";
+            terminalFlow.Add(new SpriteText()
+            {
+                Anchor = Anchor.CentreLeft,
+                Origin = Anchor.CentreLeft,
+                Text = formattedText,
+                Font = FrameworkFont.Regular.With(size: 20),
+                Colour = getColourOfLogState(state)
+            });
             Scheduler.Add(() => scrollContainer.ScrollToEnd());
         });
     }
