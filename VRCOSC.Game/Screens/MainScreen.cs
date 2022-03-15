@@ -1,10 +1,13 @@
+using System.Collections.Generic;
 using osu.Framework.Allocation;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Screens;
 using osuTK;
 using osuTK.Graphics;
+using VRCOSC.Game.Graphics;
 using VRCOSC.Game.Graphics.Containers;
 using VRCOSC.Game.Graphics.Containers.Module;
 using VRCOSC.Game.Modules;
@@ -21,7 +24,7 @@ public class MainScreen : Screen
     [BackgroundDependencyLoader]
     private void load(ScreenStack screenStack)
     {
-        FillFlowContainer<ModuleCard> moduleCardFlow;
+        FillFlowContainer moduleCardFlow;
 
         InternalChildren = new Drawable[]
         {
@@ -39,7 +42,7 @@ public class MainScreen : Screen
                 RelativeSizeAxes = Axes.Both,
                 ClampExtension = 20,
                 ScrollbarVisible = false,
-                Child = moduleCardFlow = new FillFlowContainer<ModuleCard>
+                Child = moduleCardFlow = new FillFlowContainer
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
@@ -65,15 +68,57 @@ public class MainScreen : Screen
             }
         };
 
+        var sortedModules = new Dictionary<ModuleType, List<Module>>();
+
         moduleManager.Modules.ForEach(module =>
         {
-            moduleCardFlow.Add(new ModuleCard
+            var list = sortedModules.GetValueOrDefault(module.Type, new List<Module>());
+            list.Add(module);
+            sortedModules.TryAdd(module.Type, list);
+        });
+
+        sortedModules.ForEach(pair =>
+        {
+            var (key, value) = pair;
+
+            moduleCardFlow.Add(new TextFlowContainer(t =>
+            {
+                t.Font = FrameworkFont.Regular.With(size: 50);
+            })
+            {
+                Anchor = Anchor.TopCentre,
+                Origin = Anchor.TopCentre,
+                AutoSizeAxes = Axes.Both,
+                Text = key.ToString()
+            });
+
+            value.ForEach(module =>
+            {
+                moduleCardFlow.Add(new ModuleCard
+                {
+                    Anchor = Anchor.TopCentre,
+                    Origin = Anchor.TopCentre,
+                    RelativeSizeAxes = Axes.X,
+                    AutoSizeAxes = Axes.Y,
+                    SourceModule = module
+                });
+            });
+
+            moduleCardFlow.Add(new Container
             {
                 Anchor = Anchor.TopCentre,
                 Origin = Anchor.TopCentre,
                 RelativeSizeAxes = Axes.X,
-                AutoSizeAxes = Axes.Y,
-                SourceModule = module
+                Size = new Vector2(0.95f, 5),
+                Masking = true,
+                CornerRadius = 4,
+                Child = new Box
+                {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    RelativeSizeAxes = Axes.Both,
+                    Colour = VRCOSCColour.Gray1,
+                }
             });
         });
 
