@@ -3,17 +3,25 @@ using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Logging;
 
 namespace VRCOSC.Game.Graphics.Containers.Terminal;
 
 public class TerminalContainer : Container
 {
+    private readonly Logger TerminalLogger = Logger.GetLogger("terminal");
     private BasicScrollContainer scrollContainer { get; set; }
 
     private TextFlowContainer terminalFlow { get; set; }
 
     public TerminalContainer()
     {
+        Logger.NewEntry += logEntry =>
+        {
+            if (logEntry.LoggerName == "terminal")
+                log(logEntry.Message);
+        };
+
         Children = new Drawable[]
         {
             new Box
@@ -52,16 +60,14 @@ public class TerminalContainer : Container
         };
     }
 
-    public void Log(string moduleName, string text, LogState state = LogState.Nominal)
+    private void log(string text, LogState state = LogState.Nominal)
     {
-        Scheduler.Add(() => log(moduleName, text, state));
-    }
-
-    private void log(string moduleName, string text, LogState state)
-    {
-        var formattedText = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] [{moduleName}]: {text}\n";
-        terminalFlow.AddText(formattedText, t => t.Colour = getColourOfLogState(state));
-        Scheduler.Add(() => scrollContainer.ScrollToEnd());
+        Scheduler.Add(() =>
+        {
+            var formattedText = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}]: {text}\n";
+            terminalFlow.AddText(formattedText, t => t.Colour = getColourOfLogState(state));
+            Scheduler.Add(() => scrollContainer.ScrollToEnd());
+        });
     }
 
     public void ClearTerminal()

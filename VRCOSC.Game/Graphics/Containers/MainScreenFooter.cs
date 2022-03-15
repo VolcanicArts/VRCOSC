@@ -12,7 +12,7 @@ namespace VRCOSC.Game.Graphics.Containers;
 public class MainScreenFooter : Container
 {
     [BackgroundDependencyLoader]
-    private void load(ModuleManager moduleManager, ScreenStack screenStack)
+    private void load(ScreenStack screenStack)
     {
         Children = new Drawable[]
         {
