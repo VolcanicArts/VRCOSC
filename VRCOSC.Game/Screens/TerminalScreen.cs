@@ -1,7 +1,9 @@
 ﻿using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Input.Events;
 using osu.Framework.Screens;
+using osuTK.Input;
 using VRCOSC.Game.Graphics.Containers.Terminal;
 using VRCOSC.Game.Modules;
 
@@ -11,6 +13,9 @@ public class TerminalScreen : Screen
 {
     [Resolved]
     private ModuleManager moduleManager { get; set; }
+
+    [Resolved]
+    private ScreenStack screenStack { get; set; }
 
     [BackgroundDependencyLoader]
     private void load()
@@ -34,6 +39,15 @@ public class TerminalScreen : Screen
         };
     }
 
+    protected override bool OnKeyDown(KeyDownEvent e)
+    {
+        if (e.Repeat) return false;
+
+        if (e.Key == Key.Escape)
+            screenStack.Exit();
+        return true;
+    }
+
     public override void OnEntering(IScreen last)
     {
         this.MoveToY(1).Then().MoveToY(0, 1000, Easing.OutQuint).Finally((_) => moduleManager.Start());
@@ -41,6 +55,7 @@ public class TerminalScreen : Screen
 
     public override bool OnExiting(IScreen next)
     {
+        moduleManager.Stop();
         this.MoveToY(1, 1000, Easing.InQuint);
         return false;
     }

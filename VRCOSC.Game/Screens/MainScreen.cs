@@ -79,10 +79,7 @@ public class MainScreen : Screen
 
         moduleManager.Running.BindValueChanged(e =>
         {
-            if (e.NewValue)
-                screenStack.Push(new TerminalScreen());
-            else
-                screenStack.Exit();
+            if (e.NewValue) screenStack.Push(new TerminalScreen());
         });
     }
 }
