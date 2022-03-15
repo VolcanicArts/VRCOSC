@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using CoreOSC;
 using CoreOSC.IO;
+using osu.Framework.Graphics;
 using VRCOSC.Game.Util;
 
 namespace VRCOSC.Game.Modules;
@@ -11,6 +12,7 @@ public abstract class Module
 {
     public virtual string Title => "Unknown";
     public virtual string Description => "Unknown description";
+    public virtual Colour4 Colour => Colour4.Gray;
     public Dictionary<string, ModuleSetting> Settings { get; } = new();
     public Dictionary<string, ModuleOscParameter> Parameters { get; } = new();
 

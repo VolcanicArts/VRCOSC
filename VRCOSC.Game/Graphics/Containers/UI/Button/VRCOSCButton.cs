@@ -16,7 +16,8 @@ public class VRCOSCButton : Button
     private void load()
     {
         Masking = true;
-        EdgeEffect = VRCOSCEdgeEffects.NoShadow;
+        Y = -1.5f;
+        EdgeEffect = VRCOSCEdgeEffects.BasicShadow;
 
         InternalChild = new TrianglesBackground
         {
@@ -45,19 +46,5 @@ public class VRCOSCButton : Button
         this.MoveToY(0, 100, Easing.OutCubic);
         TweenEdgeEffectTo(VRCOSCEdgeEffects.NoShadow, 100, Easing.OutCubic);
         return true;
-    }
-
-    protected override bool OnHover(HoverEvent e)
-    {
-        this.MoveToY(-1.5f, 100, Easing.InCubic);
-        TweenEdgeEffectTo(VRCOSCEdgeEffects.BasicShadow, 100, Easing.InCubic);
-        return true;
-    }
-
-    protected override void OnHoverLost(HoverLostEvent e)
-    {
-        this.MoveToY(0, 100, Easing.OutCubic);
-        TweenEdgeEffectTo(VRCOSCEdgeEffects.NoShadow, 100, Easing.OutCubic);
-        base.OnHoverLost(e);
     }
 }
