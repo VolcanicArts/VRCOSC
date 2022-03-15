@@ -41,7 +41,7 @@ public class ModuleSettingStringContainer : ModuleSettingContainer
                         Anchor = Anchor.TopLeft,
                         Origin = Anchor.TopLeft,
                         AutoSizeAxes = Axes.Both,
-                        Text = SourceModule.SettingsMetadata[Key].DisplayName
+                        Text = ModuleSetting.DisplayName
                     },
                     new TextFlowContainer(t =>
                     {
@@ -52,7 +52,7 @@ public class ModuleSettingStringContainer : ModuleSettingContainer
                         Anchor = Anchor.CentreLeft,
                         Origin = Anchor.CentreLeft,
                         AutoSizeAxes = Axes.Both,
-                        Text = SourceModule.SettingsMetadata[Key].Description
+                        Text = ModuleSetting.Description
                     },
                     textBox = new VRCOSCTextBox
                     {
@@ -60,7 +60,7 @@ public class ModuleSettingStringContainer : ModuleSettingContainer
                         Origin = Anchor.CentreRight,
                         RelativeSizeAxes = Axes.Both,
                         Size = new Vector2(0.5f, 0.8f),
-                        Text = (string)SourceModule.Settings[Key].Value
+                        Text = (string)ModuleSetting.Value
                     }
                 }
             }
@@ -68,7 +68,7 @@ public class ModuleSettingStringContainer : ModuleSettingContainer
 
         textBox.OnCommit += (_, _) =>
         {
-            SourceModule.UpdateSetting(Key, textBox.Text);
+            ModuleSetting.Value = textBox.Text;
         };
     }
 }

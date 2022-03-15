@@ -159,30 +159,27 @@ public class ModuleContainer : Container
 
         SourceModule.Settings.Keys.ForEach(key =>
         {
-            var (settingType, _) = SourceModule.Settings[key];
+            var moduleSetting = SourceModule.Settings[key];
 
-            if (settingType == typeof(string))
+            if (moduleSetting.Type == typeof(string))
             {
                 settingsFlow.Add(new ModuleSettingStringContainer
                 {
-                    Key = key,
-                    SourceModule = SourceModule
+                    ModuleSetting = moduleSetting
                 });
             }
-            else if (settingType == typeof(bool))
+            else if (moduleSetting.Type == typeof(bool))
             {
                 settingsFlow.Add(new ModuleSettingBoolContainer
                 {
-                    Key = key,
-                    SourceModule = SourceModule
+                    ModuleSetting = moduleSetting
                 });
             }
-            else if (settingType == typeof(int))
+            else if (moduleSetting.Type == typeof(int))
             {
                 settingsFlow.Add(new ModuleSettingIntContainer
                 {
-                    Key = key,
-                    SourceModule = SourceModule
+                    ModuleSetting = moduleSetting
                 });
             }
         });

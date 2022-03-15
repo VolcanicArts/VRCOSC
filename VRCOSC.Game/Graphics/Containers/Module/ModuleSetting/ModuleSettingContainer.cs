@@ -1,13 +1,13 @@
 ﻿using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Module;
 
 public class ModuleSettingContainer : Container
 {
-    public string Key { get; init; }
-    public Modules.Module SourceModule { get; init; }
+    public ModuleSetting ModuleSetting { get; init; }
 
     [BackgroundDependencyLoader]
     private void load()
