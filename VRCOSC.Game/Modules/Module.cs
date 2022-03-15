@@ -38,4 +38,14 @@ public abstract class Module
         };
         Parameters.Add(key, moduleOscParameter);
     }
+
+    protected T GetSettingValue<T>(string key)
+    {
+        return (T)Settings[key].Value;
+    }
+
+    protected string GetParameterAddress(string key)
+    {
+        return Parameters[key].Address;
+    }
 }
