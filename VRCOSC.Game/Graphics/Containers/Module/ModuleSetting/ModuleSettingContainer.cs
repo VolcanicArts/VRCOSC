@@ -6,6 +6,9 @@ namespace VRCOSC.Game.Graphics.Containers.Module;
 
 public class ModuleSettingContainer : Container
 {
+    public string Key { get; init; }
+    public Modules.Module SourceModule { get; init; }
+
     [BackgroundDependencyLoader]
     private void load()
     {

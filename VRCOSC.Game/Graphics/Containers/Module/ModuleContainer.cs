@@ -1,11 +1,11 @@
 ﻿using System;
 using osu.Framework.Allocation;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osuTK;
 using VRCOSC.Game.Graphics.Containers.Module.ModulOscParameter;
-using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Module;
 
@@ -150,44 +150,41 @@ public class ModuleContainer : Container
                                 AutoSizeAxes = Axes.Y,
                                 Direction = FillDirection.Vertical,
                                 Spacing = new Vector2(0, 5)
-                            },
+                            }
                         }
                     }
                 }
             }
         };
 
-        SourceModule.SettingsManager.Settings.ForEach(setting =>
+        SourceModule.Settings.Keys.ForEach(key =>
         {
-            if (setting.GetType() == typeof(ModuleSettingString))
+            var (settingType, _) = SourceModule.Settings[key];
+
+            if (settingType == typeof(string))
             {
                 settingsFlow.Add(new ModuleSettingStringContainer
                 {
-                    SourceSetting = (ModuleSettingString)setting
+                    Key = key,
+                    SourceModule = SourceModule
                 });
             }
-            else if (setting.GetType() == typeof(ModuleSettingInt))
-            {
-                settingsFlow.Add(new ModuleSettingIntContainer
-                {
-                    SourceSetting = (ModuleSettingInt)setting
-                });
-            }
-            else if (setting.GetType() == typeof(ModuleSettingBool))
+            else if (settingType == typeof(bool))
             {
                 settingsFlow.Add(new ModuleSettingBoolContainer
                 {
-                    SourceSetting = (ModuleSettingBool)setting
+                    Key = key,
+                    SourceModule = SourceModule
                 });
             }
-        });
-
-        SourceModule.ParametersManager.Parameters.ForEach(parameter =>
-        {
-            parameterFlow.Add(new ModuleOscParameterContainer
+            else if (settingType == typeof(int))
             {
-                SourceParameter = parameter
-            });
+                settingsFlow.Add(new ModuleSettingIntContainer
+                {
+                    Key = key,
+                    SourceModule = SourceModule
+                });
+            }
         });
     }
 }

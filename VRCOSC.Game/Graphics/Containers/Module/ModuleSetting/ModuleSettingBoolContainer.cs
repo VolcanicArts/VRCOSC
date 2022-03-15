@@ -1,23 +1,16 @@
-﻿using System;
-using osu.Framework.Allocation;
+﻿using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.UserInterface;
-using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Module;
 
 public class ModuleSettingBoolContainer : ModuleSettingContainer
 {
-    public ModuleSettingBool? SourceSetting { get; init; }
-
     [BackgroundDependencyLoader]
     private void load()
     {
-        if (SourceSetting == null)
-            throw new ArgumentNullException(nameof(SourceSetting));
-
         BasicCheckbox checkBox;
 
         Children = new Drawable[]
@@ -47,7 +40,7 @@ public class ModuleSettingBoolContainer : ModuleSettingContainer
                         Anchor = Anchor.TopLeft,
                         Origin = Anchor.TopLeft,
                         AutoSizeAxes = Axes.Both,
-                        Text = SourceSetting.DisplayName
+                        Text = "SourceSetting.DisplayName"
                     },
                     new TextFlowContainer(t =>
                     {
@@ -58,19 +51,17 @@ public class ModuleSettingBoolContainer : ModuleSettingContainer
                         Anchor = Anchor.CentreLeft,
                         Origin = Anchor.CentreLeft,
                         AutoSizeAxes = Axes.Both,
-                        Text = SourceSetting.Description
+                        Text = "SourceSetting.Description"
                     },
                     checkBox = new BasicCheckbox
                     {
                         Anchor = Anchor.CentreRight,
                         Origin = Anchor.CentreRight,
+                        Current = { Value = (bool)SourceModule.Settings[Key].Value }
                     }
                 }
             }
         };
-
-        checkBox.Current.Value = SourceSetting.Value.Value;
-
-        checkBox.Current.BindValueChanged((e) => SourceSetting.Value.Value = e.NewValue);
+        checkBox.Current.BindValueChanged((e) => SourceModule.UpdateSetting(Key, e.NewValue));
     }
 }

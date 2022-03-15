@@ -1,24 +1,17 @@
-﻿using System;
-using osu.Framework.Allocation;
+﻿using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osuTK;
 using VRCOSC.Game.Graphics.Containers.UI.TextBox;
-using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Module;
 
 public class ModuleSettingStringContainer : ModuleSettingContainer
 {
-    public ModuleSettingString? SourceSetting { get; init; }
-
     [BackgroundDependencyLoader]
     private void load()
     {
-        if (SourceSetting == null)
-            throw new ArgumentNullException(nameof(SourceSetting));
-
         VRCOSCTextBox textBox;
 
         Children = new Drawable[]
@@ -48,7 +41,7 @@ public class ModuleSettingStringContainer : ModuleSettingContainer
                         Anchor = Anchor.TopLeft,
                         Origin = Anchor.TopLeft,
                         AutoSizeAxes = Axes.Both,
-                        Text = SourceSetting.DisplayName
+                        Text = "SourceSetting.DisplayName"
                     },
                     new TextFlowContainer(t =>
                     {
@@ -59,24 +52,23 @@ public class ModuleSettingStringContainer : ModuleSettingContainer
                         Anchor = Anchor.CentreLeft,
                         Origin = Anchor.CentreLeft,
                         AutoSizeAxes = Axes.Both,
-                        Text = SourceSetting.Description
+                        Text = "SourceSetting.Description"
                     },
                     textBox = new VRCOSCTextBox
                     {
                         Anchor = Anchor.CentreRight,
                         Origin = Anchor.CentreRight,
                         RelativeSizeAxes = Axes.Both,
-                        Size = new Vector2(0.5f, 0.8f)
+                        Size = new Vector2(0.5f, 0.8f),
+                        Text = (string)SourceModule.Settings[Key].Value
                     }
                 }
             }
         };
 
-        textBox.Text = SourceSetting.Value.Value;
-
         textBox.OnCommit += (_, _) =>
         {
-            SourceSetting.Value.Value = textBox.Current.Value;
+            SourceModule.UpdateSetting(Key, textBox.Text);
         };
     }
 }

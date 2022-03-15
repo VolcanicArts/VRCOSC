@@ -7,19 +7,19 @@ public class TestModule : Module
     public override string Title => "Test";
     public override string Description => "A test module";
 
-    public override ModuleSettingsManager SettingsManager => new(new OrderedList<ModuleSetting>
-    {
-        new ModuleSettingBool("testboolean", "Test Boolean", "This is to test booleans"),
-        new ModuleSettingInt("testint", "Test Integer", "This is to test integers"),
-        new ModuleSettingString("teststring", "Test String", "This is to test strings", "This is a default value test")
-    });
-
     public override ModuleParametersManager ParametersManager => new(new OrderedList<ModuleOscParameter>()
     {
         new("testparameter", "Test Parameter", "A parameter that is the first one in this module", "/test/parameter"),
         new("testparameter2", "Another Test Parameter", "Another parameter that comes second", "/test/parameter2"),
         new("testparameter3", "One More Test Parameter", "The final parameter in this module", "/test/parameter3")
     });
+
+    public TestModule()
+    {
+        CreateSetting("teststring", "This is a test string");
+        CreateSetting("testbool", false);
+        CreateSetting("testing", 0);
+    }
 
     public override void Start()
     {
