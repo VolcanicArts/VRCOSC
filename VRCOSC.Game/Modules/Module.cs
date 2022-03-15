@@ -1,8 +1,6 @@
-﻿using osu.Framework.Graphics.Containers;
+﻿namespace VRCOSC.Game.Modules;
 
-namespace VRCOSC.Game.Modules;
-
-public abstract class Module : Container
+public abstract class Module
 {
     public virtual string Title => "Unknown";
     public virtual string Description => "Unknown description";
