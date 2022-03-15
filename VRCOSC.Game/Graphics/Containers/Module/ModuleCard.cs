@@ -5,6 +5,7 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Screens;
 using osuTK;
 using VRCOSC.Game.Graphics.Containers.UI;
+using VRCOSC.Game.Graphics.Containers.UI.Checkbox;
 using VRCOSC.Game.Graphics.Drawables.Triangles;
 
 namespace VRCOSC.Game.Graphics.Containers.Module;
@@ -76,13 +77,31 @@ public class ModuleCard : Container
                         AutoSizeAxes = Axes.Both,
                         Text = SourceModule.Description
                     },
-                    new IconButton
+                    new FillFlowContainer
                     {
                         Anchor = Anchor.CentreRight,
                         Origin = Anchor.CentreRight,
-                        Size = new Vector2(50),
-                        Icon = FontAwesome.Solid.Edit,
-                        Action = OnEditClick
+                        AutoSizeAxes = Axes.Both,
+                        Direction = FillDirection.Horizontal,
+                        Spacing = new Vector2(10, 0),
+                        Children = new Drawable[]
+                        {
+                            new IconButton
+                            {
+                                Anchor = Anchor.CentreRight,
+                                Origin = Anchor.CentreRight,
+                                Size = new Vector2(50),
+                                Icon = FontAwesome.Solid.Edit,
+                                Action = OnEditClick
+                            },
+                            new ToggleCheckbox
+                            {
+                                Anchor = Anchor.CentreRight,
+                                Origin = Anchor.CentreRight,
+                                Size = new Vector2(50),
+                                State = SourceModule.Enabled.GetBoundCopy()
+                            }
+                        }
                     }
                 }
             }

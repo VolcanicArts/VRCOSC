@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using CoreOSC;
 using CoreOSC.IO;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using VRCOSC.Game.Util;
 
@@ -19,6 +20,7 @@ public abstract class Module
     protected UdpClient OscClient = new(IPAddress.Loopback.ToString(), 9000);
 
     protected TerminalLogger terminal;
+    public BindableBool Enabled = new(true);
 
     public virtual void Start()
     {

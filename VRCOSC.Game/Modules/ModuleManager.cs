@@ -22,7 +22,10 @@ public class ModuleManager
     public void Start()
     {
         Running.Value = true;
-        Modules.ForEach(module => module.Start());
+        Modules.ForEach(module =>
+        {
+            if (module.Enabled.Value) module.Start();
+        });
     }
 
     public void Update()
@@ -34,6 +37,9 @@ public class ModuleManager
     public void Stop()
     {
         Running.Value = false;
-        Modules.ForEach(module => module.Stop());
+        Modules.ForEach(module =>
+        {
+            if (module.Enabled.Value) module.Stop();
+        });
     }
 }
