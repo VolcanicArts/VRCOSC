@@ -51,7 +51,7 @@ public abstract class Module
 
     protected void CreateSetting(string key, string displayName, string description, object defaultValue)
     {
-        var moduleSettingMetadata = new ModuleSettingMetadata
+        var moduleSettingMetadata = new ModuleAttributeMetadata
         {
             DisplayName = displayName,
             Description = description
@@ -63,7 +63,7 @@ public abstract class Module
 
     protected void CreateParameter(string key, string displayName, string description, string defaultAddress)
     {
-        var moduleOscParameterMetadata = new ModuleOscParameterMetadata
+        var moduleOscParameterMetadata = new ModuleAttributeMetadata
         {
             DisplayName = displayName,
             Description = description,
