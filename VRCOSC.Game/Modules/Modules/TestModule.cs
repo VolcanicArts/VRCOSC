@@ -1,4 +1,4 @@
-﻿namespace VRCOSC.Game.Modules;
+﻿namespace VRCOSC.Game.Modules.Modules;
 
 public class TestModule : Module
 {
