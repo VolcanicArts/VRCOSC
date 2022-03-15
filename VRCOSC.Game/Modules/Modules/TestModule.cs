@@ -16,19 +16,8 @@ public class TestModule : Module
         CreateParameter("testparameter3", "One More Test Parameter", "The final parameter in this module", "/avatar/parameters/test3");
     }
 
-    public override void Start()
-    {
-        Terminal.Add("Starting test module");
-    }
-
     public override void Update()
     {
-        Terminal.Add("Sending parameter testparameter");
         SendParameter("testparameter", true);
-    }
-
-    public override void Stop()
-    {
-        Terminal.Add("Stopping test module");
     }
 }

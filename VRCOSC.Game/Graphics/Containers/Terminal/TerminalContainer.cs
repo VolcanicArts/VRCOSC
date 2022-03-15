@@ -63,7 +63,7 @@ public class TerminalContainer : Container
     {
         Scheduler.Add(() =>
         {
-            var formattedText = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}]: {text}\n";
+            var formattedText = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {text}\n";
             terminalFlow.AddText(formattedText, t => t.Colour = getColourOfLogState(state));
             Scheduler.Add(() => scrollContainer.ScrollToEnd());
         });

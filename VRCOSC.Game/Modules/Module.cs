@@ -3,13 +3,12 @@ using System.Net;
 using System.Net.Sockets;
 using CoreOSC;
 using CoreOSC.IO;
-using osu.Framework.Logging;
+using VRCOSC.Game.Util;
 
 namespace VRCOSC.Game.Modules;
 
 public abstract class Module
 {
-    protected Logger Terminal = Logger.GetLogger("terminal");
     public virtual string Title => "Unknown";
     public virtual string Description => "Unknown description";
     public Dictionary<string, ModuleSetting> Settings { get; } = new();
@@ -17,14 +16,23 @@ public abstract class Module
 
     protected UdpClient OscClient = new(IPAddress.Loopback.ToString(), 9000);
 
-    public abstract void Start();
+    protected TerminalLogger terminal;
+
+    public virtual void Start()
+    {
+        terminal = new TerminalLogger(GetType().Name);
+        terminal.Log($"Starting {GetType().Name}");
+    }
 
     /// <summary>
     /// Called 5 times per second
     /// </summary>
     public virtual void Update() { }
 
-    public abstract void Stop();
+    public virtual void Stop()
+    {
+        terminal.Log($"Stopping");
+    }
 
     protected void CreateSetting(string key, string displayName, string description, object defaultValue)
     {

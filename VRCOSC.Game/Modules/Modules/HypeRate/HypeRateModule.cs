@@ -17,6 +17,7 @@ public class HypeRateModule : Module
 
     public override void Start()
     {
+        base.Start();
         hypeRateProvider = new HypeRateProvider(GetSettingValue<string>("id"), GetSettingValue<string>("apikey"));
         hypeRateProvider.OnHeartRateUpdate += handleHeartRateUpdate;
         hypeRateProvider.Connect();
@@ -24,12 +25,12 @@ public class HypeRateModule : Module
 
     private void handleHeartRateUpdate(int heartrate)
     {
-        Terminal.Add("Got a new heartrate of value " + heartrate);
         SendParameter("heartrate", heartrate);
     }
 
     public override void Stop()
     {
+        base.Stop();
         hypeRateProvider.Disconnect();
     }
 }

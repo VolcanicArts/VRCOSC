@@ -2,8 +2,8 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using osu.Framework.Logging;
 using SuperSocket.ClientEngine;
+using VRCOSC.Game.Util;
 using WebSocket4Net;
 
 namespace VRCOSC.Game.Modules.Modules;
@@ -11,7 +11,7 @@ namespace VRCOSC.Game.Modules.Modules;
 public abstract class BaseHeartRateProvider
 {
     private readonly EventWaitHandle IsRunning = new AutoResetEvent(false);
-    protected readonly Logger Terminal = Logger.GetLogger("terminal");
+    private readonly TerminalLogger terminal = new("HypeRateModule");
 
     private readonly WebSocket WebSocket;
     public Action? OnConnected;
@@ -20,7 +20,7 @@ public abstract class BaseHeartRateProvider
 
     protected BaseHeartRateProvider(string Uri)
     {
-        Terminal.Add("Creating base websocket", LogLevel.Debug);
+        terminal.Log("Creating base websocket");
         WebSocket = new WebSocket(Uri);
         WebSocket.Opened += wsConnected;
         WebSocket.Closed += wsDisconnected;
@@ -52,7 +52,7 @@ public abstract class BaseHeartRateProvider
 
     private void wsConnected(object? sender, EventArgs e)
     {
-        Terminal.Add("WebSocket successfully connected", LogLevel.Debug);
+        terminal.Log("WebSocket successfully connected");
         OnConnected?.Invoke();
         OnWsConnected();
     }
@@ -61,7 +61,7 @@ public abstract class BaseHeartRateProvider
 
     private void wsDisconnected(object? sender, EventArgs e)
     {
-        Terminal.Add("WebSocket disconnected", LogLevel.Debug);
+        terminal.Log("WebSocket disconnected");
         OnDisconnected?.Invoke();
         OnWsDisconnected();
         IsRunning.Set();
@@ -71,7 +71,7 @@ public abstract class BaseHeartRateProvider
 
     private void wsMessageReceived(object? sender, MessageReceivedEventArgs e)
     {
-        Terminal.Add(e.Message, LogLevel.Debug);
+        terminal.Log(e.Message);
         OnWsMessageReceived(e.Message);
     }
 
@@ -79,6 +79,6 @@ public abstract class BaseHeartRateProvider
 
     private void wsError(object? sender, ErrorEventArgs e)
     {
-        Terminal.Add(e.Exception.ToString());
+        terminal.Log(e.Exception.ToString());
     }
 }
