@@ -71,6 +71,8 @@ public class ModuleEditInnerContainer : Container
                         Origin = Anchor.TopCentre,
                         RelativeSizeAxes = Axes.X,
                         AutoSizeAxes = Axes.Y,
+                        Direction = FillDirection.Vertical,
+                        Spacing = new Vector2(0, 10),
                         SourceModule = SourceModule
                     },
                     new LineSeparator
@@ -86,6 +88,8 @@ public class ModuleEditInnerContainer : Container
                         Origin = Anchor.TopCentre,
                         RelativeSizeAxes = Axes.X,
                         AutoSizeAxes = Axes.Y,
+                        Direction = FillDirection.Vertical,
+                        Spacing = new Vector2(0, 10),
                         SourceModule = SourceModule
                     }
                 }

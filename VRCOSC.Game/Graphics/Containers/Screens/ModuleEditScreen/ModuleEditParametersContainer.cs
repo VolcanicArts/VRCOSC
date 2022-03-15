@@ -8,7 +8,7 @@ using VRCOSC.Game.Graphics.Containers.Module.ModulOscParameter;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditScreen;
 
-public class ModuleEditParametersContainer : Container
+public class ModuleEditParametersContainer : FillFlowContainer
 {
     public Modules.Module SourceModule { get; init; }
 
