@@ -53,7 +53,6 @@ public abstract class Module
     {
         var moduleSettingMetadata = new ModuleSettingMetadata
         {
-            Key = key,
             DisplayName = displayName,
             Description = description
         };
@@ -66,7 +65,6 @@ public abstract class Module
     {
         var moduleOscParameterMetadata = new ModuleOscParameterMetadata
         {
-            Key = key,
             DisplayName = displayName,
             Description = description,
         };
