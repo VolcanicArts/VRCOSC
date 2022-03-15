@@ -23,12 +23,6 @@ public class VRCOSCGameBase : osu.Framework.Game
         });
     }
 
-    protected override void LoadComplete()
-    {
-        base.LoadComplete();
-        Scheduler.AddDelayed(moduleManager.Update, (1d / 5d) * 1000d, true);
-    }
-
     protected override Container<Drawable> Content { get; }
 
     [BackgroundDependencyLoader]

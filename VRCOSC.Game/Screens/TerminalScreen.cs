@@ -50,13 +50,18 @@ public class TerminalScreen : Screen
 
     public override void OnEntering(IScreen last)
     {
-        this.MoveToY(1).Then().MoveToY(0, 1000, Easing.OutQuint).Finally((_) => moduleManager.Start());
+        this.MoveToY(1).Then().MoveToY(0, 1000, Easing.OutQuint).Finally((_) =>
+        {
+            moduleManager.Start();
+            Scheduler.AddDelayed(moduleManager.Update, (1d / 5d) * 1000d, true);
+        });
     }
 
     public override bool OnExiting(IScreen next)
     {
         moduleManager.Stop();
         this.MoveToY(1, 1000, Easing.InQuint);
+        Scheduler.CancelDelayedTasks();
         return false;
     }
 }
