@@ -2,7 +2,6 @@
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
-using osu.Framework.Screens;
 using osuTK;
 using VRCOSC.Game.Graphics.Containers.UI;
 using VRCOSC.Game.Graphics.Containers.UI.Checkbox;
@@ -12,9 +11,6 @@ namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleCardScreen;
 
 public class ModuleCard : Container
 {
-    [Resolved]
-    private ScreenStack screenStack { get; set; }
-
     public Modules.Module SourceModule { get; init; }
 
     [BackgroundDependencyLoader]
@@ -78,8 +74,7 @@ public class ModuleCard : Container
                                 Anchor = Anchor.CentreRight,
                                 Origin = Anchor.CentreRight,
                                 Size = new Vector2(50),
-                                Icon = FontAwesome.Solid.Edit,
-                                Action = OnEditClick
+                                Icon = FontAwesome.Solid.Edit
                             },
                             new ToggleCheckbox
                             {
@@ -94,13 +89,5 @@ public class ModuleCard : Container
                 }
             }
         };
-    }
-
-    private void OnEditClick()
-    {
-        screenStack.Push(new ModuleScreen
-        {
-            SourceModule = SourceModule
-        });
     }
 }
