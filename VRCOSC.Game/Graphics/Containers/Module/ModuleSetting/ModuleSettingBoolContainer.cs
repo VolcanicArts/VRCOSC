@@ -57,7 +57,7 @@ public class ModuleSettingBoolContainer : ModuleSettingContainer
                     {
                         Anchor = Anchor.CentreRight,
                         Origin = Anchor.CentreRight,
-                        Current = { Value = (bool)SourceModule.Data.Settings[Key].Value }
+                        Current = { Value = (bool)SourceModule.Data.Settings[Key] }
                     }
                 }
             }

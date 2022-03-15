@@ -4,6 +4,6 @@ namespace VRCOSC.Game.Modules;
 
 public class ModuleData
 {
-    public Dictionary<string, ModuleSettingData> Settings { get; } = new();
-    public Dictionary<string, ModuleOscParameterData> Parameters { get; } = new();
+    public Dictionary<string, object> Settings { get; } = new();
+    public Dictionary<string, string> Parameters { get; } = new();
 }

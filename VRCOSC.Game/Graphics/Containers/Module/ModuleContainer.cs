@@ -161,29 +161,32 @@ public class ModuleContainer : Container
         {
             var moduleSettingData = SourceModule.Data.Settings[key];
 
-            if (moduleSettingData.Type == typeof(string))
+            switch (moduleSettingData)
             {
-                settingsFlow.Add(new ModuleSettingStringContainer
-                {
-                    Key = key,
-                    SourceModule = SourceModule
-                });
-            }
-            else if (moduleSettingData.Type == typeof(bool))
-            {
-                settingsFlow.Add(new ModuleSettingBoolContainer
-                {
-                    Key = key,
-                    SourceModule = SourceModule
-                });
-            }
-            else if (moduleSettingData.Type == typeof(int))
-            {
-                settingsFlow.Add(new ModuleSettingIntContainer
-                {
-                    Key = key,
-                    SourceModule = SourceModule
-                });
+                case string:
+                    settingsFlow.Add(new ModuleSettingStringContainer
+                    {
+                        Key = key,
+                        SourceModule = SourceModule
+                    });
+                    break;
+
+                case bool:
+                    settingsFlow.Add(new ModuleSettingBoolContainer
+                    {
+                        Key = key,
+                        SourceModule = SourceModule
+                    });
+                    break;
+
+                case int:
+                case long:
+                    settingsFlow.Add(new ModuleSettingIntContainer
+                    {
+                        Key = key,
+                        SourceModule = SourceModule
+                    });
+                    break;
             }
         });
 

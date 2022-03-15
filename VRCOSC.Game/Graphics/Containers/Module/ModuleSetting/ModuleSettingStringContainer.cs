@@ -60,7 +60,7 @@ public class ModuleSettingStringContainer : ModuleSettingContainer
                         Origin = Anchor.CentreRight,
                         RelativeSizeAxes = Axes.Both,
                         Size = new Vector2(0.5f, 0.8f),
-                        Text = (string)SourceModule.Data.Settings[Key].Value
+                        Text = (string)SourceModule.Data.Settings[Key]
                     }
                 }
             }

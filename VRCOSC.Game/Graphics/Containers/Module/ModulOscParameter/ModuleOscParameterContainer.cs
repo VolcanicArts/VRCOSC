@@ -69,7 +69,7 @@ public class ModuleOscParameterContainer : Container
                         Origin = Anchor.CentreRight,
                         RelativeSizeAxes = Axes.Both,
                         Size = new Vector2(0.5f, 0.8f),
-                        Text = SourceModule.Data.Parameters[Key].Address
+                        Text = SourceModule.Data.Parameters[Key]
                     }
                 }
             }

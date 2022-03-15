@@ -51,12 +51,6 @@ public abstract class Module
 
     protected void CreateSetting(string key, string displayName, string description, object defaultValue)
     {
-        var moduleSettingData = new ModuleSettingData
-        {
-            Key = key,
-            Value = defaultValue,
-            Type = defaultValue.GetType()
-        };
         var moduleSettingMetadata = new ModuleSettingMetadata
         {
             Key = key,
@@ -64,17 +58,12 @@ public abstract class Module
             Description = description
         };
 
-        Data.Settings.Add(key, moduleSettingData);
+        Data.Settings.Add(key, defaultValue);
         Metadata.Settings.Add(key, moduleSettingMetadata);
     }
 
     protected void CreateParameter(string key, string displayName, string description, string defaultAddress)
     {
-        var moduleOscParameterData = new ModuleOscParameterData
-        {
-            Key = key,
-            Address = defaultAddress
-        };
         var moduleOscParameterMetadata = new ModuleOscParameterMetadata
         {
             Key = key,
@@ -82,19 +71,19 @@ public abstract class Module
             Description = description,
         };
 
-        Data.Parameters.Add(key, moduleOscParameterData);
+        Data.Parameters.Add(key, defaultAddress);
         Metadata.Parameters.Add(key, moduleOscParameterMetadata);
     }
 
     public void UpdateSetting(string key, object value)
     {
-        Data.Settings[key].Value = value;
+        Data.Settings[key] = value;
         saveData();
     }
 
     public void UpdateParameter(string key, string address)
     {
-        Data.Parameters[key].Address = address;
+        Data.Parameters[key] = address;
         saveData();
     }
 
@@ -124,7 +113,7 @@ public abstract class Module
 
     protected T GetSettingValue<T>(string key)
     {
-        return (T)Data.Settings[key].Value;
+        return (T)Data.Settings[key];
     }
 
     protected void SendParameter(string key, bool value)
@@ -134,8 +123,8 @@ public abstract class Module
 
     protected void SendParameter(string key, object value)
     {
-        //var address = new Address(Data.Parameters[key]);
-        var message = new OscMessage(new Address(), new[] { value });
+        var address = new Address(Data.Parameters[key]);
+        var message = new OscMessage(address, new[] { value });
         OscClient.SendMessageAsync(message);
     }
 }
