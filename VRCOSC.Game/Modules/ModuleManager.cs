@@ -14,12 +14,14 @@ public class ModuleManager
     {
         Modules = new OrderedList<Module>
         {
-            new TestModule()
+            new TestModule(),
+            new HypeRateModule()
         };
     }
 
     public void Start()
     {
+        Running.Value = true;
         Modules.ForEach(module => module.Start());
     }
 
@@ -31,6 +33,7 @@ public class ModuleManager
 
     public void Stop()
     {
+        Running.Value = false;
         Modules.ForEach(module => module.Stop());
     }
 }

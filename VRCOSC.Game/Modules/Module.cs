@@ -22,7 +22,7 @@ public abstract class Module
     /// <summary>
     /// Called 5 times per second
     /// </summary>
-    public abstract void Update();
+    public virtual void Update() { }
 
     public abstract void Stop();
 
