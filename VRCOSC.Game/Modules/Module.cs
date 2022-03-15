@@ -5,6 +5,7 @@ using CoreOSC;
 using CoreOSC.IO;
 using Newtonsoft.Json;
 using osu.Framework.Bindables;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Platform;
 using VRCOSC.Game.Util;
@@ -107,7 +108,8 @@ public abstract class Module
         using var streamReader = new StreamReader(fileStream);
 
         var deserializedData = JsonConvert.DeserializeObject<ModuleData>(streamReader.ReadToEnd());
-        if (deserializedData != null) Data = deserializedData;
+        deserializedData?.Settings.ForEach(pair => Data.Settings[pair.Key] = pair.Value);
+        deserializedData?.Parameters.ForEach(pair => Data.Parameters[pair.Key] = pair.Value);
     }
 
     protected T GetSettingValue<T>(string key)
