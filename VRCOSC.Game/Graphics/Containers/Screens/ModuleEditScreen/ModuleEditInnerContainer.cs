@@ -14,6 +14,11 @@ public class ModuleEditInnerContainer : Container
     [BackgroundDependencyLoader]
     private void load()
     {
+        LineSeparator moduleEditSettingsContainerLineSeparator;
+        ModuleEditSettingsContainer moduleEditSettingsContainer;
+        LineSeparator moduleEditParametersContainerLineSeparator;
+        ModuleEditParametersContainer moduleEditParametersContainer;
+
         InternalChild = new BasicScrollContainer
         {
             Anchor = Anchor.Centre,
@@ -58,14 +63,14 @@ public class ModuleEditInnerContainer : Container
                             },
                         }
                     },
-                    new LineSeparator
+                    moduleEditSettingsContainerLineSeparator = new LineSeparator
                     {
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
                         RelativeSizeAxes = Axes.X,
                         Size = new Vector2(0.95f, 5)
                     },
-                    new ModuleEditSettingsContainer
+                    moduleEditSettingsContainer = new ModuleEditSettingsContainer
                     {
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
@@ -75,14 +80,14 @@ public class ModuleEditInnerContainer : Container
                         Spacing = new Vector2(0, 10),
                         SourceModule = SourceModule
                     },
-                    new LineSeparator
+                    moduleEditParametersContainerLineSeparator = new LineSeparator
                     {
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
                         RelativeSizeAxes = Axes.X,
                         Size = new Vector2(0.95f, 5)
                     },
-                    new ModuleEditParametersContainer
+                    moduleEditParametersContainer = new ModuleEditParametersContainer
                     {
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
@@ -95,5 +100,17 @@ public class ModuleEditInnerContainer : Container
                 }
             }
         };
+
+        if (SourceModule.Data.Settings.Count == 0)
+        {
+            moduleEditSettingsContainerLineSeparator.Alpha = 0;
+            moduleEditSettingsContainer.Alpha = 0;
+        }
+
+        if (SourceModule.Data.Parameters.Count == 0)
+        {
+            moduleEditParametersContainerLineSeparator.Alpha = 0;
+            moduleEditParametersContainer.Alpha = 0;
+        }
     }
 }
