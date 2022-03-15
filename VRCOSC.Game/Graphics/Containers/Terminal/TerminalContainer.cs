@@ -9,7 +9,6 @@ namespace VRCOSC.Game.Graphics.Containers.Terminal;
 
 public class TerminalContainer : Container
 {
-    private readonly Logger TerminalLogger = Logger.GetLogger("terminal");
     private BasicScrollContainer scrollContainer { get; set; }
 
     private TextFlowContainer terminalFlow { get; set; }
@@ -29,7 +28,7 @@ public class TerminalContainer : Container
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
-                Colour = Colour4.Black
+                Colour = VRCOSCColour.Gray3
             },
             new Container
             {

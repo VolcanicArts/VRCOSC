@@ -7,7 +7,6 @@ using osuTK;
 using osuTK.Graphics;
 using VRCOSC.Game.Graphics.Containers;
 using VRCOSC.Game.Graphics.Containers.Module;
-using VRCOSC.Game.Graphics.Containers.Terminal;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game;
@@ -17,20 +16,10 @@ public class MainScreen : Screen
     private const float footer_height = 50;
 
     [Cached]
-    private TerminalContainer terminalContainer = new()
-    {
-        Anchor = Anchor.Centre,
-        Origin = Anchor.Centre,
-        RelativeSizeAxes = Axes.Both,
-        Masking = true,
-        CornerRadius = 20
-    };
-
-    [Cached]
     private ModuleManager moduleManager = new();
 
     [BackgroundDependencyLoader]
-    private void load()
+    private void load(ScreenStack screenStack)
     {
         FillFlowContainer<ModuleCard> moduleCardFlow;
 
@@ -43,20 +32,6 @@ public class MainScreen : Screen
                 RelativeSizeAxes = Axes.Both,
                 Colour = Color4.Gray
             },
-            // new Container
-            // {
-            //     Anchor = Anchor.Centre,
-            //     Origin = Anchor.Centre,
-            //     RelativeSizeAxes = Axes.Both,
-            //     Padding = new MarginPadding
-            //     {
-            //         Top = 10,
-            //         Bottom = 10 + footer_height,
-            //         Left = 10,
-            //         Right = 10
-            //     },
-            //     Child = terminalContainer
-            // },
             new BasicScrollContainer
             {
                 Anchor = Anchor.Centre,
@@ -100,6 +75,14 @@ public class MainScreen : Screen
                 AutoSizeAxes = Axes.Y,
                 SourceModule = module
             });
+        });
+
+        moduleManager.Running.BindValueChanged(e =>
+        {
+            if (e.NewValue)
+                screenStack.Push(new TerminalScreen());
+            else
+                screenStack.Exit();
         });
     }
 }

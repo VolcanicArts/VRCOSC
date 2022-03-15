@@ -39,7 +39,7 @@ public class MainScreenFooter : Container
                         CornerRadius = 5,
                         BackgroundColour = VRCOSCColour.GreenDark,
                         Text = "Run",
-                        Action = moduleManager.Start
+                        Action = moduleManager.Running.Toggle
                     }
                 }
             }
