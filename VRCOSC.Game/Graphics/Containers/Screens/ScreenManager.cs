@@ -88,7 +88,10 @@ public class ScreenManager : Container
         {
             ModuleManager.Stop(Scheduler);
             ChangeChildDepth(terminalContainer, 0);
-            terminalContainer.MoveToY(1, 1000, Easing.InQuint);
+            terminalContainer.MoveToY(1, 1000, Easing.InQuint).Finally((_) =>
+            {
+                terminalContainer.ClearTerminal();
+            });
         });
     }
 }

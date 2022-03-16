@@ -96,6 +96,11 @@ public class TerminalContainer : Container
         });
     }
 
+    public void ClearTerminal()
+    {
+        terminalFlow.Clear();
+    }
+
     protected override bool OnKeyDown(KeyDownEvent e)
     {
         if (e.Key != Key.Escape) return base.OnKeyDown(e);
