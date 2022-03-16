@@ -4,6 +4,7 @@
 using System.Linq;
 using osu.Framework.Graphics;
 using osu.Framework.Platform;
+
 #pragma warning disable CS8618
 
 namespace VRCOSC.Game.Modules.Modules;
@@ -21,8 +22,8 @@ public class HypeRateModule : Module
     public HypeRateModule(Storage storage)
         : base(storage)
     {
-        CreateSetting("id", "HypeRate ID", "Your HypeRate ID given on your device", string.Empty);
-        CreateSetting("apikey", "Api Key", "Your API key from HypeRate", string.Empty);
+        CreateSetting(HypeRateSettings.Id, "HypeRate ID", "Your HypeRate ID given on your device", string.Empty);
+        CreateSetting(HypeRateSettings.ApiKey, "Api Key", "Your API key from HypeRate", string.Empty);
 
         CreateParameter(HypeRateParameter.HeartrateEnabled, "Heartrate Enabled", "Whether this module is attepting to emit values", "/avatar/parameters/HeartrateEnabled");
         CreateParameter(HypeRateParameter.HeartrateNormalised, "Heartrate Normalised", "The heartrate value normalised to 60bpm", "/avatar/parameters/HeartrateNormalised");
@@ -34,7 +35,7 @@ public class HypeRateModule : Module
     protected override void OnStart()
     {
         SendParameter(HypeRateParameter.HeartrateEnabled, false);
-        hypeRateProvider = new HypeRateProvider(GetSettingValue<string>("id"), GetSettingValue<string>("apikey"));
+        hypeRateProvider = new HypeRateProvider(GetSettingAs<string>(HypeRateSettings.Id), GetSettingAs<string>(HypeRateSettings.ApiKey));
         hypeRateProvider.OnHeartRateUpdate += handleHeartRateUpdate;
         hypeRateProvider.OnConnected += () => SendParameter(HypeRateParameter.HeartrateEnabled, true);
         hypeRateProvider.OnDisconnected += () => SendParameter(HypeRateParameter.HeartrateEnabled, false);
@@ -64,6 +65,12 @@ public class HypeRateModule : Module
     {
         hypeRateProvider.Disconnect();
     }
+}
+
+public enum HypeRateSettings
+{
+    Id,
+    ApiKey
 }
 
 public enum HypeRateParameter

@@ -71,7 +71,7 @@ public abstract class Module
 
     protected virtual void OnStop() { }
 
-    protected void CreateSetting(string key, string displayName, string description, object defaultValue)
+    protected void CreateSetting(Enum key, string displayName, string description, object defaultValue)
     {
         var moduleSettingMetadata = new ModuleAttributeMetadata
         {
@@ -79,8 +79,8 @@ public abstract class Module
             Description = description
         };
 
-        Data.Settings.Add(key, defaultValue);
-        Metadata.Settings.Add(key, moduleSettingMetadata);
+        Data.Settings.Add(key.ToString().ToLower(), defaultValue);
+        Metadata.Settings.Add(key.ToString().ToLower(), moduleSettingMetadata);
     }
 
     protected void CreateParameter(Enum key, string displayName, string description, string defaultAddress)
@@ -158,9 +158,9 @@ public abstract class Module
         saveData();
     }
 
-    protected T GetSettingValue<T>(string key)
+    protected T GetSettingAs<T>(Enum key)
     {
-        return (T)Data.Settings[key];
+        return (T)Data.Settings[key.ToString().ToLower()];
     }
 
     protected void SendParameter(Enum key, bool value)
