@@ -18,6 +18,7 @@ public class VRCOSCTextBox : BasicTextBox
         BackgroundUnfocused = VRCOSCColour.Gray4;
         Masking = true;
         CornerRadius = 10;
+        CommitOnFocusLost = true;
     }
 
     [BackgroundDependencyLoader]
