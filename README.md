@@ -7,22 +7,26 @@ A modular OSC provider primarily made for VRChat.
 - Computer Stats: Takes your system stats (CPU, GPU, and RAM usage) and sends them into VRChat normalised between 0 and 1
 
 ## Getting Started
+Right now there are no releases as the application isn't read for production. If you'd still like to develop a module, check the [How To Create A Module](https://github.com/VolcanicArts/VRCOSC#how-to-create-a-module) section of this README.
+
+## How To Create A Module
 - To create a module, fork this repo and create a new folder inside the [Modules](https://github.com/VolcanicArts/VRCOSC/tree/master/VRCOSC.Game/Modules/Modules) folder.
 - Create a class and have it extend the Module class.
-- You can now override `Start()`, `Update()`, and `Stop()`.
-- Each `Update()` call can be controlled via overriding the `UpdateDelta` property.
-- You can also change the colour of your module by overriding the `Colour` property. This alters how it will appear inside the app.
-- Make sure to sign your module with your name by overriding the `Author` property.
-- Modules also have a `ModuleType`. If your module fits into an existing type, use that. If you believe your module needs a new type, make one by editing the `ModuleType` enum.
-- To create settings for your module (such as having the user enter an API key), can be done by calling the `CreateSetting()` method inside your module's constructor.
-- The same can be done for parameters, however, you're required to create a parameter enum.
-- Each setting and parameter has an option for a title and description to let the user know what does what in your module.
-- Finally, make a pull request and if your module is accepted it will become part of the program!
-
-Notes:
-- Make sure to call `base.Start()` and `base.Stop()` if you do override them. Core functionality for a module before your code is called may need to run and your module may function in an unexpected way if those are not called.
-- Make sure to call `LoadData()` at the end of your constructor, else the user's overridden saved settings and parameters will not load.
-- Modules do not have to be inside one class only. Feel free to make as many as you need for your module's functionally!
+- Override the `Title` property to set a title.
+- Override the `Description` property to set a description.
+- Override the `Author` property to sign your module.
+- Override the `Colour` property to alter the colour of background of your module.
+- Override the `ModuleType` property to classify your module. If you believe your module requires a new type, make one by editing the `ModuleType` enum.
+- Override the `UpdateDelta` property to alter the time between each `OnUpdate()` call.
+- Override `OnStart()` to execute code when your module is started.
+- Override `OnUpdate()` to execute code on each update call.
+- Override `OnStop()` to execute code on when your module is stopped.
+- To create settings (such as having the user enter an API key), call the `CreateSetting()` method inside your module's constructor and fill in the required information.
+- You can access settings by calling the `GetSettingValue<T>("key")` method where `T` is the setting's type.
+- To create OSC parameters, call the `CreateParameter()` method inside your module's constructor and fill in the required information.
+- OSC parameters require an enum so it's recommended to create a `[ModuleName]Parameter` enum for each OSC parameter you want to send.
+- To send data over OSC, call the `SendParameter()` method.
+- Finally, make a pull request to submit your module for review.
 
 ## Examples
 If you'd like to see some examples of existing modules, then you can find them inside the [Modules](https://github.com/VolcanicArts/VRCOSC/tree/master/VRCOSC.Game/Modules/Modules) folder.
