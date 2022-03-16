@@ -67,4 +67,9 @@ public class ModuleEditContainer : Container
         ScreenManager.FinishEditingModule();
         return true;
     }
+
+    protected override bool OnMouseDown(MouseDownEvent e)
+    {
+        return true;
+    }
 }

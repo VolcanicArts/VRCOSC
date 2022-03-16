@@ -108,4 +108,9 @@ public class TerminalContainer : Container
         ScreenManager.HideTerminal();
         return true;
     }
+
+    protected override bool OnMouseDown(MouseDownEvent e)
+    {
+        return true;
+    }
 }
