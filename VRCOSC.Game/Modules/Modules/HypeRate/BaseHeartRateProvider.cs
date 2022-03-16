@@ -13,22 +13,22 @@ namespace VRCOSC.Game.Modules.Modules;
 
 public abstract class BaseHeartRateProvider
 {
-    private readonly EventWaitHandle IsRunning = new AutoResetEvent(false);
+    private readonly EventWaitHandle isRunning = new AutoResetEvent(false);
     private readonly TerminalLogger terminal = new("HypeRateModule");
+    private readonly WebSocket webSocket;
 
-    private readonly WebSocket WebSocket;
     public Action? OnConnected;
     public Action? OnDisconnected;
     public Action<int>? OnHeartRateUpdate;
 
-    protected BaseHeartRateProvider(string Uri)
+    protected BaseHeartRateProvider(string uri)
     {
         terminal.Log("Creating base websocket");
-        WebSocket = new WebSocket(Uri);
-        WebSocket.Opened += wsConnected;
-        WebSocket.Closed += wsDisconnected;
-        WebSocket.MessageReceived += wsMessageReceived;
-        WebSocket.Error += wsError;
+        webSocket = new WebSocket(uri);
+        webSocket.Opened += wsConnected;
+        webSocket.Closed += wsDisconnected;
+        webSocket.MessageReceived += wsMessageReceived;
+        webSocket.Error += wsError;
     }
 
     public void Connect()
@@ -38,19 +38,19 @@ public abstract class BaseHeartRateProvider
 
     public void Disconnect()
     {
-        IsRunning.Set();
-        WebSocket.Close();
+        isRunning.Set();
+        webSocket.Close();
     }
 
     protected void Send(object data)
     {
-        WebSocket.Send(JsonConvert.SerializeObject(data));
+        webSocket.Send(JsonConvert.SerializeObject(data));
     }
 
     private void run()
     {
-        WebSocket.Open();
-        IsRunning.WaitOne();
+        webSocket.Open();
+        isRunning.WaitOne();
     }
 
     private void wsConnected(object? sender, EventArgs e)
@@ -67,7 +67,7 @@ public abstract class BaseHeartRateProvider
         terminal.Log("WebSocket disconnected");
         OnDisconnected?.Invoke();
         OnWsDisconnected();
-        IsRunning.Set();
+        isRunning.Set();
     }
 
     protected abstract void OnWsDisconnected();

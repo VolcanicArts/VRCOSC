@@ -4,6 +4,7 @@
 using System.Linq;
 using osu.Framework.Graphics;
 using osu.Framework.Platform;
+#pragma warning disable CS8618
 
 namespace VRCOSC.Game.Modules.Modules;
 
