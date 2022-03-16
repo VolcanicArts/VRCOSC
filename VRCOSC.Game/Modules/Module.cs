@@ -112,24 +112,27 @@ public abstract class Module
     {
         var fileName = $"{GetType().Name}.conf";
 
-        using var fileStream = ModuleStorage.GetStream(fileName, FileAccess.ReadWrite);
-        using var streamReader = new StreamReader(fileStream);
-
-        var deserializedData = JsonConvert.DeserializeObject<ModuleData>(streamReader.ReadToEnd());
-
-        if (deserializedData != null)
+        using (var fileStream = ModuleStorage.GetStream(fileName, FileAccess.ReadWrite))
         {
-            deserializedData.Settings.ForEach(pair =>
+            using (var streamReader = new StreamReader(fileStream))
             {
-                if (Data.Settings.ContainsKey(pair.Key))
-                    Data.Settings[pair.Key] = pair.Value;
-            });
-            deserializedData.Parameters.ForEach(pair =>
-            {
-                if (Data.Parameters.ContainsKey(pair.Key))
-                    Data.Parameters[pair.Key] = pair.Value;
-            });
-            Enabled.Value = deserializedData.Enabled;
+                var deserializedData = JsonConvert.DeserializeObject<ModuleData>(streamReader.ReadToEnd());
+
+                if (deserializedData != null)
+                {
+                    deserializedData.Settings.ForEach(pair =>
+                    {
+                        if (Data.Settings.ContainsKey(pair.Key))
+                            Data.Settings[pair.Key] = pair.Value;
+                    });
+                    deserializedData.Parameters.ForEach(pair =>
+                    {
+                        if (Data.Parameters.ContainsKey(pair.Key))
+                            Data.Parameters[pair.Key] = pair.Value;
+                    });
+                    Enabled.Value = deserializedData.Enabled;
+                }
+            }
         }
 
         Enabled.BindValueChanged(e =>
@@ -137,6 +140,8 @@ public abstract class Module
             Data.Enabled = e.NewValue;
             saveData();
         });
+
+        saveData();
     }
 
     protected T GetSettingValue<T>(string key)
