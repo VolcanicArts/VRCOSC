@@ -58,10 +58,7 @@ public class ModuleDataManager
         {
             using (var streamReader = new StreamReader(fileStream))
             {
-                var deserializedData = JsonConvert.DeserializeObject<ModuleDataManager>(streamReader.ReadToEnd(), new JsonSerializerSettings
-                {
-
-                });
+                var deserializedData = JsonConvert.DeserializeObject<ModuleDataManager>(streamReader.ReadToEnd());
                 if (deserializedData != null) copyDataFrom(deserializedData);
             }
         }
