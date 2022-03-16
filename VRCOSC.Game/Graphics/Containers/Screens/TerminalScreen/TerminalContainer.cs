@@ -92,7 +92,7 @@ public class TerminalContainer : Container
                 Colour = VRCOSCColour.Gray8,
                 Text = formattedText
             });
-            Scheduler.Add(() => terminalScroll.ScrollToEnd());
+            Scheduler.AddDelayed(() => terminalScroll.ScrollToEnd(), 50);
         });
     }
 
