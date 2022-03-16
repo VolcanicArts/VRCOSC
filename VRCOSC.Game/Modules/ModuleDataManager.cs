@@ -8,7 +8,6 @@ using System.Linq;
 using Newtonsoft.Json;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
-using osu.Framework.Logging;
 using osu.Framework.Platform;
 using VRCOSC.Game.Util;
 
@@ -42,15 +41,22 @@ public class ModuleDataManager
 
     private void bindAllAttributes()
     {
-        Logger.Log("Binding attributes");
         settings.CollectionChanged += (_, _) => saveData();
         parameters.CollectionChanged += (_, _) => saveData();
         Enabled.ValueChanged += _ => saveData();
     }
 
+    private void unbindAllAttributes()
+    {
+        settings.UnbindAll();
+        parameters.UnbindAll();
+        Enabled.UnbindAll();
+    }
+
     public void LoadData()
     {
-        Logger.Log("Loading data");
+        unbindAllAttributes();
+
         var fileName = $"{ModuleName}.conf";
         var moduleStorage = Storage.GetStorageForDirectory(storage_directory);
 
@@ -69,7 +75,6 @@ public class ModuleDataManager
 
     private void saveData()
     {
-        Logger.Log("Saving data");
         var fileName = $"{ModuleName}.conf";
         var moduleStorage = Storage.GetStorageForDirectory(storage_directory);
 
@@ -151,7 +156,6 @@ public class ModuleDataManager
 
     private void copyDataFrom(ModuleDataManager dataToCopy)
     {
-        Logger.Log("Copying data");
         dataToCopy.settings.ForEach(pair =>
         {
             if (settings.ContainsKey(pair.Key))
