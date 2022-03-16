@@ -90,13 +90,24 @@ public class ModuleCard : Container
                         Spacing = new Vector2(10, 0),
                         Children = new Drawable[]
                         {
-                            new IconButton
+                            new Container
                             {
                                 Anchor = Anchor.CentreRight,
                                 Origin = Anchor.CentreRight,
-                                Size = new Vector2(50),
-                                Icon = FontAwesome.Solid.Edit,
-                                Action = () => ScreenManager.EditModule(SourceModule)
+                                RelativeSizeAxes = Axes.Both,
+                                FillMode = FillMode.Fit,
+                                FillAspectRatio = 2,
+                                Padding = new MarginPadding(5),
+                                Child = new TextButton
+                                {
+                                    Anchor = Anchor.Centre,
+                                    Origin = Anchor.Centre,
+                                    RelativeSizeAxes = Axes.Both,
+                                    Text = "Edit",
+                                    FontSize = 35,
+                                    CornerRadius = 10,
+                                    Action = () => ScreenManager.EditModule(SourceModule)
+                                }
                             },
                             new ToggleCheckbox
                             {
