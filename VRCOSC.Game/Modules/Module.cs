@@ -8,6 +8,7 @@ using System.Net.Sockets;
 using CoreOSC;
 using CoreOSC.IO;
 using Newtonsoft.Json;
+using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Platform;
@@ -33,6 +34,7 @@ public abstract class Module
 
     public ModuleMetadata Metadata = new();
     public ModuleData Data = new();
+    public Bindable<bool> Enabled = new(true);
 
     protected UdpClient OscClient = new(IPAddress.Loopback.ToString(), 9000);
     protected TerminalLogger? Terminal;
@@ -93,12 +95,6 @@ public abstract class Module
         saveData();
     }
 
-    public void SetEnabled(bool state)
-    {
-        Data.Enabled = state;
-        saveData();
-    }
-
     private void saveData()
     {
         var fileName = $"{GetType().Name}.conf";
@@ -120,10 +116,19 @@ public abstract class Module
         using var streamReader = new StreamReader(fileStream);
 
         var deserializedData = JsonConvert.DeserializeObject<ModuleData>(streamReader.ReadToEnd());
-        if (deserializedData == null) return;
-        deserializedData.Settings.ForEach(pair => Data.Settings[pair.Key] = pair.Value);
-        deserializedData.Parameters.ForEach(pair => Data.Parameters[pair.Key] = pair.Value);
-        Data.Enabled = deserializedData.Enabled;
+
+        if (deserializedData != null)
+        {
+            deserializedData.Settings.ForEach(pair => Data.Settings[pair.Key] = pair.Value);
+            deserializedData.Parameters.ForEach(pair => Data.Parameters[pair.Key] = pair.Value);
+            Enabled.Value = deserializedData.Enabled;
+        }
+
+        Enabled.BindValueChanged(e =>
+        {
+            Data.Enabled = e.NewValue;
+            saveData();
+        });
     }
 
     protected T GetSettingValue<T>(string key)

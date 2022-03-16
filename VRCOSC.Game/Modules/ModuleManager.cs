@@ -40,7 +40,7 @@ public class ModuleManager
         {
             modules.ForEach(module =>
             {
-                if (!module.Data.Enabled) return;
+                if (!module.Enabled.Value) return;
 
                 module.Start();
                 if (!double.IsPositiveInfinity(module.DeltaUpdate)) scheduler.AddDelayed(module.Update, module.DeltaUpdate, true);
@@ -56,7 +56,7 @@ public class ModuleManager
         {
             modules.ForEach(module =>
             {
-                if (module.Data.Enabled) module.Stop();
+                if (module.Enabled.Value) module.Stop();
             });
         });
     }

@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
@@ -12,8 +11,7 @@ namespace VRCOSC.Game.Graphics.Containers.UI.Checkbox;
 
 public class ToggleCheckbox : Container
 {
-    public Bindable<bool> State = new();
-    public Action<bool> ValueChange;
+    public Bindable<bool> State { get; init; }
     private Box ToggleColour;
 
     [BackgroundDependencyLoader]
@@ -22,7 +20,6 @@ public class ToggleCheckbox : Container
         State.BindValueChanged(_ =>
         {
             ToggleColour.Colour = getColourFromState();
-            ValueChange?.Invoke(State.Value);
         });
         Child = new CircularContainer
         {

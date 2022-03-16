@@ -24,6 +24,11 @@ public class ModuleCard : Container
     [BackgroundDependencyLoader]
     private void load()
     {
+        SourceModule.Enabled.BindValueChanged(e =>
+        {
+            this.FadeTo(e.NewValue ? 1f : 0.5f, 500, Easing.OutCubic);
+        }, true);
+
         InternalChildren = new Drawable[]
         {
             new TrianglesBackground
@@ -97,8 +102,7 @@ public class ModuleCard : Container
                                 Anchor = Anchor.CentreRight,
                                 Origin = Anchor.CentreRight,
                                 Size = new Vector2(50),
-                                State = { Value = SourceModule.Data.Enabled },
-                                ValueChange = state => SourceModule.SetEnabled(state)
+                                State = SourceModule.Enabled.GetBoundCopy()
                             }
                         }
                     }
