@@ -4,6 +4,7 @@ A modular OSC provider primarily made for VRChat.
 ## Modules
 - HypeRate: Takes HypeRate.io heartrate values and sends multiple OSC values into VRChat.
 - Clock: Takes your current local time and sends multiple OSC values into VRChat.
+- Computer Stats: Takes your system stats (CPU, GPU, and RAM usage) and sends them into VRChat normalised between 0 and 1
 
 ## Getting Started
 - To create a module, fork this repo and create a new folder inside the [Modules](https://github.com/VolcanicArts/VRCOSC/tree/master/VRCOSC.Game/Modules/Modules) folder.
