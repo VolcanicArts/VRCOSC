@@ -2,14 +2,15 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
-using osu.Framework.Graphics.UserInterface;
 using osuTK;
+using VRCOSC.Game.Graphics.Containers.UI.Checkbox;
 using VRCOSC.Game.Graphics.Drawables.Triangles;
 
 namespace VRCOSC.Game.Graphics.Containers.Module;
@@ -19,7 +20,7 @@ public class ModuleSettingBoolContainer : ModuleSettingContainer
     [BackgroundDependencyLoader]
     private void load()
     {
-        BasicCheckbox checkBox;
+        ToggleCheckbox checkBox;
 
         Children = new Drawable[]
         {
@@ -69,18 +70,16 @@ public class ModuleSettingBoolContainer : ModuleSettingContainer
                         Font = FrameworkFont.Regular.With(size: 20),
                         Text = SourceModule.Metadata.Settings[Key].Description
                     },
-                    checkBox = new BasicCheckbox
+                    checkBox = new ToggleCheckbox
                     {
                         Anchor = Anchor.CentreRight,
                         Origin = Anchor.CentreRight,
-                        RelativeSizeAxes = Axes.Both,
-                        BorderThickness = 3,
-                        Size = new Vector2(0.5f, 0.8f),
-                        Current = { Value = (bool)SourceModule.Data.Settings[Key] }
+                        Size = new Vector2(75),
+                        State = new Bindable<bool>((bool)SourceModule.Data.Settings[Key])
                     }
                 }
             }
         };
-        checkBox.Current.BindValueChanged((e) => SourceModule.UpdateSetting(Key, e.NewValue));
+        checkBox.State.BindValueChanged((e) => SourceModule.UpdateSetting(Key, e.NewValue));
     }
 }
