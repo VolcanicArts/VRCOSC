@@ -65,8 +65,10 @@ public class ScreenManager : Container
     {
         Scheduler.Add(() =>
         {
-            ChangeChildDepth(moduleEditContainer, 0);
-            moduleEditContainer.MoveToY(1, 1000, Easing.InQuint);
+            moduleEditContainer.MoveToY(1, 1000, Easing.InQuint).Finally((_) =>
+            {
+                ChangeChildDepth(moduleEditContainer, 0);
+            });
         });
     }
 
@@ -87,9 +89,9 @@ public class ScreenManager : Container
         Scheduler.Add(() =>
         {
             ModuleManager.Stop(Scheduler);
-            ChangeChildDepth(terminalContainer, 0);
             terminalContainer.MoveToY(1, 1000, Easing.InQuint).Finally((_) =>
             {
+                ChangeChildDepth(terminalContainer, 0);
                 terminalContainer.ClearTerminal();
             });
         });
