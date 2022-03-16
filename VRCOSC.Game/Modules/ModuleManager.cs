@@ -43,7 +43,11 @@ public class ModuleManager
                 if (!module.Enabled.Value) return;
 
                 module.Start();
-                if (!double.IsPositiveInfinity(module.DeltaUpdate)) scheduler.AddDelayed(module.Update, module.DeltaUpdate, true);
+
+                if (double.IsPositiveInfinity(module.DeltaUpdate)) return;
+
+                scheduler.Add(module.Update);
+                scheduler.AddDelayed(module.Update, module.DeltaUpdate, true);
             });
         });
     }
