@@ -84,7 +84,8 @@ public class ModuleCard : Container
                     {
                         Anchor = Anchor.CentreRight,
                         Origin = Anchor.CentreRight,
-                        AutoSizeAxes = Axes.Both,
+                        RelativeSizeAxes = Axes.Y,
+                        AutoSizeAxes = Axes.X,
                         Direction = FillDirection.Horizontal,
                         Spacing = new Vector2(10, 0),
                         Children = new Drawable[]
