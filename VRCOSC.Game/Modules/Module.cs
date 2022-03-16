@@ -3,7 +3,6 @@
 
 using System;
 using System.IO;
-using System.Net;
 using System.Net.Sockets;
 using CoreOSC;
 using CoreOSC.IO;
@@ -14,50 +13,63 @@ using osu.Framework.Graphics;
 using osu.Framework.Platform;
 using VRCOSC.Game.Util;
 
+#pragma warning disable CS8618
+
 // ReSharper disable InconsistentNaming
-// ReSharper disable MemberCanBePrivate.Global
 
 namespace VRCOSC.Game.Modules;
 
 public abstract class Module
 {
+    private const string storage_directory = "modules";
+    private const string osc_ip_address = "127.0.0.1";
+    private const int osc_port = 9000;
+
     public virtual string Title => string.Empty;
     public virtual string Description => string.Empty;
     public virtual string Author => string.Empty;
     public virtual Colour4 Colour => Colour4.Black;
     public virtual ModuleType Type => ModuleType.General;
-
-    /// <summary>
-    /// The time between updates in milliseconds
-    /// </summary>
     public virtual double DeltaUpdate => double.PositiveInfinity;
 
-    public ModuleMetadata Metadata = new();
-    public ModuleData Data = new();
-    public Bindable<bool> Enabled = new(true);
+    public ModuleMetadata Metadata { get; } = new();
+    public ModuleData Data { get; } = new();
+    public Bindable<bool> Enabled { get; } = new(true);
 
-    protected UdpClient OscClient = new(IPAddress.Loopback.ToString(), 9000);
-    protected TerminalLogger? Terminal;
+    protected TerminalLogger Terminal { get; private set; }
 
-    private readonly Storage ModuleStorage;
+    private readonly UdpClient OscClient;
+    private readonly Storage Storage;
 
     protected Module(Storage storage)
     {
-        ModuleStorage = storage.GetStorageForDirectory("modules");
+        OscClient = new UdpClient(osc_ip_address, osc_port);
+        Storage = storage;
     }
 
-    public virtual void Start()
+    internal void Start()
     {
         Terminal = new TerminalLogger(GetType().Name);
         Terminal.Log("Starting");
+        OnStart();
     }
 
-    public virtual void Update() { }
+    protected virtual void OnStart() { }
 
-    public virtual void Stop()
+    internal void Update()
     {
-        Terminal!.Log("Stopping");
+        OnUpdate();
     }
+
+    protected virtual void OnUpdate() { }
+
+    internal void Stop()
+    {
+        Terminal.Log("Stopping");
+        OnStop();
+    }
+
+    protected virtual void OnStop() { }
 
     protected void CreateSetting(string key, string displayName, string description, object defaultValue)
     {
@@ -98,21 +110,23 @@ public abstract class Module
     private void saveData()
     {
         var fileName = $"{GetType().Name}.conf";
+        var moduleStorage = Storage.GetStorageForDirectory(storage_directory);
 
-        ModuleStorage.Delete(fileName);
+        moduleStorage.Delete(fileName);
 
-        using var fileStream = ModuleStorage.GetStream(fileName, FileAccess.ReadWrite);
+        using var fileStream = moduleStorage.GetStream(fileName, FileAccess.ReadWrite);
         using var streamWriter = new StreamWriter(fileStream);
 
         var serialisedData = JsonConvert.SerializeObject(Data);
         streamWriter.WriteLine(serialisedData);
     }
 
-    protected void LoadData()
+    internal void LoadData()
     {
         var fileName = $"{GetType().Name}.conf";
+        var moduleStorage = Storage.GetStorageForDirectory(storage_directory);
 
-        using (var fileStream = ModuleStorage.GetStream(fileName, FileAccess.ReadWrite))
+        using (var fileStream = moduleStorage.GetStream(fileName, FileAccess.ReadWrite))
         {
             using (var streamReader = new StreamReader(fileStream))
             {

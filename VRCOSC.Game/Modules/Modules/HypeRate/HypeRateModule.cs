@@ -28,13 +28,10 @@ public class HypeRateModule : Module
         CreateParameter(HypeRateParameter.HeartrateUnits, "Heartrate Units", "The units value of the heartrate value", "/avatar/parameters/HeartrateUnits");
         CreateParameter(HypeRateParameter.HeartrateTens, "Heartrate Tens", "The tens value of the heartate value", "/avatar/parameters/HeartrateTens");
         CreateParameter(HypeRateParameter.HeartrateHundreds, "Heartrate Hundreds", "The hundreds value of the heartrate value", "/avatar/parameters/HeartrateHundreds");
-
-        LoadData();
     }
 
-    public override void Start()
+    protected override void OnStart()
     {
-        base.Start();
         SendParameter(HypeRateParameter.HeartrateEnabled, false);
         hypeRateProvider = new HypeRateProvider(GetSettingValue<string>("id"), GetSettingValue<string>("apikey"));
         hypeRateProvider.OnHeartRateUpdate += handleHeartRateUpdate;
@@ -62,9 +59,8 @@ public class HypeRateModule : Module
         return numStr.Select(digit => int.Parse(digit.ToString())).ToArray();
     }
 
-    public override void Stop()
+    protected override void OnStop()
     {
-        base.Stop();
         hypeRateProvider.Disconnect();
     }
 }

@@ -23,14 +23,10 @@ public class ComputerStatsModule : Module
         CreateParameter(ComputerStatsParameter.CPUUsage, "CPU Usage", "The current usage of your CPU from 0 to 1", "/avatar/parameters/CPUUsage");
         CreateParameter(ComputerStatsParameter.GPUUsage, "GPU Usage", "The current usage of your GPU from 0 to 1", "/avatar/parameters/GPUUsage");
         CreateParameter(ComputerStatsParameter.RAMUsage, "RAM Usage", "The current usage of your RAM from 0 to 1", "/avatar/parameters/RAMUsage");
-
-        LoadData();
     }
 
-    public override void Update()
+    protected override void OnUpdate()
     {
-        base.Update();
-
         sendCpuUsage();
         sendGpuUsage();
         sendRamUsage();

@@ -22,7 +22,11 @@ public class ModuleManager
     public ModuleManager(Storage storage)
     {
         IEnumerable<Module> modules = ReflectiveEnumerator.GetEnumerableOfType<Module>(storage);
-        modules.ForEach(addModule);
+        modules.ForEach(module =>
+        {
+            module.LoadData();
+            addModule(module);
+        });
         sortModules();
     }
 

@@ -24,11 +24,9 @@ public class ClockModule : Module
         CreateParameter(ClockParameter.HoursUnits, "Hours Units", "The units value of the current hour", "/avatar/parameters/HoursUnits");
         CreateParameter(ClockParameter.MinutesTens, "Minutes Tens", "The tens value of the current minute", "/avatar/parameters/MinutesTens");
         CreateParameter(ClockParameter.MinutesUnits, "Minutes Units", "The units value of the current minute", "/avatar/parameters/MinutesUnits");
-
-        LoadData();
     }
 
-    public override void Update()
+    protected override void OnUpdate()
     {
         var hour = DateTime.Now.Hour;
         var minute = DateTime.Now.Minute;
