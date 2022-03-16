@@ -4,10 +4,8 @@
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Shapes;
 using osuTK;
 using VRCOSC.Game.Graphics.Containers.UI;
-using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleCardScreen;
 
@@ -17,17 +15,10 @@ public class ModuleCardListingFooter : Container
     private ScreenManager ScreenManager { get; set; }
 
     [BackgroundDependencyLoader]
-    private void load(ModuleManager moduleManager)
+    private void load()
     {
         InternalChildren = new Drawable[]
         {
-            new Box
-            {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                RelativeSizeAxes = Axes.Both,
-                Colour = VRCOSCColour.Gray5
-            },
             new Container
             {
                 Name = "Content",
@@ -39,8 +30,8 @@ public class ModuleCardListingFooter : Container
                 {
                     new TextButton
                     {
-                        Anchor = Anchor.CentreRight,
-                        Origin = Anchor.CentreRight,
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.Centre,
                         Size = new Vector2(150, 40),
                         CornerRadius = 5,
                         BackgroundColour = VRCOSCColour.GreenDark,
