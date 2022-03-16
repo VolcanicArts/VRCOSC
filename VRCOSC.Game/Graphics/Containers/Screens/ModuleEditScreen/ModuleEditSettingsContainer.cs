@@ -61,7 +61,7 @@ public class ModuleEditSettingsContainer : FillFlowContainer
                     });
                     break;
 
-                case int:
+                case long:
                     settingsFlow.Add(new ModuleSettingIntContainer
                     {
                         Key = key,

@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
@@ -76,7 +76,7 @@ public class ModuleSettingIntContainer : ModuleSettingContainer
                         RelativeSizeAxes = Axes.Both,
                         BorderThickness = 3,
                         Size = new Vector2(0.5f, 0.8f),
-                        Text = SourceModule.DataManager.GetSettingAs<int>(Key).ToString()
+                        Text = SourceModule.DataManager.GetSettingAs<long>(Key).ToString()
                     }
                 }
             }
