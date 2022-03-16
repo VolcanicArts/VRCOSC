@@ -35,7 +35,6 @@ public class VRCOSCGameBase : osu.Framework.Game
     [BackgroundDependencyLoader]
     private void load(FrameworkConfigManager configManager, Storage storage)
     {
-        configManager.GetBindable<ExecutionMode>(FrameworkSetting.ExecutionMode).Value = ExecutionMode.SingleThread;
         dependencyContainer.CacheAs(new ModuleManager(storage));
         Resources.AddStore(new DllResourceStore(typeof(VRCOSCResources).Assembly));
     }
