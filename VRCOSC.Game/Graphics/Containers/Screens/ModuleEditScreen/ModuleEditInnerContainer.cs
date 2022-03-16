@@ -114,13 +114,13 @@ public class ModuleEditInnerContainer : Container
             }
         };
 
-        if (SourceModule.Data.Settings.Count == 0)
+        if (SourceModule.DataManager.GetSettingKeys().Count == 0)
         {
             moduleEditSettingsContainerLineSeparator.Alpha = 0;
             moduleEditSettingsContainer.Alpha = 0;
         }
 
-        if (SourceModule.Data.Parameters.Count == 0)
+        if (SourceModule.DataManager.GetParameterKeys().Count == 0)
         {
             moduleEditParametersContainerLineSeparator.Alpha = 0;
             moduleEditParametersContainer.Alpha = 0;

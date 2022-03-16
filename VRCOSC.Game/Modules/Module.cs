@@ -2,13 +2,9 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.IO;
 using System.Net.Sockets;
 using CoreOSC;
 using CoreOSC.IO;
-using Newtonsoft.Json;
-using osu.Framework.Bindables;
-using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Platform;
 using VRCOSC.Game.Util;
@@ -21,7 +17,6 @@ namespace VRCOSC.Game.Modules;
 
 public abstract class Module
 {
-    private const string storage_directory = "modules";
     private const string osc_ip_address = "127.0.0.1";
     private const int osc_port = 9000;
 
@@ -33,18 +28,17 @@ public abstract class Module
     public virtual double DeltaUpdate => double.PositiveInfinity;
 
     public ModuleMetadata Metadata { get; } = new();
-    public ModuleData Data { get; } = new();
-    public Bindable<bool> Enabled { get; } = new(true);
 
     protected TerminalLogger Terminal { get; private set; }
 
     private readonly UdpClient OscClient;
-    private readonly Storage Storage;
+
+    public readonly ModuleDataManager DataManager;
 
     protected Module(Storage storage)
     {
         OscClient = new UdpClient(osc_ip_address, osc_port);
-        Storage = storage;
+        DataManager = new ModuleDataManager(storage, GetType().Name);
     }
 
     internal void Start()
@@ -79,7 +73,7 @@ public abstract class Module
             Description = description
         };
 
-        Data.Settings.Add(key.ToString().ToLower(), defaultValue);
+        DataManager.SetSetting(key, defaultValue);
         Metadata.Settings.Add(key.ToString().ToLower(), moduleSettingMetadata);
     }
 
@@ -91,74 +85,13 @@ public abstract class Module
             Description = description,
         };
 
-        Data.Parameters.Add(key.ToString().ToLower(), defaultAddress);
+        DataManager.SetParameter(key, defaultAddress);
         Metadata.Parameters.Add(key.ToString().ToLower(), moduleOscParameterMetadata);
     }
 
-    public void UpdateSetting(string key, object value)
+    protected T? GetSettingAs<T>(Enum key)
     {
-        Data.Settings[key] = value;
-        saveData();
-    }
-
-    public void UpdateParameter(string key, string address)
-    {
-        Data.Parameters[key] = address;
-        saveData();
-    }
-
-    private void saveData()
-    {
-        var fileName = $"{GetType().Name}.conf";
-        var moduleStorage = Storage.GetStorageForDirectory(storage_directory);
-
-        moduleStorage.Delete(fileName);
-
-        using var fileStream = moduleStorage.GetStream(fileName, FileAccess.ReadWrite);
-        using var streamWriter = new StreamWriter(fileStream);
-
-        var serialisedData = JsonConvert.SerializeObject(Data);
-        streamWriter.WriteLine(serialisedData);
-    }
-
-    internal void LoadData()
-    {
-        var fileName = $"{GetType().Name}.conf";
-        var moduleStorage = Storage.GetStorageForDirectory(storage_directory);
-
-        using (var fileStream = moduleStorage.GetStream(fileName, FileAccess.ReadWrite))
-        {
-            using (var streamReader = new StreamReader(fileStream))
-            {
-                var deserializedData = JsonConvert.DeserializeObject<ModuleData>(streamReader.ReadToEnd());
-
-                if (deserializedData != null)
-                {
-                    deserializedData.Settings.ForEach(pair =>
-                    {
-                        if (Data.Settings.ContainsKey(pair.Key))
-                            Data.Settings[pair.Key] = pair.Value;
-                    });
-                    deserializedData.Parameters.ForEach(pair =>
-                    {
-                        if (Data.Parameters.ContainsKey(pair.Key))
-                            Data.Parameters[pair.Key] = pair.Value;
-                    });
-                    Enabled.Value = deserializedData.Enabled;
-                }
-            }
-        }
-
-        Enabled.BindValueChanged(e =>
-        {
-            Data.Enabled = e.NewValue;
-            saveData();
-        }, true);
-    }
-
-    protected T GetSettingAs<T>(Enum key)
-    {
-        return (T)Data.Settings[key.ToString().ToLower()];
+        return DataManager.GetSettingAs<T>(key);
     }
 
     protected void SendParameter(Enum key, bool value)
@@ -168,7 +101,7 @@ public abstract class Module
 
     protected void SendParameter(Enum key, object value)
     {
-        var address = new Address(Data.Parameters[key.ToString().ToLower()]);
+        var address = new Address(DataManager.GetParameter(key));
         var message = new OscMessage(address, new[] { value });
         OscClient.SendMessageAsync(message);
     }

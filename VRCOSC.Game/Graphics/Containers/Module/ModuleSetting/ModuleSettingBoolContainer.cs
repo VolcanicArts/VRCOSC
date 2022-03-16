@@ -75,11 +75,11 @@ public class ModuleSettingBoolContainer : ModuleSettingContainer
                         Anchor = Anchor.CentreRight,
                         Origin = Anchor.CentreRight,
                         Size = new Vector2(75),
-                        State = new Bindable<bool>((bool)SourceModule.Data.Settings[Key])
+                        State = new Bindable<bool>(SourceModule.DataManager.GetSettingAs<bool>(Key))
                     }
                 }
             }
         };
-        checkBox.State.BindValueChanged((e) => SourceModule.UpdateSetting(Key, e.NewValue));
+        checkBox.State.BindValueChanged((e) => SourceModule.DataManager.SetSetting(Key, e.NewValue));
     }
 }

@@ -83,7 +83,7 @@ public class ModuleOscParameterContainer : Container
                         RelativeSizeAxes = Axes.Both,
                         BorderThickness = 3,
                         Size = new Vector2(1, 0.45f),
-                        Text = SourceModule.Data.Parameters[Key]
+                        Text = SourceModule.DataManager.GetParameter(Key)
                     }
                 }
             }
@@ -99,7 +99,7 @@ public class ModuleOscParameterContainer : Container
 
         textBox.OnCommit += (_, _) =>
         {
-            SourceModule.UpdateParameter(Key, textBox.Text);
+            SourceModule.DataManager.SetParameter(Key, textBox.Text);
         };
     }
 }

@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
-using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
@@ -41,7 +40,7 @@ public class ModuleEditParametersContainer : FillFlowContainer
             }
         };
 
-        SourceModule.Data.Parameters.Keys.ForEach(key =>
+        SourceModule.DataManager.GetParameterKeys().ForEach(key =>
         {
             parametersFlow.Add(new ModuleOscParameterContainer
             {

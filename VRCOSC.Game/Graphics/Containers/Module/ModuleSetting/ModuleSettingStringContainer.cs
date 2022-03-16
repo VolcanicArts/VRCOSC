@@ -76,7 +76,7 @@ public class ModuleSettingStringContainer : ModuleSettingContainer
                         RelativeSizeAxes = Axes.Both,
                         BorderThickness = 3,
                         Size = new Vector2(0.5f, 0.8f),
-                        Text = (string)SourceModule.Data.Settings[Key]
+                        Text = SourceModule.DataManager.GetSettingAs<string>(Key)
                     }
                 }
             }
@@ -84,7 +84,7 @@ public class ModuleSettingStringContainer : ModuleSettingContainer
 
         textBox.OnCommit += (_, _) =>
         {
-            SourceModule.UpdateSetting(Key, textBox.Text);
+            SourceModule.DataManager.SetSetting(Key, textBox.Text);
         };
     }
 }

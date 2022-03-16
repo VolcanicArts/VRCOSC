@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
-using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
@@ -40,9 +39,9 @@ public class ModuleEditSettingsContainer : FillFlowContainer
             },
         };
 
-        SourceModule.Data.Settings.Keys.ForEach(key =>
+        SourceModule.DataManager.GetSettingKeys().ForEach(key =>
         {
-            var moduleSettingData = SourceModule.Data.Settings[key];
+            var moduleSettingData = SourceModule.DataManager.GetSetting(key);
 
             switch (moduleSettingData)
             {

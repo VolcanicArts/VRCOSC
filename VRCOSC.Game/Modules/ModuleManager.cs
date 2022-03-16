@@ -24,7 +24,7 @@ public class ModuleManager
         IEnumerable<Module> modules = ReflectiveEnumerator.GetEnumerableOfType<Module>(storage);
         modules.ForEach(module =>
         {
-            module.LoadData();
+            module.DataManager.LoadData();
             addModule(module);
         });
         sortModules();
@@ -57,7 +57,7 @@ public class ModuleManager
         {
             modules.ForEach(module =>
             {
-                if (!module.Enabled.Value) return;
+                if (!module.DataManager.Enabled.Value) return;
 
                 module.Start();
 
@@ -77,7 +77,7 @@ public class ModuleManager
         {
             modules.ForEach(module =>
             {
-                if (module.Enabled.Value) module.Stop();
+                if (module.DataManager.Enabled.Value) module.Stop();
             });
         });
     }

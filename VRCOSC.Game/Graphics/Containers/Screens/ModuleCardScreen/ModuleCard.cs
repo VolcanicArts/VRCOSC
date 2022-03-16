@@ -26,6 +26,7 @@ public class ModuleCard : Container
     private void load()
     {
         Box fadeBox;
+        ToggleCheckbox toggleCheckBox;
 
         InternalChildren = new Drawable[]
         {
@@ -107,12 +108,12 @@ public class ModuleCard : Container
                                     Action = () => ScreenManager.EditModule(SourceModule)
                                 }
                             },
-                            new ToggleCheckbox
+                            toggleCheckBox = new ToggleCheckbox
                             {
                                 Anchor = Anchor.CentreRight,
                                 Origin = Anchor.CentreRight,
                                 Size = new Vector2(50),
-                                State = SourceModule.Enabled.GetBoundCopy()
+                                State = SourceModule.DataManager.Enabled.GetBoundCopy()
                             }
                         }
                     }
@@ -127,7 +128,7 @@ public class ModuleCard : Container
             }
         };
 
-        SourceModule.Enabled.BindValueChanged(e =>
+        toggleCheckBox.State.BindValueChanged(e =>
         {
             fadeBox.FadeColour(e.NewValue ? VRCOSCColour.Invisible : VRCOSCColour.Gray0.Opacity(0.5f), 500, Easing.OutCubic);
         }, true);
