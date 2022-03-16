@@ -7,7 +7,6 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osuTK;
-using osuTK.Graphics;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleCardScreen;
@@ -31,7 +30,7 @@ public class ModuleCardListingContainer : Container
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
-                Colour = Color4.Gray
+                Colour = VRCOSCColour.Gray4
             },
             new BasicScrollContainer
             {
@@ -78,7 +77,7 @@ public class ModuleCardListingContainer : Container
                 AutoSizeAxes = Axes.Y,
                 Masking = true,
                 CornerRadius = 20,
-                EdgeEffect = VRCOSCEdgeEffects.BasicShadow,
+                BorderThickness = 3,
                 ModuleType = moduleType,
                 Modules = modules
             });

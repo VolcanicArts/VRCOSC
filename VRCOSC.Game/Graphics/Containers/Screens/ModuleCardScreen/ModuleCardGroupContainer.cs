@@ -83,8 +83,7 @@ public class ModuleCardGroupContainer : Container
                 AutoSizeAxes = Axes.Y,
                 Masking = true,
                 CornerRadius = 10,
-                EdgeEffect = VRCOSCEdgeEffects.BasicShadow,
-                BorderThickness = 3,
+                BorderThickness = 2,
                 SourceModule = module
             });
         });
