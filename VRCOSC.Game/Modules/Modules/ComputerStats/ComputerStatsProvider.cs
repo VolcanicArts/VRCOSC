@@ -56,7 +56,7 @@ public static class ComputerStatsProvider
         }
     }
 
-    public static Task<float> GetRamUsage()
+    public static async Task<float> GetRamUsage()
     {
         var wmiObject = new ManagementObjectSearcher("select * from Win32_OperatingSystem");
 
@@ -66,9 +66,11 @@ public static class ComputerStatsProvider
             TotalVisibleMemorySize = double.Parse(mo["TotalVisibleMemorySize"].ToString() ?? string.Empty)
         }).FirstOrDefault();
 
-        if (memoryValues == null) return Task.FromResult(0f);
+        await Task.Delay(1000);
+
+        if (memoryValues == null) return 0f;
 
         var percentageUsage = (float)((memoryValues.TotalVisibleMemorySize - memoryValues.FreePhysicalMemory) / memoryValues.TotalVisibleMemorySize) * 100f;
-        return Task.FromResult(MathF.Round(percentageUsage) / 100f);
+        return MathF.Round(percentageUsage) / 100f;
     }
 }
