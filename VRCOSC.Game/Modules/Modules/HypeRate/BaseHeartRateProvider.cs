@@ -74,7 +74,6 @@ public abstract class BaseHeartRateProvider
 
     private void wsMessageReceived(object? sender, MessageReceivedEventArgs e)
     {
-        terminal.Log(e.Message);
         OnWsMessageReceived(e.Message);
     }
 
