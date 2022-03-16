@@ -119,8 +119,16 @@ public abstract class Module
 
         if (deserializedData != null)
         {
-            deserializedData.Settings.ForEach(pair => Data.Settings[pair.Key] = pair.Value);
-            deserializedData.Parameters.ForEach(pair => Data.Parameters[pair.Key] = pair.Value);
+            deserializedData.Settings.ForEach(pair =>
+            {
+                if (Data.Settings.ContainsKey(pair.Key))
+                    Data.Settings[pair.Key] = pair.Value;
+            });
+            deserializedData.Parameters.ForEach(pair =>
+            {
+                if (Data.Parameters.ContainsKey(pair.Key))
+                    Data.Parameters[pair.Key] = pair.Value;
+            });
             Enabled.Value = deserializedData.Enabled;
         }
 
