@@ -153,9 +153,7 @@ public abstract class Module
         {
             Data.Enabled = e.NewValue;
             saveData();
-        });
-
-        saveData();
+        }, true);
     }
 
     protected T GetSettingAs<T>(Enum key)
