@@ -22,9 +22,9 @@ Right now there are no releases as the application isn't read for production. If
 - Override `OnUpdate()` to execute code on each update call.
 - Override `OnStop()` to execute code on when your module is stopped.
 - To create settings (such as having the user enter an API key), call the `CreateSetting()` method inside your module's constructor and fill in the required information.
-- You can access settings by calling the `GetSettingValue<T>("key")` method where `T` is the setting's type.
 - To create OSC parameters, call the `CreateParameter()` method inside your module's constructor and fill in the required information.
-- OSC parameters require an enum so it's recommended to create a `[ModuleName]Parameter` enum for each OSC parameter you want to send.
+- Settings and OSC parameters both require enums as keys so it's recommended to create two enums titled `[ModuleName]Setting` and `[ModuleName]Parameter`.
+- You can access settings by calling the `GetSettingAs<T>()` method where `T` is the setting's type.
 - To send data over OSC, call the `SendParameter()` method.
 - Finally, make a pull request to submit your module for review.
 
