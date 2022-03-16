@@ -89,6 +89,7 @@ public class ModuleEditInnerContainer : Container
                         AutoSizeAxes = Axes.Y,
                         Direction = FillDirection.Vertical,
                         Spacing = new Vector2(0, 10),
+                        Padding = new MarginPadding(10),
                         SourceModule = SourceModule
                     },
                     moduleEditParametersContainerLineSeparator = new LineSeparator
@@ -106,6 +107,7 @@ public class ModuleEditInnerContainer : Container
                         AutoSizeAxes = Axes.Y,
                         Direction = FillDirection.Vertical,
                         Spacing = new Vector2(0, 10),
+                        Padding = new MarginPadding(10),
                         SourceModule = SourceModule
                     }
                 }

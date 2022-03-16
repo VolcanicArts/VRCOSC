@@ -22,25 +22,37 @@ public class ModuleEditContainer : Container
     [BackgroundDependencyLoader]
     private void load()
     {
-        InternalChildren = new Drawable[]
+        Padding = new MarginPadding(40);
+
+        InternalChild = new Container
         {
-            new Box
+            Anchor = Anchor.Centre,
+            Origin = Anchor.Centre,
+            RelativeSizeAxes = Axes.Both,
+            Masking = true,
+            CornerRadius = 20,
+            EdgeEffect = VRCOSCEdgeEffects.DispersedShadow,
+            BorderThickness = 3,
+            Children = new Drawable[]
             {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                RelativeSizeAxes = Axes.Both,
-                Colour = VRCOSCColour.Gray3,
-            },
-            contentContainer = new Container<ModuleEditInnerContainer>
-            {
-                Name = "Content",
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                RelativeSizeAxes = Axes.Both,
-                Padding = new MarginPadding
+                new Box
                 {
-                    Vertical = 10,
-                    Horizontal = 30
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    RelativeSizeAxes = Axes.Both,
+                    Colour = VRCOSCColour.Gray3,
+                },
+                contentContainer = new Container<ModuleEditInnerContainer>
+                {
+                    Name = "Content",
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    RelativeSizeAxes = Axes.Both,
+                    Padding = new MarginPadding
+                    {
+                        Vertical = 4,
+                        Horizontal = 30
+                    }
                 }
             }
         };
