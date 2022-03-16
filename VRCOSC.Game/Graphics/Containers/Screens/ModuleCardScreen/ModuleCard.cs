@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
@@ -24,10 +25,7 @@ public class ModuleCard : Container
     [BackgroundDependencyLoader]
     private void load()
     {
-        SourceModule.Enabled.BindValueChanged(e =>
-        {
-            this.FadeTo(e.NewValue ? 1f : 0.5f, 500, Easing.OutCubic);
-        }, true);
+        Box fadeBox;
 
         InternalChildren = new Drawable[]
         {
@@ -119,7 +117,19 @@ public class ModuleCard : Container
                         }
                     }
                 }
+            },
+            fadeBox = new Box
+            {
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                RelativeSizeAxes = Axes.Both,
+                Colour = VRCOSCColour.Invisible
             }
         };
+
+        SourceModule.Enabled.BindValueChanged(e =>
+        {
+            fadeBox.FadeColour(e.NewValue ? VRCOSCColour.Invisible : VRCOSCColour.Gray0.Opacity(0.5f), 500, Easing.OutCubic);
+        }, true);
     }
 }
