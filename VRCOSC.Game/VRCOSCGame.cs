@@ -20,6 +20,6 @@ public class VRCOSCGame : VRCOSCGameBase
     [BackgroundDependencyLoader]
     private void load()
     {
-        InternalChild = screenManager;
+        Child = screenManager;
     }
 }
