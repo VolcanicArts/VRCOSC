@@ -1,6 +1,7 @@
 // Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Collections.Generic;
 using Markdig.Helpers;
 using osu.Framework.Bindables;
@@ -22,6 +23,7 @@ public class ModuleManager
     {
         IEnumerable<Module> modules = ReflectiveEnumerator.GetEnumerableOfType<Module>(storage);
         modules.ForEach(addModule);
+        sortModules();
     }
 
     private void addModule(Module? module)
@@ -31,6 +33,17 @@ public class ModuleManager
         var list = Modules.GetValueOrDefault(module.Type, new OrderedList<Module>());
         list.Add(module);
         Modules.TryAdd(module.Type, list);
+    }
+
+    private void sortModules()
+    {
+        Dictionary<ModuleType, OrderedList<Module>> localList = new(Modules);
+        Modules.Clear();
+
+        foreach (ModuleType moduleType in Enum.GetValues(typeof(ModuleType)))
+        {
+            Modules.Add(moduleType, localList[moduleType]);
+        }
     }
 
     public void Start(Scheduler scheduler)
