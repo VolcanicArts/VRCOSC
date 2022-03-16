@@ -6,7 +6,6 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
-using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
 using osu.Framework.Logging;
 using osuTK.Input;
@@ -19,7 +18,7 @@ public class TerminalContainer : Container
     private ScreenManager ScreenManager { get; set; }
 
     private BasicScrollContainer terminalScroll;
-    private FillFlowContainer<SpriteText> terminalFlow;
+    private FillFlowContainer<TerminalEntry> terminalFlow;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -64,7 +63,7 @@ public class TerminalContainer : Container
                         RelativeSizeAxes = Axes.Both,
                         ClampExtension = 20,
                         ScrollbarVisible = false,
-                        Child = terminalFlow = new FillFlowContainer<SpriteText>
+                        Child = terminalFlow = new FillFlowContainer<TerminalEntry>
                         {
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
@@ -78,21 +77,28 @@ public class TerminalContainer : Container
         };
     }
 
+    protected override void UpdateAfterChildren()
+    {
+        base.UpdateAfterChildren();
+
+        while (terminalFlow.Count > 50) terminalFlow[0].RemoveAndDisposeImmediately();
+        terminalScroll.ScrollToEnd();
+    }
+
     private void log(string text)
     {
         Scheduler.Add(() =>
         {
-            if (terminalFlow.Count >= 50) terminalFlow[0].RemoveAndDisposeImmediately();
             var formattedText = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {text}";
-            terminalFlow.Add(new SpriteText
+
+            var entry = new TerminalEntry
             {
                 Anchor = Anchor.CentreLeft,
                 Origin = Anchor.CentreLeft,
-                Font = FrameworkFont.Regular.With(size: 20),
-                Colour = VRCOSCColour.Gray8,
+                AutoSizeAxes = Axes.Both,
                 Text = formattedText
-            });
-            Scheduler.AddDelayed(() => terminalScroll.ScrollToEnd(), 50);
+            };
+            terminalFlow.Add(entry);
         });
     }
 
