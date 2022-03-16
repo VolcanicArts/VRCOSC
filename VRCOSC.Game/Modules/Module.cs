@@ -65,7 +65,22 @@ public abstract class Module
 
     protected virtual void OnStop() { }
 
-    protected void CreateSetting(Enum key, string displayName, string description, object defaultValue)
+    protected void CreateSetting(Enum key, string displayName, string description, string defaultValue)
+    {
+        createSetting(key, displayName, description, defaultValue);
+    }
+
+    protected void CreateSetting(Enum key, string displayName, string description, int defaultValue)
+    {
+        createSetting(key, displayName, description, defaultValue);
+    }
+
+    protected void CreateSetting(Enum key, string displayName, string description, bool defaultValue)
+    {
+        createSetting(key, displayName, description, defaultValue);
+    }
+
+    private void createSetting(Enum key, string displayName, string description, object defaultValue)
     {
         var moduleSettingMetadata = new ModuleAttributeMetadata
         {
@@ -89,7 +104,7 @@ public abstract class Module
         Metadata.Parameters.Add(key.ToString().ToLower(), moduleOscParameterMetadata);
     }
 
-    protected T? GetSettingAs<T>(Enum key)
+    protected T GetSettingAs<T>(Enum key)
     {
         return DataManager.GetSettingAs<T>(key);
     }

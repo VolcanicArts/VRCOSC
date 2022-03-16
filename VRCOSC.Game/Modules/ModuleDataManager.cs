@@ -130,10 +130,10 @@ public class ModuleDataManager
         return !settings.ContainsKey(key) ? null : settings[key];
     }
 
-    public T? GetSettingAs<T>(Enum key)
+    public T GetSettingAs<T>(Enum key)
     {
         var keyStr = key.ToString().ToLower();
-        return GetSettingAs<T>(keyStr);
+        return GetSettingAs<T>(keyStr)!;
     }
 
     public T? GetSettingAs<T>(string key)
