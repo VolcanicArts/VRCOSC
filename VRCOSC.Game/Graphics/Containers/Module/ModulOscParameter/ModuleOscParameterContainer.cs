@@ -2,11 +2,15 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Graphics.Sprites;
 using osuTK;
 using VRCOSC.Game.Graphics.Containers.UI.TextBox;
+using VRCOSC.Game.Graphics.Drawables.Triangles;
 
 namespace VRCOSC.Game.Graphics.Containers.Module.ModulOscParameter;
 
@@ -24,16 +28,29 @@ public class ModuleOscParameterContainer : Container
         Height = 100;
         Masking = true;
         CornerRadius = 10;
+        BorderThickness = 3;
+        EdgeEffect = VRCOSCEdgeEffects.BasicShadow;
 
         VRCOSCTextBox textBox;
         Children = new Drawable[]
         {
-            new Box
+            new TrianglesBackground
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
-                Colour = Colour4.Black
+                ColourLight = VRCOSCColour.Gray7,
+                ColourDark = VRCOSCColour.Gray7.Darken(0.25f),
+                Velocity = 0.5f,
+                TriangleScale = 3
+            },
+            new Box
+            {
+                Anchor = Anchor.CentreLeft,
+                Origin = Anchor.CentreLeft,
+                RelativeSizeAxes = Axes.Both,
+                Size = new Vector2(0.5f, 1),
+                Colour = ColourInfo.GradientHorizontal(Colour4.Black.Opacity(0.75f), VRCOSCColour.Invisible)
             },
             new Container
             {
@@ -48,22 +65,19 @@ public class ModuleOscParameterContainer : Container
                 },
                 Children = new Drawable[]
                 {
-                    new TextFlowContainer(t => t.Font = FrameworkFont.Regular.With(size: 30))
+                    new SpriteText
                     {
                         Anchor = Anchor.TopLeft,
                         Origin = Anchor.TopLeft,
-                        AutoSizeAxes = Axes.Both,
+                        Font = FrameworkFont.Regular.With(size: 30),
                         Text = SourceModule.Metadata.Parameters[Key].DisplayName
                     },
-                    new TextFlowContainer(t =>
-                    {
-                        t.Font = FrameworkFont.Regular.With(size: 20);
-                        t.Colour = VRCOSCColour.Gray9;
-                    })
+                    new SpriteText
                     {
                         Anchor = Anchor.CentreLeft,
                         Origin = Anchor.CentreLeft,
-                        AutoSizeAxes = Axes.Both,
+                        Colour = VRCOSCColour.Gray9,
+                        Font = FrameworkFont.Regular.With(size: 20),
                         Text = SourceModule.Metadata.Parameters[Key].Description
                     },
                     textBox = new VRCOSCTextBox
@@ -71,6 +85,7 @@ public class ModuleOscParameterContainer : Container
                         Anchor = Anchor.CentreRight,
                         Origin = Anchor.CentreRight,
                         RelativeSizeAxes = Axes.Both,
+                        BorderThickness = 3,
                         Size = new Vector2(0.5f, 0.8f),
                         Text = SourceModule.Data.Parameters[Key]
                     }

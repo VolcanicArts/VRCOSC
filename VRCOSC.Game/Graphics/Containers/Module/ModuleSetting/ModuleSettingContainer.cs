@@ -21,5 +21,7 @@ public class ModuleSettingContainer : Container
         Height = 100;
         Masking = true;
         CornerRadius = 10;
+        BorderThickness = 3;
+        EdgeEffect = VRCOSCEdgeEffects.BasicShadow;
     }
 }
