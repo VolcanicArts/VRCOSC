@@ -3,7 +3,9 @@
 
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
 using VRCOSC.Game.Graphics.Containers.UI;
@@ -32,6 +34,13 @@ public class ModuleCard : Container
                 Height = 75,
                 ColourLight = SourceModule.Colour,
                 ColourDark = SourceModule.Colour.Darken(0.25f)
+            },
+            new Box
+            {
+                Anchor = Anchor.CentreLeft,
+                Origin = Anchor.CentreLeft,
+                RelativeSizeAxes = Axes.Both,
+                Colour = ColourInfo.GradientHorizontal(Colour4.Black.Opacity(0.75f), VRCOSCColour.Invisible)
             },
             new Container
             {
