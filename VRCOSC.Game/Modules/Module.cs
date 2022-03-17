@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections.Generic;
 using System.Net.Sockets;
 using CoreOSC;
 using CoreOSC.IO;
@@ -67,20 +68,17 @@ public abstract class Module
 
     protected void CreateSetting(Enum key, string displayName, string description, string defaultValue)
     {
-        createSetting(key, displayName, description, defaultValue);
+        var moduleSettingMetadata = new ModuleAttributeMetadata
+        {
+            DisplayName = displayName,
+            Description = description
+        };
+
+        DataManager.Settings.SetStringSetting(key.ToString().ToLower(), defaultValue);
+        Metadata.Settings.Add(key.ToString().ToLower(), moduleSettingMetadata);
     }
 
     protected void CreateSetting(Enum key, string displayName, string description, int defaultValue)
-    {
-        createSetting(key, displayName, description, defaultValue);
-    }
-
-    protected void CreateSetting(Enum key, string displayName, string description, bool defaultValue)
-    {
-        createSetting(key, displayName, description, defaultValue);
-    }
-
-    private void createSetting(Enum key, string displayName, string description, object defaultValue)
     {
         var moduleSettingMetadata = new ModuleAttributeMetadata
         {
@@ -88,7 +86,19 @@ public abstract class Module
             Description = description
         };
 
-        DataManager.SetSetting(key, defaultValue);
+        DataManager.Settings.SetIntSetting(key.ToString().ToLower(), defaultValue);
+        Metadata.Settings.Add(key.ToString().ToLower(), moduleSettingMetadata);
+    }
+
+    protected void CreateSetting(Enum key, string displayName, string description, bool defaultValue)
+    {
+        var moduleSettingMetadata = new ModuleAttributeMetadata
+        {
+            DisplayName = displayName,
+            Description = description
+        };
+
+        DataManager.Settings.SetBoolSetting(key.ToString().ToLower(), defaultValue);
         Metadata.Settings.Add(key.ToString().ToLower(), moduleSettingMetadata);
     }
 
@@ -106,7 +116,7 @@ public abstract class Module
 
     protected T GetSettingAs<T>(Enum key)
     {
-        return DataManager.GetSettingAs<T>(key);
+        return DataManager.GetSettingAs<T>(key.ToString().ToLower());
     }
 
     protected void SendParameter(Enum key, bool value)

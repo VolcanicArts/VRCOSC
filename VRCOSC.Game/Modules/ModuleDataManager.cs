@@ -21,8 +21,8 @@ public class ModuleDataManager
     [JsonProperty("enabled")]
     public readonly Bindable<bool> Enabled = new(true);
 
-    [JsonProperty]
-    private SerialisableBindableDictionary<string, object> settings { get; } = new();
+    [JsonProperty("settings")]
+    public readonly ModuleSettingsManager Settings = new();
 
     [JsonProperty]
     private SerialisableBindableDictionary<string, string> parameters { get; } = new();
@@ -41,14 +41,18 @@ public class ModuleDataManager
 
     private void bindAllAttributes()
     {
-        settings.CollectionChanged += (_, _) => saveData();
+        Settings.StringSettings.CollectionChanged += (_, _) => saveData();
+        Settings.IntSettings.CollectionChanged += (_, _) => saveData();
+        Settings.BoolSettings.CollectionChanged += (_, _) => saveData();
         parameters.CollectionChanged += (_, _) => saveData();
         Enabled.ValueChanged += _ => saveData();
     }
 
     private void unbindAllAttributes()
     {
-        settings.UnbindAll();
+        Settings.StringSettings.UnbindAll();
+        Settings.IntSettings.UnbindAll();
+        Settings.BoolSettings.UnbindAll();
         parameters.UnbindAll();
         Enabled.UnbindAll();
     }
@@ -87,26 +91,9 @@ public class ModuleDataManager
         streamWriter.WriteLine(serialisedData);
     }
 
-    public List<string> GetSettingKeys()
-    {
-        return settings.Keys.ToList();
-    }
-
     public List<string> GetParameterKeys()
     {
         return parameters.Keys.ToList();
-    }
-
-    public void SetSetting(Enum key, object value)
-    {
-        var keyStr = key.ToString().ToLower();
-        SetSetting(keyStr, value);
-    }
-
-    public void SetSetting(string key, object value)
-    {
-        if (!settings.TryAdd(key, value))
-            settings[key] = value;
     }
 
     public void SetParameter(Enum key, string address)
@@ -121,26 +108,24 @@ public class ModuleDataManager
             parameters[key] = address;
     }
 
-    public object? GetSetting(Enum key)
+    public T GetSettingAs<T>(string key)
     {
-        var keyStr = key.ToString().ToLower();
-        return GetSetting(keyStr);
-    }
+        if (typeof(T) == typeof(string))
+        {
+            return (T)Convert.ChangeType(Settings.StringSettings[key], typeof(T));
+        }
 
-    public object? GetSetting(string key)
-    {
-        return !settings.ContainsKey(key) ? null : settings[key];
-    }
+        if (typeof(T) == typeof(int))
+        {
+            return (T)Convert.ChangeType(Settings.IntSettings[key], typeof(T));
+        }
 
-    public T GetSettingAs<T>(Enum key)
-    {
-        var keyStr = key.ToString().ToLower();
-        return GetSettingAs<T>(keyStr)!;
-    }
+        if (typeof(T) == typeof(bool))
+        {
+            return (T)Convert.ChangeType(Settings.BoolSettings[key], typeof(T));
+        }
 
-    public T? GetSettingAs<T>(string key)
-    {
-        return !settings.ContainsKey(key) ? default : (T)settings[key];
+        throw new ArgumentException($"No setting found with key {key} that is of type {typeof(T)}");
     }
 
     public string GetParameter(Enum key)
@@ -156,11 +141,7 @@ public class ModuleDataManager
 
     private void copyDataFrom(ModuleDataManager dataToCopy)
     {
-        dataToCopy.settings.ForEach(pair =>
-        {
-            if (settings.ContainsKey(pair.Key))
-                settings[pair.Key] = pair.Value;
-        });
+        Settings.CopyDataFrom(dataToCopy.Settings);
         dataToCopy.parameters.ForEach(pair =>
         {
             if (parameters.ContainsKey(pair.Key))

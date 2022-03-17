@@ -114,7 +114,7 @@ public class ModuleEditInnerContainer : Container
             }
         };
 
-        if (SourceModule.DataManager.GetSettingKeys().Count == 0)
+        if (SourceModule.DataManager.Settings.GetTotalSettingKeys() == 0)
         {
             moduleEditSettingsContainerLineSeparator.Alpha = 0;
             moduleEditSettingsContainer.Alpha = 0;

@@ -80,6 +80,6 @@ public class ModuleSettingBoolContainer : ModuleSettingContainer
                 }
             }
         };
-        checkBox.State.BindValueChanged((e) => SourceModule.DataManager.SetSetting(Key, e.NewValue));
+        checkBox.State.BindValueChanged((e) => SourceModule.DataManager.Settings.SetBoolSetting(Key, e.NewValue));
     }
 }

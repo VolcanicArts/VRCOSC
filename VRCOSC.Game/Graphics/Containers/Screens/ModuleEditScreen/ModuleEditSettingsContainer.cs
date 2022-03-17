@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
@@ -39,36 +40,29 @@ public class ModuleEditSettingsContainer : FillFlowContainer
             },
         };
 
-        SourceModule.DataManager.GetSettingKeys().ForEach(key =>
+        SourceModule.DataManager.Settings.StringSettings.Keys.ForEach(key =>
         {
-            var moduleSettingData = SourceModule.DataManager.GetSetting(key);
-
-            switch (moduleSettingData)
+            settingsFlow.Add(new ModuleSettingStringContainer
             {
-                case string:
-                    settingsFlow.Add(new ModuleSettingStringContainer
-                    {
-                        Key = key,
-                        SourceModule = SourceModule
-                    });
-                    break;
-
-                case bool:
-                    settingsFlow.Add(new ModuleSettingBoolContainer
-                    {
-                        Key = key,
-                        SourceModule = SourceModule
-                    });
-                    break;
-
-                case long:
-                    settingsFlow.Add(new ModuleSettingIntContainer
-                    {
-                        Key = key,
-                        SourceModule = SourceModule
-                    });
-                    break;
-            }
+                Key = key,
+                SourceModule = SourceModule
+            });
+        });
+        SourceModule.DataManager.Settings.IntSettings.Keys.ForEach(key =>
+        {
+            settingsFlow.Add(new ModuleSettingIntContainer
+            {
+                Key = key,
+                SourceModule = SourceModule
+            });
+        });
+        SourceModule.DataManager.Settings.BoolSettings.Keys.ForEach(key =>
+        {
+            settingsFlow.Add(new ModuleSettingBoolContainer
+            {
+                Key = key,
+                SourceModule = SourceModule
+            });
         });
     }
 }

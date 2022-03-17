@@ -84,7 +84,7 @@ public class ModuleSettingStringContainer : ModuleSettingContainer
 
         textBox.OnCommit += (_, _) =>
         {
-            SourceModule.DataManager.SetSetting(Key, textBox.Text);
+            SourceModule.DataManager.Settings.SetStringSetting(Key, textBox.Text);
         };
     }
 }

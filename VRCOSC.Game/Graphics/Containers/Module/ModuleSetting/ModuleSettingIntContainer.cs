@@ -76,7 +76,7 @@ public class ModuleSettingIntContainer : ModuleSettingContainer
                         RelativeSizeAxes = Axes.Both,
                         BorderThickness = 3,
                         Size = new Vector2(0.5f, 0.8f),
-                        Text = SourceModule.DataManager.GetSettingAs<long>(Key).ToString()
+                        Text = SourceModule.DataManager.GetSettingAs<int>(Key).ToString()
                     }
                 }
             }
@@ -84,7 +84,7 @@ public class ModuleSettingIntContainer : ModuleSettingContainer
         textBox.OnCommit += (_, _) =>
         {
             if (int.TryParse(textBox.Text, out var newValue))
-                SourceModule.DataManager.SetSetting(Key, newValue);
+                SourceModule.DataManager.Settings.SetIntSetting(Key, newValue);
         };
     }
 }
