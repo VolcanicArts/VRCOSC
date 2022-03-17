@@ -11,7 +11,7 @@ namespace VRCOSC.Game.Modules.Modules.Clock;
 public class ClockModule : Module
 {
     public override string Title => "Clock";
-    public override string Description => "Sends hours and minutes in individual digits to VRChat";
+    public override string Description => "Sends time data to VRChat";
     public override string Author => "VolcanicArts";
     public override Colour4 Colour => Colour4.LightGray;
     public override ModuleType Type => ModuleType.General;
@@ -20,13 +20,48 @@ public class ClockModule : Module
     public ClockModule(Storage storage)
         : base(storage)
     {
+        CreateSetting(ClockSetting.SendType, "Send Type", "Whether to send the clock data for blendtree (-1,1) or as individual digits", ClockSettingSendType.SendAsIndividual);
+
         CreateParameter(ClockParameter.HoursTens, "Hours Tens", "The tens value of the current hour", "/avatar/parameters/HoursTens");
         CreateParameter(ClockParameter.HoursUnits, "Hours Units", "The units value of the current hour", "/avatar/parameters/HoursUnits");
         CreateParameter(ClockParameter.MinutesTens, "Minutes Tens", "The tens value of the current minute", "/avatar/parameters/MinutesTens");
         CreateParameter(ClockParameter.MinutesUnits, "Minutes Units", "The units value of the current minute", "/avatar/parameters/MinutesUnits");
+        CreateParameter(ClockParameter.HourMapped, "Hour Mapped", "The current hour mapped between -1 and 1", "/avatar/parameters/HourMapped");
+        CreateParameter(ClockParameter.MinuteMapped, "Minute Mapped", "The current minute mapped between -1 and 1", "/avatar/parameters/MinuteMapped");
     }
 
     protected override void OnUpdate()
+    {
+        var sendType = GetSettingAs<ClockSettingSendType>(ClockSetting.SendType);
+
+        switch (sendType)
+        {
+            case ClockSettingSendType.SendForBlendtree:
+                sendForBlendTree();
+                break;
+
+            case ClockSettingSendType.SendAsIndividual:
+                sendAsIndividual();
+                break;
+        }
+    }
+
+    private void sendForBlendTree()
+    {
+        var hour = DateTime.Now.Hour;
+        var minute = DateTime.Now.Minute;
+
+        var hourMapped = MathF.Round(mapBetween(hour, 0, 24, -1, 1), 2);
+        var minuteMapped = MathF.Round(mapBetween(minute, 0, 60, -1, 1), 2);
+
+        Terminal.Log("Hour mapped " + hourMapped);
+        Terminal.Log("Minute mapped " + minuteMapped);
+
+        SendParameter(ClockParameter.HourMapped, hourMapped);
+        SendParameter(ClockParameter.MinuteMapped, minuteMapped);
+    }
+
+    private void sendAsIndividual()
     {
         var hour = DateTime.Now.Hour;
         var minute = DateTime.Now.Minute;
@@ -42,6 +77,11 @@ public class ClockModule : Module
         SendParameter(ClockParameter.MinutesUnits, minutesSplit[1]);
     }
 
+    private static float mapBetween(float value, float sMin, float sMax, float dMin, float dMax)
+    {
+        return value / (sMax - sMin) * (dMax - dMin) + dMin;
+    }
+
     private static int[] toDigitArray(int num)
     {
         var numStr = num.ToString().PadLeft(2, '0');
@@ -54,5 +94,18 @@ public enum ClockParameter
     HoursUnits,
     HoursTens,
     MinutesUnits,
-    MinutesTens
+    MinutesTens,
+    HourMapped,
+    MinuteMapped
+}
+
+public enum ClockSetting
+{
+    SendType
+}
+
+public enum ClockSettingSendType
+{
+    SendForBlendtree,
+    SendAsIndividual
 }
