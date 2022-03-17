@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using osu.Framework.Extensions.IEnumerableExtensions;
@@ -18,6 +19,10 @@ public class ModuleSettingsManager
 
     [JsonProperty("bool_settings")]
     public SerialisableBindableDictionary<string, bool> BoolSettings { get; } = new();
+
+    [JsonProperty("enum_settings")]
+    // key : (enumName : enumValue)
+    public SerialisableBindableDictionary<string, KeyValuePair<string, int>> EnumSettings { get; } = new();
 
     public void SetStringSetting(string key, string value)
     {
@@ -37,6 +42,14 @@ public class ModuleSettingsManager
             BoolSettings[key] = value;
     }
 
+    public void SetEnumSetting<T>(string key, T value) where T : Enum
+    {
+        var keyValuePair = new KeyValuePair<string, int>(typeof(T).Name, Convert.ToInt32(value));
+
+        if (!EnumSettings.TryAdd(key, keyValuePair))
+            EnumSettings[key] = keyValuePair;
+    }
+
     public void CopyDataFrom(ModuleSettingsManager dataToCopy)
     {
         dataToCopy.StringSettings.ForEach(pair =>
@@ -54,10 +67,26 @@ public class ModuleSettingsManager
             if (BoolSettings.ContainsKey(pair.Key))
                 BoolSettings[pair.Key] = pair.Value;
         });
+        dataToCopy.EnumSettings.ForEach(pair =>
+        {
+            try
+            {
+                TypeUtils.GetTypeByName(pair.Value.Key);
+            }
+            catch (InvalidOperationException)
+            {
+                // enum no longer exists due to an alteration to its module but is saved in the config
+                // we ignore it to let it be removed
+                return;
+            }
+
+            if (EnumSettings.ContainsKey(pair.Key))
+                EnumSettings[pair.Key] = pair.Value;
+        });
     }
 
     public int GetTotalSettingKeys()
     {
-        return StringSettings.Count + IntSettings.Count + BoolSettings.Count;
+        return StringSettings.Count + IntSettings.Count + BoolSettings.Count + EnumSettings.Count;
     }
 }

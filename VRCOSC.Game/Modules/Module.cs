@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Collections.Generic;
 using System.Net.Sockets;
 using CoreOSC;
 using CoreOSC.IO;
@@ -99,6 +98,18 @@ public abstract class Module
         };
 
         DataManager.Settings.SetBoolSetting(key.ToString().ToLower(), defaultValue);
+        Metadata.Settings.Add(key.ToString().ToLower(), moduleSettingMetadata);
+    }
+
+    protected void CreateSetting<T>(Enum key, string displayName, string description, T defaultValue) where T : Enum
+    {
+        var moduleSettingMetadata = new ModuleAttributeMetadata
+        {
+            DisplayName = displayName,
+            Description = description
+        };
+
+        DataManager.Settings.SetEnumSetting(key.ToString().ToLower(), defaultValue);
         Metadata.Settings.Add(key.ToString().ToLower(), moduleSettingMetadata);
     }
 

@@ -44,6 +44,7 @@ public class ModuleDataManager
         Settings.StringSettings.CollectionChanged += (_, _) => saveData();
         Settings.IntSettings.CollectionChanged += (_, _) => saveData();
         Settings.BoolSettings.CollectionChanged += (_, _) => saveData();
+        Settings.EnumSettings.CollectionChanged += (_, _) => saveData();
         parameters.CollectionChanged += (_, _) => saveData();
         Enabled.ValueChanged += _ => saveData();
     }
@@ -53,6 +54,7 @@ public class ModuleDataManager
         Settings.StringSettings.UnbindAll();
         Settings.IntSettings.UnbindAll();
         Settings.BoolSettings.UnbindAll();
+        Settings.EnumSettings.UnbindAll();
         parameters.UnbindAll();
         Enabled.UnbindAll();
     }
@@ -123,6 +125,11 @@ public class ModuleDataManager
         if (typeof(T) == typeof(bool))
         {
             return (T)Convert.ChangeType(Settings.BoolSettings[key], typeof(T));
+        }
+
+        if (typeof(T).IsSubclassOf(typeof(Enum)))
+        {
+            return (T)Enum.ToObject(typeof(T), Settings.EnumSettings[key].Value);
         }
 
         throw new ArgumentException($"No setting found with key {key} that is of type {typeof(T)}");
