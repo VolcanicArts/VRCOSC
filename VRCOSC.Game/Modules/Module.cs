@@ -9,10 +9,6 @@ using osu.Framework.Graphics;
 using osu.Framework.Platform;
 using VRCOSC.Game.Util;
 
-#pragma warning disable CS8618
-
-// ReSharper disable InconsistentNaming
-
 namespace VRCOSC.Game.Modules;
 
 public abstract class Module
@@ -23,22 +19,21 @@ public abstract class Module
     public virtual string Title => string.Empty;
     public virtual string Description => string.Empty;
     public virtual string Author => string.Empty;
+    public virtual double DeltaUpdate => double.PositiveInfinity;
     public virtual Colour4 Colour => Colour4.Black;
     public virtual ModuleType Type => ModuleType.General;
-    public virtual double DeltaUpdate => double.PositiveInfinity;
-
-    public ModuleMetadata Metadata { get; } = new();
-
-    protected TerminalLogger Terminal { get; private set; }
-
-    private readonly UdpClient OscClient;
 
     public readonly ModuleDataManager DataManager;
+    public readonly ModuleMetadata Metadata;
+    private readonly UdpClient oscClient;
+
+    protected TerminalLogger Terminal { get; private set; } = null!;
 
     protected Module(Storage storage)
     {
-        OscClient = new UdpClient(osc_ip_address, osc_port);
         DataManager = new ModuleDataManager(storage, GetType().Name);
+        Metadata = new ModuleMetadata();
+        oscClient = new UdpClient(osc_ip_address, osc_port);
     }
 
     internal void Start()
@@ -67,62 +62,52 @@ public abstract class Module
 
     protected void CreateSetting(Enum key, string displayName, string description, string defaultValue)
     {
-        var moduleSettingMetadata = new ModuleAttributeMetadata
-        {
-            DisplayName = displayName,
-            Description = description
-        };
-
+        createSettingsMetadata(key, displayName, description);
         DataManager.Settings.SetStringSetting(key.ToString().ToLower(), defaultValue);
-        Metadata.Settings.Add(key.ToString().ToLower(), moduleSettingMetadata);
     }
 
     protected void CreateSetting(Enum key, string displayName, string description, int defaultValue)
     {
-        var moduleSettingMetadata = new ModuleAttributeMetadata
-        {
-            DisplayName = displayName,
-            Description = description
-        };
-
+        createSettingsMetadata(key, displayName, description);
         DataManager.Settings.SetIntSetting(key.ToString().ToLower(), defaultValue);
-        Metadata.Settings.Add(key.ToString().ToLower(), moduleSettingMetadata);
     }
 
     protected void CreateSetting(Enum key, string displayName, string description, bool defaultValue)
     {
-        var moduleSettingMetadata = new ModuleAttributeMetadata
-        {
-            DisplayName = displayName,
-            Description = description
-        };
-
+        createSettingsMetadata(key, displayName, description);
         DataManager.Settings.SetBoolSetting(key.ToString().ToLower(), defaultValue);
-        Metadata.Settings.Add(key.ToString().ToLower(), moduleSettingMetadata);
     }
 
     protected void CreateSetting<T>(Enum key, string displayName, string description, T defaultValue) where T : Enum
     {
-        var moduleSettingMetadata = new ModuleAttributeMetadata
-        {
-            DisplayName = displayName,
-            Description = description
-        };
-
+        createSettingsMetadata(key, displayName, description);
         DataManager.Settings.SetEnumSetting(key.ToString().ToLower(), defaultValue);
-        Metadata.Settings.Add(key.ToString().ToLower(), moduleSettingMetadata);
     }
 
     protected void CreateParameter(Enum key, string displayName, string description, string defaultAddress)
     {
-        var moduleOscParameterMetadata = new ModuleAttributeMetadata
+        createParameterMetadata(key, displayName, description);
+        DataManager.SetParameter(key, defaultAddress);
+    }
+
+    private void createSettingsMetadata(Enum key, string displayName, string description)
+    {
+        var moduleAttributeMetadata = new ModuleAttributeMetadata
+        {
+            DisplayName = displayName,
+            Description = description
+        };
+        Metadata.Settings.Add(key.ToString().ToLower(), moduleAttributeMetadata);
+    }
+
+    private void createParameterMetadata(Enum key, string displayName, string description)
+    {
+        var moduleAttributeMetadata = new ModuleAttributeMetadata
         {
             DisplayName = displayName,
             Description = description,
         };
-
-        DataManager.SetParameter(key, defaultAddress);
-        Metadata.Parameters.Add(key.ToString().ToLower(), moduleOscParameterMetadata);
+        Metadata.Parameters.Add(key.ToString().ToLower(), moduleAttributeMetadata);
     }
 
     protected T GetSettingAs<T>(Enum key)
@@ -139,6 +124,6 @@ public abstract class Module
     {
         var address = new Address(DataManager.GetParameter(key));
         var message = new OscMessage(address, new[] { value });
-        OscClient.SendMessageAsync(message);
+        oscClient.SendMessageAsync(message);
     }
 }
