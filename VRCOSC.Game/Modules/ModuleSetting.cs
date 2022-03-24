@@ -1,6 +1,8 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
+
 namespace VRCOSC.Game.Modules;
 
 public abstract class ModuleSetting
@@ -26,6 +28,5 @@ public class BoolModuleSetting : ModuleSetting
 
 public class EnumModuleSetting : ModuleSetting
 {
-    public string EnumName { get; init; }
-    public int Value { get; set; }
+    public Enum Value { get; set; }
 }

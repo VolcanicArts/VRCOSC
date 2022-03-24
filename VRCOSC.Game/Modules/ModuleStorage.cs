@@ -1,11 +1,13 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.IO;
 using System.Text;
 using NuGet.ProjectModel;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Platform;
+using VRCOSC.Game.Util;
 
 namespace VRCOSC.Game.Modules;
 
@@ -83,7 +85,7 @@ public static class ModuleStorage
                     break;
 
                 case EnumModuleSetting enumModuleSetting:
-                    builder.Append($"enum:{key}#{enumModuleSetting.EnumName}={enumModuleSetting.Value}\n");
+                    builder.Append($"enum:{key}#{enumModuleSetting.Value.GetType().Name}={Convert.ToInt32(enumModuleSetting.Value)}\n");
                     break;
             }
         });
@@ -200,7 +202,21 @@ public static class ModuleStorage
                     key = lineSplitThird[0];
                     var enumName = lineSplitThird[1];
 
-                    dataManager.SetSetting(key, new EnumModuleSetting { EnumName = enumName, Value = int.Parse(value) });
+                    Type enumType;
+
+                    try
+                    {
+                        enumType = TypeUtils.GetTypeByName(enumName);
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        // we're trying to load an enum that no longer exists due to a change in the module
+                        // we can ignore this
+                        return;
+                    }
+
+                    Enum enumValue = (Enum)Enum.ToObject(enumType, int.Parse(value));
+                    dataManager.SetSetting(key, new EnumModuleSetting { Value = enumValue });
                     break;
                 }
             }

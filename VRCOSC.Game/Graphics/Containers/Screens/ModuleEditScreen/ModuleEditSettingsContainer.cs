@@ -10,7 +10,6 @@ using osu.Framework.Graphics.Sprites;
 using osuTK;
 using VRCOSC.Game.Graphics.Containers.Module;
 using VRCOSC.Game.Modules;
-using VRCOSC.Game.Util;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditScreen;
 
@@ -74,7 +73,7 @@ public class ModuleEditSettingsContainer : FillFlowContainer
             else if (setting.GetType() == typeof(EnumModuleSetting))
             {
                 var enumSetting = (EnumModuleSetting)setting;
-                Type type = typeof(ModuleSettingEnumContainer<>).MakeGenericType(TypeUtils.GetTypeByName(enumSetting.EnumName));
+                Type type = typeof(ModuleSettingEnumContainer<>).MakeGenericType(enumSetting.Value.GetType());
                 ModuleSettingContainer instance = (ModuleSettingContainer)Activator.CreateInstance(type);
                 instance.Key = key;
                 instance.SourceModule = SourceModule;

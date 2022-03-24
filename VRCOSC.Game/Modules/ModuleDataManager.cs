@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Platform;
-using VRCOSC.Game.Util;
 
 namespace VRCOSC.Game.Modules;
 
@@ -68,8 +67,7 @@ public class ModuleDataManager
         if (typeof(T).IsSubclassOf(typeof(Enum)))
         {
             var setting = (EnumModuleSetting)Settings[key];
-            Type enumType = TypeUtils.GetTypeByName(setting.EnumName);
-            return (T)Enum.ToObject(enumType, setting.Value);
+            return (T)Convert.ChangeType(setting.Value, typeof(T));
         }
 
         throw new ArgumentException($"No setting found with key {key} that is of type {typeof(T)}");
@@ -116,7 +114,7 @@ public class ModuleDataManager
     public void UpdateEnumSetting<T>(string key, T value) where T : Enum
     {
         var setting = (EnumModuleSetting)Settings[key];
-        setting.Value = Convert.ToInt32(value);
+        setting.Value = value;
         saveData();
     }
 
@@ -167,22 +165,6 @@ public class ModuleDataManager
         dataToCopy.Settings.ForEach(pair =>
         {
             var (key, setting) = pair;
-
-            if (setting.GetType() == typeof(EnumModuleSetting))
-            {
-                var enumSetting = (EnumModuleSetting)setting;
-
-                try
-                {
-                    TypeUtils.GetTypeByName(enumSetting.EnumName);
-                }
-                catch (InvalidOperationException)
-                {
-                    // we're trying to load an enum that no longer exists due to a change in the module
-                    // we can ignore this
-                    return;
-                }
-            }
 
             if (Settings.ContainsKey(key))
                 SetSetting(key, setting);

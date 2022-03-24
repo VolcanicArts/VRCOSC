@@ -103,8 +103,7 @@ public abstract class Module
         {
             DisplayName = displayName,
             Description = description,
-            EnumName = typeof(T).Name,
-            Value = Convert.ToInt32(defaultValue)
+            Value = defaultValue
         };
         DataManager.SetSetting(key, setting);
     }
