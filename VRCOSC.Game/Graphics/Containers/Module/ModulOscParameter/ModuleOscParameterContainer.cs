@@ -89,9 +89,9 @@ public class ModuleOscParameterContainer : Container
             }
         };
 
-        textFlow.AddText(SourceModule.Metadata.Parameters[Key].DisplayName, t => t.Font = FrameworkFont.Regular.With(size: 30));
+        textFlow.AddText(SourceModule.DataManager.Parameters[Key].DisplayName, t => t.Font = FrameworkFont.Regular.With(size: 30));
         textFlow.AddText("\n");
-        textFlow.AddText(SourceModule.Metadata.Parameters[Key].Description, t =>
+        textFlow.AddText(SourceModule.DataManager.Parameters[Key].Description, t =>
         {
             t.Font = FrameworkFont.Regular.With(size: 20);
             t.Colour = VRCOSCColour.Gray9;
@@ -99,7 +99,7 @@ public class ModuleOscParameterContainer : Container
 
         textBox.OnCommit += (_, _) =>
         {
-            SourceModule.DataManager.SetParameter(Key, textBox.Text);
+            SourceModule.DataManager.UpdateParameter(Key, textBox.Text);
         };
     }
 }

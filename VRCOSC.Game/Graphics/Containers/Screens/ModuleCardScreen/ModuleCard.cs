@@ -113,7 +113,7 @@ public class ModuleCard : Container
                                 Anchor = Anchor.CentreRight,
                                 Origin = Anchor.CentreRight,
                                 Size = new Vector2(50),
-                                State = SourceModule.DataManager.Enabled.GetBoundCopy()
+                                State = { Value = SourceModule.DataManager.Enabled }
                             }
                         }
                     }
@@ -131,6 +131,7 @@ public class ModuleCard : Container
         toggleCheckBox.State.BindValueChanged(e =>
         {
             fadeBox.FadeColour(e.NewValue ? VRCOSCColour.Invisible : VRCOSCColour.Gray0.Opacity(0.5f), 500, Easing.OutCubic);
+            SourceModule.DataManager.SetEnabled(e.NewValue);
         }, true);
     }
 }

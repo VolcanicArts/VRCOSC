@@ -59,7 +59,7 @@ public class ModuleSettingIntContainer : ModuleSettingContainer
                         Anchor = Anchor.TopLeft,
                         Origin = Anchor.TopLeft,
                         Font = FrameworkFont.Regular.With(size: 30),
-                        Text = SourceModule.Metadata.Settings[Key].DisplayName
+                        Text = SourceModule.DataManager.Settings[Key].DisplayName
                     },
                     new SpriteText
                     {
@@ -67,7 +67,7 @@ public class ModuleSettingIntContainer : ModuleSettingContainer
                         Origin = Anchor.CentreLeft,
                         Colour = VRCOSCColour.Gray9,
                         Font = FrameworkFont.Regular.With(size: 20),
-                        Text = SourceModule.Metadata.Settings[Key].Description
+                        Text = SourceModule.DataManager.Settings[Key].Description
                     },
                     textBox = new VRCOSCTextBox
                     {
@@ -84,7 +84,7 @@ public class ModuleSettingIntContainer : ModuleSettingContainer
         textBox.OnCommit += (_, _) =>
         {
             if (int.TryParse(textBox.Text, out var newValue))
-                SourceModule.DataManager.Settings.SetIntSetting(Key, newValue);
+                SourceModule.DataManager.UpdateIntSetting(Key, newValue);
         };
     }
 }

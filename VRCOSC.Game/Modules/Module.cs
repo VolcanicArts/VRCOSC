@@ -24,7 +24,6 @@ public abstract class Module
     public virtual ModuleType Type => ModuleType.General;
 
     public readonly ModuleDataManager DataManager;
-    public readonly ModuleMetadata Metadata;
     private readonly UdpClient oscClient;
 
     protected TerminalLogger Terminal { get; private set; } = null!;
@@ -32,9 +31,10 @@ public abstract class Module
     protected Module(Storage storage)
     {
         DataManager = new ModuleDataManager(storage, GetType().Name);
-        Metadata = new ModuleMetadata();
         oscClient = new UdpClient(osc_ip_address, osc_port);
     }
+
+    #region Module Functions
 
     internal void Start()
     {
@@ -60,59 +60,73 @@ public abstract class Module
 
     protected virtual void OnStop() { }
 
+    #endregion
+
+    #region Module Settings
+
     protected void CreateSetting(Enum key, string displayName, string description, string defaultValue)
     {
-        createSettingsMetadata(key, displayName, description);
-        DataManager.Settings.SetStringSetting(key.ToString().ToLower(), defaultValue);
+        var setting = new StringModuleSetting
+        {
+            DisplayName = displayName,
+            Description = description,
+            Value = defaultValue
+        };
+        DataManager.SetSetting(key, setting);
     }
 
     protected void CreateSetting(Enum key, string displayName, string description, int defaultValue)
     {
-        createSettingsMetadata(key, displayName, description);
-        DataManager.Settings.SetIntSetting(key.ToString().ToLower(), defaultValue);
+        var setting = new IntModuleSetting
+        {
+            DisplayName = displayName,
+            Description = description,
+            Value = defaultValue
+        };
+        DataManager.SetSetting(key, setting);
     }
 
     protected void CreateSetting(Enum key, string displayName, string description, bool defaultValue)
     {
-        createSettingsMetadata(key, displayName, description);
-        DataManager.Settings.SetBoolSetting(key.ToString().ToLower(), defaultValue);
+        var setting = new BoolModuleSetting
+        {
+            DisplayName = displayName,
+            Description = description,
+            Value = defaultValue
+        };
+        DataManager.SetSetting(key, setting);
     }
 
     protected void CreateSetting<T>(Enum key, string displayName, string description, T defaultValue) where T : Enum
     {
-        createSettingsMetadata(key, displayName, description);
-        DataManager.Settings.SetEnumSetting(key.ToString().ToLower(), defaultValue);
-    }
-
-    protected void CreateParameter(Enum key, string displayName, string description, string defaultAddress)
-    {
-        createParameterMetadata(key, displayName, description);
-        DataManager.SetParameter(key, defaultAddress);
-    }
-
-    private void createSettingsMetadata(Enum key, string displayName, string description)
-    {
-        var moduleAttributeMetadata = new ModuleAttributeMetadata
-        {
-            DisplayName = displayName,
-            Description = description
-        };
-        Metadata.Settings.Add(key.ToString().ToLower(), moduleAttributeMetadata);
-    }
-
-    private void createParameterMetadata(Enum key, string displayName, string description)
-    {
-        var moduleAttributeMetadata = new ModuleAttributeMetadata
+        var setting = new EnumModuleSetting()
         {
             DisplayName = displayName,
             Description = description,
+            EnumName = typeof(T).Name,
+            Value = Convert.ToInt32(defaultValue)
         };
-        Metadata.Parameters.Add(key.ToString().ToLower(), moduleAttributeMetadata);
+        DataManager.SetSetting(key, setting);
     }
 
     protected T GetSettingAs<T>(Enum key)
     {
         return DataManager.GetSettingAs<T>(key.ToString().ToLower());
+    }
+
+    #endregion
+
+    #region Module Parameters
+
+    protected void CreateParameter(Enum key, string displayName, string description, string defaultAddress)
+    {
+        var parameter = new ModuleParameter
+        {
+            DisplayName = displayName,
+            Description = description,
+            Value = defaultAddress
+        };
+        DataManager.SetParameter(key, parameter);
     }
 
     protected void SendParameter(Enum key, bool value)
@@ -126,4 +140,6 @@ public abstract class Module
         var message = new OscMessage(address, new[] { value });
         oscClient.SendMessageAsync(message);
     }
+
+    #endregion
 }

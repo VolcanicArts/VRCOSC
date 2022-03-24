@@ -13,6 +13,7 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.UserInterface;
 using osuTK;
 using VRCOSC.Game.Graphics.Drawables.Triangles;
+using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Module;
 
@@ -61,7 +62,7 @@ public class ModuleSettingEnumContainer<T> : ModuleSettingContainer where T : En
                         Anchor = Anchor.TopLeft,
                         Origin = Anchor.TopLeft,
                         Font = FrameworkFont.Regular.With(size: 30),
-                        Text = SourceModule.Metadata.Settings[Key].DisplayName
+                        Text = SourceModule.DataManager.Settings[Key].DisplayName
                     },
                     new SpriteText
                     {
@@ -69,7 +70,7 @@ public class ModuleSettingEnumContainer<T> : ModuleSettingContainer where T : En
                         Origin = Anchor.CentreLeft,
                         Colour = VRCOSCColour.Gray9,
                         Font = FrameworkFont.Regular.With(size: 20),
-                        Text = SourceModule.Metadata.Settings[Key].Description
+                        Text = SourceModule.DataManager.Settings[Key].Description
                     },
                     dropdown = new BasicDropdown<T>
                     {
@@ -78,7 +79,7 @@ public class ModuleSettingEnumContainer<T> : ModuleSettingContainer where T : En
                         RelativeSizeAxes = Axes.X,
                         Width = 0.5f,
                         Items = Enum.GetValues(typeof(T)).Cast<T>(),
-                        Current = { Value = (T)Enum.ToObject(typeof(T), SourceModule.DataManager.Settings.EnumSettings[Key].Value) }
+                        Current = { Value = (T)Enum.ToObject(typeof(T), ((EnumModuleSetting)SourceModule.DataManager.Settings[Key]).Value) }
                     }
                 }
             }
@@ -86,7 +87,7 @@ public class ModuleSettingEnumContainer<T> : ModuleSettingContainer where T : En
 
         dropdown.Current.BindValueChanged(e =>
         {
-            SourceModule.DataManager.Settings.SetEnumSetting(Key, e.NewValue);
+            SourceModule.DataManager.UpdateEnumSetting(Key, e.NewValue);
         });
     }
 }

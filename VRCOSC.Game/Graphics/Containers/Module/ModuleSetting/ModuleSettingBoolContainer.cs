@@ -60,7 +60,7 @@ public class ModuleSettingBoolContainer : ModuleSettingContainer
                         Anchor = Anchor.TopLeft,
                         Origin = Anchor.TopLeft,
                         Font = FrameworkFont.Regular.With(size: 30),
-                        Text = SourceModule.Metadata.Settings[Key].DisplayName
+                        Text = SourceModule.DataManager.Settings[Key].DisplayName
                     },
                     new SpriteText
                     {
@@ -68,7 +68,7 @@ public class ModuleSettingBoolContainer : ModuleSettingContainer
                         Origin = Anchor.CentreLeft,
                         Colour = VRCOSCColour.Gray9,
                         Font = FrameworkFont.Regular.With(size: 20),
-                        Text = SourceModule.Metadata.Settings[Key].Description
+                        Text = SourceModule.DataManager.Settings[Key].Description
                     },
                     checkBox = new ToggleCheckbox
                     {
@@ -80,6 +80,6 @@ public class ModuleSettingBoolContainer : ModuleSettingContainer
                 }
             }
         };
-        checkBox.State.BindValueChanged((e) => SourceModule.DataManager.Settings.SetBoolSetting(Key, e.NewValue));
+        checkBox.State.BindValueChanged((e) => SourceModule.DataManager.UpdateBoolSetting(Key, e.NewValue));
     }
 }

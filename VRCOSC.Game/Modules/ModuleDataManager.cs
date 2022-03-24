@@ -3,10 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using Newtonsoft.Json;
-using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Platform;
 using VRCOSC.Game.Util;
@@ -15,124 +11,140 @@ namespace VRCOSC.Game.Modules;
 
 public class ModuleDataManager
 {
-    [JsonIgnore]
-    private const string storage_directory = "modules";
+    public bool Enabled { get; internal set; } = true;
+    public Dictionary<string, ModuleSetting> Settings { get; } = new();
+    public Dictionary<string, ModuleParameter> Parameters { get; } = new();
 
-    [JsonProperty("enabled")]
-    public readonly Bindable<bool> Enabled = new(true);
-
-    [JsonProperty("settings")]
-    public readonly ModuleSettingsManager Settings = new();
-
-    [JsonProperty]
-    private SerialisableBindableDictionary<string, string> parameters { get; } = new();
-
-    [JsonIgnore]
-    private readonly Storage Storage;
-
-    [JsonIgnore]
-    private readonly string ModuleName;
+    private Storage storage { get; }
+    internal string ModuleName { get; }
 
     public ModuleDataManager(Storage storage, string moduleName)
     {
-        Storage = storage;
+        this.storage = storage;
         ModuleName = moduleName;
-    }
-
-    private void bindAllAttributes()
-    {
-        Settings.StringSettings.CollectionChanged += (_, _) => saveData();
-        Settings.IntSettings.CollectionChanged += (_, _) => saveData();
-        Settings.BoolSettings.CollectionChanged += (_, _) => saveData();
-        Settings.EnumSettings.CollectionChanged += (_, _) => saveData();
-        parameters.CollectionChanged += (_, _) => saveData();
-        Enabled.ValueChanged += _ => saveData();
-    }
-
-    private void unbindAllAttributes()
-    {
-        Settings.StringSettings.UnbindAll();
-        Settings.IntSettings.UnbindAll();
-        Settings.BoolSettings.UnbindAll();
-        Settings.EnumSettings.UnbindAll();
-        parameters.UnbindAll();
-        Enabled.UnbindAll();
     }
 
     public void LoadData()
     {
-        unbindAllAttributes();
-
-        var fileName = $"{ModuleName}.conf";
-        var moduleStorage = Storage.GetStorageForDirectory(storage_directory);
-
-        using (var fileStream = moduleStorage.GetStream(fileName, FileAccess.ReadWrite))
-        {
-            using (var streamReader = new StreamReader(fileStream))
-            {
-                var deserializedData = JsonConvert.DeserializeObject<ModuleDataManager>(streamReader.ReadToEnd());
-                if (deserializedData != null) copyDataFrom(deserializedData);
-            }
-        }
+        var deserializedData = ModuleStorage.Load(storage, ModuleName);
+        if (deserializedData != null) copyDataFrom(deserializedData);
 
         saveData();
-        bindAllAttributes();
     }
 
     private void saveData()
     {
-        var fileName = $"{ModuleName}.conf";
-        var moduleStorage = Storage.GetStorageForDirectory(storage_directory);
-
-        moduleStorage.Delete(fileName);
-
-        using var fileStream = moduleStorage.GetStream(fileName, FileAccess.ReadWrite);
-        using var streamWriter = new StreamWriter(fileStream);
-
-        var serialisedData = JsonConvert.SerializeObject(this);
-        streamWriter.WriteLine(serialisedData);
+        ModuleStorage.Save(storage, this);
     }
 
-    public List<string> GetParameterKeys()
+    public void SetEnabled(bool value)
     {
-        return parameters.Keys.ToList();
+        Enabled = value;
+        saveData();
     }
 
-    public void SetParameter(Enum key, string address)
-    {
-        var keyStr = key.ToString().ToLower();
-        SetParameter(keyStr, address);
-    }
-
-    public void SetParameter(string key, string address)
-    {
-        if (!parameters.TryAdd(key, address))
-            parameters[key] = address;
-    }
+    #region Settings
 
     public T GetSettingAs<T>(string key)
     {
         if (typeof(T) == typeof(string))
         {
-            return (T)Convert.ChangeType(Settings.StringSettings[key], typeof(T));
+            var setting = (StringModuleSetting)Settings[key];
+            return (T)Convert.ChangeType(setting.Value, typeof(T));
         }
 
         if (typeof(T) == typeof(int))
         {
-            return (T)Convert.ChangeType(Settings.IntSettings[key], typeof(T));
+            var setting = (IntModuleSetting)Settings[key];
+            return (T)Convert.ChangeType(setting.Value, typeof(T));
         }
 
         if (typeof(T) == typeof(bool))
         {
-            return (T)Convert.ChangeType(Settings.BoolSettings[key], typeof(T));
+            var setting = (BoolModuleSetting)Settings[key];
+            return (T)Convert.ChangeType(setting.Value, typeof(T));
         }
 
         if (typeof(T).IsSubclassOf(typeof(Enum)))
         {
-            return (T)Enum.ToObject(typeof(T), Settings.EnumSettings[key].Value);
+            var setting = (EnumModuleSetting)Settings[key];
+            Type enumType = TypeUtils.GetTypeByName(setting.EnumName);
+            return (T)Enum.ToObject(enumType, setting.Value);
         }
 
         throw new ArgumentException($"No setting found with key {key} that is of type {typeof(T)}");
+    }
+
+    public void SetSetting(Enum key, ModuleSetting setting)
+    {
+        var keyStr = key.ToString().ToLower();
+        SetSetting(keyStr, setting);
+    }
+
+    public void SetSetting(string key, ModuleSetting setting)
+    {
+        if (Settings.TryAdd(key, setting)) return;
+
+        // copying metadata
+        setting.DisplayName = Settings[key].DisplayName;
+        setting.Description = Settings[key].Description;
+
+        Settings[key] = setting;
+    }
+
+    public void UpdateStringSetting(string key, string value)
+    {
+        var setting = (StringModuleSetting)Settings[key];
+        setting.Value = value;
+        saveData();
+    }
+
+    public void UpdateIntSetting(string key, int value)
+    {
+        var setting = (IntModuleSetting)Settings[key];
+        setting.Value = value;
+        saveData();
+    }
+
+    public void UpdateBoolSetting(string key, bool value)
+    {
+        var setting = (BoolModuleSetting)Settings[key];
+        setting.Value = value;
+        saveData();
+    }
+
+    public void UpdateEnumSetting<T>(string key, T value) where T : Enum
+    {
+        var setting = (EnumModuleSetting)Settings[key];
+        setting.Value = Convert.ToInt32(value);
+        saveData();
+    }
+
+    #endregion
+
+    #region Parameters
+
+    public void SetParameter(Enum key, ModuleParameter parameter)
+    {
+        var keyStr = key.ToString().ToLower();
+        SetParameter(keyStr, parameter);
+    }
+
+    public void SetParameter(string key, ModuleParameter parameter)
+    {
+        if (Parameters.TryAdd(key, parameter)) return;
+
+        // copying metadata
+        parameter.DisplayName = Parameters[key].DisplayName;
+        parameter.Description = Parameters[key].Description;
+
+        Parameters[key] = parameter;
+    }
+
+    public void UpdateParameter(string key, string address)
+    {
+        Parameters[key].Value = address;
+        saveData();
     }
 
     public string GetParameter(Enum key)
@@ -143,17 +155,45 @@ public class ModuleDataManager
 
     public string GetParameter(string key)
     {
-        return parameters[key];
+        return Parameters[key].Value;
     }
+
+    #endregion
 
     private void copyDataFrom(ModuleDataManager dataToCopy)
     {
-        Settings.CopyDataFrom(dataToCopy.Settings);
-        dataToCopy.parameters.ForEach(pair =>
+        Enabled = dataToCopy.Enabled;
+
+        dataToCopy.Settings.ForEach(pair =>
         {
-            if (parameters.ContainsKey(pair.Key))
-                parameters[pair.Key] = pair.Value;
+            var (key, setting) = pair;
+
+            if (setting.GetType() == typeof(EnumModuleSetting))
+            {
+                var enumSetting = (EnumModuleSetting)setting;
+
+                try
+                {
+                    TypeUtils.GetTypeByName(enumSetting.EnumName);
+                }
+                catch (InvalidOperationException)
+                {
+                    // we're trying to load an enum that no longer exists due to a change in the module
+                    // we can ignore this
+                    return;
+                }
+            }
+
+            if (Settings.ContainsKey(key))
+                SetSetting(key, setting);
         });
-        Enabled.Value = dataToCopy.Enabled.Value;
+
+        dataToCopy.Parameters.ForEach(pair =>
+        {
+            var (key, parameter) = pair;
+
+            if (Parameters.ContainsKey(key))
+                SetParameter(key, parameter);
+        });
     }
 }

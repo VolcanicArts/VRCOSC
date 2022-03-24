@@ -57,7 +57,7 @@ public class ModuleManager
         {
             modules.ForEach(module =>
             {
-                if (!module.DataManager.Enabled.Value) return;
+                if (!module.DataManager.Enabled) return;
 
                 module.Start();
 
@@ -77,7 +77,7 @@ public class ModuleManager
         {
             modules.ForEach(module =>
             {
-                if (module.DataManager.Enabled.Value) module.Stop();
+                if (module.DataManager.Enabled) module.Stop();
             });
         });
     }

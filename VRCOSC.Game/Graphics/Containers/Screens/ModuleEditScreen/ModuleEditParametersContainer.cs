@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -40,7 +41,7 @@ public class ModuleEditParametersContainer : FillFlowContainer
             }
         };
 
-        SourceModule.DataManager.GetParameterKeys().ForEach(key =>
+        SourceModule.DataManager.Parameters.Keys.ToList().ForEach(key =>
         {
             parametersFlow.Add(new ModuleOscParameterContainer
             {

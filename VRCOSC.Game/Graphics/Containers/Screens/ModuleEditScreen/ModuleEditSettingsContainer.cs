@@ -9,6 +9,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
 using VRCOSC.Game.Graphics.Containers.Module;
+using VRCOSC.Game.Modules;
 using VRCOSC.Game.Util;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditScreen;
@@ -42,37 +43,43 @@ public class ModuleEditSettingsContainer : FillFlowContainer
             },
         };
 
-        SourceModule.DataManager.Settings.StringSettings.Keys.ForEach(key =>
+        SourceModule.DataManager.Settings.ForEach(pair =>
         {
-            settingsFlow.Add(new ModuleSettingStringContainer
+            var (key, setting) = pair;
+
+            if (setting.GetType() == typeof(StringModuleSetting))
             {
-                Key = key,
-                SourceModule = SourceModule
-            });
-        });
-        SourceModule.DataManager.Settings.IntSettings.Keys.ForEach(key =>
-        {
-            settingsFlow.Add(new ModuleSettingIntContainer
+                settingsFlow.Add(new ModuleSettingStringContainer
+                {
+                    Key = key,
+                    SourceModule = SourceModule
+                });
+            }
+            else if (setting.GetType() == typeof(IntModuleSetting))
             {
-                Key = key,
-                SourceModule = SourceModule
-            });
-        });
-        SourceModule.DataManager.Settings.BoolSettings.Keys.ForEach(key =>
-        {
-            settingsFlow.Add(new ModuleSettingBoolContainer
+                settingsFlow.Add(new ModuleSettingIntContainer
+                {
+                    Key = key,
+                    SourceModule = SourceModule
+                });
+            }
+            else if (setting.GetType() == typeof(BoolModuleSetting))
             {
-                Key = key,
-                SourceModule = SourceModule
-            });
-        });
-        SourceModule.DataManager.Settings.EnumSettings.ForEach(pair =>
-        {
-            Type type = typeof(ModuleSettingEnumContainer<>).MakeGenericType(TypeUtils.GetTypeByName(pair.Value.Key));
-            ModuleSettingContainer instance = (ModuleSettingContainer)Activator.CreateInstance(type);
-            instance.Key = pair.Key;
-            instance.SourceModule = SourceModule;
-            settingsFlow.Add(instance);
+                settingsFlow.Add(new ModuleSettingBoolContainer
+                {
+                    Key = key,
+                    SourceModule = SourceModule
+                });
+            }
+            else if (setting.GetType() == typeof(EnumModuleSetting))
+            {
+                var enumSetting = (EnumModuleSetting)setting;
+                Type type = typeof(ModuleSettingEnumContainer<>).MakeGenericType(TypeUtils.GetTypeByName(enumSetting.EnumName));
+                ModuleSettingContainer instance = (ModuleSettingContainer)Activator.CreateInstance(type);
+                instance.Key = key;
+                instance.SourceModule = SourceModule;
+                settingsFlow.Add(instance);
+            }
         });
     }
 }

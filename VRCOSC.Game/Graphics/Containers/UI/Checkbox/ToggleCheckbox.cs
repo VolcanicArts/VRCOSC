@@ -11,7 +11,7 @@ namespace VRCOSC.Game.Graphics.Containers.UI.Checkbox;
 
 public class ToggleCheckbox : Container
 {
-    public Bindable<bool> State { get; init; }
+    public Bindable<bool> State = new();
     private Box ToggleColour;
 
     [BackgroundDependencyLoader]
