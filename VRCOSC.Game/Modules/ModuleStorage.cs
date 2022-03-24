@@ -68,25 +68,23 @@ public static class ModuleStorage
         {
             var (key, setting) = pair;
 
-            if (setting.GetType() == typeof(StringModuleSetting))
+            switch (setting)
             {
-                var stringSetting = (StringModuleSetting)setting;
-                builder.Append($"string:{key}={stringSetting.Value}\n");
-            }
-            else if (setting.GetType() == typeof(IntModuleSetting))
-            {
-                var intSetting = (IntModuleSetting)setting;
-                builder.Append($"int:{key}={intSetting.Value}\n");
-            }
-            else if (setting.GetType() == typeof(BoolModuleSetting))
-            {
-                var boolSetting = (BoolModuleSetting)setting;
-                builder.Append($"bool:{key}={boolSetting.Value}\n");
-            }
-            else if (setting.GetType() == typeof(EnumModuleSetting))
-            {
-                var enumSetting = (EnumModuleSetting)setting;
-                builder.Append($"enum:{key}#{enumSetting.EnumName}={enumSetting.Value}\n");
+                case StringModuleSetting stringModuleSetting:
+                    builder.Append($"string:{key}={stringModuleSetting.Value}\n");
+                    break;
+
+                case IntModuleSetting intModuleSetting:
+                    builder.Append($"int:{key}={intModuleSetting.Value}\n");
+                    break;
+
+                case BoolModuleSetting boolModuleSetting:
+                    builder.Append($"bool:{key}={boolModuleSetting.Value}\n");
+                    break;
+
+                case EnumModuleSetting enumModuleSetting:
+                    builder.Append($"enum:{key}#{enumModuleSetting.EnumName}={enumModuleSetting.Value}\n");
+                    break;
             }
         });
 
