@@ -46,31 +46,16 @@ public class ModuleDataManager
 
     public T GetSettingAs<T>(string key)
     {
-        if (typeof(T) == typeof(string))
-        {
-            var setting = (StringModuleSetting)Settings[key];
-            return (T)Convert.ChangeType(setting.Value, typeof(T));
-        }
+        var setting = Settings[key];
 
-        if (typeof(T) == typeof(int))
+        return setting switch
         {
-            var setting = (IntModuleSetting)Settings[key];
-            return (T)Convert.ChangeType(setting.Value, typeof(T));
-        }
-
-        if (typeof(T) == typeof(bool))
-        {
-            var setting = (BoolModuleSetting)Settings[key];
-            return (T)Convert.ChangeType(setting.Value, typeof(T));
-        }
-
-        if (typeof(T).IsSubclassOf(typeof(Enum)))
-        {
-            var setting = (EnumModuleSetting)Settings[key];
-            return (T)Convert.ChangeType(setting.Value, typeof(T));
-        }
-
-        throw new ArgumentException($"No setting found with key {key} that is of type {typeof(T)}");
+            StringModuleSetting stringModuleSetting => (T)Convert.ChangeType(stringModuleSetting.Value, typeof(T)),
+            IntModuleSetting intModuleSetting => (T)Convert.ChangeType(intModuleSetting.Value, typeof(T)),
+            BoolModuleSetting boolModuleSetting => (T)Convert.ChangeType(boolModuleSetting.Value, typeof(T)),
+            EnumModuleSetting enumModuleSetting => (T)Convert.ChangeType(enumModuleSetting.Value, typeof(T)),
+            _ => throw new ArgumentException($"No setting found with key {key} that is of type {typeof(T)}")
+        };
     }
 
     public void SetSetting(Enum key, ModuleSetting setting)
