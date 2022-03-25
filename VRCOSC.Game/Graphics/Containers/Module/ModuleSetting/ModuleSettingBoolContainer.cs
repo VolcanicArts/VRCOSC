@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
-using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using VRCOSC.Game.Graphics.Containers.UI.Checkbox;
 
@@ -13,17 +12,17 @@ public class ModuleSettingBoolContainer : ModuleSettingContainer
     [BackgroundDependencyLoader]
     private void load()
     {
-        ToggleCheckbox checkBox;
+        ToggleSwitch checkBox;
 
-        SettingContainer.Child = checkBox = new ToggleCheckbox
+        SettingContainer.Child = checkBox = new ToggleSwitch
         {
             Anchor = Anchor.CentreRight,
             Origin = Anchor.CentreRight,
             RelativeSizeAxes = Axes.Both,
             FillMode = FillMode.Fit,
-            State = new Bindable<bool>(SourceModule.DataManager.GetSettingAs<bool>(Key))
+            FillAspectRatio = 2,
+            State = { Value = SourceModule.DataManager.GetSettingAs<bool>(Key) }
         };
-
         checkBox.State.BindValueChanged((e) => SourceModule.DataManager.UpdateBoolSetting(Key, e.NewValue));
     }
 }

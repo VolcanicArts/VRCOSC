@@ -26,7 +26,7 @@ public class ModuleCard : Container
     private void load()
     {
         Box fadeBox;
-        ToggleCheckbox toggleCheckBox;
+        ToggleSwitch toggleCheckBox;
 
         InternalChildren = new Drawable[]
         {
@@ -83,8 +83,7 @@ public class ModuleCard : Container
                     {
                         Anchor = Anchor.CentreRight,
                         Origin = Anchor.CentreRight,
-                        RelativeSizeAxes = Axes.Y,
-                        AutoSizeAxes = Axes.X,
+                        RelativeSizeAxes = Axes.Both,
                         Direction = FillDirection.Horizontal,
                         Spacing = new Vector2(10, 0),
                         Children = new Drawable[]
@@ -108,11 +107,14 @@ public class ModuleCard : Container
                                     Action = () => ScreenManager.EditModule(SourceModule)
                                 }
                             },
-                            toggleCheckBox = new ToggleCheckbox
+                            toggleCheckBox = new ToggleSwitch
                             {
                                 Anchor = Anchor.CentreRight,
                                 Origin = Anchor.CentreRight,
-                                Size = new Vector2(50),
+                                RelativeSizeAxes = Axes.Both,
+                                Size = new Vector2(0.8f),
+                                FillMode = FillMode.Fit,
+                                FillAspectRatio = 2,
                                 State = { Value = SourceModule.DataManager.Enabled }
                             }
                         }
