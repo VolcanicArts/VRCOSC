@@ -46,38 +46,39 @@ public class ModuleEditSettingsContainer : FillFlowContainer
         {
             var (key, setting) = pair;
 
-            if (setting.GetType() == typeof(StringModuleSetting))
+            switch (setting)
             {
-                settingsFlow.Add(new ModuleSettingStringContainer
-                {
-                    Key = key,
-                    SourceModule = SourceModule
-                });
-            }
-            else if (setting.GetType() == typeof(IntModuleSetting))
-            {
-                settingsFlow.Add(new ModuleSettingIntContainer
-                {
-                    Key = key,
-                    SourceModule = SourceModule
-                });
-            }
-            else if (setting.GetType() == typeof(BoolModuleSetting))
-            {
-                settingsFlow.Add(new ModuleSettingBoolContainer
-                {
-                    Key = key,
-                    SourceModule = SourceModule
-                });
-            }
-            else if (setting.GetType() == typeof(EnumModuleSetting))
-            {
-                var enumSetting = (EnumModuleSetting)setting;
-                Type type = typeof(ModuleSettingEnumContainer<>).MakeGenericType(enumSetting.Value.GetType());
-                ModuleSettingContainer instance = (ModuleSettingContainer)Activator.CreateInstance(type);
-                instance.Key = key;
-                instance.SourceModule = SourceModule;
-                settingsFlow.Add(instance);
+                case StringModuleSetting:
+                    settingsFlow.Add(new ModuleSettingStringContainer
+                    {
+                        Key = key,
+                        SourceModule = SourceModule
+                    });
+                    break;
+
+                case IntModuleSetting:
+                    settingsFlow.Add(new ModuleSettingIntContainer
+                    {
+                        Key = key,
+                        SourceModule = SourceModule
+                    });
+                    break;
+
+                case BoolModuleSetting:
+                    settingsFlow.Add(new ModuleSettingBoolContainer
+                    {
+                        Key = key,
+                        SourceModule = SourceModule
+                    });
+                    break;
+
+                case EnumModuleSetting enumModuleSetting:
+                    Type type = typeof(ModuleSettingEnumContainer<>).MakeGenericType(enumModuleSetting.Value.GetType());
+                    ModuleSettingContainer instance = (ModuleSettingContainer)Activator.CreateInstance(type)!;
+                    instance.Key = key;
+                    instance.SourceModule = SourceModule;
+                    settingsFlow.Add(instance);
+                    break;
             }
         });
     }
