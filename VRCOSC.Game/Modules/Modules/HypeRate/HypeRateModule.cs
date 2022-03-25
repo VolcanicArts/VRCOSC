@@ -25,7 +25,7 @@ public class HypeRateModule : Module
         CreateSetting(HypeRateSettings.Id, "HypeRate ID", "Your HypeRate ID given on your device", string.Empty);
         CreateSetting(HypeRateSettings.ApiKey, "Api Key", "Your API key from HypeRate", string.Empty);
 
-        CreateParameter(HypeRateParameter.HeartrateEnabled, "Heartrate Enabled", "Whether this module is attepting to emit values", "/avatar/parameters/HeartrateEnabled");
+        CreateParameter(HypeRateParameter.HeartrateEnabled, "Heartrate Enabled", "Whether this module is attempting to emit values", "/avatar/parameters/HeartrateEnabled");
         CreateParameter(HypeRateParameter.HeartrateNormalised, "Heartrate Normalised", "The heartrate value normalised to 60bpm", "/avatar/parameters/HeartrateNormalised");
         CreateParameter(HypeRateParameter.HeartrateUnits, "Heartrate Units", "The units value of the heartrate value", "/avatar/parameters/HeartrateUnits");
         CreateParameter(HypeRateParameter.HeartrateTens, "Heartrate Tens", "The tens value of the heartate value", "/avatar/parameters/HeartrateTens");
