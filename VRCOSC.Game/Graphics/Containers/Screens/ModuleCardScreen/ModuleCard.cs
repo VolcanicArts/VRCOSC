@@ -94,15 +94,13 @@ public class ModuleCard : Container
                                 Origin = Anchor.CentreRight,
                                 RelativeSizeAxes = Axes.Both,
                                 FillMode = FillMode.Fit,
-                                FillAspectRatio = 2,
                                 Padding = new MarginPadding(5),
-                                Child = new TextButton
+                                Child = new IconButton
                                 {
                                     Anchor = Anchor.Centre,
                                     Origin = Anchor.Centre,
                                     RelativeSizeAxes = Axes.Both,
-                                    Text = "Edit",
-                                    FontSize = 35,
+                                    Icon = FontAwesome.Solid.Edit,
                                     CornerRadius = 10,
                                     Action = () => ScreenManager.EditModule(SourceModule)
                                 }
