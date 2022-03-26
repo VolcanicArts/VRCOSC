@@ -16,7 +16,7 @@ public class ModuleEditContainer : Container
     [Resolved]
     private ScreenManager ScreenManager { get; set; }
 
-    private Container<ModuleEditInnerContainer> contentContainer;
+    [Cached]
     public Bindable<Modules.Module> SourceModule { get; } = new();
 
     [BackgroundDependencyLoader]
@@ -42,7 +42,7 @@ public class ModuleEditContainer : Container
                     RelativeSizeAxes = Axes.Both,
                     Colour = VRCOSCColour.Gray3,
                 },
-                contentContainer = new Container<ModuleEditInnerContainer>
+                new Container
                 {
                     Name = "Content",
                     Anchor = Anchor.Centre,
@@ -52,23 +52,15 @@ public class ModuleEditContainer : Container
                     {
                         Vertical = 4,
                         Horizontal = 30
+                    },
+                    Child = new ModuleEditInnerContainer
+                    {
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.Centre,
+                        RelativeSizeAxes = Axes.Both
                     }
                 }
             }
-        };
-
-        SourceModule.BindValueChanged(fillContentContainer);
-    }
-
-    private void fillContentContainer(ValueChangedEvent<Modules.Module> e)
-    {
-        if (contentContainer.Count == 1) contentContainer.Child.RemoveAndDisposeImmediately();
-        contentContainer.Child = new ModuleEditInnerContainer
-        {
-            Anchor = Anchor.Centre,
-            Origin = Anchor.Centre,
-            RelativeSizeAxes = Axes.Both,
-            SourceModule = e.NewValue
         };
     }
 

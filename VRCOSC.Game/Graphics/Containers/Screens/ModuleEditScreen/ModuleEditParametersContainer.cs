@@ -1,8 +1,9 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System.Linq;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
@@ -13,7 +14,8 @@ namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditScreen;
 
 public class ModuleEditParametersContainer : FillFlowContainer
 {
-    public Modules.Module SourceModule { get; init; }
+    [Resolved]
+    private Bindable<Modules.Module> SourceModule { get; set; }
 
     [BackgroundDependencyLoader]
     private void load()
@@ -41,12 +43,19 @@ public class ModuleEditParametersContainer : FillFlowContainer
             }
         };
 
-        SourceModule.DataManager.Parameters.Keys.ToList().ForEach(key =>
+        SourceModule.BindValueChanged(_ =>
         {
-            parametersFlow.Add(new ModuleOscParameterContainer
+            if (SourceModule.Value == null) return;
+
+            parametersFlow.Clear();
+
+            SourceModule.Value.DataManager.Parameters.Keys.ToList().ForEach(key =>
             {
-                Key = key,
-                SourceModule = SourceModule
+                parametersFlow.Add(new ModuleOscParameterContainer
+                {
+                    Key = key,
+                    SourceModule = SourceModule.Value
+                });
             });
         });
     }

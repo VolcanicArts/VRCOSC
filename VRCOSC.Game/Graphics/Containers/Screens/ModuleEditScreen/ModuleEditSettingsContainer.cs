@@ -3,6 +3,7 @@
 
 using System;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -15,7 +16,8 @@ namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditScreen;
 
 public class ModuleEditSettingsContainer : FillFlowContainer
 {
-    public Modules.Module SourceModule { get; init; }
+    [Resolved]
+    private Bindable<Modules.Module> SourceModule { get; set; }
 
     [BackgroundDependencyLoader]
     private void load()
@@ -42,44 +44,51 @@ public class ModuleEditSettingsContainer : FillFlowContainer
             },
         };
 
-        SourceModule.DataManager.Settings.ForEach(pair =>
+        SourceModule.BindValueChanged(_ =>
         {
-            var (key, setting) = pair;
+            if (SourceModule.Value == null) return;
 
-            switch (setting)
+            settingsFlow.Clear();
+
+            SourceModule.Value.DataManager.Settings.ForEach(pair =>
             {
-                case StringModuleSetting:
-                    settingsFlow.Add(new ModuleSettingStringContainer
-                    {
-                        Key = key,
-                        SourceModule = SourceModule
-                    });
-                    break;
+                var (key, setting) = pair;
 
-                case IntModuleSetting:
-                    settingsFlow.Add(new ModuleSettingIntContainer
-                    {
-                        Key = key,
-                        SourceModule = SourceModule
-                    });
-                    break;
+                switch (setting)
+                {
+                    case StringModuleSetting:
+                        settingsFlow.Add(new ModuleSettingStringContainer
+                        {
+                            Key = key,
+                            SourceModule = SourceModule.Value
+                        });
+                        break;
 
-                case BoolModuleSetting:
-                    settingsFlow.Add(new ModuleSettingBoolContainer
-                    {
-                        Key = key,
-                        SourceModule = SourceModule
-                    });
-                    break;
+                    case IntModuleSetting:
+                        settingsFlow.Add(new ModuleSettingIntContainer
+                        {
+                            Key = key,
+                            SourceModule = SourceModule.Value
+                        });
+                        break;
 
-                case EnumModuleSetting enumModuleSetting:
-                    Type type = typeof(ModuleSettingEnumContainer<>).MakeGenericType(enumModuleSetting.Value.GetType());
-                    ModuleSettingContainer instance = (ModuleSettingContainer)Activator.CreateInstance(type)!;
-                    instance.Key = key;
-                    instance.SourceModule = SourceModule;
-                    settingsFlow.Add(instance);
-                    break;
-            }
-        });
+                    case BoolModuleSetting:
+                        settingsFlow.Add(new ModuleSettingBoolContainer
+                        {
+                            Key = key,
+                            SourceModule = SourceModule.Value
+                        });
+                        break;
+
+                    case EnumModuleSetting enumModuleSetting:
+                        Type type = typeof(ModuleSettingEnumContainer<>).MakeGenericType(enumModuleSetting.Value.GetType());
+                        ModuleSettingContainer instance = (ModuleSettingContainer)Activator.CreateInstance(type)!;
+                        instance.Key = key;
+                        instance.SourceModule = SourceModule.Value;
+                        settingsFlow.Add(instance);
+                        break;
+                }
+            });
+        }, true);
     }
 }
