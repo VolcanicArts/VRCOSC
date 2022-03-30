@@ -1,7 +1,7 @@
 # VRCOSC
 A modular OSC provider primarily made for VRChat.
 
-<p align="center"><img src="https://user-images.githubusercontent.com/29819296/160050082-1ed38aa4-a241-4f2f-afda-4ea7d220af43.png" width=65% height=65%></p>
+<p align="center"><img src="https://user-images.githubusercontent.com/29819296/160756597-749f4163-4fbc-49d8-9661-f980f15b56bf.png" width=70% height=70%></p>
 
 ## Modules
 - HypeRate: Takes HypeRate.io heartrate values and sends multiple OSC values into VRChat.
