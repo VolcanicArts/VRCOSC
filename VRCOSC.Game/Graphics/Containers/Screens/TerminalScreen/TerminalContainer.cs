@@ -84,7 +84,7 @@ public class TerminalContainer : Container
                                     Anchor = Anchor.Centre,
                                     Origin = Anchor.Centre,
                                     RelativeSizeAxes = Axes.Both,
-                                    Spacing = new Vector2(0),
+                                    ContentSpacing = new Vector2(0),
                                     Padding = new MarginPadding
                                     {
                                         Horizontal = 3

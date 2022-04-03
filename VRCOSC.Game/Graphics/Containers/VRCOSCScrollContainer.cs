@@ -17,8 +17,8 @@ public class VRCOSCScrollContainer<T> : BasicScrollContainer where T : Drawable
 {
     private readonly FillFlowContainer<T> scrollContentFlow;
 
-    public Vector2 Spacing { get; init; } = new(10);
-    public new MarginPadding Padding { get; init; } = new(10);
+    public Vector2 ContentSpacing { get; init; } = new(10);
+    public MarginPadding ContentPadding { get; init; } = new(10);
 
     public new IReadOnlyList<T> ScrollContent
     {
@@ -44,8 +44,8 @@ public class VRCOSCScrollContainer<T> : BasicScrollContainer where T : Drawable
     [BackgroundDependencyLoader]
     private void load()
     {
-        scrollContentFlow.Spacing = Spacing;
-        scrollContentFlow.Padding = Padding;
+        scrollContentFlow.Spacing = ContentSpacing;
+        scrollContentFlow.Padding = ContentPadding;
     }
 
     public void Add(T drawable)
