@@ -28,7 +28,7 @@ public class HypeRateModule : Module
         CreateParameter(HypeRateParameter.HeartrateEnabled, "Heartrate Enabled", "Whether this module is attempting to emit values", "/avatar/parameters/HeartrateEnabled");
         CreateParameter(HypeRateParameter.HeartrateNormalised, "Heartrate Normalised", "The heartrate value normalised to 60bpm", "/avatar/parameters/HeartrateNormalised");
         CreateParameter(HypeRateParameter.HeartrateUnits, "Heartrate Units", "The units value of the heartrate value", "/avatar/parameters/HeartrateUnits");
-        CreateParameter(HypeRateParameter.HeartrateTens, "Heartrate Tens", "The tens value of the heartate value", "/avatar/parameters/HeartrateTens");
+        CreateParameter(HypeRateParameter.HeartrateTens, "Heartrate Tens", "The tens value of the heartrate value", "/avatar/parameters/HeartrateTens");
         CreateParameter(HypeRateParameter.HeartrateHundreds, "Heartrate Hundreds", "The hundreds value of the heartrate value", "/avatar/parameters/HeartrateHundreds");
     }
 
