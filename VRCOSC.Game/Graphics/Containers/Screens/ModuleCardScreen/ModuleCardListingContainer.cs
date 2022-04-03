@@ -22,7 +22,7 @@ public class ModuleCardListingContainer : Container
     [BackgroundDependencyLoader]
     private void load()
     {
-        FillFlowContainer<ModuleCardGroupContainer> moduleCardGroupFlow;
+        VRCOSCScrollContainer<ModuleCardGroupContainer> moduleCardGroupScroll;
 
         InternalChildren = new Drawable[]
         {
@@ -33,28 +33,14 @@ public class ModuleCardListingContainer : Container
                 RelativeSizeAxes = Axes.Both,
                 Colour = VRCOSCColour.Gray4
             },
-            new BasicScrollContainer
+            moduleCardGroupScroll = new VRCOSCScrollContainer<ModuleCardGroupContainer>
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
-                ClampExtension = 20,
-                ScrollbarVisible = false,
-                Child = moduleCardGroupFlow = new FillFlowContainer<ModuleCardGroupContainer>
+                Padding = new MarginPadding
                 {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    RelativeSizeAxes = Axes.X,
-                    AutoSizeAxes = Axes.Y,
-                    Direction = FillDirection.Vertical,
-                    Spacing = new Vector2(10),
-                    Padding = new MarginPadding
-                    {
-                        Top = 10,
-                        Bottom = 10 + footer_height,
-                        Left = 10,
-                        Right = 10
-                    }
+                    Bottom = footer_height
                 }
             },
             new LineSeparator
@@ -79,7 +65,7 @@ public class ModuleCardListingContainer : Container
         {
             var (moduleType, modules) = pair;
 
-            moduleCardGroupFlow.Add(new ModuleCardGroupContainer
+            moduleCardGroupScroll.Add(new ModuleCardGroupContainer
             {
                 Anchor = Anchor.TopCentre,
                 Origin = Anchor.TopCentre,
