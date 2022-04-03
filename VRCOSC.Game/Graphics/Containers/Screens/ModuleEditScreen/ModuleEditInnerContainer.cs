@@ -28,122 +28,112 @@ public class ModuleEditInnerContainer : Container
         LineSeparator moduleEditParametersContainerLineSeparator;
         ModuleEditParametersContainer moduleEditParametersContainer;
 
-        InternalChild = new BasicScrollContainer
+        InternalChild = new VRCOSCScrollContainer
         {
             Anchor = Anchor.Centre,
             Origin = Anchor.Centre,
             RelativeSizeAxes = Axes.Both,
-            ClampExtension = 20,
-            ScrollbarVisible = false,
-            Child = new FillFlowContainer
+            ScrollContent = new Drawable[]
             {
-                Anchor = Anchor.TopCentre,
-                Origin = Anchor.TopCentre,
-                RelativeSizeAxes = Axes.X,
-                AutoSizeAxes = Axes.Y,
-                Spacing = new Vector2(0, 10),
-                Direction = FillDirection.Vertical,
-                Children = new Drawable[]
+                new FillFlowContainer<SpriteText>
                 {
-                    new FillFlowContainer<SpriteText>
+                    Anchor = Anchor.TopCentre,
+                    Origin = Anchor.TopCentre,
+                    RelativeSizeAxes = Axes.X,
+                    AutoSizeAxes = Axes.Y,
+                    Direction = FillDirection.Vertical,
+                    Spacing = new Vector2(0, 5),
+                    Children = new[]
                     {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        RelativeSizeAxes = Axes.X,
-                        AutoSizeAxes = Axes.Y,
-                        Direction = FillDirection.Vertical,
-                        Spacing = new Vector2(0, 5),
-                        Children = new[]
+                        title = new SpriteText
                         {
-                            title = new SpriteText
-                            {
-                                Anchor = Anchor.TopCentre,
-                                Origin = Anchor.TopCentre,
-                                Font = FrameworkFont.Regular.With(size: 75),
-                            },
-                            description = new SpriteText
-                            {
-                                Anchor = Anchor.TopCentre,
-                                Origin = Anchor.TopCentre,
-                                Font = FrameworkFont.Regular.With(size: 40),
-                                Colour = VRCOSCColour.Gray9,
-                            },
-                            author = new SpriteText
-                            {
-                                Anchor = Anchor.TopCentre,
-                                Origin = Anchor.TopCentre,
-                                Font = FrameworkFont.Regular.With(size: 30),
-                                Colour = VRCOSCColour.Gray9,
-                            }
+                            Anchor = Anchor.TopCentre,
+                            Origin = Anchor.TopCentre,
+                            Font = FrameworkFont.Regular.With(size: 75),
+                        },
+                        description = new SpriteText
+                        {
+                            Anchor = Anchor.TopCentre,
+                            Origin = Anchor.TopCentre,
+                            Font = FrameworkFont.Regular.With(size: 40),
+                            Colour = VRCOSCColour.Gray9,
+                        },
+                        author = new SpriteText
+                        {
+                            Anchor = Anchor.TopCentre,
+                            Origin = Anchor.TopCentre,
+                            Font = FrameworkFont.Regular.With(size: 30),
+                            Colour = VRCOSCColour.Gray9,
                         }
-                    },
-                    moduleEditSettingsContainerLineSeparator = new LineSeparator
-                    {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        RelativeSizeAxes = Axes.X,
-                        Size = new Vector2(0.95f, 5)
-                    },
-                    moduleEditSettingsContainer = new ModuleEditSettingsContainer
-                    {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        RelativeSizeAxes = Axes.X,
-                        AutoSizeAxes = Axes.Y,
-                        Direction = FillDirection.Vertical,
-                        Spacing = new Vector2(0, 10),
-                        Padding = new MarginPadding(10)
-                    },
-                    moduleEditParametersContainerLineSeparator = new LineSeparator
-                    {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        RelativeSizeAxes = Axes.X,
-                        Size = new Vector2(0.95f, 5)
-                    },
-                    moduleEditParametersContainer = new ModuleEditParametersContainer
-                    {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        RelativeSizeAxes = Axes.X,
-                        AutoSizeAxes = Axes.Y,
-                        Direction = FillDirection.Vertical,
-                        Spacing = new Vector2(0, 10),
-                        Padding = new MarginPadding(10)
                     }
+                },
+                moduleEditSettingsContainerLineSeparator = new LineSeparator
+                {
+                    Anchor = Anchor.TopCentre,
+                    Origin = Anchor.TopCentre,
+                    RelativeSizeAxes = Axes.X,
+                    Size = new Vector2(0.95f, 5)
+                },
+                moduleEditSettingsContainer = new ModuleEditSettingsContainer
+                {
+                    Anchor = Anchor.TopCentre,
+                    Origin = Anchor.TopCentre,
+                    RelativeSizeAxes = Axes.X,
+                    AutoSizeAxes = Axes.Y,
+                    Direction = FillDirection.Vertical,
+                    Spacing = new Vector2(0, 10),
+                    Padding = new MarginPadding(10)
+                },
+                moduleEditParametersContainerLineSeparator = new LineSeparator
+                {
+                    Anchor = Anchor.TopCentre,
+                    Origin = Anchor.TopCentre,
+                    RelativeSizeAxes = Axes.X,
+                    Size = new Vector2(0.95f, 5)
+                },
+                moduleEditParametersContainer = new ModuleEditParametersContainer
+                {
+                    Anchor = Anchor.TopCentre,
+                    Origin = Anchor.TopCentre,
+                    RelativeSizeAxes = Axes.X,
+                    AutoSizeAxes = Axes.Y,
+                    Direction = FillDirection.Vertical,
+                    Spacing = new Vector2(0, 10),
+                    Padding = new MarginPadding(10)
                 }
             }
         };
 
         SourceModule.BindValueChanged(_ =>
-        {
-            if (SourceModule.Value == null) return;
+            {
+                if (SourceModule.Value == null) return;
 
-            title.Text = SourceModule.Value.Title;
-            description.Text = SourceModule.Value.Description;
-            author.Text = $"Made by {SourceModule.Value.Author}";
+                title.Text = SourceModule.Value.Title;
+                description.Text = SourceModule.Value.Description;
+                author.Text = $"Made by {SourceModule.Value.Author}";
 
-            if (SourceModule.Value.DataManager.HasSettings)
-            {
-                moduleEditSettingsContainerLineSeparator.Show();
-                moduleEditSettingsContainer.Show();
-            }
-            else
-            {
-                moduleEditSettingsContainerLineSeparator.Hide();
-                moduleEditSettingsContainer.Hide();
-            }
+                if (SourceModule.Value.DataManager.HasSettings)
+                {
+                    moduleEditSettingsContainerLineSeparator.Show();
+                    moduleEditSettingsContainer.Show();
+                }
+                else
+                {
+                    moduleEditSettingsContainerLineSeparator.Hide();
+                    moduleEditSettingsContainer.Hide();
+                }
 
-            if (SourceModule.Value.DataManager.HasParameters)
-            {
-                moduleEditParametersContainerLineSeparator.Show();
-                moduleEditParametersContainer.Show();
-            }
-            else
-            {
-                moduleEditParametersContainerLineSeparator.Hide();
-                moduleEditParametersContainer.Hide();
-            }
-        }, true);
+                if (SourceModule.Value.DataManager.HasParameters)
+                {
+                    moduleEditParametersContainerLineSeparator.Show();
+                    moduleEditParametersContainer.Show();
+                }
+                else
+                {
+                    moduleEditParametersContainerLineSeparator.Hide();
+                    moduleEditParametersContainer.Hide();
+                }
+            },
+            true);
     }
 }
