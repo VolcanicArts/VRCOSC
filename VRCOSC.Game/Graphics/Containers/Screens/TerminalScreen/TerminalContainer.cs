@@ -8,6 +8,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Input.Events;
 using osu.Framework.Logging;
+using osuTK;
 using osuTK.Input;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.TerminalScreen;
@@ -17,8 +18,7 @@ public class TerminalContainer : Container
     [Resolved]
     private ScreenManager ScreenManager { get; set; }
 
-    private BasicScrollContainer terminalScroll;
-    private FillFlowContainer<TerminalEntry> terminalFlow;
+    private VRCOSCScrollContainer<TerminalEntry> terminalScroll;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -79,24 +79,15 @@ public class TerminalContainer : Container
                                 Origin = Anchor.Centre,
                                 RelativeSizeAxes = Axes.Both,
                                 Padding = new MarginPadding(1.5f),
-                                Child = terminalScroll = new BasicScrollContainer
+                                Child = terminalScroll = new VRCOSCScrollContainer<TerminalEntry>
                                 {
                                     Anchor = Anchor.Centre,
                                     Origin = Anchor.Centre,
                                     RelativeSizeAxes = Axes.Both,
-                                    ClampExtension = 20,
-                                    ScrollbarVisible = false,
+                                    Spacing = new Vector2(0),
                                     Padding = new MarginPadding
                                     {
                                         Horizontal = 3
-                                    },
-                                    Child = terminalFlow = new FillFlowContainer<TerminalEntry>
-                                    {
-                                        Anchor = Anchor.TopCentre,
-                                        Origin = Anchor.TopCentre,
-                                        RelativeSizeAxes = Axes.X,
-                                        AutoSizeAxes = Axes.Y,
-                                        Direction = FillDirection.Vertical,
                                     }
                                 }
                             }
@@ -111,7 +102,7 @@ public class TerminalContainer : Container
     {
         base.UpdateAfterChildren();
 
-        while (terminalFlow.Count > 50) terminalFlow[0].RemoveAndDisposeImmediately();
+        while (terminalScroll.ScrollContent.Count > 50) terminalScroll.ScrollContent[0].RemoveAndDisposeImmediately();
         terminalScroll.ScrollToEnd();
     }
 
@@ -128,13 +119,13 @@ public class TerminalContainer : Container
                 AutoSizeAxes = Axes.Both,
                 Text = formattedText
             };
-            terminalFlow.Add(entry);
+            terminalScroll.Add(entry);
         });
     }
 
     public void ClearTerminal()
     {
-        terminalFlow.Clear();
+        terminalScroll.Clear(true);
     }
 
     protected override bool OnKeyDown(KeyDownEvent e)

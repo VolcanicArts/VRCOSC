@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Collections.Generic;
+using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osuTK;
@@ -16,10 +17,13 @@ public class VRCOSCScrollContainer<T> : BasicScrollContainer where T : Drawable
 {
     private readonly FillFlowContainer<T> scrollContentFlow;
 
+    public Vector2 Spacing { get; init; } = new(10);
+    public new MarginPadding Padding { get; init; } = new(10);
+
     public new IReadOnlyList<T> ScrollContent
     {
         get => scrollContentFlow.Children;
-        set => scrollContentFlow.Children = value;
+        init => scrollContentFlow.Children = value;
     }
 
     public VRCOSCScrollContainer()
@@ -29,18 +33,28 @@ public class VRCOSCScrollContainer<T> : BasicScrollContainer where T : Drawable
 
         Child = scrollContentFlow = new FillFlowContainer<T>
         {
-            Anchor = Anchor.Centre,
-            Origin = Anchor.Centre,
+            Anchor = Anchor.TopCentre,
+            Origin = Anchor.TopCentre,
             RelativeSizeAxes = Axes.X,
             AutoSizeAxes = Axes.Y,
-            Direction = FillDirection.Vertical,
-            Spacing = new Vector2(10),
-            Padding = new MarginPadding(10)
+            Direction = FillDirection.Vertical
         };
+    }
+
+    [BackgroundDependencyLoader]
+    private void load()
+    {
+        scrollContentFlow.Spacing = Spacing;
+        scrollContentFlow.Padding = Padding;
     }
 
     public void Add(T drawable)
     {
         scrollContentFlow.Add(drawable);
+    }
+
+    public override void Clear(bool disposeChildren)
+    {
+        scrollContentFlow.Clear(disposeChildren);
     }
 }
