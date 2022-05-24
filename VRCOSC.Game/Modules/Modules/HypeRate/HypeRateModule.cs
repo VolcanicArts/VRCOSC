@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Linq;
 using osu.Framework.Graphics;
 using osu.Framework.Platform;
 
@@ -49,16 +48,10 @@ public class HypeRateModule : Module
         var normalisedHeartRate = heartrate / 60.0f;
         SendParameter(HypeRateParameter.HeartrateNormalised, normalisedHeartRate);
 
-        var individualValues = toDigitArray(heartrate);
+        var individualValues = ToDigitArray(heartrate, 3);
         SendParameter(HypeRateParameter.HeartrateUnits, individualValues[2]);
         SendParameter(HypeRateParameter.HeartrateTens, individualValues[1]);
         SendParameter(HypeRateParameter.HeartrateHundreds, individualValues[0]);
-    }
-
-    private static int[] toDigitArray(int num)
-    {
-        var numStr = num.ToString().PadLeft(3, '0');
-        return numStr.Select(digit => int.Parse(digit.ToString())).ToArray();
     }
 
     protected override void OnStop()

@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Linq;
 using System.Net.Sockets;
 using CoreOSC;
 using CoreOSC.IO;
@@ -138,6 +139,21 @@ public abstract class Module
         var address = new Address(DataManager.GetParameter(key));
         var message = new OscMessage(address, new[] { value });
         oscClient.SendMessageAsync(message);
+    }
+
+    #endregion
+
+    #region Module Utilities
+
+    protected int[] ToDigitArray(int num, int totalWidth)
+    {
+        var numStr = num.ToString().PadLeft(totalWidth, '0');
+        return numStr.Select(digit => int.Parse(digit.ToString())).ToArray();
+    }
+
+    protected float MapBetween(float value, float sMin, float sMax, float dMin, float dMax)
+    {
+        return value / (sMax - sMin) * (dMax - dMin) + dMin;
     }
 
     #endregion

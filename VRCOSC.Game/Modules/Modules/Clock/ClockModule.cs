@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Linq;
 using osu.Framework.Graphics;
 using osu.Framework.Platform;
 
@@ -51,8 +50,8 @@ public class ClockModule : Module
         var hour = DateTime.Now.Hour;
         var minute = DateTime.Now.Minute;
 
-        var hourMapped = MathF.Round(mapBetween(hour, 0, 24, -1, 1), 2);
-        var minuteMapped = MathF.Round(mapBetween(minute, 0, 60, -1, 1), 2);
+        var hourMapped = MathF.Round(MapBetween(hour, 0, 24, -1, 1), 2);
+        var minuteMapped = MathF.Round(MapBetween(minute, 0, 60, -1, 1), 2);
 
         Terminal.Log("Hour mapped " + hourMapped);
         Terminal.Log("Minute mapped " + minuteMapped);
@@ -66,8 +65,8 @@ public class ClockModule : Module
         var hour = DateTime.Now.Hour;
         var minute = DateTime.Now.Minute;
 
-        var hoursSplit = toDigitArray(hour);
-        var minutesSplit = toDigitArray(minute);
+        var hoursSplit = ToDigitArray(hour, 2);
+        var minutesSplit = ToDigitArray(minute, 2);
 
         Terminal.Log($"Time is currently: {hoursSplit[0]}{hoursSplit[1]}:{minutesSplit[0]}{minutesSplit[1]}");
 
@@ -75,17 +74,6 @@ public class ClockModule : Module
         SendParameter(ClockParameter.HoursUnits, hoursSplit[1]);
         SendParameter(ClockParameter.MinutesTens, minutesSplit[0]);
         SendParameter(ClockParameter.MinutesUnits, minutesSplit[1]);
-    }
-
-    private static float mapBetween(float value, float sMin, float sMax, float dMin, float dMax)
-    {
-        return value / (sMax - sMin) * (dMax - dMin) + dMin;
-    }
-
-    private static int[] toDigitArray(int num)
-    {
-        var numStr = num.ToString().PadLeft(2, '0');
-        return numStr.Select(digit => int.Parse(digit.ToString())).ToArray();
     }
 }
 
