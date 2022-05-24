@@ -11,7 +11,7 @@ using osuTK;
 using VRCOSC.Game.Graphics.Containers.UI.TextBox;
 using VRCOSC.Game.Graphics.Drawables.Triangles;
 
-namespace VRCOSC.Game.Graphics.Containers.Module.ModulOscParameter;
+namespace VRCOSC.Game.Graphics.Containers.Module.ModuleOscParameter;
 
 public class ModuleOscParameterContainer : Container
 {

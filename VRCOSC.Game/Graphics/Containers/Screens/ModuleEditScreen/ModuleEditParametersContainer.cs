@@ -8,7 +8,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
-using VRCOSC.Game.Graphics.Containers.Module.ModulOscParameter;
+using VRCOSC.Game.Graphics.Containers.Module.ModuleOscParameter;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditScreen;
 
