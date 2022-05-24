@@ -56,7 +56,8 @@ public class ModuleCardGroupContainer : Container
                                 Anchor = Anchor.TopCentre,
                                 Origin = Anchor.TopCentre,
                                 Text = ModuleType.ToString(),
-                                Font = FrameworkFont.Regular.With(size: 50)
+                                Font = FrameworkFont.Regular.With(size: 50),
+                                Shadow = true
                             },
                             moduleCardFlow = new FillFlowContainer<ModuleCard>
                             {
@@ -82,8 +83,7 @@ public class ModuleCardGroupContainer : Container
                 RelativeSizeAxes = Axes.X,
                 AutoSizeAxes = Axes.Y,
                 Masking = true,
-                CornerRadius = 10,
-                BorderThickness = 2,
+                CornerRadius = 20,
                 SourceModule = module
             });
         });

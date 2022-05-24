@@ -73,7 +73,6 @@ public class ModuleCardListingContainer : Container
                 AutoSizeAxes = Axes.Y,
                 Masking = true,
                 CornerRadius = 20,
-                BorderThickness = 3,
                 ModuleType = moduleType,
                 Modules = modules
             });

@@ -14,7 +14,7 @@ public class HypeRateModule : Module
     public override string Title => "HypeRate";
     public override string Description => "Sends heartrate data taken from HypeRate.io into VRChat";
     public override string Author => "VolcanicArts";
-    public override Colour4 Colour => Colour4.OrangeRed;
+    public override Colour4 Colour => Colour4.OrangeRed.Darken(0.5f);
     public override ModuleType Type => ModuleType.Health;
 
     private HypeRateProvider hypeRateProvider;

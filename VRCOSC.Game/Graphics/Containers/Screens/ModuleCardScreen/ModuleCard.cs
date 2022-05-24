@@ -2,11 +2,8 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
-using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
-using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
 using VRCOSC.Game.Graphics.Containers.UI;
@@ -25,7 +22,6 @@ public class ModuleCard : Container
     [BackgroundDependencyLoader]
     private void load()
     {
-        Box fadeBox;
         ToggleSwitch toggleCheckBox;
 
         InternalChildren = new Drawable[]
@@ -38,13 +34,6 @@ public class ModuleCard : Container
                 Height = 75,
                 ColourLight = SourceModule.Colour,
                 ColourDark = SourceModule.Colour.Darken(0.25f)
-            },
-            new Box
-            {
-                Anchor = Anchor.CentreLeft,
-                Origin = Anchor.CentreLeft,
-                RelativeSizeAxes = Axes.Both,
-                Colour = ColourInfo.GradientHorizontal(Colour4.Black.Opacity(0.75f), VRCOSCColour.Invisible)
             },
             new Container
             {
@@ -65,8 +54,6 @@ public class ModuleCard : Container
                         Origin = Anchor.TopLeft,
                         Font = FrameworkFont.Regular.With(size: 35),
                         Shadow = true,
-                        ShadowColour = Colour4.Black.Opacity(0.5f),
-                        ShadowOffset = new Vector2(0.0f, 0.025f),
                         Text = SourceModule.Title
                     },
                     new SpriteText
@@ -75,8 +62,6 @@ public class ModuleCard : Container
                         Origin = Anchor.BottomLeft,
                         Font = FrameworkFont.Regular.With(size: 25),
                         Shadow = true,
-                        ShadowColour = Colour4.Black.Opacity(0.5f),
-                        ShadowOffset = new Vector2(0.0f, 0.025f),
                         Text = SourceModule.Description
                     },
                     new FillFlowContainer
@@ -118,19 +103,12 @@ public class ModuleCard : Container
                         }
                     }
                 }
-            },
-            fadeBox = new Box
-            {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                RelativeSizeAxes = Axes.Both,
-                Colour = VRCOSCColour.Invisible
             }
         };
 
         toggleCheckBox.State.BindValueChanged(e =>
         {
-            fadeBox.FadeColour(e.NewValue ? VRCOSCColour.Invisible : VRCOSCColour.Gray0.Opacity(0.5f), 500, Easing.OutCubic);
+            this.FadeTo(e.NewValue ? 1.0f : 0.4f, 500, Easing.OutCubic);
             SourceModule.DataManager.SetEnabled(e.NewValue);
         }, true);
     }

@@ -29,7 +29,7 @@ public class IconButton : VRCOSCButton
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 Icon = Icon,
-                Colour = Colour4.Black
+                Shadow = true
             }
         });
     }
