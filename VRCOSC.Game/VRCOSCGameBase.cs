@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
-using osu.Framework.Configuration;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.IO.Stores;
@@ -33,7 +32,7 @@ public class VRCOSCGameBase : osu.Framework.Game
     }
 
     [BackgroundDependencyLoader]
-    private void load(FrameworkConfigManager configManager, Storage storage)
+    private void load(Storage storage)
     {
         dependencyContainer.CacheAs(new ModuleManager(storage));
         Resources.AddStore(new DllResourceStore(typeof(VRCOSCResources).Assembly));
