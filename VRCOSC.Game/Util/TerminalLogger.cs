@@ -7,16 +7,16 @@ namespace VRCOSC.Game.Util;
 
 public class TerminalLogger
 {
-    private string ModuleName;
+    private readonly string moduleName;
 
     public TerminalLogger(string moduleName)
     {
-        ModuleName = moduleName;
+        this.moduleName = moduleName;
     }
 
     public void Log(string message)
     {
-        Logger.Log($"[{ModuleName}]: {message}", "terminal");
+        Log(message, moduleName);
     }
 
     public static void Log(string message, string moduleName)
