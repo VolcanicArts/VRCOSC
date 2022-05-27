@@ -28,6 +28,7 @@ public class ModuleCard : Container
         AutoSizeAxes = Axes.Y;
         Masking = true;
         CornerRadius = 20;
+        EdgeEffect = VRCOSCEdgeEffects.BasicShadow;
 
         ToggleSwitch toggleCheckBox;
 
