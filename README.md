@@ -1,35 +1,36 @@
 # VRCOSC
-A modular OSC provider primarily made for VRChat built on top of the [osu!framework](https://github.com/ppy/osu-framework).
+A modular OSC provider primarily made for [VRChat](https://vrchat.com) built on top of the [osu!framework](https://github.com/ppy/osu-framework)
 
 <p align="center"><img src="https://user-images.githubusercontent.com/29819296/170736407-3359db07-52a0-443b-9750-5a4c9770e421.png" width=70% height=70%></p>
 
-## Modules
-- HypeRate: Takes HypeRate.io heartrate values and sends multiple OSC values into VRChat.
-- Clock: Takes your current local time and sends multiple OSC values into VRChat.
-- Computer Stats: Takes your system stats (CPU, GPU, and RAM usage) and sends them into VRChat normalised between 0 and 1.
-- Random: Sends a random float between 0 and 1 every second.
-
 ## Getting Started
-Right now there are no releases as the application isn't read for production. If you'd still like to develop a module, check the [How To Create A Module](https://github.com/VolcanicArts/VRCOSC#how-to-create-a-module) section of this README.
+To download VRCOSC, head to the [Releases](https://github.com/VolcanicArts/VRCOSC/releases/latest) section of this repo.
+
+If you'd like to develop a module, check the [How To Create A Module](https://github.com/VolcanicArts/VRCOSC#how-to-create-a-module) section of this README.
+
+Avatar prefabs for select modules will be available in the future.
+
+## Modules
+| Module | Description  |
+| :---:   | :--- |
+| HypeRate | Sends [HypeRate.io](https://www.hyperate.io/supported-devices) heartrate values |
+| Clock | Sends your current local time in 2 different formats | 
+| Computer Stats | Sends your system stats. Currently CPU, GPU, and RAM |
+| Random | Sends a random float between 0 and 1 every second |
 
 ## How To Create A Module
 - To create a module, fork this repo and create a new folder inside the [Modules](https://github.com/VolcanicArts/VRCOSC/tree/master/VRCOSC.Game/Modules/Modules) folder.
-- Create a class and have it extend the Module class.
-- Override the `Title` property to set a title.
-- Override the `Description` property to set a description.
-- Override the `Author` property to sign your module.
-- Override the `Colour` property to alter the colour of background of your module.
-- Override the `ModuleType` property to classify your module. If you believe your module requires a new type, make one by editing the `ModuleType` enum.
-- Override the `UpdateDelta` property to alter the time between each `OnUpdate()` call.
-- Override `OnStart()` to execute code when your module is started.
-- Override `OnUpdate()` to execute code on each update call.
-- Override `OnStop()` to execute code on when your module is stopped.
+- Create a class with your module's name and have it extend the Module class.
+- Override `Title`, `Description`, `Author`, `Colour`, `ModuleType`, and `UpdateDelta` to change your module's metadata.
+- Override `OnStart()`, `OnUpdate()`, and `OnStop()` to run your module code on each event.
+- NOTE: The `UpdateDelta` property alters the time between each `OnUpdate()` call in milliseconds.
+- NOTE: If your module doesn't fit any current module type, make a new type by editing the `ModuleType` enum.
 - To create settings (such as having the user enter an API key), call the `CreateSetting()` method inside your module's constructor and fill in the required information.
 - To create OSC parameters, call the `CreateParameter()` method inside your module's constructor and fill in the required information.
-- Settings and OSC parameters both require enums as keys so it's recommended to create two enums titled `[ModuleName]Setting` and `[ModuleName]Parameter`.
+- Settings and OSC parameters both require enums as keys so it's recommended to create two enums titled `[ModuleName]Setting` and `[ModuleName]Parameter` inside your module's .cs file.
 - You can access settings by calling the `GetSettingAs<T>()` method where `T` is the setting's type.
 - To send data over OSC, call the `SendParameter()` method.
-- Finally, make a pull request to submit your module for review.
+- Finally, make a pull request to submit your module.
 
 ## Examples
 If you'd like to see some examples of existing modules, then you can find them inside the [Modules](https://github.com/VolcanicArts/VRCOSC/tree/master/VRCOSC.Game/Modules/Modules) folder.
