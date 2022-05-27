@@ -6,8 +6,6 @@ using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
-using osuTK;
-using VRCOSC.Game.Graphics.Drawables;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleCardScreen;
@@ -33,32 +31,37 @@ public class ModuleCardListingContainer : Container
                 RelativeSizeAxes = Axes.Both,
                 Colour = VRCOSCColour.Gray4
             },
-            moduleCardGroupScroll = new VRCOSCScrollContainer<ModuleCardGroupContainer>
+            new GridContainer
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
-                Padding = new MarginPadding
+                RowDimensions = new[]
                 {
-                    Bottom = footer_height
+                    new Dimension(),
+                    new Dimension(GridSizeMode.Absolute, footer_height)
+                },
+                Content = new[]
+                {
+                    new Drawable[]
+                    {
+                        moduleCardGroupScroll = new VRCOSCScrollContainer<ModuleCardGroupContainer>
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativeSizeAxes = Axes.Both
+                        }
+                    },
+                    new Drawable[]
+                    {
+                        new ModuleCardListingFooter
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativeSizeAxes = Axes.Both
+                        }
+                    }
                 }
-            },
-            new LineSeparator
-            {
-                Anchor = Anchor.BottomCentre,
-                Origin = Anchor.BottomCentre,
-                RelativeSizeAxes = Axes.X,
-                Size = new Vector2(0.95f, 5),
-                Colour = Colour4.Black.Opacity(0.5f),
-                Y = -footer_height
-            },
-            new ModuleCardListingFooter
-            {
-                Anchor = Anchor.BottomCentre,
-                Origin = Anchor.BottomCentre,
-                RelativeSizeAxes = Axes.X,
-                Height = footer_height,
-                Padding = new MarginPadding(5)
             }
         };
 
