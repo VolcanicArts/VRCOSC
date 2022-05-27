@@ -28,7 +28,6 @@ public class ModuleCard : Container
         AutoSizeAxes = Axes.Y;
         Masking = true;
         CornerRadius = 20;
-        EdgeEffect = VRCOSCEdgeEffects.BasicShadow;
 
         ToggleSwitch toggleCheckBox;
 
@@ -116,8 +115,20 @@ public class ModuleCard : Container
 
         toggleCheckBox.State.BindValueChanged(e =>
         {
-            this.FadeTo(e.NewValue ? 1.0f : 0.4f, 500, Easing.OutCubic);
             SourceModule.DataManager.SetEnabled(e.NewValue);
+
+            const float transition_duration = 500;
+
+            if (e.NewValue)
+            {
+                this.FadeTo(1, transition_duration, Easing.OutCubic);
+                TweenEdgeEffectTo(VRCOSCEdgeEffects.BasicShadow, transition_duration, Easing.OutCubic);
+            }
+            else
+            {
+                this.FadeTo(0.4f, transition_duration, Easing.OutCubic);
+                TweenEdgeEffectTo(VRCOSCEdgeEffects.NoShadow, transition_duration, Easing.OutCubic);
+            }
         }, true);
     }
 }
