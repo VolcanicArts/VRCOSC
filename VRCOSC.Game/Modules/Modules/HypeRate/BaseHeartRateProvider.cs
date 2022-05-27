@@ -38,7 +38,6 @@ public abstract class BaseHeartRateProvider
 
     public void Disconnect()
     {
-        isRunning.Set();
         webSocket.Close();
     }
 
@@ -67,6 +66,7 @@ public abstract class BaseHeartRateProvider
         terminal.Log("WebSocket disconnected");
         OnDisconnected?.Invoke();
         OnWsDisconnected();
+        webSocket.Dispose();
         isRunning.Set();
     }
 
