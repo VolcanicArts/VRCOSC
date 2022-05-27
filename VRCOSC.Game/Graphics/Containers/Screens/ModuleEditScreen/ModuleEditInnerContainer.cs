@@ -28,7 +28,9 @@ public class ModuleEditInnerContainer : Container
         LineSeparator moduleEditParametersContainerLineSeparator;
         ModuleEditParametersContainer moduleEditParametersContainer;
 
-        InternalChild = new VRCOSCScrollContainer
+        VRCOSCScrollContainer scrollContainer;
+
+        InternalChild = scrollContainer = new VRCOSCScrollContainer
         {
             Anchor = Anchor.Centre,
             Origin = Anchor.Centre,
@@ -107,6 +109,8 @@ public class ModuleEditInnerContainer : Container
         SourceModule.BindValueChanged(_ =>
             {
                 if (SourceModule.Value == null) return;
+
+                scrollContainer.ScrollToStart();
 
                 title.Text = SourceModule.Value.Title;
                 description.Text = SourceModule.Value.Description;
