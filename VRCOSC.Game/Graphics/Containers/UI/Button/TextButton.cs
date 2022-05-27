@@ -2,11 +2,8 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
-using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
-using osu.Framework.Graphics.Containers;
-using osuTK;
-using osuTK.Graphics;
+using osu.Framework.Graphics.Sprites;
 
 namespace VRCOSC.Game.Graphics.Containers.UI;
 
@@ -18,19 +15,13 @@ public class TextButton : VRCOSCButton
     [BackgroundDependencyLoader]
     private void load()
     {
-        AddInternal(new TextFlowContainer(t =>
-        {
-            t.Font = FrameworkFont.Regular.With(size: FontSize);
-            t.Shadow = true;
-            t.ShadowColour = Color4.Black.Opacity(0.5f);
-            t.ShadowOffset = new Vector2(0.0f, 0.025f);
-        })
+        AddInternal(new SpriteText
         {
             Anchor = Anchor.Centre,
             Origin = Anchor.Centre,
-            TextAnchor = Anchor.Centre,
-            RelativeSizeAxes = Axes.Both,
-            Text = Text
+            Font = FrameworkFont.Regular.With(size: FontSize),
+            Text = Text,
+            Shadow = true
         });
     }
 }
