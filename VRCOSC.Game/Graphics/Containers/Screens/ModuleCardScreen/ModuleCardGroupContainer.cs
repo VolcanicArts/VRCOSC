@@ -27,7 +27,7 @@ public class ModuleCardGroupContainer : Container
         Masking = true;
         CornerRadius = 20;
 
-        FillFlowContainer<ModuleCard> moduleCardFlow;
+        FillFlowContainer groupFlow;
 
         InternalChildren = new Drawable[]
         {
@@ -38,44 +38,24 @@ public class ModuleCardGroupContainer : Container
                 RelativeSizeAxes = Axes.Both,
                 Colour = VRCOSCColour.Gray4
             },
-            new Container
+            groupFlow = new FillFlowContainer
             {
-                Name = "Content",
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.X,
                 AutoSizeAxes = Axes.Y,
+                Direction = FillDirection.Vertical,
+                Spacing = new Vector2(0, 5),
                 Padding = new MarginPadding(10),
                 Children = new Drawable[]
                 {
-                    new FillFlowContainer
+                    new SpriteText
                     {
-                        Anchor = Anchor.Centre,
-                        Origin = Anchor.Centre,
-                        RelativeSizeAxes = Axes.X,
-                        AutoSizeAxes = Axes.Y,
-                        Direction = FillDirection.Vertical,
-                        Spacing = new Vector2(0, 5),
-                        Children = new Drawable[]
-                        {
-                            new SpriteText
-                            {
-                                Anchor = Anchor.TopCentre,
-                                Origin = Anchor.TopCentre,
-                                Text = ModuleType.ToString(),
-                                Font = FrameworkFont.Regular.With(size: 50),
-                                Shadow = true
-                            },
-                            moduleCardFlow = new FillFlowContainer<ModuleCard>
-                            {
-                                Anchor = Anchor.TopCentre,
-                                Origin = Anchor.TopCentre,
-                                RelativeSizeAxes = Axes.X,
-                                AutoSizeAxes = Axes.Y,
-                                Direction = FillDirection.Vertical,
-                                Spacing = new Vector2(0, 10)
-                            }
-                        }
+                        Anchor = Anchor.TopCentre,
+                        Origin = Anchor.TopCentre,
+                        Text = ModuleType.ToString(),
+                        Font = FrameworkFont.Regular.With(size: 50),
+                        Shadow = true
                     }
                 }
             }
@@ -83,7 +63,7 @@ public class ModuleCardGroupContainer : Container
 
         Modules.ForEach(module =>
         {
-            moduleCardFlow.Add(new ModuleCard
+            groupFlow.Add(new ModuleCard
             {
                 SourceModule = module
             });
