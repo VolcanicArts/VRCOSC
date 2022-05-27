@@ -17,28 +17,17 @@ public class ModuleCardListingFooter : Container
     [BackgroundDependencyLoader]
     private void load()
     {
-        InternalChildren = new Drawable[]
+        Children = new Drawable[]
         {
-            new Container
+            new TextButton
             {
-                Name = "Content",
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
-                RelativeSizeAxes = Axes.Both,
-                Padding = new MarginPadding(5),
-                Children = new Drawable[]
-                {
-                    new TextButton
-                    {
-                        Anchor = Anchor.Centre,
-                        Origin = Anchor.Centre,
-                        Size = new Vector2(150, 40),
-                        CornerRadius = 5,
-                        BackgroundColour = VRCOSCColour.GreenDark,
-                        Text = "Run",
-                        Action = ScreenManager.ShowTerminal
-                    }
-                }
+                Size = new Vector2(150, 40),
+                CornerRadius = 5,
+                BackgroundColour = VRCOSCColour.GreenDark,
+                Text = "Run",
+                Action = ScreenManager.ShowTerminal
             }
         };
     }

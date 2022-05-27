@@ -57,7 +57,8 @@ public class ModuleCardListingContainer : Container
                 Anchor = Anchor.BottomCentre,
                 Origin = Anchor.BottomCentre,
                 RelativeSizeAxes = Axes.X,
-                Height = footer_height
+                Height = footer_height,
+                Padding = new MarginPadding(5)
             }
         };
 
