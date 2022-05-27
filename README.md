@@ -11,12 +11,12 @@ If you'd like to develop a module, check the [How To Create A Module](https://gi
 Avatar prefabs for select modules will be available in the future.
 
 ## Modules
-| Module | Description  |
-| :---:   | :--- |
-| HypeRate | Sends [HypeRate.io](https://www.hyperate.io/supported-devices) heartrate values |
-| Clock | Sends your current local time in 2 different formats | 
-| Computer Stats | Sends your system stats. Currently CPU, GPU, and RAM |
-| Random | Sends a random float between 0 and 1 every second |
+| Module | Description | Notes |
+| :---: | :--- | :--- |
+| HypeRate | Sends [HypeRate.io](https://www.hyperate.io/supported-devices) heartrate values | Requires a free API key which can be obtained from HypeRate's [Discord Server](https://discord.gg/eTwfgU29cU) |
+| Clock | Sends your current local time in 2 different formats | |
+| Computer Stats | Sends your system stats. Currently CPU, GPU, and RAM | Only works on Windows |
+| Random | Sends a random float between 0 and 1 every second | |
 
 ## How To Create A Module
 - To create a module, fork this repo and create a new folder inside the [Modules](https://github.com/VolcanicArts/VRCOSC/tree/master/VRCOSC.Game/Modules/Modules) folder.
