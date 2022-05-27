@@ -22,6 +22,13 @@ public class ModuleCard : Container
     [BackgroundDependencyLoader]
     private void load()
     {
+        Anchor = Anchor.TopCentre;
+        Origin = Anchor.TopCentre;
+        RelativeSizeAxes = Axes.X;
+        AutoSizeAxes = Axes.Y;
+        Masking = true;
+        CornerRadius = 20;
+
         ToggleSwitch toggleCheckBox;
 
         InternalChildren = new Drawable[]

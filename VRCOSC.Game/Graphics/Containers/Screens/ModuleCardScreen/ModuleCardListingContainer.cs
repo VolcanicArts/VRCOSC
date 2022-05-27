@@ -67,12 +67,6 @@ public class ModuleCardListingContainer : Container
 
             moduleCardGroupScroll.Add(new ModuleCardGroupContainer
             {
-                Anchor = Anchor.TopCentre,
-                Origin = Anchor.TopCentre,
-                RelativeSizeAxes = Axes.X,
-                AutoSizeAxes = Axes.Y,
-                Masking = true,
-                CornerRadius = 20,
                 ModuleType = moduleType,
                 Modules = modules
             });

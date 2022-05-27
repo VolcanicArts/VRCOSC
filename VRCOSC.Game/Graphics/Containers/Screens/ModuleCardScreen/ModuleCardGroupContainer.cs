@@ -20,6 +20,13 @@ public class ModuleCardGroupContainer : Container
     [BackgroundDependencyLoader]
     private void load()
     {
+        Anchor = Anchor.TopCentre;
+        Origin = Anchor.TopCentre;
+        RelativeSizeAxes = Axes.X;
+        AutoSizeAxes = Axes.Y;
+        Masking = true;
+        CornerRadius = 20;
+
         FillFlowContainer<ModuleCard> moduleCardFlow;
 
         InternalChildren = new Drawable[]
@@ -78,12 +85,6 @@ public class ModuleCardGroupContainer : Container
         {
             moduleCardFlow.Add(new ModuleCard
             {
-                Anchor = Anchor.TopCentre,
-                Origin = Anchor.TopCentre,
-                RelativeSizeAxes = Axes.X,
-                AutoSizeAxes = Axes.Y,
-                Masking = true,
-                CornerRadius = 20,
                 SourceModule = module
             });
         });
