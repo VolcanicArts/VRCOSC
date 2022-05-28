@@ -33,7 +33,8 @@ public class ModuleListingHeader : Container
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
-                Font = FrameworkFont.Regular.With(size: 50)
+                Font = FrameworkFont.Regular.With(size: 50),
+                Shadow = true
             }
         };
 

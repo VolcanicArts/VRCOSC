@@ -36,7 +36,7 @@ public sealed class ModuleGroupCard : Container
             Origin = Anchor.Centre,
             RelativeSizeAxes = Axes.Both,
             Text = moduleType.ToString(),
-            CornerRadius = 5,
+            CornerRadius = 10,
             Action = () => ModuleSelection.SelectedType.Value = moduleType
         };
     }

@@ -13,7 +13,7 @@ namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleCardScreen;
 
 public class ModuleListing : Container
 {
-    private const float header_height = 100;
+    private const float header_height = 80;
     private const float footer_height = 60;
 
     [Resolved]
