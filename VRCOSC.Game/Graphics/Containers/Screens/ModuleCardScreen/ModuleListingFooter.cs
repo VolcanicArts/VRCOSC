@@ -34,13 +34,15 @@ public class ModuleListingFooter : Container
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
-                Padding = new MarginPadding(5),
+                Padding = new MarginPadding(7),
                 Child = new IconButton
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
-                    Size = new Vector2(150, 40),
+                    RelativeSizeAxes = Axes.Both,
                     CornerRadius = 5,
+                    FillMode = FillMode.Fit,
+                    FillAspectRatio = 4,
                     BackgroundColour = { Value = VRCOSCColour.GreenDark },
                     Icon = { Value = FontAwesome.Solid.Play },
                     Action = ScreenManager.ShowTerminal
