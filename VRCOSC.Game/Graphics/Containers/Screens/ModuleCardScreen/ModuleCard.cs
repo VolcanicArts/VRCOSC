@@ -45,7 +45,9 @@ public sealed class ModuleCard : Container
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 ColourLight = SourceModule.Colour,
-                ColourDark = SourceModule.Colour.Darken(0.25f)
+                ColourDark = SourceModule.Colour.Darken(0.25f),
+                TriangleScale = 2,
+                Velocity = 0.8f
             },
             new GridContainer
             {
