@@ -3,15 +3,14 @@
 
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
-using osu.Framework.Graphics.Sprites;
-using osu.Framework.Input.Events;
+using osu.Framework.Graphics.Containers;
 using osuTK;
 using VRCOSC.Game.Graphics.Containers.UI;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleCardScreen;
 
-public sealed class ModuleGroupCard : VRCOSCButton
+public sealed class ModuleGroupCard : Container
 {
     private readonly ModuleType moduleType;
 
@@ -26,24 +25,19 @@ public sealed class ModuleGroupCard : VRCOSCButton
         Origin = Anchor.TopCentre;
         RelativeSizeAxes = Axes.X;
         Size = new Vector2(0.8f, 50);
-        CornerRadius = 5;
-        BackgroundColour = VRCOSCColour.Gray1;
     }
 
     [BackgroundDependencyLoader]
     private void load()
     {
-        Add(new SpriteText
+        Child = new TextButton
         {
             Anchor = Anchor.Centre,
             Origin = Anchor.Centre,
-            Text = moduleType.ToString()
-        });
-    }
-
-    protected override bool OnClick(ClickEvent e)
-    {
-        ModuleSelection.SelectedType.Value = moduleType;
-        return base.OnClick(e);
+            RelativeSizeAxes = Axes.Both,
+            Text = moduleType.ToString(),
+            CornerRadius = 5,
+            Action = () => ModuleSelection.SelectedType.Value = moduleType
+        };
     }
 }
