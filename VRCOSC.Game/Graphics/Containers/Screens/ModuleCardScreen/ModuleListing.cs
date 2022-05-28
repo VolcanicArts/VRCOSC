@@ -87,6 +87,6 @@ public class ModuleListing : Container
                     });
                 });
             });
-        });
+        }, true);
     }
 }
