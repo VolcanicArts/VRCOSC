@@ -25,12 +25,11 @@ public class ScreenManager : Container
     {
         InternalChildren = new Drawable[]
         {
-            new ModuleCardListingContainer
+            new ModuleSelection
             {
-                Anchor = Anchor.TopCentre,
-                Origin = Anchor.TopCentre,
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
-                RelativePositionAxes = Axes.Both
             },
             terminalContainer = new TerminalContainer
             {

@@ -10,19 +10,21 @@ using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleCardScreen;
 
-public class ModuleCardListingContainer : Container
+public class ModuleListing : Container
 {
     private const float footer_height = 60;
 
     [Resolved]
     private ModuleManager ModuleManager { get; set; }
 
+    [Resolved]
+    private ModuleSelection ModuleSelection { get; set; }
+
     [BackgroundDependencyLoader]
     private void load()
     {
-        VRCOSCScrollContainer<ModuleCardGroupContainer> moduleCardGroupScroll;
-
-        InternalChildren = new Drawable[]
+        VRCOSCScrollContainer moduleListingFlow;
+        Children = new Drawable[]
         {
             new Box
             {
@@ -45,7 +47,7 @@ public class ModuleCardListingContainer : Container
                 {
                     new Drawable[]
                     {
-                        moduleCardGroupScroll = new VRCOSCScrollContainer<ModuleCardGroupContainer>
+                        moduleListingFlow = new VRCOSCScrollContainer
                         {
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
@@ -65,14 +67,25 @@ public class ModuleCardListingContainer : Container
             }
         };
 
-        ModuleManager.Modules.ForEach(pair =>
+        ModuleSelection.SelectedType.BindValueChanged(e =>
         {
-            var (moduleType, modules) = pair;
+            var newType = e.NewValue;
 
-            moduleCardGroupScroll.Add(new ModuleCardGroupContainer
+            moduleListingFlow.Clear();
+
+            ModuleManager.Modules.ForEach(pair =>
             {
-                ModuleType = moduleType,
-                Modules = modules
+                var (moduleType, modules) = pair;
+
+                if (!moduleType.Equals(newType)) return;
+
+                modules.ForEach(module =>
+                {
+                    moduleListingFlow.Add(new ModuleCard
+                    {
+                        SourceModule = module
+                    });
+                });
             });
         });
     }
