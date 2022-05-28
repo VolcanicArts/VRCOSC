@@ -10,12 +10,19 @@ namespace VRCOSC.Game.Graphics.Containers.Screens.TerminalScreen;
 
 public class TerminalEntry : Container
 {
-    public string Text { get; init; }
+    private readonly string text;
+
+    public TerminalEntry(string text)
+    {
+        this.text = text;
+    }
 
     [BackgroundDependencyLoader]
     private void load()
     {
-        Alpha = 0;
+        Anchor = Anchor.CentreLeft;
+        Origin = Anchor.CentreLeft;
+        AutoSizeAxes = Axes.Both;
 
         InternalChild = new SpriteText
         {
@@ -23,7 +30,7 @@ public class TerminalEntry : Container
             Origin = Anchor.CentreLeft,
             Font = FrameworkFont.Regular.With(size: 20),
             Colour = VRCOSCColour.Gray8,
-            Text = Text
+            Text = text
         };
     }
 

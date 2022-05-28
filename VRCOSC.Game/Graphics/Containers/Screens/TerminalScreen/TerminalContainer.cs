@@ -13,89 +13,86 @@ using osuTK.Input;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.TerminalScreen;
 
-public class TerminalContainer : Container
+public sealed class TerminalContainer : Container
 {
     [Resolved]
     private ScreenManager ScreenManager { get; set; }
 
     private VRCOSCScrollContainer<TerminalEntry> terminalScroll;
 
+    public TerminalContainer()
+    {
+        Anchor = Anchor.Centre;
+        Origin = Anchor.Centre;
+        RelativeSizeAxes = Axes.Both;
+        Masking = true;
+        CornerRadius = 20;
+        EdgeEffect = VRCOSCEdgeEffects.DispersedShadow;
+        BorderThickness = 3;
+    }
+
     [BackgroundDependencyLoader]
     private void load()
     {
-        Logger.NewEntry += logEntry =>
+        Children = new Drawable[]
         {
-            if (logEntry.LoggerName == "terminal")
-                log(logEntry.Message);
-        };
-
-        Padding = new MarginPadding(40);
-
-        InternalChild = new Container
-        {
-            Anchor = Anchor.Centre,
-            Origin = Anchor.Centre,
-            RelativeSizeAxes = Axes.Both,
-            Masking = true,
-            CornerRadius = 20,
-            EdgeEffect = VRCOSCEdgeEffects.DispersedShadow,
-            BorderThickness = 3,
-            Children = new Drawable[]
+            new Box
             {
-                new Box
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                RelativeSizeAxes = Axes.Both,
+                Colour = VRCOSCColour.Gray3
+            },
+            new Container
+            {
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                RelativeSizeAxes = Axes.Both,
+                Padding = new MarginPadding(15),
+                Child = new Container
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
                     RelativeSizeAxes = Axes.Both,
-                    Colour = VRCOSCColour.Gray3
-                },
-                new Container
-                {
-                    Name = "Content",
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    RelativeSizeAxes = Axes.Both,
-                    Padding = new MarginPadding(15),
-                    Child = new Container
+                    BorderThickness = 3,
+                    Masking = true,
+                    Children = new Drawable[]
                     {
-                        Anchor = Anchor.Centre,
-                        Origin = Anchor.Centre,
-                        RelativeSizeAxes = Axes.Both,
-                        BorderThickness = 3,
-                        Masking = true,
-                        Children = new Drawable[]
+                        new Box
                         {
-                            new Box
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativeSizeAxes = Axes.Both,
+                            Colour = VRCOSCColour.Gray2,
+                        },
+                        new Container
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativeSizeAxes = Axes.Both,
+                            Padding = new MarginPadding(1.5f),
+                            Child = terminalScroll = new VRCOSCScrollContainer<TerminalEntry>
                             {
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
                                 RelativeSizeAxes = Axes.Both,
-                                Colour = VRCOSCColour.Gray2,
-                            },
-                            new Container
-                            {
-                                Name = "Content",
-                                Anchor = Anchor.Centre,
-                                Origin = Anchor.Centre,
-                                RelativeSizeAxes = Axes.Both,
-                                Padding = new MarginPadding(1.5f),
-                                Child = terminalScroll = new VRCOSCScrollContainer<TerminalEntry>
+                                ContentSpacing = new Vector2(0),
+                                ContentPadding = new MarginPadding(0),
+                                Padding = new MarginPadding
                                 {
-                                    Anchor = Anchor.Centre,
-                                    Origin = Anchor.Centre,
-                                    RelativeSizeAxes = Axes.Both,
-                                    ContentSpacing = new Vector2(0),
-                                    ContentPadding = new MarginPadding(0),
-                                    Padding = new MarginPadding
-                                    {
-                                        Horizontal = 3
-                                    }
+                                    Horizontal = 3
                                 }
                             }
                         }
                     }
                 }
             }
+        };
+
+        Logger.NewEntry += logEntry =>
+        {
+            if (logEntry.LoggerName == "terminal")
+                log(logEntry.Message);
         };
     }
 
@@ -112,15 +109,7 @@ public class TerminalContainer : Container
         Scheduler.Add(() =>
         {
             var formattedText = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {text}";
-
-            var entry = new TerminalEntry
-            {
-                Anchor = Anchor.CentreLeft,
-                Origin = Anchor.CentreLeft,
-                AutoSizeAxes = Axes.Both,
-                Text = formattedText
-            };
-            terminalScroll.Add(entry);
+            terminalScroll.Add(new TerminalEntry(formattedText));
         });
     }
 

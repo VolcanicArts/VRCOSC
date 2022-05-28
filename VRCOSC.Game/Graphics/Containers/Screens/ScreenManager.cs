@@ -14,7 +14,7 @@ namespace VRCOSC.Game.Graphics.Containers.Screens;
 
 public class ScreenManager : Container
 {
-    private TerminalContainer terminalContainer;
+    private Container<TerminalContainer> terminalContainer;
     private ModuleEditContainer moduleEditContainer;
 
     [Resolved]
@@ -31,13 +31,15 @@ public class ScreenManager : Container
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
             },
-            terminalContainer = new TerminalContainer
+            terminalContainer = new Container<TerminalContainer>
             {
-                Anchor = Anchor.TopCentre,
-                Origin = Anchor.TopCentre,
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 RelativePositionAxes = Axes.Both,
-                Position = new Vector2(0, 1)
+                Position = new Vector2(0, 1),
+                Padding = new MarginPadding(40),
+                Child = new TerminalContainer(),
             },
             moduleEditContainer = new ModuleEditContainer
             {
@@ -91,7 +93,7 @@ public class ScreenManager : Container
             terminalContainer.MoveToY(1, 1000, Easing.InQuint).Finally((_) =>
             {
                 ChangeChildDepth(terminalContainer, 0);
-                terminalContainer.ClearTerminal();
+                terminalContainer.Child.ClearTerminal();
             });
         });
     }
