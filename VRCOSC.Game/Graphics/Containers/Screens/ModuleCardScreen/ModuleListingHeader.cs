@@ -40,8 +40,7 @@ public class ModuleListingHeader : Container
 
         ModuleSelection.SelectedType.BindValueChanged(e =>
         {
-            var newType = e.NewValue;
-            headerText.Text = newType == null ? "Waiting for selection..." : newType.ToString();
+            headerText.Text = e.NewValue.ToString();
         }, true);
     }
 }
