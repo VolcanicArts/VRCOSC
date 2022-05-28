@@ -4,6 +4,7 @@
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Sprites;
 using osuTK;
 using VRCOSC.Game.Graphics.Containers.UI;
 using VRCOSC.Game.Graphics.Drawables;
@@ -34,14 +35,14 @@ public class ModuleListingFooter : Container
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 Padding = new MarginPadding(5),
-                Child = new TextButton
+                Child = new IconButton
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
                     Size = new Vector2(150, 40),
                     CornerRadius = 5,
                     BackgroundColour = { Value = VRCOSCColour.GreenDark },
-                    Text = "Run",
+                    Icon = { Value = FontAwesome.Solid.Play },
                     Action = ScreenManager.ShowTerminal
                 }
             }
