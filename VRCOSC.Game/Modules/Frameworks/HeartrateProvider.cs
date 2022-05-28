@@ -5,7 +5,7 @@ using System;
 
 namespace VRCOSC.Game.Modules.Modules;
 
-public abstract class HeartrateProvider : BaseWebSocket
+public abstract class HeartrateProvider : JsonWebSocket
 {
     public Action<int>? OnHeartRateUpdate;
 

@@ -4,7 +4,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using SuperSocket.ClientEngine;
 using VRCOSC.Game.Util;
 using WebSocket4Net;
@@ -40,9 +39,9 @@ public abstract class BaseWebSocket
         webSocket.Close();
     }
 
-    protected void Send(object data)
+    protected void Send(string data)
     {
-        webSocket.Send(JsonConvert.SerializeObject(data));
+        webSocket.Send(data);
     }
 
     private void run()
