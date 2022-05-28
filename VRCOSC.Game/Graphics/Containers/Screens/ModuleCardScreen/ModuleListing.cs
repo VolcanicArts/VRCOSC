@@ -25,7 +25,7 @@ public class ModuleListing : Container
     [BackgroundDependencyLoader]
     private void load()
     {
-        FillFlowContainer<ModuleCardV2> moduleListingFlow;
+        FillFlowContainer<ModuleCard> moduleListingFlow;
         Children = new Drawable[]
         {
             new Box
@@ -72,7 +72,7 @@ public class ModuleListing : Container
                                 RelativeSizeAxes = Axes.Both,
                                 ClampExtension = 20,
                                 ScrollbarVisible = false,
-                                Child = moduleListingFlow = new FillFlowContainer<ModuleCardV2>
+                                Child = moduleListingFlow = new FillFlowContainer<ModuleCard>
                                 {
                                     Anchor = Anchor.TopCentre,
                                     Origin = Anchor.TopCentre,
@@ -111,7 +111,7 @@ public class ModuleListing : Container
 
                 modules.ForEach(module =>
                 {
-                    moduleListingFlow.Add(new ModuleCardV2
+                    moduleListingFlow.Add(new ModuleCard
                     {
                         SourceModule = module
                     });
