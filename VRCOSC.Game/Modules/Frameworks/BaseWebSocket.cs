@@ -11,17 +11,16 @@ using WebSocket4Net;
 
 namespace VRCOSC.Game.Modules.Modules;
 
-public abstract class BaseHeartRateProvider
+public abstract class BaseWebSocket
 {
     private readonly EventWaitHandle isRunning = new AutoResetEvent(false);
-    private readonly TerminalLogger terminal = new("HypeRateModule");
+    private readonly TerminalLogger terminal = new(nameof(BaseWebSocket));
     private readonly WebSocket webSocket;
 
     public Action? OnConnected;
     public Action? OnDisconnected;
-    public Action<int>? OnHeartRateUpdate;
 
-    protected BaseHeartRateProvider(string uri)
+    protected BaseWebSocket(string uri)
     {
         terminal.Log("Creating base websocket");
         webSocket = new WebSocket(uri);

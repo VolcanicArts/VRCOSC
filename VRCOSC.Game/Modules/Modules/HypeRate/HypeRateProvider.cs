@@ -8,13 +8,13 @@ using VRCOSC.Game.Util;
 
 namespace VRCOSC.Game.Modules.Modules;
 
-public class HypeRateProvider : BaseHeartRateProvider
+public class HypeRateProvider : HeartrateProvider
 {
     private const string hype_rate_uri = "wss://app.hyperate.io/socket/websocket?token=";
     private const int heartbeat_internal = 30000;
     private readonly string id;
     private Timer? heartBeatTimer;
-    private readonly TerminalLogger terminal = new("HypeRateModule");
+    private readonly TerminalLogger terminal = new(nameof(HypeRateModule));
 
     public HypeRateProvider(string id, string apiKey)
         : base(hype_rate_uri + apiKey)
