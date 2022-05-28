@@ -12,7 +12,7 @@ public class ClockModule : Module
     public override string Title => "Clock";
     public override string Description => "Sends time data to VRChat";
     public override string Author => "VolcanicArts";
-    public override Colour4 Colour => Colour4.LightGray.Darken(0.5f);
+    public override Colour4 Colour => Colour4.LightBlue.Darken(0.5f);
     public override ModuleType Type => ModuleType.General;
     public override double DeltaUpdate => 1000d;
 
