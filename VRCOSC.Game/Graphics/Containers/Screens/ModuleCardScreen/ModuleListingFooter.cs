@@ -10,7 +10,7 @@ using VRCOSC.Game.Graphics.Drawables;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleCardScreen;
 
-public class ModuleCardListingFooter : Container
+public class ModuleListingFooter : Container
 {
     [Resolved]
     private ScreenManager ScreenManager { get; set; }

@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
@@ -56,7 +56,7 @@ public class ModuleListing : Container
                     },
                     new Drawable[]
                     {
-                        new ModuleCardListingFooter
+                        new ModuleListingFooter
                         {
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
