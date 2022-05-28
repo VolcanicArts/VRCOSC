@@ -107,37 +107,36 @@ public class ModuleEditInnerContainer : Container
         };
 
         SourceModule.BindValueChanged(_ =>
+        {
+            if (SourceModule.Value == null) return;
+
+            scrollContainer.ScrollToStart();
+
+            title.Text = SourceModule.Value.Title;
+            description.Text = SourceModule.Value.Description;
+            author.Text = $"Made by {SourceModule.Value.Author}";
+
+            if (SourceModule.Value.DataManager.HasSettings)
             {
-                if (SourceModule.Value == null) return;
+                moduleEditSettingsContainerLineSeparator.Show();
+                moduleEditSettingsContainer.Show();
+            }
+            else
+            {
+                moduleEditSettingsContainerLineSeparator.Hide();
+                moduleEditSettingsContainer.Hide();
+            }
 
-                scrollContainer.ScrollToStart();
-
-                title.Text = SourceModule.Value.Title;
-                description.Text = SourceModule.Value.Description;
-                author.Text = $"Made by {SourceModule.Value.Author}";
-
-                if (SourceModule.Value.DataManager.HasSettings)
-                {
-                    moduleEditSettingsContainerLineSeparator.Show();
-                    moduleEditSettingsContainer.Show();
-                }
-                else
-                {
-                    moduleEditSettingsContainerLineSeparator.Hide();
-                    moduleEditSettingsContainer.Hide();
-                }
-
-                if (SourceModule.Value.DataManager.HasParameters)
-                {
-                    moduleEditParametersContainerLineSeparator.Show();
-                    moduleEditParametersContainer.Show();
-                }
-                else
-                {
-                    moduleEditParametersContainerLineSeparator.Hide();
-                    moduleEditParametersContainer.Hide();
-                }
-            },
-            true);
+            if (SourceModule.Value.DataManager.HasParameters)
+            {
+                moduleEditParametersContainerLineSeparator.Show();
+                moduleEditParametersContainer.Show();
+            }
+            else
+            {
+                moduleEditParametersContainerLineSeparator.Hide();
+                moduleEditParametersContainer.Hide();
+            }
+        }, true);
     }
 }
