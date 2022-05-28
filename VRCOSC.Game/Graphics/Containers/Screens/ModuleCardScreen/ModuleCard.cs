@@ -4,6 +4,7 @@
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Effects;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
 using VRCOSC.Game.Graphics.Containers.UI;
@@ -16,6 +17,8 @@ public class ModuleCard : Container
 {
     private const float active_alpha = 1.0f;
     private const float inactive_alpha = 0.4f;
+    private static readonly EdgeEffectParameters active_edge_effect = VRCOSCEdgeEffects.BasicShadow;
+    private static readonly EdgeEffectParameters inactive_edge_effect = VRCOSCEdgeEffects.NoShadow;
 
     [Resolved]
     private ScreenManager ScreenManager { get; set; }
@@ -117,7 +120,7 @@ public class ModuleCard : Container
         };
 
         Alpha = (toggleCheckBox.State.Value) ? active_alpha : inactive_alpha;
-        EdgeEffect = (toggleCheckBox.State.Value) ? VRCOSCEdgeEffects.BasicShadow : VRCOSCEdgeEffects.NoShadow;
+        EdgeEffect = (toggleCheckBox.State.Value) ? active_edge_effect : inactive_edge_effect;
 
         toggleCheckBox.State.BindValueChanged(e =>
         {
@@ -127,13 +130,13 @@ public class ModuleCard : Container
 
             if (e.NewValue)
             {
-                this.FadeTo(1, transition_duration, Easing.OutCubic);
-                TweenEdgeEffectTo(VRCOSCEdgeEffects.BasicShadow, transition_duration, Easing.OutCubic);
+                this.FadeTo(active_alpha, transition_duration, Easing.OutCubic);
+                TweenEdgeEffectTo(active_edge_effect, transition_duration, Easing.OutCubic);
             }
             else
             {
-                this.FadeTo(0.4f, transition_duration, Easing.OutCubic);
-                TweenEdgeEffectTo(VRCOSCEdgeEffects.NoShadow, transition_duration, Easing.OutCubic);
+                this.FadeTo(inactive_alpha, transition_duration, Easing.OutCubic);
+                TweenEdgeEffectTo(inactive_edge_effect, transition_duration, Easing.OutCubic);
             }
         });
     }
