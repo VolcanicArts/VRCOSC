@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
@@ -10,12 +11,13 @@ namespace VRCOSC.Game.Graphics.Containers.UI;
 
 public class IconButton : VRCOSCButton
 {
-    protected internal IconUsage Icon { get; init; }
+    protected internal Bindable<IconUsage> Icon { get; set; } = new(FontAwesome.Solid.Check);
 
     [BackgroundDependencyLoader]
     private void load()
     {
         CornerRadius = 10;
+        SpriteIcon spriteIcon;
         AddInternal(new Container
         {
             Anchor = Anchor.Centre,
@@ -23,14 +25,18 @@ public class IconButton : VRCOSCButton
             RelativeSizeAxes = Axes.Both,
             FillMode = FillMode.Fit,
             Padding = new MarginPadding(8),
-            Child = new SpriteIcon
+            Child = spriteIcon = new SpriteIcon
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
-                Icon = Icon,
                 Shadow = true
             }
         });
+
+        Icon.BindValueChanged(e =>
+        {
+            spriteIcon.Icon = e.NewValue;
+        }, true);
     }
 }

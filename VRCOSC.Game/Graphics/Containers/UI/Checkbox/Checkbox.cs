@@ -12,17 +12,13 @@ public class Checkbox : IconButton
 {
     public BindableBool State { get; } = new();
 
-    public Checkbox()
-    {
-        Icon = FontAwesome.Solid.Check;
-    }
-
     [BackgroundDependencyLoader]
     private void load()
     {
         State.BindValueChanged(e =>
         {
             BackgroundColour.Value = e.NewValue ? VRCOSCColour.Green : VRCOSCColour.Red;
+            Icon.Value = e.NewValue ? FontAwesome.Solid.Check : FontAwesome.Solid.Get(0xf00d);
         }, true);
     }
 
