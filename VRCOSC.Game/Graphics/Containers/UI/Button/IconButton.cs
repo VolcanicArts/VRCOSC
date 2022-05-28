@@ -15,7 +15,6 @@ public class IconButton : VRCOSCButton
     [BackgroundDependencyLoader]
     private void load()
     {
-        Masking = true;
         CornerRadius = 10;
         AddInternal(new Container
         {

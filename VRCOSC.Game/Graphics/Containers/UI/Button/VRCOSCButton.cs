@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.UserInterface;
@@ -12,20 +13,25 @@ namespace VRCOSC.Game.Graphics.Containers.UI;
 
 public class VRCOSCButton : Button
 {
-    protected internal Color4 BackgroundColour { get; init; } = VRCOSCColour.BlueDark;
+    protected internal Bindable<Color4> BackgroundColour { get; } = new(VRCOSCColour.BlueDark);
 
     [BackgroundDependencyLoader]
     private void load()
     {
         Masking = true;
 
-        InternalChild = new Box
+        Box background;
+        InternalChild = background = new Box
         {
             Anchor = Anchor.Centre,
             Origin = Anchor.Centre,
-            RelativeSizeAxes = Axes.Both,
-            Colour = BackgroundColour
+            RelativeSizeAxes = Axes.Both
         };
+
+        BackgroundColour.BindValueChanged(e =>
+        {
+            background.Colour = e.NewValue;
+        }, true);
     }
 
     protected override bool OnHover(HoverEvent e)

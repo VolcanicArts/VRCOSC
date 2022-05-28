@@ -40,7 +40,7 @@ public class ModuleListingFooter : Container
                     Origin = Anchor.Centre,
                     Size = new Vector2(150, 40),
                     CornerRadius = 5,
-                    BackgroundColour = VRCOSCColour.GreenDark,
+                    BackgroundColour = { Value = VRCOSCColour.GreenDark },
                     Text = "Run",
                     Action = ScreenManager.ShowTerminal
                 }
