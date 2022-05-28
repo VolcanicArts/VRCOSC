@@ -6,12 +6,14 @@ using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osuTK;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleCardScreen;
 
 public class ModuleListing : Container
 {
+    private const float header_height = 100;
     private const float footer_height = 60;
 
     [Resolved]
@@ -40,11 +42,21 @@ public class ModuleListing : Container
                 RelativeSizeAxes = Axes.Both,
                 RowDimensions = new[]
                 {
+                    new Dimension(GridSizeMode.Absolute, header_height),
                     new Dimension(),
                     new Dimension(GridSizeMode.Absolute, footer_height)
                 },
                 Content = new[]
                 {
+                    new Drawable[]
+                    {
+                        new ModuleListingHeader
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativeSizeAxes = Axes.Both
+                        }
+                    },
                     new Drawable[]
                     {
                         moduleListingFlow = new VRCOSCScrollContainer
