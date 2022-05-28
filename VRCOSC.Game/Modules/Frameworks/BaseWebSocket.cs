@@ -10,7 +10,7 @@ using WebSocket4Net;
 
 namespace VRCOSC.Game.Modules.Modules;
 
-public abstract class BaseWebSocket
+public abstract class BaseWebSocket : IDisposable
 {
     private readonly EventWaitHandle isRunning = new AutoResetEvent(false);
     private readonly TerminalLogger terminal = new(nameof(BaseWebSocket));
@@ -64,7 +64,6 @@ public abstract class BaseWebSocket
         terminal.Log("WebSocket disconnected");
         OnDisconnected?.Invoke();
         OnWsDisconnected();
-        webSocket.Dispose();
         isRunning.Set();
     }
 
@@ -80,5 +79,10 @@ public abstract class BaseWebSocket
     private void wsError(object? sender, ErrorEventArgs e)
     {
         terminal.Log(e.Exception.ToString());
+    }
+
+    public virtual void Dispose()
+    {
+        webSocket.Dispose();
     }
 }

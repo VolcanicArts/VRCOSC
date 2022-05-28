@@ -32,7 +32,7 @@ public class HypeRateProvider : HeartrateProvider
     protected override void OnWsDisconnected()
     {
         terminal.Log("Disconnected from the HypeRate websocket");
-        heartBeatTimer?.Dispose();
+        Dispose();
     }
 
     protected override void OnWsMessageReceived(string message)
@@ -89,5 +89,11 @@ public class HypeRateProvider : HeartrateProvider
         var heartRate = update.Payload.HeartRate;
         terminal.Log($"Received heartrate {heartRate}");
         OnHeartRateUpdate?.Invoke(heartRate);
+    }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        heartBeatTimer?.Dispose();
     }
 }
