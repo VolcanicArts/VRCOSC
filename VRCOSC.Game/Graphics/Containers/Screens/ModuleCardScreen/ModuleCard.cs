@@ -110,7 +110,7 @@ public sealed class ModuleCard : Container
                                     Anchor = Anchor.Centre,
                                     Origin = Anchor.Centre,
                                     RelativeSizeAxes = Axes.Both,
-                                    Padding = new MarginPadding(5),
+                                    Padding = new MarginPadding(7),
                                     Children = new Drawable[]
                                     {
                                         new IconButton
