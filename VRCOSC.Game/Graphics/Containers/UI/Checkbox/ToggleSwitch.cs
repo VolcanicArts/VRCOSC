@@ -76,7 +76,7 @@ public class ToggleSwitch : Container
                 },
             };
 
-            updatePosition();
+            this.MoveToX(State ? 0.25f : -0.25f);
         }
 
         protected override bool OnClick(ClickEvent e)
