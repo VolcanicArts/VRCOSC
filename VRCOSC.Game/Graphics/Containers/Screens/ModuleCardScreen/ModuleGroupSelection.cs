@@ -2,12 +2,15 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Effects;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
+using osuTK.Graphics;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleCardScreen;
@@ -16,6 +19,17 @@ public class ModuleGroupSelection : Container
 {
     [Resolved]
     private ModuleManager ModuleManager { get; set; }
+
+    public ModuleGroupSelection()
+    {
+        Masking = true;
+        EdgeEffect = new EdgeEffectParameters
+        {
+            Colour = Color4.Black.Opacity(0.6f),
+            Radius = 5f,
+            Type = EdgeEffectType.Shadow
+        };
+    }
 
     [BackgroundDependencyLoader]
     private void load()

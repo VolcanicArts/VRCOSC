@@ -39,7 +39,8 @@ public class ModuleSelection : Container
                         {
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
-                            RelativeSizeAxes = Axes.Both
+                            RelativeSizeAxes = Axes.Both,
+                            Depth = float.MinValue
                         },
                         new ModuleListing
                         {
