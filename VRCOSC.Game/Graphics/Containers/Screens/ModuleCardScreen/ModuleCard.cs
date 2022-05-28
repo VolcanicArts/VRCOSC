@@ -2,9 +2,11 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Effects;
+using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
 using VRCOSC.Game.Graphics.Containers.UI;
@@ -13,131 +15,132 @@ using VRCOSC.Game.Graphics.Drawables.Triangles;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleCardScreen;
 
-public class ModuleCard : Container
+public sealed class ModuleCard : Container
 {
-    private const float active_alpha = 1.0f;
-    private const float inactive_alpha = 0.4f;
-    private static readonly EdgeEffectParameters active_edge_effect = VRCOSCEdgeEffects.BasicShadow;
-    private static readonly EdgeEffectParameters inactive_edge_effect = VRCOSCEdgeEffects.NoShadow;
-
     [Resolved]
     private ScreenManager ScreenManager { get; set; }
 
     public Modules.Module SourceModule { get; init; }
 
-    [BackgroundDependencyLoader]
-    private void load()
+    public ModuleCard()
     {
         Anchor = Anchor.TopCentre;
         Origin = Anchor.TopCentre;
-        RelativeSizeAxes = Axes.X;
-        AutoSizeAxes = Axes.Y;
+        Size = new Vector2(350, 200);
         Masking = true;
-        CornerRadius = 20;
+        CornerRadius = 10;
+        BorderThickness = 2;
+        EdgeEffect = VRCOSCEdgeEffects.BasicShadow;
+    }
 
-        ToggleSwitch toggleCheckBox;
-
-        InternalChildren = new Drawable[]
+    [BackgroundDependencyLoader]
+    private void load()
+    {
+        Checkbox checkbox;
+        Children = new Drawable[]
         {
             new TrianglesBackground
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
-                RelativeSizeAxes = Axes.X,
-                Height = 75,
+                RelativeSizeAxes = Axes.Both,
                 ColourLight = SourceModule.Colour,
                 ColourDark = SourceModule.Colour.Darken(0.25f)
             },
-            new Container
+            new GridContainer
             {
-                Name = "Content",
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
-                Padding = new MarginPadding
+                RowDimensions = new[]
                 {
-                    Horizontal = 10,
-                    Vertical = 7
+                    new Dimension(GridSizeMode.Absolute, 35),
+                    new Dimension(GridSizeMode.Absolute, 100),
+                    new Dimension()
                 },
-                Children = new Drawable[]
+                Content = new[]
                 {
-                    new SpriteText
+                    new Drawable[]
                     {
-                        Anchor = Anchor.TopLeft,
-                        Origin = Anchor.TopLeft,
-                        Font = FrameworkFont.Regular.With(size: 35),
-                        Shadow = true,
-                        Text = SourceModule.Title
-                    },
-                    new SpriteText
-                    {
-                        Anchor = Anchor.BottomLeft,
-                        Origin = Anchor.BottomLeft,
-                        Font = FrameworkFont.Regular.With(size: 25),
-                        Shadow = true,
-                        Text = SourceModule.Description
-                    },
-                    new FillFlowContainer
-                    {
-                        Anchor = Anchor.CentreRight,
-                        Origin = Anchor.CentreRight,
-                        RelativeSizeAxes = Axes.Both,
-                        Direction = FillDirection.Horizontal,
-                        Spacing = new Vector2(10, 0),
-                        Children = new Drawable[]
+                        new SpriteText
                         {
-                            new Container
+                            Anchor = Anchor.TopCentre,
+                            Origin = Anchor.TopCentre,
+                            Font = FrameworkFont.Regular.With(size: 35),
+                            Shadow = true,
+                            Text = SourceModule.Title
+                        }
+                    },
+                    new Drawable[]
+                    {
+                        new TextFlowContainer(t =>
+                        {
+                            t.Font = FrameworkFont.Regular.With(size: 25);
+                            t.Shadow = true;
+                        })
+                        {
+                            Anchor = Anchor.TopCentre,
+                            Origin = Anchor.TopCentre,
+                            RelativeSizeAxes = Axes.Both,
+                            TextAnchor = Anchor.TopCentre,
+                            Padding = new MarginPadding(5),
+                            Text = SourceModule.Description
+                        },
+                    },
+                    new Drawable[]
+                    {
+                        new Container
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativeSizeAxes = Axes.Both,
+                            Children = new Drawable[]
                             {
-                                Anchor = Anchor.CentreRight,
-                                Origin = Anchor.CentreRight,
-                                RelativeSizeAxes = Axes.Both,
-                                FillMode = FillMode.Fit,
-                                Padding = new MarginPadding(5),
-                                Child = new IconButton
+                                new Box
                                 {
                                     Anchor = Anchor.Centre,
                                     Origin = Anchor.Centre,
                                     RelativeSizeAxes = Axes.Both,
-                                    Icon = FontAwesome.Solid.Edit,
-                                    CornerRadius = 10,
-                                    Action = () => ScreenManager.EditModule(SourceModule)
+                                    Colour = ColourInfo.GradientVertical(VRCOSCColour.Invisible, VRCOSCColour.Gray0.Opacity(0.75f))
+                                },
+                                new Container
+                                {
+                                    Anchor = Anchor.Centre,
+                                    Origin = Anchor.Centre,
+                                    RelativeSizeAxes = Axes.Both,
+                                    Padding = new MarginPadding(5),
+                                    Children = new Drawable[]
+                                    {
+                                        new IconButton
+                                        {
+                                            Anchor = Anchor.BottomLeft,
+                                            Origin = Anchor.BottomLeft,
+                                            RelativeSizeAxes = Axes.Both,
+                                            Icon = FontAwesome.Solid.Edit,
+                                            FillMode = FillMode.Fit,
+                                            Action = () => ScreenManager.EditModule(SourceModule)
+                                        },
+                                        checkbox = new Checkbox
+                                        {
+                                            Anchor = Anchor.BottomRight,
+                                            Origin = Anchor.BottomRight,
+                                            RelativeSizeAxes = Axes.Both,
+                                            FillMode = FillMode.Fit,
+                                            CornerRadius = 10,
+                                            State = { Value = SourceModule.DataManager.Enabled }
+                                        }
+                                    }
                                 }
-                            },
-                            toggleCheckBox = new ToggleSwitch
-                            {
-                                Anchor = Anchor.CentreRight,
-                                Origin = Anchor.CentreRight,
-                                RelativeSizeAxes = Axes.Both,
-                                Size = new Vector2(0.8f),
-                                FillMode = FillMode.Fit,
-                                FillAspectRatio = 2,
-                                State = { Value = SourceModule.DataManager.Enabled }
                             }
-                        }
+                        },
                     }
                 }
             }
         };
 
-        Alpha = (toggleCheckBox.State.Value) ? active_alpha : inactive_alpha;
-        EdgeEffect = (toggleCheckBox.State.Value) ? active_edge_effect : inactive_edge_effect;
-
-        toggleCheckBox.State.BindValueChanged(e =>
+        checkbox.State.BindValueChanged(e =>
         {
             SourceModule.DataManager.SetEnabled(e.NewValue);
-
-            const float transition_duration = 500;
-
-            if (e.NewValue)
-            {
-                this.FadeTo(active_alpha, transition_duration, Easing.OutCubic);
-                TweenEdgeEffectTo(active_edge_effect, transition_duration, Easing.OutCubic);
-            }
-            else
-            {
-                this.FadeTo(inactive_alpha, transition_duration, Easing.OutCubic);
-                TweenEdgeEffectTo(inactive_edge_effect, transition_duration, Easing.OutCubic);
-            }
         });
     }
 }

@@ -25,7 +25,7 @@ public class ModuleListing : Container
     [BackgroundDependencyLoader]
     private void load()
     {
-        VRCOSCScrollContainer moduleListingFlow;
+        FillFlowContainer<ModuleCard> moduleListingFlow;
         Children = new Drawable[]
         {
             new Box
@@ -59,12 +59,29 @@ public class ModuleListing : Container
                     },
                     new Drawable[]
                     {
-                        moduleListingFlow = new VRCOSCScrollContainer
+                        new Container
                         {
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
                             RelativeSizeAxes = Axes.Both,
-                            ContentSpacing = new Vector2(0, 10)
+                            Padding = new MarginPadding(10),
+                            Child = new BasicScrollContainer
+                            {
+                                Anchor = Anchor.Centre,
+                                Origin = Anchor.Centre,
+                                RelativeSizeAxes = Axes.Both,
+                                ClampExtension = 20,
+                                ScrollbarVisible = false,
+                                Child = moduleListingFlow = new FillFlowContainer<ModuleCard>
+                                {
+                                    Anchor = Anchor.TopCentre,
+                                    Origin = Anchor.TopCentre,
+                                    RelativeSizeAxes = Axes.X,
+                                    AutoSizeAxes = Axes.Y,
+                                    Direction = FillDirection.Full,
+                                    Spacing = new Vector2(5, 10)
+                                }
+                            }
                         }
                     },
                     new Drawable[]

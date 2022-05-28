@@ -42,6 +42,7 @@ public class VRCOSCButton : Button
     protected override bool OnClick(ClickEvent e)
     {
         Action?.Invoke();
+        if (IsHovered) this.ScaleTo(1.05f, 100, Easing.OutCirc);
         return true;
     }
 
