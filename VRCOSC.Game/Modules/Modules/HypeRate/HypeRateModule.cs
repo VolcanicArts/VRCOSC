@@ -22,7 +22,7 @@ public class HypeRateModule : Module
         : base(storage)
     {
         CreateSetting(HypeRateSettings.Id, "HypeRate ID", "Your HypeRate ID given on your device", string.Empty);
-        CreateSetting(HypeRateSettings.ApiKey, "Api Key", "Your API key from HypeRate", string.Empty);
+        CreateSetting(HypeRateSettings.APIKey, "API Key", "Your API key from HypeRate", string.Empty);
 
         CreateParameter(HypeRateParameter.HeartrateEnabled, "Heartrate Enabled", "Whether this module is attempting to emit values", "/avatar/parameters/HeartrateEnabled");
         CreateParameter(HypeRateParameter.HeartrateNormalised, "Heartrate Normalised", "The heartrate value normalised to 60bpm", "/avatar/parameters/HeartrateNormalised");
@@ -34,7 +34,7 @@ public class HypeRateModule : Module
     protected override void OnStart()
     {
         SendParameter(HypeRateParameter.HeartrateEnabled, false);
-        hypeRateProvider = new HypeRateProvider(GetSettingAs<string>(HypeRateSettings.Id), GetSettingAs<string>(HypeRateSettings.ApiKey));
+        hypeRateProvider = new HypeRateProvider(GetSettingAs<string>(HypeRateSettings.Id), GetSettingAs<string>(HypeRateSettings.APIKey));
         hypeRateProvider.OnHeartRateUpdate += handleHeartRateUpdate;
         hypeRateProvider.OnConnected += () => SendParameter(HypeRateParameter.HeartrateEnabled, true);
         hypeRateProvider.OnDisconnected += () => SendParameter(HypeRateParameter.HeartrateEnabled, false);
@@ -62,7 +62,7 @@ public class HypeRateModule : Module
 public enum HypeRateSettings
 {
     Id,
-    ApiKey
+    APIKey
 }
 
 public enum HypeRateParameter
