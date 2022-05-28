@@ -12,10 +12,18 @@ using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens;
 
-public class ScreenManager : Container
+[Cached]
+public sealed class ScreenManager : Container
 {
     private Container<TerminalContainer> terminalContainer;
     private ModuleEditContainer moduleEditContainer;
+
+    public ScreenManager()
+    {
+        Anchor = Anchor.Centre;
+        Origin = Anchor.Centre;
+        RelativeSizeAxes = Axes.Both;
+    }
 
     [Resolved]
     private ModuleManager ModuleManager { get; set; }
