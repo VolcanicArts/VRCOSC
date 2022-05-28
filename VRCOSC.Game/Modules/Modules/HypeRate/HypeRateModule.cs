@@ -43,12 +43,11 @@ public class HypeRateModule : Module
 
     private void handleHeartRateUpdate(int heartrate)
     {
-        SendParameter(HypeRateParameter.HeartrateEnabled, true);
-
         var normalisedHeartRate = heartrate / 60.0f;
-        SendParameter(HypeRateParameter.HeartrateNormalised, normalisedHeartRate);
-
         var individualValues = ToDigitArray(heartrate, 3);
+
+        SendParameter(HypeRateParameter.HeartrateEnabled, true);
+        SendParameter(HypeRateParameter.HeartrateNormalised, normalisedHeartRate);
         SendParameter(HypeRateParameter.HeartrateUnits, individualValues[2]);
         SendParameter(HypeRateParameter.HeartrateTens, individualValues[1]);
         SendParameter(HypeRateParameter.HeartrateHundreds, individualValues[0]);
