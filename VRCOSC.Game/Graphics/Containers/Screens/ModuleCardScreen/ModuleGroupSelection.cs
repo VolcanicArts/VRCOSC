@@ -49,6 +49,7 @@ public class ModuleGroupSelection : Container
                         {
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
+                            Font = FrameworkFont.Regular.With(size: 30),
                             Text = "Group Filter"
                         }
                     },
@@ -59,7 +60,6 @@ public class ModuleGroupSelection : Container
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
                             RelativeSizeAxes = Axes.Both,
-                            Padding = new MarginPadding(5),
                             Direction = FillDirection.Vertical,
                             Spacing = new Vector2(0, 5)
                         },
