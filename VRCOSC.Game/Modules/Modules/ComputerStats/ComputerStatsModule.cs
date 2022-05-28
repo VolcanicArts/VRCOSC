@@ -11,7 +11,7 @@ namespace VRCOSC.Game.Modules.Modules.ComputerStats;
 public class ComputerStatsModule : Module
 {
     public override string Title => "Computer Stats";
-    public override string Description => "Takes system stats and passes them into VRChat";
+    public override string Description => "Sends your system stats. Currently CPU, GPU, and RAM";
     public override string Author => "VolcanicArts";
     public override Colour4 Colour => VRCOSCColour.PurpleLight;
     public override ModuleType Type => ModuleType.General;

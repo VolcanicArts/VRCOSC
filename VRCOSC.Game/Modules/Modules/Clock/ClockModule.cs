@@ -10,7 +10,7 @@ namespace VRCOSC.Game.Modules.Modules.Clock;
 public class ClockModule : Module
 {
     public override string Title => "Clock";
-    public override string Description => "Sends time data to VRChat";
+    public override string Description => "Sends your current local time in 2 different formats";
     public override string Author => "VolcanicArts";
     public override Colour4 Colour => Colour4.LightBlue.Darken(0.5f);
     public override ModuleType Type => ModuleType.General;
