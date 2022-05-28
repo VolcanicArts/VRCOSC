@@ -14,6 +14,9 @@ namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleCardScreen;
 
 public class ModuleCard : Container
 {
+    private const float active_alpha = 1.0f;
+    private const float inactive_alpha = 0.4f;
+
     [Resolved]
     private ScreenManager ScreenManager { get; set; }
 
@@ -113,6 +116,9 @@ public class ModuleCard : Container
             }
         };
 
+        Alpha = (toggleCheckBox.State.Value) ? active_alpha : inactive_alpha;
+        EdgeEffect = (toggleCheckBox.State.Value) ? VRCOSCEdgeEffects.BasicShadow : VRCOSCEdgeEffects.NoShadow;
+
         toggleCheckBox.State.BindValueChanged(e =>
         {
             SourceModule.DataManager.SetEnabled(e.NewValue);
@@ -129,6 +135,6 @@ public class ModuleCard : Container
                 this.FadeTo(0.4f, transition_duration, Easing.OutCubic);
                 TweenEdgeEffectTo(VRCOSCEdgeEffects.NoShadow, transition_duration, Easing.OutCubic);
             }
-        }, true);
+        });
     }
 }
