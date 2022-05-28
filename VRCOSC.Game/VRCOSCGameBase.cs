@@ -14,7 +14,7 @@ namespace VRCOSC.Game;
 
 public class VRCOSCGameBase : osu.Framework.Game
 {
-    private DependencyContainer dependencyContainer;
+    private DependencyContainer? dependencyContainer;
 
     protected VRCOSCGameBase()
     {
@@ -35,7 +35,7 @@ public class VRCOSCGameBase : osu.Framework.Game
     private void load(Storage storage, GameHost host)
     {
         host.Window.Title = "VRCOSC";
-        dependencyContainer.CacheAs(new ModuleManager(storage));
+        dependencyContainer?.CacheAs(new ModuleManager(storage));
         Resources.AddStore(new DllResourceStore(typeof(VRCOSCResources).Assembly));
     }
 }
