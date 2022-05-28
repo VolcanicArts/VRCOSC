@@ -46,7 +46,9 @@ public class ModuleManager
 
         foreach (ModuleType moduleType in Enum.GetValues(typeof(ModuleType)))
         {
-            Modules.Add(moduleType, localList[moduleType]);
+            if (!localList.TryGetValue(moduleType, out var moduleList)) return;
+
+            Modules.Add(moduleType, moduleList);
         }
     }
 
