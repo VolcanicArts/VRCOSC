@@ -22,6 +22,7 @@ public class IconButton : VRCOSCButton
             Anchor = Anchor.Centre,
             Origin = Anchor.Centre,
             RelativeSizeAxes = Axes.Both,
+            FillMode = FillMode.Fit,
             Padding = new MarginPadding(8),
             Child = new SpriteIcon
             {
