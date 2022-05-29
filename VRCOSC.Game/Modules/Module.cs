@@ -74,7 +74,11 @@ public abstract class Module
             if (InputParameters.ElementAt(i).Equals(address)) id = i;
         }
 
-        if (id != -1) OnParameterReceived(id, value);
+        if (id == -1) return;
+
+        if (value is OscTrue) value = true;
+        if (value is OscFalse) value = false;
+        OnParameterReceived(id, value);
     }
 
     protected virtual void OnParameterReceived(int id, object value) { }
