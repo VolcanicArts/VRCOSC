@@ -66,7 +66,8 @@ public sealed class ModuleManager : Container<ModuleGroup>
     private async void beginListening()
     {
         IPEndPoint receiveEndpoint = new IPEndPoint(IPAddress.Parse(osc_ip_address), osc_receive_port);
-        var receivingClient = new UdpClient(receiveEndpoint);
+
+        using var receivingClient = new UdpClient(receiveEndpoint);
 
         while (true)
         {
@@ -75,8 +76,6 @@ public sealed class ModuleManager : Container<ModuleGroup>
             var message = await receivingClient.ReceiveMessageAsync();
             this.ForEach(child => child.OnOSCMessage(message));
         }
-
-        receivingClient.Dispose();
     }
 
     protected override void Dispose(bool isDisposing)
