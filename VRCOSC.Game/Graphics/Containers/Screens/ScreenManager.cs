@@ -8,7 +8,7 @@ using osuTK;
 using VRCOSC.Game.Graphics.Containers.Screens.ModuleCardScreen;
 using VRCOSC.Game.Graphics.Containers.Screens.ModuleEditScreen;
 using VRCOSC.Game.Graphics.Containers.Screens.TerminalScreen;
-using VRCOSC.Game.Modules;
+using VRCOSC.Game.Modules.Stack;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens;
 
@@ -25,14 +25,15 @@ public sealed class ScreenManager : Container
         RelativeSizeAxes = Axes.Both;
     }
 
-    [Resolved]
-    private ModuleManager ModuleManager { get; set; }
+    [Cached]
+    private ModuleManager ModuleManager = new();
 
     [BackgroundDependencyLoader]
     private void load()
     {
         InternalChildren = new Drawable[]
         {
+            ModuleManager,
             new ModuleSelection
             {
                 Anchor = Anchor.Centre,
@@ -74,7 +75,7 @@ public sealed class ScreenManager : Container
     {
         Scheduler.Add(() =>
         {
-            moduleEditContainer.MoveToY(1, 1000, Easing.InQuint).Finally((_) =>
+            moduleEditContainer.MoveToY(1, 1000, Easing.InQuint).Finally(_ =>
             {
                 ChangeChildDepth(moduleEditContainer, 0);
             });
@@ -86,10 +87,7 @@ public sealed class ScreenManager : Container
         Scheduler.Add(() =>
         {
             ChangeChildDepth(terminalContainer, -1);
-            terminalContainer.MoveToY(0, 1000, Easing.OutQuint).Finally((_) =>
-            {
-                ModuleManager.Start(Scheduler);
-            });
+            terminalContainer.MoveToY(0, 1000, Easing.OutQuint).Finally(_ => ModuleManager.Start());
         });
     }
 
@@ -97,8 +95,8 @@ public sealed class ScreenManager : Container
     {
         Scheduler.Add(() =>
         {
-            ModuleManager.Stop(Scheduler);
-            terminalContainer.MoveToY(1, 1000, Easing.InQuint).Finally((_) =>
+            ModuleManager.Stop();
+            terminalContainer.MoveToY(1, 1000, Easing.InQuint).Finally(_ =>
             {
                 ChangeChildDepth(terminalContainer, 0);
                 terminalContainer.Child.ClearTerminal();

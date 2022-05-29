@@ -11,7 +11,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
 using osuTK.Graphics;
-using VRCOSC.Game.Modules;
+using VRCOSC.Game.Modules.Stack;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleCardScreen;
 
@@ -82,10 +82,6 @@ public class ModuleGroupSelection : Container
             }
         };
 
-        ModuleManager.Modules.ForEach(pair =>
-        {
-            var (moduleType, modules) = pair;
-            moduleGroupFlow.Add(new ModuleGroupCard(moduleType));
-        });
+        ModuleManager.ForEach(moduleGroup => moduleGroupFlow.Add(new ModuleGroupCard(moduleGroup.Type)));
     }
 }

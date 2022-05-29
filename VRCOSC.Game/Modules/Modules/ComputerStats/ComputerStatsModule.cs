@@ -3,7 +3,6 @@
 
 using System.Threading.Tasks;
 using osu.Framework.Graphics;
-using osu.Framework.Platform;
 using VRCOSC.Game.Graphics;
 
 namespace VRCOSC.Game.Modules.Modules.ComputerStats;
@@ -17,8 +16,7 @@ public class ComputerStatsModule : Module
     public override ModuleType Type => ModuleType.General;
     public override double DeltaUpdate => 5000d;
 
-    public ComputerStatsModule(Storage storage)
-        : base(storage)
+    public override void CreateAttributes()
     {
         CreateParameter(ComputerStatsParameter.CPUUsage, "CPU Usage", "The current usage of your CPU from 0 to 1", "/avatar/parameters/CPUUsage");
         CreateParameter(ComputerStatsParameter.GPUUsage, "GPU Usage", "The current usage of your GPU from 0 to 1", "/avatar/parameters/GPUUsage");

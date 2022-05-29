@@ -3,7 +3,6 @@
 
 using System.Globalization;
 using osu.Framework.Graphics;
-using osu.Framework.Platform;
 
 namespace VRCOSC.Game.Modules.Modules.Random;
 
@@ -18,8 +17,7 @@ public class RandomModule : Module
 
     private readonly System.Random random = new();
 
-    public RandomModule(Storage storage)
-        : base(storage)
+    public override void CreateAttributes()
     {
         CreateParameter(RandomParameter.RandomValue, "Random Value", "A random float value between 0 and 1", "/avatar/parameters/RandomValue");
     }

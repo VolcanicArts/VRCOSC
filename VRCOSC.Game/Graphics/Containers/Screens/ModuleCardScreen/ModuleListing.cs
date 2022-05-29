@@ -8,7 +8,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osuTK;
 using VRCOSC.Game.Graphics.Drawables.Triangles;
-using VRCOSC.Game.Modules;
+using VRCOSC.Game.Modules.Stack;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleCardScreen;
 
@@ -107,17 +107,15 @@ public class ModuleListing : Container
 
             moduleListingFlow.Clear();
 
-            ModuleManager.Modules.ForEach(pair =>
+            ModuleManager.ForEach(moduleGroup =>
             {
-                var (moduleType, modules) = pair;
+                if (!moduleGroup.Type.Equals(newType)) return;
 
-                if (!moduleType.Equals(newType)) return;
-
-                modules.ForEach(module =>
+                moduleGroup.ForEach(moduleContainer =>
                 {
                     moduleListingFlow.Add(new ModuleCard
                     {
-                        SourceModule = module
+                        SourceModule = moduleContainer.Module
                     });
                 });
             });

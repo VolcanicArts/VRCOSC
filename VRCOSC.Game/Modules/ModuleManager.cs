@@ -1,116 +1,87 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using CoreOSC.IO;
-using Markdig.Helpers;
+using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
+using osu.Framework.Graphics.Containers;
 using osu.Framework.Platform;
-using osu.Framework.Threading;
 using VRCOSC.Game.Util;
 
-namespace VRCOSC.Game.Modules;
+namespace VRCOSC.Game.Modules.Stack;
 
-public class ModuleManager
+public sealed class ModuleManager : Container<ModuleGroup>
 {
     private const string osc_ip_address = "127.0.0.1";
+    private const int osc_send_port = 9000;
     private const int osc_receive_port = 9001;
 
-    public Dictionary<ModuleType, OrderedList<Module>> Modules { get; } = new();
+    private readonly UdpClient sendingClient = new(osc_ip_address, osc_send_port);
 
-    private readonly BindableBool Running = new();
+    public BindableBool Running = new();
 
-    public ModuleManager(Storage storage)
+    [BackgroundDependencyLoader]
+    private void load(Storage storage)
     {
-        IEnumerable<Module> modules = ReflectiveEnumerator.GetEnumerableOfType<Module>(storage);
-        modules.ForEach(module =>
+        List<Module> modules = ReflectiveEnumerator.GetEnumerableOfType<Module>().ToList();
+
+        foreach (ModuleType type in Enum.GetValues(typeof(ModuleType)))
         {
-            module.DataManager.LoadData();
-            addModule(module);
-        });
-        sortModules();
-    }
+            var moduleGroup = new ModuleGroup(type);
 
-    private void addModule(Module? module)
-    {
-        if (module == null) return;
+            foreach (var module in modules.Where(module => module.Type.Equals(type)))
+            {
+                module.DataManager = new ModuleDataManager(storage, module.GetType().Name);
+                module.OscClient = sendingClient;
+                module.CreateAttributes();
+                module.DataManager.LoadData();
+                moduleGroup.Add(new ModuleContainer(module));
+            }
 
-        var list = Modules.GetValueOrDefault(module.Type, new OrderedList<Module>());
-        list.Add(module);
-        Modules.TryAdd(module.Type, list);
-    }
-
-    private void sortModules()
-    {
-        Dictionary<ModuleType, OrderedList<Module>> localList = new(Modules);
-        Modules.Clear();
-
-        foreach (ModuleType moduleType in Enum.GetValues(typeof(ModuleType)))
-        {
-            if (!localList.TryGetValue(moduleType, out var moduleList)) return;
-
-            Modules.Add(moduleType, moduleList);
+            Add(moduleGroup);
         }
     }
 
-    public void Start(Scheduler scheduler)
+    public void Start()
     {
+        this.ForEach(child => child.Start());
         Running.Value = true;
-        Modules.Values.ForEach(modules =>
-        {
-            modules.ForEach(module =>
-            {
-                if (!module.DataManager.Enabled) return;
-
-                module.Start();
-
-                if (double.IsPositiveInfinity(module.DeltaUpdate)) return;
-
-                scheduler.Add(module.Update);
-                scheduler.AddDelayed(module.Update, module.DeltaUpdate, true);
-            });
-        });
 
         Task.Factory.StartNew(beginListening, TaskCreationOptions.LongRunning);
     }
 
-    public void Stop(Scheduler scheduler)
+    public void Stop()
     {
         Running.Value = false;
-        scheduler.CancelDelayedTasks();
-        Modules.Values.ForEach(modules =>
-        {
-            modules.ForEach(module =>
-            {
-                if (module.DataManager.Enabled) module.Stop();
-            });
-        });
+        this.ForEach(child => child.Stop());
     }
 
     private async void beginListening()
     {
-        IPEndPoint oscReceiveEndpoint = new IPEndPoint(IPAddress.Parse(osc_ip_address), osc_receive_port);
-        var oscReceivingClient = new UdpClient(oscReceiveEndpoint);
+        IPEndPoint receiveEndpoint = new IPEndPoint(IPAddress.Parse(osc_ip_address), osc_receive_port);
+        var receivingClient = new UdpClient(receiveEndpoint);
 
         while (true)
         {
             if (!Running.Value) break;
 
-            var message = await oscReceivingClient.ReceiveMessageAsync();
-            Modules.Values.ForEach(modules =>
-            {
-                modules.ForEach(module =>
-                {
-                    if (module.DataManager.Enabled) module.OnOSCMessage(message);
-                });
-            });
+            var message = await receivingClient.ReceiveMessageAsync();
+            this.ForEach(child => child.OnOSCMessage(message));
         }
 
-        oscReceivingClient.Dispose();
+        receivingClient.Dispose();
+    }
+
+    protected override void Dispose(bool isDisposing)
+    {
+        base.Dispose(isDisposing);
+        sendingClient.Dispose();
     }
 }

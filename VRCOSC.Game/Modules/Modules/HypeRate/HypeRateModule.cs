@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Graphics;
-using osu.Framework.Platform;
 
 #pragma warning disable CS8618
 
@@ -18,8 +17,7 @@ public class HypeRateModule : Module
 
     private HypeRateProvider hypeRateProvider;
 
-    public HypeRateModule(Storage storage)
-        : base(storage)
+    public override void CreateAttributes()
     {
         CreateSetting(HypeRateSettings.Id, "HypeRate ID", "Your HypeRate ID given on your device", string.Empty);
         CreateSetting(HypeRateSettings.APIKey, "API Key", "Your API key from HypeRate", string.Empty);

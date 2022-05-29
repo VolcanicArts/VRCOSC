@@ -8,16 +8,12 @@ using System.Net.Sockets;
 using CoreOSC;
 using CoreOSC.IO;
 using osu.Framework.Graphics;
-using osu.Framework.Platform;
 using VRCOSC.Game.Util;
 
 namespace VRCOSC.Game.Modules;
 
 public abstract class Module
 {
-    private const string osc_ip_address = "127.0.0.1";
-    private const int osc_send_port = 9000;
-
     public virtual string Title => string.Empty;
     public virtual string Description => string.Empty;
     public virtual string Author => string.Empty;
@@ -26,26 +22,24 @@ public abstract class Module
     public virtual ModuleType Type => ModuleType.General;
     public virtual IReadOnlyCollection<string> InputParameters => new List<string>();
 
-    public readonly ModuleDataManager DataManager;
-    private UdpClient? oscClient;
+    internal ModuleDataManager DataManager { get; set; }
+    internal UdpClient OscClient { get; set; }
+
+    public bool IsRequestingInput => InputParameters.Count != 0;
 
     protected TerminalLogger Terminal { get; private set; } = null!;
-
-    protected Module(Storage storage)
-    {
-        DataManager = new ModuleDataManager(storage, GetType().Name);
-    }
+    public bool Running { get; set; }
 
     #region Module Functions
+
+    public virtual void CreateAttributes() { }
 
     internal void Start()
     {
         Terminal = new TerminalLogger(GetType().Name);
         Terminal.Log("Starting");
-
-        oscClient = new UdpClient(osc_ip_address, osc_send_port);
-
         OnStart();
+        Running = true;
     }
 
     protected virtual void OnStart() { }
@@ -60,8 +54,7 @@ public abstract class Module
     internal void Stop()
     {
         Terminal.Log("Stopping");
-        oscClient?.Dispose();
-        oscClient = null;
+        Running = false;
         OnStop();
     }
 
@@ -161,7 +154,7 @@ public abstract class Module
     {
         var address = new Address(DataManager.GetParameter(key));
         var message = new OscMessage(address, new[] { value });
-        oscClient.SendMessageAsync(message);
+        OscClient.SendMessageAsync(message);
     }
 
     #endregion

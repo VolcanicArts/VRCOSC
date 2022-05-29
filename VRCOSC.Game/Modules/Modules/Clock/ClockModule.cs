@@ -3,7 +3,6 @@
 
 using System;
 using osu.Framework.Graphics;
-using osu.Framework.Platform;
 
 namespace VRCOSC.Game.Modules.Modules.Clock;
 
@@ -16,8 +15,7 @@ public class ClockModule : Module
     public override ModuleType Type => ModuleType.General;
     public override double DeltaUpdate => 1000d;
 
-    public ClockModule(Storage storage)
-        : base(storage)
+    public override void CreateAttributes()
     {
         CreateSetting(ClockSetting.SendType, "Send Type", "Whether to send the clock data for blendtree (-1,1) or as individual digits", ClockSettingSendType.SendAsIndividual);
 

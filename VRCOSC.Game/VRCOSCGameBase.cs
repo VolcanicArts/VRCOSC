@@ -7,15 +7,12 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.IO.Stores;
 using osu.Framework.Platform;
 using osuTK;
-using VRCOSC.Game.Modules;
 using VRCOSC.Resources;
 
 namespace VRCOSC.Game;
 
 public class VRCOSCGameBase : osu.Framework.Game
 {
-    private DependencyContainer? dependencyContainer;
-
     protected VRCOSCGameBase()
     {
         base.Content.Add(Content = new DrawSizePreservingFillContainer
@@ -26,16 +23,10 @@ public class VRCOSCGameBase : osu.Framework.Game
 
     protected override Container<Drawable> Content { get; }
 
-    protected override IReadOnlyDependencyContainer CreateChildDependencies(IReadOnlyDependencyContainer parent)
-    {
-        return dependencyContainer = new DependencyContainer(base.CreateChildDependencies(parent));
-    }
-
     [BackgroundDependencyLoader]
-    private void load(Storage storage, GameHost host)
+    private void load(GameHost host)
     {
         host.Window.Title = "VRCOSC";
-        dependencyContainer?.CacheAs(new ModuleManager(storage));
         Resources.AddStore(new DllResourceStore(typeof(VRCOSCResources).Assembly));
     }
 }
