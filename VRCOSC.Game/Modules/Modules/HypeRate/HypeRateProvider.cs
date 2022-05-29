@@ -11,7 +11,7 @@ namespace VRCOSC.Game.Modules.Modules;
 public class HypeRateProvider : HeartrateProvider
 {
     private const string hype_rate_uri = "wss://app.hyperate.io/socket/websocket?token=";
-    private const int heartbeat_internal = 30000;
+    private const int heartbeat_internal = 10000;
     private readonly string id;
     private Timer? heartBeatTimer;
     private readonly TerminalLogger terminal = new(nameof(HypeRateModule));
