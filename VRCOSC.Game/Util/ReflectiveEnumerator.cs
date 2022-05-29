@@ -10,7 +10,7 @@ namespace VRCOSC.Game.Util;
 
 public static class ReflectiveEnumerator
 {
-    public static IEnumerable<T> GetEnumerableOfType<T>(params object[] constructorArgs) where T : class
+    public static List<T> GetEnumerableOfType<T>(params object[] constructorArgs) where T : class
     {
         List<T> objects = Assembly.GetAssembly(typeof(T))
                                   .GetTypes()

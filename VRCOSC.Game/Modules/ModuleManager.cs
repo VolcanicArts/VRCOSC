@@ -30,7 +30,7 @@ public sealed class ModuleManager : Container<ModuleGroup>
     [BackgroundDependencyLoader]
     private void load(Storage storage)
     {
-        List<Module> modules = ReflectiveEnumerator.GetEnumerableOfType<Module>().ToList();
+        List<Module> modules = ReflectiveEnumerator.GetEnumerableOfType<Module>();
 
         foreach (ModuleType type in Enum.GetValues(typeof(ModuleType)))
         {
