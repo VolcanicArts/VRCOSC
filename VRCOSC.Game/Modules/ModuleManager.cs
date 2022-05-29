@@ -15,7 +15,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Platform;
 using VRCOSC.Game.Util;
 
-namespace VRCOSC.Game.Modules.Stack;
+namespace VRCOSC.Game.Modules;
 
 public sealed class ModuleManager : Container<ModuleGroup>
 {

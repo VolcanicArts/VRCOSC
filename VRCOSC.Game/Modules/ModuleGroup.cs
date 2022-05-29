@@ -5,7 +5,7 @@ using CoreOSC;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics.Containers;
 
-namespace VRCOSC.Game.Modules.Stack;
+namespace VRCOSC.Game.Modules;
 
 public class ModuleGroup : Container<ModuleContainer>
 {

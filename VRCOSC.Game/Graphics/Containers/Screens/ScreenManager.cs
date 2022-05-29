@@ -8,7 +8,7 @@ using osuTK;
 using VRCOSC.Game.Graphics.Containers.Screens.ModuleCardScreen;
 using VRCOSC.Game.Graphics.Containers.Screens.ModuleEditScreen;
 using VRCOSC.Game.Graphics.Containers.Screens.TerminalScreen;
-using VRCOSC.Game.Modules.Stack;
+using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens;
 

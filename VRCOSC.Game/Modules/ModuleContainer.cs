@@ -4,7 +4,7 @@
 using CoreOSC;
 using osu.Framework.Graphics.Containers;
 
-namespace VRCOSC.Game.Modules.Stack;
+namespace VRCOSC.Game.Modules;
 
 public class ModuleContainer : Container
 {

@@ -3,7 +3,7 @@
 
 using Newtonsoft.Json;
 
-namespace VRCOSC.Game.Modules.Modules.Models;
+namespace VRCOSC.Game.Modules.Modules.HypeRate.Models;
 
 public class JoinChannelModel
 {

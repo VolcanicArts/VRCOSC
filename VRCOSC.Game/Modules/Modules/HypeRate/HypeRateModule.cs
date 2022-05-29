@@ -5,7 +5,7 @@ using osu.Framework.Graphics;
 
 #pragma warning disable CS8618
 
-namespace VRCOSC.Game.Modules.Modules;
+namespace VRCOSC.Game.Modules.Modules.HypeRate;
 
 public class HypeRateModule : Module
 {

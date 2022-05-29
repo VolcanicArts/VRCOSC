@@ -3,10 +3,11 @@
 
 using System.Threading;
 using Newtonsoft.Json;
-using VRCOSC.Game.Modules.Modules.Models;
+using VRCOSC.Game.Modules.Frameworks;
+using VRCOSC.Game.Modules.Modules.HypeRate.Models;
 using VRCOSC.Game.Util;
 
-namespace VRCOSC.Game.Modules.Modules;
+namespace VRCOSC.Game.Modules.Modules.HypeRate;
 
 public class HypeRateProvider : HeartrateProvider
 {

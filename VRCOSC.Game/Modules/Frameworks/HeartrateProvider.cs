@@ -3,7 +3,7 @@
 
 using System;
 
-namespace VRCOSC.Game.Modules.Modules;
+namespace VRCOSC.Game.Modules.Frameworks;
 
 public abstract class HeartrateProvider : JsonWebSocket
 {
