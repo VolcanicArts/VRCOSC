@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using CoreOSC;
@@ -15,7 +16,7 @@ namespace VRCOSC.Game.Modules;
 public abstract class Module
 {
     private const string osc_ip_address = "127.0.0.1";
-    private const int osc_port = 9000;
+    private const int osc_send_port = 9000;
 
     public virtual string Title => string.Empty;
     public virtual string Description => string.Empty;
@@ -23,16 +24,16 @@ public abstract class Module
     public virtual double DeltaUpdate => double.PositiveInfinity;
     public virtual Colour4 Colour => Colour4.Black;
     public virtual ModuleType Type => ModuleType.General;
+    public virtual IReadOnlyCollection<string> InputParameters => new List<string>();
 
     public readonly ModuleDataManager DataManager;
-    private readonly UdpClient oscClient;
+    private UdpClient? oscClient;
 
     protected TerminalLogger Terminal { get; private set; } = null!;
 
     protected Module(Storage storage)
     {
         DataManager = new ModuleDataManager(storage, GetType().Name);
-        oscClient = new UdpClient(osc_ip_address, osc_port);
     }
 
     #region Module Functions
@@ -41,6 +42,9 @@ public abstract class Module
     {
         Terminal = new TerminalLogger(GetType().Name);
         Terminal.Log("Starting");
+
+        oscClient = new UdpClient(osc_ip_address, osc_send_port);
+
         OnStart();
     }
 
@@ -56,12 +60,31 @@ public abstract class Module
     internal void Stop()
     {
         Terminal.Log("Stopping");
+        oscClient?.Dispose();
+        oscClient = null;
         OnStop();
     }
 
     protected virtual void OnStop() { }
 
     #endregion
+
+    internal void OnOSCMessage(OscMessage message)
+    {
+        var address = message.Address.Value;
+        var value = message.Arguments.First();
+
+        var id = -1;
+
+        for (var i = 0; i < InputParameters.Count; i++)
+        {
+            if (InputParameters.ElementAt(i).Equals(address)) id = i;
+        }
+
+        if (id != -1) OnParameterReceived(id, value);
+    }
+
+    protected virtual void OnParameterReceived(int id, object value) { }
 
     #region Module Settings
 
@@ -100,7 +123,7 @@ public abstract class Module
 
     protected void CreateSetting<T>(Enum key, string displayName, string description, T defaultValue) where T : Enum
     {
-        var setting = new EnumModuleSetting()
+        var setting = new EnumModuleSetting
         {
             DisplayName = displayName,
             Description = description,

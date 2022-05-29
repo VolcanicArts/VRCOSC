@@ -3,6 +3,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net;
+using System.Net.Sockets;
+using System.Threading.Tasks;
+using CoreOSC.IO;
 using Markdig.Helpers;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
@@ -13,8 +17,10 @@ using VRCOSC.Game.Util;
 namespace VRCOSC.Game.Modules;
 
 public class ModuleManager
-
 {
+    private const string osc_ip_address = "127.0.0.1";
+    private const int osc_receive_port = 9001;
+
     public Dictionary<ModuleType, OrderedList<Module>> Modules { get; } = new();
 
     private readonly BindableBool Running = new();
@@ -69,6 +75,8 @@ public class ModuleManager
                 scheduler.AddDelayed(module.Update, module.DeltaUpdate, true);
             });
         });
+
+        Task.Factory.StartNew(beginListening, TaskCreationOptions.LongRunning);
     }
 
     public void Stop(Scheduler scheduler)
@@ -82,5 +90,27 @@ public class ModuleManager
                 if (module.DataManager.Enabled) module.Stop();
             });
         });
+    }
+
+    private async void beginListening()
+    {
+        IPEndPoint oscReceiveEndpoint = new IPEndPoint(IPAddress.Parse(osc_ip_address), osc_receive_port);
+        var oscReceivingClient = new UdpClient(oscReceiveEndpoint);
+
+        while (true)
+        {
+            if (!Running.Value) break;
+
+            var message = await oscReceivingClient.ReceiveMessageAsync();
+            Modules.Values.ForEach(modules =>
+            {
+                modules.ForEach(module =>
+                {
+                    if (module.DataManager.Enabled) module.OnOSCMessage(message);
+                });
+            });
+        }
+
+        oscReceivingClient.Dispose();
     }
 }
