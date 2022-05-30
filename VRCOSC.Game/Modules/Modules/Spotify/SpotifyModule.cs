@@ -3,22 +3,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using osu.Framework.Graphics;
-using VRCOSC.Game.Util;
+using VRCOSC.Game.Modules.Frameworks;
 
 namespace VRCOSC.Game.Modules.Modules.Spotify;
 
-public class SpotifyModule : Module
+public class SpotifyModule : IntegrationModule
 {
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern void keybd_event(byte bVk, byte bScan, int dwFlags, int dwExtraInfo);
-
-    private const int keyeventf_keyup = 0x0002;
-
     public override string Title => "Spotify";
     public override string Description => "Integration with the Spotify desktop app";
     public override string Author => "VolcanicArts";
@@ -34,7 +25,9 @@ public class SpotifyModule : Module
         SpotifyInputParameters.SpotifyVolumeDown
     };
 
-    private readonly IReadOnlyDictionary<SpotifyInputParameters, int[]> keyCombinations = new Dictionary<SpotifyInputParameters, int[]>()
+    protected override string TargetProcess => "spotify";
+
+    protected override IReadOnlyDictionary<Enum, int[]> KeyCombinations => new Dictionary<Enum, int[]>()
     {
         { SpotifyInputParameters.SpotifyPlayPause, new[] { 0x20 } },
         { SpotifyInputParameters.SpotifyNext, new[] { 0xA2, 0x27 } },
@@ -50,73 +43,8 @@ public class SpotifyModule : Module
 
         Terminal.Log($"Received input of {key}");
 
-        executeTask((SpotifyInputParameters)key).ConfigureAwait(false);
+        ExecuteTask((SpotifyInputParameters)key).ConfigureAwait(false);
     }
-
-    private async Task executeTask(SpotifyInputParameters action)
-    {
-        if (!retrieveSpotifyProcess(out var spotifyProcess)) return;
-        if (!retrieveVrChatProcess(out var vrChatProcess)) return;
-
-        await focusProcess(spotifyProcess!);
-        await executeKeyCombination(action);
-        await focusProcess(vrChatProcess!);
-    }
-
-    private bool retrieveSpotifyProcess(out Process? spotifyProcess)
-    {
-        spotifyProcess = Process.GetProcessesByName("spotify").FirstOrDefault();
-
-        if (spotifyProcess != null) return true;
-
-        Terminal.Log("Spotify is not running. Please run Spotify to use this Module");
-        return false;
-    }
-
-    private bool retrieveVrChatProcess(out Process? vrChatProcess)
-    {
-        vrChatProcess = Process.GetProcessesByName("vrchat").FirstOrDefault();
-
-        if (vrChatProcess != null) return true;
-
-        Terminal.Log("VRChat is not running. How are you using this module");
-        return false;
-    }
-
-    private static async Task focusProcess(Process process)
-    {
-        if (process.MainWindowHandle == IntPtr.Zero)
-        {
-            await Task.Delay(10);
-            ProcessHelper.ShowMainWindow(process, ShowWindowEnum.Restore);
-        }
-
-        await Task.Delay(10);
-        ProcessHelper.ShowMainWindow(process, ShowWindowEnum.ShowMaximized);
-        await Task.Delay(10);
-        ProcessHelper.SetMainWindowForeground(process);
-        await Task.Delay(10);
-    }
-
-    private async Task executeKeyCombination(SpotifyInputParameters parameter)
-    {
-        var keys = keyCombinations[parameter];
-
-        foreach (var key in keys)
-        {
-            holdKey(key);
-        }
-
-        await Task.Delay(10);
-
-        foreach (var key in keys)
-        {
-            releaseKey(key);
-        }
-    }
-
-    private static void holdKey(int key) => keybd_event((byte)key, (byte)key, 0, 0);
-    private static void releaseKey(int key) => keybd_event((byte)key, (byte)key, keyeventf_keyup, 0);
 }
 
 public enum SpotifyInputParameters
