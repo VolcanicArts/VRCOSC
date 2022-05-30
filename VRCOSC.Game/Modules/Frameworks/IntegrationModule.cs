@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -63,7 +63,7 @@ public abstract class IntegrationModule : Module
         return false;
     }
 
-    private Process? retrieveProcess(string processName)
+    private static Process? retrieveProcess(string processName)
     {
         return Process.GetProcessesByName(processName).FirstOrDefault();
     }
