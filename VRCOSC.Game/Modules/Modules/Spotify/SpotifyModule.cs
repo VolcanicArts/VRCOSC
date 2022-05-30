@@ -85,8 +85,12 @@ public class SpotifyModule : Module
 
     private static async Task focusProcess(Process process)
     {
-        await Task.Delay(10);
-        ProcessHelper.ShowMainWindow(process, ShowWindowEnum.Restore);
+        if (process.MainWindowHandle == IntPtr.Zero)
+        {
+            await Task.Delay(10);
+            ProcessHelper.ShowMainWindow(process, ShowWindowEnum.Restore);
+        }
+
         await Task.Delay(10);
         ProcessHelper.ShowMainWindow(process, ShowWindowEnum.ShowMaximized);
         await Task.Delay(10);
