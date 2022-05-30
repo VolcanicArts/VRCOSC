@@ -9,7 +9,7 @@ using VRCOSC.Game.Modules.Frameworks;
 
 namespace VRCOSC.Game.Modules.Modules.Discord;
 
-public class Discord : IntegrationModule
+public class DiscordModule : IntegrationModule
 {
     public override string Title => "Discord";
     public override string Description => "Integration with the Discord desktop app";
