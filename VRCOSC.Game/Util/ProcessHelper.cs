@@ -3,7 +3,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Linq;
 
 namespace VRCOSC.Game.Util;
 
@@ -30,20 +29,8 @@ public static class ProcessHelper
         ShowWindow(handle.MainWindowHandle, showWindowEnum);
     }
 
-    public static void ShowMainWindow(string processName, ShowWindowEnum showWindowEnum)
-    {
-        Process? bProcess = Process.GetProcessesByName(processName).FirstOrDefault();
-        if (bProcess != null) ShowMainWindow(bProcess, showWindowEnum);
-    }
-
     public static void SetMainWindowForeground(Process handle)
     {
         SetForegroundWindow(handle.MainWindowHandle);
-    }
-
-    public static void SetMainWindowForeground(string processName)
-    {
-        Process? bProcess = Process.GetProcessesByName(processName).FirstOrDefault();
-        if (bProcess != null) SetMainWindowForeground(bProcess);
     }
 }
