@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -29,9 +30,9 @@ public class DiscordVoiceModule : Module
     public override Colour4 Colour => Color4Extensions.FromHex(@"454FBF");
     public override ModuleType Type => ModuleType.General;
 
-    public override IReadOnlyCollection<string> InputParameters => new[]
+    public override IReadOnlyCollection<Enum> InputParameters => new List<Enum>
     {
-        "/avatar/parameters/DiscordVoice"
+        DiscordVoiceInputParameters.DiscordVoice
     };
 
     protected override void OnParameterReceived(int id, object value)
@@ -85,4 +86,9 @@ public class DiscordVoiceModule : Module
 
     private static void holdKey(int key) => keybd_event((byte)key, (byte)key, 0, 0);
     private static void releaseKey(int key) => keybd_event((byte)key, (byte)key, keyeventf_keyup, 0);
+}
+
+public enum DiscordVoiceInputParameters
+{
+    DiscordVoice
 }

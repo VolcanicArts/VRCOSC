@@ -20,7 +20,7 @@ public abstract class Module
     public virtual double DeltaUpdate => double.PositiveInfinity;
     public virtual Colour4 Colour => Colour4.Black;
     public virtual ModuleType Type => ModuleType.General;
-    public virtual IReadOnlyCollection<string> InputParameters => new List<string>();
+    public virtual IReadOnlyCollection<Enum> InputParameters => new List<Enum>();
 
     internal ModuleDataManager DataManager { get; set; }
     internal UdpClient OscClient { get; set; }
@@ -71,7 +71,8 @@ public abstract class Module
 
         for (var i = 0; i < InputParameters.Count; i++)
         {
-            if (InputParameters.ElementAt(i).Equals(address)) id = i;
+            var inputParameterAddress = $"/avatar/parameters/{InputParameters.ElementAt(i)}";
+            if (address.Equals(inputParameterAddress)) id = i;
         }
 
         if (id == -1) return;
