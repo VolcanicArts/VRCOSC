@@ -28,7 +28,7 @@ public class DiscordVoiceModule : Module
     public override string Description => "Allows for toggling of your Discord microphone";
     public override string Author => "VolcanicArts";
     public override Colour4 Colour => Color4Extensions.FromHex(@"454FBF");
-    public override ModuleType Type => ModuleType.General;
+    public override ModuleType Type => ModuleType.Integrations;
 
     public override IReadOnlyCollection<Enum> InputParameters => new List<Enum>
     {
