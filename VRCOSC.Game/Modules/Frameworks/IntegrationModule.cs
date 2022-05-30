@@ -74,6 +74,8 @@ public abstract class IntegrationModule : Module
             ProcessHelper.ShowMainWindow(process, ShowWindowEnum.Restore);
         }
 
+        ProcessHelper.ShowMainWindow(process, ShowWindowEnum.ShowMaximized);
+
         ProcessHelper.SetMainWindowForeground(process);
     }
 
