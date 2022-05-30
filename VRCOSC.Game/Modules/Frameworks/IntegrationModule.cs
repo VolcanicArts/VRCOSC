@@ -17,7 +17,7 @@ public abstract class IntegrationModule : Module
 
     private const int keyeventf_keyup = 0x0002;
 
-    protected virtual IReadOnlyDictionary<Enum, int[]> KeyCombinations => new Dictionary<Enum, int[]>();
+    protected virtual IReadOnlyDictionary<Enum, WindowsVKey[]> KeyCombinations => new Dictionary<Enum, WindowsVKey[]>();
     protected virtual string TargetProcess => string.Empty;
     protected virtual string ReturnProcess => "vrchat";
 
@@ -83,12 +83,12 @@ public abstract class IntegrationModule : Module
 
         foreach (var key in keys)
         {
-            holdKey(key);
+            holdKey((int)key);
         }
 
         foreach (var key in keys)
         {
-            releaseKey(key);
+            releaseKey((int)key);
         }
     }
 

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using VRCOSC.Game.Modules.Frameworks;
 
@@ -13,7 +14,7 @@ public class SpotifyModule : IntegrationModule
     public override string Title => "Spotify";
     public override string Description => "Integration with the Spotify desktop app";
     public override string Author => "VolcanicArts";
-    public override Colour4 Colour => Colour4.Green.Darken(0.5f);
+    public override Colour4 Colour => Color4Extensions.FromHex(@"1ed760").Darken(0.5f);
     public override ModuleType Type => ModuleType.Integrations;
 
     public override IReadOnlyCollection<Enum> InputParameters => new List<Enum>
@@ -27,13 +28,13 @@ public class SpotifyModule : IntegrationModule
 
     protected override string TargetProcess => "spotify";
 
-    protected override IReadOnlyDictionary<Enum, int[]> KeyCombinations => new Dictionary<Enum, int[]>()
+    protected override IReadOnlyDictionary<Enum, WindowsVKey[]> KeyCombinations => new Dictionary<Enum, WindowsVKey[]>()
     {
-        { SpotifyInputParameters.SpotifyPlayPause, new[] { 0x20 } },
-        { SpotifyInputParameters.SpotifyNext, new[] { 0xA2, 0x27 } },
-        { SpotifyInputParameters.SpotifyPrevious, new[] { 0xA2, 0x25 } },
-        { SpotifyInputParameters.SpotifyVolumeUp, new[] { 0xA2, 0x26 } },
-        { SpotifyInputParameters.SpotifyVolumeDown, new[] { 0xA2, 0x28 } }
+        { SpotifyInputParameters.SpotifyPlayPause, new[] { WindowsVKey.VK_SPACE } },
+        { SpotifyInputParameters.SpotifyNext, new[] { WindowsVKey.VK_LCONTROL, WindowsVKey.VK_RIGHT } },
+        { SpotifyInputParameters.SpotifyPrevious, new[] { WindowsVKey.VK_LCONTROL, WindowsVKey.VK_LEFT } },
+        { SpotifyInputParameters.SpotifyVolumeUp, new[] { WindowsVKey.VK_LCONTROL, WindowsVKey.VK_UP } },
+        { SpotifyInputParameters.SpotifyVolumeDown, new[] { WindowsVKey.VK_LCONTROL, WindowsVKey.VK_DOWN } }
     };
 
     protected override void OnParameterReceived(Enum key, object value)

@@ -25,10 +25,10 @@ public class DiscordModule : IntegrationModule
 
     protected override string TargetProcess => "discord";
 
-    protected override IReadOnlyDictionary<Enum, int[]> KeyCombinations => new Dictionary<Enum, int[]>()
+    protected override IReadOnlyDictionary<Enum, WindowsVKey[]> KeyCombinations => new Dictionary<Enum, WindowsVKey[]>()
     {
-        { DiscordInputParameters.DiscordMic, new[] { 0xA2, 0xA0, 0x4D } },
-        { DiscordInputParameters.DiscordDeafen, new[] { 0xA2, 0xA0, 0x44 } }
+        { DiscordInputParameters.DiscordMic, new[] { WindowsVKey.VK_LCONTROL, WindowsVKey.VK_LSHIFT, WindowsVKey.VK_M } },
+        { DiscordInputParameters.DiscordDeafen, new[] { WindowsVKey.VK_LCONTROL, WindowsVKey.VK_LSHIFT, WindowsVKey.VK_D } }
     };
 
     protected override void OnParameterReceived(Enum key, object value)
