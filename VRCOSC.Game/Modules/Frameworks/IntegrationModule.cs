@@ -21,7 +21,7 @@ public abstract class IntegrationModule : Module
     protected virtual string TargetProcess => string.Empty;
     protected virtual string ReturnProcess => "vrchat";
 
-    protected void ExecuteTask(Enum key)
+    protected void ExecuteShortcut(Enum key)
     {
         switchToTarget();
         executeKeyCombination(key);

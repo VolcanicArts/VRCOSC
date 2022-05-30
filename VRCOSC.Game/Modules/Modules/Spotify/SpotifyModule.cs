@@ -44,7 +44,7 @@ public class SpotifyModule : IntegrationModule
 
         Terminal.Log($"Received input of {key}");
 
-        ExecuteTask(key);
+        ExecuteShortcut(key);
     }
 }
 
