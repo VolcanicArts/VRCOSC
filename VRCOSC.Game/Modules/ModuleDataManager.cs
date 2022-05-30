@@ -10,7 +10,7 @@ namespace VRCOSC.Game.Modules;
 
 public class ModuleDataManager
 {
-    public bool Enabled { get; internal set; } = true;
+    public bool Enabled { get; internal set; }
     public Dictionary<string, ModuleSetting> Settings { get; } = new();
     public Dictionary<string, ModuleParameter> Parameters { get; } = new();
 
