@@ -43,7 +43,7 @@ public class SpotifyModule : IntegrationModule
 
         Terminal.Log($"Received input of {key}");
 
-        ExecuteTask((SpotifyInputParameters)key).ConfigureAwait(false);
+        ExecuteTask(key).ConfigureAwait(false);
     }
 }
 
