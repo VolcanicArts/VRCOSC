@@ -38,7 +38,7 @@ public class Discord : IntegrationModule
 
         Terminal.Log($"Received input of {key}");
 
-        ExecuteTask(key).ConfigureAwait(false);
+        ExecuteTask(key);
     }
 }
 
