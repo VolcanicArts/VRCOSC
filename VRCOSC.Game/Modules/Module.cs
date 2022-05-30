@@ -79,10 +79,12 @@ public abstract class Module
 
         if (value is OscTrue) value = true;
         if (value is OscFalse) value = false;
-        OnParameterReceived(id, value);
+
+        var key = InputParameters.ElementAt(id);
+        OnParameterReceived(key, value);
     }
 
-    protected virtual void OnParameterReceived(int id, object value) { }
+    protected virtual void OnParameterReceived(Enum key, object value) { }
 
     #region Module Settings
 

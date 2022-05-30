@@ -35,7 +35,7 @@ public class DiscordVoiceModule : Module
         DiscordVoiceInputParameters.DiscordVoice
     };
 
-    protected override void OnParameterReceived(int id, object value)
+    protected override void OnParameterReceived(Enum key, object value)
     {
         var buttonPressed = (bool)value;
         if (!buttonPressed) return;
