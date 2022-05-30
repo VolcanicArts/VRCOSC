@@ -27,7 +27,7 @@ public class SpotifyModule : Module
 
     public override IReadOnlyCollection<Enum> InputParameters => new List<Enum>
     {
-        SpotifyInputParameters.SpotifyPlay,
+        SpotifyInputParameters.SpotifyPlayPause,
         SpotifyInputParameters.SpotifyNext,
         SpotifyInputParameters.SpotifyPrevious,
         SpotifyInputParameters.SpotifyVolumeUp,
@@ -36,7 +36,7 @@ public class SpotifyModule : Module
 
     private readonly IReadOnlyDictionary<SpotifyInputParameters, int[]> keyCombinations = new Dictionary<SpotifyInputParameters, int[]>()
     {
-        { SpotifyInputParameters.SpotifyPlay, new[] { 0x20 } },
+        { SpotifyInputParameters.SpotifyPlayPause, new[] { 0x20 } },
         { SpotifyInputParameters.SpotifyNext, new[] { 0xA2, 0x27 } },
         { SpotifyInputParameters.SpotifyPrevious, new[] { 0xA2, 0x25 } },
         { SpotifyInputParameters.SpotifyVolumeUp, new[] { 0xA2, 0x26 } },
@@ -117,7 +117,7 @@ public class SpotifyModule : Module
 
 public enum SpotifyInputParameters
 {
-    SpotifyPlay,
+    SpotifyPlayPause,
     SpotifyNext,
     SpotifyPrevious,
     SpotifyVolumeUp,
