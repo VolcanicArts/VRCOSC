@@ -31,8 +31,7 @@ public class SpotifyModule : Module
         SpotifyInputParameters.SpotifyNext,
         SpotifyInputParameters.SpotifyPrevious,
         SpotifyInputParameters.SpotifyVolumeUp,
-        SpotifyInputParameters.SpotifyVolumeDown,
-        SpotifyInputParameters.SpotifyMute
+        SpotifyInputParameters.SpotifyVolumeDown
     };
 
     private readonly IReadOnlyDictionary<SpotifyInputParameters, int[]> keyCombinations = new Dictionary<SpotifyInputParameters, int[]>()
@@ -41,14 +40,15 @@ public class SpotifyModule : Module
         { SpotifyInputParameters.SpotifyNext, new[] { 0xA2, 0x27 } },
         { SpotifyInputParameters.SpotifyPrevious, new[] { 0xA2, 0x25 } },
         { SpotifyInputParameters.SpotifyVolumeUp, new[] { 0xA2, 0x26 } },
-        { SpotifyInputParameters.SpotifyVolumeDown, new[] { 0xA2, 0x28 } },
-        { SpotifyInputParameters.SpotifyMute, new[] { 0xA2, 0xA0, 0x28 } }
+        { SpotifyInputParameters.SpotifyVolumeDown, new[] { 0xA2, 0x28 } }
     };
 
     protected override void OnParameterReceived(Enum key, object value)
     {
         var buttonPressed = (bool)value;
         if (!buttonPressed) return;
+
+        Terminal.Log($"Received input of {key}");
 
         executeTask((SpotifyInputParameters)key).ConfigureAwait(false);
     }
@@ -121,6 +121,5 @@ public enum SpotifyInputParameters
     SpotifyNext,
     SpotifyPrevious,
     SpotifyVolumeUp,
-    SpotifyVolumeDown,
-    SpotifyMute
+    SpotifyVolumeDown
 }
