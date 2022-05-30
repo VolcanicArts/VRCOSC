@@ -27,13 +27,13 @@ public class SpotifyModule : IntegrationModule
 
     protected override string TargetProcess => "spotify";
 
-    protected override IReadOnlyDictionary<Enum, int[]> KeyCombinations => new Dictionary<Enum, int[]>()
+    protected override IReadOnlyDictionary<Enum, WindowsVKey[]> KeyCombinations => new Dictionary<Enum, WindowsVKey[]>()
     {
-        { SpotifyInputParameters.SpotifyPlayPause, new[] { 0x20 } },
-        { SpotifyInputParameters.SpotifyNext, new[] { 0xA2, 0x27 } },
-        { SpotifyInputParameters.SpotifyPrevious, new[] { 0xA2, 0x25 } },
-        { SpotifyInputParameters.SpotifyVolumeUp, new[] { 0xA2, 0x26 } },
-        { SpotifyInputParameters.SpotifyVolumeDown, new[] { 0xA2, 0x28 } }
+        { SpotifyInputParameters.SpotifyPlayPause, new[] { WindowsVKey.VK_SPACE } },
+        { SpotifyInputParameters.SpotifyNext, new[] { WindowsVKey.VK_LCONTROL, WindowsVKey.VK_RIGHT } },
+        { SpotifyInputParameters.SpotifyPrevious, new[] { WindowsVKey.VK_LCONTROL, WindowsVKey.VK_LEFT } },
+        { SpotifyInputParameters.SpotifyVolumeUp, new[] { WindowsVKey.VK_LCONTROL, WindowsVKey.VK_UP } },
+        { SpotifyInputParameters.SpotifyVolumeDown, new[] { WindowsVKey.VK_LCONTROL, WindowsVKey.VK_DOWN } }
     };
 
     protected override void OnParameterReceived(Enum key, object value)
