@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using VRCOSC.Game.Modules.Frameworks;
 
@@ -13,7 +14,7 @@ public class SpotifyModule : IntegrationModule
     public override string Title => "Spotify";
     public override string Description => "Integration with the Spotify desktop app";
     public override string Author => "VolcanicArts";
-    public override Colour4 Colour => Colour4.Green.Darken(0.5f);
+    public override Colour4 Colour => Color4Extensions.FromHex(@"1ed760").Darken(0.5f);
     public override ModuleType Type => ModuleType.Integrations;
 
     public override IReadOnlyCollection<Enum> InputParameters => new List<Enum>
