@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -76,8 +76,6 @@ public abstract class IntegrationModule : Module
             ProcessHelper.ShowMainWindow(process, ShowWindowEnum.Restore);
         }
 
-        await Task.Delay(10);
-        ProcessHelper.ShowMainWindow(process, ShowWindowEnum.ShowMaximized);
         await Task.Delay(10);
         ProcessHelper.SetMainWindowForeground(process);
         await Task.Delay(10);
