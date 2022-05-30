@@ -81,10 +81,32 @@ public abstract class Module
         if (value is OscFalse) value = false;
 
         var key = InputParameters.ElementAt(id);
+
         OnParameterReceived(key, value);
+
+        switch (value)
+        {
+            case bool boolValue:
+                OnBoolParameterReceived(key, boolValue);
+                break;
+
+            case int intValue:
+                OnIntParameterReceived(key, intValue);
+                break;
+
+            case float floatValue:
+                OnFloatParameterReceived(key, floatValue);
+                break;
+        }
     }
 
     protected virtual void OnParameterReceived(Enum key, object value) { }
+
+    protected virtual void OnBoolParameterReceived(Enum key, bool value) { }
+
+    protected virtual void OnIntParameterReceived(Enum key, int value) { }
+
+    protected virtual void OnFloatParameterReceived(Enum key, float value) { }
 
     #region Module Settings
 

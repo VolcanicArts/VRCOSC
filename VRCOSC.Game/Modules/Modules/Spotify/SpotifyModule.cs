@@ -37,10 +37,9 @@ public class SpotifyModule : IntegrationModule
         { SpotifyInputParameters.SpotifyVolumeDown, new[] { WindowsVKey.VK_LCONTROL, WindowsVKey.VK_DOWN } }
     };
 
-    protected override void OnParameterReceived(Enum key, object value)
+    protected override void OnBoolParameterReceived(Enum key, bool value)
     {
-        var buttonPressed = (bool)value;
-        if (!buttonPressed) return;
+        if (!value) return;
 
         Terminal.Log($"Received input of {key}");
 

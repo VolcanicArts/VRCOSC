@@ -31,10 +31,9 @@ public class DiscordModule : IntegrationModule
         { DiscordInputParameters.DiscordDeafen, new[] { WindowsVKey.VK_LCONTROL, WindowsVKey.VK_LSHIFT, WindowsVKey.VK_D } }
     };
 
-    protected override void OnParameterReceived(Enum key, object value)
+    protected override void OnBoolParameterReceived(Enum key, bool value)
     {
-        var buttonPressed = (bool)value;
-        if (!buttonPressed) return;
+        if (!value) return;
 
         Terminal.Log($"Received input of {key}");
 
