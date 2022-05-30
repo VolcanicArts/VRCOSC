@@ -1,23 +1,27 @@
 # VRCOSC
 A modular OSC provider primarily made for [VRChat](https://vrchat.com) built on top of the [osu!framework](https://github.com/ppy/osu-framework)
 
-<p align="center"><img src="https://user-images.githubusercontent.com/29819296/170842562-e42d1fc8-de28-46c0-b793-dd66715349bf.png" width=70% height=70%></p>
+<p align="center"><img src="https://user-images.githubusercontent.com/29819296/171054967-3d4c3726-b854-4c54-9e3a-8d928b172647.png" width=70% height=70%></p>
 
 ## Getting Started
 To download VRCOSC, head to the [Releases](https://github.com/VolcanicArts/VRCOSC/releases/latest) section of this repo.
+
+NOTE: VRCOSC is a Windows only program due to low level key bindings and statistic retrieval.
 
 ## Modules
 | Module | Description | Notes | Prefab |
 | :---: | :---: | :---: | :---: |
 | HypeRate | Sends [HypeRate.io](https://www.hyperate.io/supported-devices) heartrate values | Requires a free API key which can be obtained from HypeRate's [Discord Server](https://discord.gg/eTwfgU29cU) | VRCOSC-Heartrate |
-| Discord Voice | Toggle your Discord microphone | No prefab is provided, but the parameter works best with an action menu button | |
+| Discord | Discord integration | Requires the Discord desktop app. Allows for toggling of mute and deafen | VRCOSC-Discord |
+| Spotify | Spotify integration | Requires the Spotify desktop app. Allows for play/pause, next/previous, and volume up/down | VRCOSC-Spotify |
 | Clock | Sends your current local time in 2 different formats | | |
-| Computer Stats | Sends your system stats. Currently CPU, GPU, and RAM | Only works on Windows | |
+| Computer Stats | Sends your system stats. Currently CPU, GPU, and RAM | | |
 | Random | Sends a random float between 0 and 1 every second | | |
 
 ## Creating a module
 ### First Steps
 - Fork this repo and create a new folder inside the [Modules](https://github.com/VolcanicArts/VRCOSC/tree/master/VRCOSC.Game/Modules/Modules) folder.
+- NOTE: Other modules are present in this folder and can be used as templates or examples.
 ### Metadata
 - Create a class with your module's name and have it extend the Module class.
 - Override `Title`, `Description`, `Author`, `Colour`, `ModuleType`, and `UpdateDelta` to change your module's metadata.
@@ -42,5 +46,6 @@ To download VRCOSC, head to the [Releases](https://github.com/VolcanicArts/VRCOS
 ### Final Steps
 - Make a pull request to submit your module.
 
-## Examples
-If you'd like to see some examples of existing modules, then you can find them inside the [Modules](https://github.com/VolcanicArts/VRCOSC/tree/master/VRCOSC.Game/Modules/Modules) folder.
+## Integration Modules
+- Integration modules are special types of modules. They allow for executing keyboard shortcuts on specific processes within Windows.
+- Examples on how to create integration modules are in the [Modules](https://github.com/VolcanicArts/VRCOSC/tree/master/VRCOSC.Game/Modules/Modules) folder under `Discord` or `Spotify`
