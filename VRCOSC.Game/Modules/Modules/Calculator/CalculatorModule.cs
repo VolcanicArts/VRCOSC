@@ -42,16 +42,16 @@ public class CalculatorModule : IntegrationModule
         { CalculatorInputParameters.CalculatorSubtract, new[] { WindowsVKey.VK_SUBTRACT } },
         { CalculatorInputParameters.CalculatorMultiply, new[] { WindowsVKey.VK_MULTIPLY } },
         { CalculatorInputParameters.CalculatorDivide, new[] { WindowsVKey.VK_DIVIDE } },
-        { CalculatorInputParameters.CalculatorNumber0, new[] { WindowsVKey.VK_NUMPAD0 } },
-        { CalculatorInputParameters.CalculatorNumber1, new[] { WindowsVKey.VK_NUMPAD1 } },
-        { CalculatorInputParameters.CalculatorNumber2, new[] { WindowsVKey.VK_NUMPAD2 } },
-        { CalculatorInputParameters.CalculatorNumber3, new[] { WindowsVKey.VK_NUMPAD3 } },
-        { CalculatorInputParameters.CalculatorNumber4, new[] { WindowsVKey.VK_NUMPAD4 } },
-        { CalculatorInputParameters.CalculatorNumber5, new[] { WindowsVKey.VK_NUMPAD5 } },
-        { CalculatorInputParameters.CalculatorNumber6, new[] { WindowsVKey.VK_NUMPAD6 } },
-        { CalculatorInputParameters.CalculatorNumber7, new[] { WindowsVKey.VK_NUMPAD7 } },
-        { CalculatorInputParameters.CalculatorNumber8, new[] { WindowsVKey.VK_NUMPAD8 } },
-        { CalculatorInputParameters.CalculatorNumber9, new[] { WindowsVKey.VK_NUMPAD9 } }
+        { CalculatorNumbers.CalculatorNumber0, new[] { WindowsVKey.VK_NUMPAD0 } },
+        { CalculatorNumbers.CalculatorNumber1, new[] { WindowsVKey.VK_NUMPAD1 } },
+        { CalculatorNumbers.CalculatorNumber2, new[] { WindowsVKey.VK_NUMPAD2 } },
+        { CalculatorNumbers.CalculatorNumber3, new[] { WindowsVKey.VK_NUMPAD3 } },
+        { CalculatorNumbers.CalculatorNumber4, new[] { WindowsVKey.VK_NUMPAD4 } },
+        { CalculatorNumbers.CalculatorNumber5, new[] { WindowsVKey.VK_NUMPAD5 } },
+        { CalculatorNumbers.CalculatorNumber6, new[] { WindowsVKey.VK_NUMPAD6 } },
+        { CalculatorNumbers.CalculatorNumber7, new[] { WindowsVKey.VK_NUMPAD7 } },
+        { CalculatorNumbers.CalculatorNumber8, new[] { WindowsVKey.VK_NUMPAD8 } },
+        { CalculatorNumbers.CalculatorNumber9, new[] { WindowsVKey.VK_NUMPAD9 } }
     };
 
     protected override IReadOnlyDictionary<Enum, ProcessCommand> ProcessCommands => new Dictionary<Enum, ProcessCommand>
@@ -97,7 +97,7 @@ public class CalculatorModule : IntegrationModule
             if (values.IsCalculatorOpen)
             {
                 var number = (int)Math.Round(value * 9);
-                ExecuteShortcut(CalculatorInputParameters.CalculatorNumber0 + number); // Holy shit if this works then I'm so fucking lucky
+                ExecuteShortcut(CalculatorNumbers.CalculatorNumber0 + number); // Holy shit if this works then I'm so fucking lucky
                 ExecuteShortcut(CalculatorInputParameters.CalculatorCopyValue);
                 values.CalculatorResult = returnClipboardValue();
                 ExecuteFunctionInTarget<Enum, object>(SendParameter, CalculatorInputParameters.CalculatorCopyValue, values.CalculatorResult);
@@ -126,6 +126,20 @@ public struct CalculatorModuleValues
     public float CalculatorResult;
 }
 
+public enum CalculatorNumbers
+{
+    CalculatorNumber0,
+    CalculatorNumber1,
+    CalculatorNumber2,
+    CalculatorNumber3,
+    CalculatorNumber4,
+    CalculatorNumber5,
+    CalculatorNumber6,
+    CalculatorNumber7,
+    CalculatorNumber8,
+    CalculatorNumber9
+}
+
 // TODO: Remove the need for open/close inputs and do it automatically based on whether or not it's already open
 public enum CalculatorInputParameters
 {
@@ -138,15 +152,5 @@ public enum CalculatorInputParameters
     CalculatorSubtract,
     CalculatorMultiply,
     CalculatorDivide,
-    CalculatorNumber,
-    CalculatorNumber0,
-    CalculatorNumber1,
-    CalculatorNumber2,
-    CalculatorNumber3,
-    CalculatorNumber4,
-    CalculatorNumber5,
-    CalculatorNumber6,
-    CalculatorNumber7,
-    CalculatorNumber8,
-    CalculatorNumber9
+    CalculatorNumber
 }
