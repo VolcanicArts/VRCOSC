@@ -17,5 +17,6 @@ public enum WindowsInputParameters
     FullScreenshot,
     VRChatScreenshot,
     OnScreenKeyboard,
-
+    CycleKeyboard,
+    CycleKeyboardLayout
 }

@@ -16,6 +16,8 @@ public enum WindowsVKey
     VK_DOWN = 0x28,
     VK_LSHIFT = 0xA0,
     VK_LCONTROL = 0xA2,
+    VK_MENU = 0x12,
+    VK_LWIN = 0x5B,
     VK_A = 0x41,
     VK_B = 0x42,
     VK_C = 0x43,
