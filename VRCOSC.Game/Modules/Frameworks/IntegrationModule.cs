@@ -20,13 +20,13 @@ public abstract class IntegrationModule : Module
     protected virtual IReadOnlyDictionary<Enum, WindowsVKey[]> KeyCombinations => new Dictionary<Enum, WindowsVKey[]>();
     protected virtual IReadOnlyDictionary<Enum, ProcessCommand> ProcessCommands => new Dictionary<Enum, ProcessCommand>();
     protected virtual string TargetProcess => string.Empty;
-    protected virtual string TargetWindow => string.Empty;
     protected virtual string ReturnProcess => "vrchat";
 
-    protected void ExecuteFunctionInTarget<T1, T2>(Func<T1, T2> method, T1 p1, T2 p2)
+    // TODO: Might want to make this parameter count generic (e.g. params[] but resulting function has to take in list as its final argument)
+    protected void ExecuteFunctionInTarget<T1, T2>(Action<T1, T2> method, T1 p1, T2 p2)
     {
         switchToTarget();
-        // method(p1, p2);
+        method(p1, p2);
         switchToReturn();
     }
 
@@ -39,14 +39,14 @@ public abstract class IntegrationModule : Module
 
     protected void StartProcess()
     {
-        // TODO: Probably need to check if the TargetWindow is valid.
-        Process.Start(TargetWindow);
+        // TODO: Probably need to check if the process is valid.
+        Process.Start(TargetProcess + ".exe"); // TODO: Is the .exe needed?
     }
 
     protected void StopProcess()
     {
-        // TODO: Probably need to check if the TargetWindow is valid.
-        Process.GetProcessesByName(TargetWindow).FirstOrDefault()?.Kill();
+        // TODO: Probably need to check if the process is valid.
+        retrieveProcess(TargetProcess + ".exe")?.Kill();
     }
 
     protected void RestartProcess()
@@ -62,14 +62,14 @@ public abstract class IntegrationModule : Module
         switchToReturn();
     }
 
-    protected void switchToTarget()
+    private void switchToTarget()
     {
         if (!retrieveTargetProcess(out var targetProcess)) return;
 
         focusProcess(targetProcess!);
     }
 
-    protected void switchToReturn()
+    private void switchToReturn()
     {
         if (!retrieveReturnProcess(out var returnProcess)) return;
 

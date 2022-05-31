@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
+using osu.Framework.Platform.Windows;
 using VRCOSC.Game.Modules.Frameworks;
 
 namespace VRCOSC.Game.Modules.Modules.Calculator;
@@ -22,7 +23,7 @@ public class CalculatorModule : IntegrationModule
         CalculatorInputParameters.CalculatorClose,
         CalculatorInputParameters.CalculatorClear,
         CalculatorInputParameters.CalculatorCalculate,
-        CalculatorInputParameters.CalculatorSendValue,
+        CalculatorInputParameters.CalculatorCopyValue,
         CalculatorInputParameters.CalculatorAdd,
         CalculatorInputParameters.CalculatorSubtract,
         CalculatorInputParameters.CalculatorMultiply,
@@ -31,21 +32,29 @@ public class CalculatorModule : IntegrationModule
     };
 
     protected override string TargetProcess => "calc";
-    protected override string TargetWindow => "calc.exe";
 
-    protected override IReadOnlyDictionary<Enum, WindowsVKey[]> KeyCombinations => new Dictionary<Enum, WindowsVKey[]>()
+    protected override IReadOnlyDictionary<Enum, WindowsVKey[]> KeyCombinations => new Dictionary<Enum, WindowsVKey[]>
     {
         { CalculatorInputParameters.CalculatorClear, new[] { WindowsVKey.VK_ESCAPE } },
         { CalculatorInputParameters.CalculatorCalculate, new[] { WindowsVKey.VK_RETURN } },
-        { CalculatorInputParameters.CalculatorSendValue, new[] { WindowsVKey.VK_LCONTROL, WindowsVKey.VK_C } }, // TODO: Maybe the value should be sent every time something is executed
+        { CalculatorInputParameters.CalculatorCopyValue, new[] { WindowsVKey.VK_LCONTROL, WindowsVKey.VK_C } }, // TODO: Maybe the value should be sent every time something is executed
         { CalculatorInputParameters.CalculatorAdd, new[] { WindowsVKey.VK_ADD } },
         { CalculatorInputParameters.CalculatorSubtract, new[] { WindowsVKey.VK_SUBTRACT } },
         { CalculatorInputParameters.CalculatorMultiply, new[] { WindowsVKey.VK_MULTIPLY } },
         { CalculatorInputParameters.CalculatorDivide, new[] { WindowsVKey.VK_DIVIDE } },
-        { CalculatorInputParameters.CalculatorNumber, new[] { WindowsVKey.VK_NUMPAD0 } }
+        { CalculatorInputParameters.CalculatorNumber0, new[] { WindowsVKey.VK_NUMPAD0 } },
+        { CalculatorInputParameters.CalculatorNumber1, new[] { WindowsVKey.VK_NUMPAD1 } },
+        { CalculatorInputParameters.CalculatorNumber2, new[] { WindowsVKey.VK_NUMPAD2 } },
+        { CalculatorInputParameters.CalculatorNumber3, new[] { WindowsVKey.VK_NUMPAD3 } },
+        { CalculatorInputParameters.CalculatorNumber4, new[] { WindowsVKey.VK_NUMPAD4 } },
+        { CalculatorInputParameters.CalculatorNumber5, new[] { WindowsVKey.VK_NUMPAD5 } },
+        { CalculatorInputParameters.CalculatorNumber6, new[] { WindowsVKey.VK_NUMPAD6 } },
+        { CalculatorInputParameters.CalculatorNumber7, new[] { WindowsVKey.VK_NUMPAD7 } },
+        { CalculatorInputParameters.CalculatorNumber8, new[] { WindowsVKey.VK_NUMPAD8 } },
+        { CalculatorInputParameters.CalculatorNumber9, new[] { WindowsVKey.VK_NUMPAD9 } }
     };
 
-    protected override IReadOnlyDictionary<Enum, ProcessCommand> ProcessCommands => new Dictionary<Enum, ProcessCommand>()
+    protected override IReadOnlyDictionary<Enum, ProcessCommand> ProcessCommands => new Dictionary<Enum, ProcessCommand>
     {
         { CalculatorInputParameters.CalculatorOpen, ProcessCommand.Start },
         { CalculatorInputParameters.CalculatorClose, ProcessCommand.Stop }
@@ -53,7 +62,7 @@ public class CalculatorModule : IntegrationModule
 
     public override void CreateAttributes()
     {
-        CreateParameter(CalculatorInputParameters.CalculatorSendValue, "Send Value", "Send the current value of the calculator.", "/avatar/parameters/CalculatorResult");
+        CreateParameter(CalculatorInputParameters.CalculatorCopyValue, "Send Value", "Send the current value of the calculator.", "/avatar/parameters/CalculatorResult");
     }
 
     protected override void OnBoolParameterReceived(Enum key, bool value)
@@ -72,11 +81,9 @@ public class CalculatorModule : IntegrationModule
                 if (values.IsCalculatorOpen) ExecuteProcessCommand(ProcessCommand.Stop);
                 break;
 
-            case CalculatorInputParameters.CalculatorSendValue:
-                switchToTarget();
-                SendParameter(CalculatorInputParameters.CalculatorSendValue, values.CalculatorResult);
-                switchToReturn();
-                // ExecuteFunctionInTarget(SendParameter, CalculatorInputParameters.CalculatorSendValue, values.CalculatorResult);
+            case CalculatorInputParameters.CalculatorCopyValue:
+                values.CalculatorResult = returnClipboardValue();
+                ExecuteFunctionInTarget<Enum, object>(SendParameter, CalculatorInputParameters.CalculatorCopyValue, values.CalculatorResult);
                 break;
         }
 
@@ -85,7 +92,31 @@ public class CalculatorModule : IntegrationModule
 
     protected override void OnFloatParameterReceived(Enum key, float value)
     {
+        if (key.Equals(CalculatorInputParameters.CalculatorNumber))
+        {
+            if (values.IsCalculatorOpen)
+            {
+                var number = (int)Math.Round(value * 9);
+                ExecuteShortcut(CalculatorInputParameters.CalculatorNumber0 + number); // Holy shit if this works then I'm so fucking lucky
+                ExecuteShortcut(CalculatorInputParameters.CalculatorCopyValue);
+                values.CalculatorResult = returnClipboardValue();
+                ExecuteFunctionInTarget<Enum, object>(SendParameter, CalculatorInputParameters.CalculatorCopyValue, values.CalculatorResult);
+            }
+        }
+    }
 
+    private float returnClipboardValue()
+    {
+        var clipboard = new WindowsClipboard().GetText();
+        if (clipboard.Length == 0) return 0;
+
+        if (float.TryParse(clipboard, out float value))
+        {
+            Terminal.Log($"Received clipboard value of {value}");
+            return value;
+        }
+
+        return 0;
     }
 }
 
@@ -102,10 +133,20 @@ public enum CalculatorInputParameters
     CalculatorClose,
     CalculatorClear,
     CalculatorCalculate,
-    CalculatorSendValue,
+    CalculatorCopyValue,
     CalculatorAdd,
     CalculatorSubtract,
     CalculatorMultiply,
     CalculatorDivide,
-    CalculatorNumber
+    CalculatorNumber,
+    CalculatorNumber0,
+    CalculatorNumber1,
+    CalculatorNumber2,
+    CalculatorNumber3,
+    CalculatorNumber4,
+    CalculatorNumber5,
+    CalculatorNumber6,
+    CalculatorNumber7,
+    CalculatorNumber8,
+    CalculatorNumber9
 }
