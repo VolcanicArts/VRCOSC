@@ -23,7 +23,7 @@ public class CalculatorModule : IntegrationModule
         CalculatorInputParameters.CalculatorClose,
         CalculatorInputParameters.CalculatorClear,
         CalculatorInputParameters.CalculatorCalculate,
-        CalculatorInputParameters.CalculatorSendValue,
+        CalculatorInputParameters.CalculatorCopyValue,
         CalculatorInputParameters.CalculatorAdd,
         CalculatorInputParameters.CalculatorSubtract,
         CalculatorInputParameters.CalculatorMultiply,
@@ -37,7 +37,7 @@ public class CalculatorModule : IntegrationModule
     {
         { CalculatorInputParameters.CalculatorClear, new[] { WindowsVKey.VK_ESCAPE } },
         { CalculatorInputParameters.CalculatorCalculate, new[] { WindowsVKey.VK_RETURN } },
-        { CalculatorInputParameters.CalculatorSendValue, new[] { WindowsVKey.VK_LCONTROL, WindowsVKey.VK_C } }, // TODO: Maybe the value should be sent every time something is executed
+        { CalculatorInputParameters.CalculatorCopyValue, new[] { WindowsVKey.VK_LCONTROL, WindowsVKey.VK_C } }, // TODO: Maybe the value should be sent every time something is executed
         { CalculatorInputParameters.CalculatorAdd, new[] { WindowsVKey.VK_ADD } },
         { CalculatorInputParameters.CalculatorSubtract, new[] { WindowsVKey.VK_SUBTRACT } },
         { CalculatorInputParameters.CalculatorMultiply, new[] { WindowsVKey.VK_MULTIPLY } },
@@ -62,7 +62,7 @@ public class CalculatorModule : IntegrationModule
 
     public override void CreateAttributes()
     {
-        CreateParameter(CalculatorAttributes.CalculatorCopyValue, "Send Value", "Send the current value of the calculator.", "/avatar/parameters/CalculatorResult");
+        CreateParameter(CalculatorAttributes.CalculatorSendValue, "Send Value", "Send the current value of the calculator.", "/avatar/parameters/CalculatorResult");
     }
 
     protected override void OnBoolParameterReceived(Enum key, bool value)
@@ -81,9 +81,9 @@ public class CalculatorModule : IntegrationModule
                 if (values.IsCalculatorOpen) ExecuteProcessCommand(ProcessCommand.Stop);
                 break;
 
-            case CalculatorInputParameters.CalculatorSendValue:
+            case CalculatorInputParameters.CalculatorCopyValue:
                 values.CalculatorResult = returnClipboardValue();
-                ExecuteFunctionInTarget<Enum, object>(SendParameter, CalculatorAttributes.CalculatorCopyValue, values.CalculatorResult);
+                ExecuteFunctionInTarget<Enum, object>(SendParameter, CalculatorAttributes.CalculatorSendValue, values.CalculatorResult);
                 break;
         }
 
@@ -98,9 +98,9 @@ public class CalculatorModule : IntegrationModule
             {
                 var number = (int)Math.Round(value * 9);
                 ExecuteShortcut(CalculatorNumbers.CalculatorNumber0 + number); // Holy shit if this works then I'm so fucking lucky
-                ExecuteShortcut(CalculatorInputParameters.CalculatorSendValue);
+                ExecuteShortcut(CalculatorInputParameters.CalculatorCopyValue);
                 values.CalculatorResult = returnClipboardValue();
-                ExecuteFunctionInTarget<Enum, object>(SendParameter, CalculatorAttributes.CalculatorCopyValue, values.CalculatorResult);
+                ExecuteFunctionInTarget<Enum, object>(SendParameter, CalculatorAttributes.CalculatorSendValue, values.CalculatorResult);
             }
         }
     }
@@ -147,7 +147,7 @@ public enum CalculatorInputParameters
     CalculatorClose,
     CalculatorClear,
     CalculatorCalculate,
-    CalculatorSendValue,
+    CalculatorCopyValue,
     CalculatorAdd,
     CalculatorSubtract,
     CalculatorMultiply,
@@ -157,5 +157,5 @@ public enum CalculatorInputParameters
 
 public enum CalculatorAttributes
 {
-    CalculatorCopyValue
+    CalculatorSendValue
 }
