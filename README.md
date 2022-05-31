@@ -9,14 +9,15 @@ To download VRCOSC, head to the [Releases](https://github.com/VolcanicArts/VRCOS
 NOTE: VRCOSC is a Windows only program due to low level key bindings and statistic retrieval.
 
 ## Modules
-| Module | Description | Notes | Prefab |
-| :---: | :---: | :---: | :---: |
+| Module | Description |                                                     Notes                                                     | Prefab |
+| :---: | :---: |:-------------------------------------------------------------------------------------------------------------:| :---: |
 | HypeRate | Sends [HypeRate.io](https://www.hyperate.io/supported-devices) heartrate values | Requires a free API key which can be obtained from HypeRate's [Discord Server](https://discord.gg/eTwfgU29cU) | VRCOSC-Heartrate |
-| Discord | Discord integration | Requires the Discord desktop app. Allows for toggling of mute and deafen | VRCOSC-Discord |
-| Spotify | Spotify integration | Requires the Spotify desktop app. Allows for play/pause, next/previous, and volume up/down | VRCOSC-Spotify |
-| Clock | Sends your current local time in 2 different formats | | |
-| Computer Stats | Sends your system stats. Currently CPU, GPU, and RAM | | |
-| Random | Sends a random float between 0 and 1 every second | | |
+| Discord | Discord integration |                   Requires the Discord desktop app. Allows for toggling of mute and deafen                    | VRCOSC-Discord |
+| Spotify | Spotify integration |          Requires the Spotify desktop app. Allows for play/pause, next/previous, and volume up/down           | VRCOSC-Spotify |
+| Calculator | Calculator module |              Uses the built-in Windows calculator. Allows for the use of the calculator in-game               | VRCOSC-Calculator |
+| Clock | Sends your current local time in 2 different formats |                                                                                                               | |
+| Computer Stats | Sends your system stats. Currently CPU, GPU, and RAM |                                                                                                               | |
+| Random | Sends a random float between 0 and 1 every second |                                                                                                               | |
 
 ## Creating a module
 ### First Steps
