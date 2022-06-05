@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// See the LICENSE file in the repository root for full license text.
+
+using System;
 using System.Collections.Generic;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
@@ -10,12 +13,13 @@ namespace VRCOSC.Game.Modules.Modules.Calculator;
 public class CalculatorModule : IntegrationModule
 {
     public override string Title => "Calculator";
-    public override string Description => "Integrate with the Windows calculator for efficient maths.";
+    public override string Description => "Integrate with the Windows calculator for efficient maths";
     public override string Author => "Buckminsterfullerene";
     public override Colour4 Colour => Color4Extensions.FromHex(@"ff2600").Darken(0.5f);
     public override ModuleType Type => ModuleType.Integrations;
 
-    private CalculatorModuleValues values;
+    private bool isCalculatorOpen;
+    private float calculatorResult;
 
     public override IReadOnlyCollection<Enum> InputParameters => new List<Enum>
     {
@@ -62,7 +66,7 @@ public class CalculatorModule : IntegrationModule
 
     public override void CreateAttributes()
     {
-        CreateParameter(CalculatorAttributes.CalculatorSendValue, "Send Value", "Send the current value of the calculator.", "/avatar/parameters/CalculatorResult");
+        CreateParameter(CalculatorAttributes.CalculatorSendValue, "Send Value", "Send the current value of the calculator", "/avatar/parameters/CalculatorResult");
     }
 
     protected override void OnBoolParameterReceived(Enum key, bool value)
@@ -74,16 +78,19 @@ public class CalculatorModule : IntegrationModule
         switch (key)
         {
             case CalculatorInputParameters.CalculatorOpen:
-                if (!values.IsCalculatorOpen) ExecuteProcessCommand(ProcessCommand.Start);
+                if (!isCalculatorOpen) ExecuteProcessCommand(ProcessCommand.Start);
+                isCalculatorOpen = true;
+
                 break;
 
             case CalculatorInputParameters.CalculatorClose:
-                if (values.IsCalculatorOpen) ExecuteProcessCommand(ProcessCommand.Stop);
+                if (isCalculatorOpen) ExecuteProcessCommand(ProcessCommand.Stop);
+                isCalculatorOpen = false;
                 break;
 
             case CalculatorInputParameters.CalculatorCopyValue:
-                values.CalculatorResult = returnClipboardValue();
-                ExecuteFunctionInTarget<Enum, object>(SendParameter, CalculatorAttributes.CalculatorSendValue, values.CalculatorResult);
+                calculatorResult = returnClipboardValue();
+                ExecuteFunctionInTarget<Enum, object>(SendParameter, CalculatorAttributes.CalculatorSendValue, calculatorResult);
                 break;
         }
 
@@ -92,17 +99,13 @@ public class CalculatorModule : IntegrationModule
 
     protected override void OnFloatParameterReceived(Enum key, float value)
     {
-        if (key.Equals(CalculatorInputParameters.CalculatorNumber))
-        {
-            if (values.IsCalculatorOpen)
-            {
-                var number = (int)Math.Round(value * 9);
-                ExecuteShortcut(CalculatorNumbers.CalculatorNumber0 + number); // Holy shit if this works then I'm so fucking lucky
-                ExecuteShortcut(CalculatorInputParameters.CalculatorCopyValue);
-                values.CalculatorResult = returnClipboardValue();
-                ExecuteFunctionInTarget<Enum, object>(SendParameter, CalculatorAttributes.CalculatorSendValue, values.CalculatorResult);
-            }
-        }
+        if (!key.Equals(CalculatorInputParameters.CalculatorNumber) || !isCalculatorOpen) return;
+
+        var number = (int)Math.Round(value * 9);
+        ExecuteShortcut(CalculatorNumbers.CalculatorNumber0 + number); // Holy shit if this works then I'm so fucking lucky
+        ExecuteShortcut(CalculatorInputParameters.CalculatorCopyValue);
+        calculatorResult = returnClipboardValue();
+        ExecuteFunctionInTarget<Enum, object>(SendParameter, CalculatorAttributes.CalculatorSendValue, calculatorResult);
     }
 
     private float returnClipboardValue()
@@ -110,20 +113,11 @@ public class CalculatorModule : IntegrationModule
         var clipboard = new WindowsClipboard().GetText();
         if (clipboard.Length == 0) return 0;
 
-        if (float.TryParse(clipboard, out float value))
-        {
-            Terminal.Log($"Received clipboard value of {value}");
-            return value;
-        }
+        if (!float.TryParse(clipboard, out float value)) return 0;
 
-        return 0;
+        Terminal.Log($"Received clipboard value of {value}");
+        return value;
     }
-}
-
-public struct CalculatorModuleValues
-{
-    public bool IsCalculatorOpen;
-    public float CalculatorResult;
 }
 
 public enum CalculatorNumbers
