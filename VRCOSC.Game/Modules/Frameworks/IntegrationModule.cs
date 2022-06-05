@@ -18,8 +18,42 @@ public abstract class IntegrationModule : Module
     private const int keyeventf_keyup = 0x0002;
 
     protected virtual IReadOnlyDictionary<Enum, WindowsVKey[]> KeyCombinations => new Dictionary<Enum, WindowsVKey[]>();
+    protected virtual IReadOnlyDictionary<Enum, ProcessCommand> ProcessCommands => new Dictionary<Enum, ProcessCommand>();
     protected virtual string TargetProcess => string.Empty;
     protected virtual string ReturnProcess => "vrchat";
+
+    // TODO: Might want to make this parameter count generic (e.g. params[] but resulting function has to take in list as its final argument)
+    protected void ExecuteFunctionInTarget<T1, T2>(Action<T1, T2> method, T1 p1, T2 p2)
+    {
+        switchToTarget();
+        method(p1, p2);
+        switchToReturn();
+    }
+
+    protected void ExecuteProcessCommand(Enum command)
+    {
+        if (command.Equals(ProcessCommand.Start)) StartProcess();
+        if (command.Equals(ProcessCommand.Stop)) StopProcess();
+        if (command.Equals(ProcessCommand.Restart)) RestartProcess();
+    }
+
+    protected void StartProcess()
+    {
+        // TODO: Probably need to check if the process is valid.
+        Process.Start(TargetProcess + ".exe"); // TODO: Is the .exe needed?
+    }
+
+    protected void StopProcess()
+    {
+        // TODO: Probably need to check if the process is valid.
+        retrieveProcess(TargetProcess + ".exe")?.Kill();
+    }
+
+    protected void RestartProcess()
+    {
+        StopProcess();
+        StartProcess();
+    }
 
     protected void ExecuteShortcut(Enum key)
     {
