@@ -91,35 +91,55 @@ public class ModuleGroupSelection : Container
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
                             RelativeSizeAxes = Axes.Both,
-                            Padding = new MarginPadding(10),
-                            Children = new Drawable[]
+                            Padding = new MarginPadding(5),
+                            Child = new GridContainer
                             {
-                                new Container
+                                Anchor = Anchor.Centre,
+                                Origin = Anchor.Centre,
+                                RelativeSizeAxes = Axes.Both,
+                                ColumnDimensions = new[]
                                 {
-                                    Anchor = Anchor.CentreLeft,
-                                    Origin = Anchor.CentreLeft,
-                                    RelativeSizeAxes = Axes.Both,
-                                    FillMode = FillMode.Fit,
-                                    Child = showExperimental = new Checkbox
-                                    {
-                                        Anchor = Anchor.Centre,
-                                        Origin = Anchor.Centre,
-                                        RelativeSizeAxes = Axes.Both
-                                    }
+                                    new Dimension(),
+                                    new Dimension(),
+                                    new Dimension()
                                 },
-                                new Container
+                                Content = new[]
                                 {
-                                    Anchor = Anchor.CentreRight,
-                                    Origin = Anchor.CentreRight,
-                                    RelativeSizeAxes = Axes.Both,
-                                    Width = 0.6f,
-                                    Child = new TextFlowContainer(t => t.Font = FrameworkFont.Regular.With(size: 25))
+                                    new Drawable?[]
                                     {
-                                        Anchor = Anchor.CentreRight,
-                                        Origin = Anchor.CentreRight,
-                                        RelativeSizeAxes = Axes.Both,
-                                        TextAnchor = Anchor.Centre,
-                                        Text = "Show Experimental",
+                                        new Container
+                                        {
+                                            Anchor = Anchor.CentreLeft,
+                                            Origin = Anchor.CentreLeft,
+                                            RelativeSizeAxes = Axes.Both,
+                                            FillMode = FillMode.Fit,
+                                            Padding = new MarginPadding(5),
+                                            Child = showExperimental = new Checkbox
+                                            {
+                                                Anchor = Anchor.Centre,
+                                                Origin = Anchor.Centre,
+                                                RelativeSizeAxes = Axes.Both
+                                            }
+                                        },
+                                        new Container
+                                        {
+                                            Anchor = Anchor.CentreLeft,
+                                            Origin = Anchor.CentreLeft,
+                                            RelativeSizeAxes = Axes.Both,
+                                            FillMode = FillMode.Fill,
+                                            FillAspectRatio = 2,
+                                            Child = new TextFlowContainer(t => t.Font = FrameworkFont.Regular.With(size: 25))
+                                            {
+                                                Anchor = Anchor.Centre,
+                                                Origin = Anchor.Centre,
+                                                RelativeSizeAxes = Axes.Both,
+                                                TextAnchor = Anchor.Centre,
+                                                Text = "Show Experimental",
+                                            }
+                                        },
+                                        // set the 3rd column to null and have the 2nd expand to fill it
+                                        // ensures a perfect 1:3 ratio
+                                        null
                                     }
                                 }
                             }
