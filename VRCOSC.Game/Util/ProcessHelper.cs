@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace VRCOSC.Game.Util;
 
@@ -17,12 +18,17 @@ public enum ShowWindowEnum
 
 public static class ProcessHelper
 {
-    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    [DllImport("user32.dll")]
     [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
     private static extern bool ShowWindow(IntPtr hWnd, ShowWindowEnum flags);
 
-    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    [DllImport("user32.dll")]
     private static extern int SetForegroundWindow(IntPtr hwnd);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern void keybd_event(byte bVk, byte bScan, int dwFlags, int dwExtraInfo);
+
+    private const int keyeventf_keyup = 0x0002;
 
     public static void ShowMainWindow(Process handle, ShowWindowEnum showWindowEnum)
     {
@@ -32,5 +38,15 @@ public static class ProcessHelper
     public static void SetMainWindowForeground(Process handle)
     {
         SetForegroundWindow(handle.MainWindowHandle);
+    }
+
+    public static void HoldKey(int key)
+    {
+        keybd_event((byte)key, (byte)key, 0, 0);
+    }
+
+    public static void ReleaseKey(int key)
+    {
+        keybd_event((byte)key, (byte)key, keyeventf_keyup, 0);
     }
 }
