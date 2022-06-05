@@ -20,6 +20,7 @@ NOTE: VRCOSC is a Windows only program due to low level key bindings and statist
 | Random | Sends a random float between 0 and 1 every second |                                                                                                               | |
 
 ## Creating a module
+Whilst this README contains the very basics, the WIP [wiki page](https://github.com/VolcanicArts/VRCOSC/wiki/Module-Creation) is more detailed for those that want more explanation on individual areas.
 ### First Steps
 - Fork this repo and create a new folder inside the [Modules](https://github.com/VolcanicArts/VRCOSC/tree/master/VRCOSC.Game/Modules/Modules) folder.
 - NOTE: Other modules are present in this folder and can be used as templates or examples.
