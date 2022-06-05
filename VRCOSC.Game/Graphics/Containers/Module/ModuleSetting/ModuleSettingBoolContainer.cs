@@ -12,15 +12,14 @@ public class ModuleSettingBoolContainer : ModuleSettingContainer
     [BackgroundDependencyLoader]
     private void load()
     {
-        ToggleSwitch checkBox;
+        Checkbox checkBox;
 
-        SettingContainer.Child = checkBox = new ToggleSwitch
+        SettingContainer.Child = checkBox = new Checkbox
         {
             Anchor = Anchor.CentreRight,
             Origin = Anchor.CentreRight,
             RelativeSizeAxes = Axes.Both,
             FillMode = FillMode.Fit,
-            FillAspectRatio = 2,
             State = { Value = SourceModule.DataManager.GetSettingAs<bool>(Key) }
         };
         checkBox.State.BindValueChanged((e) => SourceModule.DataManager.UpdateBoolSetting(Key, e.NewValue));
