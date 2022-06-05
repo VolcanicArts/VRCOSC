@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using VRCOSC.Game.Util;
 
 namespace VRCOSC.Game.Modules.Frameworks;
@@ -40,9 +41,12 @@ public abstract class IntegrationModule : Module
 
     protected void ExecuteShortcut(Enum key)
     {
-        switchToTarget();
-        executeKeyCombination(key);
-        switchToReturn();
+        Task.Run(() =>
+        {
+            switchToTarget();
+            executeKeyCombination(key);
+            switchToReturn();
+        }).ConfigureAwait(false);
     }
 
     private bool isValidProcess(string processName)
@@ -96,7 +100,11 @@ public abstract class IntegrationModule : Module
             ProcessHelper.ShowMainWindow(process, ShowWindowEnum.Restore);
         }
 
+        Task.Delay(5);
+
         ProcessHelper.ShowMainWindow(process, ShowWindowEnum.ShowMaximized);
+
+        Task.Delay(5);
 
         ProcessHelper.SetMainWindowForeground(process);
     }
@@ -109,6 +117,8 @@ public abstract class IntegrationModule : Module
         {
             ProcessHelper.HoldKey((int)key);
         }
+
+        Task.Delay(5);
 
         foreach (var key in keys)
         {
