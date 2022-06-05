@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -32,9 +32,20 @@ public abstract class IntegrationModule : Module
 
     protected void ExecuteProcessCommand(Enum command)
     {
-        if (command.Equals(ProcessCommand.Start)) StartProcess();
-        if (command.Equals(ProcessCommand.Stop)) StopProcess();
-        if (command.Equals(ProcessCommand.Restart)) RestartProcess();
+        switch (command)
+        {
+            case ProcessCommand.Start:
+                StartProcess();
+                break;
+
+            case ProcessCommand.Stop:
+                StopProcess();
+                break;
+
+            case ProcessCommand.Restart:
+                RestartProcess();
+                break;
+        }
     }
 
     protected void StartProcess()
