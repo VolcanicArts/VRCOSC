@@ -19,7 +19,7 @@ public enum ShowWindowEnum
 public static class ProcessHelper
 {
     [DllImport("user32.dll")]
-    [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
+    [return: MarshalAs(UnmanagedType.Bool)]
     private static extern bool ShowWindow(IntPtr hWnd, ShowWindowEnum flags);
 
     [DllImport("user32.dll")]
@@ -28,6 +28,7 @@ public static class ProcessHelper
     [DllImport("user32.dll", SetLastError = true)]
     private static extern void keybd_event(byte bVk, byte bScan, int dwFlags, int dwExtraInfo);
 
+    private const int keyeventf_keydown = 0x0000;
     private const int keyeventf_keyup = 0x0002;
 
     public static void ShowMainWindow(Process handle, ShowWindowEnum showWindowEnum)
@@ -42,7 +43,7 @@ public static class ProcessHelper
 
     public static void HoldKey(int key)
     {
-        keybd_event((byte)key, (byte)key, 0, 0);
+        keybd_event((byte)key, (byte)key, keyeventf_keydown, 0);
     }
 
     public static void ReleaseKey(int key)
