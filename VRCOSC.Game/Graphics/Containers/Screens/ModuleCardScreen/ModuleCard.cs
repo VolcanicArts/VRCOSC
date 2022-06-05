@@ -38,6 +38,8 @@ public sealed class ModuleCard : Container
     {
         Checkbox checkbox;
         Container experimentalTag;
+        IconButton editButton;
+
         Children = new Drawable[]
         {
             new TrianglesBackground
@@ -114,7 +116,7 @@ public sealed class ModuleCard : Container
                                     Padding = new MarginPadding(7),
                                     Children = new Drawable[]
                                     {
-                                        new IconButton
+                                        editButton = new IconButton
                                         {
                                             Anchor = Anchor.BottomLeft,
                                             Origin = Anchor.BottomLeft,
@@ -173,5 +175,7 @@ public sealed class ModuleCard : Container
         });
 
         if (!SourceModule.Experimental) experimentalTag.Hide();
+
+        if (!SourceModule.DataManager.HasSettings && !SourceModule.DataManager.HasParameters) editButton.Enabled.Value = false;
     }
 }

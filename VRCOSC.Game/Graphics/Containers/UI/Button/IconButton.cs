@@ -38,5 +38,25 @@ public class IconButton : VRCOSCButton
         {
             spriteIcon.Icon = e.NewValue;
         }, true);
+
+        Enabled.BindValueChanged(_ => updateAlpha(), true);
+    }
+
+    protected override void LoadComplete()
+    {
+        base.LoadComplete();
+        updateAlpha();
+    }
+
+    private void updateAlpha()
+    {
+        if (Enabled.Value)
+        {
+            this.FadeTo(1, 500, Easing.OutCirc);
+        }
+        else
+        {
+            this.FadeTo(0.5f, 500, Easing.OutCirc);
+        }
     }
 }

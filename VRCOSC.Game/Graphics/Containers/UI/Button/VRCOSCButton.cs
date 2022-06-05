@@ -18,6 +18,7 @@ public class VRCOSCButton : Button
     [BackgroundDependencyLoader]
     private void load()
     {
+        Enabled.Value = true;
         Masking = true;
 
         Box background;
@@ -36,30 +37,48 @@ public class VRCOSCButton : Button
 
     protected override bool OnHover(HoverEvent e)
     {
-        this.ScaleTo(1.05f, 100, Easing.OutCirc);
+        if (Enabled.Value)
+        {
+            this.ScaleTo(1.05f, 100, Easing.OutCirc);
+        }
+
         return true;
     }
 
     protected override void OnHoverLost(HoverLostEvent e)
     {
-        this.ScaleTo(1.0f, 100, Easing.OutCirc);
+        if (Enabled.Value)
+        {
+            this.ScaleTo(1.0f, 100, Easing.OutCirc);
+        }
     }
 
     protected override bool OnClick(ClickEvent e)
     {
-        Action?.Invoke();
-        if (IsHovered) this.ScaleTo(1.05f, 100, Easing.OutCirc);
+        if (Enabled.Value)
+        {
+            Action?.Invoke();
+            if (IsHovered) this.ScaleTo(1.05f, 100, Easing.OutCirc);
+        }
+
         return true;
     }
 
     protected override bool OnMouseDown(MouseDownEvent e)
     {
-        this.ScaleTo(0.9f, 1000, Easing.OutSine);
+        if (Enabled.Value)
+        {
+            this.ScaleTo(0.9f, 1000, Easing.OutSine);
+        }
+
         return true;
     }
 
     protected override void OnMouseUp(MouseUpEvent e)
     {
-        this.ScaleTo(1.0f, 250, Easing.OutElastic);
+        if (Enabled.Value)
+        {
+            this.ScaleTo(1.0f, 250, Easing.OutElastic);
+        }
     }
 }
