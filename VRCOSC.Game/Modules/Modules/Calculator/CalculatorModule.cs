@@ -59,12 +59,6 @@ public class CalculatorModule : IntegrationModule
         { CalculatorNumbers.CalculatorNumber9, new[] { WindowsVKey.VK_NUMPAD9 } }
     };
 
-    protected override IReadOnlyDictionary<Enum, ProcessCommand> ProcessCommands => new Dictionary<Enum, ProcessCommand>
-    {
-        { CalculatorInputParameters.CalculatorOpen, ProcessCommand.Start },
-        { CalculatorInputParameters.CalculatorClose, ProcessCommand.Stop }
-    };
-
     public override void CreateAttributes()
     {
         CreateParameter(CalculatorAttributes.CalculatorSendValue, "Send Value", "Send the current value of the calculator", "/avatar/parameters/CalculatorResult");
@@ -79,12 +73,12 @@ public class CalculatorModule : IntegrationModule
         switch (key)
         {
             case CalculatorInputParameters.CalculatorOpen:
-                if (!isCalculatorOpen) ExecuteProcessCommand(ProcessCommand.Start);
+                if (!isCalculatorOpen) StartTarget();
                 isCalculatorOpen = true;
                 break;
 
             case CalculatorInputParameters.CalculatorClose:
-                if (isCalculatorOpen) ExecuteProcessCommand(ProcessCommand.Stop);
+                if (isCalculatorOpen) StopTarget();
                 isCalculatorOpen = false;
                 break;
 

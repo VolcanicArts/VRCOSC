@@ -18,43 +18,24 @@ public abstract class IntegrationModule : Module
     private const int keyeventf_keyup = 0x0002;
 
     protected virtual IReadOnlyDictionary<Enum, WindowsVKey[]> KeyCombinations => new Dictionary<Enum, WindowsVKey[]>();
-    protected virtual IReadOnlyDictionary<Enum, ProcessCommand> ProcessCommands => new Dictionary<Enum, ProcessCommand>();
     protected virtual string TargetProcess => string.Empty;
     protected virtual string ReturnProcess => "vrchat";
 
-    protected void ExecuteProcessCommand(Enum command)
-    {
-        switch (command)
-        {
-            case ProcessCommand.Start:
-                StartProcess();
-                break;
-
-            case ProcessCommand.Stop:
-                StopProcess();
-                break;
-
-            case ProcessCommand.Restart:
-                RestartProcess();
-                break;
-        }
-    }
-
-    protected void StartProcess()
+    protected void StartTarget()
     {
         var process = Process.Start($"{TargetProcess}.exe"); // TODO: Is the .exe needed?
         if (process.HasExited) Terminal.Log($"{TargetProcess} could not be found or is already running");
     }
 
-    protected void StopProcess()
+    protected void StopTarget()
     {
         if (isValidProcess(TargetProcess)) retrieveProcess(TargetProcess + ".exe")?.Kill();
     }
 
-    protected void RestartProcess()
+    protected void RestartTarget()
     {
-        StopProcess();
-        StartProcess();
+        StopTarget();
+        StartTarget();
     }
 
     protected void ExecuteShortcut(Enum key)
