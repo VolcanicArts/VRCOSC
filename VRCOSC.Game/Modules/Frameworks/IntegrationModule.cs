@@ -22,14 +22,6 @@ public abstract class IntegrationModule : Module
     protected virtual string TargetProcess => string.Empty;
     protected virtual string ReturnProcess => "vrchat";
 
-    // TODO: Might want to make this parameter count generic (e.g. params[] but resulting function has to take in list as its final argument)
-    protected void ExecuteFunctionInTarget<T1, T2>(Action<T1, T2> method, T1 p1, T2 p2)
-    {
-        switchToTarget();
-        method(p1, p2);
-        switchToReturn();
-    }
-
     protected void ExecuteProcessCommand(Enum command)
     {
         switch (command)

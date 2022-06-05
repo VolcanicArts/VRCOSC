@@ -81,7 +81,6 @@ public class CalculatorModule : IntegrationModule
             case CalculatorInputParameters.CalculatorOpen:
                 if (!isCalculatorOpen) ExecuteProcessCommand(ProcessCommand.Start);
                 isCalculatorOpen = true;
-
                 break;
 
             case CalculatorInputParameters.CalculatorClose:
@@ -91,7 +90,7 @@ public class CalculatorModule : IntegrationModule
 
             case CalculatorInputParameters.CalculatorCopyValue:
                 calculatorResult = returnClipboardValue();
-                ExecuteFunctionInTarget<Enum, object>(SendParameter, CalculatorAttributes.CalculatorSendValue, calculatorResult);
+                SendParameter(CalculatorAttributes.CalculatorSendValue, calculatorResult);
                 break;
         }
 
@@ -106,7 +105,7 @@ public class CalculatorModule : IntegrationModule
         ExecuteShortcut(CalculatorNumbers.CalculatorNumber0 + number); // Holy shit if this works then I'm so fucking lucky
         ExecuteShortcut(CalculatorInputParameters.CalculatorCopyValue);
         calculatorResult = returnClipboardValue();
-        ExecuteFunctionInTarget<Enum, object>(SendParameter, CalculatorAttributes.CalculatorSendValue, calculatorResult);
+        SendParameter(CalculatorAttributes.CalculatorSendValue, calculatorResult);
     }
 
     private float returnClipboardValue()
