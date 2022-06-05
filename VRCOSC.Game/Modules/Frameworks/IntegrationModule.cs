@@ -14,11 +14,17 @@ public abstract class IntegrationModule : Module
     protected virtual IReadOnlyDictionary<Enum, WindowsVKey[]> KeyCombinations => new Dictionary<Enum, WindowsVKey[]>();
     protected virtual string TargetProcess => string.Empty;
     protected virtual string ReturnProcess => "vrchat";
+    protected virtual string TargetExe => string.Empty;
 
     protected void StartTarget()
     {
-        var process = Process.Start($"{TargetProcess}.exe"); // TODO: Is the .exe needed?
-        if (process.HasExited) Terminal.Log($"{TargetProcess} could not be found or is already running");
+        var startInfo = new ProcessStartInfo
+        {
+            FileName = TargetExe,
+            UseShellExecute = false
+        };
+        var process = Process.Start(startInfo);
+        if (process == null || process!.HasExited) Terminal.Log($"{TargetProcess} could not be found or is already running");
     }
 
     protected void StopTarget()

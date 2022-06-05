@@ -27,6 +27,7 @@ public class SpotifyModule : IntegrationModule
     };
 
     protected override string TargetProcess => "spotify";
+    protected override string TargetExe => $@"C:\Users\{Environment.UserName}\AppData\Roaming\Spotify\spotify.exe";
 
     protected override IReadOnlyDictionary<Enum, WindowsVKey[]> KeyCombinations => new Dictionary<Enum, WindowsVKey[]>
     {
@@ -37,6 +38,17 @@ public class SpotifyModule : IntegrationModule
         { SpotifyInputParameters.SpotifyVolumeDown, new[] { WindowsVKey.VK_LCONTROL, WindowsVKey.VK_DOWN } }
     };
 
+    public override void CreateAttributes()
+    {
+        CreateSetting(SpotifySettings.ShouldStart, "Should Start", "Should Spotify start on module run?", true);
+    }
+
+    protected override void OnStart()
+    {
+        var shouldStart = GetSettingAs<bool>(SpotifySettings.ShouldStart);
+        if (shouldStart) StartTarget();
+    }
+
     protected override void OnBoolParameterReceived(Enum key, bool value)
     {
         if (!value) return;
@@ -45,6 +57,11 @@ public class SpotifyModule : IntegrationModule
 
         ExecuteShortcut(key);
     }
+}
+
+public enum SpotifySettings
+{
+    ShouldStart
 }
 
 public enum SpotifyInputParameters
