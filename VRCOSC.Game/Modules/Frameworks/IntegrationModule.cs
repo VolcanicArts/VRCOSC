@@ -14,7 +14,7 @@ public abstract class IntegrationModule : Module
     protected virtual IReadOnlyDictionary<Enum, WindowsVKey[]> KeyCombinations => new Dictionary<Enum, WindowsVKey[]>();
     protected virtual string TargetProcess => string.Empty;
     protected virtual string ReturnProcess => "vrchat";
-    protected virtual string TargetExe => string.Empty;
+    protected virtual string TargetExe => $@"{TargetProcess}.exe";
 
     protected void StartTarget()
     {
