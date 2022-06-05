@@ -64,6 +64,12 @@ public class CalculatorModule : IntegrationModule
         CreateParameter(CalculatorAttributes.CalculatorSendValue, "Send Value", "Send the current value of the calculator", "/avatar/parameters/CalculatorResult");
     }
 
+    protected override void OnStart()
+    {
+        isCalculatorOpen = false;
+        calculatorResult = 0f;
+    }
+
     protected override void OnBoolParameterReceived(Enum key, bool value)
     {
         if (!value) return;
