@@ -17,6 +17,8 @@ public class ModuleListing : Container
     private const float header_height = 80;
     private const float footer_height = 60;
 
+    private FillFlowContainer<ModuleCard> moduleListingFlow;
+
     [Resolved]
     private ModuleManager ModuleManager { get; set; }
 
@@ -26,7 +28,6 @@ public class ModuleListing : Container
     [BackgroundDependencyLoader]
     private void load()
     {
-        FillFlowContainer<ModuleCard> moduleListingFlow;
         Children = new Drawable[]
         {
             new TrianglesBackground
@@ -104,21 +105,43 @@ public class ModuleListing : Container
         ModuleSelection.SelectedType.BindValueChanged(e =>
         {
             var newType = e.NewValue;
-
-            moduleListingFlow.Clear();
-
-            ModuleManager.ForEach(moduleGroup =>
-            {
-                if (!moduleGroup.Type.Equals(newType)) return;
-
-                moduleGroup.ForEach(moduleContainer =>
-                {
-                    moduleListingFlow.Add(new ModuleCard
-                    {
-                        SourceModule = moduleContainer.Module
-                    });
-                });
-            });
+            updateWithType(newType);
         }, true);
+
+        ModuleSelection.ShowExperimental.BindValueChanged(_ =>
+        {
+            moduleListingFlow.ForEach(moduleCard =>
+            {
+                if (!ModuleSelection.ShowExperimental.Value && moduleCard.SourceModule.Experimental)
+                {
+                    moduleCard.Hide();
+                }
+                else
+                {
+                    moduleCard.Show();
+                }
+            });
+        });
+    }
+
+    private void updateWithType(ModuleType type)
+    {
+        moduleListingFlow.Clear();
+
+        ModuleManager.ForEach(moduleGroup =>
+        {
+            if (!moduleGroup.Type.Equals(type)) return;
+
+            moduleGroup.ForEach(moduleContainer =>
+            {
+                ModuleCard moduleCard;
+                moduleListingFlow.Add(moduleCard = new ModuleCard
+                {
+                    SourceModule = moduleContainer.Module
+                });
+
+                if (!ModuleSelection.ShowExperimental.Value && moduleContainer.Module.Experimental) moduleCard.Hide();
+            });
+        });
     }
 }

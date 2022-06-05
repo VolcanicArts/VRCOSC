@@ -11,6 +11,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
 using osuTK.Graphics;
+using VRCOSC.Game.Graphics.Containers.UI.Checkbox;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleCardScreen;
@@ -19,6 +20,9 @@ public class ModuleGroupSelection : Container
 {
     [Resolved]
     private ModuleManager ModuleManager { get; set; }
+
+    [Resolved]
+    private ModuleSelection ModuleSelection { get; set; }
 
     public ModuleGroupSelection()
     {
@@ -35,6 +39,7 @@ public class ModuleGroupSelection : Container
     private void load()
     {
         FillFlowContainer moduleGroupFlow;
+        Checkbox showExperimental;
 
         Children = new Drawable[]
         {
@@ -53,7 +58,8 @@ public class ModuleGroupSelection : Container
                 RowDimensions = new[]
                 {
                     new Dimension(GridSizeMode.Absolute, 50),
-                    new Dimension()
+                    new Dimension(),
+                    new Dimension(GridSizeMode.Absolute, 75)
                 },
                 Content = new[]
                 {
@@ -77,11 +83,53 @@ public class ModuleGroupSelection : Container
                             Direction = FillDirection.Vertical,
                             Spacing = new Vector2(0, 5)
                         },
+                    },
+                    new Drawable[]
+                    {
+                        new Container
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativeSizeAxes = Axes.Both,
+                            Padding = new MarginPadding(10),
+                            Children = new Drawable[]
+                            {
+                                new Container
+                                {
+                                    Anchor = Anchor.CentreLeft,
+                                    Origin = Anchor.CentreLeft,
+                                    RelativeSizeAxes = Axes.Both,
+                                    FillMode = FillMode.Fit,
+                                    Child = showExperimental = new Checkbox
+                                    {
+                                        Anchor = Anchor.Centre,
+                                        Origin = Anchor.Centre,
+                                        RelativeSizeAxes = Axes.Both
+                                    }
+                                },
+                                new Container
+                                {
+                                    Anchor = Anchor.CentreRight,
+                                    Origin = Anchor.CentreRight,
+                                    RelativeSizeAxes = Axes.Both,
+                                    Width = 0.6f,
+                                    Child = new TextFlowContainer(t => t.Font = FrameworkFont.Regular.With(size: 25))
+                                    {
+                                        Anchor = Anchor.CentreRight,
+                                        Origin = Anchor.CentreRight,
+                                        RelativeSizeAxes = Axes.Both,
+                                        TextAnchor = Anchor.Centre,
+                                        Text = "Show Experimental",
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
         };
 
         ModuleManager.ForEach(moduleGroup => moduleGroupFlow.Add(new ModuleGroupCard(moduleGroup.Type)));
+        showExperimental.State.BindValueChanged(show => ModuleSelection.ShowExperimental.Value = show.NewValue);
     }
 }

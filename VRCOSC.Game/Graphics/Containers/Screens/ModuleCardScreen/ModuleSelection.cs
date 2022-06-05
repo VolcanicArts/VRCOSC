@@ -15,6 +15,7 @@ public class ModuleSelection : Container
     private const int module_group_selection_width = 200;
 
     public Bindable<ModuleType> SelectedType = new();
+    public BindableBool ShowExperimental = new();
 
     [BackgroundDependencyLoader]
     private void load()
