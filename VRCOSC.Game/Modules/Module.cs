@@ -20,6 +20,7 @@ public abstract class Module
     public virtual double DeltaUpdate => double.PositiveInfinity;
     public virtual Colour4 Colour => Colour4.Black;
     public virtual ModuleType Type => ModuleType.General;
+    public virtual bool Experimental => false;
     public virtual IReadOnlyCollection<Enum> InputParameters => new List<Enum>();
 
     internal ModuleDataManager DataManager { get; set; }

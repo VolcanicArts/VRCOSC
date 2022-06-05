@@ -37,6 +37,7 @@ public sealed class ModuleCard : Container
     private void load()
     {
         Checkbox checkbox;
+        Container experimentalTag;
         Children = new Drawable[]
         {
             new TrianglesBackground
@@ -122,6 +123,32 @@ public sealed class ModuleCard : Container
                                             FillMode = FillMode.Fit,
                                             Action = () => ScreenManager.EditModule(SourceModule)
                                         },
+                                        experimentalTag = new Container
+                                        {
+                                            Anchor = Anchor.BottomCentre,
+                                            Origin = Anchor.BottomCentre,
+                                            RelativeSizeAxes = Axes.Both,
+                                            Size = new Vector2(0.5f, 0.5f),
+                                            CornerRadius = 10,
+                                            Masking = true,
+                                            Children = new Drawable[]
+                                            {
+                                                new Box
+                                                {
+                                                    Anchor = Anchor.Centre,
+                                                    Origin = Anchor.Centre,
+                                                    RelativeSizeAxes = Axes.Both,
+                                                    Colour = VRCOSCColour.GreenDark
+                                                },
+                                                new SpriteText
+                                                {
+                                                    Anchor = Anchor.Centre,
+                                                    Origin = Anchor.Centre,
+                                                    Text = "Experimental",
+                                                    Font = FrameworkFont.Regular.With(size: 25)
+                                                }
+                                            }
+                                        },
                                         checkbox = new Checkbox
                                         {
                                             Anchor = Anchor.BottomRight,
@@ -144,5 +171,7 @@ public sealed class ModuleCard : Container
         {
             SourceModule.DataManager.SetEnabled(e.NewValue);
         });
+
+        if (!SourceModule.Experimental) experimentalTag.Hide();
     }
 }
