@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -39,14 +39,13 @@ public abstract class IntegrationModule : Module
 
     protected void StartProcess()
     {
-        // TODO: Probably need to check if the process is valid.
-        Process.Start(TargetProcess + ".exe"); // TODO: Is the .exe needed?
+        var process = Process.Start($"{TargetProcess}.exe"); // TODO: Is the .exe needed?
+        if (process.HasExited) Terminal.Log($"{TargetProcess} could not be found or is already running");
     }
 
     protected void StopProcess()
     {
-        // TODO: Probably need to check if the process is valid.
-        retrieveProcess(TargetProcess + ".exe")?.Kill();
+        if (isValidProcess(TargetProcess)) retrieveProcess(TargetProcess + ".exe")?.Kill();
     }
 
     protected void RestartProcess()
@@ -60,6 +59,11 @@ public abstract class IntegrationModule : Module
         switchToTarget();
         executeKeyCombination(key);
         switchToReturn();
+    }
+
+    private bool isValidProcess(string processName)
+    {
+        return retrieveProcess(processName) != null;
     }
 
     private void switchToTarget()
