@@ -29,9 +29,6 @@ public abstract class Module
     public bool IsRequestingInput => InputParameters.Count != 0;
 
     protected TerminalLogger Terminal { get; private set; } = null!;
-    public bool Running { get; set; }
-
-    #region Module Functions
 
     public virtual void CreateAttributes() { }
 
@@ -40,7 +37,6 @@ public abstract class Module
         Terminal = new TerminalLogger(GetType().Name);
         Terminal.Log("Starting");
         OnStart();
-        Running = true;
     }
 
     protected virtual void OnStart() { }
@@ -55,13 +51,10 @@ public abstract class Module
     internal void Stop()
     {
         Terminal.Log("Stopping");
-        Running = false;
         OnStop();
     }
 
     protected virtual void OnStop() { }
-
-    #endregion
 
     internal void OnOSCMessage(OscMessage message)
     {
@@ -108,8 +101,6 @@ public abstract class Module
     protected virtual void OnIntParameterReceived(Enum key, int value) { }
 
     protected virtual void OnFloatParameterReceived(Enum key, float value) { }
-
-    #region Module Settings
 
     protected void CreateSetting(Enum key, string displayName, string description, string defaultValue)
     {
@@ -160,10 +151,6 @@ public abstract class Module
         return DataManager.GetSettingAs<T>(key.ToString().ToLower());
     }
 
-    #endregion
-
-    #region Module Parameters
-
     protected void CreateParameter(Enum key, string displayName, string description, string defaultAddress)
     {
         var parameter = new ModuleParameter
@@ -187,10 +174,6 @@ public abstract class Module
         OscClient.SendMessageAsync(message);
     }
 
-    #endregion
-
-    #region Module Utilities
-
     protected int[] ToDigitArray(int num, int totalWidth)
     {
         var numStr = num.ToString().PadLeft(totalWidth, '0');
@@ -201,6 +184,4 @@ public abstract class Module
     {
         return value / (sMax - sMin) * (dMax - dMin) + dMin;
     }
-
-    #endregion
 }

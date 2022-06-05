@@ -37,7 +37,7 @@ public class ModuleContainer : Container
 
     public void OnOSCMessage(OscMessage message)
     {
-        if (!Module.Running || !Module.DataManager.Enabled || !Module.IsRequestingInput) return;
+        if (!Module.DataManager.Enabled || !Module.IsRequestingInput) return;
 
         Module.OnOSCMessage(message);
     }
