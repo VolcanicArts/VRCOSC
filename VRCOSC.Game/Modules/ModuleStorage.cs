@@ -136,10 +136,6 @@ public static class ModuleStorage
                 {
                     deserializeModuleParameters(dataManager, streamReader);
                 }
-                else
-                {
-                    throw new FileFormatException("File format is incorrect");
-                }
             }
 
             line = streamReader.ReadLine();
