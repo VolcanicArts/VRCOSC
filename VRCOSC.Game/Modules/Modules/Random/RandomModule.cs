@@ -19,7 +19,7 @@ public class RandomModule : Module
 
     protected override Dictionary<Enum, (string, string, string)> OutputParameters => new()
     {
-        { RandomParameter.RandomValue, ("Random Value", "A random float value betweeon 0 and 1", "/avatar/parameters/RandomValue") }
+        { RandomParameter.RandomValue, ("Random Value", "A random float value between 0 and 1", "/avatar/parameters/RandomValue") }
     };
 
     private readonly System.Random random = new();
