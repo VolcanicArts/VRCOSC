@@ -52,6 +52,49 @@ public sealed class ModuleCard : Container
                 TriangleScale = 2,
                 Velocity = 0.8f
             },
+            experimentalTag = new Container
+            {
+                Anchor = Anchor.TopLeft,
+                Origin = Anchor.TopLeft,
+                RelativeSizeAxes = Axes.Both,
+                Size = new Vector2(0.18f),
+                FillMode = FillMode.Fit,
+                Padding = new MarginPadding(4),
+                Depth = float.MinValue,
+                Child = new CircularContainer
+                {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    RelativeSizeAxes = Axes.Both,
+                    Masking = true,
+                    BorderThickness = 2,
+                    Children = new Drawable[]
+                    {
+                        new Box
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativeSizeAxes = Axes.Both,
+                            Colour = VRCOSCColour.Red
+                        },
+                        new Container
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativeSizeAxes = Axes.Both,
+                            Padding = new MarginPadding(4),
+                            Child = new SpriteIcon
+                            {
+                                Anchor = Anchor.Centre,
+                                Origin = Anchor.Centre,
+                                RelativeSizeAxes = Axes.Both,
+                                Icon = FontAwesome.Solid.Exclamation,
+                                Shadow = true
+                            }
+                        }
+                    }
+                }
+            },
             new GridContainer
             {
                 Anchor = Anchor.Centre,
@@ -124,32 +167,6 @@ public sealed class ModuleCard : Container
                                             Icon = { Value = FontAwesome.Solid.Edit },
                                             FillMode = FillMode.Fit,
                                             Action = () => ScreenManager.EditModule(SourceModule)
-                                        },
-                                        experimentalTag = new Container
-                                        {
-                                            Anchor = Anchor.BottomCentre,
-                                            Origin = Anchor.BottomCentre,
-                                            RelativeSizeAxes = Axes.Both,
-                                            Size = new Vector2(0.5f, 0.5f),
-                                            CornerRadius = 10,
-                                            Masking = true,
-                                            Children = new Drawable[]
-                                            {
-                                                new Box
-                                                {
-                                                    Anchor = Anchor.Centre,
-                                                    Origin = Anchor.Centre,
-                                                    RelativeSizeAxes = Axes.Both,
-                                                    Colour = VRCOSCColour.GreenDark
-                                                },
-                                                new SpriteText
-                                                {
-                                                    Anchor = Anchor.Centre,
-                                                    Origin = Anchor.Centre,
-                                                    Text = "Experimental",
-                                                    Font = FrameworkFont.Regular.With(size: 25)
-                                                }
-                                            }
                                         },
                                         checkbox = new Checkbox
                                         {
