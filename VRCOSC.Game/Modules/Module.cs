@@ -138,12 +138,13 @@ public abstract class Module
         return DataManager.GetSettingAs<T>(key.ToString().ToLower());
     }
 
-    protected void SendParameter(Enum key, bool value)
-    {
-        SendParameter(key, value ? OscTrue.True : OscFalse.False);
-    }
+    protected void SendParameter(Enum key, int value) => sendParameter(key, value);
 
-    protected void SendParameter(Enum key, object value)
+    protected void SendParameter(Enum key, float value) => sendParameter(key, value);
+
+    protected void SendParameter(Enum key, bool value) => sendParameter(key, value ? OscTrue.True : OscFalse.False);
+
+    private void sendParameter(Enum key, object value)
     {
         var address = new Address(DataManager.GetParameter(key));
         var message = new OscMessage(address, new[] { value });
