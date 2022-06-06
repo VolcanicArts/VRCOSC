@@ -13,6 +13,9 @@ namespace VRCOSC.Game.Graphics.Containers.UI;
 
 public class VRCOSCButton : Button
 {
+    private const float hovered_size = 1.05f;
+    private const float mouse_down_size = 0.9f;
+
     protected internal Bindable<Color4> BackgroundColour { get; } = new(VRCOSCColour.BlueDark);
 
     [BackgroundDependencyLoader]
@@ -39,7 +42,7 @@ public class VRCOSCButton : Button
     {
         if (Enabled.Value)
         {
-            this.ScaleTo(1.05f, 100, Easing.OutCirc);
+            this.ScaleTo(hovered_size, 100, Easing.OutCirc);
         }
 
         return true;
@@ -58,7 +61,7 @@ public class VRCOSCButton : Button
         if (Enabled.Value)
         {
             Action?.Invoke();
-            if (IsHovered) this.ScaleTo(1.05f, 100, Easing.OutCirc);
+            this.ScaleTo(IsHovered ? hovered_size : 1f, 500, Easing.OutElastic);
         }
 
         return true;
@@ -68,17 +71,9 @@ public class VRCOSCButton : Button
     {
         if (Enabled.Value)
         {
-            this.ScaleTo(0.9f, 1000, Easing.OutSine);
+            this.ScaleTo(mouse_down_size, 1000, Easing.OutSine);
         }
 
         return true;
-    }
-
-    protected override void OnMouseUp(MouseUpEvent e)
-    {
-        if (Enabled.Value)
-        {
-            this.ScaleTo(1.0f, 250, Easing.OutElastic);
-        }
     }
 }
