@@ -42,7 +42,7 @@ public class CalculatorModule : IntegrationModule
     {
         { CalculatorInputParameters.CalculatorClear, new[] { WindowsVKey.VK_ESCAPE } },
         { CalculatorInputParameters.CalculatorCalculate, new[] { WindowsVKey.VK_RETURN } },
-        { CalculatorInputParameters.CalculatorCopyValue, new[] { WindowsVKey.VK_LCONTROL, WindowsVKey.VK_C } }, // TODO: Maybe the value should be sent every time something is executed
+        { CalculatorInputParameters.CalculatorCopyValue, new[] { WindowsVKey.VK_LCONTROL, WindowsVKey.VK_C } },
         { CalculatorInputParameters.CalculatorAdd, new[] { WindowsVKey.VK_ADD } },
         { CalculatorInputParameters.CalculatorSubtract, new[] { WindowsVKey.VK_SUBTRACT } },
         { CalculatorInputParameters.CalculatorMultiply, new[] { WindowsVKey.VK_MULTIPLY } },
@@ -66,8 +66,8 @@ public class CalculatorModule : IntegrationModule
 
     protected override void OnStart()
     {
-        isCalculatorOpen = false;
-        calculatorResult = 0f;
+        isCalculatorOpen = IsProcessOpen(); // TODO: What if there are multiple calculator processes open at once?
+        if (isCalculatorOpen) sendResult();
     }
 
     protected override void OnBoolParameterReceived(Enum key, bool value)
@@ -89,8 +89,7 @@ public class CalculatorModule : IntegrationModule
                 break;
 
             case CalculatorInputParameters.CalculatorCopyValue:
-                calculatorResult = returnClipboardValue();
-                SendParameter(CalculatorAttributes.CalculatorSendValue, calculatorResult);
+                sendResult();
                 break;
         }
 
@@ -103,9 +102,7 @@ public class CalculatorModule : IntegrationModule
 
         var number = (int)Math.Round(value * 9);
         ExecuteShortcut(CalculatorNumbers.CalculatorNumber0 + number); // Holy shit if this works then I'm so fucking lucky
-        ExecuteShortcut(CalculatorInputParameters.CalculatorCopyValue);
-        calculatorResult = returnClipboardValue();
-        SendParameter(CalculatorAttributes.CalculatorSendValue, calculatorResult);
+        sendResult();
     }
 
     private float returnClipboardValue()
@@ -117,6 +114,13 @@ public class CalculatorModule : IntegrationModule
 
         Terminal.Log($"Received clipboard value of {value}");
         return value;
+    }
+
+    private void sendResult()
+    {
+        ExecuteShortcut(CalculatorInputParameters.CalculatorCopyValue);
+        calculatorResult = returnClipboardValue();
+        SendParameter(CalculatorAttributes.CalculatorSendValue, calculatorResult);
     }
 }
 
@@ -134,7 +138,6 @@ public enum CalculatorNumbers
     CalculatorNumber9
 }
 
-// TODO: Remove the need for open/close inputs and do it automatically based on whether or not it's already open
 public enum CalculatorInputParameters
 {
     CalculatorOpen,
