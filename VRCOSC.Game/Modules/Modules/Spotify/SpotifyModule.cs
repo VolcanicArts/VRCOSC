@@ -17,7 +17,12 @@ public class SpotifyModule : IntegrationModule
     public override Colour4 Colour => Color4Extensions.FromHex(@"1ed760").Darken(0.5f);
     public override ModuleType Type => ModuleType.Integrations;
 
-    public override IReadOnlyCollection<Enum> InputParameters => new List<Enum>
+    protected override IReadOnlyDictionary<Enum, (string, string, object)> Settings => new Dictionary<Enum, (string, string, object)>
+    {
+        { SpotifySettings.ShouldStart, ("Should Start", "Should Spotify start on module run?", true) }
+    };
+
+    protected override IReadOnlyCollection<Enum> InputParameters => new List<Enum>
     {
         SpotifyInputParameters.SpotifyPlayPause,
         SpotifyInputParameters.SpotifyNext,
@@ -37,11 +42,6 @@ public class SpotifyModule : IntegrationModule
         { SpotifyInputParameters.SpotifyVolumeUp, new[] { WindowsVKey.VK_LCONTROL, WindowsVKey.VK_UP } },
         { SpotifyInputParameters.SpotifyVolumeDown, new[] { WindowsVKey.VK_LCONTROL, WindowsVKey.VK_DOWN } }
     };
-
-    public override void CreateAttributes()
-    {
-        CreateSetting(SpotifySettings.ShouldStart, "Should Start", "Should Spotify start on module run?", true);
-    }
 
     protected override void OnStart()
     {

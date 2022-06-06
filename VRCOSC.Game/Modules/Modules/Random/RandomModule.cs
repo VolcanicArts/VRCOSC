@@ -1,6 +1,8 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
+using System.Collections.Generic;
 using System.Globalization;
 using osu.Framework.Graphics;
 
@@ -15,12 +17,12 @@ public class RandomModule : Module
     public override ModuleType Type => ModuleType.General;
     public override double DeltaUpdate => 1000d;
 
-    private readonly System.Random random = new();
-
-    public override void CreateAttributes()
+    protected override IReadOnlyDictionary<Enum, (string, string, string)> OutputParameters => new Dictionary<Enum, (string, string, string)>
     {
-        CreateParameter(RandomParameter.RandomValue, "Random Value", "A random float value between 0 and 1", "/avatar/parameters/RandomValue");
-    }
+        { RandomParameter.RandomValue, ("Random Value", "A random float value betweeon 0 and 1", "/avatar/parameters/RandomValue") }
+    };
+
+    private readonly System.Random random = new();
 
     protected override void OnUpdate()
     {

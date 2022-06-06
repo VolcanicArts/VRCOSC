@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections.Generic;
 using osu.Framework.Graphics;
 
 namespace VRCOSC.Game.Modules.Modules.Clock;
@@ -15,17 +16,20 @@ public class ClockModule : Module
     public override ModuleType Type => ModuleType.General;
     public override double DeltaUpdate => 1000d;
 
-    public override void CreateAttributes()
+    protected override IReadOnlyDictionary<Enum, (string, string, object)> Settings => new Dictionary<Enum, (string, string, object)>
     {
-        CreateSetting(ClockSetting.SendType, "Send Type", "Whether to send the clock data for blendtree (-1,1) or as individual digits", ClockSettingSendType.SendAsIndividual);
+        { ClockSetting.SendType, ("Send Type", "Whether to send the clock data for blendtree (-1,1) or as individual digits", ClockSettingSendType.SendAsIndividual) }
+    };
 
-        CreateParameter(ClockParameter.HoursTens, "Hours Tens", "The tens value of the current hour", "/avatar/parameters/HoursTens");
-        CreateParameter(ClockParameter.HoursUnits, "Hours Units", "The units value of the current hour", "/avatar/parameters/HoursUnits");
-        CreateParameter(ClockParameter.MinutesTens, "Minutes Tens", "The tens value of the current minute", "/avatar/parameters/MinutesTens");
-        CreateParameter(ClockParameter.MinutesUnits, "Minutes Units", "The units value of the current minute", "/avatar/parameters/MinutesUnits");
-        CreateParameter(ClockParameter.HourMapped, "Hour Mapped", "The current hour mapped between -1 and 1", "/avatar/parameters/HourMapped");
-        CreateParameter(ClockParameter.MinuteMapped, "Minute Mapped", "The current minute mapped between -1 and 1", "/avatar/parameters/MinuteMapped");
-    }
+    protected override IReadOnlyDictionary<Enum, (string, string, string)> OutputParameters => new Dictionary<Enum, (string, string, string)>
+    {
+        { ClockParameter.HoursTens, ("Hours Tens", "The tens value of the current hour", "/avatar/parameters/HoursTens") },
+        { ClockParameter.HoursUnits, ("Hours Units", "The units value of the current hour", "/avatar/parameters/HoursUnits") },
+        { ClockParameter.MinutesTens, ("Minutes Tens", "The tens value of the current minute", "/avatar/parameters/MinutesTens") },
+        { ClockParameter.MinutesUnits, ("Minutes Units", "The units value of the current minute", "/avatar/parameters/MinutesUnits") },
+        { ClockParameter.HourMapped, ("Hour Mapped", "The current hour mapped between -1 and 1", "/avatar/parameters/HourMapped") },
+        { ClockParameter.MinuteMapped, ("Minute Mapped", "The current minute mapped between -1 and 1", "/avatar/parameters/MinuteMapped") }
+    };
 
     protected override void OnUpdate()
     {

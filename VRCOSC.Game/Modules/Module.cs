@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net.Sockets;
 using CoreOSC;
 using CoreOSC.IO;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using VRCOSC.Game.Util;
 
@@ -21,7 +22,9 @@ public abstract class Module
     public virtual Colour4 Colour => Colour4.Black;
     public virtual ModuleType Type => ModuleType.General;
     public virtual bool Experimental => false;
-    public virtual IReadOnlyCollection<Enum> InputParameters => new List<Enum>();
+    protected virtual IReadOnlyDictionary<Enum, (string, string, object)> Settings => new Dictionary<Enum, (string, string, object)>();
+    protected virtual IReadOnlyDictionary<Enum, (string, string, string)> OutputParameters => new Dictionary<Enum, (string, string, string)>();
+    protected virtual IReadOnlyCollection<Enum> InputParameters => new List<Enum>();
 
     internal ModuleDataManager DataManager { get; set; }
     internal UdpClient OscClient { get; set; }
@@ -30,7 +33,28 @@ public abstract class Module
 
     protected TerminalLogger Terminal { get; private set; } = null!;
 
-    public virtual void CreateAttributes() { }
+    internal void CreateAttributes()
+    {
+        Settings.ForEach(pair =>
+        {
+            var key = pair.Key;
+            var displayName = pair.Value.Item1;
+            var description = pair.Value.Item2;
+            var value = pair.Value.Item3;
+
+            createSetting(key, displayName, description, value);
+        });
+
+        OutputParameters.ForEach(pair =>
+        {
+            var key = pair.Key;
+            var displayName = pair.Value.Item1;
+            var description = pair.Value.Item2;
+            var address = pair.Value.Item3;
+
+            createParameter(key, displayName, description, address);
+        });
+    }
 
     internal void Start()
     {
@@ -102,7 +126,41 @@ public abstract class Module
 
     protected virtual void OnFloatParameterReceived(Enum key, float value) { }
 
-    protected void CreateSetting(Enum key, string displayName, string description, string defaultValue)
+    private void createSetting(Enum key, string displayName, string description, object defaultValue)
+    {
+        switch (defaultValue)
+        {
+            case string stringValue:
+                createSetting(key, displayName, description, stringValue);
+                break;
+
+            case bool boolValue:
+                createSetting(key, displayName, description, boolValue);
+                break;
+
+            case int intValue:
+                createSetting(key, displayName, description, intValue);
+                break;
+
+            case Enum enumValue:
+                createSetting(key, displayName, description, enumValue);
+                break;
+
+            case long longValue:
+                createSetting(key, displayName, description, (int)longValue);
+                break;
+
+            case float floatValue:
+                createSetting(key, displayName, description, (int)floatValue);
+                break;
+
+            case double doubleValue:
+                createSetting(key, displayName, description, (int)doubleValue);
+                break;
+        }
+    }
+
+    private void createSetting(Enum key, string displayName, string description, string defaultValue)
     {
         var setting = new StringModuleSetting
         {
@@ -113,7 +171,7 @@ public abstract class Module
         DataManager.SetSetting(key, setting);
     }
 
-    protected void CreateSetting(Enum key, string displayName, string description, int defaultValue)
+    private void createSetting(Enum key, string displayName, string description, int defaultValue)
     {
         var setting = new IntModuleSetting
         {
@@ -124,7 +182,7 @@ public abstract class Module
         DataManager.SetSetting(key, setting);
     }
 
-    protected void CreateSetting(Enum key, string displayName, string description, bool defaultValue)
+    private void createSetting(Enum key, string displayName, string description, bool defaultValue)
     {
         var setting = new BoolModuleSetting
         {
@@ -135,7 +193,7 @@ public abstract class Module
         DataManager.SetSetting(key, setting);
     }
 
-    protected void CreateSetting<T>(Enum key, string displayName, string description, T defaultValue) where T : Enum
+    private void createSetting<T>(Enum key, string displayName, string description, T defaultValue) where T : Enum
     {
         var setting = new EnumModuleSetting
         {
@@ -151,7 +209,7 @@ public abstract class Module
         return DataManager.GetSettingAs<T>(key.ToString().ToLower());
     }
 
-    protected void CreateParameter(Enum key, string displayName, string description, string defaultAddress)
+    private void createParameter(Enum key, string displayName, string description, string defaultAddress)
     {
         var parameter = new ModuleParameter
         {

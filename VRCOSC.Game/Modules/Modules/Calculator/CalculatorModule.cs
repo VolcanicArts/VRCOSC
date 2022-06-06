@@ -19,10 +19,12 @@ public class CalculatorModule : IntegrationModule
     public override ModuleType Type => ModuleType.Integrations;
     public override bool Experimental => true;
 
-    private bool isCalculatorOpen;
-    private float calculatorResult;
+    protected override IReadOnlyDictionary<Enum, (string, string, string)> OutputParameters => new Dictionary<Enum, (string, string, string)>
+    {
+        { CalculatorAttributes.CalculatorSendValue, ("Send Value", "Send the current value of the calculator", "/avatar/parameters/CalculatorResult") }
+    };
 
-    public override IReadOnlyCollection<Enum> InputParameters => new List<Enum>
+    protected override IReadOnlyCollection<Enum> InputParameters => new List<Enum>
     {
         CalculatorInputParameters.CalculatorOpen,
         CalculatorInputParameters.CalculatorClose,
@@ -59,10 +61,8 @@ public class CalculatorModule : IntegrationModule
         { CalculatorNumbers.CalculatorNumber9, new[] { WindowsVKey.VK_NUMPAD9 } }
     };
 
-    public override void CreateAttributes()
-    {
-        CreateParameter(CalculatorAttributes.CalculatorSendValue, "Send Value", "Send the current value of the calculator", "/avatar/parameters/CalculatorResult");
-    }
+    private bool isCalculatorOpen;
+    private float calculatorResult;
 
     protected override void OnStart()
     {

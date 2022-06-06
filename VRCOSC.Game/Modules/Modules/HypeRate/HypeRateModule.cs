@@ -1,6 +1,8 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
+using System.Collections.Generic;
 using osu.Framework.Graphics;
 
 #pragma warning disable CS8618
@@ -15,19 +17,22 @@ public class HypeRateModule : Module
     public override Colour4 Colour => Colour4.OrangeRed.Darken(0.5f);
     public override ModuleType Type => ModuleType.Health;
 
-    private HypeRateProvider hypeRateProvider;
-
-    public override void CreateAttributes()
+    protected override IReadOnlyDictionary<Enum, (string, string, object)> Settings => new Dictionary<Enum, (string, string, object)>
     {
-        CreateSetting(HypeRateSettings.Id, "HypeRate ID", "Your HypeRate ID given on your device", string.Empty);
-        CreateSetting(HypeRateSettings.APIKey, "API Key", "Your API key from HypeRate", string.Empty);
+        { HypeRateSettings.Id, ("HypeRate ID", "Your HypeRate ID given on your device", string.Empty) },
+        { HypeRateSettings.APIKey, ("API Key", "Your API key from HypeRate", string.Empty) }
+    };
 
-        CreateParameter(HypeRateParameter.HeartrateEnabled, "Heartrate Enabled", "Whether this module is attempting to emit values", "/avatar/parameters/HeartrateEnabled");
-        CreateParameter(HypeRateParameter.HeartrateNormalised, "Heartrate Normalised", "The heartrate value normalised to 60bpm", "/avatar/parameters/HeartrateNormalised");
-        CreateParameter(HypeRateParameter.HeartrateUnits, "Heartrate Units", "The units value of the heartrate value", "/avatar/parameters/HeartrateUnits");
-        CreateParameter(HypeRateParameter.HeartrateTens, "Heartrate Tens", "The tens value of the heartrate value", "/avatar/parameters/HeartrateTens");
-        CreateParameter(HypeRateParameter.HeartrateHundreds, "Heartrate Hundreds", "The hundreds value of the heartrate value", "/avatar/parameters/HeartrateHundreds");
-    }
+    protected override IReadOnlyDictionary<Enum, (string, string, string)> OutputParameters => new Dictionary<Enum, (string, string, string)>
+    {
+        { HypeRateParameter.HeartrateEnabled, ("Heartrate Enabled", "Whether this module is attempting to emit values", "/avatar/parameters/HeartrateEnabled") },
+        { HypeRateParameter.HeartrateNormalised, ("Heartrate Normalised", "The heartrate value normalised to 60bpm", "/avatar/parameters/HeartrateNormalised") },
+        { HypeRateParameter.HeartrateUnits, ("Heartrate Units", "The units value of the heartrate value", "/avatar/parameters/HeartrateUnits") },
+        { HypeRateParameter.HeartrateTens, ("Heartrate Tens", "The tens value of the heartrate value", "/avatar/parameters/HeartrateTens") },
+        { HypeRateParameter.HeartrateHundreds, ("Heartrate Hundreds", "The hundreds value of the heartrate value", "/avatar/parameters/HeartrateHundreds") }
+    };
+
+    private HypeRateProvider hypeRateProvider;
 
     protected override void OnStart()
     {

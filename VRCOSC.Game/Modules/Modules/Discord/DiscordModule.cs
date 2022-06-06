@@ -17,7 +17,7 @@ public class DiscordModule : IntegrationModule
     public override Colour4 Colour => Color4Extensions.FromHex(@"454FBF");
     public override ModuleType Type => ModuleType.Integrations;
 
-    public override IReadOnlyCollection<Enum> InputParameters => new List<Enum>
+    protected override IReadOnlyCollection<Enum> InputParameters => new List<Enum>
     {
         DiscordInputParameters.DiscordMic,
         DiscordInputParameters.DiscordDeafen

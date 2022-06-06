@@ -1,6 +1,8 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using osu.Framework.Graphics;
 using VRCOSC.Game.Graphics;
@@ -16,12 +18,12 @@ public class ComputerStatsModule : Module
     public override ModuleType Type => ModuleType.General;
     public override double DeltaUpdate => 5000d;
 
-    public override void CreateAttributes()
+    protected override IReadOnlyDictionary<Enum, (string, string, string)> OutputParameters => new Dictionary<Enum, (string, string, string)>
     {
-        CreateParameter(ComputerStatsParameter.CPUUsage, "CPU Usage", "The current usage of your CPU from 0 to 1", "/avatar/parameters/CPUUsage");
-        CreateParameter(ComputerStatsParameter.GPUUsage, "GPU Usage", "The current usage of your GPU from 0 to 1", "/avatar/parameters/GPUUsage");
-        CreateParameter(ComputerStatsParameter.RAMUsage, "RAM Usage", "The current usage of your RAM from 0 to 1", "/avatar/parameters/RAMUsage");
-    }
+        { ComputerStatsParameter.CPUUsage, ("CPU Usage", "The current usage of your CPU from 0 to 1", "/avatar/parameters/CPUUsage") },
+        { ComputerStatsParameter.GPUUsage, ("GPU Usage", "The current usage of your GPU from 0 to 1", "/avatar/parameters/GPUUsage") },
+        { ComputerStatsParameter.RAMUsage, ("RAM Usage", "The current usage of your RAM from 0 to 1", "/avatar/parameters/RAMUsage") }
+    };
 
     protected override void OnUpdate()
     {
