@@ -76,4 +76,14 @@ public class ModuleEditContainer : Container
     {
         return true;
     }
+
+    protected override bool OnClick(ClickEvent e)
+    {
+        return true;
+    }
+
+    protected override bool OnHover(HoverEvent e)
+    {
+        return true;
+    }
 }
