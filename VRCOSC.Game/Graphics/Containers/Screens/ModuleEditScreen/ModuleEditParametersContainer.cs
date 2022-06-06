@@ -29,7 +29,7 @@ public class ModuleEditParametersContainer : FillFlowContainer
                 Anchor = Anchor.TopCentre,
                 Origin = Anchor.TopCentre,
                 Font = FrameworkFont.Regular.With(size: 50),
-                Text = "Parameters"
+                Text = "Output Parameters"
             },
             parametersFlow = new FillFlowContainer<ModuleOscParameterContainer>
             {
