@@ -29,9 +29,9 @@ public abstract class Module
     public virtual bool Experimental => false;
 
     // These are *only* definitions. All reads and writes for persistent data occur inside the DataManager
-    protected virtual IReadOnlyDictionary<Enum, (string, string, object)> Settings => new Dictionary<Enum, (string, string, object)>();
-    protected virtual IReadOnlyDictionary<Enum, (string, string, string)> OutputParameters => new Dictionary<Enum, (string, string, string)>();
-    protected virtual IReadOnlyCollection<Enum> InputParameters => new List<Enum>();
+    protected virtual Dictionary<Enum, (string, string, object)> Settings => new();
+    protected virtual Dictionary<Enum, (string, string, string)> OutputParameters => new();
+    protected virtual List<Enum> InputParameters => new();
 
     public bool IsRequestingInput => InputParameters.Count != 0;
 

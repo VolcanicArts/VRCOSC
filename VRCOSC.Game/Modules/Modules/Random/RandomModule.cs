@@ -17,7 +17,7 @@ public class RandomModule : Module
     public override ModuleType Type => ModuleType.General;
     public override double DeltaUpdate => 1000d;
 
-    protected override IReadOnlyDictionary<Enum, (string, string, string)> OutputParameters => new Dictionary<Enum, (string, string, string)>
+    protected override Dictionary<Enum, (string, string, string)> OutputParameters => new()
     {
         { RandomParameter.RandomValue, ("Random Value", "A random float value betweeon 0 and 1", "/avatar/parameters/RandomValue") }
     };

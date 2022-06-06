@@ -16,12 +16,12 @@ public class ClockModule : Module
     public override ModuleType Type => ModuleType.General;
     public override double DeltaUpdate => 1000d;
 
-    protected override IReadOnlyDictionary<Enum, (string, string, object)> Settings => new Dictionary<Enum, (string, string, object)>
+    protected override Dictionary<Enum, (string, string, object)> Settings => new()
     {
         { ClockSetting.SendType, ("Send Type", "Whether to send the clock data for blendtree (-1,1) or as individual digits", ClockSettingSendType.SendAsIndividual) }
     };
 
-    protected override IReadOnlyDictionary<Enum, (string, string, string)> OutputParameters => new Dictionary<Enum, (string, string, string)>
+    protected override Dictionary<Enum, (string, string, string)> OutputParameters => new()
     {
         { ClockParameter.HoursTens, ("Hours Tens", "The tens value of the current hour", "/avatar/parameters/HoursTens") },
         { ClockParameter.HoursUnits, ("Hours Units", "The units value of the current hour", "/avatar/parameters/HoursUnits") },

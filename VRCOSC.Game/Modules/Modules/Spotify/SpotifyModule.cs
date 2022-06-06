@@ -17,12 +17,12 @@ public class SpotifyModule : IntegrationModule
     public override Colour4 Colour => Color4Extensions.FromHex(@"1ed760").Darken(0.5f);
     public override ModuleType Type => ModuleType.Integrations;
 
-    protected override IReadOnlyDictionary<Enum, (string, string, object)> Settings => new Dictionary<Enum, (string, string, object)>
+    protected override Dictionary<Enum, (string, string, object)> Settings => new()
     {
         { SpotifySettings.ShouldStart, ("Should Start", "Should Spotify start on module run?", true) }
     };
 
-    protected override IReadOnlyCollection<Enum> InputParameters => new List<Enum>
+    protected override List<Enum> InputParameters => new()
     {
         SpotifyInputParameters.SpotifyPlayPause,
         SpotifyInputParameters.SpotifyNext,
@@ -34,7 +34,7 @@ public class SpotifyModule : IntegrationModule
     protected override string TargetProcess => "spotify";
     protected override string TargetExe => $@"C:\Users\{Environment.UserName}\AppData\Roaming\Spotify\spotify.exe";
 
-    protected override IReadOnlyDictionary<Enum, WindowsVKey[]> KeyCombinations => new Dictionary<Enum, WindowsVKey[]>
+    protected override Dictionary<Enum, WindowsVKey[]> KeyCombinations => new()
     {
         { SpotifyInputParameters.SpotifyPlayPause, new[] { WindowsVKey.VK_SPACE } },
         { SpotifyInputParameters.SpotifyNext, new[] { WindowsVKey.VK_LCONTROL, WindowsVKey.VK_RIGHT } },

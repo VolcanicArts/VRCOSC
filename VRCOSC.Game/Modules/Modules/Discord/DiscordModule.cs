@@ -17,7 +17,7 @@ public class DiscordModule : IntegrationModule
     public override Colour4 Colour => Color4Extensions.FromHex(@"454FBF");
     public override ModuleType Type => ModuleType.Integrations;
 
-    protected override IReadOnlyCollection<Enum> InputParameters => new List<Enum>
+    protected override List<Enum> InputParameters => new()
     {
         DiscordInputParameters.DiscordMic,
         DiscordInputParameters.DiscordDeafen
@@ -25,7 +25,7 @@ public class DiscordModule : IntegrationModule
 
     protected override string TargetProcess => "discord";
 
-    protected override IReadOnlyDictionary<Enum, WindowsVKey[]> KeyCombinations => new Dictionary<Enum, WindowsVKey[]>
+    protected override Dictionary<Enum, WindowsVKey[]> KeyCombinations => new()
     {
         { DiscordInputParameters.DiscordMic, new[] { WindowsVKey.VK_LCONTROL, WindowsVKey.VK_LSHIFT, WindowsVKey.VK_M } },
         { DiscordInputParameters.DiscordDeafen, new[] { WindowsVKey.VK_LCONTROL, WindowsVKey.VK_LSHIFT, WindowsVKey.VK_D } }

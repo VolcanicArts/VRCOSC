@@ -17,13 +17,13 @@ public class HypeRateModule : Module
     public override Colour4 Colour => Colour4.OrangeRed.Darken(0.5f);
     public override ModuleType Type => ModuleType.Health;
 
-    protected override IReadOnlyDictionary<Enum, (string, string, object)> Settings => new Dictionary<Enum, (string, string, object)>
+    protected override Dictionary<Enum, (string, string, object)> Settings => new()
     {
         { HypeRateSettings.Id, ("HypeRate ID", "Your HypeRate ID given on your device", string.Empty) },
         { HypeRateSettings.APIKey, ("API Key", "Your API key from HypeRate", string.Empty) }
     };
 
-    protected override IReadOnlyDictionary<Enum, (string, string, string)> OutputParameters => new Dictionary<Enum, (string, string, string)>
+    protected override Dictionary<Enum, (string, string, string)> OutputParameters => new()
     {
         { HypeRateParameter.HeartrateEnabled, ("Heartrate Enabled", "Whether this module is attempting to emit values", "/avatar/parameters/HeartrateEnabled") },
         { HypeRateParameter.HeartrateNormalised, ("Heartrate Normalised", "The heartrate value normalised to 60bpm", "/avatar/parameters/HeartrateNormalised") },

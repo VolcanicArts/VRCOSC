@@ -18,7 +18,7 @@ public class ComputerStatsModule : Module
     public override ModuleType Type => ModuleType.General;
     public override double DeltaUpdate => 5000d;
 
-    protected override IReadOnlyDictionary<Enum, (string, string, string)> OutputParameters => new Dictionary<Enum, (string, string, string)>
+    protected override Dictionary<Enum, (string, string, string)> OutputParameters => new()
     {
         { ComputerStatsParameter.CPUUsage, ("CPU Usage", "The current usage of your CPU from 0 to 1", "/avatar/parameters/CPUUsage") },
         { ComputerStatsParameter.GPUUsage, ("GPU Usage", "The current usage of your GPU from 0 to 1", "/avatar/parameters/GPUUsage") },
