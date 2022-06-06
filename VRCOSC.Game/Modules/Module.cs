@@ -15,6 +15,11 @@ namespace VRCOSC.Game.Modules;
 
 public abstract class Module
 {
+    internal ModuleDataManager DataManager { get; set; } = null!;
+    internal UdpClient OscClient { get; set; } = null!;
+
+    protected TerminalLogger Terminal { get; private set; } = null!;
+
     public virtual string Title => string.Empty;
     public virtual string Description => string.Empty;
     public virtual string Author => string.Empty;
@@ -22,12 +27,11 @@ public abstract class Module
     public virtual Colour4 Colour => Colour4.Black;
     public virtual ModuleType Type => ModuleType.General;
     public virtual bool Experimental => false;
+
+    // These are *only* definitions. All reads and writes for persistent data occur inside the DataManager
     protected virtual IReadOnlyDictionary<Enum, (string, string, object)> Settings => new Dictionary<Enum, (string, string, object)>();
     protected virtual IReadOnlyDictionary<Enum, (string, string, string)> OutputParameters => new Dictionary<Enum, (string, string, string)>();
     protected virtual IReadOnlyCollection<Enum> InputParameters => new List<Enum>();
-
-    internal ModuleDataManager DataManager { get; set; } = null!;
-    internal UdpClient OscClient { get; set; } = null!;
 
     public bool IsRequestingInput => InputParameters.Count != 0;
 
@@ -35,8 +39,6 @@ public abstract class Module
     public bool HasParameters => DataManager.Parameters.Count != 0;
 
     public bool HasAttributes => HasSettings || HasParameters;
-
-    protected TerminalLogger Terminal { get; private set; } = null!;
 
     internal void CreateAttributes()
     {
