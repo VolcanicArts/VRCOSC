@@ -26,8 +26,8 @@ public abstract class Module
     protected virtual IReadOnlyDictionary<Enum, (string, string, string)> OutputParameters => new Dictionary<Enum, (string, string, string)>();
     protected virtual IReadOnlyCollection<Enum> InputParameters => new List<Enum>();
 
-    internal ModuleDataManager DataManager { get; set; }
-    internal UdpClient OscClient { get; set; }
+    internal ModuleDataManager DataManager { get; set; } = null!;
+    internal UdpClient OscClient { get; set; } = null!;
 
     public bool IsRequestingInput => InputParameters.Count != 0;
 
