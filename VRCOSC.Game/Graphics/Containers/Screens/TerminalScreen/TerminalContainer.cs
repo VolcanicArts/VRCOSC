@@ -25,62 +25,69 @@ public sealed class TerminalContainer : Container
         Anchor = Anchor.Centre;
         Origin = Anchor.Centre;
         RelativeSizeAxes = Axes.Both;
-        Masking = true;
-        CornerRadius = 20;
-        EdgeEffect = VRCOSCEdgeEffects.DispersedShadow;
-        BorderThickness = 3;
+        Padding = new MarginPadding(40);
     }
 
     [BackgroundDependencyLoader]
     private void load()
     {
-        Children = new Drawable[]
+        Child = new Container
         {
-            new Box
+            Anchor = Anchor.Centre,
+            Origin = Anchor.Centre,
+            RelativeSizeAxes = Axes.Both,
+            CornerRadius = 20,
+            EdgeEffect = VRCOSCEdgeEffects.DispersedShadow,
+            BorderThickness = 3,
+            Masking = true,
+            Children = new Drawable[]
             {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                RelativeSizeAxes = Axes.Both,
-                Colour = VRCOSCColour.Gray3
-            },
-            new Container
-            {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                RelativeSizeAxes = Axes.Both,
-                Padding = new MarginPadding(15),
-                Child = new Container
+                new Box
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
                     RelativeSizeAxes = Axes.Both,
-                    BorderThickness = 3,
-                    Masking = true,
-                    Children = new Drawable[]
+                    Colour = VRCOSCColour.Gray3
+                },
+                new Container
+                {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    RelativeSizeAxes = Axes.Both,
+                    Padding = new MarginPadding(15),
+                    Child = new Container
                     {
-                        new Box
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.Centre,
+                        RelativeSizeAxes = Axes.Both,
+                        BorderThickness = 3,
+                        Masking = true,
+                        Children = new Drawable[]
                         {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
-                            RelativeSizeAxes = Axes.Both,
-                            Colour = VRCOSCColour.Gray2,
-                        },
-                        new Container
-                        {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
-                            RelativeSizeAxes = Axes.Both,
-                            Padding = new MarginPadding(1.5f),
-                            Child = terminalScroll = new VRCOSCScrollContainer<TerminalEntry>
+                            new Box
                             {
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
                                 RelativeSizeAxes = Axes.Both,
-                                ContentSpacing = new Vector2(0),
-                                ContentPadding = new MarginPadding(0),
-                                Padding = new MarginPadding
+                                Colour = VRCOSCColour.Gray2,
+                            },
+                            new Container
+                            {
+                                Anchor = Anchor.Centre,
+                                Origin = Anchor.Centre,
+                                RelativeSizeAxes = Axes.Both,
+                                Padding = new MarginPadding(1.5f),
+                                Child = terminalScroll = new VRCOSCScrollContainer<TerminalEntry>
                                 {
-                                    Horizontal = 3
+                                    Anchor = Anchor.Centre,
+                                    Origin = Anchor.Centre,
+                                    RelativeSizeAxes = Axes.Both,
+                                    ContentSpacing = new Vector2(0),
+                                    ContentPadding = new MarginPadding(0),
+                                    Padding = new MarginPadding
+                                    {
+                                        Horizontal = 3
+                                    }
                                 }
                             }
                         }
