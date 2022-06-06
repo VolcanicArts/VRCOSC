@@ -25,12 +25,12 @@ public abstract class IntegrationModule : Module
             UseShellExecute = false
         };
         var process = Process.Start(startInfo);
-        if (process == null || process!.HasExited) Terminal.Log($"{TargetProcess} could not be found or is already running");
+        if (process == null || process!.HasExited) Terminal.Log($"{TargetExe} could not be found or is already running");
     }
 
     protected void StopTarget()
     {
-        if (isValidProcess(TargetProcess)) retrieveProcess(TargetProcess + ".exe")?.Kill();
+        if (isValidProcess(TargetProcess)) retrieveProcess(TargetExe)?.Kill();
     }
 
     protected void RestartTarget()
@@ -47,6 +47,13 @@ public abstract class IntegrationModule : Module
             executeKeyCombination(key);
             switchToReturn();
         }).ConfigureAwait(false);
+    }
+
+    protected bool IsProcessOpen()
+    {
+        // Returns the first of any processes that match the target process name
+        // E.g. if you had multiple "calc" processes open, this would not always fetch the correct one
+        return Process.GetProcesses().Any(p => p.ProcessName.Contains(TargetProcess));
     }
 
     private bool isValidProcess(string processName)
