@@ -176,6 +176,6 @@ public sealed class ModuleCard : Container
 
         if (!SourceModule.Experimental) experimentalTag.Hide();
 
-        if (!SourceModule.DataManager.HasSettings && !SourceModule.DataManager.HasParameters) editButton.Enabled.Value = false;
+        if (!SourceModule.HasAttributes) editButton.Enabled.Value = false;
     }
 }

@@ -31,6 +31,11 @@ public abstract class Module
 
     public bool IsRequestingInput => InputParameters.Count != 0;
 
+    public bool HasSettings => DataManager.Settings.Count != 0;
+    public bool HasParameters => DataManager.Parameters.Count != 0;
+
+    public bool HasAttributes => HasSettings || HasParameters;
+
     protected TerminalLogger Terminal { get; private set; } = null!;
 
     internal void CreateAttributes()

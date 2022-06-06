@@ -116,7 +116,7 @@ public class ModuleEditInnerContainer : Container
             description.Text = SourceModule.Value.Description;
             author.Text = $"Made by {SourceModule.Value.Author}";
 
-            if (SourceModule.Value.DataManager.HasSettings)
+            if (SourceModule.Value.HasSettings)
             {
                 moduleEditSettingsContainerLineSeparator.Show();
                 moduleEditSettingsContainer.Show();
@@ -127,7 +127,7 @@ public class ModuleEditInnerContainer : Container
                 moduleEditSettingsContainer.Hide();
             }
 
-            if (SourceModule.Value.DataManager.HasParameters)
+            if (SourceModule.Value.HasParameters)
             {
                 moduleEditParametersContainerLineSeparator.Show();
                 moduleEditParametersContainer.Show();

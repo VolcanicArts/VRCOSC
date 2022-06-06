@@ -14,9 +14,6 @@ public class ModuleDataManager
     public Dictionary<string, ModuleSetting> Settings { get; } = new();
     public Dictionary<string, ModuleParameter> Parameters { get; } = new();
 
-    public bool HasSettings => Settings.Count != 0;
-    public bool HasParameters => Parameters.Count != 0;
-
     private Storage storage { get; }
     internal string ModuleName { get; }
 
