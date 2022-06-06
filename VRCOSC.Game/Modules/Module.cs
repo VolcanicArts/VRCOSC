@@ -151,13 +151,13 @@ public abstract class Module
         OscClient.SendMessageAsync(message);
     }
 
-    protected int[] ToDigitArray(int num, int totalWidth)
+    protected static int[] ToDigitArray(int num, int totalWidth)
     {
         var numStr = num.ToString().PadLeft(totalWidth, '0');
         return numStr.Select(digit => int.Parse(digit.ToString())).ToArray();
     }
 
-    protected float MapBetween(float value, float sMin, float sMax, float dMin, float dMax)
+    protected static float MapBetween(float value, float sMin, float sMax, float dMin, float dMax)
     {
         return value / (sMax - sMin) * (dMax - dMin) + dMin;
     }
