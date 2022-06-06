@@ -12,10 +12,10 @@ namespace VRCOSC.Game.Modules.Frameworks;
 
 public abstract class IntegrationModule : Module
 {
+    public virtual string TargetProcess => string.Empty;
+    public virtual string ReturnProcess => "vrchat";
+    public virtual string TargetExe => $@"{TargetProcess}.exe";
     protected virtual Dictionary<Enum, WindowsVKey[]> KeyCombinations => new();
-    protected virtual string TargetProcess => string.Empty;
-    protected virtual string ReturnProcess => "vrchat";
-    protected virtual string TargetExe => $@"{TargetProcess}.exe";
 
     protected void StartTarget()
     {

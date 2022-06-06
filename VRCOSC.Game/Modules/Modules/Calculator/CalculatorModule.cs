@@ -18,6 +18,7 @@ public class CalculatorModule : IntegrationModule
     public override Colour4 Colour => Color4Extensions.FromHex(@"ff2600").Darken(0.5f);
     public override ModuleType Type => ModuleType.Integrations;
     public override bool Experimental => true;
+    public override string TargetProcess => "calc";
 
     protected override Dictionary<Enum, (string, string, string)> OutputParameters => new()
     {
@@ -37,8 +38,6 @@ public class CalculatorModule : IntegrationModule
         CalculatorInputParameters.CalculatorDivide,
         CalculatorInputParameters.CalculatorNumber
     };
-
-    protected override string TargetProcess => "calc";
 
     protected override Dictionary<Enum, WindowsVKey[]> KeyCombinations => new()
     {

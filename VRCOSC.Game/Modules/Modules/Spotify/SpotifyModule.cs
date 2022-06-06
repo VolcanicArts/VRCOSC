@@ -16,6 +16,8 @@ public class SpotifyModule : IntegrationModule
     public override string Author => "VolcanicArts";
     public override Colour4 Colour => Color4Extensions.FromHex(@"1ed760").Darken(0.5f);
     public override ModuleType Type => ModuleType.Integrations;
+    public override string TargetProcess => "spotify";
+    public override string TargetExe => $@"C:\Users\{Environment.UserName}\AppData\Roaming\Spotify\spotify.exe";
 
     protected override Dictionary<Enum, (string, string, object)> Settings => new()
     {
@@ -30,9 +32,6 @@ public class SpotifyModule : IntegrationModule
         SpotifyInputParameters.SpotifyVolumeUp,
         SpotifyInputParameters.SpotifyVolumeDown
     };
-
-    protected override string TargetProcess => "spotify";
-    protected override string TargetExe => $@"C:\Users\{Environment.UserName}\AppData\Roaming\Spotify\spotify.exe";
 
     protected override Dictionary<Enum, WindowsVKey[]> KeyCombinations => new()
     {

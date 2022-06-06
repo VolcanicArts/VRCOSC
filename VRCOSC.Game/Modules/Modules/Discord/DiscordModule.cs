@@ -16,14 +16,13 @@ public class DiscordModule : IntegrationModule
     public override string Author => "VolcanicArts";
     public override Colour4 Colour => Color4Extensions.FromHex(@"454FBF");
     public override ModuleType Type => ModuleType.Integrations;
+    public override string TargetProcess => "discord";
 
     protected override List<Enum> InputParameters => new()
     {
         DiscordInputParameters.DiscordMic,
         DiscordInputParameters.DiscordDeafen
     };
-
-    protected override string TargetProcess => "discord";
 
     protected override Dictionary<Enum, WindowsVKey[]> KeyCombinations => new()
     {
