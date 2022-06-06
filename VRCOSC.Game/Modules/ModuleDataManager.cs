@@ -58,7 +58,88 @@ public class ModuleDataManager
         };
     }
 
-    public void SetSetting(Enum key, ModuleSetting setting)
+    public void CreateSetting(Enum key, string displayName, string description, object defaultValue)
+    {
+        switch (defaultValue)
+        {
+            case string stringValue:
+                createSetting(key, displayName, description, stringValue);
+                break;
+
+            case bool boolValue:
+                createSetting(key, displayName, description, boolValue);
+                break;
+
+            case int intValue:
+                createSetting(key, displayName, description, intValue);
+                break;
+
+            case Enum enumValue:
+                createSetting(key, displayName, description, enumValue);
+                break;
+
+            case long longValue:
+                createSetting(key, displayName, description, (int)longValue);
+                break;
+
+            case float floatValue:
+                createSetting(key, displayName, description, (int)floatValue);
+                break;
+
+            case double doubleValue:
+                createSetting(key, displayName, description, (int)doubleValue);
+                break;
+
+            default:
+                throw new InvalidCastException($"Settings must be of types string, int, bool, or enum. They cannot be of type {defaultValue.GetType()}");
+        }
+    }
+
+    private void createSetting(Enum key, string displayName, string description, string defaultValue)
+    {
+        var setting = new StringModuleSetting
+        {
+            DisplayName = displayName,
+            Description = description,
+            Value = defaultValue
+        };
+        setSetting(key, setting);
+    }
+
+    private void createSetting(Enum key, string displayName, string description, int defaultValue)
+    {
+        var setting = new IntModuleSetting
+        {
+            DisplayName = displayName,
+            Description = description,
+            Value = defaultValue
+        };
+        setSetting(key, setting);
+    }
+
+    private void createSetting(Enum key, string displayName, string description, bool defaultValue)
+    {
+        var setting = new BoolModuleSetting
+        {
+            DisplayName = displayName,
+            Description = description,
+            Value = defaultValue
+        };
+        setSetting(key, setting);
+    }
+
+    private void createSetting(Enum key, string displayName, string description, Enum defaultValue)
+    {
+        var setting = new EnumModuleSetting
+        {
+            DisplayName = displayName,
+            Description = description,
+            Value = defaultValue
+        };
+        setSetting(key, setting);
+    }
+
+    private void setSetting(Enum key, ModuleSetting setting)
     {
         var keyStr = key.ToString().ToLower();
         SetSetting(keyStr, setting);
@@ -107,7 +188,18 @@ public class ModuleDataManager
 
     #region Parameters
 
-    public void SetParameter(Enum key, ModuleParameter parameter)
+    public void CreateParameter(Enum key, string displayName, string description, string defaultAddress)
+    {
+        var parameter = new ModuleParameter
+        {
+            DisplayName = displayName,
+            Description = description,
+            Value = defaultAddress
+        };
+        setParameter(key, parameter);
+    }
+
+    private void setParameter(Enum key, ModuleParameter parameter)
     {
         var keyStr = key.ToString().ToLower();
         SetParameter(keyStr, parameter);

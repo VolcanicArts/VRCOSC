@@ -49,7 +49,7 @@ public abstract class Module
             var description = pair.Value.Item2;
             var value = pair.Value.Item3;
 
-            createSetting(key, displayName, description, value);
+            DataManager.CreateSetting(key, displayName, description, value);
         });
 
         OutputParameters.ForEach(pair =>
@@ -59,7 +59,7 @@ public abstract class Module
             var description = pair.Value.Item2;
             var address = pair.Value.Item3;
 
-            createParameter(key, displayName, description, address);
+            DataManager.CreateParameter(key, displayName, description, address);
         });
     }
 
@@ -133,101 +133,9 @@ public abstract class Module
 
     protected virtual void OnFloatParameterReceived(Enum key, float value) { }
 
-    private void createSetting(Enum key, string displayName, string description, object defaultValue)
-    {
-        switch (defaultValue)
-        {
-            case string stringValue:
-                createSetting(key, displayName, description, stringValue);
-                break;
-
-            case bool boolValue:
-                createSetting(key, displayName, description, boolValue);
-                break;
-
-            case int intValue:
-                createSetting(key, displayName, description, intValue);
-                break;
-
-            case Enum enumValue:
-                createSetting(key, displayName, description, enumValue);
-                break;
-
-            case long longValue:
-                createSetting(key, displayName, description, (int)longValue);
-                break;
-
-            case float floatValue:
-                createSetting(key, displayName, description, (int)floatValue);
-                break;
-
-            case double doubleValue:
-                createSetting(key, displayName, description, (int)doubleValue);
-                break;
-
-            default:
-                throw new InvalidCastException($"Settings must be of types string, int, bool, or enum. They cannot be of type {defaultValue.GetType()}");
-        }
-    }
-
-    private void createSetting(Enum key, string displayName, string description, string defaultValue)
-    {
-        var setting = new StringModuleSetting
-        {
-            DisplayName = displayName,
-            Description = description,
-            Value = defaultValue
-        };
-        DataManager.SetSetting(key, setting);
-    }
-
-    private void createSetting(Enum key, string displayName, string description, int defaultValue)
-    {
-        var setting = new IntModuleSetting
-        {
-            DisplayName = displayName,
-            Description = description,
-            Value = defaultValue
-        };
-        DataManager.SetSetting(key, setting);
-    }
-
-    private void createSetting(Enum key, string displayName, string description, bool defaultValue)
-    {
-        var setting = new BoolModuleSetting
-        {
-            DisplayName = displayName,
-            Description = description,
-            Value = defaultValue
-        };
-        DataManager.SetSetting(key, setting);
-    }
-
-    private void createSetting<T>(Enum key, string displayName, string description, T defaultValue) where T : Enum
-    {
-        var setting = new EnumModuleSetting
-        {
-            DisplayName = displayName,
-            Description = description,
-            Value = defaultValue
-        };
-        DataManager.SetSetting(key, setting);
-    }
-
     protected T GetSettingAs<T>(Enum key)
     {
         return DataManager.GetSettingAs<T>(key.ToString().ToLower());
-    }
-
-    private void createParameter(Enum key, string displayName, string description, string defaultAddress)
-    {
-        var parameter = new ModuleParameter
-        {
-            DisplayName = displayName,
-            Description = description,
-            Value = defaultAddress
-        };
-        DataManager.SetParameter(key, parameter);
     }
 
     protected void SendParameter(Enum key, bool value)
