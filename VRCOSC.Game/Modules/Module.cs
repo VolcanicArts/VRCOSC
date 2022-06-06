@@ -164,6 +164,9 @@ public abstract class Module
             case double doubleValue:
                 createSetting(key, displayName, description, (int)doubleValue);
                 break;
+
+            default:
+                throw new InvalidCastException($"Settings must be of types string, int, bool, or enum. They cannot be of type {defaultValue.GetType()}");
         }
     }
 
