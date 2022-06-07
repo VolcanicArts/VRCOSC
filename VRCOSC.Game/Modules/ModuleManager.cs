@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,6 +23,7 @@ public sealed class ModuleManager : Container<ModuleGroup>
     private const int osc_send_port = 9000;
     private const int osc_receive_port = 9001;
 
+    private readonly IPEndPoint receiveEndpoint = new(IPAddress.Parse(osc_ip_address), osc_receive_port);
     private UdpClient sendingClient;
     private CancellationTokenSource token;
 
@@ -71,7 +73,7 @@ public sealed class ModuleManager : Container<ModuleGroup>
 
     private async void beginListening()
     {
-        var receivingClient = new UdpClient(osc_ip_address, osc_receive_port);
+        var receivingClient = new UdpClient(receiveEndpoint);
 
         while (!token.IsCancellationRequested)
         {
