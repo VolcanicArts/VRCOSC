@@ -4,7 +4,6 @@
 using System;
 using System.IO;
 using System.Text;
-using NuGet.ProjectModel;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Platform;
 using VRCOSC.Game.Util;
