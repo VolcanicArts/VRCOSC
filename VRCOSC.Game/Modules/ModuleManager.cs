@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -46,6 +46,7 @@ public sealed class ModuleManager : Container<ModuleGroup>
             foreach (var module in modules.Where(module => module.Type.Equals(type)))
             {
                 module.DataManager = new ModuleDataManager(storage, module.GetType().Name);
+                module.OscClient = sendingClient;
                 module.CreateAttributes();
                 module.DataManager.LoadData();
                 moduleGroup.Add(new ModuleContainer(module));
@@ -58,13 +59,7 @@ public sealed class ModuleManager : Container<ModuleGroup>
     public void Start()
     {
         token = new CancellationTokenSource();
-
-        this.ForEach(child =>
-        {
-            child.UpdateSendingClient(sendingClient);
-            child.Start();
-        });
-
+        this.ForEach(child => child.Start());
         Task.Factory.StartNew(beginListening, TaskCreationOptions.LongRunning);
     }
 

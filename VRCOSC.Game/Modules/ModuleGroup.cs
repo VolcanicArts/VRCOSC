@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Net.Sockets;
 using CoreOSC;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics.Containers;
@@ -30,10 +29,5 @@ public class ModuleGroup : Container<ModuleContainer>
     public void OnOSCMessage(OscMessage message)
     {
         this.ForEach(child => child.OnOSCMessage(message));
-    }
-
-    public void UpdateSendingClient(UdpClient sendingClient)
-    {
-        this.ForEach(child => child.UpdateSendingClient(sendingClient));
     }
 }
