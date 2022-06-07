@@ -16,11 +16,12 @@ public class ClockModule : Module
     public override string Author => "VolcanicArts";
     public override Colour4 Colour => VRCOSCColour.Blue.Darken(0.25f);
     public override ModuleType Type => ModuleType.General;
-    public override double DeltaUpdate => 1000d;
+    public override double DeltaUpdate => GetSettingAs<bool>(ClockSettings.SmoothSecond) ? 50d : 1000d;
 
     protected override Dictionary<Enum, (string, string, object)> Settings => new()
     {
-        { ClockSettings.UTC, ("UTC", "Send the time as UTC rather than your local time", false) }
+        { ClockSettings.UTC, ("UTC", "Send the time as UTC rather than your local time", false) },
+        { ClockSettings.SmoothSecond, ("Smooth Second", "If the seconds hand should be smooth", false) }
     };
 
     protected override Dictionary<Enum, (string, string, string)> OutputParameters => new()
@@ -34,22 +35,27 @@ public class ClockModule : Module
     {
         var sendAsUTC = GetSettingAs<bool>(ClockSettings.UTC);
 
-        int hour, minute, second;
+        float hour, minute, second, millisecond;
 
         if (sendAsUTC)
         {
             hour = DateTime.UtcNow.Hour;
             minute = DateTime.UtcNow.Minute;
             second = DateTime.UtcNow.Second;
+            millisecond = DateTime.UtcNow.Millisecond;
         }
         else
         {
             hour = DateTime.Now.Hour;
             minute = DateTime.Now.Minute;
             second = DateTime.Now.Second;
+            millisecond = DateTime.Now.Millisecond;
         }
 
-        Terminal.Log($"Time is currently: {hour}:{minute}:{second}");
+        // smooth hands
+        if (GetSettingAs<bool>(ClockSettings.SmoothSecond)) second += millisecond / 1000f;
+        minute += second / 60f;
+        hour += minute / 60f;
 
         var hourNormalised = (hour % 12f) / 12f;
         var minuteNormalised = minute / 60f;
@@ -70,5 +76,6 @@ public enum ClockParameters
 
 public enum ClockSettings
 {
-    UTC
+    UTC,
+    SmoothSecond
 }
