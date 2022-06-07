@@ -43,9 +43,9 @@ public abstract class IntegrationModule : Module
     {
         Task.Run(() =>
         {
-            switchToTarget();
+            if (!string.IsNullOrEmpty(TargetProcess)) switchToTarget();
             executeKeyCombination(key);
-            switchToReturn();
+            if (!string.IsNullOrEmpty(ReturnProcess)) switchToReturn();
         }).ConfigureAwait(false);
     }
 
