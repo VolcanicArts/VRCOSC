@@ -23,9 +23,16 @@ public sealed class ModuleManager : Container<ModuleGroup>
     private const int osc_send_port = 9000;
     private const int osc_receive_port = 9001;
 
-    private readonly IPEndPoint receiveEndpoint = new(IPAddress.Parse(osc_ip_address), osc_receive_port);
-    private UdpClient sendingClient;
+    private readonly UdpClient sendingClient;
+    private readonly UdpClient receivingClient;
     private CancellationTokenSource token;
+
+    public ModuleManager()
+    {
+        sendingClient = new UdpClient(osc_ip_address, osc_send_port);
+        var receiveEndpoint = new IPEndPoint(IPAddress.Parse(osc_ip_address), osc_receive_port);
+        receivingClient = new UdpClient(receiveEndpoint);
+    }
 
     [BackgroundDependencyLoader]
     private void load(Storage storage)
@@ -51,7 +58,6 @@ public sealed class ModuleManager : Container<ModuleGroup>
     public void Start()
     {
         token = new CancellationTokenSource();
-        sendingClient = new UdpClient(osc_ip_address, osc_send_port);
 
         this.ForEach(child =>
         {
@@ -67,20 +73,21 @@ public sealed class ModuleManager : Container<ModuleGroup>
         token.Cancel();
 
         this.ForEach(child => child.Stop());
-
-        sendingClient.Dispose();
     }
 
     private async void beginListening()
     {
-        var receivingClient = new UdpClient(receiveEndpoint);
-
         while (!token.IsCancellationRequested)
         {
             var message = await receivingClient.ReceiveMessageAsync();
             this.ForEach(child => child.OnOSCMessage(message));
         }
+    }
 
+    protected override void Dispose(bool isDisposing)
+    {
+        base.Dispose(isDisposing);
+        sendingClient.Dispose();
         receivingClient.Dispose();
     }
 }
