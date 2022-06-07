@@ -14,8 +14,8 @@ Want to make your own module? Check the (work in progress) [wiki page](https://g
 | Spotify | Spotify integration. Allows for play/pause, next/previous, and volume up/down from the action menu | Requires the Spotify desktop app | VRCOSC-Spotify.unitypackage |
 | Discord | Discord integration. Allows for toggling of mute and deafen from the action menu | Requires the Discord desktop app | VRCOSC-Discord.unitypackage |
 | HypeRate | Sends [HypeRate.io](https://www.hyperate.io/supported-devices) heartrate values | Requires a free API key which can be obtained from HypeRate's [Discord Server](https://discord.gg/eTwfgU29cU) | VRCOSC-Heartrate.unitypackage |
+| Clock | Sends your local time as hours, minutes, and seconds | | VRCOSC-Watch.unitypackage |
 | Calculator | Calculator integration. Uses the Windows OS calculator | | |
-| Clock | Sends your current local time in 2 different formats | | |
 | Computer Stats | Sends your system stats. Currently CPU, GPU, and RAM | | |
 | Random | Sends a random float between 0 and 1 every second | | |
 
