@@ -6,10 +6,12 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
 using osu.Framework.Logging;
 using osuTK;
 using osuTK.Input;
+using VRCOSC.Game.Graphics.Containers.UI;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.TerminalScreen;
 
@@ -70,6 +72,22 @@ public sealed class TerminalContainer : Container
                                 Origin = Anchor.Centre,
                                 RelativeSizeAxes = Axes.Both,
                                 Colour = VRCOSCColour.Gray2,
+                            },
+                            new Container
+                            {
+                                Anchor = Anchor.TopRight,
+                                Origin = Anchor.TopRight,
+                                Size = new Vector2(80),
+                                Padding = new MarginPadding(10),
+                                Depth = float.MinValue,
+                                Child = new IconButton
+                                {
+                                    Anchor = Anchor.Centre,
+                                    Origin = Anchor.Centre,
+                                    RelativeSizeAxes = Axes.Both,
+                                    Icon = { Value = FontAwesome.Solid.Get(0xf00d) },
+                                    Action = ScreenManager.HideTerminal
+                                },
                             },
                             new Container
                             {
