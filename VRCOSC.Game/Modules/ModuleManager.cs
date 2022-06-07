@@ -4,12 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 using CoreOSC.IO;
 using osu.Framework.Allocation;
-using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Platform;
@@ -23,9 +22,8 @@ public sealed class ModuleManager : Container<ModuleGroup>
     private const int osc_send_port = 9000;
     private const int osc_receive_port = 9001;
 
-    private readonly UdpClient sendingClient = new(osc_ip_address, osc_send_port);
-
-    public BindableBool Running = new();
+    private UdpClient sendingClient;
+    private CancellationTokenSource token;
 
     [BackgroundDependencyLoader]
     private void load(Storage storage)
@@ -39,7 +37,6 @@ public sealed class ModuleManager : Container<ModuleGroup>
             foreach (var module in modules.Where(module => module.Type.Equals(type)))
             {
                 module.DataManager = new ModuleDataManager(storage, module.GetType().Name);
-                module.OscClient = sendingClient;
                 module.CreateAttributes();
                 module.DataManager.LoadData();
                 moduleGroup.Add(new ModuleContainer(module));
@@ -51,36 +48,37 @@ public sealed class ModuleManager : Container<ModuleGroup>
 
     public void Start()
     {
-        this.ForEach(child => child.Start());
-        Running.Value = true;
+        token = new CancellationTokenSource();
+        sendingClient = new UdpClient(osc_ip_address, osc_send_port);
+
+        this.ForEach(child =>
+        {
+            child.UpdateSendingClient(sendingClient);
+            child.Start();
+        });
 
         Task.Factory.StartNew(beginListening, TaskCreationOptions.LongRunning);
     }
 
     public void Stop()
     {
-        Running.Value = false;
+        token.Cancel();
+
         this.ForEach(child => child.Stop());
+
+        sendingClient.Dispose();
     }
 
     private async void beginListening()
     {
-        IPEndPoint receiveEndpoint = new IPEndPoint(IPAddress.Parse(osc_ip_address), osc_receive_port);
+        var receivingClient = new UdpClient(osc_ip_address, osc_receive_port);
 
-        using var receivingClient = new UdpClient(receiveEndpoint);
-
-        while (true)
+        while (!token.IsCancellationRequested)
         {
-            if (!Running.Value) break;
-
             var message = await receivingClient.ReceiveMessageAsync();
             this.ForEach(child => child.OnOSCMessage(message));
         }
-    }
 
-    protected override void Dispose(bool isDisposing)
-    {
-        base.Dispose(isDisposing);
-        sendingClient.Dispose();
+        receivingClient.Dispose();
     }
 }

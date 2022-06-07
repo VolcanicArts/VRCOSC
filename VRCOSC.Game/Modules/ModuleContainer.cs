@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Net.Sockets;
 using CoreOSC;
 using osu.Framework.Graphics.Containers;
 
@@ -40,5 +41,10 @@ public class ModuleContainer : Container
         if (!Module.DataManager.Enabled || !Module.IsRequestingInput) return;
 
         Module.OnOSCMessage(message);
+    }
+
+    public void UpdateSendingClient(UdpClient sendingClient)
+    {
+        Module.OscClient = sendingClient;
     }
 }
