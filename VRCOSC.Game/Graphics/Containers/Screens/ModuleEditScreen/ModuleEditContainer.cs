@@ -48,11 +48,7 @@ public class ModuleEditContainer : Container
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
                     RelativeSizeAxes = Axes.Both,
-                    Padding = new MarginPadding
-                    {
-                        Vertical = 4,
-                        Horizontal = 30
-                    },
+                    Padding = new MarginPadding(4),
                     Child = new ModuleEditInnerContainer
                     {
                         Anchor = Anchor.Centre,

@@ -7,12 +7,16 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
+using VRCOSC.Game.Graphics.Containers.UI;
 using VRCOSC.Game.Graphics.Drawables;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditScreen;
 
 public class ModuleEditInnerContainer : Container
 {
+    [Resolved]
+    private ScreenManager ScreenManager { get; set; }
+
     [Resolved]
     private Bindable<Modules.Module> SourceModule { get; set; }
 
@@ -30,78 +34,101 @@ public class ModuleEditInnerContainer : Container
 
         VRCOSCScrollContainer scrollContainer;
 
-        InternalChild = scrollContainer = new VRCOSCScrollContainer
+        Children = new Drawable[]
         {
-            Anchor = Anchor.Centre,
-            Origin = Anchor.Centre,
-            RelativeSizeAxes = Axes.Both,
-            ScrollContent = new Drawable[]
+            new Container
             {
-                new FillFlowContainer<SpriteText>
+                Anchor = Anchor.TopRight,
+                Origin = Anchor.TopRight,
+                Size = new Vector2(80),
+                Padding = new MarginPadding(10),
+                Depth = float.MinValue,
+                Child = new IconButton
                 {
-                    Anchor = Anchor.TopCentre,
-                    Origin = Anchor.TopCentre,
-                    RelativeSizeAxes = Axes.X,
-                    AutoSizeAxes = Axes.Y,
-                    Direction = FillDirection.Vertical,
-                    Spacing = new Vector2(0, 5),
-                    Children = new[]
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    RelativeSizeAxes = Axes.Both,
+                    Icon = { Value = FontAwesome.Solid.Get(0xf00d) },
+                    Action = ScreenManager.FinishEditingModule
+                },
+            },
+            scrollContainer = new VRCOSCScrollContainer
+            {
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                RelativeSizeAxes = Axes.Both,
+                Padding = new MarginPadding
+                {
+                    Horizontal = 26
+                },
+                ScrollContent = new Drawable[]
+                {
+                    new FillFlowContainer<SpriteText>
                     {
-                        title = new SpriteText
+                        Anchor = Anchor.TopCentre,
+                        Origin = Anchor.TopCentre,
+                        RelativeSizeAxes = Axes.X,
+                        AutoSizeAxes = Axes.Y,
+                        Direction = FillDirection.Vertical,
+                        Spacing = new Vector2(0, 5),
+                        Children = new[]
                         {
-                            Anchor = Anchor.TopCentre,
-                            Origin = Anchor.TopCentre,
-                            Font = FrameworkFont.Regular.With(size: 75),
-                        },
-                        description = new SpriteText
-                        {
-                            Anchor = Anchor.TopCentre,
-                            Origin = Anchor.TopCentre,
-                            Font = FrameworkFont.Regular.With(size: 40),
-                            Colour = VRCOSCColour.Gray9,
-                        },
-                        author = new SpriteText
-                        {
-                            Anchor = Anchor.TopCentre,
-                            Origin = Anchor.TopCentre,
-                            Font = FrameworkFont.Regular.With(size: 30),
-                            Colour = VRCOSCColour.Gray9,
+                            title = new SpriteText
+                            {
+                                Anchor = Anchor.TopCentre,
+                                Origin = Anchor.TopCentre,
+                                Font = FrameworkFont.Regular.With(size: 75),
+                            },
+                            description = new SpriteText
+                            {
+                                Anchor = Anchor.TopCentre,
+                                Origin = Anchor.TopCentre,
+                                Font = FrameworkFont.Regular.With(size: 40),
+                                Colour = VRCOSCColour.Gray9,
+                            },
+                            author = new SpriteText
+                            {
+                                Anchor = Anchor.TopCentre,
+                                Origin = Anchor.TopCentre,
+                                Font = FrameworkFont.Regular.With(size: 30),
+                                Colour = VRCOSCColour.Gray9,
+                            }
                         }
+                    },
+                    moduleEditSettingsContainerLineSeparator = new LineSeparator
+                    {
+                        Anchor = Anchor.TopCentre,
+                        Origin = Anchor.TopCentre,
+                        RelativeSizeAxes = Axes.X,
+                        Size = new Vector2(0.95f, 5)
+                    },
+                    moduleEditSettingsContainer = new ModuleEditSettingsContainer
+                    {
+                        Anchor = Anchor.TopCentre,
+                        Origin = Anchor.TopCentre,
+                        RelativeSizeAxes = Axes.X,
+                        AutoSizeAxes = Axes.Y,
+                        Direction = FillDirection.Vertical,
+                        Spacing = new Vector2(0, 10),
+                        Padding = new MarginPadding(10)
+                    },
+                    moduleEditParametersContainerLineSeparator = new LineSeparator
+                    {
+                        Anchor = Anchor.TopCentre,
+                        Origin = Anchor.TopCentre,
+                        RelativeSizeAxes = Axes.X,
+                        Size = new Vector2(0.95f, 5)
+                    },
+                    moduleEditParametersContainer = new ModuleEditParametersContainer
+                    {
+                        Anchor = Anchor.TopCentre,
+                        Origin = Anchor.TopCentre,
+                        RelativeSizeAxes = Axes.X,
+                        AutoSizeAxes = Axes.Y,
+                        Direction = FillDirection.Vertical,
+                        Spacing = new Vector2(0, 10),
+                        Padding = new MarginPadding(10)
                     }
-                },
-                moduleEditSettingsContainerLineSeparator = new LineSeparator
-                {
-                    Anchor = Anchor.TopCentre,
-                    Origin = Anchor.TopCentre,
-                    RelativeSizeAxes = Axes.X,
-                    Size = new Vector2(0.95f, 5)
-                },
-                moduleEditSettingsContainer = new ModuleEditSettingsContainer
-                {
-                    Anchor = Anchor.TopCentre,
-                    Origin = Anchor.TopCentre,
-                    RelativeSizeAxes = Axes.X,
-                    AutoSizeAxes = Axes.Y,
-                    Direction = FillDirection.Vertical,
-                    Spacing = new Vector2(0, 10),
-                    Padding = new MarginPadding(10)
-                },
-                moduleEditParametersContainerLineSeparator = new LineSeparator
-                {
-                    Anchor = Anchor.TopCentre,
-                    Origin = Anchor.TopCentre,
-                    RelativeSizeAxes = Axes.X,
-                    Size = new Vector2(0.95f, 5)
-                },
-                moduleEditParametersContainer = new ModuleEditParametersContainer
-                {
-                    Anchor = Anchor.TopCentre,
-                    Origin = Anchor.TopCentre,
-                    RelativeSizeAxes = Axes.X,
-                    AutoSizeAxes = Axes.Y,
-                    Direction = FillDirection.Vertical,
-                    Spacing = new Vector2(0, 10),
-                    Padding = new MarginPadding(10)
                 }
             }
         };
