@@ -25,7 +25,7 @@ public sealed class ModuleManager : Container<ModuleGroup>
 
     private readonly UdpClient sendingClient;
     private readonly UdpClient receivingClient;
-    private CancellationTokenSource? token;
+    private CancellationTokenSource? tokenSource;
 
     public ModuleManager()
     {
@@ -58,33 +58,30 @@ public sealed class ModuleManager : Container<ModuleGroup>
 
     public void Start()
     {
-        token = new CancellationTokenSource();
+        tokenSource = new CancellationTokenSource();
         this.ForEach(child => child.Start());
-        Task.Factory.StartNew(beginListening, TaskCreationOptions.LongRunning);
+        Task.Factory.StartNew(beginListening);
     }
 
     public void Stop()
     {
-        token?.Cancel();
-        token?.Dispose();
+        tokenSource?.Cancel();
+        tokenSource?.Dispose();
         this.ForEach(child => child.Stop());
     }
 
     private async void beginListening()
     {
-        if (token == null) throw new AggregateException("Cancellation token is null when trying to listen for OSC messages");
+        if (tokenSource == null) throw new AggregateException("Cancellation token is null when trying to listen for OSC messages");
 
-        while (!token.IsCancellationRequested)
+        while (!tokenSource.Token.IsCancellationRequested)
         {
-            var message = await receivingClient.ReceiveMessageAsync();
-            this.ForEach(child => child.OnOSCMessage(message));
+            try
+            {
+                var message = await receivingClient.ReceiveMessageAsync();
+                this.ForEach(child => child.OnOSCMessage(message));
+            }
+            catch (SocketException _) { }
         }
-    }
-
-    protected override void Dispose(bool isDisposing)
-    {
-        base.Dispose(isDisposing);
-        sendingClient.Dispose();
-        receivingClient.Dispose();
     }
 }
