@@ -66,7 +66,6 @@ public sealed class ModuleManager : Container<ModuleGroup>
     public void Stop()
     {
         tokenSource?.Cancel();
-        tokenSource?.Dispose();
         this.ForEach(child => child.Stop());
     }
 
