@@ -20,7 +20,6 @@ public class ParameterCard : AttributeCard
     {
         Height = 120;
 
-        TextFlowContainer text;
         VRCOSCTextBox textBox;
 
         Add(new Container
