@@ -25,7 +25,7 @@ public sealed class ModuleManager : Container<ModuleGroup>
 
     private readonly UdpClient sendingClient;
     private readonly UdpClient receivingClient;
-    private CancellationTokenSource token;
+    private CancellationTokenSource? token;
 
     public ModuleManager()
     {
@@ -65,13 +65,15 @@ public sealed class ModuleManager : Container<ModuleGroup>
 
     public void Stop()
     {
-        token.Cancel();
-        token.Dispose();
+        token?.Cancel();
+        token?.Dispose();
         this.ForEach(child => child.Stop());
     }
 
     private async void beginListening()
     {
+        if (token == null) throw new AggregateException("Cancellation token is null when trying to listen for OSC messages");
+
         while (!token.IsCancellationRequested)
         {
             var message = await receivingClient.ReceiveMessageAsync();
