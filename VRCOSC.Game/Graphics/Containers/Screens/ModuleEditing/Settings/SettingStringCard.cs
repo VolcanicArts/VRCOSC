@@ -5,9 +5,9 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using VRCOSC.Game.Graphics.Containers.UI.TextBox;
 
-namespace VRCOSC.Game.Graphics.Containers.Module;
+namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Settings;
 
-public class ModuleSettingStringContainer : ModuleSettingContainer
+public class SettingStringCard : SettingBaseCard
 {
     [BackgroundDependencyLoader]
     private void load()

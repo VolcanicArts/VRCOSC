@@ -9,18 +9,19 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Input.Events;
 using osuTK;
 using osuTK.Input;
+using VRCOSC.Game.Modules;
 
-namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditScreen;
+namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing;
 
-public sealed class ModuleEditContainer : Container
+public sealed class ModuleEditPopover : Container
 {
     [Resolved]
     private ScreenManager ScreenManager { get; set; }
 
     [Cached]
-    public Bindable<Modules.Module> SourceModule { get; } = new();
+    public Bindable<Module> SourceModule { get; } = new();
 
-    public ModuleEditContainer()
+    public ModuleEditPopover()
     {
         Anchor = Anchor.Centre;
         Origin = Anchor.Centre;
@@ -33,15 +34,15 @@ public sealed class ModuleEditContainer : Container
     [BackgroundDependencyLoader]
     private void load()
     {
-        InternalChild = new Container
+        Child = new Container
         {
             Anchor = Anchor.Centre,
             Origin = Anchor.Centre,
             RelativeSizeAxes = Axes.Both,
-            Masking = true,
             CornerRadius = 20,
             EdgeEffect = VRCOSCEdgeEffects.DispersedShadow,
             BorderThickness = 3,
+            Masking = true,
             Children = new Drawable[]
             {
                 new Box
@@ -53,12 +54,11 @@ public sealed class ModuleEditContainer : Container
                 },
                 new Container
                 {
-                    Name = "Content",
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
                     RelativeSizeAxes = Axes.Both,
                     Padding = new MarginPadding(4),
-                    Child = new ModuleEditInnerContainer
+                    Child = new ModuleEditContent
                     {
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,

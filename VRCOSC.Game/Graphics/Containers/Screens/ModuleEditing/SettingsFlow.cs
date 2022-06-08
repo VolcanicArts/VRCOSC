@@ -9,20 +9,20 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
-using VRCOSC.Game.Graphics.Containers.Module;
+using VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Settings;
 using VRCOSC.Game.Modules;
 
-namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditScreen;
+namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing;
 
-public class ModuleEditSettingsContainer : FillFlowContainer
+public class SettingsFlow : FillFlowContainer
 {
     [Resolved]
-    private Bindable<Modules.Module> SourceModule { get; set; }
+    private Bindable<Module> SourceModule { get; set; }
 
     [BackgroundDependencyLoader]
     private void load()
     {
-        FillFlowContainer<ModuleSettingContainer> settingsFlow;
+        FillFlowContainer<SettingBaseCard> settingsFlow;
 
         InternalChildren = new Drawable[]
         {
@@ -33,7 +33,7 @@ public class ModuleEditSettingsContainer : FillFlowContainer
                 Font = FrameworkFont.Regular.With(size: 50),
                 Text = "Settings"
             },
-            settingsFlow = new FillFlowContainer<ModuleSettingContainer>
+            settingsFlow = new FillFlowContainer<SettingBaseCard>
             {
                 Anchor = Anchor.TopCentre,
                 Origin = Anchor.TopCentre,
@@ -57,7 +57,7 @@ public class ModuleEditSettingsContainer : FillFlowContainer
                 switch (setting)
                 {
                     case StringModuleSetting:
-                        settingsFlow.Add(new ModuleSettingStringContainer
+                        settingsFlow.Add(new SettingStringCard
                         {
                             Key = key,
                             SourceModule = SourceModule.Value
@@ -65,7 +65,7 @@ public class ModuleEditSettingsContainer : FillFlowContainer
                         break;
 
                     case IntModuleSetting:
-                        settingsFlow.Add(new ModuleSettingIntContainer
+                        settingsFlow.Add(new SettingIntCard
                         {
                             Key = key,
                             SourceModule = SourceModule.Value
@@ -73,7 +73,7 @@ public class ModuleEditSettingsContainer : FillFlowContainer
                         break;
 
                     case BoolModuleSetting:
-                        settingsFlow.Add(new ModuleSettingBoolContainer
+                        settingsFlow.Add(new SettingBoolCard
                         {
                             Key = key,
                             SourceModule = SourceModule.Value
@@ -81,8 +81,8 @@ public class ModuleEditSettingsContainer : FillFlowContainer
                         break;
 
                     case EnumModuleSetting enumModuleSetting:
-                        Type type = typeof(ModuleSettingEnumContainer<>).MakeGenericType(enumModuleSetting.Value.GetType());
-                        ModuleSettingContainer instance = (ModuleSettingContainer)Activator.CreateInstance(type)!;
+                        Type type = typeof(SettingEnumCard<>).MakeGenericType(enumModuleSetting.Value.GetType());
+                        SettingBaseCard instance = (SettingBaseCard)Activator.CreateInstance(type)!;
                         instance.Key = key;
                         instance.SourceModule = SourceModule.Value;
                         settingsFlow.Add(instance);

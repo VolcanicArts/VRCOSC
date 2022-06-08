@@ -9,16 +9,17 @@ using osu.Framework.Graphics.Sprites;
 using osuTK;
 using VRCOSC.Game.Graphics.Containers.UI;
 using VRCOSC.Game.Graphics.Drawables;
+using VRCOSC.Game.Modules;
 
-namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditScreen;
+namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing;
 
-public class ModuleEditInnerContainer : Container
+public class ModuleEditContent : Container
 {
     [Resolved]
     private ScreenManager ScreenManager { get; set; }
 
     [Resolved]
-    private Bindable<Modules.Module> SourceModule { get; set; }
+    private Bindable<Module> SourceModule { get; set; }
 
     [BackgroundDependencyLoader]
     private void load()
@@ -27,10 +28,10 @@ public class ModuleEditInnerContainer : Container
         SpriteText description;
         SpriteText author;
 
-        LineSeparator moduleEditSettingsContainerLineSeparator;
-        ModuleEditSettingsContainer moduleEditSettingsContainer;
-        LineSeparator moduleEditParametersContainerLineSeparator;
-        ModuleEditParametersContainer moduleEditParametersContainer;
+        LineSeparator settingsSeparator;
+        SettingsFlow settingsFlow;
+        LineSeparator parametersSeparator;
+        ParametersFlow parametersFlow;
 
         VRCOSCScrollContainer scrollContainer;
 
@@ -95,14 +96,14 @@ public class ModuleEditInnerContainer : Container
                             }
                         }
                     },
-                    moduleEditSettingsContainerLineSeparator = new LineSeparator
+                    settingsSeparator = new LineSeparator
                     {
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
                         RelativeSizeAxes = Axes.X,
                         Size = new Vector2(0.95f, 5)
                     },
-                    moduleEditSettingsContainer = new ModuleEditSettingsContainer
+                    settingsFlow = new SettingsFlow
                     {
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
@@ -112,14 +113,14 @@ public class ModuleEditInnerContainer : Container
                         Spacing = new Vector2(0, 10),
                         Padding = new MarginPadding(10)
                     },
-                    moduleEditParametersContainerLineSeparator = new LineSeparator
+                    parametersSeparator = new LineSeparator
                     {
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
                         RelativeSizeAxes = Axes.X,
                         Size = new Vector2(0.95f, 5)
                     },
-                    moduleEditParametersContainer = new ModuleEditParametersContainer
+                    parametersFlow = new ParametersFlow
                     {
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
@@ -145,24 +146,24 @@ public class ModuleEditInnerContainer : Container
 
             if (SourceModule.Value.HasSettings)
             {
-                moduleEditSettingsContainerLineSeparator.Show();
-                moduleEditSettingsContainer.Show();
+                settingsSeparator.Show();
+                settingsFlow.Show();
             }
             else
             {
-                moduleEditSettingsContainerLineSeparator.Hide();
-                moduleEditSettingsContainer.Hide();
+                settingsSeparator.Hide();
+                settingsFlow.Hide();
             }
 
             if (SourceModule.Value.HasParameters)
             {
-                moduleEditParametersContainerLineSeparator.Show();
-                moduleEditParametersContainer.Show();
+                parametersSeparator.Show();
+                parametersFlow.Show();
             }
             else
             {
-                moduleEditParametersContainerLineSeparator.Hide();
-                moduleEditParametersContainer.Hide();
+                parametersSeparator.Hide();
+                parametersFlow.Hide();
             }
         }, true);
     }

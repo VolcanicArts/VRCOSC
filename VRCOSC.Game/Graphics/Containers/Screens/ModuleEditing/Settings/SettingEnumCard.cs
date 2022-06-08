@@ -8,9 +8,9 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.UserInterface;
 using VRCOSC.Game.Modules;
 
-namespace VRCOSC.Game.Graphics.Containers.Module;
+namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Settings;
 
-public class ModuleSettingEnumContainer<T> : ModuleSettingContainer where T : Enum
+public class SettingEnumCard<T> : SettingBaseCard where T : Enum
 {
     [BackgroundDependencyLoader]
     private void load()

@@ -5,9 +5,9 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using VRCOSC.Game.Graphics.Containers.UI.Checkbox;
 
-namespace VRCOSC.Game.Graphics.Containers.Module;
+namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Settings;
 
-public class ModuleSettingBoolContainer : ModuleSettingContainer
+public class SettingBoolCard : SettingBaseCard
 {
     [BackgroundDependencyLoader]
     private void load()

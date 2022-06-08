@@ -5,7 +5,7 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using VRCOSC.Game.Graphics.Containers.Screens.ModuleCardScreen;
-using VRCOSC.Game.Graphics.Containers.Screens.ModuleEditScreen;
+using VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing;
 using VRCOSC.Game.Graphics.Containers.Screens.TerminalScreen;
 using VRCOSC.Game.Modules;
 
@@ -15,7 +15,7 @@ namespace VRCOSC.Game.Graphics.Containers.Screens;
 public sealed class ScreenManager : Container
 {
     private TerminalContainer terminalContainer;
-    private ModuleEditContainer moduleEditContainer;
+    private ModuleEditPopover moduleEditContainer;
 
     public ScreenManager()
     {
@@ -35,11 +35,11 @@ public sealed class ScreenManager : Container
             ModuleManager,
             new ModuleSelection(),
             terminalContainer = new TerminalContainer(),
-            moduleEditContainer = new ModuleEditContainer()
+            moduleEditContainer = new ModuleEditPopover()
         };
     }
 
-    public void EditModule(Modules.Module module)
+    public void EditModule(Module module)
     {
         Scheduler.Add(() =>
         {

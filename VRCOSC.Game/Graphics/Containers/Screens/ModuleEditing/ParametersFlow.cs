@@ -8,19 +8,20 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
-using VRCOSC.Game.Graphics.Containers.Module.ModuleOscParameter;
+using VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Parameters;
+using VRCOSC.Game.Modules;
 
-namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditScreen;
+namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing;
 
-public class ModuleEditParametersContainer : FillFlowContainer
+public class ParametersFlow : FillFlowContainer
 {
     [Resolved]
-    private Bindable<Modules.Module> SourceModule { get; set; }
+    private Bindable<Module> SourceModule { get; set; }
 
     [BackgroundDependencyLoader]
     private void load()
     {
-        FillFlowContainer<ModuleOscParameterContainer> parametersFlow;
+        FillFlowContainer<ParameterCard> parametersFlow;
 
         InternalChildren = new Drawable[]
         {
@@ -31,7 +32,7 @@ public class ModuleEditParametersContainer : FillFlowContainer
                 Font = FrameworkFont.Regular.With(size: 50),
                 Text = "Output Parameters"
             },
-            parametersFlow = new FillFlowContainer<ModuleOscParameterContainer>
+            parametersFlow = new FillFlowContainer<ParameterCard>
             {
                 Anchor = Anchor.TopCentre,
                 Origin = Anchor.TopCentre,
@@ -50,7 +51,7 @@ public class ModuleEditParametersContainer : FillFlowContainer
 
             SourceModule.Value.DataManager.Parameters.Keys.ToList().ForEach(key =>
             {
-                parametersFlow.Add(new ModuleOscParameterContainer
+                parametersFlow.Add(new ParameterCard
                 {
                     Key = key,
                     SourceModule = SourceModule.Value

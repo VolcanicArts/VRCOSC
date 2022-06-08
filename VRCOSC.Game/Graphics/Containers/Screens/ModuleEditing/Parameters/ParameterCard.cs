@@ -7,18 +7,17 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
-using osu.Framework.Graphics.Sprites;
 using osuTK;
+using VRCOSC.Game.Graphics.Containers.UI.TextBox;
 using VRCOSC.Game.Graphics.Drawables.Triangles;
+using VRCOSC.Game.Modules;
 
-namespace VRCOSC.Game.Graphics.Containers.Module;
+namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Parameters;
 
-public class ModuleSettingContainer : Container
+public class ParameterCard : Container
 {
-    public string Key { get; set; }
-    public Modules.Module SourceModule { get; set; }
-
-    protected Container SettingContainer;
+    public string Key { get; init; }
+    public Module SourceModule { get; init; }
 
     [BackgroundDependencyLoader]
     private void load()
@@ -26,13 +25,16 @@ public class ModuleSettingContainer : Container
         Anchor = Anchor.TopCentre;
         Origin = Anchor.TopCentre;
         RelativeSizeAxes = Axes.X;
-        Height = 100;
+        Height = 120;
         Masking = true;
         CornerRadius = 10;
         BorderThickness = 3;
         EdgeEffect = VRCOSCEdgeEffects.BasicShadow;
 
-        InternalChildren = new Drawable[]
+        VRCOSCTextBox textBox;
+        TextFlowContainer textFlow;
+
+        Children = new Drawable[]
         {
             new TrianglesBackground
             {
@@ -60,35 +62,45 @@ public class ModuleSettingContainer : Container
                 RelativeSizeAxes = Axes.Both,
                 Padding = new MarginPadding
                 {
-                    Vertical = 10,
-                    Horizontal = 15,
+                    Vertical = 8,
+                    Horizontal = 12,
                 },
                 Children = new Drawable[]
                 {
-                    new SpriteText
+                    textFlow = new TextFlowContainer
                     {
                         Anchor = Anchor.TopLeft,
                         Origin = Anchor.TopLeft,
-                        Font = FrameworkFont.Regular.With(size: 30),
-                        Text = SourceModule.DataManager.Settings[Key].DisplayName
+                        AutoSizeAxes = Axes.Both,
+                        Padding = new MarginPadding
+                        {
+                            Horizontal = 5
+                        }
                     },
-                    new SpriteText
+                    textBox = new VRCOSCTextBox
                     {
-                        Anchor = Anchor.CentreLeft,
-                        Origin = Anchor.CentreLeft,
-                        Colour = VRCOSCColour.Gray9,
-                        Font = FrameworkFont.Regular.With(size: 20),
-                        Text = SourceModule.DataManager.Settings[Key].Description
-                    },
-                    SettingContainer = new Container
-                    {
-                        Anchor = Anchor.CentreRight,
-                        Origin = Anchor.CentreRight,
+                        Anchor = Anchor.BottomLeft,
+                        Origin = Anchor.BottomLeft,
                         RelativeSizeAxes = Axes.Both,
-                        Size = new Vector2(0.5f, 0.8f)
+                        BorderThickness = 3,
+                        Size = new Vector2(1, 0.45f),
+                        Text = SourceModule.DataManager.GetParameter(Key)
                     }
                 }
             }
+        };
+
+        textFlow.AddText(SourceModule.DataManager.Parameters[Key].DisplayName, t => t.Font = FrameworkFont.Regular.With(size: 30));
+        textFlow.AddText("\n");
+        textFlow.AddText(SourceModule.DataManager.Parameters[Key].Description, t =>
+        {
+            t.Font = FrameworkFont.Regular.With(size: 20);
+            t.Colour = VRCOSCColour.Gray9;
+        });
+
+        textBox.OnCommit += (_, _) =>
+        {
+            SourceModule.DataManager.UpdateParameter(Key, textBox.Text);
         };
     }
 }
