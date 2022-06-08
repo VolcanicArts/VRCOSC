@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -24,8 +25,16 @@ public abstract class IntegrationModule : Module
             FileName = TargetExe,
             UseShellExecute = false
         };
-        var process = Process.Start(startInfo);
-        if (process == null || process!.HasExited) Terminal.Log($"{TargetExe} could not be found or is already running");
+
+        try
+        {
+            var process = Process.Start(startInfo);
+            if (process == null || process!.HasExited) Terminal.Log($"{TargetExe} could not be found or is already running");
+        }
+        catch (Win32Exception)
+        {
+            Terminal.Log($"{TargetExe} is not a valid path. You cannot start {TargetProcess} on start");
+        }
     }
 
     protected void StopTarget()
