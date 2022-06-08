@@ -27,6 +27,8 @@ public sealed class TerminalContainer : Container
         Anchor = Anchor.Centre;
         Origin = Anchor.Centre;
         RelativeSizeAxes = Axes.Both;
+        RelativePositionAxes = Axes.Both;
+        Position = new Vector2(0, 1);
         Padding = new MarginPadding(40);
     }
 

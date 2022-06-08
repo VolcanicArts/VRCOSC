@@ -10,12 +10,19 @@ using VRCOSC.Game.Modules;
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleCardScreen;
 
 [Cached]
-public class ModuleSelection : Container
+public sealed class ModuleSelection : Container
 {
     private const int module_group_selection_width = 200;
 
     public Bindable<ModuleType> SelectedType = new();
     public BindableBool ShowExperimental = new();
+
+    public ModuleSelection()
+    {
+        Anchor = Anchor.Centre;
+        Origin = Anchor.Centre;
+        RelativeSizeAxes = Axes.Both;
+    }
 
     [BackgroundDependencyLoader]
     private void load()

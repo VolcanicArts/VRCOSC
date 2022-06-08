@@ -4,7 +4,6 @@
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osuTK;
 using VRCOSC.Game.Graphics.Containers.Screens.ModuleCardScreen;
 using VRCOSC.Game.Graphics.Containers.Screens.ModuleEditScreen;
 using VRCOSC.Game.Graphics.Containers.Screens.TerminalScreen;
@@ -34,28 +33,9 @@ public sealed class ScreenManager : Container
         InternalChildren = new Drawable[]
         {
             ModuleManager,
-            new ModuleSelection
-            {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                RelativeSizeAxes = Axes.Both,
-            },
-            terminalContainer = new TerminalContainer
-            {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                RelativeSizeAxes = Axes.Both,
-                RelativePositionAxes = Axes.Both,
-                Position = new Vector2(0, 1)
-            },
-            moduleEditContainer = new ModuleEditContainer
-            {
-                Anchor = Anchor.TopCentre,
-                Origin = Anchor.TopCentre,
-                RelativeSizeAxes = Axes.Both,
-                RelativePositionAxes = Axes.Both,
-                Position = new Vector2(0, 1)
-            }
+            new ModuleSelection(),
+            terminalContainer = new TerminalContainer(),
+            moduleEditContainer = new ModuleEditContainer()
         };
     }
 

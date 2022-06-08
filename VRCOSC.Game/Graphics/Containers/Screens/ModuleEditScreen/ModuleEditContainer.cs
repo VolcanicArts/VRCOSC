@@ -7,11 +7,12 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Input.Events;
+using osuTK;
 using osuTK.Input;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditScreen;
 
-public class ModuleEditContainer : Container
+public sealed class ModuleEditContainer : Container
 {
     [Resolved]
     private ScreenManager ScreenManager { get; set; }
@@ -19,11 +20,19 @@ public class ModuleEditContainer : Container
     [Cached]
     public Bindable<Modules.Module> SourceModule { get; } = new();
 
+    public ModuleEditContainer()
+    {
+        Anchor = Anchor.Centre;
+        Origin = Anchor.Centre;
+        RelativeSizeAxes = Axes.Both;
+        RelativePositionAxes = Axes.Both;
+        Position = new Vector2(0, 1);
+        Padding = new MarginPadding(40);
+    }
+
     [BackgroundDependencyLoader]
     private void load()
     {
-        Padding = new MarginPadding(40);
-
         InternalChild = new Container
         {
             Anchor = Anchor.Centre,
