@@ -3,6 +3,8 @@
 
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Containers;
+using osuTK;
 using VRCOSC.Game.Graphics.Containers.UI.TextBox;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Settings;
@@ -14,14 +16,22 @@ public class SettingStringCard : SettingBaseCard
     {
         VRCOSCTextBox textBox;
 
-        SettingContainer.Child = textBox = new VRCOSCTextBox
+        Add(new Container
         {
             Anchor = Anchor.CentreRight,
             Origin = Anchor.CentreRight,
             RelativeSizeAxes = Axes.Both,
-            BorderThickness = 3,
-            Text = SourceModule.DataManager.GetSettingAs<string>(Key)
-        };
+            Size = new Vector2(0.5f, 1.0f),
+            Padding = new MarginPadding(15),
+            Child = textBox = new VRCOSCTextBox
+            {
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                RelativeSizeAxes = Axes.Both,
+                BorderThickness = 3,
+                Text = SourceModule.DataManager.GetSettingAs<string>(Key)
+            }
+        });
 
         textBox.OnCommit += (_, _) =>
         {

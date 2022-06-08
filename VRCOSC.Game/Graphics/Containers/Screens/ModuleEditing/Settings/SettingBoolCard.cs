@@ -3,6 +3,7 @@
 
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Containers;
 using VRCOSC.Game.Graphics.Containers.UI.Checkbox;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Settings;
@@ -14,14 +15,22 @@ public class SettingBoolCard : SettingBaseCard
     {
         Checkbox checkBox;
 
-        SettingContainer.Child = checkBox = new Checkbox
+        Add(new Container
         {
             Anchor = Anchor.CentreRight,
             Origin = Anchor.CentreRight,
             RelativeSizeAxes = Axes.Both,
             FillMode = FillMode.Fit,
-            State = { Value = SourceModule.DataManager.GetSettingAs<bool>(Key) }
-        };
+            Padding = new MarginPadding(15),
+            Child = checkBox = new Checkbox
+            {
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                RelativeSizeAxes = Axes.Both,
+                State = { Value = SourceModule.DataManager.GetSettingAs<bool>(Key) }
+            }
+        });
+
         checkBox.State.BindValueChanged((e) => SourceModule.DataManager.UpdateBoolSetting(Key, e.NewValue));
     }
 }
