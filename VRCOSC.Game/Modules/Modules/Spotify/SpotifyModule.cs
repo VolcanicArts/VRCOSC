@@ -21,7 +21,7 @@ public class SpotifyModule : IntegrationModule
 
     protected override Dictionary<Enum, (string, string, object)> Settings => new()
     {
-        { SpotifySettings.ShouldStart, ("Should Start", "Should Spotify start on module run?", true) }
+        { SpotifySettings.ShouldStart, ("Should Start", "Should Spotify start on module run?", false) }
     };
 
     protected override List<Enum> InputParameters => new()
