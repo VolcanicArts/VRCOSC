@@ -35,9 +35,27 @@ public class SettingEnumCard<T> : SettingBaseCard where T : Enum
             }
         });
 
-        dropdown.Current.BindValueChanged(e =>
+        dropdown.Current.BindValueChanged(e => updateSetting(e.NewValue), true);
+
+        ResetToDefault.Action += () =>
         {
-            SourceModule.DataManager.UpdateEnumSetting(Key, e.NewValue);
-        });
+            var defaultValue = SourceModule.GetDefaultSetting<T>(Key);
+            updateSetting(defaultValue);
+            dropdown.Current.Value = defaultValue;
+        };
+    }
+
+    private void updateSetting(Enum newValue)
+    {
+        SourceModule.DataManager.UpdateEnumSetting(Key, newValue);
+
+        if (!SourceModule.GetDefaultSetting<T>(Key).Equals(SourceModule.DataManager.GetSettingAs<T>(Key)))
+        {
+            ResetToDefault.Show();
+        }
+        else
+        {
+            ResetToDefault.Hide();
+        }
     }
 }

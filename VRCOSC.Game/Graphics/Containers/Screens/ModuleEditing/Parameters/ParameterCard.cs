@@ -50,9 +50,29 @@ public class ParameterCard : AttributeCard
             t.Colour = VRCOSCColour.Gray9;
         });
 
-        textBox.OnCommit += (_, _) =>
+        textBox.OnCommit += (_, _) => updateParameter(textBox.Text);
+
+        ResetToDefault.Action += () =>
         {
-            SourceModule.DataManager.UpdateParameter(Key, textBox.Text);
+            var defaultAddress = SourceModule.GetDefaultOutputParameter(Key);
+            updateParameter(defaultAddress);
+            textBox.Text = defaultAddress;
         };
+
+        updateParameter(textBox.Text);
+    }
+
+    private void updateParameter(string newAddress)
+    {
+        SourceModule.DataManager.UpdateParameter(Key, newAddress);
+
+        if (!SourceModule.GetDefaultOutputParameter(Key).Equals(SourceModule.DataManager.GetParameter(Key)))
+        {
+            ResetToDefault.Show();
+        }
+        else
+        {
+            ResetToDefault.Hide();
+        }
     }
 }

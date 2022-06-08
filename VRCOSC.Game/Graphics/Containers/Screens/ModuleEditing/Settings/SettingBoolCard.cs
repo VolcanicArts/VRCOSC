@@ -31,6 +31,27 @@ public class SettingBoolCard : SettingBaseCard
             }
         });
 
-        checkBox.State.BindValueChanged((e) => SourceModule.DataManager.UpdateBoolSetting(Key, e.NewValue));
+        checkBox.State.BindValueChanged((e) => updateSetting(e.NewValue), true);
+
+        ResetToDefault.Action += () =>
+        {
+            var defaultValue = SourceModule.GetDefaultSetting<bool>(Key);
+            updateSetting(defaultValue);
+            checkBox.State.Value = defaultValue;
+        };
+    }
+
+    private void updateSetting(bool newValue)
+    {
+        SourceModule.DataManager.UpdateBoolSetting(Key, newValue);
+
+        if (!SourceModule.GetDefaultSetting<bool>(Key).Equals(SourceModule.DataManager.GetSettingAs<bool>(Key)))
+        {
+            ResetToDefault.Show();
+        }
+        else
+        {
+            ResetToDefault.Hide();
+        }
     }
 }

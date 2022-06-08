@@ -33,9 +33,29 @@ public class SettingStringCard : SettingBaseCard
             }
         });
 
-        textBox.OnCommit += (_, _) =>
+        textBox.OnCommit += (_, _) => updateSetting(textBox.Text);
+
+        ResetToDefault.Action += () =>
         {
-            SourceModule.DataManager.UpdateStringSetting(Key, textBox.Text);
+            var defaultValue = SourceModule.GetDefaultSetting<string>(Key);
+            updateSetting(defaultValue);
+            textBox.Text = defaultValue;
         };
+
+        updateSetting(textBox.Text);
+    }
+
+    private void updateSetting(string newValue)
+    {
+        SourceModule.DataManager.UpdateStringSetting(Key, newValue);
+
+        if (!SourceModule.GetDefaultSetting<string>(Key).Equals(SourceModule.DataManager.GetSettingAs<string>(Key)))
+        {
+            ResetToDefault.Show();
+        }
+        else
+        {
+            ResetToDefault.Hide();
+        }
     }
 }

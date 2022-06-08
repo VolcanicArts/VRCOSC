@@ -33,12 +33,25 @@ public abstract class Module
     protected virtual Dictionary<Enum, (string, string, string)> OutputParameters => new();
     protected virtual List<Enum> InputParameters => new();
 
+    private readonly Dictionary<string, object> defaultSettings = new();
+    private readonly Dictionary<string, string> defaultOutputParameters = new();
+
     public bool IsRequestingInput => InputParameters.Count != 0;
 
     public bool HasSettings => DataManager.Settings.Count != 0;
     public bool HasParameters => DataManager.Parameters.Count != 0;
 
     public bool HasAttributes => HasSettings || HasParameters;
+
+    public T GetDefaultSetting<T>(string key)
+    {
+        return (T)defaultSettings[key];
+    }
+
+    public string GetDefaultOutputParameter(string key)
+    {
+        return defaultOutputParameters[key];
+    }
 
     internal void CreateAttributes()
     {
@@ -50,6 +63,7 @@ public abstract class Module
             var value = pair.Value.Item3;
 
             DataManager.CreateSetting(key, displayName, description, value);
+            defaultSettings.Add(key.ToString().ToLower(), value);
         });
 
         OutputParameters.ForEach(pair =>
@@ -60,6 +74,7 @@ public abstract class Module
             var address = pair.Value.Item3;
 
             DataManager.CreateParameter(key, displayName, description, address);
+            defaultOutputParameters.Add(key.ToString().ToLower(), address);
         });
     }
 

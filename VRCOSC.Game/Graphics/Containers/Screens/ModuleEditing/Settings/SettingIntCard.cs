@@ -29,14 +29,37 @@ public class SettingIntCard : SettingBaseCard
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 BorderThickness = 3,
-                Text = SourceModule.DataManager.GetSettingAs<int>(Key).ToString()
+                Text = SourceModule.DataManager.GetSettingAs<int>(Key).ToString(),
             }
         });
 
         textBox.OnCommit += (_, _) =>
         {
             if (int.TryParse(textBox.Text, out var newValue))
-                SourceModule.DataManager.UpdateIntSetting(Key, newValue);
+                updateSetting(newValue);
         };
+
+        ResetToDefault.Action += () =>
+        {
+            var defaultValue = SourceModule.GetDefaultSetting<int>(Key);
+            updateSetting(defaultValue);
+            textBox.Text = defaultValue.ToString();
+        };
+
+        updateSetting(int.Parse(textBox.Text));
+    }
+
+    private void updateSetting(int newValue)
+    {
+        SourceModule.DataManager.UpdateIntSetting(Key, newValue);
+
+        if (!SourceModule.GetDefaultSetting<int>(Key).Equals(SourceModule.DataManager.GetSettingAs<int>(Key)))
+        {
+            ResetToDefault.Show();
+        }
+        else
+        {
+            ResetToDefault.Hide();
+        }
     }
 }
