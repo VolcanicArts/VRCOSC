@@ -19,8 +19,7 @@ public class HypeRateModule : Module
 
     protected override Dictionary<Enum, (string, string, object)> Settings => new()
     {
-        { HypeRateSettings.Id, ("HypeRate ID", "Your HypeRate ID given on your device", string.Empty) },
-        { HypeRateSettings.APIKey, ("API Key", "Your API key from HypeRate", string.Empty) }
+        { HypeRateSettings.Id, ("HypeRate ID", "Your HypeRate ID given on your device", string.Empty) }
     };
 
     protected override Dictionary<Enum, (string, string, string)> OutputParameters => new()
@@ -37,7 +36,7 @@ public class HypeRateModule : Module
     protected override void OnStart()
     {
         SendParameter(HypeRateParameter.HeartrateEnabled, false);
-        hypeRateProvider = new HypeRateProvider(GetSettingAs<string>(HypeRateSettings.Id), GetSettingAs<string>(HypeRateSettings.APIKey));
+        hypeRateProvider = new HypeRateProvider(GetSettingAs<string>(HypeRateSettings.Id), VRCOSCSecrets.KEYS_HYPERATE);
         hypeRateProvider.OnHeartRateUpdate += handleHeartRateUpdate;
         hypeRateProvider.OnConnected += () => SendParameter(HypeRateParameter.HeartrateEnabled, true);
         hypeRateProvider.OnDisconnected += () => SendParameter(HypeRateParameter.HeartrateEnabled, false);
@@ -64,8 +63,7 @@ public class HypeRateModule : Module
 
 public enum HypeRateSettings
 {
-    Id,
-    APIKey
+    Id
 }
 
 public enum HypeRateParameter

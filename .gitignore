@@ -7,3 +7,4 @@ riderModule.iml
 /.idea
 *.user
 .vs/
+VRCOSCSecrets.cs
