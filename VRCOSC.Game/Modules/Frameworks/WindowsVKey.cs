@@ -59,5 +59,8 @@ public enum WindowsVKey
     VK_SEPARATOR = 0x6C,
     VK_SUBTRACT = 0x6D,
     VK_DECIMAL = 0x6E,
-    VK_DIVIDE = 0x6F
+    VK_DIVIDE = 0x6F,
+    VK_MEDIA_PLAY_PAUSE = 0xB3,
+    VK_MEDIA_NEXT_TRACK = 0xB0,
+    VK_MEDIA_PREV_TRACK = 0xB1
 }
