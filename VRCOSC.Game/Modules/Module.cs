@@ -107,6 +107,9 @@ public abstract class Module
     internal void OnOSCMessage(OscMessage message)
     {
         var address = message.Address.Value;
+
+        if (!message.Arguments.Any()) return;
+
         var value = message.Arguments.First();
 
         var id = -1;
