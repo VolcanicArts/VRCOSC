@@ -2,11 +2,10 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
-using osu.Framework.Extensions.Color4Extensions;
+using osu.Framework.Graphics;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Platform;
-using osuTK.Graphics;
 
 namespace VRCOSC.Game.Graphics.Containers.UI.TextBox;
 
@@ -29,8 +28,6 @@ public class VRCOSCTextBox : BasicTextBox
 
     protected override SpriteText CreatePlaceholder()
     {
-        var fadingPlaceholderText = base.CreatePlaceholder();
-        fadingPlaceholderText.Colour = Color4.White.Opacity(0.5f);
-        return fadingPlaceholderText;
+        return base.CreatePlaceholder().With(t => t.Colour = Colour4.White.Opacity(0.5f));
     }
 }
