@@ -20,7 +20,8 @@ public sealed class TerminalContainer : Container
     [Resolved]
     private ScreenManager ScreenManager { get; set; }
 
-    private VRCOSCScrollContainer<TerminalEntry> terminalScroll;
+    private BasicScrollContainer terminalScroll;
+    private FillFlowContainer<TerminalEntry> terminalFlow;
 
     public TerminalContainer()
     {
@@ -97,16 +98,24 @@ public sealed class TerminalContainer : Container
                                 Origin = Anchor.Centre,
                                 RelativeSizeAxes = Axes.Both,
                                 Padding = new MarginPadding(1.5f),
-                                Child = terminalScroll = new VRCOSCScrollContainer<TerminalEntry>
+                                Child = terminalScroll = new BasicScrollContainer
                                 {
                                     Anchor = Anchor.Centre,
                                     Origin = Anchor.Centre,
                                     RelativeSizeAxes = Axes.Both,
-                                    ContentSpacing = new Vector2(0),
-                                    ContentPadding = new MarginPadding(0),
+                                    ScrollbarVisible = false,
+                                    ClampExtension = 0,
                                     Padding = new MarginPadding
                                     {
                                         Horizontal = 3
+                                    },
+                                    Child = terminalFlow = new FillFlowContainer<TerminalEntry>
+                                    {
+                                        Anchor = Anchor.TopCentre,
+                                        Origin = Anchor.TopCentre,
+                                        RelativeSizeAxes = Axes.X,
+                                        AutoSizeAxes = Axes.Y,
+                                        Direction = FillDirection.Vertical,
                                     }
                                 }
                             }
@@ -127,7 +136,7 @@ public sealed class TerminalContainer : Container
     {
         base.UpdateAfterChildren();
 
-        while (terminalScroll.ScrollContent.Count > 50) terminalScroll.ScrollContent[0].RemoveAndDisposeImmediately();
+        while (terminalFlow.Count > 50) terminalFlow[0].RemoveAndDisposeImmediately();
         terminalScroll.ScrollToEnd();
     }
 
@@ -136,13 +145,13 @@ public sealed class TerminalContainer : Container
         Scheduler.Add(() =>
         {
             var formattedText = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {text}";
-            terminalScroll.Add(new TerminalEntry(formattedText));
+            terminalFlow.Add(new TerminalEntry(formattedText));
         });
     }
 
     public void ClearTerminal()
     {
-        terminalScroll.Clear(true);
+        terminalFlow.Clear(true);
     }
 
     protected override bool OnKeyDown(KeyDownEvent e)
