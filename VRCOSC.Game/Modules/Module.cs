@@ -83,6 +83,7 @@ public abstract class Module
         Terminal = new TerminalLogger(GetType().Name);
         Terminal.Log("Starting");
         OnStart();
+        Terminal.Log("Started");
     }
 
     protected virtual void OnStart() { }
@@ -98,6 +99,7 @@ public abstract class Module
     {
         Terminal.Log("Stopping");
         OnStop();
+        Terminal.Log("Stopped");
     }
 
     protected virtual void OnStop() { }
