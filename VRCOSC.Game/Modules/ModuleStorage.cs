@@ -111,13 +111,13 @@ public static class ModuleStorage
 
     #region Deserializer
 
-    private static ModuleDataManager? deserialize(Storage storage, StreamReader streamReader)
+    private static ModuleDataManager deserialize(Storage storage, TextReader textReader)
     {
         // pass storage through even though it's not needed as a dummy object
         // TODO Maybe refactor this so it doesn't need the data manager anymore
         ModuleDataManager dataManager = new(storage, string.Empty);
 
-        string? line = streamReader.ReadLine();
+        string? line = textReader.ReadLine();
 
         while (line != null)
         {
@@ -125,29 +125,29 @@ public static class ModuleStorage
             {
                 if (line.EndsWith("InternalSettings"))
                 {
-                    deserializeInternalSettings(dataManager, streamReader);
+                    deserializeInternalSettings(dataManager, textReader);
                 }
                 else if (line.EndsWith("ModuleSettings"))
                 {
-                    deserializeModuleSettings(dataManager, streamReader);
+                    deserializeModuleSettings(dataManager, textReader);
                 }
                 else if (line.EndsWith("ModuleParameters"))
                 {
-                    deserializeModuleParameters(dataManager, streamReader);
+                    deserializeModuleParameters(dataManager, textReader);
                 }
             }
 
-            line = streamReader.ReadLine();
+            line = textReader.ReadLine();
         }
 
         return dataManager;
     }
 
-    private static void deserializeInternalSettings(ModuleDataManager dataManager, StreamReader streamReader)
+    private static void deserializeInternalSettings(ModuleDataManager dataManager, TextReader textReader)
     {
-        string? line = streamReader.ReadLine();
+        string? line = textReader.ReadLine();
 
-        while (line != "#End")
+        while (line != null && line != "#End")
         {
             var lineSplit = line.Split("=");
 
@@ -159,15 +159,15 @@ public static class ModuleStorage
                 dataManager.Enabled = bool.Parse(value);
             }
 
-            line = streamReader.ReadLine();
+            line = textReader.ReadLine();
         }
     }
 
-    private static void deserializeModuleSettings(ModuleDataManager dataManager, StreamReader streamReader)
+    private static void deserializeModuleSettings(ModuleDataManager dataManager, TextReader textReader)
     {
-        string? line = streamReader.ReadLine();
+        string? line = textReader.ReadLine();
 
-        while (line != "#End")
+        while (line != null && line != "#End")
         {
             var lineSplitFirst = line.Split(":");
             var lineSplitSecond = lineSplitFirst[1].Split("=");
@@ -216,15 +216,15 @@ public static class ModuleStorage
                 }
             }
 
-            line = streamReader.ReadLine();
+            line = textReader.ReadLine();
         }
     }
 
-    private static void deserializeModuleParameters(ModuleDataManager dataManager, StreamReader streamReader)
+    private static void deserializeModuleParameters(ModuleDataManager dataManager, TextReader textReader)
     {
-        string? line = streamReader.ReadLine();
+        string? line = textReader.ReadLine();
 
-        while (line != "#End")
+        while (line != null && line != "#End")
         {
             var lineSplit = line.Split("=");
 
@@ -233,7 +233,7 @@ public static class ModuleStorage
 
             dataManager.SetParameter(key, new ModuleParameter { Value = value });
 
-            line = streamReader.ReadLine();
+            line = textReader.ReadLine();
         }
     }
 
