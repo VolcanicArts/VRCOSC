@@ -118,7 +118,8 @@ public class ModuleGroupSelection : Container
                                             {
                                                 Anchor = Anchor.Centre,
                                                 Origin = Anchor.Centre,
-                                                RelativeSizeAxes = Axes.Both
+                                                RelativeSizeAxes = Axes.Both,
+                                                CornerRadius = 10
                                             }
                                         },
                                         new Container

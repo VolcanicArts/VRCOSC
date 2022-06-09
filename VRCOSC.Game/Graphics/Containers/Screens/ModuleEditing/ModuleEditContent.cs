@@ -49,6 +49,7 @@ public class ModuleEditContent : Container
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
                     RelativeSizeAxes = Axes.Both,
+                    CornerRadius = 10,
                     Icon = { Value = FontAwesome.Solid.Get(0xf00d) },
                     Action = ScreenManager.FinishEditingModule
                 },

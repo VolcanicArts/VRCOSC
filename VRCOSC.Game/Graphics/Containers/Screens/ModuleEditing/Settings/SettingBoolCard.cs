@@ -27,6 +27,7 @@ public class SettingBoolCard : SettingBaseCard
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
+                CornerRadius = 10,
                 State = { Value = SourceModule.DataManager.GetSettingAs<bool>(Key) }
             }
         });

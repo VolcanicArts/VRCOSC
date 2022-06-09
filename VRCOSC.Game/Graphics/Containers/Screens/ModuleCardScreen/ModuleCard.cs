@@ -166,6 +166,7 @@ public sealed class ModuleCard : Container
                                             RelativeSizeAxes = Axes.Both,
                                             Icon = { Value = FontAwesome.Solid.Get(0xF013) },
                                             FillMode = FillMode.Fit,
+                                            CornerRadius = 10,
                                             Action = () => ScreenManager.EditModule(SourceModule)
                                         },
                                         checkbox = new Checkbox
