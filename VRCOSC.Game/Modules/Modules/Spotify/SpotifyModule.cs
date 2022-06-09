@@ -17,11 +17,12 @@ public class SpotifyModule : IntegrationModule
     public override Colour4 Colour => Color4Extensions.FromHex(@"1ed760").Darken(0.5f);
     public override ModuleType Type => ModuleType.Integrations;
     public override string TargetProcess => "spotify";
-    public override string TargetExe => $@"C:\Users\{Environment.UserName}\AppData\Roaming\Spotify\spotify.exe";
+    public override string TargetExe => GetSettingAs<string>(SpotifySettings.InstallLocation);
 
     protected override Dictionary<Enum, (string, string, object)> Settings => new()
     {
-        { SpotifySettings.ShouldStart, ("Should Start", "Should Spotify start on module run?", false) }
+        { SpotifySettings.ShouldStart, ("Should Start", "Should Spotify start on module run?", false) },
+        { SpotifySettings.InstallLocation, ("Install Location", "The location of your spotify.exe file", $@"C:\Users\{Environment.UserName}\AppData\Roaming\Spotify\spotify.exe") }
     };
 
     protected override List<Enum> InputParameters => new()
@@ -60,7 +61,8 @@ public class SpotifyModule : IntegrationModule
 
 public enum SpotifySettings
 {
-    ShouldStart
+    ShouldStart,
+    InstallLocation
 }
 
 public enum SpotifyInputParameters
