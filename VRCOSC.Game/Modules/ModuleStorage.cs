@@ -55,7 +55,7 @@ public static class ModuleStorage
     {
         StringBuilder builder = new("#InternalSettings\n");
 
-        builder.Append($"enabled={dataManager.Enabled}\n");
+        builder.Append($@"enabled={dataManager.Enabled}").Append('\n');
         builder.Append("#End\n");
 
         return builder.ToString();
@@ -72,19 +72,19 @@ public static class ModuleStorage
             switch (setting)
             {
                 case StringModuleSetting stringModuleSetting:
-                    builder.Append($"string:{key}={stringModuleSetting.Value}\n");
+                    builder.Append($@"string:{key}={stringModuleSetting.Value}").Append('\n');
                     break;
 
                 case IntModuleSetting intModuleSetting:
-                    builder.Append($"int:{key}={intModuleSetting.Value}\n");
+                    builder.Append($@"int:{key}={intModuleSetting.Value}").Append('\n');
                     break;
 
                 case BoolModuleSetting boolModuleSetting:
-                    builder.Append($"bool:{key}={boolModuleSetting.Value}\n");
+                    builder.Append($@"bool:{key}={boolModuleSetting.Value}").Append('\n');
                     break;
 
                 case EnumModuleSetting enumModuleSetting:
-                    builder.Append($"enum:{key}#{enumModuleSetting.Value.GetType().Name}={Convert.ToInt32(enumModuleSetting.Value)}\n");
+                    builder.Append($@"enum:{key}#{enumModuleSetting.Value.GetType().Name}={Convert.ToInt32(enumModuleSetting.Value)}").Append('\n');
                     break;
             }
         });
@@ -100,7 +100,7 @@ public static class ModuleStorage
         dataManager.Parameters.ForEach(pair =>
         {
             var (key, parameter) = pair;
-            builder.Append($"{key}={parameter.Value}\n");
+            builder.Append($@"{key}={parameter.Value}").Append('\n');
         });
 
         builder.Append("#End\n");
