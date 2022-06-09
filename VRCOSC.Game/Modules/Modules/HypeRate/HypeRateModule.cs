@@ -26,9 +26,9 @@ public class HypeRateModule : Module
     {
         { HypeRateParameter.HeartrateEnabled, ("Heartrate Enabled", "Whether this module is attempting to emit values", "/avatar/parameters/HeartrateEnabled") },
         { HypeRateParameter.HeartrateNormalised, ("Heartrate Normalised", "The heartrate value normalised to 60bpm", "/avatar/parameters/HeartrateNormalised") },
-        { HypeRateParameter.HeartrateUnits, ("Heartrate Units", "The units value of the heartrate value", "/avatar/parameters/HeartrateUnits") },
-        { HypeRateParameter.HeartrateTens, ("Heartrate Tens", "The tens value of the heartrate value", "/avatar/parameters/HeartrateTens") },
-        { HypeRateParameter.HeartrateHundreds, ("Heartrate Hundreds", "The hundreds value of the heartrate value", "/avatar/parameters/HeartrateHundreds") }
+        { HypeRateParameter.HeartrateUnits, ("Heartrate Units", "The units digit 0-9 mapped to a float", "/avatar/parameters/HeartrateUnits") },
+        { HypeRateParameter.HeartrateTens, ("Heartrate Tens", "The tens digit 0-9 mapped to a float", "/avatar/parameters/HeartrateTens") },
+        { HypeRateParameter.HeartrateHundreds, ("Heartrate Hundreds", "The hundreds digit 0-9 mapped to a float", "/avatar/parameters/HeartrateHundreds") }
     };
 
     private HypeRateProvider? hypeRateProvider;
@@ -59,9 +59,9 @@ public class HypeRateModule : Module
 
         SendParameter(HypeRateParameter.HeartrateEnabled, true);
         SendParameter(HypeRateParameter.HeartrateNormalised, normalisedHeartRate);
-        SendParameter(HypeRateParameter.HeartrateUnits, individualValues[2]);
-        SendParameter(HypeRateParameter.HeartrateTens, individualValues[1]);
-        SendParameter(HypeRateParameter.HeartrateHundreds, individualValues[0]);
+        SendParameter(HypeRateParameter.HeartrateUnits, individualValues[2] / 10f);
+        SendParameter(HypeRateParameter.HeartrateTens, individualValues[1] / 10f);
+        SendParameter(HypeRateParameter.HeartrateHundreds, individualValues[0] / 10f);
     }
 
     protected override void OnStop()
