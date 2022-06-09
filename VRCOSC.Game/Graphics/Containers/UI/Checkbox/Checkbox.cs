@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
@@ -29,7 +29,7 @@ public class Checkbox : IconButton
 
     protected override bool OnClick(ClickEvent e)
     {
-        State.Toggle();
+        if (Enabled.Value) State.Toggle();
         return base.OnClick(e);
     }
 }
