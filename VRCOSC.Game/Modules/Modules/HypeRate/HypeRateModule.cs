@@ -31,12 +31,21 @@ public class HypeRateModule : Module
         { HypeRateParameter.HeartrateHundreds, ("Heartrate Hundreds", "The hundreds value of the heartrate value", "/avatar/parameters/HeartrateHundreds") }
     };
 
-    private HypeRateProvider hypeRateProvider;
+    private HypeRateProvider? hypeRateProvider;
 
     protected override void OnStart()
     {
         SendParameter(HypeRateParameter.HeartrateEnabled, false);
-        hypeRateProvider = new HypeRateProvider(GetSettingAs<string>(HypeRateSettings.Id), VRCOSCSecrets.KEYS_HYPERATE);
+
+        var hypeRateId = GetSettingAs<string>(HypeRateSettings.Id);
+
+        if (string.IsNullOrEmpty(hypeRateId))
+        {
+            Terminal.Log("Cannot connect to HypeRate. Please enter an Id");
+            return;
+        }
+
+        hypeRateProvider = new HypeRateProvider(hypeRateId, VRCOSCSecrets.KEYS_HYPERATE);
         hypeRateProvider.OnHeartRateUpdate += handleHeartRateUpdate;
         hypeRateProvider.OnConnected += () => SendParameter(HypeRateParameter.HeartrateEnabled, true);
         hypeRateProvider.OnDisconnected += () => SendParameter(HypeRateParameter.HeartrateEnabled, false);
@@ -57,7 +66,7 @@ public class HypeRateModule : Module
 
     protected override void OnStop()
     {
-        hypeRateProvider.Disconnect();
+        hypeRateProvider?.Disconnect();
     }
 }
 
