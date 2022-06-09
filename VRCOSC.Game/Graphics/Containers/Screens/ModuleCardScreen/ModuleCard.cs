@@ -164,7 +164,7 @@ public sealed class ModuleCard : Container
                                             Anchor = Anchor.BottomLeft,
                                             Origin = Anchor.BottomLeft,
                                             RelativeSizeAxes = Axes.Both,
-                                            Icon = { Value = FontAwesome.Solid.Edit },
+                                            Icon = { Value = FontAwesome.Solid.Get(0xF013) },
                                             FillMode = FillMode.Fit,
                                             Action = () => ScreenManager.EditModule(SourceModule)
                                         },
