@@ -11,6 +11,8 @@ namespace VRCOSC.Game.Graphics.Containers.UI.Checkbox;
 public class Checkbox : IconButton
 {
     public BindableBool State { get; } = new();
+    public IconUsage IconOn { get; init; } = FontAwesome.Solid.Check;
+    public IconUsage IconOff { get; init; } = FontAwesome.Solid.Get(0xf00d);
 
     [BackgroundDependencyLoader]
     private void load()
@@ -18,7 +20,7 @@ public class Checkbox : IconButton
         State.BindValueChanged(e =>
         {
             BackgroundColour.Value = e.NewValue ? VRCOSCColour.Green : VRCOSCColour.Red;
-            Icon.Value = e.NewValue ? FontAwesome.Solid.Check : FontAwesome.Solid.Get(0xf00d);
+            Icon.Value = e.NewValue ? IconOn : IconOff;
         }, true);
     }
 

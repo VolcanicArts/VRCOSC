@@ -175,7 +175,9 @@ public sealed class ModuleCard : Container
                                             RelativeSizeAxes = Axes.Both,
                                             FillMode = FillMode.Fit,
                                             CornerRadius = 10,
-                                            State = { Value = SourceModule.DataManager.Enabled }
+                                            State = { Value = SourceModule.DataManager.Enabled },
+                                            IconOn = FontAwesome.Solid.PowerOff,
+                                            IconOff = FontAwesome.Solid.PowerOff
                                         }
                                     }
                                 }
