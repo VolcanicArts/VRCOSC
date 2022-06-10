@@ -93,7 +93,7 @@ public sealed class TerminalContainer : Container
     {
         Scheduler.Add(() =>
         {
-            var formattedText = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {text}";
+            var formattedText = $"[{DateTime.Now:HH:mm:ss}] {text}";
             terminalFlow.Add(new TerminalEntry(formattedText));
         });
     }
