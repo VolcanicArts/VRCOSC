@@ -5,13 +5,12 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Shapes;
-using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Input.Events;
 using osuTK.Graphics;
 
-namespace VRCOSC.Game.Graphics.Containers.UI;
+namespace VRCOSC.Game.Graphics.Containers.UI.Button;
 
-public class VRCOSCButton : Button
+public class VRCOSCButton : osu.Framework.Graphics.UserInterface.Button
 {
     private const float hovered_size = 1.05f;
     private const float mouse_down_size = 0.9f;
