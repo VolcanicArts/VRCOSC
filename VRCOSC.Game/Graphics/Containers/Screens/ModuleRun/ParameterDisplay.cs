@@ -19,6 +19,10 @@ public class ParameterDisplay : Container
     [BackgroundDependencyLoader]
     private void load()
     {
+        Masking = true;
+        BorderThickness = 2;
+        BorderColour = VRCOSCColour.Gray0;
+
         Children = new Drawable[]
         {
             new GridContainer
@@ -39,23 +43,33 @@ public class ParameterDisplay : Container
                         {
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
-                            Text = Title
+                            Text = Title,
+                            Font = FrameworkFont.Regular.With(size: 30),
+                            Shadow = true
                         }
                     },
                     new Drawable[]
                     {
-                        parameterFlow = new FillFlowContainer<ParameterEntry>
+                        new BasicScrollContainer
                         {
-                            Anchor = Anchor.TopCentre,
-                            Origin = Anchor.TopCentre,
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
                             RelativeSizeAxes = Axes.Both,
-                            Height = 0.5f,
+                            ScrollbarVisible = false,
+                            ClampExtension = 10,
                             Padding = new MarginPadding
                             {
                                 Vertical = 1.5f,
                                 Horizontal = 3
-                            }
-                        },
+                            },
+                            Child = parameterFlow = new FillFlowContainer<ParameterEntry>
+                            {
+                                Anchor = Anchor.TopCentre,
+                                Origin = Anchor.TopCentre,
+                                RelativeSizeAxes = Axes.X,
+                                AutoSizeAxes = Axes.Y
+                            },
+                        }
                     }
                 }
             }

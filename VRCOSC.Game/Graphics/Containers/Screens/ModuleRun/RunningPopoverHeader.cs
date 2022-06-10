@@ -47,14 +47,16 @@ public sealed class RunningPopoverHeader : Container
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
                             Text = "Terminal",
-                            Font = FrameworkFont.Regular.With(size: 40)
+                            Font = FrameworkFont.Regular.With(size: 40),
+                            Shadow = true
                         },
                         new SpriteText
                         {
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
                             Text = "Parameters",
-                            Font = FrameworkFont.Regular.With(size: 40)
+                            Font = FrameworkFont.Regular.With(size: 40),
+                            Shadow = true
                         },
                     }
                 }
