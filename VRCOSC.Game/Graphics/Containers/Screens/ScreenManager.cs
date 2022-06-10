@@ -6,7 +6,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using VRCOSC.Game.Graphics.Containers.Screens.ModuleCardScreen;
 using VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing;
-using VRCOSC.Game.Graphics.Containers.Screens.TerminalScreen;
+using VRCOSC.Game.Graphics.Containers.Screens.ModuleRun;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens;
@@ -14,7 +14,7 @@ namespace VRCOSC.Game.Graphics.Containers.Screens;
 [Cached]
 public sealed class ScreenManager : Container
 {
-    private TerminalContainer terminalContainer;
+    private RunningPopover runningPopover;
     private ModuleEditPopover moduleEditContainer;
 
     public ScreenManager()
@@ -34,7 +34,7 @@ public sealed class ScreenManager : Container
         {
             ModuleManager,
             new ModuleSelection(),
-            terminalContainer = new TerminalContainer(),
+            runningPopover = new RunningPopover(),
             moduleEditContainer = new ModuleEditPopover()
         };
     }
@@ -64,8 +64,8 @@ public sealed class ScreenManager : Container
     {
         Scheduler.Add(() =>
         {
-            ChangeChildDepth(terminalContainer, -1);
-            terminalContainer.MoveToY(0, 1000, Easing.OutQuint).Finally(_ => ModuleManager.Start());
+            ChangeChildDepth(runningPopover, -1);
+            runningPopover.MoveToY(0, 1000, Easing.OutQuint).Finally(_ => ModuleManager.Start());
         });
     }
 
@@ -74,10 +74,10 @@ public sealed class ScreenManager : Container
         Scheduler.Add(() =>
         {
             ModuleManager.Stop();
-            terminalContainer.MoveToY(1, 1000, Easing.InQuint).Finally(_ =>
+            runningPopover.MoveToY(1, 1000, Easing.InQuint).Finally(_ =>
             {
-                ChangeChildDepth(terminalContainer, 0);
-                terminalContainer.ClearTerminal();
+                ChangeChildDepth(runningPopover, 0);
+                runningPopover.Reset();
             });
         });
     }

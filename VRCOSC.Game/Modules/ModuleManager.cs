@@ -27,6 +27,9 @@ public sealed class ModuleManager : Container<ModuleGroup>
     private readonly UdpClient receivingClient;
     private CancellationTokenSource? tokenSource;
 
+    public Action<string, object> OnParameterSent;
+    public Action<string, object> OnParameterReceived;
+
     public ModuleManager()
     {
         sendingClient = new UdpClient(osc_ip_address, osc_send_port);
@@ -49,6 +52,8 @@ public sealed class ModuleManager : Container<ModuleGroup>
                 module.OscClient = sendingClient;
                 module.CreateAttributes();
                 module.DataManager.LoadData();
+                module.OnParameterSent += (key, value) => OnParameterSent.Invoke(key, value);
+                module.OnParameterReceived += (key, value) => OnParameterReceived.Invoke(key, value);
                 moduleGroup.Add(new ModuleContainer(module));
             }
 
