@@ -37,7 +37,6 @@ public class ComputerStatsModule : Module
         Task.Run(async () =>
         {
             var usage = await ComputerStatsProvider.GetCpuUsage();
-            Terminal.Log($"Current CPU Usage: {usage * 100f}%");
             SendParameter(ComputerStatsParameter.CPUUsage, usage);
         }).ConfigureAwait(false);
     }
@@ -47,7 +46,6 @@ public class ComputerStatsModule : Module
         Task.Run(async () =>
         {
             var usage = await ComputerStatsProvider.GetGpuUsage();
-            Terminal.Log($"Current GPU Usage: {usage * 100f}%");
             SendParameter(ComputerStatsParameter.GPUUsage, usage);
         }).ConfigureAwait(false);
     }
@@ -57,7 +55,6 @@ public class ComputerStatsModule : Module
         Task.Run(async () =>
         {
             var usage = await ComputerStatsProvider.GetRamUsage();
-            Terminal.Log($"Current RAM Usage: {usage * 100f}%");
             SendParameter(ComputerStatsParameter.RAMUsage, usage);
         }).ConfigureAwait(false);
     }
