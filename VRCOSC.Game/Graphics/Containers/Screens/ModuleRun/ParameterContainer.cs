@@ -25,7 +25,8 @@ public sealed class ParameterContainer : Container
     [BackgroundDependencyLoader]
     private void load()
     {
-        FillFlowContainer<ParameterEntry> parameterFlow;
+        FillFlowContainer<ParameterEntry> outgoingParameterFlow;
+        FillFlowContainer<ParameterEntry> incomingParameterFlow;
 
         Child = new Container
         {
@@ -50,11 +51,24 @@ public sealed class ParameterContainer : Container
                     RelativeSizeAxes = Axes.Both,
                     Padding = new MarginPadding(1.5f)
                 },
-                parameterFlow = new FillFlowContainer<ParameterEntry>
+                outgoingParameterFlow = new FillFlowContainer<ParameterEntry>
                 {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
+                    Anchor = Anchor.TopCentre,
+                    Origin = Anchor.TopCentre,
                     RelativeSizeAxes = Axes.Both,
+                    Height = 0.5f,
+                    Padding = new MarginPadding
+                    {
+                        Vertical = 1.5f,
+                        Horizontal = 3
+                    }
+                },
+                incomingParameterFlow = new FillFlowContainer<ParameterEntry>
+                {
+                    Anchor = Anchor.BottomCentre,
+                    Origin = Anchor.BottomCentre,
+                    RelativeSizeAxes = Axes.Both,
+                    Height = 0.5f,
                     Padding = new MarginPadding
                     {
                         Vertical = 1.5f,
@@ -66,27 +80,50 @@ public sealed class ParameterContainer : Container
 
         moduleManager.OnParameterSent += (key, value) =>
         {
-            bool successful = false;
-            parameterFlow.ForEach(entry =>
+            Scheduler.Add(() =>
             {
-                if (!entry.Key.Equals(key)) return;
-
-                entry.Value.Value = value.ToString() ?? "Invalid Object";
-                successful = true;
-            });
-
-            if (!successful)
-            {
-                parameterFlow.Add(new ParameterEntry
+                bool successful = false;
+                outgoingParameterFlow.ForEach(entry =>
                 {
-                    Anchor = Anchor.TopLeft,
-                    Origin = Anchor.TopLeft,
-                    RelativeSizeAxes = Axes.X,
-                    AutoSizeAxes = Axes.Y,
-                    Key = key,
-                    Value = { Value = value.ToString() ?? "Invalid Object" }
+                    if (!entry.Key.Equals(key)) return;
+
+                    entry.Value.Value = value.ToString() ?? "Invalid Object";
+                    successful = true;
                 });
-            }
+
+                if (!successful)
+                {
+                    outgoingParameterFlow.Add(new ParameterEntry
+                    {
+                        Key = key,
+                        Value = { Value = value.ToString() ?? "Invalid Object" }
+                    });
+                }
+            });
+        };
+
+        moduleManager.OnParameterReceived += (key, value) =>
+        {
+            Scheduler.Add(() =>
+            {
+                bool successful = false;
+                incomingParameterFlow.ForEach(entry =>
+                {
+                    if (!entry.Key.Equals(key)) return;
+
+                    entry.Value.Value = value.ToString() ?? "Invalid Object";
+                    successful = true;
+                });
+
+                if (!successful)
+                {
+                    incomingParameterFlow.Add(new ParameterEntry
+                    {
+                        Key = key,
+                        Value = { Value = value.ToString() ?? "Invalid Object" }
+                    });
+                }
+            });
         };
     }
 }

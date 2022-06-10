@@ -27,8 +27,8 @@ public sealed class ModuleManager : Container<ModuleGroup>
     private readonly UdpClient receivingClient;
     private CancellationTokenSource? tokenSource;
 
-    public Action<Enum, object> OnParameterSent;
-    public Action<Enum, object> OnParameterReceived;
+    public Action<string, object> OnParameterSent;
+    public Action<string, object> OnParameterReceived;
 
     public ModuleManager()
     {

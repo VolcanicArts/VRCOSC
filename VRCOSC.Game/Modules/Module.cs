@@ -36,8 +36,8 @@ public abstract class Module
     private readonly Dictionary<string, object> defaultSettings = new();
     private readonly Dictionary<string, string> defaultOutputParameters = new();
 
-    public Action<Enum, object> OnParameterSent;
-    public Action<Enum, object> OnParameterReceived;
+    public Action<string, object> OnParameterSent;
+    public Action<string, object> OnParameterReceived;
 
     public bool IsRequestingInput => InputParameters.Count != 0;
 
@@ -130,7 +130,7 @@ public abstract class Module
 
         var key = InputParameters.ElementAt(id);
 
-        OnParameterReceived?.Invoke(key, value);
+        OnParameterReceived?.Invoke($@"/avatar/parameters/{key}", value);
 
         switch (value)
         {
@@ -170,7 +170,7 @@ public abstract class Module
         var address = new Address(DataManager.GetParameter(key));
         var message = new OscMessage(address, new[] { value });
         OscClient.SendMessageAsync(message);
-        OnParameterSent?.Invoke(key, value);
+        OnParameterSent?.Invoke(DataManager.GetParameter(key), value);
     }
 
     protected static int[] ToDigitArray(int num, int totalWidth)

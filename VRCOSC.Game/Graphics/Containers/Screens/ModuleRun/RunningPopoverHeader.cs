@@ -53,7 +53,7 @@ public sealed class RunningPopoverHeader : Container
                         {
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
-                            Text = "Outgoing Parameters",
+                            Text = "Parameters",
                             Font = FrameworkFont.Regular.With(size: 40)
                         },
                     }
