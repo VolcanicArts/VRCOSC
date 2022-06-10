@@ -45,9 +45,9 @@ public static class ModuleStorage
     private static string serialize(ModuleDataManager dataManager)
     {
         StringBuilder builder = new();
-        builder.Append($"{serializeInternalSettings(dataManager)}\n");
-        builder.Append($"{serializeModuleSettings(dataManager)}\n");
-        builder.Append($"{serializeModuleParameters(dataManager)}\n");
+        builder.Append($@"{serializeInternalSettings(dataManager)}").Append('\n');
+        builder.Append($@"{serializeModuleSettings(dataManager)}").Append('\n');
+        builder.Append($@"{serializeModuleParameters(dataManager)}").Append('\n');
         return builder.ToString();
     }
 
@@ -149,7 +149,7 @@ public static class ModuleStorage
 
         while (line != null && line != "#End")
         {
-            var lineSplit = line.Split("=");
+            var lineSplit = line.Split(new[] { '=' }, 2);
 
             var key = lineSplit[0];
             var value = lineSplit[1];
@@ -169,8 +169,8 @@ public static class ModuleStorage
 
         while (line != null && line != "#End")
         {
-            var lineSplitFirst = line.Split(":");
-            var lineSplitSecond = lineSplitFirst[1].Split("=");
+            var lineSplitFirst = line.Split(new[] { ':' }, 2);
+            var lineSplitSecond = lineSplitFirst[1].Split(new[] { '=' }, 2);
 
             var type = lineSplitFirst[0];
             var key = lineSplitSecond[0];
@@ -192,7 +192,7 @@ public static class ModuleStorage
 
                 case "enum":
                 {
-                    var lineSplitThird = key.Split("#");
+                    var lineSplitThird = key.Split(new[] { '#' }, 2);
 
                     key = lineSplitThird[0];
                     var enumName = lineSplitThird[1];
@@ -226,7 +226,7 @@ public static class ModuleStorage
 
         while (line != null && line != "#End")
         {
-            var lineSplit = line.Split("=");
+            var lineSplit = line.Split(new[] { '=' }, 2);
 
             var key = lineSplit[0];
             var value = lineSplit[1];
