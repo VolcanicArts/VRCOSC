@@ -80,8 +80,32 @@ public sealed class RunningPopover : Container
                     {
                         new Drawable[]
                         {
-                            new TerminalContainer(),
-                            null
+                            new Container
+                            {
+                                Anchor = Anchor.Centre,
+                                Origin = Anchor.Centre,
+                                RelativeSizeAxes = Axes.Both,
+                                Padding = new MarginPadding
+                                {
+                                    Vertical = 15,
+                                    Left = 15,
+                                    Right = 15 / 2f
+                                },
+                                Child = new TerminalContainer()
+                            },
+                            new Container
+                            {
+                                Anchor = Anchor.Centre,
+                                Origin = Anchor.Centre,
+                                RelativeSizeAxes = Axes.Both,
+                                Padding = new MarginPadding
+                                {
+                                    Vertical = 15,
+                                    Right = 15,
+                                    Left = 15 / 2f
+                                },
+                                Child = new ParameterContainer()
+                            }
                         },
                     }
                 }

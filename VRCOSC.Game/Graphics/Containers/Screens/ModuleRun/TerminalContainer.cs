@@ -23,7 +23,6 @@ public sealed class TerminalContainer : Container
         Anchor = Anchor.Centre;
         Origin = Anchor.Centre;
         RelativeSizeAxes = Axes.Both;
-        Padding = new MarginPadding(15);
     }
 
     [BackgroundDependencyLoader]
