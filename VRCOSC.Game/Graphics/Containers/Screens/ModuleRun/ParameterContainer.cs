@@ -5,11 +5,15 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleRun;
 
 public sealed class ParameterContainer : Container
 {
+    [Resolved]
+    private ModuleManager moduleManager { get; set; }
+
     public ParameterContainer()
     {
         Anchor = Anchor.Centre;
@@ -20,6 +24,8 @@ public sealed class ParameterContainer : Container
     [BackgroundDependencyLoader]
     private void load()
     {
+        FillFlowContainer<ParameterEntry> parameterFlow;
+
         Child = new Container
         {
             Anchor = Anchor.Centre,
@@ -42,8 +48,32 @@ public sealed class ParameterContainer : Container
                     Origin = Anchor.Centre,
                     RelativeSizeAxes = Axes.Both,
                     Padding = new MarginPadding(1.5f)
+                },
+                parameterFlow = new FillFlowContainer<ParameterEntry>
+                {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    RelativeSizeAxes = Axes.Both,
+                    Padding = new MarginPadding
+                    {
+                        Vertical = 1.5f,
+                        Horizontal = 3
+                    }
                 }
             }
+        };
+
+        moduleManager.OnParameterSent += (key, value) =>
+        {
+            parameterFlow.Add(new ParameterEntry
+            {
+                Anchor = Anchor.TopLeft,
+                Origin = Anchor.TopLeft,
+                RelativeSizeAxes = Axes.X,
+                AutoSizeAxes = Axes.Y,
+                Key = key,
+                Value = { Value = value.ToString() ?? "Invalid Object" }
+            });
         };
     }
 }
