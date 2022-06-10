@@ -77,7 +77,7 @@ public sealed class ScreenManager : Container
             runningPopover.MoveToY(1, 1000, Easing.InQuint).Finally(_ =>
             {
                 ChangeChildDepth(runningPopover, 0);
-                runningPopover.ClearTerminal();
+                runningPopover.Reset();
             });
         });
     }

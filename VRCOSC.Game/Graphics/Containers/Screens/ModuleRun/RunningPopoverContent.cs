@@ -15,6 +15,7 @@ public class RunningPopoverContent : Container
     private ScreenManager ScreenManager { get; set; }
 
     public TerminalContainer Terminal;
+    public ParameterContainer Parameters;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -60,7 +61,7 @@ public class RunningPopoverContent : Container
                             Right = 15,
                             Left = 15 / 2f
                         },
-                        Child = new ParameterContainer()
+                        Child = Parameters = new ParameterContainer()
                     }
                 }
             }

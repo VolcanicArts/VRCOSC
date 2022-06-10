@@ -14,6 +14,9 @@ public sealed class ParameterContainer : Container
     [Resolved]
     private ModuleManager moduleManager { get; set; }
 
+    private ParameterDisplay outgoingParameterDisplay;
+    private ParameterDisplay incomingParameterDisplay;
+
     public ParameterContainer()
     {
         Anchor = Anchor.Centre;
@@ -24,9 +27,6 @@ public sealed class ParameterContainer : Container
     [BackgroundDependencyLoader]
     private void load()
     {
-        ParameterDisplay outgoingParameterDisplay;
-        ParameterDisplay incomingParameterDisplay;
-
         Child = new Container
         {
             Anchor = Anchor.Centre,
@@ -81,5 +81,11 @@ public sealed class ParameterContainer : Container
 
         moduleManager.OnParameterSent += (key, value) => outgoingParameterDisplay.AddEntry(key, value);
         moduleManager.OnParameterReceived += (key, value) => incomingParameterDisplay.AddEntry(key, value);
+    }
+
+    public void ClearParameters()
+    {
+        outgoingParameterDisplay.ClearContent();
+        incomingParameterDisplay.ClearContent();
     }
 }

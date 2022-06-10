@@ -61,6 +61,11 @@ public class ParameterDisplay : Container
         };
     }
 
+    public void ClearContent()
+    {
+        parameterFlow.Clear();
+    }
+
     public void AddEntry(string key, object value)
     {
         Scheduler.Add(() => addEntry(key, value));

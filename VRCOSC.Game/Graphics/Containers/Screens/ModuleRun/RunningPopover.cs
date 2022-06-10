@@ -92,9 +92,10 @@ public sealed class RunningPopover : Container
         };
     }
 
-    public void ClearTerminal()
+    public void Reset()
     {
         content.Terminal.ClearTerminal();
+        content.Parameters.ClearParameters();
     }
 
     protected override bool OnMouseDown(MouseDownEvent e)
