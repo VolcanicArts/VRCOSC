@@ -87,9 +87,7 @@ public class HypeRateProvider : HeartrateProvider
 
     private void handleHrUpdate(HeartRateUpdateModel update)
     {
-        var heartRate = update.Payload.HeartRate;
-        terminal.Log($"Received heartrate {heartRate}");
-        OnHeartRateUpdate?.Invoke(heartRate);
+        OnHeartRateUpdate?.Invoke(update.Payload.HeartRate);
     }
 
     public override void Dispose()
