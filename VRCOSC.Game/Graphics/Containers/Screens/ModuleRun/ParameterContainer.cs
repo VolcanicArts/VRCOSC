@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -65,15 +66,27 @@ public sealed class ParameterContainer : Container
 
         moduleManager.OnParameterSent += (key, value) =>
         {
-            parameterFlow.Add(new ParameterEntry
+            bool successful = false;
+            parameterFlow.ForEach(entry =>
             {
-                Anchor = Anchor.TopLeft,
-                Origin = Anchor.TopLeft,
-                RelativeSizeAxes = Axes.X,
-                AutoSizeAxes = Axes.Y,
-                Key = key,
-                Value = { Value = value.ToString() ?? "Invalid Object" }
+                if (!entry.Key.Equals(key)) return;
+
+                entry.Value.Value = value.ToString() ?? "Invalid Object";
+                successful = true;
             });
+
+            if (!successful)
+            {
+                parameterFlow.Add(new ParameterEntry
+                {
+                    Anchor = Anchor.TopLeft,
+                    Origin = Anchor.TopLeft,
+                    RelativeSizeAxes = Axes.X,
+                    AutoSizeAxes = Axes.Y,
+                    Key = key,
+                    Value = { Value = value.ToString() ?? "Invalid Object" }
+                });
+            }
         };
     }
 }

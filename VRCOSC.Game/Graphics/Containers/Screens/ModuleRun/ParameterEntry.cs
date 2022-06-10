@@ -40,12 +40,15 @@ public class ParameterEntry : Container
             }
         };
 
-        Value.BindValueChanged(e => text.Text = $@"{Key}: {e.NewValue}", true);
+        Value.BindValueChanged(e =>
+        {
+            text.Text = $@"{Key}: {e.NewValue}";
+            flashColour();
+        }, true);
     }
 
-    protected override void LoadComplete()
+    private void flashColour()
     {
-        base.LoadComplete();
         background.FlashColour(VRCOSCColour.GrayD, 500, Easing.OutCubic);
     }
 }
