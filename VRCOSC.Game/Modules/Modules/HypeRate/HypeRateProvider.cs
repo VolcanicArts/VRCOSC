@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Threading;
 using Newtonsoft.Json;
 using VRCOSC.Game.Modules.Frameworks;
@@ -16,6 +17,8 @@ public class HypeRateProvider : HeartrateProvider
     private readonly string id;
     private Timer? heartBeatTimer;
     private readonly TerminalLogger terminal = new(nameof(HypeRateModule));
+
+    public Action OnWsHeartbeat;
 
     public HypeRateProvider(string id, string apiKey)
         : base(hype_rate_uri + apiKey)
@@ -67,6 +70,7 @@ public class HypeRateProvider : HeartrateProvider
     {
         terminal.Log("Sending HypeRate websocket heartbeat");
         Send(new HeartBeatModel());
+        OnWsHeartbeat?.Invoke();
         heartBeatTimer?.Change(heartbeat_internal, Timeout.Infinite);
     }
 

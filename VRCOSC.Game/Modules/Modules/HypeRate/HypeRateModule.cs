@@ -32,6 +32,7 @@ public class HypeRateModule : Module
     };
 
     private HypeRateProvider? hypeRateProvider;
+    private bool receivedHeartrate;
 
     protected override void OnStart()
     {
@@ -49,11 +50,13 @@ public class HypeRateModule : Module
         hypeRateProvider.OnHeartRateUpdate += handleHeartRateUpdate;
         hypeRateProvider.OnConnected += () => SendParameter(HypeRateParameter.HeartrateEnabled, true);
         hypeRateProvider.OnDisconnected += () => SendParameter(HypeRateParameter.HeartrateEnabled, false);
+        hypeRateProvider.OnWsHeartbeat += handleWsHeartbeat;
         hypeRateProvider.Connect();
     }
 
     private void handleHeartRateUpdate(int heartrate)
     {
+        receivedHeartrate = true;
         var normalisedHeartRate = heartrate / 60.0f;
         var individualValues = ToDigitArray(heartrate, 3);
 
@@ -62,6 +65,12 @@ public class HypeRateModule : Module
         SendParameter(HypeRateParameter.HeartrateUnits, individualValues[2] / 10f);
         SendParameter(HypeRateParameter.HeartrateTens, individualValues[1] / 10f);
         SendParameter(HypeRateParameter.HeartrateHundreds, individualValues[0] / 10f);
+    }
+
+    private void handleWsHeartbeat()
+    {
+        if (!receivedHeartrate) SendParameter(HypeRateParameter.HeartrateEnabled, false);
+        receivedHeartrate = false;
     }
 
     protected override void OnStop()
