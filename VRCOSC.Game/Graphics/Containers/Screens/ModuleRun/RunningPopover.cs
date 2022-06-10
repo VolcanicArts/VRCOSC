@@ -18,6 +18,8 @@ public sealed class RunningPopover : Container
     [Resolved]
     private ScreenManager ScreenManager { get; set; }
 
+    public TerminalContainer Terminal;
+
     public RunningPopover()
     {
         Anchor = Anchor.Centre;
@@ -91,7 +93,7 @@ public sealed class RunningPopover : Container
                                     Left = 15,
                                     Right = 15 / 2f
                                 },
-                                Child = new TerminalContainer()
+                                Child = Terminal = new TerminalContainer()
                             },
                             new Container
                             {
