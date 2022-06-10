@@ -8,7 +8,6 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
 using osuTK;
-using VRCOSC.Game.Graphics.Containers.UI;
 using VRCOSC.Game.Graphics.Containers.UI.Button;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleRun;

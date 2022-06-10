@@ -9,10 +9,10 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
-using VRCOSC.Game.Graphics.Containers.UI;
 using VRCOSC.Game.Graphics.Containers.UI.Button;
 using VRCOSC.Game.Graphics.Containers.UI.Checkbox;
 using VRCOSC.Game.Graphics.Drawables.Triangles;
+using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleCardScreen;
 
@@ -21,7 +21,7 @@ public sealed class ModuleCard : Container
     [Resolved]
     private ScreenManager ScreenManager { get; set; }
 
-    public Modules.Module SourceModule { get; init; }
+    public Module SourceModule { get; init; }
 
     public ModuleCard()
     {
