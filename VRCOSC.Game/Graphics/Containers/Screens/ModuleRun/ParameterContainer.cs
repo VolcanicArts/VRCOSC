@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
-using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -25,8 +24,8 @@ public sealed class ParameterContainer : Container
     [BackgroundDependencyLoader]
     private void load()
     {
-        FillFlowContainer<ParameterEntry> outgoingParameterFlow;
-        FillFlowContainer<ParameterEntry> incomingParameterFlow;
+        ParameterDisplay outgoingParameterDisplay;
+        ParameterDisplay incomingParameterDisplay;
 
         Child = new Container
         {
@@ -51,7 +50,7 @@ public sealed class ParameterContainer : Container
                     RelativeSizeAxes = Axes.Both,
                     Padding = new MarginPadding(1.5f)
                 },
-                outgoingParameterFlow = new FillFlowContainer<ParameterEntry>
+                outgoingParameterDisplay = new ParameterDisplay
                 {
                     Anchor = Anchor.TopCentre,
                     Origin = Anchor.TopCentre,
@@ -61,9 +60,10 @@ public sealed class ParameterContainer : Container
                     {
                         Vertical = 1.5f,
                         Horizontal = 3
-                    }
+                    },
+                    Title = "Outgoing"
                 },
-                incomingParameterFlow = new FillFlowContainer<ParameterEntry>
+                incomingParameterDisplay = new ParameterDisplay
                 {
                     Anchor = Anchor.BottomCentre,
                     Origin = Anchor.BottomCentre,
@@ -73,57 +73,13 @@ public sealed class ParameterContainer : Container
                     {
                         Vertical = 1.5f,
                         Horizontal = 3
-                    }
+                    },
+                    Title = "Incoming"
                 }
             }
         };
 
-        moduleManager.OnParameterSent += (key, value) =>
-        {
-            Scheduler.Add(() =>
-            {
-                bool successful = false;
-                outgoingParameterFlow.ForEach(entry =>
-                {
-                    if (!entry.Key.Equals(key)) return;
-
-                    entry.Value.Value = value.ToString() ?? "Invalid Object";
-                    successful = true;
-                });
-
-                if (!successful)
-                {
-                    outgoingParameterFlow.Add(new ParameterEntry
-                    {
-                        Key = key,
-                        Value = { Value = value.ToString() ?? "Invalid Object" }
-                    });
-                }
-            });
-        };
-
-        moduleManager.OnParameterReceived += (key, value) =>
-        {
-            Scheduler.Add(() =>
-            {
-                bool successful = false;
-                incomingParameterFlow.ForEach(entry =>
-                {
-                    if (!entry.Key.Equals(key)) return;
-
-                    entry.Value.Value = value.ToString() ?? "Invalid Object";
-                    successful = true;
-                });
-
-                if (!successful)
-                {
-                    incomingParameterFlow.Add(new ParameterEntry
-                    {
-                        Key = key,
-                        Value = { Value = value.ToString() ?? "Invalid Object" }
-                    });
-                }
-            });
-        };
+        moduleManager.OnParameterSent += (key, value) => outgoingParameterDisplay.AddEntry(key, value);
+        moduleManager.OnParameterReceived += (key, value) => incomingParameterDisplay.AddEntry(key, value);
     }
 }
