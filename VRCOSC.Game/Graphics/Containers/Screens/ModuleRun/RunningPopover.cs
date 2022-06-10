@@ -8,7 +8,6 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
 using osuTK;
-using osuTK.Input;
 using VRCOSC.Game.Graphics.Containers.UI;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleRun;
@@ -18,7 +17,7 @@ public sealed class RunningPopover : Container
     [Resolved]
     private ScreenManager ScreenManager { get; set; }
 
-    public TerminalContainer Terminal;
+    private RunningPopoverContent content;
 
     public RunningPopover()
     {
@@ -51,13 +50,34 @@ public sealed class RunningPopover : Container
                     RelativeSizeAxes = Axes.Both,
                     Colour = VRCOSCColour.Gray3
                 },
+                new GridContainer
+                {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    RelativeSizeAxes = Axes.Both,
+                    RowDimensions = new[]
+                    {
+                        new Dimension(GridSizeMode.Absolute, 60),
+                        new Dimension()
+                    },
+                    Content = new[]
+                    {
+                        new Drawable[]
+                        {
+                            new RunningPopoverHeader()
+                        },
+                        new Drawable[]
+                        {
+                            content = new RunningPopoverContent()
+                        }
+                    }
+                },
                 new Container
                 {
                     Anchor = Anchor.TopRight,
                     Origin = Anchor.TopRight,
-                    Size = new Vector2(80),
+                    Size = new Vector2(60),
                     Padding = new MarginPadding(10),
-                    Depth = float.MinValue,
                     Child = new IconButton
                     {
                         Anchor = Anchor.Centre,
@@ -66,61 +86,15 @@ public sealed class RunningPopover : Container
                         CornerRadius = 10,
                         Icon = { Value = FontAwesome.Solid.Get(0xf00d) },
                         Action = ScreenManager.HideTerminal
-                    },
-                },
-                new GridContainer
-                {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    RelativeSizeAxes = Axes.Both,
-                    ColumnDimensions = new[]
-                    {
-                        new Dimension(),
-                        new Dimension()
-                    },
-                    Content = new[]
-                    {
-                        new Drawable[]
-                        {
-                            new Container
-                            {
-                                Anchor = Anchor.Centre,
-                                Origin = Anchor.Centre,
-                                RelativeSizeAxes = Axes.Both,
-                                Padding = new MarginPadding
-                                {
-                                    Vertical = 15,
-                                    Left = 15,
-                                    Right = 15 / 2f
-                                },
-                                Child = Terminal = new TerminalContainer()
-                            },
-                            new Container
-                            {
-                                Anchor = Anchor.Centre,
-                                Origin = Anchor.Centre,
-                                RelativeSizeAxes = Axes.Both,
-                                Padding = new MarginPadding
-                                {
-                                    Vertical = 15,
-                                    Right = 15,
-                                    Left = 15 / 2f
-                                },
-                                Child = new ParameterContainer()
-                            }
-                        },
                     }
                 }
             }
         };
     }
 
-    protected override bool OnKeyDown(KeyDownEvent e)
+    public void ClearTerminal()
     {
-        if (e.Key != Key.Escape) return base.OnKeyDown(e);
-
-        ScreenManager.HideTerminal();
-        return true;
+        content.Terminal.ClearTerminal();
     }
 
     protected override bool OnMouseDown(MouseDownEvent e)
