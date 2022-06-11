@@ -130,7 +130,7 @@ public abstract class Module
 
         var key = InputParameters.ElementAt(id);
 
-        OnParameterReceived?.Invoke($@"/avatar/parameters/{key}", value);
+        OnParameterReceived?.Invoke(address, value);
 
         switch (value)
         {
