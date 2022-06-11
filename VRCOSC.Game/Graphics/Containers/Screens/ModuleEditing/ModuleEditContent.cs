@@ -24,10 +24,7 @@ public class ModuleEditContent : Container
     [BackgroundDependencyLoader]
     private void load()
     {
-        SpriteText title;
-        SpriteText description;
-        SpriteText author;
-
+        TextFlowContainer metadataTextFlow;
         LineSeparator settingsSeparator;
         SettingsFlow settingsFlow;
         LineSeparator parametersSeparator;
@@ -75,37 +72,12 @@ public class ModuleEditContent : Container
                     Spacing = new Vector2(0, 5),
                     Children = new Drawable[]
                     {
-                        new FillFlowContainer<SpriteText>
+                        metadataTextFlow = new TextFlowContainer
                         {
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
-                            RelativeSizeAxes = Axes.X,
-                            AutoSizeAxes = Axes.Y,
-                            Direction = FillDirection.Vertical,
-                            Spacing = new Vector2(0, 5),
-                            Children = new[]
-                            {
-                                title = new SpriteText
-                                {
-                                    Anchor = Anchor.TopCentre,
-                                    Origin = Anchor.TopCentre,
-                                    Font = FrameworkFont.Regular.With(size: 75),
-                                },
-                                description = new SpriteText
-                                {
-                                    Anchor = Anchor.TopCentre,
-                                    Origin = Anchor.TopCentre,
-                                    Font = FrameworkFont.Regular.With(size: 40),
-                                    Colour = VRCOSCColour.Gray9,
-                                },
-                                author = new SpriteText
-                                {
-                                    Anchor = Anchor.TopCentre,
-                                    Origin = Anchor.TopCentre,
-                                    Font = FrameworkFont.Regular.With(size: 30),
-                                    Colour = VRCOSCColour.Gray9,
-                                }
-                            }
+                            TextAnchor = Anchor.Centre,
+                            AutoSizeAxes = Axes.Both
                         },
                         settingsSeparator = new LineSeparator
                         {
@@ -152,9 +124,26 @@ public class ModuleEditContent : Container
 
             scrollContainer.ScrollToStart();
 
-            title.Text = SourceModule.Value.Title;
-            description.Text = SourceModule.Value.Description;
-            author.Text = $"Made by {SourceModule.Value.Author}";
+            metadataTextFlow.Clear();
+            metadataTextFlow.AddText(SourceModule.Value.Title, t =>
+            {
+                t.Font = FrameworkFont.Regular.With(size: 75);
+            });
+            metadataTextFlow.AddParagraph(SourceModule.Value.Description, t =>
+            {
+                t.Font = FrameworkFont.Regular.With(size: 40);
+                t.Colour = VRCOSCColour.Gray9;
+            });
+            metadataTextFlow.AddParagraph("Made by ", t =>
+            {
+                t.Font = FrameworkFont.Regular.With(size: 30);
+                t.Colour = VRCOSCColour.Gray9;
+            });
+            metadataTextFlow.AddText(SourceModule.Value.Author, t =>
+            {
+                t.Font = FrameworkFont.Regular.With(size: 30);
+                t.Colour = VRCOSCColour.GrayE;
+            });
 
             if (SourceModule.Value.HasSettings)
             {
