@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -20,9 +20,9 @@ public class ComputerStatsModule : Module
 
     protected override Dictionary<Enum, (string, string, string)> OutputParameters => new()
     {
-        { ComputerStatsParameter.CPUUsage, ("CPU Usage", "The current usage of your CPU from 0 to 1", "/avatar/parameters/CPUUsage") },
-        { ComputerStatsParameter.GPUUsage, ("GPU Usage", "The current usage of your GPU from 0 to 1", "/avatar/parameters/GPUUsage") },
-        { ComputerStatsParameter.RAMUsage, ("RAM Usage", "The current usage of your RAM from 0 to 1", "/avatar/parameters/RAMUsage") }
+        { ComputerStatsParameter.CPUUsage, ("CPU Usage", "CPU usage 0-1", "/avatar/parameters/StatsCPUUsage") },
+        { ComputerStatsParameter.GPUUsage, ("GPU Usage", "GPU usage 0-1", "/avatar/parameters/StatsGPUUsage") },
+        { ComputerStatsParameter.RAMUsage, ("RAM Usage", "RAM usage 0-1", "/avatar/parameters/StatsRAMUsage") }
     };
 
     protected override void OnUpdate()
