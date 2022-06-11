@@ -156,7 +156,7 @@ public abstract class Module
 
     protected T GetSettingAs<T>(Enum key)
     {
-        return DataManager.GetSettingAs<T>(key.ToString().ToLower());
+        return DataManager.GetSettingAs<T>(key);
     }
 
     protected void SendParameter(Enum key, int value) => sendParameter(key, value);

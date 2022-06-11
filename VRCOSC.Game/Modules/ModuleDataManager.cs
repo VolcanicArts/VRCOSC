@@ -44,6 +44,11 @@ public class ModuleDataManager
 
     #region Settings
 
+    public T GetSettingAs<T>(Enum key)
+    {
+        return GetSettingAs<T>(key.ToString().ToLower());
+    }
+
     public T GetSettingAs<T>(string key)
     {
         var setting = Settings[key];
