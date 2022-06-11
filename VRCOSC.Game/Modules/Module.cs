@@ -46,15 +46,9 @@ public abstract class Module
 
     public bool HasAttributes => HasSettings || HasParameters;
 
-    public T GetDefaultSetting<T>(string key)
-    {
-        return (T)defaultSettings[key];
-    }
+    public T GetDefaultSetting<T>(string key) => (T)defaultSettings[key];
 
-    public string GetDefaultOutputParameter(string key)
-    {
-        return defaultOutputParameters[key];
-    }
+    public string GetDefaultOutputParameter(string key) => defaultOutputParameters[key];
 
     internal void CreateAttributes()
     {
@@ -149,10 +143,7 @@ public abstract class Module
 
     protected virtual void OnFloatParameterReceived(Enum key, float value) { }
 
-    protected T GetSettingAs<T>(Enum key)
-    {
-        return DataManager.GetSettingAs<T>(key);
-    }
+    protected T GetSettingAs<T>(Enum key) => DataManager.GetSettingAs<T>(key);
 
     protected void SendParameter(Enum key, int value) => sendParameter(key, value);
 
@@ -166,16 +157,5 @@ public abstract class Module
         var message = new OscMessage(address, new[] { value });
         OscClient.SendMessageAsync(message);
         OnParameterSent?.Invoke(DataManager.GetParameter(key), value);
-    }
-
-    protected static int[] ToDigitArray(int num, int totalWidth)
-    {
-        var numStr = num.ToString().PadLeft(totalWidth, '0');
-        return numStr.Select(digit => int.Parse(digit.ToString())).ToArray();
-    }
-
-    protected static float MapBetween(float value, float sMin, float sMax, float dMin, float dMax)
-    {
-        return value / (sMax - sMin) * (dMax - dMin) + dMin;
     }
 }
