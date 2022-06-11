@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using osu.Framework.Graphics;
 
 namespace VRCOSC.Game.Modules.Modules.Random;
@@ -27,7 +26,6 @@ public class RandomModule : Module
     protected override void OnUpdate()
     {
         float randomFloat = (float)random.NextDouble();
-        Terminal.Log(randomFloat.ToString(CultureInfo.InvariantCulture));
         SendParameter(RandomParameter.RandomValue, randomFloat);
     }
 }
