@@ -36,8 +36,8 @@ public abstract class Module
     private readonly Dictionary<string, object> defaultSettings = new();
     private readonly Dictionary<string, string> defaultOutputParameters = new();
 
-    public Action<string, object> OnParameterSent;
-    public Action<string, object> OnParameterReceived;
+    public Action<string, object>? OnParameterSent;
+    public Action<string, object>? OnParameterReceived;
 
     public bool IsRequestingInput => InputParameters.Count != 0;
 
