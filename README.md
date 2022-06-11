@@ -1,7 +1,7 @@
 # VRCOSC
 A modular OSC application creator made for [VRChat](https://vrchat.com) built on top of the [osu!framework](https://github.com/ppy/osu-framework).
 
-<p align="center"><img src="https://user-images.githubusercontent.com/29819296/172496154-de3761c2-5577-4b12-891d-14dbd703fadf.png" width=70% height=70%></p>
+<p align="center"><img src="https://user-images.githubusercontent.com/29819296/173203511-8c32fc0d-9c8f-4ecd-8394-db86a1a7df60.png" width=70% height=70%></p>
 
 ## Getting Started
 Download VRCOSC from the [Releases](https://github.com/VolcanicArts/VRCOSC/releases/latest) page. Enable the modules you'd like to use. Download any prefabs that are available and put them onto your avatar (guides are available in each prefab). Press the play button!
