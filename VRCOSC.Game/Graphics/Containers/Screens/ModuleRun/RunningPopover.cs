@@ -8,6 +8,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
 using osuTK;
+using osuTK.Input;
 using VRCOSC.Game.Graphics.Containers.UI.Button;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleRun;
@@ -17,7 +18,8 @@ public sealed class RunningPopover : Container
     [Resolved]
     private ScreenManager ScreenManager { get; set; }
 
-    private RunningPopoverContent content;
+    private TerminalContainer Terminal;
+    private ParameterContainer Parameters;
 
     public RunningPopover()
     {
@@ -55,20 +57,17 @@ public sealed class RunningPopover : Container
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
                     RelativeSizeAxes = Axes.Both,
-                    RowDimensions = new[]
+                    ColumnDimensions = new[]
                     {
-                        new Dimension(GridSizeMode.Absolute, 60),
+                        new Dimension(),
                         new Dimension()
                     },
                     Content = new[]
                     {
                         new Drawable[]
                         {
-                            new RunningPopoverHeader()
-                        },
-                        new Drawable[]
-                        {
-                            content = new RunningPopoverContent()
+                            Terminal = new TerminalContainer(),
+                            Parameters = new ParameterContainer()
                         }
                     }
                 },
@@ -94,8 +93,16 @@ public sealed class RunningPopover : Container
 
     public void Reset()
     {
-        content.Terminal.ClearTerminal();
-        content.Parameters.ClearParameters();
+        Terminal.ClearTerminal();
+        Parameters.ClearParameters();
+    }
+
+    protected override bool OnKeyDown(KeyDownEvent e)
+    {
+        if (e.Key != Key.Escape) return base.OnKeyDown(e);
+
+        ScreenManager.HideTerminal();
+        return true;
     }
 
     protected override bool OnMouseDown(MouseDownEvent e)

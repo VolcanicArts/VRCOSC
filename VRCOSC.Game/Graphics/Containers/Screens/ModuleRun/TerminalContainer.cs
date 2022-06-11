@@ -6,7 +6,10 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Graphics.Sprites;
 using osu.Framework.Logging;
+using osuTK;
+using VRCOSC.Game.Graphics.Drawables;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleRun;
 
@@ -28,46 +31,97 @@ public sealed class TerminalContainer : Container
     [BackgroundDependencyLoader]
     private void load()
     {
-        Child = new Container
+        Child = new GridContainer
         {
             Anchor = Anchor.Centre,
             Origin = Anchor.Centre,
             RelativeSizeAxes = Axes.Both,
-            BorderThickness = 3,
-            Masking = true,
-            Children = new Drawable[]
+            RowDimensions = new[]
             {
-                new Box
+                new Dimension(GridSizeMode.Absolute, 60),
+                new Dimension()
+            },
+            Content = new[]
+            {
+                new Drawable[]
                 {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    RelativeSizeAxes = Axes.Both,
-                    Colour = VRCOSCColour.Gray2,
-                },
-                new Container
-                {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    RelativeSizeAxes = Axes.Both,
-                    Padding = new MarginPadding(1.5f),
-                    Child = terminalScroll = new BasicScrollContainer
+                    new Container
                     {
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,
                         RelativeSizeAxes = Axes.Both,
-                        ScrollbarVisible = false,
-                        ClampExtension = 0,
-                        Padding = new MarginPadding
+                        Children = new Drawable[]
                         {
-                            Horizontal = 3
-                        },
-                        Child = terminalFlow = new FillFlowContainer<TerminalEntry>
+                            new SpriteText
+                            {
+                                Anchor = Anchor.Centre,
+                                Origin = Anchor.Centre,
+                                Text = "Terminal",
+                                Font = FrameworkFont.Regular.With(size: 40),
+                                Shadow = true
+                            },
+                            new LineSeparator
+                            {
+                                Anchor = Anchor.BottomCentre,
+                                Origin = Anchor.Centre,
+                                RelativeSizeAxes = Axes.Both,
+                                Size = new Vector2(0.975f, 0.075f)
+                            }
+                        }
+                    }
+                },
+                new Drawable[]
+                {
+                    new Container
+                    {
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.Centre,
+                        RelativeSizeAxes = Axes.Both,
+                        Padding = new MarginPadding(15),
+                        Child = new Container
                         {
-                            Anchor = Anchor.TopCentre,
-                            Origin = Anchor.TopCentre,
-                            RelativeSizeAxes = Axes.X,
-                            AutoSizeAxes = Axes.Y,
-                            Direction = FillDirection.Vertical,
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativeSizeAxes = Axes.Both,
+                            BorderThickness = 3,
+                            Masking = true,
+                            Children = new Drawable[]
+                            {
+                                new Box
+                                {
+                                    Anchor = Anchor.Centre,
+                                    Origin = Anchor.Centre,
+                                    RelativeSizeAxes = Axes.Both,
+                                    Colour = VRCOSCColour.Gray2,
+                                },
+                                new Container
+                                {
+                                    Anchor = Anchor.Centre,
+                                    Origin = Anchor.Centre,
+                                    RelativeSizeAxes = Axes.Both,
+                                    Padding = new MarginPadding(1.5f),
+                                    Child = terminalScroll = new BasicScrollContainer
+                                    {
+                                        Anchor = Anchor.Centre,
+                                        Origin = Anchor.Centre,
+                                        RelativeSizeAxes = Axes.Both,
+                                        ScrollbarVisible = false,
+                                        ClampExtension = 0,
+                                        Padding = new MarginPadding
+                                        {
+                                            Horizontal = 3
+                                        },
+                                        Child = terminalFlow = new FillFlowContainer<TerminalEntry>
+                                        {
+                                            Anchor = Anchor.TopCentre,
+                                            Origin = Anchor.TopCentre,
+                                            RelativeSizeAxes = Axes.X,
+                                            AutoSizeAxes = Axes.Y,
+                                            Direction = FillDirection.Vertical,
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
