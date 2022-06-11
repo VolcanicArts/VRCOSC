@@ -109,29 +109,22 @@ public abstract class Module
 
     internal void OnOSCMessage(OscMessage message)
     {
-        var address = message.Address.Value;
-
         if (!message.Arguments.Any()) return;
 
+        var addressEndpoint = message.Address.Value.Split('/').Last();
         var value = message.Arguments.First();
 
-        var id = -1;
-
-        for (var i = 0; i < InputParameters.Count; i++)
-        {
-            var inputParameterAddress = $"/avatar/parameters/{InputParameters.ElementAt(i)}";
-            if (address.Equals(inputParameterAddress)) id = i;
-        }
-
-        if (id == -1) return;
+        Enum? key = InputParameters.Find(e => e.ToString().Equals(addressEndpoint));
+        if (key == null) return;
 
         if (value is OscTrue) value = true;
         if (value is OscFalse) value = false;
 
-        var key = InputParameters.ElementAt(id);
+        notifyParameterReceived(key, value);
+    }
 
-        OnParameterReceived?.Invoke(address, value);
-
+    private void notifyParameterReceived(Enum key, object value)
+    {
         switch (value)
         {
             case bool boolValue:
@@ -146,6 +139,8 @@ public abstract class Module
                 OnFloatParameterReceived(key, floatValue);
                 break;
         }
+
+        OnParameterReceived?.Invoke($"/avatar/parameters/{key}", value);
     }
 
     protected virtual void OnBoolParameterReceived(Enum key, bool value) { }
