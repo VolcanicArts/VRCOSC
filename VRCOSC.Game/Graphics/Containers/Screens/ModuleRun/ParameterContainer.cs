@@ -38,6 +38,7 @@ public sealed class ParameterContainer : Container
             RowDimensions = new[]
             {
                 new Dimension(GridSizeMode.Absolute, 60),
+                new Dimension(),
                 new Dimension()
             },
             Content = new[]
@@ -76,7 +77,12 @@ public sealed class ParameterContainer : Container
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,
                         RelativeSizeAxes = Axes.Both,
-                        Padding = new MarginPadding(15),
+                        Padding = new MarginPadding
+                        {
+                            Horizontal = 15,
+                            Bottom = 15 / 2f,
+                            Top = 15
+                        },
                         Child = new Container
                         {
                             Anchor = Anchor.Centre,
@@ -102,23 +108,61 @@ public sealed class ParameterContainer : Container
                                 },
                                 outgoingParameterDisplay = new ParameterDisplay
                                 {
-                                    Anchor = Anchor.TopCentre,
-                                    Origin = Anchor.TopCentre,
+                                    Anchor = Anchor.Centre,
+                                    Origin = Anchor.Centre,
                                     RelativeSizeAxes = Axes.Both,
-                                    Height = 0.5f,
                                     Padding = new MarginPadding
                                     {
                                         Vertical = 1.5f,
                                         Horizontal = 3
                                     },
                                     Title = "Outgoing"
+                                }
+                            }
+                        }
+                    }
+                },
+                new Drawable[]
+                {
+                    new Container
+                    {
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.Centre,
+                        RelativeSizeAxes = Axes.Both,
+                        Padding = new MarginPadding
+                        {
+                            Horizontal = 15,
+                            Bottom = 15,
+                            Top = 15 / 2f
+                        },
+                        Child = new Container
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativeSizeAxes = Axes.Both,
+                            BorderThickness = 3,
+                            Masking = true,
+                            Children = new Drawable[]
+                            {
+                                new Box
+                                {
+                                    Anchor = Anchor.Centre,
+                                    Origin = Anchor.Centre,
+                                    RelativeSizeAxes = Axes.Both,
+                                    Colour = VRCOSCColour.Gray2,
+                                },
+                                new Container
+                                {
+                                    Anchor = Anchor.Centre,
+                                    Origin = Anchor.Centre,
+                                    RelativeSizeAxes = Axes.Both,
+                                    Padding = new MarginPadding(1.5f)
                                 },
                                 incomingParameterDisplay = new ParameterDisplay
                                 {
-                                    Anchor = Anchor.BottomCentre,
-                                    Origin = Anchor.BottomCentre,
+                                    Anchor = Anchor.Centre,
+                                    Origin = Anchor.Centre,
                                     RelativeSizeAxes = Axes.Both,
-                                    Height = 0.5f,
                                     Padding = new MarginPadding
                                     {
                                         Vertical = 1.5f,
