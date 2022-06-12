@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Collections.Generic;
 using osu.Framework.Allocation;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
@@ -8,6 +9,7 @@ using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using osu.Framework.Localisation;
 using osuTK;
 using VRCOSC.Game.Graphics.Containers.UI.Button;
 using VRCOSC.Game.Graphics.Containers.UI.Checkbox;
@@ -16,15 +18,32 @@ using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
 
-public sealed class ModuleCard : Container
+public sealed class ModuleCard : Container, IFilterable
 {
     [Resolved]
     private ScreenManager ScreenManager { get; set; }
 
-    public Module SourceModule { get; init; }
+    public IEnumerable<LocalisableString> FilterTerms { get; }
 
-    public ModuleCard()
+    public bool MatchingFilter
     {
+        set
+        {
+            if (value)
+                this.FadeIn();
+            else
+                this.FadeOut();
+        }
+    }
+
+    public bool FilteringActive { get; set; }
+
+    private Module SourceModule;
+
+    public ModuleCard(Module sourceModule)
+    {
+        SourceModule = sourceModule;
+
         Anchor = Anchor.TopCentre;
         Origin = Anchor.TopCentre;
         Size = new Vector2(350, 200);
@@ -32,6 +51,8 @@ public sealed class ModuleCard : Container
         CornerRadius = 10;
         BorderThickness = 2;
         EdgeEffect = VRCOSCEdgeEffects.BasicShadow;
+
+        FilterTerms = new List<LocalisableString>() { SourceModule.Title };
     }
 
     [BackgroundDependencyLoader]

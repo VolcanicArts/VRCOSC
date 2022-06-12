@@ -6,13 +6,15 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.UserInterface;
+using osu.Framework.Input;
+using osu.Framework.Input.Events;
 using osu.Framework.Platform;
 
 namespace VRCOSC.Game.Graphics.Containers.UI.TextBox;
 
 public class VRCOSCTextBox : BasicTextBox
 {
-    public new Action<string>? OnCommit { get; set; }
+    public Action<string>? CharWritten { get; set; }
 
     public VRCOSCTextBox()
     {
@@ -29,10 +31,18 @@ public class VRCOSCTextBox : BasicTextBox
         host.Window.Resized += () => Scheduler.AddOnce(KillFocus);
     }
 
-    protected override void Commit()
+    public override bool OnPressed(KeyBindingPressEvent<PlatformAction> e)
     {
-        base.Commit();
-        OnCommit?.Invoke(Text);
+        var result = base.OnPressed(e);
+        CharWritten?.Invoke(Text);
+        return result;
+    }
+
+    protected override bool OnKeyDown(KeyDownEvent e)
+    {
+        var result = base.OnKeyDown(e);
+        CharWritten?.Invoke(Text);
+        return result;
     }
 
     protected override SpriteText CreatePlaceholder()

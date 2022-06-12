@@ -59,7 +59,7 @@ public class ModuleFilterSearchBar : Container
                                 Origin = Anchor.BottomCentre,
                                 RelativeSizeAxes = Axes.Both,
                                 PlaceholderText = "Search...",
-                                OnCommit = (searchString) => moduleSelection.SearchString.Value = searchString
+                                CharWritten = (searchString) => moduleSelection.SearchString.Value = searchString
                             },
                         },
                         new Container

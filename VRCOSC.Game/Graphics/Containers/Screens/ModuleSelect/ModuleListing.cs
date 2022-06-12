@@ -3,14 +3,24 @@
 
 using osu.Framework.Allocation;
 using osu.Framework.Extensions.Color4Extensions;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using VRCOSC.Game.Graphics.Drawables.Triangles;
+using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
 
 public class ModuleListing : Container
 {
+    private SearchContainer moduleCardFlow;
+
+    [Resolved]
+    private ModuleSelection moduleSelection { get; set; }
+
+    [Resolved]
+    private ModuleManager moduleManager { get; set; }
+
     [BackgroundDependencyLoader]
     private void load()
     {
@@ -26,6 +36,20 @@ public class ModuleListing : Container
                 TriangleScale = 5,
                 Velocity = 0.5f
             },
+            moduleCardFlow = new SearchContainer
+            {
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                RelativeSizeAxes = Axes.Both
+            }
         };
+
+        populateModules();
+        moduleSelection.SearchString.BindValueChanged(e => moduleCardFlow.SearchTerm = e.NewValue, true);
+    }
+
+    private void populateModules()
+    {
+        moduleManager.ForEach(moduleGroup => moduleGroup.ForEach(moduleContainer => moduleCardFlow.Add(new ModuleCard(moduleContainer.Module))));
     }
 }

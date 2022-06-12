@@ -33,9 +33,9 @@ public class SettingIntCard : SettingBaseCard
             }
         });
 
-        textBox.OnCommit = (text) =>
+        textBox.OnCommit += (_, _) =>
         {
-            if (int.TryParse(text, out var newValue))
+            if (int.TryParse(textBox.Text, out var newValue))
                 updateSetting(newValue);
         };
 
