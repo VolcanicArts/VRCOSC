@@ -16,6 +16,7 @@ public class HypeRateModule : Module
     public override string Author => "VolcanicArts";
     public override Colour4 Colour => Colour4.OrangeRed.Darken(0.5f);
     public override ModuleType Type => ModuleType.Health;
+    public override string[] Tags => new[] { "heartrate" };
 
     protected override Dictionary<Enum, (string, string, object)> Settings => new()
     {

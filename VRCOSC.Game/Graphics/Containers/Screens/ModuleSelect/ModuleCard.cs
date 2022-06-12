@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using osu.Framework.Allocation;
 using osu.Framework.Extensions.Color4Extensions;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
@@ -52,7 +53,13 @@ public sealed class ModuleCard : Container, IFilterable
         BorderThickness = 2;
         EdgeEffect = VRCOSCEdgeEffects.BasicShadow;
 
-        FilterTerms = new List<LocalisableString>() { SourceModule.Title };
+        List<LocalisableString> filters = new List<LocalisableString>()
+        {
+            SourceModule.Title,
+            SourceModule.Author
+        };
+        SourceModule.Tags.ForEach(tag => filters.Add(new LocalisableString(tag)));
+        FilterTerms = filters;
     }
 
     [BackgroundDependencyLoader]
