@@ -9,7 +9,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using VRCOSC.Game.Graphics.Containers.UI.Checkbox;
 
-namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleCardScreen;
+namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
 
 public class ModuleFilterOption : Container
 {

@@ -7,7 +7,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using VRCOSC.Game.Graphics.Drawables.Triangles;
 
-namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleCardScreen;
+namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
 
 public class ModuleListing : Container
 {

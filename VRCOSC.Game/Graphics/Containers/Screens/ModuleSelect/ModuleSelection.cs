@@ -2,13 +2,25 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 
-namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleCardScreen;
+namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
 
-public class ModuleFilter : Container
+[Cached]
+public sealed class ModuleSelection : Container
 {
+    public BindableBool ShowExperimental = new();
+    public Bindable<string> SearchString = new();
+
+    public ModuleSelection()
+    {
+        Anchor = Anchor.Centre;
+        Origin = Anchor.Centre;
+        RelativeSizeAxes = Axes.Both;
+    }
+
     [BackgroundDependencyLoader]
     private void load()
     {
@@ -19,31 +31,28 @@ public class ModuleFilter : Container
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
-                RowDimensions = new[]
+                ColumnDimensions = new[]
                 {
-                    new Dimension(GridSizeMode.Absolute, 50),
+                    new Dimension(GridSizeMode.Absolute, 300),
                     new Dimension()
                 },
                 Content = new[]
                 {
                     new Drawable[]
                     {
-                        new ModuleFilterSearchBar
+                        new ModuleSelectionSidePanel
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativeSizeAxes = Axes.Both,
+                            Depth = float.MinValue
+                        },
+                        new ModuleListing
                         {
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
                             RelativeSizeAxes = Axes.Both
-                        }
-                    },
-                    new Drawable[]
-                    {
-                        new ModuleFilterOptions
-                        {
-                            Anchor = Anchor.TopCentre,
-                            Origin = Anchor.TopCentre,
-                            RelativeSizeAxes = Axes.Both,
-                            Padding = new MarginPadding(5)
-                        }
+                        },
                     }
                 }
             }

@@ -14,7 +14,7 @@ using VRCOSC.Game.Graphics.Containers.UI.Checkbox;
 using VRCOSC.Game.Graphics.Drawables.Triangles;
 using VRCOSC.Game.Modules;
 
-namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleCardScreen;
+namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
 
 public sealed class ModuleCard : Container
 {

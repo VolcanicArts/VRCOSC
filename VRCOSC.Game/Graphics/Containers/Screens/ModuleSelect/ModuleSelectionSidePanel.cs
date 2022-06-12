@@ -11,7 +11,7 @@ using osu.Framework.Graphics.Sprites;
 using osuTK.Graphics;
 using VRCOSC.Game.Graphics.Containers.UI.Button;
 
-namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleCardScreen;
+namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
 
 public class ModuleSelectionSidePanel : Container
 {
