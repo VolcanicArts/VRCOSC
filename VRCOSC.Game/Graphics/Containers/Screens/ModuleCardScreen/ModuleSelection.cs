@@ -5,14 +5,12 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleCardScreen;
 
 [Cached]
 public sealed class ModuleSelection : Container
 {
-    public Bindable<ModuleType> SelectedType = new();
     public BindableBool ShowExperimental = new();
     public Bindable<string> SearchString = new();
 
