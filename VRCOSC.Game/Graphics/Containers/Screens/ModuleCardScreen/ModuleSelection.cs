@@ -42,7 +42,7 @@ public sealed class ModuleSelection : Container
                 {
                     new Drawable[]
                     {
-                        new ModuleFilter
+                        new ModuleSelectionSidePanel
                         {
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,

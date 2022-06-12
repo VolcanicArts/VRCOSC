@@ -88,15 +88,6 @@ public class ModuleListing : Container
                                 }
                             }
                         }
-                    },
-                    new Drawable[]
-                    {
-                        new ModuleListingFooter
-                        {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
-                            RelativeSizeAxes = Axes.Both
-                        }
                     }
                 }
             }
