@@ -6,7 +6,6 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
-using VRCOSC.Game.Graphics.Containers.UI.Button;
 using VRCOSC.Game.Graphics.Containers.UI.TextBox;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
@@ -69,17 +68,17 @@ public class ModuleFilterSearchBar : Container
                             RelativeSizeAxes = Axes.Both,
                             Padding = new MarginPadding
                             {
-                                Vertical = 5,
-                                Left = 2.5f,
-                                Right = 5
+                                Vertical = 10,
+                                Left = 5,
+                                Right = 10
                             },
-                            Child = new IconButton
+                            Child = new SpriteIcon
                             {
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
                                 RelativeSizeAxes = Axes.Both,
-                                CornerRadius = 10,
-                                Icon = { Value = FontAwesome.Solid.Search }
+                                Icon = FontAwesome.Solid.Search,
+                                Colour = VRCOSCColour.Gray7
                             }
                         }
                     },
