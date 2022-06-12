@@ -12,10 +12,9 @@ namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleCardScreen;
 [Cached]
 public sealed class ModuleSelection : Container
 {
-    private const int module_group_selection_width = 200;
-
     public Bindable<ModuleType> SelectedType = new();
     public BindableBool ShowExperimental = new();
+    public Bindable<string> SearchString = new();
 
     public ModuleSelection()
     {
@@ -36,14 +35,14 @@ public sealed class ModuleSelection : Container
                 RelativeSizeAxes = Axes.Both,
                 ColumnDimensions = new[]
                 {
-                    new Dimension(GridSizeMode.Absolute, module_group_selection_width),
+                    new Dimension(GridSizeMode.Absolute, 300),
                     new Dimension()
                 },
                 Content = new[]
                 {
                     new Drawable[]
                     {
-                        new ModuleGroupSelection
+                        new ModuleFilter
                         {
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,

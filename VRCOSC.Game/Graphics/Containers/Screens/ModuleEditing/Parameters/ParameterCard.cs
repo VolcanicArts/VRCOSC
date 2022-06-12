@@ -50,7 +50,7 @@ public class ParameterCard : AttributeCard
             t.Colour = VRCOSCColour.Gray9;
         });
 
-        textBox.OnCommit += (_, _) => updateParameter(textBox.Text);
+        textBox.OnCommit += updateParameter;
 
         ResetToDefault.Action += () =>
         {

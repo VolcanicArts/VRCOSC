@@ -12,6 +12,7 @@ namespace VRCOSC.Game.Graphics.Containers.UI.Button;
 public class IconButton : VRCOSCButton
 {
     protected internal Bindable<IconUsage> Icon { get; set; } = new(FontAwesome.Solid.Check);
+    public int IconPadding { get; init; } = 8;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -23,7 +24,7 @@ public class IconButton : VRCOSCButton
             Origin = Anchor.Centre,
             RelativeSizeAxes = Axes.Both,
             FillMode = FillMode.Fit,
-            Padding = new MarginPadding(8),
+            Padding = new MarginPadding(IconPadding),
             Child = spriteIcon = new SpriteIcon
             {
                 Anchor = Anchor.Centre,

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Sprites;
@@ -11,6 +12,8 @@ namespace VRCOSC.Game.Graphics.Containers.UI.TextBox;
 
 public class VRCOSCTextBox : BasicTextBox
 {
+    public new Action<string>? OnCommit { get; set; }
+
     public VRCOSCTextBox()
     {
         BackgroundFocused = VRCOSCColour.Gray6;
@@ -24,6 +27,12 @@ public class VRCOSCTextBox : BasicTextBox
     private void load(GameHost host)
     {
         host.Window.Resized += () => Scheduler.AddOnce(KillFocus);
+    }
+
+    protected override void Commit()
+    {
+        base.Commit();
+        OnCommit?.Invoke(Text);
     }
 
     protected override SpriteText CreatePlaceholder()

@@ -33,7 +33,7 @@ public class SettingStringCard : SettingBaseCard
             }
         });
 
-        textBox.OnCommit += (_, _) => updateSetting(textBox.Text);
+        textBox.OnCommit = updateSetting;
 
         ResetToDefault.Action += () =>
         {
