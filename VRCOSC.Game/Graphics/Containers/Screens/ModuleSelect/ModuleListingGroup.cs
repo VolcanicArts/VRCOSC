@@ -10,6 +10,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Localisation;
 using osuTK;
+using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics.Containers.UI.Button;
 using VRCOSC.Game.Modules;
 
@@ -24,6 +25,9 @@ public sealed class ModuleListingGroup : Container, IFilterable
 
     [Resolved]
     private ModuleManager moduleManager { get; set; }
+
+    [Resolved]
+    private VRCOSCConfigManager configManager { get; set; }
 
     private SearchContainer<ModuleCard> moduleCardFlow;
     private DropdownButton dropdownButton;
@@ -154,7 +158,7 @@ public sealed class ModuleListingGroup : Container, IFilterable
             moduleCardFlow.SearchTerm = searchTerm.NewValue;
             if (!dropdownButton.State.Value) dropdownButton.Toggle();
         };
-        moduleSelection.ShowExperimental.BindValueChanged(e => updateExperimental(e.NewValue), true);
+        configManager.GetBindable<bool>(VRCOSCSetting.ShowExperimental).BindValueChanged(e => updateExperimental(e.NewValue), true);
 
         dropdownButton.State.ValueChanged += (e) =>
         {
@@ -163,7 +167,7 @@ public sealed class ModuleListingGroup : Container, IFilterable
                 dropdownContainer.Show();
                 moduleCardFlow.ForEach(card => card.Show());
                 moduleCardFlow.TransformTo("Padding", new MarginPadding(10), 500, Easing.OutQuint);
-                updateExperimental(moduleSelection.ShowExperimental.Value);
+                updateExperimental(configManager.Get<bool>(VRCOSCSetting.ShowExperimental));
             }
             else
             {

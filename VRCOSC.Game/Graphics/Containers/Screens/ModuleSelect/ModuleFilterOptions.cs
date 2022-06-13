@@ -5,6 +5,7 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using VRCOSC.Game.Config;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
 
@@ -12,6 +13,9 @@ public class ModuleFilterOptions : Container
 {
     [Resolved]
     private ModuleSelection moduleSelection { get; set; }
+
+    [Resolved]
+    private VRCOSCConfigManager configManager { get; set; }
 
     [BackgroundDependencyLoader]
     private void load()
@@ -45,8 +49,8 @@ public class ModuleFilterOptions : Container
                         new ModuleFilterOption
                         {
                             Text = "Show Experimental",
-                            InitialState = moduleSelection.ShowExperimental.Value,
-                            OnOptionChange = (state) => moduleSelection.ShowExperimental.Value = state
+                            InitialState = configManager.Get<bool>(VRCOSCSetting.ShowExperimental),
+                            OnOptionChange = (state) => configManager.SetValue(VRCOSCSetting.ShowExperimental, state)
                         }
                     }
                 }
