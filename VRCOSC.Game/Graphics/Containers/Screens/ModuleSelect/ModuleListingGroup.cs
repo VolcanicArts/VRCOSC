@@ -168,7 +168,11 @@ public sealed class ModuleListingGroup : Container, IFilterable
             else
             {
                 moduleCardFlow.ForEach(card => card.Hide());
-                moduleCardFlow.TransformTo("Padding", new MarginPadding(0), 500, Easing.OutQuint).Finally((_) => dropdownContainer.Hide());
+                moduleCardFlow.TransformTo("Padding", new MarginPadding(0), 500, Easing.OutQuint).Finally((_) =>
+                {
+                    if (!dropdownButton.State.Value)
+                        dropdownContainer.Hide();
+                });
             }
         };
     }
