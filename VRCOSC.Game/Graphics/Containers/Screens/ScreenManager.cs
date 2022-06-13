@@ -4,9 +4,9 @@
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using VRCOSC.Game.Graphics.Containers.Screens.ModuleCardScreen;
 using VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing;
 using VRCOSC.Game.Graphics.Containers.Screens.ModuleRun;
+using VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens;

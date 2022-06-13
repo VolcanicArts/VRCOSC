@@ -26,6 +26,7 @@ public abstract class Module
     public virtual double DeltaUpdate => double.PositiveInfinity;
     public virtual Colour4 Colour => Colour4.Black;
     public virtual ModuleType Type => ModuleType.General;
+    public virtual string[] Tags => Array.Empty<string>();
     public virtual bool Experimental => false;
 
     // These are *only* definitions. All reads and writes for persistent data occur inside the DataManager

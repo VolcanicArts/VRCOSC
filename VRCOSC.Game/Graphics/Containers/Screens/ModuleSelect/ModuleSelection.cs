@@ -5,17 +5,14 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using VRCOSC.Game.Modules;
 
-namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleCardScreen;
+namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
 
 [Cached]
 public sealed class ModuleSelection : Container
 {
-    private const int module_group_selection_width = 200;
-
-    public Bindable<ModuleType> SelectedType = new();
-    public BindableBool ShowExperimental = new();
+    public BindableBool ShowExperimental = new(true);
+    public Bindable<string> SearchString = new();
 
     public ModuleSelection()
     {
@@ -36,14 +33,14 @@ public sealed class ModuleSelection : Container
                 RelativeSizeAxes = Axes.Both,
                 ColumnDimensions = new[]
                 {
-                    new Dimension(GridSizeMode.Absolute, module_group_selection_width),
+                    new Dimension(GridSizeMode.Absolute, 300),
                     new Dimension()
                 },
                 Content = new[]
                 {
                     new Drawable[]
                     {
-                        new ModuleGroupSelection
+                        new ModuleSelectionSidePanel
                         {
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
