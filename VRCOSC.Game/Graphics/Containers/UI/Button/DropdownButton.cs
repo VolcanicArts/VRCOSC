@@ -16,12 +16,11 @@ public class DropdownButton : IconButton
     [BackgroundDependencyLoader]
     private void load()
     {
-        spriteIcon.Rotation = 45;
-        Icon.Value = FontAwesome.Solid.LocationArrow;
+        Icon.Value = FontAwesome.Solid.ArrowCircleRight;
         BackgroundColour.Value = VRCOSCColour.Invisible;
         State.BindValueChanged(e =>
         {
-            var targetRotation = e.NewValue ? 135 : 45;
+            var targetRotation = e.NewValue ? 90 : 0;
             spriteIcon.RotateTo(targetRotation, 400, Easing.OutElastic);
         }, true);
     }

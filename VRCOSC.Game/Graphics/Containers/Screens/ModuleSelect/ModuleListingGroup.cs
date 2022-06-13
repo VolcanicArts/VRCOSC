@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System.Collections.Generic;
@@ -25,6 +25,9 @@ public sealed class ModuleListingGroup : Container, IFilterable
     [Resolved]
     private ModuleManager moduleManager { get; set; }
 
+    private SearchContainer<ModuleCard> moduleCardFlow;
+    private DropdownButton dropdownButton;
+
     public ModuleListingGroup(ModuleGroup moduleGroup)
     {
         this.moduleGroup = moduleGroup;
@@ -41,9 +44,6 @@ public sealed class ModuleListingGroup : Container, IFilterable
     [BackgroundDependencyLoader]
     private void load()
     {
-        SearchContainer<ModuleCard> moduleCardFlow;
-
-        DropdownButton dropdownButton;
         Children = new Drawable[]
         {
             new FillFlowContainer
@@ -61,6 +61,8 @@ public sealed class ModuleListingGroup : Container, IFilterable
                         Origin = Anchor.TopCentre,
                         RelativeSizeAxes = Axes.X,
                         Height = 50,
+                        Masking = true,
+                        CornerRadius = 10,
                         Children = new Drawable[]
                         {
                             new Box
@@ -68,7 +70,7 @@ public sealed class ModuleListingGroup : Container, IFilterable
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
                                 RelativeSizeAxes = Axes.Both,
-                                Colour = Colour4.Aqua
+                                Colour = VRCOSCColour.Gray3
                             },
                             new FillFlowContainer
                             {
@@ -98,13 +100,46 @@ public sealed class ModuleListingGroup : Container, IFilterable
                             }
                         }
                     },
-                    moduleCardFlow = new SearchContainer<ModuleCard>
+                    new Container
                     {
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
                         RelativeSizeAxes = Axes.X,
                         AutoSizeAxes = Axes.Y,
-                        Direction = FillDirection.Vertical
+                        Padding = new MarginPadding
+                        {
+                            Horizontal = 10
+                        },
+                        Child = new Container
+                        {
+                            Anchor = Anchor.TopCentre,
+                            Origin = Anchor.TopCentre,
+                            RelativeSizeAxes = Axes.X,
+                            AutoSizeAxes = Axes.Y,
+                            Masking = true,
+                            CornerRadius = 10,
+                            Children = new Drawable[]
+                            {
+                                new Box
+                                {
+                                    Anchor = Anchor.Centre,
+                                    Origin = Anchor.Centre,
+                                    RelativeSizeAxes = Axes.Both,
+                                    Colour = VRCOSCColour.Gray3
+                                },
+                                moduleCardFlow = new SearchContainer<ModuleCard>
+                                {
+                                    Anchor = Anchor.TopCentre,
+                                    Origin = Anchor.TopCentre,
+                                    RelativeSizeAxes = Axes.X,
+                                    AutoSizeAxes = Axes.Y,
+                                    AutoSizeDuration = 500,
+                                    AutoSizeEasing = Easing.OutQuint,
+                                    Padding = new MarginPadding(10),
+                                    Spacing = new Vector2(5, 5)
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -112,34 +147,41 @@ public sealed class ModuleListingGroup : Container, IFilterable
 
         moduleGroup.ForEach(moduleContainer => moduleCardFlow.Add(new ModuleCard(moduleContainer.Module)));
         moduleSelection.SearchString.ValueChanged += (searchTerm) => moduleCardFlow.SearchTerm = searchTerm.NewValue;
-        moduleSelection.ShowExperimental.BindValueChanged(e =>
-        {
-            moduleCardFlow.ForEach(card =>
-            {
-                if (!card.SourceModule.Experimental) return;
-
-                if (e.NewValue)
-                {
-                    card.Show();
-                }
-                else
-                {
-                    card.Hide();
-                }
-            });
-        }, true);
+        moduleSelection.ShowExperimental.BindValueChanged(e => updateExperimental(e.NewValue), true);
 
         dropdownButton.State.ValueChanged += (e) =>
         {
             if (e.NewValue)
             {
-                moduleCardFlow.ScaleTo(new Vector2(1), 500, Easing.OutElastic);
+                moduleCardFlow.ForEach(card => card.Show());
+                moduleCardFlow.TransformTo("Padding", new MarginPadding(10), 500, Easing.OutQuint);
+                updateExperimental(moduleSelection.ShowExperimental.Value);
             }
             else
             {
-                moduleCardFlow.ScaleTo(new Vector2(1, 0), 500, Easing.OutQuart);
+                moduleCardFlow.ForEach(card => card.Hide());
+                moduleCardFlow.TransformTo("Padding", new MarginPadding(0), 500, Easing.OutQuint);
             }
         };
+    }
+
+    private void updateExperimental(bool experimental)
+    {
+        if (!dropdownButton.State.Value) return;
+
+        moduleCardFlow.ForEach(card =>
+        {
+            if (!card.SourceModule.Experimental) return;
+
+            if (experimental)
+            {
+                card.Show();
+            }
+            else
+            {
+                card.Hide();
+            }
+        });
     }
 
     private void populateFilter()
