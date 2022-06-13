@@ -146,7 +146,11 @@ public sealed class ModuleListingGroup : Container, IFilterable
         };
 
         moduleGroup.ForEach(moduleContainer => moduleCardFlow.Add(new ModuleCard(moduleContainer.Module)));
-        moduleSelection.SearchString.ValueChanged += (searchTerm) => moduleCardFlow.SearchTerm = searchTerm.NewValue;
+        moduleSelection.SearchString.ValueChanged += (searchTerm) =>
+        {
+            moduleCardFlow.SearchTerm = searchTerm.NewValue;
+            if (!dropdownButton.State.Value) dropdownButton.Toggle();
+        };
         moduleSelection.ShowExperimental.BindValueChanged(e => updateExperimental(e.NewValue), true);
 
         dropdownButton.State.ValueChanged += (e) =>

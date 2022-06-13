@@ -30,4 +30,9 @@ public class DropdownButton : IconButton
         if (Enabled.Value) State.Toggle();
         return base.OnClick(e);
     }
+
+    public void Toggle()
+    {
+        State.Toggle();
+    }
 }
