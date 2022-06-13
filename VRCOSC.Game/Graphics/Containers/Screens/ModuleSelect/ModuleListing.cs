@@ -6,6 +6,7 @@ using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osuTK;
 using VRCOSC.Game.Graphics.Drawables.Triangles;
 using VRCOSC.Game.Modules;
 
@@ -13,8 +14,6 @@ namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
 
 public class ModuleListing : Container
 {
-    private SearchContainer moduleCardFlow;
-
     [Resolved]
     private ModuleSelection moduleSelection { get; set; }
 
@@ -24,6 +23,8 @@ public class ModuleListing : Container
     [BackgroundDependencyLoader]
     private void load()
     {
+        SearchContainer<ModuleListingGroup> moduleGroupFlow;
+
         Children = new Drawable[]
         {
             new TrianglesBackground
@@ -36,20 +37,26 @@ public class ModuleListing : Container
                 TriangleScale = 5,
                 Velocity = 0.5f
             },
-            moduleCardFlow = new SearchContainer
+            new BasicScrollContainer
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
-                RelativeSizeAxes = Axes.Both
+                RelativeSizeAxes = Axes.Both,
+                ClampExtension = 20,
+                ScrollbarVisible = false,
+                Child = moduleGroupFlow = new SearchContainer<ModuleListingGroup>
+                {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    RelativeSizeAxes = Axes.X,
+                    AutoSizeAxes = Axes.Y,
+                    Direction = FillDirection.Vertical,
+                    Spacing = new Vector2(0, 5)
+                }
             }
         };
 
-        populateModules();
-        moduleSelection.SearchString.BindValueChanged(e => moduleCardFlow.SearchTerm = e.NewValue, true);
-    }
-
-    private void populateModules()
-    {
-        moduleManager.ForEach(moduleGroup => moduleGroup.ForEach(moduleContainer => moduleCardFlow.Add(new ModuleCard(moduleContainer.Module))));
+        moduleManager.ForEach(moduleGroup => moduleGroupFlow.Add(new ModuleListingGroup(moduleGroup)));
+        moduleSelection.SearchString.ValueChanged += (searchTerm) => moduleGroupFlow.SearchTerm = searchTerm.NewValue;
     }
 }
