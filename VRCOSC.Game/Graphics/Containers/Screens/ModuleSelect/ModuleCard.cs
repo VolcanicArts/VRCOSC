@@ -39,7 +39,7 @@ public sealed class ModuleCard : Container, IFilterable
 
     public bool FilteringActive { get; set; }
 
-    private Module SourceModule;
+    public readonly Module SourceModule;
 
     public ModuleCard(Module sourceModule)
     {
