@@ -27,6 +27,7 @@ public sealed class ModuleListingGroup : Container, IFilterable
 
     private SearchContainer<ModuleCard> moduleCardFlow;
     private DropdownButton dropdownButton;
+    private Container dropdownContainer;
 
     public ModuleListingGroup(ModuleGroup moduleGroup)
     {
@@ -63,6 +64,7 @@ public sealed class ModuleListingGroup : Container, IFilterable
                         Height = 50,
                         Masking = true,
                         CornerRadius = 10,
+                        EdgeEffect = VRCOSCEdgeEffects.BasicShadow,
                         Children = new Drawable[]
                         {
                             new Box
@@ -70,7 +72,7 @@ public sealed class ModuleListingGroup : Container, IFilterable
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
                                 RelativeSizeAxes = Axes.Both,
-                                Colour = VRCOSCColour.Gray3
+                                Colour = VRCOSCColour.Gray5
                             },
                             new FillFlowContainer
                             {
@@ -100,7 +102,7 @@ public sealed class ModuleListingGroup : Container, IFilterable
                             }
                         }
                     },
-                    new Container
+                    dropdownContainer = new Container
                     {
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
@@ -120,6 +122,7 @@ public sealed class ModuleListingGroup : Container, IFilterable
                             AutoSizeEasing = Easing.OutQuint,
                             Masking = true,
                             CornerRadius = 10,
+                            EdgeEffect = VRCOSCEdgeEffects.BasicShadow,
                             Children = new Drawable[]
                             {
                                 new Box
@@ -157,6 +160,7 @@ public sealed class ModuleListingGroup : Container, IFilterable
         {
             if (e.NewValue)
             {
+                dropdownContainer.Show();
                 moduleCardFlow.ForEach(card => card.Show());
                 moduleCardFlow.TransformTo("Padding", new MarginPadding(10), 500, Easing.OutQuint);
                 updateExperimental(moduleSelection.ShowExperimental.Value);
@@ -164,7 +168,7 @@ public sealed class ModuleListingGroup : Container, IFilterable
             else
             {
                 moduleCardFlow.ForEach(card => card.Hide());
-                moduleCardFlow.TransformTo("Padding", new MarginPadding(0), 500, Easing.OutQuint);
+                moduleCardFlow.TransformTo("Padding", new MarginPadding(0), 500, Easing.OutQuint).Finally((_) => dropdownContainer.Hide());
             }
         };
     }
