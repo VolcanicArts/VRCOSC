@@ -11,7 +11,7 @@ namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
 [Cached]
 public sealed class ModuleSelection : Container
 {
-    public BindableBool ShowExperimental = new();
+    public BindableBool ShowExperimental = new(true);
     public Bindable<string> SearchString = new();
 
     public ModuleSelection()
