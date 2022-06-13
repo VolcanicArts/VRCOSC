@@ -7,7 +7,10 @@ using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Graphics.Sprites;
 using osu.Framework.Localisation;
+using osuTK;
+using VRCOSC.Game.Graphics.Containers.UI.Button;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
@@ -30,6 +33,7 @@ public sealed class ModuleListingGroup : Container, IFilterable
         Origin = Anchor.TopCentre;
         RelativeSizeAxes = Axes.X;
         AutoSizeAxes = Axes.Y;
+        Padding = new MarginPadding(5);
 
         populateFilter();
     }
@@ -39,34 +43,87 @@ public sealed class ModuleListingGroup : Container, IFilterable
     {
         SearchContainer<ModuleCard> moduleCardFlow;
 
+        DropdownButton dropdownButton;
         Children = new Drawable[]
         {
-            new Box
-            {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                RelativeSizeAxes = Axes.Both,
-                Colour = Colour4.Aqua
-            },
-            new Container
+            new FillFlowContainer
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.X,
                 AutoSizeAxes = Axes.Y,
-                Child = moduleCardFlow = new SearchContainer<ModuleCard>
+                Padding = new MarginPadding(5),
+                Children = new Drawable[]
                 {
-                    Anchor = Anchor.TopCentre,
-                    Origin = Anchor.TopCentre,
-                    RelativeSizeAxes = Axes.X,
-                    AutoSizeAxes = Axes.Y,
-                    Direction = FillDirection.Vertical
+                    new Container
+                    {
+                        Anchor = Anchor.TopCentre,
+                        Origin = Anchor.TopCentre,
+                        RelativeSizeAxes = Axes.X,
+                        Height = 50,
+                        Children = new Drawable[]
+                        {
+                            new Box
+                            {
+                                Anchor = Anchor.Centre,
+                                Origin = Anchor.Centre,
+                                RelativeSizeAxes = Axes.Both,
+                                Colour = Colour4.Aqua
+                            },
+                            new FillFlowContainer
+                            {
+                                Anchor = Anchor.CentreLeft,
+                                Origin = Anchor.CentreLeft,
+                                RelativeSizeAxes = Axes.Y,
+                                AutoSizeAxes = Axes.X,
+                                Direction = FillDirection.Horizontal,
+                                Children = new Drawable[]
+                                {
+                                    dropdownButton = new DropdownButton
+                                    {
+                                        Anchor = Anchor.CentreLeft,
+                                        Origin = Anchor.CentreLeft,
+                                        RelativeSizeAxes = Axes.Both,
+                                        FillMode = FillMode.Fit,
+                                        State = { Value = true }
+                                    },
+                                    new SpriteText
+                                    {
+                                        Anchor = Anchor.CentreLeft,
+                                        Origin = Anchor.CentreLeft,
+                                        Text = moduleGroup.Type.ToString(),
+                                        Font = FrameworkFont.Regular.With(size: 30)
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    moduleCardFlow = new SearchContainer<ModuleCard>
+                    {
+                        Anchor = Anchor.TopCentre,
+                        Origin = Anchor.TopCentre,
+                        RelativeSizeAxes = Axes.X,
+                        AutoSizeAxes = Axes.Y,
+                        Direction = FillDirection.Vertical
+                    }
                 }
             }
         };
 
         moduleGroup.ForEach(moduleContainer => moduleCardFlow.Add(new ModuleCard(moduleContainer.Module)));
         moduleSelection.SearchString.ValueChanged += (searchTerm) => moduleCardFlow.SearchTerm = searchTerm.NewValue;
+
+        dropdownButton.State.ValueChanged += (e) =>
+        {
+            if (e.NewValue)
+            {
+                moduleCardFlow.ScaleTo(new Vector2(1), 500, Easing.OutElastic);
+            }
+            else
+            {
+                moduleCardFlow.ScaleTo(new Vector2(1, 0), 500, Easing.OutQuart);
+            }
+        };
     }
 
     private void populateFilter()
