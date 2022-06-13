@@ -116,6 +116,8 @@ public sealed class ModuleListingGroup : Container, IFilterable
                             Origin = Anchor.TopCentre,
                             RelativeSizeAxes = Axes.X,
                             AutoSizeAxes = Axes.Y,
+                            AutoSizeDuration = 500,
+                            AutoSizeEasing = Easing.OutQuint,
                             Masking = true,
                             CornerRadius = 10,
                             Children = new Drawable[]
@@ -133,8 +135,6 @@ public sealed class ModuleListingGroup : Container, IFilterable
                                     Origin = Anchor.TopCentre,
                                     RelativeSizeAxes = Axes.X,
                                     AutoSizeAxes = Axes.Y,
-                                    AutoSizeDuration = 500,
-                                    AutoSizeEasing = Easing.OutQuint,
                                     Padding = new MarginPadding(10),
                                     Spacing = new Vector2(5, 5)
                                 }
