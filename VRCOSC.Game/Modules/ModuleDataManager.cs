@@ -83,18 +83,6 @@ public class ModuleDataManager
                 createSetting(key, displayName, description, enumValue);
                 break;
 
-            case long longValue:
-                createSetting(key, displayName, description, (int)longValue);
-                break;
-
-            case float floatValue:
-                createSetting(key, displayName, description, (int)floatValue);
-                break;
-
-            case double doubleValue:
-                createSetting(key, displayName, description, (int)doubleValue);
-                break;
-
             default:
                 throw new InvalidCastException($"Settings must be of types string, int, bool, or enum. They cannot be of type {defaultValue.GetType()}");
         }
