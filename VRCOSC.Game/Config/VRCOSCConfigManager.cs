@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Collections.Generic;
 using osu.Framework.Configuration;
 using osu.Framework.Platform;
 
@@ -11,8 +10,8 @@ public class VRCOSCConfigManager : IniConfigManager<VRCOSCSetting>
 {
     protected override string Filename => @"config.ini";
 
-    public VRCOSCConfigManager(Storage storage, IDictionary<VRCOSCSetting, object> defaultOverrides = null)
-        : base(storage, defaultOverrides)
+    public VRCOSCConfigManager(Storage storage)
+        : base(storage)
     {
     }
 
