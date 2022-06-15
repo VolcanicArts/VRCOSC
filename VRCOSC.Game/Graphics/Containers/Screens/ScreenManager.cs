@@ -56,6 +56,7 @@ public sealed class ScreenManager : Container
             moduleEditContainer.MoveToY(1, 1000, Easing.InQuint).Finally(_ =>
             {
                 ChangeChildDepth(moduleEditContainer, 0);
+                moduleEditContainer.SourceModule.Value = null;
             });
         });
     }
