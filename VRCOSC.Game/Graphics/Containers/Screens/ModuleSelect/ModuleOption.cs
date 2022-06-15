@@ -11,14 +11,14 @@ using VRCOSC.Game.Graphics.Containers.UI.Checkbox;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
 
-public sealed class ModuleFilterOption : Container
+public sealed class ModuleOption : Container
 {
     public Action<bool>? OnOptionChange { get; init; }
 
     public bool InitialState { get; init; }
     public string Text { get; init; }
 
-    public ModuleFilterOption()
+    public ModuleOption()
     {
         Anchor = Anchor.TopCentre;
         Origin = Anchor.TopCentre;

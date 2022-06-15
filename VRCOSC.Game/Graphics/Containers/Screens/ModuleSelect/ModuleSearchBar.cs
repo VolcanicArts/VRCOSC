@@ -10,7 +10,7 @@ using VRCOSC.Game.Graphics.Containers.UI.TextBox;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
 
-public class ModuleFilterSearchBar : Container
+public class ModuleSearchBar : Container
 {
     [BackgroundDependencyLoader]
     private void load(ModuleSelection moduleSelection)

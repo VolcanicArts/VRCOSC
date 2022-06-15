@@ -7,7 +7,7 @@ using osu.Framework.Graphics.Containers;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
 
-public class ModuleFilter : Container
+public class ModuleSelectionSidePanelContent : Container
 {
     [BackgroundDependencyLoader]
     private void load()
@@ -28,7 +28,7 @@ public class ModuleFilter : Container
                 {
                     new Drawable[]
                     {
-                        new ModuleFilterSearchBar
+                        new ModuleSearchBar
                         {
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
@@ -37,7 +37,7 @@ public class ModuleFilter : Container
                     },
                     new Drawable[]
                     {
-                        new ModuleFilterOptions
+                        new ModuleOptionContainer
                         {
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,

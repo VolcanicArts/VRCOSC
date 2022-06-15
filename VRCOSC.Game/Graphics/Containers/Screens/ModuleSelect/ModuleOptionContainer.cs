@@ -9,7 +9,7 @@ using VRCOSC.Game.Config;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
 
-public class ModuleFilterOptions : Container
+public class ModuleOptionContainer : Container
 {
     [Resolved]
     private ModuleSelection moduleSelection { get; set; }
@@ -37,7 +37,7 @@ public class ModuleFilterOptions : Container
                     RelativeSizeAxes = Axes.Both,
                     Colour = VRCOSCColour.Gray4
                 },
-                new FillFlowContainer<ModuleFilterOption>
+                new FillFlowContainer<ModuleOption>
                 {
                     Anchor = Anchor.TopCentre,
                     Origin = Anchor.TopCentre,
@@ -46,7 +46,7 @@ public class ModuleFilterOptions : Container
                     Direction = FillDirection.Vertical,
                     Children = new[]
                     {
-                        new ModuleFilterOption
+                        new ModuleOption
                         {
                             Text = "Auto Start/Stop",
                             InitialState = configManager.Get<bool>(VRCOSCSetting.AutoStartStop),
