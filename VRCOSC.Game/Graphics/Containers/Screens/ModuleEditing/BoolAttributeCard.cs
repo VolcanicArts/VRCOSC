@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using VRCOSC.Game.Graphics.Containers.UI.Checkbox;
@@ -11,6 +12,8 @@ namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Settings;
 
 public class BoolAttributeCard : AttributeCard
 {
+    private Checkbox checkBox;
+
     public BoolAttributeCard(ModuleAttributeData attributeData)
         : base(attributeData)
     {
@@ -19,8 +22,6 @@ public class BoolAttributeCard : AttributeCard
     [BackgroundDependencyLoader]
     private void load()
     {
-        Checkbox checkBox;
-
         Add(new Container
         {
             Anchor = Anchor.CentreRight,
@@ -38,8 +39,19 @@ public class BoolAttributeCard : AttributeCard
             }
         });
 
-        checkBox.State.ValueChanged += _ => attributeData.Attribute.Value = checkBox.State.Value;
+        checkBox.State.ValueChanged += e => attributeData.Attribute.Value = e.NewValue;
 
-        ResetToDefault.Action += () => checkBox.State.Value = (bool)attributeData.Attribute.Default;
+        attributeData.Attribute.ValueChanged += updateCheckBox;
+    }
+
+    private void updateCheckBox(ValueChangedEvent<object> e)
+    {
+        checkBox.State.Value = (bool)e.NewValue;
+    }
+
+    protected override void Dispose(bool isDisposing)
+    {
+        attributeData.Attribute.ValueChanged -= updateCheckBox;
+        base.Dispose(isDisposing);
     }
 }
