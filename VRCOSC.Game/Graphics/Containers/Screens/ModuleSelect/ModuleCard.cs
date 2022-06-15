@@ -49,6 +49,7 @@ public sealed class ModuleCard : Container, IFilterable
         Anchor = Anchor.TopCentre;
         Origin = Anchor.TopCentre;
         Size = new Vector2(350, 200);
+        Margin = new MarginPadding(5);
         Masking = true;
         CornerRadius = 10;
         BorderThickness = 2;

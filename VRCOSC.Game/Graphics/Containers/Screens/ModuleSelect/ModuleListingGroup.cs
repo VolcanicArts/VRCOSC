@@ -10,7 +10,6 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Localisation;
-using osuTK;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics.Containers.UI.Button;
 using VRCOSC.Game.Modules;
@@ -146,9 +145,7 @@ public sealed class ModuleListingGroup : Container, IFilterable
                                     Anchor = Anchor.TopCentre,
                                     Origin = Anchor.TopCentre,
                                     RelativeSizeAxes = Axes.X,
-                                    AutoSizeAxes = Axes.Y,
-                                    Padding = new MarginPadding(10),
-                                    Spacing = new Vector2(5, 5)
+                                    AutoSizeAxes = Axes.Y
                                 }
                             }
                         }
@@ -170,19 +167,12 @@ public sealed class ModuleListingGroup : Container, IFilterable
         {
             if (e.NewValue)
             {
-                dropdownContainer.Show();
                 moduleCardFlow.ForEach(card => card.Show());
-                moduleCardFlow.TransformTo("Padding", new MarginPadding(10), 500, Easing.OutQuint);
                 updateExperimental(configManager.Get<bool>(VRCOSCSetting.ShowExperimental));
             }
             else
             {
                 moduleCardFlow.ForEach(card => card.Hide());
-                moduleCardFlow.TransformTo("Padding", new MarginPadding(0), 500, Easing.OutQuint).Finally((_) =>
-                {
-                    if (!dropdownButton.State.Value)
-                        dropdownContainer.Hide();
-                });
             }
         };
     }
