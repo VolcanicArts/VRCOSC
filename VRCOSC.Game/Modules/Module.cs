@@ -245,23 +245,28 @@ public abstract class Module
             var value = lineSplitLookupValue[1];
 
             var lookup = lookupType[0];
-            var type = lookupType[1];
+            var typeStr = lookupType[1];
 
             if (!Settings.ContainsKey(lookup)) continue;
 
+            if (!Enum.TryParse(typeStr, true, out TypeCode type)) continue;
+
             switch (type)
             {
-                case "string":
+                case TypeCode.String:
                     Settings[lookup].Attribute.Value = value;
                     break;
 
-                case "int32":
+                case TypeCode.Int32:
                     Settings[lookup].Attribute.Value = int.Parse(value);
                     break;
 
-                case "boolean":
+                case TypeCode.Boolean:
                     Settings[lookup].Attribute.Value = bool.Parse(value);
                     break;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
     }
