@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Collections.Generic;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Platform.Windows;
@@ -19,27 +18,6 @@ public class CalculatorModule : IntegrationModule
     public override ModuleType Type => ModuleType.Integrations;
     public override bool Experimental => true;
     public override string TargetProcess => "calc";
-
-    protected override Dictionary<Enum, WindowsVKey[]> KeyCombinations => new()
-    {
-        { CalculatorInputParameters.CalculatorClear, new[] { WindowsVKey.VK_ESCAPE } },
-        { CalculatorInputParameters.CalculatorCalculate, new[] { WindowsVKey.VK_RETURN } },
-        { CalculatorInputParameters.CalculatorCopyValue, new[] { WindowsVKey.VK_LCONTROL, WindowsVKey.VK_C } },
-        { CalculatorInputParameters.CalculatorAdd, new[] { WindowsVKey.VK_ADD } },
-        { CalculatorInputParameters.CalculatorSubtract, new[] { WindowsVKey.VK_SUBTRACT } },
-        { CalculatorInputParameters.CalculatorMultiply, new[] { WindowsVKey.VK_MULTIPLY } },
-        { CalculatorInputParameters.CalculatorDivide, new[] { WindowsVKey.VK_DIVIDE } },
-        { CalculatorNumbers.CalculatorNumber0, new[] { WindowsVKey.VK_NUMPAD0 } },
-        { CalculatorNumbers.CalculatorNumber1, new[] { WindowsVKey.VK_NUMPAD1 } },
-        { CalculatorNumbers.CalculatorNumber2, new[] { WindowsVKey.VK_NUMPAD2 } },
-        { CalculatorNumbers.CalculatorNumber3, new[] { WindowsVKey.VK_NUMPAD3 } },
-        { CalculatorNumbers.CalculatorNumber4, new[] { WindowsVKey.VK_NUMPAD4 } },
-        { CalculatorNumbers.CalculatorNumber5, new[] { WindowsVKey.VK_NUMPAD5 } },
-        { CalculatorNumbers.CalculatorNumber6, new[] { WindowsVKey.VK_NUMPAD6 } },
-        { CalculatorNumbers.CalculatorNumber7, new[] { WindowsVKey.VK_NUMPAD7 } },
-        { CalculatorNumbers.CalculatorNumber8, new[] { WindowsVKey.VK_NUMPAD8 } },
-        { CalculatorNumbers.CalculatorNumber9, new[] { WindowsVKey.VK_NUMPAD9 } }
-    };
 
     private bool isCalculatorOpen;
     private float calculatorResult;
@@ -58,6 +36,24 @@ public class CalculatorModule : IntegrationModule
         RegisterInputParameter(CalculatorInputParameters.CalculatorMultiply, typeof(bool));
         RegisterInputParameter(CalculatorInputParameters.CalculatorDivide, typeof(bool));
         RegisterInputParameter(CalculatorInputParameters.CalculatorNumber, typeof(float));
+
+        RegisterKeyCombination(CalculatorInputParameters.CalculatorClear, WindowsVKey.VK_ESCAPE);
+        RegisterKeyCombination(CalculatorInputParameters.CalculatorCalculate, WindowsVKey.VK_RETURN);
+        RegisterKeyCombination(CalculatorInputParameters.CalculatorCopyValue, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_C);
+        RegisterKeyCombination(CalculatorInputParameters.CalculatorAdd, WindowsVKey.VK_ADD);
+        RegisterKeyCombination(CalculatorInputParameters.CalculatorSubtract, WindowsVKey.VK_SUBTRACT);
+        RegisterKeyCombination(CalculatorInputParameters.CalculatorMultiply, WindowsVKey.VK_MULTIPLY);
+        RegisterKeyCombination(CalculatorInputParameters.CalculatorDivide, WindowsVKey.VK_DIVIDE);
+        RegisterKeyCombination(CalculatorNumbers.CalculatorNumber0, WindowsVKey.VK_NUMPAD0);
+        RegisterKeyCombination(CalculatorNumbers.CalculatorNumber1, WindowsVKey.VK_NUMPAD1);
+        RegisterKeyCombination(CalculatorNumbers.CalculatorNumber2, WindowsVKey.VK_NUMPAD2);
+        RegisterKeyCombination(CalculatorNumbers.CalculatorNumber3, WindowsVKey.VK_NUMPAD3);
+        RegisterKeyCombination(CalculatorNumbers.CalculatorNumber4, WindowsVKey.VK_NUMPAD4);
+        RegisterKeyCombination(CalculatorNumbers.CalculatorNumber5, WindowsVKey.VK_NUMPAD5);
+        RegisterKeyCombination(CalculatorNumbers.CalculatorNumber6, WindowsVKey.VK_NUMPAD6);
+        RegisterKeyCombination(CalculatorNumbers.CalculatorNumber7, WindowsVKey.VK_NUMPAD7);
+        RegisterKeyCombination(CalculatorNumbers.CalculatorNumber8, WindowsVKey.VK_NUMPAD8);
+        RegisterKeyCombination(CalculatorNumbers.CalculatorNumber9, WindowsVKey.VK_NUMPAD9);
     }
 
     public override void Start()

@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Collections.Generic;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using VRCOSC.Game.Modules.Frameworks;
@@ -19,15 +18,6 @@ public class SpotifyModule : IntegrationModule
     public override string TargetProcess => "spotify";
     public override string TargetExe => GetSetting<string>(SpotifySettings.InstallLocation);
 
-    protected override Dictionary<Enum, WindowsVKey[]> KeyCombinations => new()
-    {
-        { SpotifyInputParameters.SpotifyPlayPause, new[] { WindowsVKey.VK_SPACE } },
-        { SpotifyInputParameters.SpotifyNext, new[] { WindowsVKey.VK_LCONTROL, WindowsVKey.VK_RIGHT } },
-        { SpotifyInputParameters.SpotifyPrevious, new[] { WindowsVKey.VK_LCONTROL, WindowsVKey.VK_LEFT } },
-        { SpotifyInputParameters.SpotifyVolumeUp, new[] { WindowsVKey.VK_LCONTROL, WindowsVKey.VK_UP } },
-        { SpotifyInputParameters.SpotifyVolumeDown, new[] { WindowsVKey.VK_LCONTROL, WindowsVKey.VK_DOWN } }
-    };
-
     public override void CreateAttributes()
     {
         CreateSetting(SpotifySettings.ShouldStart, "Should Start", "Should Spotify start on module run", false);
@@ -38,6 +28,12 @@ public class SpotifyModule : IntegrationModule
         RegisterInputParameter(SpotifyInputParameters.SpotifyPrevious, typeof(bool));
         RegisterInputParameter(SpotifyInputParameters.SpotifyVolumeUp, typeof(bool));
         RegisterInputParameter(SpotifyInputParameters.SpotifyVolumeDown, typeof(bool));
+
+        RegisterKeyCombination(SpotifyInputParameters.SpotifyPlayPause, WindowsVKey.VK_SPACE);
+        RegisterKeyCombination(SpotifyInputParameters.SpotifyNext, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_RIGHT);
+        RegisterKeyCombination(SpotifyInputParameters.SpotifyPrevious, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_LEFT);
+        RegisterKeyCombination(SpotifyInputParameters.SpotifyVolumeUp, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_UP);
+        RegisterKeyCombination(SpotifyInputParameters.SpotifyVolumeDown, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_DOWN);
     }
 
     public override void Start()

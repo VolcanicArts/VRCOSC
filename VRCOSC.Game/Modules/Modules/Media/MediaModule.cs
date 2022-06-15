@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Collections.Generic;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using VRCOSC.Game.Modules.Frameworks;
@@ -18,18 +17,15 @@ public class MediaModule : IntegrationModule
     public override ModuleType Type => ModuleType.Integrations;
     public override string ReturnProcess => string.Empty;
 
-    protected override Dictionary<Enum, WindowsVKey[]> KeyCombinations => new()
-    {
-        { MediaInputParameters.MediaPlayPause, new[] { WindowsVKey.VK_MEDIA_PLAY_PAUSE } },
-        { MediaInputParameters.MediaNext, new[] { WindowsVKey.VK_MEDIA_NEXT_TRACK } },
-        { MediaInputParameters.MediaPrevious, new[] { WindowsVKey.VK_MEDIA_PREV_TRACK } }
-    };
-
     public override void CreateAttributes()
     {
         RegisterInputParameter(MediaInputParameters.MediaPlayPause, typeof(bool));
         RegisterInputParameter(MediaInputParameters.MediaNext, typeof(bool));
         RegisterInputParameter(MediaInputParameters.MediaPrevious, typeof(bool));
+
+        RegisterKeyCombination(MediaInputParameters.MediaPlayPause, WindowsVKey.VK_MEDIA_PLAY_PAUSE);
+        RegisterKeyCombination(MediaInputParameters.MediaNext, WindowsVKey.VK_MEDIA_NEXT_TRACK);
+        RegisterKeyCombination(MediaInputParameters.MediaPrevious, WindowsVKey.VK_MEDIA_PREV_TRACK);
     }
 
     protected override void OnBoolParameterReceived(Enum key, bool value)

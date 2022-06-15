@@ -16,7 +16,7 @@ public abstract class IntegrationModule : Module
     public virtual string TargetProcess => string.Empty;
     public virtual string ReturnProcess => "vrchat";
     public virtual string TargetExe => $@"{TargetProcess}.exe";
-    protected virtual Dictionary<Enum, WindowsVKey[]> KeyCombinations => new();
+    public readonly Dictionary<Enum, WindowsVKey[]> KeyCombinations = new();
 
     protected void StartTarget()
     {
@@ -35,6 +35,11 @@ public abstract class IntegrationModule : Module
         {
             Terminal.Log($"{TargetExe} is not a valid path. You cannot start {TargetProcess} on start");
         }
+    }
+
+    protected void RegisterKeyCombination(Enum lookup, params WindowsVKey[] keys)
+    {
+        KeyCombinations[lookup] = keys;
     }
 
     protected void StopTarget()
