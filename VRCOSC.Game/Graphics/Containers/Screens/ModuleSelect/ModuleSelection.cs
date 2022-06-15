@@ -39,19 +39,8 @@ public sealed class ModuleSelection : Container
                 {
                     new Drawable[]
                     {
-                        new ModuleSelectionSidePanel
-                        {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
-                            RelativeSizeAxes = Axes.Both,
-                            Depth = float.MinValue
-                        },
-                        new ModuleListing
-                        {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
-                            RelativeSizeAxes = Axes.Both
-                        },
+                        new ModuleSelectionSidePanel(),
+                        new ModuleListing()
                     }
                 }
             }

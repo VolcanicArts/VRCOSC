@@ -15,19 +15,16 @@ using VRCOSC.Game.Graphics.Containers.UI.Button;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
 
-public class ModuleSelectionSidePanel : Container
+public sealed class ModuleSelectionSidePanel : Container
 {
-    [Resolved]
-    private ScreenManager screenManager { get; set; }
+    private BindableBool runButtonEnableBindable = null!;
 
-    [Resolved]
-    private VRCOSCConfigManager configManager { get; set; }
-
-    private BindableBool runButtonEnableBindable;
-
-    [BackgroundDependencyLoader]
-    private void load()
+    public ModuleSelectionSidePanel()
     {
+        Anchor = Anchor.Centre;
+        Origin = Anchor.Centre;
+        RelativeSizeAxes = Axes.Both;
+        Depth = float.MinValue;
         Masking = true;
         EdgeEffect = new EdgeEffectParameters
         {
@@ -35,9 +32,11 @@ public class ModuleSelectionSidePanel : Container
             Radius = 5f,
             Type = EdgeEffectType.Shadow
         };
+    }
 
-        runButtonEnableBindable = (BindableBool)configManager.GetBindable<bool>(VRCOSCSetting.AutoStartStop);
-
+    [BackgroundDependencyLoader]
+    private void load(VRCOSCConfigManager configManager, ScreenManager screenManager)
+    {
         IconButton runButton;
         Children = new Drawable[]
         {
@@ -96,6 +95,7 @@ public class ModuleSelectionSidePanel : Container
             }
         };
 
+        runButtonEnableBindable = (BindableBool)configManager.GetBindable<bool>(VRCOSCSetting.AutoStartStop);
         runButtonEnableBindable.BindValueChanged(e => runButton.Enabled.Value = !e.NewValue, true);
     }
 }

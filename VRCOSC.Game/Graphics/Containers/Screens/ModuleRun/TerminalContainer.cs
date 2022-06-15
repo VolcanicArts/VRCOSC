@@ -15,9 +15,6 @@ namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleRun;
 
 public sealed class TerminalContainer : Container
 {
-    [Resolved]
-    private ScreenManager ScreenManager { get; set; }
-
     private BasicScrollContainer terminalScroll;
     private FillFlowContainer<TerminalEntry> terminalFlow;
 

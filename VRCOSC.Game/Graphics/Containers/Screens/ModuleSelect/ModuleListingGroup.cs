@@ -18,12 +18,6 @@ public sealed class ModuleListingGroup : Container, IFilterable
 {
     private readonly ModuleGroup moduleGroup;
 
-    [Resolved]
-    private ModuleSelection moduleSelection { get; set; }
-
-    [Resolved]
-    private ModuleManager moduleManager { get; set; }
-
     private SearchContainer<ModuleCard> moduleCardFlow;
     private DropdownButton dropdownButton;
 
@@ -41,7 +35,7 @@ public sealed class ModuleListingGroup : Container, IFilterable
     }
 
     [BackgroundDependencyLoader]
-    private void load()
+    private void load(ModuleSelection moduleSelection)
     {
         Children = new Drawable[]
         {
@@ -145,13 +139,13 @@ public sealed class ModuleListingGroup : Container, IFilterable
         };
 
         moduleGroup.ForEach(moduleContainer => moduleCardFlow.Add(new ModuleCard(moduleContainer.Module)));
-        moduleSelection.SearchString.ValueChanged += (searchTerm) =>
+        moduleSelection.SearchString.ValueChanged += searchTerm =>
         {
             moduleCardFlow.SearchTerm = searchTerm.NewValue;
-            if (!dropdownButton.State.Value) dropdownButton.Toggle();
+            if (!dropdownButton.State.Value) dropdownButton.State.Toggle();
         };
 
-        dropdownButton.State.ValueChanged += (e) =>
+        dropdownButton.State.ValueChanged += e =>
         {
             if (e.NewValue)
             {
@@ -168,8 +162,6 @@ public sealed class ModuleListingGroup : Container, IFilterable
     {
         List<LocalisableString> localFilters = new List<LocalisableString>();
 
-        localFilters.Add(moduleGroup.Type.ToString());
-
         moduleGroup.ForEach(module =>
         {
             localFilters.Add(module.Module.Title);
@@ -180,7 +172,7 @@ public sealed class ModuleListingGroup : Container, IFilterable
         FilterTerms = localFilters;
     }
 
-    public IEnumerable<LocalisableString> FilterTerms { get; set; }
+    public IEnumerable<LocalisableString> FilterTerms { get; private set; }
 
     public bool MatchingFilter
     {

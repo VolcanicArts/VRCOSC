@@ -11,16 +11,17 @@ using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
 
-public class ModuleListing : Container
+public sealed class ModuleListing : Container
 {
-    [Resolved]
-    private ModuleSelection moduleSelection { get; set; }
-
-    [Resolved]
-    private ModuleManager moduleManager { get; set; }
+    public ModuleListing()
+    {
+        Anchor = Anchor.Centre;
+        Origin = Anchor.Centre;
+        RelativeSizeAxes = Axes.Both;
+    }
 
     [BackgroundDependencyLoader]
-    private void load()
+    private void load(ModuleManager moduleManager, ModuleSelection moduleSelection)
     {
         SearchContainer<ModuleListingGroup> moduleGroupFlow;
 
@@ -55,6 +56,6 @@ public class ModuleListing : Container
         };
 
         moduleManager.ForEach(moduleGroup => moduleGroupFlow.Add(new ModuleListingGroup(moduleGroup)));
-        moduleSelection.SearchString.ValueChanged += (searchTerm) => moduleGroupFlow.SearchTerm = searchTerm.NewValue;
+        moduleSelection.SearchString.ValueChanged += searchTerm => moduleGroupFlow.SearchTerm = searchTerm.NewValue;
     }
 }

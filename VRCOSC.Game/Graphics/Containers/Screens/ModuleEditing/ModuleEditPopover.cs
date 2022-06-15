@@ -16,7 +16,7 @@ namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing;
 public sealed class ModuleEditPopover : Container
 {
     [Resolved]
-    private ScreenManager ScreenManager { get; set; }
+    private ScreenManager screenManager { get; set; }
 
     [Cached]
     public Bindable<Module> SourceModule { get; } = new();
@@ -73,7 +73,7 @@ public sealed class ModuleEditPopover : Container
     {
         if (e.Key != Key.Escape) return base.OnKeyDown(e);
 
-        ScreenManager.FinishEditingModule();
+        screenManager.FinishEditingModule();
         return true;
     }
 

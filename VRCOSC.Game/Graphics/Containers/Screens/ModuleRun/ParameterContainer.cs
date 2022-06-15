@@ -14,9 +14,6 @@ namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleRun;
 
 public sealed class ParameterContainer : Container
 {
-    [Resolved]
-    private ModuleManager moduleManager { get; set; }
-
     private ParameterDisplay outgoingParameterDisplay;
     private ParameterDisplay incomingParameterDisplay;
 
@@ -28,7 +25,7 @@ public sealed class ParameterContainer : Container
     }
 
     [BackgroundDependencyLoader]
-    private void load()
+    private void load(ModuleManager moduleManager)
     {
         Child = new GridContainer
         {

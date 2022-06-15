@@ -291,18 +291,18 @@ public abstract class Module
 
     private void executeAfterLoad()
     {
-        PerformSave();
+        performSave();
 
-        Enabled.BindValueChanged((_) => PerformSave());
-        Settings.Values.ForEach(value => value.Attribute.BindValueChanged((_) => PerformSave()));
-        OutputParameters.Values.ForEach(value => value.Attribute.BindValueChanged((_) => PerformSave()));
+        Enabled.BindValueChanged(_ => performSave());
+        Settings.Values.ForEach(value => value.Attribute.BindValueChanged(_ => performSave()));
+        OutputParameters.Values.ForEach(value => value.Attribute.BindValueChanged(_ => performSave()));
     }
 
     #endregion
 
     #region Saving
 
-    public void PerformSave()
+    private void performSave()
     {
         using var stream = Storage.CreateFileSafely(FileName);
         using var writer = new StreamWriter(stream);
@@ -321,7 +321,7 @@ public abstract class Module
 
     private void performSettingsSave(StreamWriter writer)
     {
-        var areAllDefault = Settings.All((pair) => pair.Value.Attribute.IsDefault);
+        var areAllDefault = Settings.All(pair => pair.Value.Attribute.IsDefault);
         if (areAllDefault) return;
 
         writer.WriteLine(@"#Settings");
@@ -341,7 +341,7 @@ public abstract class Module
 
     private void performOutputParametersSave(StreamWriter writer)
     {
-        var areAllDefault = OutputParameters.All((pair) => pair.Value.Attribute.IsDefault);
+        var areAllDefault = OutputParameters.All(pair => pair.Value.Attribute.IsDefault);
         if (areAllDefault) return;
 
         writer.WriteLine(@"#OutputParameters");

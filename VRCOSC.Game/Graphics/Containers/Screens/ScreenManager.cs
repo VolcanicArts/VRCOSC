@@ -25,14 +25,14 @@ public sealed class ScreenManager : Container
     }
 
     [Cached]
-    private ModuleManager ModuleManager = new();
+    private ModuleManager moduleManager = new();
 
     [BackgroundDependencyLoader]
     private void load()
     {
         InternalChildren = new Drawable[]
         {
-            ModuleManager,
+            moduleManager,
             new ModuleSelection(),
             runningPopover = new RunningPopover(),
             moduleEditContainer = new ModuleEditPopover()
@@ -66,7 +66,7 @@ public sealed class ScreenManager : Container
         Scheduler.Add(() =>
         {
             ChangeChildDepth(runningPopover, -1);
-            runningPopover.MoveToY(0, 1000, Easing.OutQuint).Finally(_ => ModuleManager.Start());
+            runningPopover.MoveToY(0, 1000, Easing.OutQuint).Finally(_ => moduleManager.Start());
         });
     }
 
@@ -74,7 +74,7 @@ public sealed class ScreenManager : Container
     {
         Scheduler.Add(() =>
         {
-            ModuleManager.Stop();
+            moduleManager.Stop();
             runningPopover.MoveToY(1, 1000, Easing.InQuint).Finally(_ =>
             {
                 ChangeChildDepth(runningPopover, 0);

@@ -50,7 +50,7 @@ public class ModuleFilterOptions : Container
                         {
                             Text = "Auto Start/Stop",
                             InitialState = configManager.Get<bool>(VRCOSCSetting.AutoStartStop),
-                            OnOptionChange = (state) => configManager.SetValue(VRCOSCSetting.AutoStartStop, state)
+                            OnOptionChange = state => configManager.SetValue(VRCOSCSetting.AutoStartStop, state)
                         }
                     }
                 }

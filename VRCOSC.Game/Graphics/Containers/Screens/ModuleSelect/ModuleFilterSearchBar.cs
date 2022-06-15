@@ -12,11 +12,8 @@ namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
 
 public class ModuleFilterSearchBar : Container
 {
-    [Resolved]
-    private ModuleSelection moduleSelection { get; set; }
-
     [BackgroundDependencyLoader]
-    private void load()
+    private void load(ModuleSelection moduleSelection)
     {
         Children = new Drawable[]
         {
@@ -58,7 +55,7 @@ public class ModuleFilterSearchBar : Container
                                 Origin = Anchor.BottomCentre,
                                 RelativeSizeAxes = Axes.Both,
                                 PlaceholderText = "Search...",
-                                CharWritten = (searchString) => moduleSelection.SearchString.Value = searchString
+                                CharWritten = searchString => moduleSelection.SearchString.Value = searchString
                             },
                         },
                         new Container

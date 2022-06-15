@@ -16,14 +16,8 @@ namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing;
 
 public class ModuleEditContent : Container
 {
-    [Resolved]
-    private ScreenManager ScreenManager { get; set; }
-
-    [Resolved]
-    private Bindable<Module> SourceModule { get; set; }
-
     [BackgroundDependencyLoader]
-    private void load()
+    private void load(ScreenManager screenManager, Bindable<Module> sourceModule)
     {
         TextFlowContainer metadataTextFlow;
         LineSeparator settingsSeparator;
@@ -49,7 +43,7 @@ public class ModuleEditContent : Container
                     RelativeSizeAxes = Axes.Both,
                     CornerRadius = 10,
                     Icon = { Value = FontAwesome.Solid.Get(0xf00d) },
-                    Action = ScreenManager.FinishEditingModule
+                    Action = screenManager.FinishEditingModule
                 },
             },
             scrollContainer = new BasicScrollContainer
@@ -113,18 +107,18 @@ public class ModuleEditContent : Container
             }
         };
 
-        SourceModule.BindValueChanged(_ =>
+        sourceModule.BindValueChanged(_ =>
         {
-            if (SourceModule.Value == null) return;
+            if (sourceModule.Value == null) return;
 
             scrollContainer.ScrollToStart();
 
             metadataTextFlow.Clear();
-            metadataTextFlow.AddText(SourceModule.Value.Title, t =>
+            metadataTextFlow.AddText(sourceModule.Value.Title, t =>
             {
                 t.Font = FrameworkFont.Regular.With(size: 75);
             });
-            metadataTextFlow.AddParagraph(SourceModule.Value.Description, t =>
+            metadataTextFlow.AddParagraph(sourceModule.Value.Description, t =>
             {
                 t.Font = FrameworkFont.Regular.With(size: 40);
                 t.Colour = VRCOSCColour.Gray9;
@@ -134,7 +128,7 @@ public class ModuleEditContent : Container
                 t.Font = FrameworkFont.Regular.With(size: 30);
                 t.Colour = VRCOSCColour.Gray9;
             });
-            metadataTextFlow.AddText(SourceModule.Value.Author, t =>
+            metadataTextFlow.AddText(sourceModule.Value.Author, t =>
             {
                 t.Font = FrameworkFont.Regular.With(size: 30);
                 t.Colour = VRCOSCColour.GrayE;
@@ -143,16 +137,16 @@ public class ModuleEditContent : Container
             settingsFlowContainer.Child = new AttributeFlow
             {
                 Title = "Settings",
-                AttributesList = SourceModule.Value.Settings.Values.ToList()
+                AttributesList = sourceModule.Value.Settings.Values.ToList()
             };
 
             outputParametersFlowContainer.Child = new AttributeFlow
             {
                 Title = "Output Parameters",
-                AttributesList = SourceModule.Value.OutputParameters.Values.ToList()
+                AttributesList = sourceModule.Value.OutputParameters.Values.ToList()
             };
 
-            if (SourceModule.Value.HasSettings)
+            if (sourceModule.Value.HasSettings)
             {
                 settingsSeparator.Show();
                 settingsFlowContainer.Show();
@@ -163,7 +157,7 @@ public class ModuleEditContent : Container
                 settingsFlowContainer.Hide();
             }
 
-            if (SourceModule.Value.HasOutputParameters)
+            if (sourceModule.Value.HasOutputParameters)
             {
                 outputParametersSeparator.Show();
                 outputParametersFlowContainer.Show();

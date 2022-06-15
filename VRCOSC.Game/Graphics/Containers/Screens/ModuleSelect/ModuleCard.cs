@@ -13,7 +13,6 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Localisation;
 using osuTK;
-using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics.Containers.UI.Button;
 using VRCOSC.Game.Graphics.Containers.UI.Checkbox;
 using VRCOSC.Game.Graphics.Drawables.Triangles;
@@ -23,32 +22,11 @@ namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
 
 public sealed class ModuleCard : Container, IFilterable
 {
-    [Resolved]
-    private ScreenManager ScreenManager { get; set; }
-
-    [Resolved]
-    private VRCOSCConfigManager configManager { get; set; }
-
-    public IEnumerable<LocalisableString> FilterTerms { get; }
-
-    public bool MatchingFilter
-    {
-        set
-        {
-            if (value)
-                this.FadeIn();
-            else
-                this.FadeOut();
-        }
-    }
-
-    public bool FilteringActive { get; set; }
-
-    public readonly Module SourceModule;
+    private readonly Module sourceModule;
 
     public ModuleCard(Module sourceModule)
     {
-        SourceModule = sourceModule;
+        this.sourceModule = sourceModule;
 
         Anchor = Anchor.TopCentre;
         Origin = Anchor.TopCentre;
@@ -59,17 +37,17 @@ public sealed class ModuleCard : Container, IFilterable
         BorderThickness = 2;
         EdgeEffect = VRCOSCEdgeEffects.BasicShadow;
 
-        List<LocalisableString> filters = new List<LocalisableString>()
+        List<LocalisableString> filters = new List<LocalisableString>
         {
-            SourceModule.Title,
-            SourceModule.Author
+            this.sourceModule.Title,
+            this.sourceModule.Author
         };
-        SourceModule.Tags.ForEach(tag => filters.Add(new LocalisableString(tag)));
+        this.sourceModule.Tags.ForEach(tag => filters.Add(new LocalisableString(tag)));
         FilterTerms = filters;
     }
 
     [BackgroundDependencyLoader]
-    private void load()
+    private void load(ScreenManager screenManager)
     {
         IconButton editButton;
 
@@ -80,8 +58,8 @@ public sealed class ModuleCard : Container, IFilterable
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
-                ColourLight = SourceModule.Colour,
-                ColourDark = SourceModule.Colour.Darken(0.25f),
+                ColourLight = sourceModule.Colour,
+                ColourDark = sourceModule.Colour.Darken(0.25f),
                 TriangleScale = 2,
                 Velocity = 0.8f
             },
@@ -106,7 +84,7 @@ public sealed class ModuleCard : Container, IFilterable
                             Origin = Anchor.TopCentre,
                             Font = FrameworkFont.Regular.With(size: 35),
                             Shadow = true,
-                            Text = SourceModule.Title
+                            Text = sourceModule.Title
                         }
                     },
                     new Drawable[]
@@ -122,7 +100,7 @@ public sealed class ModuleCard : Container, IFilterable
                             RelativeSizeAxes = Axes.Both,
                             TextAnchor = Anchor.TopCentre,
                             Padding = new MarginPadding(5),
-                            Text = SourceModule.Description
+                            Text = sourceModule.Description
                         },
                     },
                     new Drawable[]
@@ -157,7 +135,7 @@ public sealed class ModuleCard : Container, IFilterable
                                             Icon = { Value = FontAwesome.Solid.Get(0xF013) },
                                             FillMode = FillMode.Fit,
                                             CornerRadius = 10,
-                                            Action = () => ScreenManager.EditModule(SourceModule)
+                                            Action = () => screenManager.EditModule(sourceModule)
                                         },
                                         new Checkbox
                                         {
@@ -166,7 +144,7 @@ public sealed class ModuleCard : Container, IFilterable
                                             RelativeSizeAxes = Axes.Both,
                                             FillMode = FillMode.Fit,
                                             CornerRadius = 10,
-                                            State = (BindableBool)SourceModule.Enabled.GetBoundCopy(),
+                                            State = (BindableBool)sourceModule.Enabled.GetBoundCopy(),
                                             IconOn = FontAwesome.Solid.PowerOff,
                                             IconOff = FontAwesome.Solid.PowerOff
                                         }
@@ -179,6 +157,21 @@ public sealed class ModuleCard : Container, IFilterable
             }
         };
 
-        if (!SourceModule.HasAttributes) editButton.Enabled.Value = false;
+        if (!sourceModule.HasAttributes) editButton.Enabled.Value = false;
     }
+
+    public IEnumerable<LocalisableString> FilterTerms { get; }
+
+    public bool MatchingFilter
+    {
+        set
+        {
+            if (value)
+                this.FadeIn();
+            else
+                this.FadeOut();
+        }
+    }
+
+    public bool FilteringActive { get; set; }
 }

@@ -11,22 +11,25 @@ using VRCOSC.Game.Graphics.Containers.UI.Checkbox;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
 
-public class ModuleFilterOption : Container
+public sealed class ModuleFilterOption : Container
 {
     public Action<bool>? OnOptionChange { get; init; }
 
     public bool InitialState { get; init; }
     public string Text { get; init; }
 
-    [BackgroundDependencyLoader]
-    private void load()
+    public ModuleFilterOption()
     {
         Anchor = Anchor.TopCentre;
         Origin = Anchor.TopCentre;
         RelativeSizeAxes = Axes.X;
         Height = 50;
         Padding = new MarginPadding(5);
+    }
 
+    [BackgroundDependencyLoader]
+    private void load()
+    {
         Checkbox checkBox;
         Child = new Container
         {
