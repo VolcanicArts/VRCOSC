@@ -20,9 +20,9 @@ public class ModuleContainer : Container
     {
         if (!Module.Enabled.Value) return;
 
-        Logger.Log($"[{Module.Title}]: Starting", "terminal");
+        Logger.Log($"[{Module.GetType().Name}]: Starting", "terminal");
         Module.Start();
-        Logger.Log($"[{Module.Title}]: Started", "terminal");
+        Logger.Log($"[{Module.GetType().Name}]: Started", "terminal");
 
         if (double.IsPositiveInfinity(Module.DeltaUpdate)) return;
 
@@ -36,9 +36,9 @@ public class ModuleContainer : Container
 
         Scheduler.CancelDelayedTasks();
 
-        Logger.Log($"[{Module.Title}]: Stopping", "terminal");
+        Logger.Log($"[{Module.GetType().Name}]: Stopping", "terminal");
         Module.Stop();
-        Logger.Log($"[{Module.Title}]: Stopped", "terminal");
+        Logger.Log($"[{Module.GetType().Name}]: Stopped", "terminal");
     }
 
     public void OnOSCMessage(OscMessage message)
