@@ -22,7 +22,7 @@ public class SettingsFlow : FillFlowContainer
     [BackgroundDependencyLoader]
     private void load()
     {
-        FillFlowContainer<SettingBaseCard> settingsFlow;
+        FillFlowContainer<AttributeCard> settingsFlow;
 
         InternalChildren = new Drawable[]
         {
@@ -33,7 +33,7 @@ public class SettingsFlow : FillFlowContainer
                 Font = FrameworkFont.Regular.With(size: 50),
                 Text = "Settings"
             },
-            settingsFlow = new FillFlowContainer<SettingBaseCard>
+            settingsFlow = new FillFlowContainer<AttributeCard>
             {
                 Anchor = Anchor.TopCentre,
                 Origin = Anchor.TopCentre,

@@ -12,18 +12,14 @@ namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Parameters;
 
 public class ParameterCard : AttributeCard
 {
-    private readonly ModuleAttributeData attributeData;
-
     public ParameterCard(ModuleAttributeData attributeData)
+        : base(attributeData)
     {
-        this.attributeData = attributeData;
     }
 
     [BackgroundDependencyLoader]
     private void load()
     {
-        Height = 120;
-
         VRCOSCTextBox textBox;
 
         Add(new Container
@@ -43,40 +39,8 @@ public class ParameterCard : AttributeCard
             }
         });
 
-        TextFlow.AddText(attributeData.DisplayName, t =>
-        {
-            t.Font = FrameworkFont.Regular.With(size: 30);
-        });
-        TextFlow.AddText("\n");
-        TextFlow.AddText(attributeData.Description, t =>
-        {
-            t.Font = FrameworkFont.Regular.With(size: 20);
-            t.Colour = VRCOSCColour.Gray9;
-        });
+        textBox.OnCommit += (_, _) => attributeData.Attribute.Value = textBox.Text;
 
-        textBox.OnCommit += (_, _) => updateParameter(textBox.Text);
-
-        ResetToDefault.Action += () =>
-        {
-            var defaultAddress = (string)attributeData.Attribute.Default;
-            updateParameter(defaultAddress);
-            textBox.Text = defaultAddress;
-        };
-
-        updateParameter(textBox.Text);
-    }
-
-    private void updateParameter(string newAddress)
-    {
-        attributeData.Attribute.Value = newAddress;
-
-        if (!attributeData.Attribute.IsDefault)
-        {
-            ResetToDefault.Show();
-        }
-        else
-        {
-            ResetToDefault.Hide();
-        }
+        ResetToDefault.Action += () => textBox.Text = (string)attributeData.Attribute.Default;
     }
 }

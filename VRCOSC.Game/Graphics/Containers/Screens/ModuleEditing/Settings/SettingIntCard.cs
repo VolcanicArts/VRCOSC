@@ -10,7 +10,7 @@ using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Settings;
 
-public class SettingIntCard : SettingBaseCard
+public class SettingIntCard : AttributeCard
 {
     public SettingIntCard(ModuleAttributeData attributeData)
         : base(attributeData)
@@ -42,30 +42,9 @@ public class SettingIntCard : SettingBaseCard
         textBox.OnCommit += (_, _) =>
         {
             if (int.TryParse(textBox.Text, out var newValue))
-                updateSetting(newValue);
+                attributeData.Attribute.Value = newValue;
         };
 
-        ResetToDefault.Action += () =>
-        {
-            var defaultValue = (int)attributeData.Attribute.Default;
-            updateSetting(defaultValue);
-            textBox.Text = defaultValue.ToString();
-        };
-
-        updateSetting(int.Parse(textBox.Text));
-    }
-
-    private void updateSetting(int newValue)
-    {
-        attributeData.Attribute.Value = newValue;
-
-        if (!attributeData.Attribute.IsDefault)
-        {
-            ResetToDefault.Show();
-        }
-        else
-        {
-            ResetToDefault.Hide();
-        }
+        ResetToDefault.Action += () => textBox.Text = ((int)attributeData.Attribute.Default).ToString();
     }
 }

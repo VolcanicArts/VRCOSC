@@ -9,7 +9,7 @@ using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Settings;
 
-public class SettingBoolCard : SettingBaseCard
+public class SettingBoolCard : AttributeCard
 {
     public SettingBoolCard(ModuleAttributeData attributeData)
         : base(attributeData)
@@ -38,27 +38,8 @@ public class SettingBoolCard : SettingBaseCard
             }
         });
 
-        checkBox.State.BindValueChanged(e => updateSetting(e.NewValue), true);
+        checkBox.State.ValueChanged += _ => attributeData.Attribute.Value = checkBox.State.Value;
 
-        ResetToDefault.Action += () =>
-        {
-            var defaultValue = (bool)attributeData.Attribute.Default;
-            updateSetting(defaultValue);
-            checkBox.State.Value = defaultValue;
-        };
-    }
-
-    private void updateSetting(bool newValue)
-    {
-        attributeData.Attribute.Value = newValue;
-
-        if (!attributeData.Attribute.IsDefault)
-        {
-            ResetToDefault.Show();
-        }
-        else
-        {
-            ResetToDefault.Hide();
-        }
+        ResetToDefault.Action += () => checkBox.State.Value = (bool)attributeData.Attribute.Default;
     }
 }

@@ -10,7 +10,7 @@ using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Settings;
 
-public class SettingStringCard : SettingBaseCard
+public class SettingStringCard : AttributeCard
 {
     public SettingStringCard(ModuleAttributeData attributeData)
         : base(attributeData)
@@ -39,29 +39,8 @@ public class SettingStringCard : SettingBaseCard
             }
         });
 
-        textBox.OnCommit += (_, _) => updateSetting(textBox.Text);
+        textBox.OnCommit += (_, _) => attributeData.Attribute.Value = textBox.Text;
 
-        ResetToDefault.Action += () =>
-        {
-            var defaultValue = (string)attributeData.Attribute.Default;
-            updateSetting(defaultValue);
-            textBox.Text = defaultValue;
-        };
-
-        updateSetting(textBox.Text);
-    }
-
-    private void updateSetting(string newValue)
-    {
-        attributeData.Attribute.Value = newValue;
-
-        if (!attributeData.Attribute.IsDefault)
-        {
-            ResetToDefault.Show();
-        }
-        else
-        {
-            ResetToDefault.Hide();
-        }
+        ResetToDefault.Action += () => textBox.Text = (string)attributeData.Attribute.Default;
     }
 }
