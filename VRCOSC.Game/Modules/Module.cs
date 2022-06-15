@@ -40,7 +40,6 @@ public abstract class Module
     public virtual string Author => string.Empty;
     public virtual IEnumerable<string> Tags => Array.Empty<string>();
     public virtual double DeltaUpdate => double.MaxValue;
-    public virtual bool Experimental => false;
     public virtual Colour4 Colour => Colour4.Black;
     public virtual ModuleType Type => ModuleType.General;
 

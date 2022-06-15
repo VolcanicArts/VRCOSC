@@ -13,6 +13,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Localisation;
 using osuTK;
+using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics.Containers.UI.Button;
 using VRCOSC.Game.Graphics.Containers.UI.Checkbox;
 using VRCOSC.Game.Graphics.Drawables.Triangles;
@@ -24,6 +25,9 @@ public sealed class ModuleCard : Container, IFilterable
 {
     [Resolved]
     private ScreenManager ScreenManager { get; set; }
+
+    [Resolved]
+    private VRCOSCConfigManager configManager { get; set; }
 
     public IEnumerable<LocalisableString> FilterTerms { get; }
 
@@ -81,49 +85,6 @@ public sealed class ModuleCard : Container, IFilterable
                 ColourDark = SourceModule.Colour.Darken(0.25f),
                 TriangleScale = 2,
                 Velocity = 0.8f
-            },
-            experimentalTag = new Container
-            {
-                Anchor = Anchor.TopLeft,
-                Origin = Anchor.TopLeft,
-                RelativeSizeAxes = Axes.Both,
-                Size = new Vector2(0.18f),
-                FillMode = FillMode.Fit,
-                Padding = new MarginPadding(4),
-                Depth = float.MinValue,
-                Child = new CircularContainer
-                {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    RelativeSizeAxes = Axes.Both,
-                    Masking = true,
-                    BorderThickness = 2,
-                    Children = new Drawable[]
-                    {
-                        new Box
-                        {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
-                            RelativeSizeAxes = Axes.Both,
-                            Colour = VRCOSCColour.Red
-                        },
-                        new Container
-                        {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
-                            RelativeSizeAxes = Axes.Both,
-                            Padding = new MarginPadding(4),
-                            Child = new SpriteIcon
-                            {
-                                Anchor = Anchor.Centre,
-                                Origin = Anchor.Centre,
-                                RelativeSizeAxes = Axes.Both,
-                                Icon = FontAwesome.Solid.Exclamation,
-                                Shadow = true
-                            }
-                        }
-                    }
-                }
             },
             new GridContainer
             {
@@ -218,8 +179,6 @@ public sealed class ModuleCard : Container, IFilterable
                 }
             }
         };
-
-        if (!SourceModule.Experimental) experimentalTag.Hide();
 
         if (!SourceModule.HasAttributes) editButton.Enabled.Value = false;
     }

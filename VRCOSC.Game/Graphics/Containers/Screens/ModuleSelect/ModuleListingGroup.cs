@@ -3,14 +3,12 @@
 
 using System.Collections.Generic;
 using osu.Framework.Allocation;
-using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Localisation;
-using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics.Containers.UI.Button;
 using VRCOSC.Game.Modules;
 
@@ -26,14 +24,8 @@ public sealed class ModuleListingGroup : Container, IFilterable
     [Resolved]
     private ModuleManager moduleManager { get; set; }
 
-    [Resolved]
-    private VRCOSCConfigManager configManager { get; set; }
-
     private SearchContainer<ModuleCard> moduleCardFlow;
     private DropdownButton dropdownButton;
-    private Container dropdownContainer;
-
-    private Bindable<bool> experimentalBindable;
 
     public ModuleListingGroup(ModuleGroup moduleGroup)
     {
@@ -51,8 +43,6 @@ public sealed class ModuleListingGroup : Container, IFilterable
     [BackgroundDependencyLoader]
     private void load()
     {
-        experimentalBindable = configManager.GetBindable<bool>(VRCOSCSetting.ShowExperimental);
-
         Children = new Drawable[]
         {
             new FillFlowContainer
@@ -110,7 +100,7 @@ public sealed class ModuleListingGroup : Container, IFilterable
                             }
                         }
                     },
-                    dropdownContainer = new Container
+                    new Container
                     {
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
@@ -161,39 +151,17 @@ public sealed class ModuleListingGroup : Container, IFilterable
             if (!dropdownButton.State.Value) dropdownButton.Toggle();
         };
 
-        experimentalBindable.BindValueChanged(e => updateExperimental(e.NewValue), true);
-
         dropdownButton.State.ValueChanged += (e) =>
         {
             if (e.NewValue)
             {
                 moduleCardFlow.ForEach(card => card.Show());
-                updateExperimental(configManager.Get<bool>(VRCOSCSetting.ShowExperimental));
             }
             else
             {
                 moduleCardFlow.ForEach(card => card.Hide());
             }
         };
-    }
-
-    private void updateExperimental(bool experimental)
-    {
-        if (!dropdownButton.State.Value) return;
-
-        moduleCardFlow.ForEach(card =>
-        {
-            if (!card.SourceModule.Experimental) return;
-
-            if (experimental)
-            {
-                card.Show();
-            }
-            else
-            {
-                card.Hide();
-            }
-        });
     }
 
     private void populateFilter()

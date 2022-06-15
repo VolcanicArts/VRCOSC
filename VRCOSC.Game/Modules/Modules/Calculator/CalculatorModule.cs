@@ -16,7 +16,6 @@ public class CalculatorModule : IntegrationModule
     public override string Author => "Buckminsterfullerene";
     public override Colour4 Colour => Color4Extensions.FromHex(@"ff2600").Darken(0.5f);
     public override ModuleType Type => ModuleType.Integrations;
-    public override bool Experimental => true;
     public override string TargetProcess => "calc";
 
     private bool isCalculatorOpen;
