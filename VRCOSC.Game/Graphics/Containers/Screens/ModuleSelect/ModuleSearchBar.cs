@@ -73,7 +73,7 @@ public sealed class ModuleSearchBar : Container
                             Padding = new MarginPadding
                             {
                                 Vertical = 10,
-                                Left = 5,
+                                Left = 7.5f,
                                 Right = 10
                             },
                             Child = new SpriteIcon
