@@ -8,7 +8,6 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
-using VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Parameters;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing;
@@ -21,7 +20,7 @@ public class ParametersFlow : FillFlowContainer
     [BackgroundDependencyLoader]
     private void load()
     {
-        FillFlowContainer<ParameterCard> parametersFlow;
+        FillFlowContainer<AttributeCard> parametersFlow;
 
         InternalChildren = new Drawable[]
         {
@@ -32,7 +31,7 @@ public class ParametersFlow : FillFlowContainer
                 Font = FrameworkFont.Regular.With(size: 50),
                 Text = "Output Parameters"
             },
-            parametersFlow = new FillFlowContainer<ParameterCard>
+            parametersFlow = new FillFlowContainer<AttributeCard>
             {
                 Anchor = Anchor.TopCentre,
                 Origin = Anchor.TopCentre,
@@ -49,7 +48,7 @@ public class ParametersFlow : FillFlowContainer
 
             parametersFlow.Clear();
 
-            SourceModule.Value.OutputParameters.Values.ForEach(attributeData => parametersFlow.Add(new ParameterCard(attributeData)));
+            SourceModule.Value.OutputParameters.Values.ForEach(attributeData => parametersFlow.Add(new StringAttributeCard(attributeData)));
         });
     }
 }

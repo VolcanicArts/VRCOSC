@@ -57,15 +57,15 @@ public class SettingsFlow : FillFlowContainer
                 switch (Type.GetTypeCode(attributeData.Attribute.Value.GetType()))
                 {
                     case TypeCode.String:
-                        settingsFlow.Add(new SettingStringCard(attributeData));
+                        settingsFlow.Add(new StringAttributeCard(attributeData));
                         break;
 
                     case TypeCode.Int32:
-                        settingsFlow.Add(new SettingIntCard(attributeData));
+                        settingsFlow.Add(new IntAttributeCard(attributeData));
                         break;
 
                     case TypeCode.Boolean:
-                        settingsFlow.Add(new SettingBoolCard(attributeData));
+                        settingsFlow.Add(new BoolAttributeCard(attributeData));
                         break;
 
                     default:

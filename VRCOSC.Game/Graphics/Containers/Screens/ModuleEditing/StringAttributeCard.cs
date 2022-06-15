@@ -2,17 +2,20 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osuTK;
 using VRCOSC.Game.Graphics.Containers.UI.TextBox;
 using VRCOSC.Game.Modules;
 
-namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Parameters;
+namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing;
 
-public class ParameterCard : AttributeCard
+public class StringAttributeCard : AttributeCard
 {
-    public ParameterCard(ModuleAttributeData attributeData)
+    private VRCOSCTextBox textBox;
+
+    public StringAttributeCard(ModuleAttributeData attributeData)
         : base(attributeData)
     {
     }
@@ -20,8 +23,6 @@ public class ParameterCard : AttributeCard
     [BackgroundDependencyLoader]
     private void load()
     {
-        VRCOSCTextBox textBox;
-
         Add(new Container
         {
             Anchor = Anchor.BottomCentre,
@@ -35,12 +36,28 @@ public class ParameterCard : AttributeCard
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 BorderThickness = 3,
-                Text = (string)attributeData.Attribute.Value
+                Text = attributeData.Attribute.Value.ToString()
             }
         });
 
-        textBox.OnCommit += (_, _) => attributeData.Attribute.Value = textBox.Text;
+        attributeData.Attribute.ValueChanged += updateTextBox;
 
-        ResetToDefault.Action += () => textBox.Text = (string)attributeData.Attribute.Default;
+        textBox.OnCommit += (_, _) => OnCommit(textBox.Text!);
+    }
+
+    private void updateTextBox(ValueChangedEvent<object> e)
+    {
+        textBox.Text = e.NewValue.ToString();
+    }
+
+    protected virtual void OnCommit(string text)
+    {
+        attributeData.Attribute.Value = text;
+    }
+
+    protected override void Dispose(bool isDisposing)
+    {
+        attributeData.Attribute.ValueChanged -= updateTextBox;
+        base.Dispose(isDisposing);
     }
 }

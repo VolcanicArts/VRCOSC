@@ -9,9 +9,9 @@ using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Settings;
 
-public class SettingBoolCard : AttributeCard
+public class BoolAttributeCard : AttributeCard
 {
-    public SettingBoolCard(ModuleAttributeData attributeData)
+    public BoolAttributeCard(ModuleAttributeData attributeData)
         : base(attributeData)
     {
     }
