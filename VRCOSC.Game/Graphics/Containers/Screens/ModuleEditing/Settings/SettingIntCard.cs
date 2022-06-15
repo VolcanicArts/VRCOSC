@@ -35,7 +35,7 @@ public class SettingIntCard : SettingBaseCard
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 BorderThickness = 3,
-                Text = ((int)attributeData.Value).ToString(),
+                Text = ((int)attributeData.Attribute.Value).ToString(),
             }
         });
 
@@ -47,7 +47,7 @@ public class SettingIntCard : SettingBaseCard
 
         ResetToDefault.Action += () =>
         {
-            var defaultValue = (int)attributeData.DefaultValue;
+            var defaultValue = (int)attributeData.Attribute.Default;
             updateSetting(defaultValue);
             textBox.Text = defaultValue.ToString();
         };
@@ -57,9 +57,9 @@ public class SettingIntCard : SettingBaseCard
 
     private void updateSetting(int newValue)
     {
-        attributeData.Value = newValue;
+        attributeData.Attribute.Value = newValue;
 
-        if (!attributeData.IsDefault())
+        if (!attributeData.Attribute.IsDefault)
         {
             ResetToDefault.Show();
         }

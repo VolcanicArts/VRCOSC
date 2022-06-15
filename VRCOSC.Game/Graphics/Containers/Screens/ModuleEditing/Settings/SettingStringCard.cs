@@ -35,7 +35,7 @@ public class SettingStringCard : SettingBaseCard
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 BorderThickness = 3,
-                Text = (string)attributeData.Value
+                Text = (string)attributeData.Attribute.Value
             }
         });
 
@@ -43,7 +43,7 @@ public class SettingStringCard : SettingBaseCard
 
         ResetToDefault.Action += () =>
         {
-            var defaultValue = (string)attributeData.DefaultValue;
+            var defaultValue = (string)attributeData.Attribute.Default;
             updateSetting(defaultValue);
             textBox.Text = defaultValue;
         };
@@ -53,9 +53,9 @@ public class SettingStringCard : SettingBaseCard
 
     private void updateSetting(string newValue)
     {
-        attributeData.Value = newValue;
+        attributeData.Attribute.Value = newValue;
 
-        if (!attributeData.IsDefault())
+        if (!attributeData.Attribute.IsDefault)
         {
             ResetToDefault.Show();
         }

@@ -39,7 +39,7 @@ public class ParameterCard : AttributeCard
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 BorderThickness = 3,
-                Text = (string)attributeData.Value
+                Text = (string)attributeData.Attribute.Value
             }
         });
 
@@ -58,7 +58,7 @@ public class ParameterCard : AttributeCard
 
         ResetToDefault.Action += () =>
         {
-            var defaultAddress = (string)attributeData.Value;
+            var defaultAddress = (string)attributeData.Attribute.Default;
             updateParameter(defaultAddress);
             textBox.Text = defaultAddress;
         };
@@ -68,9 +68,9 @@ public class ParameterCard : AttributeCard
 
     private void updateParameter(string newAddress)
     {
-        attributeData.Value = newAddress;
+        attributeData.Attribute.Value = newAddress;
 
-        if (!attributeData.IsDefault())
+        if (!attributeData.Attribute.IsDefault)
         {
             ResetToDefault.Show();
         }

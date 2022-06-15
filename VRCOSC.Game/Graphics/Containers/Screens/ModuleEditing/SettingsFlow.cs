@@ -54,7 +54,7 @@ public class SettingsFlow : FillFlowContainer
             {
                 var (_, attributeData) = pair;
 
-                switch (Type.GetTypeCode(attributeData.Value.GetType()))
+                switch (Type.GetTypeCode(attributeData.Attribute.Value.GetType()))
                 {
                     case TypeCode.String:
                         settingsFlow.Add(new SettingStringCard(attributeData));
@@ -67,6 +67,9 @@ public class SettingsFlow : FillFlowContainer
                     case TypeCode.Boolean:
                         settingsFlow.Add(new SettingBoolCard(attributeData));
                         break;
+
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
             });
         }, true);

@@ -9,6 +9,7 @@ using System.Net.Sockets;
 using CoreOSC;
 using CoreOSC.IO;
 using osu.Framework.Bindables;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Platform;
 using VRCOSC.Game.Util;
@@ -39,8 +40,6 @@ public abstract class Module
         Storage = storage;
         OscClient = oscClient;
         Terminal = new TerminalLogger(GetType().Name);
-
-        Enabled.BindValueChanged((_) => PerformSave());
     }
 
     #region Properties
@@ -139,11 +138,7 @@ public abstract class Module
 
     public T GetSetting<T>(Enum lookup) => GetSetting<T>(lookup.ToString().ToLower());
 
-    public T GetSetting<T>(string lookup) => (T)Settings[lookup].Value;
-
-    public T GetSettingDefault<T>(Enum lookup) => GetSettingDefault<T>(lookup.ToString().ToLower());
-
-    public T GetSettingDefault<T>(string lookup) => (T)Settings[lookup].DefaultValue;
+    public T GetSetting<T>(string lookup) => (T)Settings[lookup].Attribute.Value;
 
     #endregion
 
@@ -151,11 +146,7 @@ public abstract class Module
 
     public string GetOutputParameter(Enum lookup) => GetOutputParameter(lookup.ToString().ToLower());
 
-    public string GetOutputParameter(string lookup) => (string)OutputParameters[lookup].Value;
-
-    public string GetOutputParameterDefault(Enum lookup) => GetOutputParameterDefault(lookup.ToString().ToLower());
-
-    public string GetOutputParameterDefault(string lookup) => (string)OutputParameters[lookup].DefaultValue;
+    public string GetOutputParameter(string lookup) => (string)OutputParameters[lookup].Attribute.Value;
 
     #endregion
 
@@ -222,7 +213,7 @@ public abstract class Module
 
     private void sendParameter(string key, object value)
     {
-        var addressString = OutputParameters[key].Value.ToString()!;
+        var addressString = GetOutputParameter(key);
 
         var address = new Address(addressString);
         var message = new OscMessage(address, new[] { value });
@@ -236,7 +227,107 @@ public abstract class Module
 
     public void PerformLoad()
     {
+        using (var stream = Storage.GetStream(FileName))
+        {
+            using (var reader = new StreamReader(stream))
+            {
+                while (reader.ReadLine() is { } line)
+                {
+                    switch (line)
+                    {
+                        case "#InternalSettings":
+                            performInternalSettingsLoad(reader);
+                            break;
+
+                        case "#Settings":
+                            performSettingsLoad(reader);
+                            break;
+
+                        case "#OutputParameters":
+                            performOutputParametersLoad(reader);
+                            break;
+                    }
+                }
+            }
+        }
+
+        executeAfterLoad();
+    }
+
+    private void performInternalSettingsLoad(StreamReader reader)
+    {
+        while (reader.ReadLine() is { } line)
+        {
+            if (line.Equals("#End")) break;
+
+            var lineSplit = line.Split(new[] { '=' }, 2);
+            var lookup = lineSplit[0];
+            var value = lineSplit[1];
+
+            switch (lookup)
+            {
+                case "enabled":
+                    Enabled.Value = bool.Parse(value);
+                    break;
+            }
+        }
+    }
+
+    private void performSettingsLoad(StreamReader reader)
+    {
+        while (reader.ReadLine() is { } line)
+        {
+            if (line.Equals("#End")) break;
+
+            var lineSplitLookupValue = line.Split(new[] { '=' }, 2);
+            var lookupType = lineSplitLookupValue[0].Split(new[] { ':' }, 2);
+            var value = lineSplitLookupValue[1];
+
+            var lookup = lookupType[0];
+            var type = lookupType[1];
+
+            if (!Settings.ContainsKey(lookup)) continue;
+
+            switch (type)
+            {
+                case "string":
+                    Settings[lookup].Attribute.Value = value;
+                    break;
+
+                case "int32":
+                    Settings[lookup].Attribute.Value = int.Parse(value);
+                    break;
+
+                case "boolean":
+                    Settings[lookup].Attribute.Value = bool.Parse(value);
+                    break;
+            }
+        }
+    }
+
+    private void performOutputParametersLoad(StreamReader reader)
+    {
+        while (reader.ReadLine() is { } line)
+        {
+            if (line.Equals("#End")) break;
+
+            var lineSplitLookupValue = line.Split(new[] { '=' }, 2);
+            var lookup = lineSplitLookupValue[0];
+            var value = lineSplitLookupValue[1];
+
+            if (!OutputParameters.ContainsKey(lookup)) continue;
+
+            OutputParameters[lookup].Attribute.Value = value;
+        }
+    }
+
+    private void executeAfterLoad()
+    {
         PerformSave();
+
+        Enabled.BindValueChanged((_) => PerformSave());
+        Settings.Values.ForEach(value => value.Attribute.BindValueChanged((_) => PerformSave()));
+        OutputParameters.Values.ForEach(value => value.Attribute.BindValueChanged((_) => PerformSave()));
     }
 
     #endregion
@@ -246,17 +337,56 @@ public abstract class Module
     public void PerformSave()
     {
         using var stream = Storage.CreateFileSafely(FileName);
-        using var w = new StreamWriter(stream);
+        using var writer = new StreamWriter(stream);
 
-        w.WriteLine(@"{0}={1}", "enabled", Enabled.Value.ToString());
+        performInternalSettingsSave(writer);
+        performSettingsSave(writer);
+        performOutputParametersSave(writer);
+    }
+
+    private void performInternalSettingsSave(StreamWriter writer)
+    {
+        writer.WriteLine(@"#InternalSettings");
+        writer.WriteLine(@"{0}={1}", "enabled", Enabled.Value.ToString());
+        writer.WriteLine(@"#End");
+    }
+
+    private void performSettingsSave(StreamWriter writer)
+    {
+        var areAllDefault = Settings.All((pair) => pair.Value.Attribute.IsDefault);
+        if (areAllDefault) return;
+
+        writer.WriteLine(@"#Settings");
 
         foreach (var (lookup, moduleAttributeData) in Settings)
         {
-            var type = moduleAttributeData.Value.GetType().Name.ToLower();
-            var value = moduleAttributeData.Value;
+            if (moduleAttributeData.Attribute.IsDefault) continue;
 
-            w.WriteLine(@"{0}:{1}={2}", type, lookup, value);
+            var value = moduleAttributeData.Attribute.Value;
+            var type = value.GetType().Name.ToLower();
+
+            writer.WriteLine(@"{0}:{1}={2}", lookup, type, value);
         }
+
+        writer.WriteLine(@"#End");
+    }
+
+    private void performOutputParametersSave(StreamWriter writer)
+    {
+        var areAllDefault = OutputParameters.All((pair) => pair.Value.Attribute.IsDefault);
+        if (areAllDefault) return;
+
+        writer.WriteLine(@"#OutputParameters");
+
+        foreach (var (lookup, moduleAttributeData) in OutputParameters)
+        {
+            if (moduleAttributeData.Attribute.IsDefault) continue;
+
+            var value = moduleAttributeData.Attribute.Value;
+            writer.WriteLine(@"{0}={1}", lookup, value);
+        }
+
+        writer.WriteLine(@"#End");
     }
 
     #endregion

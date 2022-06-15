@@ -34,15 +34,15 @@ public class SettingBoolCard : SettingBaseCard
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 CornerRadius = 10,
-                State = { Value = (bool)attributeData.Value }
+                State = { Value = (bool)attributeData.Attribute.Value }
             }
         });
 
-        checkBox.State.BindValueChanged((e) => updateSetting(e.NewValue), true);
+        checkBox.State.BindValueChanged(e => updateSetting(e.NewValue), true);
 
         ResetToDefault.Action += () =>
         {
-            var defaultValue = (bool)attributeData.DefaultValue;
+            var defaultValue = (bool)attributeData.Attribute.Default;
             updateSetting(defaultValue);
             checkBox.State.Value = defaultValue;
         };
@@ -50,9 +50,9 @@ public class SettingBoolCard : SettingBaseCard
 
     private void updateSetting(bool newValue)
     {
-        attributeData.Value = newValue;
+        attributeData.Attribute.Value = newValue;
 
-        if (!attributeData.IsDefault())
+        if (!attributeData.Attribute.IsDefault)
         {
             ResetToDefault.Show();
         }
