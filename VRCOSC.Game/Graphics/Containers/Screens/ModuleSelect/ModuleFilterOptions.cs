@@ -51,6 +51,12 @@ public class ModuleFilterOptions : Container
                             Text = "Show Experimental",
                             InitialState = configManager.Get<bool>(VRCOSCSetting.ShowExperimental),
                             OnOptionChange = (state) => configManager.SetValue(VRCOSCSetting.ShowExperimental, state)
+                        },
+                        new ModuleFilterOption
+                        {
+                            Text = "Auto Start/Stop",
+                            InitialState = configManager.Get<bool>(VRCOSCSetting.AutoStartStop),
+                            OnOptionChange = (state) => configManager.SetValue(VRCOSCSetting.AutoStartStop, state)
                         }
                     }
                 }

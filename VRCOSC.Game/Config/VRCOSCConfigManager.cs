@@ -18,10 +18,12 @@ public class VRCOSCConfigManager : IniConfigManager<VRCOSCSetting>
     protected override void InitialiseDefaults()
     {
         SetDefault(VRCOSCSetting.ShowExperimental, true);
+        SetDefault(VRCOSCSetting.AutoStartStop, true);
     }
 }
 
 public enum VRCOSCSetting
 {
-    ShowExperimental
+    ShowExperimental,
+    AutoStartStop
 }

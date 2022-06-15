@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -13,6 +14,8 @@ using osu.Framework.Allocation;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Platform;
+using VRCOSC.Game.Config;
+using VRCOSC.Game.Graphics.Containers.Screens;
 using VRCOSC.Game.Util;
 
 namespace VRCOSC.Game.Modules;
@@ -26,9 +29,17 @@ public sealed class ModuleManager : Container<ModuleGroup>
     private readonly UdpClient sendingClient;
     private readonly UdpClient receivingClient;
     private CancellationTokenSource? tokenSource;
+    private bool running;
+    private bool autoStarted;
 
     public Action<string, object> OnParameterSent;
     public Action<string, object> OnParameterReceived;
+
+    [Resolved]
+    private VRCOSCConfigManager configManager { get; set; }
+
+    [Resolved]
+    private ScreenManager screenManager { get; set; }
 
     public ModuleManager()
     {
@@ -60,6 +71,32 @@ public sealed class ModuleManager : Container<ModuleGroup>
 
             Add(moduleGroup);
         }
+
+        Task.Factory.StartNew(checkForVrChat);
+    }
+
+    private void checkForVrChat()
+    {
+        while (true)
+        {
+            var vrChat = Process.GetProcessesByName("vrchat");
+
+            var autoStartStop = configManager.Get<bool>(VRCOSCSetting.AutoStartStop);
+
+            if (vrChat.Length != 0 && autoStartStop && !running && !autoStarted)
+            {
+                screenManager.ShowTerminal();
+                autoStarted = true;
+            }
+
+            if (vrChat.Length == 0 && autoStartStop && running)
+            {
+                screenManager.HideTerminal();
+                autoStarted = false;
+            }
+
+            Task.Delay(10000);
+        }
     }
 
     public void Start()
@@ -67,10 +104,12 @@ public sealed class ModuleManager : Container<ModuleGroup>
         tokenSource = new CancellationTokenSource();
         this.ForEach(child => child.Start());
         Task.Factory.StartNew(beginListening);
+        running = true;
     }
 
     public void Stop()
     {
+        running = false;
         tokenSource?.Cancel();
         this.ForEach(child => child.Stop());
     }
