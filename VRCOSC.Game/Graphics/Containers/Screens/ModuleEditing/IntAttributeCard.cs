@@ -3,7 +3,7 @@
 
 using VRCOSC.Game.Modules;
 
-namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Settings;
+namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing;
 
 public class IntAttributeCard : StringAttributeCard
 {

@@ -71,7 +71,6 @@ public sealed class ModuleCard : Container, IFilterable
     [BackgroundDependencyLoader]
     private void load()
     {
-        Container experimentalTag;
         IconButton editButton;
 
         Children = new Drawable[]
