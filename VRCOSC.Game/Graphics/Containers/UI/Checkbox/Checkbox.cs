@@ -5,7 +5,6 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Sprites;
-using osu.Framework.Input.Events;
 using VRCOSC.Game.Graphics.Containers.UI.Button;
 
 namespace VRCOSC.Game.Graphics.Containers.UI.Checkbox;
@@ -26,11 +25,7 @@ public class Checkbox : IconButton
             BackgroundColour.Value = e.NewValue ? ColourOn : ColourOff;
             Icon.Value = e.NewValue ? IconOn : IconOff;
         }, true);
-    }
 
-    protected override bool OnClick(ClickEvent e)
-    {
-        if (Enabled.Value) State.Toggle();
-        return base.OnClick(e);
+        Action = State.Toggle;
     }
 }

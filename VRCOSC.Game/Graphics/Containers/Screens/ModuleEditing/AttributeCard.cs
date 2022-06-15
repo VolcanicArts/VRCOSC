@@ -54,6 +54,7 @@ public abstract class AttributeCard : Container
                     CornerRadius = 5,
                     CornerExponent = 2,
                     Alpha = AttributeData.Attribute.IsDefault ? 0 : 1,
+                    Action = () => AttributeData.Attribute.SetDefault(),
                     EdgeEffect = new EdgeEffectParameters
                     {
                         Type = EdgeEffectType.Glow,
@@ -111,8 +112,6 @@ public abstract class AttributeCard : Container
             t.Font = FrameworkFont.Regular.With(size: 20);
             t.Colour = VRCOSCColour.Gray9;
         });
-
-        resetToDefault.Action += () => AttributeData.Attribute.SetDefault();
 
         AttributeData.Attribute.ValueChanged += updateResetToDefault;
     }
