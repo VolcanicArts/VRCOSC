@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -33,6 +34,8 @@ public sealed class ModuleListingGroup : Container, IFilterable
     private DropdownButton dropdownButton;
     private Container dropdownContainer;
 
+    private Bindable<bool> experimentalBindable;
+
     public ModuleListingGroup(ModuleGroup moduleGroup)
     {
         this.moduleGroup = moduleGroup;
@@ -49,6 +52,8 @@ public sealed class ModuleListingGroup : Container, IFilterable
     [BackgroundDependencyLoader]
     private void load()
     {
+        experimentalBindable = configManager.GetBindable<bool>(VRCOSCSetting.ShowExperimental);
+
         Children = new Drawable[]
         {
             new FillFlowContainer
@@ -158,7 +163,8 @@ public sealed class ModuleListingGroup : Container, IFilterable
             moduleCardFlow.SearchTerm = searchTerm.NewValue;
             if (!dropdownButton.State.Value) dropdownButton.Toggle();
         };
-        configManager.GetBindable<bool>(VRCOSCSetting.ShowExperimental).BindValueChanged(e => updateExperimental(e.NewValue), true);
+
+        experimentalBindable.BindValueChanged(e => updateExperimental(e.NewValue), true);
 
         dropdownButton.State.ValueChanged += (e) =>
         {
