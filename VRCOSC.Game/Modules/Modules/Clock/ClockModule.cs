@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Collections.Generic;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using VRCOSC.Game.Graphics;
@@ -16,28 +15,25 @@ public class ClockModule : Module
     public override string Author => "VolcanicArts";
     public override Colour4 Colour => VRCOSCColour.Blue.Darken(0.25f);
     public override ModuleType Type => ModuleType.General;
-    public override double DeltaUpdate => GetSettingAs<bool>(ClockSettings.SmoothSecond) ? 50d : 1000d;
+    public override double DeltaUpdate => GetSetting<bool>(ClockSettings.SmoothSecond) ? 50d : 1000d;
 
-    protected override Dictionary<Enum, (string, string, object)> Settings => new()
+    public override void CreateAttributes()
     {
-        { ClockSettings.UTC, ("UTC", "Send the time as UTC rather than your local time", false) },
-        { ClockSettings.SmoothSecond, ("Smooth Second", "If the seconds hand should be smooth", false) }
-    };
+        CreateSetting(ClockSettings.UTC, "UTC", "Send the time as UTC rather than your local time", false);
+        CreateSetting(ClockSettings.SmoothSecond, "Smooth Second", "If the seconds hand should be smooth", false);
 
-    protected override Dictionary<Enum, (string, string, string)> OutputParameters => new()
-    {
-        { ClockParameters.Hours, ("Hour", "The current hour normalised", "/avatar/parameters/ClockHour") },
-        { ClockParameters.Minutes, ("Minute", "The current minute normalised", "/avatar/parameters/ClockMinute") },
-        { ClockParameters.Seconds, ("Second", "The current second normalised", "/avatar/parameters/ClockSecond") },
-    };
+        CreateOutputParameter(ClockParameters.Hours, "Hour", "The current hour normalised", "/avatar/parameters/ClockHour");
+        CreateOutputParameter(ClockParameters.Minutes, "Minute", "The current minute normalised", "/avatar/parameters/ClockMinute");
+        CreateOutputParameter(ClockParameters.Seconds, "Second", "The current second normalised", "/avatar/parameters/ClockSecond");
+    }
 
-    protected override void OnUpdate()
+    public override void Update()
     {
-        var sendAsUTC = GetSettingAs<bool>(ClockSettings.UTC);
+        var sendAsUtc = GetSetting<bool>(ClockSettings.UTC);
 
         float hour, minute, second, millisecond;
 
-        if (sendAsUTC)
+        if (sendAsUtc)
         {
             hour = DateTime.UtcNow.Hour;
             minute = DateTime.UtcNow.Minute;
@@ -53,7 +49,7 @@ public class ClockModule : Module
         }
 
         // smooth hands
-        if (GetSettingAs<bool>(ClockSettings.SmoothSecond)) second += millisecond / 1000f;
+        if (GetSetting<bool>(ClockSettings.SmoothSecond)) second += millisecond / 1000f;
         minute += second / 60f;
         hour += minute / 60f;
 

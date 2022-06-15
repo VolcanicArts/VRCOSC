@@ -3,117 +3,134 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using CoreOSC;
 using CoreOSC.IO;
+using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
+using osu.Framework.Platform;
 using VRCOSC.Game.Util;
+
+// ReSharper disable InconsistentNaming
 
 namespace VRCOSC.Game.Modules;
 
 public abstract class Module
 {
-    internal ModuleDataManager DataManager { get; set; } = null!;
-    internal UdpClient OscClient { get; set; } = null!;
+    private Storage Storage = null!;
+    private UdpClient OscClient = null!;
 
-    protected TerminalLogger Terminal { get; private set; } = null!;
-
-    public virtual string Title => string.Empty;
-    public virtual string Description => string.Empty;
-    public virtual string Author => string.Empty;
-    public virtual double DeltaUpdate => double.PositiveInfinity;
-    public virtual Colour4 Colour => Colour4.Black;
-    public virtual ModuleType Type => ModuleType.General;
-    public virtual string[] Tags => Array.Empty<string>();
-    public virtual bool Experimental => false;
-
-    // These are *only* definitions. All reads and writes for persistent data occur inside the DataManager
-    protected virtual Dictionary<Enum, (string, string, object)> Settings => new();
-    protected virtual Dictionary<Enum, (string, string, string)> OutputParameters => new();
-    protected virtual List<Enum> InputParameters => new();
-
-    private readonly Dictionary<string, object> defaultSettings = new();
-    private readonly Dictionary<string, string> defaultOutputParameters = new();
+    protected TerminalLogger Terminal = null!;
 
     public Action<string, object>? OnParameterSent;
     public Action<string, object>? OnParameterReceived;
 
+    public BindableBool Enabled = new();
+
+    public readonly Dictionary<string, ModuleAttributeData> Settings = new();
+    public readonly Dictionary<string, ModuleAttributeData> OutputParameters = new();
+
+    public readonly Dictionary<Enum, Type> InputParameters = new();
+
+    public virtual string Title => string.Empty;
+    public virtual string Description => string.Empty;
+    public virtual string Author => string.Empty;
+    public virtual IEnumerable<string> Tags => Array.Empty<string>();
+    public virtual double DeltaUpdate => double.MaxValue;
+    public virtual bool Experimental => false;
+    public virtual Colour4 Colour => Colour4.Black;
+    public virtual ModuleType Type => ModuleType.General;
+
+    public void Initialise(Storage storage, UdpClient oscClient)
+    {
+        Storage = storage;
+        OscClient = oscClient;
+        Terminal = new TerminalLogger(GetType().Name);
+    }
+
+    #region Properties
+
     public bool IsRequestingInput => InputParameters.Count != 0;
 
-    public bool HasSettings => DataManager.Settings.Count != 0;
-    public bool HasParameters => DataManager.Parameters.Count != 0;
+    public bool HasSettings => Settings.Count != 0;
+    public bool HasOutputParameters => OutputParameters.Count != 0;
+    public bool HasAttributes => HasSettings || HasOutputParameters;
 
-    public bool HasAttributes => HasSettings || HasParameters;
+    private string FileName => $"{GetType().Name}.ini";
 
-    public T GetDefaultSetting<T>(string key) => (T)defaultSettings[key];
+    #endregion
 
-    public string GetDefaultOutputParameter(string key) => defaultOutputParameters[key];
+    #region Attributes
 
-    internal void CreateAttributes()
+    public virtual void CreateAttributes() { }
+
+    protected void CreateSetting(Enum lookup, string displayName, string description, object defaultValue)
     {
-        Settings.ForEach(pair =>
-        {
-            var key = pair.Key;
-            var displayName = pair.Value.Item1;
-            var description = pair.Value.Item2;
-            var value = pair.Value.Item3;
-
-            DataManager.CreateSetting(key, displayName, description, value);
-            defaultSettings.Add(key.ToString().ToLower(), value);
-        });
-
-        OutputParameters.ForEach(pair =>
-        {
-            var key = pair.Key;
-            var displayName = pair.Value.Item1;
-            var description = pair.Value.Item2;
-            var address = pair.Value.Item3;
-
-            DataManager.CreateParameter(key, displayName, description, address);
-            defaultOutputParameters.Add(key.ToString().ToLower(), address);
-        });
+        var lookupString = lookup.ToString().ToLower();
+        Settings.Add(lookupString, new ModuleAttributeData(displayName, description, defaultValue));
     }
 
-    internal void Start()
+    protected void CreateOutputParameter(Enum lookup, string displayName, string description, string defaultAddress)
     {
-        Terminal = new TerminalLogger(GetType().Name);
-        Terminal.Log("Starting");
-        OnStart();
-        Terminal.Log("Started");
+        var lookupString = lookup.ToString().ToLower();
+        OutputParameters.Add(lookupString, new ModuleAttributeData(displayName, description, defaultAddress));
     }
 
-    protected virtual void OnStart() { }
-
-    internal void Update()
+    protected void RegisterInputParameter(Enum lookup, Type expectedType)
     {
-        OnUpdate();
+        InputParameters.Add(lookup, expectedType);
     }
 
-    protected virtual void OnUpdate() { }
+    #endregion
 
-    internal void Stop()
-    {
-        Terminal.Log("Stopping");
-        OnStop();
-        Terminal.Log("Stopped");
-    }
+    #region Events
 
-    protected virtual void OnStop() { }
+    public virtual void Start() { }
 
-    internal void OnOSCMessage(OscMessage message)
+    public virtual void Update() { }
+
+    public virtual void Stop() { }
+
+    #endregion
+
+    #region Settings
+
+    public T GetSetting<T>(Enum lookup) => GetSetting<T>(lookup.ToString().ToLower());
+
+    public T GetSetting<T>(string lookup) => (T)Settings[lookup].Attribute.Value;
+
+    #endregion
+
+    #region Parameters
+
+    public string GetOutputParameter(Enum lookup) => GetOutputParameter(lookup.ToString().ToLower());
+
+    public string GetOutputParameter(string lookup) => (string)OutputParameters[lookup].Attribute.Value;
+
+    #endregion
+
+    #region IncomingParameters
+
+    public void OnOSCMessage(OscMessage message)
     {
         if (!message.Arguments.Any()) return;
 
         var addressEndpoint = message.Address.Value.Split('/').Last();
         var value = message.Arguments.First();
 
-        Enum? key = InputParameters.Find(e => e.ToString().Equals(addressEndpoint));
+        Enum? key = InputParameters.Keys.ToList().Find(e => e.ToString().Equals(addressEndpoint));
         if (key == null) return;
+
+        var type = InputParameters[key];
 
         if (value is OscTrue) value = true;
         if (value is OscFalse) value = false;
+
+        if (value.GetType() != type)
+            throw new ArgumentException($"{key} expects type {type} but received type {value.GetType()}");
 
         notifyParameterReceived(key, value);
     }
@@ -144,7 +161,9 @@ public abstract class Module
 
     protected virtual void OnFloatParameterReceived(Enum key, float value) { }
 
-    protected T GetSettingAs<T>(Enum key) => DataManager.GetSettingAs<T>(key);
+    #endregion
+
+    #region OutgoingParameters
 
     protected void SendParameter(Enum key, int value) => sendParameter(key, value);
 
@@ -152,11 +171,185 @@ public abstract class Module
 
     protected void SendParameter(Enum key, bool value) => sendParameter(key, value ? OscTrue.True : OscFalse.False);
 
-    private void sendParameter(Enum key, object value)
+    private void sendParameter(Enum key, object value) => sendParameter(key.ToString().ToLower(), value);
+
+    private void sendParameter(string key, object value)
     {
-        var address = new Address(DataManager.GetParameter(key));
+        var addressString = GetOutputParameter(key);
+
+        var address = new Address(addressString);
         var message = new OscMessage(address, new[] { value });
         OscClient.SendMessageAsync(message);
-        OnParameterSent?.Invoke(DataManager.GetParameter(key), value);
+        OnParameterSent?.Invoke(addressString, value);
     }
+
+    #endregion
+
+    #region Loading
+
+    public void PerformLoad()
+    {
+        using (var stream = Storage.GetStream(FileName))
+        {
+            using (var reader = new StreamReader(stream))
+            {
+                while (reader.ReadLine() is { } line)
+                {
+                    switch (line)
+                    {
+                        case "#InternalSettings":
+                            performInternalSettingsLoad(reader);
+                            break;
+
+                        case "#Settings":
+                            performSettingsLoad(reader);
+                            break;
+
+                        case "#OutputParameters":
+                            performOutputParametersLoad(reader);
+                            break;
+                    }
+                }
+            }
+        }
+
+        executeAfterLoad();
+    }
+
+    private void performInternalSettingsLoad(StreamReader reader)
+    {
+        while (reader.ReadLine() is { } line)
+        {
+            if (line.Equals("#End")) break;
+
+            var lineSplit = line.Split(new[] { '=' }, 2);
+            var lookup = lineSplit[0];
+            var value = lineSplit[1];
+
+            switch (lookup)
+            {
+                case "enabled":
+                    Enabled.Value = bool.Parse(value);
+                    break;
+            }
+        }
+    }
+
+    private void performSettingsLoad(StreamReader reader)
+    {
+        while (reader.ReadLine() is { } line)
+        {
+            if (line.Equals("#End")) break;
+
+            var lineSplitLookupValue = line.Split(new[] { '=' }, 2);
+            var lookupType = lineSplitLookupValue[0].Split(new[] { ':' }, 2);
+            var value = lineSplitLookupValue[1];
+
+            var lookup = lookupType[0];
+            var type = lookupType[1];
+
+            if (!Settings.ContainsKey(lookup)) continue;
+
+            switch (type)
+            {
+                case "string":
+                    Settings[lookup].Attribute.Value = value;
+                    break;
+
+                case "int32":
+                    Settings[lookup].Attribute.Value = int.Parse(value);
+                    break;
+
+                case "boolean":
+                    Settings[lookup].Attribute.Value = bool.Parse(value);
+                    break;
+            }
+        }
+    }
+
+    private void performOutputParametersLoad(StreamReader reader)
+    {
+        while (reader.ReadLine() is { } line)
+        {
+            if (line.Equals("#End")) break;
+
+            var lineSplitLookupValue = line.Split(new[] { '=' }, 2);
+            var lookup = lineSplitLookupValue[0];
+            var value = lineSplitLookupValue[1];
+
+            if (!OutputParameters.ContainsKey(lookup)) continue;
+
+            OutputParameters[lookup].Attribute.Value = value;
+        }
+    }
+
+    private void executeAfterLoad()
+    {
+        PerformSave();
+
+        Enabled.BindValueChanged((_) => PerformSave());
+        Settings.Values.ForEach(value => value.Attribute.BindValueChanged((_) => PerformSave()));
+        OutputParameters.Values.ForEach(value => value.Attribute.BindValueChanged((_) => PerformSave()));
+    }
+
+    #endregion
+
+    #region Saving
+
+    public void PerformSave()
+    {
+        using var stream = Storage.CreateFileSafely(FileName);
+        using var writer = new StreamWriter(stream);
+
+        performInternalSettingsSave(writer);
+        performSettingsSave(writer);
+        performOutputParametersSave(writer);
+    }
+
+    private void performInternalSettingsSave(StreamWriter writer)
+    {
+        writer.WriteLine(@"#InternalSettings");
+        writer.WriteLine(@"{0}={1}", "enabled", Enabled.Value.ToString());
+        writer.WriteLine(@"#End");
+    }
+
+    private void performSettingsSave(StreamWriter writer)
+    {
+        var areAllDefault = Settings.All((pair) => pair.Value.Attribute.IsDefault);
+        if (areAllDefault) return;
+
+        writer.WriteLine(@"#Settings");
+
+        foreach (var (lookup, moduleAttributeData) in Settings)
+        {
+            if (moduleAttributeData.Attribute.IsDefault) continue;
+
+            var value = moduleAttributeData.Attribute.Value;
+            var type = value.GetType().Name.ToLower();
+
+            writer.WriteLine(@"{0}:{1}={2}", lookup, type, value);
+        }
+
+        writer.WriteLine(@"#End");
+    }
+
+    private void performOutputParametersSave(StreamWriter writer)
+    {
+        var areAllDefault = OutputParameters.All((pair) => pair.Value.Attribute.IsDefault);
+        if (areAllDefault) return;
+
+        writer.WriteLine(@"#OutputParameters");
+
+        foreach (var (lookup, moduleAttributeData) in OutputParameters)
+        {
+            if (moduleAttributeData.Attribute.IsDefault) continue;
+
+            var value = moduleAttributeData.Attribute.Value;
+            writer.WriteLine(@"{0}={1}", lookup, value);
+        }
+
+        writer.WriteLine(@"#End");
+    }
+
+    #endregion
 }

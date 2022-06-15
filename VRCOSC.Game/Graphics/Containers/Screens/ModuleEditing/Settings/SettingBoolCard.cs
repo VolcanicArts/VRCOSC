@@ -5,11 +5,17 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using VRCOSC.Game.Graphics.Containers.UI.Checkbox;
+using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Settings;
 
-public class SettingBoolCard : SettingBaseCard
+public class SettingBoolCard : AttributeCard
 {
+    public SettingBoolCard(ModuleAttributeData attributeData)
+        : base(attributeData)
+    {
+    }
+
     [BackgroundDependencyLoader]
     private void load()
     {
@@ -28,31 +34,12 @@ public class SettingBoolCard : SettingBaseCard
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 CornerRadius = 10,
-                State = { Value = SourceModule.DataManager.GetSettingAs<bool>(Key) }
+                State = { Value = (bool)attributeData.Attribute.Value }
             }
         });
 
-        checkBox.State.BindValueChanged((e) => updateSetting(e.NewValue), true);
+        checkBox.State.ValueChanged += _ => attributeData.Attribute.Value = checkBox.State.Value;
 
-        ResetToDefault.Action += () =>
-        {
-            var defaultValue = SourceModule.GetDefaultSetting<bool>(Key);
-            updateSetting(defaultValue);
-            checkBox.State.Value = defaultValue;
-        };
-    }
-
-    private void updateSetting(bool newValue)
-    {
-        SourceModule.DataManager.UpdateBoolSetting(Key, newValue);
-
-        if (!SourceModule.GetDefaultSetting<bool>(Key).Equals(SourceModule.DataManager.GetSettingAs<bool>(Key)))
-        {
-            ResetToDefault.Show();
-        }
-        else
-        {
-            ResetToDefault.Hide();
-        }
+        ResetToDefault.Action += () => checkBox.State.Value = (bool)attributeData.Attribute.Default;
     }
 }

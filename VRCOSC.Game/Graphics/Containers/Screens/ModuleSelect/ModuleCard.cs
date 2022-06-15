@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
@@ -65,7 +66,6 @@ public sealed class ModuleCard : Container, IFilterable
     [BackgroundDependencyLoader]
     private void load()
     {
-        Checkbox checkbox;
         Container experimentalTag;
         IconButton editButton;
 
@@ -198,14 +198,14 @@ public sealed class ModuleCard : Container, IFilterable
                                             CornerRadius = 10,
                                             Action = () => ScreenManager.EditModule(SourceModule)
                                         },
-                                        checkbox = new Checkbox
+                                        new Checkbox
                                         {
                                             Anchor = Anchor.BottomRight,
                                             Origin = Anchor.BottomRight,
                                             RelativeSizeAxes = Axes.Both,
                                             FillMode = FillMode.Fit,
                                             CornerRadius = 10,
-                                            State = { Value = SourceModule.DataManager.Enabled },
+                                            State = (BindableBool)SourceModule.Enabled.GetBoundCopy(),
                                             IconOn = FontAwesome.Solid.PowerOff,
                                             IconOff = FontAwesome.Solid.PowerOff
                                         }
@@ -217,11 +217,6 @@ public sealed class ModuleCard : Container, IFilterable
                 }
             }
         };
-
-        checkbox.State.BindValueChanged(e =>
-        {
-            SourceModule.DataManager.SetEnabled(e.NewValue);
-        });
 
         if (!SourceModule.Experimental) experimentalTag.Hide();
 

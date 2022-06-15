@@ -22,7 +22,7 @@ public class SettingsFlow : FillFlowContainer
     [BackgroundDependencyLoader]
     private void load()
     {
-        FillFlowContainer<SettingBaseCard> settingsFlow;
+        FillFlowContainer<AttributeCard> settingsFlow;
 
         InternalChildren = new Drawable[]
         {
@@ -33,7 +33,7 @@ public class SettingsFlow : FillFlowContainer
                 Font = FrameworkFont.Regular.With(size: 50),
                 Text = "Settings"
             },
-            settingsFlow = new FillFlowContainer<SettingBaseCard>
+            settingsFlow = new FillFlowContainer<AttributeCard>
             {
                 Anchor = Anchor.TopCentre,
                 Origin = Anchor.TopCentre,
@@ -50,43 +50,26 @@ public class SettingsFlow : FillFlowContainer
 
             settingsFlow.Clear();
 
-            SourceModule.Value.DataManager.Settings.ForEach(pair =>
+            SourceModule.Value.Settings.ForEach(pair =>
             {
-                var (key, setting) = pair;
+                var (_, attributeData) = pair;
 
-                switch (setting)
+                switch (Type.GetTypeCode(attributeData.Attribute.Value.GetType()))
                 {
-                    case StringModuleSetting:
-                        settingsFlow.Add(new SettingStringCard
-                        {
-                            Key = key,
-                            SourceModule = SourceModule.Value
-                        });
+                    case TypeCode.String:
+                        settingsFlow.Add(new SettingStringCard(attributeData));
                         break;
 
-                    case IntModuleSetting:
-                        settingsFlow.Add(new SettingIntCard
-                        {
-                            Key = key,
-                            SourceModule = SourceModule.Value
-                        });
+                    case TypeCode.Int32:
+                        settingsFlow.Add(new SettingIntCard(attributeData));
                         break;
 
-                    case BoolModuleSetting:
-                        settingsFlow.Add(new SettingBoolCard
-                        {
-                            Key = key,
-                            SourceModule = SourceModule.Value
-                        });
+                    case TypeCode.Boolean:
+                        settingsFlow.Add(new SettingBoolCard(attributeData));
                         break;
 
-                    case EnumModuleSetting enumModuleSetting:
-                        Type type = typeof(SettingEnumCard<>).MakeGenericType(enumModuleSetting.Value.GetType());
-                        SettingBaseCard instance = (SettingBaseCard)Activator.CreateInstance(type)!;
-                        instance.Key = key;
-                        instance.SourceModule = SourceModule.Value;
-                        settingsFlow.Add(instance);
-                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
             });
         }, true);

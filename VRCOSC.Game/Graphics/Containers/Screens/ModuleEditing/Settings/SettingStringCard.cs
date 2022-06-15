@@ -6,11 +6,17 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osuTK;
 using VRCOSC.Game.Graphics.Containers.UI.TextBox;
+using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Settings;
 
-public class SettingStringCard : SettingBaseCard
+public class SettingStringCard : AttributeCard
 {
+    public SettingStringCard(ModuleAttributeData attributeData)
+        : base(attributeData)
+    {
+    }
+
     [BackgroundDependencyLoader]
     private void load()
     {
@@ -29,33 +35,12 @@ public class SettingStringCard : SettingBaseCard
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 BorderThickness = 3,
-                Text = SourceModule.DataManager.GetSettingAs<string>(Key)
+                Text = (string)attributeData.Attribute.Value
             }
         });
 
-        textBox.OnCommit += (_, _) => updateSetting(textBox.Text);
+        textBox.OnCommit += (_, _) => attributeData.Attribute.Value = textBox.Text;
 
-        ResetToDefault.Action += () =>
-        {
-            var defaultValue = SourceModule.GetDefaultSetting<string>(Key);
-            updateSetting(defaultValue);
-            textBox.Text = defaultValue;
-        };
-
-        updateSetting(textBox.Text);
-    }
-
-    private void updateSetting(string newValue)
-    {
-        SourceModule.DataManager.UpdateStringSetting(Key, newValue);
-
-        if (!SourceModule.GetDefaultSetting<string>(Key).Equals(SourceModule.DataManager.GetSettingAs<string>(Key)))
-        {
-            ResetToDefault.Show();
-        }
-        else
-        {
-            ResetToDefault.Hide();
-        }
+        ResetToDefault.Action += () => textBox.Text = (string)attributeData.Attribute.Default;
     }
 }

@@ -1,8 +1,6 @@
 // Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using osu.Framework.Graphics;
 using VRCOSC.Game.Graphics;
@@ -18,14 +16,14 @@ public class ComputerStatsModule : Module
     public override ModuleType Type => ModuleType.General;
     public override double DeltaUpdate => 5000d;
 
-    protected override Dictionary<Enum, (string, string, string)> OutputParameters => new()
+    public override void CreateAttributes()
     {
-        { ComputerStatsParameter.CPUUsage, ("CPU Usage", "CPU usage 0-1", "/avatar/parameters/StatsCPUUsage") },
-        { ComputerStatsParameter.GPUUsage, ("GPU Usage", "GPU usage 0-1", "/avatar/parameters/StatsGPUUsage") },
-        { ComputerStatsParameter.RAMUsage, ("RAM Usage", "RAM usage 0-1", "/avatar/parameters/StatsRAMUsage") }
-    };
+        CreateOutputParameter(ComputerStatsParameter.CPUUsage, "CPU Usage", "CPU usage 0-1", "/avatar/parameters/StatsCPUUsage");
+        CreateOutputParameter(ComputerStatsParameter.GPUUsage, "GPU Usage", "GPU usage 0-1", "/avatar/parameters/StatsGPUUsage");
+        CreateOutputParameter(ComputerStatsParameter.RAMUsage, "RAM Usage", "RAM usage 0-1", "/avatar/parameters/StatsRAMUsage");
+    }
 
-    protected override void OnUpdate()
+    public override void Update()
     {
         sendCpuUsage();
         sendGpuUsage();

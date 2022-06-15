@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Colour;
@@ -11,13 +12,20 @@ using osu.Framework.Graphics.Shapes;
 using osuTK;
 using VRCOSC.Game.Graphics.Containers.UI.Button;
 using VRCOSC.Game.Graphics.Drawables.Triangles;
+using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing;
 
 public abstract class AttributeCard : Container
 {
-    protected TextFlowContainer TextFlow;
     protected VRCOSCButton ResetToDefault;
+
+    protected readonly ModuleAttributeData attributeData;
+
+    protected AttributeCard(ModuleAttributeData attributeData)
+    {
+        this.attributeData = attributeData;
+    }
 
     [BackgroundDependencyLoader]
     private void load()
@@ -25,6 +33,9 @@ public abstract class AttributeCard : Container
         Anchor = Anchor.TopCentre;
         Origin = Anchor.TopCentre;
         RelativeSizeAxes = Axes.X;
+        Height = 120;
+
+        TextFlowContainer textFlow;
 
         InternalChildren = new Drawable[]
         {
@@ -42,7 +53,7 @@ public abstract class AttributeCard : Container
                     Size = new Vector2(0.5f, 1.0f),
                     CornerRadius = 5,
                     CornerExponent = 2,
-                    Alpha = 0,
+                    Alpha = attributeData.Attribute.IsDefault ? 0 : 1,
                     EdgeEffect = new EdgeEffectParameters
                     {
                         Type = EdgeEffectType.Glow,
@@ -80,7 +91,7 @@ public abstract class AttributeCard : Container
                         Size = new Vector2(0.5f, 1),
                         Colour = ColourInfo.GradientHorizontal(Colour4.Black.Opacity(0.75f), VRCOSCColour.Invisible)
                     },
-                    TextFlow = new TextFlowContainer
+                    textFlow = new TextFlowContainer
                     {
                         Anchor = Anchor.TopLeft,
                         Origin = Anchor.TopLeft,
@@ -90,5 +101,33 @@ public abstract class AttributeCard : Container
                 }
             }
         };
+
+        textFlow.AddText(attributeData.DisplayName, t =>
+        {
+            t.Font = FrameworkFont.Regular.With(size: 30);
+        });
+        textFlow.AddParagraph(attributeData.Description, t =>
+        {
+            t.Font = FrameworkFont.Regular.With(size: 20);
+            t.Colour = VRCOSCColour.Gray9;
+        });
+
+        ResetToDefault.Action += () => attributeData.Attribute.SetDefault();
+
+        attributeData.Attribute.ValueChanged += updateResetToDefault;
+    }
+
+    private void updateResetToDefault(ValueChangedEvent<object> _)
+    {
+        if (!attributeData.Attribute.IsDefault)
+            ResetToDefault.Show();
+        else
+            ResetToDefault.Hide();
+    }
+
+    protected override void Dispose(bool isDisposing)
+    {
+        attributeData.Attribute.ValueChanged -= updateResetToDefault;
+        base.Dispose(isDisposing);
     }
 }

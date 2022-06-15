@@ -18,17 +18,17 @@ public class DiscordModule : IntegrationModule
     public override ModuleType Type => ModuleType.Integrations;
     public override string TargetProcess => "discord";
 
-    protected override List<Enum> InputParameters => new()
-    {
-        DiscordInputParameters.DiscordMic,
-        DiscordInputParameters.DiscordDeafen
-    };
-
     protected override Dictionary<Enum, WindowsVKey[]> KeyCombinations => new()
     {
         { DiscordInputParameters.DiscordMic, new[] { WindowsVKey.VK_LCONTROL, WindowsVKey.VK_LSHIFT, WindowsVKey.VK_M } },
         { DiscordInputParameters.DiscordDeafen, new[] { WindowsVKey.VK_LCONTROL, WindowsVKey.VK_LSHIFT, WindowsVKey.VK_D } }
     };
+
+    public override void CreateAttributes()
+    {
+        RegisterInputParameter(DiscordInputParameters.DiscordMic, typeof(bool));
+        RegisterInputParameter(DiscordInputParameters.DiscordDeafen, typeof(bool));
+    }
 
     protected override void OnBoolParameterReceived(Enum key, bool value)
     {

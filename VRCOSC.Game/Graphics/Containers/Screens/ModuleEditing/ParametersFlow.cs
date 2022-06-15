@@ -1,9 +1,9 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
@@ -49,14 +49,7 @@ public class ParametersFlow : FillFlowContainer
 
             parametersFlow.Clear();
 
-            SourceModule.Value.DataManager.Parameters.Keys.ToList().ForEach(key =>
-            {
-                parametersFlow.Add(new ParameterCard
-                {
-                    Key = key,
-                    SourceModule = SourceModule.Value
-                });
-            });
+            SourceModule.Value.OutputParameters.Values.ForEach(attributeData => parametersFlow.Add(new ParameterCard(attributeData)));
         });
     }
 }

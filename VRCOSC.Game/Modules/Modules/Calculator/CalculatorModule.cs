@@ -20,25 +20,6 @@ public class CalculatorModule : IntegrationModule
     public override bool Experimental => true;
     public override string TargetProcess => "calc";
 
-    protected override Dictionary<Enum, (string, string, string)> OutputParameters => new()
-    {
-        { CalculatorAttributes.CalculatorSendValue, ("Send Value", "Send the current value of the calculator", "/avatar/parameters/CalculatorResult") }
-    };
-
-    protected override List<Enum> InputParameters => new()
-    {
-        CalculatorInputParameters.CalculatorOpen,
-        CalculatorInputParameters.CalculatorClose,
-        CalculatorInputParameters.CalculatorClear,
-        CalculatorInputParameters.CalculatorCalculate,
-        CalculatorInputParameters.CalculatorCopyValue,
-        CalculatorInputParameters.CalculatorAdd,
-        CalculatorInputParameters.CalculatorSubtract,
-        CalculatorInputParameters.CalculatorMultiply,
-        CalculatorInputParameters.CalculatorDivide,
-        CalculatorInputParameters.CalculatorNumber
-    };
-
     protected override Dictionary<Enum, WindowsVKey[]> KeyCombinations => new()
     {
         { CalculatorInputParameters.CalculatorClear, new[] { WindowsVKey.VK_ESCAPE } },
@@ -63,7 +44,23 @@ public class CalculatorModule : IntegrationModule
     private bool isCalculatorOpen;
     private float calculatorResult;
 
-    protected override void OnStart()
+    public override void CreateAttributes()
+    {
+        CreateOutputParameter(CalculatorAttributes.CalculatorSendValue, "Send Value", "Send the current value of the calculator", "/avatar/parameters/CalculatorResult");
+
+        RegisterInputParameter(CalculatorInputParameters.CalculatorOpen, typeof(bool));
+        RegisterInputParameter(CalculatorInputParameters.CalculatorClose, typeof(bool));
+        RegisterInputParameter(CalculatorInputParameters.CalculatorClear, typeof(bool));
+        RegisterInputParameter(CalculatorInputParameters.CalculatorCalculate, typeof(bool));
+        RegisterInputParameter(CalculatorInputParameters.CalculatorCopyValue, typeof(bool));
+        RegisterInputParameter(CalculatorInputParameters.CalculatorAdd, typeof(bool));
+        RegisterInputParameter(CalculatorInputParameters.CalculatorSubtract, typeof(bool));
+        RegisterInputParameter(CalculatorInputParameters.CalculatorMultiply, typeof(bool));
+        RegisterInputParameter(CalculatorInputParameters.CalculatorDivide, typeof(bool));
+        RegisterInputParameter(CalculatorInputParameters.CalculatorNumber, typeof(float));
+    }
+
+    public override void Start()
     {
         isCalculatorOpen = IsProcessOpen(); // TODO: What if there are multiple calculator processes open at once?
         if (isCalculatorOpen) sendResult();
