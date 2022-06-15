@@ -1,17 +1,20 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
+using System.Collections.Generic;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
+using VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Settings;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing;
 
-public class AttributeFlow : FillFlowContainer
+public abstract class AttributeFlow : FillFlowContainer
 {
     [Resolved]
     private Bindable<Module> SourceModule { get; set; }
@@ -49,14 +52,35 @@ public class AttributeFlow : FillFlowContainer
 
             if (SourceModule.Value == null) return;
 
-            GenerateCards(SourceModule.Value);
+            generateCards(SourceModule.Value);
         });
     }
 
-    protected virtual void GenerateCards(Module source) { }
-
-    protected void AddAttributeCard(AttributeCard card)
+    private void generateCards(Module source)
     {
-        attributeFlow.Add(card);
+        var attributeList = GetAttributeList(source);
+
+        attributeList.ForEach(attributeData =>
+        {
+            switch (Type.GetTypeCode(attributeData.Attribute.Value.GetType()))
+            {
+                case TypeCode.String:
+                    attributeFlow.Add(new StringAttributeCard(attributeData));
+                    break;
+
+                case TypeCode.Int32:
+                    attributeFlow.Add(new IntAttributeCard(attributeData));
+                    break;
+
+                case TypeCode.Boolean:
+                    attributeFlow.Add(new BoolAttributeCard(attributeData));
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        });
     }
+
+    protected abstract List<ModuleAttributeData> GetAttributeList(Module source);
 }
