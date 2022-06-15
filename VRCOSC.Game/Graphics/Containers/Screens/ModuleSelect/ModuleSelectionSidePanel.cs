@@ -61,12 +61,7 @@ public sealed class ModuleSelectionSidePanel : Container
                 {
                     new Drawable[]
                     {
-                        new ModuleSelectionSidePanelContent
-                        {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
-                            RelativeSizeAxes = Axes.Both
-                        }
+                        new ModuleSelectionSidePanelContent()
                     },
                     new Drawable[]
                     {

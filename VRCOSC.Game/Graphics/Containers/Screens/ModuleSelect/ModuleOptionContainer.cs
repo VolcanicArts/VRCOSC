@@ -9,16 +9,18 @@ using VRCOSC.Game.Config;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
 
-public class ModuleOptionContainer : Container
+public sealed class ModuleOptionContainer : Container
 {
-    [Resolved]
-    private ModuleSelection moduleSelection { get; set; }
-
-    [Resolved]
-    private VRCOSCConfigManager configManager { get; set; }
+    public ModuleOptionContainer()
+    {
+        Anchor = Anchor.TopCentre;
+        Origin = Anchor.TopCentre;
+        RelativeSizeAxes = Axes.Both;
+        Padding = new MarginPadding(5);
+    }
 
     [BackgroundDependencyLoader]
-    private void load()
+    private void load(VRCOSCConfigManager configManager)
     {
         Child = new Container
         {
