@@ -14,7 +14,7 @@ public class MediaModule : IntegrationModule
     public override string Description => "Integration with Windows OS Media";
     public override string Author => "VolcanicArts";
     public override Colour4 Colour => Color4Extensions.FromHex(@"ffb900").Darken(0.25f);
-    public override ModuleType Type => ModuleType.Integrations;
+    public override ModuleType ModuleType => ModuleType.Integrations;
     public override string ReturnProcess => string.Empty;
 
     public override void CreateAttributes()

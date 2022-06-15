@@ -13,7 +13,7 @@ public class ComputerStatsModule : Module
     public override string Description => "Sends your system stats. Currently CPU, GPU, and RAM";
     public override string Author => "VolcanicArts";
     public override Colour4 Colour => VRCOSCColour.PurpleLight;
-    public override ModuleType Type => ModuleType.General;
+    public override ModuleType ModuleType => ModuleType.General;
     public override double DeltaUpdate => 5000d;
 
     public override void CreateAttributes()

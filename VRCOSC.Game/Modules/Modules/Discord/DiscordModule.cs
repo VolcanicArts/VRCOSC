@@ -14,7 +14,7 @@ public class DiscordModule : IntegrationModule
     public override string Description => "Integration with the Discord desktop app";
     public override string Author => "VolcanicArts";
     public override Colour4 Colour => Color4Extensions.FromHex(@"454FBF");
-    public override ModuleType Type => ModuleType.Integrations;
+    public override ModuleType ModuleType => ModuleType.Integrations;
     public override string TargetProcess => "discord";
 
     public override void CreateAttributes()

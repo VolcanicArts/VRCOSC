@@ -12,7 +12,7 @@ public class VRChatDebugModule : Module
     public override string Description => "A debug module for taking input from all the VRChat parameters";
     public override string Author => "VolcanicArts";
     public override Colour4 Colour => Colour4.White.Darken(0.5f);
-    public override ModuleType Type => ModuleType.Debug;
+    public override ModuleType ModuleType => ModuleType.Debug;
 
     public override void CreateAttributes()
     {

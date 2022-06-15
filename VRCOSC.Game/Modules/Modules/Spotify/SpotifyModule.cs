@@ -14,7 +14,7 @@ public class SpotifyModule : IntegrationModule
     public override string Description => "Integration with the Spotify desktop app";
     public override string Author => "VolcanicArts";
     public override Colour4 Colour => Color4Extensions.FromHex(@"1ed760").Darken(0.5f);
-    public override ModuleType Type => ModuleType.Integrations;
+    public override ModuleType ModuleType => ModuleType.Integrations;
     public override string TargetProcess => "spotify";
     public override string TargetExe => GetSetting<string>(SpotifySettings.InstallLocation);
 

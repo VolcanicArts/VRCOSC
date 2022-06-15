@@ -11,7 +11,7 @@ public class RandomModule : Module
     public override string Description => "Sends a random float between 0 and 1 every second";
     public override string Author => "VolcanicArts";
     public override Colour4 Colour => Colour4.Coral.Darken(0.5f);
-    public override ModuleType Type => ModuleType.General;
+    public override ModuleType ModuleType => ModuleType.General;
     public override double DeltaUpdate => 1000d;
 
     private readonly System.Random random = new();

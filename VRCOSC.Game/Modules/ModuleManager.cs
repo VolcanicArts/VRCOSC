@@ -59,7 +59,7 @@ public sealed class ModuleManager : Container<ModuleGroup>
         {
             var moduleGroup = new ModuleGroup(type);
 
-            foreach (var module in modules.Where(module => module.Type.Equals(type)))
+            foreach (var module in modules.Where(module => module.ModuleType.Equals(type)))
             {
                 module.Initialise(moduleStorage, sendingClient);
                 module.CreateAttributes();

@@ -41,7 +41,7 @@ public abstract class Module
     public virtual IEnumerable<string> Tags => Array.Empty<string>();
     public virtual double DeltaUpdate => double.MaxValue;
     public virtual Colour4 Colour => Colour4.Black;
-    public virtual ModuleType Type => ModuleType.General;
+    public virtual ModuleType ModuleType => ModuleType.General;
 
     public void Initialise(Storage storage, UdpClient oscClient)
     {
@@ -250,6 +250,8 @@ public abstract class Module
             if (!Settings.ContainsKey(lookup)) continue;
 
             if (!Enum.TryParse(typeStr, true, out TypeCode type)) continue;
+
+            if (Type.GetTypeCode(Settings[lookup].Attribute.Value.GetType()) != type) return;
 
             switch (type)
             {
