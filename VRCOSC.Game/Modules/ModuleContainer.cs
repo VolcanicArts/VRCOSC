@@ -3,6 +3,7 @@
 
 using CoreOSC;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Logging;
 
 namespace VRCOSC.Game.Modules;
 
@@ -19,7 +20,9 @@ public class ModuleContainer : Container
     {
         if (!Module.Enabled.Value) return;
 
+        Logger.Log($"[{Module.Title}]: Starting", "terminal");
         Module.Start();
+        Logger.Log($"[{Module.Title}]: Started", "terminal");
 
         if (double.IsPositiveInfinity(Module.DeltaUpdate)) return;
 
@@ -32,7 +35,10 @@ public class ModuleContainer : Container
         if (!Module.Enabled.Value) return;
 
         Scheduler.CancelDelayedTasks();
+
+        Logger.Log($"[{Module.Title}]: Stopping", "terminal");
         Module.Stop();
+        Logger.Log($"[{Module.Title}]: Stopped", "terminal");
     }
 
     public void OnOSCMessage(OscMessage message)
