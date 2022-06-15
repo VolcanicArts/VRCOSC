@@ -35,13 +35,13 @@ public class BoolAttributeCard : AttributeCard
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 CornerRadius = 10,
-                State = { Value = (bool)attributeData.Attribute.Value }
+                State = { Value = (bool)AttributeData.Attribute.Value }
             }
         });
 
-        checkBox.State.ValueChanged += e => attributeData.Attribute.Value = e.NewValue;
+        checkBox.State.ValueChanged += e => AttributeData.Attribute.Value = e.NewValue;
 
-        attributeData.Attribute.ValueChanged += updateCheckBox;
+        AttributeData.Attribute.ValueChanged += updateCheckBox;
     }
 
     private void updateCheckBox(ValueChangedEvent<object> e)
@@ -51,7 +51,7 @@ public class BoolAttributeCard : AttributeCard
 
     protected override void Dispose(bool isDisposing)
     {
-        attributeData.Attribute.ValueChanged -= updateCheckBox;
+        AttributeData.Attribute.ValueChanged -= updateCheckBox;
         base.Dispose(isDisposing);
     }
 }

@@ -36,11 +36,11 @@ public class StringAttributeCard : AttributeCard
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 BorderThickness = 3,
-                Text = attributeData.Attribute.Value.ToString()
+                Text = AttributeData.Attribute.Value.ToString()
             }
         });
 
-        attributeData.Attribute.ValueChanged += updateTextBox;
+        AttributeData.Attribute.ValueChanged += updateTextBox;
 
         textBox.OnCommit += (_, _) => OnCommit(textBox.Text!);
     }
@@ -52,12 +52,12 @@ public class StringAttributeCard : AttributeCard
 
     protected virtual void OnCommit(string text)
     {
-        attributeData.Attribute.Value = text;
+        AttributeData.Attribute.Value = text;
     }
 
     protected override void Dispose(bool isDisposing)
     {
-        attributeData.Attribute.ValueChanged -= updateTextBox;
+        AttributeData.Attribute.ValueChanged -= updateTextBox;
         base.Dispose(isDisposing);
     }
 }

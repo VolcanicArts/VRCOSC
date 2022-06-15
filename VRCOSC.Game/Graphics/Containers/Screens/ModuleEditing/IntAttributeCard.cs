@@ -15,6 +15,6 @@ public class IntAttributeCard : StringAttributeCard
     protected override void OnCommit(string text)
     {
         if (int.TryParse(text, out var newValue))
-            attributeData.Attribute.Value = newValue;
+            AttributeData.Attribute.Value = newValue;
     }
 }

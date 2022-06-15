@@ -18,13 +18,13 @@ namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing;
 
 public abstract class AttributeCard : Container
 {
-    protected VRCOSCButton ResetToDefault;
+    private VRCOSCButton resetToDefault;
 
-    protected readonly ModuleAttributeData attributeData;
+    protected readonly ModuleAttributeData AttributeData;
 
     protected AttributeCard(ModuleAttributeData attributeData)
     {
-        this.attributeData = attributeData;
+        AttributeData = attributeData;
     }
 
     [BackgroundDependencyLoader]
@@ -45,7 +45,7 @@ public abstract class AttributeCard : Container
                 Origin = Anchor.CentreRight,
                 Size = new Vector2(30, 50),
                 Padding = new MarginPadding(5),
-                Child = ResetToDefault = new VRCOSCButton
+                Child = resetToDefault = new VRCOSCButton
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
@@ -53,7 +53,7 @@ public abstract class AttributeCard : Container
                     Size = new Vector2(0.5f, 1.0f),
                     CornerRadius = 5,
                     CornerExponent = 2,
-                    Alpha = attributeData.Attribute.IsDefault ? 0 : 1,
+                    Alpha = AttributeData.Attribute.IsDefault ? 0 : 1,
                     EdgeEffect = new EdgeEffectParameters
                     {
                         Type = EdgeEffectType.Glow,
@@ -102,32 +102,32 @@ public abstract class AttributeCard : Container
             }
         };
 
-        textFlow.AddText(attributeData.DisplayName, t =>
+        textFlow.AddText(AttributeData.DisplayName, t =>
         {
             t.Font = FrameworkFont.Regular.With(size: 30);
         });
-        textFlow.AddParagraph(attributeData.Description, t =>
+        textFlow.AddParagraph(AttributeData.Description, t =>
         {
             t.Font = FrameworkFont.Regular.With(size: 20);
             t.Colour = VRCOSCColour.Gray9;
         });
 
-        ResetToDefault.Action += () => attributeData.Attribute.SetDefault();
+        resetToDefault.Action += () => AttributeData.Attribute.SetDefault();
 
-        attributeData.Attribute.ValueChanged += updateResetToDefault;
+        AttributeData.Attribute.ValueChanged += updateResetToDefault;
     }
 
     private void updateResetToDefault(ValueChangedEvent<object> _)
     {
-        if (!attributeData.Attribute.IsDefault)
-            ResetToDefault.Show();
+        if (!AttributeData.Attribute.IsDefault)
+            resetToDefault.Show();
         else
-            ResetToDefault.Hide();
+            resetToDefault.Hide();
     }
 
     protected override void Dispose(bool isDisposing)
     {
-        attributeData.Attribute.ValueChanged -= updateResetToDefault;
+        AttributeData.Attribute.ValueChanged -= updateResetToDefault;
         base.Dispose(isDisposing);
     }
 }
