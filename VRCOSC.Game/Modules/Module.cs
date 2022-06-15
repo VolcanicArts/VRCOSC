@@ -35,6 +35,15 @@ public abstract class Module
 
     public readonly Dictionary<Enum, Type> InputParameters = new();
 
+    public virtual string Title => string.Empty;
+    public virtual string Description => string.Empty;
+    public virtual string Author => string.Empty;
+    public virtual IEnumerable<string> Tags => Array.Empty<string>();
+    public virtual double DeltaUpdate => double.MaxValue;
+    public virtual bool Experimental => false;
+    public virtual Colour4 Colour => Colour4.Black;
+    public virtual ModuleType Type => ModuleType.General;
+
     public void Initialise(Storage storage, UdpClient oscClient)
     {
         Storage = storage;
@@ -51,53 +60,6 @@ public abstract class Module
     public bool HasAttributes => HasSettings || HasOutputParameters;
 
     private string FileName => $"{GetType().Name}.ini";
-
-    #endregion
-
-    #region Metadata
-
-    /// <summary>
-    /// The title of the module
-    /// </summary>
-    public virtual string Title => string.Empty;
-
-    /// <summary>
-    /// The description of the module.
-    /// This is what's displayed on the GUI, so it should be short
-    /// </summary>
-    public virtual string Description => string.Empty;
-
-    /// <summary>
-    /// The author of the module. Usually your GitHub username
-    /// </summary>
-    public virtual string Author => string.Empty;
-
-    /// <summary>
-    /// The tags of the module. Used for searching along side the title
-    /// </summary>
-    public virtual string[] Tags => Array.Empty<string>();
-
-    /// <summary>
-    /// The time in milliseconds between each update call
-    /// </summary>
-    public virtual double DeltaUpdate => double.MaxValue;
-
-    /// <summary>
-    /// If the module has been untested or unverified
-    /// </summary>
-    public virtual bool Experimental => false;
-
-    /// <summary>
-    /// The colour of the module.
-    /// Used in the GUI for displaying
-    /// </summary>
-    public virtual Colour4 Colour => Colour4.Black;
-
-    /// <summary>
-    /// The type of the module.
-    /// Used for grouping in the GUI
-    /// </summary>
-    public virtual ModuleType Type => ModuleType.General;
 
     #endregion
 

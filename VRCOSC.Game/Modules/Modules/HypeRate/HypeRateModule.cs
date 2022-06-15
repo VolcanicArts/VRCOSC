@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Collections.Generic;
 using osu.Framework.Graphics;
 
 namespace VRCOSC.Game.Modules.Modules.HypeRate;
@@ -12,7 +13,7 @@ public class HypeRateModule : Module
     public override string Author => "VolcanicArts";
     public override Colour4 Colour => Colour4.OrangeRed.Darken(0.5f);
     public override ModuleType Type => ModuleType.Health;
-    public override string[] Tags => new[] { "heartrate" };
+    public override IEnumerable<string> Tags => new[] { "heartrate" };
 
     private HypeRateProvider? hypeRateProvider;
     private bool receivedHeartrate;
