@@ -2,76 +2,37 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using osu.Framework.Allocation;
-using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
-using osu.Framework.Graphics;
-using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Sprites;
-using osuTK;
 using VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Settings;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing;
 
-public class SettingsFlow : FillFlowContainer
+public class SettingsFlow : AttributeFlow
 {
-    [Resolved]
-    private Bindable<Module> SourceModule { get; set; }
+    protected override string Title => "Settings";
 
-    [BackgroundDependencyLoader]
-    private void load()
+    protected override void GenerateCards(Module source)
     {
-        FillFlowContainer<AttributeCard> settingsFlow;
-
-        InternalChildren = new Drawable[]
+        source.Settings.Values.ForEach(attributeData =>
         {
-            new SpriteText
+            switch (Type.GetTypeCode(attributeData.Attribute.Value.GetType()))
             {
-                Anchor = Anchor.TopCentre,
-                Origin = Anchor.TopCentre,
-                Font = FrameworkFont.Regular.With(size: 50),
-                Text = "Settings"
-            },
-            settingsFlow = new FillFlowContainer<AttributeCard>
-            {
-                Anchor = Anchor.TopCentre,
-                Origin = Anchor.TopCentre,
-                RelativeSizeAxes = Axes.X,
-                AutoSizeAxes = Axes.Y,
-                Direction = FillDirection.Vertical,
-                Spacing = new Vector2(0, 10)
-            },
-        };
+                case TypeCode.String:
+                    AddAttributeCard(new StringAttributeCard(attributeData));
+                    break;
 
-        SourceModule.BindValueChanged(_ =>
-        {
-            if (SourceModule.Value == null) return;
+                case TypeCode.Int32:
+                    AddAttributeCard(new IntAttributeCard(attributeData));
+                    break;
 
-            settingsFlow.Clear();
+                case TypeCode.Boolean:
+                    AddAttributeCard(new BoolAttributeCard(attributeData));
+                    break;
 
-            SourceModule.Value.Settings.ForEach(pair =>
-            {
-                var (_, attributeData) = pair;
-
-                switch (Type.GetTypeCode(attributeData.Attribute.Value.GetType()))
-                {
-                    case TypeCode.String:
-                        settingsFlow.Add(new StringAttributeCard(attributeData));
-                        break;
-
-                    case TypeCode.Int32:
-                        settingsFlow.Add(new IntAttributeCard(attributeData));
-                        break;
-
-                    case TypeCode.Boolean:
-                        settingsFlow.Add(new BoolAttributeCard(attributeData));
-                        break;
-
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-            });
-        }, true);
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        });
     }
 }
