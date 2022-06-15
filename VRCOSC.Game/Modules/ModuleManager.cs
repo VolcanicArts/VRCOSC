@@ -72,30 +72,26 @@ public sealed class ModuleManager : Container<ModuleGroup>
             Add(moduleGroup);
         }
 
-        Task.Factory.StartNew(checkForVrChat);
+        Scheduler.Add(checkForVrChat);
+        Scheduler.AddDelayed(checkForVrChat, 10000, true);
     }
 
     private void checkForVrChat()
     {
-        while (true)
+        var vrChat = Process.GetProcessesByName("vrchat");
+
+        var autoStartStop = configManager.Get<bool>(VRCOSCSetting.AutoStartStop);
+
+        if (vrChat.Length != 0 && autoStartStop && !running && !autoStarted)
         {
-            var vrChat = Process.GetProcessesByName("vrchat");
+            screenManager.ShowTerminal();
+            autoStarted = true;
+        }
 
-            var autoStartStop = configManager.Get<bool>(VRCOSCSetting.AutoStartStop);
-
-            if (vrChat.Length != 0 && autoStartStop && !running && !autoStarted)
-            {
-                screenManager.ShowTerminal();
-                autoStarted = true;
-            }
-
-            if (vrChat.Length == 0 && autoStartStop && running)
-            {
-                screenManager.HideTerminal();
-                autoStarted = false;
-            }
-
-            Task.Delay(10000);
+        if (vrChat.Length == 0 && autoStartStop && running)
+        {
+            screenManager.HideTerminal();
+            autoStarted = false;
         }
     }
 
