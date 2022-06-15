@@ -28,7 +28,7 @@ public class ModuleEditContent : Container
         LineSeparator settingsSeparator;
         SettingsFlow settingsFlow;
         LineSeparator parametersSeparator;
-        ParametersFlow parametersFlow;
+        OutputParametersFlow outputParametersFlow;
 
         BasicScrollContainer scrollContainer;
 
@@ -103,7 +103,7 @@ public class ModuleEditContent : Container
                             RelativeSizeAxes = Axes.X,
                             Size = new Vector2(0.95f, 5)
                         },
-                        parametersFlow = new ParametersFlow
+                        outputParametersFlow = new OutputParametersFlow
                         {
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
@@ -159,12 +159,12 @@ public class ModuleEditContent : Container
             if (SourceModule.Value.HasOutputParameters)
             {
                 parametersSeparator.Show();
-                parametersFlow.Show();
+                outputParametersFlow.Show();
             }
             else
             {
                 parametersSeparator.Hide();
-                parametersFlow.Hide();
+                outputParametersFlow.Hide();
             }
         }, true);
     }

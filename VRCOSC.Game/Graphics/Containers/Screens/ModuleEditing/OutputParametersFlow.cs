@@ -7,7 +7,7 @@ using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing;
 
-public class ParametersFlow : AttributeFlow
+public class OutputParametersFlow : AttributeFlow
 {
     protected override string Title => "Output Parameters";
 
