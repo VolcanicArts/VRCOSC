@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using osu.Framework.Allocation;
-using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
@@ -13,18 +12,27 @@ using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing;
 
-public abstract class AttributeFlow : FillFlowContainer
+public sealed class AttributeFlow : FillFlowContainer
 {
-    [Resolved]
-    private Bindable<Module> SourceModule { get; set; }
+    public string Title { get; init; }
+    public List<ModuleAttributeData> AttributesList { get; init; }
 
-    protected virtual string Title => string.Empty;
-
-    private FillFlowContainer<AttributeCard> attributeFlow;
+    public AttributeFlow()
+    {
+        Anchor = Anchor.TopCentre;
+        Origin = Anchor.TopCentre;
+        RelativeSizeAxes = Axes.X;
+        AutoSizeAxes = Axes.Y;
+        Direction = FillDirection.Vertical;
+        Spacing = new Vector2(0, 10);
+        Padding = new MarginPadding(10);
+    }
 
     [BackgroundDependencyLoader]
     private void load()
     {
+        FillFlowContainer<AttributeCard> attributeFlow;
+
         InternalChildren = new Drawable[]
         {
             new SpriteText
@@ -45,21 +53,7 @@ public abstract class AttributeFlow : FillFlowContainer
             }
         };
 
-        SourceModule.BindValueChanged(_ =>
-        {
-            attributeFlow.Clear();
-
-            if (SourceModule.Value == null) return;
-
-            generateCards(SourceModule.Value);
-        });
-    }
-
-    private void generateCards(Module source)
-    {
-        var attributeList = GetAttributeList(source);
-
-        attributeList.ForEach(attributeData =>
+        AttributesList.ForEach(attributeData =>
         {
             switch (Type.GetTypeCode(attributeData.Attribute.Value.GetType()))
             {
@@ -80,6 +74,4 @@ public abstract class AttributeFlow : FillFlowContainer
             }
         });
     }
-
-    protected abstract List<ModuleAttributeData> GetAttributeList(Module source);
 }

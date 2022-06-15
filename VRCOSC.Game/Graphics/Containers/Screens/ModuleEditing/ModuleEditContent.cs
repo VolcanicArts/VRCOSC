@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
@@ -26,9 +27,9 @@ public class ModuleEditContent : Container
     {
         TextFlowContainer metadataTextFlow;
         LineSeparator settingsSeparator;
-        SettingsFlow settingsFlow;
-        LineSeparator parametersSeparator;
-        OutputParametersFlow outputParametersFlow;
+        Container<AttributeFlow> settingsFlowContainer;
+        LineSeparator outputParametersSeparator;
+        Container<AttributeFlow> outputParametersFlowContainer;
 
         BasicScrollContainer scrollContainer;
 
@@ -86,33 +87,27 @@ public class ModuleEditContent : Container
                             RelativeSizeAxes = Axes.X,
                             Size = new Vector2(0.95f, 5)
                         },
-                        settingsFlow = new SettingsFlow
+                        settingsFlowContainer = new Container<AttributeFlow>
                         {
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
                             RelativeSizeAxes = Axes.X,
-                            AutoSizeAxes = Axes.Y,
-                            Direction = FillDirection.Vertical,
-                            Spacing = new Vector2(0, 10),
-                            Padding = new MarginPadding(10)
+                            AutoSizeAxes = Axes.Y
                         },
-                        parametersSeparator = new LineSeparator
+                        outputParametersSeparator = new LineSeparator
                         {
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
                             RelativeSizeAxes = Axes.X,
                             Size = new Vector2(0.95f, 5)
                         },
-                        outputParametersFlow = new OutputParametersFlow
+                        outputParametersFlowContainer = new Container<AttributeFlow>
                         {
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
                             RelativeSizeAxes = Axes.X,
-                            AutoSizeAxes = Axes.Y,
-                            Direction = FillDirection.Vertical,
-                            Spacing = new Vector2(0, 10),
-                            Padding = new MarginPadding(10)
-                        }
+                            AutoSizeAxes = Axes.Y
+                        },
                     }
                 }
             }
@@ -145,26 +140,38 @@ public class ModuleEditContent : Container
                 t.Colour = VRCOSCColour.GrayE;
             });
 
+            settingsFlowContainer.Child = new AttributeFlow
+            {
+                Title = "Settings",
+                AttributesList = SourceModule.Value.Settings.Values.ToList()
+            };
+
+            outputParametersFlowContainer.Child = new AttributeFlow
+            {
+                Title = "Output Parameters",
+                AttributesList = SourceModule.Value.OutputParameters.Values.ToList()
+            };
+
             if (SourceModule.Value.HasSettings)
             {
                 settingsSeparator.Show();
-                settingsFlow.Show();
+                settingsFlowContainer.Show();
             }
             else
             {
                 settingsSeparator.Hide();
-                settingsFlow.Hide();
+                settingsFlowContainer.Hide();
             }
 
             if (SourceModule.Value.HasOutputParameters)
             {
-                parametersSeparator.Show();
-                outputParametersFlow.Show();
+                outputParametersSeparator.Show();
+                outputParametersFlowContainer.Show();
             }
             else
             {
-                parametersSeparator.Hide();
-                outputParametersFlow.Hide();
+                outputParametersSeparator.Hide();
+                outputParametersFlowContainer.Hide();
             }
         }, true);
     }
