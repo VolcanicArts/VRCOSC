@@ -186,23 +186,26 @@ public abstract class Module
     {
         using (var stream = Storage.GetStream(FileName))
         {
-            using (var reader = new StreamReader(stream))
+            if (stream != null)
             {
-                while (reader.ReadLine() is { } line)
+                using (var reader = new StreamReader(stream))
                 {
-                    switch (line)
+                    while (reader.ReadLine() is { } line)
                     {
-                        case "#InternalSettings":
-                            performInternalSettingsLoad(reader);
-                            break;
+                        switch (line)
+                        {
+                            case "#InternalSettings":
+                                performInternalSettingsLoad(reader);
+                                break;
 
-                        case "#Settings":
-                            performSettingsLoad(reader);
-                            break;
+                            case "#Settings":
+                                performSettingsLoad(reader);
+                                break;
 
-                        case "#OutputParameters":
-                            performOutputParametersLoad(reader);
-                            break;
+                            case "#OutputParameters":
+                                performOutputParametersLoad(reader);
+                                break;
+                        }
                     }
                 }
             }
