@@ -18,19 +18,19 @@ public class MediaModule : IntegrationModule
     public override ModuleType Type => ModuleType.Integrations;
     public override string ReturnProcess => string.Empty;
 
-    protected override List<Enum> InputParameters => new()
-    {
-        MediaInputParameters.MediaPlayPause,
-        MediaInputParameters.MediaNext,
-        MediaInputParameters.MediaPrevious
-    };
-
     protected override Dictionary<Enum, WindowsVKey[]> KeyCombinations => new()
     {
         { MediaInputParameters.MediaPlayPause, new[] { WindowsVKey.VK_MEDIA_PLAY_PAUSE } },
         { MediaInputParameters.MediaNext, new[] { WindowsVKey.VK_MEDIA_NEXT_TRACK } },
         { MediaInputParameters.MediaPrevious, new[] { WindowsVKey.VK_MEDIA_PREV_TRACK } }
     };
+
+    public override void CreateAttributes()
+    {
+        RegisterInputParameter(MediaInputParameters.MediaPlayPause, typeof(bool));
+        RegisterInputParameter(MediaInputParameters.MediaNext, typeof(bool));
+        RegisterInputParameter(MediaInputParameters.MediaPrevious, typeof(bool));
+    }
 
     protected override void OnBoolParameterReceived(Enum key, bool value)
     {

@@ -156,7 +156,7 @@ public class ModuleEditContent : Container
                 settingsFlow.Hide();
             }
 
-            if (SourceModule.Value.HasParameters)
+            if (SourceModule.Value.HasOutputParameters)
             {
                 parametersSeparator.Show();
                 parametersFlow.Show();

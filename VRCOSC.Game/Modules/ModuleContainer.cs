@@ -17,7 +17,7 @@ public class ModuleContainer : Container
 
     public void Start()
     {
-        if (!Module.DataManager.Enabled) return;
+        if (!Module.Enabled.Value) return;
 
         Module.Start();
 
@@ -29,7 +29,7 @@ public class ModuleContainer : Container
 
     public void Stop()
     {
-        if (!Module.DataManager.Enabled) return;
+        if (!Module.Enabled.Value) return;
 
         Scheduler.CancelDelayedTasks();
         Module.Stop();
@@ -37,7 +37,7 @@ public class ModuleContainer : Container
 
     public void OnOSCMessage(OscMessage message)
     {
-        if (!Module.DataManager.Enabled || !Module.IsRequestingInput) return;
+        if (!Module.Enabled.Value || !Module.IsRequestingInput) return;
 
         Module.OnOSCMessage(message);
     }

@@ -50,42 +50,22 @@ public class SettingsFlow : FillFlowContainer
 
             settingsFlow.Clear();
 
-            SourceModule.Value.DataManager.Settings.ForEach(pair =>
+            SourceModule.Value.Settings.ForEach(pair =>
             {
-                var (key, setting) = pair;
+                var (_, attributeData) = pair;
 
-                switch (setting)
+                switch (Type.GetTypeCode(attributeData.Value.GetType()))
                 {
-                    case StringModuleSetting:
-                        settingsFlow.Add(new SettingStringCard
-                        {
-                            Key = key,
-                            SourceModule = SourceModule.Value
-                        });
+                    case TypeCode.String:
+                        settingsFlow.Add(new SettingStringCard(attributeData));
                         break;
 
-                    case IntModuleSetting:
-                        settingsFlow.Add(new SettingIntCard
-                        {
-                            Key = key,
-                            SourceModule = SourceModule.Value
-                        });
+                    case TypeCode.Int32:
+                        settingsFlow.Add(new SettingIntCard(attributeData));
                         break;
 
-                    case BoolModuleSetting:
-                        settingsFlow.Add(new SettingBoolCard
-                        {
-                            Key = key,
-                            SourceModule = SourceModule.Value
-                        });
-                        break;
-
-                    case EnumModuleSetting enumModuleSetting:
-                        Type type = typeof(SettingEnumCard<>).MakeGenericType(enumModuleSetting.Value.GetType());
-                        SettingBaseCard instance = (SettingBaseCard)Activator.CreateInstance(type)!;
-                        instance.Key = key;
-                        instance.SourceModule = SourceModule.Value;
-                        settingsFlow.Add(instance);
+                    case TypeCode.Boolean:
+                        settingsFlow.Add(new SettingBoolCard(attributeData));
                         break;
                 }
             });

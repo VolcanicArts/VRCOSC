@@ -1,8 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
-using System.Collections.Generic;
 using osu.Framework.Graphics;
 
 namespace VRCOSC.Game.Modules.Modules.Random;
@@ -16,14 +14,14 @@ public class RandomModule : Module
     public override ModuleType Type => ModuleType.General;
     public override double DeltaUpdate => 1000d;
 
-    protected override Dictionary<Enum, (string, string, string)> OutputParameters => new()
-    {
-        { RandomParameter.RandomValue, ("Random Value", "A random float value between 0 and 1", "/avatar/parameters/RandomValue") }
-    };
-
     private readonly System.Random random = new();
 
-    protected override void OnUpdate()
+    public override void CreateAttributes()
+    {
+        CreateOutputParameter(RandomParameter.RandomValue, "Random Value", "A random float value between 0 and 1", "/avatar/parameters/RandomValue");
+    }
+
+    public override void Update()
     {
         float randomFloat = (float)random.NextDouble();
         SendParameter(RandomParameter.RandomValue, randomFloat);

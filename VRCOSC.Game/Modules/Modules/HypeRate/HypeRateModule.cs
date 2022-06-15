@@ -1,11 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
-using System.Collections.Generic;
 using osu.Framework.Graphics;
-
-#pragma warning disable CS8618
 
 namespace VRCOSC.Game.Modules.Modules.HypeRate;
 
@@ -18,28 +14,25 @@ public class HypeRateModule : Module
     public override ModuleType Type => ModuleType.Health;
     public override string[] Tags => new[] { "heartrate" };
 
-    protected override Dictionary<Enum, (string, string, object)> Settings => new()
-    {
-        { HypeRateSettings.Id, ("HypeRate ID", "Your HypeRate ID given on your device", string.Empty) }
-    };
-
-    protected override Dictionary<Enum, (string, string, string)> OutputParameters => new()
-    {
-        { HypeRateParameter.HeartrateEnabled, ("Heartrate Enabled", "Whether this module is attempting to emit values", "/avatar/parameters/HeartrateEnabled") },
-        { HypeRateParameter.HeartrateNormalised, ("Heartrate Normalised", "The heartrate value normalised to 60bpm", "/avatar/parameters/HeartrateNormalised") },
-        { HypeRateParameter.HeartrateUnits, ("Heartrate Units", "The units digit 0-9 mapped to a float", "/avatar/parameters/HeartrateUnits") },
-        { HypeRateParameter.HeartrateTens, ("Heartrate Tens", "The tens digit 0-9 mapped to a float", "/avatar/parameters/HeartrateTens") },
-        { HypeRateParameter.HeartrateHundreds, ("Heartrate Hundreds", "The hundreds digit 0-9 mapped to a float", "/avatar/parameters/HeartrateHundreds") }
-    };
-
     private HypeRateProvider? hypeRateProvider;
     private bool receivedHeartrate;
 
-    protected override void OnStart()
+    public override void CreateAttributes()
+    {
+        CreateSetting(HypeRateSettings.Id, "HypeRate ID", "Your HypeRate ID given on your device", string.Empty);
+
+        CreateOutputParameter(HypeRateParameter.HeartrateEnabled, "Heartrate Enabled", "Whether this module is attempting to emit values", "/avatar/parameters/HeartrateEnabled");
+        CreateOutputParameter(HypeRateParameter.HeartrateNormalised, "Heartrate Normalised", "The heartrate value normalised to 60bpm", "/avatar/parameters/HeartrateNormalised");
+        CreateOutputParameter(HypeRateParameter.HeartrateUnits, "Heartrate Units", "The units digit 0-9 mapped to a float", "/avatar/parameters/HeartrateUnits");
+        CreateOutputParameter(HypeRateParameter.HeartrateTens, "Heartrate Tens", "The tens digit 0-9 mapped to a float", "/avatar/parameters/HeartrateTens");
+        CreateOutputParameter(HypeRateParameter.HeartrateHundreds, "Heartrate Hundreds", "The hundreds digit 0-9 mapped to a float", "/avatar/parameters/HeartrateHundreds");
+    }
+
+    public override void Start()
     {
         SendParameter(HypeRateParameter.HeartrateEnabled, false);
 
-        var hypeRateId = GetSettingAs<string>(HypeRateSettings.Id);
+        var hypeRateId = GetSetting<string>(HypeRateSettings.Id);
 
         if (string.IsNullOrEmpty(hypeRateId))
         {
@@ -74,7 +67,7 @@ public class HypeRateModule : Module
         receivedHeartrate = false;
     }
 
-    protected override void OnStop()
+    public override void Stop()
     {
         hypeRateProvider?.Disconnect();
     }

@@ -12,8 +12,12 @@ namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Parameters;
 
 public class ParameterCard : AttributeCard
 {
-    public string Key { get; init; }
-    public Module SourceModule { get; init; }
+    private readonly ModuleAttributeData attributeData;
+
+    public ParameterCard(ModuleAttributeData attributeData)
+    {
+        this.attributeData = attributeData;
+    }
 
     [BackgroundDependencyLoader]
     private void load()
@@ -35,16 +39,16 @@ public class ParameterCard : AttributeCard
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 BorderThickness = 3,
-                Text = SourceModule.DataManager.GetParameter(Key)
+                Text = (string)attributeData.Value
             }
         });
 
-        TextFlow.AddText(SourceModule.DataManager.Parameters[Key].DisplayName, t =>
+        TextFlow.AddText(attributeData.DisplayName, t =>
         {
             t.Font = FrameworkFont.Regular.With(size: 30);
         });
         TextFlow.AddText("\n");
-        TextFlow.AddText(SourceModule.DataManager.Parameters[Key].Description, t =>
+        TextFlow.AddText(attributeData.Description, t =>
         {
             t.Font = FrameworkFont.Regular.With(size: 20);
             t.Colour = VRCOSCColour.Gray9;
@@ -54,7 +58,7 @@ public class ParameterCard : AttributeCard
 
         ResetToDefault.Action += () =>
         {
-            var defaultAddress = SourceModule.GetDefaultOutputParameter(Key);
+            var defaultAddress = (string)attributeData.Value;
             updateParameter(defaultAddress);
             textBox.Text = defaultAddress;
         };
@@ -64,9 +68,9 @@ public class ParameterCard : AttributeCard
 
     private void updateParameter(string newAddress)
     {
-        SourceModule.DataManager.UpdateParameter(Key, newAddress);
+        attributeData.Value = newAddress;
 
-        if (!SourceModule.GetDefaultOutputParameter(Key).Equals(SourceModule.DataManager.GetParameter(Key)))
+        if (!attributeData.IsDefault())
         {
             ResetToDefault.Show();
         }

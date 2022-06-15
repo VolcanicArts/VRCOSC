@@ -3,117 +3,181 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using CoreOSC;
 using CoreOSC.IO;
-using osu.Framework.Extensions.IEnumerableExtensions;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
+using osu.Framework.Platform;
 using VRCOSC.Game.Util;
+
+// ReSharper disable InconsistentNaming
 
 namespace VRCOSC.Game.Modules;
 
 public abstract class Module
 {
-    internal ModuleDataManager DataManager { get; set; } = null!;
-    internal UdpClient OscClient { get; set; } = null!;
+    private Storage Storage = null!;
+    private UdpClient OscClient = null!;
 
-    protected TerminalLogger Terminal { get; private set; } = null!;
-
-    public virtual string Title => string.Empty;
-    public virtual string Description => string.Empty;
-    public virtual string Author => string.Empty;
-    public virtual double DeltaUpdate => double.PositiveInfinity;
-    public virtual Colour4 Colour => Colour4.Black;
-    public virtual ModuleType Type => ModuleType.General;
-    public virtual string[] Tags => Array.Empty<string>();
-    public virtual bool Experimental => false;
-
-    // These are *only* definitions. All reads and writes for persistent data occur inside the DataManager
-    protected virtual Dictionary<Enum, (string, string, object)> Settings => new();
-    protected virtual Dictionary<Enum, (string, string, string)> OutputParameters => new();
-    protected virtual List<Enum> InputParameters => new();
-
-    private readonly Dictionary<string, object> defaultSettings = new();
-    private readonly Dictionary<string, string> defaultOutputParameters = new();
+    protected TerminalLogger Terminal = null!;
 
     public Action<string, object>? OnParameterSent;
     public Action<string, object>? OnParameterReceived;
 
+    public BindableBool Enabled = new();
+
+    public readonly Dictionary<string, ModuleAttributeData> Settings = new();
+    public readonly Dictionary<string, ModuleAttributeData> OutputParameters = new();
+
+    public readonly Dictionary<Enum, Type> InputParameters = new();
+
+    public void Initialise(Storage storage, UdpClient oscClient)
+    {
+        Storage = storage;
+        OscClient = oscClient;
+        Terminal = new TerminalLogger(GetType().Name);
+
+        Enabled.BindValueChanged((_) => PerformSave());
+    }
+
+    #region Properties
+
     public bool IsRequestingInput => InputParameters.Count != 0;
 
-    public bool HasSettings => DataManager.Settings.Count != 0;
-    public bool HasParameters => DataManager.Parameters.Count != 0;
+    public bool HasSettings => Settings.Count != 0;
+    public bool HasOutputParameters => OutputParameters.Count != 0;
+    public bool HasAttributes => HasSettings || HasOutputParameters;
 
-    public bool HasAttributes => HasSettings || HasParameters;
+    private string FileName => $"{GetType().Name}.ini";
 
-    public T GetDefaultSetting<T>(string key) => (T)defaultSettings[key];
+    #endregion
 
-    public string GetDefaultOutputParameter(string key) => defaultOutputParameters[key];
+    #region Metadata
 
-    internal void CreateAttributes()
+    /// <summary>
+    /// The title of the module
+    /// </summary>
+    public virtual string Title => string.Empty;
+
+    /// <summary>
+    /// The description of the module.
+    /// This is what's displayed on the GUI, so it should be short
+    /// </summary>
+    public virtual string Description => string.Empty;
+
+    /// <summary>
+    /// The author of the module. Usually your GitHub username
+    /// </summary>
+    public virtual string Author => string.Empty;
+
+    /// <summary>
+    /// The tags of the module. Used for searching along side the title
+    /// </summary>
+    public virtual string[] Tags => Array.Empty<string>();
+
+    /// <summary>
+    /// The time in milliseconds between each update call
+    /// </summary>
+    public virtual double DeltaUpdate => double.MaxValue;
+
+    /// <summary>
+    /// If the module has been untested or unverified
+    /// </summary>
+    public virtual bool Experimental => false;
+
+    /// <summary>
+    /// The colour of the module.
+    /// Used in the GUI for displaying
+    /// </summary>
+    public virtual Colour4 Colour => Colour4.Black;
+
+    /// <summary>
+    /// The type of the module.
+    /// Used for grouping in the GUI
+    /// </summary>
+    public virtual ModuleType Type => ModuleType.General;
+
+    #endregion
+
+    #region Attributes
+
+    public virtual void CreateAttributes() { }
+
+    protected void CreateSetting(Enum lookup, string displayName, string description, object defaultValue)
     {
-        Settings.ForEach(pair =>
-        {
-            var key = pair.Key;
-            var displayName = pair.Value.Item1;
-            var description = pair.Value.Item2;
-            var value = pair.Value.Item3;
-
-            DataManager.CreateSetting(key, displayName, description, value);
-            defaultSettings.Add(key.ToString().ToLower(), value);
-        });
-
-        OutputParameters.ForEach(pair =>
-        {
-            var key = pair.Key;
-            var displayName = pair.Value.Item1;
-            var description = pair.Value.Item2;
-            var address = pair.Value.Item3;
-
-            DataManager.CreateParameter(key, displayName, description, address);
-            defaultOutputParameters.Add(key.ToString().ToLower(), address);
-        });
+        var lookupString = lookup.ToString().ToLower();
+        Settings.Add(lookupString, new ModuleAttributeData(displayName, description, defaultValue));
     }
 
-    internal void Start()
+    protected void CreateOutputParameter(Enum lookup, string displayName, string description, string defaultAddress)
     {
-        Terminal = new TerminalLogger(GetType().Name);
-        Terminal.Log("Starting");
-        OnStart();
-        Terminal.Log("Started");
+        var lookupString = lookup.ToString().ToLower();
+        OutputParameters.Add(lookupString, new ModuleAttributeData(displayName, description, defaultAddress));
     }
 
-    protected virtual void OnStart() { }
-
-    internal void Update()
+    protected void RegisterInputParameter(Enum lookup, Type expectedType)
     {
-        OnUpdate();
+        InputParameters.Add(lookup, expectedType);
     }
 
-    protected virtual void OnUpdate() { }
+    #endregion
 
-    internal void Stop()
-    {
-        Terminal.Log("Stopping");
-        OnStop();
-        Terminal.Log("Stopped");
-    }
+    #region Events
 
-    protected virtual void OnStop() { }
+    public virtual void Start() { }
 
-    internal void OnOSCMessage(OscMessage message)
+    public virtual void Update() { }
+
+    public virtual void Stop() { }
+
+    #endregion
+
+    #region Settings
+
+    public T GetSetting<T>(Enum lookup) => GetSetting<T>(lookup.ToString().ToLower());
+
+    public T GetSetting<T>(string lookup) => (T)Settings[lookup].Value;
+
+    public T GetSettingDefault<T>(Enum lookup) => GetSettingDefault<T>(lookup.ToString().ToLower());
+
+    public T GetSettingDefault<T>(string lookup) => (T)Settings[lookup].DefaultValue;
+
+    #endregion
+
+    #region Parameters
+
+    public string GetOutputParameter(Enum lookup) => GetOutputParameter(lookup.ToString().ToLower());
+
+    public string GetOutputParameter(string lookup) => (string)OutputParameters[lookup].Value;
+
+    public string GetOutputParameterDefault(Enum lookup) => GetOutputParameterDefault(lookup.ToString().ToLower());
+
+    public string GetOutputParameterDefault(string lookup) => (string)OutputParameters[lookup].DefaultValue;
+
+    #endregion
+
+    #region IncomingParameters
+
+    public void OnOSCMessage(OscMessage message)
     {
         if (!message.Arguments.Any()) return;
 
         var addressEndpoint = message.Address.Value.Split('/').Last();
         var value = message.Arguments.First();
 
-        Enum? key = InputParameters.Find(e => e.ToString().Equals(addressEndpoint));
+        Enum? key = InputParameters.Keys.ToList().Find(e => e.ToString().Equals(addressEndpoint));
         if (key == null) return;
+
+        var type = InputParameters[key];
 
         if (value is OscTrue) value = true;
         if (value is OscFalse) value = false;
+
+        if (value.GetType() != type)
+            throw new ArgumentException($"{key} expects type {type} but received type {value.GetType()}");
 
         notifyParameterReceived(key, value);
     }
@@ -144,7 +208,9 @@ public abstract class Module
 
     protected virtual void OnFloatParameterReceived(Enum key, float value) { }
 
-    protected T GetSettingAs<T>(Enum key) => DataManager.GetSettingAs<T>(key);
+    #endregion
+
+    #region OutgoingParameters
 
     protected void SendParameter(Enum key, int value) => sendParameter(key, value);
 
@@ -152,11 +218,46 @@ public abstract class Module
 
     protected void SendParameter(Enum key, bool value) => sendParameter(key, value ? OscTrue.True : OscFalse.False);
 
-    private void sendParameter(Enum key, object value)
+    private void sendParameter(Enum key, object value) => sendParameter(key.ToString().ToLower(), value);
+
+    private void sendParameter(string key, object value)
     {
-        var address = new Address(DataManager.GetParameter(key));
+        var addressString = OutputParameters[key].Value.ToString()!;
+
+        var address = new Address(addressString);
         var message = new OscMessage(address, new[] { value });
         OscClient.SendMessageAsync(message);
-        OnParameterSent?.Invoke(DataManager.GetParameter(key), value);
+        OnParameterSent?.Invoke(addressString, value);
     }
+
+    #endregion
+
+    #region Loading
+
+    public void PerformLoad()
+    {
+        PerformSave();
+    }
+
+    #endregion
+
+    #region Saving
+
+    public void PerformSave()
+    {
+        using var stream = Storage.CreateFileSafely(FileName);
+        using var w = new StreamWriter(stream);
+
+        w.WriteLine(@"{0}={1}", "enabled", Enabled.Value.ToString());
+
+        foreach (var (lookup, moduleAttributeData) in Settings)
+        {
+            var type = moduleAttributeData.Value.GetType().Name.ToLower();
+            var value = moduleAttributeData.Value;
+
+            w.WriteLine(@"{0}:{1}={2}", type, lookup, value);
+        }
+    }
+
+    #endregion
 }

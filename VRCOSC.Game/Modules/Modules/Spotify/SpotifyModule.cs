@@ -17,22 +17,7 @@ public class SpotifyModule : IntegrationModule
     public override Colour4 Colour => Color4Extensions.FromHex(@"1ed760").Darken(0.5f);
     public override ModuleType Type => ModuleType.Integrations;
     public override string TargetProcess => "spotify";
-    public override string TargetExe => GetSettingAs<string>(SpotifySettings.InstallLocation);
-
-    protected override Dictionary<Enum, (string, string, object)> Settings => new()
-    {
-        { SpotifySettings.ShouldStart, ("Should Start", "Should Spotify start on module run?", false) },
-        { SpotifySettings.InstallLocation, ("Install Location", "The location of your spotify.exe file", $@"C:\Users\{Environment.UserName}\AppData\Roaming\Spotify\spotify.exe") }
-    };
-
-    protected override List<Enum> InputParameters => new()
-    {
-        SpotifyInputParameters.SpotifyPlayPause,
-        SpotifyInputParameters.SpotifyNext,
-        SpotifyInputParameters.SpotifyPrevious,
-        SpotifyInputParameters.SpotifyVolumeUp,
-        SpotifyInputParameters.SpotifyVolumeDown
-    };
+    public override string TargetExe => GetSetting<string>(SpotifySettings.InstallLocation);
 
     protected override Dictionary<Enum, WindowsVKey[]> KeyCombinations => new()
     {
@@ -43,9 +28,21 @@ public class SpotifyModule : IntegrationModule
         { SpotifyInputParameters.SpotifyVolumeDown, new[] { WindowsVKey.VK_LCONTROL, WindowsVKey.VK_DOWN } }
     };
 
-    protected override void OnStart()
+    public override void CreateAttributes()
     {
-        var shouldStart = GetSettingAs<bool>(SpotifySettings.ShouldStart);
+        CreateSetting(SpotifySettings.ShouldStart, "Should Start", "Should Spotify start on module run", false);
+        CreateSetting(SpotifySettings.InstallLocation, "Install Location", "The location of your spotify.exe file", $@"C:\Users\{Environment.UserName}\AppData\Roaming\Spotify\spotify.exe");
+
+        RegisterInputParameter(SpotifyInputParameters.SpotifyPlayPause, typeof(bool));
+        RegisterInputParameter(SpotifyInputParameters.SpotifyNext, typeof(bool));
+        RegisterInputParameter(SpotifyInputParameters.SpotifyPrevious, typeof(bool));
+        RegisterInputParameter(SpotifyInputParameters.SpotifyVolumeUp, typeof(bool));
+        RegisterInputParameter(SpotifyInputParameters.SpotifyVolumeDown, typeof(bool));
+    }
+
+    public override void Start()
+    {
+        var shouldStart = GetSetting<bool>(SpotifySettings.ShouldStart);
         if (shouldStart) StartTarget();
     }
 

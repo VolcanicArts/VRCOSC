@@ -9,20 +9,23 @@ namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Settings;
 
 public class SettingBaseCard : AttributeCard
 {
-    public string Key { get; set; }
-    public Module SourceModule { get; set; }
+    protected readonly ModuleAttributeData attributeData;
+
+    public SettingBaseCard(ModuleAttributeData attributeData)
+    {
+        this.attributeData = attributeData;
+    }
 
     [BackgroundDependencyLoader]
     private void load()
     {
         Height = 100;
 
-        TextFlow.AddText(SourceModule.DataManager.Settings[Key].DisplayName, t =>
+        TextFlow.AddText(attributeData.DisplayName, t =>
         {
             t.Font = FrameworkFont.Regular.With(size: 30);
         });
-        TextFlow.AddText("\n");
-        TextFlow.AddText(SourceModule.DataManager.Settings[Key].Description, t =>
+        TextFlow.AddParagraph(attributeData.Description, t =>
         {
             t.Font = FrameworkFont.Regular.With(size: 20);
             t.Colour = VRCOSCColour.Gray9;

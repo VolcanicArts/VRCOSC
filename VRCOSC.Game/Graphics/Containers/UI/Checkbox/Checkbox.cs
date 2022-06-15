@@ -12,7 +12,7 @@ namespace VRCOSC.Game.Graphics.Containers.UI.Checkbox;
 
 public class Checkbox : IconButton
 {
-    public BindableBool State { get; } = new();
+    public BindableBool State { get; init; } = new();
     public IconUsage IconOn { get; init; } = FontAwesome.Solid.Check;
     public IconUsage IconOff { get; init; } = FontAwesome.Solid.Get(0xf00d);
     public Colour4 ColourOn { get; init; } = VRCOSCColour.Green;

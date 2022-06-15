@@ -6,11 +6,17 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osuTK;
 using VRCOSC.Game.Graphics.Containers.UI.TextBox;
+using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Settings;
 
 public class SettingStringCard : SettingBaseCard
 {
+    public SettingStringCard(ModuleAttributeData attributeData)
+        : base(attributeData)
+    {
+    }
+
     [BackgroundDependencyLoader]
     private void load()
     {
@@ -29,7 +35,7 @@ public class SettingStringCard : SettingBaseCard
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 BorderThickness = 3,
-                Text = SourceModule.DataManager.GetSettingAs<string>(Key)
+                Text = (string)attributeData.Value
             }
         });
 
@@ -37,7 +43,7 @@ public class SettingStringCard : SettingBaseCard
 
         ResetToDefault.Action += () =>
         {
-            var defaultValue = SourceModule.GetDefaultSetting<string>(Key);
+            var defaultValue = (string)attributeData.DefaultValue;
             updateSetting(defaultValue);
             textBox.Text = defaultValue;
         };
@@ -47,9 +53,9 @@ public class SettingStringCard : SettingBaseCard
 
     private void updateSetting(string newValue)
     {
-        SourceModule.DataManager.UpdateStringSetting(Key, newValue);
+        attributeData.Value = newValue;
 
-        if (!SourceModule.GetDefaultSetting<string>(Key).Equals(SourceModule.DataManager.GetSettingAs<string>(Key)))
+        if (!attributeData.IsDefault())
         {
             ResetToDefault.Show();
         }

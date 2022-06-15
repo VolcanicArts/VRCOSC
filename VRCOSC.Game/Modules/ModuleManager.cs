@@ -42,16 +42,17 @@ public sealed class ModuleManager : Container<ModuleGroup>
     {
         List<Module> modules = ReflectiveEnumerator.GetEnumerableOfType<Module>();
 
+        var moduleStorage = storage.GetStorageForDirectory("modules");
+
         foreach (ModuleType type in Enum.GetValues(typeof(ModuleType)))
         {
             var moduleGroup = new ModuleGroup(type);
 
             foreach (var module in modules.Where(module => module.Type.Equals(type)))
             {
-                module.DataManager = new ModuleDataManager(storage, module.GetType().Name);
-                module.OscClient = sendingClient;
+                module.Initialise(moduleStorage, sendingClient);
                 module.CreateAttributes();
-                module.DataManager.LoadData();
+                module.PerformLoad();
                 module.OnParameterSent += (key, value) => OnParameterSent.Invoke(key, value);
                 module.OnParameterReceived += (key, value) => OnParameterReceived.Invoke(key, value);
                 moduleGroup.Add(new ModuleContainer(module));
