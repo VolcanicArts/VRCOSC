@@ -103,14 +103,6 @@ public abstract class Module
 
     #endregion
 
-    #region Parameters
-
-    public string GetOutputParameter(Enum lookup) => GetOutputParameter(lookup.ToString().ToLower());
-
-    public string GetOutputParameter(string lookup) => (string)OutputParameters[lookup].Attribute.Value;
-
-    #endregion
-
     #region IncomingParameters
 
     public void OnOSCMessage(OscMessage message)
@@ -163,6 +155,10 @@ public abstract class Module
     #endregion
 
     #region OutgoingParameters
+
+    public string GetOutputParameter(Enum lookup) => GetOutputParameter(lookup.ToString().ToLower());
+
+    public string GetOutputParameter(string lookup) => (string)OutputParameters[lookup].Attribute.Value;
 
     protected void SendParameter(Enum key, int value) => sendParameter(key, value);
 
