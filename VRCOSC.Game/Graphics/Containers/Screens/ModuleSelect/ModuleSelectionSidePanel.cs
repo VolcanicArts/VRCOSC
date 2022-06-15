@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -9,6 +10,7 @@ using osu.Framework.Graphics.Effects;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osuTK.Graphics;
+using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics.Containers.UI.Button;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
@@ -17,6 +19,11 @@ public class ModuleSelectionSidePanel : Container
 {
     [Resolved]
     private ScreenManager screenManager { get; set; }
+
+    [Resolved]
+    private VRCOSCConfigManager configManager { get; set; }
+
+    private BindableBool runButtonEnableBindable;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -29,6 +36,9 @@ public class ModuleSelectionSidePanel : Container
             Type = EdgeEffectType.Shadow
         };
 
+        runButtonEnableBindable = (BindableBool)configManager.GetBindable<bool>(VRCOSCSetting.AutoStartStop);
+
+        IconButton runButton;
         Children = new Drawable[]
         {
             new Box
@@ -67,7 +77,7 @@ public class ModuleSelectionSidePanel : Container
                             Origin = Anchor.Centre,
                             RelativeSizeAxes = Axes.Both,
                             Padding = new MarginPadding(7),
-                            Child = new IconButton
+                            Child = runButton = new IconButton
                             {
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
@@ -85,5 +95,7 @@ public class ModuleSelectionSidePanel : Container
                 }
             }
         };
+
+        runButtonEnableBindable.BindValueChanged(e => runButton.Enabled.Value = !e.NewValue, true);
     }
 }

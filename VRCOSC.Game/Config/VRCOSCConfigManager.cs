@@ -18,7 +18,7 @@ public class VRCOSCConfigManager : IniConfigManager<VRCOSCSetting>
     protected override void InitialiseDefaults()
     {
         SetDefault(VRCOSCSetting.ShowExperimental, true);
-        SetDefault(VRCOSCSetting.AutoStartStop, true);
+        SetDefault(VRCOSCSetting.AutoStartStop, false);
     }
 }
 
