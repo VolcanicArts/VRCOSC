@@ -39,7 +39,7 @@ public abstract class IntegrationModule : Module
 
     protected void RegisterKeyCombination(Enum lookup, params WindowsVKey[] keys)
     {
-        KeyCombinations[lookup] = keys;
+        KeyCombinations.Add(lookup, keys);
     }
 
     protected void StopTarget()
