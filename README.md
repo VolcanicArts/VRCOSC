@@ -22,7 +22,7 @@ Want to make your own module? Check the (work in progress) [wiki page](https://g
 | HypeRate | Sends [HypeRate.io](https://www.hyperate.io/supported-devices) heartrate values to display your live heartrate in game | | VRCOSC-Heartrate.unitypackage |
 | Clock | Sends your local time as hours, minutes, and seconds | | VRCOSC-Watch.unitypackage |
 | Calculator | Calculator integration. Uses the Windows OS calculator | | |
-| Computer Stats | Sends your system stats. Currently CPU, GPU, and RAM | | |
+| Hardware Stats | Sends your system stats | | |
 | Random | Sends a random float between 0 and 1 every second | | |
 
 ## License
