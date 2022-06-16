@@ -6,6 +6,7 @@ using VRCOSC.Game.Modules.Frameworks;
 
 namespace VRCOSC.Game.Modules.Modules.VRChatDebug;
 
+// ReSharper disable once InconsistentNaming
 public class VRChatDebugModule : Module
 {
     public override string Title => "VRChat Debug";
@@ -16,24 +17,24 @@ public class VRChatDebugModule : Module
 
     public override void CreateAttributes()
     {
-        RegisterInputParameter(VRChatInputParameters.IsLocal, typeof(bool));
-        RegisterInputParameter(VRChatInputParameters.Viseme, typeof(int));
-        RegisterInputParameter(VRChatInputParameters.Voice, typeof(float));
-        RegisterInputParameter(VRChatInputParameters.GestureLeft, typeof(int));
-        RegisterInputParameter(VRChatInputParameters.GestureRight, typeof(int));
-        RegisterInputParameter(VRChatInputParameters.GestureLeftWeight, typeof(float));
-        RegisterInputParameter(VRChatInputParameters.GestureRightWeight, typeof(float));
-        RegisterInputParameter(VRChatInputParameters.AngularY, typeof(int));
-        RegisterInputParameter(VRChatInputParameters.VelocityX, typeof(int));
-        RegisterInputParameter(VRChatInputParameters.VelocityY, typeof(int));
-        RegisterInputParameter(VRChatInputParameters.VelocityZ, typeof(int));
-        RegisterInputParameter(VRChatInputParameters.Upright, typeof(bool));
-        RegisterInputParameter(VRChatInputParameters.Grounded, typeof(bool));
-        RegisterInputParameter(VRChatInputParameters.Seated, typeof(bool));
-        RegisterInputParameter(VRChatInputParameters.AFK, typeof(bool));
-        RegisterInputParameter(VRChatInputParameters.TrackingType, typeof(int));
-        RegisterInputParameter(VRChatInputParameters.VRMode, typeof(int));
-        RegisterInputParameter(VRChatInputParameters.MuteSelf, typeof(bool));
-        RegisterInputParameter(VRChatInputParameters.InStation, typeof(bool));
+        RegisterInputParameter(VRChatInputParameter.IsLocal, typeof(bool));
+        RegisterInputParameter(VRChatInputParameter.Viseme, typeof(int));
+        RegisterInputParameter(VRChatInputParameter.Voice, typeof(float));
+        RegisterInputParameter(VRChatInputParameter.GestureLeft, typeof(int));
+        RegisterInputParameter(VRChatInputParameter.GestureRight, typeof(int));
+        RegisterInputParameter(VRChatInputParameter.GestureLeftWeight, typeof(float));
+        RegisterInputParameter(VRChatInputParameter.GestureRightWeight, typeof(float));
+        RegisterInputParameter(VRChatInputParameter.AngularY, typeof(int));
+        RegisterInputParameter(VRChatInputParameter.VelocityX, typeof(int));
+        RegisterInputParameter(VRChatInputParameter.VelocityY, typeof(int));
+        RegisterInputParameter(VRChatInputParameter.VelocityZ, typeof(int));
+        RegisterInputParameter(VRChatInputParameter.Upright, typeof(bool));
+        RegisterInputParameter(VRChatInputParameter.Grounded, typeof(bool));
+        RegisterInputParameter(VRChatInputParameter.Seated, typeof(bool));
+        RegisterInputParameter(VRChatInputParameter.AFK, typeof(bool));
+        RegisterInputParameter(VRChatInputParameter.TrackingType, typeof(int));
+        RegisterInputParameter(VRChatInputParameter.VRMode, typeof(int));
+        RegisterInputParameter(VRChatInputParameter.MuteSelf, typeof(bool));
+        RegisterInputParameter(VRChatInputParameter.InStation, typeof(bool));
     }
 }

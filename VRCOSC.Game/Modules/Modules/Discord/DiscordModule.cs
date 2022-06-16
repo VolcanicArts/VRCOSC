@@ -19,11 +19,11 @@ public class DiscordModule : IntegrationModule
 
     public override void CreateAttributes()
     {
-        RegisterInputParameter(DiscordInputParameters.DiscordMic, typeof(bool));
-        RegisterInputParameter(DiscordInputParameters.DiscordDeafen, typeof(bool));
+        RegisterInputParameter(DiscordInputParameter.DiscordMic, typeof(bool));
+        RegisterInputParameter(DiscordInputParameter.DiscordDeafen, typeof(bool));
 
-        RegisterKeyCombination(DiscordInputParameters.DiscordMic, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_LSHIFT, WindowsVKey.VK_M);
-        RegisterKeyCombination(DiscordInputParameters.DiscordDeafen, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_LSHIFT, WindowsVKey.VK_D);
+        RegisterKeyCombination(DiscordInputParameter.DiscordMic, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_LSHIFT, WindowsVKey.VK_M);
+        RegisterKeyCombination(DiscordInputParameter.DiscordDeafen, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_LSHIFT, WindowsVKey.VK_D);
     }
 
     protected override void OnBoolParameterReceived(Enum key, bool value)
@@ -34,10 +34,10 @@ public class DiscordModule : IntegrationModule
 
         ExecuteShortcut(key);
     }
-}
 
-public enum DiscordInputParameters
-{
-    DiscordMic,
-    DiscordDeafen
+    private enum DiscordInputParameter
+    {
+        DiscordMic,
+        DiscordDeafen
+    }
 }

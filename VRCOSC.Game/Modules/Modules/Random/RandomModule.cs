@@ -18,17 +18,17 @@ public class RandomModule : Module
 
     public override void CreateAttributes()
     {
-        CreateOutputParameter(RandomParameter.RandomValue, "Random Value", "A random float value between 0 and 1", "/avatar/parameters/RandomValue");
+        CreateOutputParameter(RandomOutputParameter.RandomValue, "Random Value", "A random float value between 0 and 1", "/avatar/parameters/RandomValue");
     }
 
     public override void Update()
     {
         float randomFloat = (float)random.NextDouble();
-        SendParameter(RandomParameter.RandomValue, randomFloat);
+        SendParameter(RandomOutputParameter.RandomValue, randomFloat);
     }
-}
 
-public enum RandomParameter
-{
-    RandomValue
+    private enum RandomOutputParameter
+    {
+        RandomValue
+    }
 }

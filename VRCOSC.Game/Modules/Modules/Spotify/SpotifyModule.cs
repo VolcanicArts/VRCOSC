@@ -16,29 +16,29 @@ public class SpotifyModule : IntegrationModule
     public override Colour4 Colour => Color4Extensions.FromHex(@"1ed760").Darken(0.5f);
     public override ModuleType ModuleType => ModuleType.Integrations;
     public override string TargetProcess => "spotify";
-    public override string TargetExe => GetSetting<string>(SpotifySettings.InstallLocation);
+    public override string TargetExe => GetSetting<string>(SpotifySetting.InstallLocation);
 
     public override void CreateAttributes()
     {
-        CreateSetting(SpotifySettings.ShouldStart, "Should Start", "Should Spotify start on module run", false);
-        CreateSetting(SpotifySettings.InstallLocation, "Install Location", "The location of your spotify.exe file", $@"C:\Users\{Environment.UserName}\AppData\Roaming\Spotify\spotify.exe");
+        CreateSetting(SpotifySetting.ShouldStart, "Should Start", "Should Spotify start on module run", false);
+        CreateSetting(SpotifySetting.InstallLocation, "Install Location", "The location of your spotify.exe file", $@"C:\Users\{Environment.UserName}\AppData\Roaming\Spotify\spotify.exe");
 
-        RegisterInputParameter(SpotifyInputParameters.SpotifyPlayPause, typeof(bool));
-        RegisterInputParameter(SpotifyInputParameters.SpotifyNext, typeof(bool));
-        RegisterInputParameter(SpotifyInputParameters.SpotifyPrevious, typeof(bool));
-        RegisterInputParameter(SpotifyInputParameters.SpotifyVolumeUp, typeof(bool));
-        RegisterInputParameter(SpotifyInputParameters.SpotifyVolumeDown, typeof(bool));
+        RegisterInputParameter(SpotifyInputParameter.SpotifyPlayPause, typeof(bool));
+        RegisterInputParameter(SpotifyInputParameter.SpotifyNext, typeof(bool));
+        RegisterInputParameter(SpotifyInputParameter.SpotifyPrevious, typeof(bool));
+        RegisterInputParameter(SpotifyInputParameter.SpotifyVolumeUp, typeof(bool));
+        RegisterInputParameter(SpotifyInputParameter.SpotifyVolumeDown, typeof(bool));
 
-        RegisterKeyCombination(SpotifyInputParameters.SpotifyPlayPause, WindowsVKey.VK_SPACE);
-        RegisterKeyCombination(SpotifyInputParameters.SpotifyNext, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_RIGHT);
-        RegisterKeyCombination(SpotifyInputParameters.SpotifyPrevious, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_LEFT);
-        RegisterKeyCombination(SpotifyInputParameters.SpotifyVolumeUp, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_UP);
-        RegisterKeyCombination(SpotifyInputParameters.SpotifyVolumeDown, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_DOWN);
+        RegisterKeyCombination(SpotifyInputParameter.SpotifyPlayPause, WindowsVKey.VK_SPACE);
+        RegisterKeyCombination(SpotifyInputParameter.SpotifyNext, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_RIGHT);
+        RegisterKeyCombination(SpotifyInputParameter.SpotifyPrevious, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_LEFT);
+        RegisterKeyCombination(SpotifyInputParameter.SpotifyVolumeUp, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_UP);
+        RegisterKeyCombination(SpotifyInputParameter.SpotifyVolumeDown, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_DOWN);
     }
 
     public override void Start()
     {
-        var shouldStart = GetSetting<bool>(SpotifySettings.ShouldStart);
+        var shouldStart = GetSetting<bool>(SpotifySetting.ShouldStart);
         if (shouldStart) StartTarget();
     }
 
@@ -50,19 +50,19 @@ public class SpotifyModule : IntegrationModule
 
         ExecuteShortcut(key);
     }
-}
 
-public enum SpotifySettings
-{
-    ShouldStart,
-    InstallLocation
-}
+    private enum SpotifySetting
+    {
+        ShouldStart,
+        InstallLocation
+    }
 
-public enum SpotifyInputParameters
-{
-    SpotifyPlayPause,
-    SpotifyNext,
-    SpotifyPrevious,
-    SpotifyVolumeUp,
-    SpotifyVolumeDown
+    private enum SpotifyInputParameter
+    {
+        SpotifyPlayPause,
+        SpotifyNext,
+        SpotifyPrevious,
+        SpotifyVolumeUp,
+        SpotifyVolumeDown
+    }
 }

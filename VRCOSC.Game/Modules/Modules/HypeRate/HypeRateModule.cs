@@ -20,20 +20,20 @@ public class HypeRateModule : Module
 
     public override void CreateAttributes()
     {
-        CreateSetting(HypeRateSettings.Id, "HypeRate ID", "Your HypeRate ID given on your device", string.Empty);
+        CreateSetting(HypeRateSetting.Id, "HypeRate ID", "Your HypeRate ID given on your device", string.Empty);
 
-        CreateOutputParameter(HypeRateParameter.HeartrateEnabled, "Heartrate Enabled", "Whether this module is attempting to emit values", "/avatar/parameters/HeartrateEnabled");
-        CreateOutputParameter(HypeRateParameter.HeartrateNormalised, "Heartrate Normalised", "The heartrate value normalised to 60bpm", "/avatar/parameters/HeartrateNormalised");
-        CreateOutputParameter(HypeRateParameter.HeartrateUnits, "Heartrate Units", "The units digit 0-9 mapped to a float", "/avatar/parameters/HeartrateUnits");
-        CreateOutputParameter(HypeRateParameter.HeartrateTens, "Heartrate Tens", "The tens digit 0-9 mapped to a float", "/avatar/parameters/HeartrateTens");
-        CreateOutputParameter(HypeRateParameter.HeartrateHundreds, "Heartrate Hundreds", "The hundreds digit 0-9 mapped to a float", "/avatar/parameters/HeartrateHundreds");
+        CreateOutputParameter(HypeRateOutputParameter.HeartrateEnabled, "Heartrate Enabled", "Whether this module is attempting to emit values", "/avatar/parameters/HeartrateEnabled");
+        CreateOutputParameter(HypeRateOutputParameter.HeartrateNormalised, "Heartrate Normalised", "The heartrate value normalised to 60bpm", "/avatar/parameters/HeartrateNormalised");
+        CreateOutputParameter(HypeRateOutputParameter.HeartrateUnits, "Heartrate Units", "The units digit 0-9 mapped to a float", "/avatar/parameters/HeartrateUnits");
+        CreateOutputParameter(HypeRateOutputParameter.HeartrateTens, "Heartrate Tens", "The tens digit 0-9 mapped to a float", "/avatar/parameters/HeartrateTens");
+        CreateOutputParameter(HypeRateOutputParameter.HeartrateHundreds, "Heartrate Hundreds", "The hundreds digit 0-9 mapped to a float", "/avatar/parameters/HeartrateHundreds");
     }
 
     public override void Start()
     {
-        SendParameter(HypeRateParameter.HeartrateEnabled, false);
+        SendParameter(HypeRateOutputParameter.HeartrateEnabled, false);
 
-        var hypeRateId = GetSetting<string>(HypeRateSettings.Id);
+        var hypeRateId = GetSetting<string>(HypeRateSetting.Id);
 
         if (string.IsNullOrEmpty(hypeRateId))
         {
@@ -43,8 +43,8 @@ public class HypeRateModule : Module
 
         hypeRateProvider = new HypeRateProvider(hypeRateId, VRCOSCSecrets.KEYS_HYPERATE);
         hypeRateProvider.OnHeartRateUpdate += handleHeartRateUpdate;
-        hypeRateProvider.OnConnected += () => SendParameter(HypeRateParameter.HeartrateEnabled, true);
-        hypeRateProvider.OnDisconnected += () => SendParameter(HypeRateParameter.HeartrateEnabled, false);
+        hypeRateProvider.OnConnected += () => SendParameter(HypeRateOutputParameter.HeartrateEnabled, true);
+        hypeRateProvider.OnDisconnected += () => SendParameter(HypeRateOutputParameter.HeartrateEnabled, false);
         hypeRateProvider.OnWsHeartbeat += handleWsHeartbeat;
         hypeRateProvider.Connect();
     }
@@ -55,16 +55,16 @@ public class HypeRateModule : Module
         var normalisedHeartRate = heartrate / 60.0f;
         var individualValues = ModuleHelper.ToDigitArray(heartrate, 3);
 
-        SendParameter(HypeRateParameter.HeartrateEnabled, true);
-        SendParameter(HypeRateParameter.HeartrateNormalised, normalisedHeartRate);
-        SendParameter(HypeRateParameter.HeartrateUnits, individualValues[2] / 10f);
-        SendParameter(HypeRateParameter.HeartrateTens, individualValues[1] / 10f);
-        SendParameter(HypeRateParameter.HeartrateHundreds, individualValues[0] / 10f);
+        SendParameter(HypeRateOutputParameter.HeartrateEnabled, true);
+        SendParameter(HypeRateOutputParameter.HeartrateNormalised, normalisedHeartRate);
+        SendParameter(HypeRateOutputParameter.HeartrateUnits, individualValues[2] / 10f);
+        SendParameter(HypeRateOutputParameter.HeartrateTens, individualValues[1] / 10f);
+        SendParameter(HypeRateOutputParameter.HeartrateHundreds, individualValues[0] / 10f);
     }
 
     private void handleWsHeartbeat()
     {
-        if (!receivedHeartrate) SendParameter(HypeRateParameter.HeartrateEnabled, false);
+        if (!receivedHeartrate) SendParameter(HypeRateOutputParameter.HeartrateEnabled, false);
         receivedHeartrate = false;
     }
 
@@ -72,18 +72,18 @@ public class HypeRateModule : Module
     {
         hypeRateProvider?.Disconnect();
     }
-}
 
-public enum HypeRateSettings
-{
-    Id
-}
+    private enum HypeRateSetting
+    {
+        Id
+    }
 
-public enum HypeRateParameter
-{
-    HeartrateEnabled,
-    HeartrateNormalised,
-    HeartrateUnits,
-    HeartrateTens,
-    HeartrateHundreds
+    private enum HypeRateOutputParameter
+    {
+        HeartrateEnabled,
+        HeartrateNormalised,
+        HeartrateUnits,
+        HeartrateTens,
+        HeartrateHundreds
+    }
 }

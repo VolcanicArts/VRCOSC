@@ -19,13 +19,13 @@ public class MediaModule : IntegrationModule
 
     public override void CreateAttributes()
     {
-        RegisterInputParameter(MediaInputParameters.MediaPlayPause, typeof(bool));
-        RegisterInputParameter(MediaInputParameters.MediaNext, typeof(bool));
-        RegisterInputParameter(MediaInputParameters.MediaPrevious, typeof(bool));
+        RegisterInputParameter(MediaInputParameter.MediaPlayPause, typeof(bool));
+        RegisterInputParameter(MediaInputParameter.MediaNext, typeof(bool));
+        RegisterInputParameter(MediaInputParameter.MediaPrevious, typeof(bool));
 
-        RegisterKeyCombination(MediaInputParameters.MediaPlayPause, WindowsVKey.VK_MEDIA_PLAY_PAUSE);
-        RegisterKeyCombination(MediaInputParameters.MediaNext, WindowsVKey.VK_MEDIA_NEXT_TRACK);
-        RegisterKeyCombination(MediaInputParameters.MediaPrevious, WindowsVKey.VK_MEDIA_PREV_TRACK);
+        RegisterKeyCombination(MediaInputParameter.MediaPlayPause, WindowsVKey.VK_MEDIA_PLAY_PAUSE);
+        RegisterKeyCombination(MediaInputParameter.MediaNext, WindowsVKey.VK_MEDIA_NEXT_TRACK);
+        RegisterKeyCombination(MediaInputParameter.MediaPrevious, WindowsVKey.VK_MEDIA_PREV_TRACK);
     }
 
     protected override void OnBoolParameterReceived(Enum key, bool value)
@@ -36,11 +36,11 @@ public class MediaModule : IntegrationModule
 
         ExecuteShortcut(key);
     }
-}
 
-public enum MediaInputParameters
-{
-    MediaPlayPause,
-    MediaNext,
-    MediaPrevious
+    private enum MediaInputParameter
+    {
+        MediaPlayPause,
+        MediaNext,
+        MediaPrevious
+    }
 }

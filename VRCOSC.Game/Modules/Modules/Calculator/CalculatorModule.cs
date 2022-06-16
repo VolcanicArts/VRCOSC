@@ -23,26 +23,26 @@ public class CalculatorModule : IntegrationModule
 
     public override void CreateAttributes()
     {
-        CreateOutputParameter(CalculatorAttributes.CalculatorSendValue, "Send Value", "Send the current value of the calculator", "/avatar/parameters/CalculatorResult");
+        CreateOutputParameter(CalculatorOutputParameter.CalculatorSendValue, "Send Value", "Send the current value of the calculator", "/avatar/parameters/CalculatorResult");
 
-        RegisterInputParameter(CalculatorInputParameters.CalculatorOpen, typeof(bool));
-        RegisterInputParameter(CalculatorInputParameters.CalculatorClose, typeof(bool));
-        RegisterInputParameter(CalculatorInputParameters.CalculatorClear, typeof(bool));
-        RegisterInputParameter(CalculatorInputParameters.CalculatorCalculate, typeof(bool));
-        RegisterInputParameter(CalculatorInputParameters.CalculatorCopyValue, typeof(bool));
-        RegisterInputParameter(CalculatorInputParameters.CalculatorAdd, typeof(bool));
-        RegisterInputParameter(CalculatorInputParameters.CalculatorSubtract, typeof(bool));
-        RegisterInputParameter(CalculatorInputParameters.CalculatorMultiply, typeof(bool));
-        RegisterInputParameter(CalculatorInputParameters.CalculatorDivide, typeof(bool));
-        RegisterInputParameter(CalculatorInputParameters.CalculatorNumber, typeof(float));
+        RegisterInputParameter(CalculatorInputParameter.CalculatorOpen, typeof(bool));
+        RegisterInputParameter(CalculatorInputParameter.CalculatorClose, typeof(bool));
+        RegisterInputParameter(CalculatorInputParameter.CalculatorClear, typeof(bool));
+        RegisterInputParameter(CalculatorInputParameter.CalculatorCalculate, typeof(bool));
+        RegisterInputParameter(CalculatorInputParameter.CalculatorCopyValue, typeof(bool));
+        RegisterInputParameter(CalculatorInputParameter.CalculatorAdd, typeof(bool));
+        RegisterInputParameter(CalculatorInputParameter.CalculatorSubtract, typeof(bool));
+        RegisterInputParameter(CalculatorInputParameter.CalculatorMultiply, typeof(bool));
+        RegisterInputParameter(CalculatorInputParameter.CalculatorDivide, typeof(bool));
+        RegisterInputParameter(CalculatorInputParameter.CalculatorNumber, typeof(float));
 
-        RegisterKeyCombination(CalculatorInputParameters.CalculatorClear, WindowsVKey.VK_ESCAPE);
-        RegisterKeyCombination(CalculatorInputParameters.CalculatorCalculate, WindowsVKey.VK_RETURN);
-        RegisterKeyCombination(CalculatorInputParameters.CalculatorCopyValue, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_C);
-        RegisterKeyCombination(CalculatorInputParameters.CalculatorAdd, WindowsVKey.VK_ADD);
-        RegisterKeyCombination(CalculatorInputParameters.CalculatorSubtract, WindowsVKey.VK_SUBTRACT);
-        RegisterKeyCombination(CalculatorInputParameters.CalculatorMultiply, WindowsVKey.VK_MULTIPLY);
-        RegisterKeyCombination(CalculatorInputParameters.CalculatorDivide, WindowsVKey.VK_DIVIDE);
+        RegisterKeyCombination(CalculatorInputParameter.CalculatorClear, WindowsVKey.VK_ESCAPE);
+        RegisterKeyCombination(CalculatorInputParameter.CalculatorCalculate, WindowsVKey.VK_RETURN);
+        RegisterKeyCombination(CalculatorInputParameter.CalculatorCopyValue, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_C);
+        RegisterKeyCombination(CalculatorInputParameter.CalculatorAdd, WindowsVKey.VK_ADD);
+        RegisterKeyCombination(CalculatorInputParameter.CalculatorSubtract, WindowsVKey.VK_SUBTRACT);
+        RegisterKeyCombination(CalculatorInputParameter.CalculatorMultiply, WindowsVKey.VK_MULTIPLY);
+        RegisterKeyCombination(CalculatorInputParameter.CalculatorDivide, WindowsVKey.VK_DIVIDE);
         RegisterKeyCombination(CalculatorNumbers.CalculatorNumber0, WindowsVKey.VK_NUMPAD0);
         RegisterKeyCombination(CalculatorNumbers.CalculatorNumber1, WindowsVKey.VK_NUMPAD1);
         RegisterKeyCombination(CalculatorNumbers.CalculatorNumber2, WindowsVKey.VK_NUMPAD2);
@@ -69,17 +69,17 @@ public class CalculatorModule : IntegrationModule
 
         switch (key)
         {
-            case CalculatorInputParameters.CalculatorOpen:
+            case CalculatorInputParameter.CalculatorOpen:
                 if (!isCalculatorOpen) StartTarget();
                 isCalculatorOpen = true;
                 break;
 
-            case CalculatorInputParameters.CalculatorClose:
+            case CalculatorInputParameter.CalculatorClose:
                 if (isCalculatorOpen) StopTarget();
                 isCalculatorOpen = false;
                 break;
 
-            case CalculatorInputParameters.CalculatorCopyValue:
+            case CalculatorInputParameter.CalculatorCopyValue:
                 sendResult();
                 break;
         }
@@ -89,7 +89,7 @@ public class CalculatorModule : IntegrationModule
 
     protected override void OnFloatParameterReceived(Enum key, float value)
     {
-        if (!key.Equals(CalculatorInputParameters.CalculatorNumber) || !isCalculatorOpen) return;
+        if (!key.Equals(CalculatorInputParameter.CalculatorNumber) || !isCalculatorOpen) return;
 
         var number = (int)Math.Round(value * 9);
         ExecuteShortcut(CalculatorNumbers.CalculatorNumber0 + number); // Holy shit if this works then I'm so fucking lucky
@@ -109,41 +109,41 @@ public class CalculatorModule : IntegrationModule
 
     private void sendResult()
     {
-        ExecuteShortcut(CalculatorInputParameters.CalculatorCopyValue);
+        ExecuteShortcut(CalculatorInputParameter.CalculatorCopyValue);
         calculatorResult = returnClipboardValue();
-        SendParameter(CalculatorAttributes.CalculatorSendValue, calculatorResult);
+        SendParameter(CalculatorOutputParameter.CalculatorSendValue, calculatorResult);
     }
-}
 
-public enum CalculatorNumbers
-{
-    CalculatorNumber0,
-    CalculatorNumber1,
-    CalculatorNumber2,
-    CalculatorNumber3,
-    CalculatorNumber4,
-    CalculatorNumber5,
-    CalculatorNumber6,
-    CalculatorNumber7,
-    CalculatorNumber8,
-    CalculatorNumber9
-}
+    private enum CalculatorNumbers
+    {
+        CalculatorNumber0,
+        CalculatorNumber1,
+        CalculatorNumber2,
+        CalculatorNumber3,
+        CalculatorNumber4,
+        CalculatorNumber5,
+        CalculatorNumber6,
+        CalculatorNumber7,
+        CalculatorNumber8,
+        CalculatorNumber9
+    }
 
-public enum CalculatorInputParameters
-{
-    CalculatorOpen,
-    CalculatorClose,
-    CalculatorClear,
-    CalculatorCalculate,
-    CalculatorCopyValue,
-    CalculatorAdd,
-    CalculatorSubtract,
-    CalculatorMultiply,
-    CalculatorDivide,
-    CalculatorNumber
-}
+    private enum CalculatorInputParameter
+    {
+        CalculatorOpen,
+        CalculatorClose,
+        CalculatorClear,
+        CalculatorCalculate,
+        CalculatorCopyValue,
+        CalculatorAdd,
+        CalculatorSubtract,
+        CalculatorMultiply,
+        CalculatorDivide,
+        CalculatorNumber
+    }
 
-public enum CalculatorAttributes
-{
-    CalculatorSendValue
+    private enum CalculatorOutputParameter
+    {
+        CalculatorSendValue
+    }
 }

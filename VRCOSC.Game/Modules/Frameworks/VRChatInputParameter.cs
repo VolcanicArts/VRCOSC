@@ -3,7 +3,8 @@
 
 namespace VRCOSC.Game.Modules.Frameworks;
 
-public enum VRChatInputParameters
+// ReSharper disable once InconsistentNaming
+public enum VRChatInputParameter
 {
     IsLocal,
     Viseme,

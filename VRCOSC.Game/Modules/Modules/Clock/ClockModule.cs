@@ -15,21 +15,21 @@ public class ClockModule : Module
     public override string Author => "VolcanicArts";
     public override Colour4 Colour => VRCOSCColour.Blue.Darken(0.25f);
     public override ModuleType ModuleType => ModuleType.General;
-    public override double DeltaUpdate => GetSetting<bool>(ClockSettings.SmoothSecond) ? 50d : 1000d;
+    public override double DeltaUpdate => GetSetting<bool>(ClockSetting.SmoothSecond) ? 50d : 1000d;
 
     public override void CreateAttributes()
     {
-        CreateSetting(ClockSettings.UTC, "UTC", "Send the time as UTC rather than your local time", false);
-        CreateSetting(ClockSettings.SmoothSecond, "Smooth Second", "If the seconds hand should be smooth", false);
+        CreateSetting(ClockSetting.UTC, "UTC", "Send the time as UTC rather than your local time", false);
+        CreateSetting(ClockSetting.SmoothSecond, "Smooth Second", "If the seconds hand should be smooth", false);
 
-        CreateOutputParameter(ClockParameters.Hours, "Hour", "The current hour normalised", "/avatar/parameters/ClockHour");
-        CreateOutputParameter(ClockParameters.Minutes, "Minute", "The current minute normalised", "/avatar/parameters/ClockMinute");
-        CreateOutputParameter(ClockParameters.Seconds, "Second", "The current second normalised", "/avatar/parameters/ClockSecond");
+        CreateOutputParameter(ClockOutputParameter.Hours, "Hour", "The current hour normalised", "/avatar/parameters/ClockHour");
+        CreateOutputParameter(ClockOutputParameter.Minutes, "Minute", "The current minute normalised", "/avatar/parameters/ClockMinute");
+        CreateOutputParameter(ClockOutputParameter.Seconds, "Second", "The current second normalised", "/avatar/parameters/ClockSecond");
     }
 
     public override void Update()
     {
-        var sendAsUtc = GetSetting<bool>(ClockSettings.UTC);
+        var sendAsUtc = GetSetting<bool>(ClockSetting.UTC);
 
         float hour, minute, second, millisecond;
 
@@ -49,7 +49,7 @@ public class ClockModule : Module
         }
 
         // smooth hands
-        if (GetSetting<bool>(ClockSettings.SmoothSecond)) second += millisecond / 1000f;
+        if (GetSetting<bool>(ClockSetting.SmoothSecond)) second += millisecond / 1000f;
         minute += second / 60f;
         hour += minute / 60f;
 
@@ -57,21 +57,21 @@ public class ClockModule : Module
         var minuteNormalised = minute / 60f;
         var secondNormalised = second / 60f;
 
-        SendParameter(ClockParameters.Hours, hourNormalised);
-        SendParameter(ClockParameters.Minutes, minuteNormalised);
-        SendParameter(ClockParameters.Seconds, secondNormalised);
+        SendParameter(ClockOutputParameter.Hours, hourNormalised);
+        SendParameter(ClockOutputParameter.Minutes, minuteNormalised);
+        SendParameter(ClockOutputParameter.Seconds, secondNormalised);
     }
-}
 
-public enum ClockParameters
-{
-    Hours,
-    Minutes,
-    Seconds,
-}
+    private enum ClockOutputParameter
+    {
+        Hours,
+        Minutes,
+        Seconds,
+    }
 
-public enum ClockSettings
-{
-    UTC,
-    SmoothSecond
+    private enum ClockSetting
+    {
+        UTC,
+        SmoothSecond
+    }
 }
