@@ -22,13 +22,12 @@ public abstract class Module
 {
     private Storage Storage = null!;
     private UdpClient OscClient = null!;
-
     protected TerminalLogger Terminal = null!;
 
     public Action<string, object>? OnParameterSent;
     public Action<string, object>? OnParameterReceived;
 
-    public BindableBool Enabled = new();
+    public readonly BindableBool Enabled = new();
 
     public readonly Dictionary<string, ModuleAttributeData> Settings = new();
     public readonly Dictionary<string, ModuleAttributeData> OutputParameters = new();
