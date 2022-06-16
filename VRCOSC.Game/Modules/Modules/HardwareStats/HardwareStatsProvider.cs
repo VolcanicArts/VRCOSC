@@ -6,14 +6,15 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Management;
+using osu.Framework.Extensions.IEnumerableExtensions;
 
 namespace VRCOSC.Game.Modules.Modules.ComputerStats;
 
 public class HardwareStatsProvider : IDisposable
 {
-    private PerformanceCounter cpuUsageProvider;
-    private List<PerformanceCounter> gpuUsageProviders;
-    private ManagementObjectSearcher ramUsageProvider;
+    private PerformanceCounter cpuUsageProvider = null!;
+    private IEnumerable<PerformanceCounter> gpuUsageProviders = null!;
+    private ManagementObjectSearcher ramUsageProvider = null!;
 
     public HardwareStatsProvider()
     {
@@ -29,14 +30,16 @@ public class HardwareStatsProvider : IDisposable
 
     private void initGpu()
     {
-        gpuUsageProviders = new List<PerformanceCounter>();
+        var localGpuUsageProviders = new List<PerformanceCounter>();
 
         var category = new PerformanceCounterCategory("GPU Engine");
 
         foreach (string counterName in category.GetInstanceNames().Where(counterName => counterName.EndsWith("engtype_3D")))
         {
-            gpuUsageProviders.AddRange(category.GetCounters(counterName).Where(counter => counter.CounterName == "Utilization Percentage"));
+            localGpuUsageProviders.AddRange(category.GetCounters(counterName).Where(counter => counter.CounterName == "Utilization Percentage"));
         }
+
+        gpuUsageProviders = localGpuUsageProviders;
     }
 
     private void initRam()
@@ -51,9 +54,7 @@ public class HardwareStatsProvider : IDisposable
 
     public float GetGpuUsage()
     {
-        float usage = 0f;
-        gpuUsageProviders.ForEach(x => usage += x.NextValue());
-        return usage / 100f;
+        return gpuUsageProviders.Aggregate(0f, (current, gpuUsageProvider) => current + gpuUsageProvider.NextValue()) / 100f;
     }
 
     public float GetRamUsage()
