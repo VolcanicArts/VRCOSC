@@ -16,8 +16,9 @@ public abstract class BaseWebSocket : IDisposable
     private readonly TerminalLogger terminal = new(nameof(BaseWebSocket));
     private readonly WebSocket webSocket;
 
-    public Action? OnConnected;
-    public Action? OnDisconnected;
+    public Action? OnWsConnected;
+    public Action? OnWsDisconnected;
+    public Action<string>? OnWsMessage;
 
     protected BaseWebSocket(string uri)
     {
@@ -51,28 +52,20 @@ public abstract class BaseWebSocket : IDisposable
     private void wsConnected(object? sender, EventArgs e)
     {
         terminal.Log("WebSocket successfully connected");
-        OnConnected?.Invoke();
-        OnWsConnected();
+        OnWsConnected?.Invoke();
     }
-
-    protected abstract void OnWsConnected();
 
     private void wsDisconnected(object? sender, EventArgs e)
     {
         terminal.Log("WebSocket disconnected");
-        OnDisconnected?.Invoke();
-        OnWsDisconnected();
+        OnWsDisconnected?.Invoke();
         isRunning.Set();
     }
 
-    protected abstract void OnWsDisconnected();
-
     private void wsMessageReceived(object? sender, MessageReceivedEventArgs e)
     {
-        OnWsMessageReceived(e.Message);
+        OnWsMessage?.Invoke(e.Message);
     }
-
-    protected abstract void OnWsMessageReceived(string message);
 
     private void wsError(object? sender, ErrorEventArgs e)
     {
@@ -82,5 +75,6 @@ public abstract class BaseWebSocket : IDisposable
     public virtual void Dispose()
     {
         webSocket.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

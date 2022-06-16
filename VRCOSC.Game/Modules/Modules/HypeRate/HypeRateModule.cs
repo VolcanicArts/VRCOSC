@@ -43,8 +43,8 @@ public class HypeRateModule : Module
 
         hypeRateProvider = new HypeRateProvider(hypeRateId, VRCOSCSecrets.KEYS_HYPERATE);
         hypeRateProvider.OnHeartRateUpdate += handleHeartRateUpdate;
-        hypeRateProvider.OnConnected += () => SendParameter(HypeRateOutputParameter.HeartrateEnabled, true);
-        hypeRateProvider.OnDisconnected += () => SendParameter(HypeRateOutputParameter.HeartrateEnabled, false);
+        hypeRateProvider.OnWsConnected += () => SendParameter(HypeRateOutputParameter.HeartrateEnabled, true);
+        hypeRateProvider.OnWsDisconnected += () => SendParameter(HypeRateOutputParameter.HeartrateEnabled, false);
         hypeRateProvider.OnWsHeartbeat += handleWsHeartbeat;
         hypeRateProvider.Connect();
     }

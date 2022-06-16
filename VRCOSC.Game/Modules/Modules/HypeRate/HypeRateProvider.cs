@@ -10,36 +10,43 @@ using VRCOSC.Game.Util;
 
 namespace VRCOSC.Game.Modules.Modules.HypeRate;
 
-public class HypeRateProvider : HeartrateProvider
+public class HypeRateProvider : JsonWebSocket
 {
     private const string hype_rate_uri = "wss://app.hyperate.io/socket/websocket?token=";
     private const int heartbeat_internal = 10000;
-    private readonly string id;
-    private Timer? heartBeatTimer;
+
+    private readonly string hyperateId;
     private readonly TerminalLogger terminal = new(nameof(HypeRateModule));
 
-    public Action OnWsHeartbeat;
+    private Timer? heartBeatTimer;
 
-    public HypeRateProvider(string id, string apiKey)
+    public Action<int>? OnHeartRateUpdate;
+    public Action? OnWsHeartbeat;
+
+    public HypeRateProvider(string hyperateId, string apiKey)
         : base(hype_rate_uri + apiKey)
     {
-        this.id = id;
+        this.hyperateId = hyperateId;
+
+        OnWsConnected += OnConnected;
+        OnWsDisconnected += OnDisconnected;
+        OnWsMessage += OnMessage;
     }
 
-    protected override void OnWsConnected()
+    private void OnConnected()
     {
         terminal.Log("Successfully connected to the HypeRate websocket");
         sendJoinChannel();
         initHeartBeat();
     }
 
-    protected override void OnWsDisconnected()
+    private void OnDisconnected()
     {
         terminal.Log("Disconnected from the HypeRate websocket");
         Dispose();
     }
 
-    protected override void OnWsMessageReceived(string message)
+    private void OnMessage(string message)
     {
         var eventModel = JsonConvert.DeserializeObject<EventModel>(message);
 
@@ -63,25 +70,25 @@ public class HypeRateProvider : HeartrateProvider
 
     private void initHeartBeat()
     {
-        heartBeatTimer = new Timer(sendHeartBeat, null, heartbeat_internal, Timeout.Infinite);
+        heartBeatTimer = new Timer(sendHeartBeat, null, heartbeat_internal, 30000);
     }
 
     private void sendHeartBeat(object? _)
     {
         terminal.Log("Sending HypeRate websocket heartbeat");
-        Send(new HeartBeatModel());
+        SendAsJson(new HeartBeatModel());
         OnWsHeartbeat?.Invoke();
-        heartBeatTimer?.Change(heartbeat_internal, Timeout.Infinite);
+        heartBeatTimer?.Change(heartbeat_internal, 30000);
     }
 
     private void sendJoinChannel()
     {
-        terminal.Log($"Requesting to hook into heartrate for Id {id}");
+        terminal.Log($"Requesting to hook into heartrate for Id {hyperateId}");
         var joinChannelModel = new JoinChannelModel
         {
-            Id = id
+            Id = hyperateId
         };
-        Send(joinChannelModel);
+        SendAsJson(joinChannelModel);
     }
 
     private void handlePhxReply(PhxReplyModel reply)
@@ -96,7 +103,8 @@ public class HypeRateProvider : HeartrateProvider
 
     public override void Dispose()
     {
-        base.Dispose();
         heartBeatTimer?.Dispose();
+        base.Dispose();
+        GC.SuppressFinalize(this);
     }
 }
