@@ -8,7 +8,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
-using VRCOSC.Game.Graphics.Containers.UI.Button;
+using VRCOSC.Game.Graphics.Containers.UI.Static;
 using VRCOSC.Game.Graphics.Drawables;
 using VRCOSC.Game.Modules;
 
@@ -42,7 +42,7 @@ public class ModuleEditContent : Container
                     Origin = Anchor.Centre,
                     RelativeSizeAxes = Axes.Both,
                     CornerRadius = 10,
-                    Icon = { Value = FontAwesome.Solid.Get(0xf00d) },
+                    Icon = FontAwesome.Solid.Get(0xf00d),
                     Action = screenManager.FinishEditingModule
                 },
             },

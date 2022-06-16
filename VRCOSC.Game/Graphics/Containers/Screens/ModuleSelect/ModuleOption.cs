@@ -7,7 +7,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
-using VRCOSC.Game.Graphics.Containers.UI.Checkbox;
+using VRCOSC.Game.Graphics.Containers.UI.Dynamic;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
 
@@ -30,7 +30,7 @@ public sealed class ModuleOption : Container
     [BackgroundDependencyLoader]
     private void load()
     {
-        Checkbox checkBox;
+        StatefulIconButton iconButton;
         Child = new Container
         {
             Anchor = Anchor.Centre,
@@ -54,7 +54,7 @@ public sealed class ModuleOption : Container
                     RelativeSizeAxes = Axes.Both,
                     Padding = new MarginPadding(5),
                     FillMode = FillMode.Fit,
-                    Child = checkBox = new Checkbox
+                    Child = iconButton = new StatefulIconButton
                     {
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,
@@ -81,6 +81,6 @@ public sealed class ModuleOption : Container
             }
         };
 
-        checkBox.State.BindValueChanged(e => OnOptionChange?.Invoke(e.NewValue));
+        iconButton.State.BindValueChanged(e => OnOptionChange?.Invoke(e.NewValue));
     }
 }

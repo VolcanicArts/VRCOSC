@@ -10,11 +10,11 @@ using osu.Framework.Input;
 using osu.Framework.Input.Events;
 using osu.Framework.Platform;
 
-namespace VRCOSC.Game.Graphics.Containers.UI.TextBox;
+namespace VRCOSC.Game.Graphics.Containers.UI;
 
 public class VRCOSCTextBox : BasicTextBox
 {
-    public Action<string>? CharWritten { get; set; }
+    public Action<string>? CharWritten { get; init; }
 
     public VRCOSCTextBox()
     {

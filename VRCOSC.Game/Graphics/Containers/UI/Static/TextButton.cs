@@ -5,17 +5,17 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Sprites;
 
-namespace VRCOSC.Game.Graphics.Containers.UI.Button;
+namespace VRCOSC.Game.Graphics.Containers.UI.Static;
 
-public class TextButton : VRCOSCButton
+public class TextButton : StaticButton
 {
-    protected internal string Text { get; init; } = string.Empty;
-    protected internal float FontSize { get; init; } = 30;
+    public string Text { get; init; } = string.Empty;
+    public float FontSize { get; init; } = 30;
 
     [BackgroundDependencyLoader]
     private void load()
     {
-        AddInternal(new SpriteText
+        Add(new SpriteText
         {
             Anchor = Anchor.Centre,
             Origin = Anchor.Centre,

@@ -9,7 +9,7 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
 using osuTK;
 using osuTK.Input;
-using VRCOSC.Game.Graphics.Containers.UI.Button;
+using VRCOSC.Game.Graphics.Containers.UI.Static;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleRun;
 
@@ -83,7 +83,7 @@ public sealed class RunningPopover : Container
                         Origin = Anchor.Centre,
                         RelativeSizeAxes = Axes.Both,
                         CornerRadius = 10,
-                        Icon = { Value = FontAwesome.Solid.Get(0xf00d) },
+                        Icon = FontAwesome.Solid.Get(0xf00d),
                         Action = ScreenManager.HideTerminal
                     }
                 }

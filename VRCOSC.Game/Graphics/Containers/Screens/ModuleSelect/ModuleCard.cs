@@ -13,8 +13,8 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Localisation;
 using osuTK;
-using VRCOSC.Game.Graphics.Containers.UI.Button;
-using VRCOSC.Game.Graphics.Containers.UI.Checkbox;
+using VRCOSC.Game.Graphics.Containers.UI.Dynamic;
+using VRCOSC.Game.Graphics.Containers.UI.Static;
 using VRCOSC.Game.Graphics.Drawables.Triangles;
 using VRCOSC.Game.Modules;
 
@@ -132,12 +132,12 @@ public sealed class ModuleCard : Container, IFilterable
                                             Anchor = Anchor.BottomLeft,
                                             Origin = Anchor.BottomLeft,
                                             RelativeSizeAxes = Axes.Both,
-                                            Icon = { Value = FontAwesome.Solid.Get(0xF013) },
+                                            Icon = FontAwesome.Solid.Get(0xF013),
                                             FillMode = FillMode.Fit,
                                             CornerRadius = 10,
                                             Action = () => screenManager.EditModule(sourceModule)
                                         },
-                                        new Checkbox
+                                        new StatefulIconButton
                                         {
                                             Anchor = Anchor.BottomRight,
                                             Origin = Anchor.BottomRight,
@@ -145,8 +145,8 @@ public sealed class ModuleCard : Container, IFilterable
                                             FillMode = FillMode.Fit,
                                             CornerRadius = 10,
                                             State = (BindableBool)sourceModule.Enabled.GetBoundCopy(),
-                                            IconOn = FontAwesome.Solid.PowerOff,
-                                            IconOff = FontAwesome.Solid.PowerOff
+                                            IconStateTrue = FontAwesome.Solid.PowerOff,
+                                            IconStateFalse = FontAwesome.Solid.PowerOff
                                         }
                                     }
                                 }

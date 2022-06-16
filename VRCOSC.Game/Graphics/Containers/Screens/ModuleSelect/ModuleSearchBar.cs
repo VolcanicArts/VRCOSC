@@ -6,7 +6,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
-using VRCOSC.Game.Graphics.Containers.UI.TextBox;
+using VRCOSC.Game.Graphics.Containers.UI;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
 

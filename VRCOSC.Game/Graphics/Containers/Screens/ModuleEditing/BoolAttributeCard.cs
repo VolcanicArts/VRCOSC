@@ -5,14 +5,14 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using VRCOSC.Game.Graphics.Containers.UI.Checkbox;
+using VRCOSC.Game.Graphics.Containers.UI.Dynamic;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing;
 
 public class BoolAttributeCard : AttributeCard
 {
-    private Checkbox checkBox;
+    private StatefulIconButton iconButton;
 
     public BoolAttributeCard(ModuleAttributeData attributeData)
         : base(attributeData)
@@ -29,7 +29,7 @@ public class BoolAttributeCard : AttributeCard
             RelativeSizeAxes = Axes.Both,
             FillMode = FillMode.Fit,
             Padding = new MarginPadding(15),
-            Child = checkBox = new Checkbox
+            Child = iconButton = new StatefulIconButton
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
@@ -39,14 +39,14 @@ public class BoolAttributeCard : AttributeCard
             }
         });
 
-        checkBox.State.ValueChanged += e => AttributeData.Attribute.Value = e.NewValue;
+        iconButton.State.ValueChanged += e => AttributeData.Attribute.Value = e.NewValue;
 
         AttributeData.Attribute.ValueChanged += updateCheckBox;
     }
 
     private void updateCheckBox(ValueChangedEvent<object> e)
     {
-        checkBox.State.Value = (bool)e.NewValue;
+        iconButton.State.Value = (bool)e.NewValue;
     }
 
     protected override void Dispose(bool isDisposing)

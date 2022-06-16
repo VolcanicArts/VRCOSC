@@ -11,7 +11,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osuTK.Graphics;
 using VRCOSC.Game.Config;
-using VRCOSC.Game.Graphics.Containers.UI.Button;
+using VRCOSC.Game.Graphics.Containers.UI.Static;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
 
@@ -80,8 +80,8 @@ public sealed class ModuleSelectionSidePanel : Container
                                 FillMode = FillMode.Fit,
                                 FillAspectRatio = 4,
                                 IconPadding = 5,
-                                BackgroundColour = { Value = VRCOSCColour.GreenDark },
-                                Icon = { Value = FontAwesome.Solid.Play },
+                                BackgroundColour = VRCOSCColour.GreenDark,
+                                Icon = FontAwesome.Solid.Play,
                                 Action = screenManager.ShowTerminal
                             }
                         }
