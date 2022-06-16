@@ -8,7 +8,7 @@ using SuperSocket.ClientEngine;
 using VRCOSC.Game.Util;
 using WebSocket4Net;
 
-namespace VRCOSC.Game.Modules.Frameworks;
+namespace VRCOSC.Game.Modules.Websocket;
 
 public abstract class BaseWebSocket : IDisposable
 {

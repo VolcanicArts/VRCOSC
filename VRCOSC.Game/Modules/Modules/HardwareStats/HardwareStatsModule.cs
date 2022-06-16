@@ -4,7 +4,7 @@
 using osu.Framework.Graphics;
 using VRCOSC.Game.Graphics;
 
-namespace VRCOSC.Game.Modules.Modules.ComputerStats;
+namespace VRCOSC.Game.Modules.Modules.HardwareStats;
 
 public class HardwareStatsModule : Module
 {

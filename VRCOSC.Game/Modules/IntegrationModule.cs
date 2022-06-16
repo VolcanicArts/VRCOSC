@@ -7,9 +7,10 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using VRCOSC.Game.Modules.Util;
 using VRCOSC.Game.Util;
 
-namespace VRCOSC.Game.Modules.Frameworks;
+namespace VRCOSC.Game.Modules;
 
 public abstract class IntegrationModule : Module
 {

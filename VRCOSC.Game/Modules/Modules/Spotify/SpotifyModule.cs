@@ -4,7 +4,7 @@
 using System;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
-using VRCOSC.Game.Modules.Frameworks;
+using VRCOSC.Game.Modules.Util;
 
 namespace VRCOSC.Game.Modules.Modules.Spotify;
 

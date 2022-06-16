@@ -4,8 +4,8 @@
 using System;
 using System.Threading;
 using Newtonsoft.Json;
-using VRCOSC.Game.Modules.Frameworks;
 using VRCOSC.Game.Modules.Modules.HypeRate.Models;
+using VRCOSC.Game.Modules.Websocket;
 using VRCOSC.Game.Util;
 
 namespace VRCOSC.Game.Modules.Modules.HypeRate;

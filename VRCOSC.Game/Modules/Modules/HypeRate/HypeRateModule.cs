@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Collections.Generic;
+using System.Linq;
 using osu.Framework.Graphics;
 
 namespace VRCOSC.Game.Modules.Modules.HypeRate;
@@ -53,7 +54,7 @@ public class HypeRateModule : Module
     {
         receivedHeartrate = true;
         var normalisedHeartRate = heartrate / 60.0f;
-        var individualValues = ModuleHelper.ToDigitArray(heartrate, 3);
+        var individualValues = toDigitArray(heartrate, 3);
 
         SendParameter(HypeRateOutputParameter.HeartrateEnabled, true);
         SendParameter(HypeRateOutputParameter.HeartrateNormalised, normalisedHeartRate);
@@ -66,6 +67,11 @@ public class HypeRateModule : Module
     {
         if (!receivedHeartrate) SendParameter(HypeRateOutputParameter.HeartrateEnabled, false);
         receivedHeartrate = false;
+    }
+
+    private static int[] toDigitArray(int num, int totalWidth)
+    {
+        return num.ToString().PadLeft(totalWidth, '0').Select(digit => int.Parse(digit.ToString())).ToArray();
     }
 
     public override void Stop()

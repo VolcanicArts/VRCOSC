@@ -3,7 +3,7 @@
 
 using Newtonsoft.Json;
 
-namespace VRCOSC.Game.Modules.Frameworks;
+namespace VRCOSC.Game.Modules.Websocket;
 
 public abstract class JsonWebSocket : BaseWebSocket
 {
@@ -12,8 +12,8 @@ public abstract class JsonWebSocket : BaseWebSocket
     {
     }
 
-    protected void Send(object data)
+    protected void SendAsJson(object data)
     {
-        base.Send(JsonConvert.SerializeObject(data));
+        Send(JsonConvert.SerializeObject(data));
     }
 }

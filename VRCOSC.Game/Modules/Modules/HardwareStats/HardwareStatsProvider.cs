@@ -8,7 +8,7 @@ using System.Linq;
 using System.Management;
 using osu.Framework.Extensions.IEnumerableExtensions;
 
-namespace VRCOSC.Game.Modules.Modules.ComputerStats;
+namespace VRCOSC.Game.Modules.Modules.HardwareStats;
 
 public class HardwareStatsProvider : IDisposable
 {
