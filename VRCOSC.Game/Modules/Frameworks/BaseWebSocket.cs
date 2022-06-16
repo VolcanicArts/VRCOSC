@@ -31,7 +31,11 @@ public abstract class BaseWebSocket : IDisposable
 
     public void Connect()
     {
-        Task.Factory.StartNew(run, TaskCreationOptions.LongRunning);
+        Task.Run(() =>
+        {
+            webSocket.Open();
+            isRunning.WaitOne();
+        });
     }
 
     public void Disconnect()
@@ -42,12 +46,6 @@ public abstract class BaseWebSocket : IDisposable
     protected void Send(string data)
     {
         webSocket.Send(data);
-    }
-
-    private void run()
-    {
-        webSocket.Open();
-        isRunning.WaitOne();
     }
 
     private void wsConnected(object? sender, EventArgs e)

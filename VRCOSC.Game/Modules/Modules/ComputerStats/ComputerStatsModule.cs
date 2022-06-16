@@ -36,7 +36,7 @@ public class ComputerStatsModule : Module
         {
             var usage = await ComputerStatsProvider.GetCpuUsage();
             SendParameter(ComputerStatsParameter.CPUUsage, usage);
-        }).ConfigureAwait(false);
+        });
     }
 
     private void sendGpuUsage()
@@ -45,7 +45,7 @@ public class ComputerStatsModule : Module
         {
             var usage = await ComputerStatsProvider.GetGpuUsage();
             SendParameter(ComputerStatsParameter.GPUUsage, usage);
-        }).ConfigureAwait(false);
+        });
     }
 
     private void sendRamUsage()
@@ -54,7 +54,7 @@ public class ComputerStatsModule : Module
         {
             var usage = await ComputerStatsProvider.GetRamUsage();
             SendParameter(ComputerStatsParameter.RAMUsage, usage);
-        }).ConfigureAwait(false);
+        });
     }
 }
 

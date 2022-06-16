@@ -60,7 +60,7 @@ public abstract class IntegrationModule : Module
             if (!string.IsNullOrEmpty(TargetProcess)) switchToTarget();
             executeKeyCombination(key);
             if (!string.IsNullOrEmpty(ReturnProcess)) switchToReturn();
-        }).ConfigureAwait(false);
+        });
     }
 
     protected bool IsProcessOpen()

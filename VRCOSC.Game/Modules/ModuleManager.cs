@@ -99,7 +99,7 @@ public sealed class ModuleManager : Container<ModuleGroup>
     {
         tokenSource = new CancellationTokenSource();
         this.ForEach(child => child.Start());
-        Task.Factory.StartNew(beginListening);
+        Task.Run(beginListening);
         running = true;
     }
 
