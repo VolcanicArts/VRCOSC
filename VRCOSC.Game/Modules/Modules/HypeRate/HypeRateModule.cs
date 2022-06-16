@@ -12,6 +12,7 @@ public class HypeRateModule : Module
     public override string Title => "HypeRate";
     public override string Description => "Sends HypeRate.io heartrate values";
     public override string Author => "VolcanicArts";
+    public override string Prefab => "VRCOSC-Heartrate";
     public override Colour4 Colour => Colour4.OrangeRed.Darken(0.5f);
     public override ModuleType ModuleType => ModuleType.Health;
     public override IEnumerable<string> Tags => new[] { "heartrate" };

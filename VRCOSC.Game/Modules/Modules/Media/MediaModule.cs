@@ -13,6 +13,7 @@ public class MediaModule : IntegrationModule
     public override string Title => "Media";
     public override string Description => "Integration with Windows OS Media";
     public override string Author => "VolcanicArts";
+    public override string Prefab => "VRCOSC-Media";
     public override Colour4 Colour => Color4Extensions.FromHex(@"ffb900").Darken(0.25f);
     public override ModuleType ModuleType => ModuleType.Integrations;
     public override string ReturnProcess => string.Empty;

@@ -50,6 +50,7 @@ public sealed class ModuleCard : Container, IFilterable
     private void load(ScreenManager screenManager)
     {
         IconButton editButton;
+        TextFlowContainer prefabTextFlow;
 
         Children = new Drawable[]
         {
@@ -147,6 +148,19 @@ public sealed class ModuleCard : Container, IFilterable
                                             State = (BindableBool)sourceModule.Enabled.GetBoundCopy(),
                                             IconStateTrue = FontAwesome.Solid.PowerOff,
                                             IconStateFalse = FontAwesome.Solid.PowerOff
+                                        },
+                                        prefabTextFlow = new TextFlowContainer(t =>
+                                        {
+                                            t.Font = FrameworkFont.Regular.With(size: 20);
+                                            t.Colour = Colour4.White.Opacity(0.9f);
+                                            t.Shadow = true;
+                                        })
+                                        {
+                                            Anchor = Anchor.BottomCentre,
+                                            Origin = Anchor.BottomCentre,
+                                            RelativeSizeAxes = Axes.Both,
+                                            TextAnchor = Anchor.Centre,
+                                            Text = $"Pairs with {sourceModule.Prefab}"
                                         }
                                     }
                                 }
@@ -158,6 +172,8 @@ public sealed class ModuleCard : Container, IFilterable
         };
 
         if (!sourceModule.HasAttributes) editButton.Enabled.Value = false;
+
+        if (string.IsNullOrEmpty(sourceModule.Prefab)) prefabTextFlow.Hide();
     }
 
     public IEnumerable<LocalisableString> FilterTerms { get; }

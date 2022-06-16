@@ -13,6 +13,7 @@ public class ClockModule : Module
     public override string Title => "Clock";
     public override string Description => "Sends your local time as hours, minutes, and seconds";
     public override string Author => "VolcanicArts";
+    public override string Prefab => "VRCOSC-Watch";
     public override Colour4 Colour => VRCOSCColour.Blue.Darken(0.25f);
     public override ModuleType ModuleType => ModuleType.General;
     public override double DeltaUpdate => GetSetting<bool>(ClockSetting.SmoothSecond) ? 50d : 1000d;

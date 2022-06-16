@@ -13,6 +13,7 @@ public class SpotifyModule : IntegrationModule
     public override string Title => "Spotify";
     public override string Description => "Integration with the Spotify desktop app";
     public override string Author => "VolcanicArts";
+    public override string Prefab => "VRCOSC-Spotify";
     public override Colour4 Colour => Color4Extensions.FromHex(@"1ed760").Darken(0.5f);
     public override ModuleType ModuleType => ModuleType.Integrations;
     public override string TargetProcess => "spotify";
