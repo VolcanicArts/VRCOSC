@@ -22,9 +22,6 @@ public abstract class Module
     private OscClient OscClient = null!;
     protected TerminalLogger Terminal = null!;
 
-    public Action<string, object>? OnParameterSent;
-    public Action<string, object>? OnParameterReceived;
-
     public readonly BindableBool Enabled = new();
 
     public readonly Dictionary<string, ModuleAttributeData> Settings = new();
@@ -141,8 +138,6 @@ public abstract class Module
                 OnFloatParameterReceived(key, floatValue);
                 break;
         }
-
-        OnParameterReceived?.Invoke($"/avatar/parameters/{key}", value);
     }
 
     protected virtual void OnBoolParameterReceived(Enum key, bool value) { }
