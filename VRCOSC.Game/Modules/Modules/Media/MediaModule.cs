@@ -31,7 +31,6 @@ public class MediaModule : IntegrationModule
 
     protected override void OnBoolParameterReceived(Enum key, bool value)
     {
-        Terminal.Log($"Received input of {key}");
         ExecuteShortcut(key);
     }
 

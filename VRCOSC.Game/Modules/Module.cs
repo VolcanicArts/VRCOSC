@@ -141,14 +141,17 @@ public abstract class Module
             case bool boolValue:
                 if (actionMenu == ActionMenu.Button && !boolValue) return;
 
+                Terminal.Log($"Received bool of key `{key}`");
                 OnBoolParameterReceived(key, boolValue);
                 break;
 
             case int intValue:
+                Terminal.Log($"Received int of key `{key}`");
                 OnIntParameterReceived(key, intValue);
                 break;
 
             case float floatValue:
+                Terminal.Log($"Received float of key `{key}`");
                 OnFloatParameterReceived(key, floatValue);
                 break;
         }

@@ -63,8 +63,6 @@ public class CalculatorModule : IntegrationModule
 
     protected override void OnBoolParameterReceived(Enum key, bool value)
     {
-        Terminal.Log($"Received input of {key}");
-
         switch (key)
         {
             case CalculatorInputParameter.CalculatorOpen:
