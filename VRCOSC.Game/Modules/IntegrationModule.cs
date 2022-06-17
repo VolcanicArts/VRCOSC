@@ -21,6 +21,8 @@ public abstract class IntegrationModule : Module
 
     protected void StartTarget()
     {
+        if (IsProcessOpen()) return;
+
         var startInfo = new ProcessStartInfo
         {
             FileName = TargetExe,
