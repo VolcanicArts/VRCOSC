@@ -7,6 +7,5 @@ public enum ModuleType
 {
     General,
     Health,
-    Integrations,
-    Debug
+    Integrations
 }
