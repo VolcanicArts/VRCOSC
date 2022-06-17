@@ -12,7 +12,7 @@ namespace VRCOSC.Game.Modules.Websocket;
 
 public abstract class BaseWebSocket : IDisposable
 {
-    private readonly EventWaitHandle isRunning = new AutoResetEvent(false);
+    private readonly CancellationTokenSource tokenSource = new();
     private readonly TerminalLogger terminal = new(nameof(BaseWebSocket));
     private readonly WebSocket webSocket;
 
@@ -35,7 +35,7 @@ public abstract class BaseWebSocket : IDisposable
         Task.Run(() =>
         {
             webSocket.Open();
-            isRunning.WaitOne();
+            tokenSource.Token.WaitHandle.WaitOne();
         });
     }
 
@@ -59,7 +59,7 @@ public abstract class BaseWebSocket : IDisposable
     {
         terminal.Log("WebSocket disconnected");
         OnWsDisconnected?.Invoke();
-        isRunning.Set();
+        tokenSource.Cancel();
     }
 
     private void wsMessageReceived(object? sender, MessageReceivedEventArgs e)
