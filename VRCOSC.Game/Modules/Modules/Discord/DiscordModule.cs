@@ -20,8 +20,8 @@ public class DiscordModule : IntegrationModule
 
     public override void CreateAttributes()
     {
-        RegisterInputParameter(DiscordInputParameter.DiscordMic, typeof(bool));
-        RegisterInputParameter(DiscordInputParameter.DiscordDeafen, typeof(bool));
+        RegisterInputParameter<bool>(DiscordInputParameter.DiscordMic, ActionMenu.Button);
+        RegisterInputParameter<bool>(DiscordInputParameter.DiscordDeafen, ActionMenu.Button);
 
         RegisterKeyCombination(DiscordInputParameter.DiscordMic, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_LSHIFT, WindowsVKey.VK_M);
         RegisterKeyCombination(DiscordInputParameter.DiscordDeafen, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_LSHIFT, WindowsVKey.VK_D);
@@ -29,10 +29,7 @@ public class DiscordModule : IntegrationModule
 
     protected override void OnBoolParameterReceived(Enum key, bool value)
     {
-        if (!value) return;
-
         Terminal.Log($"Received input of {key}");
-
         ExecuteShortcut(key);
     }
 

@@ -10,6 +10,7 @@ using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Platform;
+using VRCOSC.Game.Modules.Util;
 using VRCOSC.Game.Util;
 
 // ReSharper disable InconsistentNaming
@@ -27,7 +28,7 @@ public abstract class Module
     public readonly Dictionary<string, ModuleAttributeData> Settings = new();
     public readonly Dictionary<string, ModuleAttributeData> OutputParameters = new();
 
-    public readonly Dictionary<Enum, Type> InputParameters = new();
+    public readonly Dictionary<Enum, InputParameterData> InputParameters = new();
 
     public virtual string Title => string.Empty;
     public virtual string Description => string.Empty;
@@ -75,9 +76,9 @@ public abstract class Module
         OutputParameters.Add(lookupString, new ModuleAttributeData(displayName, description, defaultAddress));
     }
 
-    protected void RegisterInputParameter(Enum lookup, Type expectedType)
+    protected void RegisterInputParameter<T>(Enum lookup, ActionMenu actionMenu = ActionMenu.None)
     {
-        InputParameters.Add(lookup, expectedType);
+        InputParameters.Add(lookup, new InputParameterData(typeof(T), actionMenu));
     }
 
     #endregion
@@ -119,22 +120,24 @@ public abstract class Module
         Enum? key = InputParameters.Keys.ToList().Find(e => e.ToString().Equals(addressEndpoint));
         if (key == null) return;
 
-        var type = InputParameters[key];
+        var inputParameterData = InputParameters[key];
 
         if (value is OscTrue) value = true;
         if (value is OscFalse) value = false;
 
-        if (value.GetType() != type)
-            throw new ArgumentException($"{key} expects type {type} but received type {value.GetType()}");
+        if (value.GetType() != inputParameterData.Type)
+            throw new ArgumentException($"{key} expects type {inputParameterData.Type} but received type {value.GetType()}");
 
-        notifyParameterReceived(key, value);
+        notifyParameterReceived(key, value, inputParameterData.ActionMenu);
     }
 
-    private void notifyParameterReceived(Enum key, object value)
+    private void notifyParameterReceived(Enum key, object value, ActionMenu actionMenu)
     {
         switch (value)
         {
             case bool boolValue:
+                if (actionMenu == ActionMenu.Button && !boolValue) return;
+
                 OnBoolParameterReceived(key, boolValue);
                 break;
 

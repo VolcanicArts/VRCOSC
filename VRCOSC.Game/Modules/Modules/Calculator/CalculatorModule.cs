@@ -25,16 +25,16 @@ public class CalculatorModule : IntegrationModule
     {
         CreateOutputParameter(CalculatorOutputParameter.CalculatorSendValue, "Send Value", "Send the current value of the calculator", "/avatar/parameters/CalculatorResult");
 
-        RegisterInputParameter(CalculatorInputParameter.CalculatorOpen, typeof(bool));
-        RegisterInputParameter(CalculatorInputParameter.CalculatorClose, typeof(bool));
-        RegisterInputParameter(CalculatorInputParameter.CalculatorClear, typeof(bool));
-        RegisterInputParameter(CalculatorInputParameter.CalculatorCalculate, typeof(bool));
-        RegisterInputParameter(CalculatorInputParameter.CalculatorCopyValue, typeof(bool));
-        RegisterInputParameter(CalculatorInputParameter.CalculatorAdd, typeof(bool));
-        RegisterInputParameter(CalculatorInputParameter.CalculatorSubtract, typeof(bool));
-        RegisterInputParameter(CalculatorInputParameter.CalculatorMultiply, typeof(bool));
-        RegisterInputParameter(CalculatorInputParameter.CalculatorDivide, typeof(bool));
-        RegisterInputParameter(CalculatorInputParameter.CalculatorNumber, typeof(float));
+        RegisterInputParameter<bool>(CalculatorInputParameter.CalculatorOpen, ActionMenu.Button);
+        RegisterInputParameter<bool>(CalculatorInputParameter.CalculatorClose, ActionMenu.Button);
+        RegisterInputParameter<bool>(CalculatorInputParameter.CalculatorClear, ActionMenu.Button);
+        RegisterInputParameter<bool>(CalculatorInputParameter.CalculatorCalculate, ActionMenu.Button);
+        RegisterInputParameter<bool>(CalculatorInputParameter.CalculatorCopyValue, ActionMenu.Button);
+        RegisterInputParameter<bool>(CalculatorInputParameter.CalculatorAdd, ActionMenu.Button);
+        RegisterInputParameter<bool>(CalculatorInputParameter.CalculatorSubtract, ActionMenu.Button);
+        RegisterInputParameter<bool>(CalculatorInputParameter.CalculatorMultiply, ActionMenu.Button);
+        RegisterInputParameter<bool>(CalculatorInputParameter.CalculatorDivide, ActionMenu.Button);
+        RegisterInputParameter<float>(CalculatorInputParameter.CalculatorNumber);
 
         RegisterKeyCombination(CalculatorInputParameter.CalculatorClear, WindowsVKey.VK_ESCAPE);
         RegisterKeyCombination(CalculatorInputParameter.CalculatorCalculate, WindowsVKey.VK_RETURN);
@@ -63,8 +63,6 @@ public class CalculatorModule : IntegrationModule
 
     protected override void OnBoolParameterReceived(Enum key, bool value)
     {
-        if (!value) return;
-
         Terminal.Log($"Received input of {key}");
 
         switch (key)

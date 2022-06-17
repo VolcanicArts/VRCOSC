@@ -20,9 +20,9 @@ public class MediaModule : IntegrationModule
 
     public override void CreateAttributes()
     {
-        RegisterInputParameter(MediaInputParameter.MediaPlayPause, typeof(bool));
-        RegisterInputParameter(MediaInputParameter.MediaNext, typeof(bool));
-        RegisterInputParameter(MediaInputParameter.MediaPrevious, typeof(bool));
+        RegisterInputParameter<bool>(MediaInputParameter.MediaPlayPause, ActionMenu.Button);
+        RegisterInputParameter<bool>(MediaInputParameter.MediaNext, ActionMenu.Button);
+        RegisterInputParameter<bool>(MediaInputParameter.MediaPrevious, ActionMenu.Button);
 
         RegisterKeyCombination(MediaInputParameter.MediaPlayPause, WindowsVKey.VK_MEDIA_PLAY_PAUSE);
         RegisterKeyCombination(MediaInputParameter.MediaNext, WindowsVKey.VK_MEDIA_NEXT_TRACK);
@@ -31,10 +31,7 @@ public class MediaModule : IntegrationModule
 
     protected override void OnBoolParameterReceived(Enum key, bool value)
     {
-        if (!value) return;
-
         Terminal.Log($"Received input of {key}");
-
         ExecuteShortcut(key);
     }
 

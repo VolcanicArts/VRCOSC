@@ -24,11 +24,11 @@ public class SpotifyModule : IntegrationModule
         CreateSetting(SpotifySetting.ShouldStart, "Should Start", "Should Spotify start on module run", false);
         CreateSetting(SpotifySetting.InstallLocation, "Install Location", "The location of your spotify.exe file", $@"C:\Users\{Environment.UserName}\AppData\Roaming\Spotify\spotify.exe");
 
-        RegisterInputParameter(SpotifyInputParameter.SpotifyPlayPause, typeof(bool));
-        RegisterInputParameter(SpotifyInputParameter.SpotifyNext, typeof(bool));
-        RegisterInputParameter(SpotifyInputParameter.SpotifyPrevious, typeof(bool));
-        RegisterInputParameter(SpotifyInputParameter.SpotifyVolumeUp, typeof(bool));
-        RegisterInputParameter(SpotifyInputParameter.SpotifyVolumeDown, typeof(bool));
+        RegisterInputParameter<bool>(SpotifyInputParameter.SpotifyPlayPause, ActionMenu.Button);
+        RegisterInputParameter<bool>(SpotifyInputParameter.SpotifyNext, ActionMenu.Button);
+        RegisterInputParameter<bool>(SpotifyInputParameter.SpotifyPrevious, ActionMenu.Button);
+        RegisterInputParameter<bool>(SpotifyInputParameter.SpotifyVolumeUp, ActionMenu.Button);
+        RegisterInputParameter<bool>(SpotifyInputParameter.SpotifyVolumeDown, ActionMenu.Button);
 
         RegisterKeyCombination(SpotifyInputParameter.SpotifyPlayPause, WindowsVKey.VK_SPACE);
         RegisterKeyCombination(SpotifyInputParameter.SpotifyNext, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_RIGHT);
@@ -45,10 +45,7 @@ public class SpotifyModule : IntegrationModule
 
     protected override void OnBoolParameterReceived(Enum key, bool value)
     {
-        if (!value) return;
-
         Terminal.Log($"Received input of {key}");
-
         ExecuteShortcut(key);
     }
 
