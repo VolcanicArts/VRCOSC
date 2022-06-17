@@ -90,6 +90,8 @@ public abstract class Module
 
     public virtual void Stop() { }
 
+    public virtual void OnAvatarChange() { }
+
     #endregion
 
     #region Settings
@@ -107,6 +109,12 @@ public abstract class Module
         if (!Enabled.Value || !IsRequestingInput) return;
 
         var addressEndpoint = address.Split('/').Last();
+
+        if (addressEndpoint.Equals("change"))
+        {
+            OnAvatarChange();
+            return;
+        }
 
         Enum? key = InputParameters.Keys.ToList().Find(e => e.ToString().Equals(addressEndpoint));
         if (key == null) return;
