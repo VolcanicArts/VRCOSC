@@ -126,7 +126,10 @@ public abstract class Module
         if (value is OscFalse) value = false;
 
         if (value.GetType() != inputParameterData.Type)
-            throw new ArgumentException($"{key} expects type {inputParameterData.Type} but received type {value.GetType()}");
+        {
+            Terminal.Log($@"Cannot accept input parameter. `{key}` expects type `{inputParameterData.Type}` but received type `{value.GetType()}`");
+            return;
+        }
 
         notifyParameterReceived(key, value, inputParameterData.ActionMenu);
     }
