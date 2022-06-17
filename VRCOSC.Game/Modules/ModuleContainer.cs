@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using CoreOSC;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Logging;
 
@@ -39,12 +38,5 @@ public class ModuleContainer : Container
         Logger.Log($"[{Module.GetType().Name}]: Stopping", "terminal");
         Module.Stop();
         Logger.Log($"[{Module.GetType().Name}]: Stopped", "terminal");
-    }
-
-    public void OnOSCMessage(OscMessage message)
-    {
-        if (!Module.Enabled.Value || !Module.IsRequestingInput) return;
-
-        Module.OnOSCMessage(message);
     }
 }

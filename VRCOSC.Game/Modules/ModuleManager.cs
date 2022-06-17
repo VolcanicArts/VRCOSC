@@ -5,11 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Threading;
-using System.Threading.Tasks;
-using CoreOSC.IO;
 using osu.Framework.Allocation;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics.Containers;
@@ -22,31 +17,16 @@ namespace VRCOSC.Game.Modules;
 
 public sealed class ModuleManager : Container<ModuleGroup>
 {
-    private const string osc_ip_address = "127.0.0.1";
-    private const int osc_send_port = 9000;
-    private const int osc_receive_port = 9001;
-
-    private readonly UdpClient sendingClient;
-    private readonly UdpClient receivingClient;
-    private CancellationTokenSource? tokenSource;
     private bool running;
     private bool autoStarted;
 
-    public Action<string, object> OnParameterSent;
-    public Action<string, object> OnParameterReceived;
+    public readonly OscClient OSCClient = new();
 
     [Resolved]
     private VRCOSCConfigManager configManager { get; set; }
 
     [Resolved]
     private ScreenManager screenManager { get; set; }
-
-    public ModuleManager()
-    {
-        sendingClient = new UdpClient(osc_ip_address, osc_send_port);
-        var receiveEndpoint = new IPEndPoint(IPAddress.Parse(osc_ip_address), osc_receive_port);
-        receivingClient = new UdpClient(receiveEndpoint);
-    }
 
     [BackgroundDependencyLoader]
     private void load(Storage storage)
@@ -61,11 +41,9 @@ public sealed class ModuleManager : Container<ModuleGroup>
 
             foreach (var module in modules.Where(module => module.ModuleType.Equals(type)))
             {
-                module.Initialise(moduleStorage, sendingClient);
+                module.Initialise(moduleStorage, OSCClient);
                 module.CreateAttributes();
                 module.PerformLoad();
-                module.OnParameterSent += (key, value) => OnParameterSent.Invoke(key, value);
-                module.OnParameterReceived += (key, value) => OnParameterReceived.Invoke(key, value);
                 moduleGroup.Add(new ModuleContainer(module));
             }
 
@@ -97,31 +75,22 @@ public sealed class ModuleManager : Container<ModuleGroup>
 
     public void Start()
     {
-        tokenSource = new CancellationTokenSource();
+        OSCClient.Enable();
         this.ForEach(child => child.Start());
-        Task.Run(beginListening);
         running = true;
     }
 
     public void Stop()
     {
         running = false;
-        tokenSource?.Cancel();
         this.ForEach(child => child.Stop());
+        OSCClient.Disable();
     }
 
-    private async void beginListening()
+    protected override void Dispose(bool isDisposing)
     {
-        if (tokenSource == null) throw new AggregateException("Cancellation token is null when trying to listen for OSC messages");
-
-        while (!tokenSource.Token.IsCancellationRequested)
-        {
-            try
-            {
-                var message = await receivingClient.ReceiveMessageAsync();
-                this.ForEach(child => child.OnOSCMessage(message));
-            }
-            catch (SocketException _) { }
-        }
+        if (running) Stop();
+        OSCClient.Dispose();
+        base.Dispose(isDisposing);
     }
 }

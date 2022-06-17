@@ -5,9 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Sockets;
 using CoreOSC;
-using CoreOSC.IO;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
@@ -21,7 +19,7 @@ namespace VRCOSC.Game.Modules;
 public abstract class Module
 {
     private Storage Storage = null!;
-    private UdpClient OscClient = null!;
+    private OscClient OscClient = null!;
     protected TerminalLogger Terminal = null!;
 
     public Action<string, object>? OnParameterSent;
@@ -43,11 +41,13 @@ public abstract class Module
     public virtual ModuleType ModuleType => ModuleType.General;
     public virtual string Prefab => string.Empty;
 
-    public void Initialise(Storage storage, UdpClient oscClient)
+    public void Initialise(Storage storage, OscClient oscClient)
     {
         Storage = storage;
         OscClient = oscClient;
         Terminal = new TerminalLogger(GetType().Name);
+
+        OscClient.OnParameterReceived += onParameterReceived;
     }
 
     #region Properties
@@ -105,12 +105,11 @@ public abstract class Module
 
     #region IncomingParameters
 
-    public void OnOSCMessage(OscMessage message)
+    private void onParameterReceived(string address, object value)
     {
-        if (!message.Arguments.Any()) return;
+        if (!Enabled.Value || !IsRequestingInput) return;
 
-        var addressEndpoint = message.Address.Value.Split('/').Last();
-        var value = message.Arguments.First();
+        var addressEndpoint = address.Split('/').Last();
 
         Enum? key = InputParameters.Keys.ToList().Find(e => e.ToString().Equals(addressEndpoint));
         if (key == null) return;
@@ -160,23 +159,11 @@ public abstract class Module
 
     public string GetOutputParameter(string lookup) => (string)OutputParameters[lookup].Attribute.Value;
 
-    protected void SendParameter(Enum key, int value) => sendParameter(key, value);
+    protected void SendParameter(Enum lookup, int value) => OscClient.SendData(GetOutputParameter(lookup), value);
 
-    protected void SendParameter(Enum key, float value) => sendParameter(key, value);
+    protected void SendParameter(Enum lookup, float value) => OscClient.SendData(GetOutputParameter(lookup), value);
 
-    protected void SendParameter(Enum key, bool value) => sendParameter(key, value ? OscTrue.True : OscFalse.False);
-
-    private void sendParameter(Enum key, object value) => sendParameter(key.ToString().ToLower(), value);
-
-    private void sendParameter(string key, object value)
-    {
-        var addressString = GetOutputParameter(key);
-
-        var address = new Address(addressString);
-        var message = new OscMessage(address, new[] { value });
-        OscClient.SendMessageAsync(message);
-        OnParameterSent?.Invoke(addressString, value);
-    }
+    protected void SendParameter(Enum lookup, bool value) => OscClient.SendData(GetOutputParameter(lookup), value);
 
     #endregion
 
