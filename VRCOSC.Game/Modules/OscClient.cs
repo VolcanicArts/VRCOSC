@@ -21,7 +21,7 @@ public class OscClient : IDisposable
     private readonly UdpClient sendingClient;
     private readonly UdpClient receivingClient;
 
-    private readonly CancellationTokenSource tokenSource = new();
+    private CancellationTokenSource tokenSource = null!;
 
     public Action<string, object>? OnParameterSent;
     public Action<string, object>? OnParameterReceived;
@@ -35,13 +35,13 @@ public class OscClient : IDisposable
 
     public void Enable()
     {
+        tokenSource = new CancellationTokenSource();
         Task.Run(listenForIncoming);
     }
 
     public void Disable()
     {
         tokenSource.Cancel();
-        tokenSource.TryReset();
     }
 
     public void SendData(string address, bool value) => sendData(address, value ? OscTrue.True : OscFalse.False);
