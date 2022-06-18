@@ -17,4 +17,7 @@
   <ItemGroup Label="Resources">
     <EmbeddedResource Include="game.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Clowd.Squirrel" Version="2.9.40" />
+  </ItemGroup>
 </Project>
