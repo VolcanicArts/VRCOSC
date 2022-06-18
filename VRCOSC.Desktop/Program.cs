@@ -5,7 +5,6 @@ using System.Runtime.Versioning;
 using osu.Framework;
 using osu.Framework.Platform;
 using Squirrel;
-using VRCOSC.Game;
 
 namespace VRCOSC.Desktop;
 
@@ -16,28 +15,27 @@ public static class Program
         initSquirrel();
 
         using GameHost host = Host.GetSuitableDesktopHost(@"VRCOSC");
-        using osu.Framework.Game game = new VRCOSCGame();
+        using osu.Framework.Game game = new VRCOSCGameDesktop();
         host.Run(game);
     }
 
     [SupportedOSPlatform("windows")]
     private static void initSquirrel()
     {
-        SquirrelAwareApp.HandleEvents(onInitialInstall: OnAppInstall, onAppUninstall: OnAppUninstall, onEveryRun: OnAppRun);
-    }
-
-    private static void OnAppInstall(SemanticVersion version, IAppTools tools)
-    {
-        tools.CreateShortcutForThisExe();
-    }
-
-    private static void OnAppUninstall(SemanticVersion version, IAppTools tools)
-    {
-        tools.RemoveShortcutForThisExe();
-    }
-
-    private static void OnAppRun(SemanticVersion version, IAppTools tools, bool firstRun)
-    {
-        tools.SetProcessAppUserModelId();
+        SquirrelAwareApp.HandleEvents(onInitialInstall: (_, tools) =>
+        {
+            tools.CreateShortcutForThisExe();
+            tools.CreateUninstallerRegistryEntry();
+        }, onAppUpdate: (_, tools) =>
+        {
+            tools.CreateUninstallerRegistryEntry();
+        }, onAppUninstall: (_, tools) =>
+        {
+            tools.RemoveShortcutForThisExe();
+            tools.RemoveUninstallerRegistryEntry();
+        }, onEveryRun: (_, tools, _) =>
+        {
+            tools.SetProcessAppUserModelId();
+        });
     }
 }
