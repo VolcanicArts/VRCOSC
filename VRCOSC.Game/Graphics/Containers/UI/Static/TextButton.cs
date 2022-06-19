@@ -9,13 +9,26 @@ namespace VRCOSC.Game.Graphics.Containers.UI.Static;
 
 public class TextButton : StaticButton
 {
-    public string Text { get; init; } = string.Empty;
+    private string text = string.Empty;
+
+    private SpriteText? spriteText;
+
+    public string Text
+    {
+        get => text;
+        set
+        {
+            text = value;
+            if (spriteText != null) spriteText.Text = text;
+        }
+    }
+
     public float FontSize { get; init; } = 30;
 
     [BackgroundDependencyLoader]
     private void load()
     {
-        Add(new SpriteText
+        Add(spriteText = new SpriteText
         {
             Anchor = Anchor.Centre,
             Origin = Anchor.Centre,

@@ -7,6 +7,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Input.Events;
+using osu.Framework.Platform;
 using osuTK;
 using VRCOSC.Game.Graphics.Containers.UI.Static;
 
@@ -16,11 +17,14 @@ public class VRCOSCUpdateManager : Container
 {
     private Container popover;
     private ProgressBar progressBar;
-    private TextButton restartButton;
+    private TextButton button;
     private Container progressBarContainer;
-    private TextFlowContainer titleText;
+    private LoadingSpriteText titleText;
 
     private bool shown;
+
+    [Resolved]
+    private GameHost host { get; set; }
 
     public VRCOSCUpdateManager()
     {
@@ -60,12 +64,12 @@ public class VRCOSCUpdateManager : Container
                     Padding = new MarginPadding(5),
                     Children = new Drawable[]
                     {
-                        titleText = new TextFlowContainer
+                        titleText = new LoadingSpriteText
                         {
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
-                            TextAnchor = Anchor.TopCentre,
-                            RelativeSizeAxes = Axes.Both
+                            Font = FrameworkFont.Regular.With(size: 30),
+                            Shadow = true
                         },
                         new Container
                         {
@@ -76,19 +80,16 @@ public class VRCOSCUpdateManager : Container
                             FillMode = FillMode.Fit,
                             FillAspectRatio = 3,
                             Padding = new MarginPadding(5),
-                            Child = restartButton = new TextButton
+                            Child = button = new TextButton
                             {
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
                                 RelativeSizeAxes = Axes.Both,
-                                BackgroundColour = VRCOSCColour.Green,
                                 FillMode = FillMode.Fit,
                                 FillAspectRatio = 8,
                                 Masking = true,
                                 CornerRadius = 10,
-                                Text = "Click To Restart",
-                                FontSize = 25,
-                                Action = RequestRestart
+                                FontSize = 25
                             }
                         },
                         progressBarContainer = new Container
@@ -116,7 +117,7 @@ public class VRCOSCUpdateManager : Container
     protected override void LoadComplete()
     {
         progressBarContainer.Hide();
-        restartButton.Hide();
+        button.Hide();
     }
 
     // Shorthand for dealing with 0-100
@@ -142,6 +143,8 @@ public class VRCOSCUpdateManager : Container
 
     private void setPhase(UpdatePhase phase)
     {
+        updateProgress(0f);
+
         switch (phase)
         {
             case UpdatePhase.Download:
@@ -174,85 +177,50 @@ public class VRCOSCUpdateManager : Container
     private void enterDownloadPhase()
     {
         progressBarContainer.Show();
-        restartButton.Hide();
+        button.Hide();
 
-        updateProgress(0f);
-
-        titleText.Clear();
-        titleText.AddText("Update Available", t =>
-        {
-            t.Font = FrameworkFont.Regular.With(size: 30);
-            t.Shadow = true;
-        });
-
+        titleText.Text.Value = "Updating";
+        titleText.ShouldAnimate.Value = true;
         progressBar.Text.Value = "Downloading";
     }
 
     private void enterInstallPhase()
     {
         progressBarContainer.Show();
-        restartButton.Hide();
+        button.Hide();
 
-        updateProgress(0f);
-
-        titleText.Clear();
-        titleText.AddText("Update Available", t =>
-        {
-            t.Font = FrameworkFont.Regular.With(size: 30);
-            t.Shadow = true;
-        });
-
+        titleText.Text.Value = "Updating";
+        titleText.ShouldAnimate.Value = true;
         progressBar.Text.Value = "Installing";
     }
 
     private void enterSuccessPhase()
     {
         progressBarContainer.Hide();
-        restartButton.Show();
+        button.Show();
+        button.Text = "Click To Restart";
+        button.Action = RequestRestart;
 
-        titleText.Clear();
-        titleText.AddText("Update Complete!", t =>
-        {
-            t.Font = FrameworkFont.Regular.With(size: 30);
-            t.Shadow = true;
-        });
+        titleText.Text.Value = "Update Complete!";
+        titleText.ShouldAnimate.Value = false;
     }
 
     private void enterFailPhase()
     {
         progressBarContainer.Hide();
-        restartButton.Hide();
+        button.Show();
+        button.Text = "Click To Reinstall";
+        button.Action = () => host.OpenUrlExternally("https://github.com/VolcanicArts/VRCOSC/releases/latest");
 
-        titleText.Clear();
-        titleText.AddText("Update Failed!", t =>
-        {
-            t.Font = FrameworkFont.Regular.With(size: 30);
-            t.Shadow = true;
-        });
-        titleText.AddParagraph("Please re-install VRCOSC from https://github.com/VolcanicArts/VRCOSC", t =>
-        {
-            t.Font = FrameworkFont.Regular.With(size: 20);
-            t.Colour = Colour4.White.Darken(0.15f);
-            t.Shadow = true;
-        });
+        titleText.Text.Value = "Update Failed!";
+        titleText.ShouldAnimate.Value = false;
     }
 
     protected virtual void RequestRestart() { }
 
     public virtual async void CheckForUpdate(bool useDelta = true) { }
 
-    protected override bool OnClick(ClickEvent e)
-    {
-        return shown;
-    }
-
-    protected override bool OnMouseDown(MouseDownEvent e)
-    {
-        return shown;
-    }
-
-    protected override bool OnHover(HoverEvent e)
-    {
-        return shown;
-    }
+    protected override bool OnClick(ClickEvent e) => shown;
+    protected override bool OnMouseDown(MouseDownEvent e) => shown;
+    protected override bool OnHover(HoverEvent e) => shown;
 }

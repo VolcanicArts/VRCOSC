@@ -7,7 +7,6 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
-using osu.Framework.Graphics.Sprites;
 
 namespace VRCOSC.Game.Graphics.Updater;
 
@@ -15,9 +14,6 @@ public class ProgressBar : Container
 {
     public Bindable<float> Progress = new();
     public Bindable<string> Text = new();
-
-    private SpriteText spriteText;
-    private int periodCount;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -42,12 +38,13 @@ public class ProgressBar : Container
                 Colour = VRCOSCColour.Green,
                 X = -1
             },
-            spriteText = new SpriteText
+            new LoadingSpriteText
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 Font = FrameworkFont.Regular.With(size: 20),
-                Shadow = true
+                Shadow = true,
+                Text = Text.GetBoundCopy()
             }
         };
 
@@ -56,20 +53,5 @@ public class ProgressBar : Container
             var progress = MathF.Min(MathF.Max(percentage.NewValue, 0), 1);
             bar.MoveToX(-1 + progress, 250, Easing.OutCirc);
         };
-
-        Text.BindValueChanged(_ =>
-        {
-            spriteText.Text = Text.Value;
-            periodCount = 0;
-            Scheduler.CancelDelayedTasks();
-            Scheduler.AddDelayed(updateTextPeriods, 500, true);
-        }, true);
-    }
-
-    private void updateTextPeriods()
-    {
-        periodCount++;
-        if (periodCount == 4) periodCount = 0;
-        spriteText.Text = Text + new string('.', periodCount);
     }
 }
