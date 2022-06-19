@@ -16,7 +16,7 @@ namespace VRCOSC.Game.Graphics.Updater;
 public class VRCOSCUpdateManager : Container
 {
     private Container popover;
-    private UpdateBar updateBar;
+    private ProgressBar progressBar;
 
     private SpriteText updateText;
     private TextButton restartButton;
@@ -102,7 +102,7 @@ public class VRCOSCUpdateManager : Container
                             Height = 25,
                             Children = new Drawable[]
                             {
-                                updateBar = new UpdateBar
+                                progressBar = new ProgressBar
                                 {
                                     Anchor = Anchor.Centre,
                                     Origin = Anchor.Centre,
@@ -152,7 +152,7 @@ public class VRCOSCUpdateManager : Container
 
     public void UpdateProgress(float percentage)
     {
-        Scheduler.Add(() => updateBar.Progress.Value = percentage);
+        Scheduler.Add(() => progressBar.Progress.Value = percentage);
     }
 
     public void UpdateText(string text)
@@ -162,7 +162,7 @@ public class VRCOSCUpdateManager : Container
 
     public void ResetProgress()
     {
-        Scheduler.Add(() => updateBar.Progress.Value = 0f);
+        Scheduler.Add(() => progressBar.Progress.Value = 0f);
     }
 
     public void CompleteUpdate(bool success)
