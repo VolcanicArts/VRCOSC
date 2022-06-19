@@ -30,34 +30,36 @@ public class SquirrelUpdateManager : VRCOSCUpdateManager
                 return;
             }
 
-            Logger.Log("Checking for update...");
-            var updateInfo = await updateManager.CheckForUpdate(!useDelta).ConfigureAwait(false);
+            try
+            {
+                Logger.Log("Checking for update...");
+                var updateInfo = await updateManager.CheckForUpdate(!useDelta).ConfigureAwait(false);
 
-            if (updateInfo.ReleasesToApply.Count == 0) return;
+                if (updateInfo.ReleasesToApply.Count == 0) return;
 
-            Logger.Log("Found updates to apply!");
+                Logger.Log("Found updates to apply!");
 
-            Show();
+                Show();
 
-            SetPhase(UpdatePhase.Download);
-            await updateManager.DownloadReleases(updateInfo.ReleasesToApply, UpdateProgress).ConfigureAwait(false);
+                SetPhase(UpdatePhase.Download);
+                await updateManager.DownloadReleases(updateInfo.ReleasesToApply, UpdateProgress).ConfigureAwait(false);
 
-            SetPhase(UpdatePhase.Install);
-            await updateManager.ApplyReleases(updateInfo, UpdateProgress).ConfigureAwait(false);
+                SetPhase(UpdatePhase.Install);
+                await updateManager.ApplyReleases(updateInfo, UpdateProgress).ConfigureAwait(false);
 
-            SetPhase(UpdatePhase.Success);
+                SetPhase(UpdatePhase.Success);
+            }
+            catch (Exception)
+            {
+                //delta update may have failed due to the installed version being too outdated. Retry without trying for delta
+                if (useDelta) CheckForUpdate(false);
+
+                throw;
+            }
         }
         catch (Exception)
         {
-            //delta update may have failed due to the installed version being too outdated. Retry without trying for delta
-            if (useDelta)
-            {
-                CheckForUpdate(false);
-                return;
-            }
-
             SetPhase(UpdatePhase.Fail);
-            throw;
         }
     }
 
