@@ -24,6 +24,14 @@ public class TestUpdateManager : VRCOSCTestScene
 
         AddStep("start", () => updateManager.Show());
 
+        AddStep("phase check", () =>
+        {
+            updateManager.SetPhase(UpdatePhase.Check);
+            progress = 0f;
+        });
+
+        AddRepeatStep("add progress", () => updateManager?.UpdateProgress(progress += 0.1f), 10);
+
         AddStep("phase download", () =>
         {
             updateManager.SetPhase(UpdatePhase.Download);
@@ -45,10 +53,12 @@ public class TestUpdateManager : VRCOSCTestScene
     public void TestPhasesManual()
     {
         AddStep("start", () => updateManager.Show());
+        AddStep("phase check", () => updateManager.SetPhase(UpdatePhase.Check));
         AddStep("phase download", () => updateManager.SetPhase(UpdatePhase.Download));
         AddStep("phase install", () => updateManager.SetPhase(UpdatePhase.Install));
         AddStep("phase success", () => updateManager.SetPhase(UpdatePhase.Success));
         AddStep("phase fail", () => updateManager.SetPhase(UpdatePhase.Fail));
+        AddStep("end", () => updateManager.Hide());
         AddSliderStep("progress bar", 0f, 1f, 0f, v => updateManager?.UpdateProgress(v));
     }
 }

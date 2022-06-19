@@ -147,6 +147,10 @@ public class VRCOSCUpdateManager : Container
 
         switch (phase)
         {
+            case UpdatePhase.Check:
+                enterCheckPhase();
+                break;
+
             case UpdatePhase.Download:
                 enterDownloadPhase();
                 break;
@@ -173,12 +177,35 @@ public class VRCOSCUpdateManager : Container
         Scheduler.Add(show);
     }
 
+    public override void Hide()
+    {
+        Scheduler.Add(hide);
+    }
+
     private void show()
     {
         if (shown) return;
 
         shown = true;
         popover.MoveToY(0, 500d, Easing.OutQuart);
+    }
+
+    private void hide()
+    {
+        if (!shown) return;
+
+        shown = false;
+        popover.MoveToY(1, 500d, Easing.InQuart);
+    }
+
+    private void enterCheckPhase()
+    {
+        progressBarContainer.Show();
+        button.Hide();
+
+        titleText.Text.Value = "Updating";
+        titleText.ShouldAnimate.Value = true;
+        progressBar.Text.Value = "Checking";
     }
 
     private void enterDownloadPhase()

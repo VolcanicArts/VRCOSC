@@ -13,6 +13,8 @@ namespace VRCOSC.Desktop.Updater;
 public class SquirrelUpdateManager : VRCOSCUpdateManager
 {
     private GithubUpdateManager updateManager;
+    private const string development_access_token = null;
+    private const string repo = @"https://github.com/VolcanicArts/VRCOSC";
 
     [Resolved]
     private GameHost host { get; set; }
@@ -22,7 +24,7 @@ public class SquirrelUpdateManager : VRCOSCUpdateManager
         try
         {
             Logger.Log("Attempting to find update...");
-            updateManager ??= new GithubUpdateManager(@"https://github.com/VolcanicArts/VRCOSC");
+            updateManager ??= new GithubUpdateManager(repo, false, development_access_token);
 
             if (!updateManager.IsInstalledApp)
             {
@@ -30,16 +32,22 @@ public class SquirrelUpdateManager : VRCOSCUpdateManager
                 return;
             }
 
+            Show();
+
             try
             {
                 Logger.Log("Checking for update...");
-                var updateInfo = await updateManager.CheckForUpdate(!useDelta).ConfigureAwait(false);
 
-                if (updateInfo.ReleasesToApply.Count == 0) return;
+                SetPhase(UpdatePhase.Check);
+                var updateInfo = await updateManager.CheckForUpdate(!useDelta, UpdateProgress).ConfigureAwait(false);
+
+                if (updateInfo.ReleasesToApply.Count == 0)
+                {
+                    Hide();
+                    return;
+                }
 
                 Logger.Log("Found updates to apply!");
-
-                Show();
 
                 SetPhase(UpdatePhase.Download);
                 await updateManager.DownloadReleases(updateInfo.ReleasesToApply, UpdateProgress).ConfigureAwait(false);
@@ -63,7 +71,6 @@ public class SquirrelUpdateManager : VRCOSCUpdateManager
         }
         catch (Exception e)
         {
-            Show();
             SetPhase(UpdatePhase.Fail);
 
             Logger.Error(e, "Updater Error");

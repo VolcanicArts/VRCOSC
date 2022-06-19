@@ -5,6 +5,7 @@ namespace VRCOSC.Game.Graphics.Updater;
 
 public enum UpdatePhase
 {
+    Check,
     Download,
     Install,
     Success,

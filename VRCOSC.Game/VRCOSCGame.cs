@@ -26,7 +26,7 @@ public abstract class VRCOSCGame : VRCOSCGameBase
     protected override void LoadComplete()
     {
         base.LoadComplete();
-        Task.Run(() => updateManager.CheckForUpdate()).ConfigureAwait(false);
+        Scheduler.AddDelayed(() => Task.Run(() => updateManager.CheckForUpdate()).ConfigureAwait(false), 1000);
     }
 
     public abstract VRCOSCUpdateManager CreateUpdateManager();
