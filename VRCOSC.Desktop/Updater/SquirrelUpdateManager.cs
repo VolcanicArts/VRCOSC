@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -61,9 +61,11 @@ public class SquirrelUpdateManager : VRCOSCUpdateManager
                 throw;
             }
         }
-        catch (Exception)
+        catch (Exception e)
         {
             SetPhase(UpdatePhase.Fail);
+
+            Logger.Error(e, "Updater Error");
         }
     }
 

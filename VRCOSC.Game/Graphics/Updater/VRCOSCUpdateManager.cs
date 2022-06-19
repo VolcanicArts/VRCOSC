@@ -170,6 +170,11 @@ public class VRCOSCUpdateManager : Container
 
     public override void Show()
     {
+        Scheduler.Add(show);
+    }
+
+    private void show()
+    {
         shown = true;
         popover.MoveToY(0, 500d, Easing.OutQuart);
     }
