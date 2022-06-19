@@ -52,7 +52,11 @@ public class SquirrelUpdateManager : VRCOSCUpdateManager
             catch (Exception)
             {
                 //delta update may have failed due to the installed version being too outdated. Retry without trying for delta
-                if (useDelta) CheckForUpdate(false);
+                if (useDelta)
+                {
+                    CheckForUpdate(false);
+                    return;
+                }
 
                 throw;
             }
