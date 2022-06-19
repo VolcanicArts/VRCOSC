@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
@@ -19,7 +18,7 @@ public class SquirrelUpdateManager : VRCOSCUpdateManager
     [Resolved]
     private GameHost host { get; set; }
 
-    public override async Task CheckForUpdate(bool useDelta)
+    public override async void CheckForUpdate(bool useDelta = true)
     {
         try
         {
@@ -41,26 +40,24 @@ public class SquirrelUpdateManager : VRCOSCUpdateManager
 
             Show();
 
-            ResetProgress();
-            UpdateText("Downloading...");
+            SetPhase(UpdatePhase.Download);
             await updateManager.DownloadReleases(updateInfo.ReleasesToApply, progress => UpdateProgress(progress / 100f)).ConfigureAwait(false);
 
-            ResetProgress();
-            UpdateText("Installing...");
+            SetPhase(UpdatePhase.Install);
             await updateManager.ApplyReleases(updateInfo, progress => UpdateProgress(progress / 100f)).ConfigureAwait(false);
 
-            CompleteUpdate(true);
+            SetPhase(UpdatePhase.Success);
         }
         catch (Exception)
         {
             //delta update may have failed due to the installed version being too outdated. Retry without trying for delta
             if (useDelta)
             {
-                await CheckForUpdate(false).ConfigureAwait(false);
+                CheckForUpdate(false);
                 return;
             }
 
-            CompleteUpdate(false);
+            SetPhase(UpdatePhase.Fail);
             throw;
         }
     }

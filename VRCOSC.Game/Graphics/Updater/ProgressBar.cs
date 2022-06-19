@@ -7,17 +7,20 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Graphics.Sprites;
 
 namespace VRCOSC.Game.Graphics.Updater;
 
 public class ProgressBar : Container
 {
     public Bindable<float> Progress = new();
+    public Bindable<string> Text = new();
 
     [BackgroundDependencyLoader]
     private void load()
     {
         Box bar;
+        SpriteText text;
 
         Children = new Drawable[]
         {
@@ -36,6 +39,13 @@ public class ProgressBar : Container
                 RelativePositionAxes = Axes.X,
                 Colour = VRCOSCColour.Green,
                 X = -1
+            },
+            text = new SpriteText
+            {
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                Font = FrameworkFont.Regular.With(size: 20),
+                Shadow = true
             }
         };
 
@@ -44,5 +54,7 @@ public class ProgressBar : Container
             var progress = MathF.Min(MathF.Max(percentage.NewValue, 0), 1);
             bar.MoveToX(-1 + progress, 250, Easing.OutCirc);
         };
+
+        Text.BindValueChanged(e => text.Text = e.NewValue, true);
     }
 }

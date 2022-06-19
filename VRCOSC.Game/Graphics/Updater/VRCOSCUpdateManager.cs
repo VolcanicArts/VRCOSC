@@ -1,12 +1,11 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Threading.Tasks;
+using System;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
-using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
 using osuTK;
 using VRCOSC.Game.Graphics.Containers.UI.Static;
@@ -17,11 +16,9 @@ public class VRCOSCUpdateManager : Container
 {
     private Container popover;
     private ProgressBar progressBar;
-
-    private SpriteText updateText;
     private TextButton restartButton;
-    private Container updateBarContainer;
-    private TextFlowContainer mainText;
+    private Container progressBarContainer;
+    private TextFlowContainer titleText;
 
     private bool shown;
 
@@ -39,7 +36,7 @@ public class VRCOSCUpdateManager : Container
         {
             Anchor = Anchor.Centre,
             Origin = Anchor.Centre,
-            Size = new Vector2(400, 250),
+            Size = new Vector2(400, 100),
             Masking = true,
             EdgeEffect = VRCOSCEdgeEffects.DispersedShadow,
             RelativePositionAxes = Axes.Both,
@@ -63,7 +60,7 @@ public class VRCOSCUpdateManager : Container
                     Padding = new MarginPadding(5),
                     Children = new Drawable[]
                     {
-                        mainText = new TextFlowContainer
+                        titleText = new TextFlowContainer
                         {
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
@@ -86,49 +83,147 @@ public class VRCOSCUpdateManager : Container
                                 RelativeSizeAxes = Axes.Both,
                                 BackgroundColour = VRCOSCColour.Green,
                                 FillMode = FillMode.Fit,
-                                FillAspectRatio = 5,
+                                FillAspectRatio = 8,
                                 Masking = true,
                                 CornerRadius = 10,
-                                Text = "Restart!",
+                                Text = "Click To Restart",
                                 FontSize = 25,
                                 Action = RequestRestart
                             }
                         },
-                        updateBarContainer = new Container
+                        progressBarContainer = new Container
                         {
                             Anchor = Anchor.BottomCentre,
                             Origin = Anchor.BottomCentre,
                             RelativeSizeAxes = Axes.X,
                             Height = 25,
-                            Children = new Drawable[]
+                            Child = progressBar = new ProgressBar
                             {
-                                progressBar = new ProgressBar
-                                {
-                                    Anchor = Anchor.Centre,
-                                    Origin = Anchor.Centre,
-                                    RelativeSizeAxes = Axes.Both,
-                                    Masking = true,
-                                    CornerRadius = 5,
-                                    BorderThickness = 2
-                                },
-                                updateText = new SpriteText
-                                {
-                                    Anchor = Anchor.TopCentre,
-                                    Origin = Anchor.BottomCentre
-                                }
+                                Anchor = Anchor.Centre,
+                                Origin = Anchor.Centre,
+                                RelativeSizeAxes = Axes.Both,
+                                Masking = true,
+                                CornerRadius = 10,
+                                BorderThickness = 2
                             }
                         }
                     }
                 }
             }
         };
+    }
 
-        mainText.AddText("Update Available!", t =>
+    protected override void LoadComplete()
+    {
+        progressBarContainer.Hide();
+        restartButton.Hide();
+    }
+
+    public void UpdateProgress(float percentage)
+    {
+        Scheduler.Add(() => updateProgress(percentage));
+    }
+
+    private void updateProgress(float percentage)
+    {
+        progressBar.Progress.Value = percentage;
+    }
+
+    public void SetPhase(UpdatePhase phase)
+    {
+        Scheduler.Add(() => setPhase(phase));
+    }
+
+    private void setPhase(UpdatePhase phase)
+    {
+        switch (phase)
+        {
+            case UpdatePhase.Download:
+                enterDownloadPhase();
+                break;
+
+            case UpdatePhase.Install:
+                enterInstallPhase();
+                break;
+
+            case UpdatePhase.Success:
+                enterSuccessPhase();
+                break;
+
+            case UpdatePhase.Fail:
+                enterFailPhase();
+                break;
+
+            default:
+                throw new ArgumentOutOfRangeException(nameof(phase), phase, null);
+        }
+    }
+
+    public override void Show()
+    {
+        shown = true;
+        popover.MoveToY(0, 500d, Easing.OutQuart);
+    }
+
+    private void enterDownloadPhase()
+    {
+        progressBarContainer.Show();
+        restartButton.Hide();
+
+        updateProgress(0f);
+
+        titleText.Clear();
+        titleText.AddText("Update Available", t =>
         {
             t.Font = FrameworkFont.Regular.With(size: 30);
             t.Shadow = true;
         });
-        mainText.AddParagraph("Downloading and installing the latest version of VRCOSC...", t =>
+
+        progressBar.Text.Value = "Downloading...";
+    }
+
+    private void enterInstallPhase()
+    {
+        progressBarContainer.Show();
+        restartButton.Hide();
+
+        updateProgress(0f);
+
+        titleText.Clear();
+        titleText.AddText("Update Available", t =>
+        {
+            t.Font = FrameworkFont.Regular.With(size: 30);
+            t.Shadow = true;
+        });
+
+        progressBar.Text.Value = "Installing...";
+    }
+
+    private void enterSuccessPhase()
+    {
+        progressBarContainer.Hide();
+        restartButton.Show();
+
+        titleText.Clear();
+        titleText.AddText("Update Complete!", t =>
+        {
+            t.Font = FrameworkFont.Regular.With(size: 30);
+            t.Shadow = true;
+        });
+    }
+
+    private void enterFailPhase()
+    {
+        progressBarContainer.Hide();
+        restartButton.Hide();
+
+        titleText.Clear();
+        titleText.AddText("Update Failed!", t =>
+        {
+            t.Font = FrameworkFont.Regular.With(size: 30);
+            t.Shadow = true;
+        });
+        titleText.AddParagraph("Please re-install VRCOSC from https://github.com/VolcanicArts/VRCOSC", t =>
         {
             t.Font = FrameworkFont.Regular.With(size: 20);
             t.Colour = Colour4.White.Darken(0.15f);
@@ -136,71 +231,9 @@ public class VRCOSCUpdateManager : Container
         });
     }
 
-    protected override void LoadComplete()
-    {
-        restartButton.Hide();
-    }
-
-    public override void Show()
-    {
-        Scheduler.Add(() =>
-        {
-            shown = true;
-            popover.MoveToY(0, 500d, Easing.OutQuart);
-        });
-    }
-
-    public void UpdateProgress(float percentage)
-    {
-        Scheduler.Add(() => progressBar.Progress.Value = percentage);
-    }
-
-    public void UpdateText(string text)
-    {
-        Scheduler.Add(() => updateText.Text = text);
-    }
-
-    public void ResetProgress()
-    {
-        Scheduler.Add(() => progressBar.Progress.Value = 0f);
-    }
-
-    public void CompleteUpdate(bool success)
-    {
-        Scheduler.Add(() =>
-        {
-            updateBarContainer.Hide();
-            mainText.Clear();
-
-            if (success)
-            {
-                restartButton.Show();
-                mainText.AddText("Update Complete!", t =>
-                {
-                    t.Font = FrameworkFont.Regular.With(size: 30);
-                    t.Shadow = true;
-                });
-            }
-            else
-            {
-                mainText.AddText("Update Failed!", t =>
-                {
-                    t.Font = FrameworkFont.Regular.With(size: 30);
-                    t.Shadow = true;
-                });
-                mainText.AddParagraph("Please re-install VRCOSC from https://github.com/VolcanicArts/VRCOSC", t =>
-                {
-                    t.Font = FrameworkFont.Regular.With(size: 20);
-                    t.Colour = Colour4.White.Darken(0.15f);
-                    t.Shadow = true;
-                });
-            }
-        });
-    }
-
     public virtual void RequestRestart() { }
 
-    public virtual async Task CheckForUpdate(bool useDelta) { }
+    public virtual async void CheckForUpdate(bool useDelta = true) { }
 
     protected override bool OnClick(ClickEvent e)
     {
