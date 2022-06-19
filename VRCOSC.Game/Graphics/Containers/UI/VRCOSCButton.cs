@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Input.Events;
 
@@ -15,13 +14,11 @@ public class VRCOSCButton : osu.Framework.Graphics.UserInterface.Button
     private const float alpha_enabled = 1.0f;
     private const float alpha_disabled = 0.5f;
 
-    [BackgroundDependencyLoader]
-    private void load()
+    public VRCOSCButton()
     {
         Masking = true;
-
         Enabled.Value = true;
-        Enabled.ValueChanged += (_) => this.FadeTo(Enabled.Value ? alpha_enabled : alpha_disabled, 500, Easing.OutCirc);
+        Enabled.BindValueChanged(_ => this.FadeTo(Enabled.Value ? alpha_enabled : alpha_disabled, 500, Easing.OutCirc), true);
     }
 
     protected override bool OnHover(HoverEvent e)

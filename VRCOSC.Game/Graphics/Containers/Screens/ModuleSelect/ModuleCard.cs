@@ -49,9 +49,6 @@ public sealed class ModuleCard : Container, IFilterable
     [BackgroundDependencyLoader]
     private void load(ScreenManager screenManager)
     {
-        IconButton editButton;
-        TextFlowContainer prefabTextFlow;
-
         Children = new Drawable[]
         {
             new TrianglesBackground
@@ -72,8 +69,8 @@ public sealed class ModuleCard : Container, IFilterable
                 RowDimensions = new[]
                 {
                     new Dimension(GridSizeMode.Absolute, 35),
-                    new Dimension(GridSizeMode.Absolute, 100),
-                    new Dimension()
+                    new Dimension(),
+                    new Dimension(GridSizeMode.Absolute, 65)
                 },
                 Content = new[]
                 {
@@ -128,7 +125,7 @@ public sealed class ModuleCard : Container, IFilterable
                                     Padding = new MarginPadding(7),
                                     Children = new Drawable[]
                                     {
-                                        editButton = new IconButton
+                                        new IconButton
                                         {
                                             Anchor = Anchor.BottomLeft,
                                             Origin = Anchor.BottomLeft,
@@ -136,7 +133,18 @@ public sealed class ModuleCard : Container, IFilterable
                                             Icon = FontAwesome.Solid.Get(0xF013),
                                             FillMode = FillMode.Fit,
                                             CornerRadius = 10,
-                                            Action = () => screenManager.EditModule(sourceModule)
+                                            Action = () => screenManager.EditModule(sourceModule),
+                                            Enabled = { Value = sourceModule.HasAttributes }
+                                        },
+                                        new SpriteText
+                                        {
+                                            Anchor = Anchor.Centre,
+                                            Origin = Anchor.Centre,
+                                            Font = FrameworkFont.Regular.With(size: 20),
+                                            Colour = Colour4.White.Opacity(0.9f),
+                                            Shadow = true,
+                                            Text = $"Pairs with {sourceModule.Prefab}",
+                                            Alpha = string.IsNullOrEmpty(sourceModule.Prefab) ? 0 : 1
                                         },
                                         new StatefulIconButton
                                         {
@@ -148,19 +156,6 @@ public sealed class ModuleCard : Container, IFilterable
                                             State = (BindableBool)sourceModule.Enabled.GetBoundCopy(),
                                             IconStateTrue = FontAwesome.Solid.PowerOff,
                                             IconStateFalse = FontAwesome.Solid.PowerOff
-                                        },
-                                        prefabTextFlow = new TextFlowContainer(t =>
-                                        {
-                                            t.Font = FrameworkFont.Regular.With(size: 20);
-                                            t.Colour = Colour4.White.Opacity(0.9f);
-                                            t.Shadow = true;
-                                        })
-                                        {
-                                            Anchor = Anchor.BottomCentre,
-                                            Origin = Anchor.BottomCentre,
-                                            RelativeSizeAxes = Axes.Both,
-                                            TextAnchor = Anchor.Centre,
-                                            Text = $"Pairs with {sourceModule.Prefab}"
                                         }
                                     }
                                 }
@@ -170,10 +165,6 @@ public sealed class ModuleCard : Container, IFilterable
                 }
             }
         };
-
-        if (!sourceModule.HasAttributes) editButton.Enabled.Value = false;
-
-        if (string.IsNullOrEmpty(sourceModule.Prefab)) prefabTextFlow.Hide();
     }
 
     public IEnumerable<LocalisableString> FilterTerms { get; }
