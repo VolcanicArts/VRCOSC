@@ -119,6 +119,12 @@ public class VRCOSCUpdateManager : Container
         restartButton.Hide();
     }
 
+    // Shorthand for dealing with 0-100
+    public void UpdateProgress(int percentage)
+    {
+        UpdateProgress(percentage / 100f);
+    }
+
     public void UpdateProgress(float percentage)
     {
         Scheduler.Add(() => updateProgress(percentage));
@@ -179,7 +185,7 @@ public class VRCOSCUpdateManager : Container
             t.Shadow = true;
         });
 
-        progressBar.Text.Value = "Downloading...";
+        progressBar.Text.Value = "Downloading";
     }
 
     private void enterInstallPhase()
@@ -196,7 +202,7 @@ public class VRCOSCUpdateManager : Container
             t.Shadow = true;
         });
 
-        progressBar.Text.Value = "Installing...";
+        progressBar.Text.Value = "Installing";
     }
 
     private void enterSuccessPhase()
@@ -231,7 +237,7 @@ public class VRCOSCUpdateManager : Container
         });
     }
 
-    public virtual void RequestRestart() { }
+    protected virtual void RequestRestart() { }
 
     public virtual async void CheckForUpdate(bool useDelta = true) { }
 

@@ -13,7 +13,6 @@ namespace VRCOSC.Desktop.Updater;
 public class SquirrelUpdateManager : VRCOSCUpdateManager
 {
     private GithubUpdateManager updateManager;
-    private UpdateInfo updateInfo;
 
     [Resolved]
     private GameHost host { get; set; }
@@ -32,7 +31,7 @@ public class SquirrelUpdateManager : VRCOSCUpdateManager
             }
 
             Logger.Log("Checking for update...");
-            updateInfo = await updateManager.CheckForUpdate(!useDelta).ConfigureAwait(false);
+            var updateInfo = await updateManager.CheckForUpdate(!useDelta).ConfigureAwait(false);
 
             if (updateInfo.ReleasesToApply.Count == 0) return;
 
@@ -41,10 +40,10 @@ public class SquirrelUpdateManager : VRCOSCUpdateManager
             Show();
 
             SetPhase(UpdatePhase.Download);
-            await updateManager.DownloadReleases(updateInfo.ReleasesToApply, progress => UpdateProgress(progress / 100f)).ConfigureAwait(false);
+            await updateManager.DownloadReleases(updateInfo.ReleasesToApply, UpdateProgress).ConfigureAwait(false);
 
             SetPhase(UpdatePhase.Install);
-            await updateManager.ApplyReleases(updateInfo, progress => UpdateProgress(progress / 100f)).ConfigureAwait(false);
+            await updateManager.ApplyReleases(updateInfo, UpdateProgress).ConfigureAwait(false);
 
             SetPhase(UpdatePhase.Success);
         }
@@ -62,7 +61,7 @@ public class SquirrelUpdateManager : VRCOSCUpdateManager
         }
     }
 
-    public override void RequestRestart()
+    protected override void RequestRestart()
     {
         UpdateManager.RestartAppWhenExited().ContinueWith(_ => host.Exit()).ConfigureAwait(false);
     }

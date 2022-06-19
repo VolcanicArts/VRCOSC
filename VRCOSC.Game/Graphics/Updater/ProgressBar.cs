@@ -16,11 +16,13 @@ public class ProgressBar : Container
     public Bindable<float> Progress = new();
     public Bindable<string> Text = new();
 
+    private SpriteText spriteText;
+    private int periodCount;
+
     [BackgroundDependencyLoader]
     private void load()
     {
         Box bar;
-        SpriteText text;
 
         Children = new Drawable[]
         {
@@ -40,7 +42,7 @@ public class ProgressBar : Container
                 Colour = VRCOSCColour.Green,
                 X = -1
             },
-            text = new SpriteText
+            spriteText = new SpriteText
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
@@ -55,6 +57,19 @@ public class ProgressBar : Container
             bar.MoveToX(-1 + progress, 250, Easing.OutCirc);
         };
 
-        Text.BindValueChanged(e => text.Text = e.NewValue, true);
+        Text.BindValueChanged(_ =>
+        {
+            spriteText.Text = Text.Value;
+            periodCount = 0;
+            Scheduler.CancelDelayedTasks();
+            Scheduler.AddDelayed(updateTextPeriods, 500, true);
+        }, true);
+    }
+
+    private void updateTextPeriods()
+    {
+        periodCount++;
+        if (periodCount == 4) periodCount = 0;
+        spriteText.Text = Text + new string('.', periodCount);
     }
 }

@@ -30,7 +30,7 @@ public class TestProgressBar : VRCOSCTestScene
     [Test]
     public void TestProgress()
     {
-        AddStep("set text", () => progressBar.Text.Value = "Test text...");
+        AddStep("set text", () => progressBar.Text.Value = "Test text");
         AddSliderStep("set progress", 0f, 1f, 0f, v =>
         {
             if (progressBar != null)
