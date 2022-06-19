@@ -31,7 +31,16 @@ public sealed class ModuleListingGroup : Container, IFilterable
         AutoSizeAxes = Axes.Y;
         Padding = new MarginPadding(5);
 
-        populateFilter();
+        List<LocalisableString> localFilters = new List<LocalisableString>();
+
+        moduleGroup.ForEach(module =>
+        {
+            localFilters.Add(module.Module.Title);
+            localFilters.Add(module.Module.Author);
+            module.Module.Tags.ForEach(tag => localFilters.Add(tag));
+        });
+
+        FilterTerms = localFilters;
     }
 
     [BackgroundDependencyLoader]
@@ -145,31 +154,7 @@ public sealed class ModuleListingGroup : Container, IFilterable
             if (!dropdownButton.State.Value) dropdownButton.State.Toggle();
         };
 
-        dropdownButton.State.ValueChanged += e =>
-        {
-            if (e.NewValue)
-            {
-                moduleCardFlow.ForEach(card => card.Show());
-            }
-            else
-            {
-                moduleCardFlow.ForEach(card => card.Hide());
-            }
-        };
-    }
-
-    private void populateFilter()
-    {
-        List<LocalisableString> localFilters = new List<LocalisableString>();
-
-        moduleGroup.ForEach(module =>
-        {
-            localFilters.Add(module.Module.Title);
-            localFilters.Add(module.Module.Author);
-            module.Module.Tags.ForEach(tag => localFilters.Add(tag));
-        });
-
-        FilterTerms = localFilters;
+        dropdownButton.State.ValueChanged += e => moduleCardFlow.FadeTo(e.NewValue ? 1 : 0, 100);
     }
 
     public IEnumerable<LocalisableString> FilterTerms { get; private set; }

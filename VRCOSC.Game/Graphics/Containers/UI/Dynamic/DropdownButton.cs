@@ -22,7 +22,7 @@ public class DropdownButton : StatefulIconButton
     [BackgroundDependencyLoader]
     private void load()
     {
-        State.BindValueChanged(_ => spriteIcon.RotateTo(State.Value ? 90 : 0, 400, Easing.OutElastic), true);
+        State.BindValueChanged(_ => spriteIcon.RotateTo(State.Value ? 90 : 0, 400, Easing.OutQuart), true);
     }
 
     protected override SpriteIcon CreateSpriteIcon()
