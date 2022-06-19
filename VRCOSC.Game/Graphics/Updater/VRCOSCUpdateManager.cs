@@ -175,6 +175,8 @@ public class VRCOSCUpdateManager : Container
 
     private void show()
     {
+        if (shown) return;
+
         shown = true;
         popover.MoveToY(0, 500d, Easing.OutQuart);
     }

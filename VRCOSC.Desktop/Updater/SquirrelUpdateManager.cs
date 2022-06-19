@@ -63,6 +63,7 @@ public class SquirrelUpdateManager : VRCOSCUpdateManager
         }
         catch (Exception e)
         {
+            Show();
             SetPhase(UpdatePhase.Fail);
 
             Logger.Error(e, "Updater Error");
