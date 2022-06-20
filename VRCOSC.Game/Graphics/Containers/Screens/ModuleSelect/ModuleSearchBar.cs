@@ -62,7 +62,7 @@ public sealed class ModuleSearchBar : Container
                                 Origin = Anchor.BottomCentre,
                                 RelativeSizeAxes = Axes.Both,
                                 PlaceholderText = "Search...",
-                                CharWritten = searchString => moduleSelection.SearchString.Value = searchString
+                                Current = moduleSelection.SearchString
                             },
                         },
                         new Container
