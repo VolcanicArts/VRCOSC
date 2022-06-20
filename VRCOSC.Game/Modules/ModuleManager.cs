@@ -96,6 +96,11 @@ public sealed class ModuleManager : Container<ModuleGroup>
             terminal.Log("Exception detected. An invalid OSC IP address has been provided");
             return;
         }
+        catch (ArgumentOutOfRangeException)
+        {
+            terminal.Log("Exception detected. An invalid OSC port has been provided");
+            return;
+        }
 
         this.ForEach(child => child.Start());
         running = true;
