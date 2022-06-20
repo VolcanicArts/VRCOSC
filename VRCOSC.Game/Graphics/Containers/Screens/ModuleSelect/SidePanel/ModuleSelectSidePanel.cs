@@ -15,11 +15,11 @@ using VRCOSC.Game.Graphics.Containers.UI.Static;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect.SidePanel;
 
-public sealed class ModuleSelectionSidePanel : Container
+public sealed class ModuleSelectSidePanel : Container
 {
     private BindableBool runButtonEnableBindable = null!;
 
-    public ModuleSelectionSidePanel()
+    public ModuleSelectSidePanel()
     {
         Anchor = Anchor.Centre;
         Origin = Anchor.Centre;
@@ -61,7 +61,7 @@ public sealed class ModuleSelectionSidePanel : Container
                 {
                     new Drawable[]
                     {
-                        new ModuleSelectionSidePanelContent()
+                        new ModuleSelectSidePanelContent()
                     },
                     new Drawable[]
                     {

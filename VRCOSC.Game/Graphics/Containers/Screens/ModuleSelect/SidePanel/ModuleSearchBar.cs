@@ -8,7 +8,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using VRCOSC.Game.Graphics.Containers.UI;
 
-namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
+namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect.SidePanel;
 
 public sealed class ModuleSearchBar : Container
 {

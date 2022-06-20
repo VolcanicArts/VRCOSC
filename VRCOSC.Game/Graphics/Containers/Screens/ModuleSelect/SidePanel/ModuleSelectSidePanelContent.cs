@@ -7,9 +7,9 @@ using osu.Framework.Graphics.Containers;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect.SidePanel;
 
-public sealed class ModuleSelectionSidePanelContent : GridContainer
+public sealed class ModuleSelectSidePanelContent : GridContainer
 {
-    public ModuleSelectionSidePanelContent()
+    public ModuleSelectSidePanelContent()
     {
         Anchor = Anchor.Centre;
         Origin = Anchor.Centre;

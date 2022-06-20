@@ -40,7 +40,7 @@ public sealed class ModuleSelection : Container
                 {
                     new Drawable[]
                     {
-                        new ModuleSelectionSidePanel(),
+                        new ModuleSelectSidePanel(),
                         new ModuleListing()
                     }
                 }
