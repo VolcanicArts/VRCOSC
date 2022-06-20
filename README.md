@@ -7,11 +7,16 @@ A modular OSC application creator made for [VRChat](https://vrchat.com) built on
 [![downloads](https://img.shields.io/github/downloads/VolcanicArts/VRCOSC/total?style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/releases/latest)
 [![lastcommit](https://img.shields.io/github/last-commit/VolcanicArts/VRCOSC?style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/commits/main) 
 [![issues](https://img.shields.io/github/issues/VolcanicArts/VRCOSC?style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/issues)
+[![discussions](https://img.shields.io/github/discussions/VolcanicArts/VRCOSC?style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/discussions)
 
 ## Getting Started
-Download VRCOSC from the [Releases](https://github.com/VolcanicArts/VRCOSC/releases/latest) page. Enable the modules you'd like to use. Download any prefabs that are available and put them onto your avatar (guides are available in each prefab). Press the play button!
+Download VRCOSCSetup from the [Releases](https://github.com/VolcanicArts/VRCOSC/releases/latest) page. Enable the modules you'd like to use. Download any prefabs that are available and put them onto your avatar. Guides are available inside each prefab. Press the play button or enable auto-start!
 
-Want to make your own module? Check the (work in progress) [wiki page](https://github.com/VolcanicArts/VRCOSC/wiki/Module-Creation).
+If you like VRCOSC, please star the repo. It really helps!
+
+Have a module or prefab suggestion? Post your ideas in the [Ideas](https://github.com/VolcanicArts/VRCOSC/discussions/categories/ideas) discussion.
+
+Want to make your own module? Check the [Wiki](https://github.com/VolcanicArts/VRCOSC/wiki/Module-Creation) page.
 
 ## Modules
 | Module | Description | Notes | Prefab |
