@@ -28,7 +28,6 @@ public sealed class ModuleListingGroup : Container, IFilterable
         Origin = Anchor.TopCentre;
         RelativeSizeAxes = Axes.X;
         AutoSizeAxes = Axes.Y;
-        Padding = new MarginPadding(5);
 
         List<LocalisableString> localFilters = new List<LocalisableString>();
 
@@ -55,7 +54,6 @@ public sealed class ModuleListingGroup : Container, IFilterable
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.X,
                 AutoSizeAxes = Axes.Y,
-                Padding = new MarginPadding(5),
                 Children = new Drawable[]
                 {
                     new ModuleListingGroupDropdownHeader

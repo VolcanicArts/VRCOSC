@@ -6,6 +6,7 @@ using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osuTK;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
@@ -46,7 +47,9 @@ public sealed class ModuleListing : Container
                     Origin = Anchor.Centre,
                     RelativeSizeAxes = Axes.X,
                     AutoSizeAxes = Axes.Y,
-                    Direction = FillDirection.Vertical
+                    Padding = new MarginPadding(10),
+                    Direction = FillDirection.Vertical,
+                    Spacing = new Vector2(0, 10)
                 }
             }
         };
