@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Sockets;
 using osu.Framework.Allocation;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics.Containers;
@@ -22,6 +23,7 @@ public sealed class ModuleManager : Container<ModuleGroup>
     private bool autoStarted;
 
     public readonly OscClient OSCClient = new();
+    private readonly TerminalLogger terminal = new(nameof(ModuleManager));
 
     [Resolved]
     private VRCOSCConfigManager configManager { get; set; }
@@ -84,14 +86,25 @@ public sealed class ModuleManager : Container<ModuleGroup>
         var sendPort = configManager.Get<int>(VRCOSCSetting.SendPort);
         var receivePort = configManager.Get<int>(VRCOSCSetting.ReceivePort);
 
-        OSCClient.Initialise(ipAddress, sendPort, receivePort);
-        OSCClient.Enable();
+        try
+        {
+            OSCClient.Initialise(ipAddress, sendPort, receivePort);
+            OSCClient.Enable();
+        }
+        catch (SocketException)
+        {
+            terminal.Log("Exception detected. An invalid OSC IP address has been provided");
+            return;
+        }
+
         this.ForEach(child => child.Start());
         running = true;
     }
 
     public void Stop()
     {
+        if (!running) return;
+
         running = false;
         this.ForEach(child => child.Stop());
         OSCClient.Disable();

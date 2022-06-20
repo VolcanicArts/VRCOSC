@@ -40,7 +40,7 @@ public class OscClient : IDisposable
 
     public void Disable()
     {
-        tokenSource.Cancel();
+        tokenSource?.Cancel();
     }
 
     public void SendData(string address, bool value) => sendData(address, value ? OscTrue.True : OscFalse.False);
