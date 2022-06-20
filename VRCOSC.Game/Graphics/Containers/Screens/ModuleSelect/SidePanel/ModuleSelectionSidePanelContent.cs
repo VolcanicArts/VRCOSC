@@ -5,7 +5,7 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 
-namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
+namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect.SidePanel;
 
 public sealed class ModuleSelectionSidePanelContent : GridContainer
 {
@@ -32,7 +32,7 @@ public sealed class ModuleSelectionSidePanelContent : GridContainer
             },
             new Drawable[]
             {
-                new ModuleOptionContainer()
+                new VRCOSCOptionContainer()
             }
         };
     }

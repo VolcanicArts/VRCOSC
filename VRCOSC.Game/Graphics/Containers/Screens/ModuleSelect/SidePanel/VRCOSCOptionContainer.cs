@@ -7,11 +7,11 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using VRCOSC.Game.Config;
 
-namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
+namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect.SidePanel;
 
-public sealed class ModuleOptionContainer : Container
+public sealed class VRCOSCOptionContainer : Container
 {
-    public ModuleOptionContainer()
+    public VRCOSCOptionContainer()
     {
         Anchor = Anchor.TopCentre;
         Origin = Anchor.TopCentre;
@@ -39,7 +39,7 @@ public sealed class ModuleOptionContainer : Container
                     RelativeSizeAxes = Axes.Both,
                     Colour = VRCOSCColour.Gray4
                 },
-                new FillFlowContainer<ModuleOption>
+                new FillFlowContainer<VRCOSCOption>
                 {
                     Anchor = Anchor.TopCentre,
                     Origin = Anchor.TopCentre,
@@ -48,11 +48,10 @@ public sealed class ModuleOptionContainer : Container
                     Direction = FillDirection.Vertical,
                     Children = new[]
                     {
-                        new ModuleOption
+                        new VRCOSCBoolOption
                         {
                             Text = "Auto Start/Stop",
-                            InitialState = configManager.Get<bool>(VRCOSCSetting.AutoStartStop),
-                            OnOptionChange = state => configManager.SetValue(VRCOSCSetting.AutoStartStop, state)
+                            State = configManager.GetBindable<bool>(VRCOSCSetting.AutoStartStop),
                         }
                     }
                 }

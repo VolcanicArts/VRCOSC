@@ -13,7 +13,7 @@ using osuTK.Graphics;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics.Containers.UI.Static;
 
-namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
+namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect.SidePanel;
 
 public sealed class ModuleSelectionSidePanel : Container
 {

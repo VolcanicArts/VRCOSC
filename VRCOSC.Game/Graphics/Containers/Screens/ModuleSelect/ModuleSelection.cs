@@ -5,6 +5,7 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect.SidePanel;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
 
