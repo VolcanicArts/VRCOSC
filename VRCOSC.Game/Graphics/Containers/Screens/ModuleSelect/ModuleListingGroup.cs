@@ -3,13 +3,13 @@
 
 using System.Collections.Generic;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
-using osu.Framework.Graphics.Sprites;
+using osu.Framework.Input.Events;
 using osu.Framework.Localisation;
-using VRCOSC.Game.Graphics.Containers.UI.Dynamic;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
@@ -18,8 +18,7 @@ public sealed class ModuleListingGroup : Container, IFilterable
 {
     private readonly ModuleGroup moduleGroup;
 
-    private SearchContainer<ModuleCard> moduleCardFlow;
-    private DropdownButton dropdownButton;
+    private readonly BindableBool state = new(true);
 
     public ModuleListingGroup(ModuleGroup moduleGroup)
     {
@@ -46,6 +45,8 @@ public sealed class ModuleListingGroup : Container, IFilterable
     [BackgroundDependencyLoader]
     private void load(ModuleSelection moduleSelection)
     {
+        SearchContainer<ModuleCard> moduleCardFlow;
+
         Children = new Drawable[]
         {
             new FillFlowContainer
@@ -57,7 +58,7 @@ public sealed class ModuleListingGroup : Container, IFilterable
                 Padding = new MarginPadding(5),
                 Children = new Drawable[]
                 {
-                    new Container
+                    new ModuleListingGroupDropdownHeader
                     {
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
@@ -65,42 +66,8 @@ public sealed class ModuleListingGroup : Container, IFilterable
                         Height = 50,
                         Masking = true,
                         CornerRadius = 10,
-                        Children = new Drawable[]
-                        {
-                            new Box
-                            {
-                                Anchor = Anchor.Centre,
-                                Origin = Anchor.Centre,
-                                RelativeSizeAxes = Axes.Both,
-                                Colour = VRCOSCColour.Gray5
-                            },
-                            new FillFlowContainer
-                            {
-                                Anchor = Anchor.CentreLeft,
-                                Origin = Anchor.CentreLeft,
-                                RelativeSizeAxes = Axes.Y,
-                                AutoSizeAxes = Axes.X,
-                                Direction = FillDirection.Horizontal,
-                                Children = new Drawable[]
-                                {
-                                    dropdownButton = new DropdownButton
-                                    {
-                                        Anchor = Anchor.CentreLeft,
-                                        Origin = Anchor.CentreLeft,
-                                        RelativeSizeAxes = Axes.Both,
-                                        FillMode = FillMode.Fit,
-                                        State = { Value = true }
-                                    },
-                                    new SpriteText
-                                    {
-                                        Anchor = Anchor.CentreLeft,
-                                        Origin = Anchor.CentreLeft,
-                                        Text = moduleGroup.Type.ToString(),
-                                        Font = FrameworkFont.Regular.With(size: 30)
-                                    }
-                                }
-                            }
-                        }
+                        State = (BindableBool)state.GetBoundCopy(),
+                        Title = moduleGroup.Type.ToString()
                     },
                     new Container
                     {
@@ -149,10 +116,16 @@ public sealed class ModuleListingGroup : Container, IFilterable
         moduleSelection.SearchString.ValueChanged += searchTerm =>
         {
             moduleCardFlow.SearchTerm = searchTerm.NewValue;
-            if (!dropdownButton.State.Value) dropdownButton.State.Toggle();
+            if (!state.Value) state.Value = true;
         };
 
-        dropdownButton.State.ValueChanged += e => moduleCardFlow.FadeTo(e.NewValue ? 1 : 0, 100);
+        state.BindValueChanged(e => moduleCardFlow.FadeTo(e.NewValue ? 1 : 0, 100), true);
+    }
+
+    protected override bool OnClick(ClickEvent e)
+    {
+        state.Toggle();
+        return true;
     }
 
     public IEnumerable<LocalisableString> FilterTerms { get; private set; }
