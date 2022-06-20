@@ -13,7 +13,7 @@ namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing;
 
 public class StringAttributeCard : AttributeCard
 {
-    private VRCOSCTextBox textBox;
+    protected VRCOSCTextBox textBox;
 
     public StringAttributeCard(ModuleAttributeData attributeData)
         : base(attributeData)
@@ -42,7 +42,7 @@ public class StringAttributeCard : AttributeCard
 
         AttributeData.Attribute.ValueChanged += updateTextBox;
 
-        textBox.OnCommit += (_, _) => OnCommit(textBox.Text!);
+        textBox.Current.ValueChanged += OnTextChange;
     }
 
     private void updateTextBox(ValueChangedEvent<object> e)
@@ -50,9 +50,9 @@ public class StringAttributeCard : AttributeCard
         textBox.Text = e.NewValue.ToString();
     }
 
-    protected virtual void OnCommit(string text)
+    protected virtual void OnTextChange(ValueChangedEvent<string> e)
     {
-        AttributeData.Attribute.Value = text;
+        AttributeData.Attribute.Value = e.NewValue;
     }
 
     protected override void Dispose(bool isDisposing)
