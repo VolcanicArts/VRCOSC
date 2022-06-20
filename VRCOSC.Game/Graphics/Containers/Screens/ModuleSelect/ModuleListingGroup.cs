@@ -65,7 +65,6 @@ public sealed class ModuleListingGroup : Container, IFilterable
                         Height = 50,
                         Masking = true,
                         CornerRadius = 10,
-                        EdgeEffect = VRCOSCEdgeEffects.BasicShadow,
                         Children = new Drawable[]
                         {
                             new Box
@@ -123,7 +122,6 @@ public sealed class ModuleListingGroup : Container, IFilterable
                             AutoSizeEasing = Easing.OutQuint,
                             Masking = true,
                             CornerRadius = 10,
-                            EdgeEffect = VRCOSCEdgeEffects.BasicShadow,
                             Children = new Drawable[]
                             {
                                 new Box

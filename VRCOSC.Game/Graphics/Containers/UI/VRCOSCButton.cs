@@ -2,11 +2,12 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Input.Events;
 
 namespace VRCOSC.Game.Graphics.Containers.UI;
 
-public class VRCOSCButton : osu.Framework.Graphics.UserInterface.Button
+public class VRCOSCButton : Button
 {
     private const float scale_default = 1.0f;
     private const float scale_hovered = 1.05f;

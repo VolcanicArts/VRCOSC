@@ -3,13 +3,10 @@
 
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
-using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Effects;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
-using osuTK.Graphics;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics.Containers.UI.Static;
 
@@ -26,12 +23,6 @@ public sealed class ModuleSelectSidePanel : Container
         RelativeSizeAxes = Axes.Both;
         Depth = float.MinValue;
         Masking = true;
-        EdgeEffect = new EdgeEffectParameters
-        {
-            Colour = Color4.Black.Opacity(0.6f),
-            Radius = 5f,
-            Type = EdgeEffectType.Shadow
-        };
     }
 
     [BackgroundDependencyLoader]

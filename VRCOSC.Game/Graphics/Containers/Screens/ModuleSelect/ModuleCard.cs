@@ -34,8 +34,6 @@ public sealed class ModuleCard : Container, IFilterable
         Margin = new MarginPadding(5);
         Masking = true;
         CornerRadius = 10;
-        BorderThickness = 2;
-        EdgeEffect = VRCOSCEdgeEffects.BasicShadow;
 
         List<LocalisableString> filters = new List<LocalisableString>
         {
@@ -81,7 +79,6 @@ public sealed class ModuleCard : Container, IFilterable
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
                             Font = FrameworkFont.Regular.With(size: 35),
-                            Shadow = true,
                             Text = sourceModule.Title
                         }
                     },
@@ -90,7 +87,6 @@ public sealed class ModuleCard : Container, IFilterable
                         new TextFlowContainer(t =>
                         {
                             t.Font = FrameworkFont.Regular.With(size: 25);
-                            t.Shadow = true;
                         })
                         {
                             Anchor = Anchor.TopCentre,
@@ -125,16 +121,22 @@ public sealed class ModuleCard : Container, IFilterable
                                     Padding = new MarginPadding(7),
                                     Children = new Drawable[]
                                     {
-                                        new IconButton
+                                        new Container
                                         {
                                             Anchor = Anchor.BottomLeft,
                                             Origin = Anchor.BottomLeft,
                                             RelativeSizeAxes = Axes.Both,
-                                            Icon = FontAwesome.Solid.Get(0xF013),
                                             FillMode = FillMode.Fit,
-                                            CornerRadius = 10,
-                                            Action = () => screenManager.EditModule(sourceModule),
-                                            Enabled = { Value = sourceModule.HasAttributes }
+                                            Child = new IconButton
+                                            {
+                                                Anchor = Anchor.Centre,
+                                                Origin = Anchor.Centre,
+                                                RelativeSizeAxes = Axes.Both,
+                                                Icon = FontAwesome.Solid.Get(0xF013),
+                                                CornerRadius = 10,
+                                                Action = () => screenManager.EditModule(sourceModule),
+                                                Enabled = { Value = sourceModule.HasAttributes }
+                                            }
                                         },
                                         new SpriteText
                                         {
@@ -142,20 +144,25 @@ public sealed class ModuleCard : Container, IFilterable
                                             Origin = Anchor.Centre,
                                             Font = FrameworkFont.Regular.With(size: 20),
                                             Colour = Colour4.White.Opacity(0.9f),
-                                            Shadow = true,
                                             Text = $"Pairs with {sourceModule.Prefab}",
                                             Alpha = string.IsNullOrEmpty(sourceModule.Prefab) ? 0 : 1
                                         },
-                                        new StatefulIconButton
+                                        new Container
                                         {
                                             Anchor = Anchor.BottomRight,
                                             Origin = Anchor.BottomRight,
                                             RelativeSizeAxes = Axes.Both,
                                             FillMode = FillMode.Fit,
-                                            CornerRadius = 10,
-                                            State = (BindableBool)sourceModule.Enabled.GetBoundCopy(),
-                                            IconStateTrue = FontAwesome.Solid.PowerOff,
-                                            IconStateFalse = FontAwesome.Solid.PowerOff
+                                            Child = new StatefulIconButton
+                                            {
+                                                Anchor = Anchor.Centre,
+                                                Origin = Anchor.Centre,
+                                                RelativeSizeAxes = Axes.Both,
+                                                CornerRadius = 10,
+                                                State = (BindableBool)sourceModule.Enabled.GetBoundCopy(),
+                                                IconStateTrue = FontAwesome.Solid.PowerOff,
+                                                IconStateFalse = FontAwesome.Solid.PowerOff
+                                            }
                                         }
                                     }
                                 }
