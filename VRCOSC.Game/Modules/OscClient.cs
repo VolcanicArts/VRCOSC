@@ -14,22 +14,21 @@ namespace VRCOSC.Game.Modules;
 
 public class OscClient : IDisposable
 {
-    private const string osc_ip_address = "127.0.0.1";
-    private const int osc_send_port = 9000;
-    private const int osc_receive_port = 9001;
-
-    private readonly UdpClient sendingClient;
-    private readonly UdpClient receivingClient;
+    private UdpClient sendingClient;
+    private UdpClient receivingClient;
 
     private CancellationTokenSource tokenSource = null!;
 
     public Action<string, object>? OnParameterSent;
     public Action<string, object>? OnParameterReceived;
 
-    public OscClient()
+    public void Initialise(string ipAddress, int sendPort, int receivePort)
     {
-        sendingClient = new UdpClient(osc_ip_address, osc_send_port);
-        var receiveEndpoint = new IPEndPoint(IPAddress.Parse(osc_ip_address), osc_receive_port);
+        sendingClient?.Dispose();
+        sendingClient = new UdpClient(ipAddress, sendPort);
+
+        receivingClient?.Dispose();
+        var receiveEndpoint = new IPEndPoint(IPAddress.Parse(ipAddress), receivePort);
         receivingClient = new UdpClient(receiveEndpoint);
     }
 
@@ -78,8 +77,8 @@ public class OscClient : IDisposable
 
     public void Dispose()
     {
-        sendingClient.Dispose();
-        receivingClient.Dispose();
+        sendingClient?.Dispose();
+        receivingClient?.Dispose();
         GC.SuppressFinalize(this);
     }
 }

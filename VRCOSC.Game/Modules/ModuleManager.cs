@@ -75,6 +75,11 @@ public sealed class ModuleManager : Container<ModuleGroup>
 
     public void Start()
     {
+        var ipAddress = configManager.Get<string>(VRCOSCSetting.IPAddress);
+        var sendPort = configManager.Get<int>(VRCOSCSetting.SendPort);
+        var receivePort = configManager.Get<int>(VRCOSCSetting.ReceivePort);
+
+        OSCClient.Initialise(ipAddress, sendPort, receivePort);
         OSCClient.Enable();
         this.ForEach(child => child.Start());
         running = true;

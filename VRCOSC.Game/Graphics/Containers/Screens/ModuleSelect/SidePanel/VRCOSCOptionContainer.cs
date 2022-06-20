@@ -46,12 +46,27 @@ public sealed class VRCOSCOptionContainer : Container
                     RelativeSizeAxes = Axes.X,
                     AutoSizeAxes = Axes.Y,
                     Direction = FillDirection.Vertical,
-                    Children = new[]
+                    Children = new VRCOSCOption[]
                     {
                         new VRCOSCBoolOption
                         {
-                            Text = "Auto Start/Stop",
+                            Label = "Auto Start/Stop",
                             State = configManager.GetBindable<bool>(VRCOSCSetting.AutoStartStop),
+                        },
+                        new VRCOSCStringOption
+                        {
+                            Label = "OSC IP Address",
+                            Text = configManager.GetBindable<string>(VRCOSCSetting.IPAddress)
+                        },
+                        new VRCOSCIntOption
+                        {
+                            Label = "OSC Send Port",
+                            Value = configManager.GetBindable<int>(VRCOSCSetting.SendPort)
+                        },
+                        new VRCOSCIntOption
+                        {
+                            Label = "OSC Receive Port",
+                            Value = configManager.GetBindable<int>(VRCOSCSetting.ReceivePort)
                         }
                     }
                 }

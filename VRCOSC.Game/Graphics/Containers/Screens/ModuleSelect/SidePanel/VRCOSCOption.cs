@@ -11,7 +11,7 @@ namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect.SidePanel;
 
 public class VRCOSCOption : Container
 {
-    public string Text { get; init; }
+    public string Label { get; init; }
 
     public VRCOSCOption()
     {
@@ -51,7 +51,7 @@ public class VRCOSCOption : Container
                     {
                         Anchor = Anchor.CentreLeft,
                         Origin = Anchor.CentreLeft,
-                        Text = Text,
+                        Text = Label,
                         Colour = VRCOSCColour.GrayC
                     }
                 }
