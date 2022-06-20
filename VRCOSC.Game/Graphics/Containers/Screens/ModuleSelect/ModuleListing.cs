@@ -6,6 +6,7 @@ using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Shapes;
 using VRCOSC.Game.Graphics.Drawables.Triangles;
 using VRCOSC.Game.Modules;
 
@@ -27,15 +28,12 @@ public sealed class ModuleListing : Container
 
         Children = new Drawable[]
         {
-            new TrianglesBackground
+            new Box
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
-                ColourLight = VRCOSCColour.Gray4.Lighten(0.25f),
-                ColourDark = VRCOSCColour.Gray4,
-                TriangleScale = 5,
-                Velocity = 0.5f
+                Colour = VRCOSCColour.Gray4
             },
             new BasicScrollContainer
             {
