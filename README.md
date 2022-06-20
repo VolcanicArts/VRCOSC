@@ -3,9 +3,9 @@ A modular OSC application creator made for [VRChat](https://vrchat.com) built on
 
 <p align="center"><img src="https://user-images.githubusercontent.com/29819296/173931406-984bce2b-c0bf-49ed-a2a6-276ecc6e8382.png" width=70% height=70%></p>
 
-[![license](https://img.shields.io/github/license/VolcanicArts/VRCOSC?style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/blob/master/LICENSE) 
+[![license](https://img.shields.io/github/license/VolcanicArts/VRCOSC?style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/blob/main/LICENSE) 
 [![downloads](https://img.shields.io/github/downloads/VolcanicArts/VRCOSC/total?style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/releases/latest)
-[![lastcommit](https://img.shields.io/github/last-commit/VolcanicArts/VRCOSC?style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/commits/master) 
+[![lastcommit](https://img.shields.io/github/last-commit/VolcanicArts/VRCOSC?style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/commits/main) 
 [![issues](https://img.shields.io/github/issues/VolcanicArts/VRCOSC?style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/issues)
 
 ## Getting Started
