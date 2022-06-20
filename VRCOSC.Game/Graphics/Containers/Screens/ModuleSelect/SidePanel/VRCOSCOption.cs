@@ -18,8 +18,7 @@ public class VRCOSCOption : Container
         Anchor = Anchor.TopCentre;
         Origin = Anchor.TopCentre;
         RelativeSizeAxes = Axes.X;
-        Height = 50;
-        Padding = new MarginPadding(5);
+        Height = 40;
     }
 
     [BackgroundDependencyLoader]

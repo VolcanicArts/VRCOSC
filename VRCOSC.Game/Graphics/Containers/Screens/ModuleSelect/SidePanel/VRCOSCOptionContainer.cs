@@ -5,6 +5,7 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osuTK;
 using VRCOSC.Game.Config;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect.SidePanel;
@@ -46,6 +47,8 @@ public sealed class VRCOSCOptionContainer : Container
                     RelativeSizeAxes = Axes.X,
                     AutoSizeAxes = Axes.Y,
                     Direction = FillDirection.Vertical,
+                    Padding = new MarginPadding(5),
+                    Spacing = new Vector2(0, 5),
                     Children = new VRCOSCOption[]
                     {
                         new VRCOSCBoolOption
