@@ -24,7 +24,7 @@ public class IntAttributeCard : StringAttributeCard
 
         if (int.TryParse(e.NewValue, out var intValue))
         {
-            AttributeData.Attribute.Value = 0;
+            AttributeData.Attribute.Value = intValue;
             textBox.Current.Value = intValue.ToString();
         }
         else
