@@ -11,6 +11,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Platform;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics.Containers.Screens;
+using VRCOSC.Game.Graphics.Updater;
 using VRCOSC.Game.Util;
 
 namespace VRCOSC.Game.Modules;
@@ -27,6 +28,9 @@ public sealed class ModuleManager : Container<ModuleGroup>
 
     [Resolved]
     private ScreenManager screenManager { get; set; }
+
+    [Resolved]
+    private VRCOSCUpdateManager updateManager { get; set; }
 
     [BackgroundDependencyLoader]
     private void load(Storage storage)
@@ -50,12 +54,13 @@ public sealed class ModuleManager : Container<ModuleGroup>
             Add(moduleGroup);
         }
 
-        Scheduler.Add(checkForVrChat);
-        Scheduler.AddDelayed(checkForVrChat, 10000, true);
+        Scheduler.AddDelayed(checkForVrChat, 5000, true);
     }
 
     private void checkForVrChat()
     {
+        if (updateManager.Updating) return;
+
         var vrChat = Process.GetProcessesByName("vrchat");
 
         var autoStartStop = configManager.Get<bool>(VRCOSCSetting.AutoStartStop);

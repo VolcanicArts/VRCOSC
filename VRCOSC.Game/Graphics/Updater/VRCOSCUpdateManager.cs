@@ -23,6 +23,8 @@ public class VRCOSCUpdateManager : Container
 
     private bool shown;
 
+    public bool Updating { get; private set; }
+
     [Resolved]
     private GameHost host { get; set; }
 
@@ -186,6 +188,8 @@ public class VRCOSCUpdateManager : Container
     {
         if (shown) return;
 
+        Updating = true;
+
         shown = true;
         popover.MoveToY(0, 500d, Easing.OutQuart);
     }
@@ -193,6 +197,8 @@ public class VRCOSCUpdateManager : Container
     private void hide()
     {
         if (!shown) return;
+
+        Updating = false;
 
         shown = false;
         popover.MoveToY(1, 500d, Easing.InQuart);

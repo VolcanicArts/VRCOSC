@@ -11,16 +11,26 @@ namespace VRCOSC.Game;
 
 public abstract class VRCOSCGame : VRCOSCGameBase
 {
+    private DependencyContainer dependencies;
+
     private VRCOSCUpdateManager updateManager;
 
     [BackgroundDependencyLoader]
     private void load()
     {
+        updateManager = CreateUpdateManager();
+        dependencies.CacheAs(updateManager);
+
         Children = new Drawable[]
         {
             new ScreenManager(),
-            updateManager = CreateUpdateManager()
+            updateManager
         };
+    }
+
+    protected override IReadOnlyDependencyContainer CreateChildDependencies(IReadOnlyDependencyContainer parent)
+    {
+        return dependencies = new DependencyContainer(base.CreateChildDependencies(parent));
     }
 
     protected override void LoadComplete()
