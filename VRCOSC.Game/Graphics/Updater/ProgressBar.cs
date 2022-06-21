@@ -35,8 +35,7 @@ public class ProgressBar : Container
                 Origin = Anchor.CentreLeft,
                 RelativeSizeAxes = Axes.Both,
                 RelativePositionAxes = Axes.X,
-                Colour = VRCOSCColour.Green,
-                X = -1
+                Colour = VRCOSCColour.Green
             },
             new LoadingSpriteText
             {
@@ -48,10 +47,10 @@ public class ProgressBar : Container
             }
         };
 
-        Progress.ValueChanged += (percentage) =>
+        Progress.BindValueChanged(percentage =>
         {
             var progress = MathF.Min(MathF.Max(percentage.NewValue, 0), 1);
             bar.MoveToX(-1 + progress, 250, Easing.OutCirc);
-        };
+        }, true);
     }
 }
