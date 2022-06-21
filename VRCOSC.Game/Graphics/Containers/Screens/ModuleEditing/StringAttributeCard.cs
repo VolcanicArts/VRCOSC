@@ -29,13 +29,12 @@ public class StringAttributeCard : AttributeCard
             Origin = Anchor.BottomCentre,
             RelativeSizeAxes = Axes.Both,
             Size = new Vector2(1.0f, 0.5f),
-            Padding = new MarginPadding(5),
+            Padding = new MarginPadding(10),
             Child = textBox = new VRCOSCTextBox
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
-                BorderThickness = 3,
                 Text = AttributeData.Attribute.Value.ToString()
             }
         });

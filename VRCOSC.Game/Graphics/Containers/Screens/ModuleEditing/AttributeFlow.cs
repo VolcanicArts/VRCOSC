@@ -31,42 +31,28 @@ public sealed class AttributeFlow : FillFlowContainer
     [BackgroundDependencyLoader]
     private void load()
     {
-        FillFlowContainer<AttributeCard> attributeFlow;
-
-        InternalChildren = new Drawable[]
+        Add(new SpriteText
         {
-            new SpriteText
-            {
-                Anchor = Anchor.TopCentre,
-                Origin = Anchor.TopCentre,
-                Font = FrameworkFont.Regular.With(size: 50),
-                Text = Title
-            },
-            attributeFlow = new FillFlowContainer<AttributeCard>
-            {
-                Anchor = Anchor.TopCentre,
-                Origin = Anchor.TopCentre,
-                RelativeSizeAxes = Axes.X,
-                AutoSizeAxes = Axes.Y,
-                Direction = FillDirection.Vertical,
-                Spacing = new Vector2(0, 10)
-            }
-        };
+            Anchor = Anchor.TopCentre,
+            Origin = Anchor.TopCentre,
+            Font = FrameworkFont.Regular.With(size: 50),
+            Text = Title
+        });
 
         AttributesList.ForEach(attributeData =>
         {
             switch (Type.GetTypeCode(attributeData.Attribute.Value.GetType()))
             {
                 case TypeCode.String:
-                    attributeFlow.Add(new StringAttributeCard(attributeData));
+                    Add(new StringAttributeCard(attributeData));
                     break;
 
                 case TypeCode.Int32:
-                    attributeFlow.Add(new IntAttributeCard(attributeData));
+                    Add(new IntAttributeCard(attributeData));
                     break;
 
                 case TypeCode.Boolean:
-                    attributeFlow.Add(new BoolAttributeCard(attributeData));
+                    Add(new BoolAttributeCard(attributeData));
                     break;
 
                 default:

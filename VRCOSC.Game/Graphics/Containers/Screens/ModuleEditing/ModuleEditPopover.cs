@@ -41,7 +41,6 @@ public sealed class ModuleEditPopover : Container
             RelativeSizeAxes = Axes.Both,
             CornerRadius = 20,
             EdgeEffect = VRCOSCEdgeEffects.DispersedShadow,
-            BorderThickness = 3,
             Masking = true,
             Children = new Drawable[]
             {

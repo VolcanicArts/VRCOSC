@@ -19,7 +19,7 @@ public class LineSeparator : CircularContainer
             Anchor = Anchor.Centre,
             Origin = Anchor.Centre,
             RelativeSizeAxes = Axes.Both,
-            Colour = VRCOSCColour.Gray1,
+            Colour = VRCOSCColour.Gray2,
         };
     }
 }

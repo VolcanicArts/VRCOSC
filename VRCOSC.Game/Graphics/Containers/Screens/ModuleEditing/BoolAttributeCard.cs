@@ -28,7 +28,7 @@ public class BoolAttributeCard : AttributeCard
             Origin = Anchor.CentreRight,
             RelativeSizeAxes = Axes.Both,
             FillMode = FillMode.Fit,
-            Padding = new MarginPadding(15),
+            Padding = new MarginPadding(20),
             Child = iconButton = new StatefulIconButton
             {
                 Anchor = Anchor.Centre,

@@ -3,15 +3,12 @@
 
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
-using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
-using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Effects;
 using osu.Framework.Graphics.Shapes;
 using osuTK;
 using VRCOSC.Game.Graphics.Containers.UI;
-using VRCOSC.Game.Graphics.Drawables.Triangles;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing;
@@ -69,28 +66,15 @@ public abstract class AttributeCard : Container
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 Masking = true,
-                EdgeEffect = VRCOSCEdgeEffects.BasicShadow,
                 CornerRadius = 10,
-                BorderThickness = 3,
                 Children = new Drawable[]
                 {
-                    new TrianglesBackground
+                    new Box
                     {
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,
                         RelativeSizeAxes = Axes.Both,
-                        ColourLight = VRCOSCColour.Gray7,
-                        ColourDark = VRCOSCColour.Gray7.Darken(0.25f),
-                        Velocity = 0.5f,
-                        TriangleScale = 3
-                    },
-                    new Box
-                    {
-                        Anchor = Anchor.CentreLeft,
-                        Origin = Anchor.CentreLeft,
-                        RelativeSizeAxes = Axes.Both,
-                        Size = new Vector2(0.5f, 1),
-                        Colour = ColourInfo.GradientHorizontal(Colour4.Black.Opacity(0.75f), VRCOSCColour.Invisible)
+                        Colour = VRCOSCColour.Gray2
                     },
                     textFlow = new TextFlowContainer
                     {
