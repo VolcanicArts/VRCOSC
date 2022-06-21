@@ -32,7 +32,7 @@ public abstract class IntegrationModule : Module
         try
         {
             var process = Process.Start(startInfo);
-            if (process == null || process!.HasExited) Terminal.Log($"{TargetExe} could not be found or is already running");
+            if (process == null || process!.HasExited) Terminal.Log($"{TargetExe} could not be found");
         }
         catch (Win32Exception)
         {
