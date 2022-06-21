@@ -10,6 +10,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Input.Events;
 using osu.Framework.Localisation;
+using osuTK;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
@@ -101,7 +102,9 @@ public sealed class ModuleListingGroup : Container, IFilterable
                                     Anchor = Anchor.TopCentre,
                                     Origin = Anchor.TopCentre,
                                     RelativeSizeAxes = Axes.X,
-                                    AutoSizeAxes = Axes.Y
+                                    AutoSizeAxes = Axes.Y,
+                                    Padding = new MarginPadding(10),
+                                    Spacing = new Vector2(10)
                                 }
                             }
                         }
