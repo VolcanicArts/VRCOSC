@@ -7,12 +7,18 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osuTK;
+using VRCOSC.Game.Config;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
 
 public sealed class ModuleListing : Container
 {
+    [Resolved]
+    private VRCOSCConfigManager configManager { get; set; }
+
+    private SearchContainer<ModuleListingGroup> moduleGroupFlow;
+
     public ModuleListing()
     {
         Anchor = Anchor.Centre;
@@ -23,8 +29,6 @@ public sealed class ModuleListing : Container
     [BackgroundDependencyLoader]
     private void load(ModuleManager moduleManager, ModuleSelection moduleSelection)
     {
-        SearchContainer<ModuleListingGroup> moduleGroupFlow;
-
         Children = new Drawable[]
         {
             new Box
@@ -54,7 +58,34 @@ public sealed class ModuleListing : Container
             }
         };
 
-        moduleManager.ForEach(moduleGroup => moduleGroupFlow.Add(new ModuleListingGroup(moduleGroup)));
+        moduleManager.ForEach(moduleGroup =>
+        {
+            var moduleListingGroup = new ModuleListingGroup(moduleGroup);
+
+            var bitwise = configManager.Get<int>(VRCOSCSetting.Dropdowns);
+            bool dropdownEnabled = (bitwise & (int)moduleGroup.Type) == (int)moduleGroup.Type;
+
+            moduleListingGroup.State.Value = dropdownEnabled;
+            moduleListingGroup.State.ValueChanged += _ => calculateBitwise();
+
+            moduleGroupFlow.Add(moduleListingGroup);
+        });
+
         moduleSelection.SearchString.ValueChanged += searchTerm => moduleGroupFlow.SearchTerm = searchTerm.NewValue;
+    }
+
+    private void calculateBitwise()
+    {
+        int bitwise = 0;
+
+        moduleGroupFlow.ForEach(moduleListingGroup =>
+        {
+            if (moduleListingGroup.State.Value)
+            {
+                bitwise |= (int)moduleListingGroup.ModuleGroup.Type;
+            }
+        });
+
+        configManager.SetValue(VRCOSCSetting.Dropdowns, bitwise);
     }
 }

@@ -16,13 +16,12 @@ namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
 
 public sealed class ModuleListingGroup : FillFlowContainer, IFilterable
 {
-    private readonly ModuleGroup moduleGroup;
-
-    private readonly BindableBool state = new(true);
+    public readonly ModuleGroup ModuleGroup;
+    public readonly BindableBool State = new(true);
 
     public ModuleListingGroup(ModuleGroup moduleGroup)
     {
-        this.moduleGroup = moduleGroup;
+        ModuleGroup = moduleGroup;
 
         Anchor = Anchor.TopCentre;
         Origin = Anchor.TopCentre;
@@ -56,8 +55,8 @@ public sealed class ModuleListingGroup : FillFlowContainer, IFilterable
                 Height = 50,
                 Masking = true,
                 CornerRadius = 10,
-                State = (BindableBool)state.GetBoundCopy(),
-                Title = moduleGroup.Type.ToString()
+                State = (BindableBool)State.GetBoundCopy(),
+                Title = ModuleGroup.Type.ToString()
             },
             new Container
             {
@@ -102,14 +101,14 @@ public sealed class ModuleListingGroup : FillFlowContainer, IFilterable
             }
         };
 
-        moduleGroup.ForEach(moduleContainer => moduleCardFlow.Add(new ModuleCard(moduleContainer.Module)));
+        ModuleGroup.ForEach(moduleContainer => moduleCardFlow.Add(new ModuleCard(moduleContainer.Module)));
         moduleSelection.SearchString.ValueChanged += searchTerm =>
         {
             moduleCardFlow.SearchTerm = searchTerm.NewValue;
-            if (!state.Value) state.Value = true;
+            if (!State.Value) State.Value = true;
         };
 
-        state.BindValueChanged(e => moduleCardFlow.FadeTo(e.NewValue ? 1 : 0, 100), true);
+        State.BindValueChanged(e => moduleCardFlow.FadeTo(e.NewValue ? 1 : 0, 100), true);
     }
 
     public IEnumerable<LocalisableString> FilterTerms { get; private set; }
