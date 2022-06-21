@@ -90,25 +90,31 @@ public sealed class TerminalContainer : Container
                                     RelativeSizeAxes = Axes.Both,
                                     Colour = VRCOSCColour.Gray2,
                                 },
-                                terminalScroll = new BasicScrollContainer
+                                new Container
                                 {
                                     Anchor = Anchor.Centre,
                                     Origin = Anchor.Centre,
                                     RelativeSizeAxes = Axes.Both,
-                                    ScrollbarVisible = false,
-                                    ClampExtension = 0,
-                                    Padding = new MarginPadding(1.5f),
-                                    Child = terminalFlow = new FillFlowContainer<TerminalEntry>
+                                    Padding = new MarginPadding(3f),
+                                    Child = terminalScroll = new BasicScrollContainer
                                     {
-                                        Anchor = Anchor.TopCentre,
-                                        Origin = Anchor.TopCentre,
-                                        RelativeSizeAxes = Axes.X,
-                                        AutoSizeAxes = Axes.Y,
-                                        Direction = FillDirection.Vertical,
-                                        Padding = new MarginPadding
+                                        Anchor = Anchor.Centre,
+                                        Origin = Anchor.Centre,
+                                        RelativeSizeAxes = Axes.Both,
+                                        ScrollbarVisible = false,
+                                        ClampExtension = 0,
+                                        Child = terminalFlow = new FillFlowContainer<TerminalEntry>
                                         {
-                                            Horizontal = 3
-                                        },
+                                            Anchor = Anchor.TopCentre,
+                                            Origin = Anchor.TopCentre,
+                                            RelativeSizeAxes = Axes.X,
+                                            AutoSizeAxes = Axes.Y,
+                                            Direction = FillDirection.Vertical,
+                                            Padding = new MarginPadding
+                                            {
+                                                Horizontal = 3
+                                            },
+                                        }
                                     }
                                 }
                             }
