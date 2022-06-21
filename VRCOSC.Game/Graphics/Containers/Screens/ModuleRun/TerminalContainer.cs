@@ -55,7 +55,6 @@ public sealed class TerminalContainer : Container
                                 Origin = Anchor.Centre,
                                 Text = "Terminal",
                                 Font = FrameworkFont.Regular.With(size: 40),
-                                Shadow = true
                             },
                             new LineSeparator
                             {
@@ -91,31 +90,25 @@ public sealed class TerminalContainer : Container
                                     RelativeSizeAxes = Axes.Both,
                                     Colour = VRCOSCColour.Gray2,
                                 },
-                                new Container
+                                terminalScroll = new BasicScrollContainer
                                 {
                                     Anchor = Anchor.Centre,
                                     Origin = Anchor.Centre,
                                     RelativeSizeAxes = Axes.Both,
+                                    ScrollbarVisible = false,
+                                    ClampExtension = 0,
                                     Padding = new MarginPadding(1.5f),
-                                    Child = terminalScroll = new BasicScrollContainer
+                                    Child = terminalFlow = new FillFlowContainer<TerminalEntry>
                                     {
-                                        Anchor = Anchor.Centre,
-                                        Origin = Anchor.Centre,
-                                        RelativeSizeAxes = Axes.Both,
-                                        ScrollbarVisible = false,
-                                        ClampExtension = 0,
+                                        Anchor = Anchor.TopCentre,
+                                        Origin = Anchor.TopCentre,
+                                        RelativeSizeAxes = Axes.X,
+                                        AutoSizeAxes = Axes.Y,
+                                        Direction = FillDirection.Vertical,
                                         Padding = new MarginPadding
                                         {
                                             Horizontal = 3
                                         },
-                                        Child = terminalFlow = new FillFlowContainer<TerminalEntry>
-                                        {
-                                            Anchor = Anchor.TopCentre,
-                                            Origin = Anchor.TopCentre,
-                                            RelativeSizeAxes = Axes.X,
-                                            AutoSizeAxes = Axes.Y,
-                                            Direction = FillDirection.Vertical,
-                                        }
                                     }
                                 }
                             }

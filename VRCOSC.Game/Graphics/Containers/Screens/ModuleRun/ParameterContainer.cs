@@ -55,7 +55,6 @@ public sealed class ParameterContainer : Container
                                 Origin = Anchor.Centre,
                                 Text = "Parameters",
                                 Font = FrameworkFont.Regular.With(size: 40),
-                                Shadow = true
                             },
                             new LineSeparator
                             {

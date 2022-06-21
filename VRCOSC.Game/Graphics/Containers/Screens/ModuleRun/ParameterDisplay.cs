@@ -45,7 +45,6 @@ public class ParameterDisplay : Container
                             Origin = Anchor.Centre,
                             Text = Title,
                             Font = FrameworkFont.Regular.With(size: 30),
-                            Shadow = true
                         }
                     },
                     new Drawable[]
