@@ -1,7 +1,7 @@
 # VRCOSC
 A modular OSC application creator made for [VRChat](https://vrchat.com) built on top of the [osu!framework](https://github.com/ppy/osu-framework).
 
-<p align="center"><img src="https://user-images.githubusercontent.com/29819296/174684456-a52e151e-ed8f-47e7-baf6-087d41117787.png" width=70% height=70%></p>
+<p align="center"><img src="https://user-images.githubusercontent.com/29819296/174907070-bbe91f5c-1b90-4c96-9890-7d78b487872f.png" width=70% height=70%></p>
 
 [![license](https://img.shields.io/github/license/VolcanicArts/VRCOSC?style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/blob/main/LICENSE) 
 [![downloads](https://img.shields.io/github/downloads/VolcanicArts/VRCOSC/total?style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/releases/latest)
