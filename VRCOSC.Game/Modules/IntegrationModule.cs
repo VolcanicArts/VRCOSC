@@ -68,9 +68,7 @@ public abstract class IntegrationModule : Module
 
     protected bool IsProcessOpen()
     {
-        // Returns the first of any processes that match the target process name
-        // E.g. if you had multiple "calc" processes open, this would not always fetch the correct one
-        return Process.GetProcesses().Any(p => p.ProcessName.Contains(TargetProcess));
+        return isValidProcess(TargetProcess);
     }
 
     private bool isValidProcess(string processName)
