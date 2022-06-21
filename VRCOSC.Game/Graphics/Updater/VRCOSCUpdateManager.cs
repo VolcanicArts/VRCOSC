@@ -18,7 +18,6 @@ public class VRCOSCUpdateManager : Container
     private Container popover;
     private ProgressBar progressBar;
     private TextButton button;
-    private Container progressBarContainer;
     private LoadingSpriteText titleText;
 
     private bool shown;
@@ -94,21 +93,15 @@ public class VRCOSCUpdateManager : Container
                                 FontSize = 25
                             }
                         },
-                        progressBarContainer = new Container
+                        progressBar = new ProgressBar
                         {
                             Anchor = Anchor.BottomCentre,
                             Origin = Anchor.BottomCentre,
                             RelativeSizeAxes = Axes.X,
                             Height = 25,
-                            Child = progressBar = new ProgressBar
-                            {
-                                Anchor = Anchor.Centre,
-                                Origin = Anchor.Centre,
-                                RelativeSizeAxes = Axes.Both,
-                                Masking = true,
-                                CornerRadius = 10,
-                                BorderThickness = 2
-                            }
+                            Masking = true,
+                            CornerRadius = 10,
+                            BorderThickness = 2
                         }
                     }
                 }
@@ -118,7 +111,7 @@ public class VRCOSCUpdateManager : Container
 
     protected override void LoadComplete()
     {
-        progressBarContainer.Hide();
+        progressBar.Hide();
         button.Hide();
     }
 
@@ -206,7 +199,7 @@ public class VRCOSCUpdateManager : Container
 
     private void enterCheckPhase()
     {
-        progressBarContainer.Show();
+        progressBar.Show();
         button.Hide();
 
         titleText.Text.Value = "Updating";
@@ -216,7 +209,7 @@ public class VRCOSCUpdateManager : Container
 
     private void enterDownloadPhase()
     {
-        progressBarContainer.Show();
+        progressBar.Show();
         button.Hide();
 
         titleText.Text.Value = "Updating";
@@ -226,7 +219,7 @@ public class VRCOSCUpdateManager : Container
 
     private void enterInstallPhase()
     {
-        progressBarContainer.Show();
+        progressBar.Show();
         button.Hide();
 
         titleText.Text.Value = "Updating";
@@ -236,7 +229,7 @@ public class VRCOSCUpdateManager : Container
 
     private void enterSuccessPhase()
     {
-        progressBarContainer.Hide();
+        progressBar.Hide();
         button.Show();
         button.Text = "Click To Restart";
         button.Action = RequestRestart;
@@ -247,7 +240,7 @@ public class VRCOSCUpdateManager : Container
 
     private void enterFailPhase()
     {
-        progressBarContainer.Hide();
+        progressBar.Hide();
         button.Show();
         button.Text = "Click To Reinstall";
         button.Action = () => host.OpenUrlExternally("https://github.com/VolcanicArts/VRCOSC/releases/latest");
