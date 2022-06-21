@@ -14,10 +14,10 @@ namespace VRCOSC.Game.Modules;
 
 public class OscClient : IDisposable
 {
-    private UdpClient sendingClient;
-    private UdpClient receivingClient;
+    private UdpClient? sendingClient;
+    private UdpClient? receivingClient;
 
-    private CancellationTokenSource tokenSource = null!;
+    private CancellationTokenSource? tokenSource;
 
     public Action<string, object>? OnParameterSent;
     public Action<string, object>? OnParameterReceived;
@@ -28,8 +28,7 @@ public class OscClient : IDisposable
         sendingClient = new UdpClient(ipAddress, sendPort);
 
         receivingClient?.Dispose();
-        var receiveEndpoint = new IPEndPoint(IPAddress.Parse(ipAddress), receivePort);
-        receivingClient = new UdpClient(receiveEndpoint);
+        receivingClient = new UdpClient(new IPEndPoint(IPAddress.Parse(ipAddress), receivePort));
     }
 
     public void Enable()
@@ -62,17 +61,18 @@ public class OscClient : IDisposable
     {
         if (tokenSource == null) throw new AggregateException("Cancellation token is null when trying to listen for OSC messages");
 
-        while (!tokenSource.Token.IsCancellationRequested)
+        try
         {
-            try
+            while (!tokenSource.Token.IsCancellationRequested)
             {
-                var message = await receivingClient.ReceiveMessageAsync();
+                var message = await receivingClient.ReceiveMessageAsync().WaitAsync(tokenSource.Token);
                 if (!message.Arguments.Any()) continue;
 
                 OnParameterReceived?.Invoke(message.Address.Value, message.Arguments.First());
             }
-            catch (SocketException _) { }
         }
+        // required due to CoreOSC not handling cancellation requests
+        catch (TaskCanceledException) { }
     }
 
     public void Dispose()
