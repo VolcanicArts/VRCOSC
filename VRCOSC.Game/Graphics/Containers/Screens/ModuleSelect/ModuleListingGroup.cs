@@ -14,7 +14,7 @@ using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
 
-public sealed class ModuleListingGroup : Container, IFilterable
+public sealed class ModuleListingGroup : FillFlowContainer, IFilterable
 {
     private readonly ModuleGroup moduleGroup;
 
@@ -48,64 +48,54 @@ public sealed class ModuleListingGroup : Container, IFilterable
 
         Children = new Drawable[]
         {
-            new FillFlowContainer
+            new ModuleListingGroupDropdownHeader
             {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
+                Anchor = Anchor.TopCentre,
+                Origin = Anchor.TopCentre,
+                RelativeSizeAxes = Axes.X,
+                Height = 50,
+                Masking = true,
+                CornerRadius = 10,
+                State = (BindableBool)state.GetBoundCopy(),
+                Title = moduleGroup.Type.ToString()
+            },
+            new Container
+            {
+                Anchor = Anchor.TopCentre,
+                Origin = Anchor.TopCentre,
                 RelativeSizeAxes = Axes.X,
                 AutoSizeAxes = Axes.Y,
-                Children = new Drawable[]
+                Padding = new MarginPadding
                 {
-                    new ModuleListingGroupDropdownHeader
+                    Horizontal = 10
+                },
+                Child = new Container
+                {
+                    Anchor = Anchor.TopCentre,
+                    Origin = Anchor.TopCentre,
+                    RelativeSizeAxes = Axes.X,
+                    AutoSizeAxes = Axes.Y,
+                    AutoSizeDuration = 500,
+                    AutoSizeEasing = Easing.OutQuint,
+                    Masking = true,
+                    CornerRadius = 10,
+                    Children = new Drawable[]
                     {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        RelativeSizeAxes = Axes.X,
-                        Height = 50,
-                        Masking = true,
-                        CornerRadius = 10,
-                        State = (BindableBool)state.GetBoundCopy(),
-                        Title = moduleGroup.Type.ToString()
-                    },
-                    new Container
-                    {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        RelativeSizeAxes = Axes.X,
-                        AutoSizeAxes = Axes.Y,
-                        Padding = new MarginPadding
+                        new Box
                         {
-                            Horizontal = 10
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativeSizeAxes = Axes.Both,
+                            Colour = VRCOSCColour.Gray3
                         },
-                        Child = new Container
+                        moduleCardFlow = new SearchContainer<ModuleCard>
                         {
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
                             RelativeSizeAxes = Axes.X,
                             AutoSizeAxes = Axes.Y,
-                            AutoSizeDuration = 500,
-                            AutoSizeEasing = Easing.OutQuint,
-                            Masking = true,
-                            CornerRadius = 10,
-                            Children = new Drawable[]
-                            {
-                                new Box
-                                {
-                                    Anchor = Anchor.Centre,
-                                    Origin = Anchor.Centre,
-                                    RelativeSizeAxes = Axes.Both,
-                                    Colour = VRCOSCColour.Gray3
-                                },
-                                moduleCardFlow = new SearchContainer<ModuleCard>
-                                {
-                                    Anchor = Anchor.TopCentre,
-                                    Origin = Anchor.TopCentre,
-                                    RelativeSizeAxes = Axes.X,
-                                    AutoSizeAxes = Axes.Y,
-                                    Padding = new MarginPadding(10),
-                                    Spacing = new Vector2(10)
-                                }
-                            }
+                            Padding = new MarginPadding(10),
+                            Spacing = new Vector2(10)
                         }
                     }
                 }
