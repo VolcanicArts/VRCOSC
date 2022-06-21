@@ -89,4 +89,10 @@ public class ModuleListingGroupDropdownHeader : Container
     {
         background.FadeColour(backgroundColour, 100, Easing.OutQuart);
     }
+
+    protected override bool OnClick(ClickEvent e)
+    {
+        State.Toggle();
+        return true;
+    }
 }

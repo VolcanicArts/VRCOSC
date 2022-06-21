@@ -8,7 +8,6 @@ using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
-using osu.Framework.Input.Events;
 using osu.Framework.Localisation;
 using osuTK;
 using VRCOSC.Game.Modules;
@@ -121,12 +120,6 @@ public sealed class ModuleListingGroup : Container, IFilterable
         };
 
         state.BindValueChanged(e => moduleCardFlow.FadeTo(e.NewValue ? 1 : 0, 100), true);
-    }
-
-    protected override bool OnClick(ClickEvent e)
-    {
-        state.Toggle();
-        return true;
     }
 
     public IEnumerable<LocalisableString> FilterTerms { get; private set; }
