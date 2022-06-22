@@ -21,6 +21,7 @@ public abstract class Module
 {
     private Storage Storage = null!;
     private OscClient OscClient = null!;
+    private TimedTask? updateTask;
     protected TerminalLogger Terminal = null!;
 
     public readonly BindableBool Enabled = new();
@@ -34,7 +35,7 @@ public abstract class Module
     public virtual string Description => string.Empty;
     public virtual string Author => string.Empty;
     public virtual IEnumerable<string> Tags => Array.Empty<string>();
-    public virtual double DeltaUpdate => double.MaxValue;
+    public virtual double DeltaUpdate => double.PositiveInfinity;
     public virtual Colour4 Colour => Colour4.Black;
     public virtual ModuleType ModuleType => ModuleType.General;
     public virtual string Prefab => string.Empty;
@@ -85,13 +86,43 @@ public abstract class Module
 
     #region Events
 
-    public virtual void Start() { }
+    internal void start()
+    {
+        if (!Enabled.Value) return;
 
-    public virtual void Update() { }
+        Terminal.Log("Starting");
 
-    public virtual void Stop() { }
+        OnStart();
 
-    public virtual void OnAvatarChange() { }
+        if (!double.IsPositiveInfinity(DeltaUpdate))
+        {
+            updateTask?.Dispose();
+            updateTask = new TimedTask(OnUpdate, DeltaUpdate);
+            updateTask.Start();
+        }
+
+        Terminal.Log("Started");
+    }
+
+    protected virtual void OnStart() { }
+
+    protected virtual void OnUpdate() { }
+
+    internal void stop()
+    {
+        if (!Enabled.Value) return;
+
+        Terminal.Log("Stopping");
+
+        updateTask?.Stop();
+        OnStop();
+
+        Terminal.Log("Stopped");
+    }
+
+    protected virtual void OnStop() { }
+
+    protected virtual void OnAvatarChange() { }
 
     #endregion
 

@@ -38,13 +38,13 @@ public class SpotifyModule : IntegrationModule
         RegisterKeyCombination(SpotifyInputParameter.SpotifyVolumeDown, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_DOWN);
     }
 
-    public override void Start()
+    protected override void OnStart()
     {
         var shouldStart = GetSetting<bool>(SpotifySetting.ShouldStart);
         if (shouldStart) StartTarget();
     }
 
-    public override void Stop()
+    protected override void OnStop()
     {
         var shouldStop = GetSetting<bool>(SpotifySetting.ShouldStop);
         if (shouldStop) StopTarget();

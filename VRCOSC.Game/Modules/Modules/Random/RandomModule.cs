@@ -21,7 +21,7 @@ public class RandomModule : Module
         CreateOutputParameter(RandomOutputParameter.RandomValue, "Random Value", "A random float value between 0 and 1", "/avatar/parameters/RandomValue");
     }
 
-    public override void Update()
+    protected override void OnUpdate()
     {
         float randomFloat = (float)random.NextDouble();
         SendParameter(RandomOutputParameter.RandomValue, randomFloat);

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using osu.Framework.Allocation;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
@@ -58,18 +59,18 @@ public sealed class ModuleListing : Container
             }
         };
 
-        moduleManager.ForEach(moduleGroup =>
+        var dropdownBitwise = configManager.Get<int>(VRCOSCSetting.Dropdowns);
+
+        foreach (var moduleType in Enum.GetValues<ModuleType>())
         {
-            var moduleListingGroup = new ModuleListingGroup(moduleGroup);
+            var modules = moduleManager.GroupBy(moduleType);
+            var moduleListingGroup = new ModuleListingGroup(moduleType, modules);
 
-            var bitwise = configManager.Get<int>(VRCOSCSetting.Dropdowns);
-            bool dropdownEnabled = (bitwise & (int)moduleGroup.Type) == (int)moduleGroup.Type;
-
-            moduleListingGroup.State.Value = dropdownEnabled;
+            moduleListingGroup.State.Value = (dropdownBitwise & (int)moduleType) == (int)moduleType;
             moduleListingGroup.State.ValueChanged += _ => calculateBitwise();
 
             moduleGroupFlow.Add(moduleListingGroup);
-        });
+        }
 
         moduleSelection.SearchString.ValueChanged += searchTerm => moduleGroupFlow.SearchTerm = searchTerm.NewValue;
     }
@@ -82,7 +83,7 @@ public sealed class ModuleListing : Container
         {
             if (moduleListingGroup.State.Value)
             {
-                bitwise |= (int)moduleListingGroup.ModuleGroup.Type;
+                bitwise |= (int)moduleListingGroup.ModuleType;
             }
         });
 

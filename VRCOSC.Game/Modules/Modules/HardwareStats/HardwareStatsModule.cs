@@ -24,19 +24,19 @@ public class HardwareStatsModule : Module
         CreateOutputParameter(HardwareStatsOutputParameter.RAMUsage, "RAM Usage", "RAM usage 0-1", "/avatar/parameters/HSRAMUsage");
     }
 
-    public override void Start()
+    protected override void OnStart()
     {
         hardwareStatsProvider = new HardwareStatsProvider();
     }
 
-    public override void Update()
+    protected override void OnUpdate()
     {
         SendParameter(HardwareStatsOutputParameter.CPUUsage, hardwareStatsProvider.GetCpuUsage());
         SendParameter(HardwareStatsOutputParameter.GPUUsage, hardwareStatsProvider.GetGpuUsage());
         SendParameter(HardwareStatsOutputParameter.RAMUsage, hardwareStatsProvider.GetRamUsage());
     }
 
-    public override void Stop()
+    protected override void OnStop()
     {
         hardwareStatsProvider.Dispose();
     }

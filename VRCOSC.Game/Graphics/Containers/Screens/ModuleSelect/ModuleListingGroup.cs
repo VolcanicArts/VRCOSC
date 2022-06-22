@@ -16,12 +16,14 @@ namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
 
 public sealed class ModuleListingGroup : FillFlowContainer, IFilterable
 {
-    public readonly ModuleGroup ModuleGroup;
+    public readonly ModuleType ModuleType;
+    public readonly List<Module> Modules;
     public readonly BindableBool State = new(true);
 
-    public ModuleListingGroup(ModuleGroup moduleGroup)
+    public ModuleListingGroup(ModuleType moduleType, List<Module> modules)
     {
-        ModuleGroup = moduleGroup;
+        ModuleType = moduleType;
+        Modules = modules;
 
         Anchor = Anchor.TopCentre;
         Origin = Anchor.TopCentre;
@@ -30,11 +32,11 @@ public sealed class ModuleListingGroup : FillFlowContainer, IFilterable
 
         List<LocalisableString> localFilters = new List<LocalisableString>();
 
-        moduleGroup.ForEach(module =>
+        modules.ForEach(module =>
         {
-            localFilters.Add(module.Module.Title);
-            localFilters.Add(module.Module.Author);
-            module.Module.Tags.ForEach(tag => localFilters.Add(tag));
+            localFilters.Add(module.Title);
+            localFilters.Add(module.Author);
+            module.Tags.ForEach(tag => localFilters.Add(tag));
         });
 
         FilterTerms = localFilters;
@@ -56,7 +58,7 @@ public sealed class ModuleListingGroup : FillFlowContainer, IFilterable
                 Masking = true,
                 CornerRadius = 10,
                 State = (BindableBool)State.GetBoundCopy(),
-                Title = ModuleGroup.Type.ToString()
+                Title = ModuleType.ToString()
             },
             new Container
             {
@@ -101,7 +103,7 @@ public sealed class ModuleListingGroup : FillFlowContainer, IFilterable
             }
         };
 
-        ModuleGroup.ForEach(moduleContainer => moduleCardFlow.Add(new ModuleCard(moduleContainer.Module)));
+        Modules.ForEach(module => moduleCardFlow.Add(new ModuleCard(module)));
         moduleSelection.SearchString.ValueChanged += searchTerm =>
         {
             moduleCardFlow.SearchTerm = searchTerm.NewValue;

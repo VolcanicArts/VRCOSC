@@ -31,7 +31,7 @@ public class HypeRateModule : Module
         CreateOutputParameter(HypeRateOutputParameter.HeartrateHundreds, "Heartrate Hundreds", "The hundreds digit 0-9 mapped to a float", "/avatar/parameters/HeartrateHundreds");
     }
 
-    public override void Start()
+    protected override void OnStart()
     {
         SendParameter(HypeRateOutputParameter.HeartrateEnabled, false);
 
@@ -75,7 +75,7 @@ public class HypeRateModule : Module
         return num.ToString().PadLeft(totalWidth, '0').Select(digit => int.Parse(digit.ToString())).ToArray();
     }
 
-    public override void Stop()
+    protected override void OnStop()
     {
         hypeRateProvider?.Disconnect();
     }

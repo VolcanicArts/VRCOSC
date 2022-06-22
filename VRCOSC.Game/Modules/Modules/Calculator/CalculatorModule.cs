@@ -55,7 +55,7 @@ public class CalculatorModule : IntegrationModule
         RegisterKeyCombination(CalculatorNumbers.CalculatorNumber9, WindowsVKey.VK_NUMPAD9);
     }
 
-    public override void Start()
+    protected override void OnStart()
     {
         isCalculatorOpen = IsTargetProcessOpen();
         EnsureSingleTargetProcess();

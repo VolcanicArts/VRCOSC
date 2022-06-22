@@ -28,7 +28,7 @@ public class ClockModule : Module
         CreateOutputParameter(ClockOutputParameter.Seconds, "Second", "The current second normalised", "/avatar/parameters/ClockSecond");
     }
 
-    public override void Update()
+    protected override void OnUpdate()
     {
         var sendAsUtc = GetSetting<bool>(ClockSetting.UTC);
 

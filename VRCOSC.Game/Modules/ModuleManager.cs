@@ -8,8 +8,7 @@ using System.Linq;
 using System.Net.Sockets;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
-using osu.Framework.Extensions.IEnumerableExtensions;
-using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics;
 using osu.Framework.Platform;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics.Containers.Screens;
@@ -18,7 +17,7 @@ using VRCOSC.Game.Util;
 
 namespace VRCOSC.Game.Modules;
 
-public sealed class ModuleManager : Container<ModuleGroup>
+public sealed class ModuleManager : Drawable
 {
     private bool running;
     private bool autoStarted;
@@ -26,6 +25,8 @@ public sealed class ModuleManager : Container<ModuleGroup>
 
     public readonly OscClient OSCClient = new();
     private readonly TerminalLogger terminal = new(nameof(ModuleManager));
+
+    private List<Module> modules = null!;
 
     [Resolved]
     private VRCOSCConfigManager configManager { get; set; }
@@ -39,23 +40,18 @@ public sealed class ModuleManager : Container<ModuleGroup>
     [BackgroundDependencyLoader]
     private void load(Storage storage)
     {
-        List<Module> modules = ReflectiveEnumerator.GetEnumerableOfType<Module>();
+        modules = ReflectiveEnumerator.GetEnumerableOfType<Module>();
 
         var moduleStorage = storage.GetStorageForDirectory("modules");
 
         foreach (ModuleType type in Enum.GetValues(typeof(ModuleType)))
         {
-            var moduleGroup = new ModuleGroup(type);
-
             foreach (var module in modules.Where(module => module.ModuleType.Equals(type)))
             {
                 module.Initialise(moduleStorage, OSCClient);
                 module.CreateAttributes();
                 module.PerformLoad();
-                moduleGroup.Add(new ModuleContainer(module));
             }
-
-            Add(moduleGroup);
         }
 
         Scheduler.AddDelayed(checkForVrChat, 5000, true);
@@ -108,7 +104,7 @@ public sealed class ModuleManager : Container<ModuleGroup>
             return;
         }
 
-        this.ForEach(child => child.Start());
+        modules.ForEach(module => module.start());
         running = true;
     }
 
@@ -117,8 +113,13 @@ public sealed class ModuleManager : Container<ModuleGroup>
         if (!running) return;
 
         running = false;
-        this.ForEach(child => child.Stop());
+        modules.ForEach(module => module.stop());
         OSCClient.Disable();
+    }
+
+    public List<Module> GroupBy(ModuleType moduleType)
+    {
+        return modules.Where(module => module.ModuleType == moduleType).ToList();
     }
 
     protected override void Dispose(bool isDisposing)

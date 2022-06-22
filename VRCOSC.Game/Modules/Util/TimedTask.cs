@@ -14,7 +14,7 @@ public class TimedTask : IDisposable
     private CancellationTokenSource? cts;
     private Task? timerTask;
 
-    public TimedTask(Action action, int deltaTimeMilli)
+    public TimedTask(Action action, double deltaTimeMilli)
     {
         this.action = action;
         timer = new PeriodicTimer(TimeSpan.FromMilliseconds(deltaTimeMilli));
