@@ -2,9 +2,9 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Threading;
 using Newtonsoft.Json;
 using VRCOSC.Game.Modules.Modules.HypeRate.Models;
+using VRCOSC.Game.Modules.Util;
 using VRCOSC.Game.Modules.Websocket;
 using VRCOSC.Game.Util;
 
@@ -18,7 +18,7 @@ public class HypeRateProvider : JsonWebSocket
     private readonly string hyperateId;
     private readonly TerminalLogger terminal = new(nameof(HypeRateModule));
 
-    private Timer? heartBeatTimer;
+    private TimedTask? heartBeatTimer;
 
     public Action<int>? OnHeartRateUpdate;
     public Action? OnWsHeartbeat;
@@ -43,6 +43,7 @@ public class HypeRateProvider : JsonWebSocket
     private void OnDisconnected()
     {
         terminal.Log("Disconnected from the HypeRate websocket");
+        heartBeatTimer?.Stop();
         Dispose();
     }
 
@@ -70,15 +71,15 @@ public class HypeRateProvider : JsonWebSocket
 
     private void initHeartBeat()
     {
-        heartBeatTimer = new Timer(sendHeartBeat, null, heartbeat_internal, 30000);
+        heartBeatTimer = new TimedTask(sendHeartBeat, heartbeat_internal);
+        heartBeatTimer.Start();
     }
 
-    private void sendHeartBeat(object? _)
+    private void sendHeartBeat()
     {
         terminal.Log("Sending HypeRate websocket heartbeat");
         SendAsJson(new HeartBeatModel());
         OnWsHeartbeat?.Invoke();
-        heartBeatTimer?.Change(heartbeat_internal, 30000);
     }
 
     private void sendJoinChannel()
