@@ -46,6 +46,12 @@ public abstract class IntegrationModule : Module
         retrieveProcess(TargetProcess)?.Kill();
     }
 
+    protected void EnsureSingleTargetProcess()
+    {
+        var processes = Process.GetProcessesByName(TargetProcess);
+        foreach (var process in processes[1..]) process.Kill();
+    }
+
     protected bool IsTargetProcessOpen()
     {
         return isProcessOpen(TargetProcess);

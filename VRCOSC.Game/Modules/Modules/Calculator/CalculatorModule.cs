@@ -57,7 +57,8 @@ public class CalculatorModule : IntegrationModule
 
     public override void Start()
     {
-        isCalculatorOpen = IsTargetProcessOpen(); // TODO: What if there are multiple calculator processes open at once?
+        isCalculatorOpen = IsTargetProcessOpen();
+        EnsureSingleTargetProcess();
         if (isCalculatorOpen) sendResult();
     }
 
