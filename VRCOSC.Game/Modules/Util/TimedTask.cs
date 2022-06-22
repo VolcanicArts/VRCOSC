@@ -11,13 +11,15 @@ public class TimedTask : IDisposable
 {
     private readonly Action action;
     private readonly PeriodicTimer timer;
+    private readonly bool executeOnceImmediately;
     private CancellationTokenSource? cts;
     private Task? timerTask;
 
-    public TimedTask(Action action, double deltaTimeMilli)
+    public TimedTask(Action action, double deltaTimeMilli, bool executeOnceImmediately = false)
     {
         this.action = action;
         timer = new PeriodicTimer(TimeSpan.FromMilliseconds(deltaTimeMilli));
+        this.executeOnceImmediately = executeOnceImmediately;
     }
 
     public void Start()
@@ -28,6 +30,8 @@ public class TimedTask : IDisposable
 
     private async Task executeWork()
     {
+        if (executeOnceImmediately) action.Invoke();
+
         try
         {
             while (await timer.WaitForNextTickAsync(cts!.Token))
