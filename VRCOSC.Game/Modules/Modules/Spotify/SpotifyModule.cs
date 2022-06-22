@@ -21,7 +21,8 @@ public class SpotifyModule : IntegrationModule
 
     public override void CreateAttributes()
     {
-        CreateSetting(SpotifySetting.ShouldStart, "Should Start", "Should Spotify start on module run", false);
+        CreateSetting(SpotifySetting.ShouldStart, "Should Start", "Should Spotify start on module start", false);
+        CreateSetting(SpotifySetting.ShouldStop, "Should Stop", "Should Spotify stop on module stop", false);
         CreateSetting(SpotifySetting.InstallLocation, "Install Location", "The location of your spotify.exe file", $@"C:\Users\{Environment.UserName}\AppData\Roaming\Spotify\spotify.exe");
 
         RegisterInputParameter<bool>(SpotifyInputParameter.SpotifyPlayPause, ActionMenu.Button);
@@ -43,6 +44,12 @@ public class SpotifyModule : IntegrationModule
         if (shouldStart) StartTarget();
     }
 
+    public override void Stop()
+    {
+        var shouldStop = GetSetting<bool>(SpotifySetting.ShouldStop);
+        if (shouldStop) StopTarget();
+    }
+
     protected override void OnBoolParameterReceived(Enum key, bool value)
     {
         ExecuteKeyCombination(key);
@@ -51,6 +58,7 @@ public class SpotifyModule : IntegrationModule
     private enum SpotifySetting
     {
         ShouldStart,
+        ShouldStop,
         InstallLocation
     }
 
