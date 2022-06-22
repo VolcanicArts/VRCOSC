@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net.Sockets;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Platform;
@@ -21,6 +22,7 @@ public sealed class ModuleManager : Container<ModuleGroup>
 {
     private bool running;
     private bool autoStarted;
+    private Bindable<bool> autoStartStop;
 
     public readonly OscClient OSCClient = new();
     private readonly TerminalLogger terminal = new(nameof(ModuleManager));
@@ -57,6 +59,12 @@ public sealed class ModuleManager : Container<ModuleGroup>
         }
 
         Scheduler.AddDelayed(checkForVrChat, 5000, true);
+
+        autoStartStop = configManager.GetBindable<bool>(VRCOSCSetting.AutoStartStop);
+        autoStartStop.ValueChanged += e =>
+        {
+            if (!e.NewValue) autoStarted = false;
+        };
     }
 
     private void checkForVrChat()
@@ -65,15 +73,13 @@ public sealed class ModuleManager : Container<ModuleGroup>
 
         var vrChat = Process.GetProcessesByName("vrchat");
 
-        var autoStartStop = configManager.Get<bool>(VRCOSCSetting.AutoStartStop);
-
-        if (vrChat.Length != 0 && autoStartStop && !running && !autoStarted)
+        if (vrChat.Length != 0 && autoStartStop.Value && !running && !autoStarted)
         {
             screenManager.ShowTerminal();
             autoStarted = true;
         }
 
-        if (vrChat.Length == 0 && autoStartStop && running)
+        if (vrChat.Length == 0 && autoStartStop.Value && running)
         {
             screenManager.HideTerminal();
             autoStarted = false;
