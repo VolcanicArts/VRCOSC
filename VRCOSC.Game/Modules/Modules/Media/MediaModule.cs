@@ -16,7 +16,7 @@ public class MediaModule : IntegrationModule
     public override string Prefab => "VRCOSC-Media";
     public override Colour4 Colour => Color4Extensions.FromHex(@"ffb900").Darken(0.25f);
     public override ModuleType ModuleType => ModuleType.Integrations;
-    public override string ReturnProcess => string.Empty;
+    protected override string ReturnProcess => string.Empty;
 
     public override void CreateAttributes()
     {
@@ -31,7 +31,7 @@ public class MediaModule : IntegrationModule
 
     protected override void OnBoolParameterReceived(Enum key, bool value)
     {
-        ExecuteShortcut(key);
+        ExecuteKeyCombination(key);
     }
 
     private enum MediaInputParameter

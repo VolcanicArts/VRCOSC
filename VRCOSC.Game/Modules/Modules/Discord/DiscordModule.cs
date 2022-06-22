@@ -16,7 +16,7 @@ public class DiscordModule : IntegrationModule
     public override string Prefab => "VRCOSC-Discord";
     public override Colour4 Colour => Color4Extensions.FromHex(@"454FBF");
     public override ModuleType ModuleType => ModuleType.Integrations;
-    public override string TargetProcess => "discord";
+    protected override string TargetProcess => "discord";
 
     public override void CreateAttributes()
     {
@@ -29,7 +29,7 @@ public class DiscordModule : IntegrationModule
 
     protected override void OnBoolParameterReceived(Enum key, bool value)
     {
-        ExecuteShortcut(key);
+        ExecuteKeyCombination(key);
     }
 
     private enum DiscordInputParameter

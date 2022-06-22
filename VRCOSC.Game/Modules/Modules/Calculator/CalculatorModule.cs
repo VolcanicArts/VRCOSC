@@ -16,7 +16,7 @@ public class CalculatorModule : IntegrationModule
     public override string Author => "Buckminsterfullerene";
     public override Colour4 Colour => Color4Extensions.FromHex(@"ff2600").Darken(0.5f);
     public override ModuleType ModuleType => ModuleType.Integrations;
-    public override string TargetProcess => "calc";
+    protected override string TargetProcess => "calc";
 
     private bool isCalculatorOpen;
     private float calculatorResult;
@@ -57,7 +57,7 @@ public class CalculatorModule : IntegrationModule
 
     public override void Start()
     {
-        isCalculatorOpen = IsProcessOpen(); // TODO: What if there are multiple calculator processes open at once?
+        isCalculatorOpen = IsTargetProcessOpen(); // TODO: What if there are multiple calculator processes open at once?
         if (isCalculatorOpen) sendResult();
     }
 
@@ -80,7 +80,7 @@ public class CalculatorModule : IntegrationModule
                 break;
         }
 
-        ExecuteShortcut(key);
+        ExecuteKeyCombination(key);
     }
 
     protected override void OnFloatParameterReceived(Enum key, float value)
@@ -88,7 +88,7 @@ public class CalculatorModule : IntegrationModule
         if (!key.Equals(CalculatorInputParameter.CalculatorNumber) || !isCalculatorOpen) return;
 
         var number = (int)Math.Round(value * 9);
-        ExecuteShortcut(CalculatorNumbers.CalculatorNumber0 + number); // Holy shit if this works then I'm so fucking lucky
+        ExecuteKeyCombination(CalculatorNumbers.CalculatorNumber0 + number); // Holy shit if this works then I'm so fucking lucky
         sendResult();
     }
 
@@ -105,7 +105,7 @@ public class CalculatorModule : IntegrationModule
 
     private void sendResult()
     {
-        ExecuteShortcut(CalculatorInputParameter.CalculatorCopyValue);
+        ExecuteKeyCombination(CalculatorInputParameter.CalculatorCopyValue);
         calculatorResult = returnClipboardValue();
         SendParameter(CalculatorOutputParameter.CalculatorSendValue, calculatorResult);
     }

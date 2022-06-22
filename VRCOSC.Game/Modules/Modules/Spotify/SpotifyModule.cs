@@ -16,8 +16,8 @@ public class SpotifyModule : IntegrationModule
     public override string Prefab => "VRCOSC-Spotify";
     public override Colour4 Colour => Color4Extensions.FromHex(@"1ed760").Darken(0.5f);
     public override ModuleType ModuleType => ModuleType.Integrations;
-    public override string TargetProcess => "spotify";
-    public override string TargetExe => GetSetting<string>(SpotifySetting.InstallLocation);
+    protected override string TargetProcess => "spotify";
+    protected override string TargetExe => GetSetting<string>(SpotifySetting.InstallLocation);
 
     public override void CreateAttributes()
     {
@@ -45,7 +45,7 @@ public class SpotifyModule : IntegrationModule
 
     protected override void OnBoolParameterReceived(Enum key, bool value)
     {
-        ExecuteShortcut(key);
+        ExecuteKeyCombination(key);
     }
 
     private enum SpotifySetting

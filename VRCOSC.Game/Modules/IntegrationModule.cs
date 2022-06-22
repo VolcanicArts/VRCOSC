@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using osu.Framework.Logging;
 using VRCOSC.Game.Modules.Util;
 using VRCOSC.Game.Util;
 
@@ -14,70 +15,62 @@ namespace VRCOSC.Game.Modules;
 
 public abstract class IntegrationModule : Module
 {
-    public virtual string TargetProcess => string.Empty;
-    public virtual string ReturnProcess => "vrchat";
-    public virtual string TargetExe => $@"{TargetProcess}.exe";
-    public readonly Dictionary<Enum, WindowsVKey[]> KeyCombinations = new();
+    protected virtual string TargetProcess => string.Empty;
+    protected virtual string ReturnProcess => "vrchat";
+    protected virtual string TargetExe => $@"{TargetProcess}.exe";
 
-    protected void StartTarget()
-    {
-        if (IsProcessOpen()) return;
-
-        var startInfo = new ProcessStartInfo
-        {
-            FileName = TargetExe,
-            UseShellExecute = false
-        };
-
-        try
-        {
-            var process = Process.Start(startInfo);
-            if (process == null || process!.HasExited) Terminal.Log($"{TargetExe} could not be found");
-        }
-        catch (Win32Exception)
-        {
-            Terminal.Log($"{TargetExe} is not a valid path. You cannot start {TargetProcess} on start");
-        }
-    }
+    private readonly Dictionary<Enum, WindowsVKey[]> keyCombinations = new();
 
     protected void RegisterKeyCombination(Enum lookup, params WindowsVKey[] keys)
     {
-        KeyCombinations.Add(lookup, keys);
+        keyCombinations.Add(lookup, keys);
+    }
+
+    protected void StartTarget()
+    {
+        if (IsTargetProcessOpen()) return;
+
+        try
+        {
+            Process.Start(TargetExe);
+        }
+        catch (Win32Exception e)
+        {
+            Terminal.Log($"`{TargetExe}` is not a valid path. You cannot start `{TargetProcess}` on start");
+            Logger.Error(e, "IntegrationModule error");
+        }
     }
 
     protected void StopTarget()
     {
-        if (isValidProcess(TargetProcess)) retrieveProcess(TargetExe)?.Kill();
+        retrieveProcess(TargetProcess)?.Kill();
     }
 
-    protected void RestartTarget()
+    protected void ExecuteKeyCombination(Enum lookup)
     {
-        StopTarget();
-        StartTarget();
+        Task.Run(() => executeKeyCombination(lookup));
     }
 
-    protected void ExecuteShortcut(Enum key)
+    private void executeKeyCombination(Enum lookup)
     {
-        Task.Run(() =>
-        {
-            if (!string.IsNullOrEmpty(TargetProcess)) switchToTarget();
-            executeKeyCombination(key);
-            if (!string.IsNullOrEmpty(ReturnProcess)) switchToReturn();
-        });
+        switchToTarget();
+        processKeyCombination(lookup);
+        switchToReturn();
     }
 
-    protected bool IsProcessOpen()
+    protected bool IsTargetProcessOpen()
     {
-        return isValidProcess(TargetProcess);
+        return isProcessValid(TargetProcess);
     }
 
-    private bool isValidProcess(string processName)
+    private bool isProcessValid(string processName)
     {
         return retrieveProcess(processName) != null;
     }
 
     private void switchToTarget()
     {
+        if (string.IsNullOrEmpty(TargetProcess)) return;
         if (!retrieveTargetProcess(out var targetProcess)) return;
 
         focusProcess(targetProcess!);
@@ -85,6 +78,7 @@ public abstract class IntegrationModule : Module
 
     private void switchToReturn()
     {
+        if (string.IsNullOrEmpty(ReturnProcess)) return;
         if (!retrieveReturnProcess(out var returnProcess)) return;
 
         focusProcess(returnProcess!);
@@ -93,26 +87,23 @@ public abstract class IntegrationModule : Module
     private bool retrieveReturnProcess(out Process? returnProcess)
     {
         returnProcess = retrieveProcess(ReturnProcess);
-
-        if (returnProcess != null) return true;
-
-        Terminal.Log($"{ReturnProcess} cannot be found");
-        return false;
+        return returnProcess != null;
     }
 
     private bool retrieveTargetProcess(out Process? targetProcess)
     {
         targetProcess = retrieveProcess(TargetProcess);
-
-        if (targetProcess != null) return true;
-
-        Terminal.Log($"{TargetProcess} cannot be found");
-        return false;
+        return targetProcess != null;
     }
 
-    private static Process? retrieveProcess(string processName)
+    private Process? retrieveProcess(string processName)
     {
-        return Process.GetProcessesByName(processName).FirstOrDefault();
+        var process = Process.GetProcessesByName(processName).FirstOrDefault();
+
+        if (process != null) return process;
+
+        Terminal.Log($"`{processName}` cannot be found");
+        return null;
     }
 
     private static void focusProcess(Process process)
@@ -123,17 +114,14 @@ public abstract class IntegrationModule : Module
         }
 
         Task.Delay(5);
-
         ProcessHelper.ShowMainWindow(process, ShowWindowEnum.ShowMaximized);
-
         Task.Delay(5);
-
         ProcessHelper.SetMainWindowForeground(process);
     }
 
-    private void executeKeyCombination(Enum combinationKey)
+    private void processKeyCombination(Enum lookup)
     {
-        var keys = KeyCombinations[combinationKey];
+        var keys = keyCombinations[lookup];
 
         foreach (var key in keys)
         {
