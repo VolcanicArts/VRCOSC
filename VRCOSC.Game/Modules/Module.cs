@@ -29,7 +29,7 @@ public abstract class Module
     public readonly Dictionary<string, ModuleAttributeData> Settings = new();
     public readonly Dictionary<string, ModuleAttributeData> OutputParameters = new();
 
-    public readonly Dictionary<Enum, InputParameterData> InputParameters = new();
+    private readonly Dictionary<Enum, InputParameterData> InputParameters = new();
 
     public virtual string Title => string.Empty;
     public virtual string Description => string.Empty;
@@ -128,9 +128,9 @@ public abstract class Module
 
     #region Settings
 
-    public T GetSetting<T>(Enum lookup) => GetSetting<T>(lookup.ToString().ToLower());
+    protected T GetSetting<T>(Enum lookup) => GetSetting<T>(lookup.ToString().ToLower());
 
-    public T GetSetting<T>(string lookup) => (T)Settings[lookup].Attribute.Value;
+    private T GetSetting<T>(string lookup) => (T)Settings[lookup].Attribute.Value;
 
     #endregion
 
@@ -198,15 +198,15 @@ public abstract class Module
 
     #region OutgoingParameters
 
-    public string GetOutputParameter(Enum lookup) => GetOutputParameter(lookup.ToString().ToLower());
+    private string getOutputParameter(Enum lookup) => getOutputParameter(lookup.ToString().ToLower());
 
-    public string GetOutputParameter(string lookup) => (string)OutputParameters[lookup].Attribute.Value;
+    private string getOutputParameter(string lookup) => (string)OutputParameters[lookup].Attribute.Value;
 
-    protected void SendParameter(Enum lookup, int value) => OscClient.SendData(GetOutputParameter(lookup), value);
+    protected void SendParameter(Enum lookup, int value) => OscClient.SendData(getOutputParameter(lookup), value);
 
-    protected void SendParameter(Enum lookup, float value) => OscClient.SendData(GetOutputParameter(lookup), value);
+    protected void SendParameter(Enum lookup, float value) => OscClient.SendData(getOutputParameter(lookup), value);
 
-    protected void SendParameter(Enum lookup, bool value) => OscClient.SendData(GetOutputParameter(lookup), value);
+    protected void SendParameter(Enum lookup, bool value) => OscClient.SendData(getOutputParameter(lookup), value);
 
     #endregion
 
@@ -218,24 +218,23 @@ public abstract class Module
         {
             if (stream != null)
             {
-                using (var reader = new StreamReader(stream))
+                using var reader = new StreamReader(stream);
+
+                while (reader.ReadLine() is { } line)
                 {
-                    while (reader.ReadLine() is { } line)
+                    switch (line)
                     {
-                        switch (line)
-                        {
-                            case "#InternalSettings":
-                                performInternalSettingsLoad(reader);
-                                break;
+                        case "#InternalSettings":
+                            performInternalSettingsLoad(reader);
+                            break;
 
-                            case "#Settings":
-                                performSettingsLoad(reader);
-                                break;
+                        case "#Settings":
+                            performSettingsLoad(reader);
+                            break;
 
-                            case "#OutputParameters":
-                                performOutputParametersLoad(reader);
-                                break;
-                        }
+                        case "#OutputParameters":
+                            performOutputParametersLoad(reader);
+                            break;
                     }
                 }
             }
@@ -244,7 +243,7 @@ public abstract class Module
         executeAfterLoad();
     }
 
-    private void performInternalSettingsLoad(StreamReader reader)
+    private void performInternalSettingsLoad(TextReader reader)
     {
         while (reader.ReadLine() is { } line)
         {
@@ -263,7 +262,7 @@ public abstract class Module
         }
     }
 
-    private void performSettingsLoad(StreamReader reader)
+    private void performSettingsLoad(TextReader reader)
     {
         while (reader.ReadLine() is { } line)
         {
@@ -302,7 +301,7 @@ public abstract class Module
         }
     }
 
-    private void performOutputParametersLoad(StreamReader reader)
+    private void performOutputParametersLoad(TextReader reader)
     {
         while (reader.ReadLine() is { } line)
         {
@@ -341,14 +340,14 @@ public abstract class Module
         performOutputParametersSave(writer);
     }
 
-    private void performInternalSettingsSave(StreamWriter writer)
+    private void performInternalSettingsSave(TextWriter writer)
     {
         writer.WriteLine(@"#InternalSettings");
         writer.WriteLine(@"{0}={1}", "enabled", Enabled.Value.ToString());
         writer.WriteLine(@"#End");
     }
 
-    private void performSettingsSave(StreamWriter writer)
+    private void performSettingsSave(TextWriter writer)
     {
         var areAllDefault = Settings.All(pair => pair.Value.Attribute.IsDefault);
         if (areAllDefault) return;
@@ -368,7 +367,7 @@ public abstract class Module
         writer.WriteLine(@"#End");
     }
 
-    private void performOutputParametersSave(StreamWriter writer)
+    private void performOutputParametersSave(TextWriter writer)
     {
         var areAllDefault = OutputParameters.All(pair => pair.Value.Attribute.IsDefault);
         if (areAllDefault) return;
