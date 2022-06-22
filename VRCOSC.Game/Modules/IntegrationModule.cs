@@ -28,7 +28,7 @@ public abstract class IntegrationModule : Module
 
     protected void StartTarget()
     {
-        if (IsTargetProcessOpen()) return;
+        if (isProcessOpen(TargetProcess)) return;
 
         try
         {
@@ -46,6 +46,11 @@ public abstract class IntegrationModule : Module
         retrieveProcess(TargetProcess)?.Kill();
     }
 
+    protected bool IsTargetProcessOpen()
+    {
+        return isProcessOpen(TargetProcess);
+    }
+
     protected void ExecuteKeyCombination(Enum lookup)
     {
         Task.Run(() => executeKeyCombination(lookup));
@@ -53,57 +58,34 @@ public abstract class IntegrationModule : Module
 
     private void executeKeyCombination(Enum lookup)
     {
-        switchToTarget();
+        switchToProcess(TargetProcess);
         processKeyCombination(lookup);
-        switchToReturn();
+        switchToProcess(ReturnProcess);
     }
 
-    protected bool IsTargetProcessOpen()
+    private void switchToProcess(string processName)
     {
-        return isProcessValid(TargetProcess);
+        if (string.IsNullOrEmpty(processName)) return;
+
+        Process? process = retrieveProcess(processName);
+
+        if (process == null)
+        {
+            Terminal.Log($"`{processName}` is not open");
+            return;
+        }
+
+        focusProcess(process!);
     }
 
-    private bool isProcessValid(string processName)
+    private static bool isProcessOpen(string processName)
     {
         return retrieveProcess(processName) != null;
     }
 
-    private void switchToTarget()
+    private static Process? retrieveProcess(string processName)
     {
-        if (string.IsNullOrEmpty(TargetProcess)) return;
-        if (!retrieveTargetProcess(out var targetProcess)) return;
-
-        focusProcess(targetProcess!);
-    }
-
-    private void switchToReturn()
-    {
-        if (string.IsNullOrEmpty(ReturnProcess)) return;
-        if (!retrieveReturnProcess(out var returnProcess)) return;
-
-        focusProcess(returnProcess!);
-    }
-
-    private bool retrieveReturnProcess(out Process? returnProcess)
-    {
-        returnProcess = retrieveProcess(ReturnProcess);
-        return returnProcess != null;
-    }
-
-    private bool retrieveTargetProcess(out Process? targetProcess)
-    {
-        targetProcess = retrieveProcess(TargetProcess);
-        return targetProcess != null;
-    }
-
-    private Process? retrieveProcess(string processName)
-    {
-        var process = Process.GetProcessesByName(processName).FirstOrDefault();
-
-        if (process != null) return process;
-
-        Terminal.Log($"`{processName}` cannot be found");
-        return null;
+        return Process.GetProcessesByName(processName).FirstOrDefault();
     }
 
     private static void focusProcess(Process process)
