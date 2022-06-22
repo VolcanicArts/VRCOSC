@@ -28,7 +28,7 @@ public abstract class IntegrationModule : Module
 
     protected void StartTarget()
     {
-        if (isProcessOpen(TargetProcess)) return;
+        if (IsTargetProcessOpen()) return;
 
         try
         {
@@ -65,7 +65,7 @@ public abstract class IntegrationModule : Module
     private void executeKeyCombination(Enum lookup)
     {
         switchToProcess(TargetProcess);
-        processKeyCombination(lookup);
+        performKeyCombination(lookup);
         switchToProcess(ReturnProcess);
     }
 
@@ -105,9 +105,10 @@ public abstract class IntegrationModule : Module
         ProcessHelper.ShowMainWindow(process, ShowWindowEnum.ShowMaximized);
         Task.Delay(5);
         ProcessHelper.SetMainWindowForeground(process);
+        Task.Delay(5);
     }
 
-    private void processKeyCombination(Enum lookup)
+    private void performKeyCombination(Enum lookup)
     {
         var keys = keyCombinations[lookup];
 
