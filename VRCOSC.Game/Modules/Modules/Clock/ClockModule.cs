@@ -16,7 +16,7 @@ public class ClockModule : Module
     public override string Prefab => "VRCOSC-Watch";
     public override Colour4 Colour => VRCOSCColour.Blue.Darken(0.25f);
     public override ModuleType ModuleType => ModuleType.General;
-    public override double DeltaUpdate => GetSetting<bool>(ClockSetting.SmoothSecond) ? 50d : 1000d;
+    protected override double DeltaUpdate => GetSetting<bool>(ClockSetting.SmoothSecond) ? 50d : 1000d;
 
     public override void CreateAttributes()
     {

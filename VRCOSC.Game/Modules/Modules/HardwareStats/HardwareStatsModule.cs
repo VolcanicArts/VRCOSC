@@ -13,7 +13,7 @@ public class HardwareStatsModule : Module
     public override string Author => "VolcanicArts";
     public override Colour4 Colour => VRCOSCColour.PurpleLight;
     public override ModuleType ModuleType => ModuleType.General;
-    public override double DeltaUpdate => 5000d;
+    protected override double DeltaUpdate => 5000d;
 
     private HardwareStatsProvider hardwareStatsProvider;
 

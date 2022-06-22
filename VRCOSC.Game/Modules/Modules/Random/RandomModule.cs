@@ -12,7 +12,7 @@ public class RandomModule : Module
     public override string Author => "VolcanicArts";
     public override Colour4 Colour => Colour4.Coral.Darken(0.5f);
     public override ModuleType ModuleType => ModuleType.General;
-    public override double DeltaUpdate => 1000d;
+    protected override double DeltaUpdate => 1000d;
 
     private readonly System.Random random = new();
 

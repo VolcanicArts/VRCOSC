@@ -35,10 +35,10 @@ public abstract class Module
     public virtual string Description => string.Empty;
     public virtual string Author => string.Empty;
     public virtual IEnumerable<string> Tags => Array.Empty<string>();
-    public virtual double DeltaUpdate => double.PositiveInfinity;
     public virtual Colour4 Colour => Colour4.Black;
     public virtual ModuleType ModuleType => ModuleType.General;
     public virtual string Prefab => string.Empty;
+    protected virtual double DeltaUpdate => double.PositiveInfinity;
 
     public void Initialise(Storage storage, OscClient oscClient)
     {
