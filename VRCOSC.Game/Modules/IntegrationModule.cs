@@ -59,17 +59,17 @@ public abstract class IntegrationModule : Module
 
     protected void ExecuteKeyCombination(Enum lookup)
     {
-        Task.Run(() => executeKeyCombination(lookup));
+        Task.Run(async () => await executeKeyCombination(lookup));
     }
 
-    private void executeKeyCombination(Enum lookup)
+    private async Task executeKeyCombination(Enum lookup)
     {
-        switchToProcess(TargetProcess);
-        performKeyCombination(lookup);
-        switchToProcess(ReturnProcess);
+        await switchToProcess(TargetProcess);
+        await performKeyCombination(lookup);
+        await switchToProcess(ReturnProcess);
     }
 
-    private void switchToProcess(string processName)
+    private async Task switchToProcess(string processName)
     {
         if (string.IsNullOrEmpty(processName)) return;
 
@@ -81,7 +81,7 @@ public abstract class IntegrationModule : Module
             return;
         }
 
-        focusProcess(process!);
+        await focusProcess(process!);
     }
 
     private static bool isProcessOpen(string processName)
@@ -94,21 +94,23 @@ public abstract class IntegrationModule : Module
         return Process.GetProcessesByName(processName).FirstOrDefault();
     }
 
-    private static void focusProcess(Process process)
+    private static async Task focusProcess(Process process)
     {
+        await Task.Delay(5);
+
         if (process.MainWindowHandle == IntPtr.Zero)
         {
             ProcessHelper.ShowMainWindow(process, ShowWindowEnum.Restore);
         }
 
-        Task.Delay(5);
+        await Task.Delay(5);
         ProcessHelper.ShowMainWindow(process, ShowWindowEnum.ShowMaximized);
-        Task.Delay(5);
+        await Task.Delay(5);
         ProcessHelper.SetMainWindowForeground(process);
-        Task.Delay(5);
+        await Task.Delay(5);
     }
 
-    private void performKeyCombination(Enum lookup)
+    private async Task performKeyCombination(Enum lookup)
     {
         var keys = keyCombinations[lookup];
 
@@ -117,7 +119,7 @@ public abstract class IntegrationModule : Module
             ProcessHelper.HoldKey((int)key);
         }
 
-        Task.Delay(5);
+        await Task.Delay(5);
 
         foreach (var key in keys)
         {
