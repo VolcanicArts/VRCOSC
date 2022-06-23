@@ -104,6 +104,7 @@ public class HypeRateProvider : JsonWebSocket
 
     public override void Dispose()
     {
+        heartBeatTimer?.Stop();
         heartBeatTimer?.Dispose();
         base.Dispose();
         GC.SuppressFinalize(this);
