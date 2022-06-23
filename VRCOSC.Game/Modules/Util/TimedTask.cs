@@ -7,24 +7,25 @@ using System.Threading.Tasks;
 
 namespace VRCOSC.Game.Modules.Util;
 
-public class TimedTask : IDisposable
+public class TimedTask
 {
     private readonly Action action;
-    private readonly PeriodicTimer timer;
+    private readonly double deltaTimeMilli;
     private readonly bool executeOnceImmediately;
-    private CancellationTokenSource? cts;
+
+    private PeriodicTimer? timer;
     private Task? timerTask;
 
     public TimedTask(Action action, double deltaTimeMilli, bool executeOnceImmediately = false)
     {
         this.action = action;
-        timer = new PeriodicTimer(TimeSpan.FromMilliseconds(deltaTimeMilli));
+        this.deltaTimeMilli = deltaTimeMilli;
         this.executeOnceImmediately = executeOnceImmediately;
     }
 
     public void Start()
     {
-        cts = new CancellationTokenSource();
+        timer = new PeriodicTimer(TimeSpan.FromMilliseconds(deltaTimeMilli));
         timerTask = executeWork();
     }
 
@@ -32,29 +33,19 @@ public class TimedTask : IDisposable
     {
         if (executeOnceImmediately) action.Invoke();
 
-        try
+        while (await timer!.WaitForNextTickAsync())
         {
-            while (await timer.WaitForNextTickAsync(cts!.Token))
-            {
-                action.Invoke();
-            }
+            action.Invoke();
         }
-        catch (OperationCanceledException) { }
     }
 
     public async Task Stop()
     {
         if (timerTask == null) return;
 
-        cts?.Cancel();
+        // timer allows us to dispose to cancel
+        timer!.Dispose();
         await timerTask;
         timerTask.Dispose();
-    }
-
-    public void Dispose()
-    {
-        timer.Dispose();
-        cts?.Dispose();
-        GC.SuppressFinalize(this);
     }
 }

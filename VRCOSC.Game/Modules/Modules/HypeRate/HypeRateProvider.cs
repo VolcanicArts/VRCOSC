@@ -44,7 +44,6 @@ public class HypeRateProvider : JsonWebSocket
     {
         terminal.Log("Disconnected from the HypeRate websocket");
         heartBeatTimer?.Stop();
-        Dispose();
     }
 
     private void OnMessage(string message)
@@ -100,13 +99,5 @@ public class HypeRateProvider : JsonWebSocket
     private void handleHrUpdate(HeartRateUpdateModel update)
     {
         OnHeartRateUpdate?.Invoke(update.Payload.HeartRate);
-    }
-
-    public override void Dispose()
-    {
-        heartBeatTimer?.Stop();
-        heartBeatTimer?.Dispose();
-        base.Dispose();
-        GC.SuppressFinalize(this);
     }
 }

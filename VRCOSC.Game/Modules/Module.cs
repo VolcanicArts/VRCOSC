@@ -97,7 +97,6 @@ public abstract class Module
 
         if (!double.IsPositiveInfinity(DeltaUpdate))
         {
-            updateTask?.Dispose();
             updateTask = new TimedTask(OnUpdate, DeltaUpdate, true);
             updateTask.Start();
         }
