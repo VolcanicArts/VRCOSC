@@ -129,9 +129,9 @@ public abstract class Module
 
     #region Settings
 
-    protected T GetSetting<T>(Enum lookup) => GetSetting<T>(lookup.ToString().ToLower());
+    protected T GetSetting<T>(Enum lookup) => getSetting<T>(lookup.ToString().ToLower());
 
-    private T GetSetting<T>(string lookup) => (T)Settings[lookup].Attribute.Value;
+    private T getSetting<T>(string lookup) => (T)Settings[lookup].Attribute.Value;
 
     #endregion
 
