@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using CoreOSC;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
@@ -108,13 +109,14 @@ public abstract class Module
 
     protected virtual void OnUpdate() { }
 
-    internal void stop()
+    internal async Task stop()
     {
         if (!Enabled.Value) return;
 
         Terminal.Log("Stopping");
 
-        updateTask?.Stop();
+        if (updateTask != null) await updateTask.Stop();
+
         OnStop();
 
         Terminal.Log("Stopped");

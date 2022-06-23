@@ -113,7 +113,7 @@ public sealed class ModuleManager : Drawable
         if (!running) return;
 
         running = false;
-        modules.ForEach(module => module.stop());
+        modules.ForEach(module => module.stop().ConfigureAwait((false)));
         OSCClient.Disable();
     }
 

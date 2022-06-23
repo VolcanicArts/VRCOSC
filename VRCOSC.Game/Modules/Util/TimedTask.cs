@@ -42,16 +42,17 @@ public class TimedTask : IDisposable
         catch (OperationCanceledException) { }
     }
 
-    public void Stop()
+    public async Task Stop()
     {
         if (timerTask == null) return;
 
         cts?.Cancel();
+        await timerTask;
+        timerTask.Dispose();
     }
 
     public void Dispose()
     {
-        timerTask?.Dispose();
         timer.Dispose();
         cts?.Dispose();
         GC.SuppressFinalize(this);
