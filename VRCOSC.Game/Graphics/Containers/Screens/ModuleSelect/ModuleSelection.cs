@@ -10,7 +10,7 @@ using VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect.SidePanel;
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
 
 [Cached]
-public sealed class ModuleSelection : Container
+public sealed class ModuleSelection : GridContainer
 {
     public Bindable<string> SearchString = new();
 
@@ -24,26 +24,17 @@ public sealed class ModuleSelection : Container
     [BackgroundDependencyLoader]
     private void load()
     {
-        Children = new Drawable[]
+        ColumnDimensions = new[]
         {
-            new GridContainer
+            new Dimension(GridSizeMode.Absolute, 300),
+            new Dimension()
+        };
+        Content = new[]
+        {
+            new Drawable[]
             {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                RelativeSizeAxes = Axes.Both,
-                ColumnDimensions = new[]
-                {
-                    new Dimension(GridSizeMode.Absolute, 300),
-                    new Dimension()
-                },
-                Content = new[]
-                {
-                    new Drawable[]
-                    {
-                        new ModuleSelectSidePanel(),
-                        new ModuleListing()
-                    }
-                }
+                new ModuleSelectSidePanel(),
+                new ModuleListing()
             }
         };
     }
