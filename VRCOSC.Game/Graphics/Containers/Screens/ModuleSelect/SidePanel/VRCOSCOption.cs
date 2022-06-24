@@ -19,40 +19,34 @@ public class VRCOSCOption : Container
         Origin = Anchor.TopCentre;
         RelativeSizeAxes = Axes.X;
         Height = 40;
+        Masking = true;
+        CornerRadius = 10;
     }
 
     [BackgroundDependencyLoader]
     private void load()
     {
-        Child = new Container
+        Children = new Drawable[]
         {
-            Anchor = Anchor.Centre,
-            Origin = Anchor.Centre,
-            RelativeSizeAxes = Axes.Both,
-            Masking = true,
-            CornerRadius = 10,
-            Children = new Drawable[]
+            new Box
             {
-                new Box
-                {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    RelativeSizeAxes = Axes.Both,
-                    Colour = VRCOSCColour.Gray2
-                },
-                new Container
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                RelativeSizeAxes = Axes.Both,
+                Colour = VRCOSCColour.Gray2
+            },
+            new Container
+            {
+                Anchor = Anchor.CentreLeft,
+                Origin = Anchor.CentreLeft,
+                RelativeSizeAxes = Axes.Both,
+                Padding = new MarginPadding(5),
+                Child = new SpriteText
                 {
                     Anchor = Anchor.CentreLeft,
                     Origin = Anchor.CentreLeft,
-                    RelativeSizeAxes = Axes.Both,
-                    Padding = new MarginPadding(5),
-                    Child = new SpriteText
-                    {
-                        Anchor = Anchor.CentreLeft,
-                        Origin = Anchor.CentreLeft,
-                        Text = Label,
-                        Colour = VRCOSCColour.GrayC
-                    }
+                    Text = Label,
+                    Colour = VRCOSCColour.GrayC
                 }
             }
         };
