@@ -19,7 +19,7 @@ public class RandomBoolModule : Module
 
     public override void CreateAttributes()
     {
-        CreateSetting(RandomBoolSetting.DeltaUpdate, "Time Between Update", "The amount of time, in milliseconds, between each random value", 1000);
+        CreateSetting(RandomBoolSetting.DeltaUpdate, "Time Between Value", "The amount of time, in milliseconds, between each random value", 1000);
 
         CreateOutputParameter(RandomBoolOutputParameter.RandomBool, "Random Bool", "A random bool value", "/avatar/parameters/RandomBool");
     }

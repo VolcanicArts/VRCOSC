@@ -19,7 +19,7 @@ public class RandomFloatModule : Module
 
     public override void CreateAttributes()
     {
-        CreateSetting(RandomFloatSetting.DeltaUpdate, "Time Between Update", "The amount of time, in milliseconds, between each random value", 1000);
+        CreateSetting(RandomFloatSetting.DeltaUpdate, "Time Between Value", "The amount of time, in milliseconds, between each random value", 1000);
         CreateSetting(RandomFloatSetting.MinValue, "Min Value", "The minimum value of the float", 0f, 0f, 1f);
         CreateSetting(RandomFloatSetting.MaxValue, "Max Value", "The maximum value of the float", 1f, 0f, 1f);
 

@@ -18,7 +18,7 @@ public class VRCOSCSlider<T> : BasicSliderBar<T> where T : struct, IComparable<T
 
     public VRCOSCSlider()
     {
-        BackgroundColour = VRCOSCColour.Gray3;
+        BackgroundColour = VRCOSCColour.Gray4;
         SelectionColour = VRCOSCColour.Gray6;
         Masking = true;
         CornerRadius = 10;
