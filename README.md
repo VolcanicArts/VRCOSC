@@ -36,7 +36,7 @@ Want to make your own module? Check the [Wiki](https://github.com/VolcanicArts/V
 | Clock | Sends your local time as hours, minutes, and seconds | | VRCOSC-Watch.unitypackage |
 | Calculator | Calculator integration. Uses the Windows OS calculator | | |
 | Hardware Stats | Sends your system stats | | |
-| Random | Sends a random float between 0 and 1 every second | | |
+| Random (Bool/Float/Int) | Sends a random value with adjustable update rate | | |
 
 ## License
 This program is licensed under the [GNU General Public License V3](https://www.gnu.org/licenses/gpl-3.0.en.html). Please see [the license file](LICENSE) for more information.
