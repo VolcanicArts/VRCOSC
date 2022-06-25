@@ -1,13 +1,19 @@
 # VRCOSC
 A modular OSC application creator made for [VRChat](https://vrchat.com) built on top of the [osu!framework](https://github.com/ppy/osu-framework).
 
-<p align="center"><img src="https://user-images.githubusercontent.com/29819296/174907070-bbe91f5c-1b90-4c96-9890-7d78b487872f.png" width=70% height=70%></p>
+<div align="center">
 
+<img src="https://user-images.githubusercontent.com/29819296/174907070-bbe91f5c-1b90-4c96-9890-7d78b487872f.png" width=70% height=70%>
+
+[![Release version](https://img.shields.io/github/v/release/VolcanicArts/VRCOSC?color=brightgreen&label=Latest%20Release&style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/releases/latest)
 [![license](https://img.shields.io/github/license/VolcanicArts/VRCOSC?style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/blob/main/LICENSE) 
 [![downloads](https://img.shields.io/github/downloads/VolcanicArts/VRCOSC/total?style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/releases/latest)
+[![Commits](https://img.shields.io/github/commit-activity/m/VolcanicArts/VRCOSC?label=commits&style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/commits/main)
 [![lastcommit](https://img.shields.io/github/last-commit/VolcanicArts/VRCOSC?style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/commits/main) 
 [![issues](https://img.shields.io/github/issues/VolcanicArts/VRCOSC?style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/issues)
 [![discussions](https://img.shields.io/github/discussions/VolcanicArts/VRCOSC?style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/discussions)
+  
+</div>
 
 ## Getting Started
 Download VRCOSCSetup from the [Releases](https://github.com/VolcanicArts/VRCOSC/releases/latest) page. Enable the modules you'd like to use. Download any prefabs that are available and put them onto your avatar. Guides are available inside each prefab. Press the play button or enable auto-start!
