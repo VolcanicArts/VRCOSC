@@ -48,7 +48,19 @@ public sealed class AttributeFlow : FillFlowContainer
                     break;
 
                 case TypeCode.Int32:
-                    Add(new IntAttributeCard(attributeData));
+                    if (attributeData is ModuleAttributeDataWithBounds attributeDataWithBounds)
+                    {
+                        Add(new SliderAttributeCard<int>(attributeDataWithBounds, 1));
+                    }
+                    else
+                    {
+                        Add(new IntAttributeCard(attributeData));
+                    }
+
+                    break;
+
+                case TypeCode.Single:
+                    Add(new SliderAttributeCard<float>((ModuleAttributeDataWithBounds)attributeData, 0.01f));
                     break;
 
                 case TypeCode.Boolean:

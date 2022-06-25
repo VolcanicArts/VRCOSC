@@ -10,6 +10,7 @@ using CoreOSC;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
+using osu.Framework.Logging;
 using osu.Framework.Platform;
 using VRCOSC.Game.Modules.Util;
 using VRCOSC.Game.Util;
@@ -70,6 +71,12 @@ public abstract class Module
     {
         var lookupString = lookup.ToString().ToLower();
         Settings.Add(lookupString, new ModuleAttributeData(displayName, description, defaultValue));
+    }
+
+    protected void CreateSetting(Enum lookup, string displayName, string description, object defaultValue, object minValue, object maxValue)
+    {
+        var lookupString = lookup.ToString().ToLower();
+        Settings.Add(lookupString, new ModuleAttributeDataWithBounds(displayName, description, defaultValue, minValue, maxValue));
     }
 
     protected void CreateOutputParameter(Enum lookup, string displayName, string description, string defaultAddress)
@@ -290,6 +297,11 @@ public abstract class Module
 
                 case TypeCode.Int32:
                     Settings[lookup].Attribute.Value = int.Parse(value);
+                    break;
+
+                case TypeCode.Single:
+                    Logger.Log(value);
+                    Settings[lookup].Attribute.Value = float.Parse(value);
                     break;
 
                 case TypeCode.Boolean:

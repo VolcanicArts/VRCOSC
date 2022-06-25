@@ -18,3 +18,16 @@ public class ModuleAttributeData
         Attribute = new Bindable<object>(defaultValue);
     }
 }
+
+public class ModuleAttributeDataWithBounds : ModuleAttributeData
+{
+    public object MinValue { get; }
+    public object MaxValue { get; }
+
+    public ModuleAttributeDataWithBounds(string displayName, string description, object defaultValue, object minValue, object maxValue)
+        : base(displayName, description, defaultValue)
+    {
+        MinValue = minValue;
+        MaxValue = maxValue;
+    }
+}

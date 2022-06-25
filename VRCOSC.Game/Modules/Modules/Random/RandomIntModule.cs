@@ -20,8 +20,8 @@ public class RandomIntModule : Module
     public override void CreateAttributes()
     {
         CreateSetting(RandomIntSetting.DeltaUpdate, "Time Between Update", "The amount of time, in milliseconds, between each random value", 1000);
-        CreateSetting(RandomIntSetting.MinValue, "Min Value", "The minimum value of the int. VRChat's minimum is 0", 0);
-        CreateSetting(RandomIntSetting.MaxValue, "Max Value", "The maximum value of the int. VRChat's maximum is 255", 255);
+        CreateSetting(RandomIntSetting.MinValue, "Min Value", "The minimum value of the int", 0, 0, 255);
+        CreateSetting(RandomIntSetting.MaxValue, "Max Value", "The maximum value of the int", 255, 0, 255);
 
         CreateOutputParameter(RandomIntOutputParameter.RandomInt, "Random Int", "A random int value", "/avatar/parameters/RandomInt");
     }
