@@ -66,16 +66,39 @@ public abstract class Module
 
     public virtual void CreateAttributes() { }
 
-    protected void CreateSetting(Enum lookup, string displayName, string description, object defaultValue)
+    protected void CreateSetting(Enum lookup, string displayName, string description, bool defaultValue)
     {
-        var lookupString = lookup.ToString().ToLower();
-        Settings.Add(lookupString, new ModuleAttributeData(displayName, description, defaultValue));
+        addSetting(lookup.ToString().ToLower(), displayName, description, defaultValue);
     }
 
-    protected void CreateSetting(Enum lookup, string displayName, string description, object defaultValue, object minValue, object maxValue)
+    protected void CreateSetting(Enum lookup, string displayName, string description, int defaultValue)
     {
-        var lookupString = lookup.ToString().ToLower();
-        Settings.Add(lookupString, new ModuleAttributeDataWithBounds(displayName, description, defaultValue, minValue, maxValue));
+        addSetting(lookup.ToString().ToLower(), displayName, description, defaultValue);
+    }
+
+    protected void CreateSetting(Enum lookup, string displayName, string description, int defaultValue, int minValue, int maxValue)
+    {
+        addRangedSetting(lookup.ToString().ToLower(), displayName, description, defaultValue, minValue, maxValue);
+    }
+
+    protected void CreateSetting(Enum lookup, string displayName, string description, float defaultValue, float minValue, float maxValue)
+    {
+        addRangedSetting(lookup.ToString().ToLower(), displayName, description, defaultValue, minValue, maxValue);
+    }
+
+    protected void CreateSetting(Enum lookup, string displayName, string description, string defaultValue)
+    {
+        addSetting(lookup.ToString().ToLower(), displayName, description, defaultValue);
+    }
+
+    private void addSetting(string lookup, string displayName, string description, object defaultValue)
+    {
+        Settings.Add(lookup, new ModuleAttributeData(displayName, description, defaultValue));
+    }
+
+    private void addRangedSetting<T>(string lookup, string displayName, string description, T defaultValue, T minValue, T maxValue) where T : struct
+    {
+        Settings.Add(lookup, new ModuleAttributeDataWithBounds(displayName, description, defaultValue, minValue, maxValue));
     }
 
     protected void CreateOutputParameter(Enum lookup, string displayName, string description, string defaultAddress)
