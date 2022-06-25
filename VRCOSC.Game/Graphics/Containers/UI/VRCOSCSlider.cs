@@ -60,6 +60,7 @@ public class VRCOSCSlider<T> : BasicSliderBar<T> where T : struct, IComparable<T
         });
 
         Current.BindValueChanged(_ => valueText.Text = getCurrentValue().ToString()!, true);
+        SlowedCurrent.BindValueChanged(e => Current.Value = e.NewValue);
     }
 
     protected override void OnDragEnd(DragEndEvent e)

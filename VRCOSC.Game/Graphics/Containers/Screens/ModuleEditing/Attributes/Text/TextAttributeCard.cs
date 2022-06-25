@@ -9,13 +9,13 @@ using osuTK;
 using VRCOSC.Game.Graphics.Containers.UI;
 using VRCOSC.Game.Modules;
 
-namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing;
+namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Attributes.Text;
 
-public class StringAttributeCard : AttributeCard
+public class TextAttributeCard : AttributeCard
 {
-    protected VRCOSCTextBox textBox;
+    protected VRCOSCTextBox TextBox = null!;
 
-    public StringAttributeCard(ModuleAttributeData attributeData)
+    public TextAttributeCard(ModuleAttributeData attributeData)
         : base(attributeData)
     {
     }
@@ -30,7 +30,7 @@ public class StringAttributeCard : AttributeCard
             RelativeSizeAxes = Axes.Both,
             Size = new Vector2(1.0f, 0.5f),
             Padding = new MarginPadding(10),
-            Child = textBox = new VRCOSCTextBox
+            Child = TextBox = new VRCOSCTextBox
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
@@ -39,24 +39,24 @@ public class StringAttributeCard : AttributeCard
             }
         });
 
-        AttributeData.Attribute.ValueChanged += updateTextBox;
-
-        textBox.Current.ValueChanged += OnTextChange;
+        AttributeData.Attribute.ValueChanged += e => updateValues(e.NewValue);
+        TextBox.Current.ValueChanged += e => updateValues(OnTextWrite(e));
     }
 
-    private void updateTextBox(ValueChangedEvent<object> e)
+    private void updateValues(object value)
     {
-        textBox.Text = e.NewValue.ToString();
+        AttributeData.Attribute.Value = value;
+        TextBox.Current.Value = value.ToString();
     }
 
-    protected virtual void OnTextChange(ValueChangedEvent<string> e)
+    protected virtual object OnTextWrite(ValueChangedEvent<string> e)
     {
-        AttributeData.Attribute.Value = e.NewValue;
+        return e.NewValue;
     }
 
     protected override void Dispose(bool isDisposing)
     {
-        AttributeData.Attribute.ValueChanged -= updateTextBox;
+        AttributeData.Attribute.ValueChanged -= updateValues;
         base.Dispose(isDisposing);
     }
 }

@@ -8,6 +8,9 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
+using VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Attributes.Slider;
+using VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Attributes.Text;
+using VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Attributes.Toggle;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing;
@@ -44,27 +47,27 @@ public sealed class AttributeFlow : FillFlowContainer
             switch (Type.GetTypeCode(attributeData.Attribute.Value.GetType()))
             {
                 case TypeCode.String:
-                    Add(new StringAttributeCard(attributeData));
+                    Add(new TextAttributeCard(attributeData));
                     break;
 
                 case TypeCode.Int32:
                     if (attributeData is ModuleAttributeDataWithBounds attributeDataWithBounds)
                     {
-                        Add(new SliderAttributeCard<int>(attributeDataWithBounds, 1));
+                        Add(new IntSliderAttributeCard(attributeDataWithBounds));
                     }
                     else
                     {
-                        Add(new IntAttributeCard(attributeData));
+                        Add(new IntTextAttributeCard(attributeData));
                     }
 
                     break;
 
                 case TypeCode.Single:
-                    Add(new SliderAttributeCard<float>((ModuleAttributeDataWithBounds)attributeData, 0.01f));
+                    Add(new FloatSliderAttributeCard((ModuleAttributeDataWithBounds)attributeData));
                     break;
 
                 case TypeCode.Boolean:
-                    Add(new BoolAttributeCard(attributeData));
+                    Add(new ToggleAttributeCard(attributeData));
                     break;
 
                 default:

@@ -8,13 +8,13 @@ using osu.Framework.Graphics.Containers;
 using VRCOSC.Game.Graphics.Containers.UI.Dynamic;
 using VRCOSC.Game.Modules;
 
-namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing;
+namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Attributes.Toggle;
 
-public class BoolAttributeCard : AttributeCard
+public class ToggleAttributeCard : AttributeCard
 {
-    private StatefulIconButton iconButton;
+    protected StatefulIconButton IconButton;
 
-    public BoolAttributeCard(ModuleAttributeData attributeData)
+    public ToggleAttributeCard(ModuleAttributeData attributeData)
         : base(attributeData)
     {
     }
@@ -29,7 +29,7 @@ public class BoolAttributeCard : AttributeCard
             RelativeSizeAxes = Axes.Both,
             FillMode = FillMode.Fit,
             Padding = new MarginPadding(20),
-            Child = iconButton = new StatefulIconButton
+            Child = IconButton = new StatefulIconButton
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
@@ -39,19 +39,29 @@ public class BoolAttributeCard : AttributeCard
             }
         });
 
-        iconButton.State.ValueChanged += e => AttributeData.Attribute.Value = e.NewValue;
-
-        AttributeData.Attribute.ValueChanged += updateCheckBox;
+        AttributeData.Attribute.ValueChanged += updateValues;
+        IconButton.State.ValueChanged += e => updateValues(OnToggleChange(e));
     }
 
-    private void updateCheckBox(ValueChangedEvent<object> e)
+    private void updateValues(ValueChangedEvent<object> e)
     {
-        iconButton.State.Value = (bool)e.NewValue;
+        updateValues((bool)e.NewValue);
+    }
+
+    private void updateValues(bool value)
+    {
+        AttributeData.Attribute.Value = value;
+        IconButton.State.Value = value;
+    }
+
+    protected virtual bool OnToggleChange(ValueChangedEvent<bool> e)
+    {
+        return e.NewValue;
     }
 
     protected override void Dispose(bool isDisposing)
     {
-        AttributeData.Attribute.ValueChanged -= updateCheckBox;
+        AttributeData.Attribute.ValueChanged -= updateValues;
         base.Dispose(isDisposing);
     }
 }

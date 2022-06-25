@@ -11,7 +11,7 @@ using osuTK;
 using VRCOSC.Game.Graphics.Containers.UI;
 using VRCOSC.Game.Modules;
 
-namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing;
+namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Attributes;
 
 public abstract class AttributeCard : Container
 {
@@ -98,6 +98,11 @@ public abstract class AttributeCard : Container
         });
 
         AttributeData.Attribute.ValueChanged += updateResetToDefault;
+    }
+
+    protected override void LoadComplete()
+    {
+        AttributeData.Attribute.TriggerChange();
     }
 
     private void updateResetToDefault(ValueChangedEvent<object> _)
