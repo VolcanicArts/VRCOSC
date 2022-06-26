@@ -24,6 +24,7 @@ public abstract class Module
     private OscClient OscClient = null!;
     private TimedTask? updateTask;
     protected TerminalLogger Terminal = null!;
+    protected Player Player = null!;
 
     public readonly BindableBool Enabled = new();
 
@@ -121,6 +122,7 @@ public abstract class Module
         if (!Enabled.Value) return;
 
         Terminal.Log("Starting");
+        Player = new Player();
 
         OnStart();
 
@@ -154,6 +156,8 @@ public abstract class Module
 
     protected virtual void OnAvatarChange() { }
 
+    protected virtual void OnPlayerStateUpdate(VRChatInputParameter key) { }
+
     #endregion
 
     #region Settings
@@ -168,7 +172,11 @@ public abstract class Module
 
     private void onParameterReceived(string address, object value)
     {
-        if (!Enabled.Value || !IsRequestingInput) return;
+        if (!Enabled.Value) return;
+
+        updatePlayerState(address, value);
+
+        if (!IsRequestingInput) return;
 
         var addressEndpoint = address.Split('/').Last();
 
@@ -216,6 +224,93 @@ public abstract class Module
                 OnFloatParameterReceived(key, floatValue);
                 break;
         }
+    }
+
+    private void updatePlayerState(string address, object value)
+    {
+        var endpoint = address.Split('/').Last();
+
+        if (!Enum.TryParse(endpoint, out VRChatInputParameter vrChatInputParameter)) return;
+
+        switch (vrChatInputParameter)
+        {
+            case VRChatInputParameter.Viseme:
+                Player.Viseme = (Viseme)(int)value;
+                break;
+
+            case VRChatInputParameter.Voice:
+                Player.Voice = (float)value;
+                break;
+
+            case VRChatInputParameter.GestureLeft:
+                Player.GestureLeft = (Gesture)(int)value;
+                break;
+
+            case VRChatInputParameter.GestureRight:
+                Player.GestureRight = (Gesture)(int)value;
+                break;
+
+            case VRChatInputParameter.GestureLeftWeight:
+                Player.GestureLeftWeight = (float)value;
+                break;
+
+            case VRChatInputParameter.GestureRightWeight:
+                Player.GestureRightWeight = (float)value;
+                break;
+
+            case VRChatInputParameter.AngularY:
+                Player.AngularY = (float)value;
+                break;
+
+            case VRChatInputParameter.VelocityX:
+                Player.VelocityX = (float)value;
+                break;
+
+            case VRChatInputParameter.VelocityY:
+                Player.VelocityY = (float)value;
+                break;
+
+            case VRChatInputParameter.VelocityZ:
+                Player.VelocityZ = (float)value;
+                break;
+
+            case VRChatInputParameter.Upright:
+                Player.Upright = (float)value;
+                break;
+
+            case VRChatInputParameter.Grounded:
+                Player.Grounded = (bool)value;
+                break;
+
+            case VRChatInputParameter.Seated:
+                Player.Seated = (bool)value;
+                break;
+
+            case VRChatInputParameter.AFK:
+                Player.AFK = (bool)value;
+                break;
+
+            case VRChatInputParameter.TrackingType:
+                Player.TrackingType = (TrackingType)(int)value;
+                break;
+
+            case VRChatInputParameter.VRMode:
+                Player.IsVR = (int)value == 1;
+                break;
+
+            case VRChatInputParameter.MuteSelf:
+                Player.IsMuted = (bool)value;
+                break;
+
+            case VRChatInputParameter.InStation:
+                Player.InStation = (bool)value;
+                break;
+
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+
+        OnPlayerStateUpdate(vrChatInputParameter);
     }
 
     protected virtual void OnBoolParameterReceived(Enum key, bool value) { }
