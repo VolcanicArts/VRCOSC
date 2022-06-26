@@ -28,9 +28,8 @@ public class RandomFloatModule : Module
 
     protected override void OnUpdate()
     {
-        float randomFloat = (float)random.NextDouble();
-        float randomFloatMapped = ModuleMaths.Map(randomFloat, 0, 1, GetSetting<float>(RandomFloatSetting.MinValue), GetSetting<float>(RandomFloatSetting.MaxValue));
-        SendParameter(RandomFloatOutputParameter.RandomFloat, randomFloatMapped);
+        var randomFloat = ModuleMaths.RandomFloat(GetSetting<float>(RandomFloatSetting.MinValue), GetSetting<float>(RandomFloatSetting.MaxValue));
+        SendParameter(RandomFloatOutputParameter.RandomFloat, randomFloat);
     }
 
     private enum RandomFloatSetting

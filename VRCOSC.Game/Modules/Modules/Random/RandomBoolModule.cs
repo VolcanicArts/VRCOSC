@@ -1,8 +1,8 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
 using osu.Framework.Graphics;
+using VRCOSC.Game.Modules.Util;
 
 namespace VRCOSC.Game.Modules.Modules.Random;
 
@@ -26,8 +26,7 @@ public class RandomBoolModule : Module
 
     protected override void OnUpdate()
     {
-        float randomFloat = (float)random.NextDouble();
-        bool randomBool = (int)MathF.Round(randomFloat) == 1;
+        var randomBool = ModuleMaths.RandomBool();
         SendParameter(RandomBoolOutputParameter.RandomBool, randomBool);
     }
 
