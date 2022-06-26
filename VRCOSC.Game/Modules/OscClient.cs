@@ -54,7 +54,7 @@ public class OscClient : IDisposable
         var message = new OscMessage(oscAddress, new[] { value });
         sendingClient.SendMessageAsync(message);
 
-        OnParameterSent?.Invoke(address, value);
+        OnParameterSent?.Invoke(address, convertValue(value));
     }
 
     private async void listenForIncoming()
@@ -68,11 +68,18 @@ public class OscClient : IDisposable
                 var message = await receivingClient.ReceiveMessageAsync().WaitAsync(tokenSource.Token);
                 if (!message.Arguments.Any()) continue;
 
-                OnParameterReceived?.Invoke(message.Address.Value, message.Arguments.First());
+                OnParameterReceived?.Invoke(message.Address.Value, convertValue(message.Arguments.First()));
             }
         }
         // required due to CoreOSC not handling cancellation requests
         catch (TaskCanceledException) { }
+    }
+
+    private object convertValue(object value)
+    {
+        if (value is OscTrue) value = true;
+        if (value is OscFalse) value = false;
+        return value;
     }
 
     public void Dispose()

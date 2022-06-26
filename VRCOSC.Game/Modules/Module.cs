@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using CoreOSC;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
@@ -190,9 +189,6 @@ public abstract class Module
         if (key == null) return;
 
         var inputParameterData = InputParameters[key];
-
-        if (value is OscTrue) value = true;
-        if (value is OscFalse) value = false;
 
         if (value.GetType() != inputParameterData.Type)
         {
