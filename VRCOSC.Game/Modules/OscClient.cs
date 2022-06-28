@@ -49,11 +49,11 @@ public class OscClient
 
     public void SendData(string address, float value) => sendData(address, value);
 
-    private void sendData(string address, object value)
+    private async void sendData(string address, object value)
     {
         var oscAddress = new Address(address);
         var message = new OscMessage(oscAddress, new[] { value });
-        sendingClient.SendMessageAsync(message);
+        await sendingClient.SendMessageAsync(message);
 
         OnParameterSent?.Invoke(address, convertValue(value));
     }
