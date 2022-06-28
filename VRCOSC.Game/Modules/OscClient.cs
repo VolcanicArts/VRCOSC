@@ -12,7 +12,7 @@ using CoreOSC.IO;
 
 namespace VRCOSC.Game.Modules;
 
-public class OscClient : IDisposable
+public class OscClient
 {
     private UdpClient? sendingClient;
     private UdpClient? receivingClient;
@@ -78,12 +78,5 @@ public class OscClient : IDisposable
         if (value is OscTrue) value = true;
         if (value is OscFalse) value = false;
         return value;
-    }
-
-    public void Dispose()
-    {
-        sendingClient?.Dispose();
-        receivingClient?.Dispose();
-        GC.SuppressFinalize(this);
     }
 }

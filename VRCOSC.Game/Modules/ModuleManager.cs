@@ -130,8 +130,7 @@ public sealed class ModuleManager : Drawable
 
     protected override void Dispose(bool isDisposing)
     {
-        if (running) Stop();
-        OSCClient.Dispose();
+        if (running) Stop().Wait();
         base.Dispose(isDisposing);
     }
 }
