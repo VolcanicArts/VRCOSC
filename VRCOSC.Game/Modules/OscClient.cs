@@ -16,30 +16,31 @@ public class OscClient : IDisposable
 {
     private UdpClient? sendingClient;
     private UdpClient? receivingClient;
-
     private CancellationTokenSource? tokenSource;
+    private Task? incomingTask;
 
     public Action<string, object>? OnParameterSent;
     public Action<string, object>? OnParameterReceived;
 
     public void Initialise(string ipAddress, int sendPort, int receivePort)
     {
-        sendingClient?.Dispose();
         sendingClient = new UdpClient(ipAddress, sendPort);
-
-        receivingClient?.Dispose();
         receivingClient = new UdpClient(new IPEndPoint(IPAddress.Parse(ipAddress), receivePort));
     }
 
     public void Enable()
     {
         tokenSource = new CancellationTokenSource();
-        Task.Run(listenForIncoming);
+        incomingTask = Task.Run(listenForIncoming);
     }
 
-    public void Disable()
+    public async Task Disable()
     {
         tokenSource?.Cancel();
+        if (incomingTask != null) await incomingTask;
+        tokenSource?.Dispose();
+        sendingClient?.Dispose();
+        receivingClient?.Dispose();
     }
 
     public void SendData(string address, bool value) => sendData(address, value ? OscTrue.True : OscFalse.False);
@@ -59,20 +60,17 @@ public class OscClient : IDisposable
 
     private async void listenForIncoming()
     {
-        if (tokenSource == null) throw new AggregateException("Cancellation token is null when trying to listen for OSC messages");
-
         try
         {
-            while (!tokenSource.Token.IsCancellationRequested)
+            while (!tokenSource!.Token.IsCancellationRequested)
             {
-                var message = await receivingClient.ReceiveMessageAsync().WaitAsync(tokenSource.Token);
+                var message = await receivingClient.ReceiveMessageAsync();
                 if (!message.Arguments.Any()) continue;
 
                 OnParameterReceived?.Invoke(message.Address.Value, convertValue(message.Arguments.First()));
             }
         }
-        // required due to CoreOSC not handling cancellation requests
-        catch (TaskCanceledException) { }
+        catch (SocketException) { }
     }
 
     private object convertValue(object value)
