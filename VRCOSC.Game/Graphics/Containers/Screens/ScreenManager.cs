@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -72,13 +73,16 @@ public sealed class ScreenManager : Container
 
     public void HideTerminal()
     {
-        Scheduler.Add(() =>
+        Task.Run(async () =>
         {
-            moduleManager.Stop();
-            runningPopover.MoveToY(1, 1000, Easing.InQuint).Finally(_ =>
+            await moduleManager.Stop();
+            Scheduler.Add(() =>
             {
-                ChangeChildDepth(runningPopover, 0);
-                runningPopover.Reset();
+                runningPopover.MoveToY(1, 1000, Easing.InQuint).Finally(_ =>
+                {
+                    ChangeChildDepth(runningPopover, 0);
+                    runningPopover.Reset();
+                });
             });
         });
     }

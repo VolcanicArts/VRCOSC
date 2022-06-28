@@ -26,10 +26,10 @@ public class TimedTask
     public void Start()
     {
         timer = new PeriodicTimer(TimeSpan.FromMilliseconds(deltaTimeMilli));
-        timerTask = executeWork();
+        timerTask = Task.Run(executeWork);
     }
 
-    private async Task executeWork()
+    private async void executeWork()
     {
         if (executeOnceImmediately) action.Invoke();
 
@@ -46,6 +46,5 @@ public class TimedTask
         // timer allows us to dispose to cancel
         timer!.Dispose();
         await timerTask;
-        timerTask.Dispose();
     }
 }

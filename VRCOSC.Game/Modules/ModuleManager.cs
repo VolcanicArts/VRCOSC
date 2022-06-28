@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
@@ -108,13 +109,18 @@ public sealed class ModuleManager : Drawable
         running = true;
     }
 
-    public void Stop()
+    public async Task Stop()
     {
         if (!running) return;
 
         running = false;
-        modules.ForEach(module => module.stop().ConfigureAwait((false)));
-        OSCClient.Disable();
+
+        foreach (var module in modules)
+        {
+            await module.stop();
+        }
+
+        await OSCClient.Disable();
     }
 
     public List<Module> GroupBy(ModuleType moduleType)
