@@ -24,6 +24,7 @@ public abstract class Module
     private TimedTask? updateTask;
     protected TerminalLogger Terminal = null!;
     protected Player Player = null!;
+    protected ModuleState ModuleState = ModuleState.Stopped;
 
     public readonly BindableBool Enabled = new();
 
@@ -132,6 +133,7 @@ public abstract class Module
         }
 
         Terminal.Log("Started");
+        ModuleState = ModuleState.Started;
     }
 
     protected virtual void OnStart() { }
@@ -149,6 +151,7 @@ public abstract class Module
         OnStop();
 
         Terminal.Log("Stopped");
+        ModuleState = ModuleState.Stopped;
     }
 
     protected virtual void OnStop() { }
@@ -511,4 +514,10 @@ public abstract class Module
     }
 
     #endregion
+}
+
+public enum ModuleState
+{
+    Started,
+    Stopped
 }
