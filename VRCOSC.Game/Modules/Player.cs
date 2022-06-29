@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 // ReSharper disable InconsistentNaming
@@ -61,6 +61,17 @@ public class Player
         oscClient.SendData(actionToAddress(action), 1);
         await Task.Delay(10);
         oscClient.SendData(actionToAddress(action), 0);
+    }
+
+    public void ResetAll()
+    {
+        StopMoveForward();
+        StopMoveBackward();
+        StopMoveLeft();
+        StopMoveRight();
+        StopLookLeft();
+        StopLookRight();
+        StopRun();
     }
 
     public void MoveForward()

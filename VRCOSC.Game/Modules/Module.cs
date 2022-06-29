@@ -150,6 +150,8 @@ public abstract class Module
 
         OnStop();
 
+        Player.ResetAll();
+
         Terminal.Log("Stopped");
         ModuleState = ModuleState.Stopped;
     }
