@@ -208,6 +208,16 @@ public class Player
     {
         sendAndReset(VRChatInputAction.Voice);
     }
+
+    public void Mute()
+    {
+        oscClient.SendData(actionToAddress(VRChatInputAction.Voice), 1);
+    }
+
+    public void UnMute()
+    {
+        oscClient.SendData(actionToAddress(VRChatInputAction.Voice), 0);
+    }
 }
 
 public enum VRChatInputAction
