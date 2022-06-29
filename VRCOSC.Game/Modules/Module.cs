@@ -122,7 +122,7 @@ public abstract class Module
         if (!Enabled.Value) return;
 
         Terminal.Log("Starting");
-        Player = new Player();
+        Player = new Player(OscClient);
 
         OnStart();
 

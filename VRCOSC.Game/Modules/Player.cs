@@ -3,6 +3,8 @@
 
 // ReSharper disable InconsistentNaming
 
+using System.Threading.Tasks;
+
 namespace VRCOSC.Game.Modules;
 
 public class Player
@@ -26,8 +28,12 @@ public class Player
     public bool? IsMuted;
     public bool? InStation;
 
-    public Player()
+    private readonly OscClient oscClient;
+
+    public Player(OscClient oscClient)
     {
+        this.oscClient = oscClient;
+
         Viseme = null;
         Voice = null;
         GestureLeft = null;
@@ -47,6 +53,179 @@ public class Player
         IsMuted = null;
         InStation = null;
     }
+
+    private static string actionToAddress(VRChatInputAction action) => $"/input/{action}";
+
+    private async void sendAndReset(VRChatInputAction action)
+    {
+        oscClient.SendData(actionToAddress(action), 1);
+        await Task.Delay(10);
+        oscClient.SendData(actionToAddress(action), 0);
+    }
+
+    public void MoveForward()
+    {
+        oscClient.SendData(actionToAddress(VRChatInputAction.MoveForward), 1);
+    }
+
+    public void StopMoveForward()
+    {
+        oscClient.SendData(actionToAddress(VRChatInputAction.MoveForward), 0);
+    }
+
+    public void MoveBackward()
+    {
+        oscClient.SendData(actionToAddress(VRChatInputAction.MoveBackward), 1);
+    }
+
+    public void StopMoveBackward()
+    {
+        oscClient.SendData(actionToAddress(VRChatInputAction.MoveBackward), 0);
+    }
+
+    public void MoveLeft()
+    {
+        oscClient.SendData(actionToAddress(VRChatInputAction.MoveLeft), 1);
+    }
+
+    public void StopMoveLeft()
+    {
+        oscClient.SendData(actionToAddress(VRChatInputAction.MoveLeft), 0);
+    }
+
+    public void MoveRight()
+    {
+        oscClient.SendData(actionToAddress(VRChatInputAction.MoveRight), 1);
+    }
+
+    public void StopMoveRight()
+    {
+        oscClient.SendData(actionToAddress(VRChatInputAction.MoveRight), 0);
+    }
+
+    public void LookLeft()
+    {
+        oscClient.SendData(actionToAddress(VRChatInputAction.LookLeft), 1);
+    }
+
+    public void StopLookLeft()
+    {
+        oscClient.SendData(actionToAddress(VRChatInputAction.LookLeft), 0);
+    }
+
+    public void LookRight()
+    {
+        oscClient.SendData(actionToAddress(VRChatInputAction.LookRight), 1);
+    }
+
+    public void StopLookRight()
+    {
+        oscClient.SendData(actionToAddress(VRChatInputAction.LookRight), 0);
+    }
+
+    public void Jump()
+    {
+        sendAndReset(VRChatInputAction.Jump);
+    }
+
+    public void Run()
+    {
+        oscClient.SendData(actionToAddress(VRChatInputAction.Run), 1);
+    }
+
+    public void StopRun()
+    {
+        oscClient.SendData(actionToAddress(VRChatInputAction.Run), 0);
+    }
+
+    public void ComfortLeft()
+    {
+        sendAndReset(VRChatInputAction.ComfortLeft);
+    }
+
+    public void ComfortRight()
+    {
+        sendAndReset(VRChatInputAction.ComfortRight);
+    }
+
+    public void DropRight()
+    {
+        sendAndReset(VRChatInputAction.DropRight);
+    }
+
+    public void UseRight()
+    {
+        sendAndReset(VRChatInputAction.UseRight);
+    }
+
+    public void GrabRight()
+    {
+        sendAndReset(VRChatInputAction.GrabRight);
+    }
+
+    public void DropLeft()
+    {
+        sendAndReset(VRChatInputAction.DropLeft);
+    }
+
+    public void UseLeft()
+    {
+        sendAndReset(VRChatInputAction.UseLeft);
+    }
+
+    public void GrabLeft()
+    {
+        sendAndReset(VRChatInputAction.GrabLeft);
+    }
+
+    public void EnableSafeMode()
+    {
+        oscClient.SendData(actionToAddress(VRChatInputAction.PanicButton), 1);
+    }
+
+    public void DisableSafeMode()
+    {
+        oscClient.SendData(actionToAddress(VRChatInputAction.PanicButton), 0);
+    }
+
+    public void ToggleLeftQuickMenu()
+    {
+        sendAndReset(VRChatInputAction.QuickMenuToggleLeft);
+    }
+
+    public void ToggleRightQuickMenu()
+    {
+        sendAndReset(VRChatInputAction.QuickMenuToggleRight);
+    }
+
+    public void ToggleVoice()
+    {
+        sendAndReset(VRChatInputAction.Voice);
+    }
+}
+
+public enum VRChatInputAction
+{
+    MoveForward,
+    MoveBackward,
+    MoveLeft,
+    MoveRight,
+    LookLeft,
+    LookRight,
+    Jump,
+    Run,
+    ComfortLeft,
+    ComfortRight,
+    DropRight,
+    UseRight,
+    GrabRight,
+    DropLeft,
+    UseLeft,
+    GrabLeft,
+    PanicButton,
+    QuickMenuToggleLeft,
+    QuickMenuToggleRight,
+    Voice
 }
 
 public enum Viseme
