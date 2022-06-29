@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 // ReSharper disable InconsistentNaming
@@ -191,12 +191,7 @@ public class Player
 
     public void EnableSafeMode()
     {
-        oscClient.SendData(actionToAddress(VRChatInputAction.PanicButton), 1);
-    }
-
-    public void DisableSafeMode()
-    {
-        oscClient.SendData(actionToAddress(VRChatInputAction.PanicButton), 0);
+        sendAndReset(VRChatInputAction.PanicButton);
     }
 
     public void ToggleLeftQuickMenu()
