@@ -59,7 +59,7 @@ public class Player
     private async void sendAndReset(VRChatInputAction action)
     {
         oscClient.SendData(actionToAddress(action), 1);
-        await Task.Delay(10);
+        await Task.Delay(15);
         oscClient.SendData(actionToAddress(action), 0);
     }
 
