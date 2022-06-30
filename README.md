@@ -20,7 +20,7 @@ Download VRCOSCSetup from the [Releases](https://github.com/VolcanicArts/VRCOSC/
 
 If you like VRCOSC, please star the repo. It really helps!
 
-If you need any help with any part of the installation process of VRCOSC or the prefabs, feel free to reach out in the [Q/A](https://github.com/VolcanicArts/VRCOSC/discussions/categories/q-a) discussions tab.
+If you need any help with any part of the installation process of VRCOSC or the prefabs, check the [Prefab FAQ](https://github.com/VolcanicArts/VRCOSC/discussions/16) or feel free to reach out in the [Q/A](https://github.com/VolcanicArts/VRCOSC/discussions/categories/q-a) discussions tab.
 
 Have a module or prefab suggestion? Post your ideas in the [Ideas](https://github.com/VolcanicArts/VRCOSC/discussions/categories/ideas) discussions tab.
 
