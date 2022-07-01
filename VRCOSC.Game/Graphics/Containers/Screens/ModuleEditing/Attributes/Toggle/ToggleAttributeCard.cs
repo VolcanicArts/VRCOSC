@@ -5,14 +5,15 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using VRCOSC.Game.Graphics.Containers.UI.Dynamic;
+using osu.Framework.Graphics.Sprites;
+using VRCOSC.Game.Graphics.Containers.UI.Button;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Attributes.Toggle;
 
 public class ToggleAttributeCard : AttributeCard
 {
-    protected StatefulIconButton IconButton;
+    protected IconButton IconButton;
 
     public ToggleAttributeCard(ModuleAttributeData attributeData)
         : base(attributeData)
@@ -29,13 +30,16 @@ public class ToggleAttributeCard : AttributeCard
             RelativeSizeAxes = Axes.Both,
             FillMode = FillMode.Fit,
             Padding = new MarginPadding(20),
-            Child = IconButton = new StatefulIconButton
+            Child = IconButton = new IconButton
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 CornerRadius = 10,
-                State = { Value = (bool)AttributeData.Attribute.Value }
+                Stateful = true,
+                State = { Value = (bool)AttributeData.Attribute.Value },
+                IconStateOn = FontAwesome.Solid.Check,
+                IconStateOff = FontAwesome.Solid.Get(0xf00d)
             }
         });
 

@@ -11,8 +11,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Localisation;
 using osuTK;
-using VRCOSC.Game.Graphics.Containers.UI.Dynamic;
-using VRCOSC.Game.Graphics.Containers.UI.Static;
+using VRCOSC.Game.Graphics.Containers.UI.Button;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect;
@@ -144,6 +143,7 @@ public sealed class ModuleCard : Container, IFilterable
                                                         Icon = FontAwesome.Solid.Get(0xF013),
                                                         CornerRadius = 10,
                                                         Action = () => screenManager.EditModule(sourceModule),
+                                                        BackgroundColour = VRCOSCColour.Blue,
                                                         Enabled = { Value = sourceModule.HasAttributes }
                                                     }
                                                 },
@@ -166,15 +166,14 @@ public sealed class ModuleCard : Container, IFilterable
                                                     Origin = Anchor.BottomRight,
                                                     RelativeSizeAxes = Axes.Both,
                                                     FillMode = FillMode.Fit,
-                                                    Child = new StatefulIconButton
+                                                    Child = new IconButton
                                                     {
                                                         Anchor = Anchor.Centre,
                                                         Origin = Anchor.Centre,
                                                         RelativeSizeAxes = Axes.Both,
                                                         CornerRadius = 10,
-                                                        State = (BindableBool)sourceModule.Enabled.GetBoundCopy(),
-                                                        IconStateTrue = FontAwesome.Solid.PowerOff,
-                                                        IconStateFalse = FontAwesome.Solid.PowerOff
+                                                        Stateful = true,
+                                                        State = (BindableBool)sourceModule.Enabled.GetBoundCopy()
                                                     }
                                                 }
                                             }

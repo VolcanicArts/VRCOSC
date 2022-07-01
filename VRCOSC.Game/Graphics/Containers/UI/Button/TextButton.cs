@@ -5,9 +5,9 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Sprites;
 
-namespace VRCOSC.Game.Graphics.Containers.UI.Static;
+namespace VRCOSC.Game.Graphics.Containers.UI.Button;
 
-public class TextButton : StaticButton
+public class TextButton : BasicButton
 {
     private string text = string.Empty;
 

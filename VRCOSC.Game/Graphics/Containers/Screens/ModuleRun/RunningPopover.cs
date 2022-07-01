@@ -9,7 +9,7 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
 using osuTK;
 using osuTK.Input;
-using VRCOSC.Game.Graphics.Containers.UI.Static;
+using VRCOSC.Game.Graphics.Containers.UI.Button;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleRun;
 

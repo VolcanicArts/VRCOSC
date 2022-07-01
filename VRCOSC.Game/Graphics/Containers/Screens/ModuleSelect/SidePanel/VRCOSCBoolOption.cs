@@ -5,7 +5,8 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using VRCOSC.Game.Graphics.Containers.UI.Dynamic;
+using osu.Framework.Graphics.Sprites;
+using VRCOSC.Game.Graphics.Containers.UI.Button;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect.SidePanel;
 
@@ -23,14 +24,17 @@ public class VRCOSCBoolOption : VRCOSCOption
             RelativeSizeAxes = Axes.Both,
             Padding = new MarginPadding(5),
             FillMode = FillMode.Fit,
-            Child = new StatefulIconButton
+            Child = new IconButton
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 CornerRadius = 7,
                 IconPadding = 5,
-                State = (BindableBool)State
+                Stateful = true,
+                State = (BindableBool)State,
+                IconStateOn = FontAwesome.Solid.Check,
+                IconStateOff = FontAwesome.Solid.Get(0xf00d)
             },
         });
     }

@@ -9,7 +9,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Input.Events;
 using osu.Framework.Platform;
 using osuTK;
-using VRCOSC.Game.Graphics.Containers.UI.Static;
+using VRCOSC.Game.Graphics.Containers.UI.Button;
 
 namespace VRCOSC.Game.Graphics.Updater;
 
