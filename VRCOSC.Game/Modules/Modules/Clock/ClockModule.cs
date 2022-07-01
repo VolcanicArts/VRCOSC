@@ -2,8 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using osu.Framework.Extensions.Color4Extensions;
-using osu.Framework.Graphics;
+using osu.Framework.Graphics.Colour;
 using VRCOSC.Game.Graphics;
 
 namespace VRCOSC.Game.Modules.Modules.Clock;
@@ -14,7 +13,7 @@ public class ClockModule : Module
     public override string Description => "Sends your local time as hours, minutes, and seconds";
     public override string Author => "VolcanicArts";
     public override string Prefab => "VRCOSC-Watch";
-    public override Colour4 Colour => VRCOSCColour.Blue.Darken(0.25f);
+    public override ColourInfo Colour => VRCOSCColour.Blue;
     public override ModuleType ModuleType => ModuleType.General;
     protected override double DeltaUpdate => GetSetting<bool>(ClockSetting.SmoothSecond) ? 50d : 1000d;
 

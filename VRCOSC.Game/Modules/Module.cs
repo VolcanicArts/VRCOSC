@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Colour;
 using osu.Framework.Platform;
 using VRCOSC.Game.Modules.Util;
 using VRCOSC.Game.Util;
@@ -37,7 +38,7 @@ public abstract class Module
     public virtual string Description => string.Empty;
     public virtual string Author => string.Empty;
     public virtual IEnumerable<string> Tags => Array.Empty<string>();
-    public virtual Colour4 Colour => Colour4.Black;
+    public virtual ColourInfo Colour => Colour4.Black;
     public virtual ModuleType ModuleType => ModuleType.General;
     public virtual string Prefab => string.Empty;
     protected virtual double DeltaUpdate => double.PositiveInfinity;

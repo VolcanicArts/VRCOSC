@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Colour;
 
 namespace VRCOSC.Game.Modules.Modules.HypeRate;
 
@@ -13,7 +14,7 @@ public class HypeRateModule : Module
     public override string Description => "Sends HypeRate.io heartrate values";
     public override string Author => "VolcanicArts";
     public override string Prefab => "VRCOSC-Heartrate";
-    public override Colour4 Colour => Colour4.OrangeRed.Darken(0.5f);
+    public override ColourInfo Colour => Colour4.Red;
     public override ModuleType ModuleType => ModuleType.Health;
     public override IEnumerable<string> Tags => new[] { "heartrate" };
 

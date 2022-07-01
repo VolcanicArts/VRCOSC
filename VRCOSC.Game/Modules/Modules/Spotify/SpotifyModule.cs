@@ -3,7 +3,7 @@
 
 using System;
 using osu.Framework.Extensions.Color4Extensions;
-using osu.Framework.Graphics;
+using osu.Framework.Graphics.Colour;
 using VRCOSC.Game.Modules.Util;
 
 namespace VRCOSC.Game.Modules.Modules.Spotify;
@@ -14,7 +14,7 @@ public class SpotifyModule : IntegrationModule
     public override string Description => "Integration with the Spotify desktop app";
     public override string Author => "VolcanicArts";
     public override string Prefab => "VRCOSC-Spotify";
-    public override Colour4 Colour => Color4Extensions.FromHex(@"1ed760").Darken(0.5f);
+    public override ColourInfo Colour => Color4Extensions.FromHex(@"1ed760");
     public override ModuleType ModuleType => ModuleType.Integrations;
     protected override string TargetProcess => "spotify";
     protected override string TargetExe => GetSetting<string>(SpotifySetting.InstallLocation);
