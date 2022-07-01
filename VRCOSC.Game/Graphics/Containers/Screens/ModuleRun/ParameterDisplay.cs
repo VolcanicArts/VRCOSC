@@ -95,6 +95,7 @@ public class ParameterDisplay : Container
             if (!entry.Key.Equals(key)) return;
 
             entry.Value.Value = valueStr;
+            entry.Value.TriggerChange();
             successful = true;
         });
 
