@@ -335,6 +335,27 @@ public abstract class Module
 
     protected void SendParameter(Enum lookup, bool value) => OscClient.SendData(getOutputParameter(lookup), value);
 
+    protected void SendParameter<T>(Enum lookup, T value) where T : struct
+    {
+        switch (value)
+        {
+            case bool boolValue:
+                SendParameter(lookup, boolValue);
+                break;
+
+            case int intValue:
+                SendParameter(lookup, intValue);
+                break;
+
+            case float floatValue:
+                SendParameter(lookup, floatValue);
+                break;
+
+            default:
+                throw new ArgumentOutOfRangeException($"Cannot send parameter of type {value.GetType().Name}");
+        }
+    }
+
     #endregion
 
     #region Loading
