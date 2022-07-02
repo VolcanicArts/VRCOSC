@@ -13,7 +13,7 @@ public abstract class RandomModule<T> : Module where T : struct
     public override string Description => $"Sends a random {TypeUtils.TypeToReadableName<T>().ToLower()} over a variable time period";
     public override string Author => "VolcanicArts";
     public override ColourInfo Colour => ColourInfo.GradientVertical(VRCOSCColour.Red, VRCOSCColour.PurpleDarker);
-    public override ModuleType ModuleType => ModuleType.General;
+    public override ModuleType ModuleType => ModuleType.Random;
     protected override double DeltaUpdate => GetSetting<int>(RandomSetting.DeltaUpdate);
 
     public override void CreateAttributes()

@@ -7,5 +7,6 @@ public enum ModuleType
 {
     General = 1 << 0,
     Health = 1 << 1,
-    Integrations = 1 << 2
+    Integrations = 1 << 2,
+    Random = 1 << 3
 }
