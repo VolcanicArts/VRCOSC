@@ -210,10 +210,9 @@ public abstract class Module
         switch (value)
         {
             case bool boolValue:
-                if (actionMenu == ActionMenu.Button && !boolValue) return;
-
                 Terminal.Log($"Received bool of key `{key}`");
                 OnBoolParameterReceived(key, boolValue);
+                if (actionMenu == ActionMenu.Button && boolValue) OnButtonPressed(key);
                 break;
 
             case int intValue:
@@ -224,6 +223,7 @@ public abstract class Module
             case float floatValue:
                 Terminal.Log($"Received float of key `{key}`");
                 OnFloatParameterReceived(key, floatValue);
+                if (actionMenu == ActionMenu.Radial) OnRadialChange(key, floatValue);
                 break;
         }
     }
@@ -320,6 +320,10 @@ public abstract class Module
     protected virtual void OnIntParameterReceived(Enum key, int value) { }
 
     protected virtual void OnFloatParameterReceived(Enum key, float value) { }
+
+    protected virtual void OnButtonPressed(Enum key) { }
+
+    protected virtual void OnRadialChange(Enum key, float percentage) { }
 
     #endregion
 

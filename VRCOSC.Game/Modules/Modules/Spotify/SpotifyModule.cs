@@ -50,7 +50,7 @@ public class SpotifyModule : IntegrationModule
         if (shouldStop) StopTarget();
     }
 
-    protected override void OnBoolParameterReceived(Enum key, bool value)
+    protected override void OnButtonPressed(Enum key)
     {
         ExecuteKeyCombination(key);
     }

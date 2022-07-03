@@ -6,7 +6,7 @@ namespace VRCOSC.Game.Modules.Util;
 public enum ActionMenu
 {
     Button,
-    Toggle,
     Radial,
+    Axes,
     None
 }

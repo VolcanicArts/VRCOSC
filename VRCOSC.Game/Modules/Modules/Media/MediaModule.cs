@@ -29,7 +29,7 @@ public class MediaModule : IntegrationModule
         RegisterKeyCombination(MediaInputParameter.MediaPrevious, WindowsVKey.VK_MEDIA_PREV_TRACK);
     }
 
-    protected override void OnBoolParameterReceived(Enum key, bool value)
+    protected override void OnButtonPressed(Enum key)
     {
         ExecuteKeyCombination(key);
     }

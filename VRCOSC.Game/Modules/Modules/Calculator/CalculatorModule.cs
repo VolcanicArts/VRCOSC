@@ -62,7 +62,7 @@ public class CalculatorModule : IntegrationModule
         if (isCalculatorOpen) sendResult();
     }
 
-    protected override void OnBoolParameterReceived(Enum key, bool value)
+    protected override void OnButtonPressed(Enum key)
     {
         switch (key)
         {

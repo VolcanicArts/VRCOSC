@@ -27,7 +27,7 @@ public class DiscordModule : IntegrationModule
         RegisterKeyCombination(DiscordInputParameter.DiscordDeafen, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_LSHIFT, WindowsVKey.VK_D);
     }
 
-    protected override void OnBoolParameterReceived(Enum key, bool value)
+    protected override void OnButtonPressed(Enum key)
     {
         ExecuteKeyCombination(key);
     }
