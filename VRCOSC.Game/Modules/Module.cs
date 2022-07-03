@@ -212,17 +212,17 @@ public abstract class Module
             return;
         }
 
-        notifyParameterReceived(key, value, inputParameterData.ActionMenu);
+        notifyParameterReceived(key, value, inputParameterData);
     }
 
-    private void notifyParameterReceived(Enum key, object value, ActionMenu actionMenu)
+    private void notifyParameterReceived(Enum key, object value, InputParameterData data)
     {
         switch (value)
         {
             case bool boolValue:
                 Terminal.Log($"Received bool of key `{key}`");
                 OnBoolParameterReceived(key, boolValue);
-                if (actionMenu == ActionMenu.Button && boolValue) OnButtonPressed(key);
+                if (data.ActionMenu == ActionMenu.Button && boolValue) OnButtonPressed(key);
                 break;
 
             case int intValue:
@@ -233,7 +233,14 @@ public abstract class Module
             case float floatValue:
                 Terminal.Log($"Received float of key `{key}`");
                 OnFloatParameterReceived(key, floatValue);
-                if (actionMenu == ActionMenu.Radial) OnRadialChange(key, floatValue);
+
+                if (data.ActionMenu == ActionMenu.Radial)
+                {
+                    var radialData = (RadialInputParameterData)data;
+                    OnRadialPuppetChange(key, new VRChatRadialPuppet(floatValue, radialData.PreviousValue));
+                    radialData.PreviousValue = floatValue;
+                }
+
                 break;
         }
     }
@@ -333,7 +340,7 @@ public abstract class Module
 
     protected virtual void OnButtonPressed(Enum key) { }
 
-    protected virtual void OnRadialChange(Enum key, float percentage) { }
+    protected virtual void OnRadialPuppetChange(Enum key, VRChatRadialPuppet radialPuppet) { }
 
     #endregion
 
