@@ -25,16 +25,16 @@ public class CalculatorModule : IntegrationModule
     {
         CreateOutputParameter(CalculatorOutputParameter.CalculatorSendValue, "Send Value", "Send the current value of the calculator", "/avatar/parameters/CalculatorResult");
 
-        RegisterInputParameter<bool>(CalculatorInputParameter.CalculatorOpen, ActionMenu.Button);
-        RegisterInputParameter<bool>(CalculatorInputParameter.CalculatorClose, ActionMenu.Button);
-        RegisterInputParameter<bool>(CalculatorInputParameter.CalculatorClear, ActionMenu.Button);
-        RegisterInputParameter<bool>(CalculatorInputParameter.CalculatorCalculate, ActionMenu.Button);
-        RegisterInputParameter<bool>(CalculatorInputParameter.CalculatorCopyValue, ActionMenu.Button);
-        RegisterInputParameter<bool>(CalculatorInputParameter.CalculatorAdd, ActionMenu.Button);
-        RegisterInputParameter<bool>(CalculatorInputParameter.CalculatorSubtract, ActionMenu.Button);
-        RegisterInputParameter<bool>(CalculatorInputParameter.CalculatorMultiply, ActionMenu.Button);
-        RegisterInputParameter<bool>(CalculatorInputParameter.CalculatorDivide, ActionMenu.Button);
-        RegisterInputParameter<float>(CalculatorInputParameter.CalculatorNumber);
+        RegisterButtonInput(CalculatorInputParameter.CalculatorOpen);
+        RegisterButtonInput(CalculatorInputParameter.CalculatorClose);
+        RegisterButtonInput(CalculatorInputParameter.CalculatorClear);
+        RegisterButtonInput(CalculatorInputParameter.CalculatorCalculate);
+        RegisterButtonInput(CalculatorInputParameter.CalculatorCopyValue);
+        RegisterButtonInput(CalculatorInputParameter.CalculatorAdd);
+        RegisterButtonInput(CalculatorInputParameter.CalculatorSubtract);
+        RegisterButtonInput(CalculatorInputParameter.CalculatorMultiply);
+        RegisterButtonInput(CalculatorInputParameter.CalculatorDivide);
+        RegisterRadialInput(CalculatorInputParameter.CalculatorNumber);
 
         RegisterKeyCombination(CalculatorInputParameter.CalculatorClear, WindowsVKey.VK_ESCAPE);
         RegisterKeyCombination(CalculatorInputParameter.CalculatorCalculate, WindowsVKey.VK_RETURN);

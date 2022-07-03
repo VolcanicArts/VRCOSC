@@ -109,9 +109,19 @@ public abstract class Module
         OutputParameters.Add(lookupString, new ModuleAttributeData(displayName, description, defaultAddress));
     }
 
-    protected void RegisterInputParameter<T>(Enum lookup, ActionMenu actionMenu = ActionMenu.None)
+    protected void RegisterGenericInputParameter<T>(Enum lookup) where T : struct
     {
-        InputParameters.Add(lookup, new InputParameterData(typeof(T), actionMenu));
+        InputParameters.Add(lookup, new InputParameterData(typeof(T)));
+    }
+
+    protected void RegisterButtonInput(Enum lookup)
+    {
+        InputParameters.Add(lookup, new InputParameterData(typeof(bool), ActionMenu.Button));
+    }
+
+    protected void RegisterRadialInput(Enum lookup)
+    {
+        InputParameters.Add(lookup, new InputParameterData(typeof(float), ActionMenu.Radial));
     }
 
     #endregion

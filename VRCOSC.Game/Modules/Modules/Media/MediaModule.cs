@@ -20,9 +20,9 @@ public class MediaModule : IntegrationModule
 
     public override void CreateAttributes()
     {
-        RegisterInputParameter<bool>(MediaInputParameter.MediaPlayPause, ActionMenu.Button);
-        RegisterInputParameter<bool>(MediaInputParameter.MediaNext, ActionMenu.Button);
-        RegisterInputParameter<bool>(MediaInputParameter.MediaPrevious, ActionMenu.Button);
+        RegisterButtonInput(MediaInputParameter.MediaPlayPause);
+        RegisterButtonInput(MediaInputParameter.MediaNext);
+        RegisterButtonInput(MediaInputParameter.MediaPrevious);
 
         RegisterKeyCombination(MediaInputParameter.MediaPlayPause, WindowsVKey.VK_MEDIA_PLAY_PAUSE);
         RegisterKeyCombination(MediaInputParameter.MediaNext, WindowsVKey.VK_MEDIA_NEXT_TRACK);

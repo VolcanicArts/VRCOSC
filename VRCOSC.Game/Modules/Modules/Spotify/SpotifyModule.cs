@@ -25,11 +25,11 @@ public class SpotifyModule : IntegrationModule
         CreateSetting(SpotifySetting.ShouldStop, "Should Stop", "Should Spotify stop on module stop", false);
         CreateSetting(SpotifySetting.InstallLocation, "Install Location", "The location of your spotify.exe file", $@"C:\Users\{Environment.UserName}\AppData\Roaming\Spotify\spotify.exe");
 
-        RegisterInputParameter<bool>(SpotifyInputParameter.SpotifyPlayPause, ActionMenu.Button);
-        RegisterInputParameter<bool>(SpotifyInputParameter.SpotifyNext, ActionMenu.Button);
-        RegisterInputParameter<bool>(SpotifyInputParameter.SpotifyPrevious, ActionMenu.Button);
-        RegisterInputParameter<bool>(SpotifyInputParameter.SpotifyVolumeUp, ActionMenu.Button);
-        RegisterInputParameter<bool>(SpotifyInputParameter.SpotifyVolumeDown, ActionMenu.Button);
+        RegisterButtonInput(SpotifyInputParameter.SpotifyPlayPause);
+        RegisterButtonInput(SpotifyInputParameter.SpotifyNext);
+        RegisterButtonInput(SpotifyInputParameter.SpotifyPrevious);
+        RegisterButtonInput(SpotifyInputParameter.SpotifyVolumeUp);
+        RegisterButtonInput(SpotifyInputParameter.SpotifyVolumeDown);
 
         RegisterKeyCombination(SpotifyInputParameter.SpotifyPlayPause, WindowsVKey.VK_SPACE);
         RegisterKeyCombination(SpotifyInputParameter.SpotifyNext, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_RIGHT);

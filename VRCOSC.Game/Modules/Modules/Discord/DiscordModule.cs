@@ -20,8 +20,8 @@ public class DiscordModule : IntegrationModule
 
     public override void CreateAttributes()
     {
-        RegisterInputParameter<bool>(DiscordInputParameter.DiscordMic, ActionMenu.Button);
-        RegisterInputParameter<bool>(DiscordInputParameter.DiscordDeafen, ActionMenu.Button);
+        RegisterButtonInput(DiscordInputParameter.DiscordMic);
+        RegisterButtonInput(DiscordInputParameter.DiscordDeafen);
 
         RegisterKeyCombination(DiscordInputParameter.DiscordMic, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_LSHIFT, WindowsVKey.VK_M);
         RegisterKeyCombination(DiscordInputParameter.DiscordDeafen, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_LSHIFT, WindowsVKey.VK_D);
