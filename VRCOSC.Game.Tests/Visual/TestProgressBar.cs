@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using NUnit.Framework;
-using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osuTK;
 using VRCOSC.Game.Graphics.Updater;
