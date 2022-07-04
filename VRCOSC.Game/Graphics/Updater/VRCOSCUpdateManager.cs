@@ -91,8 +91,7 @@ public class VRCOSCUpdateManager : Container
                                 FillAspectRatio = 8,
                                 Masking = true,
                                 CornerRadius = 10,
-                                FontSize = 25,
-                                BackgroundColour = VRCOSCColour.Green
+                                FontSize = 25
                             }
                         },
                         progressBar = new ProgressBar
@@ -241,6 +240,7 @@ public class VRCOSCUpdateManager : Container
         button.Show();
         button.Text = "Click To Restart";
         button.Action = RequestRestart;
+        button.BackgroundColour = VRCOSCColour.Green;
 
         titleText.ShouldAnimate.Value = false;
         titleText.CurrentText.Value = "Update Complete!";
@@ -252,6 +252,7 @@ public class VRCOSCUpdateManager : Container
         button.Show();
         button.Text = "Click To Reinstall";
         button.Action = () => host.OpenUrlExternally("https://github.com/VolcanicArts/VRCOSC/releases/latest");
+        button.BackgroundColour = VRCOSCColour.Red;
 
         titleText.ShouldAnimate.Value = false;
         titleText.CurrentText.Value = "Update Failed!";
