@@ -43,29 +43,27 @@ public class LoadingSpriteText : SpriteText
     [BackgroundDependencyLoader]
     private void load()
     {
-        CurrentText.BindValueChanged(_ => resetAnimation());
-        ShouldAnimate.BindValueChanged(e => resetAnimation(1, e.NewValue));
+        CurrentText.BindValueChanged(e =>
+        {
+            Text = e.NewValue;
+            resetAnimation(0);
+        }, true);
+
+        ShouldAnimate.BindValueChanged(e => resetAnimation(1));
     }
 
-    protected override void LoadComplete()
+    private void resetAnimation(int animatedPeriodCount)
     {
-        base.LoadComplete();
-        resetAnimation();
-    }
-
-    private void resetAnimation(int periodReset = 0, bool begin = true)
-    {
-        periodCount = periodReset;
-        Text = CurrentText.Value;
-
+        periodCount = 0;
         Scheduler.CancelDelayedTasks();
 
-        if (begin)
+        if (ShouldAnimate.Value)
         {
-            // add once to update immediately
-            Scheduler.AddOnce(updateText);
+            periodCount = animatedPeriodCount;
             Scheduler.AddDelayed(updateText, LoadLength / (MaxPeriodCount + 1f), true);
         }
+
+        updateText();
     }
 
     private void updateText()
