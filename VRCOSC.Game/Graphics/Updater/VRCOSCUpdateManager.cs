@@ -91,7 +91,8 @@ public class VRCOSCUpdateManager : Container
                                 FillAspectRatio = 8,
                                 Masking = true,
                                 CornerRadius = 10,
-                                FontSize = 25
+                                FontSize = 25,
+                                BackgroundColour = VRCOSCColour.Green
                             }
                         },
                         progressBar = new ProgressBar
