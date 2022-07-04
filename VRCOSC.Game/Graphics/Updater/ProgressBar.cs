@@ -1,56 +1,46 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
 using osu.Framework.Allocation;
-using osu.Framework.Bindables;
 using osu.Framework.Graphics;
-using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Shapes;
+using osu.Framework.Graphics.UserInterface;
 
 namespace VRCOSC.Game.Graphics.Updater;
 
-public class ProgressBar : Container
+public class ProgressBar : BasicSliderBar<float>
 {
-    public Bindable<float> Progress = new();
-    public Bindable<string> Text = new();
+    public override bool HandlePositionalInput => false;
+    public override bool HandleNonPositionalInput => false;
+
+    private string text = string.Empty;
+
+    public string Text
+    {
+        get => text;
+        set
+        {
+            text = value;
+            loadingSpriteText.CurrentText.Value = text;
+        }
+    }
+
+    private LoadingSpriteText loadingSpriteText = null!;
+
+    public ProgressBar()
+    {
+        BackgroundColour = VRCOSCColour.Gray3;
+        SelectionColour = VRCOSCColour.Green;
+    }
 
     [BackgroundDependencyLoader]
     private void load()
     {
-        Box bar;
-
-        Children = new Drawable[]
+        Add(loadingSpriteText = new LoadingSpriteText
         {
-            new Box
-            {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                RelativeSizeAxes = Axes.Both,
-                Colour = VRCOSCColour.Gray3
-            },
-            bar = new Box
-            {
-                Anchor = Anchor.CentreLeft,
-                Origin = Anchor.CentreLeft,
-                RelativeSizeAxes = Axes.Both,
-                RelativePositionAxes = Axes.X,
-                Colour = VRCOSCColour.Green
-            },
-            new LoadingSpriteText
-            {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                Font = FrameworkFont.Regular.With(size: 20),
-                Shadow = true,
-                CurrentText = Text.GetBoundCopy()
-            }
-        };
-
-        Progress.BindValueChanged(percentage =>
-        {
-            var progress = MathF.Min(MathF.Max(percentage.NewValue, 0), 1);
-            bar.MoveToX(-1 + progress, 250, Easing.OutCirc);
-        }, true);
+            Anchor = Anchor.Centre,
+            Origin = Anchor.Centre,
+            Font = FrameworkFont.Regular.With(size: 18),
+            Shadow = true
+        });
     }
 }

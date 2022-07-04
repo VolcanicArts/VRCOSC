@@ -3,6 +3,7 @@
 
 using System;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -101,7 +102,13 @@ public class VRCOSCUpdateManager : Container
                             Height = 25,
                             Masking = true,
                             CornerRadius = 10,
-                            BorderThickness = 2
+                            BorderThickness = 2,
+                            Current = new BindableNumber<float>
+                            {
+                                MinValue = 0f,
+                                MaxValue = 1f,
+                                Precision = 0.01f
+                            }
                         }
                     }
                 }
@@ -128,7 +135,7 @@ public class VRCOSCUpdateManager : Container
 
     private void updateProgress(float percentage)
     {
-        progressBar.Progress.Value = percentage;
+        progressBar.Current.Value = percentage;
     }
 
     public void SetPhase(UpdatePhase phase)
@@ -204,7 +211,7 @@ public class VRCOSCUpdateManager : Container
 
         titleText.CurrentText.Value = "Updating";
         titleText.ShouldAnimate.Value = true;
-        progressBar.Text.Value = "Checking";
+        progressBar.Text = "Checking";
     }
 
     private void enterDownloadPhase()
@@ -214,7 +221,7 @@ public class VRCOSCUpdateManager : Container
 
         titleText.CurrentText.Value = "Updating";
         titleText.ShouldAnimate.Value = true;
-        progressBar.Text.Value = "Downloading";
+        progressBar.Text = "Downloading";
     }
 
     private void enterInstallPhase()
@@ -224,7 +231,7 @@ public class VRCOSCUpdateManager : Container
 
         titleText.CurrentText.Value = "Updating";
         titleText.ShouldAnimate.Value = true;
-        progressBar.Text.Value = "Installing";
+        progressBar.Text = "Installing";
     }
 
     private void enterSuccessPhase()

@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using NUnit.Framework;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osuTK;
 using VRCOSC.Game.Graphics.Updater;
@@ -23,18 +24,24 @@ public class TestProgressBar : VRCOSCTestScene
             Size = new Vector2(200, 20),
             Masking = true,
             CornerRadius = 5,
-            BorderThickness = 2
+            BorderThickness = 2,
+            Current = new BindableNumber<float>
+            {
+                MinValue = 0f,
+                MaxValue = 1f,
+                Precision = 0.01f
+            }
         });
     }
 
     [Test]
     public void TestProgress()
     {
-        AddStep("set text", () => progressBar.Text.Value = "Test text");
+        AddStep("set text", () => progressBar.Text = "Test text");
         AddSliderStep("set progress", 0f, 1f, 0f, v =>
         {
             if (progressBar != null)
-                progressBar.Progress.Value = v;
+                progressBar.Current.Value = v;
         });
     }
 }
