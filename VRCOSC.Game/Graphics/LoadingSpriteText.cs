@@ -5,37 +5,72 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics.Sprites;
 
+// ReSharper disable MemberCanBePrivate.Global
+
 namespace VRCOSC.Game.Graphics;
 
+/// <inheritdoc />
+/// <summary>
+/// SpriteText that allows for a loading animation to be played on the text
+/// <para>I.E: Test. Test.. Test... Test</para>
+/// </summary>
 public class LoadingSpriteText : SpriteText
 {
-    public new Bindable<string> Text = new(string.Empty);
-    public Bindable<bool> ShouldAnimate = new(true);
+    /// <summary>
+    /// The current text
+    /// </summary>
+    public Bindable<string> CurrentText = new();
+
+    /// <summary>
+    /// Whether the loading animation should be playing
+    /// <para>If this is set to false in the middle of the animation, it will reset</para>
+    /// </summary>
+    public BindableBool ShouldAnimate = new(true);
+
+    /// <summary>
+    /// The time it takes to go from 0 to 3 periods.
+    /// <para>Default is 2 seconds, so 0.5 seconds per period addition</para>
+    /// </summary>
+    public int LoadLength { get; init; } = 2000;
+
+    /// <summary>
+    /// The max number of periods to display before resetting
+    /// </summary>
+    public int MaxPeriodCount { get; init; } = 3;
 
     private int periodCount;
 
     [BackgroundDependencyLoader]
     private void load()
     {
-        Text.BindValueChanged(_ =>
-        {
-            base.Text = Text.Value;
-            periodCount = 0;
-            Scheduler.CancelDelayedTasks();
-            Scheduler.AddDelayed(updateTextPeriods, 500, true);
-        }, true);
+        CurrentText.BindValueChanged(_ => resetAnimation());
+        ShouldAnimate.BindValueChanged(e => resetAnimation(1, e.NewValue));
     }
 
-    private void updateTextPeriods()
+    protected override void LoadComplete()
     {
-        if (!ShouldAnimate.Value)
-        {
-            base.Text = Text.Value;
-            return;
-        }
+        base.LoadComplete();
+        resetAnimation();
+    }
 
-        periodCount++;
-        if (periodCount == 4) periodCount = 0;
-        base.Text = Text.Value + new string('.', periodCount);
+    private void resetAnimation(int periodReset = 0, bool begin = true)
+    {
+        periodCount = periodReset;
+        Text = CurrentText.Value;
+
+        Scheduler.CancelDelayedTasks();
+
+        if (begin)
+        {
+            // add once to update immediately
+            Scheduler.AddOnce(updateText);
+            Scheduler.AddDelayed(updateText, LoadLength / (MaxPeriodCount + 1f), true);
+        }
+    }
+
+    private void updateText()
+    {
+        Text = $"{CurrentText.Value}{new string('.', periodCount++)}";
+        if (periodCount > MaxPeriodCount) periodCount = 0;
     }
 }

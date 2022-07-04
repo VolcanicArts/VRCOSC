@@ -43,7 +43,7 @@ public class ProgressBar : Container
                 Origin = Anchor.Centre,
                 Font = FrameworkFont.Regular.With(size: 20),
                 Shadow = true,
-                Text = Text.GetBoundCopy()
+                CurrentText = Text.GetBoundCopy()
             }
         };
 

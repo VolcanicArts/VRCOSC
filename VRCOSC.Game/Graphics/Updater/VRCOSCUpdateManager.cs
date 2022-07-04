@@ -202,7 +202,7 @@ public class VRCOSCUpdateManager : Container
         progressBar.Show();
         button.Hide();
 
-        titleText.Text.Value = "Updating";
+        titleText.CurrentText.Value = "Updating";
         titleText.ShouldAnimate.Value = true;
         progressBar.Text.Value = "Checking";
     }
@@ -212,7 +212,7 @@ public class VRCOSCUpdateManager : Container
         progressBar.Show();
         button.Hide();
 
-        titleText.Text.Value = "Updating";
+        titleText.CurrentText.Value = "Updating";
         titleText.ShouldAnimate.Value = true;
         progressBar.Text.Value = "Downloading";
     }
@@ -222,7 +222,7 @@ public class VRCOSCUpdateManager : Container
         progressBar.Show();
         button.Hide();
 
-        titleText.Text.Value = "Updating";
+        titleText.CurrentText.Value = "Updating";
         titleText.ShouldAnimate.Value = true;
         progressBar.Text.Value = "Installing";
     }
@@ -234,7 +234,7 @@ public class VRCOSCUpdateManager : Container
         button.Text = "Click To Restart";
         button.Action = RequestRestart;
 
-        titleText.Text.Value = "Update Complete!";
+        titleText.CurrentText.Value = "Update Complete!";
         titleText.ShouldAnimate.Value = false;
     }
 
@@ -245,7 +245,7 @@ public class VRCOSCUpdateManager : Container
         button.Text = "Click To Reinstall";
         button.Action = () => host.OpenUrlExternally("https://github.com/VolcanicArts/VRCOSC/releases/latest");
 
-        titleText.Text.Value = "Update Failed!";
+        titleText.CurrentText.Value = "Update Failed!";
         titleText.ShouldAnimate.Value = false;
     }
 
