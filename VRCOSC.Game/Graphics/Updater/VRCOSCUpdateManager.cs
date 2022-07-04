@@ -3,7 +3,6 @@
 
 using System;
 using osu.Framework.Allocation;
-using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -102,13 +101,7 @@ public class VRCOSCUpdateManager : Container
                             Height = 25,
                             Masking = true,
                             CornerRadius = 10,
-                            BorderThickness = 2,
-                            Current = new BindableNumber<float>
-                            {
-                                MinValue = 0f,
-                                MaxValue = 1f,
-                                Precision = 0.01f
-                            }
+                            BorderThickness = 2
                         }
                     }
                 }

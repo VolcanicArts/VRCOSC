@@ -24,13 +24,7 @@ public class TestProgressBar : VRCOSCTestScene
             Size = new Vector2(200, 20),
             Masking = true,
             CornerRadius = 5,
-            BorderThickness = 2,
-            Current = new BindableNumber<float>
-            {
-                MinValue = 0f,
-                MaxValue = 1f,
-                Precision = 0.01f
-            }
+            BorderThickness = 2
         });
     }
 

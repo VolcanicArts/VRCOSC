@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.UserInterface;
 
@@ -30,6 +31,12 @@ public class ProgressBar : BasicSliderBar<float>
     {
         BackgroundColour = VRCOSCColour.Gray3;
         SelectionColour = VRCOSCColour.Green;
+        Current = new BindableNumber<float>
+        {
+            MinValue = 0f,
+            MaxValue = 1f,
+            Precision = 0.01f
+        };
     }
 
     [BackgroundDependencyLoader]
