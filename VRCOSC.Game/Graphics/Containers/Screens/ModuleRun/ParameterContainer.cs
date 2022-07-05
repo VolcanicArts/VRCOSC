@@ -173,8 +173,8 @@ public sealed class ParameterContainer : Container
             }
         };
 
-        moduleManager.OSCClient.OnParameterSent += (key, value) => outgoingParameterDisplay.AddEntry(key, value);
-        moduleManager.OSCClient.OnParameterReceived += (key, value) => incomingParameterDisplay.AddEntry(key, value);
+        moduleManager.OscClient.OnParameterSent += (key, value) => outgoingParameterDisplay.AddEntry(key, value);
+        moduleManager.OscClient.OnParameterReceived += (key, value) => incomingParameterDisplay.AddEntry(key, value);
     }
 
     public void ClearParameters()

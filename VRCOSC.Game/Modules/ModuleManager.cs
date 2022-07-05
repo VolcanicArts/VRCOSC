@@ -22,46 +22,35 @@ public sealed class ModuleManager : Drawable
 {
     private bool running;
     private bool autoStarted;
-    private Bindable<bool> autoStartStop;
-
-    public readonly OscClient OSCClient = new();
+    private Bindable<bool> autoStartStop = null!;
     private readonly TerminalLogger terminal = new(nameof(ModuleManager));
-
-    private List<Module> modules = null!;
-
-    [Resolved]
-    private VRCOSCConfigManager configManager { get; set; }
+    private readonly List<Module> modules = ReflectiveEnumerator.GetEnumerableOfType<Module>();
+    public readonly OscClient OscClient = new();
 
     [Resolved]
-    private ScreenManager screenManager { get; set; }
+    private VRCOSCConfigManager configManager { get; set; } = null!;
 
     [Resolved]
-    private VRCOSCUpdateManager updateManager { get; set; }
+    private ScreenManager screenManager { get; set; } = null!;
+
+    [Resolved]
+    private VRCOSCUpdateManager updateManager { get; set; } = null!;
+
+    public List<Module> GroupBy(ModuleType moduleType) => modules.Where(module => module.ModuleType == moduleType).ToList();
 
     [BackgroundDependencyLoader]
     private void load(Storage storage)
     {
-        modules = ReflectiveEnumerator.GetEnumerableOfType<Module>();
-
         var moduleStorage = storage.GetStorageForDirectory("modules");
-
-        foreach (ModuleType type in Enum.GetValues(typeof(ModuleType)))
-        {
-            foreach (var module in modules.Where(module => module.ModuleType.Equals(type)))
-            {
-                module.Initialise(moduleStorage, OSCClient);
-                module.CreateAttributes();
-                module.PerformLoad();
-            }
-        }
-
-        Scheduler.AddDelayed(checkForVrChat, 5000, true);
+        modules.ForEach(module => module.Initialise(moduleStorage, OscClient));
 
         autoStartStop = configManager.GetBindable<bool>(VRCOSCSetting.AutoStartStop);
         autoStartStop.ValueChanged += e =>
         {
             if (!e.NewValue) autoStarted = false;
         };
+
+        Scheduler.AddDelayed(checkForVrChat, 5000, true);
     }
 
     private void checkForVrChat()
@@ -91,8 +80,8 @@ public sealed class ModuleManager : Drawable
 
         try
         {
-            OSCClient.Initialise(ipAddress, sendPort, receivePort);
-            OSCClient.Enable();
+            OscClient.Initialise(ipAddress, sendPort, receivePort);
+            OscClient.Enable();
         }
         catch (SocketException)
         {
@@ -120,12 +109,7 @@ public sealed class ModuleManager : Drawable
             await module.stop();
         }
 
-        await OSCClient.Disable();
-    }
-
-    public List<Module> GroupBy(ModuleType moduleType)
-    {
-        return modules.Where(module => module.ModuleType == moduleType).ToList();
+        await OscClient.Disable();
     }
 
     protected override void Dispose(bool isDisposing)

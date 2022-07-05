@@ -50,6 +50,9 @@ public abstract class Module
         Terminal = new TerminalLogger(GetType().Name);
 
         OscClient.OnParameterReceived += onParameterReceived;
+
+        CreateAttributes();
+        PerformLoad();
     }
 
     #region Properties
