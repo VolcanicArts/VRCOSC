@@ -1,8 +1,8 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Collections.Generic;
 using osu.Framework.Allocation;
-using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
@@ -13,6 +13,7 @@ public class ParameterDisplay : Container
 {
     public string Title { get; init; }
 
+    private readonly Dictionary<string, ParameterEntry> parameterDict = new();
     private FillFlowContainer<ParameterEntry> parameterFlow;
 
     [BackgroundDependencyLoader]
@@ -77,34 +78,29 @@ public class ParameterDisplay : Container
     public void ClearContent()
     {
         parameterFlow.Clear();
+        parameterDict.Clear();
     }
 
-    public void AddEntry(string key, object value)
-    {
-        Scheduler.Add(() => addEntry(key, value));
-    }
-
-    private void addEntry(string key, object value)
+    public void AddEntry(string key, object value) => Scheduler.Add(() =>
     {
         var valueStr = value.ToString() ?? "Invalid Object";
 
-        bool successful = false;
-
-        parameterFlow.ForEach(entry =>
+        if (parameterDict.ContainsKey(key))
         {
-            if (!entry.Key.Equals(key)) return;
-
-            entry.Value.Value = valueStr;
-            entry.Value.TriggerChange();
-            successful = true;
-        });
-
-        if (successful) return;
-
-        parameterFlow.Add(new ParameterEntry
+            var existingEntry = parameterDict[key];
+            existingEntry.Value.Value = valueStr;
+            existingEntry.Value.TriggerChange();
+        }
+        else
         {
-            Key = key,
-            Value = { Value = valueStr }
-        });
-    }
+            var newEntry = new ParameterEntry
+            {
+                Key = key,
+                Value = { Value = valueStr }
+            };
+
+            parameterFlow.Add(newEntry);
+            parameterDict.Add(key, newEntry);
+        }
+    });
 }
