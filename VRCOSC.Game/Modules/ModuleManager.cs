@@ -24,7 +24,7 @@ public sealed class ModuleManager : Drawable
     private bool autoStarted;
     private Bindable<bool> autoStartStop = null!;
     private readonly TerminalLogger terminal = new(nameof(ModuleManager));
-    private readonly List<Module> modules = ReflectiveEnumerator.GetEnumerableOfType<Module>();
+    private readonly List<Module> modules = ReflectiveEnumerator.GetEnumerableOfType<Module>()!;
     public readonly OscClient OscClient = new();
 
     [Resolved]
