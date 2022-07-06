@@ -49,8 +49,6 @@ public abstract class Module
         OscClient = oscClient;
         Terminal = new TerminalLogger(GetType().Name);
 
-        OscClient.OnParameterReceived += onParameterReceived;
-
         CreateAttributes();
         PerformLoad();
     }
@@ -146,6 +144,8 @@ public abstract class Module
             updateTask.Start();
         }
 
+        OscClient.OnParameterReceived += onParameterReceived;
+
         Terminal.Log("Started");
         ModuleState = ModuleState.Started;
     }
@@ -159,6 +159,8 @@ public abstract class Module
         if (!Enabled.Value) return;
 
         Terminal.Log("Stopping");
+
+        OscClient.OnParameterReceived -= onParameterReceived;
 
         if (updateTask != null) await updateTask.Stop();
 
