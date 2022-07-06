@@ -55,8 +55,6 @@ public abstract class Module
 
     #region Properties
 
-    public bool IsRequestingInput => InputParameters.Count != 0;
-
     public bool HasSettings => Settings.Count != 0;
     public bool HasOutputParameters => OutputParameters.Count != 0;
     public bool HasAttributes => HasSettings || HasOutputParameters;
@@ -192,21 +190,17 @@ public abstract class Module
 
     private void onParameterReceived(string address, object value)
     {
-        if (!Enabled.Value) return;
+        var parameterName = address.Split('/').Last();
 
-        updatePlayerState(address, value);
+        updatePlayerState(parameterName, value);
 
-        if (!IsRequestingInput) return;
-
-        var addressEndpoint = address.Split('/').Last();
-
-        if (addressEndpoint.Equals("change"))
+        if (parameterName.Equals("change"))
         {
             OnAvatarChange();
             return;
         }
 
-        Enum? key = InputParameters.Keys.ToList().Find(e => e.ToString().Equals(addressEndpoint));
+        Enum? key = InputParameters.Keys.ToList().Find(e => e.ToString().Equals(parameterName));
         if (key == null) return;
 
         var inputParameterData = InputParameters[key];
@@ -250,11 +244,9 @@ public abstract class Module
         }
     }
 
-    private void updatePlayerState(string address, object value)
+    private void updatePlayerState(string parameterName, object value)
     {
-        var endpoint = address.Split('/').Last();
-
-        if (!Enum.TryParse(endpoint, out VRChatInputParameter vrChatInputParameter)) return;
+        if (!Enum.TryParse(parameterName, out VRChatInputParameter vrChatInputParameter)) return;
 
         switch (vrChatInputParameter)
         {
