@@ -355,6 +355,8 @@ public abstract class Module
 
     protected void SendParameter<T>(Enum lookup, T value) where T : struct
     {
+        if (ModuleState == ModuleState.Stopped) return;
+
         switch (value)
         {
             case bool boolValue:
