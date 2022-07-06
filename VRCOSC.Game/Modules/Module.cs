@@ -182,7 +182,15 @@ public abstract class Module
 
     protected T GetSetting<T>(Enum lookup) => getSetting<T>(lookup.ToString().ToLower());
 
-    private T getSetting<T>(string lookup) => (T)Settings[lookup].Attribute.Value;
+    private T getSetting<T>(string lookup)
+    {
+        var value = Settings[lookup].Attribute.Value;
+
+        if (value is not T valueCast)
+            throw new InvalidCastException($"Setting with lookup '{lookup}' is not of type '{nameof(T)}'");
+
+        return valueCast;
+    }
 
     #endregion
 
