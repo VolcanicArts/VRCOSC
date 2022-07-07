@@ -15,6 +15,8 @@ namespace VRCOSC.Game.Modules;
 
 public abstract class IntegrationModule : Module
 {
+    private const int delay = 10;
+
     protected virtual string TargetProcess => string.Empty;
     protected virtual string ReturnProcess => "vrchat";
     protected virtual string TargetExe => $@"{TargetProcess}.exe";
@@ -67,7 +69,9 @@ public abstract class IntegrationModule : Module
     private async Task executeKeyCombination(Enum lookup)
     {
         await switchToProcess(TargetProcess);
+        await Task.Delay(delay);
         await performKeyCombination(lookup);
+        await Task.Delay(delay);
         await switchToProcess(ReturnProcess);
     }
 
@@ -83,7 +87,7 @@ public abstract class IntegrationModule : Module
             return;
         }
 
-        await focusProcess(process!);
+        await focusProcess(process);
     }
 
     private static bool isProcessOpen(string processName)
@@ -98,18 +102,15 @@ public abstract class IntegrationModule : Module
 
     private static async Task focusProcess(Process process)
     {
-        await Task.Delay(5);
-
         if (process.MainWindowHandle == IntPtr.Zero)
         {
             ProcessHelper.ShowMainWindow(process, ShowWindowEnum.Restore);
+            await Task.Delay(delay);
         }
 
-        await Task.Delay(5);
-        ProcessHelper.ShowMainWindow(process, ShowWindowEnum.ShowMaximized);
-        await Task.Delay(5);
+        ProcessHelper.ShowMainWindow(process, ShowWindowEnum.ShowDefault);
+        await Task.Delay(delay);
         ProcessHelper.SetMainWindowForeground(process);
-        await Task.Delay(5);
     }
 
     private async Task performKeyCombination(Enum lookup)
@@ -121,7 +122,7 @@ public abstract class IntegrationModule : Module
             ProcessHelper.HoldKey((int)key);
         }
 
-        await Task.Delay(5);
+        await Task.Delay(delay);
 
         foreach (var key in keys)
         {
