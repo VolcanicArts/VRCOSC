@@ -14,7 +14,7 @@ using VRCOSC.Game.Graphics.Containers.UI.Button;
 
 namespace VRCOSC.Game.Graphics.Updater;
 
-public class VRCOSCUpdateManager : Container
+public abstract class VRCOSCUpdateManager : Container
 {
     private Container popover;
     private ProgressBar progressBar;
@@ -117,29 +117,13 @@ public class VRCOSCUpdateManager : Container
     }
 
     // Shorthand for dealing with 0-100
-    public void UpdateProgress(int percentage)
-    {
-        UpdateProgress(percentage / 100f);
-    }
+    public void UpdateProgress(int percentage) => UpdateProgress(percentage / 100f);
 
-    public void UpdateProgress(float percentage)
-    {
-        Scheduler.Add(() => updateProgress(percentage));
-    }
+    public void UpdateProgress(float percentage) => Schedule(() => progressBar.Current.Value = percentage);
 
-    private void updateProgress(float percentage)
+    public void SetPhase(UpdatePhase phase) => Schedule(() =>
     {
-        progressBar.Current.Value = percentage;
-    }
-
-    public void SetPhase(UpdatePhase phase)
-    {
-        Scheduler.Add(() => setPhase(phase));
-    }
-
-    private void setPhase(UpdatePhase phase)
-    {
-        updateProgress(0f);
+        UpdateProgress(0);
 
         switch (phase)
         {
@@ -166,19 +150,9 @@ public class VRCOSCUpdateManager : Container
             default:
                 throw new ArgumentOutOfRangeException(nameof(phase), phase, null);
         }
-    }
+    });
 
-    public override void Show()
-    {
-        Scheduler.Add(show);
-    }
-
-    public override void Hide()
-    {
-        Scheduler.Add(hide);
-    }
-
-    private void show()
+    public override void Show() => Schedule(() =>
     {
         if (shown) return;
 
@@ -186,9 +160,9 @@ public class VRCOSCUpdateManager : Container
 
         shown = true;
         popover.MoveToY(0, 500d, Easing.OutQuart);
-    }
+    });
 
-    private void hide()
+    public override void Hide() => Schedule(() =>
     {
         if (!shown) return;
 
@@ -196,7 +170,7 @@ public class VRCOSCUpdateManager : Container
 
         shown = false;
         popover.MoveToY(1, 500d, Easing.InQuart);
-    }
+    });
 
     private void enterCheckPhase()
     {
@@ -252,9 +226,9 @@ public class VRCOSCUpdateManager : Container
         titleText.CurrentText.Value = "Update Failed!";
     }
 
-    protected virtual void RequestRestart() { }
+    protected abstract void RequestRestart();
 
-    public virtual async Task CheckForUpdate(bool useDelta = true) { }
+    public abstract Task CheckForUpdate(bool useDelta = true);
 
     protected override bool OnClick(ClickEvent e) => shown;
     protected override bool OnMouseDown(MouseDownEvent e) => shown;

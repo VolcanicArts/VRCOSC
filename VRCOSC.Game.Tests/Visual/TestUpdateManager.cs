@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Threading.Tasks;
 using NUnit.Framework;
 using VRCOSC.Game.Graphics.Updater;
 
@@ -14,7 +15,7 @@ public class TestUpdateManager : VRCOSCTestScene
     public void SetUp()
     {
         Clear();
-        Add(updateManager = new VRCOSCUpdateManager());
+        Add(updateManager = new DummyUpdateManager());
     }
 
     [Test]
@@ -60,5 +61,17 @@ public class TestUpdateManager : VRCOSCTestScene
         AddStep("phase fail", () => updateManager.SetPhase(UpdatePhase.Fail));
         AddStep("end", () => updateManager.Hide());
         AddSliderStep("progress bar", 0f, 1f, 0f, v => updateManager?.UpdateProgress(v));
+    }
+
+    private class DummyUpdateManager : VRCOSCUpdateManager
+    {
+        protected override void RequestRestart()
+        {
+        }
+
+        public override Task CheckForUpdate(bool useDelta = true)
+        {
+            return Task.CompletedTask;
+        }
     }
 }
