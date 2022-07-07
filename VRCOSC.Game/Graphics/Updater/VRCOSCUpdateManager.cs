@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -253,7 +254,7 @@ public class VRCOSCUpdateManager : Container
 
     protected virtual void RequestRestart() { }
 
-    public virtual async void CheckForUpdate(bool useDelta = true) { }
+    public virtual async Task CheckForUpdate(bool useDelta = true) { }
 
     protected override bool OnClick(ClickEvent e) => shown;
     protected override bool OnMouseDown(MouseDownEvent e) => shown;

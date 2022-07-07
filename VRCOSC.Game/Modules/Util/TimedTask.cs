@@ -26,10 +26,10 @@ public class TimedTask
     public void Start()
     {
         timer = new PeriodicTimer(TimeSpan.FromMilliseconds(deltaTimeMilli));
-        timerTask = Task.Run(executeWork);
+        timerTask = executeWork();
     }
 
-    private async void executeWork()
+    private async Task executeWork()
     {
         if (executeOnceImmediately) action.Invoke();
 

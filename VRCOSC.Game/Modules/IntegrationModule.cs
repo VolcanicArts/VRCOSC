@@ -61,7 +61,7 @@ public abstract class IntegrationModule : Module
 
     protected void ExecuteKeyCombination(Enum lookup)
     {
-        executeKeyCombination(lookup).ConfigureAwait(false);
+        _ = executeKeyCombination(lookup);
     }
 
     private async Task executeKeyCombination(Enum lookup)
