@@ -50,7 +50,7 @@ public abstract class Module
         Terminal = new TerminalLogger(GetType().Name);
 
         CreateAttributes();
-        PerformLoad();
+        performLoad();
     }
 
     #region Properties
@@ -65,7 +65,7 @@ public abstract class Module
 
     #region Attributes
 
-    public virtual void CreateAttributes() { }
+    protected virtual void CreateAttributes() { }
 
     protected void CreateSetting(Enum lookup, string displayName, string description, bool defaultValue)
     {
@@ -388,7 +388,7 @@ public abstract class Module
 
     #region Loading
 
-    public void PerformLoad()
+    private void performLoad()
     {
         using (var stream = Storage.GetStream(FileName))
         {

@@ -21,7 +21,7 @@ public class CalculatorModule : IntegrationModule
     private bool isCalculatorOpen;
     private float calculatorResult;
 
-    public override void CreateAttributes()
+    protected override void CreateAttributes()
     {
         CreateOutputParameter(CalculatorOutputParameter.CalculatorSendValue, "Send Value", "Send the current value of the calculator", "/avatar/parameters/CalculatorResult");
 

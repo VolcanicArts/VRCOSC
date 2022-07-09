@@ -16,7 +16,7 @@ public abstract class RandomModule<T> : Module where T : struct
     public override ModuleType ModuleType => ModuleType.Random;
     protected override double DeltaUpdate => GetSetting<int>(RandomSetting.DeltaUpdate);
 
-    public override void CreateAttributes()
+    protected override void CreateAttributes()
     {
         CreateSetting(RandomSetting.DeltaUpdate, "Time Between Value", "The amount of time, in milliseconds, between each random value", 1000);
 

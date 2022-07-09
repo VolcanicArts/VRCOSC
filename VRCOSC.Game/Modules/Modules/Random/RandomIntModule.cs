@@ -7,7 +7,7 @@ namespace VRCOSC.Game.Modules.Modules.Random;
 
 public class RandomIntModule : RandomModule<int>
 {
-    public override void CreateAttributes()
+    protected override void CreateAttributes()
     {
         base.CreateAttributes();
         CreateSetting(RandomIntSetting.MinValue, "Min Value", "The minimum value of the int", 0, 0, 255);

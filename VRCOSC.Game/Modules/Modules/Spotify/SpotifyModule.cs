@@ -19,7 +19,7 @@ public class SpotifyModule : IntegrationModule
     protected override string TargetProcess => "spotify";
     protected override string TargetExe => GetSetting<string>(SpotifySetting.InstallLocation);
 
-    public override void CreateAttributes()
+    protected override void CreateAttributes()
     {
         CreateSetting(SpotifySetting.ShouldStart, "Should Start", "Should Spotify start on module start", false);
         CreateSetting(SpotifySetting.ShouldStop, "Should Stop", "Should Spotify stop on module stop", false);

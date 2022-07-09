@@ -17,7 +17,7 @@ public class HardwareStatsModule : Module
 
     private HardwareStatsProvider hardwareStatsProvider;
 
-    public override void CreateAttributes()
+    protected override void CreateAttributes()
     {
         CreateOutputParameter(HardwareStatsOutputParameter.CPUUsage, "CPU Usage", "CPU usage 0-1", "/avatar/parameters/HSCPUUsage");
         CreateOutputParameter(HardwareStatsOutputParameter.GPUUsage, "GPU Usage", "GPU usage 0-1", "/avatar/parameters/HSGPUUsage");

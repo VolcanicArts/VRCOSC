@@ -18,7 +18,7 @@ public class DiscordModule : IntegrationModule
     public override ModuleType ModuleType => ModuleType.Integrations;
     protected override string TargetProcess => "discord";
 
-    public override void CreateAttributes()
+    protected override void CreateAttributes()
     {
         RegisterButtonInput(DiscordInputParameter.DiscordMic);
         RegisterButtonInput(DiscordInputParameter.DiscordDeafen);

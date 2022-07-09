@@ -17,7 +17,7 @@ public class ClockModule : Module
     public override ModuleType ModuleType => ModuleType.General;
     protected override double DeltaUpdate => GetSetting<bool>(ClockSetting.SmoothSecond) ? 50d : 1000d;
 
-    public override void CreateAttributes()
+    protected override void CreateAttributes()
     {
         CreateSetting(ClockSetting.UTC, "UTC", "Send the time as UTC rather than your local time", false);
         CreateSetting(ClockSetting.SmoothSecond, "Smooth Second", "If the seconds hand should be smooth", false);

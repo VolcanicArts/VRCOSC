@@ -21,7 +21,7 @@ public class HypeRateModule : Module
     private HypeRateProvider? hypeRateProvider;
     private bool receivedHeartrate;
 
-    public override void CreateAttributes()
+    protected override void CreateAttributes()
     {
         CreateSetting(HypeRateSetting.Id, "HypeRate ID", "Your HypeRate ID given on your device", string.Empty);
 

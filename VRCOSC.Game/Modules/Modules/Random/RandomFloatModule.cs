@@ -7,7 +7,7 @@ namespace VRCOSC.Game.Modules.Modules.Random;
 
 public class RandomFloatModule : RandomModule<float>
 {
-    public override void CreateAttributes()
+    protected override void CreateAttributes()
     {
         base.CreateAttributes();
         CreateSetting(RandomFloatSetting.MinValue, "Min Value", "The minimum value of the float", 0f, 0f, 1f);

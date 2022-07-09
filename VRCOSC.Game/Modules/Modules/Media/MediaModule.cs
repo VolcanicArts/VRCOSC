@@ -18,7 +18,7 @@ public class MediaModule : IntegrationModule
     public override ModuleType ModuleType => ModuleType.Integrations;
     protected override string ReturnProcess => string.Empty;
 
-    public override void CreateAttributes()
+    protected override void CreateAttributes()
     {
         RegisterButtonInput(MediaInputParameter.MediaPlayPause);
         RegisterButtonInput(MediaInputParameter.MediaNext);
