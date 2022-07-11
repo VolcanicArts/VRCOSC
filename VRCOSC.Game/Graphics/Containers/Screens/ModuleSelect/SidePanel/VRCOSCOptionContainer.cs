@@ -53,7 +53,7 @@ public sealed class VRCOSCOptionContainer : Container
                     {
                         new VRCOSCBoolOption
                         {
-                            Label = "Auto Start/Stop",
+                            Label = "Auto Run",
                             State = configManager.GetBindable<bool>(VRCOSCSetting.AutoStartStop),
                         },
                         new VRCOSCStringOption
