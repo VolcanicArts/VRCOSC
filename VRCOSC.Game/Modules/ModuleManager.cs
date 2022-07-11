@@ -104,12 +104,14 @@ public sealed class ModuleManager : Drawable
 
         running = false;
 
+        await OscClient.DisableReceive();
+
         foreach (var module in modules)
         {
             await module.stop();
         }
 
-        await OscClient.Disable();
+        OscClient.DisableSend();
     }
 
     protected override void Dispose(bool isDisposing)

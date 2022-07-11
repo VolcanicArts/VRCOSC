@@ -34,13 +34,17 @@ public class OscClient
         incomingTask = Task.Run(listenForIncoming);
     }
 
-    public async Task Disable()
+    public async Task DisableReceive()
     {
         tokenSource?.Cancel();
         if (incomingTask != null) await incomingTask;
         tokenSource?.Dispose();
-        sendingClient?.Dispose();
         receivingClient?.Dispose();
+    }
+
+    public void DisableSend()
+    {
+        sendingClient?.Dispose();
     }
 
     public void SendData(string address, bool value) => sendData(address, value ? OscTrue.True : OscFalse.False);
