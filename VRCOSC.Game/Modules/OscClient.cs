@@ -40,11 +40,13 @@ public class OscClient
         if (incomingTask != null) await incomingTask;
         tokenSource?.Dispose();
         receivingClient?.Dispose();
+        receivingClient = null;
     }
 
     public void DisableSend()
     {
         sendingClient?.Dispose();
+        sendingClient = null;
     }
 
     public void SendData(string address, bool value) => sendData(address, value ? OscTrue.True : OscFalse.False);
