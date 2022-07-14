@@ -92,6 +92,11 @@ public abstract class Module
         addSetting(lookup.ToString().ToLower(), displayName, description, defaultValue);
     }
 
+    protected void CreateSetting<T>(Enum lookup, string displayName, string description, T defaultValue) where T : Enum
+    {
+        addSetting(lookup.ToString().ToLower(), displayName, description, defaultValue);
+    }
+
     private void addSetting(string lookup, string displayName, string description, object defaultValue)
     {
         Settings.Add(lookup, new ModuleAttributeData(displayName, description, defaultValue));
@@ -453,30 +458,42 @@ public abstract class Module
 
             if (!Settings.ContainsKey(lookup)) continue;
 
-            if (!Enum.TryParse(typeStr, true, out TypeCode type)) continue;
-
-            if (Type.GetTypeCode(Settings[lookup].Attribute.Value.GetType()) != type) return;
-
-            switch (type)
+            if (typeStr.StartsWith("enum"))
             {
-                case TypeCode.String:
-                    Settings[lookup].Attribute.Value = value;
-                    break;
+                var enumName = typeStr.Split(new[] { '#' }, 2)[1];
+                var enumType = ReflectiveEnumerator.GetEnumTypeFromName(enumName);
 
-                case TypeCode.Int32:
-                    Settings[lookup].Attribute.Value = int.Parse(value);
-                    break;
+                if (enumType == null) return;
 
-                case TypeCode.Single:
-                    Settings[lookup].Attribute.Value = float.Parse(value);
-                    break;
+                Settings[lookup].Attribute.Value = Enum.ToObject(enumType, int.Parse(value));
+            }
+            else
+            {
+                if (!Enum.TryParse(typeStr, true, out TypeCode type)) continue;
 
-                case TypeCode.Boolean:
-                    Settings[lookup].Attribute.Value = bool.Parse(value);
-                    break;
+                if (Type.GetTypeCode(Settings[lookup].Attribute.Value.GetType()) != type) return;
 
-                default:
-                    throw new ArgumentOutOfRangeException();
+                switch (type)
+                {
+                    case TypeCode.String:
+                        Settings[lookup].Attribute.Value = value;
+                        break;
+
+                    case TypeCode.Int32:
+                        Settings[lookup].Attribute.Value = int.Parse(value);
+                        break;
+
+                    case TypeCode.Single:
+                        Settings[lookup].Attribute.Value = float.Parse(value);
+                        break;
+
+                    case TypeCode.Boolean:
+                        Settings[lookup].Attribute.Value = bool.Parse(value);
+                        break;
+
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
         }
     }
@@ -539,9 +556,18 @@ public abstract class Module
             if (moduleAttributeData.Attribute.IsDefault) continue;
 
             var value = moduleAttributeData.Attribute.Value;
-            var type = value.GetType().Name.ToLower();
+            var valueType = value.GetType();
 
-            writer.WriteLine(@"{0}:{1}={2}", lookup, type, value);
+            if (valueType.IsSubclassOf(typeof(Enum)))
+            {
+                var type = value.GetType().FullName;
+                writer.WriteLine(@"{0}:enum#{1}={2}", lookup, type, (int)value);
+            }
+            else
+            {
+                var type = value.GetType().Name.ToLower();
+                writer.WriteLine(@"{0}:{1}={2}", lookup, type, value);
+            }
         }
 
         writer.WriteLine(@"#End");

@@ -21,6 +21,7 @@ public class ClockModule : Module
     {
         CreateSetting(ClockSetting.UTC, "UTC", "Send the time as UTC rather than your local time", false);
         CreateSetting(ClockSetting.SmoothSecond, "Smooth Second", "If the seconds hand should be smooth", false);
+        CreateSetting(ClockSetting.Timezone, "Timezone", "The timezone the watch should follow", ClockTimeZone.UTC);
 
         CreateOutputParameter(ClockOutputParameter.Hours, "Hour", "The current hour normalised", "/avatar/parameters/ClockHour");
         CreateOutputParameter(ClockOutputParameter.Minutes, "Minute", "The current minute normalised", "/avatar/parameters/ClockMinute");
@@ -72,6 +73,14 @@ public class ClockModule : Module
     private enum ClockSetting
     {
         UTC,
-        SmoothSecond
+        SmoothSecond,
+        Timezone
+    }
+
+    private enum ClockTimeZone
+    {
+        UTC,
+        GMT,
+        BST
     }
 }

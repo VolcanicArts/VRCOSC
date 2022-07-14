@@ -8,6 +8,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
+using VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Attributes.Dropdown;
 using VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Attributes.Slider;
 using VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Attributes.Text;
 using VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Attributes.Toggle;
@@ -44,34 +45,46 @@ public sealed class AttributeFlow : FillFlowContainer
 
         AttributesList.ForEach(attributeData =>
         {
-            switch (Type.GetTypeCode(attributeData.Attribute.Value.GetType()))
+            var valueType = attributeData.Attribute.Value.GetType();
+
+            if (valueType.IsSubclassOf(typeof(Enum)))
             {
-                case TypeCode.String:
-                    Add(new TextAttributeCard(attributeData));
-                    break;
+                var dropdownCard = typeof(DropdownAttributeCard<>);
+                Type instanceType = dropdownCard.MakeGenericType(valueType);
+                var instance = Activator.CreateInstance(instanceType, attributeData)! as Drawable;
+                Add(instance);
+            }
+            else
+            {
+                switch (Type.GetTypeCode(attributeData.Attribute.Value.GetType()))
+                {
+                    case TypeCode.String:
+                        Add(new TextAttributeCard(attributeData));
+                        break;
 
-                case TypeCode.Int32:
-                    if (attributeData is ModuleAttributeDataWithBounds attributeDataWithBounds)
-                    {
-                        Add(new IntSliderAttributeCard(attributeDataWithBounds));
-                    }
-                    else
-                    {
-                        Add(new IntTextAttributeCard(attributeData));
-                    }
+                    case TypeCode.Int32:
+                        if (attributeData is ModuleAttributeDataWithBounds attributeDataWithBounds)
+                        {
+                            Add(new IntSliderAttributeCard(attributeDataWithBounds));
+                        }
+                        else
+                        {
+                            Add(new IntTextAttributeCard(attributeData));
+                        }
 
-                    break;
+                        break;
 
-                case TypeCode.Single:
-                    Add(new FloatSliderAttributeCard((ModuleAttributeDataWithBounds)attributeData));
-                    break;
+                    case TypeCode.Single:
+                        Add(new FloatSliderAttributeCard((ModuleAttributeDataWithBounds)attributeData));
+                        break;
 
-                case TypeCode.Boolean:
-                    Add(new ToggleAttributeCard(attributeData));
-                    break;
+                    case TypeCode.Boolean:
+                        Add(new ToggleAttributeCard(attributeData));
+                        break;
 
-                default:
-                    throw new ArgumentOutOfRangeException();
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
         });
     }

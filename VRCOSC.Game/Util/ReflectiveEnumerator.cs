@@ -19,4 +19,9 @@ public static class ReflectiveEnumerator
                                    .ToList();
         return objects;
     }
+
+    public static Type? GetEnumTypeFromName(string enumName)
+    {
+        return AppDomain.CurrentDomain.GetAssemblies().Select(assembly => assembly.GetType(enumName)).FirstOrDefault(type => type?.IsEnum ?? false);
+    }
 }
