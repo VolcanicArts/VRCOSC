@@ -43,49 +43,36 @@ public sealed class AttributeFlow : FillFlowContainer
             Text = Title
         });
 
-        AttributesList.ForEach(attributeData =>
+        AttributesList.ForEach(attributeData => Add(generateCard(attributeData)));
+    }
+
+    private Drawable generateCard(ModuleAttributeData attributeData)
+    {
+        var valueType = attributeData.Attribute.Value.GetType();
+
+        if (valueType.IsSubclassOf(typeof(Enum)))
         {
-            var valueType = attributeData.Attribute.Value.GetType();
+            Type instanceType = typeof(DropdownAttributeCard<>).MakeGenericType(valueType);
+            return (Activator.CreateInstance(instanceType, attributeData) as Drawable)!;
+        }
 
-            if (valueType.IsSubclassOf(typeof(Enum)))
-            {
-                var dropdownCard = typeof(DropdownAttributeCard<>);
-                Type instanceType = dropdownCard.MakeGenericType(valueType);
-                var instance = Activator.CreateInstance(instanceType, attributeData)! as Drawable;
-                Add(instance);
-            }
-            else
-            {
-                switch (Type.GetTypeCode(attributeData.Attribute.Value.GetType()))
-                {
-                    case TypeCode.String:
-                        Add(new TextAttributeCard(attributeData));
-                        break;
+        if (attributeData is ModuleAttributeDataWithBounds attributeDataWithBounds)
+        {
+            if (valueType == typeof(int))
+                return new IntSliderAttributeCard(attributeDataWithBounds);
+            if (valueType == typeof(float))
+                return new FloatSliderAttributeCard(attributeDataWithBounds);
+        }
 
-                    case TypeCode.Int32:
-                        if (attributeData is ModuleAttributeDataWithBounds attributeDataWithBounds)
-                        {
-                            Add(new IntSliderAttributeCard(attributeDataWithBounds));
-                        }
-                        else
-                        {
-                            Add(new IntTextAttributeCard(attributeData));
-                        }
+        if (valueType == typeof(string))
+            return new TextAttributeCard(attributeData);
 
-                        break;
+        if (valueType == typeof(int))
+            return new IntTextAttributeCard(attributeData);
 
-                    case TypeCode.Single:
-                        Add(new FloatSliderAttributeCard((ModuleAttributeDataWithBounds)attributeData));
-                        break;
+        if (valueType == typeof(bool))
+            return new ToggleAttributeCard(attributeData);
 
-                    case TypeCode.Boolean:
-                        Add(new ToggleAttributeCard(attributeData));
-                        break;
-
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-            }
-        });
+        throw new ArgumentOutOfRangeException(nameof(ModuleAttributeData), $"Unknown {nameof(ModuleAttributeData)} type");
     }
 }
