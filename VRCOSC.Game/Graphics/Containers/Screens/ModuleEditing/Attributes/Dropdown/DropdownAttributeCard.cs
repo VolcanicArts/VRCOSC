@@ -7,15 +7,15 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.UserInterface;
 using osuTK;
+using VRCOSC.Game.Graphics.Containers.UI;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Attributes.Dropdown;
 
 public class DropdownAttributeCard<T> : AttributeCard where T : Enum
 {
-    protected BasicDropdown<T> Dropdown = null!;
+    protected VRCOSCDropdown<T> Dropdown = null!;
 
     public DropdownAttributeCard(ModuleAttributeData attributeData)
         : base(attributeData)
@@ -32,10 +32,10 @@ public class DropdownAttributeCard<T> : AttributeCard where T : Enum
             RelativeSizeAxes = Axes.Both,
             Size = new Vector2(1.0f, 0.5f),
             Padding = new MarginPadding(10),
-            Child = Dropdown = new BasicDropdown<T>()
+            Child = Dropdown = new VRCOSCDropdown<T>()
             {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
+                Anchor = Anchor.TopCentre,
+                Origin = Anchor.TopCentre,
                 RelativeSizeAxes = Axes.X,
                 Items = Enum.GetValues(typeof(T)).Cast<T>()
             }
