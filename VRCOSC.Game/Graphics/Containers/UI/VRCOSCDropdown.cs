@@ -1,10 +1,11 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.UserInterface;
+using osu.Framework.Input.Events;
 using osu.Framework.Localisation;
 
 namespace VRCOSC.Game.Graphics.Containers.UI;
@@ -27,7 +28,7 @@ public class VRCOSCDropdown<T> : Dropdown<T>
 
         public VRCOSCDropdownHeader()
         {
-            var font = FrameworkFont.Condensed;
+            var font = FrameworkFont.Regular.With(size: 30);
 
             Foreground.Padding = new MarginPadding(5);
             BackgroundColour = VRCOSCColour.Gray4;
@@ -64,16 +65,24 @@ public class VRCOSCDropdown<T> : Dropdown<T>
             public DrawableVRCOSCDropdownMenuItem(MenuItem item)
                 : base(item)
             {
-                Foreground.Padding = new MarginPadding(2);
-                BackgroundColour = VRCOSCColour.Gray4;
+                Foreground.Padding = new MarginPadding(5);
+                BackgroundColour = VRCOSCColour.Gray3;
+                BackgroundColourSelected = BackgroundColour;
                 BackgroundColourHover = VRCOSCColour.Gray6;
-                BackgroundColourSelected = VRCOSCColour.Gray5;
             }
 
             protected override Drawable CreateContent() => new SpriteText
             {
-                Font = FrameworkFont.Condensed
+                Font = FrameworkFont.Regular.With(size: 20)
             };
+
+            protected override void OnHoverLost(HoverLostEvent e)
+            {
+                base.OnHoverLost(e);
+                // this only works when a schedule is used despite being on the update thread
+                // meaning this is called straight away anyway
+                Schedule(() => Background.Colour = BackgroundColour);
+            }
         }
     }
 }
