@@ -6,8 +6,6 @@ using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
-using osu.Framework.Graphics.Containers;
-using osuTK;
 using VRCOSC.Game.Graphics.Containers.UI;
 using VRCOSC.Game.Modules;
 
@@ -25,20 +23,12 @@ public class DropdownAttributeCard<T> : AttributeCard where T : Enum
     [BackgroundDependencyLoader]
     private void load()
     {
-        Add(new Container
+        AddToFlow(Dropdown = new VRCOSCDropdown<T>()
         {
-            Anchor = Anchor.BottomCentre,
-            Origin = Anchor.BottomCentre,
-            RelativeSizeAxes = Axes.Both,
-            Size = new Vector2(1.0f, 0.5f),
-            Padding = new MarginPadding(10),
-            Child = Dropdown = new VRCOSCDropdown<T>()
-            {
-                Anchor = Anchor.TopCentre,
-                Origin = Anchor.TopCentre,
-                RelativeSizeAxes = Axes.X,
-                Items = Enum.GetValues(typeof(T)).Cast<T>()
-            }
+            Anchor = Anchor.TopCentre,
+            Origin = Anchor.TopCentre,
+            RelativeSizeAxes = Axes.X,
+            Items = Enum.GetValues(typeof(T)).Cast<T>()
         });
 
         AttributeData.Attribute.ValueChanged += e => updateValues(e.NewValue);

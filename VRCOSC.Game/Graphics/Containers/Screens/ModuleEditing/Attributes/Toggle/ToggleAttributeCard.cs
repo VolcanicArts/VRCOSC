@@ -29,7 +29,7 @@ public class ToggleAttributeCard : AttributeCard
             Origin = Anchor.CentreRight,
             RelativeSizeAxes = Axes.Both,
             FillMode = FillMode.Fit,
-            Padding = new MarginPadding(20),
+            Padding = new MarginPadding(10),
             Child = IconButton = new IconButton
             {
                 Anchor = Anchor.Centre,

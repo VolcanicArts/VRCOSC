@@ -4,8 +4,6 @@
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
-using osu.Framework.Graphics.Containers;
-using osuTK;
 using VRCOSC.Game.Graphics.Containers.UI;
 using VRCOSC.Game.Modules;
 
@@ -23,20 +21,13 @@ public class TextAttributeCard : AttributeCard
     [BackgroundDependencyLoader]
     private void load()
     {
-        Add(new Container
+        AddToFlow(TextBox = new VRCOSCTextBox
         {
-            Anchor = Anchor.BottomCentre,
-            Origin = Anchor.BottomCentre,
-            RelativeSizeAxes = Axes.Both,
-            Size = new Vector2(1.0f, 0.5f),
-            Padding = new MarginPadding(10),
-            Child = TextBox = new VRCOSCTextBox
-            {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                RelativeSizeAxes = Axes.Both,
-                Text = AttributeData.Attribute.Value.ToString()
-            }
+            Anchor = Anchor.TopCentre,
+            Origin = Anchor.TopCentre,
+            RelativeSizeAxes = Axes.X,
+            Height = 40,
+            Text = AttributeData.Attribute.Value.ToString()
         });
 
         AttributeData.Attribute.ValueChanged += e => updateValues(e.NewValue);

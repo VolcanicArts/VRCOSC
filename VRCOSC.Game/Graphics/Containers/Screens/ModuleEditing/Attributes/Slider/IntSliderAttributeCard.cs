@@ -19,9 +19,10 @@ public class IntSliderAttributeCard : SliderAttributeCard<int>
     {
         return new VRCOSCSlider<int>
         {
-            Anchor = Anchor.Centre,
-            Origin = Anchor.Centre,
-            RelativeSizeAxes = Axes.Both,
+            Anchor = Anchor.TopCentre,
+            Origin = Anchor.TopCentre,
+            RelativeSizeAxes = Axes.X,
+            Height = 40,
             Current = new BindableNumber<int>
             {
                 MinValue = (int)AttributeDataWithBounds.MinValue,

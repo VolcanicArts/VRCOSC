@@ -4,9 +4,6 @@
 using System;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
-using osu.Framework.Graphics;
-using osu.Framework.Graphics.Containers;
-using osuTK;
 using VRCOSC.Game.Graphics.Containers.UI;
 using VRCOSC.Game.Modules;
 
@@ -27,15 +24,7 @@ public class SliderAttributeCard<T> : AttributeCard where T : struct, IComparabl
     [BackgroundDependencyLoader]
     private void load()
     {
-        Add(new Container
-        {
-            Anchor = Anchor.BottomCentre,
-            Origin = Anchor.BottomCentre,
-            RelativeSizeAxes = Axes.Both,
-            Size = new Vector2(1.0f, 0.5f),
-            Padding = new MarginPadding(10),
-            Child = slider = CreateSlider()
-        });
+        AddToFlow(slider = CreateSlider());
 
         AttributeData.Attribute.ValueChanged += updateValues;
         slider.SlowedCurrent.ValueChanged += e => updateValues(e.NewValue);

@@ -18,6 +18,7 @@ public abstract class AttributeCard : Container
     private VRCOSCButton resetToDefault;
 
     protected readonly ModuleAttributeData AttributeData;
+    private FillFlowContainer contentFlow;
 
     protected AttributeCard(ModuleAttributeData attributeData)
     {
@@ -30,7 +31,7 @@ public abstract class AttributeCard : Container
         Anchor = Anchor.TopCentre;
         Origin = Anchor.TopCentre;
         RelativeSizeAxes = Axes.X;
-        Height = 120;
+        AutoSizeAxes = Axes.Y;
 
         TextFlowContainer textFlow;
 
@@ -64,7 +65,8 @@ public abstract class AttributeCard : Container
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
-                RelativeSizeAxes = Axes.Both,
+                RelativeSizeAxes = Axes.X,
+                AutoSizeAxes = Axes.Y,
                 Masking = true,
                 CornerRadius = 10,
                 Children = new Drawable[]
@@ -76,17 +78,30 @@ public abstract class AttributeCard : Container
                         RelativeSizeAxes = Axes.Both,
                         Colour = VRCOSCColour.Gray2
                     },
-                    textFlow = new TextFlowContainer
+                    contentFlow = new FillFlowContainer
                     {
-                        Anchor = Anchor.TopLeft,
-                        Origin = Anchor.TopLeft,
-                        RelativeSizeAxes = Axes.Both,
-                        Padding = new MarginPadding(10)
-                    },
+                        Anchor = Anchor.TopCentre,
+                        Origin = Anchor.TopCentre,
+                        RelativeSizeAxes = Axes.X,
+                        AutoSizeAxes = Axes.Y,
+                        Direction = FillDirection.Vertical,
+                        Padding = new MarginPadding(10),
+                        Spacing = new Vector2(0, 10),
+                        Children = new Drawable[]
+                        {
+                            textFlow = new TextFlowContainer
+                            {
+                                Anchor = Anchor.TopCentre,
+                                Origin = Anchor.TopCentre,
+                                TextAnchor = Anchor.TopLeft,
+                                RelativeSizeAxes = Axes.X,
+                                AutoSizeAxes = Axes.Y
+                            },
+                        }
+                    }
                 }
             }
         };
-
         textFlow.AddText(AttributeData.DisplayName, t =>
         {
             t.Font = FrameworkFont.Regular.With(size: 30);
@@ -96,8 +111,12 @@ public abstract class AttributeCard : Container
             t.Font = FrameworkFont.Regular.With(size: 20);
             t.Colour = VRCOSCColour.Gray9;
         });
-
         AttributeData.Attribute.ValueChanged += updateResetToDefault;
+    }
+
+    public void AddToFlow(Drawable drawable)
+    {
+        contentFlow.Add(drawable);
     }
 
     protected override void LoadComplete()
