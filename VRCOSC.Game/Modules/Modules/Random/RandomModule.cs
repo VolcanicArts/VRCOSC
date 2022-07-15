@@ -9,8 +9,8 @@ namespace VRCOSC.Game.Modules.Modules.Random;
 
 public abstract class RandomModule<T> : Module where T : struct
 {
-    public override string Title => $"Random {TypeUtils.TypeToReadableName<T>()}";
-    public override string Description => $"Sends a random {TypeUtils.TypeToReadableName<T>().ToLower()} over a variable time period";
+    public override string Title => $"Random {typeof(T).ToReadableName()}";
+    public override string Description => $"Sends a random {typeof(T).ToReadableName().ToLowerInvariant()} over a variable time period";
     public override string Author => "VolcanicArts";
     public override ColourInfo Colour => ColourInfo.GradientVertical(VRCOSCColour.Red, VRCOSCColour.PurpleDarker);
     public override ModuleType ModuleType => ModuleType.Random;
@@ -20,8 +20,8 @@ public abstract class RandomModule<T> : Module where T : struct
     {
         CreateSetting(RandomSetting.DeltaUpdate, "Time Between Value", "The amount of time, in milliseconds, between each random value", 1000);
 
-        var readableTypeName = TypeUtils.TypeToReadableName<T>();
-        CreateOutputParameter(RandomOutputParameter.RandomValue, $"Random {readableTypeName}", $"A random {readableTypeName.ToLower()} value", $"/avatar/parameters/Random{readableTypeName}");
+        var readableTypeName = typeof(T).ToReadableName();
+        CreateOutputParameter(RandomOutputParameter.RandomValue, $"Random {readableTypeName}", $"A random {readableTypeName.ToLowerInvariant()} value", $"/avatar/parameters/Random{readableTypeName}");
     }
 
     protected override void OnUpdate()

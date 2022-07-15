@@ -5,14 +5,9 @@ using System;
 
 namespace VRCOSC.Game.Modules.Util;
 
-public static class TypeUtils
+public static class TypeExtensions
 {
-    public static string TypeToReadableName<T>()
-    {
-        return TypeToReadableName(typeof(T));
-    }
-
-    public static string TypeToReadableName(Type type)
+    public static string ToReadableName(this Type type)
     {
         if (type.IsSubclassOf(typeof(Enum)))
             return "Enum";

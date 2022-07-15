@@ -459,7 +459,7 @@ public abstract class Module
 
             if (!Settings.ContainsKey(lookup)) continue;
 
-            var readableTypeName = TypeUtils.TypeToReadableName(Settings[lookup].Attribute.Value.GetType()).ToLowerInvariant();
+            var readableTypeName = Settings[lookup].Attribute.Value.GetType().ToReadableName().ToLowerInvariant();
             if (!readableTypeName.Equals(typeStr)) continue;
 
             switch (typeStr)
@@ -552,7 +552,7 @@ public abstract class Module
 
             var value = moduleAttributeData.Attribute.Value;
             var valueType = value.GetType();
-            var readableTypeName = TypeUtils.TypeToReadableName(valueType).ToLowerInvariant();
+            var readableTypeName = valueType.ToReadableName().ToLowerInvariant();
 
             if (valueType.IsSubclassOf(typeof(Enum)))
             {
