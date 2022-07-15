@@ -9,7 +9,15 @@ public static class TypeUtils
 {
     public static string TypeToReadableName<T>()
     {
-        var typeCode = Type.GetTypeCode(typeof(T));
+        return TypeToReadableName(typeof(T));
+    }
+
+    public static string TypeToReadableName(Type type)
+    {
+        if (type.IsSubclassOf(typeof(Enum)))
+            return "Enum";
+
+        var typeCode = Type.GetTypeCode(type);
 
         return typeCode switch
         {
@@ -31,7 +39,7 @@ public static class TypeUtils
             TypeCode.Decimal => "Decimal",
             TypeCode.DateTime => "DateTime",
             TypeCode.String => "String",
-            _ => throw new ArgumentOutOfRangeException($"Unknown type provided of type {nameof(T)}")
+            _ => throw new ArgumentOutOfRangeException($"Unknown type provided of type {nameof(type)}")
         };
     }
 }

@@ -10,6 +10,7 @@ using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Colour;
+using osu.Framework.Logging;
 using osu.Framework.Platform;
 using VRCOSC.Game.Modules.Util;
 using VRCOSC.Game.Util;
@@ -458,42 +459,36 @@ public abstract class Module
 
             if (!Settings.ContainsKey(lookup)) continue;
 
-            if (typeStr.StartsWith("enum"))
+            var readableTypeName = TypeUtils.TypeToReadableName(Settings[lookup].Attribute.Value.GetType()).ToLowerInvariant();
+            if (!readableTypeName.Equals(typeStr)) continue;
+
+            switch (typeStr)
             {
-                var enumName = typeStr.Split(new[] { '#' }, 2)[1];
-                var enumType = ReflectiveEnumerator.GetEnumTypeFromName(enumName);
+                case "enum":
+                    var typeAndValue = value.Split(new[] { '#' }, 2);
+                    var enumType = ReflectiveEnumerator.GetEnumTypeFromName(typeAndValue[0]);
+                    if (enumType != null) Settings[lookup].Attribute.Value = Enum.ToObject(enumType, int.Parse(typeAndValue[1]));
+                    break;
 
-                if (enumType == null) return;
+                case "string":
+                    Settings[lookup].Attribute.Value = value;
+                    break;
 
-                Settings[lookup].Attribute.Value = Enum.ToObject(enumType, int.Parse(value));
-            }
-            else
-            {
-                if (!Enum.TryParse(typeStr, true, out TypeCode type)) continue;
+                case "int":
+                    Settings[lookup].Attribute.Value = int.Parse(value);
+                    break;
 
-                if (Type.GetTypeCode(Settings[lookup].Attribute.Value.GetType()) != type) return;
+                case "float":
+                    Settings[lookup].Attribute.Value = float.Parse(value);
+                    break;
 
-                switch (type)
-                {
-                    case TypeCode.String:
-                        Settings[lookup].Attribute.Value = value;
-                        break;
+                case "bool":
+                    Settings[lookup].Attribute.Value = bool.Parse(value);
+                    break;
 
-                    case TypeCode.Int32:
-                        Settings[lookup].Attribute.Value = int.Parse(value);
-                        break;
-
-                    case TypeCode.Single:
-                        Settings[lookup].Attribute.Value = float.Parse(value);
-                        break;
-
-                    case TypeCode.Boolean:
-                        Settings[lookup].Attribute.Value = bool.Parse(value);
-                        break;
-
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
+                default:
+                    Logger.Log($"Unknown type found in file: {typeStr}");
+                    break;
             }
         }
     }
@@ -557,16 +552,16 @@ public abstract class Module
 
             var value = moduleAttributeData.Attribute.Value;
             var valueType = value.GetType();
+            var readableTypeName = TypeUtils.TypeToReadableName(valueType).ToLowerInvariant();
 
             if (valueType.IsSubclassOf(typeof(Enum)))
             {
-                var type = value.GetType().FullName;
-                writer.WriteLine(@"{0}:enum#{1}={2}", lookup, type, (int)value);
+                var enumClass = valueType.FullName;
+                writer.WriteLine(@"{0}:{1}={2}#{3}", lookup, readableTypeName, enumClass, (int)value);
             }
             else
             {
-                var type = value.GetType().Name.ToLower();
-                writer.WriteLine(@"{0}:{1}={2}", lookup, type, value);
+                writer.WriteLine(@"{0}:{1}={2}", lookup, readableTypeName, value);
             }
         }
 
