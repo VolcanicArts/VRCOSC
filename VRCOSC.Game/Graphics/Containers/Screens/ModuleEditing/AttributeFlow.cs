@@ -18,10 +18,9 @@ namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing;
 
 public sealed class AttributeFlow : FillFlowContainer
 {
-    public string Title { get; init; }
     public List<ModuleAttributeData> AttributesList { get; init; }
 
-    public AttributeFlow()
+    public AttributeFlow(string title)
     {
         Anchor = Anchor.TopCentre;
         Origin = Anchor.TopCentre;
@@ -30,19 +29,19 @@ public sealed class AttributeFlow : FillFlowContainer
         Direction = FillDirection.Vertical;
         Spacing = new Vector2(0, 10);
         Padding = new MarginPadding(10);
-    }
 
-    [BackgroundDependencyLoader]
-    private void load()
-    {
         Add(new SpriteText
         {
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
             Font = FrameworkFont.Regular.With(size: 50),
-            Text = Title
+            Text = title
         });
+    }
 
+    [BackgroundDependencyLoader]
+    private void load()
+    {
         AttributesList.ForEach(attributeData => Add(generateCard(attributeData)));
     }
 

@@ -134,15 +134,13 @@ public class ModuleEditContent : Container
                 t.Colour = VRCOSCColour.GrayE;
             });
 
-            settingsFlowContainer.Child = new AttributeFlow
+            settingsFlowContainer.Child = new AttributeFlow("Settings")
             {
-                Title = "Settings",
                 AttributesList = sourceModule.Value.Settings.Values.ToList()
             };
 
-            outputParametersFlowContainer.Child = new AttributeFlow
+            outputParametersFlowContainer.Child = new AttributeFlow("Output Parameters")
             {
-                Title = "Output Parameters",
                 AttributesList = sourceModule.Value.OutputParameters.Values.ToList()
             };
 
