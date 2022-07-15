@@ -31,36 +31,32 @@ public class ClockModule : Module
     {
         var time = timezoneToTime(GetSetting<ClockTimeZone>(ClockSetting.Timezone));
 
-        // smooth hands
-        if (GetSetting<bool>(ClockSetting.SmoothSecond)) time.Second += time.Millisecond / 1000f;
-        time.Minute += time.Second / 60f;
-        time.Hour += time.Minute / 60f;
+        var hours = (float)time.Hour;
+        var minutes = (float)time.Minute;
+        var seconds = (float)time.Second;
 
-        var hourNormalised = (time.Hour % 12f) / 12f;
-        var minuteNormalised = time.Minute / 60f;
-        var secondNormalised = time.Second / 60f;
+        // smooth hands
+        if (GetSetting<bool>(ClockSetting.SmoothSecond)) seconds += time.Millisecond / 1000f;
+        minutes += seconds / 60f;
+        hours += minutes / 60f;
+
+        var hourNormalised = (hours % 12f) / 12f;
+        var minuteNormalised = minutes / 60f;
+        var secondNormalised = seconds / 60f;
 
         SendParameter(ClockOutputParameter.Hours, hourNormalised);
         SendParameter(ClockOutputParameter.Minutes, minuteNormalised);
         SendParameter(ClockOutputParameter.Seconds, secondNormalised);
     }
 
-    private static Time timezoneToTime(ClockTimeZone timeZone)
+    private static DateTime timezoneToTime(ClockTimeZone timeZone)
     {
         return timeZone switch
         {
-            ClockTimeZone.Local => new Time { Hour = DateTime.Now.Hour, Minute = DateTime.Now.Minute, Second = DateTime.Now.Second, Millisecond = DateTime.Now.Millisecond },
-            ClockTimeZone.UTC => new Time { Hour = DateTime.UtcNow.Hour, Minute = DateTime.UtcNow.Minute, Second = DateTime.UtcNow.Second, Millisecond = DateTime.UtcNow.Millisecond },
+            ClockTimeZone.Local => DateTime.Now,
+            ClockTimeZone.UTC => DateTime.UtcNow,
             _ => throw new ArgumentOutOfRangeException(nameof(timeZone), timeZone, null)
         };
-    }
-
-    private struct Time
-    {
-        public float Hour;
-        public float Minute;
-        public float Second;
-        public float Millisecond;
     }
 
     private enum ClockOutputParameter
