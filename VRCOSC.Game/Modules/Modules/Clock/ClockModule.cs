@@ -19,8 +19,8 @@ public class ClockModule : Module
 
     protected override void CreateAttributes()
     {
-        CreateSetting(ClockSetting.Timezone, "Timezone", "The timezone the watch should follow", ClockTimeZone.Local);
         CreateSetting(ClockSetting.SmoothSecond, "Smooth Second", "If the seconds hand should be smooth", false);
+        CreateSetting(ClockSetting.Timezone, "Timezone", "The timezone the watch should follow", ClockTimeZone.Local);
 
         CreateOutputParameter(ClockOutputParameter.Hours, "Hour", "The current hour normalised", "/avatar/parameters/ClockHour");
         CreateOutputParameter(ClockOutputParameter.Minutes, "Minute", "The current minute normalised", "/avatar/parameters/ClockMinute");
