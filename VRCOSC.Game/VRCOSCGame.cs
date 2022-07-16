@@ -3,7 +3,8 @@
 
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
-using VRCOSC.Game.Graphics.Containers.Screens;
+using osu.Framework.Graphics.Containers;
+using VRCOSC.Game.Graphics.Sidebar;
 using VRCOSC.Game.Graphics.Updater;
 
 namespace VRCOSC.Game;
@@ -12,30 +13,32 @@ public abstract class VRCOSCGame : VRCOSCGameBase
 {
     private DependencyContainer dependencies;
 
-    private VRCOSCUpdateManager updateManager;
-
     [BackgroundDependencyLoader]
     private void load()
     {
-        updateManager = CreateUpdateManager();
-        dependencies.CacheAs(updateManager);
-
-        Children = new Drawable[]
+        Child = new GridContainer
         {
-            new ScreenManager(),
-            updateManager
+            Anchor = Anchor.Centre,
+            Origin = Anchor.Centre,
+            RelativeSizeAxes = Axes.Both,
+            ColumnDimensions = new[]
+            {
+                new Dimension(GridSizeMode.Absolute, 100),
+                new Dimension(),
+            },
+            Content = new[]
+            {
+                new Drawable[]
+                {
+                    new Sidebar()
+                }
+            }
         };
     }
 
     protected override IReadOnlyDependencyContainer CreateChildDependencies(IReadOnlyDependencyContainer parent)
     {
         return dependencies = new DependencyContainer(base.CreateChildDependencies(parent));
-    }
-
-    protected override void LoadComplete()
-    {
-        base.LoadComplete();
-        Scheduler.AddDelayed(() => _ = updateManager.CheckForUpdate(), 1000);
     }
 
     public abstract VRCOSCUpdateManager CreateUpdateManager();
