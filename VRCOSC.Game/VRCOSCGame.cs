@@ -9,44 +9,51 @@ using VRCOSC.Game.Graphics.ModuleListing;
 using VRCOSC.Game.Graphics.Settings;
 using VRCOSC.Game.Graphics.Sidebar;
 using VRCOSC.Game.Graphics.Updater;
+using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game;
 
 [Cached]
 public abstract class VRCOSCGame : VRCOSCGameBase
 {
-    private DependencyContainer dependencies;
     private Container screenHolder = null!;
+
+    [Cached]
+    private ModuleManager moduleManager = new();
 
     public Bindable<Tabs> SelectedTab = new();
 
     [BackgroundDependencyLoader]
     private void load()
     {
-        Child = new GridContainer
+        Children = new Drawable[]
         {
-            Anchor = Anchor.Centre,
-            Origin = Anchor.Centre,
-            RelativeSizeAxes = Axes.Both,
-            ColumnDimensions = new[]
+            moduleManager,
+            new GridContainer
             {
-                new Dimension(GridSizeMode.Absolute, 100),
-                new Dimension(),
-            },
-            Content = new[]
-            {
-                new Drawable[]
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                RelativeSizeAxes = Axes.Both,
+                ColumnDimensions = new[]
                 {
-                    new Sidebar(),
-                    screenHolder = new Container
+                    new Dimension(GridSizeMode.Absolute, 100),
+                    new Dimension(),
+                },
+                Content = new[]
+                {
+                    new Drawable[]
                     {
-                        Anchor = Anchor.Centre,
-                        Origin = Anchor.Centre,
-                        RelativeSizeAxes = Axes.Both,
-                        Children = new Drawable[]
+                        new Sidebar(),
+                        screenHolder = new Container
                         {
-                            new ModuleListingContainer(),
-                            new SettingsContainer()
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativeSizeAxes = Axes.Both,
+                            Children = new Drawable[]
+                            {
+                                new ModuleListingContainer(),
+                                new SettingsContainer()
+                            }
                         }
                     }
                 }
@@ -70,11 +77,6 @@ public abstract class VRCOSCGame : VRCOSCGameBase
                     screenHolder[i].Hide();
             }
         }, true);
-    }
-
-    protected override IReadOnlyDependencyContainer CreateChildDependencies(IReadOnlyDependencyContainer parent)
-    {
-        return dependencies = new DependencyContainer(base.CreateChildDependencies(parent));
     }
 
     public abstract VRCOSCUpdateManager CreateUpdateManager();

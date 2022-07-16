@@ -12,8 +12,6 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Platform;
 using VRCOSC.Game.Config;
-using VRCOSC.Game.Graphics.Containers.Screens;
-using VRCOSC.Game.Graphics.Updater;
 using VRCOSC.Game.Util;
 
 namespace VRCOSC.Game.Modules;
@@ -29,12 +27,6 @@ public sealed class ModuleManager : Drawable
 
     [Resolved]
     private VRCOSCConfigManager configManager { get; set; } = null!;
-
-    [Resolved]
-    private ScreenManager screenManager { get; set; } = null!;
-
-    [Resolved]
-    private VRCOSCUpdateManager updateManager { get; set; } = null!;
 
     public List<Module> GroupBy(ModuleType moduleType) => modules.Where(module => module.ModuleType == moduleType).ToList();
 
@@ -55,19 +47,19 @@ public sealed class ModuleManager : Drawable
 
     private void checkForVrChat()
     {
-        if (updateManager.Updating) return;
+        //if (updateManager.Updating) return;
 
         var vrChat = Process.GetProcessesByName("vrchat");
 
         if (vrChat.Length != 0 && autoStartStop.Value && !running && !autoStarted)
         {
-            screenManager.ShowTerminal();
+            //screenManager.ShowTerminal();
             autoStarted = true;
         }
 
         if (vrChat.Length == 0 && autoStartStop.Value && running)
         {
-            screenManager.HideTerminal();
+            //screenManager.HideTerminal();
             autoStarted = false;
         }
     }
