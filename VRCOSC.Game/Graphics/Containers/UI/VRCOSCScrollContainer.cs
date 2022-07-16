@@ -24,6 +24,14 @@ public class VRCOSCScrollContainer<T> : ScrollContainer<T>
     {
     }
 
+    protected override void UpdateAfterChildren()
+    {
+        base.UpdateAfterChildren();
+
+        // we always want this to show
+        Scrollbar.Show();
+    }
+
     protected override ScrollbarContainer CreateScrollbar(Direction direction) => new VRCOSCScrollbar(direction);
 
     private class VRCOSCScrollbar : ScrollbarContainer

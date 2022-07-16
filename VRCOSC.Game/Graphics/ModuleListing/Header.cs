@@ -34,13 +34,14 @@ public sealed class Header : Container
                 RelativeSizeAxes = Axes.Both,
                 ColumnDimensions = new[]
                 {
-                    new Dimension(GridSizeMode.Relative, 2f / 3f),
+                    new Dimension(GridSizeMode.Relative, 0.75f),
                     new Dimension(),
                 },
                 Content = new[]
                 {
                     new Drawable[]
                     {
+                        null,
                         new Container
                         {
                             Anchor = Anchor.Centre,

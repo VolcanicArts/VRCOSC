@@ -13,7 +13,7 @@ namespace VRCOSC.Game.Graphics.ModuleListing;
 
 public sealed class Listing : Container
 {
-    private FillFlowContainer<ModuleCard> moduleCardFlow = null!;
+    private SearchContainer<ModuleCard> moduleCardFlow = null!;
 
     [Resolved]
     private ModuleManager moduleManager { get; set; }
@@ -32,7 +32,7 @@ public sealed class Listing : Container
     }
 
     [BackgroundDependencyLoader]
-    private void load()
+    private void load(ModuleListingScreen moduleListingScreen)
     {
         Children = new Drawable[]
         {
@@ -43,7 +43,7 @@ public sealed class Listing : Container
                 RelativeSizeAxes = Axes.Both,
                 ScrollbarVisible = true,
                 ClampExtension = 0,
-                Child = moduleCardFlow = new FillFlowContainer<ModuleCard>
+                Child = moduleCardFlow = new SearchContainer<ModuleCard>
                 {
                     Anchor = Anchor.TopCentre,
                     Origin = Anchor.TopCentre,
@@ -60,5 +60,6 @@ public sealed class Listing : Container
         };
 
         moduleManager.Modules.ForEach(module => moduleCardFlow.Add(new ModuleCard(module)));
+        moduleListingScreen.SearchString.BindValueChanged(searchString => moduleCardFlow.SearchTerm = searchString.NewValue);
     }
 }
