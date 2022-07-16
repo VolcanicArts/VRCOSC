@@ -51,6 +51,7 @@ public sealed class ModuleListingScreen : Container
                     },
                     new Drawable[]
                     {
+                        new Listing()
                     }
                 }
             }

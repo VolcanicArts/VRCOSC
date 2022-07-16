@@ -15,6 +15,11 @@ public sealed class Header : Container
         Anchor = Anchor.Centre;
         Origin = Anchor.Centre;
         RelativeSizeAxes = Axes.Both;
+        Padding = new MarginPadding
+        {
+            Top = 5,
+            Bottom = 2.5f
+        };
     }
 
     [BackgroundDependencyLoader]
@@ -43,7 +48,6 @@ public sealed class Header : Container
                             RelativeSizeAxes = Axes.Both,
                             Padding = new MarginPadding
                             {
-                                Vertical = 5,
                                 Left = 5,
                                 Right = 2.5f
                             },

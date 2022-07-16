@@ -9,6 +9,7 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Platform;
 using VRCOSC.Game.Config;
@@ -22,19 +23,19 @@ public sealed class ModuleManager : Drawable
     private bool autoStarted;
     private Bindable<bool> autoStartStop = null!;
     private readonly TerminalLogger terminal = new(nameof(ModuleManager));
-    private readonly List<Module> modules = ReflectiveEnumerator.GetEnumerableOfType<Module>()!;
+    public readonly IReadOnlyList<Module> Modules = ReflectiveEnumerator.GetEnumerableOfType<Module>()!;
     public readonly OscClient OscClient = new();
 
     [Resolved]
     private VRCOSCConfigManager configManager { get; set; } = null!;
 
-    public List<Module> GroupBy(ModuleType moduleType) => modules.Where(module => module.ModuleType == moduleType).ToList();
+    public List<Module> GroupBy(ModuleType moduleType) => Modules.Where(module => module.ModuleType == moduleType).ToList();
 
     [BackgroundDependencyLoader]
     private void load(Storage storage)
     {
         var moduleStorage = storage.GetStorageForDirectory("modules");
-        modules.ForEach(module => module.Initialise(moduleStorage, OscClient));
+        Modules.ForEach(module => module.Initialise(moduleStorage, OscClient));
 
         autoStartStop = configManager.GetBindable<bool>(VRCOSCSetting.AutoStartStop);
         autoStartStop.ValueChanged += e =>
@@ -86,7 +87,7 @@ public sealed class ModuleManager : Drawable
             return;
         }
 
-        modules.ForEach(module => module.start());
+        Modules.ForEach(module => module.start());
         running = true;
     }
 
@@ -98,7 +99,7 @@ public sealed class ModuleManager : Drawable
 
         await OscClient.DisableReceive();
 
-        foreach (var module in modules)
+        foreach (var module in Modules)
         {
             await module.stop();
         }
