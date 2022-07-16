@@ -17,6 +17,9 @@ public sealed class Sidebar : Container
     private FillFlowContainer<Tab> tabsFlow = null!;
     private Container selectedIndicator = null!;
 
+    [Resolved]
+    private VRCOSCGame game { get; set; } = null!;
+
     public Sidebar()
     {
         Anchor = Anchor.Centre;
@@ -51,14 +54,14 @@ public sealed class Sidebar : Container
                     new Tab()
                     {
                         Height = tab_height,
-                        Icon = FontAwesome.Solid.List,
-                        Action = () => selectTab(0)
+                        Icon = FontAwesome.Solid.ListUl,
+                        Action = () => game.SelectedTab.Value = Tabs.Modules
                     },
                     new Tab()
                     {
                         Height = tab_height,
                         Icon = FontAwesome.Solid.Cog,
-                        Action = () => selectTab(1)
+                        Action = () => game.SelectedTab.Value = Tabs.Settings
                     }
                 }
             }
@@ -67,12 +70,12 @@ public sealed class Sidebar : Container
 
     protected override void LoadComplete()
     {
-        selectTab(0);
+        game.SelectedTab.BindValueChanged(id => selectTab(id.NewValue), true);
     }
 
-    private void selectTab(int id)
+    private void selectTab(Tabs tab)
     {
-        selectedIndicator.MoveToY(tabsFlow[id].Position.Y, 100, Easing.InOutCubic);
+        selectedIndicator.MoveToY(tabsFlow[(int)tab].Position.Y, 100, Easing.InOutCubic);
     }
 
     private sealed class SelectionIndicator : Container
