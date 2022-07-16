@@ -6,12 +6,16 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using osuTK;
 
 namespace VRCOSC.Game.Graphics.Sidebar;
 
 public sealed class Sidebar : Container
 {
+    private const int tab_height = 80;
+
     private FillFlowContainer<Tab> tabsFlow = null!;
+    private Container selectedIndicator = null!;
 
     public Sidebar()
     {
@@ -32,6 +36,10 @@ public sealed class Sidebar : Container
                 RelativeSizeAxes = Axes.Both,
                 Colour = VRCOSCColour.Gray3
             },
+            selectedIndicator = new SelectionIndicator
+            {
+                Height = tab_height
+            },
             tabsFlow = new FillFlowContainer<Tab>
             {
                 Anchor = Anchor.TopCentre,
@@ -42,14 +50,60 @@ public sealed class Sidebar : Container
                 {
                     new Tab()
                     {
-                        Icon = FontAwesome.Solid.List
+                        Height = tab_height,
+                        Icon = FontAwesome.Solid.List,
+                        Action = () => selectTab(0)
                     },
                     new Tab()
                     {
-                        Icon = FontAwesome.Solid.Cog
+                        Height = tab_height,
+                        Icon = FontAwesome.Solid.Cog,
+                        Action = () => selectTab(1)
                     }
                 }
             }
         };
+    }
+
+    protected override void LoadComplete()
+    {
+        selectTab(0);
+    }
+
+    private void selectTab(int id)
+    {
+        selectedIndicator.MoveToY(tabsFlow[id].Position.Y, 100, Easing.InOutCubic);
+    }
+
+    private sealed class SelectionIndicator : Container
+    {
+        public SelectionIndicator()
+        {
+            Anchor = Anchor.TopCentre;
+            Origin = Anchor.TopCentre;
+            RelativeSizeAxes = Axes.X;
+        }
+
+        [BackgroundDependencyLoader]
+        private void load()
+        {
+            Child = new CircularContainer
+            {
+                Anchor = Anchor.CentreLeft,
+                Origin = Anchor.CentreLeft,
+                RelativeSizeAxes = Axes.Both,
+                RelativePositionAxes = Axes.X,
+                X = 0.025f,
+                Size = new Vector2(0.05f, 0.8f),
+                Masking = true,
+                Child = new Box
+                {
+                    Anchor = Anchor.CentreLeft,
+                    Origin = Anchor.CentreLeft,
+                    RelativeSizeAxes = Axes.Both,
+                    Colour = Colour4.White.Opacity(0.5f)
+                }
+            };
+        }
     }
 }

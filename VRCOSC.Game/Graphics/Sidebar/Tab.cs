@@ -11,7 +11,7 @@ using osuTK;
 
 namespace VRCOSC.Game.Graphics.Sidebar;
 
-public sealed class Tab : Container
+public sealed class Tab : ClickableContainer
 {
     private readonly Colour4 hoveredColour = Colour4.White.Opacity(0.25f);
 
@@ -24,7 +24,6 @@ public sealed class Tab : Container
         Anchor = Anchor.TopCentre;
         Origin = Anchor.TopCentre;
         RelativeSizeAxes = Axes.X;
-        Height = 80;
     }
 
     [BackgroundDependencyLoader]
