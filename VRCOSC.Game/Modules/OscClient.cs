@@ -59,8 +59,10 @@ public class OscClient
     {
         var oscAddress = new Address(address);
         var message = new OscMessage(oscAddress, new[] { value });
-        await sendingClient.SendMessageAsync(message);
 
+        if (sendingClient == null) return;
+
+        await sendingClient.SendMessageAsync(message);
         OnParameterSent?.Invoke(address, convertValue(value));
     }
 
