@@ -52,8 +52,8 @@ public abstract class VRCOSCGame : VRCOSCGameBase
                             Depth = float.MaxValue,
                             Children = new Drawable[]
                             {
-                                new ModuleListingContainer(),
-                                new SettingsContainer()
+                                new ModuleListingScreen(),
+                                new SettingsScreen()
                             }
                         }
                     }

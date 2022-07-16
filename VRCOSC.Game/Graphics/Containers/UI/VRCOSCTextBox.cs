@@ -13,10 +13,9 @@ public class VRCOSCTextBox : BasicTextBox
 {
     public VRCOSCTextBox()
     {
-        BackgroundFocused = VRCOSCColour.Gray6;
-        BackgroundUnfocused = VRCOSCColour.Gray4;
+        BackgroundFocused = VRCOSCColour.Gray3;
+        BackgroundUnfocused = VRCOSCColour.Gray3;
         Masking = true;
-        CornerRadius = 10;
         CommitOnFocusLost = true;
     }
 

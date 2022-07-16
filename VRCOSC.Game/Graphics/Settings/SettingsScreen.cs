@@ -8,9 +8,9 @@ using osu.Framework.Graphics.Shapes;
 
 namespace VRCOSC.Game.Graphics.Settings;
 
-public sealed class SettingsContainer : Container
+public sealed class SettingsScreen : Container
 {
-    public SettingsContainer()
+    public SettingsScreen()
     {
         Anchor = Anchor.Centre;
         Origin = Anchor.Centre;
