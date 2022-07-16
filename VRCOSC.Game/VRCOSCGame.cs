@@ -49,6 +49,7 @@ public abstract class VRCOSCGame : VRCOSCGameBase
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
                             RelativeSizeAxes = Axes.Both,
+                            Depth = float.MaxValue,
                             Children = new Drawable[]
                             {
                                 new ModuleListingContainer(),

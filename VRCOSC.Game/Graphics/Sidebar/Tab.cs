@@ -16,8 +16,13 @@ public sealed class Tab : ClickableContainer
     private readonly Colour4 hoveredColour = Colour4.White.Opacity(0.25f);
 
     private Box background = null!;
+    private TabPopover popover = null!;
 
+    public Tabs AssociatedTab { get; init; }
     public IconUsage Icon { get; init; }
+
+    [Resolved]
+    private VRCOSCGame game { get; set; }
 
     public Tab()
     {
@@ -45,14 +50,32 @@ public sealed class Tab : ClickableContainer
                 RelativeSizeAxes = Axes.Both,
                 Size = new Vector2(0.4f),
                 FillMode = FillMode.Fit,
-                Icon = Icon
+                Icon = Icon,
+                Colour = Colour4.White.Opacity(0.75f)
+            },
+            popover = new TabPopover
+            {
+                Anchor = Anchor.CentreRight,
+                Origin = Anchor.CentreLeft,
+                PopoverAnchor = Anchor.CentreLeft,
+                Child = new SpriteText
+                {
+                    Text = AssociatedTab.ToString(),
+                    Colour = Colour4.White.Opacity(0.75f)
+                }
             }
         };
+    }
+
+    protected override void LoadComplete()
+    {
+        Action += () => game.SelectedTab.Value = AssociatedTab;
     }
 
     protected override bool OnHover(HoverEvent e)
     {
         background.FadeColour(hoveredColour, 250, Easing.OutCubic);
+        popover.Show();
         return base.OnHover(e);
     }
 
@@ -60,5 +83,6 @@ public sealed class Tab : ClickableContainer
     {
         base.OnHoverLost(e);
         background.FadeColour(VRCOSCColour.Invisible, 250, Easing.InCubic);
+        popover.Hide();
     }
 }

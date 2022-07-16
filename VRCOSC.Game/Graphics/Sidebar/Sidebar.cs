@@ -54,14 +54,14 @@ public sealed class Sidebar : Container
                     new Tab()
                     {
                         Height = tab_height,
-                        Icon = FontAwesome.Solid.ListUl,
-                        Action = () => game.SelectedTab.Value = Tabs.Modules
+                        AssociatedTab = Tabs.Modules,
+                        Icon = FontAwesome.Solid.ListUl
                     },
                     new Tab()
                     {
                         Height = tab_height,
-                        Icon = FontAwesome.Solid.Cog,
-                        Action = () => game.SelectedTab.Value = Tabs.Settings
+                        AssociatedTab = Tabs.Settings,
+                        Icon = FontAwesome.Solid.Cog
                     }
                 }
             }
