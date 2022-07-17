@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections.Generic;
 using osu.Framework.Allocation;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
@@ -14,6 +15,7 @@ namespace VRCOSC.Game.Graphics.ModuleListing;
 
 public sealed class Listing : Container
 {
+    private readonly List<Module> modules = new();
     private FillFlowContainer<ModuleCard> moduleCardFlow = null!;
 
     [Resolved]
@@ -63,13 +65,48 @@ public sealed class Listing : Container
             }
         };
 
-        moduleManager.Modules.ForEach(module => moduleCardFlow.Add(new ModuleCard(module)));
+        moduleManager.Modules.ForEach(module => modules.Add(module));
+
         moduleListingScreen.SearchTermFilter.BindValueChanged(_ => sort());
         moduleListingScreen.TypeFilter.BindValueChanged(_ => sort());
+        moduleListingScreen.SortFilter.BindValueChanged(_ => sort());
+
         sort();
     }
 
     private void sort()
+    {
+        moduleCardFlow.Clear();
+
+        var sortType = moduleListingScreen.SortFilter.Value.SortType;
+        var sortDirection = moduleListingScreen.SortFilter.Value.SortDirection;
+
+        switch (sortType)
+        {
+            case SortType.Title:
+                modules.Sort((m1, m2) => string.Compare(m1.Title, m2.Title, StringComparison.InvariantCultureIgnoreCase));
+                break;
+
+            case SortType.Type:
+                modules.Sort((m1, m2) => m1.ModuleType.CompareTo(m2.ModuleType));
+                break;
+
+            case SortType.Author:
+                modules.Sort((m1, m2) => string.Compare(m1.Author, m2.Author, StringComparison.InvariantCultureIgnoreCase));
+                break;
+
+            default:
+                throw new ArgumentOutOfRangeException(nameof(sortType), sortType, "Unknown sort type");
+        }
+
+        if (sortDirection.Equals(SortDirection.Descending) && !sortType.Equals(SortType.Type)) modules.Reverse();
+
+        modules.ForEach(module => moduleCardFlow.Add(new ModuleCard(module)));
+
+        filter();
+    }
+
+    private void filter()
     {
         var searchTerm = moduleListingScreen.SearchTermFilter.Value;
         var type = moduleListingScreen.TypeFilter.Value;

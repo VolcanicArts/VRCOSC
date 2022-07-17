@@ -10,10 +10,15 @@ using osuTK;
 
 namespace VRCOSC.Game.Graphics.ModuleListing;
 
-public sealed class Filter : Container
+public sealed class Filter : ClickableContainer
 {
-    public string Text { get; init; }
-    public IconUsage Icon { get; init; }
+    public SortType SortType { get; init; }
+
+    private SortDirection sortDirection = SortDirection.Ascending;
+    private SpriteIcon arrowIcon = null!;
+
+    [Resolved]
+    private ModuleListingScreen moduleListingScreen { get; set; } = null!;
 
     public Filter()
     {
@@ -62,7 +67,7 @@ public sealed class Filter : Container
                                 Origin = Anchor.CentreRight,
                                 TextAnchor = Anchor.CentreRight,
                                 RelativeSizeAxes = Axes.Both,
-                                Text = Text
+                                Text = SortType.ToString()
                             }
                         },
                         new Container
@@ -73,17 +78,32 @@ public sealed class Filter : Container
                             RelativeSizeAxes = Axes.Both,
                             Padding = new MarginPadding(2.5f),
                             Size = new Vector2(0.5f),
-                            Child = new SpriteIcon
+                            Child = arrowIcon = new SpriteIcon
                             {
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
                                 RelativeSizeAxes = Axes.Both,
-                                Icon = Icon
+                                Icon = FontAwesome.Solid.ArrowDown
                             }
                         }
                     }
                 }
             }
         };
+
+        Action += () =>
+        {
+            swapDirection();
+            moduleListingScreen.SortFilter.Value.SortType = SortType;
+            moduleListingScreen.SortFilter.Value.SortDirection = sortDirection;
+            moduleListingScreen.SortFilter.TriggerChange();
+        };
+    }
+
+    private void swapDirection()
+    {
+        sortDirection = sortDirection.Equals(SortDirection.Ascending) ? SortDirection.Descending : SortDirection.Ascending;
+
+        arrowIcon.RotateTo(sortDirection.Equals(SortDirection.Ascending) ? 180 : 0, 250, Easing.InOutQuart);
     }
 }

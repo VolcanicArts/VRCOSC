@@ -15,6 +15,7 @@ public sealed class ModuleListingScreen : Container
 {
     public Bindable<string> SearchTermFilter = new(string.Empty);
     public Bindable<ModuleType?> TypeFilter = new();
+    public Bindable<SortFilter> SortFilter = new(new SortFilter());
 
     public ModuleListingScreen()
     {
