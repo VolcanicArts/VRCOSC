@@ -99,7 +99,13 @@ public sealed class Listing : Container
                 throw new ArgumentOutOfRangeException(nameof(sortType), sortType, "Unknown sort type");
         }
 
-        if (sortDirection.Equals(SortDirection.Descending) && !sortType.Equals(SortType.Type)) modules.Reverse();
+        if (sortDirection.Equals(SortDirection.Descending))
+        {
+            if (!sortType.Equals(SortType.Type) || moduleListingScreen.TypeFilter.Value == null)
+            {
+                modules.Reverse();
+            }
+        }
 
         modules.ForEach(module => moduleCardFlow.Add(new ModuleCard(module)));
 
