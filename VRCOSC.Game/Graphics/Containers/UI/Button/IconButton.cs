@@ -86,8 +86,7 @@ public class IconButton : BasicButton
         {
             Anchor = Anchor.Centre,
             Origin = Anchor.Centre,
-            RelativeSizeAxes = Axes.Both,
-            Shadow = true
+            RelativeSizeAxes = Axes.Both
         };
     }
 }

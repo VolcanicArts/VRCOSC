@@ -3,10 +3,13 @@
 
 using System.Collections.Generic;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Graphics.Sprites;
 using osu.Framework.Localisation;
+using VRCOSC.Game.Graphics.Containers.UI.Button;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleListing;
@@ -36,6 +39,7 @@ public sealed class ModuleCard : Container, IFilterable
     private void load()
     {
         TextFlowContainer metadataTextFlow;
+        Container editButton;
         Children = new Drawable[]
         {
             new Box
@@ -53,29 +57,73 @@ public sealed class ModuleCard : Container, IFilterable
                 Width = 5,
                 Colour = module.Colour
             },
-            new Container
+            new FillFlowContainer
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.X,
                 AutoSizeAxes = Axes.Y,
+                Direction = FillDirection.Horizontal,
                 Padding = new MarginPadding
                 {
                     Left = 5
                 },
                 Children = new Drawable[]
                 {
+                    new Container
+                    {
+                        Anchor = Anchor.CentreLeft,
+                        Origin = Anchor.CentreLeft,
+                        RelativeSizeAxes = Axes.Both,
+                        FillMode = FillMode.Fit,
+                        Padding = new MarginPadding(7),
+                        Child = new IconButton
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativeSizeAxes = Axes.Both,
+                            IconPadding = 5,
+                            Stateful = true,
+                            Masking = true,
+                            CornerRadius = 5,
+                            State = (BindableBool)module.Enabled.GetBoundCopy()
+                        }
+                    },
                     metadataTextFlow = new TextFlowContainer
                     {
-                        Anchor = Anchor.TopLeft,
-                        Origin = Anchor.TopLeft,
+                        Anchor = Anchor.CentreLeft,
+                        Origin = Anchor.CentreLeft,
                         RelativeSizeAxes = Axes.X,
                         AutoSizeAxes = Axes.Y,
-                        Padding = new MarginPadding(5)
+                        Padding = new MarginPadding
+                        {
+                            Vertical = 5
+                        }
                     }
                 }
-            }
+            },
+            editButton = new Container
+            {
+                Anchor = Anchor.CentreRight,
+                Origin = Anchor.CentreRight,
+                RelativeSizeAxes = Axes.Both,
+                FillMode = FillMode.Fit,
+                Padding = new MarginPadding(7),
+                Child = new IconButton
+                {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    RelativeSizeAxes = Axes.Both,
+                    Icon = FontAwesome.Solid.Get(0xF013),
+                    IconPadding = 5,
+                    CornerRadius = 5,
+                    //Action = () => screenManager.EditModule(sourceModule),
+                    BackgroundColour = VRCOSCColour.Gray5
+                }
+            },
         };
+
+        editButton.Alpha = module.HasAttributes ? 1 : 0;
 
         metadataTextFlow.AddText(module.Title, t =>
         {
