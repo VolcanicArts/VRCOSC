@@ -6,13 +6,15 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleListing;
 
 [Cached]
 public sealed class ModuleListingScreen : Container
 {
-    public Bindable<string> SearchString = new();
+    public Bindable<string> SearchTermFilter = new(string.Empty);
+    public Bindable<ModuleType?> TypeFilter = new();
 
     public ModuleListingScreen()
     {

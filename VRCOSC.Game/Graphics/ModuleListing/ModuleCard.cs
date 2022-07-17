@@ -1,26 +1,24 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Collections.Generic;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
-using osu.Framework.Localisation;
 using VRCOSC.Game.Graphics.Containers.UI.Button;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleListing;
 
-public sealed class ModuleCard : Container, IFilterable
+public sealed class ModuleCard : Container
 {
-    private readonly Module module;
+    public readonly Module Module;
 
     public ModuleCard(Module module)
     {
-        this.module = module;
+        Module = module;
 
         Anchor = Anchor.TopCentre;
         Origin = Anchor.TopCentre;
@@ -28,11 +26,6 @@ public sealed class ModuleCard : Container, IFilterable
         AutoSizeAxes = Axes.Y;
         Masking = true;
         CornerRadius = 5;
-
-        FilterTerms = new List<LocalisableString>
-        {
-            module.Title
-        };
     }
 
     [BackgroundDependencyLoader]
@@ -55,7 +48,7 @@ public sealed class ModuleCard : Container, IFilterable
                 Origin = Anchor.CentreLeft,
                 RelativeSizeAxes = Axes.Y,
                 Width = 5,
-                Colour = module.Colour
+                Colour = Module.Colour
             },
             new FillFlowContainer
             {
@@ -86,7 +79,7 @@ public sealed class ModuleCard : Container, IFilterable
                             Stateful = true,
                             Masking = true,
                             CornerRadius = 5,
-                            State = (BindableBool)module.Enabled.GetBoundCopy()
+                            State = (BindableBool)Module.Enabled.GetBoundCopy()
                         }
                     },
                     metadataTextFlow = new TextFlowContainer
@@ -123,25 +116,16 @@ public sealed class ModuleCard : Container, IFilterable
             },
         };
 
-        editButton.Alpha = module.HasAttributes ? 1 : 0;
+        editButton.Alpha = Module.HasAttributes ? 1 : 0;
 
-        metadataTextFlow.AddText(module.Title, t =>
+        metadataTextFlow.AddText(Module.Title, t =>
         {
             t.Font = FrameworkFont.Regular.With(size: 25);
         });
-        metadataTextFlow.AddParagraph(module.Description, t =>
+        metadataTextFlow.AddParagraph(Module.Description, t =>
         {
             t.Font = FrameworkFont.Regular.With(size: 20);
             t.Colour = VRCOSCColour.GrayC;
         });
     }
-
-    public IEnumerable<LocalisableString> FilterTerms { get; }
-
-    public bool MatchingFilter
-    {
-        set => Alpha = value ? 1 : 0;
-    }
-
-    public bool FilteringActive { get; set; }
 }

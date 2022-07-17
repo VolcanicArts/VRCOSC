@@ -21,8 +21,9 @@ public sealed class TypeFilter : Container
     }
 
     [BackgroundDependencyLoader]
-    private void load()
+    private void load(ModuleListingScreen moduleListingScreen)
     {
+        VRCOSCDropdown<Group> dropdown;
         Children = new Drawable[]
         {
             new Container
@@ -67,7 +68,7 @@ public sealed class TypeFilter : Container
                             Origin = Anchor.Centre,
                             RelativeSizeAxes = Axes.Both,
                             Padding = new MarginPadding(5),
-                            Child = new VRCOSCDropdown<Group>
+                            Child = dropdown = new VRCOSCDropdown<Group>
                             {
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.TopCentre,
@@ -79,6 +80,8 @@ public sealed class TypeFilter : Container
                 }
             }
         };
+
+        dropdown.Current.BindValueChanged(group => moduleListingScreen.TypeFilter.Value = groupToType(group.NewValue));
     }
 
     private enum Group
@@ -90,7 +93,7 @@ public sealed class TypeFilter : Container
         Random
     }
 
-    private ModuleType? groupToType(Group group)
+    private static ModuleType? groupToType(Group group)
     {
         return group switch
         {

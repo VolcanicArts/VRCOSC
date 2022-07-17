@@ -83,7 +83,7 @@ public sealed class Header : Container
                                 RelativeSizeAxes = Axes.Both,
                                 CornerRadius = 5,
                                 PlaceholderText = "Search",
-                                Current = moduleListingScreen.SearchString
+                                Current = moduleListingScreen.SearchTermFilter
                             }
                         }
                     }

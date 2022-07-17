@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using osu.Framework.Allocation;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
@@ -13,10 +14,13 @@ namespace VRCOSC.Game.Graphics.ModuleListing;
 
 public sealed class Listing : Container
 {
-    private SearchContainer<ModuleCard> moduleCardFlow = null!;
+    private FillFlowContainer<ModuleCard> moduleCardFlow = null!;
 
     [Resolved]
     private ModuleManager moduleManager { get; set; }
+
+    [Resolved]
+    private ModuleListingScreen moduleListingScreen { get; set; }
 
     public Listing()
     {
@@ -32,7 +36,7 @@ public sealed class Listing : Container
     }
 
     [BackgroundDependencyLoader]
-    private void load(ModuleListingScreen moduleListingScreen)
+    private void load()
     {
         Children = new Drawable[]
         {
@@ -43,7 +47,7 @@ public sealed class Listing : Container
                 RelativeSizeAxes = Axes.Both,
                 ScrollbarVisible = true,
                 ClampExtension = 0,
-                Child = moduleCardFlow = new SearchContainer<ModuleCard>
+                Child = moduleCardFlow = new FillFlowContainer<ModuleCard>
                 {
                     Anchor = Anchor.TopCentre,
                     Origin = Anchor.TopCentre,
@@ -60,6 +64,25 @@ public sealed class Listing : Container
         };
 
         moduleManager.Modules.ForEach(module => moduleCardFlow.Add(new ModuleCard(module)));
-        moduleListingScreen.SearchString.BindValueChanged(searchString => moduleCardFlow.SearchTerm = searchString.NewValue);
+        moduleListingScreen.SearchTermFilter.BindValueChanged(_ => sort());
+        moduleListingScreen.TypeFilter.BindValueChanged(_ => sort());
+        sort();
+    }
+
+    private void sort()
+    {
+        var searchTerm = moduleListingScreen.SearchTermFilter.Value;
+        var type = moduleListingScreen.TypeFilter.Value;
+
+        moduleCardFlow.ForEach(moduleCard =>
+        {
+            var hasValidTitle = moduleCard.Module.Title.Contains(searchTerm, StringComparison.InvariantCultureIgnoreCase);
+            var hasValidType = type == null || moduleCard.Module.ModuleType.Equals(type);
+
+            if (hasValidTitle && hasValidType)
+                moduleCard.Show();
+            else
+                moduleCard.Hide();
+        });
     }
 }
