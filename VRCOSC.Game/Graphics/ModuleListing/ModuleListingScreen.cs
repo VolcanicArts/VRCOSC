@@ -47,7 +47,10 @@ public sealed class ModuleListingScreen : Container
                 {
                     new Drawable[]
                     {
-                        new Header()
+                        new Header
+                        {
+                            Depth = float.MinValue
+                        }
                     },
                     new Drawable[]
                     {

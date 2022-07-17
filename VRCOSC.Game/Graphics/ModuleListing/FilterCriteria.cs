@@ -4,29 +4,34 @@
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using VRCOSC.Game.Graphics.Containers.UI;
+using osu.Framework.Graphics.Shapes;
+using osu.Framework.Graphics.Sprites;
 
 namespace VRCOSC.Game.Graphics.ModuleListing;
 
-public sealed class Header : Container
+public sealed class FilterCriteria : Container
 {
-    public Header()
+    public FilterCriteria()
     {
         Anchor = Anchor.Centre;
         Origin = Anchor.Centre;
         RelativeSizeAxes = Axes.Both;
-        Padding = new MarginPadding
-        {
-            Top = 5,
-            Bottom = 2.5f
-        };
+        Masking = true;
+        CornerRadius = 5;
     }
 
     [BackgroundDependencyLoader]
-    private void load(ModuleListingScreen moduleListingScreen)
+    private void load()
     {
         Children = new Drawable[]
         {
+            new Box
+            {
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                RelativeSizeAxes = Axes.Both,
+                Colour = VRCOSCColour.Gray3
+            },
             new GridContainer
             {
                 Anchor = Anchor.Centre,
@@ -34,9 +39,10 @@ public sealed class Header : Container
                 RelativeSizeAxes = Axes.Both,
                 ColumnDimensions = new[]
                 {
-                    new Dimension(GridSizeMode.Relative, 0.5f),
                     new Dimension(GridSizeMode.Relative, 0.25f),
                     new Dimension(GridSizeMode.Relative, 0.25f),
+                    new Dimension(GridSizeMode.Relative, 0.25f),
+                    new Dimension(GridSizeMode.Relative, 0.25f)
                 },
                 Content = new[]
                 {
@@ -49,10 +55,14 @@ public sealed class Header : Container
                             RelativeSizeAxes = Axes.Both,
                             Padding = new MarginPadding
                             {
-                                Left = 5,
-                                Right = 2.5f
+                                Vertical = 5,
+                                Horizontal = 20
                             },
-                            Child = new FilterCriteria()
+                            Child = new Filter
+                            {
+                                Text = "Title",
+                                Icon = FontAwesome.Solid.ArrowUp
+                            }
                         },
                         new Container
                         {
@@ -61,10 +71,14 @@ public sealed class Header : Container
                             RelativeSizeAxes = Axes.Both,
                             Padding = new MarginPadding
                             {
-                                Left = 2.5f,
-                                Right = 2.5f
+                                Vertical = 5,
+                                Horizontal = 20
                             },
-                            Child = new TypeFilter()
+                            Child = new Filter
+                            {
+                                Text = "Title",
+                                Icon = FontAwesome.Solid.ArrowUp
+                            }
                         },
                         new Container
                         {
@@ -73,17 +87,29 @@ public sealed class Header : Container
                             RelativeSizeAxes = Axes.Both,
                             Padding = new MarginPadding
                             {
-                                Left = 2.5f,
-                                Right = 5
+                                Vertical = 5,
+                                Horizontal = 20
                             },
-                            Child = new VRCOSCTextBox
+                            Child = new Filter
                             {
-                                Anchor = Anchor.Centre,
-                                Origin = Anchor.Centre,
-                                RelativeSizeAxes = Axes.Both,
-                                CornerRadius = 5,
-                                PlaceholderText = "Search",
-                                Current = moduleListingScreen.SearchString
+                                Text = "Title",
+                                Icon = FontAwesome.Solid.ArrowUp
+                            }
+                        },
+                        new Container
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativeSizeAxes = Axes.Both,
+                            Padding = new MarginPadding
+                            {
+                                Vertical = 5,
+                                Horizontal = 20
+                            },
+                            Child = new Filter
+                            {
+                                Text = "Title",
+                                Icon = FontAwesome.Solid.ArrowUp
                             }
                         }
                     }
