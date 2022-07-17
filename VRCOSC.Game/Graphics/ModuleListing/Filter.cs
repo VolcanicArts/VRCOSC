@@ -14,7 +14,7 @@ public sealed class Filter : ClickableContainer
 {
     public SortType SortType { get; init; }
 
-    private SortDirection sortDirection = SortDirection.Ascending;
+    private SortDirection sortDirection = SortDirection.Descending;
     private SpriteIcon arrowIcon = null!;
 
     [Resolved]
