@@ -70,15 +70,11 @@ public sealed class ModuleCard : Container
                         RelativeSizeAxes = Axes.Both,
                         FillMode = FillMode.Fit,
                         Padding = new MarginPadding(7),
-                        Child = new IconButton
+                        Child = new ToggleButton
                         {
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
                             RelativeSizeAxes = Axes.Both,
-                            IconPadding = 5,
-                            Stateful = true,
-                            Masking = true,
-                            CornerRadius = 5,
                             State = (BindableBool)Module.Enabled.GetBoundCopy()
                         }
                     },
