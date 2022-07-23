@@ -87,7 +87,7 @@ public sealed class TypeFilter : Container
 
     private enum Group
     {
-        None,
+        All,
         General,
         Health,
         Integrations,
@@ -98,7 +98,7 @@ public sealed class TypeFilter : Container
     {
         return group switch
         {
-            Group.None => null,
+            Group.All => null,
             Group.General => ModuleType.General,
             Group.Health => ModuleType.Health,
             Group.Integrations => ModuleType.Integrations,
