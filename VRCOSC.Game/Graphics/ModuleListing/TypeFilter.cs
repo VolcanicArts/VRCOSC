@@ -65,13 +65,12 @@ public sealed class TypeFilter : Container
                         },
                         new Container
                         {
-                            Anchor = Anchor.TopCentre,
+                            Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
                             RelativeSizeAxes = Axes.Both,
-                            Padding = new MarginPadding(5),
                             Child = dropdown = new VRCOSCDropdown<Group>
                             {
-                                Anchor = Anchor.Centre,
+                                Anchor = Anchor.TopCentre,
                                 Origin = Anchor.TopCentre,
                                 RelativeSizeAxes = Axes.X,
                                 Items = Enum.GetValues<Group>()

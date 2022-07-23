@@ -17,8 +17,7 @@ public sealed class Header : Container
         RelativeSizeAxes = Axes.Both;
         Padding = new MarginPadding
         {
-            Top = 5,
-            Bottom = 2.5f
+            Vertical = 5
         };
     }
 
@@ -48,7 +47,7 @@ public sealed class Header : Container
                             RelativeSizeAxes = Axes.Both,
                             Padding = new MarginPadding
                             {
-                                Left = 2.5f,
+                                Left = 5,
                                 Right = 2.5f
                             },
                             Child = new TypeFilter()
