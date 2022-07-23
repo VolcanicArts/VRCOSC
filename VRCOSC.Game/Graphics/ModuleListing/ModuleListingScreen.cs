@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
@@ -16,6 +17,10 @@ public sealed class ModuleListingScreen : Container
     public Bindable<string> SearchTermFilter = new(string.Empty);
     public Bindable<ModuleType?> TypeFilter = new();
 
+    // for some reason we can't use a nullable bindable here
+    public Module? EditingModule;
+    public Action<Module?>? OnEditingModuleChange;
+
     public ModuleListingScreen()
     {
         Anchor = Anchor.Centre;
@@ -28,38 +33,64 @@ public sealed class ModuleListingScreen : Container
     {
         Children = new Drawable[]
         {
-            new Box
+            new ModuleListing(),
+            new ModuleEditing()
+        };
+    }
+
+    public void EditModule(Module? module)
+    {
+        EditingModule = module;
+        OnEditingModuleChange?.Invoke(module);
+    }
+
+    private sealed class ModuleListing : Container
+    {
+        public ModuleListing()
+        {
+            Anchor = Anchor.Centre;
+            Origin = Anchor.Centre;
+            RelativeSizeAxes = Axes.Both;
+        }
+
+        [BackgroundDependencyLoader]
+        private void load()
+        {
+            Children = new Drawable[]
             {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                RelativeSizeAxes = Axes.Both,
-                Colour = VRCOSCColour.Gray5
-            },
-            new GridContainer
-            {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                RelativeSizeAxes = Axes.Both,
-                RowDimensions = new[]
+                new Box
                 {
-                    new Dimension(GridSizeMode.Absolute, 50),
-                    new Dimension(),
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    RelativeSizeAxes = Axes.Both,
+                    Colour = VRCOSCColour.Gray5
                 },
-                Content = new[]
+                new GridContainer
                 {
-                    new Drawable[]
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    RelativeSizeAxes = Axes.Both,
+                    RowDimensions = new[]
                     {
-                        new Header
-                        {
-                            Depth = float.MinValue
-                        }
+                        new Dimension(GridSizeMode.Absolute, 50),
+                        new Dimension(),
                     },
-                    new Drawable[]
+                    Content = new[]
                     {
-                        new Listing()
+                        new Drawable[]
+                        {
+                            new Header
+                            {
+                                Depth = float.MinValue
+                            }
+                        },
+                        new Drawable[]
+                        {
+                            new Listing()
+                        }
                     }
                 }
-            }
-        };
+            };
+        }
     }
 }

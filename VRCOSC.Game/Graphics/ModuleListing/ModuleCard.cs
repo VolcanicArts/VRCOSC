@@ -16,6 +16,9 @@ public sealed class ModuleCard : Container
 {
     public readonly Module Module;
 
+    [Resolved]
+    private ModuleListingScreen moduleListingScreen { get; set; }
+
     public ModuleCard(Module module)
     {
         Module = module;
@@ -106,7 +109,7 @@ public sealed class ModuleCard : Container
                     Icon = FontAwesome.Solid.Get(0xF013),
                     IconPadding = 5,
                     CornerRadius = 5,
-                    //Action = () => screenManager.EditModule(sourceModule),
+                    Action = () => moduleListingScreen.EditModule(Module),
                     BackgroundColour = VRCOSCColour.Gray5
                 }
             },
