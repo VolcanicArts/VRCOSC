@@ -35,25 +35,12 @@ public sealed class Header : Container
                 ColumnDimensions = new[]
                 {
                     new Dimension(GridSizeMode.Relative, 0.5f),
-                    new Dimension(GridSizeMode.Relative, 0.25f),
-                    new Dimension(GridSizeMode.Relative, 0.25f),
+                    new Dimension(GridSizeMode.Relative, 0.5f)
                 },
                 Content = new[]
                 {
                     new Drawable[]
                     {
-                        new Container
-                        {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
-                            RelativeSizeAxes = Axes.Both,
-                            Padding = new MarginPadding
-                            {
-                                Left = 5,
-                                Right = 2.5f
-                            },
-                            Child = new FilterCriteria()
-                        },
                         new Container
                         {
                             Anchor = Anchor.Centre,
