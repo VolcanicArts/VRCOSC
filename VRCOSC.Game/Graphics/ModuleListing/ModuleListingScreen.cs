@@ -75,6 +75,7 @@ public sealed class ModuleListingScreen : Container
                     {
                         new Dimension(GridSizeMode.Absolute, 50),
                         new Dimension(),
+                        new Dimension(GridSizeMode.Absolute, 50)
                     },
                     Content = new[]
                     {
@@ -88,6 +89,10 @@ public sealed class ModuleListingScreen : Container
                         new Drawable[]
                         {
                             new Listing()
+                        },
+                        new Drawable[]
+                        {
+                            new Footer()
                         }
                     }
                 }
