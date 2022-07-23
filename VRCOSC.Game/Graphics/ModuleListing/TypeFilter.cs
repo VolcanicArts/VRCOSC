@@ -48,7 +48,7 @@ public sealed class TypeFilter : Container
                 RelativeSizeAxes = Axes.Both,
                 ColumnDimensions = new[]
                 {
-                    new Dimension(GridSizeMode.Relative, 1f / 3f),
+                    new Dimension(GridSizeMode.Relative, 0.2f),
                     new Dimension(),
                 },
                 Content = new[]
@@ -60,6 +60,7 @@ public sealed class TypeFilter : Container
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
                             TextAnchor = Anchor.Centre,
+                            RelativeSizeAxes = Axes.Both,
                             Text = "Group By:"
                         },
                         new Container
