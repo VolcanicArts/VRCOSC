@@ -7,6 +7,7 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using VRCOSC.Game.Graphics.ModuleEditing;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleListing;
@@ -34,7 +35,7 @@ public sealed class ModuleListingScreen : Container
         Children = new Drawable[]
         {
             new ModuleListing(),
-            new ModuleEditing()
+            new ModuleEditingScreen()
         };
     }
 

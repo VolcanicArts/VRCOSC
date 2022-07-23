@@ -7,7 +7,7 @@ using osu.Framework.Bindables;
 using VRCOSC.Game.Graphics.Containers.UI;
 using VRCOSC.Game.Modules;
 
-namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Attributes.Slider;
+namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes.Slider;
 
 public class SliderAttributeCard<T> : AttributeCard where T : struct, IComparable<T>, IConvertible, IEquatable<T>
 {

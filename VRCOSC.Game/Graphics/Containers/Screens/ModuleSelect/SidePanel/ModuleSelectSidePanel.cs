@@ -26,7 +26,7 @@ public sealed class ModuleSelectSidePanel : Container
     }
 
     [BackgroundDependencyLoader]
-    private void load(VRCOSCConfigManager configManager, ScreenManager screenManager)
+    private void load(VRCOSCConfigManager configManager)
     {
         IconButton runButton;
         Children = new Drawable[]
@@ -73,7 +73,7 @@ public sealed class ModuleSelectSidePanel : Container
                                 IconPadding = 5,
                                 BackgroundColour = VRCOSCColour.GreenDark,
                                 Icon = FontAwesome.Solid.Play,
-                                Action = screenManager.ShowTerminal
+                                //Action = screenManager.ShowTerminal
                             }
                         }
                     }

@@ -11,7 +11,7 @@ using osuTK;
 using VRCOSC.Game.Graphics.Containers.UI.Button;
 using VRCOSC.Game.Modules;
 
-namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Attributes;
+namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes;
 
 public abstract class AttributeCard : Container
 {

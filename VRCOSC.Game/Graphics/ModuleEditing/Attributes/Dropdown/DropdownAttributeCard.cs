@@ -9,7 +9,7 @@ using osu.Framework.Graphics;
 using VRCOSC.Game.Graphics.Containers.UI;
 using VRCOSC.Game.Modules;
 
-namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Attributes.Dropdown;
+namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes.Dropdown;
 
 public class DropdownAttributeCard<T> : AttributeCard where T : Enum
 {

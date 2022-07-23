@@ -8,13 +8,13 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
-using VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Attributes.Dropdown;
-using VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Attributes.Slider;
-using VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Attributes.Text;
-using VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Attributes.Toggle;
+using VRCOSC.Game.Graphics.ModuleEditing.Attributes.Dropdown;
+using VRCOSC.Game.Graphics.ModuleEditing.Attributes.Slider;
+using VRCOSC.Game.Graphics.ModuleEditing.Attributes.Text;
+using VRCOSC.Game.Graphics.ModuleEditing.Attributes.Toggle;
 using VRCOSC.Game.Modules;
 
-namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing;
+namespace VRCOSC.Game.Graphics.ModuleEditing;
 
 public sealed class AttributeFlow : FillFlowContainer
 {

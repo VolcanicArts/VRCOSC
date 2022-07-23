@@ -2,20 +2,26 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Input.Events;
 using osuTK.Input;
+using VRCOSC.Game.Graphics.ModuleListing;
+using VRCOSC.Game.Modules;
 
-namespace VRCOSC.Game.Graphics.ModuleListing;
+namespace VRCOSC.Game.Graphics.ModuleEditing;
 
-public sealed class ModuleEditing : Container
+public sealed class ModuleEditingScreen : Container
 {
     [Resolved]
     private ModuleListingScreen moduleListingScreen { get; set; }
 
-    public ModuleEditing()
+    [Cached]
+    public Bindable<Module?> SourceModule { get; } = new();
+
+    public ModuleEditingScreen()
     {
         Anchor = Anchor.Centre;
         Origin = Anchor.Centre;
@@ -34,7 +40,13 @@ public sealed class ModuleEditing : Container
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
-                Colour = VRCOSCColour.Gray5
+                Colour = VRCOSCColour.Gray4
+            },
+            new ModuleEditingContent
+            {
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                RelativeSizeAxes = Axes.Both
             }
         };
 
@@ -44,6 +56,8 @@ public sealed class ModuleEditing : Container
                 this.MoveToX(1, 1000, Easing.InQuint);
             else
                 this.MoveToX(0, 1000, Easing.OutQuint);
+
+            SourceModule.Value = module;
         };
     }
 

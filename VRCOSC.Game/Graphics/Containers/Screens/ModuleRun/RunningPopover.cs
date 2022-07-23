@@ -15,9 +15,6 @@ namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleRun;
 
 public sealed class RunningPopover : Container
 {
-    [Resolved]
-    private ScreenManager ScreenManager { get; set; }
-
     private TerminalContainer Terminal;
     private ParameterContainer Parameters;
 
@@ -83,7 +80,7 @@ public sealed class RunningPopover : Container
                         RelativeSizeAxes = Axes.Both,
                         CornerRadius = 10,
                         Icon = FontAwesome.Solid.Get(0xf00d),
-                        Action = ScreenManager.HideTerminal
+                        //Action = ScreenManager.HideTerminal
                     }
                 }
             }
@@ -100,7 +97,7 @@ public sealed class RunningPopover : Container
     {
         if (e.Key != Key.Escape) return base.OnKeyDown(e);
 
-        ScreenManager.HideTerminal();
+        //ScreenManager.HideTerminal();
         return true;
     }
 

@@ -6,7 +6,7 @@ using osu.Framework.Graphics;
 using VRCOSC.Game.Graphics.Containers.UI;
 using VRCOSC.Game.Modules;
 
-namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Attributes.Slider;
+namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes.Slider;
 
 public class IntSliderAttributeCard : SliderAttributeCard<int>
 {

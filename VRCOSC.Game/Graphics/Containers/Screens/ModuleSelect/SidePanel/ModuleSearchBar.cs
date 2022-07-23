@@ -20,7 +20,7 @@ public sealed class ModuleSearchBar : Container
     }
 
     [BackgroundDependencyLoader]
-    private void load(ModuleSelection moduleSelection)
+    private void load()
     {
         Children = new Drawable[]
         {
@@ -62,7 +62,7 @@ public sealed class ModuleSearchBar : Container
                                 Origin = Anchor.BottomCentre,
                                 RelativeSizeAxes = Axes.Both,
                                 PlaceholderText = "Search...",
-                                Current = moduleSelection.SearchString
+                                //Current = moduleSelection.SearchString
                             },
                         },
                         new Container

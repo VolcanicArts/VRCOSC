@@ -4,7 +4,7 @@
 using osu.Framework.Bindables;
 using VRCOSC.Game.Modules;
 
-namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Attributes.Text;
+namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes.Text;
 
 public class IntTextAttributeCard : TextAttributeCard
 {

@@ -7,7 +7,7 @@ using osu.Framework.Graphics;
 using VRCOSC.Game.Graphics.Containers.UI;
 using VRCOSC.Game.Modules;
 
-namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Attributes.Text;
+namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes.Text;
 
 public class TextAttributeCard : AttributeCard
 {
@@ -27,6 +27,8 @@ public class TextAttributeCard : AttributeCard
             Origin = Anchor.TopCentre,
             RelativeSizeAxes = Axes.X,
             Height = 40,
+            Masking = true,
+            CornerRadius = 5,
             Text = AttributeData.Attribute.Value.ToString()
         });
 

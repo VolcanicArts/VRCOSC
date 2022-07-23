@@ -9,7 +9,7 @@ using osu.Framework.Graphics.Sprites;
 using VRCOSC.Game.Graphics.Containers.UI.Button;
 using VRCOSC.Game.Modules;
 
-namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing.Attributes.Toggle;
+namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes.Toggle;
 
 public class ToggleAttributeCard : AttributeCard
 {

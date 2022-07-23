@@ -10,14 +10,15 @@ using osu.Framework.Graphics.Sprites;
 using osuTK;
 using VRCOSC.Game.Graphics.Containers.UI.Button;
 using VRCOSC.Game.Graphics.Drawables;
+using VRCOSC.Game.Graphics.ModuleListing;
 using VRCOSC.Game.Modules;
 
-namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleEditing;
+namespace VRCOSC.Game.Graphics.ModuleEditing;
 
-public class ModuleEditContent : Container
+public class ModuleEditingContent : Container
 {
     [BackgroundDependencyLoader]
-    private void load(ScreenManager screenManager, Bindable<Module> sourceModule)
+    private void load(ModuleListingScreen moduleListingScreen, Bindable<Module?> sourceModule)
     {
         TextFlowContainer metadataTextFlow;
         LineSeparator settingsSeparator;
@@ -43,7 +44,7 @@ public class ModuleEditContent : Container
                     RelativeSizeAxes = Axes.Both,
                     CornerRadius = 10,
                     Icon = FontAwesome.Solid.Get(0xf00d),
-                    Action = screenManager.FinishEditingModule
+                    Action = () => moduleListingScreen.EditModule(null)
                 },
             },
             scrollContainer = new BasicScrollContainer
