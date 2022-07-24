@@ -22,14 +22,7 @@ public sealed class Tab : ClickableContainer
     public IconUsage Icon { get; init; }
 
     [Resolved]
-    private VRCOSCGame game { get; set; }
-
-    public Tab()
-    {
-        Anchor = Anchor.TopCentre;
-        Origin = Anchor.TopCentre;
-        RelativeSizeAxes = Axes.X;
-    }
+    private VRCOSCGame game { get; set; } = null!;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -61,7 +54,7 @@ public sealed class Tab : ClickableContainer
                 Child = new SpriteText
                 {
                     Text = AssociatedTab.ToString(),
-                    Colour = Colour4.White.Opacity(0.75f)
+                    Colour = Colour4.White
                 }
             }
         };

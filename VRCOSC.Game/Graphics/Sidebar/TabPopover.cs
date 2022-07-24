@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Extensions.EnumExtensions;
@@ -15,13 +15,13 @@ public sealed class TabPopover : Popover
     {
         Background.Colour = VRCOSCColour.Gray3;
         Content.Padding = new MarginPadding(10);
+        RelativePositionAxes = Axes.X;
     }
 
     protected override void LoadComplete()
     {
         base.LoadComplete();
         Body.Masking = true;
-        Body.MaskingSmoothness = 0;
         Body.CornerRadius = 5;
     }
 
@@ -44,10 +44,12 @@ public sealed class TabPopover : Popover
     protected override void PopIn()
     {
         this.FadeIn(200, Easing.OutQuart);
+        this.MoveToX(0, 200, Easing.OutQuart);
     }
 
     protected override void PopOut()
     {
         this.FadeOut(200, Easing.OutQuart);
+        this.MoveToX(0.25f, 200, Easing.OutQuart);
     }
 }

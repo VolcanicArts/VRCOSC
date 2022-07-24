@@ -1,7 +1,9 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Collections.Generic;
 using osu.Framework.Allocation;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -10,26 +12,22 @@ using osuTK;
 
 namespace VRCOSC.Game.Graphics.Sidebar;
 
-public sealed class Sidebar : Container
+public class TabBar : Container
 {
-    private const int tab_height = 80;
+    protected virtual int TabHeight => 80;
 
-    private FillFlowContainer<Tab> tabsFlow = null!;
-    private Container selectedIndicator = null!;
-
-    [Resolved]
-    private VRCOSCGame game { get; set; } = null!;
-
-    public Sidebar()
+    protected virtual IReadOnlyDictionary<Tabs, IconUsage> TabLookup => new Dictionary<Tabs, IconUsage>()
     {
-        Anchor = Anchor.Centre;
-        Origin = Anchor.Centre;
-        RelativeSizeAxes = Axes.Both;
-    }
+        { Tabs.Modules, FontAwesome.Solid.ListUl },
+        { Tabs.Settings, FontAwesome.Solid.Cog }
+    };
 
     [BackgroundDependencyLoader]
-    private void load()
+    private void load(VRCOSCGame game)
     {
+        FillFlowContainer<Tab> tabsFlow;
+        Container selectedIndicator;
+
         Children = new Drawable[]
         {
             new Box
@@ -41,52 +39,39 @@ public sealed class Sidebar : Container
             },
             selectedIndicator = new SelectionIndicator
             {
-                Height = tab_height
+                Anchor = Anchor.TopCentre,
+                Origin = Anchor.TopCentre,
+                RelativeSizeAxes = Axes.X,
+                Height = TabHeight
             },
             tabsFlow = new FillFlowContainer<Tab>
             {
                 Anchor = Anchor.TopCentre,
                 Origin = Anchor.TopCentre,
                 RelativeSizeAxes = Axes.Both,
-                Direction = FillDirection.Vertical,
-                Children = new[]
-                {
-                    new Tab()
-                    {
-                        Height = tab_height,
-                        AssociatedTab = Tabs.Modules,
-                        Icon = FontAwesome.Solid.ListUl
-                    },
-                    new Tab()
-                    {
-                        Height = tab_height,
-                        AssociatedTab = Tabs.Settings,
-                        Icon = FontAwesome.Solid.Cog
-                    }
-                }
+                Direction = FillDirection.Vertical
             }
         };
-    }
 
-    protected override void LoadComplete()
-    {
-        game.SelectedTab.BindValueChanged(id => selectTab(id.NewValue), true);
-    }
+        TabLookup.ForEach(pair =>
+        {
+            var (tabName, icon) = pair;
+            tabsFlow.Add(new Tab
+            {
+                Anchor = Anchor.TopCentre,
+                Origin = Anchor.TopCentre,
+                RelativeSizeAxes = Axes.X,
+                Height = TabHeight,
+                AssociatedTab = tabName,
+                Icon = icon
+            });
+        });
 
-    private void selectTab(Tabs tab)
-    {
-        selectedIndicator.MoveToY(tabsFlow[(int)tab].Position.Y, 100, Easing.InOutCubic);
+        game.SelectedTab.BindValueChanged(id => selectedIndicator.MoveToY(tabsFlow[(int)id.NewValue].Position.Y, 100, Easing.InOutCubic), true);
     }
 
     private sealed class SelectionIndicator : Container
     {
-        public SelectionIndicator()
-        {
-            Anchor = Anchor.TopCentre;
-            Origin = Anchor.TopCentre;
-            RelativeSizeAxes = Axes.X;
-        }
-
         [BackgroundDependencyLoader]
         private void load()
         {

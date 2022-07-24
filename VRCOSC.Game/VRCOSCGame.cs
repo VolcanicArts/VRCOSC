@@ -47,7 +47,12 @@ public abstract class VRCOSCGame : VRCOSCGameBase
                 {
                     new Drawable[]
                     {
-                        new Sidebar(),
+                        new TabBar
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativeSizeAxes = Axes.Both
+                        },
                         screenHolder = new Container
                         {
                             Anchor = Anchor.Centre,
