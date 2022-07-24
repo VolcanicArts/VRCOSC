@@ -7,7 +7,6 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Input.Events;
-using osuTK.Input;
 using VRCOSC.Game.Graphics.ModuleListing;
 using VRCOSC.Game.Modules;
 
@@ -72,14 +71,6 @@ public sealed class ModuleEditingScreen : Container
 
             SourceModule.Value = module;
         };
-    }
-
-    protected override bool OnKeyDown(KeyDownEvent e)
-    {
-        if (e.Key != Key.Escape) return base.OnKeyDown(e);
-
-        moduleListingScreen.EditModule(null);
-        return true;
     }
 
     protected override bool OnMouseDown(MouseDownEvent e) => true;

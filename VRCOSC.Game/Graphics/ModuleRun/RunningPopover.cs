@@ -8,7 +8,6 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
 using osuTK;
-using osuTK.Input;
 using VRCOSC.Game.Graphics.Containers.UI.Button;
 using VRCOSC.Game.Modules;
 
@@ -109,14 +108,6 @@ public sealed class RunningPopover : Container
     {
         Terminal.ClearTerminal();
         Parameters.ClearParameters();
-    }
-
-    protected override bool OnKeyDown(KeyDownEvent e)
-    {
-        if (e.Key != Key.Escape) return base.OnKeyDown(e);
-
-        endRun();
-        return true;
     }
 
     protected override bool OnMouseDown(MouseDownEvent e) => true;
