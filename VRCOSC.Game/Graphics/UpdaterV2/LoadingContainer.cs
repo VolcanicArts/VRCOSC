@@ -10,29 +10,15 @@ using VRCOSC.Game.Graphics.Updater;
 
 namespace VRCOSC.Game.Graphics.UpdaterV2;
 
-public class LoadingContainer : VisibilityContainer
+public class LoadingContainer : PhaseContainer
 {
+    protected override float ScaleFrom => 1.1f;
+
     public ProgressBar ProgressBar = null!;
-
-    private UpdatePhase updatePhase;
-
-    public UpdatePhase UpdatePhase
-    {
-        get => updatePhase;
-        set
-        {
-            updatePhase = value;
-            updateUsingPhase();
-        }
-    }
 
     [BackgroundDependencyLoader]
     private void load()
     {
-        Anchor = Anchor.Centre;
-        Origin = Anchor.Centre;
-        AutoSizeAxes = Axes.Both;
-
         Child = new FillFlowContainer
         {
             Anchor = Anchor.Centre,
@@ -66,7 +52,7 @@ public class LoadingContainer : VisibilityContainer
         };
     }
 
-    private void updateUsingPhase()
+    protected override void UpdateUsingPhase()
     {
         switch (updatePhase)
         {
@@ -85,17 +71,5 @@ public class LoadingContainer : VisibilityContainer
             default:
                 throw new ArgumentOutOfRangeException(nameof(updatePhase), updatePhase, $"Cannot use this update phases inside {nameof(LoadingContainer)}");
         }
-    }
-
-    protected override void PopIn()
-    {
-        this.FadeInFromZero(200, Easing.OutQuint);
-        this.ScaleTo(1.1f).Then().ScaleTo(1, 200, Easing.OutQuint);
-    }
-
-    protected override void PopOut()
-    {
-        this.FadeOutFromOne(200, Easing.OutQuint);
-        this.ScaleTo(1f).Then().ScaleTo(1.1f, 200, Easing.OutQuint);
     }
 }

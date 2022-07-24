@@ -12,22 +12,12 @@ using VRCOSC.Game.Graphics.Updater;
 
 namespace VRCOSC.Game.Graphics.UpdaterV2;
 
-public class FinishedContainer : VisibilityContainer
+public class FinishedContainer : PhaseContainer
 {
+    protected override float ScaleFrom => 0.9f;
+
     private SpriteText spriteText = null!;
     private TextButton button = null!;
-
-    private UpdatePhase updatePhase;
-
-    public UpdatePhase UpdatePhase
-    {
-        get => updatePhase;
-        set
-        {
-            updatePhase = value;
-            updateUsingPhase();
-        }
-    }
 
     public Action? SuccessCallback;
     public Action? FailCallback;
@@ -35,10 +25,6 @@ public class FinishedContainer : VisibilityContainer
     [BackgroundDependencyLoader]
     private void load()
     {
-        Anchor = Anchor.Centre;
-        Origin = Anchor.Centre;
-        AutoSizeAxes = Axes.Both;
-
         Child = new FillFlowContainer
         {
             Anchor = Anchor.Centre,
@@ -73,7 +59,7 @@ public class FinishedContainer : VisibilityContainer
         };
     }
 
-    private void updateUsingPhase()
+    protected override void UpdateUsingPhase()
     {
         switch (UpdatePhase)
         {
@@ -94,17 +80,5 @@ public class FinishedContainer : VisibilityContainer
             default:
                 throw new ArgumentOutOfRangeException(nameof(updatePhase), updatePhase, $"Cannot use this update phases inside {nameof(FinishedContainer)}");
         }
-    }
-
-    protected override void PopIn()
-    {
-        this.FadeInFromZero(200, Easing.OutQuint);
-        this.ScaleTo(0.9f).Then().ScaleTo(1, 200, Easing.OutQuint);
-    }
-
-    protected override void PopOut()
-    {
-        this.FadeOutFromOne(200, Easing.OutQuint);
-        this.ScaleTo(1f).Then().ScaleTo(0.9f, 200, Easing.OutQuint);
     }
 }
