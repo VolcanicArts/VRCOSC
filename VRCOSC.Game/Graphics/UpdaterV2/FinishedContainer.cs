@@ -45,12 +45,12 @@ public class FinishedContainer : PhaseContainer
                 {
                     Anchor = Anchor.TopCentre,
                     Origin = Anchor.TopCentre,
-                    AutoSizeAxes = Axes.Both,
+                    Size = new Vector2(200, 40),
                     Child = button = new TextButton
                     {
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,
-                        Size = new Vector2(200, 40),
+                        RelativeSizeAxes = Axes.Both,
                         Masking = true,
                         CornerRadius = 5
                     }
