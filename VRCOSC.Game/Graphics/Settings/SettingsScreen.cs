@@ -27,7 +27,47 @@ public sealed class SettingsScreen : Container
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
-                Colour = VRCOSCColour.Gray1
+                Colour = VRCOSCColour.Gray5
+            },
+            new GridContainer
+            {
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                RelativeSizeAxes = Axes.Both,
+                RowDimensions = new[]
+                {
+                    new Dimension(GridSizeMode.Absolute, 100),
+                    new Dimension(),
+                },
+                Content = new[]
+                {
+                    new Drawable[]
+                    {
+                        new TextFlowContainer(t =>
+                        {
+                            t.Font = FrameworkFont.Regular.With(size: 40);
+                            t.Shadow = true;
+                        })
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            TextAnchor = Anchor.Centre,
+                            Text = "Settings"
+                        }
+                    },
+                    new Drawable[]
+                    {
+                        new Container
+                        {
+                            Anchor = Anchor.TopCentre,
+                            Origin = Anchor.TopCentre,
+                            RelativeSizeAxes = Axes.X,
+                            AutoSizeAxes = Axes.Y,
+                            Width = 0.5f,
+                            Child = new VRCOSCOptionContainer()
+                        }
+                    }
+                }
             }
         };
     }

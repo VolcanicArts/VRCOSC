@@ -5,14 +5,13 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Sprites;
-using VRCOSC.Game.Graphics.Containers.UI.Button;
+using VRCOSC.Game.Graphics.UI;
 
-namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect.SidePanel;
+namespace VRCOSC.Game.Graphics.Settings;
 
-public class VRCOSCBoolOption : VRCOSCOption
+public class VRCOSCStringOption : VRCOSCOption
 {
-    public Bindable<bool> State { get; init; }
+    public Bindable<string> Text { get; init; }
 
     [BackgroundDependencyLoader]
     private void load()
@@ -22,19 +21,15 @@ public class VRCOSCBoolOption : VRCOSCOption
             Anchor = Anchor.CentreRight,
             Origin = Anchor.CentreRight,
             RelativeSizeAxes = Axes.Both,
+            Width = 0.5f,
             Padding = new MarginPadding(5),
-            FillMode = FillMode.Fit,
-            Child = new IconButton
+            Child = new VRCOSCTextBox
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 CornerRadius = 7,
-                IconPadding = 5,
-                Stateful = true,
-                State = (BindableBool)State,
-                IconStateOn = FontAwesome.Solid.Check,
-                IconStateOff = FontAwesome.Solid.Get(0xf00d)
+                Current = Text
             },
         });
     }

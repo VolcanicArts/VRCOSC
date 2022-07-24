@@ -6,7 +6,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osuTK;
 
-namespace VRCOSC.Game.Graphics.Containers.UI;
+namespace VRCOSC.Game.Graphics.UI;
 
 public class VRCOSCScrollContainer : VRCOSCScrollContainer<Drawable>
 {

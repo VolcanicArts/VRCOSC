@@ -7,7 +7,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Input.Events;
 
-namespace VRCOSC.Game.Graphics.Containers.UI.Button;
+namespace VRCOSC.Game.Graphics.UI.Button;
 
 public class BasicButton : VRCOSCButton
 {

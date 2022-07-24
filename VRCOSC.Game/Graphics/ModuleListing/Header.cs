@@ -4,7 +4,7 @@
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using VRCOSC.Game.Graphics.Containers.UI;
+using VRCOSC.Game.Graphics.UI;
 
 namespace VRCOSC.Game.Graphics.ModuleListing;
 

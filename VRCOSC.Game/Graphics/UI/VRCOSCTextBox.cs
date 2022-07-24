@@ -7,7 +7,7 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Platform;
 
-namespace VRCOSC.Game.Graphics.Containers.UI;
+namespace VRCOSC.Game.Graphics.UI;
 
 public class VRCOSCTextBox : BasicTextBox
 {

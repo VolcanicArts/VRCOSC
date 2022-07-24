@@ -7,7 +7,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 
-namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect.SidePanel;
+namespace VRCOSC.Game.Graphics.Settings;
 
 public class VRCOSCOption : Container
 {
@@ -20,7 +20,7 @@ public class VRCOSCOption : Container
         RelativeSizeAxes = Axes.X;
         Height = 40;
         Masking = true;
-        CornerRadius = 10;
+        CornerRadius = 5;
     }
 
     [BackgroundDependencyLoader]

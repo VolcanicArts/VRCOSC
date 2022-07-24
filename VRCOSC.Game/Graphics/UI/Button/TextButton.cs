@@ -5,7 +5,7 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Sprites;
 
-namespace VRCOSC.Game.Graphics.Containers.UI.Button;
+namespace VRCOSC.Game.Graphics.UI.Button;
 
 public class TextButton : BasicButton
 {

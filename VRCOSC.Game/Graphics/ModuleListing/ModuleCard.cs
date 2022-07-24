@@ -7,7 +7,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
-using VRCOSC.Game.Graphics.Containers.UI.Button;
+using VRCOSC.Game.Graphics.UI.Button;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleListing;

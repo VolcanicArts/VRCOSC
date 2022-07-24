@@ -7,7 +7,7 @@ using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osuTK;
-using VRCOSC.Game.Graphics.Containers.UI;
+using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleListing;

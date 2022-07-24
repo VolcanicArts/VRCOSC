@@ -5,9 +5,9 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using VRCOSC.Game.Graphics.Containers.UI;
+using VRCOSC.Game.Graphics.UI;
 
-namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleSelect.SidePanel;
+namespace VRCOSC.Game.Graphics.Settings;
 
 public class VRCOSCIntOption : VRCOSCOption
 {
