@@ -30,23 +30,6 @@ public class ModuleEditingContent : Container
 
         Children = new Drawable[]
         {
-            new Container
-            {
-                Anchor = Anchor.TopRight,
-                Origin = Anchor.TopRight,
-                Size = new Vector2(80),
-                Padding = new MarginPadding(10),
-                Depth = float.MinValue,
-                Child = new IconButton
-                {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    RelativeSizeAxes = Axes.Both,
-                    CornerRadius = 10,
-                    Icon = FontAwesome.Solid.Get(0xf00d),
-                    Action = () => moduleListingScreen.EditModule(null)
-                },
-            },
             scrollContainer = new BasicScrollContainer
             {
                 Anchor = Anchor.Centre,
@@ -78,9 +61,7 @@ public class ModuleEditingContent : Container
                         settingsSeparator = new LineSeparator
                         {
                             Anchor = Anchor.TopCentre,
-                            Origin = Anchor.TopCentre,
-                            RelativeSizeAxes = Axes.X,
-                            Size = new Vector2(0.95f, 5)
+                            Origin = Anchor.TopCentre
                         },
                         settingsFlowContainer = new Container<AttributeFlow>
                         {
@@ -92,9 +73,7 @@ public class ModuleEditingContent : Container
                         outputParametersSeparator = new LineSeparator
                         {
                             Anchor = Anchor.TopCentre,
-                            Origin = Anchor.TopCentre,
-                            RelativeSizeAxes = Axes.X,
-                            Size = new Vector2(0.95f, 5)
+                            Origin = Anchor.TopCentre
                         },
                         outputParametersFlowContainer = new Container<AttributeFlow>
                         {
@@ -105,16 +84,34 @@ public class ModuleEditingContent : Container
                         },
                     }
                 }
+            },
+            new Container
+            {
+                Anchor = Anchor.TopRight,
+                Origin = Anchor.TopRight,
+                Size = new Vector2(80),
+                Padding = new MarginPadding(10),
+                Child = new IconButton
+                {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    RelativeSizeAxes = Axes.Both,
+                    CornerRadius = 10,
+                    Icon = FontAwesome.Solid.Get(0xf00d),
+                    Action = () => moduleListingScreen.EditModule(null)
+                },
             }
         };
 
         sourceModule.BindValueChanged(_ =>
         {
-            if (sourceModule.Value == null) return;
-
+            metadataTextFlow.Clear();
+            settingsFlowContainer.Clear();
+            outputParametersFlowContainer.Clear();
             scrollContainer.ScrollToStart();
 
-            metadataTextFlow.Clear();
+            if (sourceModule.Value is null) return;
+
             metadataTextFlow.AddText(sourceModule.Value.Title, t =>
             {
                 t.Font = FrameworkFont.Regular.With(size: 75);

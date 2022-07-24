@@ -5,6 +5,7 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osuTK;
 
 namespace VRCOSC.Game.Graphics.Drawables;
 
@@ -13,13 +14,15 @@ public class LineSeparator : CircularContainer
     [BackgroundDependencyLoader]
     private void load()
     {
+        RelativeSizeAxes = Axes.X;
+        Size = new Vector2(0.95f, 5);
         Masking = true;
-        InternalChild = new Box
+        Child = new Box
         {
             Anchor = Anchor.Centre,
             Origin = Anchor.Centre,
             RelativeSizeAxes = Axes.Both,
-            Colour = VRCOSCColour.Gray2,
+            Colour = VRCOSCColour.Gray2
         };
     }
 }
