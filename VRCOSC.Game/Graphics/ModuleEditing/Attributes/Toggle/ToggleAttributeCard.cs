@@ -5,15 +5,14 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Sprites;
-using VRCOSC.Game.Graphics.Containers.UI.Button;
+using VRCOSC.Game.Graphics.ModuleListing;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes.Toggle;
 
 public class ToggleAttributeCard : AttributeCard
 {
-    protected IconButton IconButton;
+    protected ToggleButton ToggleButton;
 
     public ToggleAttributeCard(ModuleAttributeData attributeData)
         : base(attributeData)
@@ -30,21 +29,18 @@ public class ToggleAttributeCard : AttributeCard
             RelativeSizeAxes = Axes.Both,
             FillMode = FillMode.Fit,
             Padding = new MarginPadding(10),
-            Child = IconButton = new IconButton
+            Child = ToggleButton = new ToggleButton
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 CornerRadius = 10,
-                Stateful = true,
-                State = { Value = (bool)AttributeData.Attribute.Value },
-                IconStateOn = FontAwesome.Solid.Check,
-                IconStateOff = FontAwesome.Solid.Get(0xf00d)
+                State = { Value = (bool)AttributeData.Attribute.Value }
             }
         });
 
         AttributeData.Attribute.ValueChanged += updateValues;
-        IconButton.State.ValueChanged += e => updateValues(OnToggleChange(e));
+        ToggleButton.State.ValueChanged += e => updateValues(OnToggleChange(e));
     }
 
     private void updateValues(ValueChangedEvent<object> e)
@@ -55,7 +51,7 @@ public class ToggleAttributeCard : AttributeCard
     private void updateValues(bool value)
     {
         AttributeData.Attribute.Value = value;
-        IconButton.State.Value = value;
+        ToggleButton.State.Value = value;
     }
 
     protected virtual bool OnToggleChange(ValueChangedEvent<bool> e)

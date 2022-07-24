@@ -25,6 +25,7 @@ public class ToggleButton : VRCOSCButton
     [BackgroundDependencyLoader]
     private void load()
     {
+        SpriteIcon icon;
         Children = new Drawable[]
         {
             new Box
@@ -32,7 +33,7 @@ public class ToggleButton : VRCOSCButton
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
-                Colour = VRCOSCColour.Gray5
+                Colour = VRCOSCColour.Gray4
             },
             new Container
             {
@@ -40,7 +41,7 @@ public class ToggleButton : VRCOSCButton
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 Padding = new MarginPadding(5),
-                Child = new SpriteIcon
+                Child = icon = new SpriteIcon
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
@@ -50,7 +51,7 @@ public class ToggleButton : VRCOSCButton
             }
         };
 
-        State.BindValueChanged(e => this.FadeColour(e.NewValue ? Colour4.White : VRCOSCColour.Gray5, 250, Easing.OutQuint), true);
+        State.BindValueChanged(e => icon.Alpha = e.NewValue ? 1 : 0, true);
     }
 
     protected override bool OnClick(ClickEvent e)
