@@ -27,6 +27,7 @@ public sealed class ModuleEditingScreen : Container
         Origin = Anchor.Centre;
         RelativeSizeAxes = Axes.Both;
         RelativePositionAxes = Axes.X;
+        Padding = new MarginPadding(40);
         X = 1;
     }
 
@@ -35,18 +36,30 @@ public sealed class ModuleEditingScreen : Container
     {
         Children = new Drawable[]
         {
-            new Box
+            new Container
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
+                Masking = true,
+                CornerRadius = 5,
+                EdgeEffect = VRCOSCEdgeEffects.DispersedShadow,
                 RelativeSizeAxes = Axes.Both,
-                Colour = VRCOSCColour.Gray4
-            },
-            new ModuleEditingContent
-            {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                RelativeSizeAxes = Axes.Both
+                Children = new Drawable[]
+                {
+                    new Box
+                    {
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.Centre,
+                        RelativeSizeAxes = Axes.Both,
+                        Colour = VRCOSCColour.Gray4
+                    },
+                    new ModuleEditingContent
+                    {
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.Centre,
+                        RelativeSizeAxes = Axes.Both
+                    }
+                }
             }
         };
 
@@ -68,4 +81,10 @@ public sealed class ModuleEditingScreen : Container
         moduleListingScreen.EditModule(null);
         return true;
     }
+
+    protected override bool OnMouseDown(MouseDownEvent e) => true;
+
+    protected override bool OnClick(ClickEvent e) => true;
+
+    protected override bool OnHover(HoverEvent e) => true;
 }
