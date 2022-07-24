@@ -4,9 +4,7 @@
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
-using osu.Framework.Graphics.Containers;
-using VRCOSC.Game.Graphics.ModuleListing;
-using VRCOSC.Game.Graphics.Settings;
+using VRCOSC.Game.Graphics;
 using VRCOSC.Game.Graphics.Sidebar;
 using VRCOSC.Game.Graphics.Updater;
 using VRCOSC.Game.Graphics.UpdaterV2;
@@ -17,8 +15,6 @@ namespace VRCOSC.Game;
 [Cached]
 public abstract class VRCOSCGame : VRCOSCGameBase
 {
-    private Container screenHolder = null!;
-
     [Cached]
     private ModuleManager moduleManager = new();
 
@@ -35,61 +31,16 @@ public abstract class VRCOSCGame : VRCOSCGameBase
         Children = new Drawable[]
         {
             moduleManager,
-            new GridContainer
-            {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                RelativeSizeAxes = Axes.Both,
-                ColumnDimensions = new[]
-                {
-                    new Dimension(GridSizeMode.Absolute, 100),
-                    new Dimension(),
-                },
-                Content = new[]
-                {
-                    new Drawable[]
-                    {
-                        new TabBar
-                        {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
-                            RelativeSizeAxes = Axes.Both
-                        },
-                        screenHolder = new Container
-                        {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
-                            RelativeSizeAxes = Axes.Both,
-                            Depth = float.MaxValue,
-                            Children = new Drawable[]
-                            {
-                                new ModuleListingScreen(),
-                                new SettingsScreen()
-                            }
-                        }
-                    }
-                }
-            },
-            new UpdaterScreen()
+            new MainContent(),
+            new DummyUpdateManager()
         };
     }
 
-    protected override void LoadComplete()
+    private class DummyUpdateManager : UpdaterScreen
     {
-        base.LoadComplete();
-
-        SelectedTab.BindValueChanged(tab =>
+        protected override void RequestRestart()
         {
-            var id = (int)tab.NewValue;
-
-            for (int i = 0; i < screenHolder.Count; i++)
-            {
-                if (id == i)
-                    screenHolder[i].Show();
-                else
-                    screenHolder[i].Hide();
-            }
-        }, true);
+        }
     }
 
     public abstract VRCOSCUpdateManager CreateUpdateManager();
