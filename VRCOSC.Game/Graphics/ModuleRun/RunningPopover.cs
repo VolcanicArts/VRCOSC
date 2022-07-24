@@ -81,7 +81,8 @@ public sealed class RunningPopover : Container
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,
                         RelativeSizeAxes = Axes.Both,
-                        CornerRadius = 10,
+                        IconPadding = 5,
+                        CornerRadius = 5,
                         Icon = FontAwesome.Solid.Get(0xf00d),
                         Action = endRun
                     }

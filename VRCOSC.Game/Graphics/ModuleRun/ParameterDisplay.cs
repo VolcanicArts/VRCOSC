@@ -55,7 +55,7 @@ public class ParameterDisplay : Container
                             Origin = Anchor.Centre,
                             RelativeSizeAxes = Axes.Both,
                             ScrollbarVisible = false,
-                            ClampExtension = 10,
+                            ClampExtension = 0,
                             Padding = new MarginPadding
                             {
                                 Vertical = 1.5f,
@@ -81,7 +81,7 @@ public class ParameterDisplay : Container
         parameterDict.Clear();
     }
 
-    public void AddEntry(string key, object value) => Scheduler.Add(() =>
+    public void AddEntry(string key, object value) => Schedule(() =>
     {
         var valueStr = value.ToString() ?? "Invalid Object";
 
