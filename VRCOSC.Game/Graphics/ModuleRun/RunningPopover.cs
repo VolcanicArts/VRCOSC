@@ -94,14 +94,13 @@ public sealed class RunningPopover : Container
             if (e.NewValue)
                 this.MoveToX(0, 1000, Easing.OutQuint);
             else
-                this.MoveToX(1, 1000, Easing.InQuint);
+                this.MoveToX(1, 1000, Easing.InQuint).Finally(_ => reset());
         };
     }
 
     private void endRun()
     {
         _ = moduleManager.Stop();
-        reset();
     }
 
     private void reset()
