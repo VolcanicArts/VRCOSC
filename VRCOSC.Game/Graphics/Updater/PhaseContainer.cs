@@ -4,9 +4,8 @@
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using VRCOSC.Game.Graphics.Updater;
 
-namespace VRCOSC.Game.Graphics.UpdaterV2;
+namespace VRCOSC.Game.Graphics.Updater;
 
 public abstract class PhaseContainer : VisibilityContainer
 {
@@ -20,7 +19,7 @@ public abstract class PhaseContainer : VisibilityContainer
         set
         {
             updatePhase = value;
-            UpdateUsingPhase();
+            OnPhaseChange();
         }
     }
 
@@ -32,7 +31,7 @@ public abstract class PhaseContainer : VisibilityContainer
         AutoSizeAxes = Axes.Both;
     }
 
-    protected abstract void UpdateUsingPhase();
+    protected abstract void OnPhaseChange();
 
     protected override void PopIn()
     {

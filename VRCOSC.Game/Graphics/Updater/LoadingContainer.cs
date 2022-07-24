@@ -6,9 +6,8 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osuTK;
-using VRCOSC.Game.Graphics.Updater;
 
-namespace VRCOSC.Game.Graphics.UpdaterV2;
+namespace VRCOSC.Game.Graphics.Updater;
 
 public class LoadingContainer : PhaseContainer
 {
@@ -52,7 +51,7 @@ public class LoadingContainer : PhaseContainer
         };
     }
 
-    protected override void UpdateUsingPhase()
+    protected override void OnPhaseChange()
     {
         switch (updatePhase)
         {
@@ -69,7 +68,7 @@ public class LoadingContainer : PhaseContainer
                 break;
 
             default:
-                throw new ArgumentOutOfRangeException(nameof(updatePhase), updatePhase, $"Cannot use this update phases inside {nameof(LoadingContainer)}");
+                throw new ArgumentOutOfRangeException(nameof(updatePhase), updatePhase, $"Cannot use this update phase inside {nameof(LoadingContainer)}");
         }
     }
 }

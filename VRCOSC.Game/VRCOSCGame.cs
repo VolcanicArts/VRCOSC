@@ -7,7 +7,6 @@ using osu.Framework.Graphics;
 using VRCOSC.Game.Graphics;
 using VRCOSC.Game.Graphics.Sidebar;
 using VRCOSC.Game.Graphics.Updater;
-using VRCOSC.Game.Graphics.UpdaterV2;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game;
@@ -18,8 +17,9 @@ public abstract class VRCOSCGame : VRCOSCGameBase
     [Cached]
     private ModuleManager moduleManager = new();
 
-    public Bindable<Tabs> SelectedTab = new();
+    private VRCOSCUpdateManager updateManager = null!;
 
+    public Bindable<Tabs> SelectedTab = new();
     public Bindable<string> SearchTermFilter = new(string.Empty);
     public Bindable<ModuleType?> TypeFilter = new();
     public Bindable<Module?> EditingModule = new();
@@ -32,16 +32,15 @@ public abstract class VRCOSCGame : VRCOSCGameBase
         {
             moduleManager,
             new MainContent(),
-            new DummyUpdateManager()
+            updateManager = CreateUpdateManager()
         };
     }
 
-    private class DummyUpdateManager : UpdaterScreen
+    protected override void LoadComplete()
     {
-        protected override void RequestRestart()
-        {
-        }
+        base.LoadComplete();
+        updateManager.CheckForUpdate();
     }
 
-    public abstract VRCOSCUpdateManager CreateUpdateManager();
+    protected abstract VRCOSCUpdateManager CreateUpdateManager();
 }

@@ -8,7 +8,7 @@ using osu.Framework.Graphics.Shapes;
 using osuTK;
 using VRCOSC.Game.Modules.Util;
 
-namespace VRCOSC.Game.Graphics.UpdaterV2;
+namespace VRCOSC.Game.Graphics.Updater;
 
 public class LoadingCircle : Container
 {

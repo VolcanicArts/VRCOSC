@@ -7,7 +7,7 @@ using VRCOSC.Game.Graphics.Updater;
 
 namespace VRCOSC.Game.Tests.Visual;
 
-public class TestUpdateManager : VRCOSCTestScene
+public class TestUpdaterManager : VRCOSCTestScene
 {
     private VRCOSCUpdateManager updateManager;
 
@@ -31,21 +31,21 @@ public class TestUpdateManager : VRCOSCTestScene
             progress = 0f;
         });
 
-        AddRepeatStep("add progress", () => updateManager?.UpdateProgress(progress += 0.1f), 10);
+        AddRepeatStep("add progress", () => updateManager.UpdateProgress(progress += 0.1f), 10);
 
         AddStep("phase download", () =>
         {
             updateManager.SetPhase(UpdatePhase.Download);
             progress = 0f;
         });
-        AddRepeatStep("add progress", () => updateManager?.UpdateProgress(progress += 0.1f), 10);
+        AddRepeatStep("add progress", () => updateManager.UpdateProgress(progress += 0.1f), 10);
 
         AddStep("phase install", () =>
         {
             updateManager.SetPhase(UpdatePhase.Install);
             progress = 0f;
         });
-        AddRepeatStep("add progress", () => updateManager?.UpdateProgress(progress += 0.1f), 10);
+        AddRepeatStep("add progress", () => updateManager.UpdateProgress(progress += 0.1f), 10);
 
         AddStep("phase success", () => updateManager.SetPhase(UpdatePhase.Success));
     }

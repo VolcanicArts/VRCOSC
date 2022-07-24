@@ -9,26 +9,15 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Input.Events;
 using osu.Framework.Platform;
-using osuTK;
-using VRCOSC.Game.Graphics.UI.Button;
 
 namespace VRCOSC.Game.Graphics.Updater;
 
-public abstract class VRCOSCUpdateManager : Container
+public abstract class VRCOSCUpdateManager : VisibilityContainer
 {
-    private Container popover;
-    private ProgressBar progressBar;
-    private TextButton button;
-    private LoadingSpriteText titleText;
+    private LoadingContainer loadingContainer;
+    private FinishedContainer finishedContainer;
 
-    private bool shown;
-
-    public bool Updating { get; private set; }
-
-    [Resolved]
-    private GameHost host { get; set; }
-
-    public VRCOSCUpdateManager()
+    protected VRCOSCUpdateManager()
     {
         Anchor = Anchor.Centre;
         Origin = Anchor.Centre;
@@ -36,90 +25,30 @@ public abstract class VRCOSCUpdateManager : Container
     }
 
     [BackgroundDependencyLoader]
-    private void load()
+    private void load(GameHost host)
     {
-        Child = popover = new Container
+        Children = new Drawable[]
         {
-            Anchor = Anchor.Centre,
-            Origin = Anchor.Centre,
-            Size = new Vector2(400, 100),
-            Masking = true,
-            EdgeEffect = VRCOSCEdgeEffects.DispersedShadow,
-            RelativePositionAxes = Axes.Both,
-            Position = new Vector2(0, 1),
-            CornerRadius = 10,
-            BorderThickness = 2,
-            Children = new Drawable[]
+            new Box
             {
-                new Box
-                {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    RelativeSizeAxes = Axes.Both,
-                    Colour = VRCOSCColour.Gray6
-                },
-                new Container
-                {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    RelativeSizeAxes = Axes.Both,
-                    Padding = new MarginPadding(5),
-                    Children = new Drawable[]
-                    {
-                        titleText = new LoadingSpriteText
-                        {
-                            Anchor = Anchor.TopCentre,
-                            Origin = Anchor.TopCentre,
-                            Font = FrameworkFont.Regular.With(size: 30),
-                            Shadow = true
-                        },
-                        new Container
-                        {
-                            Anchor = Anchor.BottomCentre,
-                            Origin = Anchor.BottomCentre,
-                            RelativeSizeAxes = Axes.X,
-                            Height = 40,
-                            FillMode = FillMode.Fit,
-                            FillAspectRatio = 3,
-                            Padding = new MarginPadding(5),
-                            Child = button = new TextButton
-                            {
-                                Anchor = Anchor.Centre,
-                                Origin = Anchor.Centre,
-                                RelativeSizeAxes = Axes.Both,
-                                FillMode = FillMode.Fit,
-                                FillAspectRatio = 8,
-                                Masking = true,
-                                CornerRadius = 10,
-                                FontSize = 25
-                            }
-                        },
-                        progressBar = new ProgressBar
-                        {
-                            Anchor = Anchor.BottomCentre,
-                            Origin = Anchor.BottomCentre,
-                            RelativeSizeAxes = Axes.X,
-                            Height = 25,
-                            Masking = true,
-                            CornerRadius = 10,
-                            BorderThickness = 2
-                        }
-                    }
-                }
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                RelativeSizeAxes = Axes.Both,
+                Colour = Colour4.Black.Opacity(0.75f)
+            },
+            loadingContainer = new LoadingContainer(),
+            finishedContainer = new FinishedContainer
+            {
+                SuccessCallback = RequestRestart,
+                FailCallback = () => host.OpenUrlExternally("https://github.com/VolcanicArts/VRCOSC/releases/latest")
             }
         };
-    }
-
-    protected override void LoadComplete()
-    {
-        progressBar.Hide();
-        button.Hide();
     }
 
     // Shorthand for dealing with 0-100
     public void UpdateProgress(int percentage) => UpdateProgress(percentage / 100f);
 
-    public void UpdateProgress(float percentage) => Schedule(() => progressBar.Current.Value = percentage);
+    public void UpdateProgress(float percentage) => Schedule(() => loadingContainer.ProgressBar.Current.Value = percentage);
 
     public void SetPhase(UpdatePhase phase) => Schedule(() =>
     {
@@ -128,109 +57,38 @@ public abstract class VRCOSCUpdateManager : Container
         switch (phase)
         {
             case UpdatePhase.Check:
-                enterCheckPhase();
-                break;
-
             case UpdatePhase.Download:
-                enterDownloadPhase();
-                break;
-
             case UpdatePhase.Install:
-                enterInstallPhase();
+                finishedContainer.Hide();
+                loadingContainer.Show();
+                loadingContainer.UpdatePhase = phase;
                 break;
 
             case UpdatePhase.Success:
-                enterSuccessPhase();
-                break;
-
             case UpdatePhase.Fail:
-                enterFailPhase();
+                loadingContainer.Hide();
+                finishedContainer.Show();
+                finishedContainer.UpdatePhase = phase;
                 break;
 
             default:
-                throw new ArgumentOutOfRangeException(nameof(phase), phase, null);
+                throw new ArgumentOutOfRangeException(nameof(phase), phase, $"Cannot use this update phase inside {nameof(LoadingContainer)}");
         }
     });
 
-    public override void Show() => Schedule(() =>
+    protected override void PopIn() => Schedule(() =>
     {
-        if (shown) return;
-
-        Updating = true;
-
-        shown = true;
-        popover.MoveToY(0, 500d, Easing.OutQuart);
+        this.FadeInFromZero(250, Easing.OutQuint);
     });
 
-    public override void Hide() => Schedule(() =>
+    protected override void PopOut() => Schedule(() =>
     {
-        if (!shown) return;
-
-        Updating = false;
-
-        shown = false;
-        popover.MoveToY(1, 500d, Easing.InQuart);
+        this.FadeOutFromOne(250, Easing.InQuint);
     });
-
-    private void enterCheckPhase()
-    {
-        progressBar.Show();
-        button.Hide();
-
-        titleText.ShouldAnimate.Value = true;
-        titleText.CurrentText.Value = "Updating";
-        progressBar.Text = "Checking";
-    }
-
-    private void enterDownloadPhase()
-    {
-        progressBar.Show();
-        button.Hide();
-
-        titleText.ShouldAnimate.Value = true;
-        titleText.CurrentText.Value = "Updating";
-        progressBar.Text = "Downloading";
-    }
-
-    private void enterInstallPhase()
-    {
-        progressBar.Show();
-        button.Hide();
-
-        titleText.ShouldAnimate.Value = true;
-        titleText.CurrentText.Value = "Updating";
-        progressBar.Text = "Installing";
-    }
-
-    private void enterSuccessPhase()
-    {
-        progressBar.Hide();
-        button.Show();
-        button.Text = "Click To Restart";
-        button.Action = RequestRestart;
-        button.BackgroundColour = VRCOSCColour.Green;
-
-        titleText.ShouldAnimate.Value = false;
-        titleText.CurrentText.Value = "Update Complete!";
-    }
-
-    private void enterFailPhase()
-    {
-        progressBar.Hide();
-        button.Show();
-        button.Text = "Click To Reinstall";
-        button.Action = () => host.OpenUrlExternally("https://github.com/VolcanicArts/VRCOSC/releases/latest");
-        button.BackgroundColour = VRCOSCColour.Red;
-
-        titleText.ShouldAnimate.Value = false;
-        titleText.CurrentText.Value = "Update Failed!";
-    }
 
     protected abstract void RequestRestart();
-
     public abstract Task CheckForUpdate(bool useDelta = true);
 
-    protected override bool OnClick(ClickEvent e) => shown;
-    protected override bool OnMouseDown(MouseDownEvent e) => shown;
-    protected override bool OnHover(HoverEvent e) => shown;
+    protected override bool OnMouseDown(MouseDownEvent e) => State.Value == Visibility.Visible;
+    protected override bool OnHover(HoverEvent e) => State.Value == Visibility.Visible;
 }

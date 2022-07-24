@@ -9,7 +9,7 @@ namespace VRCOSC.Desktop;
 
 public class VRCOSCGameDesktop : VRCOSCGame
 {
-    public override VRCOSCUpdateManager CreateUpdateManager()
+    protected override VRCOSCUpdateManager CreateUpdateManager()
     {
         return new SquirrelUpdateManager();
     }

@@ -8,9 +8,8 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
 using VRCOSC.Game.Graphics.UI.Button;
-using VRCOSC.Game.Graphics.Updater;
 
-namespace VRCOSC.Game.Graphics.UpdaterV2;
+namespace VRCOSC.Game.Graphics.Updater;
 
 public class FinishedContainer : PhaseContainer
 {
@@ -59,7 +58,7 @@ public class FinishedContainer : PhaseContainer
         };
     }
 
-    protected override void UpdateUsingPhase()
+    protected override void OnPhaseChange()
     {
         switch (UpdatePhase)
         {
@@ -78,7 +77,7 @@ public class FinishedContainer : PhaseContainer
                 break;
 
             default:
-                throw new ArgumentOutOfRangeException(nameof(updatePhase), updatePhase, $"Cannot use this update phases inside {nameof(FinishedContainer)}");
+                throw new ArgumentOutOfRangeException(nameof(updatePhase), updatePhase, $"Cannot use this update phase inside {nameof(FinishedContainer)}");
         }
     }
 }
