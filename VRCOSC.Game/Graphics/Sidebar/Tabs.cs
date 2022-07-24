@@ -7,4 +7,5 @@ public enum Tabs
 {
     Modules,
     Settings,
+    About
 }

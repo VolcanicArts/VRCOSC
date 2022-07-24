@@ -19,7 +19,8 @@ public class TabBar : Container
     protected virtual IReadOnlyDictionary<Tabs, IconUsage> TabLookup => new Dictionary<Tabs, IconUsage>()
     {
         { Tabs.Modules, FontAwesome.Solid.ListUl },
-        { Tabs.Settings, FontAwesome.Solid.Cog }
+        { Tabs.Settings, FontAwesome.Solid.Cog },
+        { Tabs.About, FontAwesome.Solid.Info }
     };
 
     [BackgroundDependencyLoader]
