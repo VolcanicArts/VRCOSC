@@ -16,17 +16,16 @@ namespace VRCOSC.Game.Graphics.ModuleEditing;
 
 public class ModuleEditingContent : Container
 {
+    private TextFlowContainer metadataTextFlow;
+    private LineSeparator settingsSeparator;
+    private Container<AttributeFlow> settingsFlowContainer;
+    private LineSeparator outputParametersSeparator;
+    private Container<AttributeFlow> outputParametersFlowContainer;
+    private BasicScrollContainer scrollContainer;
+
     [BackgroundDependencyLoader]
     private void load(VRCOSCGame game, Bindable<Module?> sourceModule)
     {
-        TextFlowContainer metadataTextFlow;
-        LineSeparator settingsSeparator;
-        Container<AttributeFlow> settingsFlowContainer;
-        LineSeparator outputParametersSeparator;
-        Container<AttributeFlow> outputParametersFlowContainer;
-
-        BasicScrollContainer scrollContainer;
-
         Children = new Drawable[]
         {
             scrollContainer = new BasicScrollContainer
@@ -104,11 +103,6 @@ public class ModuleEditingContent : Container
 
         sourceModule.BindValueChanged(_ =>
         {
-            metadataTextFlow.Clear();
-            settingsFlowContainer.Clear();
-            outputParametersFlowContainer.Clear();
-            scrollContainer.ScrollToStart();
-
             if (sourceModule.Value is null) return;
 
             metadataTextFlow.AddText(sourceModule.Value.Title, t =>
@@ -163,5 +157,13 @@ public class ModuleEditingContent : Container
                 outputParametersFlowContainer.Hide();
             }
         }, true);
+    }
+
+    public override void Clear(bool disposeChildren)
+    {
+        metadataTextFlow.Clear();
+        settingsFlowContainer.Clear();
+        outputParametersFlowContainer.Clear();
+        scrollContainer.ScrollToStart();
     }
 }

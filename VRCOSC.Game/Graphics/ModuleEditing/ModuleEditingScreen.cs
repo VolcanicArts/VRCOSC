@@ -29,6 +29,7 @@ public sealed class ModuleEditingScreen : Container
     [BackgroundDependencyLoader]
     private void load(VRCOSCGame game)
     {
+        ModuleEditingContent moduleEditingContent;
         Children = new Drawable[]
         {
             new Container
@@ -48,7 +49,7 @@ public sealed class ModuleEditingScreen : Container
                         RelativeSizeAxes = Axes.Both,
                         Colour = VRCOSCColour.Gray4
                     },
-                    new ModuleEditingContent
+                    moduleEditingContent = new ModuleEditingContent
                     {
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,
@@ -63,7 +64,7 @@ public sealed class ModuleEditingScreen : Container
             var module = e.NewValue;
 
             if (module is null)
-                this.MoveToX(1, 1000, Easing.InQuint);
+                this.MoveToX(1, 1000, Easing.InQuint).Finally(_ => moduleEditingContent.Clear());
             else
                 this.MoveToX(0, 1000, Easing.OutQuint);
 
