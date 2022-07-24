@@ -9,6 +9,7 @@ using VRCOSC.Game.Graphics.ModuleListing;
 using VRCOSC.Game.Graphics.Settings;
 using VRCOSC.Game.Graphics.Sidebar;
 using VRCOSC.Game.Graphics.Updater;
+using VRCOSC.Game.Graphics.UpdaterV2;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game;
@@ -68,7 +69,8 @@ public abstract class VRCOSCGame : VRCOSCGameBase
                         }
                     }
                 }
-            }
+            },
+            new UpdaterScreen()
         };
     }
 
