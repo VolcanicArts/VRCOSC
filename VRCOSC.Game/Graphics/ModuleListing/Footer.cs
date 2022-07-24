@@ -2,10 +2,12 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osuTK;
+using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics.UI.Button;
 using VRCOSC.Game.Modules;
 
@@ -13,6 +15,8 @@ namespace VRCOSC.Game.Graphics.ModuleListing;
 
 public sealed class Footer : Container
 {
+    private Bindable<bool> autoStartStop;
+
     public Footer()
     {
         Anchor = Anchor.Centre;
@@ -25,8 +29,10 @@ public sealed class Footer : Container
     }
 
     [BackgroundDependencyLoader]
-    private void load(ModuleManager moduleManager)
+    private void load(VRCOSCConfigManager configManager, ModuleManager moduleManager)
     {
+        TextButton runButton;
+
         Children = new Drawable[]
         {
             new Box
@@ -43,7 +49,7 @@ public sealed class Footer : Container
                 RelativeSizeAxes = Axes.Both,
                 FillMode = FillMode.Fit,
                 FillAspectRatio = 4,
-                Child = new TextButton
+                Child = runButton = new TextButton
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
@@ -57,5 +63,8 @@ public sealed class Footer : Container
                 }
             }
         };
+
+        autoStartStop = configManager.GetBindable<bool>(VRCOSCSetting.AutoStartStop);
+        autoStartStop.BindValueChanged(e => runButton.Enabled.Value = !e.NewValue, true);
     }
 }
