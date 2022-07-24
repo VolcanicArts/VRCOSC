@@ -1,30 +1,31 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Input.Events;
-using osuTK;
+using osu.Framework.Platform;
 using VRCOSC.Game.Graphics.Updater;
 
 namespace VRCOSC.Game.Graphics.UpdaterV2;
 
-public sealed class UpdaterScreen : VisibilityContainer
+public abstract class UpdaterScreen : VisibilityContainer
 {
-    private ProgressBar progressBar = null!;
+    private LoadingContainer loadingContainer;
+    private FinishedContainer finishedContainer;
 
-    public UpdaterScreen()
+    protected UpdaterScreen()
     {
         Anchor = Anchor.Centre;
         Origin = Anchor.Centre;
         RelativeSizeAxes = Axes.Both;
-        State.Value = Visibility.Visible;
     }
 
     [BackgroundDependencyLoader]
-    private void load()
+    private void load(GameHost host)
     {
         Children = new Drawable[]
         {
@@ -35,52 +36,57 @@ public sealed class UpdaterScreen : VisibilityContainer
                 RelativeSizeAxes = Axes.Both,
                 Colour = Colour4.Black.Opacity(0.75f)
             },
-            new FillFlowContainer
+            loadingContainer = new LoadingContainer(),
+            finishedContainer = new FinishedContainer
             {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                AutoSizeAxes = Axes.Both,
-                Padding = new MarginPadding(5),
-                Spacing = new Vector2(0, 5),
-                Direction = FillDirection.Vertical,
-                Children = new Drawable[]
-                {
-                    new LoadingCircle
-                    {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        Size = new Vector2(100)
-                    },
-                    new CircularContainer
-                    {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        Size = new Vector2(400, 30),
-                        Masking = true,
-                        Child = progressBar = new ProgressBar
-                        {
-                            Anchor = Anchor.TopCentre,
-                            Origin = Anchor.TopCentre,
-                            RelativeSizeAxes = Axes.Both
-                        }
-                    }
-                }
+                SuccessCallback = RequestRestart,
+                FailCallback = () => host.OpenUrlExternally("https://github.com/VolcanicArts/VRCOSC/releases/latest")
             }
         };
-
-        progressBar.Current.Value = 0.5f;
-        progressBar.Text = "Checking";
     }
 
-    protected override void PopIn()
+    // Shorthand for dealing with 0-100
+    public void UpdateProgress(int percentage) => UpdateProgress(percentage / 100f);
+
+    public void UpdateProgress(float percentage) => Schedule(() => loadingContainer.ProgressBar.Current.Value = percentage);
+
+    public void SetPhase(UpdatePhase phase) => Schedule(() =>
     {
-        this.FadeIn(250, Easing.OutQuint);
-    }
+        UpdateProgress(0);
 
-    protected override void PopOut()
+        switch (phase)
+        {
+            case UpdatePhase.Check:
+            case UpdatePhase.Download:
+            case UpdatePhase.Install:
+                finishedContainer.Hide();
+                loadingContainer.Show();
+                loadingContainer.UpdatePhase = phase;
+                break;
+
+            case UpdatePhase.Success:
+            case UpdatePhase.Fail:
+                loadingContainer.Hide();
+                finishedContainer.Show();
+                finishedContainer.UpdatePhase = phase;
+                break;
+
+            default:
+                throw new ArgumentOutOfRangeException(nameof(phase), phase, $"Cannot use this update phases inside {nameof(LoadingContainer)}");
+        }
+    });
+
+    protected override void PopIn() => Schedule(() =>
     {
-        this.FadeIn(250, Easing.InQuint);
-    }
+        this.FadeInFromZero(250, Easing.OutQuint);
+    });
+
+    protected override void PopOut() => Schedule(() =>
+    {
+        this.FadeOutFromOne(250, Easing.InQuint);
+    });
+
+    protected abstract void RequestRestart();
 
     protected override bool OnMouseDown(MouseDownEvent e) => State.Value == Visibility.Visible;
     protected override bool OnHover(HoverEvent e) => State.Value == Visibility.Visible;
