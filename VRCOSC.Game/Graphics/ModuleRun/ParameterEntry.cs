@@ -8,7 +8,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 
-namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleRun;
+namespace VRCOSC.Game.Graphics.ModuleRun;
 
 public sealed class ParameterEntry : Container
 {

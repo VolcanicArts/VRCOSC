@@ -10,7 +10,7 @@ using osuTK;
 using VRCOSC.Game.Graphics.Drawables;
 using VRCOSC.Game.Modules;
 
-namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleRun;
+namespace VRCOSC.Game.Graphics.ModuleRun;
 
 public sealed class ParameterContainer : Container
 {

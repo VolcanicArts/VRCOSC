@@ -19,7 +19,7 @@ namespace VRCOSC.Game.Modules;
 
 public sealed class ModuleManager : Drawable
 {
-    private bool running;
+    public BindableBool Running = new();
     private bool autoStarted;
     private Bindable<bool> autoStartStop = null!;
     private readonly TerminalLogger terminal = new(nameof(ModuleManager));
@@ -52,13 +52,13 @@ public sealed class ModuleManager : Drawable
 
         var vrChat = Process.GetProcessesByName("vrchat");
 
-        if (vrChat.Length != 0 && autoStartStop.Value && !running && !autoStarted)
+        if (vrChat.Length != 0 && autoStartStop.Value && !Running.Value && !autoStarted)
         {
             //screenManager.ShowTerminal();
             autoStarted = true;
         }
 
-        if (vrChat.Length == 0 && autoStartStop.Value && running)
+        if (vrChat.Length == 0 && autoStartStop.Value && Running.Value)
         {
             //screenManager.HideTerminal();
             autoStarted = false;
@@ -88,14 +88,14 @@ public sealed class ModuleManager : Drawable
         }
 
         Modules.ForEach(module => module.start());
-        running = true;
+        Running.Value = true;
     }
 
     public async Task Stop()
     {
-        if (!running) return;
+        if (!Running.Value) return;
 
-        running = false;
+        Running.Value = false;
 
         await OscClient.DisableReceive();
 
@@ -109,7 +109,7 @@ public sealed class ModuleManager : Drawable
 
     protected override void Dispose(bool isDisposing)
     {
-        if (running) Stop().Wait();
+        if (Running.Value) Stop().Wait();
         base.Dispose(isDisposing);
     }
 }

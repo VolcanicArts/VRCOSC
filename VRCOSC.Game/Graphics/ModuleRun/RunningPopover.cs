@@ -10,21 +10,25 @@ using osu.Framework.Input.Events;
 using osuTK;
 using osuTK.Input;
 using VRCOSC.Game.Graphics.Containers.UI.Button;
+using VRCOSC.Game.Modules;
 
-namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleRun;
+namespace VRCOSC.Game.Graphics.ModuleRun;
 
 public sealed class RunningPopover : Container
 {
     private TerminalContainer Terminal;
     private ParameterContainer Parameters;
 
+    [Resolved]
+    private ModuleManager moduleManager { get; set; }
+
     public RunningPopover()
     {
         Anchor = Anchor.Centre;
         Origin = Anchor.Centre;
         RelativeSizeAxes = Axes.Both;
-        RelativePositionAxes = Axes.Both;
-        Position = new Vector2(0, 1);
+        RelativePositionAxes = Axes.X;
+        X = 1;
         Padding = new MarginPadding(40);
     }
 
@@ -36,7 +40,7 @@ public sealed class RunningPopover : Container
             Anchor = Anchor.Centre,
             Origin = Anchor.Centre,
             RelativeSizeAxes = Axes.Both,
-            CornerRadius = 20,
+            CornerRadius = 5,
             EdgeEffect = VRCOSCEdgeEffects.DispersedShadow,
             Masking = true,
             Children = new Drawable[]
@@ -80,14 +84,28 @@ public sealed class RunningPopover : Container
                         RelativeSizeAxes = Axes.Both,
                         CornerRadius = 10,
                         Icon = FontAwesome.Solid.Get(0xf00d),
-                        //Action = ScreenManager.HideTerminal
+                        Action = endRun
                     }
                 }
             }
         };
+
+        moduleManager.Running.ValueChanged += e =>
+        {
+            if (e.NewValue)
+                this.MoveToX(0, 1000, Easing.OutQuint);
+            else
+                this.MoveToX(1, 1000, Easing.InQuint);
+        };
     }
 
-    public void Reset()
+    private void endRun()
+    {
+        _ = moduleManager.Stop();
+        reset();
+    }
+
+    private void reset()
     {
         Terminal.ClearTerminal();
         Parameters.ClearParameters();
@@ -97,22 +115,13 @@ public sealed class RunningPopover : Container
     {
         if (e.Key != Key.Escape) return base.OnKeyDown(e);
 
-        //ScreenManager.HideTerminal();
+        endRun();
         return true;
     }
 
-    protected override bool OnMouseDown(MouseDownEvent e)
-    {
-        return true;
-    }
+    protected override bool OnMouseDown(MouseDownEvent e) => true;
 
-    protected override bool OnClick(ClickEvent e)
-    {
-        return true;
-    }
+    protected override bool OnClick(ClickEvent e) => true;
 
-    protected override bool OnHover(HoverEvent e)
-    {
-        return true;
-    }
+    protected override bool OnHover(HoverEvent e) => true;
 }

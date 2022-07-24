@@ -6,7 +6,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 
-namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleRun;
+namespace VRCOSC.Game.Graphics.ModuleRun;
 
 public class TerminalEntry : Container
 {

@@ -11,7 +11,7 @@ using osu.Framework.Logging;
 using osuTK;
 using VRCOSC.Game.Graphics.Drawables;
 
-namespace VRCOSC.Game.Graphics.Containers.Screens.ModuleRun;
+namespace VRCOSC.Game.Graphics.ModuleRun;
 
 public sealed class TerminalContainer : Container
 {
