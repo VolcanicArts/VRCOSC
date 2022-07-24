@@ -123,5 +123,14 @@ public sealed class ModuleCard : Container
             t.Font = FrameworkFont.Regular.With(size: 20);
             t.Colour = VRCOSCColour.GrayC;
         });
+
+        if (!string.IsNullOrEmpty(Module.Prefab))
+        {
+            metadataTextFlow.AddText($". Pairs with {Module.Prefab}", t =>
+            {
+                t.Font = FrameworkFont.Regular.With(size: 20);
+                t.Colour = VRCOSCColour.GrayC;
+            });
+        }
     }
 }
