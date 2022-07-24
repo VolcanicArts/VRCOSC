@@ -23,6 +23,11 @@ public abstract class VRCOSCGame : VRCOSCGameBase
 
     public Bindable<Tabs> SelectedTab = new();
 
+    public Bindable<string> SearchTermFilter = new(string.Empty);
+    public Bindable<ModuleType?> TypeFilter = new();
+    public Bindable<Module?> EditingModule = new();
+    public BindableBool Running = new();
+
     [BackgroundDependencyLoader]
     private void load()
     {

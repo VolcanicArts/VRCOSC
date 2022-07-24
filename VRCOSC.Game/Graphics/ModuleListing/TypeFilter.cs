@@ -21,7 +21,7 @@ public sealed class TypeFilter : Container
     }
 
     [BackgroundDependencyLoader]
-    private void load(ModuleListingScreen moduleListingScreen)
+    private void load(VRCOSCGame game)
     {
         VRCOSCDropdown<Group> dropdown;
         Children = new Drawable[]
@@ -81,7 +81,7 @@ public sealed class TypeFilter : Container
             }
         };
 
-        dropdown.Current.BindValueChanged(group => moduleListingScreen.TypeFilter.Value = groupToType(group.NewValue));
+        dropdown.Current.BindValueChanged(group => game.TypeFilter.Value = groupToType(group.NewValue));
     }
 
     private enum Group

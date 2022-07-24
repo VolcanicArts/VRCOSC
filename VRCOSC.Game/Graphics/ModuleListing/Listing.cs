@@ -20,7 +20,7 @@ public sealed class Listing : Container
     private ModuleManager moduleManager { get; set; }
 
     [Resolved]
-    private ModuleListingScreen moduleListingScreen { get; set; }
+    private VRCOSCGame game { get; set; }
 
     public Listing()
     {
@@ -65,16 +65,16 @@ public sealed class Listing : Container
 
         moduleManager.Modules.ForEach(module => moduleCardFlow.Add(new ModuleCard(module)));
 
-        moduleListingScreen.SearchTermFilter.BindValueChanged(_ => filter());
-        moduleListingScreen.TypeFilter.BindValueChanged(_ => filter());
+        game.SearchTermFilter.BindValueChanged(_ => filter());
+        game.TypeFilter.BindValueChanged(_ => filter());
 
         filter();
     }
 
     private void filter()
     {
-        var searchTerm = moduleListingScreen.SearchTermFilter.Value;
-        var type = moduleListingScreen.TypeFilter.Value;
+        var searchTerm = game.SearchTermFilter.Value;
+        var type = game.TypeFilter.Value;
 
         moduleCardFlow.ForEach(moduleCard =>
         {

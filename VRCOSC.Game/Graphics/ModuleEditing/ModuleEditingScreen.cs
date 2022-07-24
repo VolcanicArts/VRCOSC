@@ -7,16 +7,12 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Input.Events;
-using VRCOSC.Game.Graphics.ModuleListing;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleEditing;
 
 public sealed class ModuleEditingScreen : Container
 {
-    [Resolved]
-    private ModuleListingScreen moduleListingScreen { get; set; }
-
     [Cached]
     public Bindable<Module?> SourceModule { get; } = new();
 
@@ -31,7 +27,7 @@ public sealed class ModuleEditingScreen : Container
     }
 
     [BackgroundDependencyLoader]
-    private void load()
+    private void load(VRCOSCGame game)
     {
         Children = new Drawable[]
         {
@@ -62,9 +58,11 @@ public sealed class ModuleEditingScreen : Container
             }
         };
 
-        moduleListingScreen.OnEditingModuleChange += module =>
+        game.EditingModule.ValueChanged += e =>
         {
-            if (module == null)
+            var module = e.NewValue;
+
+            if (module is null)
                 this.MoveToX(1, 1000, Easing.InQuint);
             else
                 this.MoveToX(0, 1000, Easing.OutQuint);

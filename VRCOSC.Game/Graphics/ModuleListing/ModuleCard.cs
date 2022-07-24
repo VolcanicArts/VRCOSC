@@ -16,9 +16,6 @@ public sealed class ModuleCard : Container
 {
     public readonly Module Module;
 
-    [Resolved]
-    private ModuleListingScreen moduleListingScreen { get; set; }
-
     public ModuleCard(Module module)
     {
         Module = module;
@@ -32,7 +29,7 @@ public sealed class ModuleCard : Container
     }
 
     [BackgroundDependencyLoader]
-    private void load()
+    private void load(VRCOSCGame game)
     {
         TextFlowContainer metadataTextFlow;
         Container editButton;
@@ -109,7 +106,7 @@ public sealed class ModuleCard : Container
                     Icon = FontAwesome.Solid.Get(0xF013),
                     IconPadding = 5,
                     CornerRadius = 5,
-                    Action = () => moduleListingScreen.EditModule(Module),
+                    Action = () => game.EditingModule.Value = Module,
                     BackgroundColour = VRCOSCColour.Gray5
                 }
             },

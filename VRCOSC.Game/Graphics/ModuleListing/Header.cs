@@ -22,7 +22,7 @@ public sealed class Header : Container
     }
 
     [BackgroundDependencyLoader]
-    private void load(ModuleListingScreen moduleListingScreen)
+    private void load(VRCOSCGame game)
     {
         Children = new Drawable[]
         {
@@ -69,7 +69,7 @@ public sealed class Header : Container
                                 RelativeSizeAxes = Axes.Both,
                                 CornerRadius = 5,
                                 PlaceholderText = "Search",
-                                Current = moduleListingScreen.SearchTermFilter
+                                Current = game.SearchTermFilter
                             }
                         }
                     }
