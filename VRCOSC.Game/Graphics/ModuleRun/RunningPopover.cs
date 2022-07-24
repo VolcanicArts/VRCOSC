@@ -9,7 +9,6 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
 using osuTK;
 using VRCOSC.Game.Graphics.UI.Button;
-using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleRun;
 
@@ -17,9 +16,6 @@ public sealed class RunningPopover : Container
 {
     private TerminalContainer Terminal;
     private ParameterContainer Parameters;
-
-    [Resolved]
-    private ModuleManager moduleManager { get; set; }
 
     public RunningPopover()
     {
@@ -32,7 +28,7 @@ public sealed class RunningPopover : Container
     }
 
     [BackgroundDependencyLoader]
-    private void load()
+    private void load(VRCOSCGame game)
     {
         Child = new Container
         {
@@ -84,30 +80,27 @@ public sealed class RunningPopover : Container
                         IconPadding = 5,
                         CornerRadius = 5,
                         Icon = FontAwesome.Solid.Get(0xf00d),
-                        Action = endRun
+                        Action = () => game.ModulesRunning.Value = false
                     }
                 }
             }
         };
 
-        moduleManager.Running.ValueChanged += e =>
+        game.ModulesRunning.ValueChanged += e =>
         {
             if (e.NewValue)
+            {
                 this.MoveToX(0, 1000, Easing.OutQuint);
+            }
             else
-                this.MoveToX(1, 1000, Easing.InQuint).Finally(_ => reset());
+            {
+                this.MoveToX(1, 1000, Easing.InQuint).Finally(_ =>
+                {
+                    Terminal.ClearTerminal();
+                    Parameters.ClearParameters();
+                });
+            }
         };
-    }
-
-    private void endRun()
-    {
-        _ = moduleManager.Stop();
-    }
-
-    private void reset()
-    {
-        Terminal.ClearTerminal();
-        Parameters.ClearParameters();
     }
 
     protected override bool OnMouseDown(MouseDownEvent e) => true;

@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using osu.Framework.Allocation;
@@ -19,7 +18,6 @@ namespace VRCOSC.Game.Modules;
 
 public sealed class ModuleManager : Drawable
 {
-    public BindableBool Running = new();
     private bool autoStarted;
     private Bindable<bool> autoStartStop = null!;
     private readonly TerminalLogger terminal = new(nameof(ModuleManager));
@@ -29,7 +27,8 @@ public sealed class ModuleManager : Drawable
     [Resolved]
     private VRCOSCConfigManager configManager { get; set; } = null!;
 
-    public List<Module> GroupBy(ModuleType moduleType) => Modules.Where(module => module.ModuleType == moduleType).ToList();
+    [Resolved]
+    private VRCOSCGame game { get; set; } = null!;
 
     [BackgroundDependencyLoader]
     private void load(Storage storage)
@@ -44,6 +43,14 @@ public sealed class ModuleManager : Drawable
         };
 
         Scheduler.AddDelayed(checkForVrChat, 5000, true);
+
+        game.ModulesRunning.BindValueChanged(e =>
+        {
+            if (e.NewValue)
+                start();
+            else
+                _ = stop();
+        });
     }
 
     private void checkForVrChat()
@@ -52,20 +59,20 @@ public sealed class ModuleManager : Drawable
 
         var vrChat = Process.GetProcessesByName("vrchat");
 
-        if (vrChat.Length != 0 && autoStartStop.Value && !Running.Value && !autoStarted)
+        if (vrChat.Length != 0 && autoStartStop.Value && !game.ModulesRunning.Value && !autoStarted)
         {
-            //screenManager.ShowTerminal();
+            game.ModulesRunning.Value = true;
             autoStarted = true;
         }
 
-        if (vrChat.Length == 0 && autoStartStop.Value && Running.Value)
+        if (vrChat.Length == 0 && autoStartStop.Value && game.ModulesRunning.Value)
         {
-            //screenManager.HideTerminal();
+            game.ModulesRunning.Value = false;
             autoStarted = false;
         }
     }
 
-    public void Start()
+    private void start()
     {
         var ipAddress = configManager.Get<string>(VRCOSCSetting.IPAddress);
         var sendPort = configManager.Get<int>(VRCOSCSetting.SendPort);
@@ -88,15 +95,10 @@ public sealed class ModuleManager : Drawable
         }
 
         Modules.ForEach(module => module.start());
-        Running.Value = true;
     }
 
-    public async Task Stop()
+    private async Task stop()
     {
-        if (!Running.Value) return;
-
-        Running.Value = false;
-
         await OscClient.DisableReceive();
 
         foreach (var module in Modules)
@@ -109,7 +111,7 @@ public sealed class ModuleManager : Drawable
 
     protected override void Dispose(bool isDisposing)
     {
-        if (Running.Value) Stop().Wait();
+        if (game.ModulesRunning.Value) _ = stop();
         base.Dispose(isDisposing);
     }
 }

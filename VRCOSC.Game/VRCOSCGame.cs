@@ -26,6 +26,7 @@ public abstract class VRCOSCGame : VRCOSCGameBase
     public Bindable<string> SearchTermFilter = new(string.Empty);
     public Bindable<ModuleType?> TypeFilter = new();
     public Bindable<Module?> EditingModule = new();
+    public BindableBool ModulesRunning = new();
 
     [BackgroundDependencyLoader]
     private void load()

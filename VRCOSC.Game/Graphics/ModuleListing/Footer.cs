@@ -9,7 +9,6 @@ using osu.Framework.Graphics.Shapes;
 using osuTK;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics.UI.Button;
-using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleListing;
 
@@ -29,7 +28,7 @@ public sealed class Footer : Container
     }
 
     [BackgroundDependencyLoader]
-    private void load(VRCOSCConfigManager configManager, ModuleManager moduleManager)
+    private void load(VRCOSCConfigManager configManager, VRCOSCGame game)
     {
         TextButton runButton;
 
@@ -59,7 +58,7 @@ public sealed class Footer : Container
                     CornerRadius = 5,
                     Text = "Run",
                     BackgroundColour = VRCOSCColour.Green,
-                    Action = moduleManager.Start
+                    Action = () => game.ModulesRunning.Value = true
                 }
             }
         };
