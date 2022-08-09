@@ -5,7 +5,6 @@ using System;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Shapes;
 using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Modules;
 
@@ -24,61 +23,12 @@ public sealed class TypeFilter : Container
     private void load(VRCOSCGame game)
     {
         VRCOSCDropdown<Group> dropdown;
-        Children = new Drawable[]
+        Child = dropdown = new VRCOSCDropdown<Group>
         {
-            new Container
-            {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                RelativeSizeAxes = Axes.Both,
-                Masking = true,
-                CornerRadius = 5,
-                Child = new Box
-                {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    RelativeSizeAxes = Axes.Both,
-                    Colour = VRCOSCColour.Gray3
-                }
-            },
-            new GridContainer
-            {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                RelativeSizeAxes = Axes.Both,
-                ColumnDimensions = new[]
-                {
-                    new Dimension(GridSizeMode.Relative, 0.2f),
-                    new Dimension(),
-                },
-                Content = new[]
-                {
-                    new Drawable[]
-                    {
-                        new TextFlowContainer
-                        {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
-                            TextAnchor = Anchor.Centre,
-                            RelativeSizeAxes = Axes.Both,
-                            Text = "Group By:"
-                        },
-                        new Container
-                        {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
-                            RelativeSizeAxes = Axes.Both,
-                            Child = dropdown = new VRCOSCDropdown<Group>
-                            {
-                                Anchor = Anchor.TopCentre,
-                                Origin = Anchor.TopCentre,
-                                RelativeSizeAxes = Axes.X,
-                                Items = Enum.GetValues<Group>()
-                            }
-                        }
-                    }
-                }
-            }
+            Anchor = Anchor.TopCentre,
+            Origin = Anchor.TopCentre,
+            RelativeSizeAxes = Axes.X,
+            Items = Enum.GetValues<Group>()
         };
 
         dropdown.Current.BindValueChanged(group => game.TypeFilter.Value = groupToType(group.NewValue));
