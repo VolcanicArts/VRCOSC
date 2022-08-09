@@ -361,12 +361,6 @@ public abstract class Module
 
     private string getOutputParameter(string lookup) => (string)OutputParameters[lookup].Attribute.Value;
 
-    protected void SendParameter(Enum lookup, int value) => OscClient.SendData(getOutputParameter(lookup), value);
-
-    protected void SendParameter(Enum lookup, float value) => OscClient.SendData(getOutputParameter(lookup), value);
-
-    protected void SendParameter(Enum lookup, bool value) => OscClient.SendData(getOutputParameter(lookup), value);
-
     protected void SendParameter<T>(Enum lookup, T value) where T : struct
     {
         if (ModuleState == ModuleState.Stopped) return;
@@ -374,15 +368,15 @@ public abstract class Module
         switch (value)
         {
             case bool boolValue:
-                SendParameter(lookup, boolValue);
+                OscClient.SendData(getOutputParameter(lookup), boolValue);
                 break;
 
             case int intValue:
-                SendParameter(lookup, intValue);
+                OscClient.SendData(getOutputParameter(lookup), intValue);
                 break;
 
             case float floatValue:
-                SendParameter(lookup, floatValue);
+                OscClient.SendData(getOutputParameter(lookup), floatValue);
                 break;
 
             default:
