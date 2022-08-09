@@ -5,6 +5,7 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osuTK;
 
 namespace VRCOSC.Game.Graphics.Settings;
 
@@ -29,42 +30,50 @@ public sealed class SettingsScreen : Container
                 RelativeSizeAxes = Axes.Both,
                 Colour = VRCOSCColour.Gray5
             },
-            new GridContainer
+            new BasicScrollContainer
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
-                RowDimensions = new[]
+                ScrollbarVisible = false,
+                Child = new FillFlowContainer
                 {
-                    new Dimension(GridSizeMode.Absolute, 100),
-                    new Dimension(),
-                },
-                Content = new[]
-                {
-                    new Drawable[]
-                    {
-                        new TextFlowContainer(t =>
-                        {
-                            t.Font = FrameworkFont.Regular.With(size: 40);
-                            t.Shadow = true;
-                        })
-                        {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
-                            TextAnchor = Anchor.Centre,
-                            Text = "Settings"
-                        }
-                    },
-                    new Drawable[]
+                    Anchor = Anchor.TopCentre,
+                    Origin = Anchor.TopCentre,
+                    RelativeSizeAxes = Axes.X,
+                    AutoSizeAxes = Axes.Y,
+                    Children = new Drawable[]
                     {
                         new Container
                         {
-                            Anchor = Anchor.TopCentre,
-                            Origin = Anchor.TopCentre,
+                            Anchor = Anchor.TopLeft,
+                            Origin = Anchor.TopLeft,
                             RelativeSizeAxes = Axes.X,
                             AutoSizeAxes = Axes.Y,
-                            Width = 0.5f,
-                            Child = new VRCOSCOptionContainer()
+                            Child = new TextFlowContainer(t => t.Font = FrameworkFont.Regular.With(size: 80))
+                            {
+                                RelativeAnchorPosition = new Vector2(0.025f, 0),
+                                Origin = Anchor.TopLeft,
+                                RelativeSizeAxes = Axes.X,
+                                AutoSizeAxes = Axes.Y,
+                                TextAnchor = Anchor.TopLeft,
+                                Text = "Settings",
+                            }
+                        },
+                        new FillFlowContainer<SectionContainer>
+                        {
+                            Anchor = Anchor.TopLeft,
+                            Origin = Anchor.TopLeft,
+                            RelativeSizeAxes = Axes.X,
+                            AutoSizeAxes = Axes.Y,
+                            Direction = FillDirection.Vertical,
+                            Padding = new MarginPadding(10),
+                            Spacing = new Vector2(0, 20),
+                            Children = new SectionContainer[]
+                            {
+                                new OscSection(),
+                                new ModulesSection()
+                            }
                         }
                     }
                 }
