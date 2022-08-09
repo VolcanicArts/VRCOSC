@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Collections.Generic;
 using System.Linq;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Colour;
@@ -16,7 +15,6 @@ public class HypeRateModule : Module
     public override string Prefab => "VRCOSC-Heartrate";
     public override ColourInfo Colour => Colour4.Red;
     public override ModuleType ModuleType => ModuleType.Health;
-    public override IEnumerable<string> Tags => new[] { "heartrate" };
 
     private HypeRateProvider? hypeRateProvider;
     private bool receivedHeartrate;

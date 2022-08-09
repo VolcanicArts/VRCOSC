@@ -38,7 +38,6 @@ public abstract class Module
     public virtual string Title => string.Empty;
     public virtual string Description => string.Empty;
     public virtual string Author => string.Empty;
-    public virtual IEnumerable<string> Tags => Array.Empty<string>();
     public virtual ColourInfo Colour => Colour4.Black;
     public virtual ModuleType ModuleType => ModuleType.General;
     public virtual string Prefab => string.Empty;
