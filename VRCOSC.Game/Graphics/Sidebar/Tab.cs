@@ -62,7 +62,16 @@ public sealed class Tab : ClickableContainer
 
     protected override void LoadComplete()
     {
-        Action += () => game.SelectedTab.Value = AssociatedTab;
+        Action += () =>
+        {
+            if (game.ModulesRunning.Value)
+            {
+                background.FlashColour(VRCOSCColour.Red, 500, Easing.OutCubic);
+                return;
+            }
+
+            game.SelectedTab.Value = AssociatedTab;
+        };
     }
 
     protected override bool OnHover(HoverEvent e)
