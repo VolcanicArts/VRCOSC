@@ -65,7 +65,7 @@ public class HardwareStatsProvider : IDisposable
             TotalVisibleMemorySize = double.Parse(mo["TotalVisibleMemorySize"].ToString() ?? "0")
         }).FirstOrDefault();
 
-        if (memoryValues == null) return 0f;
+        if (memoryValues is null) return 0f;
 
         return (float)((memoryValues.TotalVisibleMemorySize - memoryValues.FreePhysicalMemory) / memoryValues.TotalVisibleMemorySize);
     }

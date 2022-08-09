@@ -50,7 +50,7 @@ public class HypeRateProvider : JsonWebSocket
     {
         var eventModel = JsonConvert.DeserializeObject<EventModel>(message);
 
-        if (eventModel == null)
+        if (eventModel is null)
         {
             terminal.Log($"Received an unrecognised message:\n{message}");
             return;

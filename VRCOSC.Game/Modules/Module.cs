@@ -214,7 +214,7 @@ public abstract class Module
         }
 
         Enum? key = InputParameters.Keys.ToList().Find(e => e.ToString().Equals(parameterName));
-        if (key == null) return;
+        if (key is null) return;
 
         var inputParameterData = InputParameters[key];
 

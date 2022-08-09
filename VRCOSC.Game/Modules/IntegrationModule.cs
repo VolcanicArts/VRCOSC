@@ -81,7 +81,7 @@ public abstract class IntegrationModule : Module
 
         Process? process = retrieveProcess(processName);
 
-        if (process == null)
+        if (process is null)
         {
             Terminal.Log($"`{processName}` is not open");
             return;
