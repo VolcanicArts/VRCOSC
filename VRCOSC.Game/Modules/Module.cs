@@ -69,32 +69,32 @@ public abstract class Module
 
     protected void CreateSetting(Enum lookup, string displayName, string description, bool defaultValue)
     {
-        addSetting(lookup.ToString().ToLower(), displayName, description, defaultValue);
+        addSetting(lookup.ToString().ToLowerInvariant(), displayName, description, defaultValue);
     }
 
     protected void CreateSetting(Enum lookup, string displayName, string description, int defaultValue)
     {
-        addSetting(lookup.ToString().ToLower(), displayName, description, defaultValue);
+        addSetting(lookup.ToString().ToLowerInvariant(), displayName, description, defaultValue);
     }
 
     protected void CreateSetting(Enum lookup, string displayName, string description, int defaultValue, int minValue, int maxValue)
     {
-        addRangedSetting(lookup.ToString().ToLower(), displayName, description, defaultValue, minValue, maxValue);
+        addRangedSetting(lookup.ToString().ToLowerInvariant(), displayName, description, defaultValue, minValue, maxValue);
     }
 
     protected void CreateSetting(Enum lookup, string displayName, string description, float defaultValue, float minValue, float maxValue)
     {
-        addRangedSetting(lookup.ToString().ToLower(), displayName, description, defaultValue, minValue, maxValue);
+        addRangedSetting(lookup.ToString().ToLowerInvariant(), displayName, description, defaultValue, minValue, maxValue);
     }
 
     protected void CreateSetting(Enum lookup, string displayName, string description, string defaultValue)
     {
-        addSetting(lookup.ToString().ToLower(), displayName, description, defaultValue);
+        addSetting(lookup.ToString().ToLowerInvariant(), displayName, description, defaultValue);
     }
 
     protected void CreateSetting<T>(Enum lookup, string displayName, string description, T defaultValue) where T : Enum
     {
-        addSetting(lookup.ToString().ToLower(), displayName, description, defaultValue);
+        addSetting(lookup.ToString().ToLowerInvariant(), displayName, description, defaultValue);
     }
 
     private void addSetting(string lookup, string displayName, string description, object defaultValue)
@@ -109,7 +109,7 @@ public abstract class Module
 
     protected void CreateOutputParameter(Enum lookup, string displayName, string description, string defaultAddress)
     {
-        var lookupString = lookup.ToString().ToLower();
+        var lookupString = lookup.ToString().ToLowerInvariant();
         OutputParameters.Add(lookupString, new ModuleAttributeData(displayName, description, defaultAddress));
     }
 
@@ -185,7 +185,7 @@ public abstract class Module
 
     #region Settings
 
-    protected T GetSetting<T>(Enum lookup) => getSetting<T>(lookup.ToString().ToLower());
+    protected T GetSetting<T>(Enum lookup) => getSetting<T>(lookup.ToString().ToLowerInvariant());
 
     private T getSetting<T>(string lookup)
     {
@@ -356,7 +356,7 @@ public abstract class Module
 
     #region OutgoingParameters
 
-    private string getOutputParameter(Enum lookup) => getOutputParameter(lookup.ToString().ToLower());
+    private string getOutputParameter(Enum lookup) => getOutputParameter(lookup.ToString().ToLowerInvariant());
 
     private string getOutputParameter(string lookup) => (string)OutputParameters[lookup].Attribute.Value;
 
