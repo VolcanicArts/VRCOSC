@@ -336,7 +336,7 @@ public abstract class Module
                 break;
 
             default:
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(vrChatInputParameter), vrChatInputParameter, "Unknown VRChatInputParameter");
         }
 
         OnPlayerStateUpdate(vrChatInputParameter);
