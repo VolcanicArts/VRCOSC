@@ -459,7 +459,7 @@ public abstract class Module
             {
                 case "enum":
                     var typeAndValue = value.Split(new[] { '#' }, 2);
-                    var enumType = ReflectiveEnumerator.GetEnumTypeFromName(typeAndValue[0]);
+                    var enumType = enumNameToType(typeAndValue[0]);
                     if (enumType != null) Settings[lookup].Attribute.Value = Enum.ToObject(enumType, int.Parse(typeAndValue[1]));
                     break;
 
@@ -510,6 +510,8 @@ public abstract class Module
         Settings.Values.ForEach(value => value.Attribute.BindValueChanged(_ => performSave()));
         OutputParameters.Values.ForEach(value => value.Attribute.BindValueChanged(_ => performSave()));
     }
+
+    private static Type? enumNameToType(string enumName) => AppDomain.CurrentDomain.GetAssemblies().Select(assembly => assembly.GetType(enumName)).FirstOrDefault(type => type?.IsEnum ?? false);
 
     #endregion
 
