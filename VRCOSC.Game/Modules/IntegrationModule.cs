@@ -92,7 +92,7 @@ public abstract class IntegrationModule : Module
 
     private static bool isProcessOpen(string processName)
     {
-        return retrieveProcess(processName) != null;
+        return retrieveProcess(processName) is not null;
     }
 
     private static Process? retrieveProcess(string processName)

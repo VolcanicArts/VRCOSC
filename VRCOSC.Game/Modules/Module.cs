@@ -165,7 +165,7 @@ public abstract class Module
 
         OscClient.OnParameterReceived -= onParameterReceived;
 
-        if (updateTask != null) await updateTask.Stop();
+        if (updateTask is not null) await updateTask.Stop();
 
         OnStop();
 
@@ -391,7 +391,7 @@ public abstract class Module
     {
         using (var stream = Storage.GetStream(FileName))
         {
-            if (stream != null)
+            if (stream is not null)
             {
                 using var reader = new StreamReader(stream);
 
@@ -460,7 +460,7 @@ public abstract class Module
                 case "enum":
                     var typeAndValue = value.Split(new[] { '#' }, 2);
                     var enumType = enumNameToType(typeAndValue[0]);
-                    if (enumType != null) Settings[lookup].Attribute.Value = Enum.ToObject(enumType, int.Parse(typeAndValue[1]));
+                    if (enumType is not null) Settings[lookup].Attribute.Value = Enum.ToObject(enumType, int.Parse(typeAndValue[1]));
                     break;
 
                 case "string":

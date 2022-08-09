@@ -19,7 +19,7 @@ public class TextButton : BasicButton
         set
         {
             text = value;
-            if (spriteText != null) spriteText.Text = text;
+            if (spriteText is not null) spriteText.Text = text;
         }
     }
 
