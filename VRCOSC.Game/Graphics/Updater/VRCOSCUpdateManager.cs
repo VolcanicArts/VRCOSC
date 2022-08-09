@@ -14,19 +14,16 @@ namespace VRCOSC.Game.Graphics.Updater;
 
 public abstract class VRCOSCUpdateManager : VisibilityContainer
 {
-    private LoadingContainer loadingContainer;
-    private FinishedContainer finishedContainer;
-
-    protected VRCOSCUpdateManager()
-    {
-        Anchor = Anchor.Centre;
-        Origin = Anchor.Centre;
-        RelativeSizeAxes = Axes.Both;
-    }
+    private LoadingContainer loadingContainer = null!;
+    private FinishedContainer finishedContainer = null!;
 
     [BackgroundDependencyLoader]
     private void load(GameHost host)
     {
+        Anchor = Anchor.Centre;
+        Origin = Anchor.Centre;
+        RelativeSizeAxes = Axes.Both;
+
         Children = new Drawable[]
         {
             new Box
@@ -46,7 +43,7 @@ public abstract class VRCOSCUpdateManager : VisibilityContainer
     }
 
     // Shorthand for dealing with 0-100
-    public void UpdateProgress(int percentage) => UpdateProgress(percentage / 100f);
+    protected void UpdateProgress(int percentage) => UpdateProgress(percentage / 100f);
 
     public void UpdateProgress(float percentage) => Schedule(() => loadingContainer.ProgressBar.Current.Value = percentage);
 

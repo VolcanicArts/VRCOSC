@@ -17,21 +17,17 @@ public class SectionContainer : Container
 {
     private const int setting_height = 40;
 
-    private FillFlowContainer flow;
+    private FillFlowContainer flow = null!;
 
     protected virtual string Title => string.Empty;
 
-    public SectionContainer()
+    [BackgroundDependencyLoader]
+    private void load()
     {
         Anchor = Anchor.TopLeft;
         Origin = Anchor.TopLeft;
         RelativeSizeAxes = Axes.X;
         AutoSizeAxes = Axes.Y;
-    }
-
-    [BackgroundDependencyLoader]
-    private void load()
-    {
         Width = 0.5f;
         Masking = true;
         BorderThickness = 2;

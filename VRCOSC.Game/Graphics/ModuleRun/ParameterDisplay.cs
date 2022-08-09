@@ -11,10 +11,10 @@ namespace VRCOSC.Game.Graphics.ModuleRun;
 
 public class ParameterDisplay : Container
 {
-    public string Title { get; init; }
+    public string Title { get; init; } = null!;
 
     private readonly Dictionary<string, ParameterEntry> parameterDict = new();
-    private FillFlowContainer<ParameterEntry> parameterFlow;
+    private FillFlowContainer<ParameterEntry> parameterFlow = null!;
 
     [BackgroundDependencyLoader]
     private void load()

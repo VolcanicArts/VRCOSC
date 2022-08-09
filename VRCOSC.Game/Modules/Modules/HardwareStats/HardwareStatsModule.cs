@@ -15,7 +15,7 @@ public class HardwareStatsModule : Module
     public override ModuleType ModuleType => ModuleType.General;
     protected override double DeltaUpdate => 5000d;
 
-    private HardwareStatsProvider hardwareStatsProvider;
+    private HardwareStatsProvider hardwareStatsProvider = null!;
 
     protected override void CreateAttributes()
     {

@@ -18,7 +18,7 @@ namespace VRCOSC.Game.Graphics.ModuleEditing;
 
 public sealed class AttributeFlow : FillFlowContainer
 {
-    public List<ModuleAttributeData> AttributesList { get; init; }
+    public List<ModuleAttributeData> AttributesList { get; init; } = null!;
 
     public AttributeFlow(string title)
     {

@@ -9,7 +9,7 @@ namespace VRCOSC.Game.Tests.Visual;
 
 public class TestUpdaterManager : VRCOSCTestScene
 {
-    private VRCOSCUpdateManager updateManager;
+    private VRCOSCUpdateManager updateManager = null!;
 
     [SetUp]
     public void SetUp()

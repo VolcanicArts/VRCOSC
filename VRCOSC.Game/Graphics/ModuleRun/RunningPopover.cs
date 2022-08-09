@@ -14,8 +14,8 @@ namespace VRCOSC.Game.Graphics.ModuleRun;
 
 public sealed class RunningPopover : Container
 {
-    private TerminalContainer Terminal;
-    private ParameterContainer Parameters;
+    private TerminalContainer terminal = null!;
+    private ParameterContainer parameters = null!;
 
     public RunningPopover()
     {
@@ -61,8 +61,8 @@ public sealed class RunningPopover : Container
                     {
                         new Drawable[]
                         {
-                            Terminal = new TerminalContainer(),
-                            Parameters = new ParameterContainer()
+                            terminal = new TerminalContainer(),
+                            parameters = new ParameterContainer()
                         }
                     }
                 },
@@ -96,8 +96,8 @@ public sealed class RunningPopover : Container
             {
                 this.MoveToX(1, 1000, Easing.InQuint).Finally(_ =>
                 {
-                    Terminal.ClearTerminal();
-                    Parameters.ClearParameters();
+                    terminal.ClearTerminal();
+                    parameters.ClearParameters();
                 });
             }
         };

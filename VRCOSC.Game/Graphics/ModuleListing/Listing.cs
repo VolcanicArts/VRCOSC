@@ -17,10 +17,10 @@ public sealed class Listing : Container
     private FillFlowContainer<ModuleCard> moduleCardFlow = null!;
 
     [Resolved]
-    private ModuleManager moduleManager { get; set; }
+    private ModuleManager moduleManager { get; set; } = null!;
 
     [Resolved]
-    private VRCOSCGame game { get; set; }
+    private VRCOSCGame game { get; set; } = null!;
 
     public Listing()
     {

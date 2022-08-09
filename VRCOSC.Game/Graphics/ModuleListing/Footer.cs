@@ -14,7 +14,7 @@ namespace VRCOSC.Game.Graphics.ModuleListing;
 
 public sealed class Footer : Container
 {
-    private Bindable<bool> autoStartStop;
+    private Bindable<bool> autoStartStop = null!;
 
     public Footer()
     {

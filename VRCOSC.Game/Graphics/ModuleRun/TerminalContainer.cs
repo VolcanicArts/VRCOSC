@@ -15,8 +15,8 @@ namespace VRCOSC.Game.Graphics.ModuleRun;
 
 public sealed class TerminalContainer : Container
 {
-    private BasicScrollContainer terminalScroll;
-    private FillFlowContainer<TerminalEntry> terminalFlow;
+    private BasicScrollContainer terminalScroll = null!;
+    private FillFlowContainer<TerminalEntry> terminalFlow = null!;
 
     public TerminalContainer()
     {

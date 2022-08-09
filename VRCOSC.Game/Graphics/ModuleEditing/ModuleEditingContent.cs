@@ -16,12 +16,12 @@ namespace VRCOSC.Game.Graphics.ModuleEditing;
 
 public class ModuleEditingContent : Container
 {
-    private TextFlowContainer metadataTextFlow;
-    private LineSeparator settingsSeparator;
-    private Container<AttributeFlow> settingsFlowContainer;
-    private LineSeparator outputParametersSeparator;
-    private Container<AttributeFlow> outputParametersFlowContainer;
-    private BasicScrollContainer scrollContainer;
+    private TextFlowContainer metadataTextFlow = null!;
+    private LineSeparator settingsSeparator = null!;
+    private Container<AttributeFlow> settingsFlowContainer = null!;
+    private LineSeparator outputParametersSeparator = null!;
+    private Container<AttributeFlow> outputParametersFlowContainer = null!;
+    private BasicScrollContainer scrollContainer = null!;
 
     [BackgroundDependencyLoader]
     private void load(VRCOSCGame game, Bindable<Module?> sourceModule)

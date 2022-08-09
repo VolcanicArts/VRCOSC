@@ -15,10 +15,10 @@ namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes;
 
 public abstract class AttributeCard : Container
 {
-    private VRCOSCButton resetToDefault;
+    private VRCOSCButton resetToDefault = null!;
+    private FillFlowContainer contentFlow = null!;
 
     protected readonly ModuleAttributeData AttributeData;
-    private FillFlowContainer contentFlow;
 
     protected AttributeCard(ModuleAttributeData attributeData)
     {

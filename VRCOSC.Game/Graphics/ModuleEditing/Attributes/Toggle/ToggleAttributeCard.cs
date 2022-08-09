@@ -12,7 +12,7 @@ namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes.Toggle;
 
 public class ToggleAttributeCard : AttributeCard
 {
-    protected ToggleButton ToggleButton;
+    private ToggleButton toggleButton = null!;
 
     public ToggleAttributeCard(ModuleAttributeData attributeData)
         : base(attributeData)
@@ -29,7 +29,7 @@ public class ToggleAttributeCard : AttributeCard
             RelativeSizeAxes = Axes.Both,
             FillMode = FillMode.Fit,
             Padding = new MarginPadding(10),
-            Child = ToggleButton = new ToggleButton
+            Child = toggleButton = new ToggleButton
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
@@ -40,7 +40,7 @@ public class ToggleAttributeCard : AttributeCard
         });
 
         AttributeData.Attribute.ValueChanged += updateValues;
-        ToggleButton.State.ValueChanged += e => updateValues(OnToggleChange(e));
+        toggleButton.State.ValueChanged += e => updateValues(OnToggleChange(e));
     }
 
     private void updateValues(ValueChangedEvent<object> e)
@@ -51,7 +51,7 @@ public class ToggleAttributeCard : AttributeCard
     private void updateValues(bool value)
     {
         AttributeData.Attribute.Value = value;
-        ToggleButton.State.Value = value;
+        toggleButton.State.Value = value;
     }
 
     protected virtual bool OnToggleChange(ValueChangedEvent<bool> e)

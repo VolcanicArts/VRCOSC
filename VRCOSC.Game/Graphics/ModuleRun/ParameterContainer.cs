@@ -14,8 +14,8 @@ namespace VRCOSC.Game.Graphics.ModuleRun;
 
 public sealed class ParameterContainer : Container
 {
-    private ParameterDisplay outgoingParameterDisplay;
-    private ParameterDisplay incomingParameterDisplay;
+    private ParameterDisplay outgoingParameterDisplay = null!;
+    private ParameterDisplay incomingParameterDisplay = null!;
 
     public ParameterContainer()
     {

@@ -12,11 +12,11 @@ namespace VRCOSC.Game.Graphics.ModuleRun;
 
 public sealed class ParameterEntry : Container
 {
-    public string Key { get; init; }
+    public string Key { get; init; } = null!;
     public Bindable<string> Value { get; } = new();
 
-    private Box background;
-    private SpriteText valueText;
+    private Box background = null!;
+    private SpriteText valueText = null!;
 
     public ParameterEntry()
     {
