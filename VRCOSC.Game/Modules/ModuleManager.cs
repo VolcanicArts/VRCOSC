@@ -12,16 +12,39 @@ using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Platform;
 using VRCOSC.Game.Config;
+using VRCOSC.Game.Modules.Modules.Calculator;
+using VRCOSC.Game.Modules.Modules.Clock;
+using VRCOSC.Game.Modules.Modules.Discord;
+using VRCOSC.Game.Modules.Modules.HardwareStats;
+using VRCOSC.Game.Modules.Modules.HypeRate;
+using VRCOSC.Game.Modules.Modules.Media;
+using VRCOSC.Game.Modules.Modules.Random;
+using VRCOSC.Game.Modules.Modules.Spotify;
 using VRCOSC.Game.Util;
 
 namespace VRCOSC.Game.Modules;
 
 public sealed class ModuleManager : Drawable
 {
+    private static readonly IReadOnlyList<Type> module_types = new[]
+    {
+        typeof(RandomBoolModule),
+        typeof(RandomIntModule),
+        typeof(RandomFloatModule),
+        typeof(ClockModule),
+        typeof(HardwareStatsModule),
+        typeof(SpotifyModule),
+        typeof(DiscordModule),
+        typeof(MediaModule),
+        typeof(HypeRateModule),
+        typeof(CalculatorModule)
+    };
+
     private bool autoStarted;
     private Bindable<bool> autoStartStop = null!;
     private readonly TerminalLogger terminal = new(nameof(ModuleManager));
-    public readonly IReadOnlyList<Module> Modules = ReflectiveEnumerator.GetEnumerableOfType<Module>()!;
+
+    public readonly List<Module> Modules = new();
     public readonly OscClient OscClient = new();
 
     [Resolved]
@@ -34,7 +57,12 @@ public sealed class ModuleManager : Drawable
     private void load(Storage storage)
     {
         var moduleStorage = storage.GetStorageForDirectory("modules");
-        Modules.ForEach(module => module.Initialise(moduleStorage, OscClient));
+        module_types.ForEach(type =>
+        {
+            var module = (Module)Activator.CreateInstance(type)!;
+            module.Initialise(moduleStorage, OscClient);
+            Modules.Add(module);
+        });
 
         autoStartStop = configManager.GetBindable<bool>(VRCOSCSetting.AutoStartStop);
         autoStartStop.ValueChanged += e =>
