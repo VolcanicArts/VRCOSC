@@ -317,7 +317,7 @@ public class VRCOSCDropdown<T> : Dropdown<T>
         private void load()
         {
             BackgroundColour = VRCOSCColour.Gray2;
-            BackgroundColourHover = VRCOSCColour.Gray5;
+            BackgroundColourHover = VRCOSCColour.Gray4;
         }
     }
 }
