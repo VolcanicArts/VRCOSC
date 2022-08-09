@@ -10,7 +10,7 @@ namespace VRCOSC.Game.Tests.Visual;
 
 public class TestProgressBar : VRCOSCTestScene
 {
-    private ProgressBar progressBar;
+    private ProgressBar? progressBar;
 
     [SetUp]
     public void SetUp()

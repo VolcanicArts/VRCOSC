@@ -3,6 +3,7 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
     <GenerateProgramFile>false</GenerateProgramFile>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup Label="Project References">
     <ProjectReference Include="..\VRCOSC.Game\VRCOSC.Game.csproj" />
