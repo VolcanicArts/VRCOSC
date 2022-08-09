@@ -36,6 +36,7 @@ public sealed class SettingsScreen : Container
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 ScrollbarVisible = false,
+                ClampExtension = 0,
                 Child = new FillFlowContainer
                 {
                     Anchor = Anchor.TopCentre,
