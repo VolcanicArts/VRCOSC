@@ -3,6 +3,7 @@
 
 using System;
 using osu.Framework.Allocation;
+using osu.Framework.Graphics;
 using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Modules;
 
@@ -28,7 +29,16 @@ public class SliderAttributeCard<T> : AttributeCard where T : struct, IComparabl
         slider.SlowedCurrent.ValueChanged += e => UpdateValues(e.NewValue);
     }
 
-    protected virtual VRCOSCSlider<T> CreateSlider() { throw new NotImplementedException(); }
+    protected virtual VRCOSCSlider<T> CreateSlider()
+    {
+        return new VRCOSCSlider<T>
+        {
+            Anchor = Anchor.TopCentre,
+            Origin = Anchor.TopCentre,
+            RelativeSizeAxes = Axes.X,
+            Height = 40
+        };
+    }
 
     protected override void UpdateValues(object value)
     {

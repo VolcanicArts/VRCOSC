@@ -17,18 +17,14 @@ public class IntSliderAttributeCard : SliderAttributeCard<int>
 
     protected override VRCOSCSlider<int> CreateSlider()
     {
-        return new VRCOSCSlider<int>
+        return base.CreateSlider().With(a =>
         {
-            Anchor = Anchor.TopCentre,
-            Origin = Anchor.TopCentre,
-            RelativeSizeAxes = Axes.X,
-            Height = 40,
-            Current = new BindableNumber<int>
+            a.Current = new BindableNumber<int>
             {
                 MinValue = (int)AttributeDataWithBounds.MinValue,
                 MaxValue = (int)AttributeDataWithBounds.MaxValue,
                 Precision = 1
-            }
-        };
+            };
+        });
     }
 }
