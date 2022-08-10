@@ -3,19 +3,20 @@
 
 using System;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes.Slider;
 
-public class SliderAttributeCard<T> : AttributeCard where T : struct, IComparable<T>, IConvertible, IEquatable<T>
+public abstract class SliderAttributeCard<T> : AttributeCard where T : struct, IComparable<T>, IConvertible, IEquatable<T>
 {
     protected ModuleAttributeDataWithBounds AttributeDataWithBounds;
 
     private VRCOSCSlider<T> slider = null!;
 
-    public SliderAttributeCard(ModuleAttributeDataWithBounds attributeData)
+    protected SliderAttributeCard(ModuleAttributeDataWithBounds attributeData)
         : base(attributeData)
     {
         AttributeDataWithBounds = attributeData;
@@ -24,7 +25,14 @@ public class SliderAttributeCard<T> : AttributeCard where T : struct, IComparabl
     [BackgroundDependencyLoader]
     private void load()
     {
-        ContentFlow.Add(slider = CreateSlider());
+        ContentFlow.Add(slider = new VRCOSCSlider<T>
+        {
+            Anchor = Anchor.TopCentre,
+            Origin = Anchor.TopCentre,
+            RelativeSizeAxes = Axes.X,
+            Height = 40,
+            Current = CreateCurrent()
+        });
     }
 
     protected override void LoadComplete()
@@ -33,20 +41,11 @@ public class SliderAttributeCard<T> : AttributeCard where T : struct, IComparabl
         slider.SlowedCurrent.ValueChanged += e => UpdateValues(e.NewValue);
     }
 
-    protected virtual VRCOSCSlider<T> CreateSlider()
-    {
-        return new VRCOSCSlider<T>
-        {
-            Anchor = Anchor.TopCentre,
-            Origin = Anchor.TopCentre,
-            RelativeSizeAxes = Axes.X,
-            Height = 40
-        };
-    }
-
     protected override void UpdateValues(object value)
     {
         base.UpdateValues(value);
         slider.SlowedCurrent.Value = (T)value;
     }
+
+    protected abstract Bindable<T> CreateCurrent();
 }

@@ -2,8 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Bindables;
-using osu.Framework.Graphics;
-using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes.Slider;
@@ -15,16 +13,10 @@ public class IntSliderAttributeCard : SliderAttributeCard<int>
     {
     }
 
-    protected override VRCOSCSlider<int> CreateSlider()
+    protected override Bindable<int> CreateCurrent() => new BindableNumber<int>
     {
-        return base.CreateSlider().With(a =>
-        {
-            a.Current = new BindableNumber<int>
-            {
-                MinValue = (int)AttributeDataWithBounds.MinValue,
-                MaxValue = (int)AttributeDataWithBounds.MaxValue,
-                Precision = 1
-            };
-        });
-    }
+        MinValue = (int)AttributeDataWithBounds.MinValue,
+        MaxValue = (int)AttributeDataWithBounds.MaxValue,
+        Precision = 1
+    };
 }
