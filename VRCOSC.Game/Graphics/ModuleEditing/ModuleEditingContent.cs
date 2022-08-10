@@ -159,7 +159,7 @@ public class ModuleEditingContent : Container
         }, true);
     }
 
-    public override void Clear(bool disposeChildren)
+    public new void Clear()
     {
         metadataTextFlow.Clear();
         settingsFlowContainer.Clear();
