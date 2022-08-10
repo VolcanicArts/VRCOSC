@@ -1,9 +1,10 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Linq;
+using System.Collections.Generic;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
@@ -17,11 +18,10 @@ namespace VRCOSC.Game.Graphics.ModuleEditing;
 public class ModuleEditingContent : Container
 {
     private TextFlowContainer metadataTextFlow = null!;
-    private Container settings = null!;
-    private AttributeFlow settingsFlowContainer = null!;
-    private Container parameters = null!;
-    private AttributeFlow outputParametersFlowContainer = null!;
+    private SeparatedAttributeFlow settings = null!;
+    private SeparatedAttributeFlow parameters = null!;
     private BasicScrollContainer scrollContainer = null!;
+    private FillFlowContainer<SeparatedAttributeFlow> separatedAttributeFlowFlow = null!;
 
     [BackgroundDependencyLoader]
     private void load(VRCOSCGame game, Bindable<Module?> sourceModule)
@@ -56,36 +56,18 @@ public class ModuleEditingContent : Container
                             TextAnchor = Anchor.Centre,
                             AutoSizeAxes = Axes.Both
                         },
-                        settings = new Container
+                        separatedAttributeFlowFlow = new FillFlowContainer<SeparatedAttributeFlow>()
                         {
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
                             RelativeSizeAxes = Axes.X,
                             AutoSizeAxes = Axes.Y,
-                            Children = new Drawable[]
+                            Direction = FillDirection.Vertical,
+                            Spacing = new Vector2(0, 5),
+                            Children = new[]
                             {
-                                new LineSeparator
-                                {
-                                    Anchor = Anchor.TopCentre,
-                                    Origin = Anchor.TopCentre
-                                },
-                                settingsFlowContainer = new AttributeFlow("Settings"),
-                            }
-                        },
-                        parameters = new Container
-                        {
-                            Anchor = Anchor.TopCentre,
-                            Origin = Anchor.TopCentre,
-                            RelativeSizeAxes = Axes.X,
-                            AutoSizeAxes = Axes.Y,
-                            Children = new Drawable[]
-                            {
-                                new LineSeparator
-                                {
-                                    Anchor = Anchor.TopCentre,
-                                    Origin = Anchor.TopCentre
-                                },
-                                outputParametersFlowContainer = new AttributeFlow("Parameters")
+                                settings = new SeparatedAttributeFlow("Settings"),
+                                parameters = new SeparatedAttributeFlow("Parameters")
                             }
                         }
                     }
@@ -133,11 +115,8 @@ public class ModuleEditingContent : Container
                 t.Colour = VRCOSCColour.GrayE;
             });
 
-            settingsFlowContainer.AttributesList.Clear();
-            settingsFlowContainer.AttributesList.AddRange(sourceModule.Value.Settings.Values.ToList());
-
-            outputParametersFlowContainer.AttributesList.Clear();
-            outputParametersFlowContainer.AttributesList.AddRange(sourceModule.Value.OutputParameters.Values.ToList());
+            settings.Replace(sourceModule.Value.Settings.Values);
+            parameters.Replace(sourceModule.Value.OutputParameters.Values);
 
             settings.Alpha = sourceModule.Value.HasSettings ? 1 : 0;
             parameters.Alpha = sourceModule.Value.HasOutputParameters ? 1 : 0;
@@ -147,8 +126,47 @@ public class ModuleEditingContent : Container
     public new void Clear()
     {
         metadataTextFlow.Clear();
-        settingsFlowContainer.Clear();
-        outputParametersFlowContainer.Clear();
+        separatedAttributeFlowFlow.ForEach(child => child.Clear());
         scrollContainer.ScrollToStart();
+    }
+
+    private class SeparatedAttributeFlow : Container
+    {
+        private AttributeFlow attributeFlow = null!;
+        private readonly string title;
+
+        public SeparatedAttributeFlow(string title)
+        {
+            this.title = title;
+        }
+
+        [BackgroundDependencyLoader]
+        private void load()
+        {
+            Anchor = Anchor.TopCentre;
+            Origin = Anchor.TopCentre;
+            RelativeSizeAxes = Axes.X;
+            AutoSizeAxes = Axes.Y;
+            Children = new Drawable[]
+            {
+                new LineSeparator
+                {
+                    Anchor = Anchor.TopCentre,
+                    Origin = Anchor.TopCentre
+                },
+                attributeFlow = new AttributeFlow(title),
+            };
+        }
+
+        public void Replace(IEnumerable<ModuleAttributeData> attributeData)
+        {
+            attributeFlow.AttributesList.Clear();
+            attributeFlow.AttributesList.AddRange(attributeData);
+        }
+
+        public new void Clear()
+        {
+            attributeFlow.Clear();
+        }
     }
 }
