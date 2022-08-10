@@ -37,7 +37,11 @@ public class ToggleAttributeCard : AttributeCard
                 State = { Value = (bool)AttributeData.Attribute.Value }
             }
         });
+    }
 
+    protected override void LoadComplete()
+    {
+        base.LoadComplete();
         toggleButton.State.ValueChanged += e => UpdateValues(e.NewValue);
     }
 

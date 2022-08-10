@@ -25,7 +25,11 @@ public class SliderAttributeCard<T> : AttributeCard where T : struct, IComparabl
     private void load()
     {
         ContentFlow.Add(slider = CreateSlider());
+    }
 
+    protected override void LoadComplete()
+    {
+        base.LoadComplete();
         slider.SlowedCurrent.ValueChanged += e => UpdateValues(e.NewValue);
     }
 

@@ -11,7 +11,7 @@ namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes.Text;
 
 public class TextAttributeCard : AttributeCard
 {
-    protected VRCOSCTextBox TextBox = null!;
+    private VRCOSCTextBox textBox = null!;
 
     public TextAttributeCard(ModuleAttributeData attributeData)
         : base(attributeData)
@@ -21,7 +21,7 @@ public class TextAttributeCard : AttributeCard
     [BackgroundDependencyLoader]
     private void load()
     {
-        ContentFlow.Add(TextBox = new VRCOSCTextBox
+        ContentFlow.Add(textBox = new VRCOSCTextBox
         {
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
@@ -31,14 +31,18 @@ public class TextAttributeCard : AttributeCard
             CornerRadius = 5,
             Text = AttributeData.Attribute.Value.ToString()
         });
+    }
 
-        TextBox.Current.ValueChanged += e => UpdateValues(OnTextWrite(e));
+    protected override void LoadComplete()
+    {
+        base.LoadComplete();
+        textBox.Current.ValueChanged += e => UpdateValues(OnTextWrite(e));
     }
 
     protected override void UpdateValues(object value)
     {
         base.UpdateValues(value);
-        TextBox.Current.Value = value.ToString();
+        textBox.Current.Value = value.ToString();
     }
 
     protected virtual object OnTextWrite(ValueChangedEvent<string> e)

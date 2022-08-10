@@ -12,7 +12,7 @@ namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes.Dropdown;
 
 public class DropdownAttributeCard<T> : AttributeCard where T : Enum
 {
-    protected VRCOSCDropdown<T> Dropdown = null!;
+    private VRCOSCDropdown<T> dropdown = null!;
 
     public DropdownAttributeCard(ModuleAttributeData attributeData)
         : base(attributeData)
@@ -22,20 +22,24 @@ public class DropdownAttributeCard<T> : AttributeCard where T : Enum
     [BackgroundDependencyLoader]
     private void load()
     {
-        ContentFlow.Add(Dropdown = new VRCOSCDropdown<T>()
+        ContentFlow.Add(dropdown = new VRCOSCDropdown<T>()
         {
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
             RelativeSizeAxes = Axes.X,
             Items = Enum.GetValues(typeof(T)).Cast<T>()
         });
+    }
 
-        Dropdown.Current.ValueChanged += e => UpdateValues(e.NewValue);
+    protected override void LoadComplete()
+    {
+        base.LoadComplete();
+        dropdown.Current.ValueChanged += e => UpdateValues(e.NewValue);
     }
 
     protected override void UpdateValues(object value)
     {
         base.UpdateValues(value);
-        Dropdown.Current.Value = (T)value;
+        dropdown.Current.Value = (T)value;
     }
 }
