@@ -21,7 +21,7 @@ public class TextAttributeCard : AttributeCard
     [BackgroundDependencyLoader]
     private void load()
     {
-        AddToFlow(TextBox = new VRCOSCTextBox
+        ContentFlow.Add(TextBox = new VRCOSCTextBox
         {
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
@@ -32,24 +32,17 @@ public class TextAttributeCard : AttributeCard
             Text = AttributeData.Attribute.Value.ToString()
         });
 
-        AttributeData.Attribute.ValueChanged += e => updateValues(e.NewValue);
-        TextBox.Current.ValueChanged += e => updateValues(OnTextWrite(e));
+        TextBox.Current.ValueChanged += e => UpdateValues(OnTextWrite(e));
     }
 
-    private void updateValues(object value)
+    protected override void UpdateValues(object value)
     {
-        AttributeData.Attribute.Value = value;
+        base.UpdateValues(value);
         TextBox.Current.Value = value.ToString();
     }
 
     protected virtual object OnTextWrite(ValueChangedEvent<string> e)
     {
         return e.NewValue;
-    }
-
-    protected override void Dispose(bool isDisposing)
-    {
-        AttributeData.Attribute.ValueChanged -= updateValues;
-        base.Dispose(isDisposing);
     }
 }

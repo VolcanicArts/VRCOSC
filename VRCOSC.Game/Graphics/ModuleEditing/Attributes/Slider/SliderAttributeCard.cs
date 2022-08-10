@@ -23,23 +23,16 @@ public class SliderAttributeCard<T> : AttributeCard where T : struct, IComparabl
     [BackgroundDependencyLoader]
     private void load()
     {
-        AddToFlow(slider = CreateSlider());
+        ContentFlow.Add(slider = CreateSlider());
 
-        AttributeData.Attribute.ValueChanged += e => updateValues(e.NewValue);
-        slider.SlowedCurrent.ValueChanged += e => updateValues(e.NewValue);
+        slider.SlowedCurrent.ValueChanged += e => UpdateValues(e.NewValue);
     }
 
     protected virtual VRCOSCSlider<T> CreateSlider() { throw new NotImplementedException(); }
 
-    private void updateValues(object value)
+    protected override void UpdateValues(object value)
     {
-        AttributeData.Attribute.Value = value;
+        base.UpdateValues(value);
         slider.SlowedCurrent.Value = (T)value;
-    }
-
-    protected override void Dispose(bool isDisposing)
-    {
-        AttributeData.Attribute.ValueChanged -= updateValues;
-        base.Dispose(isDisposing);
     }
 }

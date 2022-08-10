@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
-using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using VRCOSC.Game.Graphics.ModuleListing;
@@ -39,24 +38,12 @@ public class ToggleAttributeCard : AttributeCard
             }
         });
 
-        AttributeData.Attribute.ValueChanged += e => updateValues(e.NewValue);
-        toggleButton.State.ValueChanged += e => updateValues(OnToggleChange(e));
+        toggleButton.State.ValueChanged += e => UpdateValues(e.NewValue);
     }
 
-    private void updateValues(object value)
+    protected override void UpdateValues(object value)
     {
-        AttributeData.Attribute.Value = value;
+        base.UpdateValues(value);
         toggleButton.State.Value = (bool)value;
-    }
-
-    protected virtual bool OnToggleChange(ValueChangedEvent<bool> e)
-    {
-        return e.NewValue;
-    }
-
-    protected override void Dispose(bool isDisposing)
-    {
-        AttributeData.Attribute.ValueChanged -= updateValues;
-        base.Dispose(isDisposing);
     }
 }

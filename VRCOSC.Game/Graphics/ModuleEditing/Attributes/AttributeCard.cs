@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
-using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Effects;
@@ -16,7 +15,7 @@ namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes;
 public abstract class AttributeCard : Container
 {
     private VRCOSCButton resetToDefault = null!;
-    private FillFlowContainer contentFlow = null!;
+    protected FillFlowContainer ContentFlow = null!;
 
     protected readonly ModuleAttributeData AttributeData;
 
@@ -78,7 +77,7 @@ public abstract class AttributeCard : Container
                         RelativeSizeAxes = Axes.Both,
                         Colour = VRCOSCColour.Gray2
                     },
-                    contentFlow = new FillFlowContainer
+                    ContentFlow = new FillFlowContainer
                     {
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
@@ -111,30 +110,23 @@ public abstract class AttributeCard : Container
             t.Font = FrameworkFont.Regular.With(size: 20);
             t.Colour = VRCOSCColour.Gray9;
         });
-        AttributeData.Attribute.ValueChanged += updateResetToDefault;
-    }
-
-    public void AddToFlow(Drawable drawable)
-    {
-        contentFlow.Add(drawable);
     }
 
     protected override void LoadComplete()
     {
+        AttributeData.Attribute.ValueChanged += e => UpdateValues(e.NewValue);
         AttributeData.Attribute.TriggerChange();
     }
 
-    private void updateResetToDefault(ValueChangedEvent<object> _)
+    protected virtual void UpdateValues(object value)
     {
-        if (!AttributeData.Attribute.IsDefault)
-            resetToDefault.Show();
-        else
-            resetToDefault.Hide();
+        AttributeData.Attribute.Value = value;
+        resetToDefault.Alpha = AttributeData.Attribute.IsDefault ? 0 : 1;
     }
 
     protected override void Dispose(bool isDisposing)
     {
-        AttributeData.Attribute.ValueChanged -= updateResetToDefault;
         base.Dispose(isDisposing);
+        AttributeData.Attribute.ValueChanged -= UpdateValues;
     }
 }

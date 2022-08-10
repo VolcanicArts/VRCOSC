@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using osu.Framework.Allocation;
-using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Modules;
@@ -23,7 +22,7 @@ public class DropdownAttributeCard<T> : AttributeCard where T : Enum
     [BackgroundDependencyLoader]
     private void load()
     {
-        AddToFlow(Dropdown = new VRCOSCDropdown<T>()
+        ContentFlow.Add(Dropdown = new VRCOSCDropdown<T>()
         {
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
@@ -31,24 +30,12 @@ public class DropdownAttributeCard<T> : AttributeCard where T : Enum
             Items = Enum.GetValues(typeof(T)).Cast<T>()
         });
 
-        AttributeData.Attribute.ValueChanged += e => updateValues(e.NewValue);
-        Dropdown.Current.ValueChanged += e => updateValues(OnDropdownSelect(e));
+        Dropdown.Current.ValueChanged += e => UpdateValues(e.NewValue);
     }
 
-    private void updateValues(object value)
+    protected override void UpdateValues(object value)
     {
-        AttributeData.Attribute.Value = value;
+        base.UpdateValues(value);
         Dropdown.Current.Value = (T)value;
-    }
-
-    protected virtual object OnDropdownSelect(ValueChangedEvent<T> e)
-    {
-        return e.NewValue;
-    }
-
-    protected override void Dispose(bool isDisposing)
-    {
-        AttributeData.Attribute.ValueChanged -= updateValues;
-        base.Dispose(isDisposing);
     }
 }
