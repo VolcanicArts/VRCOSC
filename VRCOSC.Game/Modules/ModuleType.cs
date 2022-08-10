@@ -5,8 +5,8 @@ namespace VRCOSC.Game.Modules;
 
 public enum ModuleType
 {
-    General = 1 << 0,
-    Health = 1 << 1,
-    Integrations = 1 << 2,
-    Random = 1 << 3
+    General = 0,
+    Health = 1,
+    Integrations = 2,
+    Random = 3
 }

@@ -28,31 +28,21 @@ public sealed class TypeFilter : Container
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
             RelativeSizeAxes = Axes.X,
-            Items = Enum.GetValues<Group>()
+            Items = Enum.GetValues<Group>(),
+            Current = { Value = Group.All }
         };
 
-        dropdown.Current.BindValueChanged(group => game.TypeFilter.Value = groupToType(group.NewValue));
+        dropdown.Current.BindValueChanged(group => game.TypeFilter.Value = groupToType(group.NewValue), true);
     }
 
     private enum Group
     {
-        All,
-        General,
-        Health,
-        Integrations,
-        Random
+        All = -1,
+        General = 0,
+        Health = 1,
+        Integrations = 2,
+        Random = 3
     }
 
-    private static ModuleType? groupToType(Group group)
-    {
-        return group switch
-        {
-            Group.All => null,
-            Group.General => ModuleType.General,
-            Group.Health => ModuleType.Health,
-            Group.Integrations => ModuleType.Integrations,
-            Group.Random => ModuleType.Random,
-            _ => throw new ArgumentOutOfRangeException(nameof(group), group, null)
-        };
-    }
+    private static ModuleType? groupToType(Group group) => group == Group.All ? null : (ModuleType)(int)group;
 }
