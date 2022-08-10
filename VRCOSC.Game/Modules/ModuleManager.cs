@@ -4,45 +4,65 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Platform;
 using VRCOSC.Game.Config;
-using VRCOSC.Game.Graphics.Containers.Screens;
-using VRCOSC.Game.Graphics.Updater;
+using VRCOSC.Game.Modules.Modules.Calculator;
+using VRCOSC.Game.Modules.Modules.Clock;
+using VRCOSC.Game.Modules.Modules.Discord;
+using VRCOSC.Game.Modules.Modules.HardwareStats;
+using VRCOSC.Game.Modules.Modules.HypeRate;
+using VRCOSC.Game.Modules.Modules.Media;
+using VRCOSC.Game.Modules.Modules.Random;
+using VRCOSC.Game.Modules.Modules.Spotify;
 using VRCOSC.Game.Util;
 
 namespace VRCOSC.Game.Modules;
 
 public sealed class ModuleManager : Drawable
 {
-    private bool running;
+    private static readonly IReadOnlyList<Type> module_types = new[]
+    {
+        typeof(RandomBoolModule),
+        typeof(RandomIntModule),
+        typeof(RandomFloatModule),
+        typeof(ClockModule),
+        typeof(HardwareStatsModule),
+        typeof(SpotifyModule),
+        typeof(DiscordModule),
+        typeof(MediaModule),
+        typeof(HypeRateModule),
+        typeof(CalculatorModule)
+    };
+
     private bool autoStarted;
     private Bindable<bool> autoStartStop = null!;
     private readonly TerminalLogger terminal = new(nameof(ModuleManager));
-    private readonly List<Module> modules = ReflectiveEnumerator.GetEnumerableOfType<Module>()!;
+
+    public readonly List<Module> Modules = new();
     public readonly OscClient OscClient = new();
 
     [Resolved]
     private VRCOSCConfigManager configManager { get; set; } = null!;
 
     [Resolved]
-    private ScreenManager screenManager { get; set; } = null!;
-
-    [Resolved]
-    private VRCOSCUpdateManager updateManager { get; set; } = null!;
-
-    public List<Module> GroupBy(ModuleType moduleType) => modules.Where(module => module.ModuleType == moduleType).ToList();
+    private VRCOSCGame game { get; set; } = null!;
 
     [BackgroundDependencyLoader]
     private void load(Storage storage)
     {
         var moduleStorage = storage.GetStorageForDirectory("modules");
-        modules.ForEach(module => module.Initialise(moduleStorage, OscClient));
+        module_types.ForEach(type =>
+        {
+            var module = (Module)Activator.CreateInstance(type)!;
+            module.Initialise(moduleStorage, OscClient);
+            Modules.Add(module);
+        });
 
         autoStartStop = configManager.GetBindable<bool>(VRCOSCSetting.AutoStartStop);
         autoStartStop.ValueChanged += e =>
@@ -51,28 +71,36 @@ public sealed class ModuleManager : Drawable
         };
 
         Scheduler.AddDelayed(checkForVrChat, 5000, true);
+
+        game.ModulesRunning.BindValueChanged(e =>
+        {
+            if (e.NewValue)
+                start();
+            else
+                _ = stop();
+        });
     }
 
     private void checkForVrChat()
     {
-        if (updateManager.Updating) return;
+        //if (updateManager.Updating) return;
 
         var vrChat = Process.GetProcessesByName("vrchat");
 
-        if (vrChat.Length != 0 && autoStartStop.Value && !running && !autoStarted)
+        if (vrChat.Length != 0 && autoStartStop.Value && !game.ModulesRunning.Value && !autoStarted)
         {
-            screenManager.ShowTerminal();
+            game.ModulesRunning.Value = true;
             autoStarted = true;
         }
 
-        if (vrChat.Length == 0 && autoStartStop.Value && running)
+        if (vrChat.Length == 0 && autoStartStop.Value && game.ModulesRunning.Value)
         {
-            screenManager.HideTerminal();
+            game.ModulesRunning.Value = false;
             autoStarted = false;
         }
     }
 
-    public void Start()
+    private void start()
     {
         var ipAddress = configManager.Get<string>(VRCOSCSetting.IPAddress);
         var sendPort = configManager.Get<int>(VRCOSCSetting.SendPort);
@@ -94,19 +122,14 @@ public sealed class ModuleManager : Drawable
             return;
         }
 
-        modules.ForEach(module => module.start());
-        running = true;
+        Modules.ForEach(module => module.start());
     }
 
-    public async Task Stop()
+    private async Task stop()
     {
-        if (!running) return;
-
-        running = false;
-
         await OscClient.DisableReceive();
 
-        foreach (var module in modules)
+        foreach (var module in Modules)
         {
             await module.stop();
         }
@@ -116,7 +139,7 @@ public sealed class ModuleManager : Drawable
 
     protected override void Dispose(bool isDisposing)
     {
-        if (running) Stop().Wait();
+        if (game.ModulesRunning.Value) _ = stop();
         base.Dispose(isDisposing);
     }
 }

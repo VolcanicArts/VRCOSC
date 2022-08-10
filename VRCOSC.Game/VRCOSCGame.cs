@@ -2,41 +2,45 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
-using VRCOSC.Game.Graphics.Containers.Screens;
+using VRCOSC.Game.Graphics;
+using VRCOSC.Game.Graphics.Sidebar;
 using VRCOSC.Game.Graphics.Updater;
+using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game;
 
+[Cached]
 public abstract class VRCOSCGame : VRCOSCGameBase
 {
-    private DependencyContainer dependencies;
+    [Cached]
+    private ModuleManager moduleManager = new();
 
-    private VRCOSCUpdateManager updateManager;
+    private VRCOSCUpdateManager updateManager = null!;
+
+    public Bindable<Tabs> SelectedTab = new();
+    public Bindable<string> SearchTermFilter = new(string.Empty);
+    public Bindable<ModuleType?> TypeFilter = new();
+    public Bindable<Module?> EditingModule = new();
+    public BindableBool ModulesRunning = new();
 
     [BackgroundDependencyLoader]
     private void load()
     {
-        updateManager = CreateUpdateManager();
-        dependencies.CacheAs(updateManager);
-
         Children = new Drawable[]
         {
-            new ScreenManager(),
-            updateManager
+            moduleManager,
+            new MainContent(),
+            updateManager = CreateUpdateManager()
         };
-    }
-
-    protected override IReadOnlyDependencyContainer CreateChildDependencies(IReadOnlyDependencyContainer parent)
-    {
-        return dependencies = new DependencyContainer(base.CreateChildDependencies(parent));
     }
 
     protected override void LoadComplete()
     {
         base.LoadComplete();
-        Scheduler.AddDelayed(() => _ = updateManager.CheckForUpdate(), 1000);
+        updateManager.CheckForUpdate();
     }
 
-    public abstract VRCOSCUpdateManager CreateUpdateManager();
+    protected abstract VRCOSCUpdateManager CreateUpdateManager();
 }

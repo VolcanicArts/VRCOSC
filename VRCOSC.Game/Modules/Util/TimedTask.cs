@@ -41,7 +41,7 @@ public class TimedTask
 
     public async Task Stop()
     {
-        if (timerTask == null) return;
+        if (timerTask is null) return;
 
         // timer allows us to dispose to cancel
         timer!.Dispose();

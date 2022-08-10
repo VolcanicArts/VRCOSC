@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.UserInterface;
@@ -21,16 +20,17 @@ public class ProgressBar : BasicSliderBar<float>
         set
         {
             text = value;
-            loadingSpriteText.CurrentText.Value = text;
+            if (loadingSpriteText is not null)
+                loadingSpriteText.CurrentText.Value = text;
         }
     }
 
-    private LoadingSpriteText loadingSpriteText = null!;
+    private LoadingSpriteText? loadingSpriteText;
 
     public ProgressBar()
     {
         BackgroundColour = VRCOSCColour.Gray3;
-        SelectionColour = VRCOSCColour.Green;
+        SelectionColour = VRCOSCColour.Gray5;
         Current = new BindableNumber<float>
         {
             MinValue = 0f,
@@ -39,14 +39,15 @@ public class ProgressBar : BasicSliderBar<float>
         };
     }
 
-    [BackgroundDependencyLoader]
-    private void load()
+    protected override void LoadComplete()
     {
+        base.LoadComplete();
         Add(loadingSpriteText = new LoadingSpriteText
         {
             Anchor = Anchor.Centre,
             Origin = Anchor.Centre,
-            Font = FrameworkFont.Regular.With(size: 18),
+            Font = FrameworkFont.Regular.With(size: Parent.Height - 4),
+            CurrentText = { Value = text },
             Shadow = true
         });
     }

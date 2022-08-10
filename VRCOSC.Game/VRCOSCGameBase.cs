@@ -20,7 +20,7 @@ public class VRCOSCGameBase : osu.Framework.Game
     private static readonly Vector2 default_size_v = new(1450, 768);
     private static readonly Size default_size = new(1450, 768);
 
-    private DependencyContainer dependencyContainer;
+    private DependencyContainer dependencyContainer = null!;
 
     protected VRCOSCGameBase()
     {

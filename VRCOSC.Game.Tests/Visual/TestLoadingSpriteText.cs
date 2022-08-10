@@ -9,7 +9,7 @@ namespace VRCOSC.Game.Tests.Visual;
 
 public class TestLoadingSpriteText : VRCOSCTestScene
 {
-    private LoadingSpriteText spriteText;
+    private LoadingSpriteText spriteText = null!;
 
     [SetUp]
     public void SetUp()

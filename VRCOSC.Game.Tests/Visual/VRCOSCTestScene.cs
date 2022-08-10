@@ -14,7 +14,7 @@ public class VRCOSCTestScene : TestScene
 
     private class VRCOSCTestSceneTestRunner : VRCOSCGameBase, ITestSceneTestRunner
     {
-        private TestSceneTestRunner.TestRunner runner;
+        private TestSceneTestRunner.TestRunner runner = null!;
 
         public void RunTestBlocking(TestScene test)
         {

@@ -6,21 +6,25 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Management;
+using System.Threading.Tasks;
 using osu.Framework.Extensions.IEnumerableExtensions;
 
 namespace VRCOSC.Game.Modules.Modules.HardwareStats;
 
 public class HardwareStatsProvider : IDisposable
 {
-    private PerformanceCounter cpuUsageProvider = null!;
-    private IEnumerable<PerformanceCounter> gpuUsageProviders = null!;
-    private ManagementObjectSearcher ramUsageProvider = null!;
+    private PerformanceCounter? cpuUsageProvider;
+    private IEnumerable<PerformanceCounter>? gpuUsageProviders;
+    private ManagementObjectSearcher? ramUsageProvider;
 
     public HardwareStatsProvider()
     {
-        initCpu();
-        initGpu();
-        initRam();
+        Task.Run(() =>
+        {
+            initCpu();
+            initGpu();
+            initRam();
+        });
     }
 
     private void initCpu()
@@ -49,32 +53,38 @@ public class HardwareStatsProvider : IDisposable
 
     public float GetCpuUsage()
     {
+        if (cpuUsageProvider is null) return 0f;
+
         return cpuUsageProvider.NextValue() / 100f;
     }
 
     public float GetGpuUsage()
     {
+        if (gpuUsageProviders is null) return 0f;
+
         return gpuUsageProviders.Aggregate(0f, (current, gpuUsageProvider) => current + gpuUsageProvider.NextValue()) / 100f;
     }
 
     public float GetRamUsage()
     {
+        if (ramUsageProvider is null) return 0f;
+
         var memoryValues = ramUsageProvider.Get().Cast<ManagementObject>().Select(mo => new
         {
             FreePhysicalMemory = double.Parse(mo["FreePhysicalMemory"].ToString() ?? "0"),
             TotalVisibleMemorySize = double.Parse(mo["TotalVisibleMemorySize"].ToString() ?? "0")
         }).FirstOrDefault();
 
-        if (memoryValues == null) return 0f;
+        if (memoryValues is null) return 0f;
 
         return (float)((memoryValues.TotalVisibleMemorySize - memoryValues.FreePhysicalMemory) / memoryValues.TotalVisibleMemorySize);
     }
 
     public void Dispose()
     {
-        cpuUsageProvider.Dispose();
-        gpuUsageProviders.ForEach(gpuUsageProvider => gpuUsageProvider.Dispose());
-        ramUsageProvider.Dispose();
+        cpuUsageProvider?.Dispose();
+        gpuUsageProviders?.ForEach(gpuUsageProvider => gpuUsageProvider.Dispose());
+        ramUsageProvider?.Dispose();
         GC.SuppressFinalize(this);
     }
 }

@@ -3,6 +3,8 @@
 
 using Newtonsoft.Json;
 
+// ReSharper disable InconsistentNaming
+
 namespace VRCOSC.Game.Modules.Modules.HypeRate.Models;
 
 public class JoinChannelModel

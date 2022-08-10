@@ -38,7 +38,6 @@ public abstract class Module
     public virtual string Title => string.Empty;
     public virtual string Description => string.Empty;
     public virtual string Author => string.Empty;
-    public virtual IEnumerable<string> Tags => Array.Empty<string>();
     public virtual ColourInfo Colour => Colour4.Black;
     public virtual ModuleType ModuleType => ModuleType.General;
     public virtual string Prefab => string.Empty;
@@ -70,32 +69,32 @@ public abstract class Module
 
     protected void CreateSetting(Enum lookup, string displayName, string description, bool defaultValue)
     {
-        addSetting(lookup.ToString().ToLower(), displayName, description, defaultValue);
+        addSetting(lookup.ToString().ToLowerInvariant(), displayName, description, defaultValue);
     }
 
     protected void CreateSetting(Enum lookup, string displayName, string description, int defaultValue)
     {
-        addSetting(lookup.ToString().ToLower(), displayName, description, defaultValue);
+        addSetting(lookup.ToString().ToLowerInvariant(), displayName, description, defaultValue);
     }
 
     protected void CreateSetting(Enum lookup, string displayName, string description, int defaultValue, int minValue, int maxValue)
     {
-        addRangedSetting(lookup.ToString().ToLower(), displayName, description, defaultValue, minValue, maxValue);
+        addRangedSetting(lookup.ToString().ToLowerInvariant(), displayName, description, defaultValue, minValue, maxValue);
     }
 
     protected void CreateSetting(Enum lookup, string displayName, string description, float defaultValue, float minValue, float maxValue)
     {
-        addRangedSetting(lookup.ToString().ToLower(), displayName, description, defaultValue, minValue, maxValue);
+        addRangedSetting(lookup.ToString().ToLowerInvariant(), displayName, description, defaultValue, minValue, maxValue);
     }
 
     protected void CreateSetting(Enum lookup, string displayName, string description, string defaultValue)
     {
-        addSetting(lookup.ToString().ToLower(), displayName, description, defaultValue);
+        addSetting(lookup.ToString().ToLowerInvariant(), displayName, description, defaultValue);
     }
 
     protected void CreateSetting<T>(Enum lookup, string displayName, string description, T defaultValue) where T : Enum
     {
-        addSetting(lookup.ToString().ToLower(), displayName, description, defaultValue);
+        addSetting(lookup.ToString().ToLowerInvariant(), displayName, description, defaultValue);
     }
 
     private void addSetting(string lookup, string displayName, string description, object defaultValue)
@@ -110,7 +109,7 @@ public abstract class Module
 
     protected void CreateOutputParameter(Enum lookup, string displayName, string description, string defaultAddress)
     {
-        var lookupString = lookup.ToString().ToLower();
+        var lookupString = lookup.ToString().ToLowerInvariant();
         OutputParameters.Add(lookupString, new ModuleAttributeData(displayName, description, defaultAddress));
     }
 
@@ -166,7 +165,7 @@ public abstract class Module
 
         OscClient.OnParameterReceived -= onParameterReceived;
 
-        if (updateTask != null) await updateTask.Stop();
+        if (updateTask is not null) await updateTask.Stop();
 
         OnStop();
 
@@ -186,7 +185,7 @@ public abstract class Module
 
     #region Settings
 
-    protected T GetSetting<T>(Enum lookup) => getSetting<T>(lookup.ToString().ToLower());
+    protected T GetSetting<T>(Enum lookup) => getSetting<T>(lookup.ToString().ToLowerInvariant());
 
     private T getSetting<T>(string lookup)
     {
@@ -215,7 +214,7 @@ public abstract class Module
         }
 
         Enum? key = InputParameters.Keys.ToList().Find(e => e.ToString().Equals(parameterName));
-        if (key == null) return;
+        if (key is null) return;
 
         var inputParameterData = InputParameters[key];
 
@@ -337,7 +336,7 @@ public abstract class Module
                 break;
 
             default:
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(vrChatInputParameter), vrChatInputParameter, "Unknown VRChatInputParameter");
         }
 
         OnPlayerStateUpdate(vrChatInputParameter);
@@ -357,15 +356,9 @@ public abstract class Module
 
     #region OutgoingParameters
 
-    private string getOutputParameter(Enum lookup) => getOutputParameter(lookup.ToString().ToLower());
+    private string getOutputParameter(Enum lookup) => getOutputParameter(lookup.ToString().ToLowerInvariant());
 
     private string getOutputParameter(string lookup) => (string)OutputParameters[lookup].Attribute.Value;
-
-    protected void SendParameter(Enum lookup, int value) => OscClient.SendData(getOutputParameter(lookup), value);
-
-    protected void SendParameter(Enum lookup, float value) => OscClient.SendData(getOutputParameter(lookup), value);
-
-    protected void SendParameter(Enum lookup, bool value) => OscClient.SendData(getOutputParameter(lookup), value);
 
     protected void SendParameter<T>(Enum lookup, T value) where T : struct
     {
@@ -374,15 +367,15 @@ public abstract class Module
         switch (value)
         {
             case bool boolValue:
-                SendParameter(lookup, boolValue);
+                OscClient.SendData(getOutputParameter(lookup), boolValue);
                 break;
 
             case int intValue:
-                SendParameter(lookup, intValue);
+                OscClient.SendData(getOutputParameter(lookup), intValue);
                 break;
 
             case float floatValue:
-                SendParameter(lookup, floatValue);
+                OscClient.SendData(getOutputParameter(lookup), floatValue);
                 break;
 
             default:
@@ -398,7 +391,7 @@ public abstract class Module
     {
         using (var stream = Storage.GetStream(FileName))
         {
-            if (stream != null)
+            if (stream is not null)
             {
                 using var reader = new StreamReader(stream);
 
@@ -466,8 +459,8 @@ public abstract class Module
             {
                 case "enum":
                     var typeAndValue = value.Split(new[] { '#' }, 2);
-                    var enumType = ReflectiveEnumerator.GetEnumTypeFromName(typeAndValue[0]);
-                    if (enumType != null) Settings[lookup].Attribute.Value = Enum.ToObject(enumType, int.Parse(typeAndValue[1]));
+                    var enumType = enumNameToType(typeAndValue[0]);
+                    if (enumType is not null) Settings[lookup].Attribute.Value = Enum.ToObject(enumType, int.Parse(typeAndValue[1]));
                     break;
 
                 case "string":
@@ -517,6 +510,8 @@ public abstract class Module
         Settings.Values.ForEach(value => value.Attribute.BindValueChanged(_ => performSave()));
         OutputParameters.Values.ForEach(value => value.Attribute.BindValueChanged(_ => performSave()));
     }
+
+    private static Type? enumNameToType(string enumName) => AppDomain.CurrentDomain.GetAssemblies().Select(assembly => assembly.GetType(enumName)).FirstOrDefault(type => type?.IsEnum ?? false);
 
     #endregion
 

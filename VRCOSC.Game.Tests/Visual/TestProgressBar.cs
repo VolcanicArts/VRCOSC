@@ -10,7 +10,7 @@ namespace VRCOSC.Game.Tests.Visual;
 
 public class TestProgressBar : VRCOSCTestScene
 {
-    private ProgressBar progressBar;
+    private ProgressBar? progressBar;
 
     [SetUp]
     public void SetUp()
@@ -30,10 +30,13 @@ public class TestProgressBar : VRCOSCTestScene
     [Test]
     public void TestProgress()
     {
-        AddStep("set text", () => progressBar.Text = "Test text");
+        AddStep("set text", () =>
+        {
+            if (progressBar is not null) progressBar.Text = "Test text";
+        });
         AddSliderStep("set progress", 0f, 1f, 0f, v =>
         {
-            if (progressBar != null)
+            if (progressBar is not null)
                 progressBar.Current.Value = v;
         });
     }
