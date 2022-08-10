@@ -83,7 +83,7 @@ public sealed class ModuleManager : Drawable
 
     private void checkForVrChat()
     {
-        //if (updateManager.Updating) return;
+        if (game.UpdateManager.Updating) return;
 
         var vrChat = Process.GetProcessesByName("vrchat");
 

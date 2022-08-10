@@ -17,7 +17,7 @@ public abstract class VRCOSCGame : VRCOSCGameBase
     [Cached]
     private ModuleManager moduleManager = new();
 
-    private VRCOSCUpdateManager updateManager = null!;
+    public VRCOSCUpdateManager UpdateManager = null!;
 
     public Bindable<Tabs> SelectedTab = new();
     public Bindable<string> SearchTermFilter = new(string.Empty);
@@ -32,14 +32,14 @@ public abstract class VRCOSCGame : VRCOSCGameBase
         {
             moduleManager,
             new MainContent(),
-            updateManager = CreateUpdateManager()
+            UpdateManager = CreateUpdateManager()
         };
     }
 
     protected override void LoadComplete()
     {
         base.LoadComplete();
-        updateManager.CheckForUpdate();
+        UpdateManager.CheckForUpdate();
     }
 
     protected abstract VRCOSCUpdateManager CreateUpdateManager();

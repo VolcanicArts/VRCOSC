@@ -17,6 +17,8 @@ public abstract class VRCOSCUpdateManager : VisibilityContainer
     private LoadingContainer loadingContainer = null!;
     private FinishedContainer finishedContainer = null!;
 
+    public bool Updating => State.Value == Visibility.Visible;
+
     [BackgroundDependencyLoader]
     private void load(GameHost host)
     {
