@@ -2,8 +2,8 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Collections.Generic;
-using osu.Framework.Allocation;
+using osu.Framework.Bindables;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
@@ -18,10 +18,14 @@ namespace VRCOSC.Game.Graphics.ModuleEditing;
 
 public sealed class AttributeFlow : FillFlowContainer
 {
-    public List<ModuleAttributeData> AttributesList { get; init; } = null!;
+    public BindableList<ModuleAttributeData> AttributesList = new();
+
+    private readonly string title;
 
     public AttributeFlow(string title)
     {
+        this.title = title;
+
         Anchor = Anchor.TopCentre;
         Origin = Anchor.TopCentre;
         RelativeSizeAxes = Axes.X;
@@ -29,20 +33,28 @@ public sealed class AttributeFlow : FillFlowContainer
         Direction = FillDirection.Vertical;
         Spacing = new Vector2(0, 10);
         Padding = new MarginPadding(10);
-
-        Add(new SpriteText
-        {
-            Anchor = Anchor.TopCentre,
-            Origin = Anchor.TopCentre,
-            Font = FrameworkFont.Regular.With(size: 50),
-            Text = title
-        });
     }
 
-    [BackgroundDependencyLoader]
-    private void load()
+    protected override void LoadComplete()
     {
-        AttributesList.ForEach(attributeData => Add(generateCard(attributeData)));
+        base.LoadComplete();
+
+        AttributesList.BindCollectionChanged((_, _) =>
+        {
+            Clear();
+
+            if (AttributesList.Count == 0) return;
+
+            Add(new SpriteText
+            {
+                Anchor = Anchor.TopCentre,
+                Origin = Anchor.TopCentre,
+                Font = FrameworkFont.Regular.With(size: 50),
+                Text = title
+            });
+
+            AttributesList.ForEach(attributeData => Add(generateCard(attributeData)));
+        }, true);
     }
 
     private Drawable generateCard(ModuleAttributeData attributeData)

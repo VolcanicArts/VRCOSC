@@ -17,10 +17,10 @@ namespace VRCOSC.Game.Graphics.ModuleEditing;
 public class ModuleEditingContent : Container
 {
     private TextFlowContainer metadataTextFlow = null!;
-    private LineSeparator settingsSeparator = null!;
-    private Container<AttributeFlow> settingsFlowContainer = null!;
-    private LineSeparator outputParametersSeparator = null!;
-    private Container<AttributeFlow> outputParametersFlowContainer = null!;
+    private Container settings = null!;
+    private AttributeFlow settingsFlowContainer = null!;
+    private Container parameters = null!;
+    private AttributeFlow outputParametersFlowContainer = null!;
     private BasicScrollContainer scrollContainer = null!;
 
     [BackgroundDependencyLoader]
@@ -56,30 +56,38 @@ public class ModuleEditingContent : Container
                             TextAnchor = Anchor.Centre,
                             AutoSizeAxes = Axes.Both
                         },
-                        settingsSeparator = new LineSeparator
-                        {
-                            Anchor = Anchor.TopCentre,
-                            Origin = Anchor.TopCentre
-                        },
-                        settingsFlowContainer = new Container<AttributeFlow>
+                        settings = new Container
                         {
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
                             RelativeSizeAxes = Axes.X,
-                            AutoSizeAxes = Axes.Y
+                            AutoSizeAxes = Axes.Y,
+                            Children = new Drawable[]
+                            {
+                                new LineSeparator
+                                {
+                                    Anchor = Anchor.TopCentre,
+                                    Origin = Anchor.TopCentre
+                                },
+                                settingsFlowContainer = new AttributeFlow("Settings"),
+                            }
                         },
-                        outputParametersSeparator = new LineSeparator
-                        {
-                            Anchor = Anchor.TopCentre,
-                            Origin = Anchor.TopCentre
-                        },
-                        outputParametersFlowContainer = new Container<AttributeFlow>
+                        parameters = new Container
                         {
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
                             RelativeSizeAxes = Axes.X,
-                            AutoSizeAxes = Axes.Y
-                        },
+                            AutoSizeAxes = Axes.Y,
+                            Children = new Drawable[]
+                            {
+                                new LineSeparator
+                                {
+                                    Anchor = Anchor.TopCentre,
+                                    Origin = Anchor.TopCentre
+                                },
+                                outputParametersFlowContainer = new AttributeFlow("Parameters")
+                            }
+                        }
                     }
                 }
             },
@@ -125,37 +133,14 @@ public class ModuleEditingContent : Container
                 t.Colour = VRCOSCColour.GrayE;
             });
 
-            settingsFlowContainer.Child = new AttributeFlow("Settings")
-            {
-                AttributesList = sourceModule.Value.Settings.Values.ToList()
-            };
+            settingsFlowContainer.AttributesList.Clear();
+            settingsFlowContainer.AttributesList.AddRange(sourceModule.Value.Settings.Values.ToList());
 
-            outputParametersFlowContainer.Child = new AttributeFlow("Output Parameters")
-            {
-                AttributesList = sourceModule.Value.OutputParameters.Values.ToList()
-            };
+            outputParametersFlowContainer.AttributesList.Clear();
+            outputParametersFlowContainer.AttributesList.AddRange(sourceModule.Value.OutputParameters.Values.ToList());
 
-            if (sourceModule.Value.HasSettings)
-            {
-                settingsSeparator.Show();
-                settingsFlowContainer.Show();
-            }
-            else
-            {
-                settingsSeparator.Hide();
-                settingsFlowContainer.Hide();
-            }
-
-            if (sourceModule.Value.HasOutputParameters)
-            {
-                outputParametersSeparator.Show();
-                outputParametersFlowContainer.Show();
-            }
-            else
-            {
-                outputParametersSeparator.Hide();
-                outputParametersFlowContainer.Hide();
-            }
+            settings.Alpha = sourceModule.Value.HasSettings ? 1 : 0;
+            parameters.Alpha = sourceModule.Value.HasOutputParameters ? 1 : 0;
         }, true);
     }
 
