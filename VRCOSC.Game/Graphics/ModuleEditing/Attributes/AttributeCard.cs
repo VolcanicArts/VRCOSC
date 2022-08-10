@@ -114,8 +114,7 @@ public abstract class AttributeCard : Container
 
     protected override void LoadComplete()
     {
-        AttributeData.Attribute.ValueChanged += e => UpdateValues(e.NewValue);
-        AttributeData.Attribute.TriggerChange();
+        AttributeData.Attribute.BindValueChanged(e => UpdateValues(e.NewValue), true);
     }
 
     protected virtual void UpdateValues(object value)
