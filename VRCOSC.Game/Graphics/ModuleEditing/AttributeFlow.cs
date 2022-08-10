@@ -47,31 +47,30 @@ public sealed class AttributeFlow : FillFlowContainer
 
     private Drawable generateCard(ModuleAttributeData attributeData)
     {
-        var valueType = attributeData.Attribute.Value.GetType();
+        var value = attributeData.Attribute.Value;
 
-        if (valueType.IsSubclassOf(typeof(Enum)))
+        if (value.GetType().IsSubclassOf(typeof(Enum)))
         {
-            Type instanceType = typeof(DropdownAttributeCard<>).MakeGenericType(valueType);
+            Type instanceType = typeof(DropdownAttributeCard<>).MakeGenericType(value.GetType());
             return (Activator.CreateInstance(instanceType, attributeData) as Drawable)!;
         }
 
         if (attributeData is ModuleAttributeDataWithBounds attributeDataWithBounds)
         {
-            if (valueType == typeof(int))
-                return new IntSliderAttributeCard(attributeDataWithBounds);
-            if (valueType == typeof(float))
-                return new FloatSliderAttributeCard(attributeDataWithBounds);
+            return value switch
+            {
+                int => new IntSliderAttributeCard(attributeDataWithBounds),
+                float => new FloatSliderAttributeCard(attributeDataWithBounds),
+                _ => throw new ArgumentOutOfRangeException(nameof(ModuleAttributeDataWithBounds), "Cannot have bounds for a non-numeric value")
+            };
         }
 
-        if (valueType == typeof(string))
-            return new TextAttributeCard(attributeData);
-
-        if (valueType == typeof(int))
-            return new IntTextAttributeCard(attributeData);
-
-        if (valueType == typeof(bool))
-            return new ToggleAttributeCard(attributeData);
-
-        throw new ArgumentOutOfRangeException(nameof(ModuleAttributeData), $"Unknown {nameof(ModuleAttributeData)} type");
+        return value switch
+        {
+            string => new TextAttributeCard(attributeData),
+            int => new IntTextAttributeCard(attributeData),
+            bool => new ToggleAttributeCard(attributeData),
+            _ => throw new ArgumentOutOfRangeException(nameof(ModuleAttributeData), $"Type {value.GetType()} is not supported in the {nameof(AttributeFlow)}")
+        };
     }
 }
