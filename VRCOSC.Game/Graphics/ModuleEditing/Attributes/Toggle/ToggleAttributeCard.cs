@@ -39,19 +39,14 @@ public class ToggleAttributeCard : AttributeCard
             }
         });
 
-        AttributeData.Attribute.ValueChanged += updateValues;
+        AttributeData.Attribute.ValueChanged += e => updateValues(e.NewValue);
         toggleButton.State.ValueChanged += e => updateValues(OnToggleChange(e));
     }
 
-    private void updateValues(ValueChangedEvent<object> e)
-    {
-        updateValues((bool)e.NewValue);
-    }
-
-    private void updateValues(bool value)
+    private void updateValues(object value)
     {
         AttributeData.Attribute.Value = value;
-        toggleButton.State.Value = value;
+        toggleButton.State.Value = (bool)value;
     }
 
     protected virtual bool OnToggleChange(ValueChangedEvent<bool> e)
