@@ -11,6 +11,9 @@ namespace VRCOSC.Game.Graphics.UI;
 
 public class VRCOSCTextBox : BasicTextBox
 {
+    [Resolved]
+    private GameHost host { get; set; } = null!;
+
     public VRCOSCTextBox()
     {
         BackgroundFocused = VRCOSCColour.Gray3;
@@ -19,14 +22,22 @@ public class VRCOSCTextBox : BasicTextBox
         CommitOnFocusLost = true;
     }
 
-    [BackgroundDependencyLoader]
-    private void load(GameHost host)
+    protected override void LoadComplete()
     {
-        host.Window.Resized += () => Scheduler.AddOnce(KillFocus);
+        base.LoadComplete();
+        host.Window.Resized += KillFocus;
     }
+
+    protected override void KillFocus() => Schedule(() => base.KillFocus());
 
     protected override SpriteText CreatePlaceholder()
     {
         return base.CreatePlaceholder().With(t => t.Colour = Colour4.White.Opacity(0.5f));
+    }
+
+    protected override void Dispose(bool isDisposing)
+    {
+        base.Dispose(isDisposing);
+        host.Window.Resized -= KillFocus;
     }
 }
