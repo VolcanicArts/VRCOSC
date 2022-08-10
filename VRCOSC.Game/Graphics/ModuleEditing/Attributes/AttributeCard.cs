@@ -50,7 +50,6 @@ public abstract class AttributeCard : Container
                     Size = new Vector2(0.5f, 1.0f),
                     CornerRadius = 5,
                     CornerExponent = 2,
-                    Alpha = AttributeData.Attribute.IsDefault ? 0 : 1,
                     Action = () => AttributeData.Attribute.SetDefault(),
                     EdgeEffect = new EdgeEffectParameters
                     {
