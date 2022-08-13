@@ -73,7 +73,8 @@ public sealed class SettingsScreen : Container
                             Children = new SectionContainer[]
                             {
                                 new OscSection(),
-                                new ModulesSection()
+                                new ModulesSection(),
+                                new UpdateSection()
                             }
                         }
                     }

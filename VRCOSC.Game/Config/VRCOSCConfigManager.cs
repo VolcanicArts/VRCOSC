@@ -3,6 +3,7 @@
 
 using osu.Framework.Configuration;
 using osu.Framework.Platform;
+using VRCOSC.Game.Graphics.Settings;
 
 namespace VRCOSC.Game.Config;
 
@@ -21,6 +22,7 @@ public class VRCOSCConfigManager : IniConfigManager<VRCOSCSetting>
         SetDefault(VRCOSCSetting.IPAddress, "127.0.0.1");
         SetDefault(VRCOSCSetting.SendPort, 9000);
         SetDefault(VRCOSCSetting.ReceivePort, 9001);
+        SetDefault(VRCOSCSetting.UpdateMode, UpdateMode.Auto);
     }
 }
 
@@ -29,5 +31,6 @@ public enum VRCOSCSetting
     AutoStartStop,
     IPAddress,
     SendPort,
-    ReceivePort
+    ReceivePort,
+    UpdateMode
 }

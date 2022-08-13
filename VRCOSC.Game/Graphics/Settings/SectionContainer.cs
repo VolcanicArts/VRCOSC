@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -29,9 +30,6 @@ public class SectionContainer : Container
         RelativeSizeAxes = Axes.X;
         AutoSizeAxes = Axes.Y;
         Width = 0.5f;
-        Masking = true;
-        BorderThickness = 2;
-        BorderColour = Colour4.White;
         Child = flow = new FillFlowContainer
         {
             Anchor = Anchor.TopLeft,
@@ -71,8 +69,8 @@ public class SectionContainer : Container
                 },
                 new Container
                 {
-                    Anchor = Anchor.CentreRight,
-                    Origin = Anchor.CentreRight,
+                    Anchor = Anchor.TopRight,
+                    Origin = Anchor.TopRight,
                     RelativeSizeAxes = Axes.X,
                     AutoSizeAxes = Axes.Y,
                     Width = 0.5f,
@@ -144,6 +142,21 @@ public class SectionContainer : Container
         toggle.State.ValueChanged += _ => Save();
 
         return toggle;
+    }
+
+    protected VRCOSCDropdown<T> GenerateDropdown<T>()
+    {
+        var dropdown = new VRCOSCDropdown<T>()
+        {
+            Anchor = Anchor.TopRight,
+            Origin = Anchor.TopRight,
+            RelativeSizeAxes = Axes.X,
+            Items = Enum.GetValues(typeof(T)).Cast<T>()
+        };
+
+        dropdown.Current.ValueChanged += _ => Save();
+
+        return dropdown;
     }
 
     protected VRCOSCButton GenerateButton(string text, Colour4 colour, Action? action = null)
