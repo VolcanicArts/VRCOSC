@@ -4,7 +4,7 @@
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using VRCOSC.Game.Graphics.About;
+//using VRCOSC.Game.Graphics.About;
 using VRCOSC.Game.Graphics.ModuleListing;
 using VRCOSC.Game.Graphics.Settings;
 using VRCOSC.Game.Graphics.Sidebar;
@@ -58,7 +58,7 @@ public class MainContent : Container
                             {
                                 new ModuleListingScreen(),
                                 new SettingsScreen(),
-                                new AboutContainer()
+                                //new AboutContainer()
                             }
                         }
                     }
