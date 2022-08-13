@@ -14,11 +14,15 @@ public class UpdateSection : SectionContainer
     [Resolved]
     private VRCOSCConfigManager configManager { get; set; } = null!;
 
-    protected override string Title => "Modules";
+    [Resolved]
+    private VRCOSCGame game { get; set; } = null!;
+
+    protected override string Title => "Update";
 
     protected override void GenerateItems()
     {
         Add("Update Mode", updateMode = GenerateDropdown<UpdateMode>());
+        AddButton("Check For Update", VRCOSCColour.Gray4, () => game.UpdateManager.CheckForUpdate());
     }
 
     protected override void Load()

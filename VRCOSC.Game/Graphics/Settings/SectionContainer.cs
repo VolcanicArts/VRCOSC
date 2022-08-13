@@ -159,18 +159,24 @@ public class SectionContainer : Container
         return dropdown;
     }
 
-    protected VRCOSCButton GenerateButton(string text, Colour4 colour, Action? action = null)
+    protected void AddButton(string text, Colour4 colour, Action? action = null)
     {
-        return new TextButton
+        flow.Add(new Container
         {
-            Anchor = Anchor.CentreRight,
-            Origin = Anchor.CentreRight,
+            Anchor = Anchor.TopCentre,
+            Origin = Anchor.TopCentre,
             RelativeSizeAxes = Axes.X,
-            Width = 0.25f,
-            Height = setting_height,
-            Colour = colour,
-            Text = text,
-            Action = action
-        };
+            Size = new Vector2(0.5f, setting_height),
+            Child = new TextButton
+            {
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                RelativeSizeAxes = Axes.Both,
+                CornerRadius = 5,
+                BackgroundColour = colour,
+                Text = text,
+                Action = action
+            }
+        });
     }
 }
