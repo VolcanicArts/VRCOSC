@@ -39,6 +39,12 @@ public abstract class VRCOSCGame : VRCOSCGameBase
     protected override void LoadComplete()
     {
         base.LoadComplete();
+
+        ModulesRunning.BindValueChanged(e =>
+        {
+            if (e.NewValue) SelectedTab.Value = Tabs.Modules;
+        }, true);
+
         UpdateManager.CheckForUpdate();
     }
 
