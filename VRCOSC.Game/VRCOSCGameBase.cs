@@ -21,6 +21,7 @@ public class VRCOSCGameBase : osu.Framework.Game
     private static readonly Size default_size = new(1450, 768);
 
     protected DependencyContainer DependencyContainer = null!;
+    protected VRCOSCConfigManager ConfigManager = null!;
 
     protected VRCOSCGameBase()
     {
@@ -51,6 +52,6 @@ public class VRCOSCGameBase : osu.Framework.Game
         host.Window.Title = "VRCOSC";
         Resources.AddStore(new DllResourceStore(typeof(VRCOSCResources).Assembly));
 
-        DependencyContainer.CacheAs(new VRCOSCConfigManager(storage));
+        DependencyContainer.CacheAs(ConfigManager = new VRCOSCConfigManager(storage));
     }
 }

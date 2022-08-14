@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using VRCOSC.Game.Graphics.Updater;
@@ -25,7 +26,7 @@ public class ProgressNotification : BasicNotification
 
     protected override Drawable CreateForeground()
     {
-        return new GridContainer
+        var foreground = new GridContainer
         {
             Anchor = Anchor.Centre,
             Origin = Anchor.Centre,
@@ -54,5 +55,12 @@ public class ProgressNotification : BasicNotification
                 }
             }
         };
+
+        progressBar.Current.BindValueChanged(e =>
+        {
+            if (Math.Abs(e.NewValue - 1f) < 0.01f) Hide();
+        });
+
+        return foreground;
     }
 }

@@ -1,93 +1,78 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
 using System.Threading.Tasks;
 using osu.Framework.Allocation;
-using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Shapes;
-using osu.Framework.Input.Events;
+using osu.Framework.Graphics.Sprites;
 using osu.Framework.Platform;
+using VRCOSC.Game.Graphics.Notifications;
 
 namespace VRCOSC.Game.Graphics.Updater;
 
-public abstract class VRCOSCUpdateManager : VisibilityContainer
+public abstract class VRCOSCUpdateManager : Container
 {
-    private LoadingContainer loadingContainer = null!;
-    private FinishedContainer finishedContainer = null!;
+    public bool Updating;
 
-    public bool Updating => State.Value == Visibility.Visible;
+    [Resolved]
+    private GameHost host { get; set; } = null!;
 
-    [BackgroundDependencyLoader]
-    private void load(GameHost host)
+    [Resolved]
+    private NotificationContainer notifications { get; set; } = null!;
+
+    protected void PostCheckNotification()
     {
-        Anchor = Anchor.Centre;
-        Origin = Anchor.Centre;
-        RelativeSizeAxes = Axes.Both;
-
-        Children = new Drawable[]
+        Updating = true;
+        notifications.Notify(new BasicNotification
         {
-            new Box
-            {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                RelativeSizeAxes = Axes.Both,
-                Colour = Colour4.Black.Opacity(0.75f)
-            },
-            loadingContainer = new LoadingContainer(),
-            finishedContainer = new FinishedContainer
-            {
-                SuccessCallback = RequestRestart,
-                FailCallback = () => host.OpenUrlExternally("https://github.com/VolcanicArts/VRCOSC/releases/latest")
-            }
-        };
+            Title = "Update Available",
+            Description = "Click to install",
+            Colour = VRCOSCColour.Green,
+            Icon = FontAwesome.Solid.ExclamationTriangle,
+            ClickCallback = () => ApplyUpdates()
+        });
     }
 
-    // Shorthand for dealing with 0-100
-    protected void UpdateProgress(int percentage) => UpdateProgress(percentage / 100f);
-
-    public void UpdateProgress(float percentage) => Schedule(() => loadingContainer.ProgressBar.Current.Value = percentage);
-
-    public void SetPhase(UpdatePhase phase) => Schedule(() =>
+    protected ProgressNotification PostProgressNotification()
     {
-        UpdateProgress(0);
-
-        switch (phase)
+        var progressNotification = new ProgressNotification
         {
-            case UpdatePhase.Check:
-            case UpdatePhase.Download:
-            case UpdatePhase.Install:
-                finishedContainer.Hide();
-                loadingContainer.Show();
-                loadingContainer.UpdatePhase = phase;
-                break;
+            Title = "Installing Update",
+            Colour = VRCOSCColour.Yellow,
+            Icon = FontAwesome.Solid.Cog
+        };
 
-            case UpdatePhase.Success:
-            case UpdatePhase.Fail:
-                loadingContainer.Hide();
-                finishedContainer.Show();
-                finishedContainer.UpdatePhase = phase;
-                break;
+        notifications.Notify(progressNotification);
+        return progressNotification;
+    }
 
-            default:
-                throw new ArgumentOutOfRangeException(nameof(phase), phase, $"Cannot use this update phase inside {nameof(LoadingContainer)}");
-        }
-    });
-
-    protected override void PopIn() => Schedule(() =>
+    protected void PostSuccessNotification()
     {
-        this.FadeInFromZero(250, Easing.OutQuint);
-    });
+        Updating = false;
+        notifications.Notify(new BasicNotification
+        {
+            Title = "Update Complete",
+            Description = "Click to restart",
+            Colour = VRCOSCColour.Green,
+            Icon = FontAwesome.Solid.ExclamationTriangle,
+            ClickCallback = RequestRestart
+        });
+    }
 
-    protected override void PopOut() => Schedule(() =>
+    protected void PostFailNotification()
     {
-        this.FadeOutFromOne(250, Easing.InQuint);
-    });
+        Updating = false;
+        notifications.Notify(new BasicNotification
+        {
+            Title = "Update Failed",
+            Description = "Click to reinstall",
+            Colour = VRCOSCColour.Red,
+            Icon = FontAwesome.Solid.ExclamationTriangle,
+            ClickCallback = () => host.OpenUrlExternally("https://github.com/VolcanicArts/VRCOSC/releases/latest")
+        });
+    }
 
-    protected abstract void RequestRestart();
     public abstract Task CheckForUpdate(bool useDelta = true);
-
-    protected override bool OnMouseDown(MouseDownEvent e) => State.Value == Visibility.Visible;
-    protected override bool OnHover(HoverEvent e) => State.Value == Visibility.Visible;
+    protected abstract Task ApplyUpdates();
+    protected abstract void RequestRestart();
 }

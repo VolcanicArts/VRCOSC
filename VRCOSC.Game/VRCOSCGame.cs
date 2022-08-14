@@ -4,8 +4,10 @@
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
+using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics;
 using VRCOSC.Game.Graphics.Notifications;
+using VRCOSC.Game.Graphics.Settings;
 using VRCOSC.Game.Graphics.Sidebar;
 using VRCOSC.Game.Graphics.Updater;
 using VRCOSC.Game.Modules;
@@ -52,7 +54,9 @@ public abstract class VRCOSCGame : VRCOSCGameBase
             if (e.NewValue) SelectedTab.Value = Tabs.Modules;
         }, true);
 
-        UpdateManager.CheckForUpdate();
+        var updateMode = ConfigManager.Get<UpdateMode>(VRCOSCSetting.UpdateMode);
+
+        if (updateMode != UpdateMode.Off) UpdateManager.CheckForUpdate();
     }
 
     protected abstract VRCOSCUpdateManager CreateUpdateManager();

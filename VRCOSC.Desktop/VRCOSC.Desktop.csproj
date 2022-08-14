@@ -10,6 +10,7 @@
     <Title>VRCOSC</Title>
     <Authors>VolcanicArts</Authors>
     <Company>VolcanicArts</Company>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup Label="Project References">
     <ProjectReference Include="..\VRCOSC.Game\VRCOSC.Game.csproj" />

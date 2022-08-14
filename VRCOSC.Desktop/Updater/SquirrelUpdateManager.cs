@@ -7,56 +7,44 @@ using osu.Framework.Allocation;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 using Squirrel;
+using VRCOSC.Game.Config;
+using VRCOSC.Game.Graphics.Settings;
 using VRCOSC.Game.Graphics.Updater;
 
 namespace VRCOSC.Desktop.Updater;
 
 public class SquirrelUpdateManager : VRCOSCUpdateManager
 {
-    private GithubUpdateManager updateManager;
-    private const string development_access_token = null;
+    private const string? development_access_token = null;
     private const string repo = @"https://github.com/VolcanicArts/VRCOSC";
 
+    private GithubUpdateManager? updateManager;
+    private UpdateInfo? updateInfo;
+
     [Resolved]
-    private GameHost host { get; set; }
+    private GameHost host { get; set; } = null!;
+
+    [Resolved]
+    private VRCOSCConfigManager config { get; set; } = null!;
 
     public override async Task CheckForUpdate(bool useDelta = true)
     {
         try
         {
-            Logger.Log("Attempting to find update...");
             updateManager ??= new GithubUpdateManager(repo, false, development_access_token);
-
-            if (!updateManager.IsInstalledApp)
-            {
-                Logger.Log("Cannot update. Not installed app");
-                return;
-            }
-
-            Show();
+            if (!updateManager.IsInstalledApp) return;
 
             try
             {
-                Logger.Log("Checking for update...");
+                updateInfo = await updateManager.CheckForUpdate(!useDelta).ConfigureAwait(false);
+                if (updateInfo.ReleasesToApply.Count == 0) return;
 
-                SetPhase(UpdatePhase.Check);
-                var updateInfo = await updateManager.CheckForUpdate(!useDelta, UpdateProgress).ConfigureAwait(false);
+                var updateMode = config.Get<UpdateMode>(VRCOSCSetting.UpdateMode);
 
-                if (updateInfo.ReleasesToApply.Count == 0)
-                {
-                    Hide();
-                    return;
-                }
-
-                Logger.Log("Found updates to apply!");
-
-                SetPhase(UpdatePhase.Download);
-                await updateManager.DownloadReleases(updateInfo.ReleasesToApply, UpdateProgress).ConfigureAwait(false);
-
-                SetPhase(UpdatePhase.Install);
-                await updateManager.ApplyReleases(updateInfo, UpdateProgress).ConfigureAwait(false);
-
-                SetPhase(UpdatePhase.Success);
+                if (updateMode == UpdateMode.Auto)
+                    await ApplyUpdates();
+                else
+                    PostCheckNotification();
             }
             catch (Exception)
             {
@@ -72,10 +60,32 @@ public class SquirrelUpdateManager : VRCOSCUpdateManager
         }
         catch (Exception e)
         {
-            SetPhase(UpdatePhase.Fail);
-
+            PostFailNotification();
             Logger.Error(e, "Updater Error");
         }
+    }
+
+    protected override async Task ApplyUpdates()
+    {
+        if (updateManager is null || updateInfo is null)
+            throw new InvalidOperationException("Cannot apply updates without checking");
+
+        try
+        {
+            var notification = PostProgressNotification();
+            await updateManager.DownloadReleases(updateInfo.ReleasesToApply, p => notification.Progress = map(p / 100f, 0, 1, 0, 0.5f)).ConfigureAwait(false);
+            await updateManager.ApplyReleases(updateInfo, p => notification.Progress = map(p / 100f, 0, 1, 0.5f, 1)).ConfigureAwait(false);
+            PostSuccessNotification();
+        }
+        catch (Exception)
+        {
+            PostFailNotification();
+        }
+    }
+
+    private static float map(float source, float sMin, float sMax, float dMin, float dMax)
+    {
+        return dMin + (dMax - dMin) * ((source - sMin) / (sMax - sMin));
     }
 
     protected override void RequestRestart()

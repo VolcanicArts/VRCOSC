@@ -1,11 +1,13 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using osu.Framework.Input.Events;
 using osuTK;
 
 namespace VRCOSC.Game.Graphics.Notifications;
@@ -19,6 +21,8 @@ public class BasicNotification : Notification
     public string Title { get; init; } = string.Empty;
 
     public string Description { get; init; } = string.Empty;
+
+    public Action ClickCallback { get; init; }
 
     protected override Drawable CreateForeground()
     {
@@ -90,5 +94,12 @@ public class BasicNotification : Notification
         });
 
         return foreground;
+    }
+
+    protected override bool OnClick(ClickEvent e)
+    {
+        base.OnClick(e);
+        ClickCallback?.Invoke();
+        return true;
     }
 }
