@@ -67,14 +67,6 @@ public class MainContent : Container
                 }
             }
         };
-
-        notifications.Notify(new ProgressNotification
-        {
-            Colour = VRCOSCColour.GreenLight,
-            Title = "Test",
-            Description = "Test description",
-            Icon = FontAwesome.Solid.Check
-        });
     }
 
     protected override void LoadComplete()
