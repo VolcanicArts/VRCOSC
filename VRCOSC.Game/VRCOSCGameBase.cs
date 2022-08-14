@@ -20,7 +20,7 @@ public class VRCOSCGameBase : osu.Framework.Game
     private static readonly Vector2 default_size_v = new(1450, 768);
     private static readonly Size default_size = new(1450, 768);
 
-    private DependencyContainer dependencyContainer = null!;
+    protected DependencyContainer DependencyContainer = null!;
 
     protected VRCOSCGameBase()
     {
@@ -42,7 +42,7 @@ public class VRCOSCGameBase : osu.Framework.Game
 
     protected override IReadOnlyDependencyContainer CreateChildDependencies(IReadOnlyDependencyContainer parent)
     {
-        return dependencyContainer = new DependencyContainer(base.CreateChildDependencies(parent));
+        return DependencyContainer = new DependencyContainer(base.CreateChildDependencies(parent));
     }
 
     [BackgroundDependencyLoader]
@@ -51,6 +51,6 @@ public class VRCOSCGameBase : osu.Framework.Game
         host.Window.Title = "VRCOSC";
         Resources.AddStore(new DllResourceStore(typeof(VRCOSCResources).Assembly));
 
-        dependencyContainer.CacheAs(new VRCOSCConfigManager(storage));
+        DependencyContainer.CacheAs(new VRCOSCConfigManager(storage));
     }
 }

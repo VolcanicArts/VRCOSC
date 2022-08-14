@@ -5,6 +5,7 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using VRCOSC.Game.Graphics;
+using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Graphics.Sidebar;
 using VRCOSC.Game.Graphics.Updater;
 using VRCOSC.Game.Modules;
@@ -28,12 +29,18 @@ public abstract class VRCOSCGame : VRCOSCGameBase
     [BackgroundDependencyLoader]
     private void load()
     {
+        var notificationContainer = new NotificationContainer();
+        DependencyContainer.CacheAs(notificationContainer);
+
         Children = new Drawable[]
         {
             moduleManager,
+            notificationContainer,
             new MainContent(),
             UpdateManager = CreateUpdateManager()
         };
+
+        ChangeChildDepth(notificationContainer, float.MinValue);
     }
 
     protected override void LoadComplete()
