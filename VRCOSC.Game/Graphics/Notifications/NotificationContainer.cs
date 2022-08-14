@@ -25,6 +25,7 @@ public class NotificationContainer : VisibilityContainer
         RelativePositionAxes = Axes.X;
         RelativeSizeAxes = Axes.Y;
         Width = 200;
+        X = 1;
 
         Children = new Drawable[]
         {
