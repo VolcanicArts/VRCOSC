@@ -22,7 +22,7 @@ public class BasicNotification : Notification
 
     public string Description { get; init; } = string.Empty;
 
-    public Action ClickCallback { get; init; }
+    public Action? ClickCallback { get; init; }
 
     protected override Drawable CreateForeground()
     {

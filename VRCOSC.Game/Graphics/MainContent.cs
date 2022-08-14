@@ -4,10 +4,8 @@
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Sprites;
 //using VRCOSC.Game.Graphics.About;
 using VRCOSC.Game.Graphics.ModuleListing;
-using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Graphics.Settings;
 using VRCOSC.Game.Graphics.Sidebar;
 
@@ -21,7 +19,7 @@ public class MainContent : Container
     private Container screenHolder = null!;
 
     [BackgroundDependencyLoader]
-    private void load(NotificationContainer notifications)
+    private void load()
     {
         Anchor = Anchor.Centre;
         Origin = Anchor.Centre;
