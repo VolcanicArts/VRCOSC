@@ -41,7 +41,9 @@ public class NotificationContainer : VisibilityContainer
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 Direction = FillDirection.Vertical,
-                Spacing = new Vector2(0, 5)
+                Spacing = new Vector2(0, 5),
+                AutoSizeEasing = Easing.InOutQuad,
+                AutoSizeDuration = 250
             }
         };
     }
@@ -66,5 +68,6 @@ public class NotificationContainer : VisibilityContainer
     protected override void OnFocusLost(FocusLostEvent e)
     {
         Hide();
+        notificationFlow.Clear();
     }
 }

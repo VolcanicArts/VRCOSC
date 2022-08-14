@@ -20,7 +20,7 @@ public abstract class VRCOSCUpdateManager : Container
     [Resolved]
     private NotificationContainer notifications { get; set; } = null!;
 
-    protected void PostCheckNotification()
+    protected void PostCheckNotification() => Schedule(() =>
     {
         Updating = true;
         notifications.Notify(new BasicNotification
@@ -31,7 +31,7 @@ public abstract class VRCOSCUpdateManager : Container
             Icon = FontAwesome.Solid.ExclamationTriangle,
             ClickCallback = () => ApplyUpdates()
         });
-    }
+    });
 
     protected ProgressNotification PostProgressNotification()
     {
@@ -42,11 +42,11 @@ public abstract class VRCOSCUpdateManager : Container
             Icon = FontAwesome.Solid.Cog
         };
 
-        notifications.Notify(progressNotification);
+        Schedule(() => notifications.Notify(progressNotification));
         return progressNotification;
     }
 
-    protected void PostSuccessNotification()
+    protected void PostSuccessNotification() => Schedule(() =>
     {
         Updating = false;
         notifications.Notify(new BasicNotification
@@ -57,9 +57,9 @@ public abstract class VRCOSCUpdateManager : Container
             Icon = FontAwesome.Solid.ExclamationTriangle,
             ClickCallback = RequestRestart
         });
-    }
+    });
 
-    protected void PostFailNotification()
+    protected void PostFailNotification() => Schedule(() =>
     {
         Updating = false;
         notifications.Notify(new BasicNotification
@@ -70,7 +70,7 @@ public abstract class VRCOSCUpdateManager : Container
             Icon = FontAwesome.Solid.ExclamationTriangle,
             ClickCallback = () => host.OpenUrlExternally("https://github.com/VolcanicArts/VRCOSC/releases/latest")
         });
-    }
+    });
 
     public abstract Task CheckForUpdate(bool useDelta = true);
     protected abstract Task ApplyUpdates();

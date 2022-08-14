@@ -18,7 +18,7 @@ public class ProgressNotification : BasicNotification
         set
         {
             progress = value;
-            progressBar.Current.Value = progress;
+            Schedule(() => progressBar.Current.Value = progress);
         }
     }
 
