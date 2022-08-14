@@ -3,7 +3,7 @@ A modular OSC application creator made for [VRChat](https://vrchat.com) built on
 
 <div align="center">
 
-<img src="https://user-images.githubusercontent.com/29819296/176970568-2c38f1ac-e7b3-499b-b29d-8ed28685cb0e.png" width=70% height=70%>
+<img src="https://user-images.githubusercontent.com/29819296/184530289-1dbc73a2-b7d7-4f85-a214-1377b22dd07d.png" width=70% height=70%>
 
 [![Release version](https://img.shields.io/github/v/release/VolcanicArts/VRCOSC?color=brightgreen&label=Latest%20Release&style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/releases/latest)
 [![license](https://img.shields.io/github/license/VolcanicArts/VRCOSC?style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/blob/main/LICENSE) 
