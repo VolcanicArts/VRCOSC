@@ -15,6 +15,8 @@ public class Notification : VisibilityContainer
     public override bool DisposeOnDeathRemoval => true;
     protected override bool ShouldBeAlive => Alpha > 0.5f;
 
+    private Box background = null!;
+
     [BackgroundDependencyLoader]
     private void load()
     {
@@ -22,7 +24,7 @@ public class Notification : VisibilityContainer
         Origin = Anchor.TopCentre;
         RelativeSizeAxes = Axes.Both;
         FillMode = FillMode.Fit;
-        FillAspectRatio = 3;
+        FillAspectRatio = 4;
 
         Child = new Container
         {
@@ -30,7 +32,12 @@ public class Notification : VisibilityContainer
             Origin = Anchor.Centre,
             RelativeSizeAxes = Axes.Both,
             RelativePositionAxes = Axes.X,
-            Padding = new MarginPadding(5),
+            X = 1,
+            Padding = new MarginPadding
+            {
+                Horizontal = 5,
+                Top = 5
+            },
             Child = new Container
             {
                 Anchor = Anchor.Centre,
@@ -40,7 +47,7 @@ public class Notification : VisibilityContainer
                 CornerRadius = 5,
                 Children = new Drawable[]
                 {
-                    new Box
+                    background = new Box
                     {
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,

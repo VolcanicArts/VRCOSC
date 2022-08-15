@@ -4,6 +4,7 @@
 using System;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Input.Events;
 using VRCOSC.Game.Graphics.Updater;
 
 namespace VRCOSC.Game.Graphics.Notifications;
@@ -49,7 +50,7 @@ public class ProgressNotification : BasicNotification
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,
                         RelativeSizeAxes = Axes.Both,
-                        BackgroundColour = VRCOSCColour.Gray5,
+                        BackgroundColour = VRCOSCColour.Gray2,
                         SelectionColour = VRCOSCColour.GreenLight
                     }
                 }
@@ -63,4 +64,6 @@ public class ProgressNotification : BasicNotification
 
         return foreground;
     }
+
+    protected override bool OnClick(ClickEvent e) => true;
 }
