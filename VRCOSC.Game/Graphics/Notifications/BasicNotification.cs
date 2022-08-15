@@ -27,59 +27,70 @@ public class BasicNotification : Notification
     protected override Drawable CreateForeground()
     {
         TextFlowContainer textFlow;
-        var foreground = new FillFlowContainer
+
+        var foreground = new GridContainer
         {
             Anchor = Anchor.Centre,
             Origin = Anchor.Centre,
             RelativeSizeAxes = Axes.Both,
-            Direction = FillDirection.Horizontal,
-            Spacing = new Vector2(-5, 0),
-            Children = new Drawable[]
+            ColumnDimensions = new[]
             {
-                new Container
+                new Dimension(GridSizeMode.Absolute, 55),
+                new Dimension(),
+            },
+            Content = new[]
+            {
+                new Drawable[]
                 {
-                    Anchor = Anchor.CentreLeft,
-                    Origin = Anchor.CentreLeft,
-                    RelativeSizeAxes = Axes.Both,
-                    FillMode = FillMode.Fit,
-                    Padding = new MarginPadding(5),
-                    Children = new Drawable[]
+                    new Container
                     {
-                        new Container
+                        Anchor = Anchor.CentreLeft,
+                        Origin = Anchor.CentreLeft,
+                        RelativeSizeAxes = Axes.Both,
+                        FillMode = FillMode.Fit,
+                        Padding = new MarginPadding(5),
+                        Children = new Drawable[]
                         {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
-                            RelativeSizeAxes = Axes.Both,
-                            Masking = true,
-                            CornerRadius = 5,
-                            Children = new Drawable[]
+                            new Container
                             {
-                                new Box
+                                Anchor = Anchor.Centre,
+                                Origin = Anchor.Centre,
+                                RelativeSizeAxes = Axes.Both,
+                                Masking = true,
+                                CornerRadius = 5,
+                                Children = new Drawable[]
                                 {
-                                    Anchor = Anchor.Centre,
-                                    Origin = Anchor.Centre,
-                                    RelativeSizeAxes = Axes.Both,
-                                    Colour = ColourInfo.GradientVertical(Colour.Darken(0.25f), Colour)
-                                },
-                                new SpriteIcon
-                                {
-                                    Anchor = Anchor.Centre,
-                                    Origin = Anchor.Centre,
-                                    RelativeSizeAxes = Axes.Both,
-                                    Size = new Vector2(0.5f),
-                                    Icon = Icon
+                                    new Box
+                                    {
+                                        Anchor = Anchor.Centre,
+                                        Origin = Anchor.Centre,
+                                        RelativeSizeAxes = Axes.Both,
+                                        Colour = ColourInfo.GradientVertical(Colour.Darken(0.25f), Colour)
+                                    },
+                                    new SpriteIcon
+                                    {
+                                        Anchor = Anchor.Centre,
+                                        Origin = Anchor.Centre,
+                                        RelativeSizeAxes = Axes.Both,
+                                        Size = new Vector2(0.7f),
+                                        Icon = Icon
+                                    }
                                 }
                             }
                         }
+                    },
+                    textFlow = new TextFlowContainer
+                    {
+                        Anchor = Anchor.CentreLeft,
+                        Origin = Anchor.CentreLeft,
+                        TextAnchor = Anchor.TopLeft,
+                        RelativeSizeAxes = Axes.Both,
+                        Padding = new MarginPadding
+                        {
+                            Vertical = 5,
+                            Right = 5
+                        }
                     }
-                },
-                textFlow = new TextFlowContainer
-                {
-                    Anchor = Anchor.CentreLeft,
-                    Origin = Anchor.CentreLeft,
-                    TextAnchor = Anchor.TopLeft,
-                    RelativeSizeAxes = Axes.Both,
-                    Padding = new MarginPadding(5)
                 }
             }
         };
