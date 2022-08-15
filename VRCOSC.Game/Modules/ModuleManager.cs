@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using osu.Framework.Allocation;
@@ -75,10 +76,31 @@ public sealed class ModuleManager : Drawable
         game.ModulesRunning.BindValueChanged(e =>
         {
             if (e.NewValue)
+            {
                 start();
+                if (configManager.Get<bool>(VRCOSCSetting.AutoFocus)) _ = focusVrc();
+            }
             else
+            {
                 _ = stop();
+            }
         });
+    }
+
+    private async Task focusVrc()
+    {
+        var process = Process.GetProcessesByName("vrchat").FirstOrDefault();
+        if (process is null) return;
+
+        if (process.MainWindowHandle == IntPtr.Zero)
+        {
+            ProcessHelper.ShowMainWindow(process, ShowWindowEnum.Restore);
+            await Task.Delay(5);
+        }
+
+        ProcessHelper.ShowMainWindow(process, ShowWindowEnum.ShowDefault);
+        await Task.Delay(5);
+        ProcessHelper.SetMainWindowForeground(process);
     }
 
     private void checkForVrChat()

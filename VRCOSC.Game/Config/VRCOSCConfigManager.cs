@@ -23,6 +23,7 @@ public class VRCOSCConfigManager : IniConfigManager<VRCOSCSetting>
         SetDefault(VRCOSCSetting.SendPort, 9000);
         SetDefault(VRCOSCSetting.ReceivePort, 9001);
         SetDefault(VRCOSCSetting.UpdateMode, UpdateMode.Auto);
+        SetDefault(VRCOSCSetting.AutoFocus, false);
     }
 }
 
@@ -32,5 +33,6 @@ public enum VRCOSCSetting
     IPAddress,
     SendPort,
     ReceivePort,
-    UpdateMode
+    UpdateMode,
+    AutoFocus
 }
