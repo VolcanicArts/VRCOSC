@@ -15,8 +15,8 @@ public class ModulesSection : SectionContainer
 
     protected override void GenerateItems()
     {
-        Add("Auto Start/Stop", autoStartStop = GenerateToggle());
-        Add("Auto Focus VRChat", autoFocus = GenerateToggle());
+        Add("Auto start/stop modules on VRChat start/stop", autoStartStop = GenerateToggle());
+        Add("Auto focus VRChat on modules start", autoFocus = GenerateToggle());
     }
 
     protected override void Load()
