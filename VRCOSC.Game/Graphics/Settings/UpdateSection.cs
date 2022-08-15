@@ -12,9 +12,6 @@ public class UpdateSection : SectionContainer
     private VRCOSCDropdown<UpdateMode> updateMode = null!;
 
     [Resolved]
-    private VRCOSCConfigManager configManager { get; set; } = null!;
-
-    [Resolved]
     private VRCOSCGame game { get; set; } = null!;
 
     protected override string Title => "Update";
@@ -27,11 +24,11 @@ public class UpdateSection : SectionContainer
 
     protected override void Load()
     {
-        updateMode.Current.Value = configManager.Get<UpdateMode>(VRCOSCSetting.UpdateMode);
+        updateMode.Current.Value = ConfigManager.Get<UpdateMode>(VRCOSCSetting.UpdateMode);
     }
 
     protected override void Save()
     {
-        configManager.SetValue(VRCOSCSetting.UpdateMode, updateMode.Current.Value);
+        ConfigManager.SetValue(VRCOSCSetting.UpdateMode, updateMode.Current.Value);
     }
 }

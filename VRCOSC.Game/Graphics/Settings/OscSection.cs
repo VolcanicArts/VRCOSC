@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using osu.Framework.Allocation;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics.UI;
 
@@ -12,9 +11,6 @@ public class OscSection : SectionContainer
     private VRCOSCTextBox ipAddress = null!;
     private VRCOSCTextBox outgoingPort = null!;
     private VRCOSCTextBox incomingPort = null!;
-
-    [Resolved]
-    private VRCOSCConfigManager configManager { get; set; } = null!;
 
     protected override string Title => "OSC";
 
@@ -27,15 +23,15 @@ public class OscSection : SectionContainer
 
     protected override void Load()
     {
-        ipAddress.Text = configManager.Get<string>(VRCOSCSetting.IPAddress);
-        outgoingPort.Text = configManager.Get<int>(VRCOSCSetting.SendPort).ToString();
-        incomingPort.Text = configManager.Get<int>(VRCOSCSetting.ReceivePort).ToString();
+        ipAddress.Text = ConfigManager.Get<string>(VRCOSCSetting.IPAddress);
+        outgoingPort.Text = ConfigManager.Get<int>(VRCOSCSetting.SendPort).ToString();
+        incomingPort.Text = ConfigManager.Get<int>(VRCOSCSetting.ReceivePort).ToString();
     }
 
     protected override void Save()
     {
-        configManager.SetValue(VRCOSCSetting.IPAddress, ipAddress.Text);
-        configManager.SetValue(VRCOSCSetting.SendPort, int.Parse(outgoingPort.Text));
-        configManager.SetValue(VRCOSCSetting.ReceivePort, int.Parse(incomingPort.Text));
+        ConfigManager.SetValue(VRCOSCSetting.IPAddress, ipAddress.Text);
+        ConfigManager.SetValue(VRCOSCSetting.SendPort, int.Parse(outgoingPort.Text));
+        ConfigManager.SetValue(VRCOSCSetting.ReceivePort, int.Parse(incomingPort.Text));
     }
 }

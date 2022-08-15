@@ -8,6 +8,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
+using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics.ModuleListing;
 using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Graphics.UI.Button;
@@ -22,9 +23,13 @@ public class SectionContainer : Container
 
     protected virtual string Title => string.Empty;
 
+    protected VRCOSCConfigManager ConfigManager = null!;
+
     [BackgroundDependencyLoader]
-    private void load()
+    private void load(VRCOSCConfigManager configManager)
     {
+        ConfigManager = configManager;
+
         Anchor = Anchor.TopLeft;
         Origin = Anchor.TopLeft;
         RelativeSizeAxes = Axes.X;

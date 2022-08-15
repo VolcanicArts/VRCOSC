@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using osu.Framework.Allocation;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics.ModuleListing;
 
@@ -11,9 +10,6 @@ public class ModulesSection : SectionContainer
 {
     private ToggleButton autoStartStop = null!;
     private ToggleButton autoFocus = null!;
-
-    [Resolved]
-    private VRCOSCConfigManager configManager { get; set; } = null!;
 
     protected override string Title => "Modules";
 
@@ -25,13 +21,13 @@ public class ModulesSection : SectionContainer
 
     protected override void Load()
     {
-        autoStartStop.State.Value = configManager.Get<bool>(VRCOSCSetting.AutoStartStop);
-        autoFocus.State.Value = configManager.Get<bool>(VRCOSCSetting.AutoFocus);
+        autoStartStop.State.Value = ConfigManager.Get<bool>(VRCOSCSetting.AutoStartStop);
+        autoFocus.State.Value = ConfigManager.Get<bool>(VRCOSCSetting.AutoFocus);
     }
 
     protected override void Save()
     {
-        configManager.SetValue(VRCOSCSetting.AutoStartStop, autoStartStop.State.Value);
-        configManager.SetValue(VRCOSCSetting.AutoFocus, autoFocus.State.Value);
+        ConfigManager.SetValue(VRCOSCSetting.AutoStartStop, autoStartStop.State.Value);
+        ConfigManager.SetValue(VRCOSCSetting.AutoFocus, autoFocus.State.Value);
     }
 }
