@@ -125,7 +125,7 @@ public abstract class Module
 
     protected void RegisterRadialInput(Enum lookup)
     {
-        InputParameters.Add(lookup, new InputParameterData(typeof(float), ActionMenu.Radial));
+        InputParameters.Add(lookup, new RadialInputParameterData());
     }
 
     #endregion
