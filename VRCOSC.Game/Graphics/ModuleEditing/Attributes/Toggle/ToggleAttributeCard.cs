@@ -4,7 +4,7 @@
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using VRCOSC.Game.Graphics.ModuleListing;
+using VRCOSC.Game.Graphics.UI.Button;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes.Toggle;

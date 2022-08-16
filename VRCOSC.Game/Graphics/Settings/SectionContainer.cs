@@ -9,7 +9,6 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
 using VRCOSC.Game.Config;
-using VRCOSC.Game.Graphics.ModuleListing;
 using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Graphics.UI.Button;
 

@@ -2,7 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.Game.Config;
-using VRCOSC.Game.Graphics.ModuleListing;
+using VRCOSC.Game.Graphics.UI.Button;
 
 namespace VRCOSC.Game.Graphics.Settings;
 
