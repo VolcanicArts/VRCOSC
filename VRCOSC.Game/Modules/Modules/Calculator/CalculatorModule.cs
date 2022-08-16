@@ -89,7 +89,7 @@ public class CalculatorModule : IntegrationModule
         if (!key.Equals(CalculatorInputParameter.CalculatorNumber) || !isCalculatorOpen) return;
 
         var number = (int)Math.Round(value * 9);
-        ExecuteKeyCombination(CalculatorNumbers.CalculatorNumber0 + number); // Holy shit if this works then I'm so fucking lucky
+        ExecuteKeyCombination((CalculatorNumbers)number);
         sendResult();
     }
 
