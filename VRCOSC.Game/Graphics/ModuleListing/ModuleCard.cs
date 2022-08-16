@@ -118,19 +118,13 @@ public sealed class ModuleCard : Container
         {
             t.Font = FrameworkFont.Regular.With(size: 25);
         });
-        metadataTextFlow.AddParagraph(Module.Description, t =>
+
+        var description = Module.Description;
+        if (!string.IsNullOrEmpty(Module.Prefab)) description += $". Pairs with {Module.Prefab}";
+
+        metadataTextFlow.AddParagraph(description, t =>
         {
             t.Font = FrameworkFont.Regular.With(size: 20);
-            t.Colour = VRCOSCColour.GrayC;
         });
-
-        if (!string.IsNullOrEmpty(Module.Prefab))
-        {
-            metadataTextFlow.AddText($". Pairs with {Module.Prefab}", t =>
-            {
-                t.Font = FrameworkFont.Regular.With(size: 20);
-                t.Colour = VRCOSCColour.GrayC;
-            });
-        }
     }
 }
