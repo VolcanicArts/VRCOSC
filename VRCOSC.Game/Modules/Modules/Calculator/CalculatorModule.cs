@@ -23,7 +23,7 @@ public class CalculatorModule : IntegrationModule
 
     protected override void CreateAttributes()
     {
-        CreateOutputParameter(CalculatorOutputParameter.CalculatorSendValue, "Send Value", "Send the current value of the calculator", "/avatar/parameters/CalculatorResult");
+        CreateOutputParameter(CalculatorOutputParameter.CalculatorResult, "Result Value", "The current result of the calculator", "/avatar/parameters/CalculatorResult");
 
         RegisterButtonInput(CalculatorInputParameter.CalculatorOpen);
         RegisterButtonInput(CalculatorInputParameter.CalculatorClose);
@@ -108,7 +108,7 @@ public class CalculatorModule : IntegrationModule
     {
         ExecuteKeyCombination(CalculatorInputParameter.CalculatorCopyValue);
         calculatorResult = returnClipboardValue();
-        SendParameter(CalculatorOutputParameter.CalculatorSendValue, calculatorResult);
+        SendParameter(CalculatorOutputParameter.CalculatorResult, calculatorResult);
     }
 
     private enum CalculatorNumbers
@@ -141,6 +141,6 @@ public class CalculatorModule : IntegrationModule
 
     private enum CalculatorOutputParameter
     {
-        CalculatorSendValue
+        CalculatorResult
     }
 }
