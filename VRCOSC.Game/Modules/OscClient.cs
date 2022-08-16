@@ -8,14 +8,13 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using CoreOSC;
-using CoreOSC.IO;
 
 namespace VRCOSC.Game.Modules;
 
 public class OscClient
 {
-    private UdpClient? sendingClient;
-    private UdpClient? receivingClient;
+    private Socket? sendingClient;
+    private Socket? receivingClient;
     private CancellationTokenSource? tokenSource;
     private Task? incomingTask;
 
@@ -24,8 +23,11 @@ public class OscClient
 
     public void Initialise(string ipAddress, int sendPort, int receivePort)
     {
-        sendingClient = new UdpClient(ipAddress, sendPort);
-        receivingClient = new UdpClient(new IPEndPoint(IPAddress.Parse(ipAddress), receivePort));
+        sendingClient = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+        receivingClient = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+
+        sendingClient.Connect(new IPEndPoint(IPAddress.Parse(ipAddress), sendPort));
+        receivingClient.Bind(new IPEndPoint(IPAddress.Parse(ipAddress), receivePort));
     }
 
     public void Enable()
@@ -39,13 +41,13 @@ public class OscClient
         tokenSource?.Cancel();
         if (incomingTask is not null) await incomingTask;
         tokenSource?.Dispose();
-        receivingClient?.Dispose();
+        receivingClient?.Close();
         receivingClient = null;
     }
 
     public void DisableSend()
     {
-        sendingClient?.Dispose();
+        sendingClient?.Close();
         sendingClient = null;
     }
 
@@ -55,24 +57,24 @@ public class OscClient
 
     public void SendData(string address, float value) => sendData(address, value);
 
-    private async void sendData(string address, object value)
+    private void sendData(string address, object value)
     {
         var oscAddress = new Address(address);
         var message = new OscMessage(oscAddress, new[] { value });
 
         if (sendingClient is null) return;
 
-        await sendingClient.SendMessageAsync(message);
+        sendingClient.SendOscMessage(message);
         OnParameterSent?.Invoke(address, convertValue(value));
     }
 
-    private async void listenForIncoming()
+    private void listenForIncoming()
     {
         try
         {
             while (!tokenSource!.Token.IsCancellationRequested)
             {
-                var message = await receivingClient.ReceiveMessageAsync();
+                var message = receivingClient!.ReceiveOscMessage();
                 if (!message.Arguments.Any()) continue;
 
                 OnParameterReceived?.Invoke(message.Address.Value, convertValue(message.Arguments.First()));
