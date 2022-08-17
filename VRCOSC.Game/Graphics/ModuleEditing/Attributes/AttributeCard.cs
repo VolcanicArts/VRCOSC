@@ -119,7 +119,7 @@ public abstract class AttributeCard : Container
     private void performAttributeUpdate()
     {
         UpdateValues(AttributeData.Attribute.Value);
-        UpdateResetToDefault();
+        UpdateResetToDefault(!AttributeData.Attribute.IsDefault);
     }
 
     protected virtual void UpdateValues(object value)
@@ -127,9 +127,9 @@ public abstract class AttributeCard : Container
         AttributeData.Attribute.Value = value;
     }
 
-    protected virtual void UpdateResetToDefault()
+    protected virtual void UpdateResetToDefault(bool show)
     {
-        resetToDefault.Alpha = AttributeData.Attribute.IsDefault ? 0 : 1;
+        resetToDefault.Alpha = show ? 1 : 0;
     }
 
     protected override void Dispose(bool isDisposing)
