@@ -95,7 +95,12 @@ public abstract class AttributeCardList : AttributeCard
 
         ContentFlow.Add(wrapper);
 
-        removeButton.Action += () => RemoveItem(ContentFlow.IndexOf(wrapper));
+        removeButton.Action += () =>
+        {
+            if (ContentFlow.Count == 1) return;
+
+            RemoveItem(ContentFlow.IndexOf(wrapper));
+        };
     }
 
     protected override void LoadComplete()
