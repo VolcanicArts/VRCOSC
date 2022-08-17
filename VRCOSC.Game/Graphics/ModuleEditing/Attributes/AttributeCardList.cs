@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
@@ -111,7 +112,7 @@ public abstract class AttributeCardList : AttributeCard
 
     protected virtual Bindable<object> GetDefaultItem()
     {
-        return new Bindable<object>(string.Empty);
+        return new Bindable<object>(AttributeData.AttributeList.Last().Value);
     }
 
     private void performAttributeUpdate(ValueChangedEvent<object> e)
