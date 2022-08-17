@@ -448,12 +448,6 @@ public abstract class Module
         return new OutputParameter(OscClient, addressList.GetValueList().Cast<string>().ToList());
     }
 
-    private List<string> getOutputParameterAddresses(Enum lookup)
-    {
-        var attributeList = (ModuleAttributeList)OutputParameters[lookup.ToString().ToLowerInvariant()];
-        return attributeList.GetValueList().Cast<string>().ToList();
-    }
-
     protected void SendParameter<T>(Enum lookup, T value) where T : struct
     {
         if (ModuleState == ModuleState.Stopped) return;
@@ -461,15 +455,15 @@ public abstract class Module
         switch (value)
         {
             case bool boolValue:
-                getOutputParameterAddresses(lookup).ForEach(address => OscClient.SendData(address, boolValue));
+                GetOutputParameter(lookup).ForEach(address => address.SendValue(boolValue));
                 break;
 
             case int intValue:
-                getOutputParameterAddresses(lookup).ForEach(address => OscClient.SendData(address, intValue));
+                GetOutputParameter(lookup).ForEach(address => address.SendValue(intValue));
                 break;
 
             case float floatValue:
-                getOutputParameterAddresses(lookup).ForEach(address => OscClient.SendData(address, floatValue));
+                GetOutputParameter(lookup).ForEach(address => address.SendValue(floatValue));
                 break;
 
             default:
