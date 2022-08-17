@@ -113,12 +113,22 @@ public abstract class AttributeCard : Container
 
     protected override void LoadComplete()
     {
-        AttributeData.Attribute.BindValueChanged(e => UpdateValues(e.NewValue), true);
+        AttributeData.Attribute.BindValueChanged(_ => performAttributeUpdate(), true);
+    }
+
+    private void performAttributeUpdate()
+    {
+        UpdateValues(AttributeData.Attribute.Value);
+        UpdateResetToDefault();
     }
 
     protected virtual void UpdateValues(object value)
     {
         AttributeData.Attribute.Value = value;
+    }
+
+    protected virtual void UpdateResetToDefault()
+    {
         resetToDefault.Alpha = AttributeData.Attribute.IsDefault ? 0 : 1;
     }
 
