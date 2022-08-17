@@ -8,6 +8,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using CoreOSC;
+using osu.Framework.Logging;
 
 namespace VRCOSC.Game.Modules;
 
@@ -68,19 +69,19 @@ public class OscClient
         OnParameterSent?.Invoke(address, convertValue(value));
     }
 
-    private void listenForIncoming()
+    private async void listenForIncoming()
     {
         try
         {
             while (!tokenSource!.Token.IsCancellationRequested)
             {
-                var message = receivingClient!.ReceiveOscMessage();
+                var message = await receivingClient!.ReceiveOscMessage(tokenSource.Token);
                 if (!message.Arguments.Any()) continue;
 
                 OnParameterReceived?.Invoke(message.Address.Value, convertValue(message.Arguments.First()));
             }
         }
-        catch (SocketException) { }
+        catch (OperationCanceledException) { }
     }
 
     private object convertValue(object value)
