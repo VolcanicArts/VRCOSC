@@ -158,7 +158,7 @@ public class ModuleEditingContent : Container
             };
         }
 
-        public void Replace(IEnumerable<ModuleAttributeData> attributeData)
+        public void Replace(IEnumerable<ModuleAttribute> attributeData)
         {
             attributeFlow.AttributesList.Clear();
             attributeFlow.AttributesList.AddRange(attributeData);

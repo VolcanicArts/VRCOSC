@@ -8,7 +8,7 @@ namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes.Slider;
 
 public class IntSliderAttributeCard : SliderAttributeCard<int>
 {
-    public IntSliderAttributeCard(ModuleAttributeDataWithBounds attributeData)
+    public IntSliderAttributeCard(ModuleAttributeSingleWithBounds attributeData)
         : base(attributeData)
     {
     }

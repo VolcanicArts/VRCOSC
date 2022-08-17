@@ -16,12 +16,13 @@ public abstract class AttributeCard : Container
 {
     private VRCOSCButton resetToDefault = null!;
     protected FillFlowContainer ContentFlow = null!;
+    protected FillFlowContainer LayoutFlow = null!;
 
-    protected readonly ModuleAttributeData AttributeData;
+    private readonly ModuleAttribute attributeData;
 
-    protected AttributeCard(ModuleAttributeData attributeData)
+    protected AttributeCard(ModuleAttribute attributeData)
     {
-        AttributeData = attributeData;
+        this.attributeData = attributeData;
     }
 
     [BackgroundDependencyLoader]
@@ -50,7 +51,7 @@ public abstract class AttributeCard : Container
                     Size = new Vector2(0.5f, 1.0f),
                     CornerRadius = 5,
                     CornerExponent = 2,
-                    Action = () => AttributeData.Attribute.SetDefault(),
+                    Action = SetDefault,
                     EdgeEffect = new EdgeEffectParameters
                     {
                         Type = EdgeEffectType.Glow,
@@ -76,7 +77,7 @@ public abstract class AttributeCard : Container
                         RelativeSizeAxes = Axes.Both,
                         Colour = VRCOSCColour.Gray2
                     },
-                    ContentFlow = new FillFlowContainer
+                    LayoutFlow = new FillFlowContainer
                     {
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
@@ -95,46 +96,38 @@ public abstract class AttributeCard : Container
                                 RelativeSizeAxes = Axes.X,
                                 AutoSizeAxes = Axes.Y
                             },
+                            ContentFlow = new FillFlowContainer
+                            {
+                                Anchor = Anchor.TopCentre,
+                                Origin = Anchor.TopCentre,
+                                RelativeSizeAxes = Axes.X,
+                                AutoSizeAxes = Axes.Y,
+                                Direction = FillDirection.Vertical,
+                                Spacing = new Vector2(0, 10),
+                            }
                         }
                     }
                 }
             }
         };
-        textFlow.AddText(AttributeData.DisplayName, t =>
+        textFlow.AddText(attributeData.Metadata.DisplayName, t =>
         {
             t.Font = FrameworkFont.Regular.With(size: 30);
         });
-        textFlow.AddParagraph(AttributeData.Description, t =>
+        textFlow.AddParagraph(attributeData.Metadata.Description, t =>
         {
             t.Font = FrameworkFont.Regular.With(size: 20);
             t.Colour = VRCOSCColour.Gray9;
         });
     }
 
-    protected override void LoadComplete()
+    protected virtual void SetDefault()
     {
-        AttributeData.Attribute.BindValueChanged(_ => performAttributeUpdate(), true);
+        attributeData.SetDefault();
     }
 
-    private void performAttributeUpdate()
-    {
-        UpdateValues(AttributeData.Attribute.Value);
-        UpdateResetToDefault(!AttributeData.Attribute.IsDefault);
-    }
-
-    protected virtual void UpdateValues(object value)
-    {
-        AttributeData.Attribute.Value = value;
-    }
-
-    protected virtual void UpdateResetToDefault(bool show)
+    protected void UpdateResetToDefault(bool show)
     {
         resetToDefault.Alpha = show ? 1 : 0;
-    }
-
-    protected override void Dispose(bool isDisposing)
-    {
-        base.Dispose(isDisposing);
-        AttributeData.Attribute.ValueChanged -= UpdateValues;
     }
 }

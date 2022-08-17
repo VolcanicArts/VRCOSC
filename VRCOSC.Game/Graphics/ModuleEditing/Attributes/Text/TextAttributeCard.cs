@@ -9,11 +9,11 @@ using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes.Text;
 
-public class TextAttributeCard : AttributeCard
+public class TextAttributeCard : AttributeCardSingle
 {
     private VRCOSCTextBox textBox = null!;
 
-    public TextAttributeCard(ModuleAttributeData attributeData)
+    public TextAttributeCard(ModuleAttributeSingle attributeData)
         : base(attributeData)
     {
     }

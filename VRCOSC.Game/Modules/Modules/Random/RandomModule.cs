@@ -1,6 +1,8 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Collections.Generic;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics.Colour;
 using VRCOSC.Game.Graphics;
 using VRCOSC.Game.Modules.Util;
@@ -21,12 +23,13 @@ public abstract class RandomModule<T> : Module where T : struct
         CreateSetting(RandomSetting.DeltaUpdate, "Time Between Value", "The amount of time, in milliseconds, between each random value", 1000);
 
         var readableTypeName = typeof(T).ToReadableName();
-        CreateOutputParameter(RandomOutputParameter.RandomValue, $"Random {readableTypeName}", $"A random {readableTypeName.ToLowerInvariant()} value", $"/avatar/parameters/Random{readableTypeName}");
+        CreateOutputParameter(RandomOutputParameter.RandomValue, $"Random {readableTypeName}", $"A random {readableTypeName.ToLowerInvariant()} value. Each new parameter will receive a different random value",
+            new List<string>() { $"/avatar/parameters/Random{readableTypeName}" });
     }
 
     protected override void OnUpdate()
     {
-        SendParameter(RandomOutputParameter.RandomValue, GetRandomValue());
+        GetOutputParameter(RandomOutputParameter.RandomValue).ForEach(oscAddress => oscAddress.SendValue(GetRandomValue()));
     }
 
     protected abstract T GetRandomValue();

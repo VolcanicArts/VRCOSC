@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -30,8 +31,8 @@ public abstract class Module
 
     public readonly BindableBool Enabled = new();
 
-    public readonly Dictionary<string, ModuleAttributeData> Settings = new();
-    public readonly Dictionary<string, ModuleAttributeData> OutputParameters = new();
+    public readonly Dictionary<string, ModuleAttribute> Settings = new();
+    public readonly Dictionary<string, ModuleAttribute> OutputParameters = new();
 
     private readonly Dictionary<Enum, InputParameterData> InputParameters = new();
 
@@ -92,6 +93,16 @@ public abstract class Module
         addSetting(lookup.ToString().ToLowerInvariant(), displayName, description, defaultValue);
     }
 
+    protected void CreateSetting(Enum lookup, string displayName, string description, List<string> defaultValues)
+    {
+        addListSetting(lookup.ToString().ToLowerInvariant(), displayName, description, defaultValues.Cast<object>().ToList(), typeof(string));
+    }
+
+    protected void CreateSetting(Enum lookup, string displayName, string description, List<int> defaultValues)
+    {
+        addListSetting(lookup.ToString().ToLowerInvariant(), displayName, description, defaultValues.Cast<object>().ToList(), typeof(int));
+    }
+
     protected void CreateSetting<T>(Enum lookup, string displayName, string description, T defaultValue) where T : Enum
     {
         addSetting(lookup.ToString().ToLowerInvariant(), displayName, description, defaultValue);
@@ -99,18 +110,29 @@ public abstract class Module
 
     private void addSetting(string lookup, string displayName, string description, object defaultValue)
     {
-        Settings.Add(lookup, new ModuleAttributeData(displayName, description, defaultValue));
+        Settings.Add(lookup, new ModuleAttributeSingle(new ModuleAttributeMetadata(displayName, description), defaultValue));
+    }
+
+    private void addListSetting(string lookup, string displayName, string description, List<object> defaultValues, Type type)
+    {
+        Settings.Add(lookup, new ModuleAttributeList(new ModuleAttributeMetadata(displayName, description), defaultValues, type));
     }
 
     private void addRangedSetting<T>(string lookup, string displayName, string description, T defaultValue, T minValue, T maxValue) where T : struct
     {
-        Settings.Add(lookup, new ModuleAttributeDataWithBounds(displayName, description, defaultValue, minValue, maxValue));
+        Settings.Add(lookup, new ModuleAttributeSingleWithBounds(new ModuleAttributeMetadata(displayName, description), defaultValue, minValue, maxValue));
     }
 
     protected void CreateOutputParameter(Enum lookup, string displayName, string description, string defaultAddress)
     {
         var lookupString = lookup.ToString().ToLowerInvariant();
-        OutputParameters.Add(lookupString, new ModuleAttributeData(displayName, description, defaultAddress));
+        OutputParameters.Add(lookupString, new ModuleAttributeSingle(new ModuleAttributeMetadata(displayName, description), defaultAddress));
+    }
+
+    protected void CreateOutputParameter(Enum lookup, string displayName, string description, List<string> defaultAddresses)
+    {
+        var lookupString = lookup.ToString().ToLowerInvariant();
+        OutputParameters.Add(lookupString, new ModuleAttributeList(new ModuleAttributeMetadata(displayName, description), defaultAddresses.Cast<object>().ToList(), typeof(string)));
     }
 
     protected void RegisterGenericInputParameter<T>(Enum lookup) where T : struct
@@ -189,7 +211,14 @@ public abstract class Module
 
     private T getSetting<T>(string lookup)
     {
-        var value = Settings[lookup].Attribute.Value;
+        var setting = Settings[lookup];
+
+        object? value = setting switch
+        {
+            ModuleAttributeSingle settingSingle => settingSingle.Attribute.Value,
+            ModuleAttributeList settingList => settingList.AttributeList.ToList(),
+            _ => null
+        };
 
         if (value is not T valueCast)
             throw new InvalidCastException($"Setting with lookup '{lookup}' is not of type '{nameof(T)}'");
@@ -356,9 +385,68 @@ public abstract class Module
 
     #region OutgoingParameters
 
-    private string getOutputParameter(Enum lookup) => getOutputParameter(lookup.ToString().ToLowerInvariant());
+    protected class OscAddress
+    {
+        private readonly OscClient oscClient;
+        private readonly string address;
 
-    private string getOutputParameter(string lookup) => (string)OutputParameters[lookup].Attribute.Value;
+        public OscAddress(OscClient oscClient, string address)
+        {
+            this.oscClient = oscClient;
+            this.address = address;
+        }
+
+        public void SendValue(bool value) => oscClient.SendData(address, value);
+        public void SendValue(int value) => oscClient.SendData(address, value);
+        public void SendValue(float value) => oscClient.SendData(address, value);
+
+        public void SendValue<T>(T value) where T : struct
+        {
+            switch (value)
+            {
+                case bool boolValue:
+                    SendValue(boolValue);
+                    break;
+
+                case int intValue:
+                    SendValue(intValue);
+                    break;
+
+                case float floatValue:
+                    SendValue(floatValue);
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException($"Cannot send value of type {value.GetType().Name}");
+            }
+        }
+    }
+
+    protected class OutputParameter : IEnumerable<OscAddress>
+    {
+        private readonly List<OscAddress> addresses = new();
+
+        public OutputParameter(OscClient oscClient, List<string> addressesStr)
+        {
+            addressesStr.ForEach(address => addresses.Add(new OscAddress(oscClient, address)));
+        }
+
+        public IEnumerator<OscAddress> GetEnumerator()
+        {
+            return addresses.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+    }
+
+    protected OutputParameter GetOutputParameter(Enum lookup)
+    {
+        var addressList = (ModuleAttributeList)OutputParameters[lookup.ToString().ToLowerInvariant()];
+        return new OutputParameter(OscClient, addressList.GetValueList().Cast<string>().ToList());
+    }
 
     protected void SendParameter<T>(Enum lookup, T value) where T : struct
     {
@@ -367,15 +455,15 @@ public abstract class Module
         switch (value)
         {
             case bool boolValue:
-                OscClient.SendData(getOutputParameter(lookup), boolValue);
+                GetOutputParameter(lookup).ForEach(address => address.SendValue(boolValue));
                 break;
 
             case int intValue:
-                OscClient.SendData(getOutputParameter(lookup), intValue);
+                GetOutputParameter(lookup).ForEach(address => address.SendValue(intValue));
                 break;
 
             case float floatValue:
-                OscClient.SendData(getOutputParameter(lookup), floatValue);
+                GetOutputParameter(lookup).ForEach(address => address.SendValue(floatValue));
                 break;
 
             default:
@@ -447,41 +535,74 @@ public abstract class Module
             var lookupType = lineSplitLookupValue[0].Split(new[] { ':' }, 2);
             var value = lineSplitLookupValue[1];
 
-            var lookup = lookupType[0];
+            var lookupStr = lookupType[0];
             var typeStr = lookupType[1];
+
+            var lookup = lookupStr;
+            if (lookupStr.Contains('#')) lookup = lookupStr.Split(new[] { '#' }, 2)[0];
 
             if (!Settings.ContainsKey(lookup)) continue;
 
-            var readableTypeName = Settings[lookup].Attribute.Value.GetType().ToReadableName().ToLowerInvariant();
-            if (!readableTypeName.Equals(typeStr)) continue;
+            var setting = Settings[lookup];
 
-            switch (typeStr)
+            if (setting is ModuleAttributeSingle settingSingle)
             {
-                case "enum":
-                    var typeAndValue = value.Split(new[] { '#' }, 2);
-                    var enumType = enumNameToType(typeAndValue[0]);
-                    if (enumType is not null) Settings[lookup].Attribute.Value = Enum.ToObject(enumType, int.Parse(typeAndValue[1]));
-                    break;
+                var readableTypeName = settingSingle.Attribute.Value.GetType().ToReadableName().ToLowerInvariant();
+                if (!readableTypeName.Equals(typeStr)) continue;
 
-                case "string":
-                    Settings[lookup].Attribute.Value = value;
-                    break;
+                switch (typeStr)
+                {
+                    case "enum":
+                        var typeAndValue = value.Split(new[] { '#' }, 2);
+                        var enumType = enumNameToType(typeAndValue[0]);
+                        if (enumType is not null) settingSingle.Attribute.Value = Enum.ToObject(enumType, int.Parse(typeAndValue[1]));
+                        break;
 
-                case "int":
-                    Settings[lookup].Attribute.Value = int.Parse(value);
-                    break;
+                    case "string":
+                        settingSingle.Attribute.Value = value;
+                        break;
 
-                case "float":
-                    Settings[lookup].Attribute.Value = float.Parse(value);
-                    break;
+                    case "int":
+                        settingSingle.Attribute.Value = int.Parse(value);
+                        break;
 
-                case "bool":
-                    Settings[lookup].Attribute.Value = bool.Parse(value);
-                    break;
+                    case "float":
+                        settingSingle.Attribute.Value = float.Parse(value);
+                        break;
 
-                default:
-                    Logger.Log($"Unknown type found in file: {typeStr}");
-                    break;
+                    case "bool":
+                        settingSingle.Attribute.Value = bool.Parse(value);
+                        break;
+
+                    default:
+                        Logger.Log($"Unknown type found in file: {typeStr}");
+                        break;
+                }
+            }
+
+            if (setting is ModuleAttributeList settingList)
+            {
+                if (settingList.AttributeList.Count == 0) continue;
+
+                var readableTypeName = settingList.AttributeList.First().Value.GetType().ToReadableName().ToLowerInvariant();
+                if (!readableTypeName.Equals(typeStr)) continue;
+
+                var index = int.Parse(lookupStr.Split('#')[1]);
+
+                switch (typeStr)
+                {
+                    case "string":
+                        settingList.AddAt(index, new Bindable<object>(value));
+                        break;
+
+                    case "int":
+                        settingList.AddAt(index, new Bindable<object>(int.Parse(value)));
+                        break;
+
+                    default:
+                        Logger.Log($"Unknown type for list found in file: {typeStr}");
+                        break;
+                }
             }
         }
     }
@@ -493,12 +614,26 @@ public abstract class Module
             if (line.Equals("#End")) break;
 
             var lineSplitLookupValue = line.Split(new[] { '=' }, 2);
-            var lookup = lineSplitLookupValue[0];
+            var lookupStr = lineSplitLookupValue[0];
             var value = lineSplitLookupValue[1];
+
+            var lookup = lookupStr;
+            if (lookupStr.Contains('#')) lookup = lookupStr.Split(new[] { '#' }, 2)[0];
 
             if (!OutputParameters.ContainsKey(lookup)) continue;
 
-            OutputParameters[lookup].Attribute.Value = value;
+            var parameter = OutputParameters[lookup];
+
+            if (parameter is ModuleAttributeSingle parameterSingle)
+            {
+                parameterSingle.Attribute.Value = value;
+            }
+
+            if (parameter is ModuleAttributeList parameterList)
+            {
+                var index = int.Parse(lookupStr.Split('#')[1]);
+                parameterList.AddAt(index, new Bindable<object>(value));
+            }
         }
     }
 
@@ -507,8 +642,33 @@ public abstract class Module
         performSave();
 
         Enabled.BindValueChanged(_ => performSave());
-        Settings.Values.ForEach(value => value.Attribute.BindValueChanged(_ => performSave()));
-        OutputParameters.Values.ForEach(value => value.Attribute.BindValueChanged(_ => performSave()));
+        Settings.Values.ForEach(handleAttributeBind);
+        OutputParameters.Values.ForEach(handleAttributeBind);
+    }
+
+    private void handleAttributeBind(ModuleAttribute value)
+    {
+        if (value is ModuleAttributeSingle valueSingle)
+        {
+            valueSingle.Attribute.BindValueChanged(_ => performSave());
+        }
+
+        if (value is ModuleAttributeList valueList)
+        {
+            valueList.AttributeList.BindCollectionChanged((_, e) =>
+            {
+                if (e.NewItems is not null)
+                {
+                    foreach (var newItem in e.NewItems)
+                    {
+                        var bindable = (Bindable<object>)newItem;
+                        bindable.BindValueChanged(_ => performSave());
+                    }
+                }
+
+                performSave();
+            });
+        }
     }
 
     private static Type? enumNameToType(string enumName) => AppDomain.CurrentDomain.GetAssemblies().Select(assembly => assembly.GetType(enumName)).FirstOrDefault(type => type?.IsEnum ?? false);
@@ -536,27 +696,44 @@ public abstract class Module
 
     private void performSettingsSave(TextWriter writer)
     {
-        var areAllDefault = Settings.All(pair => pair.Value.Attribute.IsDefault);
+        var areAllDefault = Settings.All(pair => pair.Value.IsDefault());
         if (areAllDefault) return;
 
         writer.WriteLine(@"#Settings");
 
         foreach (var (lookup, moduleAttributeData) in Settings)
         {
-            if (moduleAttributeData.Attribute.IsDefault) continue;
+            if (moduleAttributeData.IsDefault()) continue;
 
-            var value = moduleAttributeData.Attribute.Value;
-            var valueType = value.GetType();
-            var readableTypeName = valueType.ToReadableName().ToLowerInvariant();
-
-            if (valueType.IsSubclassOf(typeof(Enum)))
+            if (moduleAttributeData is ModuleAttributeSingle moduleAttributeSingle)
             {
-                var enumClass = valueType.FullName;
-                writer.WriteLine(@"{0}:{1}={2}#{3}", lookup, readableTypeName, enumClass, (int)value);
+                var value = moduleAttributeSingle.Attribute.Value;
+                var valueType = value.GetType();
+                var readableTypeName = valueType.ToReadableName().ToLowerInvariant();
+
+                if (valueType.IsSubclassOf(typeof(Enum)))
+                {
+                    var enumClass = valueType.FullName;
+                    writer.WriteLine(@"{0}:{1}={2}#{3}", lookup, readableTypeName, enumClass, (int)value);
+                }
+                else
+                {
+                    writer.WriteLine(@"{0}:{1}={2}", lookup, readableTypeName, value);
+                }
             }
-            else
+
+            if (moduleAttributeData is ModuleAttributeList moduleAttributeList)
             {
-                writer.WriteLine(@"{0}:{1}={2}", lookup, readableTypeName, value);
+                if (moduleAttributeList.AttributeList.Count == 0) continue;
+
+                var values = moduleAttributeList.AttributeList.ToList();
+                var valueType = values.First().Value.GetType();
+                var readableTypeName = valueType.ToReadableName().ToLowerInvariant();
+
+                for (int i = 0; i < values.Count; i++)
+                {
+                    writer.WriteLine(@"{0}#{1}:{2}={3}", lookup, i, readableTypeName, values[i].Value);
+                }
             }
         }
 
@@ -565,17 +742,30 @@ public abstract class Module
 
     private void performOutputParametersSave(TextWriter writer)
     {
-        var areAllDefault = OutputParameters.All(pair => pair.Value.Attribute.IsDefault);
+        var areAllDefault = OutputParameters.All(pair => pair.Value.IsDefault());
         if (areAllDefault) return;
 
         writer.WriteLine(@"#OutputParameters");
 
         foreach (var (lookup, moduleAttributeData) in OutputParameters)
         {
-            if (moduleAttributeData.Attribute.IsDefault) continue;
+            if (moduleAttributeData.IsDefault()) continue;
 
-            var value = moduleAttributeData.Attribute.Value;
-            writer.WriteLine(@"{0}={1}", lookup, value);
+            if (moduleAttributeData is ModuleAttributeSingle moduleAttributeSingle)
+            {
+                var value = moduleAttributeSingle.Attribute.Value;
+                writer.WriteLine(@"{0}={1}", lookup, value);
+            }
+
+            if (moduleAttributeData is ModuleAttributeList moduleAttributeList)
+            {
+                var values = moduleAttributeList.AttributeList.ToList();
+
+                for (int i = 0; i < values.Count; i++)
+                {
+                    writer.WriteLine(@"{0}#{1}={2}", lookup, i, values[i].Value);
+                }
+            }
         }
 
         writer.WriteLine(@"#End");
