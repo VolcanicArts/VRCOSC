@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Collections.Generic;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics.Colour;
 using VRCOSC.Game.Modules.Util;
@@ -21,10 +20,6 @@ public class DiscordModule : IntegrationModule
 
     protected override void CreateAttributes()
     {
-        CreateSetting(DiscordSetting.DiscordListTest, "List Test", "This is a list test", new List<string>() { "Test" });
-        CreateOutputParameter(DiscordOutputParameter.DiscordOutputParameter, "An output parameter", "This is an output parameter", "/an/example/address");
-        CreateOutputParameter(DiscordOutputParameter.DiscordOutputParameterList, "An output parameter", "This is an output parameter list", new List<string>() { "/an/example/address" });
-
         RegisterButtonInput(DiscordInputParameter.DiscordMic);
         RegisterButtonInput(DiscordInputParameter.DiscordDeafen);
 
@@ -35,17 +30,6 @@ public class DiscordModule : IntegrationModule
     protected override void OnButtonPressed(Enum key)
     {
         ExecuteKeyCombination(key);
-    }
-
-    private enum DiscordSetting
-    {
-        DiscordListTest
-    }
-
-    private enum DiscordOutputParameter
-    {
-        DiscordOutputParameter,
-        DiscordOutputParameterList
     }
 
     private enum DiscordInputParameter
