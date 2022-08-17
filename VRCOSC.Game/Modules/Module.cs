@@ -444,8 +444,14 @@ public abstract class Module
 
     protected OutputParameter GetOutputParameter(Enum lookup)
     {
-        var addressList = (ModuleAttributeList)OutputParameters[lookup.ToString().ToLowerInvariant()];
-        return new OutputParameter(OscClient, addressList.GetValueList().Cast<string>().ToList());
+        var addresses = OutputParameters[lookup.ToString().ToLowerInvariant()];
+
+        return addresses switch
+        {
+            ModuleAttributeSingle address => new OutputParameter(OscClient, new List<string>() { address.Attribute.Value.ToString()! }),
+            ModuleAttributeList addressList => new OutputParameter(OscClient, addressList.GetValueList().Cast<string>().ToList()),
+            _ => throw new InvalidCastException($"Unable to parse {nameof(ModuleAttribute)}")
+        };
     }
 
     protected void SendParameter<T>(Enum lookup, T value) where T : struct
