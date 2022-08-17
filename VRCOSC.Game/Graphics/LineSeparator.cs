@@ -7,7 +7,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osuTK;
 
-namespace VRCOSC.Game.Graphics.Drawables;
+namespace VRCOSC.Game.Graphics;
 
 public class LineSeparator : CircularContainer
 {

@@ -9,7 +9,6 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Logging;
 using osuTK;
-using VRCOSC.Game.Graphics.Drawables;
 
 namespace VRCOSC.Game.Graphics.ModuleRun;
 
