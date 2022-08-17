@@ -6,11 +6,16 @@ using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes.Text;
 
-public class IntTextAttributeCard : TextAttributeCard
+public class IntTextAttributeCardList : TextAttributeCardList
 {
-    public IntTextAttributeCard(ModuleAttributeSingle attributeData)
+    public IntTextAttributeCardList(ModuleAttributeList attributeData)
         : base(attributeData)
     {
+    }
+
+    protected override Bindable<object> GetDefaultItem()
+    {
+        return new Bindable<object>(0);
     }
 
     protected override object OnTextWrite(ValueChangedEvent<string> e)

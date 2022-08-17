@@ -20,7 +20,7 @@ namespace VRCOSC.Game.Graphics.ModuleEditing;
 
 public sealed class AttributeFlow : FillFlowContainer
 {
-    public BindableList<ModuleAttributeData> AttributesList = new();
+    public BindableList<ModuleAttribute> AttributesList = new();
 
     private readonly string title;
 
@@ -79,7 +79,28 @@ public sealed class AttributeFlow : FillFlowContainer
         }, true);
     }
 
-    private AttributeCard generateCard(ModuleAttributeData attributeData)
+    private static AttributeCard generateCard(ModuleAttribute attributeData)
+    {
+        return attributeData switch
+        {
+            ModuleAttributeList attributeDataList => generateListCard(attributeDataList),
+            ModuleAttributeSingle attributeDataSingle => generateSingleCard(attributeDataSingle),
+            _ => throw new ArgumentOutOfRangeException(nameof(attributeData), "No suitable card type was found for the specified ModuleAttribute")
+        };
+    }
+
+    private static AttributeCard generateListCard(ModuleAttributeList attributeData)
+    {
+        if (attributeData.Type == typeof(int))
+            return new IntTextAttributeCardList(attributeData);
+
+        if (attributeData.Type == typeof(string))
+            return new TextAttributeCardList(attributeData);
+
+        throw new ArgumentOutOfRangeException(nameof(attributeData), "Cannot generate lists for non-text values");
+    }
+
+    private static AttributeCard generateSingleCard(ModuleAttributeSingle attributeData)
     {
         var value = attributeData.Attribute.Value;
 
@@ -89,13 +110,13 @@ public sealed class AttributeFlow : FillFlowContainer
             return (Activator.CreateInstance(instanceType, attributeData) as AttributeCard)!;
         }
 
-        if (attributeData is ModuleAttributeDataWithBounds attributeDataWithBounds)
+        if (attributeData is ModuleAttributeSingleWithBounds attributeDataWithBounds)
         {
             return value switch
             {
                 int => new IntSliderAttributeCard(attributeDataWithBounds),
                 float => new FloatSliderAttributeCard(attributeDataWithBounds),
-                _ => throw new ArgumentOutOfRangeException(nameof(ModuleAttributeDataWithBounds), "Cannot have bounds for a non-numeric value")
+                _ => throw new ArgumentOutOfRangeException(nameof(attributeDataWithBounds), "Cannot have bounds for a non-numeric value")
             };
         }
 
@@ -104,7 +125,7 @@ public sealed class AttributeFlow : FillFlowContainer
             string => new TextAttributeCard(attributeData),
             int => new IntTextAttributeCard(attributeData),
             bool => new ToggleAttributeCard(attributeData),
-            _ => throw new ArgumentOutOfRangeException(nameof(ModuleAttributeData), $"Type {value.GetType()} is not supported in the {nameof(AttributeFlow)}")
+            _ => throw new ArgumentOutOfRangeException(nameof(attributeData), $"Type {value.GetType()} is not supported in the {nameof(AttributeFlow)}")
         };
     }
 }
