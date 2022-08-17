@@ -539,7 +539,7 @@ public abstract class Module
             var typeStr = lookupType[1];
 
             var lookup = lookupStr;
-            if (lookupStr.Contains('#')) lookup = lookupStr.Split('#')[0];
+            if (lookupStr.Contains('#')) lookup = lookupStr.Split(new[] { '#' }, 2)[0];
 
             if (!Settings.ContainsKey(lookup)) continue;
 
@@ -618,7 +618,7 @@ public abstract class Module
             var value = lineSplitLookupValue[1];
 
             var lookup = lookupStr;
-            if (lookupStr.Contains('#')) lookup = lookupStr.Split('#')[0];
+            if (lookupStr.Contains('#')) lookup = lookupStr.Split(new[] { '#' }, 2)[0];
 
             if (!OutputParameters.ContainsKey(lookup)) continue;
 
