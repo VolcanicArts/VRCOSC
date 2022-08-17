@@ -57,16 +57,15 @@ public sealed class ModuleAttributeSingleWithBounds : ModuleAttributeSingle
 
 public sealed class ModuleAttributeList : ModuleAttribute
 {
-    // listen for changes in this to bind to save in Module class
     public readonly BindableList<Bindable<object>> AttributeList;
-    public readonly List<object> DefaultValues;
+    private readonly List<object> defaultValues;
     public readonly Type Type;
 
     public ModuleAttributeList(ModuleAttributeMetadata metadata, List<object> defaultValues, Type type)
         : base(metadata)
     {
         AttributeList = new BindableList<Bindable<object>>();
-        DefaultValues = defaultValues;
+        this.defaultValues = defaultValues;
         Type = type;
 
         SetDefault();
@@ -76,7 +75,7 @@ public sealed class ModuleAttributeList : ModuleAttribute
     {
         AttributeList.Clear();
         var newValues = new List<Bindable<object>>();
-        DefaultValues.ForEach(value => newValues.Add(new Bindable<object>(value)));
+        defaultValues.ForEach(value => newValues.Add(new Bindable<object>(value)));
         AttributeList.AddRange(newValues);
     }
 
@@ -84,14 +83,14 @@ public sealed class ModuleAttributeList : ModuleAttribute
     {
         bool isDefault = true;
 
-        if (AttributeList.Count == DefaultValues.Count)
+        if (AttributeList.Count == defaultValues.Count)
         {
             for (int i = 0; i < AttributeList.Count; i++)
             {
-                if (!AttributeList[i].Value.Equals(DefaultValues[i])) isDefault = false;
+                if (!AttributeList[i].Value.Equals(defaultValues[i])) isDefault = false;
             }
         }
-        else if (DefaultValues.Count == 0 && AttributeList.Count == 0)
+        else if (defaultValues.Count == 0 && AttributeList.Count == 0)
         {
             isDefault = true;
         }
