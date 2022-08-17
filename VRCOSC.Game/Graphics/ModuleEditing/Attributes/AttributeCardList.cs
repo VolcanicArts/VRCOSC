@@ -116,25 +116,7 @@ public abstract class AttributeCardList : AttributeCard
 
     private void checkForDefault()
     {
-        bool isDefault = true;
-
-        if (AttributeData.AttributeList.Count == AttributeData.DefaultValues.Count)
-        {
-            for (int i = 0; i < AttributeData.AttributeList.Count; i++)
-            {
-                if (!AttributeData.AttributeList[i].Value.Equals(AttributeData.DefaultValues[i])) isDefault = false;
-            }
-        }
-        else if (AttributeData.DefaultValues.Count == 0 && AttributeData.AttributeList.Count == 0)
-        {
-            isDefault = true;
-        }
-        else
-        {
-            isDefault = false;
-        }
-
-        UpdateResetToDefault(!isDefault);
+        UpdateResetToDefault(!AttributeData.IsDefault());
     }
 
     protected override void SetDefault()

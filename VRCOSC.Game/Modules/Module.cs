@@ -3,11 +3,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using osu.Framework.Bindables;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Colour;
+using osu.Framework.Logging;
 using osu.Framework.Platform;
 using VRCOSC.Game.Modules.Util;
 using VRCOSC.Game.Util;
@@ -47,7 +50,7 @@ public abstract class Module
         Terminal = new TerminalLogger(GetType().Name);
 
         CreateAttributes();
-        //performLoad();
+        performLoad();
     }
 
     #region Properties
@@ -412,203 +415,305 @@ public abstract class Module
 
     #endregion
 
-    // #region Loading
-    //
-    // private void performLoad()
-    // {
-    //     using (var stream = Storage.GetStream(FileName))
-    //     {
-    //         if (stream is not null)
-    //         {
-    //             using var reader = new StreamReader(stream);
-    //
-    //             while (reader.ReadLine() is { } line)
-    //             {
-    //                 switch (line)
-    //                 {
-    //                     case "#InternalSettings":
-    //                         performInternalSettingsLoad(reader);
-    //                         break;
-    //
-    //                     case "#Settings":
-    //                         performSettingsLoad(reader);
-    //                         break;
-    //
-    //                     case "#OutputParameters":
-    //                         performOutputParametersLoad(reader);
-    //                         break;
-    //                 }
-    //             }
-    //         }
-    //     }
-    //
-    //     executeAfterLoad();
-    // }
-    //
-    // private void performInternalSettingsLoad(TextReader reader)
-    // {
-    //     while (reader.ReadLine() is { } line)
-    //     {
-    //         if (line.Equals("#End")) break;
-    //
-    //         var lineSplit = line.Split(new[] { '=' }, 2);
-    //         var lookup = lineSplit[0];
-    //         var value = lineSplit[1];
-    //
-    //         switch (lookup)
-    //         {
-    //             case "enabled":
-    //                 Enabled.Value = bool.Parse(value);
-    //                 break;
-    //         }
-    //     }
-    // }
-    //
-    // private void performSettingsLoad(TextReader reader)
-    // {
-    //     while (reader.ReadLine() is { } line)
-    //     {
-    //         if (line.Equals("#End")) break;
-    //
-    //         var lineSplitLookupValue = line.Split(new[] { '=' }, 2);
-    //         var lookupType = lineSplitLookupValue[0].Split(new[] { ':' }, 2);
-    //         var value = lineSplitLookupValue[1];
-    //
-    //         var lookup = lookupType[0];
-    //         var typeStr = lookupType[1];
-    //
-    //         if (!Settings.ContainsKey(lookup)) continue;
-    //
-    //         var readableTypeName = Settings[lookup].Attribute.Value.GetType().ToReadableName().ToLowerInvariant();
-    //         if (!readableTypeName.Equals(typeStr)) continue;
-    //
-    //         switch (typeStr)
-    //         {
-    //             case "enum":
-    //                 var typeAndValue = value.Split(new[] { '#' }, 2);
-    //                 var enumType = enumNameToType(typeAndValue[0]);
-    //                 if (enumType is not null) Settings[lookup].Attribute.Value = Enum.ToObject(enumType, int.Parse(typeAndValue[1]));
-    //                 break;
-    //
-    //             case "string":
-    //                 Settings[lookup].Attribute.Value = value;
-    //                 break;
-    //
-    //             case "int":
-    //                 Settings[lookup].Attribute.Value = int.Parse(value);
-    //                 break;
-    //
-    //             case "float":
-    //                 Settings[lookup].Attribute.Value = float.Parse(value);
-    //                 break;
-    //
-    //             case "bool":
-    //                 Settings[lookup].Attribute.Value = bool.Parse(value);
-    //                 break;
-    //
-    //             default:
-    //                 Logger.Log($"Unknown type found in file: {typeStr}");
-    //                 break;
-    //         }
-    //     }
-    // }
-    //
-    // private void performOutputParametersLoad(TextReader reader)
-    // {
-    //     while (reader.ReadLine() is { } line)
-    //     {
-    //         if (line.Equals("#End")) break;
-    //
-    //         var lineSplitLookupValue = line.Split(new[] { '=' }, 2);
-    //         var lookup = lineSplitLookupValue[0];
-    //         var value = lineSplitLookupValue[1];
-    //
-    //         if (!OutputParameters.ContainsKey(lookup)) continue;
-    //
-    //         OutputParameters[lookup].Attribute.Value = value;
-    //     }
-    // }
-    //
-    // private void executeAfterLoad()
-    // {
-    //     performSave();
-    //
-    //     Enabled.BindValueChanged(_ => performSave());
-    //     Settings.Values.ForEach(value => value.Attribute.BindValueChanged(_ => performSave()));
-    //     OutputParameters.Values.ForEach(value => value.Attribute.BindValueChanged(_ => performSave()));
-    // }
-    //
-    // private static Type? enumNameToType(string enumName) => AppDomain.CurrentDomain.GetAssemblies().Select(assembly => assembly.GetType(enumName)).FirstOrDefault(type => type?.IsEnum ?? false);
-    //
-    // #endregion
-    //
-    // #region Saving
-    //
-    // private void performSave()
-    // {
-    //     using var stream = Storage.CreateFileSafely(FileName);
-    //     using var writer = new StreamWriter(stream);
-    //
-    //     performInternalSettingsSave(writer);
-    //     performSettingsSave(writer);
-    //     performOutputParametersSave(writer);
-    // }
-    //
-    // private void performInternalSettingsSave(TextWriter writer)
-    // {
-    //     writer.WriteLine(@"#InternalSettings");
-    //     writer.WriteLine(@"{0}={1}", "enabled", Enabled.Value.ToString());
-    //     writer.WriteLine(@"#End");
-    // }
-    //
-    // private void performSettingsSave(TextWriter writer)
-    // {
-    //     var areAllDefault = Settings.All(pair => pair.Value.Attribute.IsDefault);
-    //     if (areAllDefault) return;
-    //
-    //     writer.WriteLine(@"#Settings");
-    //
-    //     foreach (var (lookup, moduleAttributeData) in Settings)
-    //     {
-    //         if (moduleAttributeData.Attribute.IsDefault) continue;
-    //
-    //         var value = moduleAttributeData.Attribute.Value;
-    //         var valueType = value.GetType();
-    //         var readableTypeName = valueType.ToReadableName().ToLowerInvariant();
-    //
-    //         if (valueType.IsSubclassOf(typeof(Enum)))
-    //         {
-    //             var enumClass = valueType.FullName;
-    //             writer.WriteLine(@"{0}:{1}={2}#{3}", lookup, readableTypeName, enumClass, (int)value);
-    //         }
-    //         else
-    //         {
-    //             writer.WriteLine(@"{0}:{1}={2}", lookup, readableTypeName, value);
-    //         }
-    //     }
-    //
-    //     writer.WriteLine(@"#End");
-    // }
-    //
-    // private void performOutputParametersSave(TextWriter writer)
-    // {
-    //     var areAllDefault = OutputParameters.All(pair => pair.Value.Attribute.IsDefault);
-    //     if (areAllDefault) return;
-    //
-    //     writer.WriteLine(@"#OutputParameters");
-    //
-    //     foreach (var (lookup, moduleAttributeData) in OutputParameters)
-    //     {
-    //         if (moduleAttributeData.Attribute.IsDefault) continue;
-    //
-    //         var value = moduleAttributeData.Attribute.Value;
-    //         writer.WriteLine(@"{0}={1}", lookup, value);
-    //     }
-    //
-    //     writer.WriteLine(@"#End");
-    // }
-    //
-    // #endregion
+    #region Loading
+
+    private void performLoad()
+    {
+        using (var stream = Storage.GetStream(FileName))
+        {
+            if (stream is not null)
+            {
+                using var reader = new StreamReader(stream);
+
+                while (reader.ReadLine() is { } line)
+                {
+                    switch (line)
+                    {
+                        case "#InternalSettings":
+                            performInternalSettingsLoad(reader);
+                            break;
+
+                        case "#Settings":
+                            performSettingsLoad(reader);
+                            break;
+
+                        case "#OutputParameters":
+                            performOutputParametersLoad(reader);
+                            break;
+                    }
+                }
+            }
+        }
+
+        executeAfterLoad();
+    }
+
+    private void performInternalSettingsLoad(TextReader reader)
+    {
+        while (reader.ReadLine() is { } line)
+        {
+            if (line.Equals("#End")) break;
+
+            var lineSplit = line.Split(new[] { '=' }, 2);
+            var lookup = lineSplit[0];
+            var value = lineSplit[1];
+
+            switch (lookup)
+            {
+                case "enabled":
+                    Enabled.Value = bool.Parse(value);
+                    break;
+            }
+        }
+    }
+
+    private void performSettingsLoad(TextReader reader)
+    {
+        while (reader.ReadLine() is { } line)
+        {
+            if (line.Equals("#End")) break;
+
+            var lineSplitLookupValue = line.Split(new[] { '=' }, 2);
+            var lookupType = lineSplitLookupValue[0].Split(new[] { ':' }, 2);
+            var value = lineSplitLookupValue[1];
+
+            var lookupStr = lookupType[0];
+            var typeStr = lookupType[1];
+
+            var lookup = lookupStr;
+            if (lookupStr.Contains('#')) lookup = lookupStr.Split('#')[0];
+
+            if (!Settings.ContainsKey(lookup)) continue;
+
+            var setting = Settings[lookup];
+
+            if (setting is ModuleAttributeSingle settingSingle)
+            {
+                var readableTypeName = settingSingle.Attribute.Value.GetType().ToReadableName().ToLowerInvariant();
+                if (!readableTypeName.Equals(typeStr)) continue;
+
+                switch (typeStr)
+                {
+                    case "enum":
+                        var typeAndValue = value.Split(new[] { '#' }, 2);
+                        var enumType = enumNameToType(typeAndValue[0]);
+                        if (enumType is not null) settingSingle.Attribute.Value = Enum.ToObject(enumType, int.Parse(typeAndValue[1]));
+                        break;
+
+                    case "string":
+                        settingSingle.Attribute.Value = value;
+                        break;
+
+                    case "int":
+                        settingSingle.Attribute.Value = int.Parse(value);
+                        break;
+
+                    case "float":
+                        settingSingle.Attribute.Value = float.Parse(value);
+                        break;
+
+                    case "bool":
+                        settingSingle.Attribute.Value = bool.Parse(value);
+                        break;
+
+                    default:
+                        Logger.Log($"Unknown type found in file: {typeStr}");
+                        break;
+                }
+            }
+
+            if (setting is ModuleAttributeList settingList)
+            {
+                if (settingList.AttributeList.Count == 0) continue;
+
+                var readableTypeName = settingList.AttributeList.First().Value.GetType().ToReadableName().ToLowerInvariant();
+                if (!readableTypeName.Equals(typeStr)) continue;
+
+                var index = int.Parse(lookupStr.Split('#')[1]);
+
+                switch (typeStr)
+                {
+                    case "string":
+                        settingList.AddAt(index, new Bindable<object>(value));
+                        break;
+
+                    case "int":
+                        settingList.AddAt(index, new Bindable<object>(int.Parse(value)));
+                        break;
+
+                    default:
+                        Logger.Log($"Unknown type for list found in file: {typeStr}");
+                        break;
+                }
+            }
+        }
+    }
+
+    private void performOutputParametersLoad(TextReader reader)
+    {
+        while (reader.ReadLine() is { } line)
+        {
+            if (line.Equals("#End")) break;
+
+            var lineSplitLookupValue = line.Split(new[] { '=' }, 2);
+            var lookupStr = lineSplitLookupValue[0];
+            var value = lineSplitLookupValue[1];
+
+            var lookup = lookupStr;
+            if (lookupStr.Contains('#')) lookup = lookupStr.Split('#')[0];
+
+            if (!OutputParameters.ContainsKey(lookup)) continue;
+
+            var parameter = OutputParameters[lookup];
+
+            if (parameter is ModuleAttributeSingle parameterSingle)
+            {
+                parameterSingle.Attribute.Value = value;
+            }
+
+            if (parameter is ModuleAttributeList parameterList)
+            {
+                var index = int.Parse(lookupStr.Split('#')[1]);
+                parameterList.AddAt(index, new Bindable<object>(value));
+            }
+        }
+    }
+
+    private void executeAfterLoad()
+    {
+        performSave();
+
+        Enabled.BindValueChanged(_ => performSave());
+        Settings.Values.ForEach(handleAttributeBind);
+        OutputParameters.Values.ForEach(handleAttributeBind);
+    }
+
+    private void handleAttributeBind(ModuleAttribute value)
+    {
+        if (value is ModuleAttributeSingle valueSingle)
+        {
+            valueSingle.Attribute.BindValueChanged(_ => performSave());
+        }
+
+        if (value is ModuleAttributeList valueList)
+        {
+            valueList.AttributeList.BindCollectionChanged((_, e) =>
+            {
+                if (e.NewItems is not null)
+                {
+                    foreach (var newItem in e.NewItems)
+                    {
+                        var bindable = (Bindable<object>)newItem;
+                        bindable.BindValueChanged(_ => performSave());
+                    }
+                }
+
+                performSave();
+            });
+        }
+    }
+
+    private static Type? enumNameToType(string enumName) => AppDomain.CurrentDomain.GetAssemblies().Select(assembly => assembly.GetType(enumName)).FirstOrDefault(type => type?.IsEnum ?? false);
+
+    #endregion
+
+    #region Saving
+
+    private void performSave()
+    {
+        using var stream = Storage.CreateFileSafely(FileName);
+        using var writer = new StreamWriter(stream);
+
+        performInternalSettingsSave(writer);
+        performSettingsSave(writer);
+        performOutputParametersSave(writer);
+    }
+
+    private void performInternalSettingsSave(TextWriter writer)
+    {
+        writer.WriteLine(@"#InternalSettings");
+        writer.WriteLine(@"{0}={1}", "enabled", Enabled.Value.ToString());
+        writer.WriteLine(@"#End");
+    }
+
+    private void performSettingsSave(TextWriter writer)
+    {
+        var areAllDefault = Settings.All(pair => pair.Value.IsDefault());
+        if (areAllDefault) return;
+
+        writer.WriteLine(@"#Settings");
+
+        foreach (var (lookup, moduleAttributeData) in Settings)
+        {
+            if (moduleAttributeData.IsDefault()) continue;
+
+            if (moduleAttributeData is ModuleAttributeSingle moduleAttributeSingle)
+            {
+                var value = moduleAttributeSingle.Attribute.Value;
+                var valueType = value.GetType();
+                var readableTypeName = valueType.ToReadableName().ToLowerInvariant();
+
+                if (valueType.IsSubclassOf(typeof(Enum)))
+                {
+                    var enumClass = valueType.FullName;
+                    writer.WriteLine(@"{0}:{1}={2}#{3}", lookup, readableTypeName, enumClass, (int)value);
+                }
+                else
+                {
+                    writer.WriteLine(@"{0}:{1}={2}", lookup, readableTypeName, value);
+                }
+            }
+
+            if (moduleAttributeData is ModuleAttributeList moduleAttributeList)
+            {
+                if (moduleAttributeList.AttributeList.Count == 0) continue;
+
+                var values = moduleAttributeList.AttributeList.ToList();
+                var valueType = values.First().Value.GetType();
+                var readableTypeName = valueType.ToReadableName().ToLowerInvariant();
+
+                for (int i = 0; i < values.Count; i++)
+                {
+                    writer.WriteLine(@"{0}#{1}:{2}={3}", lookup, i, readableTypeName, values[i].Value);
+                }
+            }
+        }
+
+        writer.WriteLine(@"#End");
+    }
+
+    private void performOutputParametersSave(TextWriter writer)
+    {
+        var areAllDefault = OutputParameters.All(pair => pair.Value.IsDefault());
+        if (areAllDefault) return;
+
+        writer.WriteLine(@"#OutputParameters");
+
+        foreach (var (lookup, moduleAttributeData) in OutputParameters)
+        {
+            if (moduleAttributeData.IsDefault()) continue;
+
+            if (moduleAttributeData is ModuleAttributeSingle moduleAttributeSingle)
+            {
+                var value = moduleAttributeSingle.Attribute.Value;
+                writer.WriteLine(@"{0}={1}", lookup, value);
+            }
+
+            if (moduleAttributeData is ModuleAttributeList moduleAttributeList)
+            {
+                var values = moduleAttributeList.AttributeList.ToList();
+
+                for (int i = 0; i < values.Count; i++)
+                {
+                    writer.WriteLine(@"{0}#{1}={2}", lookup, i, values[i].Value);
+                }
+            }
+        }
+
+        writer.WriteLine(@"#End");
+    }
+
+    #endregion
 }
 
 public enum ModuleState

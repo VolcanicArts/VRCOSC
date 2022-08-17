@@ -17,6 +17,8 @@ public abstract class ModuleAttribute
     }
 
     public abstract void SetDefault();
+
+    public abstract bool IsDefault();
 }
 
 public class ModuleAttributeSingle : ModuleAttribute
@@ -32,6 +34,11 @@ public class ModuleAttributeSingle : ModuleAttribute
     public override void SetDefault()
     {
         Attribute.SetDefault();
+    }
+
+    public override bool IsDefault()
+    {
+        return Attribute.IsDefault;
     }
 }
 
@@ -68,7 +75,44 @@ public sealed class ModuleAttributeList : ModuleAttribute
     public override void SetDefault()
     {
         AttributeList.Clear();
-        DefaultValues.ForEach(value => AttributeList.Add(new Bindable<object>(value)));
+        var newValues = new List<Bindable<object>>();
+        DefaultValues.ForEach(value => newValues.Add(new Bindable<object>(value)));
+        AttributeList.AddRange(newValues);
+    }
+
+    public override bool IsDefault()
+    {
+        bool isDefault = true;
+
+        if (AttributeList.Count == DefaultValues.Count)
+        {
+            for (int i = 0; i < AttributeList.Count; i++)
+            {
+                if (!AttributeList[i].Value.Equals(DefaultValues[i])) isDefault = false;
+            }
+        }
+        else if (DefaultValues.Count == 0 && AttributeList.Count == 0)
+        {
+            isDefault = true;
+        }
+        else
+        {
+            isDefault = false;
+        }
+
+        return isDefault;
+    }
+
+    public void AddAt(int index, Bindable<object> value)
+    {
+        try
+        {
+            AttributeList[index] = value;
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            AttributeList.Insert(index, value);
+        }
     }
 }
 
