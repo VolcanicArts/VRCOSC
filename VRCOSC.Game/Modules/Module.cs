@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -384,10 +385,73 @@ public abstract class Module
 
     #region OutgoingParameters
 
+    protected class OscAddress
+    {
+        private readonly OscClient oscClient;
+        private readonly string address;
+
+        public OscAddress(OscClient oscClient, string address)
+        {
+            this.oscClient = oscClient;
+            this.address = address;
+        }
+
+        public void SendValue(bool value) => oscClient.SendData(address, value);
+        public void SendValue(int value) => oscClient.SendData(address, value);
+        public void SendValue(float value) => oscClient.SendData(address, value);
+
+        public void SendValue<T>(T value) where T : struct
+        {
+            switch (value)
+            {
+                case bool boolValue:
+                    SendValue(boolValue);
+                    break;
+
+                case int intValue:
+                    SendValue(intValue);
+                    break;
+
+                case float floatValue:
+                    SendValue(floatValue);
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException($"Cannot send value of type {value.GetType().Name}");
+            }
+        }
+    }
+
+    protected class OutputParameter : IEnumerable<OscAddress>
+    {
+        private readonly List<OscAddress> addresses = new();
+
+        public OutputParameter(OscClient oscClient, List<string> addressesStr)
+        {
+            addressesStr.ForEach(address => addresses.Add(new OscAddress(oscClient, address)));
+        }
+
+        public IEnumerator<OscAddress> GetEnumerator()
+        {
+            return addresses.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+    }
+
+    protected OutputParameter GetOutputParameter(Enum lookup)
+    {
+        var addressList = (ModuleAttributeList)OutputParameters[lookup.ToString().ToLowerInvariant()];
+        return new OutputParameter(OscClient, addressList.GetValueList().Cast<string>().ToList());
+    }
+
     private List<string> getOutputParameterAddresses(Enum lookup)
     {
         var attributeList = (ModuleAttributeList)OutputParameters[lookup.ToString().ToLowerInvariant()];
-        return attributeList.AttributeList.Cast<string>().ToList();
+        return attributeList.GetValueList().Cast<string>().ToList();
     }
 
     protected void SendParameter<T>(Enum lookup, T value) where T : struct

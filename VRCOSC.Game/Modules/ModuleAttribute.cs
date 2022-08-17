@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using osu.Framework.Bindables;
+using osu.Framework.Extensions.IEnumerableExtensions;
 
 namespace VRCOSC.Game.Modules;
 
@@ -112,6 +113,13 @@ public sealed class ModuleAttributeList : ModuleAttribute
         {
             AttributeList.Insert(index, value);
         }
+    }
+
+    public List<object> GetValueList()
+    {
+        List<object> list = new();
+        AttributeList.ForEach(attribute => list.Add(attribute.Value));
+        return list;
     }
 }
 
