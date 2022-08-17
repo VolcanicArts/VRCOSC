@@ -14,7 +14,7 @@ public abstract class RandomModule<T> : Module where T : struct
     public override string Author => "VolcanicArts";
     public override ColourInfo Colour => ColourInfo.GradientVertical(VRCOSCColour.Red, VRCOSCColour.PurpleDarker);
     public override ModuleType ModuleType => ModuleType.Random;
-    protected override double DeltaUpdate => GetSetting<int>(RandomSetting.DeltaUpdate);
+    protected override int DeltaUpdate => GetSetting<int>(RandomSetting.DeltaUpdate);
 
     protected override void CreateAttributes()
     {

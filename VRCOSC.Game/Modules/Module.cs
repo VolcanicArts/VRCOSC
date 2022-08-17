@@ -41,7 +41,7 @@ public abstract class Module
     public virtual ColourInfo Colour => Colour4.Black;
     public virtual ModuleType ModuleType => ModuleType.General;
     public virtual string Prefab => string.Empty;
-    protected virtual double DeltaUpdate => double.PositiveInfinity;
+    protected virtual int DeltaUpdate => int.MaxValue;
 
     public void Initialise(Storage storage, OscClient oscClient)
     {
@@ -141,7 +141,7 @@ public abstract class Module
 
         OnStart();
 
-        if (!double.IsPositiveInfinity(DeltaUpdate))
+        if (DeltaUpdate != int.MaxValue)
         {
             updateTask = new TimedTask(OnUpdate, DeltaUpdate, true);
             updateTask.Start();
