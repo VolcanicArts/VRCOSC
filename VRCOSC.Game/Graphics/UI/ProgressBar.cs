@@ -5,7 +5,7 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.UserInterface;
 
-namespace VRCOSC.Game.Graphics.Updater;
+namespace VRCOSC.Game.Graphics.UI;
 
 public class ProgressBar : BasicSliderBar<float>
 {

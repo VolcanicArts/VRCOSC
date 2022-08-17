@@ -5,7 +5,7 @@ using System;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Input.Events;
-using VRCOSC.Game.Graphics.Updater;
+using VRCOSC.Game.Graphics.UI;
 
 namespace VRCOSC.Game.Graphics.Notifications;
 

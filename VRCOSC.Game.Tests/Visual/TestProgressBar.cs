@@ -4,6 +4,7 @@
 using NUnit.Framework;
 using osu.Framework.Graphics;
 using osuTK;
+using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Graphics.Updater;
 
 namespace VRCOSC.Game.Tests.Visual;
