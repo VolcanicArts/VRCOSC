@@ -56,6 +56,8 @@ public abstract class Module
 
     #region Properties
 
+    public bool IsEnabled => Enabled.Value;
+    public bool ShouldUpdate => DeltaUpdate != int.MaxValue;
     public bool HasSettings => Settings.Count != 0;
     public bool HasOutputParameters => OutputParameters.Count != 0;
     public bool HasAttributes => HasSettings || HasOutputParameters;
@@ -156,18 +158,15 @@ public abstract class Module
 
     internal void start()
     {
-        if (!Enabled.Value) return;
+        if (!IsEnabled) return;
 
         Terminal.Log("Starting");
+
         Player = new Player(OscClient);
 
         OnStart();
 
-        if (DeltaUpdate != int.MaxValue)
-        {
-            updateTask = new TimedTask(OnUpdate, DeltaUpdate, true);
-            updateTask.Start();
-        }
+        if (ShouldUpdate) updateTask = new TimedTask(OnUpdate, DeltaUpdate, true).Start();
 
         OscClient.OnParameterReceived += onParameterReceived;
 
@@ -181,7 +180,7 @@ public abstract class Module
 
     internal async Task stop()
     {
-        if (!Enabled.Value) return;
+        if (!IsEnabled) return;
 
         Terminal.Log("Stopping");
 

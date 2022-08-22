@@ -23,10 +23,11 @@ public class TimedTask
         this.executeOnceImmediately = executeOnceImmediately;
     }
 
-    public void Start()
+    public TimedTask Start()
     {
         timer = new PeriodicTimer(TimeSpan.FromMilliseconds(deltaTimeMilli));
         timerTask = executeWork();
+        return this;
     }
 
     private async Task executeWork()
