@@ -25,7 +25,7 @@ using VRCOSC.Game.Util;
 
 namespace VRCOSC.Game.Modules;
 
-public sealed class ModuleManager : Drawable
+public sealed class ModuleManager : Component
 {
     private static readonly IReadOnlyList<Type> module_types = new[]
     {
