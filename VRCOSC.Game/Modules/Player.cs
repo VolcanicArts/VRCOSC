@@ -29,6 +29,7 @@ public class Player
     public bool? InStation;
 
     private readonly OscClient oscClient;
+    private bool hasChanged = false;
 
     public Player(OscClient oscClient)
     {
@@ -65,6 +66,8 @@ public class Player
 
     public void ResetAll()
     {
+        if (!hasChanged) return;
+
         StopMoveForward();
         StopMoveBackward();
         StopMoveLeft();
@@ -77,6 +80,7 @@ public class Player
     public void MoveForward()
     {
         oscClient.SendData(actionToAddress(VRChatInputAction.MoveForward), 1);
+        hasChanged = true;
     }
 
     public void StopMoveForward()
@@ -87,6 +91,7 @@ public class Player
     public void MoveBackward()
     {
         oscClient.SendData(actionToAddress(VRChatInputAction.MoveBackward), 1);
+        hasChanged = true;
     }
 
     public void StopMoveBackward()
@@ -97,6 +102,7 @@ public class Player
     public void MoveLeft()
     {
         oscClient.SendData(actionToAddress(VRChatInputAction.MoveLeft), 1);
+        hasChanged = true;
     }
 
     public void StopMoveLeft()
@@ -107,6 +113,7 @@ public class Player
     public void MoveRight()
     {
         oscClient.SendData(actionToAddress(VRChatInputAction.MoveRight), 1);
+        hasChanged = true;
     }
 
     public void StopMoveRight()
@@ -117,6 +124,7 @@ public class Player
     public void LookLeft()
     {
         oscClient.SendData(actionToAddress(VRChatInputAction.LookLeft), 1);
+        hasChanged = true;
     }
 
     public void StopLookLeft()
@@ -127,6 +135,7 @@ public class Player
     public void LookRight()
     {
         oscClient.SendData(actionToAddress(VRChatInputAction.LookRight), 1);
+        hasChanged = true;
     }
 
     public void StopLookRight()
@@ -142,6 +151,7 @@ public class Player
     public void Run()
     {
         oscClient.SendData(actionToAddress(VRChatInputAction.Run), 1);
+        hasChanged = true;
     }
 
     public void StopRun()
