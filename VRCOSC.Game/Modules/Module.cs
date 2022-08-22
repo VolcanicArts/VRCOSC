@@ -232,15 +232,16 @@ public abstract class Module
 
     private void onParameterReceived(string address, object value)
     {
-        var parameterName = address.Split('/').Last();
-
-        updatePlayerState(parameterName, value);
-
-        if (parameterName.Equals("change"))
+        if (address.StartsWith("/avatar/change"))
         {
             OnAvatarChange();
             return;
         }
+
+        if (!address.StartsWith("/avatar/parameters/")) return;
+
+        var parameterName = address.Split("/avatar/parameters/").Last();
+        updatePlayerState(parameterName, value);
 
         Enum? key = InputParameters.Keys.ToList().Find(e => e.ToString().Equals(parameterName));
         if (key is null) return;
