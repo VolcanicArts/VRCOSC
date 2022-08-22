@@ -33,15 +33,21 @@ public class OscClient
     public void Enable()
     {
         tokenSource = new CancellationTokenSource();
-        incomingTask = Task.Run(listenForIncoming);
+        incomingTask = Task.Run(runReceiveLoop);
     }
 
     public async Task DisableReceive()
     {
         tokenSource?.Cancel();
+
         if (incomingTask is not null) await incomingTask;
+
+        incomingTask?.Dispose();
         tokenSource?.Dispose();
         receivingClient?.Close();
+
+        incomingTask = null;
+        tokenSource = null;
         receivingClient = null;
     }
 
@@ -51,42 +57,46 @@ public class OscClient
         sendingClient = null;
     }
 
-    public void SendData(string address, bool value) => sendData(address, value ? OscTrue.True : OscFalse.False);
-
-    public void SendData(string address, int value) => sendData(address, value);
-
-    public void SendData(string address, float value) => sendData(address, value);
-
-    private void sendData(string address, object value)
+    public void SendValue<T>(string oscAddress, T value) where T : struct
     {
-        var oscAddress = new Address(address);
-        var message = new OscMessage(oscAddress, new[] { value });
+        if (value is not (bool or int or float))
+            throw new ArgumentOutOfRangeException(nameof(value), "Cannot send value that is not of type bool, int, or float");
 
-        if (sendingClient is null) return;
-
-        sendingClient.SendOscMessage(message);
-        OnParameterSent?.Invoke(address, convertValue(value));
+        sendingClient?.SendOscMessage(new OscMessage(new Address(oscAddress), new[] { primitiveToOsc(value) }));
+        OnParameterSent?.Invoke(oscAddress, value);
     }
 
-    private async void listenForIncoming()
+    private async void runReceiveLoop()
     {
         try
         {
             while (!tokenSource!.Token.IsCancellationRequested)
             {
                 var message = await receivingClient!.ReceiveOscMessage(tokenSource.Token);
+
+                // if values arrive too fast, vrc can occasionally send data without a value
                 if (!message.Arguments.Any()) continue;
 
-                OnParameterReceived?.Invoke(message.Address.Value, convertValue(message.Arguments.First()));
+                OnParameterReceived?.Invoke(message.Address.Value, oscToPrimitive(message.Arguments.First()));
             }
         }
         catch (OperationCanceledException) { }
     }
 
-    private object convertValue(object value)
+    private static object primitiveToOsc(object value)
     {
-        if (value is OscTrue) value = true;
-        if (value is OscFalse) value = false;
+        if (value is bool boolValue) return boolValue ? OscTrue.True : OscFalse.False;
+
         return value;
+    }
+
+    private static object oscToPrimitive(object value)
+    {
+        return value switch
+        {
+            OscTrue => true,
+            OscFalse => false,
+            _ => value
+        };
     }
 }

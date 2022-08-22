@@ -396,30 +396,7 @@ public abstract class Module
             this.address = address;
         }
 
-        public void SendValue(bool value) => oscClient.SendData(address, value);
-        public void SendValue(int value) => oscClient.SendData(address, value);
-        public void SendValue(float value) => oscClient.SendData(address, value);
-
-        public void SendValue<T>(T value) where T : struct
-        {
-            switch (value)
-            {
-                case bool boolValue:
-                    SendValue(boolValue);
-                    break;
-
-                case int intValue:
-                    SendValue(intValue);
-                    break;
-
-                case float floatValue:
-                    SendValue(floatValue);
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException($"Cannot send value of type {value.GetType().Name}");
-            }
-        }
+        public void SendValue<T>(T value) where T : struct => oscClient.SendValue(address, value);
     }
 
     protected class OutputParameter : IEnumerable<OscAddress>
@@ -431,15 +408,8 @@ public abstract class Module
             addressesStr.ForEach(address => addresses.Add(new OscAddress(oscClient, address)));
         }
 
-        public IEnumerator<OscAddress> GetEnumerator()
-        {
-            return addresses.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        public IEnumerator<OscAddress> GetEnumerator() => addresses.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
     protected OutputParameter GetOutputParameter(Enum lookup)
@@ -458,23 +428,7 @@ public abstract class Module
     {
         if (ModuleState == ModuleState.Stopped) return;
 
-        switch (value)
-        {
-            case bool boolValue:
-                GetOutputParameter(lookup).ForEach(address => address.SendValue(boolValue));
-                break;
-
-            case int intValue:
-                GetOutputParameter(lookup).ForEach(address => address.SendValue(intValue));
-                break;
-
-            case float floatValue:
-                GetOutputParameter(lookup).ForEach(address => address.SendValue(floatValue));
-                break;
-
-            default:
-                throw new ArgumentOutOfRangeException($"Cannot send parameter of type {value.GetType().Name}");
-        }
+        GetOutputParameter(lookup).ForEach(address => address.SendValue(value));
     }
 
     #endregion
