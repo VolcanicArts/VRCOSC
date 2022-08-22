@@ -115,7 +115,7 @@ public sealed class ModuleAttributeList : ModuleAttribute
         }
     }
 
-    public List<object> GetValueList()
+    public IEnumerable<object> GetValueList()
     {
         List<object> list = new();
         AttributeList.ForEach(attribute => list.Add(attribute.Value));

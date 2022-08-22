@@ -87,7 +87,7 @@ public sealed class ModuleManager : Component
         });
     }
 
-    private async Task focusVrc()
+    private static async Task focusVrc()
     {
         var process = Process.GetProcessesByName("vrchat").FirstOrDefault();
         if (process is null) return;

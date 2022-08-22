@@ -785,3 +785,11 @@ public enum ModuleState
     Started,
     Stopped
 }
+
+public enum ActionMenu
+{
+    Button,
+    Radial,
+    Axes,
+    None
+}
