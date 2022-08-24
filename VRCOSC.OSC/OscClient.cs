@@ -13,7 +13,8 @@ public class OscClient
     private Socket? receivingClient;
     private CancellationTokenSource? tokenSource;
     private Task? incomingTask;
-    private bool enabled;
+    private bool sendingEnabled;
+    private bool receivingEnabled;
 
     public Action<string, object>? OnParameterSent;
     public Action<string, object>? OnParameterReceived;
@@ -28,7 +29,7 @@ public class OscClient
     /// <exception cref="InvalidOperationException">If the <see cref="OscClient"/> is currently enabled</exception>
     public void Initialise(string ipAddress, int sendPort, int receivePort)
     {
-        if (enabled) throw new InvalidOperationException($"Cannot initialise when {nameof(OscClient)} is already enabled");
+        if (sendingEnabled || receivingEnabled) throw new InvalidOperationException($"Cannot initialise when {nameof(OscClient)} is already enabled");
 
         sendingClient = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
         receivingClient = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
@@ -44,7 +45,8 @@ public class OscClient
     {
         tokenSource = new CancellationTokenSource();
         incomingTask = Task.Run(runReceiveLoop);
-        enabled = true;
+        sendingEnabled = true;
+        receivingEnabled = true;
     }
 
     /// <summary>
@@ -61,7 +63,7 @@ public class OscClient
     /// </summary>
     public async Task DisableReceive()
     {
-        enabled = false;
+        receivingEnabled = false;
         tokenSource?.Cancel();
 
         if (incomingTask is not null) await incomingTask;
@@ -80,7 +82,7 @@ public class OscClient
     /// </summary>
     public void DisableSend()
     {
-        enabled = false;
+        sendingEnabled = false;
         sendingClient?.Close();
         sendingClient = null;
     }
