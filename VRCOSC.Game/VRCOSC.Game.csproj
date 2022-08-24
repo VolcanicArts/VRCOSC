@@ -4,6 +4,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\VRCOSC.OSC\VRCOSC.OSC.csproj" />
     <ProjectReference Include="..\VRCOSC.Resources\VRCOSC.Resources.csproj" />
   </ItemGroup>
   <ItemGroup>

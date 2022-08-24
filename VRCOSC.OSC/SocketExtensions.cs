@@ -1,10 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Linq;
 using System.Net.Sockets;
-using System.Threading;
-using System.Threading.Tasks;
 using CoreOSC;
 using CoreOSC.Types;
 
@@ -23,7 +20,7 @@ public static class SocketExtensions
         socket.Send(byteArray);
     }
 
-    public static async Task<OscMessage> ReceiveOscMessage(this Socket socket, CancellationToken token)
+    public static async Task<OscMessage> ReceiveOscMessageAsync(this Socket socket, CancellationToken token)
     {
         var receiveResult = new byte[128];
         await socket.ReceiveAsync(receiveResult, SocketFlags.None, token);
