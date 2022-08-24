@@ -4,6 +4,7 @@
 // ReSharper disable InconsistentNaming
 
 using System.Threading.Tasks;
+using VRCOSC.OSC;
 
 namespace VRCOSC.Game.Modules;
 

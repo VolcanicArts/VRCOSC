@@ -5,7 +5,7 @@ using System.Net.Sockets;
 using CoreOSC;
 using CoreOSC.Types;
 
-namespace VRCOSC.Game.Modules;
+namespace VRCOSC.OSC;
 
 public static class SocketExtensions
 {

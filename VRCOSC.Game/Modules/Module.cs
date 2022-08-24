@@ -15,6 +15,7 @@ using osu.Framework.Logging;
 using osu.Framework.Platform;
 using VRCOSC.Game.Modules.Util;
 using VRCOSC.Game.Util;
+using VRCOSC.OSC;
 
 // ReSharper disable InconsistentNaming
 

@@ -22,6 +22,7 @@ using VRCOSC.Game.Modules.Modules.Media;
 using VRCOSC.Game.Modules.Modules.Random;
 using VRCOSC.Game.Modules.Modules.Spotify;
 using VRCOSC.Game.Util;
+using VRCOSC.OSC;
 
 namespace VRCOSC.Game.Modules;
 

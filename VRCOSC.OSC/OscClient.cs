@@ -5,7 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using CoreOSC;
 
-namespace VRCOSC.Game.Modules;
+namespace VRCOSC.OSC;
 
 public class OscClient
 {
