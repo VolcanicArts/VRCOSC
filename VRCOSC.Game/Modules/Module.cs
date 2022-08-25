@@ -81,6 +81,16 @@ public abstract class Module
         addSetting(lookup.ToString().ToLowerInvariant(), displayName, description, defaultValue);
     }
 
+    protected void CreateSetting(Enum lookup, string displayName, string description, string defaultValue)
+    {
+        addSetting(lookup.ToString().ToLowerInvariant(), displayName, description, defaultValue);
+    }
+
+    protected void CreateSetting<T>(Enum lookup, string displayName, string description, T defaultValue) where T : Enum
+    {
+        addSetting(lookup.ToString().ToLowerInvariant(), displayName, description, defaultValue);
+    }
+
     protected void CreateSetting(Enum lookup, string displayName, string description, int defaultValue, int minValue, int maxValue)
     {
         addRangedSetting(lookup.ToString().ToLowerInvariant(), displayName, description, defaultValue, minValue, maxValue);
@@ -91,11 +101,6 @@ public abstract class Module
         addRangedSetting(lookup.ToString().ToLowerInvariant(), displayName, description, defaultValue, minValue, maxValue);
     }
 
-    protected void CreateSetting(Enum lookup, string displayName, string description, string defaultValue)
-    {
-        addSetting(lookup.ToString().ToLowerInvariant(), displayName, description, defaultValue);
-    }
-
     protected void CreateSetting(Enum lookup, string displayName, string description, List<string> defaultValues)
     {
         addListSetting(lookup.ToString().ToLowerInvariant(), displayName, description, defaultValues.Cast<object>().ToList(), typeof(string));
@@ -104,11 +109,6 @@ public abstract class Module
     protected void CreateSetting(Enum lookup, string displayName, string description, List<int> defaultValues)
     {
         addListSetting(lookup.ToString().ToLowerInvariant(), displayName, description, defaultValues.Cast<object>().ToList(), typeof(int));
-    }
-
-    protected void CreateSetting<T>(Enum lookup, string displayName, string description, T defaultValue) where T : Enum
-    {
-        addSetting(lookup.ToString().ToLowerInvariant(), displayName, description, defaultValue);
     }
 
     private void addSetting(string lookup, string displayName, string description, object defaultValue)
@@ -128,14 +128,12 @@ public abstract class Module
 
     protected void CreateOutputParameter(Enum lookup, string displayName, string description, string defaultAddress)
     {
-        var lookupString = lookup.ToString().ToLowerInvariant();
-        OutputParameters.Add(lookupString, new ModuleAttributeSingle(new ModuleAttributeMetadata(displayName, description), defaultAddress));
+        OutputParameters.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeSingle(new ModuleAttributeMetadata(displayName, description), defaultAddress));
     }
 
     protected void CreateOutputParameter(Enum lookup, string displayName, string description, List<string> defaultAddresses)
     {
-        var lookupString = lookup.ToString().ToLowerInvariant();
-        OutputParameters.Add(lookupString, new ModuleAttributeList(new ModuleAttributeMetadata(displayName, description), defaultAddresses.Cast<object>().ToList(), typeof(string)));
+        OutputParameters.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeList(new ModuleAttributeMetadata(displayName, description), defaultAddresses.Cast<object>().ToList(), typeof(string)));
     }
 
     protected void RegisterGenericInputParameter<T>(Enum lookup) where T : struct
@@ -207,11 +205,9 @@ public abstract class Module
 
     #region Settings
 
-    protected T GetSetting<T>(Enum lookup) => getSetting<T>(lookup.ToString().ToLowerInvariant());
-
-    private T getSetting<T>(string lookup)
+    protected T GetSetting<T>(Enum lookup)
     {
-        var setting = Settings[lookup];
+        var setting = Settings[lookup.ToString().ToLowerInvariant()];
 
         object? value = setting switch
         {

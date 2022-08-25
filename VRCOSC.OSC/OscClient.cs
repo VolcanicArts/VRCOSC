@@ -19,6 +19,8 @@ public class OscClient
     public Action<string, object>? OnParameterSent;
     public Action<string, object>? OnParameterReceived;
 
+    public bool AllowEmptyMessages { get; init; } = false;
+
     /// <summary>
     /// Initialises the <see cref="OscClient"/> with the required data.
     /// </summary>
@@ -109,9 +111,7 @@ public class OscClient
             while (!tokenSource!.Token.IsCancellationRequested)
             {
                 var message = await receivingClient!.ReceiveOscMessageAsync(tokenSource.Token);
-
-                // ensure there is always some data
-                if (!message.Arguments.Any()) continue;
+                if (!(AllowEmptyMessages || message.Arguments.Any())) continue;
 
                 OnParameterReceived?.Invoke(message.Address.Value, oscToPrimitive(message.Arguments.First()));
             }
