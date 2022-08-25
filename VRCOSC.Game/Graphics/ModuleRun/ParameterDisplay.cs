@@ -2,7 +2,9 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Collections.Generic;
+using System.Linq;
 using osu.Framework.Allocation;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
@@ -13,7 +15,7 @@ public class ParameterDisplay : Container
 {
     public string Title { get; init; } = null!;
 
-    private readonly Dictionary<string, ParameterEntry> parameterDict = new();
+    private readonly SortedDictionary<string, ParameterEntry> parameterDict = new();
     private FillFlowContainer<ParameterEntry> parameterFlow = null!;
 
     [BackgroundDependencyLoader]
@@ -99,8 +101,15 @@ public class ParameterDisplay : Container
                 Value = { Value = valueStr }
             };
 
-            parameterFlow.Add(newEntry);
             parameterDict.Add(key, newEntry);
+            parameterFlow.Add(newEntry);
+
+            parameterDict.ForEach(pair =>
+            {
+                var (_, entry) = pair;
+                var positionOfEntry = parameterDict.Values.ToList().IndexOf(entry);
+                parameterFlow.SetLayoutPosition(entry, positionOfEntry);
+            });
         }
     });
 }
