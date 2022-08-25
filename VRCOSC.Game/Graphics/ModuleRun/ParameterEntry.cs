@@ -10,7 +10,7 @@ using osu.Framework.Graphics.Sprites;
 
 namespace VRCOSC.Game.Graphics.ModuleRun;
 
-public sealed class ParameterEntry : Container
+public sealed class ParameterEntry : FillFlowContainer
 {
     public string Key { get; init; } = null!;
     public Bindable<string> Value { get; } = new();
@@ -24,6 +24,7 @@ public sealed class ParameterEntry : Container
         Origin = Anchor.TopLeft;
         RelativeSizeAxes = Axes.X;
         AutoSizeAxes = Axes.Y;
+        Direction = FillDirection.Horizontal;
     }
 
     [BackgroundDependencyLoader]
@@ -31,45 +32,34 @@ public sealed class ParameterEntry : Container
     {
         Children = new Drawable[]
         {
-            new FillFlowContainer
+            new SpriteText
             {
-                Anchor = Anchor.TopLeft,
-                Origin = Anchor.TopLeft,
-                RelativeSizeAxes = Axes.X,
-                AutoSizeAxes = Axes.Y,
-                Direction = FillDirection.Horizontal,
+                Anchor = Anchor.CentreLeft,
+                Origin = Anchor.CentreLeft,
+                Font = FrameworkFont.Regular.With(size: 20),
+                Colour = VRCOSCColour.Gray8,
+                Text = $"{Key}: "
+            },
+            new Container
+            {
+                Anchor = Anchor.CentreLeft,
+                Origin = Anchor.CentreLeft,
+                AutoSizeAxes = Axes.Both,
                 Children = new Drawable[]
                 {
-                    new SpriteText
+                    background = new Box
+                    {
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.Centre,
+                        RelativeSizeAxes = Axes.Both,
+                        Colour = VRCOSCColour.Invisible
+                    },
+                    valueText = new SpriteText
                     {
                         Anchor = Anchor.CentreLeft,
                         Origin = Anchor.CentreLeft,
                         Font = FrameworkFont.Regular.With(size: 20),
-                        Colour = VRCOSCColour.Gray8,
-                        Text = $"{Key}: "
-                    },
-                    new Container
-                    {
-                        Anchor = Anchor.CentreLeft,
-                        Origin = Anchor.CentreLeft,
-                        AutoSizeAxes = Axes.Both,
-                        Children = new Drawable[]
-                        {
-                            background = new Box
-                            {
-                                Anchor = Anchor.Centre,
-                                Origin = Anchor.Centre,
-                                RelativeSizeAxes = Axes.Both,
-                                Colour = VRCOSCColour.Invisible
-                            },
-                            valueText = new SpriteText
-                            {
-                                Anchor = Anchor.CentreLeft,
-                                Origin = Anchor.CentreLeft,
-                                Font = FrameworkFont.Regular.With(size: 20),
-                                Colour = VRCOSCColour.Gray8
-                            }
-                        }
+                        Colour = VRCOSCColour.Gray8
                     }
                 }
             }
