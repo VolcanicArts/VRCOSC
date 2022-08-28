@@ -11,6 +11,7 @@ public class PulsoidProvider : HeartRateProvider
 
     protected override string WebSocketUrl => $"wss://dev.pulsoid.net/api/v1/data/real_time?access_token={accessToken}";
     protected override int WebSocketHeartBeat => 10000;
+    protected override bool SendWsHeartBeat => false;
 
     public PulsoidProvider(string accessToken)
     {
@@ -31,10 +32,5 @@ public class PulsoidProvider : HeartRateProvider
     {
         var data = JsonConvert.DeserializeObject<PulsoidResponse>(message)!;
         OnHeartRateUpdate?.Invoke(data.Data.HeartRate);
-    }
-
-    protected override void HandleWsHeartBeat()
-    {
-        terminal.Log("Sending Pulsoid websocket heartbeat");
     }
 }

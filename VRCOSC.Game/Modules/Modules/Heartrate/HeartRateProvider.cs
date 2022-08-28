@@ -9,6 +9,7 @@ public abstract class HeartRateProvider
 {
     protected virtual string WebSocketUrl => throw new InvalidOperationException("Specify a WebSocket Url");
     protected virtual int WebSocketHeartBeat => throw new InvalidOperationException("Specify a WebSocket heartbeat");
+    protected virtual bool SendWsHeartBeat => true;
 
     private JsonWebSocket? webSocket;
     private TimedTask? wsHeartBeatTask;
@@ -45,7 +46,7 @@ public abstract class HeartRateProvider
         if (webSocket is null || wsHeartBeatTask is null) throw new InvalidOperationException("Please call Initialise first");
 
         webSocket.Connect();
-        wsHeartBeatTask.Start();
+        if (SendWsHeartBeat) wsHeartBeatTask.Start();
     }
 
     public async Task Disconnect()
