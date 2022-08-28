@@ -2,11 +2,22 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Linq;
+using osu.Framework.Graphics;
+using osu.Framework.Graphics.Colour;
 
 namespace VRCOSC.Game.Modules.Modules.Heartrate;
 
-public abstract class HeartrateModule : Module
+public abstract class HeartRateModule : Module
 {
+    public override string Author => "VolcanicArts";
+    public override string Prefab => "VRCOSC-Heartrate";
+    public override ColourInfo Colour => Colour4.Red;
+    public override ModuleType ModuleType => ModuleType.Health;
+
+    private HeartRateProvider heartRateProvider = null!;
+
+    protected abstract HeartRateProvider CreateHeartRateProvider();
+
     protected override void CreateAttributes()
     {
         CreateOutputParameter(HeartrateOutputParameter.HeartrateEnabled, "Heartrate Enabled", "Whether this module is attempting to emit values", "/avatar/parameters/HeartrateEnabled");
@@ -16,7 +27,25 @@ public abstract class HeartrateModule : Module
         CreateOutputParameter(HeartrateOutputParameter.HeartrateHundreds, "Heartrate Hundreds", "The hundreds digit 0-9 mapped to a float", "/avatar/parameters/HeartrateHundreds");
     }
 
-    protected void HandleHeartRateUpdate(int heartrate)
+    protected override void OnStart()
+    {
+        SendParameter(HeartrateOutputParameter.HeartrateEnabled, false);
+
+        heartRateProvider = CreateHeartRateProvider();
+        heartRateProvider.OnHeartRateUpdate += HandleHeartRateUpdate;
+        heartRateProvider.OnConnected += () => SendParameter(HeartrateOutputParameter.HeartrateEnabled, true);
+        heartRateProvider.OnDisconnected += () => SendParameter(HeartrateOutputParameter.HeartrateEnabled, false);
+        heartRateProvider.Initialise();
+        heartRateProvider.Connect();
+    }
+
+    protected override async void OnStop()
+    {
+        await heartRateProvider.Disconnect();
+        SendParameter(HeartrateOutputParameter.HeartrateEnabled, false);
+    }
+
+    protected virtual void HandleHeartRateUpdate(int heartrate)
     {
         var normalisedHeartRate = heartrate / 60.0f;
         var individualValues = toDigitArray(heartrate, 3);

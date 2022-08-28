@@ -1,33 +1,23 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using osu.Framework.Graphics;
-using osu.Framework.Graphics.Colour;
-
 namespace VRCOSC.Game.Modules.Modules.Heartrate.Pulsoid;
 
-public class PulsoidModule : HeartrateModule
+public class PulsoidModule : HeartRateModule
 {
     public override string Title => "Pulsoid";
-    public override string Description => "Sends Pulsoid heartrate values";
-    public override string Author => "VolcanicArts";
-    public override string Prefab => "VRCOSC-Heartrate";
-    public override ColourInfo Colour => Colour4.Red;
-    public override ModuleType ModuleType => ModuleType.Health;
+    public override string Description => "Connects to Pulsoid and sends your heartrate to VRChat";
 
-    private PulsoidProvider? pulsoidProvider;
+    protected override HeartRateProvider CreateHeartRateProvider() => new PulsoidProvider(GetSetting<string>(PulsoidSetting.AccessToken));
 
     protected override void CreateAttributes()
     {
-        CreateSetting(PulsoidSetting.AccessToken, "Access Token", "Your Pulsoid access token given by Pulsoid", string.Empty, () => OpenUrlExternally("https://google.com"));
-
         base.CreateAttributes();
+        CreateSetting(PulsoidSetting.AccessToken, "Access Token", "Your Pulsoid access token", string.Empty, () => OpenUrlExternally("https://google.com"));
     }
 
     protected override void OnStart()
     {
-        SendParameter(HeartrateOutputParameter.HeartrateEnabled, false);
-
         var accessToken = GetSetting<string>(PulsoidSetting.AccessToken);
 
         if (string.IsNullOrEmpty(accessToken))
@@ -36,19 +26,7 @@ public class PulsoidModule : HeartrateModule
             return;
         }
 
-        pulsoidProvider = new PulsoidProvider(accessToken);
-        pulsoidProvider.OnHeartRateUpdate += HandleHeartRateUpdate;
-        pulsoidProvider.OnConnected += () => SendParameter(HeartrateOutputParameter.HeartrateEnabled, true);
-        pulsoidProvider.OnDisconnected += () => SendParameter(HeartrateOutputParameter.HeartrateEnabled, false);
-
-        pulsoidProvider.Initialise();
-        pulsoidProvider.Connect();
-    }
-
-    protected override void OnStop()
-    {
-        SendParameter(HeartrateOutputParameter.HeartrateEnabled, false);
-        pulsoidProvider?.Disconnect();
+        base.OnStart();
     }
 
     private enum PulsoidSetting

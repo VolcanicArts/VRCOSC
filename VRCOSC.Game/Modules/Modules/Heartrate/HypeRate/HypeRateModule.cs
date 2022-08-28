@@ -1,34 +1,30 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using osu.Framework.Graphics;
-using osu.Framework.Graphics.Colour;
-
 namespace VRCOSC.Game.Modules.Modules.Heartrate.HypeRate;
 
-public class HypeRateModule : HeartrateModule
+public class HypeRateModule : HeartRateModule
 {
     public override string Title => "HypeRate";
-    public override string Description => "Sends HypeRate.io heartrate values";
-    public override string Author => "VolcanicArts";
-    public override string Prefab => "VRCOSC-Heartrate";
-    public override ColourInfo Colour => Colour4.Red;
-    public override ModuleType ModuleType => ModuleType.Health;
+    public override string Description => "Connects to HypeRate.io and sends your heartrate to VRChat";
 
-    private HypeRateProvider? hypeRateProvider;
     private bool receivedHeartRate;
+
+    protected override HeartRateProvider CreateHeartRateProvider()
+    {
+        var provider = new HypeRateProvider(GetSetting<string>(HypeRateSetting.Id), VRCOSCSecrets.KEYS_HYPERATE);
+        provider.OnWsHeartBeat += handleWsHeartBeat;
+        return provider;
+    }
 
     protected override void CreateAttributes()
     {
-        CreateSetting(HypeRateSetting.Id, "HypeRate ID", "Your HypeRate ID given on your device", string.Empty);
-
         base.CreateAttributes();
+        CreateSetting(HypeRateSetting.Id, "HypeRate ID", "Your HypeRate ID given on your device", string.Empty);
     }
 
     protected override void OnStart()
     {
-        SendParameter(HeartrateOutputParameter.HeartrateEnabled, false);
-
         var hypeRateId = GetSetting<string>(HypeRateSetting.Id);
 
         if (string.IsNullOrEmpty(hypeRateId))
@@ -37,26 +33,19 @@ public class HypeRateModule : HeartrateModule
             return;
         }
 
-        hypeRateProvider = new HypeRateProvider(hypeRateId, VRCOSCSecrets.KEYS_HYPERATE);
-        hypeRateProvider.OnHeartRateUpdate += HandleHeartRateUpdate;
-        hypeRateProvider.OnConnected += () => SendParameter(HeartrateOutputParameter.HeartrateEnabled, true);
-        hypeRateProvider.OnDisconnected += () => SendParameter(HeartrateOutputParameter.HeartrateEnabled, false);
-        hypeRateProvider.OnWsHeartBeat += handleWsHeartBeat;
+        base.OnStart();
+    }
 
-        hypeRateProvider.Initialise();
-        hypeRateProvider.Connect();
+    protected override void HandleHeartRateUpdate(int heartrate)
+    {
+        base.HandleHeartRateUpdate(heartrate);
+        receivedHeartRate = true;
     }
 
     private void handleWsHeartBeat()
     {
         if (!receivedHeartRate) SendParameter(HeartrateOutputParameter.HeartrateEnabled, false);
         receivedHeartRate = false;
-    }
-
-    protected override void OnStop()
-    {
-        SendParameter(HeartrateOutputParameter.HeartrateEnabled, false);
-        hypeRateProvider?.Disconnect();
     }
 
     private enum HypeRateSetting
