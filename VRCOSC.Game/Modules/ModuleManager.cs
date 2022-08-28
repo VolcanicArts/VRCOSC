@@ -18,6 +18,7 @@ using VRCOSC.Game.Modules.Modules.Clock;
 using VRCOSC.Game.Modules.Modules.Discord;
 using VRCOSC.Game.Modules.Modules.HardwareStats;
 using VRCOSC.Game.Modules.Modules.Heartrate.HypeRate;
+using VRCOSC.Game.Modules.Modules.Heartrate.Pulsoid;
 using VRCOSC.Game.Modules.Modules.Media;
 using VRCOSC.Game.Modules.Modules.Random;
 using VRCOSC.Game.Modules.Modules.Spotify;
@@ -39,6 +40,7 @@ public sealed class ModuleManager : Component
         typeof(DiscordModule),
         typeof(MediaModule),
         typeof(HypeRateModule),
+        typeof(PulsoidModule),
         typeof(CalculatorModule)
     };
 
@@ -56,13 +58,13 @@ public sealed class ModuleManager : Component
     private VRCOSCGame game { get; set; } = null!;
 
     [BackgroundDependencyLoader]
-    private void load(Storage storage)
+    private void load(GameHost host, Storage storage)
     {
         var moduleStorage = storage.GetStorageForDirectory("modules");
         module_types.ForEach(type =>
         {
             var module = (Module)Activator.CreateInstance(type)!;
-            module.Initialise(moduleStorage, OscClient);
+            module.Initialise(host, moduleStorage, OscClient);
             Modules.Add(module);
         });
 

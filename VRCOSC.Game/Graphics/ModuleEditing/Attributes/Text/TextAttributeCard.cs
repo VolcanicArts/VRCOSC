@@ -21,7 +21,12 @@ public class TextAttributeCard : AttributeCardSingle
     [BackgroundDependencyLoader]
     private void load()
     {
-        ContentFlow.Add(textBox = new VRCOSCTextBox
+        ContentFlow.Add(CreateContent());
+    }
+
+    protected virtual Drawable CreateContent()
+    {
+        return textBox = new VRCOSCTextBox
         {
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
@@ -30,7 +35,7 @@ public class TextAttributeCard : AttributeCardSingle
             Masking = true,
             CornerRadius = 5,
             Text = AttributeData.Attribute.Value.ToString()
-        });
+        };
     }
 
     protected override void LoadComplete()

@@ -110,6 +110,15 @@ public sealed class AttributeFlow : FillFlowContainer
             return (Activator.CreateInstance(instanceType, attributeData) as AttributeCard)!;
         }
 
+        if (attributeData is ModuleAttributeSingleWithButton attributeSingleWithButton)
+        {
+            return value switch
+            {
+                string => new ButtonTextAttributeCard(attributeSingleWithButton),
+                _ => throw new ArgumentOutOfRangeException()
+            };
+        }
+
         if (attributeData is ModuleAttributeSingleWithBounds attributeDataWithBounds)
         {
             return value switch

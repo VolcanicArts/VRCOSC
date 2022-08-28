@@ -43,6 +43,17 @@ public class ModuleAttributeSingle : ModuleAttribute
     }
 }
 
+public class ModuleAttributeSingleWithButton : ModuleAttributeSingle
+{
+    public readonly Action ButtonAction;
+
+    public ModuleAttributeSingleWithButton(ModuleAttributeMetadata metadata, object defaultValue, Action buttonAction)
+        : base(metadata, defaultValue)
+    {
+        ButtonAction = buttonAction;
+    }
+}
+
 public sealed class ModuleAttributeSingleWithBounds : ModuleAttributeSingle
 {
     public readonly object MinValue;

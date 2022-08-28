@@ -18,7 +18,7 @@ public class PulsoidModule : Module
 
     protected override void CreateAttributes()
     {
-        CreateSetting(PulsoidSetting.AccessToken, "Access Token", "Your Pulsoid access token given bu Pulsoid", string.Empty);
+        CreateSetting(PulsoidSetting.AccessToken, "Access Token", "Your Pulsoid access token given by Pulsoid", string.Empty, () => OpenUrlExternally("https://google.com"));
 
         CreateOutputParameter(PulsoidOutputParameter.HeartrateEnabled, "Heartrate Enabled", "Whether this module is attempting to emit values", "/avatar/parameters/HeartrateEnabled");
         CreateOutputParameter(PulsoidOutputParameter.HeartrateNormalised, "Heartrate Normalised", "The heartrate value normalised to 60bpm", "/avatar/parameters/HeartrateNormalised");

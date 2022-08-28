@@ -23,6 +23,7 @@ namespace VRCOSC.Game.Modules;
 
 public abstract class Module
 {
+    private GameHost Host = null!;
     private Storage Storage = null!;
     private OscClient OscClient = null!;
     private TimedTask? updateTask;
@@ -45,8 +46,9 @@ public abstract class Module
     public virtual string Prefab => string.Empty;
     protected virtual int DeltaUpdate => int.MaxValue;
 
-    public void Initialise(Storage storage, OscClient oscClient)
+    public void Initialise(GameHost host, Storage storage, OscClient oscClient)
     {
+        Host = host;
         Storage = storage;
         OscClient = oscClient;
         Terminal = new TerminalLogger(GetType().Name);
@@ -109,6 +111,11 @@ public abstract class Module
     protected void CreateSetting(Enum lookup, string displayName, string description, List<int> defaultValues)
     {
         addListSetting(lookup.ToString().ToLowerInvariant(), displayName, description, defaultValues.Cast<object>().ToList(), typeof(int));
+    }
+
+    protected void CreateSetting(Enum lookup, string displayName, string description, string defaultValue, Action buttonAction)
+    {
+        Settings.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeSingleWithButton(new ModuleAttributeMetadata(displayName, description), defaultValue, buttonAction));
     }
 
     private void addSetting(string lookup, string displayName, string description, object defaultValue)
@@ -726,6 +733,15 @@ public abstract class Module
         }
 
         writer.WriteLine(@"#End");
+    }
+
+    #endregion
+
+    #region Extensions
+
+    protected void OpenUrlExternally(string Url)
+    {
+        Host.OpenUrlExternally(Url);
     }
 
     #endregion
