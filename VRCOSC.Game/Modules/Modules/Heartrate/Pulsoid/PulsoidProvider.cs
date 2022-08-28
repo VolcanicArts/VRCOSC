@@ -1,4 +1,6 @@
-﻿using VRCOSC.Game.Util;
+﻿using Newtonsoft.Json;
+using VRCOSC.Game.Modules.Modules.Heartrate.Pulsoid.Models;
+using VRCOSC.Game.Util;
 
 namespace VRCOSC.Game.Modules.Modules.Heartrate.Pulsoid;
 
@@ -27,6 +29,8 @@ public class PulsoidProvider : HeartRateProvider
 
     protected override void HandleWsMessage(string message)
     {
+        var data = JsonConvert.DeserializeObject<PulsoidResponse>(message)!;
+        OnHeartRateUpdate?.Invoke(data.Data.HeartRate);
     }
 
     protected override void HandleWsHeartBeat()
