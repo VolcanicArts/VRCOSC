@@ -24,7 +24,7 @@ public abstract class AttributeCardSingle : AttributeCard
     private void performAttributeUpdate(ValueChangedEvent<object> e)
     {
         UpdateValues(e.NewValue);
-        UpdateResetToDefault(!AttributeData.Attribute.IsDefault);
+        UpdateResetToDefault(!AttributeData.IsDefault());
     }
 
     protected virtual void UpdateValues(object value)
