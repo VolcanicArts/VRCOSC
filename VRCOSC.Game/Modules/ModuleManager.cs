@@ -17,7 +17,7 @@ using VRCOSC.Game.Modules.Modules.Calculator;
 using VRCOSC.Game.Modules.Modules.Clock;
 using VRCOSC.Game.Modules.Modules.Discord;
 using VRCOSC.Game.Modules.Modules.HardwareStats;
-using VRCOSC.Game.Modules.Modules.HypeRate;
+using VRCOSC.Game.Modules.Modules.Heartrate.HypeRate;
 using VRCOSC.Game.Modules.Modules.Media;
 using VRCOSC.Game.Modules.Modules.Random;
 using VRCOSC.Game.Modules.Modules.Spotify;

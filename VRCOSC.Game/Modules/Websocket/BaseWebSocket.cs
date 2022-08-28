@@ -10,7 +10,7 @@ using WebSocket4Net;
 
 namespace VRCOSC.Game.Modules.Websocket;
 
-public abstract class BaseWebSocket : IDisposable
+public class BaseWebSocket : IDisposable
 {
     private readonly CancellationTokenSource tokenSource = new();
     private readonly TerminalLogger terminal = new(nameof(BaseWebSocket));
@@ -20,7 +20,7 @@ public abstract class BaseWebSocket : IDisposable
     public Action? OnWsDisconnected;
     public Action<string>? OnWsMessage;
 
-    protected BaseWebSocket(string uri)
+    public BaseWebSocket(string uri)
     {
         terminal.Log("Creating base websocket");
         webSocket = new WebSocket(uri);

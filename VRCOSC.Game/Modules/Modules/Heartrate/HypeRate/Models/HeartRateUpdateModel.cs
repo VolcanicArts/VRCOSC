@@ -3,7 +3,7 @@
 
 using Newtonsoft.Json;
 
-namespace VRCOSC.Game.Modules.Modules.HypeRate.Models;
+namespace VRCOSC.Game.Modules.Modules.Heartrate.HypeRate.Models;
 
 public class HeartRateUpdateModel
 {

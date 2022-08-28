@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 // ReSharper disable InconsistentNaming
 
-namespace VRCOSC.Game.Modules.Modules.HypeRate.Models;
+namespace VRCOSC.Game.Modules.Modules.Heartrate.HypeRate.Models;
 
 public class JoinChannelModel
 {

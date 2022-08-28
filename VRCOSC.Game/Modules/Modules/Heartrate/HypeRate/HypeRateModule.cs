@@ -5,7 +5,7 @@ using System.Linq;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Colour;
 
-namespace VRCOSC.Game.Modules.Modules.HypeRate;
+namespace VRCOSC.Game.Modules.Modules.Heartrate.HypeRate;
 
 public class HypeRateModule : Module
 {
@@ -17,7 +17,7 @@ public class HypeRateModule : Module
     public override ModuleType ModuleType => ModuleType.Health;
 
     private HypeRateProvider? hypeRateProvider;
-    private bool receivedHeartrate;
+    private bool receivedHeartRate;
 
     protected override void CreateAttributes()
     {
@@ -44,15 +44,17 @@ public class HypeRateModule : Module
 
         hypeRateProvider = new HypeRateProvider(hypeRateId, VRCOSCSecrets.KEYS_HYPERATE);
         hypeRateProvider.OnHeartRateUpdate += handleHeartRateUpdate;
-        hypeRateProvider.OnWsConnected += () => SendParameter(HypeRateOutputParameter.HeartrateEnabled, true);
-        hypeRateProvider.OnWsDisconnected += () => SendParameter(HypeRateOutputParameter.HeartrateEnabled, false);
-        hypeRateProvider.OnWsHeartbeat += handleWsHeartbeat;
+        hypeRateProvider.OnConnected += () => SendParameter(HypeRateOutputParameter.HeartrateEnabled, true);
+        hypeRateProvider.OnDisconnected += () => SendParameter(HypeRateOutputParameter.HeartrateEnabled, false);
+        hypeRateProvider.OnWsHeartBeat += handleWsHeartBeat;
+
+        hypeRateProvider.Initialise();
         hypeRateProvider.Connect();
     }
 
     private void handleHeartRateUpdate(int heartrate)
     {
-        receivedHeartrate = true;
+        receivedHeartRate = true;
         var normalisedHeartRate = heartrate / 60.0f;
         var individualValues = toDigitArray(heartrate, 3);
 
@@ -63,10 +65,10 @@ public class HypeRateModule : Module
         SendParameter(HypeRateOutputParameter.HeartrateHundreds, individualValues[0] / 10f);
     }
 
-    private void handleWsHeartbeat()
+    private void handleWsHeartBeat()
     {
-        if (!receivedHeartrate) SendParameter(HypeRateOutputParameter.HeartrateEnabled, false);
-        receivedHeartrate = false;
+        if (!receivedHeartRate) SendParameter(HypeRateOutputParameter.HeartrateEnabled, false);
+        receivedHeartRate = false;
     }
 
     private static int[] toDigitArray(int num, int totalWidth)

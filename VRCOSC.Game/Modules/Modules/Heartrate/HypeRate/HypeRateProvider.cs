@@ -1,52 +1,39 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
 using Newtonsoft.Json;
-using VRCOSC.Game.Modules.Modules.HypeRate.Models;
-using VRCOSC.Game.Modules.Util;
-using VRCOSC.Game.Modules.Websocket;
+using VRCOSC.Game.Modules.Modules.Heartrate.HypeRate.Models;
 using VRCOSC.Game.Util;
 
-namespace VRCOSC.Game.Modules.Modules.HypeRate;
+namespace VRCOSC.Game.Modules.Modules.Heartrate.HypeRate;
 
-public class HypeRateProvider : JsonWebSocket
+public class HypeRateProvider : HeartRateProvider
 {
-    private const string hype_rate_uri = "wss://app.hyperate.io/socket/websocket?token=";
-    private const int heartbeat_internal = 10000;
-
-    private readonly string hyperateId;
+    private readonly string hypeRateId;
+    private readonly string apiKey;
     private readonly TerminalLogger terminal = new(nameof(HypeRateModule));
 
-    private TimedTask? heartBeatTimer;
+    protected override string WebSocketUrl => $"wss://app.hyperate.io/socket/websocket?token={apiKey}";
+    protected override int WebSocketHeartBeat => 10000;
 
-    public Action<int>? OnHeartRateUpdate;
-    public Action? OnWsHeartbeat;
-
-    public HypeRateProvider(string hyperateId, string apiKey)
-        : base(hype_rate_uri + apiKey)
+    public HypeRateProvider(string hypeRateId, string apiKey)
     {
-        this.hyperateId = hyperateId;
-
-        OnWsConnected += OnConnected;
-        OnWsDisconnected += OnDisconnected;
-        OnWsMessage += OnMessage;
+        this.hypeRateId = hypeRateId;
+        this.apiKey = apiKey;
     }
 
-    private void OnConnected()
+    protected override void HandleWsConnected()
     {
         terminal.Log("Successfully connected to the HypeRate websocket");
         sendJoinChannel();
-        initHeartBeat();
     }
 
-    private void OnDisconnected()
+    protected override void HandleWsDisconnected()
     {
         terminal.Log("Disconnected from the HypeRate websocket");
-        heartBeatTimer?.Stop();
     }
 
-    private void OnMessage(string message)
+    protected override void HandleWsMessage(string message)
     {
         var eventModel = JsonConvert.DeserializeObject<EventModel>(message);
 
@@ -68,27 +55,20 @@ public class HypeRateProvider : JsonWebSocket
         }
     }
 
-    private void initHeartBeat()
-    {
-        heartBeatTimer = new TimedTask(sendHeartBeat, heartbeat_internal);
-        heartBeatTimer.Start();
-    }
-
-    private void sendHeartBeat()
+    protected override void HandleWsHeartBeat()
     {
         terminal.Log("Sending HypeRate websocket heartbeat");
-        SendAsJson(new HeartBeatModel());
-        OnWsHeartbeat?.Invoke();
+        SendData(new HeartBeatModel());
     }
 
     private void sendJoinChannel()
     {
-        terminal.Log($"Requesting to hook into heartrate for Id {hyperateId}");
+        terminal.Log($"Requesting to hook into heartrate for Id {hypeRateId}");
         var joinChannelModel = new JoinChannelModel
         {
-            Id = hyperateId
+            Id = hypeRateId
         };
-        SendAsJson(joinChannelModel);
+        SendData(joinChannelModel);
     }
 
     private void handlePhxReply(PhxReplyModel reply)

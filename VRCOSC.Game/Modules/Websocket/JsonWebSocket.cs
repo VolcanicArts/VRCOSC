@@ -5,14 +5,14 @@ using Newtonsoft.Json;
 
 namespace VRCOSC.Game.Modules.Websocket;
 
-public abstract class JsonWebSocket : BaseWebSocket
+public class JsonWebSocket : BaseWebSocket
 {
-    protected JsonWebSocket(string uri)
+    public JsonWebSocket(string uri)
         : base(uri)
     {
     }
 
-    protected void SendAsJson(object data)
+    public void SendAsJson(object data)
     {
         Send(JsonConvert.SerializeObject(data));
     }
