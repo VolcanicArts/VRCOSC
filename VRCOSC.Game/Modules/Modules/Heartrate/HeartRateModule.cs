@@ -14,7 +14,7 @@ public abstract class HeartRateModule : Module
     public override ColourInfo Colour => Colour4.Red;
     public override ModuleType ModuleType => ModuleType.Health;
 
-    private HeartRateProvider heartRateProvider = null!;
+    private HeartRateProvider? heartRateProvider;
 
     protected abstract HeartRateProvider CreateHeartRateProvider();
 
@@ -41,6 +41,8 @@ public abstract class HeartRateModule : Module
 
     protected override async void OnStop()
     {
+        if (heartRateProvider is null) return;
+
         await heartRateProvider.Disconnect();
         SendParameter(HeartrateOutputParameter.HeartrateEnabled, false);
     }
