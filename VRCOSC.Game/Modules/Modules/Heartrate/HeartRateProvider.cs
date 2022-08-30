@@ -11,7 +11,7 @@ namespace VRCOSC.Game.Modules.Modules.Heartrate;
 public abstract class HeartRateProvider
 {
     protected virtual string WebSocketUrl => throw new InvalidOperationException("Specify a WebSocket Url");
-    protected virtual int WebSocketHeartBeat => throw new InvalidOperationException("Specify a WebSocket heartbeat");
+    protected virtual int WebSocketHeartBeat => int.MaxValue;
     protected virtual bool SendWsHeartBeat => true;
 
     private JsonWebSocket? webSocket;
