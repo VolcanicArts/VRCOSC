@@ -34,7 +34,8 @@ Want to make your own module? Check the [Wiki](https://github.com/VolcanicArts/V
 | Spotify | Spotify integration. Allows for play/pause, next/previous, and volume up/down from the action menu | Requires the Spotify desktop app | VRCOSC-Spotify.unitypackage |
 | Discord | Discord integration. Allows for toggling of mute and deafen from the action menu | Requires the Discord desktop app | VRCOSC-Discord.unitypackage |
 | Media | Windows OS media integration. Allows for play/pause and next/previous using the windows OS media keys | | VRCOSC-Media.unitypackage |
-| HypeRate | Sends [HypeRate.io](https://www.hyperate.io/supported-devices) heartrate values to display your live heartrate in game | | VRCOSC-Heartrate.unitypackage |
+| HypeRate | Connects to [HypeRate.io](https://www.hyperate.io/) to display your live heartrate in-game | [Supported Devices](https://www.hyperate.io/supported-devices). Compatible with WearOS, Apple Watch, and all major dedicated heartrate monitors | VRCOSC-Heartrate.unitypackage |
+| Pulsoid | Connects to [Pulsoid](https://pulsoid.net/) to display your live heartrate in-game | [Supported Devices](https://www.blog.pulsoid.net/monitors). Compatible with 200+ devices including Apple Watch and all dedicated heartrate monitors | VRCOSC-Heartrate.unitypackage |
 | Clock | Sends your local time as hours, minutes, and seconds | | VRCOSC-Watch.unitypackage |
 | Calculator | Calculator integration. Uses the Windows OS calculator | | |
 | Hardware Stats | Sends your system stats | | |
