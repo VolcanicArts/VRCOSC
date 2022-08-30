@@ -13,7 +13,6 @@ public class PulsoidProvider : HeartRateProvider
     private readonly TerminalLogger terminal = new(nameof(PulsoidModule));
 
     protected override string WebSocketUrl => $"wss://dev.pulsoid.net/api/v1/data/real_time?access_token={accessToken}";
-    protected override int WebSocketHeartBeat => 10000;
     protected override bool SendWsHeartBeat => false;
 
     public PulsoidProvider(string accessToken)

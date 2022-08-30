@@ -29,7 +29,7 @@ public class ButtonTextAttributeCard : TextAttributeCard
             Height = 40,
             ColumnDimensions = new[]
             {
-                new Dimension(),
+                new Dimension(GridSizeMode.Relative, 0.75f),
                 new Dimension()
             },
             Content = new[]
@@ -47,7 +47,7 @@ public class ButtonTextAttributeCard : TextAttributeCard
                         Masking = true,
                         CornerRadius = 5,
                         Action = attributeSingleWithButton.ButtonAction,
-                        BackgroundColour = VRCOSCColour.GreenLight
+                        BackgroundColour = VRCOSCColour.Blue
                     }
                 }
             }
