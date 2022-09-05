@@ -435,6 +435,16 @@ public abstract class Module
         GetOutputParameter(lookup).ForEach(address => address.SendValue(value));
     }
 
+    protected void SetChatBoxTyping(bool typing)
+    {
+        OscClient.SendValue("/chatbox/typing", typing);
+    }
+
+    protected void SetChatBoxText(string text, bool bypassKeyboard)
+    {
+        OscClient.SendValues("/chatbox/input", new List<object> { text, bypassKeyboard });
+    }
+
     #endregion
 
     #region Loading

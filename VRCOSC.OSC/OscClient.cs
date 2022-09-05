@@ -95,13 +95,25 @@ public class OscClient
     /// <param name="oscAddress">The address to send the value to</param>
     /// <param name="value">The value to send</param>
     /// <exception cref="ArgumentOutOfRangeException">If the value is not of type bool, int, float, or string</exception>
-    public void SendValue<T>(string oscAddress, T value)
+    public void SendValue(string oscAddress, object value)
     {
         if (value is not (bool or int or float or string))
             throw new ArgumentOutOfRangeException(nameof(value), "Cannot send value that is not of type bool, int, float, or string");
 
         sendingClient?.SendOscMessage(new OscMessage(new Address(oscAddress), new[] { primitiveToOsc(value) }));
         OnParameterSent?.Invoke(oscAddress, value);
+    }
+
+    public void SendValues(string oscAddress, List<object> values)
+    {
+        foreach (var value in values)
+        {
+            if (value is not (bool or int or float or string))
+                throw new ArgumentOutOfRangeException(nameof(value), "Cannot send value that is not of type bool, int, float, or string");
+        }
+
+        sendingClient?.SendOscMessage(new OscMessage(new Address(oscAddress), values.Select(primitiveToOsc)));
+        OnParameterSent?.Invoke(oscAddress, values.First());
     }
 
     private async void runReceiveLoop()
