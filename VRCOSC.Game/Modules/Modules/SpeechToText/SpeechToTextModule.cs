@@ -18,13 +18,20 @@ public class SpeechToTextModule : Module
     {
         speechRecognitionEngine.SetInputToDefaultAudioDevice();
         speechRecognitionEngine.LoadGrammar(new DictationGrammar());
-        speechRecognitionEngine.RecognizeAsync(RecognizeMode.Multiple);
     }
 
     protected override void OnStart()
     {
         speechRecognitionEngine.SpeechHypothesized += speechHypothesising;
         speechRecognitionEngine.SpeechRecognized += speechRecognising;
+        speechRecognitionEngine.RecognizeAsync(RecognizeMode.Multiple);
+    }
+
+    protected override void OnStop()
+    {
+        speechRecognitionEngine.RecognizeAsyncStop();
+        speechRecognitionEngine.SpeechHypothesized -= speechHypothesising;
+        speechRecognitionEngine.SpeechRecognized -= speechRecognising;
     }
 
     private void speechHypothesising(object? sender, SpeechHypothesizedEventArgs e)
@@ -37,11 +44,5 @@ public class SpeechToTextModule : Module
         Terminal.Log($"Recognised: {e.Result.Text}");
         SetChatBoxTyping(false);
         SetChatBoxText(e.Result.Text, true);
-    }
-
-    protected override void OnStop()
-    {
-        speechRecognitionEngine.SpeechHypothesized -= speechHypothesising;
-        speechRecognitionEngine.SpeechRecognized -= speechRecognising;
     }
 }
