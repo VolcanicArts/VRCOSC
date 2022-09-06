@@ -30,8 +30,7 @@ public sealed class Listing : Container
         Padding = new MarginPadding
         {
             Horizontal = 5,
-            Top = 2.5f,
-            Bottom = 5
+            Top = 2.5f
         };
     }
 
