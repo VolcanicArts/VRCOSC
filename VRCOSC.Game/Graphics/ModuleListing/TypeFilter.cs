@@ -41,7 +41,8 @@ public sealed class TypeFilter : Container
         General = 0,
         Health = 1,
         Integrations = 2,
-        Random = 3
+        Random = 3,
+        Accessibility = 4
     }
 
     private static ModuleType? groupToType(Group group) => group == Group.All ? null : (ModuleType)(int)group;

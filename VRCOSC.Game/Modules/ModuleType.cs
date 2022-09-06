@@ -8,5 +8,6 @@ public enum ModuleType
     General = 0,
     Health = 1,
     Integrations = 2,
-    Random = 3
+    Random = 3,
+    Accessibility = 4
 }
