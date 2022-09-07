@@ -25,6 +25,9 @@ public class SpeechToTextModule : Module
         speechRecognitionEngine.SpeechHypothesized += speechHypothesising;
         speechRecognitionEngine.SpeechRecognized += speechRecognising;
         speechRecognitionEngine.RecognizeAsync(RecognizeMode.Multiple);
+
+        SetChatBoxTyping(false);
+        SetChatBoxText("SpeechToText Activated", true);
     }
 
     protected override void OnStop()
@@ -32,6 +35,9 @@ public class SpeechToTextModule : Module
         speechRecognitionEngine.RecognizeAsyncStop();
         speechRecognitionEngine.SpeechHypothesized -= speechHypothesising;
         speechRecognitionEngine.SpeechRecognized -= speechRecognising;
+
+        SetChatBoxTyping(false);
+        SetChatBoxText("SpeechToText Deactivated", true);
     }
 
     private void speechHypothesising(object? sender, SpeechHypothesizedEventArgs e)
