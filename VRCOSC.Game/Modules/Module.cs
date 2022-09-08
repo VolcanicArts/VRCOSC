@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
+using osu.Framework.Extensions.ObjectExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Colour;
 using osu.Framework.Logging;
@@ -37,6 +38,7 @@ public abstract class Module
     public readonly Dictionary<string, ModuleAttribute> OutputParameters = new();
 
     private readonly Dictionary<Enum, InputParameterData> InputParameters = new();
+    private readonly Dictionary<string, Enum> InputParametersMap = new();
 
     public virtual string Title => string.Empty;
     public virtual string Description => string.Empty;
@@ -149,16 +151,19 @@ public abstract class Module
     protected void RegisterGenericInputParameter<T>(Enum lookup) where T : struct
     {
         InputParameters.Add(lookup, new InputParameterData(typeof(T)));
+        InputParametersMap.Add(lookup.ToString(), lookup);
     }
 
     protected void RegisterButtonInput(Enum lookup)
     {
         InputParameters.Add(lookup, new InputParameterData(typeof(bool), ActionMenu.Button));
+        InputParametersMap.Add(lookup.ToString(), lookup);
     }
 
     protected void RegisterRadialInput(Enum lookup)
     {
         InputParameters.Add(lookup, new RadialInputParameterData());
+        InputParametersMap.Add(lookup.ToString(), lookup);
     }
 
     #endregion
@@ -250,8 +255,9 @@ public abstract class Module
         var parameterName = address.Remove(0, VrChatOscPrefix.Length);
         updatePlayerState(parameterName, value);
 
-        Enum? key = InputParameters.Keys.ToList().Find(e => e.ToString().Equals(parameterName));
-        if (key is null) return;
+        if (!InputParametersMap.TryGetValue(parameterName, out var key)) return;
+        // key will never be null here
+        key = key.AsNonNull();
 
         var inputParameterData = InputParameters[key];
 
