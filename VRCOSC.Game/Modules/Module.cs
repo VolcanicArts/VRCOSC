@@ -29,7 +29,7 @@ public abstract class Module
     private TimedTask? updateTask;
     protected TerminalLogger Terminal = null!;
     protected Player Player = null!;
-    protected ModuleState ModuleState = ModuleState.Stopped;
+    protected Bindable<ModuleState> State = new(ModuleState.Stopped);
 
     public readonly BindableBool Enabled = new();
 
@@ -55,6 +55,8 @@ public abstract class Module
 
         CreateAttributes();
         performLoad();
+
+        State.ValueChanged += _ => Terminal.Log(State.Value.ToString());
     }
 
     #region Properties
@@ -166,7 +168,7 @@ public abstract class Module
     {
         if (!IsEnabled) return;
 
-        Terminal.Log("Starting");
+        State.Value = ModuleState.Starting;
 
         Player = new Player(OscClient);
 
@@ -176,8 +178,7 @@ public abstract class Module
 
         OscClient.OnParameterReceived += onParameterReceived;
 
-        Terminal.Log("Started");
-        ModuleState = ModuleState.Started;
+        State.Value = ModuleState.Started;
     }
 
     protected virtual void OnStart() { }
@@ -188,7 +189,7 @@ public abstract class Module
     {
         if (!IsEnabled) return;
 
-        Terminal.Log("Stopping");
+        State.Value = ModuleState.Stopping;
 
         OscClient.OnParameterReceived -= onParameterReceived;
 
@@ -197,9 +198,7 @@ public abstract class Module
         OnStop();
 
         Player.ResetAll();
-
-        Terminal.Log("Stopped");
-        ModuleState = ModuleState.Stopped;
+        State.Value = ModuleState.Stopped;
     }
 
     protected virtual void OnStop() { }
@@ -430,7 +429,7 @@ public abstract class Module
 
     protected void SendParameter<T>(Enum lookup, T value) where T : struct
     {
-        if (ModuleState == ModuleState.Stopped) return;
+        if (State.Value == ModuleState.Stopped) return;
 
         GetOutputParameter(lookup).ForEach(address => address.SendValue(value));
     }
@@ -759,7 +758,9 @@ public abstract class Module
 
 public enum ModuleState
 {
+    Starting,
     Started,
+    Stopping,
     Stopped
 }
 
