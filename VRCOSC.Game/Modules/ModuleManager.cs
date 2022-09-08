@@ -71,25 +71,33 @@ public sealed class ModuleManager : Component
         });
 
         autoStartStop = configManager.GetBindable<bool>(VRCOSCSetting.AutoStartStop);
-        autoStartStop.ValueChanged += e =>
-        {
-            if (!e.NewValue) autoStarted = false;
-        };
+    }
 
-        Scheduler.AddDelayed(checkForVrChat, 5000, true);
+    protected override void LoadComplete()
+    {
+        autoStartStop.BindValueChanged(e =>
+        {
+            if (e.NewValue)
+            {
+                Scheduler.AddDelayed(checkForVrChat, 5000, true);
+            }
+            else
+            {
+                Scheduler.CancelDelayedTasks();
+
+                // this is reset when a user turns off autoStartStop in the case
+                // that they've manually stopped the modules with autoStartStop enabled
+                autoStarted = false;
+            }
+        }, true);
 
         game.ModulesRunning.BindValueChanged(e =>
         {
             if (e.NewValue)
-            {
                 start();
-                if (configManager.Get<bool>(VRCOSCSetting.AutoFocus)) _ = focusVrc();
-            }
             else
-            {
                 _ = stop();
-            }
-        });
+        }, true);
     }
 
     private static async Task focusVrc()
@@ -108,19 +116,21 @@ public sealed class ModuleManager : Component
         ProcessHelper.SetMainWindowForeground(process);
     }
 
+    private static bool isVrChatRunning => Process.GetProcessesByName("vrchat").Length != 0;
+
     private void checkForVrChat()
     {
         if (game.UpdateManager.Updating) return;
 
-        var vrChat = Process.GetProcessesByName("vrchat");
-
-        if (vrChat.Length != 0 && autoStartStop.Value && !game.ModulesRunning.Value && !autoStarted)
+        // autoStarted is checked here to ensure that modules aren't started immediately
+        // after a user has manually stopped the modules
+        if (isVrChatRunning && !game.ModulesRunning.Value && !autoStarted)
         {
             game.ModulesRunning.Value = true;
             autoStarted = true;
         }
 
-        if (vrChat.Length == 0 && autoStartStop.Value && game.ModulesRunning.Value)
+        if (!isVrChatRunning && game.ModulesRunning.Value)
         {
             game.ModulesRunning.Value = false;
             autoStarted = false;
@@ -129,6 +139,8 @@ public sealed class ModuleManager : Component
 
     private void start()
     {
+        if (configManager.Get<bool>(VRCOSCSetting.AutoFocus)) _ = focusVrc();
+
         var ipAddress = configManager.Get<string>(VRCOSCSetting.IPAddress);
         var sendPort = configManager.Get<int>(VRCOSCSetting.SendPort);
         var receivePort = configManager.Get<int>(VRCOSCSetting.ReceivePort);
