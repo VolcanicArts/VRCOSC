@@ -68,6 +68,7 @@ public abstract class Module
     public bool HasAttributes => HasSettings || HasOutputParameters;
 
     private string FileName => $"{GetType().Name}.ini";
+    private const string VrChatOscPrefix = "/avatar/parameters/";
 
     #endregion
 
@@ -240,9 +241,13 @@ public abstract class Module
             return;
         }
 
-        if (!address.StartsWith("/avatar/parameters/")) return;
+        if (!address.StartsWith(VrChatOscPrefix)) return;
 
-        var parameterName = address.Split("/avatar/parameters/").Last();
+        // technically allows for parameters with slashes in their name
+        // but not possible for VRCOSC at the moment due to enums being
+        // used as the key and address
+        // TODO: might be viable to have a key separate from expected address?
+        var parameterName = address.Remove(0, VrChatOscPrefix.Length);
         updatePlayerState(parameterName, value);
 
         Enum? key = InputParameters.Keys.ToList().Find(e => e.ToString().Equals(parameterName));
