@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -10,7 +9,7 @@ using osu.Framework.Input.Events;
 
 namespace VRCOSC.Game.Graphics.Notifications;
 
-public class Notification : VisibilityContainer
+public abstract class Notification : VisibilityContainer
 {
     public override bool DisposeOnDeathRemoval => true;
     protected override bool ShouldBeAlive => Alpha > 0.5f;
@@ -63,7 +62,7 @@ public class Notification : VisibilityContainer
         };
     }
 
-    protected virtual Drawable CreateForeground() { throw new NotImplementedException(); }
+    protected abstract Drawable CreateForeground();
 
     protected override void PopIn()
     {

@@ -39,7 +39,7 @@ public class ProgressNotification : BasicNotification
             },
             Content = new[]
             {
-                new Drawable[]
+                new[]
                 {
                     base.CreateForeground()
                 },
