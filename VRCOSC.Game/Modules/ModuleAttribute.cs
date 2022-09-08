@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 
@@ -93,25 +94,7 @@ public sealed class ModuleAttributeList : ModuleAttribute
 
     public override bool IsDefault()
     {
-        bool isDefault = true;
-
-        if (AttributeList.Count == defaultValues.Count)
-        {
-            for (int i = 0; i < AttributeList.Count; i++)
-            {
-                if (!AttributeList[i].Value.Equals(defaultValues[i])) isDefault = false;
-            }
-        }
-        else if (defaultValues.Count == 0 && AttributeList.Count == 0)
-        {
-            isDefault = true;
-        }
-        else
-        {
-            isDefault = false;
-        }
-
-        return isDefault;
+        return AttributeList.Count == defaultValues.Count && !AttributeList.Where((t, i) => !t.Value.Equals(defaultValues[i])).Any();
     }
 
     public void AddAt(int index, Bindable<object> value)
