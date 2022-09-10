@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
@@ -48,7 +49,7 @@ public sealed class ModuleCard : Container
                 Origin = Anchor.CentreLeft,
                 RelativeSizeAxes = Axes.Y,
                 Width = 5,
-                Colour = Module.Colour
+                Colour = calculateModuleColour()
             },
             new FillFlowContainer
             {
@@ -126,5 +127,17 @@ public sealed class ModuleCard : Container
         {
             t.Font = FrameworkFont.Regular.With(size: 20);
         });
+    }
+
+    private Colour4 calculateModuleColour()
+    {
+        return Module.ModuleType switch
+        {
+            ModuleType.General => VRCOSCColour.GrayD,
+            ModuleType.Health => VRCOSCColour.Red,
+            ModuleType.Integrations => VRCOSCColour.Yellow,
+            ModuleType.Accessibility => VRCOSCColour.Blue,
+            _ => throw new ArgumentOutOfRangeException()
+        };
     }
 }

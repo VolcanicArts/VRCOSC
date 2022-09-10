@@ -2,8 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using osu.Framework.Extensions.Color4Extensions;
-using osu.Framework.Graphics.Colour;
 using VRCOSC.Game.Modules.Util;
 
 namespace VRCOSC.Game.Modules.Modules.Discord;
@@ -14,7 +12,6 @@ public class DiscordModule : IntegrationModule
     public override string Description => "Integration with the Discord desktop app";
     public override string Author => "VolcanicArts";
     public override string Prefab => "VRCOSC-Discord";
-    public override ColourInfo Colour => Color4Extensions.FromHex(@"454FBF");
     public override ModuleType ModuleType => ModuleType.Integrations;
     protected override string TargetProcess => "discord";
 

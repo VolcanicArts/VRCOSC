@@ -2,8 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using osu.Framework.Extensions.Color4Extensions;
-using osu.Framework.Graphics.Colour;
 using osu.Framework.Platform.Windows;
 using VRCOSC.Game.Modules.Util;
 
@@ -14,7 +12,6 @@ public class CalculatorModule : IntegrationModule
     public override string Title => "Calculator";
     public override string Description => "Integrate with the Windows calculator for efficient maths";
     public override string Author => "Buckminsterfullerene";
-    public override ColourInfo Colour => Color4Extensions.FromHex(@"ff2600");
     public override ModuleType ModuleType => ModuleType.Integrations;
     protected override string TargetProcess => "calc";
 

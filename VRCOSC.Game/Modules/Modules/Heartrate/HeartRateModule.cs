@@ -2,8 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Linq;
-using osu.Framework.Graphics;
-using osu.Framework.Graphics.Colour;
 
 namespace VRCOSC.Game.Modules.Modules.Heartrate;
 
@@ -11,7 +9,6 @@ public abstract class HeartRateModule : Module
 {
     public override string Author => "VolcanicArts";
     public override string Prefab => "VRCOSC-Heartrate";
-    public override ColourInfo Colour => Colour4.Red;
     public override ModuleType ModuleType => ModuleType.Health;
 
     private HeartRateProvider? heartRateProvider;

@@ -1,9 +1,6 @@
 // Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using osu.Framework.Graphics.Colour;
-using VRCOSC.Game.Graphics;
-
 namespace VRCOSC.Game.Modules.Modules.HardwareStats;
 
 public class HardwareStatsModule : Module
@@ -11,7 +8,6 @@ public class HardwareStatsModule : Module
     public override string Title => "Hardware Stats";
     public override string Description => "Sends your hardware stats";
     public override string Author => "VolcanicArts";
-    public override ColourInfo Colour => VRCOSCColour.GrayA;
     public override ModuleType ModuleType => ModuleType.General;
     protected override int DeltaUpdate => 5000;
 

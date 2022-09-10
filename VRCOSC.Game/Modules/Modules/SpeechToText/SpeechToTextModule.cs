@@ -1,6 +1,4 @@
 ﻿using System.Speech.Recognition;
-using osu.Framework.Graphics;
-using osu.Framework.Graphics.Colour;
 
 namespace VRCOSC.Game.Modules.Modules.SpeechToText;
 
@@ -9,7 +7,6 @@ public class SpeechToTextModule : Module
     public override string Title => "Speech To Text";
     public override string Description => "Speech to text for VRChat's ChatBox";
     public override string Author => "VolcanicArts";
-    public override ColourInfo Colour => Colour4.LightBlue;
     public override ModuleType ModuleType => ModuleType.Accessibility;
 
     private readonly SpeechRecognitionEngine speechRecognitionEngine = new();

@@ -32,16 +32,16 @@ public sealed class ModuleManager : Component
 {
     private static readonly IReadOnlyList<Type> module_types = new[]
     {
+        typeof(HypeRateModule),
+        typeof(PulsoidModule),
+        typeof(ClockModule),
         typeof(RandomBoolModule),
         typeof(RandomIntModule),
         typeof(RandomFloatModule),
-        typeof(ClockModule),
         typeof(HardwareStatsModule),
         typeof(SpotifyModule),
         typeof(DiscordModule),
         typeof(MediaModule),
-        typeof(HypeRateModule),
-        typeof(PulsoidModule),
         typeof(CalculatorModule),
         typeof(SpeechToTextModule)
     };
