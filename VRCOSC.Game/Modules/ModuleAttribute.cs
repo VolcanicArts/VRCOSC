@@ -44,7 +44,7 @@ public class ModuleAttributeSingle : ModuleAttribute
     }
 }
 
-public class ModuleAttributeSingleWithButton : ModuleAttributeSingle
+public sealed class ModuleAttributeSingleWithButton : ModuleAttributeSingle
 {
     public readonly Action ButtonAction;
 
@@ -117,7 +117,7 @@ public sealed class ModuleAttributeList : ModuleAttribute
     }
 }
 
-public class ModuleAttributeMetadata
+public sealed class ModuleAttributeMetadata
 {
     public readonly string DisplayName;
     public readonly string Description;

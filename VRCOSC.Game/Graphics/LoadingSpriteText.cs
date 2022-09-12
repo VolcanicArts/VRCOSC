@@ -14,7 +14,7 @@ namespace VRCOSC.Game.Graphics;
 /// SpriteText that allows for a loading animation to be played on the text
 /// <para>I.E: Test. Test.. Test... Test</para>
 /// </summary>
-public class LoadingSpriteText : SpriteText
+public sealed class LoadingSpriteText : SpriteText
 {
     /// <summary>
     /// The current text

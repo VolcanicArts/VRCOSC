@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace VRCOSC.Game.Modules.Modules.Heartrate.Pulsoid.Models;
 
-public class PulsoidResponse
+public sealed class PulsoidResponse
 {
     [JsonProperty("measured_at")]
     public long MeasuredAt { get; set; }
@@ -14,7 +14,7 @@ public class PulsoidResponse
     public PulsoidData Data { get; set; }
 }
 
-public class PulsoidData
+public sealed class PulsoidData
 {
     [JsonProperty("heart_rate")]
     public int HeartRate { get; set; }

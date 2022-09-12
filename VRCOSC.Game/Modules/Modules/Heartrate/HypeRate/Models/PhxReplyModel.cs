@@ -5,13 +5,13 @@ using Newtonsoft.Json;
 
 namespace VRCOSC.Game.Modules.Modules.Heartrate.HypeRate.Models;
 
-public class PhxReplyModel
+public sealed class PhxReplyModel
 {
     [JsonProperty("payload")]
     public PhxReplyPayload Payload = null!;
 }
 
-public class PhxReplyPayload
+public sealed class PhxReplyPayload
 {
     [JsonProperty("status")]
     public string Status = null!;

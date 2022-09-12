@@ -6,7 +6,7 @@ using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes.Text;
 
-public class IntTextAttributeCardList : TextAttributeCardList
+public sealed class IntTextAttributeCardList : TextAttributeCardList
 {
     public IntTextAttributeCardList(ModuleAttributeList attributeData)
         : base(attributeData)

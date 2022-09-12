@@ -17,7 +17,7 @@ public class InputParameterData
     }
 }
 
-public class RadialInputParameterData : InputParameterData
+public sealed class RadialInputParameterData : InputParameterData
 {
     public float PreviousValue;
 
@@ -27,7 +27,7 @@ public class RadialInputParameterData : InputParameterData
     }
 }
 
-public class VRChatRadialPuppet
+public sealed class VRChatRadialPuppet
 {
     /// <summary>
     /// The value that has just been received

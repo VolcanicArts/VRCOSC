@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace VRCOSC.Game.Modules.Util;
 
-public class TimedTask
+public sealed class TimedTask
 {
     private readonly Action action;
     private readonly double deltaTimeMilli;

@@ -7,7 +7,7 @@ using osu.Framework.Graphics.UserInterface;
 
 namespace VRCOSC.Game.Graphics.UI;
 
-public class ProgressBar : BasicSliderBar<float>
+public sealed class ProgressBar : BasicSliderBar<float>
 {
     public override bool HandlePositionalInput => false;
     public override bool HandleNonPositionalInput => false;

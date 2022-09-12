@@ -6,7 +6,7 @@ using VRCOSC.Game.Graphics.UI;
 
 namespace VRCOSC.Game.Graphics.Settings;
 
-public class OscSection : SectionContainer
+public sealed class OscSection : SectionContainer
 {
     private VRCOSCTextBox ipAddress = null!;
     private VRCOSCTextBox outgoingPort = null!;

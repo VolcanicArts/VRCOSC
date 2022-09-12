@@ -8,12 +8,12 @@ using osu.Framework.Graphics.Sprites;
 
 namespace VRCOSC.Game.Graphics.UI.Button;
 
-public class IconButton : BasicButton
+public sealed class IconButton : BasicButton
 {
     private IconUsage iconStateOff = FontAwesome.Solid.PowerOff;
     private IconUsage iconStateOn = FontAwesome.Solid.PowerOff;
 
-    protected SpriteIcon SpriteIcon = null!;
+    private SpriteIcon spriteIcon = null!;
 
     public IconUsage Icon
     {
@@ -58,7 +58,7 @@ public class IconButton : BasicButton
             RelativeSizeAxes = Axes.Both,
             FillMode = FillMode.Fit,
             Padding = new MarginPadding(IconPadding),
-            Child = SpriteIcon = CreateSpriteIcon()
+            Child = spriteIcon = CreateSpriteIcon()
         });
 
         State.BindValueChanged(_ => updateIcon(), true);
@@ -75,12 +75,12 @@ public class IconButton : BasicButton
         if (!IsLoaded) return;
 
         if (Stateful)
-            SpriteIcon.Icon = State.Value ? iconStateOn : iconStateOff;
+            spriteIcon.Icon = State.Value ? iconStateOn : iconStateOff;
         else
-            SpriteIcon.Icon = iconStateOff;
+            spriteIcon.Icon = iconStateOff;
     }
 
-    protected virtual SpriteIcon CreateSpriteIcon()
+    private SpriteIcon CreateSpriteIcon()
     {
         return new SpriteIcon
         {

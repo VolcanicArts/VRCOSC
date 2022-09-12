@@ -8,7 +8,7 @@ using osu.Framework.Graphics.Sprites;
 
 namespace VRCOSC.Game.Graphics.ModuleRun;
 
-public class TerminalEntry : Container
+public sealed class TerminalEntry : Container
 {
     private readonly string text;
 

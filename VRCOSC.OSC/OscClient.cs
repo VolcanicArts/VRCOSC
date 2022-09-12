@@ -6,7 +6,7 @@ using System.Net.Sockets;
 
 namespace VRCOSC.OSC;
 
-public class OscClient
+public sealed class OscClient
 {
     private Socket? sendingClient;
     private Socket? receivingClient;

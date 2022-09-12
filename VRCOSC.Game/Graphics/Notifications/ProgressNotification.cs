@@ -9,7 +9,7 @@ using VRCOSC.Game.Graphics.UI;
 
 namespace VRCOSC.Game.Graphics.Notifications;
 
-public class ProgressNotification : BasicNotification
+public sealed class ProgressNotification : BasicNotification
 {
     private float progress;
 

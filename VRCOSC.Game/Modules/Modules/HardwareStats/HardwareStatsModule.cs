@@ -3,7 +3,7 @@
 
 namespace VRCOSC.Game.Modules.Modules.HardwareStats;
 
-public class HardwareStatsModule : Module
+public sealed class HardwareStatsModule : Module
 {
     public override string Title => "Hardware Stats";
     public override string Description => "Sends your hardware stats";

@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace VRCOSC.Game.Modules.Modules.Heartrate.HypeRate.Models;
 
-public class HeartRateUpdateModel
+public sealed class HeartRateUpdateModel
 {
     [JsonProperty("payload")]
     public HeartRateUpdatePayload Payload = null!;

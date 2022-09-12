@@ -12,11 +12,11 @@ using osuTK;
 
 namespace VRCOSC.Game.Graphics.Sidebar;
 
-public class TabBar : Container
+public sealed class TabBar : Container
 {
-    protected virtual int TabHeight => 80;
+    private const int tab_height = 80;
 
-    protected virtual IReadOnlyDictionary<Tabs, IconUsage> TabLookup => new Dictionary<Tabs, IconUsage>()
+    private static readonly IReadOnlyDictionary<Tabs, IconUsage> tab_lookup = new Dictionary<Tabs, IconUsage>()
     {
         { Tabs.Modules, FontAwesome.Solid.ListUl },
         { Tabs.Settings, FontAwesome.Solid.Cog },
@@ -43,7 +43,7 @@ public class TabBar : Container
                 Anchor = Anchor.TopCentre,
                 Origin = Anchor.TopCentre,
                 RelativeSizeAxes = Axes.X,
-                Height = TabHeight
+                Height = tab_height
             },
             tabsFlow = new FillFlowContainer<Tab>
             {
@@ -54,7 +54,7 @@ public class TabBar : Container
             }
         };
 
-        TabLookup.ForEach(pair =>
+        tab_lookup.ForEach(pair =>
         {
             var (tabName, icon) = pair;
             tabsFlow.Add(new Tab
@@ -62,7 +62,7 @@ public class TabBar : Container
                 Anchor = Anchor.TopCentre,
                 Origin = Anchor.TopCentre,
                 RelativeSizeAxes = Axes.X,
-                Height = TabHeight,
+                Height = tab_height,
                 AssociatedTab = tabName,
                 Icon = icon
             });

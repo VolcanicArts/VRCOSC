@@ -8,7 +8,7 @@ using VRCOSC.OSC;
 
 namespace VRCOSC.Game.Modules;
 
-public class Player
+public sealed class Player
 {
     public Viseme? Viseme;
     public float? Voice;

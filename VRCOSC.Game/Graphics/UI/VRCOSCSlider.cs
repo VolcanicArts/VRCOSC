@@ -12,7 +12,7 @@ using osu.Framework.Input.Events;
 
 namespace VRCOSC.Game.Graphics.UI;
 
-public class VRCOSCSlider<T> : BasicSliderBar<T> where T : struct, IComparable<T>, IConvertible, IEquatable<T>
+public sealed class VRCOSCSlider<T> : BasicSliderBar<T> where T : struct, IComparable<T>, IConvertible, IEquatable<T>
 {
     public Bindable<T> SlowedCurrent = new();
 

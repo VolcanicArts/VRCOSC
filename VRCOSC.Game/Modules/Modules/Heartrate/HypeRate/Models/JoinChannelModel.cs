@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 namespace VRCOSC.Game.Modules.Modules.Heartrate.HypeRate.Models;
 
-public class JoinChannelModel
+public sealed class JoinChannelModel
 {
     [JsonProperty("event")]
     private string Event = "phx_join";
@@ -28,6 +28,6 @@ public class JoinChannelModel
     }
 }
 
-public class JoinChannelPayload
+public sealed class JoinChannelPayload
 {
 }

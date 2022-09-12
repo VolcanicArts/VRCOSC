@@ -7,7 +7,7 @@ using osu.Framework.Graphics.Sprites;
 
 namespace VRCOSC.Game.Graphics.UI.Button;
 
-public class TextButton : BasicButton
+public sealed class TextButton : BasicButton
 {
     private string text = string.Empty;
 

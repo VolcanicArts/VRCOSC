@@ -8,7 +8,7 @@ using osuTK;
 
 namespace VRCOSC.Game.Graphics.UI;
 
-public class VRCOSCScrollContainer : VRCOSCScrollContainer<Drawable>
+public sealed class VRCOSCScrollContainer : VRCOSCScrollContainer<Drawable>
 {
     public VRCOSCScrollContainer(Direction scrollDirection = Direction.Vertical)
         : base(scrollDirection)

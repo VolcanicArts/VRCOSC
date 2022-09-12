@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace VRCOSC.Game.Modules.Modules.Heartrate.HypeRate.Models;
 
-public class EventModel
+public sealed class EventModel
 {
     [JsonProperty("event")]
     public string Event = null!;

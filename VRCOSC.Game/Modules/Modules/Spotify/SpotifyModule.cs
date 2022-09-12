@@ -6,7 +6,7 @@ using VRCOSC.Game.Modules.Util;
 
 namespace VRCOSC.Game.Modules.Modules.Spotify;
 
-public class SpotifyModule : IntegrationModule
+public sealed class SpotifyModule : IntegrationModule
 {
     public override string Title => "Spotify";
     public override string Description => "Integration with the Spotify desktop app";

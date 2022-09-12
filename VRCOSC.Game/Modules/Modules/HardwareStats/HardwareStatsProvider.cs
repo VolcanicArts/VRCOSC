@@ -11,7 +11,7 @@ using osu.Framework.Extensions.IEnumerableExtensions;
 
 namespace VRCOSC.Game.Modules.Modules.HardwareStats;
 
-public class HardwareStatsProvider : IDisposable
+public sealed class HardwareStatsProvider : IDisposable
 {
     private PerformanceCounter? cpuUsageProvider;
     private IEnumerable<PerformanceCounter>? gpuUsageProviders;

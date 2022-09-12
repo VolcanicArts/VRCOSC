@@ -6,7 +6,7 @@ using VRCOSC.Game.Graphics.UI.Button;
 
 namespace VRCOSC.Game.Graphics.Settings;
 
-public class ModulesSection : SectionContainer
+public sealed class ModulesSection : SectionContainer
 {
     private ToggleButton autoStartStop = null!;
     private ToggleButton autoFocus = null!;

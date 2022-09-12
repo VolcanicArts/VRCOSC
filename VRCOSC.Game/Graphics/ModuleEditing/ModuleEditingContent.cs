@@ -14,7 +14,7 @@ using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleEditing;
 
-public class ModuleEditingContent : Container
+public sealed class ModuleEditingContent : Container
 {
     private TextFlowContainer metadataTextFlow = null!;
     private SeparatedAttributeFlow settings = null!;

@@ -6,7 +6,7 @@ using VRCOSC.Game.Modules.Util;
 
 namespace VRCOSC.Game.Modules.Modules.Media;
 
-public class MediaModule : IntegrationModule
+public sealed class MediaModule : IntegrationModule
 {
     public override string Title => "Media";
     public override string Description => "Integration with Windows OS Media";

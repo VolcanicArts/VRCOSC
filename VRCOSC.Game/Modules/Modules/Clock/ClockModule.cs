@@ -5,7 +5,7 @@ using System;
 
 namespace VRCOSC.Game.Modules.Modules.Clock;
 
-public class ClockModule : Module
+public sealed class ClockModule : Module
 {
     public override string Title => "Clock";
     public override string Description => "Sends your local time as hours, minutes, and seconds";

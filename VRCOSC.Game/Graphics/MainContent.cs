@@ -11,7 +11,7 @@ using VRCOSC.Game.Graphics.Sidebar;
 
 namespace VRCOSC.Game.Graphics;
 
-public class MainContent : Container
+public sealed class MainContent : Container
 {
     [Resolved]
     private VRCOSCGame game { get; set; } = null!;

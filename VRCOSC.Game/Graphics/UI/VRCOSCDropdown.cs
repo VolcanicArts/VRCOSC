@@ -15,7 +15,7 @@ using osuTK.Graphics;
 namespace VRCOSC.Game.Graphics.UI;
 
 // Taken and modified from https://github.com/ppy/osu/blob/4bc26dbb487241e2bbae73751dbe9e93a4e427da/osu.Game/Graphics/UserInterface/OsuDropdown.cs
-public class VRCOSCDropdown<T> : Dropdown<T>
+public sealed class VRCOSCDropdown<T> : Dropdown<T>
 {
     private const float corner_radius = 5;
 
@@ -25,7 +25,7 @@ public class VRCOSCDropdown<T> : Dropdown<T>
 
     #region OsuDropdownMenu
 
-    protected class VRCOSCDropdownMenu : DropdownMenu
+    private class VRCOSCDropdownMenu : DropdownMenu
     {
         public override bool HandleNonPositionalInput => State == MenuState.Open;
 

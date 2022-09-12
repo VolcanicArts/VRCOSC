@@ -2,7 +2,7 @@
 
 namespace VRCOSC.Game.Modules.Modules.SpeechToText;
 
-public class SpeechToTextModule : Module
+public sealed class SpeechToTextModule : Module
 {
     public override string Title => "Speech To Text";
     public override string Description => "Speech to text for VRChat's ChatBox";

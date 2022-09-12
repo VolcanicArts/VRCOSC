@@ -8,7 +8,7 @@ using osu.Framework.Graphics.Shapes;
 
 namespace VRCOSC.Game.Graphics.About;
 
-public class AboutContainer : Container
+public sealed class AboutContainer : Container
 {
     [BackgroundDependencyLoader]
     private void load()

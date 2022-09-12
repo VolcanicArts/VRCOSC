@@ -7,7 +7,7 @@ using VRCOSC.Game.Modules.Util;
 
 namespace VRCOSC.Game.Modules.Modules.Calculator;
 
-public class CalculatorModule : IntegrationModule
+public sealed class CalculatorModule : IntegrationModule
 {
     public override string Title => "Calculator";
     public override string Description => "Integrate with the Windows calculator for efficient maths";

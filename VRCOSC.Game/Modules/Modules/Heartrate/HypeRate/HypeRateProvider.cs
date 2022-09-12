@@ -7,7 +7,7 @@ using VRCOSC.Game.Util;
 
 namespace VRCOSC.Game.Modules.Modules.Heartrate.HypeRate;
 
-public class HypeRateProvider : HeartRateProvider
+public sealed class HypeRateProvider : HeartRateProvider
 {
     private readonly string hypeRateId;
     private readonly string apiKey;

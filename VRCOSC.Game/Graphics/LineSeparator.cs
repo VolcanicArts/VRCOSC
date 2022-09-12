@@ -9,7 +9,7 @@ using osuTK;
 
 namespace VRCOSC.Game.Graphics;
 
-public class LineSeparator : CircularContainer
+public sealed class LineSeparator : CircularContainer
 {
     [BackgroundDependencyLoader]
     private void load()

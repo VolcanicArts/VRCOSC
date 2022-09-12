@@ -5,7 +5,7 @@ using osu.Framework.Logging;
 
 namespace VRCOSC.Game.Util;
 
-public class TerminalLogger
+public sealed class TerminalLogger
 {
     private readonly string moduleName;
 

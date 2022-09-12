@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 namespace VRCOSC.Game.Modules.Modules.Heartrate.HypeRate.Models;
 
-public class HeartBeatModel
+public sealed class HeartBeatModel
 {
     [JsonProperty("event")]
     private string Event = "heartbeat";
@@ -22,6 +22,6 @@ public class HeartBeatModel
     private string Topic = "phoenix";
 }
 
-public class WebSocketHeartBeatPayload
+public sealed class WebSocketHeartBeatPayload
 {
 }

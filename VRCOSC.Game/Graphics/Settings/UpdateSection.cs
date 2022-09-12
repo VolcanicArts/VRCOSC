@@ -7,7 +7,7 @@ using VRCOSC.Game.Graphics.UI;
 
 namespace VRCOSC.Game.Graphics.Settings;
 
-public class UpdateSection : SectionContainer
+public sealed class UpdateSection : SectionContainer
 {
     private VRCOSCDropdown<UpdateMode> updateMode = null!;
 

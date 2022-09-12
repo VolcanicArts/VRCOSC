@@ -7,7 +7,7 @@ using VRCOSC.Game.Util;
 
 namespace VRCOSC.Game.Modules.Modules.Heartrate.Pulsoid;
 
-public class PulsoidProvider : HeartRateProvider
+public sealed class PulsoidProvider : HeartRateProvider
 {
     private readonly string accessToken;
     private readonly TerminalLogger terminal = new(nameof(PulsoidModule));

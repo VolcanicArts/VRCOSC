@@ -14,7 +14,7 @@ using VRCOSC.Game.Graphics.UI.Button;
 
 namespace VRCOSC.Game.Graphics.Notifications;
 
-public class NotificationContainer : VisibilityContainer
+public sealed class NotificationContainer : VisibilityContainer
 {
     protected override bool ShouldBeAlive => true;
 

@@ -7,7 +7,7 @@ using VRCOSC.Game.Graphics.Settings;
 
 namespace VRCOSC.Game.Config;
 
-public class VRCOSCConfigManager : IniConfigManager<VRCOSCSetting>
+public sealed class VRCOSCConfigManager : IniConfigManager<VRCOSCSetting>
 {
     protected override string Filename => @"config.ini";
 

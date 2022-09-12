@@ -5,7 +5,7 @@ using VRCOSC.Game.Modules.Util;
 
 namespace VRCOSC.Game.Modules.Modules.Random;
 
-public class RandomIntModule : RandomModule<int>
+public sealed class RandomIntModule : RandomModule<int>
 {
     protected override void CreateAttributes()
     {

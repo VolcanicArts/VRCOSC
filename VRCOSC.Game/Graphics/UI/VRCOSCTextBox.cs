@@ -9,7 +9,7 @@ using osu.Framework.Platform;
 
 namespace VRCOSC.Game.Graphics.UI;
 
-public class VRCOSCTextBox : BasicTextBox
+public sealed class VRCOSCTextBox : BasicTextBox
 {
     [Resolved]
     private GameHost host { get; set; } = null!;

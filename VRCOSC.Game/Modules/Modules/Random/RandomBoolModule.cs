@@ -5,7 +5,7 @@ using VRCOSC.Game.Modules.Util;
 
 namespace VRCOSC.Game.Modules.Modules.Random;
 
-public class RandomBoolModule : RandomModule<bool>
+public sealed class RandomBoolModule : RandomModule<bool>
 {
     protected override bool GetRandomValue()
     {
