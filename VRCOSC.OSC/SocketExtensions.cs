@@ -4,7 +4,7 @@ namespace VRCOSC.OSC;
 
 public static class SocketExtensions
 {
-    private static readonly byte[] buffer = new byte[128];
+    private static readonly byte[] buffer = new byte[1024];
 
     public static void SendOscMessage(this Socket socket, OscMessage message)
     {
