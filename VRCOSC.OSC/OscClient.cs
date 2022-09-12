@@ -3,7 +3,6 @@
 
 using System.Net;
 using System.Net.Sockets;
-using CoreOSC;
 
 namespace VRCOSC.OSC;
 
@@ -18,8 +17,6 @@ public class OscClient
 
     public Action<string, object>? OnParameterSent;
     public Action<string, object>? OnParameterReceived;
-
-    public bool AllowEmptyMessages { get; init; } = false;
 
     /// <summary>
     /// Initialises the <see cref="OscClient"/> with the required data.
@@ -108,7 +105,7 @@ public class OscClient
         if (!values.All(value => value is (bool or int or float or string)))
             throw new ArgumentOutOfRangeException(nameof(values), "Cannot send values that are not of type bool, int, float, or string");
 
-        sendingClient?.SendOscMessage(new OscMessage(new Address(oscAddress), values.Select(primitiveToOsc)));
+        sendingClient?.SendOscMessage(new OscMessage(oscAddress, values));
         OnParameterSent?.Invoke(oscAddress, values.First());
     }
 
@@ -119,28 +116,11 @@ public class OscClient
             while (!tokenSource!.Token.IsCancellationRequested)
             {
                 var message = await receivingClient!.ReceiveOscMessageAsync(tokenSource.Token);
-                if (!(AllowEmptyMessages || message.Arguments.Any())) continue;
+                if (message is null || !message.Arguments.Any()) continue;
 
-                OnParameterReceived?.Invoke(message.Address.Value, oscToPrimitive(message.Arguments.First()));
+                OnParameterReceived?.Invoke(message.Address, message.Arguments.First()!);
             }
         }
         catch (OperationCanceledException) { }
-    }
-
-    private static object primitiveToOsc(object value)
-    {
-        if (value is bool boolValue) return boolValue ? OscTrue.True : OscFalse.False;
-
-        return value;
-    }
-
-    private static object oscToPrimitive(object value)
-    {
-        return value switch
-        {
-            OscTrue => true,
-            OscFalse => false,
-            _ => value
-        };
     }
 }

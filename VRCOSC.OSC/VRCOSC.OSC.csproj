@@ -6,8 +6,4 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
-    <ItemGroup>
-      <PackageReference Include="CoreOSC" Version="1.0.0" />
-    </ItemGroup>
-
 </Project>
