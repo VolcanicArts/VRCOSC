@@ -11,6 +11,7 @@ public static class SocketExtensions
 {
     private static readonly BytesConverter bytes_converter = new();
     private static readonly OscMessageConverter message_converter = new();
+    private static readonly byte[] buffer = new byte[1024];
 
     public static void SendOscMessage(this Socket socket, OscMessage message)
     {
@@ -22,9 +23,9 @@ public static class SocketExtensions
 
     public static async Task<OscMessage> ReceiveOscMessageAsync(this Socket socket, CancellationToken token)
     {
-        var receiveResult = new byte[128];
-        await socket.ReceiveAsync(receiveResult, SocketFlags.None, token);
-        var dWords = bytes_converter.Serialize(receiveResult);
+        buffer.Initialize();
+        await socket.ReceiveAsync(buffer, SocketFlags.None, token);
+        var dWords = bytes_converter.Serialize(buffer);
         message_converter.Deserialize(dWords, out var value);
         return value;
     }
