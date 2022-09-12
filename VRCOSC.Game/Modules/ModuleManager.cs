@@ -97,7 +97,9 @@ public sealed class ModuleManager : Component
                 start();
             else
                 _ = stop();
-        }, true);
+        });
+
+        if (game.ModulesRunning.Value) start();
     }
 
     private static async Task focusVrc()
