@@ -183,9 +183,7 @@ public abstract class OscPacket
 
     protected static byte[] SetString(string value)
     {
-        var len = value.Length + (4 - value.Length % 4);
-        if (len <= value.Length) len += 4;
-
+        var len = OscUtils.AlignedStringLength(value);
         var msg = new byte[len];
 
         var bytes = Encoding.ASCII.GetBytes(value);
