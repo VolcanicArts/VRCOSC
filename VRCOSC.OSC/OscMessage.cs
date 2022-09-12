@@ -7,7 +7,7 @@ namespace VRCOSC.OSC
         public readonly string Address;
         public readonly List<object> Arguments;
 
-        public OscMessage(string address, params object[] args)
+        public OscMessage(string address, IEnumerable<object> args)
         {
             Address = address;
             Arguments = new List<object>();
@@ -25,31 +25,29 @@ namespace VRCOSC.OSC
             {
                 var arg = Arguments[i];
 
-                var type = Type.GetTypeCode(arg.GetType());
-
-                switch (type)
+                switch (arg)
                 {
-                    case TypeCode.Int32:
+                    case int intArg:
                         typeString += "i";
-                        parts.Add(SetInt((int)arg));
+                        parts.Add(SetInt(intArg));
                         break;
 
-                    case TypeCode.Single:
+                    case float floatArg:
                         typeString += "f";
-                        parts.Add(SetFloat((float)arg));
+                        parts.Add(SetFloat(floatArg));
                         break;
 
-                    case TypeCode.String:
+                    case string stringArg:
                         typeString += "s";
-                        parts.Add(SetString((string)arg));
+                        parts.Add(SetString(stringArg));
                         break;
 
-                    case TypeCode.Boolean:
-                        typeString += ((bool)arg) ? "T" : "F";
+                    case bool boolArg:
+                        typeString += (boolArg) ? "T" : "F";
                         break;
 
                     default:
-                        throw new Exception("Unable to transmit values of type " + type);
+                        throw new InvalidOperationException();
                 }
 
                 i++;
