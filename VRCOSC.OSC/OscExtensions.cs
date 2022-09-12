@@ -6,8 +6,6 @@ internal static class OscExtensions
     {
         var itemsList = items.ToList();
 
-        if (items == null) throw new ArgumentNullException(nameof(items));
-        if (predicate == null) throw new ArgumentNullException(nameof(predicate));
         if (start >= itemsList.Count) throw new ArgumentOutOfRangeException(nameof(start));
 
         var retVal = 0;
