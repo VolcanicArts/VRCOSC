@@ -12,8 +12,6 @@ namespace VRCOSC.Game.Graphics.Updater;
 
 public abstract class VRCOSCUpdateManager : Container
 {
-    public bool Updating;
-
     [Resolved]
     private GameHost host { get; set; } = null!;
 
@@ -22,7 +20,6 @@ public abstract class VRCOSCUpdateManager : Container
 
     protected void PostCheckNotification() => Schedule(() =>
     {
-        Updating = true;
         notifications.Notify(new BasicNotification
         {
             Title = "Update Available",
@@ -48,7 +45,6 @@ public abstract class VRCOSCUpdateManager : Container
 
     protected void PostSuccessNotification() => Schedule(() =>
     {
-        Updating = false;
         notifications.Notify(new BasicNotification
         {
             Title = "Update Complete",
@@ -61,7 +57,6 @@ public abstract class VRCOSCUpdateManager : Container
 
     protected void PostFailNotification() => Schedule(() =>
     {
-        Updating = false;
         notifications.Notify(new BasicNotification
         {
             Title = "Update Failed",

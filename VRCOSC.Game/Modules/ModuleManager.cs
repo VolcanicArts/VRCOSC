@@ -123,8 +123,6 @@ public sealed class ModuleManager : Component
 
     private void checkForVrChat()
     {
-        if (game.UpdateManager.Updating) return;
-
         // autoStarted is checked here to ensure that modules aren't started immediately
         // after a user has manually stopped the modules
         if (isVrChatRunning && !game.ModulesRunning.Value && !autoStarted)
