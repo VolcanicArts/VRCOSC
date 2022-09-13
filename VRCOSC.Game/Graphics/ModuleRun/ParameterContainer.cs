@@ -69,14 +69,26 @@ public sealed class ParameterContainer : Container
                 {
                     outgoingParameterDisplay = new ParameterSubContainer
                     {
-                        Title = "Outgoing"
+                        Title = "Outgoing",
+                        Padding = new MarginPadding
+                        {
+                            Horizontal = 15,
+                            Bottom = 15 / 2f,
+                            Top = 15
+                        }
                     }
                 },
                 new Drawable[]
                 {
                     incomingParameterDisplay = new ParameterSubContainer
                     {
-                        Title = "Incoming"
+                        Title = "Incoming",
+                        Padding = new MarginPadding
+                        {
+                            Horizontal = 15,
+                            Bottom = 15,
+                            Top = 15 / 2f
+                        }
                     }
                 }
             }
@@ -103,12 +115,6 @@ public sealed class ParameterContainer : Container
             Anchor = Anchor.Centre;
             Origin = Anchor.Centre;
             RelativeSizeAxes = Axes.Both;
-            Padding = new MarginPadding
-            {
-                Horizontal = 15,
-                Bottom = 15 / 2f,
-                Top = 15
-            };
         }
 
         [BackgroundDependencyLoader]
