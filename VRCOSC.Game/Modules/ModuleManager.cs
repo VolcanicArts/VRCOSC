@@ -79,6 +79,7 @@ public sealed class ModuleManager : Component
         {
             if (e.NewValue)
             {
+                Scheduler.Add(checkForVrChat);
                 Scheduler.AddDelayed(checkForVrChat, 5000, true);
             }
             else
