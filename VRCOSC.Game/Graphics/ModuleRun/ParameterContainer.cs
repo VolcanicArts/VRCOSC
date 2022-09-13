@@ -13,8 +13,8 @@ namespace VRCOSC.Game.Graphics.ModuleRun;
 
 public sealed class ParameterContainer : Container
 {
-    private ParameterDisplay outgoingParameterDisplay = null!;
-    private ParameterDisplay incomingParameterDisplay = null!;
+    private ParameterSubContainer outgoingParameterDisplay = null!;
+    private ParameterSubContainer incomingParameterDisplay = null!;
 
     public ParameterContainer()
     {
@@ -67,106 +67,16 @@ public sealed class ParameterContainer : Container
                 },
                 new Drawable[]
                 {
-                    new Container
+                    outgoingParameterDisplay = new ParameterSubContainer
                     {
-                        Anchor = Anchor.Centre,
-                        Origin = Anchor.Centre,
-                        RelativeSizeAxes = Axes.Both,
-                        Padding = new MarginPadding
-                        {
-                            Horizontal = 15,
-                            Bottom = 15 / 2f,
-                            Top = 15
-                        },
-                        Child = new Container
-                        {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
-                            RelativeSizeAxes = Axes.Both,
-                            BorderThickness = 3,
-                            Masking = true,
-                            Children = new Drawable[]
-                            {
-                                new Box
-                                {
-                                    Anchor = Anchor.Centre,
-                                    Origin = Anchor.Centre,
-                                    RelativeSizeAxes = Axes.Both,
-                                    Colour = VRCOSCColour.Gray2,
-                                },
-                                new Container
-                                {
-                                    Anchor = Anchor.Centre,
-                                    Origin = Anchor.Centre,
-                                    RelativeSizeAxes = Axes.Both,
-                                    Padding = new MarginPadding(1.5f)
-                                },
-                                outgoingParameterDisplay = new ParameterDisplay
-                                {
-                                    Anchor = Anchor.Centre,
-                                    Origin = Anchor.Centre,
-                                    RelativeSizeAxes = Axes.Both,
-                                    Padding = new MarginPadding
-                                    {
-                                        Vertical = 1.5f,
-                                        Horizontal = 3
-                                    },
-                                    Title = "Outgoing"
-                                }
-                            }
-                        }
+                        Title = "Outgoing"
                     }
                 },
                 new Drawable[]
                 {
-                    new Container
+                    incomingParameterDisplay = new ParameterSubContainer
                     {
-                        Anchor = Anchor.Centre,
-                        Origin = Anchor.Centre,
-                        RelativeSizeAxes = Axes.Both,
-                        Padding = new MarginPadding
-                        {
-                            Horizontal = 15,
-                            Bottom = 15,
-                            Top = 15 / 2f
-                        },
-                        Child = new Container
-                        {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
-                            RelativeSizeAxes = Axes.Both,
-                            BorderThickness = 3,
-                            Masking = true,
-                            Children = new Drawable[]
-                            {
-                                new Box
-                                {
-                                    Anchor = Anchor.Centre,
-                                    Origin = Anchor.Centre,
-                                    RelativeSizeAxes = Axes.Both,
-                                    Colour = VRCOSCColour.Gray2,
-                                },
-                                new Container
-                                {
-                                    Anchor = Anchor.Centre,
-                                    Origin = Anchor.Centre,
-                                    RelativeSizeAxes = Axes.Both,
-                                    Padding = new MarginPadding(1.5f)
-                                },
-                                incomingParameterDisplay = new ParameterDisplay
-                                {
-                                    Anchor = Anchor.Centre,
-                                    Origin = Anchor.Centre,
-                                    RelativeSizeAxes = Axes.Both,
-                                    Padding = new MarginPadding
-                                    {
-                                        Vertical = 1.5f,
-                                        Horizontal = 3
-                                    },
-                                    Title = "Incoming"
-                                }
-                            }
-                        }
+                        Title = "Incoming"
                     }
                 }
             }
@@ -180,5 +90,77 @@ public sealed class ParameterContainer : Container
     {
         outgoingParameterDisplay.ClearContent();
         incomingParameterDisplay.ClearContent();
+    }
+
+    private sealed class ParameterSubContainer : Container
+    {
+        private ParameterDisplay parameterDisplay = null!;
+
+        public string Title { get; init; } = string.Empty;
+
+        public ParameterSubContainer()
+        {
+            Anchor = Anchor.Centre;
+            Origin = Anchor.Centre;
+            RelativeSizeAxes = Axes.Both;
+            Padding = new MarginPadding
+            {
+                Horizontal = 15,
+                Bottom = 15 / 2f,
+                Top = 15
+            };
+        }
+
+        [BackgroundDependencyLoader]
+        private void load()
+        {
+            Child = new Container
+            {
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                RelativeSizeAxes = Axes.Both,
+                BorderThickness = 3,
+                Masking = true,
+                Children = new Drawable[]
+                {
+                    new Box
+                    {
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.Centre,
+                        RelativeSizeAxes = Axes.Both,
+                        Colour = VRCOSCColour.Gray2,
+                    },
+                    new Container
+                    {
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.Centre,
+                        RelativeSizeAxes = Axes.Both,
+                        Padding = new MarginPadding(1.5f)
+                    },
+                    parameterDisplay = new ParameterDisplay
+                    {
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.Centre,
+                        RelativeSizeAxes = Axes.Both,
+                        Padding = new MarginPadding
+                        {
+                            Vertical = 1.5f,
+                            Horizontal = 3
+                        },
+                        Title = Title
+                    }
+                }
+            };
+        }
+
+        public void AddEntry(string key, object value)
+        {
+            parameterDisplay.AddEntry(key, value);
+        }
+
+        public void ClearContent()
+        {
+            parameterDisplay.ClearContent();
+        }
     }
 }
