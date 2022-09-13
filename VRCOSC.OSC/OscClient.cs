@@ -116,9 +116,9 @@ public sealed class OscClient
             while (!tokenSource!.Token.IsCancellationRequested)
             {
                 var message = await receivingClient!.ReceiveOscMessageAsync(tokenSource.Token);
-                if (message is null || !message.Arguments.Any()) continue;
+                if (message is null || !message.Values.Any()) continue;
 
-                OnParameterReceived?.Invoke(message.Address, message.Arguments.First()!);
+                OnParameterReceived?.Invoke(message.Address, message.Values.First()!);
             }
         }
         catch (OperationCanceledException) { }

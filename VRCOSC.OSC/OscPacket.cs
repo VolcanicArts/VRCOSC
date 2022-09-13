@@ -7,7 +7,7 @@ public abstract class OscPacket
     public static OscMessage? ParseMessage(byte[] msg)
     {
         var index = 0;
-        var arguments = new List<object>();
+        var values = new List<object>();
 
         // Get address
         var address = getAddress(msg, index);
@@ -41,39 +41,39 @@ public abstract class OscPacket
 
                 case 'i':
                     var intVal = getInt(msg, index);
-                    arguments.Add(intVal);
+                    values.Add(intVal);
                     index += 4;
                     break;
 
                 case 'f':
                     var floatVal = getFloat(msg, index);
-                    arguments.Add(floatVal);
+                    values.Add(floatVal);
                     index += 4;
                     break;
 
                 case 's':
                     var stringVal = getString(msg, index);
-                    arguments.Add(stringVal);
+                    values.Add(stringVal);
                     index += stringVal.Length;
                     break;
 
                 case 'T':
-                    arguments.Add(true);
+                    values.Add(true);
                     break;
 
                 case 'F':
-                    arguments.Add(false);
+                    values.Add(false);
                     break;
 
                 default:
-                    throw new Exception($"OSC type tag '{type}' is unknown.");
+                    throw new InvalidOperationException($"OSC type tag '{type}' is unknown.");
             }
 
             while (index % 4 != 0)
                 index++;
         }
 
-        return new OscMessage(address, arguments.ToArray());
+        return new OscMessage(address, values);
     }
 
     private static string getAddress(byte[] msg, int index)
@@ -93,7 +93,7 @@ public abstract class OscPacket
         }
 
         if (i >= msg.Length && address == null)
-            throw new Exception("no comma found");
+            throw new InvalidOperationException("no comma found");
 
         return address.Replace("\0", string.Empty);
     }
@@ -113,7 +113,7 @@ public abstract class OscPacket
         }
 
         if (i >= msg.Length && types == null)
-            throw new Exception("No null terminator after type string");
+            throw new InvalidOperationException("No null terminator after type string");
 
         return types!;
     }
@@ -150,7 +150,7 @@ public abstract class OscPacket
         }
 
         if (i >= msg.Length && output == null)
-            throw new Exception("No null terminator after type string");
+            throw new InvalidOperationException("No null terminator after type string");
 
         return output.Replace("\0", string.Empty);
     }
