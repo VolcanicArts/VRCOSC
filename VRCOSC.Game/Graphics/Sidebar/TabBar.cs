@@ -19,8 +19,7 @@ public sealed class TabBar : Container
     private static readonly IReadOnlyDictionary<Tabs, IconUsage> tab_lookup = new Dictionary<Tabs, IconUsage>()
     {
         { Tabs.Modules, FontAwesome.Solid.ListUl },
-        { Tabs.Settings, FontAwesome.Solid.Cog },
-        //{ Tabs.About, FontAwesome.Solid.Info }
+        { Tabs.Settings, FontAwesome.Solid.Cog }
     };
 
     [BackgroundDependencyLoader]

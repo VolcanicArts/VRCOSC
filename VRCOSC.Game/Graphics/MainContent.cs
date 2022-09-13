@@ -4,7 +4,6 @@
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-//using VRCOSC.Game.Graphics.About;
 using VRCOSC.Game.Graphics.ModuleListing;
 using VRCOSC.Game.Graphics.Settings;
 using VRCOSC.Game.Graphics.Sidebar;
@@ -57,8 +56,7 @@ public sealed class MainContent : Container
                             Children = new Drawable[]
                             {
                                 new ModuleListingScreen(),
-                                new SettingsScreen(),
-                                //new AboutContainer()
+                                new SettingsScreen()
                             }
                         }
                     }
