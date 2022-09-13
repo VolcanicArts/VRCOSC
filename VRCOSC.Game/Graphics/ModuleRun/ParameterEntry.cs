@@ -10,7 +10,7 @@ using osu.Framework.Graphics.Sprites;
 
 namespace VRCOSC.Game.Graphics.ModuleRun;
 
-public sealed class ParameterEntry : FillFlowContainer
+public sealed class ParameterEntry : Container
 {
     public string Key { get; init; } = null!;
     public Bindable<string> Value { get; } = new();
@@ -20,11 +20,10 @@ public sealed class ParameterEntry : FillFlowContainer
 
     public ParameterEntry()
     {
-        Anchor = Anchor.TopLeft;
-        Origin = Anchor.TopLeft;
+        Anchor = Anchor.TopCentre;
+        Origin = Anchor.TopCentre;
         RelativeSizeAxes = Axes.X;
         AutoSizeAxes = Axes.Y;
-        Direction = FillDirection.Horizontal;
     }
 
     [BackgroundDependencyLoader]
@@ -38,12 +37,12 @@ public sealed class ParameterEntry : FillFlowContainer
                 Origin = Anchor.CentreLeft,
                 Font = FrameworkFont.Regular.With(size: 20),
                 Colour = VRCOSCColour.Gray8,
-                Text = $"{Key}: "
+                Text = $"{Key}"
             },
             new Container
             {
-                Anchor = Anchor.CentreLeft,
-                Origin = Anchor.CentreLeft,
+                Anchor = Anchor.CentreRight,
+                Origin = Anchor.CentreRight,
                 AutoSizeAxes = Axes.Both,
                 Children = new Drawable[]
                 {
@@ -56,8 +55,8 @@ public sealed class ParameterEntry : FillFlowContainer
                     },
                     valueText = new SpriteText
                     {
-                        Anchor = Anchor.CentreLeft,
-                        Origin = Anchor.CentreLeft,
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.Centre,
                         Font = FrameworkFont.Regular.With(size: 20),
                         Colour = VRCOSCColour.Gray8
                     }
