@@ -4,7 +4,6 @@
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Sprites;
 
 namespace VRCOSC.Game.Graphics.ModuleRun;
 
@@ -22,13 +21,16 @@ public sealed class TerminalEntry : Container
     {
         Anchor = Anchor.CentreLeft;
         Origin = Anchor.CentreLeft;
-        AutoSizeAxes = Axes.Both;
+        RelativeSizeAxes = Axes.X;
+        AutoSizeAxes = Axes.Y;
 
-        InternalChild = new SpriteText
+        InternalChild = new TextFlowContainer(t => t.Font = FrameworkFont.Regular.With(size: 20))
         {
             Anchor = Anchor.CentreLeft,
             Origin = Anchor.CentreLeft,
-            Font = FrameworkFont.Regular.With(size: 20),
+            RelativeSizeAxes = Axes.X,
+            AutoSizeAxes = Axes.Y,
+            TextAnchor = Anchor.CentreLeft,
             Colour = VRCOSCColour.Gray8,
             Text = text
         };
