@@ -66,7 +66,11 @@ public sealed class ParameterEntry : Container
 
         Value.BindValueChanged(e =>
         {
-            valueText.Text = e.NewValue;
+            var newText = e.NewValue;
+
+            if (newText.Length > 40) newText = newText[..40] + "...";
+
+            valueText.Text = newText;
             flashColour();
         }, true);
     }
