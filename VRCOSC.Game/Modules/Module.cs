@@ -526,63 +526,71 @@ public abstract class Module
 
             var setting = Settings[lookup];
 
-            if (setting is ModuleAttributeSingle settingSingle)
+            switch (setting)
             {
-                var readableTypeName = settingSingle.Attribute.Value.GetType().ToReadableName().ToLowerInvariant();
-                if (!readableTypeName.Equals(typeStr)) continue;
-
-                switch (typeStr)
+                case ModuleAttributeSingle settingSingle:
                 {
-                    case "enum":
-                        var typeAndValue = value.Split(new[] { '#' }, 2);
-                        var enumType = enumNameToType(typeAndValue[0]);
-                        if (enumType is not null) settingSingle.Attribute.Value = Enum.ToObject(enumType, int.Parse(typeAndValue[1]));
-                        break;
+                    var readableTypeName = settingSingle.Attribute.Value.GetType().ToReadableName().ToLowerInvariant();
+                    if (!readableTypeName.Equals(typeStr)) continue;
 
-                    case "string":
-                        settingSingle.Attribute.Value = value;
-                        break;
+                    switch (typeStr)
+                    {
+                        case "enum":
+                            var typeAndValue = value.Split(new[] { '#' }, 2);
+                            var enumType = enumNameToType(typeAndValue[0]);
+                            if (enumType is not null) settingSingle.Attribute.Value = Enum.ToObject(enumType, int.Parse(typeAndValue[1]));
+                            break;
 
-                    case "int":
-                        settingSingle.Attribute.Value = int.Parse(value);
-                        break;
+                        case "string":
+                            settingSingle.Attribute.Value = value;
+                            break;
 
-                    case "float":
-                        settingSingle.Attribute.Value = float.Parse(value);
-                        break;
+                        case "int":
+                            settingSingle.Attribute.Value = int.Parse(value);
+                            break;
 
-                    case "bool":
-                        settingSingle.Attribute.Value = bool.Parse(value);
-                        break;
+                        case "float":
+                            settingSingle.Attribute.Value = float.Parse(value);
+                            break;
 
-                    default:
-                        Logger.Log($"Unknown type found in file: {typeStr}");
-                        break;
+                        case "bool":
+                            settingSingle.Attribute.Value = bool.Parse(value);
+                            break;
+
+                        default:
+                            Logger.Log($"Unknown type found in file: {typeStr}");
+                            break;
+                    }
+
+                    break;
                 }
-            }
 
-            if (setting is ModuleAttributeList settingList)
-            {
-                if (settingList.AttributeList.Count == 0) continue;
+                case ModuleAttributeList settingList when settingList.AttributeList.Count == 0:
+                    continue;
 
-                var readableTypeName = settingList.AttributeList.First().Value.GetType().ToReadableName().ToLowerInvariant();
-                if (!readableTypeName.Equals(typeStr)) continue;
-
-                var index = int.Parse(lookupStr.Split('#')[1]);
-
-                switch (typeStr)
+                case ModuleAttributeList settingList:
                 {
-                    case "string":
-                        settingList.AddAt(index, new Bindable<object>(value));
-                        break;
+                    var readableTypeName = settingList.AttributeList.First().Value.GetType().ToReadableName().ToLowerInvariant();
+                    if (!readableTypeName.Equals(typeStr)) continue;
 
-                    case "int":
-                        settingList.AddAt(index, new Bindable<object>(int.Parse(value)));
-                        break;
+                    var index = int.Parse(lookupStr.Split('#')[1]);
 
-                    default:
-                        Logger.Log($"Unknown type for list found in file: {typeStr}");
-                        break;
+                    switch (typeStr)
+                    {
+                        case "string":
+                            settingList.AddAt(index, new Bindable<object>(value));
+                            break;
+
+                        case "int":
+                            settingList.AddAt(index, new Bindable<object>(int.Parse(value)));
+                            break;
+
+                        default:
+                            Logger.Log($"Unknown type for list found in file: {typeStr}");
+                            break;
+                    }
+
+                    break;
                 }
             }
         }
@@ -605,15 +613,18 @@ public abstract class Module
 
             var parameter = OutputParameters[lookup];
 
-            if (parameter is ModuleAttributeSingle parameterSingle)
+            switch (parameter)
             {
-                parameterSingle.Attribute.Value = value;
-            }
+                case ModuleAttributeSingle parameterSingle:
+                    parameterSingle.Attribute.Value = value;
+                    break;
 
-            if (parameter is ModuleAttributeList parameterList)
-            {
-                var index = int.Parse(lookupStr.Split('#')[1]);
-                parameterList.AddAt(index, new Bindable<object>(value));
+                case ModuleAttributeList parameterList:
+                {
+                    var index = int.Parse(lookupStr.Split('#')[1]);
+                    parameterList.AddAt(index, new Bindable<object>(value));
+                    break;
+                }
             }
         }
     }
@@ -629,26 +640,27 @@ public abstract class Module
 
     private void handleAttributeBind(ModuleAttribute value)
     {
-        if (value is ModuleAttributeSingle valueSingle)
+        switch (value)
         {
-            valueSingle.Attribute.BindValueChanged(_ => performSave());
-        }
+            case ModuleAttributeSingle valueSingle:
+                valueSingle.Attribute.BindValueChanged(_ => performSave());
+                break;
 
-        if (value is ModuleAttributeList valueList)
-        {
-            valueList.AttributeList.BindCollectionChanged((_, e) =>
-            {
-                if (e.NewItems is not null)
+            case ModuleAttributeList valueList:
+                valueList.AttributeList.BindCollectionChanged((_, e) =>
                 {
-                    foreach (var newItem in e.NewItems)
+                    if (e.NewItems is not null)
                     {
-                        var bindable = (Bindable<object>)newItem;
-                        bindable.BindValueChanged(_ => performSave());
+                        foreach (var newItem in e.NewItems)
+                        {
+                            var bindable = (Bindable<object>)newItem;
+                            bindable.BindValueChanged(_ => performSave());
+                        }
                     }
-                }
 
-                performSave();
-            });
+                    performSave();
+                });
+                break;
         }
     }
 
@@ -686,34 +698,42 @@ public abstract class Module
         {
             if (moduleAttributeData.IsDefault()) continue;
 
-            if (moduleAttributeData is ModuleAttributeSingle moduleAttributeSingle)
+            switch (moduleAttributeData)
             {
-                var value = moduleAttributeSingle.Attribute.Value;
-                var valueType = value.GetType();
-                var readableTypeName = valueType.ToReadableName().ToLowerInvariant();
-
-                if (valueType.IsSubclassOf(typeof(Enum)))
+                case ModuleAttributeSingle moduleAttributeSingle:
                 {
-                    var enumClass = valueType.FullName;
-                    writer.WriteLine(@"{0}:{1}={2}#{3}", lookup, readableTypeName, enumClass, (int)value);
+                    var value = moduleAttributeSingle.Attribute.Value;
+                    var valueType = value.GetType();
+                    var readableTypeName = valueType.ToReadableName().ToLowerInvariant();
+
+                    if (valueType.IsSubclassOf(typeof(Enum)))
+                    {
+                        var enumClass = valueType.FullName;
+                        writer.WriteLine(@"{0}:{1}={2}#{3}", lookup, readableTypeName, enumClass, (int)value);
+                    }
+                    else
+                    {
+                        writer.WriteLine(@"{0}:{1}={2}", lookup, readableTypeName, value);
+                    }
+
+                    break;
                 }
-                else
+
+                case ModuleAttributeList moduleAttributeList when moduleAttributeList.AttributeList.Count == 0:
+                    continue;
+
+                case ModuleAttributeList moduleAttributeList:
                 {
-                    writer.WriteLine(@"{0}:{1}={2}", lookup, readableTypeName, value);
-                }
-            }
+                    var values = moduleAttributeList.AttributeList.ToList();
+                    var valueType = values.First().Value.GetType();
+                    var readableTypeName = valueType.ToReadableName().ToLowerInvariant();
 
-            if (moduleAttributeData is ModuleAttributeList moduleAttributeList)
-            {
-                if (moduleAttributeList.AttributeList.Count == 0) continue;
+                    for (int i = 0; i < values.Count; i++)
+                    {
+                        writer.WriteLine(@"{0}#{1}:{2}={3}", lookup, i, readableTypeName, values[i].Value);
+                    }
 
-                var values = moduleAttributeList.AttributeList.ToList();
-                var valueType = values.First().Value.GetType();
-                var readableTypeName = valueType.ToReadableName().ToLowerInvariant();
-
-                for (int i = 0; i < values.Count; i++)
-                {
-                    writer.WriteLine(@"{0}#{1}:{2}={3}", lookup, i, readableTypeName, values[i].Value);
+                    break;
                 }
             }
         }
@@ -732,19 +752,25 @@ public abstract class Module
         {
             if (moduleAttributeData.IsDefault()) continue;
 
-            if (moduleAttributeData is ModuleAttributeSingle moduleAttributeSingle)
+            switch (moduleAttributeData)
             {
-                var value = moduleAttributeSingle.Attribute.Value;
-                writer.WriteLine(@"{0}={1}", lookup, value);
-            }
-
-            if (moduleAttributeData is ModuleAttributeList moduleAttributeList)
-            {
-                var values = moduleAttributeList.AttributeList.ToList();
-
-                for (int i = 0; i < values.Count; i++)
+                case ModuleAttributeSingle moduleAttributeSingle:
                 {
-                    writer.WriteLine(@"{0}#{1}={2}", lookup, i, values[i].Value);
+                    var value = moduleAttributeSingle.Attribute.Value;
+                    writer.WriteLine(@"{0}={1}", lookup, value);
+                    break;
+                }
+
+                case ModuleAttributeList moduleAttributeList:
+                {
+                    var values = moduleAttributeList.AttributeList.ToList();
+
+                    for (int i = 0; i < values.Count; i++)
+                    {
+                        writer.WriteLine(@"{0}#{1}={2}", lookup, i, values[i].Value);
+                    }
+
+                    break;
                 }
             }
         }
