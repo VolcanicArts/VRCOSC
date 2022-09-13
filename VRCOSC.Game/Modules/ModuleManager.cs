@@ -163,6 +163,12 @@ public sealed class ModuleManager : Component
             return;
         }
 
+        if (Modules.All(module => !module.Enabled.Value))
+        {
+            terminal.Log("You have no modules selected!");
+            terminal.Log("Select some modules to begin using VRCOSC");
+        }
+
         Modules.ForEach(module => module.start());
     }
 
