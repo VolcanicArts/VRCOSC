@@ -14,7 +14,7 @@ using VRCOSC.Game.Graphics.UI.Button;
 
 namespace VRCOSC.Game.Graphics.Settings;
 
-public class SectionContainer : Container
+public abstract class SectionContainer : Container
 {
     private const int setting_height = 40;
 
@@ -90,11 +90,11 @@ public class SectionContainer : Container
         Load();
     }
 
-    protected virtual void GenerateItems() { }
+    protected abstract void GenerateItems();
 
-    protected virtual void Load() { }
+    protected abstract void Load();
 
-    protected virtual void Save() { }
+    protected abstract void Save();
 
     protected VRCOSCTextBox GenerateTextBox()
     {
