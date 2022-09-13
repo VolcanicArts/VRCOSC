@@ -2,7 +2,7 @@
 root = true
 
 [*.{csproj,props,targets}]
-charset = utf-8-bom
+charset = utf-8
 end_of_line = crlf
 insert_final_newline = true
 indent_style = space
@@ -187,16 +187,3 @@ csharp_prefer_simple_using_statement = true:silent
 csharp_style_prefer_index_operator = true:warning
 csharp_style_prefer_range_operator = true:warning
 csharp_style_prefer_switch_expression = false:none
-
-#Supressing roslyn built-in analyzers
-# Suppress: EC112
-
-#Private method is unused
-dotnet_diagnostic.IDE0051.severity = silent
-#Private member is unused
-dotnet_diagnostic.IDE0052.severity = silent
-
-#Rules for disposable
-dotnet_diagnostic.IDE0067.severity = none
-dotnet_diagnostic.IDE0068.severity = none
-dotnet_diagnostic.IDE0069.severity = none
