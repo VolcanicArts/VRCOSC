@@ -109,10 +109,10 @@ public sealed class ModuleAttributeList : ModuleAttribute
         }
     }
 
-    public IEnumerable<object> GetValueList()
+    public IEnumerable<T> GetValueList<T>()
     {
-        List<object> list = new();
-        AttributeList.ForEach(attribute => list.Add(attribute.Value));
+        List<T> list = new();
+        AttributeList.ForEach(attribute => list.Add((T)attribute.Value));
         return list;
     }
 }

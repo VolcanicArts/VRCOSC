@@ -414,7 +414,7 @@ public abstract class Module
     {
         private readonly List<OscAddress> addresses = new();
 
-        public OutputParameter(OscClient oscClient, List<string> addressesStr)
+        public OutputParameter(OscClient oscClient, IEnumerable<string> addressesStr)
         {
             addressesStr.ForEach(address => addresses.Add(new OscAddress(oscClient, address)));
         }
@@ -430,7 +430,7 @@ public abstract class Module
         return addresses switch
         {
             ModuleAttributeSingle address => new OutputParameter(OscClient, new List<string>() { address.Attribute.Value.ToString()! }),
-            ModuleAttributeList addressList => new OutputParameter(OscClient, addressList.GetValueList().Cast<string>().ToList()),
+            ModuleAttributeList addressList => new OutputParameter(OscClient, addressList.GetValueList<string>()),
             _ => throw new InvalidCastException($"Unable to parse {nameof(ModuleAttribute)}")
         };
     }
