@@ -47,10 +47,12 @@ public class ModuleAttributeSingle : ModuleAttribute
 public sealed class ModuleAttributeSingleWithButton : ModuleAttributeSingle
 {
     public readonly Action ButtonAction;
+    public readonly string ButtonText;
 
-    public ModuleAttributeSingleWithButton(ModuleAttributeMetadata metadata, object defaultValue, Action buttonAction)
+    public ModuleAttributeSingleWithButton(ModuleAttributeMetadata metadata, object defaultValue, string buttonText, Action buttonAction)
         : base(metadata, defaultValue)
     {
+        ButtonText = buttonText;
         ButtonAction = buttonAction;
     }
 }

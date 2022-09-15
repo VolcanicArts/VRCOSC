@@ -115,9 +115,9 @@ public abstract class Module
         addListSetting(lookup.ToString().ToLowerInvariant(), displayName, description, defaultValues.Cast<object>().ToList(), typeof(int));
     }
 
-    protected void CreateSetting(Enum lookup, string displayName, string description, string defaultValue, Action buttonAction)
+    protected void CreateSetting(Enum lookup, string displayName, string description, string defaultValue, string buttonText, Action buttonAction)
     {
-        Settings.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeSingleWithButton(new ModuleAttributeMetadata(displayName, description), defaultValue, buttonAction));
+        Settings.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeSingleWithButton(new ModuleAttributeMetadata(displayName, description), defaultValue, buttonText, buttonAction));
     }
 
     private void addSetting(string lookup, string displayName, string description, object defaultValue)

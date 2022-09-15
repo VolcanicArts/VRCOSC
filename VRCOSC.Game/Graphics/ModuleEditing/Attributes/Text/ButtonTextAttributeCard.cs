@@ -43,7 +43,7 @@ public sealed class ButtonTextAttributeCard : TextAttributeCard
                         Origin = Anchor.Centre,
                         RelativeSizeAxes = Axes.Both,
                         Size = new Vector2(0.9f),
-                        Text = "Obtain Access Token",
+                        Text = attributeSingleWithButton.ButtonText,
                         Masking = true,
                         CornerRadius = 5,
                         Action = attributeSingleWithButton.ButtonAction,
