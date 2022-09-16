@@ -34,7 +34,7 @@ public static class TypeExtensions
             TypeCode.Decimal => "Decimal",
             TypeCode.DateTime => "DateTime",
             TypeCode.String => "String",
-            _ => throw new ArgumentOutOfRangeException($"Unknown type provided of type {nameof(type)}")
+            _ => throw new ArgumentOutOfRangeException(nameof(type), type, "Unknown type provided")
         };
     }
 }
