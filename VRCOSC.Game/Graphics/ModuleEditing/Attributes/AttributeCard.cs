@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
@@ -43,7 +43,7 @@ public abstract class AttributeCard : Container
                 Origin = Anchor.CentreRight,
                 Size = new Vector2(30, 50),
                 Padding = new MarginPadding(5),
-                Child = resetToDefault = new VRCOSCButton
+                Child = resetToDefault = new BasicButton
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
@@ -52,6 +52,7 @@ public abstract class AttributeCard : Container
                     CornerRadius = 5,
                     CornerExponent = 2,
                     Action = SetDefault,
+                    BackgroundColour = VRCOSCColour.Blue,
                     EdgeEffect = new EdgeEffectParameters
                     {
                         Type = EdgeEffectType.Glow,
