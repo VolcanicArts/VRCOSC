@@ -110,31 +110,46 @@ public sealed class AttributeFlow : FillFlowContainer
             return (Activator.CreateInstance(instanceType, attributeData) as AttributeCard)!;
         }
 
-        if (attributeData is ModuleAttributeSingleWithButton attributeSingleWithButton)
+        switch (attributeData)
         {
-            return value switch
-            {
-                string => new ButtonTextAttributeCard(attributeSingleWithButton),
-                _ => throw new ArgumentOutOfRangeException()
-            };
-        }
+            case ModuleAttributeSingleWithButton attributeSingleWithButton:
+                switch (value)
+                {
+                    case string:
+                        return new ButtonTextAttributeCard(attributeSingleWithButton);
 
-        if (attributeData is ModuleAttributeSingleWithBounds attributeDataWithBounds)
-        {
-            return value switch
-            {
-                int => new IntSliderAttributeCard(attributeDataWithBounds),
-                float => new FloatSliderAttributeCard(attributeDataWithBounds),
-                _ => throw new ArgumentOutOfRangeException(nameof(attributeDataWithBounds), "Cannot have bounds for a non-numeric value")
-            };
-        }
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(attributeSingleWithButton), "Cannot generate button with non-text counterpart");
+                }
 
-        return value switch
-        {
-            string => new TextAttributeCard(attributeData),
-            int => new IntTextAttributeCard(attributeData),
-            bool => new ToggleAttributeCard(attributeData),
-            _ => throw new ArgumentOutOfRangeException(nameof(attributeData), $"Type {value.GetType()} is not supported in the {nameof(AttributeFlow)}")
-        };
+            case ModuleAttributeSingleWithBounds attributeDataWithBounds:
+                switch (value)
+                {
+                    case int:
+                        return new IntSliderAttributeCard(attributeDataWithBounds);
+
+                    case float:
+                        return new FloatSliderAttributeCard(attributeDataWithBounds);
+
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(attributeDataWithBounds), "Cannot have bounds for a non-numeric value");
+                }
+
+            default:
+                switch (value)
+                {
+                    case string:
+                        return new TextAttributeCard(attributeData);
+
+                    case int:
+                        return new IntTextAttributeCard(attributeData);
+
+                    case bool:
+                        return new ToggleAttributeCard(attributeData);
+
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(attributeData), $"Type {value.GetType()} is not supported in the {nameof(AttributeFlow)}");
+                }
+        }
     }
 }
