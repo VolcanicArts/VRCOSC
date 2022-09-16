@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
@@ -7,6 +7,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Effects;
 using osu.Framework.Graphics.Shapes;
 using osuTK;
+using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Graphics.UI.Button;
 using VRCOSC.Game.Modules;
 
@@ -69,6 +70,8 @@ public abstract class AttributeCard : Container
                 AutoSizeAxes = Axes.Y,
                 Masking = true,
                 CornerRadius = 10,
+                BorderColour = VRCOSCColour.Gray0,
+                BorderThickness = 2,
                 Children = new Drawable[]
                 {
                     new Box
@@ -131,4 +134,23 @@ public abstract class AttributeCard : Container
     {
         resetToDefault.Alpha = show ? 1 : 0;
     }
+
+    #region Graphics
+
+    protected static VRCOSCTextBox CreateTextBox()
+    {
+        return new VRCOSCTextBox
+        {
+            Anchor = Anchor.TopCentre,
+            Origin = Anchor.TopCentre,
+            RelativeSizeAxes = Axes.X,
+            Height = 40,
+            Masking = true,
+            CornerRadius = 5,
+            BorderColour = VRCOSCColour.Gray0,
+            BorderThickness = 2
+        };
+    }
+
+    #endregion
 }

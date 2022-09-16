@@ -26,16 +26,7 @@ public class TextAttributeCard : AttributeCardSingle
 
     protected virtual Drawable CreateContent()
     {
-        return textBox = new VRCOSCTextBox
-        {
-            Anchor = Anchor.TopCentre,
-            Origin = Anchor.TopCentre,
-            RelativeSizeAxes = Axes.X,
-            Height = 40,
-            Masking = true,
-            CornerRadius = 5,
-            Text = AttributeData.Attribute.Value.ToString()
-        };
+        return textBox = CreateTextBox().With(t => t.Text = AttributeData.Attribute.Value.ToString());
     }
 
     protected override void LoadComplete()
