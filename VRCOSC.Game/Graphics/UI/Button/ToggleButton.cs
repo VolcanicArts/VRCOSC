@@ -45,12 +45,13 @@ public sealed class ToggleButton : VRCOSCButton
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
                     RelativeSizeAxes = Axes.Both,
-                    Icon = FontAwesome.Solid.Check
+                    Icon = FontAwesome.Solid.Check,
+                    Alpha = State.Value ? 1 : 0
                 }
             }
         };
 
-        State.BindValueChanged(e => icon.Alpha = e.NewValue ? 1 : 0, true);
+        State.BindValueChanged(e => icon.FadeTo(e.NewValue ? 1 : 0, 200, Easing.OutQuart));
     }
 
     protected override bool OnClick(ClickEvent e)

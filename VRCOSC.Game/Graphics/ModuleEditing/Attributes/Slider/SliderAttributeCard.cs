@@ -31,6 +31,8 @@ public abstract class SliderAttributeCard<T> : AttributeCardSingle where T : str
             Origin = Anchor.TopCentre,
             RelativeSizeAxes = Axes.X,
             Height = 40,
+            BorderColour = VRCOSCColour.Gray0,
+            BorderThickness = 2,
             Current = CreateCurrent()
         });
     }

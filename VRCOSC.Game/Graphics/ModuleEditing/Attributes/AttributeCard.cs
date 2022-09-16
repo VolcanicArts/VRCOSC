@@ -132,7 +132,7 @@ public abstract class AttributeCard : Container
 
     protected void UpdateResetToDefault(bool show)
     {
-        resetToDefault.Alpha = show ? 1 : 0;
+        resetToDefault.FadeTo(show ? 1 : 0, 200, Easing.OutQuart);
     }
 
     #region Graphics

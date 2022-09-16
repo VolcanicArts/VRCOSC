@@ -76,6 +76,7 @@ public sealed class ModuleCard : Container
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
                             RelativeSizeAxes = Axes.Both,
+                            ShouldAnimate = false,
                             State = (BindableBool)Module.Enabled.GetBoundCopy()
                         }
                     },

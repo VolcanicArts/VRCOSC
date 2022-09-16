@@ -34,6 +34,9 @@ public sealed class ToggleAttributeCard : AttributeCardSingle
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 CornerRadius = 10,
+                BorderColour = VRCOSCColour.Gray0,
+                BorderThickness = 2,
+                ShouldAnimate = false,
                 State = { Value = (bool)AttributeData.Attribute.Value }
             }
         });
