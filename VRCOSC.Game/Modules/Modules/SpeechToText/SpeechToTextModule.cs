@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Speech.Recognition;
@@ -31,6 +31,7 @@ public sealed class SpeechToTextModule : Module
     protected override void CreateAttributes()
     {
         CreateSetting(SpeechToTextSetting.AccessToken, "Access Token", "Your access token to access the STT API", string.Empty, "Obtain Access Token", authenticate);
+        CreateSetting(SpeechToTextSetting.FilterProfanity, "Filter Profanity", "Whether profanity should be replaced with ****", false);
     }
 
     protected override void OnStart()
@@ -47,7 +48,8 @@ public sealed class SpeechToTextModule : Module
         recognitionConfig = new RecognitionConfig
         {
             LanguageCode = LanguageCodes.English.UnitedStates,
-            MaxAlternatives = 0
+            MaxAlternatives = 0,
+            ProfanityFilter = GetSetting<bool>(SpeechToTextSetting.FilterProfanity)
         };
 
         SetChatBoxTyping(false);
@@ -108,6 +110,7 @@ public sealed class SpeechToTextModule : Module
 
     private enum SpeechToTextSetting
     {
-        AccessToken
+        AccessToken,
+        FilterProfanity
     }
 }
