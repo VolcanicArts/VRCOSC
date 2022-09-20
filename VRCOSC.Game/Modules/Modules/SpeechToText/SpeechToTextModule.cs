@@ -30,8 +30,9 @@ public sealed class SpeechToTextModule : Module
 
     protected override void CreateAttributes()
     {
-        CreateSetting(SpeechToTextSetting.AccessToken, "Access Token", "Your access token to access the STT API", string.Empty, "Obtain Access Token", authenticate);
+        CreateSetting(SpeechToTextSetting.AccessToken, "Access Token", "Your access token to access the Google Speech-To-Text API", string.Empty, "Obtain Access Token", authenticate);
         CreateSetting(SpeechToTextSetting.FilterProfanity, "Filter Profanity", "Whether profanity should be replaced with ****", false);
+        CreateSetting(SpeechToTextSetting.LanguageCode, "Language Code", "What language should be detected", LanguageCodes.English.UnitedStates);
     }
 
     protected override void OnStart()
@@ -47,9 +48,9 @@ public sealed class SpeechToTextModule : Module
 
         recognitionConfig = new RecognitionConfig
         {
-            LanguageCode = LanguageCodes.English.UnitedStates,
-            MaxAlternatives = 0,
-            ProfanityFilter = GetSetting<bool>(SpeechToTextSetting.FilterProfanity)
+            LanguageCode = GetSetting<string>(SpeechToTextSetting.LanguageCode),
+            ProfanityFilter = GetSetting<bool>(SpeechToTextSetting.FilterProfanity),
+            MaxAlternatives = 0
         };
 
         SetChatBoxTyping(false);
@@ -112,6 +113,7 @@ public sealed class SpeechToTextModule : Module
     private enum SpeechToTextSetting
     {
         AccessToken,
-        FilterProfanity
+        FilterProfanity,
+        LanguageCode
     }
 }
