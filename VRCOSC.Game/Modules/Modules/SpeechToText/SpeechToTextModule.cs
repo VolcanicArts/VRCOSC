@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Speech.Recognition;
@@ -74,6 +74,7 @@ public sealed class SpeechToTextModule : Module
     private void speechRecognising(object? sender, SpeechRecognizedEventArgs e)
     {
         if (e.Result.Audio is null) return;
+        if (string.IsNullOrEmpty(e.Result.Text)) return;
 
         using var memoryStream = new MemoryStream();
         e.Result.Audio.WriteToWaveStream(memoryStream);
