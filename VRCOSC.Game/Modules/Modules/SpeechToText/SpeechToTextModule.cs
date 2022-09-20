@@ -1,9 +1,13 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Linq;
 using System.Speech.Recognition;
+using System.Text;
 using System.Threading;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Speech.v1;
 using Google.Cloud.Speech.V1;
+using osu.Framework.Extensions.IEnumerableExtensions;
 
 namespace VRCOSC.Game.Modules.Modules.SpeechToText;
 
@@ -35,16 +39,15 @@ public sealed class SpeechToTextModule : Module
         speechRecognitionEngine.SpeechRecognized += speechRecognising;
         speechRecognitionEngine.RecognizeAsync(RecognizeMode.Multiple);
 
-        var speechBuilder = new SpeechClientBuilder
+        speechClient = new SpeechClientBuilder
         {
             GoogleCredential = GoogleCredential.FromAccessToken(GetSetting<string>(SpeechToTextSetting.AccessToken))
-        };
-
-        speechClient = speechBuilder.Build();
+        }.Build();
 
         recognitionConfig = new RecognitionConfig
         {
-            LanguageCode = LanguageCodes.English.UnitedStates
+            LanguageCode = LanguageCodes.English.UnitedStates,
+            MaxAlternatives = 0
         };
 
         SetChatBoxTyping(false);
@@ -74,11 +77,18 @@ public sealed class SpeechToTextModule : Module
         e.Result.Audio.WriteToWaveStream(memoryStream);
         var audio = RecognitionAudio.FromBytes(memoryStream.GetBuffer());
         var response = speechClient.Recognize(recognitionConfig, audio);
-        var text = response.Results[0].Alternatives[0].Transcript;
 
-        Terminal.Log($"Recognised: {text}");
-        SetChatBoxTyping(false);
-        SetChatBoxText(text, true);
+        try
+        {
+            var textBuilder = new StringBuilder();
+            response.Results.ForEach(result => textBuilder.Append(result.Alternatives.First().Transcript + ". "));
+
+            var text = textBuilder.ToString().Trim();
+            Terminal.Log($"Recognised: {text}");
+            SetChatBoxTyping(false);
+            SetChatBoxText(text, true);
+        }
+        catch (InvalidOperationException) { }
     }
 
     private void authenticate()
