@@ -214,6 +214,12 @@ public abstract class Module
 
     #region Settings
 
+    protected void SetSetting<T>(Enum lookup, T value)
+    {
+        var setting = (ModuleAttributeSingle)Settings[lookup.ToString().ToLowerInvariant()];
+        setting.Attribute.Value = value;
+    }
+
     protected T GetSetting<T>(Enum lookup)
     {
         var setting = Settings[lookup.ToString().ToLowerInvariant()];

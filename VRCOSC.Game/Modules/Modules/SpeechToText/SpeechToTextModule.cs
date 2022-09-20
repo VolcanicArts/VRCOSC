@@ -1,4 +1,9 @@
-﻿using System.Speech.Recognition;
+﻿using System.IO;
+using System.Speech.Recognition;
+using System.Threading;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Speech.v1;
+using Google.Cloud.Speech.V1;
 
 namespace VRCOSC.Game.Modules.Modules.SpeechToText;
 
@@ -15,6 +20,15 @@ public sealed class SpeechToTextModule : Module
     {
         speechRecognitionEngine.SetInputToDefaultAudioDevice();
         speechRecognitionEngine.LoadGrammar(new DictationGrammar());
+    }
+
+    protected override void CreateAttributes()
+    {
+        CreateSetting(SpeechToTextSetting.AccessToken, "Access Token", "Your access token to access the STT API", string.Empty, "Obtain Access Token", async () =>
+        {
+            SetSetting(SpeechToTextSetting.AccessToken, string.Empty);
+            authenticate();
+        });
     }
 
     protected override void OnStart()
@@ -44,8 +58,57 @@ public sealed class SpeechToTextModule : Module
 
     private void speechRecognising(object? sender, SpeechRecognizedEventArgs e)
     {
-        Terminal.Log($"Recognised: {e.Result.Text}");
+        if (e.Result.Audio is null) return;
+
+        var speechBuilder = new SpeechClientBuilder
+        {
+            GoogleCredential = GoogleCredential.FromAccessToken(GetSetting<string>(SpeechToTextSetting.AccessToken))
+        };
+
+        var speech = speechBuilder.Build();
+
+        var config = new RecognitionConfig
+        {
+            LanguageCode = LanguageCodes.English.UnitedStates
+        };
+
+        const string path = @"./tempAudio.wav";
+
+        using (Stream outputStream = new FileStream(path, FileMode.Create))
+        {
+            RecognizedAudio nameAudio = e.Result.Audio;
+            nameAudio.WriteToWaveStream(outputStream);
+            outputStream.Close();
+        }
+
+        var audio = RecognitionAudio.FromFile(@"./tempAudio.wav");
+
+        var response = speech.Recognize(config, audio);
+
+        var text = response.Results[0].Alternatives[0].Transcript;
+
+        Terminal.Log($"Recognised: {text}");
         SetChatBoxTyping(false);
-        SetChatBoxText(e.Result.Text, true);
+        SetChatBoxText(text, true);
+    }
+
+    private void authenticate()
+    {
+        var credentials = GoogleWebAuthorizationBroker.AuthorizeAsync(
+            new ClientSecrets
+            {
+                ClientId = VRCOSCSecrets.GOOGLE_CLIENT_ID,
+                ClientSecret = VRCOSCSecrets.GOOGLE_CLIENT_SECRET
+            },
+            new[] { SpeechService.Scope.CloudPlatform },
+            "user",
+            CancellationToken.None).Result;
+
+        SetSetting(SpeechToTextSetting.AccessToken, credentials.Token.AccessToken);
+    }
+
+    private enum SpeechToTextSetting
+    {
+        AccessToken
     }
 }
