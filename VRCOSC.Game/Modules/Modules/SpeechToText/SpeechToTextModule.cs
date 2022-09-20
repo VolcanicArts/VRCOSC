@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Speech.Recognition;
@@ -88,6 +88,8 @@ public sealed class SpeechToTextModule : Module
             response.Results.ForEach(result => textBuilder.Append(result.Alternatives.First().Transcript + ". "));
 
             var text = textBuilder.ToString().Trim();
+            if (string.IsNullOrEmpty(text)) return;
+
             Terminal.Log($"Recognised: {text}");
             SetChatBoxTyping(false);
             SetChatBoxText(text, true);
