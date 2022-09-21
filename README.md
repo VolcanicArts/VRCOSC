@@ -1,32 +1,41 @@
+<div align="center">
+
 # VRCOSC
 A modular OSC application creator made for [VRChat](https://vrchat.com) built on top of the [osu!framework](https://github.com/ppy/osu-framework).
 
-<div align="center">
-
-<img src="https://user-images.githubusercontent.com/29819296/184530289-1dbc73a2-b7d7-4f85-a214-1377b22dd07d.png" width=70% height=70%>
+<img src="https://user-images.githubusercontent.com/29819296/191462974-d7fe2464-2155-43e3-af8c-ca466ac520c6.png" width=70% height=70%>
 
 [![Release version](https://img.shields.io/github/v/release/VolcanicArts/VRCOSC?color=brightgreen&label=Latest%20Release&style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/releases/latest)
 [![license](https://img.shields.io/github/license/VolcanicArts/VRCOSC?style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/blob/main/LICENSE) 
 [![downloads](https://img.shields.io/github/downloads/VolcanicArts/VRCOSC/total?style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/releases/latest)
 [![Commits](https://img.shields.io/github/commit-activity/m/VolcanicArts/VRCOSC?label=commits&style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/commits/main)
 [![lastcommit](https://img.shields.io/github/last-commit/VolcanicArts/VRCOSC?style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/commits/main) 
-[![issues](https://img.shields.io/github/issues/VolcanicArts/VRCOSC?style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/issues)
-[![discussions](https://img.shields.io/github/discussions/VolcanicArts/VRCOSC?style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/discussions)
   
 </div>
 
-## Getting Started
-Download VRCOSCSetup from the [Releases](https://github.com/VolcanicArts/VRCOSC/releases/latest) page. Enable the modules you'd like to use. Download any prefabs that are available and put them onto your avatar. Guides are available inside each prefab. Press the play button or enable auto-start!
+VRCOSC is intended to act as a wrapper around VRChat's OSC system to make creating OSC programs easier, provide interfaces for other APIs and frameworks that might be useful to an OSC project, and act as a centralised source for useful OSC programs so that a user will only need to download a single application.
+
+Containing features such as:
+- Responsive GUI generation
+- Automated configuration management
+- High modularity
+- Automatic updates
+- Common API interfaces
+- Drag-and-drop Unity prefabs
 
 If you like VRCOSC, please star the repo. It really helps!
 
-If you need any help with any part of the installation process of VRCOSC or the prefabs, check the [Prefab FAQ](https://github.com/VolcanicArts/VRCOSC/discussions/16) or feel free to reach out in the [Q/A](https://github.com/VolcanicArts/VRCOSC/discussions/categories/q-a) discussions tab.
+We have a [Discord Server](https://discord.gg/vj4brHyvT5) for posting suggestions or to get help with anything to do with VRCOSC.
 
-Alternatively, you can join the [Discord Server](https://discord.gg/vj4brHyvT5) to get help, as well as get notifications for new releases and more frequent development updates.
+If you'd like to make your own module, check the [Wiki](https://github.com/VolcanicArts/VRCOSC/wiki/Module-Creation) page.
 
-Have a module or prefab suggestion? Post your ideas in the [Ideas](https://github.com/VolcanicArts/VRCOSC/discussions/categories/ideas) discussions tab.
+## Getting Started
+- Download `VRCOSCSetup.exe` from the [Releases](https://github.com/VolcanicArts/VRCOSC/releases/latest) page
+- Tick the modules you'd like to use
+- Download any prefabs you want and add them to your avatar (Guides are available inside each prefab)
+- Press the play button!
 
-Want to make your own module? Check the [Wiki](https://github.com/VolcanicArts/VRCOSC/wiki/Module-Creation) page.
+Check the [Prefab FAQ](https://github.com/VolcanicArts/VRCOSC/discussions/16) if you have any issues with installing or using any of the prefabs.
 
 ## Modules
 | Module | Description | Notes | Prefab |
