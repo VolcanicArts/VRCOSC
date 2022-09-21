@@ -53,6 +53,7 @@ public sealed class SpotifyModule : IntegrationModule
             if (process is null) return;
 
             var newTitle = process.MainWindowTitle;
+            if (newTitle.Contains("spotify", StringComparison.InvariantCultureIgnoreCase)) newTitle = "Nothing";
 
             if (newTitle != currentTitle)
             {
