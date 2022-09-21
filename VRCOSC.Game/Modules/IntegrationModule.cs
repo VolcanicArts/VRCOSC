@@ -43,6 +43,11 @@ public abstract class IntegrationModule : Module
         }
     }
 
+    protected Process? GetTargetProgress()
+    {
+        return retrieveProcess(TargetProcess);
+    }
+
     protected void StopTarget()
     {
         retrieveProcess(TargetProcess)?.Kill();
