@@ -39,6 +39,8 @@ public sealed class ModuleEditingScreen : Container
                 Masking = true,
                 CornerRadius = 5,
                 EdgeEffect = VRCOSCEdgeEffects.DispersedShadow,
+                BorderColour = VRCOSCColour.Gray0,
+                BorderThickness = 2,
                 RelativeSizeAxes = Axes.Both,
                 Children = new Drawable[]
                 {

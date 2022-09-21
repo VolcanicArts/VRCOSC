@@ -76,7 +76,7 @@ public sealed class ModuleEditingContent : Container
             {
                 Anchor = Anchor.TopRight,
                 Origin = Anchor.TopRight,
-                Size = new Vector2(80),
+                Size = new Vector2(70),
                 Padding = new MarginPadding(10),
                 Child = new IconButton
                 {
@@ -84,6 +84,7 @@ public sealed class ModuleEditingContent : Container
                     Origin = Anchor.Centre,
                     RelativeSizeAxes = Axes.Both,
                     CornerRadius = 10,
+                    IconPadding = 6,
                     Icon = FontAwesome.Solid.Get(0xf00d),
                     Action = () => game.EditingModule.Value = null
                 },
