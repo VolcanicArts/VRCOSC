@@ -104,8 +104,7 @@ public sealed class RunningPopover : Container
     }
 
     protected override bool OnMouseDown(MouseDownEvent e) => true;
-
     protected override bool OnClick(ClickEvent e) => true;
-
     protected override bool OnHover(HoverEvent e) => true;
+    protected override bool OnScroll(ScrollEvent e) => true;
 }
