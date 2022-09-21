@@ -17,7 +17,7 @@ public sealed class SpotifyModule : IntegrationModule
     protected override string TargetProcess => "spotify";
     protected override string TargetExe => GetSetting<string>(SpotifySetting.InstallLocation);
 
-    private string currentTitle = string.Empty;
+    private string currentTitle = null!;
 
     protected override void CreateAttributes()
     {
@@ -43,9 +43,17 @@ public sealed class SpotifyModule : IntegrationModule
     {
         var shouldStart = GetSetting<bool>(SpotifySetting.ShouldStart);
         if (shouldStart) StartTarget();
+
+        currentTitle = string.Empty;
+        displayTitle();
     }
 
     protected override void OnUpdate()
+    {
+        displayTitle();
+    }
+
+    private void displayTitle()
     {
         if (GetSetting<bool>(SpotifySetting.DisplayTitle))
         {
