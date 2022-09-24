@@ -55,7 +55,11 @@ public sealed class ModuleEditingScreen : Container
                     {
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,
-                        RelativeSizeAxes = Axes.Both
+                        RelativeSizeAxes = Axes.Both,
+                        Padding = new MarginPadding
+                        {
+                            Vertical = 2.5f
+                        }
                     }
                 }
             }
