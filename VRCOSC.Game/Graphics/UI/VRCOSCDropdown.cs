@@ -23,7 +23,7 @@ public sealed class VRCOSCDropdown<T> : Dropdown<T>
 
     protected override DropdownMenu CreateMenu() => new VRCOSCDropdownMenu();
 
-    #region OsuDropdownMenu
+    #region VRCOSCDropdownMenu
 
     private class VRCOSCDropdownMenu : DropdownMenu
     {
@@ -274,6 +274,9 @@ public sealed class VRCOSCDropdown<T> : Dropdown<T>
             AutoSizeAxes = Axes.None;
             Margin = new MarginPadding { Bottom = 4 };
             CornerRadius = corner_radius;
+            Masking = true;
+            BorderColour = VRCOSCColour.Gray0;
+            BorderThickness = 2;
             Height = 40;
 
             Foreground.Child = new GridContainer
