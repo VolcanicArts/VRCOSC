@@ -24,6 +24,7 @@ public sealed class SpotifyModule : IntegrationModule
         CreateSetting(SpotifySetting.ShouldStart, "Should Start", "Should Spotify start on module start", false);
         CreateSetting(SpotifySetting.ShouldStop, "Should Stop", "Should Spotify stop on module stop", false);
         CreateSetting(SpotifySetting.DisplayTitle, "Display Title", "If the title of the next track should be displayed in VRChat's ChatBox", false);
+        CreateSetting(SpotifySetting.TitleFormat, "Title Format", "How displaying the title should be formatted", "Now Playing: %title%");
         CreateSetting(SpotifySetting.InstallLocation, "Install Location", "The location of your spotify.exe file", $@"C:\Users\{Environment.UserName}\AppData\Roaming\Spotify\spotify.exe");
 
         RegisterButtonInput(SpotifyInputParameter.SpotifyPlayPause);
@@ -61,12 +62,17 @@ public sealed class SpotifyModule : IntegrationModule
             if (process is null) return;
 
             var newTitle = process.MainWindowTitle;
-            if (newTitle.Contains("spotify", StringComparison.InvariantCultureIgnoreCase)) newTitle = "Nothing";
+
+            if (newTitle.Contains("spotify", StringComparison.InvariantCultureIgnoreCase))
+            {
+                currentTitle = string.Empty;
+                return;
+            }
 
             if (newTitle != currentTitle)
             {
                 currentTitle = newTitle;
-                SetChatBoxText($"Now Playing: {currentTitle}", true);
+                SetChatBoxText(GetSetting<string>(SpotifySetting.TitleFormat).Replace("%title%", currentTitle), true);
             }
         }
     }
@@ -87,7 +93,8 @@ public sealed class SpotifyModule : IntegrationModule
         ShouldStart,
         ShouldStop,
         InstallLocation,
-        DisplayTitle
+        DisplayTitle,
+        TitleFormat
     }
 
     private enum SpotifyInputParameter
