@@ -51,6 +51,7 @@ public abstract class Module
         OscClient = oscClient;
         Terminal = new TerminalLogger(GetType().Name);
         State = new Bindable<ModuleState>(ModuleState.Stopped);
+        Player = new Player(OscClient);
 
         CreateAttributes();
         performLoad();
@@ -179,8 +180,7 @@ public abstract class Module
         if (!IsEnabled) return;
 
         State.Value = ModuleState.Starting;
-
-        Player = new Player(OscClient);
+        Player.Init();
 
         OnStart();
 

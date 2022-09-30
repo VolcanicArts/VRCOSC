@@ -35,7 +35,11 @@ public sealed class Player
     public Player(OscClient oscClient)
     {
         this.oscClient = oscClient;
+        Init();
+    }
 
+    public void Init()
+    {
         Viseme = null;
         Voice = null;
         GestureLeft = null;
