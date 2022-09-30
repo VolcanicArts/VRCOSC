@@ -25,16 +25,13 @@ public abstract class Module
     private GameHost Host = null!;
     private Storage Storage = null!;
     private OscClient OscClient = null!;
+    private TerminalLogger Terminal = null!;
+    private Bindable<ModuleState> State = null!;
     private TimedTask? updateTask;
-    protected TerminalLogger Terminal = null!;
-    protected Player Player = null!;
-    protected Bindable<ModuleState> State = new(ModuleState.Stopped);
 
     public readonly BindableBool Enabled = new();
-
     public readonly Dictionary<string, ModuleAttribute> Settings = new();
     public readonly Dictionary<string, ModuleAttribute> OutputParameters = new();
-
     private readonly Dictionary<Enum, InputParameterData> InputParameters = new();
     private readonly Dictionary<string, Enum> InputParametersMap = new();
 
@@ -45,17 +42,25 @@ public abstract class Module
     public virtual string Prefab => string.Empty;
     protected virtual int DeltaUpdate => int.MaxValue;
 
+    protected Player Player = null!;
+
     public void Initialise(GameHost host, Storage storage, OscClient oscClient)
     {
         Host = host;
         Storage = storage;
         OscClient = oscClient;
         Terminal = new TerminalLogger(GetType().Name);
+        State = new Bindable<ModuleState>(ModuleState.Stopped);
 
         CreateAttributes();
         performLoad();
 
         State.ValueChanged += _ => Terminal.Log(State.Value.ToString());
+    }
+
+    protected void Log(string message)
+    {
+        Terminal.Log(message);
     }
 
     #region Properties

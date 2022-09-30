@@ -38,7 +38,7 @@ public abstract class IntegrationModule : Module
         }
         catch (Win32Exception e)
         {
-            Terminal.Log($"`{TargetExe}` is not a valid path. You cannot start `{TargetProcess}` on start");
+            Log($"`{TargetExe}` is not a valid path. You cannot start `{TargetProcess}` on start");
             Logger.Error(e, "IntegrationModule error");
         }
     }
@@ -88,7 +88,7 @@ public abstract class IntegrationModule : Module
 
         if (process is null)
         {
-            Terminal.Log($"`{processName}` is not open");
+            Log($"`{processName}` is not open");
             return;
         }
 

@@ -24,7 +24,7 @@ public sealed class PulsoidModule : HeartRateModule
 
         if (string.IsNullOrEmpty(accessToken))
         {
-            Terminal.Log("Cannot connect to Pulsoid. Please obtain an access token");
+            Log("Cannot connect to Pulsoid. Please obtain an access token");
             return;
         }
 

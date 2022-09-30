@@ -97,7 +97,7 @@ public sealed class CalculatorModule : IntegrationModule
 
         if (!float.TryParse(clipboard, out float value)) return 0;
 
-        Terminal.Log($"Received clipboard value of {value}");
+        Log($"Received clipboard value of {value}");
         return value;
     }
 

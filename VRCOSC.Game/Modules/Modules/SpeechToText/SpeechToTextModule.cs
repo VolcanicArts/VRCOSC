@@ -90,7 +90,7 @@ public sealed class SpeechToTextModule : Module
             var text = textBuilder.ToString().Trim();
             if (string.IsNullOrEmpty(text)) return;
 
-            Terminal.Log($"Recognised: {text}");
+            Log($"Recognised: {text}");
             SetChatBoxTyping(false);
             SetChatBoxText(text, true);
         }

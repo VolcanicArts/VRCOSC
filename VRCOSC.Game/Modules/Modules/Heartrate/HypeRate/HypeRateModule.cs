@@ -29,7 +29,7 @@ public sealed class HypeRateModule : HeartRateModule
 
         if (string.IsNullOrEmpty(hypeRateId))
         {
-            Terminal.Log("Cannot connect to HypeRate. Please enter an Id");
+            Log("Cannot connect to HypeRate. Please enter an Id");
             return;
         }
 
