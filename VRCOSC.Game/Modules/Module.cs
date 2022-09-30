@@ -66,14 +66,14 @@ public abstract class Module
 
     #region Properties
 
-    public bool IsEnabled => Enabled.Value;
-    public bool ShouldUpdate => DeltaUpdate != int.MaxValue;
-    public bool HasSettings => Settings.Count != 0;
-    public bool HasOutputParameters => OutputParameters.Count != 0;
+    public bool HasSettings => Settings.Any();
+    public bool HasOutputParameters => OutputParameters.Any();
     public bool HasAttributes => HasSettings || HasOutputParameters;
+    private bool IsEnabled => Enabled.Value;
+    private bool ShouldUpdate => DeltaUpdate != int.MaxValue;
 
-    private string FileName => $"{GetType().Name}.ini";
-    private const string VrChatOscPrefix = "/avatar/parameters/";
+    private string FileName => @$"{GetType().Name}.ini";
+    private const string VrChatOscPrefix = @"/avatar/parameters/";
 
     #endregion
 
