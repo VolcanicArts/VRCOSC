@@ -20,7 +20,7 @@ public sealed class CalculatorModule : IntegrationModule
 
     protected override void CreateAttributes()
     {
-        CreateOutputParameter(CalculatorOutputParameter.CalculatorResult, "Result Value", "The current result of the calculator", "/avatar/parameters/CalculatorResult");
+        CreateOutgoingParameter(CalculatorOutputParameter.CalculatorResult, "Result Value", "The current result of the calculator", "/avatar/parameters/CalculatorResult");
 
         RegisterButtonInput(CalculatorInputParameter.CalculatorOpen);
         RegisterButtonInput(CalculatorInputParameter.CalculatorClose);

@@ -20,7 +20,7 @@ public abstract class RandomModule<T> : Module where T : struct
         CreateSetting(RandomSetting.DeltaUpdate, "Time Between Value", "The amount of time, in milliseconds, between each random value", 1000);
 
         var readableTypeName = typeof(T).ToReadableName();
-        CreateOutputParameter(RandomOutputParameter.RandomValue, $"Random {readableTypeName}", $"A random {readableTypeName.ToLowerInvariant()} value. Each new parameter will receive a different random value",
+        CreateOutgoingParameter(RandomOutputParameter.RandomValue, $"Random {readableTypeName}", $"A random {readableTypeName.ToLowerInvariant()} value. Each new parameter will receive a different random value",
             new List<string>() { $"/avatar/parameters/Random{readableTypeName}" });
     }
 

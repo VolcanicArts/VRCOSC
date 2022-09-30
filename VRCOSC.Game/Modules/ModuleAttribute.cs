@@ -73,10 +73,10 @@ public sealed class ModuleAttributeSingleWithBounds : ModuleAttributeSingle
 public sealed class ModuleAttributeList : ModuleAttribute
 {
     public readonly BindableList<Bindable<object>> AttributeList;
-    private readonly List<object> defaultValues;
+    private readonly IEnumerable<object> defaultValues;
     public readonly Type Type;
 
-    public ModuleAttributeList(ModuleAttributeMetadata metadata, List<object> defaultValues, Type type)
+    public ModuleAttributeList(ModuleAttributeMetadata metadata, IEnumerable<object> defaultValues, Type type)
         : base(metadata)
     {
         AttributeList = new BindableList<Bindable<object>>();
@@ -96,7 +96,7 @@ public sealed class ModuleAttributeList : ModuleAttribute
 
     public override bool IsDefault()
     {
-        return AttributeList.Count == defaultValues.Count && !AttributeList.Where((t, i) => !t.Value.Equals(defaultValues[i])).Any();
+        return AttributeList.Count == defaultValues.Count() && !AttributeList.Where((t, i) => !t.Value.Equals(defaultValues.ElementAt(i))).Any();
     }
 
     public void AddAt(int index, Bindable<object> value)
