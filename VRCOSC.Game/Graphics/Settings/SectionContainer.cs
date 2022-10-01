@@ -179,7 +179,9 @@ public abstract class SectionContainer : Container
                 CornerRadius = 5,
                 BackgroundColour = colour,
                 Text = text,
-                Action = action
+                Action = action,
+                BorderColour = Colour4.Black,
+                BorderThickness = 2
             }
         });
     }
