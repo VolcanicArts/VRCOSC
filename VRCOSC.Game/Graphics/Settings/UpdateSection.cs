@@ -18,8 +18,8 @@ public sealed class UpdateSection : SectionContainer
 
     protected override void GenerateItems()
     {
-        Add("Update Mode", updateMode = GenerateDropdown<UpdateMode>());
         AddButton("Check For Update", VRCOSCColour.Gray4, () => game.UpdateManager.CheckForUpdate());
+        Add("Update Mode", updateMode = GenerateDropdown<UpdateMode>());
     }
 
     protected override void Load()

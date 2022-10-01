@@ -21,7 +21,10 @@ public sealed class VRCOSCDropdown<T> : Dropdown<T>
 
     protected override DropdownHeader CreateHeader() => new VRCOSCDropdownHeader();
 
-    protected override DropdownMenu CreateMenu() => new VRCOSCDropdownMenu();
+    protected override DropdownMenu CreateMenu() => new VRCOSCDropdownMenu
+    {
+        BypassAutoSizeAxes = Axes.Y
+    };
 
     #region VRCOSCDropdownMenu
 
