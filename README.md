@@ -1,7 +1,7 @@
 <div align="center">
 
 # VRCOSC
-A modular OSC application creator made for [VRChat](https://vrchat.com) built on top of the [osu!framework](https://github.com/ppy/osu-framework).
+A modular OSC program creator made for [VRChat](https://vrchat.com) built on top of the [osu!framework](https://github.com/ppy/osu-framework).
 
 <img src="https://user-images.githubusercontent.com/29819296/191462974-d7fe2464-2155-43e3-af8c-ca466ac520c6.png" width=70% height=70%>
 
@@ -33,7 +33,7 @@ If you'd like to make your own module, check the [Wiki](https://github.com/Volca
 - Download `VRCOSCSetup.exe` from the [Releases](https://github.com/VolcanicArts/VRCOSC/releases/latest) page
 - Tick the modules you'd like to use
 - Download any prefabs you want and add them to your avatar (Guides are available inside each prefab)
-- Press the play button!
+- Press the run button!
 
 Check the [Prefab FAQ](https://github.com/VolcanicArts/VRCOSC/discussions/16) if you have any issues with installing or using any of the prefabs.
 
@@ -52,3 +52,5 @@ Check the [Prefab FAQ](https://github.com/VolcanicArts/VRCOSC/discussions/16) if
 
 ## License
 This program is licensed under the [GNU General Public License V3](https://www.gnu.org/licenses/gpl-3.0.en.html). Please see [the license file](LICENSE) for more information.
+
+Other libaries included in this project may contain different licenses. See the license files in their repos for more information.
