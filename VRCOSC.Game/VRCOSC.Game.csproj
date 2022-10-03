@@ -8,7 +8,6 @@
     <ProjectReference Include="..\VRCOSC.Resources\VRCOSC.Resources.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="CoreOSC" Version="1.0.0" />
     <PackageReference Include="Google.Apis" Version="1.57.0" />
     <PackageReference Include="Google.Apis.Speech.v1" Version="1.57.0.2786" />
     <PackageReference Include="Google.Cloud.Speech.V1" Version="3.0.0" />
