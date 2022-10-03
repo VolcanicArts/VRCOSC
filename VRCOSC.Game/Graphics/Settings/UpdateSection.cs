@@ -3,14 +3,11 @@
 
 using osu.Framework.Allocation;
 using VRCOSC.Game.Config;
-using VRCOSC.Game.Graphics.UI;
 
 namespace VRCOSC.Game.Graphics.Settings;
 
 public sealed class UpdateSection : SectionContainer
 {
-    private VRCOSCDropdown<UpdateMode> updateMode = null!;
-
     [Resolved]
     private VRCOSCGame game { get; set; } = null!;
 
@@ -18,17 +15,7 @@ public sealed class UpdateSection : SectionContainer
 
     protected override void GenerateItems()
     {
-        Add("Update Mode", updateMode = GenerateDropdown<UpdateMode>());
+        AddDropdown("Update Mode", "How should VRCOSC handle updating?", ConfigManager.GetBindable<UpdateMode>(VRCOSCSetting.UpdateMode));
         AddButton("Check For Update", VRCOSCColour.Gray4, () => game.UpdateManager.CheckForUpdate());
-    }
-
-    protected override void Load()
-    {
-        updateMode.Current.Value = ConfigManager.Get<UpdateMode>(VRCOSCSetting.UpdateMode);
-    }
-
-    protected override void Save()
-    {
-        ConfigManager.SetValue(VRCOSCSetting.UpdateMode, updateMode.Current.Value);
     }
 }

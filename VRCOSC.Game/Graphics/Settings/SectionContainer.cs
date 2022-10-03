@@ -2,14 +2,14 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Linq;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
 using VRCOSC.Game.Config;
-using VRCOSC.Game.Graphics.UI;
+using VRCOSC.Game.Graphics.Settings.Cards;
 using VRCOSC.Game.Graphics.UI.Button;
 
 namespace VRCOSC.Game.Graphics.Settings;
@@ -29,15 +29,15 @@ public abstract class SectionContainer : Container
     {
         ConfigManager = configManager;
 
-        Anchor = Anchor.TopLeft;
-        Origin = Anchor.TopLeft;
+        Anchor = Anchor.TopCentre;
+        Origin = Anchor.TopCentre;
         RelativeSizeAxes = Axes.X;
         AutoSizeAxes = Axes.Y;
         Width = 0.5f;
         Child = flow = new FillFlowContainer
         {
-            Anchor = Anchor.TopLeft,
-            Origin = Anchor.TopLeft,
+            Anchor = Anchor.TopCentre,
+            Origin = Anchor.TopCentre,
             RelativeSizeAxes = Axes.X,
             AutoSizeAxes = Axes.Y,
             Direction = FillDirection.Vertical,
@@ -47,121 +47,39 @@ public abstract class SectionContainer : Container
 
         flow.Add(new SpriteText
         {
-            Anchor = Anchor.TopLeft,
-            Origin = Anchor.TopLeft,
+            Anchor = Anchor.TopCentre,
+            Origin = Anchor.TopCentre,
             Font = FrameworkFont.Regular.With(size: 35),
             Text = Title
         });
     }
 
-    protected void Add(string label, Drawable drawable)
+    protected void AddToggle(string title, string description, Bindable<bool> settingBindable)
     {
-        flow.Add(new Container
-        {
-            Anchor = Anchor.TopLeft,
-            Origin = Anchor.TopLeft,
-            RelativeSizeAxes = Axes.X,
-            AutoSizeAxes = Axes.Y,
-            Children = new Drawable[]
-            {
-                new SpriteText
-                {
-                    Anchor = Anchor.CentreLeft,
-                    Origin = Anchor.CentreLeft,
-                    Text = label,
-                    Font = FrameworkFont.Regular.With(size: 25)
-                },
-                new Container
-                {
-                    Anchor = Anchor.TopRight,
-                    Origin = Anchor.TopRight,
-                    RelativeSizeAxes = Axes.X,
-                    AutoSizeAxes = Axes.Y,
-                    Width = 0.5f,
-                    Child = drawable
-                }
-            }
-        });
+        flow.Add(new ToggleSettingCard(title, description, settingBindable));
+    }
+
+    protected void AddTextBox(string title, string description, Bindable<string> settingBindable)
+    {
+        flow.Add(new TextSettingCard(title, description, settingBindable));
+    }
+
+    protected void AddIntTextBox(string title, string description, Bindable<int> settingBindable)
+    {
+        flow.Add(new IntTextSettingCard(title, description, settingBindable));
+    }
+
+    protected void AddDropdown<T>(string title, string description, Bindable<T> settingBindable)
+    {
+        flow.Add(new DropdownSettingCard<T>(title, description, settingBindable));
     }
 
     protected override void LoadComplete()
     {
         GenerateItems();
-        Load();
     }
 
     protected abstract void GenerateItems();
-
-    protected abstract void Load();
-
-    protected abstract void Save();
-
-    protected VRCOSCTextBox GenerateTextBox()
-    {
-        var textBox = new VRCOSCTextBox
-        {
-            Anchor = Anchor.TopLeft,
-            Origin = Anchor.TopLeft,
-            RelativeSizeAxes = Axes.X,
-            Height = setting_height,
-            CornerRadius = 5,
-            CommitOnFocusLost = true,
-            ReleaseFocusOnCommit = false
-        };
-
-        textBox.OnCommit += (_, _) => Save();
-
-        return textBox;
-    }
-
-    protected VRCOSCTextBox GenerateIntTextBox()
-    {
-        var textBox = GenerateTextBox();
-
-        textBox.Current.ValueChanged += e =>
-        {
-            if (string.IsNullOrEmpty(e.NewValue))
-            {
-                textBox.Current.Value = "0";
-                return;
-            }
-
-            textBox.Current.Value = int.TryParse(e.NewValue, out var intValue) ? intValue.ToString() : e.OldValue;
-        };
-
-        return textBox;
-    }
-
-    protected ToggleButton GenerateToggle()
-    {
-        var toggle = new ToggleButton
-        {
-            Anchor = Anchor.CentreRight,
-            Origin = Anchor.CentreRight,
-            Size = new Vector2(setting_height),
-            ShouldAnimate = false,
-            CornerRadius = 7
-        };
-
-        toggle.State.ValueChanged += _ => Save();
-
-        return toggle;
-    }
-
-    protected VRCOSCDropdown<T> GenerateDropdown<T>()
-    {
-        var dropdown = new VRCOSCDropdown<T>()
-        {
-            Anchor = Anchor.TopRight,
-            Origin = Anchor.TopRight,
-            RelativeSizeAxes = Axes.X,
-            Items = Enum.GetValues(typeof(T)).Cast<T>()
-        };
-
-        dropdown.Current.ValueChanged += _ => Save();
-
-        return dropdown;
-    }
 
     protected void AddButton(string text, Colour4 colour, Action? action = null)
     {

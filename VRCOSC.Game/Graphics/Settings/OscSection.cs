@@ -2,36 +2,17 @@
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.Game.Config;
-using VRCOSC.Game.Graphics.UI;
 
 namespace VRCOSC.Game.Graphics.Settings;
 
 public sealed class OscSection : SectionContainer
 {
-    private VRCOSCTextBox ipAddress = null!;
-    private VRCOSCTextBox outgoingPort = null!;
-    private VRCOSCTextBox incomingPort = null!;
-
     protected override string Title => "OSC";
 
     protected override void GenerateItems()
     {
-        Add("IP Address", ipAddress = GenerateTextBox());
-        Add("Outgoing Port", outgoingPort = GenerateIntTextBox());
-        Add("Incoming Port", incomingPort = GenerateIntTextBox());
-    }
-
-    protected override void Load()
-    {
-        ipAddress.Text = ConfigManager.Get<string>(VRCOSCSetting.IPAddress);
-        outgoingPort.Text = ConfigManager.Get<int>(VRCOSCSetting.SendPort).ToString();
-        incomingPort.Text = ConfigManager.Get<int>(VRCOSCSetting.ReceivePort).ToString();
-    }
-
-    protected override void Save()
-    {
-        ConfigManager.SetValue(VRCOSCSetting.IPAddress, ipAddress.Text);
-        ConfigManager.SetValue(VRCOSCSetting.SendPort, int.Parse(outgoingPort.Text));
-        ConfigManager.SetValue(VRCOSCSetting.ReceivePort, int.Parse(incomingPort.Text));
+        AddTextBox("IP Address", "The IP address to send and receive OSC values to and from", ConfigManager.GetBindable<string>(VRCOSCSetting.IPAddress));
+        AddIntTextBox("Outgoing Port", "The port with which to send OSC values to", ConfigManager.GetBindable<int>(VRCOSCSetting.SendPort));
+        AddIntTextBox("Incoming Port", "The port with which to receive OSC values from", ConfigManager.GetBindable<int>(VRCOSCSetting.ReceivePort));
     }
 }

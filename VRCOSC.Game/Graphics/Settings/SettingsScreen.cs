@@ -45,26 +45,19 @@ public sealed class SettingsScreen : Container
                     AutoSizeAxes = Axes.Y,
                     Children = new Drawable[]
                     {
-                        new Container
+                        new TextFlowContainer(t => t.Font = FrameworkFont.Regular.With(size: 80))
                         {
-                            Anchor = Anchor.TopLeft,
-                            Origin = Anchor.TopLeft,
+                            Anchor = Anchor.TopCentre,
+                            Origin = Anchor.TopCentre,
                             RelativeSizeAxes = Axes.X,
                             AutoSizeAxes = Axes.Y,
-                            Child = new TextFlowContainer(t => t.Font = FrameworkFont.Regular.With(size: 80))
-                            {
-                                RelativeAnchorPosition = new Vector2(0.025f, 0),
-                                Origin = Anchor.TopLeft,
-                                RelativeSizeAxes = Axes.X,
-                                AutoSizeAxes = Axes.Y,
-                                TextAnchor = Anchor.TopLeft,
-                                Text = "Settings",
-                            }
+                            TextAnchor = Anchor.TopCentre,
+                            Text = "Settings"
                         },
                         new FillFlowContainer<SectionContainer>
                         {
-                            Anchor = Anchor.TopLeft,
-                            Origin = Anchor.TopLeft,
+                            Anchor = Anchor.TopCentre,
+                            Origin = Anchor.TopCentre,
                             RelativeSizeAxes = Axes.X,
                             AutoSizeAxes = Axes.Y,
                             Direction = FillDirection.Vertical,

@@ -2,32 +2,16 @@
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.Game.Config;
-using VRCOSC.Game.Graphics.UI.Button;
 
 namespace VRCOSC.Game.Graphics.Settings;
 
 public sealed class ModulesSection : SectionContainer
 {
-    private ToggleButton autoStartStop = null!;
-    private ToggleButton autoFocus = null!;
-
     protected override string Title => "Modules";
 
     protected override void GenerateItems()
     {
-        Add("Auto start/stop modules on VRChat start/stop", autoStartStop = GenerateToggle());
-        Add("Auto focus VRChat on modules start", autoFocus = GenerateToggle());
-    }
-
-    protected override void Load()
-    {
-        autoStartStop.State.Value = ConfigManager.Get<bool>(VRCOSCSetting.AutoStartStop);
-        autoFocus.State.Value = ConfigManager.Get<bool>(VRCOSCSetting.AutoFocus);
-    }
-
-    protected override void Save()
-    {
-        ConfigManager.SetValue(VRCOSCSetting.AutoStartStop, autoStartStop.State.Value);
-        ConfigManager.SetValue(VRCOSCSetting.AutoFocus, autoFocus.State.Value);
+        AddToggle("Auto Start/Stop", "Auto start/stop modules on VRChat start/stop", ConfigManager.GetBindable<bool>(VRCOSCSetting.AutoStartStop));
+        AddToggle("Auto Focus", "Auto focus VRChat on modules start", ConfigManager.GetBindable<bool>(VRCOSCSetting.AutoFocus));
     }
 }
