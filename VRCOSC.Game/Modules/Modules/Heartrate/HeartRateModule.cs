@@ -30,7 +30,6 @@ public abstract class HeartRateModule : Module
 
         heartRateProvider = CreateHeartRateProvider();
         heartRateProvider.OnHeartRateUpdate += HandleHeartRateUpdate;
-        heartRateProvider.OnConnected += () => SendParameter(HeartrateOutputParameter.HeartrateEnabled, true);
         heartRateProvider.OnDisconnected += () => SendParameter(HeartrateOutputParameter.HeartrateEnabled, false);
         heartRateProvider.Initialise();
         heartRateProvider.Connect();
