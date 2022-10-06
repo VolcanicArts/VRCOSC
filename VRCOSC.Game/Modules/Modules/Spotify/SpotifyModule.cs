@@ -72,7 +72,7 @@ public sealed class SpotifyModule : IntegrationModule
             if (newTitle != currentTitle)
             {
                 currentTitle = newTitle;
-                SetChatBoxText(GetSetting<string>(SpotifySetting.TitleFormat).Replace("%title%", currentTitle), true);
+                SetChatBoxText(GetSetting<string>(SpotifySetting.TitleFormat).Replace("%title%", currentTitle));
             }
         }
     }

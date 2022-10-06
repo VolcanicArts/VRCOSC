@@ -17,6 +17,14 @@ public class InputParameterData
     }
 }
 
+public sealed class ButtonInputParameterData : InputParameterData
+{
+    public ButtonInputParameterData()
+        : base(typeof(bool), ActionMenu.Button)
+    {
+    }
+}
+
 public sealed class RadialInputParameterData : InputParameterData
 {
     public float PreviousValue;

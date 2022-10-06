@@ -9,13 +9,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
-using osu.Framework.Extensions.ObjectExtensions;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 using VRCOSC.Game.Modules.Util;
 using VRCOSC.Game.Util;
 using VRCOSC.OSC;
 
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable ParameterTypeCanBeEnumerable.Global
 // ReSharper disable InconsistentNaming
 
 namespace VRCOSC.Game.Modules;
@@ -59,11 +60,6 @@ public abstract class Module
         State.ValueChanged += _ => Terminal.Log(State.Value.ToString());
     }
 
-    protected void Log(string message)
-    {
-        Terminal.Log(message);
-    }
-
     #region Properties
 
     public bool HasSettings => Settings.Any();
@@ -82,78 +78,39 @@ public abstract class Module
     protected virtual void CreateAttributes() { }
 
     protected void CreateSetting(Enum lookup, string displayName, string description, bool defaultValue)
-    {
-        addSetting(lookup.ToString().ToLowerInvariant(), displayName, description, defaultValue);
-    }
+        => addSingleSetting(lookup, displayName, description, defaultValue);
 
     protected void CreateSetting(Enum lookup, string displayName, string description, int defaultValue)
-    {
-        addSetting(lookup.ToString().ToLowerInvariant(), displayName, description, defaultValue);
-    }
+        => addSingleSetting(lookup, displayName, description, defaultValue);
 
     protected void CreateSetting(Enum lookup, string displayName, string description, string defaultValue)
-    {
-        addSetting(lookup.ToString().ToLowerInvariant(), displayName, description, defaultValue);
-    }
+        => addSingleSetting(lookup, displayName, description, defaultValue);
 
     protected void CreateSetting(Enum lookup, string displayName, string description, Enum defaultValue)
-    {
-        addSetting(lookup.ToString().ToLowerInvariant(), displayName, description, defaultValue);
-    }
+        => addSingleSetting(lookup, displayName, description, defaultValue);
 
     protected void CreateSetting(Enum lookup, string displayName, string description, int defaultValue, int minValue, int maxValue)
-    {
-        addRangedSetting(lookup.ToString().ToLowerInvariant(), displayName, description, defaultValue, minValue, maxValue);
-    }
+        => addRangedSetting(lookup, displayName, description, defaultValue, minValue, maxValue);
 
     protected void CreateSetting(Enum lookup, string displayName, string description, float defaultValue, float minValue, float maxValue)
-    {
-        addRangedSetting(lookup.ToString().ToLowerInvariant(), displayName, description, defaultValue, minValue, maxValue);
-    }
+        => addRangedSetting(lookup, displayName, description, defaultValue, minValue, maxValue);
 
-    // ReSharper disable once ParameterTypeCanBeEnumerable.Global
-    protected void CreateSetting(Enum lookup, string displayName, string description, List<string> defaultValues)
-    {
-        addEnumerableSetting(lookup.ToString().ToLowerInvariant(), displayName, description, defaultValues, typeof(string));
-    }
-
-    // ReSharper disable once ParameterTypeCanBeEnumerable.Global
     protected void CreateSetting(Enum lookup, string displayName, string description, List<int> defaultValues)
-    {
-        addEnumerableSetting(lookup.ToString().ToLowerInvariant(), displayName, description, defaultValues.Cast<object>(), typeof(int));
-    }
+        => addEnumerableSetting(lookup, displayName, description, defaultValues.Cast<object>(), typeof(int));
+
+    protected void CreateSetting(Enum lookup, string displayName, string description, List<string> defaultValues)
+        => addEnumerableSetting(lookup, displayName, description, defaultValues, typeof(string));
 
     protected void CreateSetting(Enum lookup, string displayName, string description, string defaultValue, string buttonText, Action buttonAction)
-    {
-        Settings.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeSingleWithButton(new ModuleAttributeMetadata(displayName, description), defaultValue, buttonText, buttonAction));
-    }
-
-    private void addSetting(string lookup, string displayName, string description, object defaultValue)
-    {
-        Settings.Add(lookup, new ModuleAttributeSingle(new ModuleAttributeMetadata(displayName, description), defaultValue));
-    }
-
-    private void addEnumerableSetting(string lookup, string displayName, string description, IEnumerable<object> defaultValues, Type type)
-    {
-        Settings.Add(lookup, new ModuleAttributeList(new ModuleAttributeMetadata(displayName, description), defaultValues, type));
-    }
-
-    private void addRangedSetting<T>(string lookup, string displayName, string description, T defaultValue, T minValue, T maxValue) where T : struct
-    {
-        Settings.Add(lookup, new ModuleAttributeSingleWithBounds(new ModuleAttributeMetadata(displayName, description), defaultValue, minValue, maxValue));
-    }
+        => addTextAndButtonSetting(lookup, displayName, description, defaultValue, buttonText, buttonAction);
 
     protected void CreateOutgoingParameter(Enum lookup, string displayName, string description, string defaultAddress)
-    {
-        OutputParameters.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeSingle(new ModuleAttributeMetadata(displayName, description), defaultAddress));
-    }
+        => addSingleOutgoingParameter(lookup, displayName, description, defaultAddress);
 
-    protected void CreateOutgoingParameter(Enum lookup, string displayName, string description, IEnumerable<string> defaultAddresses)
-    {
-        OutputParameters.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeList(new ModuleAttributeMetadata(displayName, description), defaultAddresses, typeof(string)));
-    }
+    protected void CreateOutgoingParameter(Enum lookup, string displayName, string description, List<string> defaultAddresses)
+        => addEnumerableOutgoingParameter(lookup, displayName, description, defaultAddresses);
 
-    protected void RegisterGenericIncomingParameter<T>(Enum lookup) where T : struct
+    protected void RegisterIncomingParameter<T>(Enum lookup) where T : struct
     {
         InputParameters.Add(lookup, new InputParameterData(typeof(T)));
         InputParametersMap.Add(lookup.ToString(), lookup);
@@ -161,7 +118,7 @@ public abstract class Module
 
     protected void RegisterButtonInput(Enum lookup)
     {
-        InputParameters.Add(lookup, new InputParameterData(typeof(bool), ActionMenu.Button));
+        InputParameters.Add(lookup, new ButtonInputParameterData());
         InputParametersMap.Add(lookup.ToString(), lookup);
     }
 
@@ -169,6 +126,36 @@ public abstract class Module
     {
         InputParameters.Add(lookup, new RadialInputParameterData());
         InputParametersMap.Add(lookup.ToString(), lookup);
+    }
+
+    private void addSingleSetting(Enum lookup, string displayName, string description, object defaultValue)
+    {
+        Settings.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeSingle(new ModuleAttributeMetadata(displayName, description), defaultValue));
+    }
+
+    private void addEnumerableSetting(Enum lookup, string displayName, string description, IEnumerable<object> defaultValues, Type type)
+    {
+        Settings.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeList(new ModuleAttributeMetadata(displayName, description), defaultValues, type));
+    }
+
+    private void addRangedSetting<T>(Enum lookup, string displayName, string description, T defaultValue, T minValue, T maxValue) where T : struct
+    {
+        Settings.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeSingleWithBounds(new ModuleAttributeMetadata(displayName, description), defaultValue, minValue, maxValue));
+    }
+
+    private void addTextAndButtonSetting(Enum lookup, string displayName, string description, string defaultValue, string buttonText, Action buttonAction)
+    {
+        Settings.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeSingleWithButton(new ModuleAttributeMetadata(displayName, description), defaultValue, buttonText, buttonAction));
+    }
+
+    private void addSingleOutgoingParameter(Enum lookup, string displayName, string description, string defaultAddress)
+    {
+        OutputParameters.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeSingle(new ModuleAttributeMetadata(displayName, description), defaultAddress));
+    }
+
+    private void addEnumerableOutgoingParameter(Enum lookup, string displayName, string description, IEnumerable<string> defaultAddresses)
+    {
+        OutputParameters.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeList(new ModuleAttributeMetadata(displayName, description), defaultAddresses, typeof(string)));
     }
 
     #endregion
@@ -191,10 +178,6 @@ public abstract class Module
         State.Value = ModuleState.Started;
     }
 
-    protected virtual void OnStart() { }
-
-    protected virtual void OnUpdate() { }
-
     internal async Task stop()
     {
         if (!IsEnabled) return;
@@ -211,10 +194,10 @@ public abstract class Module
         State.Value = ModuleState.Stopped;
     }
 
+    protected virtual void OnStart() { }
+    protected virtual void OnUpdate() { }
     protected virtual void OnStop() { }
-
     protected virtual void OnAvatarChange() { }
-
     protected virtual void OnPlayerStateUpdate(VRChatInputParameter key) { }
 
     #endregion
@@ -224,7 +207,7 @@ public abstract class Module
     protected void SetSetting<T>(Enum lookup, T value)
     {
         var setting = (ModuleAttributeSingle)Settings[lookup.ToString().ToLowerInvariant()];
-        setting.Attribute.Value = value;
+        setting.Attribute.Value = value!;
     }
 
     protected T GetSetting<T>(Enum lookup)
@@ -266,14 +249,12 @@ public abstract class Module
         updatePlayerState(parameterName, value);
 
         if (!InputParametersMap.TryGetValue(parameterName, out var key)) return;
-        // key will never be null here
-        key = key.AsNonNull();
 
         var inputParameterData = InputParameters[key];
 
         if (value.GetType() != inputParameterData.Type)
         {
-            Terminal.Log($@"Cannot accept input parameter. `{key}` expects type `{inputParameterData.Type}` but received type `{value.GetType()}`");
+            Log($@"Cannot accept input parameter. `{key}` expects type `{inputParameterData.Type}` but received type `{value.GetType()}`");
             return;
         }
 
@@ -285,18 +266,15 @@ public abstract class Module
         switch (value)
         {
             case bool boolValue:
-                Terminal.Log($"Received bool of key `{key}`");
                 OnBoolParameterReceived(key, boolValue);
                 if (data.ActionMenu == ActionMenu.Button && boolValue) OnButtonPressed(key);
                 break;
 
             case int intValue:
-                Terminal.Log($"Received int of key `{key}`");
                 OnIntParameterReceived(key, intValue);
                 break;
 
             case float floatValue:
-                Terminal.Log($"Received float of key `{key}`");
                 OnFloatParameterReceived(key, floatValue);
 
                 if (data.ActionMenu == ActionMenu.Radial)
@@ -396,14 +374,10 @@ public abstract class Module
     }
 
     protected virtual void OnBoolParameterReceived(Enum key, bool value) { }
-
     protected virtual void OnIntParameterReceived(Enum key, int value) { }
-
     protected virtual void OnFloatParameterReceived(Enum key, float value) { }
-
     protected virtual void OnButtonPressed(Enum key) { }
-
-    protected virtual void OnRadialPuppetChange(Enum key, VRChatRadialPuppet radialPuppet) { }
+    protected virtual void OnRadialPuppetChange(Enum key, VRChatRadialPuppet radialData) { }
 
     #endregion
 
@@ -460,7 +434,7 @@ public abstract class Module
         OscClient.SendValue("/chatbox/typing", typing);
     }
 
-    protected void SetChatBoxText(string text, bool bypassKeyboard)
+    protected void SetChatBoxText(string text, bool bypassKeyboard = true)
     {
         OscClient.SendValues("/chatbox/input", new List<object> { text, bypassKeyboard });
     }
@@ -795,26 +769,23 @@ public abstract class Module
 
     #region Extensions
 
+    protected void Log(string message)
+    {
+        Terminal.Log(message);
+    }
+
     protected void OpenUrlExternally(string Url)
     {
         Host.OpenUrlExternally(Url);
     }
 
     #endregion
-}
 
-public enum ModuleState
-{
-    Starting,
-    Started,
-    Stopping,
-    Stopped
-}
-
-public enum ActionMenu
-{
-    Button,
-    Radial,
-    Axes,
-    None
+    public enum ModuleState
+    {
+        Starting,
+        Started,
+        Stopping,
+        Stopped
+    }
 }
