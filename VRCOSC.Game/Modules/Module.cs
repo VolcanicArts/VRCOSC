@@ -96,10 +96,10 @@ public abstract class Module
         => addRangedSetting(lookup, displayName, description, defaultValue, minValue, maxValue);
 
     protected void CreateSetting(Enum lookup, string displayName, string description, List<int> defaultValues)
-        => addEnumerableSetting(lookup, displayName, description, defaultValues.Cast<object>(), typeof(int));
+        => addListSetting(lookup, displayName, description, defaultValues);
 
     protected void CreateSetting(Enum lookup, string displayName, string description, List<string> defaultValues)
-        => addEnumerableSetting(lookup, displayName, description, defaultValues, typeof(string));
+        => addListSetting(lookup, displayName, description, defaultValues);
 
     protected void CreateSetting(Enum lookup, string displayName, string description, string defaultValue, string buttonText, Action buttonAction)
         => addTextAndButtonSetting(lookup, displayName, description, defaultValue, buttonText, buttonAction);
@@ -108,7 +108,7 @@ public abstract class Module
         => addSingleOutgoingParameter(lookup, displayName, description, defaultAddress);
 
     protected void CreateOutgoingParameter(Enum lookup, string displayName, string description, List<string> defaultAddresses)
-        => addEnumerableOutgoingParameter(lookup, displayName, description, defaultAddresses);
+        => addListOutgoingParameter(lookup, displayName, description, defaultAddresses);
 
     protected void RegisterIncomingParameter<T>(Enum lookup) where T : struct
     {
@@ -133,9 +133,9 @@ public abstract class Module
         Settings.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeSingle(new ModuleAttributeMetadata(displayName, description), defaultValue));
     }
 
-    private void addEnumerableSetting(Enum lookup, string displayName, string description, IEnumerable<object> defaultValues, Type type)
+    private void addListSetting<T>(Enum lookup, string displayName, string description, List<T> defaultValues)
     {
-        Settings.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeList(new ModuleAttributeMetadata(displayName, description), defaultValues, type));
+        Settings.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeList(new ModuleAttributeMetadata(displayName, description), defaultValues.Cast<object>(), typeof(T)));
     }
 
     private void addRangedSetting<T>(Enum lookup, string displayName, string description, T defaultValue, T minValue, T maxValue) where T : struct
@@ -153,7 +153,7 @@ public abstract class Module
         OutputParameters.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeSingle(new ModuleAttributeMetadata(displayName, description), defaultAddress));
     }
 
-    private void addEnumerableOutgoingParameter(Enum lookup, string displayName, string description, IEnumerable<string> defaultAddresses)
+    private void addListOutgoingParameter(Enum lookup, string displayName, string description, List<string> defaultAddresses)
     {
         OutputParameters.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeList(new ModuleAttributeMetadata(displayName, description), defaultAddresses, typeof(string)));
     }
