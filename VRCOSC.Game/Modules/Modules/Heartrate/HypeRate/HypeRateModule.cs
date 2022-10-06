@@ -33,6 +33,8 @@ public sealed class HypeRateModule : HeartRateModule
             return;
         }
 
+        SendParameter(HeartrateOutputParameter.HeartrateEnabled, false);
+
         base.OnStart();
     }
 

@@ -26,8 +26,6 @@ public abstract class HeartRateModule : Module
 
     protected override void OnStart()
     {
-        SendParameter(HeartrateOutputParameter.HeartrateEnabled, false);
-
         heartRateProvider = CreateHeartRateProvider();
         heartRateProvider.OnHeartRateUpdate += HandleHeartRateUpdate;
         heartRateProvider.OnDisconnected += () => SendParameter(HeartrateOutputParameter.HeartrateEnabled, false);

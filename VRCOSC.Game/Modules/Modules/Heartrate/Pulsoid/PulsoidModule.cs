@@ -28,6 +28,8 @@ public sealed class PulsoidModule : HeartRateModule
             return;
         }
 
+        SendParameter(HeartrateOutputParameter.HeartrateEnabled, true);
+
         base.OnStart();
     }
 
