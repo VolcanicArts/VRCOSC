@@ -17,13 +17,13 @@ public sealed class MediaModule : IntegrationModule
 
     protected override void CreateAttributes()
     {
-        RegisterButtonInput(MediaInputParameter.MediaPlayPause);
-        RegisterButtonInput(MediaInputParameter.MediaNext);
-        RegisterButtonInput(MediaInputParameter.MediaPrevious);
+        RegisterButtonInput(MediaIncomingParameter.MediaPlayPause);
+        RegisterButtonInput(MediaIncomingParameter.MediaNext);
+        RegisterButtonInput(MediaIncomingParameter.MediaPrevious);
 
-        RegisterKeyCombination(MediaInputParameter.MediaPlayPause, WindowsVKey.VK_MEDIA_PLAY_PAUSE);
-        RegisterKeyCombination(MediaInputParameter.MediaNext, WindowsVKey.VK_MEDIA_NEXT_TRACK);
-        RegisterKeyCombination(MediaInputParameter.MediaPrevious, WindowsVKey.VK_MEDIA_PREV_TRACK);
+        RegisterKeyCombination(MediaIncomingParameter.MediaPlayPause, WindowsVKey.VK_MEDIA_PLAY_PAUSE);
+        RegisterKeyCombination(MediaIncomingParameter.MediaNext, WindowsVKey.VK_MEDIA_NEXT_TRACK);
+        RegisterKeyCombination(MediaIncomingParameter.MediaPrevious, WindowsVKey.VK_MEDIA_PREV_TRACK);
     }
 
     protected override void OnButtonPressed(Enum key)
@@ -31,7 +31,7 @@ public sealed class MediaModule : IntegrationModule
         ExecuteKeyCombination(key);
     }
 
-    private enum MediaInputParameter
+    private enum MediaIncomingParameter
     {
         MediaPlayPause,
         MediaNext,

@@ -20,13 +20,13 @@ public abstract class RandomModule<T> : Module where T : struct
         CreateSetting(RandomSetting.DeltaUpdate, "Time Between Value", "The amount of time, in milliseconds, between each random value", 1000);
 
         var readableTypeName = typeof(T).ToReadableName();
-        CreateOutgoingParameter(RandomOutputParameter.RandomValue, $"Random {readableTypeName}", $"A random {readableTypeName.ToLowerInvariant()} value. Each new parameter will receive a different random value",
+        CreateOutgoingParameter(RandomOutgoingParameter.RandomValue, $"Random {readableTypeName}", $"A random {readableTypeName.ToLowerInvariant()} value. Each new parameter will receive a different random value",
             new List<string>() { $"/avatar/parameters/Random{readableTypeName}" });
     }
 
     protected override void OnUpdate()
     {
-        GetOutputParameter(RandomOutputParameter.RandomValue).ForEach(oscAddress => oscAddress.SendValue(GetRandomValue()));
+        GetOutputParameter(RandomOutgoingParameter.RandomValue).ForEach(oscAddress => oscAddress.SendValue(GetRandomValue()));
     }
 
     protected abstract T GetRandomValue();
@@ -36,7 +36,7 @@ public abstract class RandomModule<T> : Module where T : struct
         DeltaUpdate
     }
 
-    private enum RandomOutputParameter
+    private enum RandomOutgoingParameter
     {
         RandomValue
     }

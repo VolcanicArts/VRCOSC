@@ -19,9 +19,9 @@ public sealed class ClockModule : Module
         CreateSetting(ClockSetting.SmoothSecond, "Smooth Second", "If the seconds hand should be smooth", false);
         CreateSetting(ClockSetting.Timezone, "Timezone", "The timezone the clock should follow", ClockTimeZone.Local);
 
-        CreateOutgoingParameter(ClockOutputParameter.Hours, "Hour", "The current hour normalised", "/avatar/parameters/ClockHour");
-        CreateOutgoingParameter(ClockOutputParameter.Minutes, "Minute", "The current minute normalised", "/avatar/parameters/ClockMinute");
-        CreateOutgoingParameter(ClockOutputParameter.Seconds, "Second", "The current second normalised", "/avatar/parameters/ClockSecond");
+        CreateOutgoingParameter(ClockOutgoingParameter.Hours, "Hour", "The current hour normalised", "/avatar/parameters/ClockHour");
+        CreateOutgoingParameter(ClockOutgoingParameter.Minutes, "Minute", "The current minute normalised", "/avatar/parameters/ClockMinute");
+        CreateOutgoingParameter(ClockOutgoingParameter.Seconds, "Second", "The current second normalised", "/avatar/parameters/ClockSecond");
     }
 
     protected override void OnUpdate()
@@ -41,9 +41,9 @@ public sealed class ClockModule : Module
         var minuteNormalised = minutes / 60f;
         var secondNormalised = seconds / 60f;
 
-        SendParameter(ClockOutputParameter.Hours, hourNormalised);
-        SendParameter(ClockOutputParameter.Minutes, minuteNormalised);
-        SendParameter(ClockOutputParameter.Seconds, secondNormalised);
+        SendParameter(ClockOutgoingParameter.Hours, hourNormalised);
+        SendParameter(ClockOutgoingParameter.Minutes, minuteNormalised);
+        SendParameter(ClockOutgoingParameter.Seconds, secondNormalised);
     }
 
     private static DateTime timezoneToTime(ClockTimeZone timeZone)
@@ -61,7 +61,7 @@ public sealed class ClockModule : Module
         };
     }
 
-    private enum ClockOutputParameter
+    private enum ClockOutgoingParameter
     {
         Hours,
         Minutes,

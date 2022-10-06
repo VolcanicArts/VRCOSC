@@ -17,18 +17,18 @@ public abstract class HeartRateModule : Module
 
     protected override void CreateAttributes()
     {
-        CreateOutgoingParameter(HeartrateOutputParameter.HeartrateEnabled, "Heartrate Enabled", "Whether this module is attempting to emit values", "/avatar/parameters/HeartrateEnabled");
-        CreateOutgoingParameter(HeartrateOutputParameter.HeartrateNormalised, "Heartrate Normalised", "The heartrate value normalised to 60bpm", "/avatar/parameters/HeartrateNormalised");
-        CreateOutgoingParameter(HeartrateOutputParameter.HeartrateUnits, "Heartrate Units", "The units digit 0-9 mapped to a float", "/avatar/parameters/HeartrateUnits");
-        CreateOutgoingParameter(HeartrateOutputParameter.HeartrateTens, "Heartrate Tens", "The tens digit 0-9 mapped to a float", "/avatar/parameters/HeartrateTens");
-        CreateOutgoingParameter(HeartrateOutputParameter.HeartrateHundreds, "Heartrate Hundreds", "The hundreds digit 0-9 mapped to a float", "/avatar/parameters/HeartrateHundreds");
+        CreateOutgoingParameter(HeartrateOutgoingParameter.HeartrateEnabled, "Heartrate Enabled", "Whether this module is attempting to emit values", "/avatar/parameters/HeartrateEnabled");
+        CreateOutgoingParameter(HeartrateOutgoingParameter.HeartrateNormalised, "Heartrate Normalised", "The heartrate value normalised to 60bpm", "/avatar/parameters/HeartrateNormalised");
+        CreateOutgoingParameter(HeartrateOutgoingParameter.HeartrateUnits, "Heartrate Units", "The units digit 0-9 mapped to a float", "/avatar/parameters/HeartrateUnits");
+        CreateOutgoingParameter(HeartrateOutgoingParameter.HeartrateTens, "Heartrate Tens", "The tens digit 0-9 mapped to a float", "/avatar/parameters/HeartrateTens");
+        CreateOutgoingParameter(HeartrateOutgoingParameter.HeartrateHundreds, "Heartrate Hundreds", "The hundreds digit 0-9 mapped to a float", "/avatar/parameters/HeartrateHundreds");
     }
 
     protected override void OnStart()
     {
         heartRateProvider = CreateHeartRateProvider();
         heartRateProvider.OnHeartRateUpdate += HandleHeartRateUpdate;
-        heartRateProvider.OnDisconnected += () => SendParameter(HeartrateOutputParameter.HeartrateEnabled, false);
+        heartRateProvider.OnDisconnected += () => SendParameter(HeartrateOutgoingParameter.HeartrateEnabled, false);
         heartRateProvider.Initialise();
         heartRateProvider.Connect();
     }
@@ -38,7 +38,7 @@ public abstract class HeartRateModule : Module
         if (heartRateProvider is null) return;
 
         await heartRateProvider.Disconnect();
-        SendParameter(HeartrateOutputParameter.HeartrateEnabled, false);
+        SendParameter(HeartrateOutgoingParameter.HeartrateEnabled, false);
     }
 
     protected virtual void HandleHeartRateUpdate(int heartrate)
@@ -46,11 +46,11 @@ public abstract class HeartRateModule : Module
         var normalisedHeartRate = heartrate / 60.0f;
         var individualValues = toDigitArray(heartrate, 3);
 
-        SendParameter(HeartrateOutputParameter.HeartrateEnabled, true);
-        SendParameter(HeartrateOutputParameter.HeartrateNormalised, normalisedHeartRate);
-        SendParameter(HeartrateOutputParameter.HeartrateUnits, individualValues[2] / 10f);
-        SendParameter(HeartrateOutputParameter.HeartrateTens, individualValues[1] / 10f);
-        SendParameter(HeartrateOutputParameter.HeartrateHundreds, individualValues[0] / 10f);
+        SendParameter(HeartrateOutgoingParameter.HeartrateEnabled, true);
+        SendParameter(HeartrateOutgoingParameter.HeartrateNormalised, normalisedHeartRate);
+        SendParameter(HeartrateOutgoingParameter.HeartrateUnits, individualValues[2] / 10f);
+        SendParameter(HeartrateOutgoingParameter.HeartrateTens, individualValues[1] / 10f);
+        SendParameter(HeartrateOutgoingParameter.HeartrateHundreds, individualValues[0] / 10f);
     }
 
     private static int[] toDigitArray(int num, int totalWidth)
@@ -58,7 +58,7 @@ public abstract class HeartRateModule : Module
         return num.ToString().PadLeft(totalWidth, '0').Select(digit => int.Parse(digit.ToString())).ToArray();
     }
 
-    protected enum HeartrateOutputParameter
+    protected enum HeartrateOutgoingParameter
     {
         HeartrateEnabled,
         HeartrateNormalised,

@@ -15,9 +15,9 @@ public sealed class HardwareStatsModule : Module
 
     protected override void CreateAttributes()
     {
-        CreateOutgoingParameter(HardwareStatsOutputParameter.CPUUsage, "CPU Usage", "CPU usage 0-1", "/avatar/parameters/HSCPUUsage");
-        CreateOutgoingParameter(HardwareStatsOutputParameter.GPUUsage, "GPU Usage", "GPU usage 0-1", "/avatar/parameters/HSGPUUsage");
-        CreateOutgoingParameter(HardwareStatsOutputParameter.RAMUsage, "RAM Usage", "RAM usage 0-1", "/avatar/parameters/HSRAMUsage");
+        CreateOutgoingParameter(HardwareStatsOutgoingParameter.CPUUsage, "CPU Usage", "CPU usage 0-1", "/avatar/parameters/HSCPUUsage");
+        CreateOutgoingParameter(HardwareStatsOutgoingParameter.GPUUsage, "GPU Usage", "GPU usage 0-1", "/avatar/parameters/HSGPUUsage");
+        CreateOutgoingParameter(HardwareStatsOutgoingParameter.RAMUsage, "RAM Usage", "RAM usage 0-1", "/avatar/parameters/HSRAMUsage");
     }
 
     protected override void OnStart()
@@ -27,9 +27,9 @@ public sealed class HardwareStatsModule : Module
 
     protected override void OnUpdate()
     {
-        SendParameter(HardwareStatsOutputParameter.CPUUsage, hardwareStatsProvider.GetCpuUsage());
-        SendParameter(HardwareStatsOutputParameter.GPUUsage, hardwareStatsProvider.GetGpuUsage());
-        SendParameter(HardwareStatsOutputParameter.RAMUsage, hardwareStatsProvider.GetRamUsage());
+        SendParameter(HardwareStatsOutgoingParameter.CPUUsage, hardwareStatsProvider.GetCpuUsage());
+        SendParameter(HardwareStatsOutgoingParameter.GPUUsage, hardwareStatsProvider.GetGpuUsage());
+        SendParameter(HardwareStatsOutgoingParameter.RAMUsage, hardwareStatsProvider.GetRamUsage());
     }
 
     protected override void OnStop()
@@ -37,7 +37,7 @@ public sealed class HardwareStatsModule : Module
         hardwareStatsProvider.Dispose();
     }
 
-    private enum HardwareStatsOutputParameter
+    private enum HardwareStatsOutgoingParameter
     {
         CPUUsage,
         GPUUsage,

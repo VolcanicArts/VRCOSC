@@ -17,11 +17,11 @@ public sealed class DiscordModule : IntegrationModule
 
     protected override void CreateAttributes()
     {
-        RegisterButtonInput(DiscordInputParameter.DiscordMic);
-        RegisterButtonInput(DiscordInputParameter.DiscordDeafen);
+        RegisterButtonInput(DiscordIncomingParameter.DiscordMic);
+        RegisterButtonInput(DiscordIncomingParameter.DiscordDeafen);
 
-        RegisterKeyCombination(DiscordInputParameter.DiscordMic, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_LSHIFT, WindowsVKey.VK_M);
-        RegisterKeyCombination(DiscordInputParameter.DiscordDeafen, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_LSHIFT, WindowsVKey.VK_D);
+        RegisterKeyCombination(DiscordIncomingParameter.DiscordMic, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_LSHIFT, WindowsVKey.VK_M);
+        RegisterKeyCombination(DiscordIncomingParameter.DiscordDeafen, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_LSHIFT, WindowsVKey.VK_D);
     }
 
     protected override void OnButtonPressed(Enum key)
@@ -29,7 +29,7 @@ public sealed class DiscordModule : IntegrationModule
         ExecuteKeyCombination(key);
     }
 
-    private enum DiscordInputParameter
+    private enum DiscordIncomingParameter
     {
         DiscordMic,
         DiscordDeafen
