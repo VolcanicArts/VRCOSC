@@ -16,7 +16,6 @@ using VRCOSC.Game.Util;
 using VRCOSC.OSC;
 
 // ReSharper disable MemberCanBePrivate.Global
-// ReSharper disable ParameterTypeCanBeEnumerable.Global
 // ReSharper disable InconsistentNaming
 
 namespace VRCOSC.Game.Modules;
@@ -95,11 +94,11 @@ public abstract class Module
     protected void CreateSetting(Enum lookup, string displayName, string description, float defaultValue, float minValue, float maxValue)
         => addRangedSetting(lookup, displayName, description, defaultValue, minValue, maxValue);
 
-    protected void CreateSetting(Enum lookup, string displayName, string description, List<int> defaultValues)
-        => addListSetting(lookup, displayName, description, defaultValues);
+    protected void CreateSetting(Enum lookup, string displayName, string description, IEnumerable<int> defaultValues)
+        => addEnumerableSetting(lookup, displayName, description, defaultValues);
 
-    protected void CreateSetting(Enum lookup, string displayName, string description, List<string> defaultValues)
-        => addListSetting(lookup, displayName, description, defaultValues);
+    protected void CreateSetting(Enum lookup, string displayName, string description, IEnumerable<string> defaultValues)
+        => addEnumerableSetting(lookup, displayName, description, defaultValues);
 
     protected void CreateSetting(Enum lookup, string displayName, string description, string defaultValue, string buttonText, Action buttonAction)
         => addTextAndButtonSetting(lookup, displayName, description, defaultValue, buttonText, buttonAction);
@@ -107,8 +106,8 @@ public abstract class Module
     protected void CreateOutgoingParameter(Enum lookup, string displayName, string description, string defaultAddress)
         => addSingleOutgoingParameter(lookup, displayName, description, defaultAddress);
 
-    protected void CreateOutgoingParameter(Enum lookup, string displayName, string description, List<string> defaultAddresses)
-        => addListOutgoingParameter(lookup, displayName, description, defaultAddresses);
+    protected void CreateOutgoingParameter(Enum lookup, string displayName, string description, IEnumerable<string> defaultAddresses)
+        => addEnumerableOutgoingParameter(lookup, displayName, description, defaultAddresses);
 
     protected void RegisterIncomingParameter<T>(Enum lookup) where T : struct
     {
@@ -133,7 +132,7 @@ public abstract class Module
         Settings.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeSingle(new ModuleAttributeMetadata(displayName, description), defaultValue));
     }
 
-    private void addListSetting<T>(Enum lookup, string displayName, string description, List<T> defaultValues)
+    private void addEnumerableSetting<T>(Enum lookup, string displayName, string description, IEnumerable<T> defaultValues)
     {
         Settings.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeList(new ModuleAttributeMetadata(displayName, description), defaultValues.Cast<object>(), typeof(T)));
     }
@@ -153,7 +152,7 @@ public abstract class Module
         OutputParameters.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeSingle(new ModuleAttributeMetadata(displayName, description), defaultAddress));
     }
 
-    private void addListOutgoingParameter(Enum lookup, string displayName, string description, List<string> defaultAddresses)
+    private void addEnumerableOutgoingParameter(Enum lookup, string displayName, string description, IEnumerable<string> defaultAddresses)
     {
         OutputParameters.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeList(new ModuleAttributeMetadata(displayName, description), defaultAddresses, typeof(string)));
     }

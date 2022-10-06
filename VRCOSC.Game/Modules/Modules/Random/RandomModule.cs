@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Collections.Generic;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using VRCOSC.Game.Modules.Util;
 
@@ -21,7 +20,7 @@ public abstract class RandomModule<T> : Module where T : struct
 
         var readableTypeName = typeof(T).ToReadableName();
         CreateOutgoingParameter(RandomOutgoingParameter.RandomValue, $"Random {readableTypeName}", $"A random {readableTypeName.ToLowerInvariant()} value. Each new parameter will receive a different random value",
-            new List<string>() { $"/avatar/parameters/Random{readableTypeName}" });
+            new[] { $"/avatar/parameters/Random{readableTypeName}" });
     }
 
     protected override void OnUpdate()
