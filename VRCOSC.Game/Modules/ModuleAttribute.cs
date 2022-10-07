@@ -33,15 +33,9 @@ public class ModuleAttributeSingle : ModuleAttribute
         Attribute = new Bindable<object>(defaultValue);
     }
 
-    public override void SetDefault()
-    {
-        Attribute.SetDefault();
-    }
+    public override void SetDefault() => Attribute.SetDefault();
 
-    public override bool IsDefault()
-    {
-        return Attribute.IsDefault;
-    }
+    public override bool IsDefault() => Attribute.IsDefault;
 }
 
 public sealed class ModuleAttributeSingleWithButton : ModuleAttributeSingle
@@ -94,10 +88,7 @@ public sealed class ModuleAttributeList : ModuleAttribute
         AttributeList.AddRange(newValues);
     }
 
-    public override bool IsDefault()
-    {
-        return AttributeList.Count == defaultValues.Count() && !AttributeList.Where((t, i) => !t.Value.Equals(defaultValues.ElementAt(i))).Any();
-    }
+    public override bool IsDefault() => AttributeList.Count == defaultValues.Count() && !AttributeList.Where((t, i) => !t.Value.Equals(defaultValues.ElementAt(i))).Any();
 
     public void AddAt(int index, Bindable<object> value)
     {

@@ -118,7 +118,7 @@ public sealed class ModuleManager : Component
         ProcessHelper.SetMainWindowForeground(process);
     }
 
-    private static bool isVrChatRunning => Process.GetProcessesByName("vrchat").Length != 0;
+    private static bool isVrChatRunning => Process.GetProcessesByName("vrchat").Any();
 
     private void checkForVrChat()
     {

@@ -8,6 +8,8 @@ using SuperSocket.ClientEngine;
 using VRCOSC.Game.Util;
 using WebSocket4Net;
 
+// ReSharper disable MemberCanBeProtected.Global
+
 namespace VRCOSC.Game.Modules.Websocket;
 
 public class BaseWebSocket : IDisposable

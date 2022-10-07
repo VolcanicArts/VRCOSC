@@ -30,7 +30,7 @@ public sealed class Player
     public bool? InStation;
 
     private readonly OscClient oscClient;
-    private bool hasChanged = false;
+    private bool hasChanged;
 
     public Player(OscClient oscClient)
     {

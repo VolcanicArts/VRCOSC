@@ -20,6 +20,8 @@ public class VRCOSCGameBase : osu.Framework.Game
     private static readonly Vector2 default_size_v = new(1450, 768);
     private static readonly Size default_size = new(1450, 768);
 
+    protected override Container<Drawable> Content { get; }
+
     protected DependencyContainer DependencyContainer = null!;
     protected VRCOSCConfigManager ConfigManager = null!;
 
@@ -32,19 +34,13 @@ public class VRCOSCGameBase : osu.Framework.Game
     }
 
     protected override IDictionary<FrameworkSetting, object> GetFrameworkConfigDefaults()
-    {
-        return new Dictionary<FrameworkSetting, object>
+        => new Dictionary<FrameworkSetting, object>
         {
             { FrameworkSetting.WindowedSize, default_size }
         };
-    }
-
-    protected override Container<Drawable> Content { get; }
 
     protected override IReadOnlyDependencyContainer CreateChildDependencies(IReadOnlyDependencyContainer parent)
-    {
-        return DependencyContainer = new DependencyContainer(base.CreateChildDependencies(parent));
-    }
+        => DependencyContainer = new DependencyContainer(base.CreateChildDependencies(parent));
 
     [BackgroundDependencyLoader]
     private void load(GameHost host, Storage storage)

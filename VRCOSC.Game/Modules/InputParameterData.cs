@@ -3,6 +3,9 @@
 
 using System;
 
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable InconsistentNaming
+
 namespace VRCOSC.Game.Modules;
 
 public class InputParameterData
@@ -40,21 +43,22 @@ public sealed class VRChatRadialPuppet
     /// <summary>
     /// The value that has just been received
     /// </summary>
-    public float Value;
+    public readonly float Value;
 
     /// <summary>
     /// The value that was received last time
     /// </summary>
-    public float PreviousValue;
+    public readonly float PreviousValue;
 
     /// <summary>
     /// The change in value between now and last receive
     /// </summary>
-    public float DeltaValue => Value - PreviousValue;
+    public readonly float DeltaValue;
 
     public VRChatRadialPuppet(float value, float previousValue)
     {
         Value = value;
         PreviousValue = previousValue;
+        DeltaValue = value - previousValue;
     }
 }

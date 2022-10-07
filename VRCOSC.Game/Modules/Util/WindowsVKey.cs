@@ -1,6 +1,9 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+// ReSharper disable IdentifierTypo
+// ReSharper disable UnusedMember.Global
+
 namespace VRCOSC.Game.Modules.Util;
 
 public enum WindowsVKey
