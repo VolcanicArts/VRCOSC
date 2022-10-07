@@ -101,7 +101,7 @@ public class BasicNotification : Notification
         });
         textFlow.AddText($"\n{Description}", s =>
         {
-            s.Font = FrameworkFont.Regular.With(size: 15);
+            s.Font = FrameworkFont.Regular.With(size: 13);
         });
 
         return foreground;

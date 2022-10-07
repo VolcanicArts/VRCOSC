@@ -4,6 +4,8 @@
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Sprites;
+using osu.Framework.Platform;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics;
 using VRCOSC.Game.Graphics.Notifications;
@@ -20,7 +22,12 @@ public abstract class VRCOSCGame : VRCOSCGameBase
     [Cached]
     private ModuleManager moduleManager = new();
 
+    [Resolved]
+    private GameHost host { get; set; } = null!;
+
     public VRCOSCUpdateManager UpdateManager = null!;
+
+    private NotificationContainer notificationContainer = null!;
 
     public Bindable<Tabs> SelectedTab = new();
     public Bindable<string> SearchTermFilter = new(string.Empty);
@@ -31,7 +38,7 @@ public abstract class VRCOSCGame : VRCOSCGameBase
     [BackgroundDependencyLoader]
     private void load()
     {
-        var notificationContainer = new NotificationContainer();
+        notificationContainer = new NotificationContainer();
         DependencyContainer.CacheAs(notificationContainer);
 
         Children = new Drawable[]
@@ -57,6 +64,16 @@ public abstract class VRCOSCGame : VRCOSCGameBase
         var updateMode = ConfigManager.Get<UpdateMode>(VRCOSCSetting.UpdateMode);
 
         if (updateMode != UpdateMode.Off) UpdateManager.CheckForUpdate();
+
+        notificationContainer.Notify(new TimedNotification
+        {
+            Title = "Discord Server",
+            Description = "Click to join the Discord server",
+            Icon = FontAwesome.Brands.Discord,
+            Colour = Colour4.FromHex(@"7289DA"),
+            ClickCallback = () => host.OpenUrlExternally("https://discord.gg/vj4brHyvT5"),
+            Delay = 7500d
+        });
     }
 
     protected abstract VRCOSCUpdateManager CreateUpdateManager();
