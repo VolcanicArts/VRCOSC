@@ -119,7 +119,7 @@ public sealed class ModuleEditingContent : Container
             parameters.Replace(sourceModule.Value.OutputParameters.Values);
 
             settings.Alpha = sourceModule.Value.HasSettings ? 1 : 0;
-            parameters.Alpha = sourceModule.Value.HasOutputParameters ? 1 : 0;
+            parameters.Alpha = sourceModule.Value.HasOutgoingParameters ? 1 : 0;
         }, true);
     }
 

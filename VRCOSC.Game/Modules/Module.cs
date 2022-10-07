@@ -4,6 +4,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,6 +21,7 @@ using VRCOSC.OSC;
 
 namespace VRCOSC.Game.Modules;
 
+[SuppressMessage("Usage", "CA2208:Instantiate argument exceptions correctly")]
 public abstract class Module
 {
     private GameHost Host = null!;
@@ -62,13 +64,14 @@ public abstract class Module
     #region Properties
 
     public bool HasSettings => Settings.Any();
-    public bool HasOutputParameters => OutputParameters.Any();
-    public bool HasAttributes => HasSettings || HasOutputParameters;
+    public bool HasOutgoingParameters => OutputParameters.Any();
+    public bool HasAttributes => HasSettings || HasOutgoingParameters;
+
     private bool IsEnabled => Enabled.Value;
     private bool ShouldUpdate => DeltaUpdate != int.MaxValue;
-
     private string FileName => @$"{GetType().Name}.ini";
-    private const string VrChatOscPrefix = @"/avatar/parameters/";
+
+    private const string VRChatOscPrefix = @"/avatar/parameters/";
 
     #endregion
 
@@ -110,20 +113,17 @@ public abstract class Module
         => addEnumerableOutgoingParameter(lookup, displayName, description, defaultAddresses);
 
     protected void RegisterIncomingParameter<T>(Enum lookup) where T : struct
-    {
-        InputParameters.Add(lookup, new InputParameterData(typeof(T)));
-        InputParametersMap.Add(lookup.ToString(), lookup);
-    }
+        => registerInput(lookup, new InputParameterData(typeof(T)));
 
     protected void RegisterButtonInput(Enum lookup)
-    {
-        InputParameters.Add(lookup, new ButtonInputParameterData());
-        InputParametersMap.Add(lookup.ToString(), lookup);
-    }
+        => registerInput(lookup, new ButtonInputParameterData());
 
     protected void RegisterRadialInput(Enum lookup)
+        => registerInput(lookup, new RadialInputParameterData());
+
+    private void registerInput(Enum lookup, InputParameterData parameterData)
     {
-        InputParameters.Add(lookup, new RadialInputParameterData());
+        InputParameters.Add(lookup, parameterData);
         InputParametersMap.Add(lookup.ToString(), lookup);
     }
 
@@ -238,13 +238,13 @@ public abstract class Module
             return;
         }
 
-        if (!address.StartsWith(VrChatOscPrefix)) return;
+        if (!address.StartsWith(VRChatOscPrefix)) return;
 
         // technically allows for parameters with slashes in their name
         // but not possible for VRCOSC at the moment due to enums being
         // used as the key and address
         // TODO: might be viable to have a key separate from expected address?
-        var parameterName = address.Remove(0, VrChatOscPrefix.Length);
+        var parameterName = address.Remove(0, VRChatOscPrefix.Length);
         updatePlayerState(parameterName, value);
 
         if (!InputParametersMap.TryGetValue(parameterName, out var key)) return;
@@ -559,7 +559,7 @@ public abstract class Module
                     var readableTypeName = settingList.AttributeList.First().Value.GetType().ToReadableName().ToLowerInvariant();
                     if (!readableTypeName.Equals(typeStr)) continue;
 
-                    var index = int.Parse(lookupStr.Split('#')[1]);
+                    var index = int.Parse(lookupStr.Split(new[] { '#' }, 2)[1]);
 
                     switch (typeStr)
                     {
@@ -572,8 +572,7 @@ public abstract class Module
                             break;
 
                         default:
-                            Logger.Log($"Unknown type for list found in file: {typeStr}");
-                            break;
+                            throw new ArgumentOutOfRangeException(nameof(value), value, $"Unknown type found in file for {nameof(ModuleAttributeList)}: {value.GetType()}");
                     }
 
                     break;
@@ -607,7 +606,7 @@ public abstract class Module
 
                 case ModuleAttributeList parameterList:
                 {
-                    var index = int.Parse(lookupStr.Split('#')[1]);
+                    var index = int.Parse(lookupStr.Split(new[] { '#' }, 2)[1]);
                     parameterList.AddAt(index, new Bindable<object>(value));
                     break;
                 }
@@ -768,15 +767,9 @@ public abstract class Module
 
     #region Extensions
 
-    protected void Log(string message)
-    {
-        Terminal.Log(message);
-    }
+    protected void Log(string message) => Terminal.Log(message);
 
-    protected void OpenUrlExternally(string Url)
-    {
-        Host.OpenUrlExternally(Url);
-    }
+    protected void OpenUrlExternally(string Url) => Host.OpenUrlExternally(Url);
 
     #endregion
 
