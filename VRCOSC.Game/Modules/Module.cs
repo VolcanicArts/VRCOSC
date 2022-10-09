@@ -112,19 +112,20 @@ public abstract class Module
     protected void CreateOutgoingParameter(Enum lookup, string displayName, string description, IEnumerable<string> defaultAddresses)
         => addEnumerableOutgoingParameter(lookup, displayName, description, defaultAddresses);
 
-    protected void RegisterIncomingParameter<T>(Enum lookup) where T : struct
-        => registerInput(lookup, new InputParameterData(typeof(T)));
+    protected void RegisterIncomingParameter<T>(Enum lookup, string addressOverride = "") where T : struct
+        => registerInput(lookup, addressOverride, new InputParameterData(typeof(T)));
 
-    protected void RegisterButtonInput(Enum lookup)
-        => registerInput(lookup, new ButtonInputParameterData());
+    protected void RegisterButtonInput(Enum lookup, string addressOverride = "")
+        => registerInput(lookup, addressOverride, new ButtonInputParameterData());
 
-    protected void RegisterRadialInput(Enum lookup)
-        => registerInput(lookup, new RadialInputParameterData());
+    protected void RegisterRadialInput(Enum lookup, string addressOverride = "")
+        => registerInput(lookup, addressOverride, new RadialInputParameterData());
 
-    private void registerInput(Enum lookup, InputParameterData parameterData)
+    private void registerInput(Enum lookup, string addressOverride, InputParameterData parameterData)
     {
+        var address = string.IsNullOrEmpty(addressOverride) ? lookup.ToString() : addressOverride;
         InputParameters.Add(lookup, parameterData);
-        InputParametersMap.Add(lookup.ToString(), lookup);
+        InputParametersMap.Add(address, lookup);
     }
 
     private void addSingleSetting(Enum lookup, string displayName, string description, object defaultValue)
@@ -240,10 +241,6 @@ public abstract class Module
 
         if (!address.StartsWith(VRChatOscPrefix)) return;
 
-        // technically allows for parameters with slashes in their name
-        // but not possible for VRCOSC at the moment due to enums being
-        // used as the key and address
-        // TODO: might be viable to have a key separate from expected address?
         var parameterName = address.Remove(0, VRChatOscPrefix.Length);
         updatePlayerState(parameterName, value);
 
