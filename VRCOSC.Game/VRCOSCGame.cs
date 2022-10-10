@@ -74,6 +74,16 @@ public abstract class VRCOSCGame : VRCOSCGameBase
             ClickCallback = () => host.OpenUrlExternally("https://discord.gg/vj4brHyvT5"),
             Delay = 7500d
         });
+
+        notificationContainer.Notify(new TimedNotification
+        {
+            Title = "Prefab Updates",
+            Description = "Remember to check for prefab updates!",
+            Icon = FontAwesome.Solid.ExclamationTriangle,
+            Colour = VRCOSCColour.YellowDark,
+            ClickCallback = () => host.OpenUrlExternally("https://github.com/VolcanicArts/VRCOSC/releases/latest"),
+            Delay = 7500d
+        });
     }
 
     protected abstract VRCOSCUpdateManager CreateUpdateManager();
