@@ -65,16 +65,21 @@ public abstract class VRCOSCGame : VRCOSCGameBase
 
         if (updateMode != UpdateMode.Off) UpdateManager.CheckForUpdate();
 
-        if (Version != ConfigManager.Get<string>(VRCOSCSetting.Version))
+        var lastVersion = ConfigManager.Get<string>(VRCOSCSetting.Version);
+
+        if (Version != lastVersion)
         {
-            notificationContainer.Notify(new BasicNotification
+            if (!string.IsNullOrEmpty(lastVersion))
             {
-                Title = "VRCOSC Updated",
-                Description = "Click to see the changes",
-                Icon = FontAwesome.Solid.Download,
-                Colour = VRCOSCColour.GreenDark,
-                ClickCallback = () => host.OpenUrlExternally("https://github.com/VolcanicArts/VRCOSC/releases/latest"),
-            });
+                notificationContainer.Notify(new BasicNotification
+                {
+                    Title = "VRCOSC Updated",
+                    Description = "Click to see the changes",
+                    Icon = FontAwesome.Solid.Download,
+                    Colour = VRCOSCColour.GreenDark,
+                    ClickCallback = () => host.OpenUrlExternally("https://github.com/VolcanicArts/VRCOSC/releases/latest"),
+                });
+            }
         }
 
         ConfigManager.SetValue(VRCOSCSetting.Version, Version);
