@@ -18,6 +18,7 @@ public sealed class VRCOSCConfigManager : IniConfigManager<VRCOSCSetting>
 
     protected override void InitialiseDefaults()
     {
+        SetDefault(VRCOSCSetting.Version, string.Empty);
         SetDefault(VRCOSCSetting.AutoStartStop, false);
         SetDefault(VRCOSCSetting.IPAddress, "127.0.0.1");
         SetDefault(VRCOSCSetting.SendPort, 9000);
@@ -29,6 +30,7 @@ public sealed class VRCOSCConfigManager : IniConfigManager<VRCOSCSetting>
 
 public enum VRCOSCSetting
 {
+    Version,
     AutoStartStop,
     IPAddress,
     SendPort,

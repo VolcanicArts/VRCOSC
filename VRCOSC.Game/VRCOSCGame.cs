@@ -65,6 +65,20 @@ public abstract class VRCOSCGame : VRCOSCGameBase
 
         if (updateMode != UpdateMode.Off) UpdateManager.CheckForUpdate();
 
+        if (Version != ConfigManager.Get<string>(VRCOSCSetting.Version))
+        {
+            notificationContainer.Notify(new BasicNotification
+            {
+                Title = "VRCOSC Updated",
+                Description = "Click to see the changes",
+                Icon = FontAwesome.Solid.Download,
+                Colour = VRCOSCColour.GreenDark,
+                ClickCallback = () => host.OpenUrlExternally("https://github.com/VolcanicArts/VRCOSC/releases/latest"),
+            });
+        }
+
+        ConfigManager.SetValue(VRCOSCSetting.Version, Version);
+
         notificationContainer.Notify(new TimedNotification
         {
             Title = "Discord Server",
@@ -72,16 +86,6 @@ public abstract class VRCOSCGame : VRCOSCGameBase
             Icon = FontAwesome.Brands.Discord,
             Colour = Colour4.FromHex(@"7289DA"),
             ClickCallback = () => host.OpenUrlExternally("https://discord.gg/vj4brHyvT5"),
-            Delay = 7500d
-        });
-
-        notificationContainer.Notify(new TimedNotification
-        {
-            Title = "Prefab Updates",
-            Description = "Remember to check for prefab updates!",
-            Icon = FontAwesome.Solid.ExclamationTriangle,
-            Colour = VRCOSCColour.YellowDark,
-            ClickCallback = () => host.OpenUrlExternally("https://github.com/VolcanicArts/VRCOSC/releases/latest"),
             Delay = 7500d
         });
     }

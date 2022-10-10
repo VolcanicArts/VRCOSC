@@ -1,8 +1,10 @@
 // Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Reflection;
 using osu.Framework.Allocation;
 using osu.Framework.Configuration;
 using osu.Framework.Graphics;
@@ -24,6 +26,10 @@ public class VRCOSCGameBase : osu.Framework.Game
 
     protected DependencyContainer DependencyContainer = null!;
     protected VRCOSCConfigManager ConfigManager = null!;
+
+    private Version assemblyVersion => Assembly.GetEntryAssembly()?.GetName().Version ?? new Version();
+
+    public string Version => $@"{assemblyVersion.Major}.{assemblyVersion.Minor}.{assemblyVersion.Build}";
 
     protected VRCOSCGameBase()
     {
