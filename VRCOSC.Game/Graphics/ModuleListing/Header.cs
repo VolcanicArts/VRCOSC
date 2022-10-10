@@ -69,7 +69,10 @@ public sealed class Header : Container
                                 RelativeSizeAxes = Axes.Both,
                                 CornerRadius = 5,
                                 PlaceholderText = "Search",
-                                Current = game.SearchTermFilter
+                                Current = game.SearchTermFilter,
+                                Masking = true,
+                                BorderColour = Colour4.Black,
+                                BorderThickness = 2
                             }
                         }
                     }
