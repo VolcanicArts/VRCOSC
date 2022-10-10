@@ -58,7 +58,7 @@ public abstract class Module
         CreateAttributes();
         performLoad();
 
-        State.ValueChanged += _ => Terminal.Log(State.Value.ToString());
+        State.ValueChanged += _ => Log(State.Value.ToString());
     }
 
     #region Properties
