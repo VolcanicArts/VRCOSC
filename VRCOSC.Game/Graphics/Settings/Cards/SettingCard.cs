@@ -17,7 +17,6 @@ public abstract class SettingCard<T> : Container
 {
     private VRCOSCButton resetToDefault = null!;
     protected FillFlowContainer ContentFlow = null!;
-    protected FillFlowContainer LayoutFlow = null!;
 
     private readonly string title;
     private readonly string description;
@@ -85,7 +84,7 @@ public abstract class SettingCard<T> : Container
                         RelativeSizeAxes = Axes.Both,
                         Colour = VRCOSCColour.Gray2
                     },
-                    LayoutFlow = new FillFlowContainer
+                    new FillFlowContainer
                     {
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
