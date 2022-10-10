@@ -112,20 +112,20 @@ public abstract class Module
     protected void CreateOutgoingParameter(Enum lookup, string displayName, string description, IEnumerable<string> defaultAddresses)
         => addEnumerableOutgoingParameter(lookup, displayName, description, defaultAddresses);
 
-    protected void RegisterIncomingParameter<T>(Enum lookup, string addressOverride = "") where T : struct
-        => registerInput(lookup, addressOverride, new InputParameterData(typeof(T)));
+    protected void RegisterIncomingParameter<T>(Enum lookup, string parameterNameOverride = "") where T : struct
+        => registerInput(lookup, parameterNameOverride, new InputParameterData(typeof(T)));
 
-    protected void RegisterButtonInput(Enum lookup, string addressOverride = "")
-        => registerInput(lookup, addressOverride, new ButtonInputParameterData());
+    protected void RegisterButtonInput(Enum lookup, string parameterNameOverride = "")
+        => registerInput(lookup, parameterNameOverride, new ButtonInputParameterData());
 
-    protected void RegisterRadialInput(Enum lookup, string addressOverride = "")
-        => registerInput(lookup, addressOverride, new RadialInputParameterData());
+    protected void RegisterRadialInput(Enum lookup, string parameterNameOverride = "")
+        => registerInput(lookup, parameterNameOverride, new RadialInputParameterData());
 
-    private void registerInput(Enum lookup, string addressOverride, InputParameterData parameterData)
+    private void registerInput(Enum lookup, string parameterNameOverride, InputParameterData parameterData)
     {
-        var address = string.IsNullOrEmpty(addressOverride) ? lookup.ToString() : addressOverride;
+        var parameterName = string.IsNullOrEmpty(parameterNameOverride) ? lookup.ToString() : parameterNameOverride;
         InputParameters.Add(lookup, parameterData);
-        InputParametersMap.Add(address, lookup);
+        InputParametersMap.Add(parameterName, lookup);
     }
 
     private void addSingleSetting(Enum lookup, string displayName, string description, object defaultValue)
