@@ -17,18 +17,18 @@ public abstract class HeartRateModule : Module
 
     protected override void CreateAttributes()
     {
-        CreateOutgoingParameter(HeartrateOutgoingParameter.HeartrateEnabled, "Heartrate Enabled", "Whether this module is attempting to emit values", "/avatar/parameters/HeartrateEnabled");
-        CreateOutgoingParameter(HeartrateOutgoingParameter.HeartrateNormalised, "Heartrate Normalised", "The heartrate value normalised to 60bpm", "/avatar/parameters/HeartrateNormalised");
-        CreateOutgoingParameter(HeartrateOutgoingParameter.HeartrateUnits, "Heartrate Units", "The units digit 0-9 mapped to a float", "/avatar/parameters/HeartrateUnits");
-        CreateOutgoingParameter(HeartrateOutgoingParameter.HeartrateTens, "Heartrate Tens", "The tens digit 0-9 mapped to a float", "/avatar/parameters/HeartrateTens");
-        CreateOutgoingParameter(HeartrateOutgoingParameter.HeartrateHundreds, "Heartrate Hundreds", "The hundreds digit 0-9 mapped to a float", "/avatar/parameters/HeartrateHundreds");
+        CreateOutgoingParameter(HeartrateOutgoingParameter.Enabled, "Heartrate Enabled", "Whether this module is attempting to emit values", "/avatar/parameters/VRCOSC/Heartrate/Enabled");
+        CreateOutgoingParameter(HeartrateOutgoingParameter.Normalised, "Heartrate Normalised", "The heartrate value normalised to 60bpm", "/avatar/parameters/VRCOSC/Heartrate/Normalised");
+        CreateOutgoingParameter(HeartrateOutgoingParameter.Units, "Heartrate Units", "The units digit 0-9 mapped to a float", "/avatar/parameters/VRCOSC/Heartrate/Units");
+        CreateOutgoingParameter(HeartrateOutgoingParameter.Tens, "Heartrate Tens", "The tens digit 0-9 mapped to a float", "/avatar/parameters/VRCOSC/Heartrate/Tens");
+        CreateOutgoingParameter(HeartrateOutgoingParameter.Hundreds, "Heartrate Hundreds", "The hundreds digit 0-9 mapped to a float", "/avatar/parameters/VRCOSC/Heartrate/Hundreds");
     }
 
     protected override void OnStart()
     {
         heartRateProvider = CreateHeartRateProvider();
         heartRateProvider.OnHeartRateUpdate += HandleHeartRateUpdate;
-        heartRateProvider.OnDisconnected += () => SendParameter(HeartrateOutgoingParameter.HeartrateEnabled, false);
+        heartRateProvider.OnDisconnected += () => SendParameter(HeartrateOutgoingParameter.Enabled, false);
         heartRateProvider.Initialise();
         heartRateProvider.Connect();
     }
@@ -38,7 +38,7 @@ public abstract class HeartRateModule : Module
         if (heartRateProvider is null) return;
 
         await heartRateProvider.Disconnect();
-        SendParameter(HeartrateOutgoingParameter.HeartrateEnabled, false);
+        SendParameter(HeartrateOutgoingParameter.Enabled, false);
     }
 
     protected virtual void HandleHeartRateUpdate(int heartrate)
@@ -46,11 +46,11 @@ public abstract class HeartRateModule : Module
         var normalisedHeartRate = heartrate / 60.0f;
         var individualValues = toDigitArray(heartrate, 3);
 
-        SendParameter(HeartrateOutgoingParameter.HeartrateEnabled, true);
-        SendParameter(HeartrateOutgoingParameter.HeartrateNormalised, normalisedHeartRate);
-        SendParameter(HeartrateOutgoingParameter.HeartrateUnits, individualValues[2] / 10f);
-        SendParameter(HeartrateOutgoingParameter.HeartrateTens, individualValues[1] / 10f);
-        SendParameter(HeartrateOutgoingParameter.HeartrateHundreds, individualValues[0] / 10f);
+        SendParameter(HeartrateOutgoingParameter.Enabled, true);
+        SendParameter(HeartrateOutgoingParameter.Normalised, normalisedHeartRate);
+        SendParameter(HeartrateOutgoingParameter.Units, individualValues[2] / 10f);
+        SendParameter(HeartrateOutgoingParameter.Tens, individualValues[1] / 10f);
+        SendParameter(HeartrateOutgoingParameter.Hundreds, individualValues[0] / 10f);
     }
 
     private static int[] toDigitArray(int num, int totalWidth)
@@ -60,10 +60,10 @@ public abstract class HeartRateModule : Module
 
     protected enum HeartrateOutgoingParameter
     {
-        HeartrateEnabled,
-        HeartrateNormalised,
-        HeartrateUnits,
-        HeartrateTens,
-        HeartrateHundreds
+        Enabled,
+        Normalised,
+        Units,
+        Tens,
+        Hundreds
     }
 }

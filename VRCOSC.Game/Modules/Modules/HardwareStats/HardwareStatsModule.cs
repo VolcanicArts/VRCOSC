@@ -15,9 +15,9 @@ public sealed class HardwareStatsModule : Module
 
     protected override void CreateAttributes()
     {
-        CreateOutgoingParameter(HardwareStatsOutgoingParameter.CPUUsage, "CPU Usage", "CPU usage 0-1", "/avatar/parameters/HSCPUUsage");
-        CreateOutgoingParameter(HardwareStatsOutgoingParameter.GPUUsage, "GPU Usage", "GPU usage 0-1", "/avatar/parameters/HSGPUUsage");
-        CreateOutgoingParameter(HardwareStatsOutgoingParameter.RAMUsage, "RAM Usage", "RAM usage 0-1", "/avatar/parameters/HSRAMUsage");
+        CreateOutgoingParameter(HardwareStatsOutgoingParameter.CPUUsage, "CPU Usage", "CPU usage 0-1", "/avatar/parameters/VRCOSC/Hardware/CPUUsage");
+        CreateOutgoingParameter(HardwareStatsOutgoingParameter.GPUUsage, "GPU Usage", "GPU usage 0-1", "/avatar/parameters/VRCOSC/Hardware/GPUUsage");
+        CreateOutgoingParameter(HardwareStatsOutgoingParameter.RAMUsage, "RAM Usage", "RAM usage 0-1", "/avatar/parameters/VRCOSC/Hardware/RAMUsage");
     }
 
     protected override void OnStart()

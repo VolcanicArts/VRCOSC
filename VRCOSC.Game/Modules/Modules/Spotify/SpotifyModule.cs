@@ -27,17 +27,17 @@ public sealed class SpotifyModule : IntegrationModule
         CreateSetting(SpotifySetting.TitleFormat, "Title Format", "How displaying the title should be formatted. `%title%` for the title", "Now Playing: %title%");
         CreateSetting(SpotifySetting.InstallLocation, "Install Location", "The location of your spotify.exe file", $@"C:\Users\{Environment.UserName}\AppData\Roaming\Spotify\spotify.exe");
 
-        RegisterButtonInput(SpotifyIncomingParameter.SpotifyPlayPause);
-        RegisterButtonInput(SpotifyIncomingParameter.SpotifyNext);
-        RegisterButtonInput(SpotifyIncomingParameter.SpotifyPrevious);
-        RegisterButtonInput(SpotifyIncomingParameter.SpotifyVolumeUp);
-        RegisterButtonInput(SpotifyIncomingParameter.SpotifyVolumeDown);
+        RegisterButtonInput(SpotifyIncomingParameter.PlayPause, "VRCOSC/Spotify/PlayPause");
+        RegisterButtonInput(SpotifyIncomingParameter.Next, "VRCOSC/Spotify/Next");
+        RegisterButtonInput(SpotifyIncomingParameter.Previous, "VRCOSC/Spotify/Previous");
+        RegisterButtonInput(SpotifyIncomingParameter.VolumeUp, "VRCOSC/Spotify/VolumeUp");
+        RegisterButtonInput(SpotifyIncomingParameter.VolumeDown, "VRCOSC/Spotify/VolumeDown");
 
-        RegisterKeyCombination(SpotifyIncomingParameter.SpotifyPlayPause, WindowsVKey.VK_SPACE);
-        RegisterKeyCombination(SpotifyIncomingParameter.SpotifyNext, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_RIGHT);
-        RegisterKeyCombination(SpotifyIncomingParameter.SpotifyPrevious, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_LEFT);
-        RegisterKeyCombination(SpotifyIncomingParameter.SpotifyVolumeUp, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_UP);
-        RegisterKeyCombination(SpotifyIncomingParameter.SpotifyVolumeDown, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_DOWN);
+        RegisterKeyCombination(SpotifyIncomingParameter.PlayPause, WindowsVKey.VK_SPACE);
+        RegisterKeyCombination(SpotifyIncomingParameter.Next, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_RIGHT);
+        RegisterKeyCombination(SpotifyIncomingParameter.Previous, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_LEFT);
+        RegisterKeyCombination(SpotifyIncomingParameter.VolumeUp, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_UP);
+        RegisterKeyCombination(SpotifyIncomingParameter.VolumeDown, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_DOWN);
     }
 
     protected override void OnStart()
@@ -99,10 +99,10 @@ public sealed class SpotifyModule : IntegrationModule
 
     private enum SpotifyIncomingParameter
     {
-        SpotifyPlayPause,
-        SpotifyNext,
-        SpotifyPrevious,
-        SpotifyVolumeUp,
-        SpotifyVolumeDown
+        PlayPause,
+        Next,
+        Previous,
+        VolumeUp,
+        VolumeDown
     }
 }
