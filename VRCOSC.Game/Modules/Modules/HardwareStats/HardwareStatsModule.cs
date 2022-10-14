@@ -8,7 +8,7 @@ namespace VRCOSC.Game.Modules.Modules.HardwareStats;
 public sealed class HardwareStatsModule : Module
 {
     public override string Title => "Hardware Stats";
-    public override string Description => "Sends your hardware stats";
+    public override string Description => "Sends hardware stats and displays them in the ChatBox";
     public override string Author => "VolcanicArts";
     public override ModuleType ModuleType => ModuleType.General;
     protected override int DeltaUpdate => 2000;
