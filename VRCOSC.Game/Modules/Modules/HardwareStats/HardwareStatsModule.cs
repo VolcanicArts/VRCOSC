@@ -63,14 +63,14 @@ public sealed class HardwareStatsModule : Module
     private void updateChatBox()
     {
         var text = GetSetting<string>(HardwareStatsSetting.ChatBoxFormat)
-                   .Replace("$cpuusage$", (hardwareStatsProvider!.CpuUsage).ToString("#.##"))
-                   .Replace("$gpuusage$", (hardwareStatsProvider!.GpuUsage).ToString("#.##"))
-                   .Replace("$ramusage$", (hardwareStatsProvider!.RamUsage).ToString("#.##"))
+                   .Replace("$cpuusage$", (hardwareStatsProvider!.CpuUsage).ToString("#.00"))
+                   .Replace("$gpuusage$", (hardwareStatsProvider!.GpuUsage).ToString("#.00"))
+                   .Replace("$ramusage$", (hardwareStatsProvider!.RamUsage).ToString("#.00"))
                    .Replace("$cputemp$", (hardwareStatsProvider!.CpuTemp).ToString())
                    .Replace("$gputemp$", (hardwareStatsProvider!.GpuTemp).ToString())
-                   .Replace("$ramtotal$", (hardwareStatsProvider!.RamTotal).ToString("#.##"))
-                   .Replace("$ramused$", (hardwareStatsProvider!.RamUsed).ToString("#.##"))
-                   .Replace("$ramavailable$", (hardwareStatsProvider!.RamAvailable).ToString("#.##"));
+                   .Replace("$ramtotal$", (hardwareStatsProvider!.RamTotal).ToString("#.#"))
+                   .Replace("$ramused$", (hardwareStatsProvider!.RamUsed).ToString("#.00"))
+                   .Replace("$ramavailable$", (hardwareStatsProvider!.RamAvailable).ToString("#.00"));
 
         SetChatBoxText(text);
     }
