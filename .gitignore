@@ -1,5 +1,6 @@
 bin/
 obj/
+/build
 /Releases
 /publish
 /publish.sh
