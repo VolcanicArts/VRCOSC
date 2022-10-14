@@ -56,8 +56,8 @@ public sealed class SpeechToTextModule : Module
             MaxAlternatives = 0
         };
 
-        SetChatBoxTyping(false);
-        SetChatBoxText("SpeechToText Activated");
+        ChatBox.SetTyping(false);
+        ChatBox.SetText("SpeechToText Activated");
     }
 
     protected override void OnStop()
@@ -66,13 +66,13 @@ public sealed class SpeechToTextModule : Module
         speechRecognitionEngine.SpeechHypothesized -= speechHypothesising;
         speechRecognitionEngine.SpeechRecognized -= speechRecognising;
 
-        SetChatBoxTyping(false);
-        SetChatBoxText("SpeechToText Deactivated");
+        ChatBox.SetTyping(false);
+        ChatBox.SetText("SpeechToText Deactivated");
     }
 
     private void speechHypothesising(object? sender, SpeechHypothesizedEventArgs e)
     {
-        SetChatBoxTyping(true);
+        ChatBox.SetTyping(true);
     }
 
     private void speechRecognising(object? sender, SpeechRecognizedEventArgs e)
@@ -94,8 +94,8 @@ public sealed class SpeechToTextModule : Module
             if (string.IsNullOrEmpty(text)) return;
 
             Log($"Recognised: {text}");
-            SetChatBoxTyping(false);
-            SetChatBoxText(text);
+            ChatBox.SetTyping(false);
+            ChatBox.SetText(text);
         }
         catch (InvalidOperationException) { }
     }

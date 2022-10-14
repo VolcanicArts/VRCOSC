@@ -52,6 +52,8 @@ public sealed class ModuleManager : Component
     public readonly List<Module> Modules = new();
     public readonly OscClient OscClient = new();
 
+    private ChatBox ChatBox;
+
     [Resolved]
     private VRCOSCConfigManager configManager { get; set; } = null!;
 
@@ -61,11 +63,13 @@ public sealed class ModuleManager : Component
     [BackgroundDependencyLoader]
     private void load(GameHost host, Storage storage)
     {
+        ChatBox = new ChatBox(OscClient);
+
         var moduleStorage = storage.GetStorageForDirectory("modules");
         module_types.ForEach(type =>
         {
             var module = (Module)Activator.CreateInstance(type)!;
-            module.Initialise(host, moduleStorage, OscClient);
+            module.Initialise(host, moduleStorage, OscClient, ChatBox);
             Modules.Add(module);
         });
 

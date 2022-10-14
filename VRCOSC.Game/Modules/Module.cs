@@ -45,12 +45,14 @@ public abstract class Module
     protected virtual int DeltaUpdate => int.MaxValue;
 
     protected Player Player = null!;
+    protected ChatBox ChatBox = null!;
 
-    public void Initialise(GameHost host, Storage storage, OscClient oscClient)
+    public void Initialise(GameHost host, Storage storage, OscClient oscClient, ChatBox chatBox)
     {
         Host = host;
         Storage = storage;
         OscClient = oscClient;
+        ChatBox = chatBox;
         Terminal = new TerminalLogger(GetType().Name);
         State = new Bindable<ModuleState>(ModuleState.Stopped);
         Player = new Player(OscClient);
@@ -423,16 +425,6 @@ public abstract class Module
         if (State.Value == ModuleState.Stopped) return;
 
         GetOutputParameter(lookup).ForEach(address => address.SendValue(value));
-    }
-
-    protected void SetChatBoxTyping(bool typing)
-    {
-        OscClient.SendValue("/chatbox/typing", typing);
-    }
-
-    protected void SetChatBoxText(string text, bool bypassKeyboard = true)
-    {
-        OscClient.SendValues("/chatbox/input", new List<object> { text, bypassKeyboard });
     }
 
     #endregion

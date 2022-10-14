@@ -72,13 +72,13 @@ public sealed class HardwareStatsModule : Module
                    .Replace("$ramused$", (hardwareStatsProvider!.RamUsed).ToString("#.#"))
                    .Replace("$ramavailable$", (hardwareStatsProvider!.RamAvailable).ToString("#.#"));
 
-        SetChatBoxText(text);
+        ChatBox.SetText(text);
     }
 
     protected override void OnStop()
     {
         hardwareStatsProvider = null;
-        SetChatBoxText(string.Empty);
+        ChatBox.SetText(string.Empty);
     }
 
     private enum HardwareStatsOutgoingParameter
