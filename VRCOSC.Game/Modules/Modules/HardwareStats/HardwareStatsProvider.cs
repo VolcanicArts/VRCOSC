@@ -3,6 +3,7 @@
 
 using System.Threading.Tasks;
 using LibreHardwareMonitor.Hardware;
+using osu.Framework.Extensions.IEnumerableExtensions;
 
 namespace VRCOSC.Game.Modules.Modules.HardwareStats;
 
@@ -30,23 +31,14 @@ public sealed class HardwareStatsProvider
 
     public void Update()
     {
-        foreach (IHardware hardware in computer.Hardware)
-        {
-            hardware.Update();
+        computer.Hardware.ForEach(updateHardware);
+    }
 
-            foreach (IHardware subHardware in hardware.SubHardware)
-            {
-                foreach (ISensor sensor in subHardware.Sensors)
-                {
-                    handleSensor(sensor);
-                }
-            }
-
-            foreach (ISensor sensor in hardware.Sensors)
-            {
-                handleSensor(sensor);
-            }
-        }
+    private void updateHardware(IHardware hardware)
+    {
+        hardware.Update();
+        hardware.SubHardware.ForEach(updateHardware);
+        hardware.Sensors.ForEach(handleSensor);
     }
 
     private void handleSensor(ISensor sensor)
@@ -99,8 +91,6 @@ public sealed class HardwareStatsProvider
 
                 break;
         }
-
-        RamTotal = RamUsed + RamAvailable;
     }
 
     public float CpuUsage { get; private set; }
@@ -110,7 +100,7 @@ public sealed class HardwareStatsProvider
     public int CpuTemp { get; private set; }
     public int GpuTemp { get; private set; }
 
-    public float RamTotal { get; private set; }
     public float RamUsed { get; private set; }
     public float RamAvailable { get; private set; }
+    public float RamTotal => RamUsed + RamAvailable;
 }

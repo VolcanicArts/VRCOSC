@@ -69,8 +69,8 @@ public sealed class HardwareStatsModule : Module
                    .Replace("$cputemp$", (hardwareStatsProvider!.CpuTemp).ToString())
                    .Replace("$gputemp$", (hardwareStatsProvider!.GpuTemp).ToString())
                    .Replace("$ramtotal$", (hardwareStatsProvider!.RamTotal).ToString("#.#"))
-                   .Replace("$ramused$", (hardwareStatsProvider!.RamUsed).ToString("#.00"))
-                   .Replace("$ramavailable$", (hardwareStatsProvider!.RamAvailable).ToString("#.00"));
+                   .Replace("$ramused$", (hardwareStatsProvider!.RamUsed).ToString("#.#"))
+                   .Replace("$ramavailable$", (hardwareStatsProvider!.RamAvailable).ToString("#.#"));
 
         SetChatBoxText(text);
     }
@@ -78,6 +78,7 @@ public sealed class HardwareStatsModule : Module
     protected override void OnStop()
     {
         hardwareStatsProvider = null;
+        SetChatBoxText(string.Empty);
     }
 
     private enum HardwareStatsOutgoingParameter
