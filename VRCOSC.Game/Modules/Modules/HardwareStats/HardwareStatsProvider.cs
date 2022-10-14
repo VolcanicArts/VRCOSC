@@ -51,23 +51,66 @@ public sealed class HardwareStatsProvider
 
     private void handleSensor(ISensor sensor)
     {
-        switch (sensor.Name)
+        switch (sensor.SensorType)
         {
-            case "CPU Total":
-                CpuUsage = sensor.Value ?? 0f;
+            case SensorType.Load:
+                switch (sensor.Name)
+                {
+                    case "CPU Total":
+                        CpuUsage = sensor.Value ?? 0f;
+                        break;
+
+                    case "D3D 3D":
+                        GpuUsage = sensor.Value ?? 0f;
+                        break;
+
+                    case "Memory":
+                        RamUsage = sensor.Value ?? 0f;
+                        break;
+                }
+
                 break;
 
-            case "D3D 3D":
-                GpuUsage = sensor.Value ?? 0f;
+            case SensorType.Temperature:
+                switch (sensor.Name)
+                {
+                    case "CPU Package":
+                        CpuTemp = (int?)sensor.Value ?? 0;
+                        break;
+
+                    case "GPU Core":
+                        GpuTemp = (int?)sensor.Value ?? 0;
+                        break;
+                }
+
                 break;
 
-            case "Memory Used":
-                RamUsage = sensor.Value ?? 0f;
+            case SensorType.Data:
+                switch (sensor.Name)
+                {
+                    case "Memory Used":
+                        RamUsed = sensor.Value ?? 0f;
+                        break;
+
+                    case "Memory Available":
+                        RamAvailable = sensor.Value ?? 0f;
+                        break;
+                }
+
                 break;
         }
+
+        RamTotal = RamUsed + RamAvailable;
     }
 
     public float CpuUsage { get; private set; }
     public float GpuUsage { get; private set; }
     public float RamUsage { get; private set; }
+
+    public int CpuTemp { get; private set; }
+    public int GpuTemp { get; private set; }
+
+    public float RamTotal { get; private set; }
+    public float RamUsed { get; private set; }
+    public float RamAvailable { get; private set; }
 }

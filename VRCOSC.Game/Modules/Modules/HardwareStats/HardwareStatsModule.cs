@@ -20,9 +20,14 @@ public sealed class HardwareStatsModule : Module
         CreateSetting(HardwareStatsSetting.UseChatBox, "Use ChatBox", "Enable HardwareStats to show values in the ChatBox", true);
         CreateSetting(HardwareStatsSetting.ChatBoxFormat, "ChatBox Format", "How the information should be displayed in the ChatBox", "CPU: $cpuusage$% | GPU: $gpuusage$% | RAM: $ramusage$%");
 
-        CreateOutgoingParameter(HardwareStatsOutgoingParameter.CPUUsage, "CPU Usage", "CPU usage 0-1", "/avatar/parameters/VRCOSC/Hardware/CPUUsage");
-        CreateOutgoingParameter(HardwareStatsOutgoingParameter.GPUUsage, "GPU Usage", "GPU usage 0-1", "/avatar/parameters/VRCOSC/Hardware/GPUUsage");
-        CreateOutgoingParameter(HardwareStatsOutgoingParameter.RAMUsage, "RAM Usage", "RAM usage 0-1", "/avatar/parameters/VRCOSC/Hardware/RAMUsage");
+        CreateOutgoingParameter(HardwareStatsOutgoingParameter.CpuUsage, "CPU Usage", "The CPU usage normalised", "/avatar/parameters/VRCOSC/Hardware/CPUUsage");
+        CreateOutgoingParameter(HardwareStatsOutgoingParameter.GpuUsage, "GPU Usage", "The GPU usage normalised", "/avatar/parameters/VRCOSC/Hardware/GPUUsage");
+        CreateOutgoingParameter(HardwareStatsOutgoingParameter.RamUsage, "RAM Usage", "The RAM usage normalised", "/avatar/parameters/VRCOSC/Hardware/RAMUsage");
+        CreateOutgoingParameter(HardwareStatsOutgoingParameter.CpuTemp, "CPU Temp", "The CPU temp in C", "/avatar/parameters/VRCOSC/Hardware/CPUTemp");
+        CreateOutgoingParameter(HardwareStatsOutgoingParameter.GpuTemp, "GPU Temp", "The GPU temp in C ", "/avatar/parameters/VRCOSC/Hardware/GPUTemp");
+        CreateOutgoingParameter(HardwareStatsOutgoingParameter.RamTotal, "RAM Total", "The total amount of RAM in your system in GB", "/avatar/parameters/VRCOSC/Hardware/RAMTotal");
+        CreateOutgoingParameter(HardwareStatsOutgoingParameter.RamUsed, "RAM Used", "The used RAM in GB", "/avatar/parameters/VRCOSC/Hardware/RAMUsed");
+        CreateOutgoingParameter(HardwareStatsOutgoingParameter.RamAvailable, "RAM Available", "The available RAM in GB", "/avatar/parameters/VRCOSC/Hardware/RAMAvailable");
     }
 
     protected override void OnStart()
@@ -39,9 +44,14 @@ public sealed class HardwareStatsModule : Module
 
         hardwareStatsProvider.Update();
 
-        SendParameter(HardwareStatsOutgoingParameter.CPUUsage, hardwareStatsProvider.CpuUsage);
-        SendParameter(HardwareStatsOutgoingParameter.GPUUsage, hardwareStatsProvider.GpuUsage);
-        SendParameter(HardwareStatsOutgoingParameter.RAMUsage, hardwareStatsProvider.RamUsage);
+        SendParameter(HardwareStatsOutgoingParameter.CpuUsage, hardwareStatsProvider.CpuUsage / 100f);
+        SendParameter(HardwareStatsOutgoingParameter.GpuUsage, hardwareStatsProvider.GpuUsage / 100f);
+        SendParameter(HardwareStatsOutgoingParameter.RamUsage, hardwareStatsProvider.RamUsage / 100f);
+        SendParameter(HardwareStatsOutgoingParameter.CpuTemp, hardwareStatsProvider.CpuTemp);
+        SendParameter(HardwareStatsOutgoingParameter.GpuTemp, hardwareStatsProvider.GpuTemp);
+        SendParameter(HardwareStatsOutgoingParameter.RamTotal, hardwareStatsProvider.RamTotal);
+        SendParameter(HardwareStatsOutgoingParameter.RamUsed, hardwareStatsProvider.RamUsed);
+        SendParameter(HardwareStatsOutgoingParameter.RamAvailable, hardwareStatsProvider.RamAvailable);
 
         if (GetSetting<bool>(HardwareStatsSetting.UseChatBox)) updateChatBox();
     }
@@ -51,7 +61,12 @@ public sealed class HardwareStatsModule : Module
         var text = GetSetting<string>(HardwareStatsSetting.ChatBoxFormat)
                    .Replace("$cpuusage$", (hardwareStatsProvider!.CpuUsage).ToString("#.##"))
                    .Replace("$gpuusage$", (hardwareStatsProvider!.GpuUsage).ToString("#.##"))
-                   .Replace("$ramusage$", (hardwareStatsProvider!.RamUsage).ToString("#.##"));
+                   .Replace("$ramusage$", (hardwareStatsProvider!.RamUsage).ToString("#.##"))
+                   .Replace("$cputemp$", (hardwareStatsProvider!.CpuTemp).ToString())
+                   .Replace("$gputemp$", (hardwareStatsProvider!.GpuTemp).ToString())
+                   .Replace("$ramtotal$", (hardwareStatsProvider!.RamTotal).ToString("#.##"))
+                   .Replace("$ramused$", (hardwareStatsProvider!.RamUsed).ToString("#.##"))
+                   .Replace("$ramavailable$", (hardwareStatsProvider!.RamAvailable).ToString("#.##"));
 
         SetChatBoxText(text);
     }
@@ -63,9 +78,14 @@ public sealed class HardwareStatsModule : Module
 
     private enum HardwareStatsOutgoingParameter
     {
-        CPUUsage,
-        GPUUsage,
-        RAMUsage
+        CpuUsage,
+        GpuUsage,
+        RamUsage,
+        CpuTemp,
+        GpuTemp,
+        RamTotal,
+        RamUsed,
+        RamAvailable
     }
 
     private enum HardwareStatsSetting
