@@ -21,7 +21,7 @@ public sealed class HardwareStatsModule : Module
 
     protected override void CreateAttributes()
     {
-        CreateSetting(HardwareStatsSetting.UseChatBox, "Use ChatBox", "Enable HardwareStats to show values in the ChatBox", true);
+        CreateSetting(HardwareStatsSetting.UseChatBox, "Use ChatBox", "Should values be displayed in the ChatBox?", true);
         CreateSetting(HardwareStatsSetting.ChatBoxFormat, "ChatBox Format", format_description, "CPU: $cpuusage$% | GPU: $gpuusage$% | RAM: $ramusage$%");
 
         CreateOutgoingParameter(HardwareStatsOutgoingParameter.CpuUsage, "CPU Usage", "The CPU usage normalised", "/avatar/parameters/VRCOSC/Hardware/CPUUsage");
@@ -63,14 +63,14 @@ public sealed class HardwareStatsModule : Module
     private void updateChatBox()
     {
         var text = GetSetting<string>(HardwareStatsSetting.ChatBoxFormat)
-                   .Replace("$cpuusage$", (hardwareStatsProvider!.CpuUsage).ToString("#.00"))
-                   .Replace("$gpuusage$", (hardwareStatsProvider!.GpuUsage).ToString("#.00"))
-                   .Replace("$ramusage$", (hardwareStatsProvider!.RamUsage).ToString("#.00"))
+                   .Replace("$cpuusage$", (hardwareStatsProvider!.CpuUsage).ToString("0.00"))
+                   .Replace("$gpuusage$", (hardwareStatsProvider!.GpuUsage).ToString("0.00"))
+                   .Replace("$ramusage$", (hardwareStatsProvider!.RamUsage).ToString("0.00"))
                    .Replace("$cputemp$", (hardwareStatsProvider!.CpuTemp).ToString())
                    .Replace("$gputemp$", (hardwareStatsProvider!.GpuTemp).ToString())
-                   .Replace("$ramtotal$", (hardwareStatsProvider!.RamTotal).ToString("#.#"))
-                   .Replace("$ramused$", (hardwareStatsProvider!.RamUsed).ToString("#.#"))
-                   .Replace("$ramavailable$", (hardwareStatsProvider!.RamAvailable).ToString("#.#"));
+                   .Replace("$ramtotal$", (hardwareStatsProvider!.RamTotal).ToString("0.0"))
+                   .Replace("$ramused$", (hardwareStatsProvider!.RamUsed).ToString("0.0"))
+                   .Replace("$ramavailable$", (hardwareStatsProvider!.RamAvailable).ToString("0.0"));
 
         ChatBox.SetText(text);
     }

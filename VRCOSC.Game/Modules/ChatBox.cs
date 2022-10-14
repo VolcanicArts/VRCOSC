@@ -11,7 +11,6 @@ public class ChatBox
 {
     private readonly OscClient oscClient;
     private TimedTask? updateTask;
-    private List<object> values;
 
     public ChatBox(OscClient oscClient)
     {
@@ -25,7 +24,7 @@ public class ChatBox
 
     public void SetText(string text, bool bypassKeyboard = true, ChatBoxPriority priority = ChatBoxPriority.Normal, float priorityTimeMilli = 10000f)
     {
-        values = new List<object>() { text, bypassKeyboard };
+        var values = new List<object>() { text, bypassKeyboard };
 
         if (priority == ChatBoxPriority.Override)
         {
