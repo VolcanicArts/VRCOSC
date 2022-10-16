@@ -13,7 +13,6 @@ using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Platform;
 using VRCOSC.Game.Config;
-using VRCOSC.Game.Modules.Modules.Calculator;
 using VRCOSC.Game.Modules.Modules.Clock;
 using VRCOSC.Game.Modules.Modules.Discord;
 using VRCOSC.Game.Modules.Modules.HardwareStats;
