@@ -40,8 +40,8 @@ public sealed class ModuleManager : Component
         typeof(HardwareStatsModule),
         typeof(SpotifyModule),
         typeof(DiscordModule),
-        typeof(MediaModule),
-        typeof(CalculatorModule),
+        typeof(MediaModule)
+        //typeof(CalculatorModule),
         //typeof(SpeechToTextModule)
     };
 
