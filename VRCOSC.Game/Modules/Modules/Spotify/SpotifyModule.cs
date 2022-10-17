@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -13,7 +13,7 @@ public sealed class SpotifyModule : IntegrationModule
     public override string Author => "VolcanicArts";
     public override string Prefab => "VRCOSC-Spotify";
     public override ModuleType ModuleType => ModuleType.Integrations;
-    protected override int DeltaUpdate => 5000;
+    protected override int DeltaUpdate => GetSetting<bool>(SpotifySetting.DisplayTitle) ? 5000 : int.MaxValue;
     protected override string TargetProcess => "spotify";
     protected override string TargetExe => GetSetting<string>(SpotifySetting.InstallLocation);
 
@@ -56,36 +56,31 @@ public sealed class SpotifyModule : IntegrationModule
 
     private void displayTitle()
     {
-        if (GetSetting<bool>(SpotifySetting.DisplayTitle))
+        var process = GetTargetProgress();
+        if (process is null) return;
+
+        var newTitle = process.MainWindowTitle;
+
+        if (newTitle.Contains("spotify", StringComparison.InvariantCultureIgnoreCase))
         {
-            var process = GetTargetProgress();
-            if (process is null) return;
+            currentTitle = string.Empty;
+            return;
+        }
 
-            var newTitle = process.MainWindowTitle;
+        if (newTitle == currentTitle) return;
 
-            if (newTitle.Contains("spotify", StringComparison.InvariantCultureIgnoreCase))
-            {
-                currentTitle = string.Empty;
-                return;
-            }
+        currentTitle = newTitle;
+        var titleData = currentTitle.Split('-');
 
-            if (newTitle != currentTitle)
-            {
-                currentTitle = newTitle;
-
-                var titleData = currentTitle.Split('-');
-
-                if (titleData.Length == 2)
-                {
-                    var author = titleData[0].Trim();
-                    var title = titleData[1].Trim();
-                    ChatBox.SetText(GetSetting<string>(SpotifySetting.TitleFormat).Replace("%title%", title).Replace("%author%", author), true, ChatBoxPriority.Override, 5000);
-                }
-                else
-                {
-                    ChatBox.SetText(currentTitle);
-                }
-            }
+        if (titleData.Length == 2)
+        {
+            var author = titleData[0].Trim();
+            var title = titleData[1].Trim();
+            ChatBox.SetText(GetSetting<string>(SpotifySetting.TitleFormat).Replace("%title%", title).Replace("%author%", author), true, ChatBoxPriority.Override, 5000);
+        }
+        else
+        {
+            ChatBox.SetText(currentTitle);
         }
     }
 
