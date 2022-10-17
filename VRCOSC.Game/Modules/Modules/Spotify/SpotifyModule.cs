@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -24,7 +24,7 @@ public sealed class SpotifyModule : IntegrationModule
         CreateSetting(SpotifySetting.ShouldStart, "Should Start", "Should Spotify start on module start", false);
         CreateSetting(SpotifySetting.ShouldStop, "Should Stop", "Should Spotify stop on module stop", false);
         CreateSetting(SpotifySetting.DisplayTitle, "Display Title", "If the title of the next track should be displayed in VRChat's ChatBox", false);
-        CreateSetting(SpotifySetting.TitleFormat, "Title Format", "How displaying the title should be formatted. `%title%` for the title", "Now Playing: %title%");
+        CreateSetting(SpotifySetting.TitleFormat, "Title Format", "How displaying the title should be formatted.\nAvailable values: %title%, %author%.", "Now Playing: %author% - %title%");
         CreateSetting(SpotifySetting.InstallLocation, "Install Location", "The location of your spotify.exe file", $@"C:\Users\{Environment.UserName}\AppData\Roaming\Spotify\spotify.exe");
 
         RegisterButtonInput(SpotifyIncomingParameter.PlayPause, "VRCOSC/Spotify/PlayPause");
@@ -72,7 +72,19 @@ public sealed class SpotifyModule : IntegrationModule
             if (newTitle != currentTitle)
             {
                 currentTitle = newTitle;
-                ChatBox.SetText(GetSetting<string>(SpotifySetting.TitleFormat).Replace("%title%", currentTitle), true, ChatBoxPriority.Override, 5000);
+
+                var titleData = currentTitle.Split('-');
+
+                if (titleData.Length == 2)
+                {
+                    var author = titleData[0].Trim();
+                    var title = titleData[1].Trim();
+                    ChatBox.SetText(GetSetting<string>(SpotifySetting.TitleFormat).Replace("%title%", title).Replace("%author%", author), true, ChatBoxPriority.Override, 5000);
+                }
+                else
+                {
+                    ChatBox.SetText(currentTitle);
+                }
             }
         }
     }
