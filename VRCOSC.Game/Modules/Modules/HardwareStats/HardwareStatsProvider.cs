@@ -52,7 +52,7 @@ public sealed class HardwareStatsProvider
                         CpuUsage = sensor.Value ?? 0f;
                         break;
 
-                    case "D3D 3D":
+                    case "GPU Core":
                         GpuUsage = sensor.Value ?? 0f;
                         break;
 
