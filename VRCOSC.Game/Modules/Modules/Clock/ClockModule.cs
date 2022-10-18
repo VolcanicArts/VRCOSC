@@ -12,7 +12,7 @@ public sealed class ClockModule : Module
     public override string Author => "VolcanicArts";
     public override string Prefab => "VRCOSC-Watch";
     public override ModuleType ModuleType => ModuleType.General;
-    protected override int DeltaUpdate => GetSetting<bool>(ClockSetting.SmoothSecond) ? 50 : 1000;
+    protected override int DeltaUpdate => GetSetting<bool>(ClockSetting.SmoothSecond) ? vrc_osc_delta_update : 1000;
 
     protected override void CreateAttributes()
     {

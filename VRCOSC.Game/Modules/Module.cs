@@ -47,6 +47,9 @@ public abstract class Module
     protected Player Player = null!;
     protected ChatBox ChatBox = null!;
 
+    public const int vrc_osc_update_rate = 20;
+    public static readonly int vrc_osc_delta_update = (1 / vrc_osc_update_rate) * 1000;
+
     public void Initialise(GameHost host, Storage storage, OscClient oscClient, ChatBox chatBox)
     {
         Host = host;
