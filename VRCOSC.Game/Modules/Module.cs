@@ -763,6 +763,8 @@ public abstract class Module
 
     protected void OpenUrlExternally(string Url) => Host.OpenUrlExternally(Url);
 
+    protected static float Map(float source, float sMin, float sMax, float dMin, float dMax) => dMin + (dMax - dMin) * ((source - sMin) / (sMax - sMin));
+
     #endregion
 
     public enum ModuleState

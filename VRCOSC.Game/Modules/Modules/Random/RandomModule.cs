@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using VRCOSC.Game.Modules.Util;
 
@@ -13,6 +14,8 @@ public abstract class RandomModule<T> : Module where T : struct
     public override string Author => "VolcanicArts";
     public override ModuleType ModuleType => ModuleType.General;
     protected override int DeltaUpdate => GetSetting<int>(RandomSetting.DeltaUpdate);
+
+    private readonly System.Random random = new();
 
     protected override void CreateAttributes()
     {
@@ -29,6 +32,12 @@ public abstract class RandomModule<T> : Module where T : struct
     }
 
     protected abstract T GetRandomValue();
+
+    protected float RandomFloat(float min = float.MinValue, float max = float.MaxValue) => Map(random.NextSingle(), 0f, 1f, min, max);
+
+    protected int RandomInt(int min = int.MinValue, int max = int.MaxValue) => (int)RandomFloat(min, max);
+
+    protected bool RandomBool() => (int)MathF.Round(RandomFloat(0, 1)) == 1;
 
     private enum RandomSetting
     {
