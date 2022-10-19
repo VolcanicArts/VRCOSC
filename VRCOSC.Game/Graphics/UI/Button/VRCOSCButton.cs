@@ -3,6 +3,7 @@
 
 using osu.Framework.Graphics;
 using osu.Framework.Input.Events;
+using osuTK.Input;
 
 namespace VRCOSC.Game.Graphics.UI.Button;
 
@@ -42,6 +43,8 @@ public class VRCOSCButton : osu.Framework.Graphics.UserInterface.Button
 
     protected override bool OnMouseDown(MouseDownEvent e)
     {
+        if (e.Button != MouseButton.Left) return base.OnMouseDown(e);
+
         if (Enabled.Value && ShouldAnimate) this.ScaleTo(scale_mousedown, 1000, Easing.OutSine);
         return true;
     }
