@@ -70,13 +70,14 @@ public sealed class SpotifyModule : IntegrationModule
         if (newTitle == currentTitle) return;
 
         currentTitle = newTitle;
-        var titleData = currentTitle.Split('-');
 
-        if (titleData.Length == 2)
+        if (currentTitle.Contains('-'))
         {
+            var titleData = currentTitle.Split(new[] { '-' }, 2);
             var author = titleData[0].Trim();
             var title = titleData[1].Trim();
-            ChatBox.SetText(GetSetting<string>(SpotifySetting.TitleFormat).Replace("%title%", title).Replace("%author%", author), true, ChatBoxPriority.Override, 5000);
+            var formattedText = GetSetting<string>(SpotifySetting.TitleFormat).Replace("%title%", title).Replace("%author%", author);
+            ChatBox.SetText(formattedText, true, ChatBoxPriority.Override, 5000);
         }
         else
         {
