@@ -5,7 +5,7 @@ using System;
 using osu.Framework.Platform.Windows;
 using VRCOSC.Game.Modules.Util;
 
-namespace VRCOSC.Game.Modules.Modules.Calculator;
+namespace VRCOSC.Game.Modules.Modules.Deprecated.Calculator;
 
 public sealed class CalculatorModule : IntegrationModule
 {
