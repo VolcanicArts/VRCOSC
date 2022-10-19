@@ -18,29 +18,20 @@ public sealed class AboutScreen : Container
     [Resolved]
     private GameHost host { get; set; } = null!;
 
-    public AboutScreen()
-    {
-        Anchor = Anchor.Centre;
-        Origin = Anchor.Centre;
-        RelativeSizeAxes = Axes.Both;
-    }
-
     [BackgroundDependencyLoader]
     private void load()
     {
+        RelativeSizeAxes = Axes.Both;
+
         Children = new Drawable[]
         {
             new Box
             {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 Colour = VRCOSCColour.Gray5
             },
             new FillFlowContainer
             {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 Size = new Vector2(0.5f, 0.9f),
                 Direction = FillDirection.Full,

@@ -12,8 +12,6 @@ public sealed class Header : Container
 {
     public Header()
     {
-        Anchor = Anchor.Centre;
-        Origin = Anchor.Centre;
         RelativeSizeAxes = Axes.Both;
         Padding = new MarginPadding
         {
@@ -28,8 +26,6 @@ public sealed class Header : Container
         {
             new GridContainer
             {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 ColumnDimensions = new[]
                 {
@@ -42,8 +38,6 @@ public sealed class Header : Container
                     {
                         new Container
                         {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
                             RelativeSizeAxes = Axes.Both,
                             Padding = new MarginPadding
                             {
@@ -54,8 +48,6 @@ public sealed class Header : Container
                         },
                         new Container
                         {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
                             RelativeSizeAxes = Axes.Both,
                             Padding = new MarginPadding
                             {
@@ -64,8 +56,6 @@ public sealed class Header : Container
                             },
                             Child = new VRCOSCTextBox
                             {
-                                Anchor = Anchor.Centre,
-                                Origin = Anchor.Centre,
                                 RelativeSizeAxes = Axes.Both,
                                 CornerRadius = 5,
                                 PlaceholderText = "Search",

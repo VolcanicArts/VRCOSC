@@ -29,8 +29,6 @@ public sealed class ModuleEditingContent : Container
         {
             scrollContainer = new BasicScrollContainer
             {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 ScrollbarVisible = false,
                 ClampExtension = 20,

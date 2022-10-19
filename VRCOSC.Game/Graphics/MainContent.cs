@@ -21,8 +21,6 @@ public sealed class MainContent : Container
     [BackgroundDependencyLoader]
     private void load()
     {
-        Anchor = Anchor.Centre;
-        Origin = Anchor.Centre;
         RelativeSizeAxes = Axes.Both;
         Masking = true;
 
@@ -30,8 +28,6 @@ public sealed class MainContent : Container
         {
             new GridContainer
             {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 ColumnDimensions = new[]
                 {
@@ -44,14 +40,10 @@ public sealed class MainContent : Container
                     {
                         new TabBar
                         {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
                             RelativeSizeAxes = Axes.Both
                         },
                         screenHolder = new Container
                         {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
                             RelativeSizeAxes = Axes.Both,
                             Depth = float.MaxValue,
                             Children = new Drawable[]

@@ -11,12 +11,12 @@ using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleEditing;
 
-public sealed class ModuleEditingScreen : Container
+public sealed class ModuleEditingPopover : Container
 {
     [Cached]
     public Bindable<Module?> SourceModule { get; } = new();
 
-    public ModuleEditingScreen()
+    public ModuleEditingPopover()
     {
         Anchor = Anchor.Centre;
         Origin = Anchor.Centre;
@@ -34,27 +34,21 @@ public sealed class ModuleEditingScreen : Container
         {
             new Container
             {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
+                RelativeSizeAxes = Axes.Both,
                 Masking = true,
                 CornerRadius = 5,
                 EdgeEffect = VRCOSCEdgeEffects.DispersedShadow,
                 BorderColour = VRCOSCColour.Gray0,
                 BorderThickness = 2,
-                RelativeSizeAxes = Axes.Both,
                 Children = new Drawable[]
                 {
                     new Box
                     {
-                        Anchor = Anchor.Centre,
-                        Origin = Anchor.Centre,
                         RelativeSizeAxes = Axes.Both,
                         Colour = VRCOSCColour.Gray4
                     },
                     moduleEditingContent = new ModuleEditingContent
                     {
-                        Anchor = Anchor.Centre,
-                        Origin = Anchor.Centre,
                         RelativeSizeAxes = Axes.Both,
                         Padding = new MarginPadding
                         {

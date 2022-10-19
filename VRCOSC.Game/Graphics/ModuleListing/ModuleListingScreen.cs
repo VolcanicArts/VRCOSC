@@ -13,76 +13,48 @@ namespace VRCOSC.Game.Graphics.ModuleListing;
 [Cached]
 public sealed class ModuleListingScreen : Container
 {
-    public ModuleListingScreen()
-    {
-        Anchor = Anchor.Centre;
-        Origin = Anchor.Centre;
-        RelativeSizeAxes = Axes.Both;
-    }
-
     [BackgroundDependencyLoader]
     private void load()
     {
+        RelativeSizeAxes = Axes.Both;
+
         Children = new Drawable[]
         {
-            new ModuleListing(),
-            new ModuleEditingScreen(),
-            new RunningPopover()
-        };
-    }
-
-    private sealed class ModuleListing : Container
-    {
-        public ModuleListing()
-        {
-            Anchor = Anchor.Centre;
-            Origin = Anchor.Centre;
-            RelativeSizeAxes = Axes.Both;
-        }
-
-        [BackgroundDependencyLoader]
-        private void load()
-        {
-            Children = new Drawable[]
+            new Box
             {
-                new Box
+                RelativeSizeAxes = Axes.Both,
+                Colour = VRCOSCColour.Gray5
+            },
+            new GridContainer
+            {
+                RelativeSizeAxes = Axes.Both,
+                RowDimensions = new[]
                 {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    RelativeSizeAxes = Axes.Both,
-                    Colour = VRCOSCColour.Gray5
+                    new Dimension(GridSizeMode.Absolute, 50),
+                    new Dimension(),
+                    new Dimension(GridSizeMode.Absolute, 50)
                 },
-                new GridContainer
+                Content = new[]
                 {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    RelativeSizeAxes = Axes.Both,
-                    RowDimensions = new[]
+                    new Drawable[]
                     {
-                        new Dimension(GridSizeMode.Absolute, 50),
-                        new Dimension(),
-                        new Dimension(GridSizeMode.Absolute, 50)
-                    },
-                    Content = new[]
-                    {
-                        new Drawable[]
+                        new Header
                         {
-                            new Header
-                            {
-                                Depth = float.MinValue
-                            }
-                        },
-                        new Drawable[]
-                        {
-                            new Listing()
-                        },
-                        new Drawable[]
-                        {
-                            new Footer()
+                            Depth = float.MinValue
                         }
+                    },
+                    new Drawable[]
+                    {
+                        new Listing()
+                    },
+                    new Drawable[]
+                    {
+                        new Footer()
                     }
                 }
-            };
-        }
+            },
+            new ModuleEditingPopover(),
+            new RunningPopover()
+        };
     }
 }

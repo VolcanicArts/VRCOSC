@@ -18,8 +18,6 @@ public sealed class Footer : Container
 
     public Footer()
     {
-        Anchor = Anchor.Centre;
-        Origin = Anchor.Centre;
         RelativeSizeAxes = Axes.Both;
         Padding = new MarginPadding
         {
@@ -36,30 +34,22 @@ public sealed class Footer : Container
         {
             new Box
             {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 Colour = VRCOSCColour.Gray4
             },
-            new Container
+            runButton = new TextButton
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 FillMode = FillMode.Fit,
                 FillAspectRatio = 4,
-                Child = runButton = new TextButton
-                {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    RelativeSizeAxes = Axes.Both,
-                    Size = new Vector2(0.75f),
-                    Masking = true,
-                    CornerRadius = 5,
-                    Text = "Run",
-                    BackgroundColour = VRCOSCColour.Green,
-                    Action = () => game.ModulesRunning.Value = true
-                }
+                Size = new Vector2(0.75f),
+                Masking = true,
+                CornerRadius = 5,
+                Text = "Run",
+                BackgroundColour = VRCOSCColour.Green,
+                Action = () => game.ModulesRunning.Value = true
             }
         };
 

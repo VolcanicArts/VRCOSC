@@ -24,8 +24,6 @@ public sealed class Listing : Container
 
     public Listing()
     {
-        Anchor = Anchor.Centre;
-        Origin = Anchor.Centre;
         RelativeSizeAxes = Axes.Both;
         Padding = new MarginPadding
         {
@@ -41,8 +39,6 @@ public sealed class Listing : Container
         {
             new VRCOSCScrollContainer
             {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 ScrollbarVisible = true,
                 ClampExtension = 0,

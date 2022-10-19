@@ -11,29 +11,20 @@ namespace VRCOSC.Game.Graphics.Settings;
 
 public sealed class SettingsScreen : Container
 {
-    public SettingsScreen()
-    {
-        Anchor = Anchor.Centre;
-        Origin = Anchor.Centre;
-        RelativeSizeAxes = Axes.Both;
-    }
-
     [BackgroundDependencyLoader]
     private void load()
     {
+        RelativeSizeAxes = Axes.Both;
+
         Children = new Drawable[]
         {
             new Box
             {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 Colour = VRCOSCColour.Gray5
             },
             new BasicScrollContainer
             {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 ScrollbarVisible = false,
                 ClampExtension = 0,
