@@ -37,6 +37,6 @@ public sealed class TerminalEntry : PoolableDrawable
 
     public override void Hide()
     {
-        this.FadeOutFromOne();
+        Alpha = 0;
     }
 }

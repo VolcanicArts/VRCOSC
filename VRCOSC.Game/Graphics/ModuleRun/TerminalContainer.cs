@@ -18,7 +18,7 @@ public sealed class TerminalContainer : Container<TerminalEntry>
 
     protected override FillFlowContainer<TerminalEntry> Content { get; }
 
-    private DrawablePool<TerminalEntry> terminalEntryPool = new(50);
+    private readonly DrawablePool<TerminalEntry> terminalEntryPool = new(50);
 
     public TerminalContainer()
     {
@@ -100,6 +100,11 @@ public sealed class TerminalContainer : Container<TerminalEntry>
         };
     }
 
+    public void Reset()
+    {
+        RemoveAll(_ => true, false);
+    }
+
     protected override void UpdateAfterChildren()
     {
         base.UpdateAfterChildren();
@@ -108,7 +113,6 @@ public sealed class TerminalContainer : Container<TerminalEntry>
         {
             var entry = this[0];
             Remove(entry, false);
-            entry.Hide();
         }
 
         terminalScroll.ScrollToEnd();
@@ -119,6 +123,7 @@ public sealed class TerminalContainer : Container<TerminalEntry>
         var entry = terminalEntryPool.Get();
         entry.Text = $"[{DateTime.Now:HH:mm:ss}] {text}";
         Add(entry);
+        entry.Hide();
         entry.Show();
     });
 

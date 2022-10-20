@@ -61,7 +61,7 @@ public sealed class ModuleRunPopover : PopoverScreen
 
     public override void Show()
     {
-        terminal.Clear();
+        terminal.Reset();
         parameters.ClearParameters();
         base.Show();
     }
