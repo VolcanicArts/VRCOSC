@@ -12,6 +12,8 @@ namespace VRCOSC.Game.Graphics.ModuleRun;
 
 public sealed class ParameterEntry : Container
 {
+    private const int max_length = 50;
+
     public string Key { get; init; } = null!;
     public Bindable<string> Value { get; } = new();
 
@@ -37,7 +39,7 @@ public sealed class ParameterEntry : Container
                 Origin = Anchor.CentreLeft,
                 Font = FrameworkFont.Regular.With(size: 20),
                 Colour = VRCOSCColour.Gray8,
-                Text = $"{Key}"
+                Text = Key
             },
             new Container
             {
@@ -71,7 +73,7 @@ public sealed class ParameterEntry : Container
         {
             var newText = e.NewValue;
 
-            if (newText.Length > 40) newText = newText[..40] + "...";
+            if (newText.Length > max_length) newText = newText[..max_length] + "...";
 
             valueText.Text = newText;
             background.FlashColour(VRCOSCColour.GrayD, 500, Easing.OutCubic);

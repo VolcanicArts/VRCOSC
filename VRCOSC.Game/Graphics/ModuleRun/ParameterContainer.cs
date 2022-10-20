@@ -5,8 +5,6 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
-using osu.Framework.Graphics.Sprites;
-using osuTK;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleRun;
@@ -28,7 +26,6 @@ public sealed class ParameterContainer : Container
             RelativeSizeAxes = Axes.Both,
             RowDimensions = new[]
             {
-                new Dimension(GridSizeMode.Absolute, 60),
                 new Dimension(),
                 new Dimension()
             },
@@ -36,37 +33,14 @@ public sealed class ParameterContainer : Container
             {
                 new Drawable[]
                 {
-                    new Container
-                    {
-                        RelativeSizeAxes = Axes.Both,
-                        Children = new Drawable[]
-                        {
-                            new SpriteText
-                            {
-                                Anchor = Anchor.Centre,
-                                Origin = Anchor.Centre,
-                                Text = "Parameters",
-                                Font = FrameworkFont.Regular.With(size: 40),
-                            },
-                            new LineSeparator
-                            {
-                                Anchor = Anchor.BottomCentre,
-                                Origin = Anchor.Centre,
-                                RelativeSizeAxes = Axes.Both,
-                                Size = new Vector2(0.975f, 0.075f)
-                            }
-                        }
-                    }
-                },
-                new Drawable[]
-                {
                     outgoingParameterDisplay = new ParameterSubContainer
                     {
                         Title = "Outgoing",
                         Padding = new MarginPadding
                         {
-                            Horizontal = 15,
-                            Bottom = 15 / 2f,
+                            Left = 7.5f,
+                            Right = 15f,
+                            Bottom = 7.5f,
                             Top = 15
                         }
                     }
@@ -78,9 +52,10 @@ public sealed class ParameterContainer : Container
                         Title = "Incoming",
                         Padding = new MarginPadding
                         {
-                            Horizontal = 15,
+                            Left = 7.5f,
+                            Right = 15f,
                             Bottom = 15,
-                            Top = 15 / 2f
+                            Top = 7.5f
                         }
                     }
                 }

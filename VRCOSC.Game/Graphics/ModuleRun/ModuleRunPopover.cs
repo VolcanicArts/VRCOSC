@@ -31,7 +31,7 @@ public sealed class ModuleRunPopover : PopoverScreen
                 RelativeSizeAxes = Axes.Both,
                 ColumnDimensions = new[]
                 {
-                    new Dimension(),
+                    new Dimension(GridSizeMode.Relative, 0.35f),
                     new Dimension()
                 },
                 Content = new[]
