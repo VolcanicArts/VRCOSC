@@ -19,8 +19,6 @@ public sealed class TerminalEntry : Container
     [BackgroundDependencyLoader]
     private void load()
     {
-        Anchor = Anchor.CentreLeft;
-        Origin = Anchor.CentreLeft;
         RelativeSizeAxes = Axes.X;
         AutoSizeAxes = Axes.Y;
 

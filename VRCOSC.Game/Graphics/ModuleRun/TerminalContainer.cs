@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -14,15 +13,15 @@ namespace VRCOSC.Game.Graphics.ModuleRun;
 
 public sealed class TerminalContainer : Container
 {
-    private BasicScrollContainer terminalScroll = null!;
-    private FillFlowContainer<TerminalEntry> terminalFlow = null!;
+    private readonly BasicScrollContainer terminalScroll;
 
-    [BackgroundDependencyLoader]
-    private void load()
+    protected override FillFlowContainer Content { get; }
+
+    public TerminalContainer()
     {
         RelativeSizeAxes = Axes.Both;
 
-        Child = new GridContainer
+        InternalChild = new GridContainer
         {
             Anchor = Anchor.Centre,
             Origin = Anchor.Centre,
@@ -36,42 +35,16 @@ public sealed class TerminalContainer : Container
             {
                 new Drawable[]
                 {
-                    new Container
-                    {
-                        Anchor = Anchor.Centre,
-                        Origin = Anchor.Centre,
-                        RelativeSizeAxes = Axes.Both,
-                        Children = new Drawable[]
-                        {
-                            new SpriteText
-                            {
-                                Anchor = Anchor.Centre,
-                                Origin = Anchor.Centre,
-                                Text = "Terminal",
-                                Font = FrameworkFont.Regular.With(size: 40),
-                            },
-                            new LineSeparator
-                            {
-                                Anchor = Anchor.BottomCentre,
-                                Origin = Anchor.Centre,
-                                RelativeSizeAxes = Axes.Both,
-                                Size = new Vector2(0.975f, 0.075f)
-                            }
-                        }
-                    }
+                    new TerminalHeader()
                 },
                 new Drawable[]
                 {
                     new Container
                     {
-                        Anchor = Anchor.Centre,
-                        Origin = Anchor.Centre,
                         RelativeSizeAxes = Axes.Both,
                         Padding = new MarginPadding(15),
                         Child = new Container
                         {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
                             RelativeSizeAxes = Axes.Both,
                             BorderThickness = 3,
                             Masking = true,
@@ -79,25 +52,19 @@ public sealed class TerminalContainer : Container
                             {
                                 new Box
                                 {
-                                    Anchor = Anchor.Centre,
-                                    Origin = Anchor.Centre,
                                     RelativeSizeAxes = Axes.Both,
                                     Colour = VRCOSCColour.Gray2,
                                 },
                                 new Container
                                 {
-                                    Anchor = Anchor.Centre,
-                                    Origin = Anchor.Centre,
                                     RelativeSizeAxes = Axes.Both,
                                     Padding = new MarginPadding(3f),
                                     Child = terminalScroll = new BasicScrollContainer
                                     {
-                                        Anchor = Anchor.Centre,
-                                        Origin = Anchor.Centre,
                                         RelativeSizeAxes = Axes.Both,
                                         ScrollbarVisible = false,
                                         ClampExtension = 0,
-                                        Child = terminalFlow = new FillFlowContainer<TerminalEntry>
+                                        Child = Content = new FillFlowContainer
                                         {
                                             Anchor = Anchor.TopCentre,
                                             Origin = Anchor.TopCentre,
@@ -117,6 +84,11 @@ public sealed class TerminalContainer : Container
                 }
             }
         };
+    }
+
+    protected override void LoadComplete()
+    {
+        base.LoadComplete();
 
         Logger.NewEntry += logEntry =>
         {
@@ -125,25 +97,37 @@ public sealed class TerminalContainer : Container
         };
     }
 
-    protected override void UpdateAfterChildren()
+    private void log(string text) => Schedule(() =>
     {
-        base.UpdateAfterChildren();
+        Add(new TerminalEntry($"[{DateTime.Now:HH:mm:ss}] {text}"));
 
-        while (terminalFlow.Count > 50) terminalFlow[0].RemoveAndDisposeImmediately();
+        if (Count > 50) this[0].RemoveAndDisposeImmediately();
         terminalScroll.ScrollToEnd();
-    }
+    });
 
-    private void log(string text)
+    private sealed class TerminalHeader : Container
     {
-        Scheduler.Add(() =>
+        public TerminalHeader()
         {
-            var formattedText = $"[{DateTime.Now:HH:mm:ss}] {text}";
-            terminalFlow.Add(new TerminalEntry(formattedText));
-        });
-    }
+            RelativeSizeAxes = Axes.Both;
 
-    public void ClearTerminal()
-    {
-        terminalFlow.Clear(true);
+            Children = new Drawable[]
+            {
+                new SpriteText
+                {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    Text = "Terminal",
+                    Font = FrameworkFont.Regular.With(size: 40),
+                },
+                new LineSeparator
+                {
+                    Anchor = Anchor.BottomCentre,
+                    Origin = Anchor.Centre,
+                    RelativeSizeAxes = Axes.Both,
+                    Size = new Vector2(0.975f, 0.075f)
+                }
+            };
+        }
     }
 }
