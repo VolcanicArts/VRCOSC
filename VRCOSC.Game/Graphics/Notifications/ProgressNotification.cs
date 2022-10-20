@@ -15,7 +15,6 @@ public sealed class ProgressNotification : BasicNotification
 
     public float Progress
     {
-        get => progress;
         set
         {
             progress = value;
@@ -29,8 +28,6 @@ public sealed class ProgressNotification : BasicNotification
     {
         var foreground = new GridContainer
         {
-            Anchor = Anchor.Centre,
-            Origin = Anchor.Centre,
             RelativeSizeAxes = Axes.Both,
             RowDimensions = new[]
             {
@@ -47,8 +44,6 @@ public sealed class ProgressNotification : BasicNotification
                 {
                     progressBar = new ProgressBar
                     {
-                        Anchor = Anchor.Centre,
-                        Origin = Anchor.Centre,
                         RelativeSizeAxes = Axes.Both,
                         BackgroundColour = VRCOSCColour.Gray2,
                         SelectionColour = VRCOSCColour.GreenLight

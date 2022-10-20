@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using osu.Framework.Allocation;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
@@ -16,13 +15,13 @@ namespace VRCOSC.Game.Graphics.Notifications;
 
 public sealed class NotificationContainer : VisibilityContainer
 {
+    private const int transition_time = 1000;
+
     protected override bool ShouldBeAlive => true;
 
-    private CloseButton closeButton = null!;
-    private FillFlowContainer<Notification> notificationFlow = null!;
+    protected override FillFlowContainer Content { get; }
 
-    [BackgroundDependencyLoader]
-    private void load()
+    public NotificationContainer()
     {
         Anchor = Anchor.CentreRight;
         Origin = Anchor.CentreRight;
@@ -38,19 +37,15 @@ public sealed class NotificationContainer : VisibilityContainer
             Type = EdgeEffectType.Shadow
         };
 
-        Children = new Drawable[]
+        InternalChildren = new Drawable[]
         {
             new Box
             {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 Colour = VRCOSCColour.Gray4
             },
             new GridContainer
             {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 ColumnDimensions = new[]
                 {
@@ -61,11 +56,12 @@ public sealed class NotificationContainer : VisibilityContainer
                 {
                     new Drawable[]
                     {
-                        closeButton = new CloseButton(),
-                        notificationFlow = new FillFlowContainer<Notification>
+                        new CloseButton
                         {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
+                            Action = () => this.ForEach(notification => notification.Hide())
+                        },
+                        Content = new FillFlowContainer
+                        {
                             RelativeSizeAxes = Axes.Both,
                             Direction = FillDirection.Vertical
                         }
@@ -73,53 +69,36 @@ public sealed class NotificationContainer : VisibilityContainer
                 }
             }
         };
-
-        closeButton.Action += () => notificationFlow.ForEach(notification => notification.Hide());
     }
 
     protected override void UpdateAfterChildren()
     {
-        if (notificationFlow.Count == 0) Hide();
+        if (Count == 0) Hide();
     }
 
     public void Notify(Notification notification)
     {
         Show();
         notification.Show();
-        notificationFlow.Add(notification);
+        Add(notification);
     }
 
-    protected override void PopIn()
-    {
-        this.MoveToX(0, 1000, Easing.OutQuad);
-    }
-
-    protected override void PopOut()
-    {
-        this.MoveToX(1, 1000, Easing.InQuad);
-    }
+    protected override void PopIn() => this.MoveToX(0, transition_time, Easing.OutQuad);
+    protected override void PopOut() => this.MoveToX(1, transition_time, Easing.InQuad);
 
     private sealed class CloseButton : VRCOSCButton
     {
-        private Box background = null!;
+        private readonly Box background;
 
         public CloseButton()
         {
-            Anchor = Anchor.Centre;
-            Origin = Anchor.Centre;
             RelativeSizeAxes = Axes.Both;
             ShouldAnimate = false;
-        }
 
-        [BackgroundDependencyLoader]
-        private void load()
-        {
             Children = new Drawable[]
             {
                 background = new Box
                 {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
                     RelativeSizeAxes = Axes.Both,
                     Colour = VRCOSCColour.Gray3.Opacity(0.75f)
                 },
@@ -132,8 +111,6 @@ public sealed class NotificationContainer : VisibilityContainer
                     FillMode = FillMode.Fit,
                     Child = new SpriteIcon
                     {
-                        Anchor = Anchor.Centre,
-                        Origin = Anchor.Centre,
                         RelativeSizeAxes = Axes.Both,
                         Icon = FontAwesome.Solid.Get(0xf101)
                     }

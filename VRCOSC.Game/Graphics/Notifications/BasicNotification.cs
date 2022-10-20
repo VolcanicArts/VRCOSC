@@ -30,8 +30,6 @@ public class BasicNotification : Notification
 
         var foreground = new GridContainer
         {
-            Anchor = Anchor.Centre,
-            Origin = Anchor.Centre,
             RelativeSizeAxes = Axes.Both,
             ColumnDimensions = new[]
             {
@@ -53,8 +51,6 @@ public class BasicNotification : Notification
                         {
                             new Container
                             {
-                                Anchor = Anchor.Centre,
-                                Origin = Anchor.Centre,
                                 RelativeSizeAxes = Axes.Both,
                                 Masking = true,
                                 CornerRadius = 5,
@@ -62,8 +58,6 @@ public class BasicNotification : Notification
                                 {
                                     new Box
                                     {
-                                        Anchor = Anchor.Centre,
-                                        Origin = Anchor.Centre,
                                         RelativeSizeAxes = Axes.Both,
                                         Colour = ColourInfo.GradientVertical(Colour.Darken(0.25f), Colour)
                                     },

@@ -5,7 +5,7 @@ namespace VRCOSC.Game.Graphics.Notifications;
 
 public class TimedNotification : BasicNotification
 {
-    public double Delay { get; set; }
+    public double Delay { get; init; }
 
     protected override void LoadComplete()
     {
