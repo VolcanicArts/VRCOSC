@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup Label="Project References">
+    <ProjectReference Include="..\VRCOSC.Desktop\VRCOSC.Desktop.csproj" />
     <ProjectReference Include="..\VRCOSC.Game\VRCOSC.Game.csproj" />
   </ItemGroup>
   <ItemGroup Label="Package References">
