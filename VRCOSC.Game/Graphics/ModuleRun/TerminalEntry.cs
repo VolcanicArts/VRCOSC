@@ -1,23 +1,20 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Pooling;
 
 namespace VRCOSC.Game.Graphics.ModuleRun;
 
-public sealed class TerminalEntry : Container
+public sealed class TerminalEntry : PoolableDrawable
 {
-    private readonly string text;
-
-    public TerminalEntry(string text)
+    public string Text
     {
-        this.text = text;
+        set => ((TextFlowContainer)InternalChild).Text = value;
     }
 
-    [BackgroundDependencyLoader]
-    private void load()
+    public TerminalEntry()
     {
         RelativeSizeAxes = Axes.X;
         AutoSizeAxes = Axes.Y;
@@ -29,14 +26,17 @@ public sealed class TerminalEntry : Container
             RelativeSizeAxes = Axes.X,
             AutoSizeAxes = Axes.Y,
             TextAnchor = Anchor.CentreLeft,
-            Colour = VRCOSCColour.Gray8,
-            Text = text
+            Colour = VRCOSCColour.Gray8
         };
     }
 
-    protected override void LoadComplete()
+    public override void Show()
     {
-        base.LoadComplete();
         this.FadeInFromZero(500, Easing.OutCirc);
+    }
+
+    public override void Hide()
+    {
+        this.FadeOutFromOne();
     }
 }

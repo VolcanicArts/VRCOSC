@@ -4,6 +4,7 @@
 using System;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Pooling;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Logging;
@@ -11,11 +12,13 @@ using osuTK;
 
 namespace VRCOSC.Game.Graphics.ModuleRun;
 
-public sealed class TerminalContainer : Container
+public sealed class TerminalContainer : Container<TerminalEntry>
 {
     private readonly BasicScrollContainer terminalScroll;
 
-    protected override FillFlowContainer Content { get; }
+    protected override FillFlowContainer<TerminalEntry> Content { get; }
+
+    private DrawablePool<TerminalEntry> terminalEntryPool = new(50);
 
     public TerminalContainer()
     {
@@ -64,7 +67,7 @@ public sealed class TerminalContainer : Container
                                         RelativeSizeAxes = Axes.Both,
                                         ScrollbarVisible = false,
                                         ClampExtension = 0,
-                                        Child = Content = new FillFlowContainer
+                                        Child = Content = new FillFlowContainer<TerminalEntry>
                                         {
                                             Anchor = Anchor.TopCentre,
                                             Origin = Anchor.TopCentre,
@@ -97,12 +100,26 @@ public sealed class TerminalContainer : Container
         };
     }
 
+    protected override void UpdateAfterChildren()
+    {
+        base.UpdateAfterChildren();
+
+        while (Count > 50)
+        {
+            var entry = this[0];
+            Remove(entry, false);
+            entry.Hide();
+        }
+
+        terminalScroll.ScrollToEnd();
+    }
+
     private void log(string text) => Schedule(() =>
     {
-        Add(new TerminalEntry($"[{DateTime.Now:HH:mm:ss}] {text}"));
-
-        if (Count > 50) this[0].RemoveAndDisposeImmediately();
-        terminalScroll.ScrollToEnd();
+        var entry = terminalEntryPool.Get();
+        entry.Text = $"[{DateTime.Now:HH:mm:ss}] {text}";
+        Add(entry);
+        entry.Show();
     });
 
     private sealed class TerminalHeader : Container
