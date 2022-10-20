@@ -18,8 +18,9 @@ public sealed class AboutScreen : Container
     [Resolved]
     private GameHost host { get; set; } = null!;
 
-    [BackgroundDependencyLoader]
-    private void load()
+    private readonly FillFlowContainer buttonFlow;
+
+    public AboutScreen()
     {
         RelativeSizeAxes = Axes.Both;
 
@@ -30,29 +31,14 @@ public sealed class AboutScreen : Container
                 RelativeSizeAxes = Axes.Both,
                 Colour = VRCOSCColour.Gray5
             },
-            new FillFlowContainer
+            buttonFlow = new FillFlowContainer
             {
                 Anchor = Anchor.TopCentre,
                 Origin = Anchor.TopCentre,
                 RelativeSizeAxes = Axes.Both,
                 Size = new Vector2(0.5f, 0.9f),
                 Direction = FillDirection.Full,
-                Spacing = new Vector2(5),
-                Children = new Drawable[]
-                {
-                    new AboutButton
-                    {
-                        Icon = FontAwesome.Brands.Github,
-                        BackgroundColour = Colour4.FromHex("272b33"),
-                        Action = () => host.OpenUrlExternally("https://github.com/VolcanicArts/VRCOSC")
-                    },
-                    new AboutButton
-                    {
-                        Icon = FontAwesome.Brands.Discord,
-                        BackgroundColour = Colour4.FromHex("7289DA"),
-                        Action = () => host.OpenUrlExternally("https://discord.gg/vj4brHyvT5")
-                    }
-                }
+                Spacing = new Vector2(5)
             },
             new TextFlowContainer
             {
@@ -64,6 +50,26 @@ public sealed class AboutScreen : Container
                 Text = "Copyright VolcanicArts 2022. See license file in repository root for more information"
             }
         };
+    }
+
+    [BackgroundDependencyLoader]
+    private void load()
+    {
+        buttonFlow.AddRange(new[]
+        {
+            new AboutButton
+            {
+                Icon = FontAwesome.Brands.Github,
+                BackgroundColour = Colour4.FromHex("272b33"),
+                Action = () => host.OpenUrlExternally("https://github.com/VolcanicArts/VRCOSC")
+            },
+            new AboutButton
+            {
+                Icon = FontAwesome.Brands.Discord,
+                BackgroundColour = Colour4.FromHex("7289DA"),
+                Action = () => host.OpenUrlExternally("https://discord.gg/vj4brHyvT5")
+            }
+        });
     }
 
     private sealed class AboutButton : Container
