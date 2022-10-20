@@ -32,6 +32,8 @@ public sealed class AboutScreen : Container
             },
             new FillFlowContainer
             {
+                Anchor = Anchor.TopCentre,
+                Origin = Anchor.TopCentre,
                 RelativeSizeAxes = Axes.Both,
                 Size = new Vector2(0.5f, 0.9f),
                 Direction = FillDirection.Full,
