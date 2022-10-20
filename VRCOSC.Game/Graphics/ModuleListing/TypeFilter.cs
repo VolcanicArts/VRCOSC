@@ -12,17 +12,15 @@ namespace VRCOSC.Game.Graphics.ModuleListing;
 
 public sealed class TypeFilter : Container
 {
+    [Resolved]
+    private VRCOSCGame game { get; set; } = null!;
+
+    private readonly VRCOSCDropdown<Group> dropdown;
+
     public TypeFilter()
     {
-        Anchor = Anchor.Centre;
-        Origin = Anchor.Centre;
         RelativeSizeAxes = Axes.Both;
-    }
 
-    [BackgroundDependencyLoader]
-    private void load(VRCOSCGame game)
-    {
-        VRCOSCDropdown<Group> dropdown;
         Child = dropdown = new VRCOSCDropdown<Group>
         {
             Anchor = Anchor.TopCentre,
@@ -31,6 +29,11 @@ public sealed class TypeFilter : Container
             Items = Enum.GetValues<Group>(),
             Current = { Value = Group.All }
         };
+    }
+
+    protected override void LoadComplete()
+    {
+        base.LoadComplete();
 
         dropdown.Current.BindValueChanged(group => game.TypeFilter.Value = groupToType(group.NewValue), true);
     }

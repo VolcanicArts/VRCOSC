@@ -13,8 +13,7 @@ namespace VRCOSC.Game.Graphics.ModuleListing;
 [Cached]
 public sealed class ModuleListingScreen : Container
 {
-    [BackgroundDependencyLoader]
-    private void load()
+    public ModuleListingScreen()
     {
         RelativeSizeAxes = Axes.Both;
 

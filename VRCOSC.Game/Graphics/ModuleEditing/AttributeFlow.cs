@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
@@ -22,17 +21,9 @@ public sealed class AttributeFlow : FillFlowContainer
 {
     public BindableList<ModuleAttribute> AttributesList = new();
 
-    private readonly string title;
-
-    private FillFlowContainer<AttributeCard> attributeCardFlow = null!;
+    protected override Container<Drawable> Content { get; }
 
     public AttributeFlow(string title)
-    {
-        this.title = title;
-    }
-
-    [BackgroundDependencyLoader]
-    private void load()
     {
         Anchor = Anchor.TopCentre;
         Origin = Anchor.TopCentre;
@@ -42,7 +33,7 @@ public sealed class AttributeFlow : FillFlowContainer
         Spacing = new Vector2(0, 10);
         Padding = new MarginPadding(10);
 
-        Children = new Drawable[]
+        InternalChildren = new Drawable[]
         {
             new SpriteText
             {
@@ -51,7 +42,7 @@ public sealed class AttributeFlow : FillFlowContainer
                 Font = FrameworkFont.Regular.With(size: 50),
                 Text = title
             },
-            attributeCardFlow = new FillFlowContainer<AttributeCard>
+            Content = new FillFlowContainer
             {
                 Anchor = Anchor.TopCentre,
                 Origin = Anchor.TopCentre,
@@ -63,19 +54,14 @@ public sealed class AttributeFlow : FillFlowContainer
         };
     }
 
-    public new void Clear()
-    {
-        attributeCardFlow.Clear();
-    }
-
     protected override void LoadComplete()
     {
         base.LoadComplete();
 
         AttributesList.BindCollectionChanged((_, _) =>
         {
-            attributeCardFlow.Clear();
-            AttributesList.ForEach(attributeData => attributeCardFlow.Add(generateCard(attributeData)));
+            Clear();
+            AttributesList.ForEach(attributeData => Add(generateCard(attributeData)));
         }, true);
     }
 

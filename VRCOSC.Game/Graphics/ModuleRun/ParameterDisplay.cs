@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using osu.Framework.Allocation;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -16,10 +15,9 @@ public sealed class ParameterDisplay : Container
     public string Title { get; init; } = null!;
 
     private readonly SortedDictionary<string, ParameterEntry> parameterDict = new();
-    private FillFlowContainer<ParameterEntry> parameterFlow = null!;
+    private readonly FillFlowContainer<ParameterEntry> parameterFlow;
 
-    [BackgroundDependencyLoader]
-    private void load()
+    public ParameterDisplay()
     {
         Masking = true;
         BorderThickness = 2;

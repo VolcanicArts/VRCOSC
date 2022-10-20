@@ -30,13 +30,9 @@ public sealed class ModuleCard : Container
         AutoSizeAxes = Axes.Y;
         Masking = true;
         CornerRadius = 5;
-    }
 
-    [BackgroundDependencyLoader]
-    private void load(VRCOSCGame game)
-    {
         TextFlowContainer metadataTextFlow;
-        Container editButton;
+
         Children = new Drawable[]
         {
             new Box
@@ -96,13 +92,14 @@ public sealed class ModuleCard : Container
                     }
                 }
             },
-            editButton = new Container
+            new Container
             {
                 Anchor = Anchor.CentreRight,
                 Origin = Anchor.CentreRight,
                 RelativeSizeAxes = Axes.Both,
                 FillMode = FillMode.Fit,
                 Padding = new MarginPadding(7),
+                Alpha = Module.HasAttributes ? 1 : 0,
                 Child = new IconButton
                 {
                     Anchor = Anchor.Centre,
@@ -116,8 +113,6 @@ public sealed class ModuleCard : Container
                 }
             },
         };
-
-        editButton.Alpha = Module.HasAttributes ? 1 : 0;
 
         metadataTextFlow.AddText(Module.Title, t =>
         {

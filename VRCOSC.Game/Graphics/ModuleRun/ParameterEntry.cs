@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -15,8 +14,8 @@ public sealed class ParameterEntry : Container
     public string Key { get; init; } = null!;
     public Bindable<string> Value { get; } = new();
 
-    private Box background = null!;
-    private SpriteText valueText = null!;
+    private readonly Box background;
+    private readonly SpriteText valueText;
 
     public ParameterEntry()
     {
@@ -24,11 +23,7 @@ public sealed class ParameterEntry : Container
         Origin = Anchor.TopCentre;
         RelativeSizeAxes = Axes.X;
         AutoSizeAxes = Axes.Y;
-    }
 
-    [BackgroundDependencyLoader]
-    private void load()
-    {
         Children = new Drawable[]
         {
             new SpriteText
@@ -48,8 +43,6 @@ public sealed class ParameterEntry : Container
                 {
                     background = new Box
                     {
-                        Anchor = Anchor.Centre,
-                        Origin = Anchor.Centre,
                         RelativeSizeAxes = Axes.Both,
                         Colour = VRCOSCColour.Invisible
                     },
@@ -63,6 +56,11 @@ public sealed class ParameterEntry : Container
                 }
             }
         };
+    }
+
+    protected override void LoadComplete()
+    {
+        base.LoadComplete();
 
         Value.BindValueChanged(e =>
         {
@@ -71,12 +69,7 @@ public sealed class ParameterEntry : Container
             if (newText.Length > 40) newText = newText[..40] + "...";
 
             valueText.Text = newText;
-            flashColour();
+            background.FlashColour(VRCOSCColour.GrayD, 500, Easing.OutCubic);
         }, true);
-    }
-
-    private void flashColour()
-    {
-        background.FlashColour(VRCOSCColour.GrayD, 500, Easing.OutCubic);
     }
 }

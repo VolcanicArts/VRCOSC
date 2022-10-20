@@ -13,23 +13,18 @@ namespace VRCOSC.Game.Graphics.ModuleRun;
 
 public sealed class ParameterContainer : Container
 {
-    private ParameterSubContainer outgoingParameterDisplay = null!;
-    private ParameterSubContainer incomingParameterDisplay = null!;
+    [Resolved]
+    private ModuleManager moduleManager { get; set; } = null!;
+
+    private readonly ParameterSubContainer outgoingParameterDisplay;
+    private readonly ParameterSubContainer incomingParameterDisplay;
 
     public ParameterContainer()
     {
-        Anchor = Anchor.Centre;
-        Origin = Anchor.Centre;
         RelativeSizeAxes = Axes.Both;
-    }
 
-    [BackgroundDependencyLoader]
-    private void load(ModuleManager moduleManager)
-    {
         Child = new GridContainer
         {
-            Anchor = Anchor.Centre,
-            Origin = Anchor.Centre,
             RelativeSizeAxes = Axes.Both,
             RowDimensions = new[]
             {
@@ -43,8 +38,6 @@ public sealed class ParameterContainer : Container
                 {
                     new Container
                     {
-                        Anchor = Anchor.Centre,
-                        Origin = Anchor.Centre,
                         RelativeSizeAxes = Axes.Both,
                         Children = new Drawable[]
                         {
@@ -93,6 +86,11 @@ public sealed class ParameterContainer : Container
                 }
             }
         };
+    }
+
+    protected override void LoadComplete()
+    {
+        base.LoadComplete();
 
         moduleManager.OscClient.OnParameterSent += (key, value) => outgoingParameterDisplay.AddEntry(key, value);
         moduleManager.OscClient.OnParameterReceived += (key, value) => incomingParameterDisplay.AddEntry(key, value);
@@ -106,20 +104,14 @@ public sealed class ParameterContainer : Container
 
     private sealed class ParameterSubContainer : Container
     {
-        private ParameterDisplay parameterDisplay = null!;
+        private readonly ParameterDisplay parameterDisplay;
 
         public string Title { get; init; } = string.Empty;
 
         public ParameterSubContainer()
         {
-            Anchor = Anchor.Centre;
-            Origin = Anchor.Centre;
             RelativeSizeAxes = Axes.Both;
-        }
 
-        [BackgroundDependencyLoader]
-        private void load()
-        {
             Child = new Container
             {
                 Anchor = Anchor.Centre,
@@ -160,13 +152,9 @@ public sealed class ParameterContainer : Container
         }
 
         public void AddEntry(string key, object value)
-        {
-            parameterDisplay.AddEntry(key, value);
-        }
+            => parameterDisplay.AddEntry(key, value);
 
         public void ClearContent()
-        {
-            parameterDisplay.ClearContent();
-        }
+            => parameterDisplay.ClearContent();
     }
 }

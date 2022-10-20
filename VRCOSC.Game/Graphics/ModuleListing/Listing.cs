@@ -14,13 +14,13 @@ namespace VRCOSC.Game.Graphics.ModuleListing;
 
 public sealed class Listing : Container
 {
-    private FillFlowContainer<ModuleCard> moduleCardFlow = null!;
-
     [Resolved]
     private ModuleManager moduleManager { get; set; } = null!;
 
     [Resolved]
     private VRCOSCGame game { get; set; } = null!;
+
+    private readonly FillFlowContainer<ModuleCard> moduleCardFlow;
 
     public Listing()
     {
@@ -30,11 +30,7 @@ public sealed class Listing : Container
             Horizontal = 5,
             Top = 2.5f
         };
-    }
 
-    [BackgroundDependencyLoader]
-    private void load()
-    {
         Children = new Drawable[]
         {
             new VRCOSCScrollContainer
@@ -57,8 +53,17 @@ public sealed class Listing : Container
                 }
             }
         };
+    }
 
+    [BackgroundDependencyLoader]
+    private void load()
+    {
         moduleManager.Modules.ForEach(module => moduleCardFlow.Add(new ModuleCard(module)));
+    }
+
+    protected override void LoadComplete()
+    {
+        base.LoadComplete();
 
         game.SearchTermFilter.BindValueChanged(_ => filter());
         game.TypeFilter.BindValueChanged(_ => filter());

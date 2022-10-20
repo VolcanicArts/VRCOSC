@@ -14,10 +14,14 @@ namespace VRCOSC.Game.Graphics.ModuleListing;
 
 public sealed class Footer : Container
 {
-    private Bindable<bool> autoStartStop = null!;
-
     [Resolved]
     private BindableBool modulesRunning { get; set; } = null!;
+
+    [Resolved]
+    private VRCOSCConfigManager configManager { get; set; } = null!;
+
+    private Bindable<bool> autoStartStop = null!;
+    private readonly TextButton runButton;
 
     public Footer()
     {
@@ -26,12 +30,6 @@ public sealed class Footer : Container
         {
             Top = 5
         };
-    }
-
-    [BackgroundDependencyLoader]
-    private void load(VRCOSCConfigManager configManager)
-    {
-        TextButton runButton;
 
         Children = new Drawable[]
         {
@@ -55,6 +53,11 @@ public sealed class Footer : Container
                 Action = () => modulesRunning.Value = true
             }
         };
+    }
+
+    protected override void LoadComplete()
+    {
+        base.LoadComplete();
 
         autoStartStop = configManager.GetBindable<bool>(VRCOSCSetting.AutoStartStop);
         autoStartStop.BindValueChanged(e => runButton.Enabled.Value = !e.NewValue, true);

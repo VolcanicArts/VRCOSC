@@ -29,8 +29,8 @@ public sealed class Header : Container
                 RelativeSizeAxes = Axes.Both,
                 ColumnDimensions = new[]
                 {
-                    new Dimension(GridSizeMode.Relative, 0.5f),
-                    new Dimension(GridSizeMode.Relative, 0.5f)
+                    new Dimension(),
+                    new Dimension()
                 },
                 Content = new[]
                 {

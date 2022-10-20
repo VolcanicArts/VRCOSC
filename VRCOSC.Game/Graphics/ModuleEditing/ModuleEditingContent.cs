@@ -14,14 +14,16 @@ namespace VRCOSC.Game.Graphics.ModuleEditing;
 
 public sealed class ModuleEditingContent : Container
 {
-    private TextFlowContainer metadataTextFlow = null!;
-    private SeparatedAttributeFlow settings = null!;
-    private SeparatedAttributeFlow parameters = null!;
-    private BasicScrollContainer scrollContainer = null!;
-    private FillFlowContainer<SeparatedAttributeFlow> separatedAttributeFlowFlow = null!;
+    private readonly TextFlowContainer metadataTextFlow;
+    private readonly SeparatedAttributeFlow settings;
+    private readonly SeparatedAttributeFlow parameters;
+    private readonly BasicScrollContainer scrollContainer;
+    private readonly FillFlowContainer<SeparatedAttributeFlow> separatedAttributeFlowFlow;
 
-    [BackgroundDependencyLoader]
-    private void load(Bindable<Module?> editingModule)
+    [Resolved]
+    private Bindable<Module?> editingModule { get; set; } = null!;
+
+    public ModuleEditingContent()
     {
         Children = new Drawable[]
         {
@@ -51,7 +53,7 @@ public sealed class ModuleEditingContent : Container
                             TextAnchor = Anchor.Centre,
                             AutoSizeAxes = Axes.Both
                         },
-                        separatedAttributeFlowFlow = new FillFlowContainer<SeparatedAttributeFlow>()
+                        separatedAttributeFlowFlow = new FillFlowContainer<SeparatedAttributeFlow>
                         {
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
@@ -69,12 +71,19 @@ public sealed class ModuleEditingContent : Container
                 }
             }
         };
+    }
+
+    protected override void LoadComplete()
+    {
+        base.LoadComplete();
 
         editingModule.BindValueChanged(_ =>
         {
             if (editingModule.Value is null) return;
 
-            Clear();
+            metadataTextFlow.Clear();
+            separatedAttributeFlowFlow.ForEach(child => child.Clear());
+            scrollContainer.ScrollToStart();
 
             metadataTextFlow.AddText(editingModule.Value.Title, t =>
             {
@@ -104,25 +113,11 @@ public sealed class ModuleEditingContent : Container
         }, true);
     }
 
-    public new void Clear()
+    private sealed class SeparatedAttributeFlow : Container
     {
-        metadataTextFlow.Clear();
-        separatedAttributeFlowFlow.ForEach(child => child.Clear());
-        scrollContainer.ScrollToStart();
-    }
-
-    private class SeparatedAttributeFlow : Container
-    {
-        private AttributeFlow attributeFlow = null!;
-        private readonly string title;
+        private readonly AttributeFlow attributeFlow;
 
         public SeparatedAttributeFlow(string title)
-        {
-            this.title = title;
-        }
-
-        [BackgroundDependencyLoader]
-        private void load()
         {
             Anchor = Anchor.TopCentre;
             Origin = Anchor.TopCentre;
