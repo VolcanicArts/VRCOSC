@@ -39,15 +39,15 @@ public abstract class PopoverScreen : VisibilityContainer
             {
                 Anchor = Anchor.TopRight,
                 Origin = Anchor.TopRight,
-                Size = new Vector2(70),
+                Size = new Vector2(60),
                 Padding = new MarginPadding(10),
                 Child = new IconButton
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
                     RelativeSizeAxes = Axes.Both,
-                    CornerRadius = 10,
-                    IconPadding = 6,
+                    CornerRadius = 7,
+                    IconPadding = 5,
                     Icon = FontAwesome.Solid.Get(0xf00d),
                     Action = Hide
                 }
