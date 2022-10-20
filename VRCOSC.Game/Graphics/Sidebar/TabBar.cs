@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -16,62 +17,65 @@ public sealed class TabBar : Container
 {
     private const int tab_height = 80;
 
-    private static readonly IReadOnlyDictionary<Tabs, IconUsage> tab_lookup = new Dictionary<Tabs, IconUsage>()
+    private static readonly IReadOnlyDictionary<Tabs, IconUsage> tab_lookup = new Dictionary<Tabs, IconUsage>
     {
         { Tabs.Modules, FontAwesome.Solid.ListUl },
         { Tabs.Settings, FontAwesome.Solid.Cog },
         { Tabs.About, FontAwesome.Solid.Info }
     };
 
-    [BackgroundDependencyLoader]
-    private void load(VRCOSCGame game)
-    {
-        FillFlowContainer<Tab> tabsFlow;
-        Container selectedIndicator;
+    [Resolved]
+    private Bindable<Tabs> selectedTab { get; set; } = null!;
 
+    private readonly SelectionIndicator selectedIndicator;
+    private readonly FillFlowContainer<Tab> tabsFlow;
+
+    public TabBar()
+    {
         Children = new Drawable[]
         {
             new Box
             {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 Colour = VRCOSCColour.Gray3
             },
             selectedIndicator = new SelectionIndicator
             {
-                Anchor = Anchor.TopCentre,
-                Origin = Anchor.TopCentre,
                 RelativeSizeAxes = Axes.X,
                 Height = tab_height
             },
             tabsFlow = new FillFlowContainer<Tab>
             {
-                Anchor = Anchor.TopCentre,
-                Origin = Anchor.TopCentre,
                 RelativeSizeAxes = Axes.Both,
                 Direction = FillDirection.Vertical
             }
         };
+    }
 
+    [BackgroundDependencyLoader]
+    private void load()
+    {
         tab_lookup.ForEach(pair =>
         {
             var (tabName, icon) = pair;
             tabsFlow.Add(new Tab
             {
-                Anchor = Anchor.TopCentre,
-                Origin = Anchor.TopCentre,
                 RelativeSizeAxes = Axes.X,
                 Height = tab_height,
                 AssociatedTab = tabName,
                 Icon = icon
             });
         });
-
-        game.SelectedTab.BindValueChanged(id => selectedIndicator.MoveToY(tabsFlow[(int)id.NewValue].Position.Y, 100, Easing.InOutCubic), true);
     }
 
-    private sealed class SelectionIndicator : Container
+    protected override void LoadComplete()
+    {
+        base.LoadComplete();
+
+        selectedTab.BindValueChanged(id => selectedIndicator.MoveToY(tabsFlow[(int)id.NewValue].Position.Y, 100, Easing.InOutCubic), true);
+    }
+
+    private sealed class SelectionIndicator : CircularContainer
     {
         [BackgroundDependencyLoader]
         private void load()
@@ -87,8 +91,6 @@ public sealed class TabBar : Container
                 Masking = true,
                 Child = new Box
                 {
-                    Anchor = Anchor.CentreLeft,
-                    Origin = Anchor.CentreLeft,
                     RelativeSizeAxes = Axes.Both,
                     Colour = Colour4.White.Opacity(0.5f)
                 }

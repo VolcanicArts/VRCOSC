@@ -29,9 +29,11 @@ public abstract class VRCOSCGame : VRCOSCGameBase
 
     private NotificationContainer notificationContainer = null!;
 
-    public Bindable<Tabs> SelectedTab = new();
     public Bindable<string> SearchTermFilter = new(string.Empty);
     public Bindable<ModuleType?> TypeFilter = new();
+
+    [Cached]
+    private Bindable<Tabs> SelectedTab = new();
 
     [Cached]
     private BindableBool ModulesRunning = new();

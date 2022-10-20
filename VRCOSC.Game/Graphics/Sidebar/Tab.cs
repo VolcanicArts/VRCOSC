@@ -26,7 +26,7 @@ public sealed class Tab : ClickableContainer
     private BindableBool modulesRunning { get; set; } = null!;
 
     [Resolved]
-    private VRCOSCGame game { get; set; } = null!;
+    private Bindable<Tabs> selectedTab { get; set; } = null!;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -35,8 +35,6 @@ public sealed class Tab : ClickableContainer
         {
             background = new Box
             {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 Colour = VRCOSCColour.Invisible
             },
@@ -74,7 +72,7 @@ public sealed class Tab : ClickableContainer
                 return;
             }
 
-            game.SelectedTab.Value = AssociatedTab;
+            selectedTab.Value = AssociatedTab;
         };
     }
 

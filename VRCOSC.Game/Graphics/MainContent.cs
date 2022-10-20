@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using VRCOSC.Game.Graphics.About;
@@ -14,7 +15,7 @@ namespace VRCOSC.Game.Graphics;
 public sealed class MainContent : Container
 {
     [Resolved]
-    private VRCOSCGame game { get; set; } = null!;
+    private Bindable<Tabs> selectedTab { get; set; } = null!;
 
     private Container screenHolder = null!;
 
@@ -63,7 +64,7 @@ public sealed class MainContent : Container
     {
         base.LoadComplete();
 
-        game.SelectedTab.BindValueChanged(tab =>
+        selectedTab.BindValueChanged(tab =>
         {
             var id = (int)tab.NewValue;
 
