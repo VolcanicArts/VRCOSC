@@ -20,6 +20,10 @@ public sealed class ParameterContainer : Container
     public ParameterContainer()
     {
         RelativeSizeAxes = Axes.Both;
+        Padding = new MarginPadding
+        {
+            Left = 15 / 2f
+        };
 
         Child = new GridContainer
         {
@@ -38,10 +42,7 @@ public sealed class ParameterContainer : Container
                         Title = "Outgoing",
                         Padding = new MarginPadding
                         {
-                            Left = 7.5f,
-                            Right = 15f,
-                            Bottom = 7.5f,
-                            Top = 15
+                            Bottom = 15 / 2f
                         }
                     }
                 },
@@ -52,10 +53,7 @@ public sealed class ParameterContainer : Container
                         Title = "Incoming",
                         Padding = new MarginPadding
                         {
-                            Left = 7.5f,
-                            Right = 15f,
-                            Bottom = 15,
-                            Top = 7.5f
+                            Top = 15 / 2f
                         }
                     }
                 }

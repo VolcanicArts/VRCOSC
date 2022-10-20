@@ -21,16 +21,14 @@ public sealed class TerminalContainer : Container<TerminalEntry>
     public TerminalContainer()
     {
         RelativeSizeAxes = Axes.Both;
+        Padding = new MarginPadding
+        {
+            Right = 15 / 2f
+        };
 
         InternalChild = new Container
         {
             RelativeSizeAxes = Axes.Both,
-            Padding = new MarginPadding
-            {
-                Vertical = 15,
-                Left = 15,
-                Right = 7.5f
-            },
             Child = new Container
             {
                 RelativeSizeAxes = Axes.Both,

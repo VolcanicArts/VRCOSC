@@ -26,23 +26,28 @@ public sealed class ModuleRunPopover : PopoverScreen
                 RelativeSizeAxes = Axes.Both,
                 Colour = VRCOSCColour.Gray3
             },
-            new GridContainer
+            new Container
             {
                 RelativeSizeAxes = Axes.Both,
-                ColumnDimensions = new[]
+                Padding = new MarginPadding(15),
+                Child = new GridContainer
                 {
-                    new Dimension(GridSizeMode.Relative, 0.35f),
-                    new Dimension()
-                },
-                Content = new[]
-                {
-                    new Drawable[]
+                    RelativeSizeAxes = Axes.Both,
+                    ColumnDimensions = new[]
                     {
-                        terminal = new TerminalContainer(),
-                        parameters = new ParameterContainer()
+                        new Dimension(GridSizeMode.Relative, 0.35f),
+                        new Dimension()
+                    },
+                    Content = new[]
+                    {
+                        new Drawable[]
+                        {
+                            terminal = new TerminalContainer(),
+                            parameters = new ParameterContainer()
+                        }
                     }
                 }
-            },
+            }
         };
     }
 
