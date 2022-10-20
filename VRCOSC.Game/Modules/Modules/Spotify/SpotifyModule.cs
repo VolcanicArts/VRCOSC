@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -8,6 +8,8 @@ namespace VRCOSC.Game.Modules.Modules.Spotify;
 
 public sealed class SpotifyModule : IntegrationModule
 {
+    private const int chatbox_override_time = 5000;
+
     public override string Title => "Spotify";
     public override string Description => "Integration with the Spotify desktop app";
     public override string Author => "VolcanicArts";
@@ -77,11 +79,11 @@ public sealed class SpotifyModule : IntegrationModule
             var author = titleData[0].Trim();
             var title = titleData[1].Trim();
             var formattedText = GetSetting<string>(SpotifySetting.TitleFormat).Replace("%title%", title).Replace("%author%", author);
-            ChatBox.SetText(formattedText, true, ChatBoxPriority.Override, 5000);
+            ChatBox.SetText(formattedText, true, ChatBoxPriority.Override, chatbox_override_time);
         }
         else
         {
-            ChatBox.SetText(currentTitle);
+            ChatBox.SetText(currentTitle, true, ChatBoxPriority.Override, chatbox_override_time);
         }
     }
 
