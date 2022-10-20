@@ -17,11 +17,11 @@ using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleEditing;
 
-public sealed class AttributeFlow : FillFlowContainer
+public sealed class AttributeFlow : FillFlowContainer<AttributeCard>
 {
     public BindableList<ModuleAttribute> AttributesList = new();
 
-    protected override Container<Drawable> Content { get; }
+    protected override FillFlowContainer<AttributeCard> Content { get; }
 
     public AttributeFlow(string title)
     {
@@ -42,7 +42,7 @@ public sealed class AttributeFlow : FillFlowContainer
                 Font = FrameworkFont.Regular.With(size: 50),
                 Text = title
             },
-            Content = new FillFlowContainer
+            Content = new FillFlowContainer<AttributeCard>
             {
                 Anchor = Anchor.TopCentre,
                 Origin = Anchor.TopCentre,
