@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -20,6 +21,9 @@ public sealed class Tab : ClickableContainer
 
     public Tabs AssociatedTab { get; init; }
     public IconUsage Icon { get; init; }
+
+    [Resolved]
+    private BindableBool modulesRunning { get; set; } = null!;
 
     [Resolved]
     private VRCOSCGame game { get; set; } = null!;
@@ -64,7 +68,7 @@ public sealed class Tab : ClickableContainer
     {
         Action += () =>
         {
-            if (game.ModulesRunning.Value)
+            if (modulesRunning.Value)
             {
                 background.FlashColour(VRCOSCColour.Red, 500, Easing.OutCubic);
                 return;

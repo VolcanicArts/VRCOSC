@@ -56,7 +56,7 @@ public sealed class ModuleManager : Component
     private VRCOSCConfigManager configManager { get; set; } = null!;
 
     [Resolved]
-    private VRCOSCGame game { get; set; } = null!;
+    private BindableBool modulesRunning { get; set; } = null!;
 
     [BackgroundDependencyLoader]
     private void load(GameHost host, Storage storage)
@@ -93,7 +93,7 @@ public sealed class ModuleManager : Component
             }
         }, true);
 
-        game.ModulesRunning.BindValueChanged(e =>
+        modulesRunning.BindValueChanged(e =>
         {
             if (e.NewValue)
                 start();
@@ -101,7 +101,7 @@ public sealed class ModuleManager : Component
                 _ = stop();
         });
 
-        if (game.ModulesRunning.Value) start();
+        if (modulesRunning.Value) start();
     }
 
     private static async Task focusVrc()
@@ -126,15 +126,15 @@ public sealed class ModuleManager : Component
     {
         // autoStarted is checked here to ensure that modules aren't started immediately
         // after a user has manually stopped the modules
-        if (isVrChatRunning && !game.ModulesRunning.Value && !autoStarted)
+        if (isVrChatRunning && !modulesRunning.Value && !autoStarted)
         {
-            game.ModulesRunning.Value = true;
+            modulesRunning.Value = true;
             autoStarted = true;
         }
 
-        if (!isVrChatRunning && game.ModulesRunning.Value)
+        if (!isVrChatRunning && modulesRunning.Value)
         {
-            game.ModulesRunning.Value = false;
+            modulesRunning.Value = false;
             autoStarted = false;
         }
     }
@@ -186,7 +186,7 @@ public sealed class ModuleManager : Component
 
     protected override void Dispose(bool isDisposing)
     {
-        if (game.ModulesRunning.Value) _ = stop();
+        if (modulesRunning.Value) _ = stop();
         base.Dispose(isDisposing);
     }
 }

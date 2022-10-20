@@ -17,16 +17,11 @@ public sealed class TerminalContainer : Container
     private BasicScrollContainer terminalScroll = null!;
     private FillFlowContainer<TerminalEntry> terminalFlow = null!;
 
-    public TerminalContainer()
-    {
-        Anchor = Anchor.Centre;
-        Origin = Anchor.Centre;
-        RelativeSizeAxes = Axes.Both;
-    }
-
     [BackgroundDependencyLoader]
     private void load()
     {
+        RelativeSizeAxes = Axes.Both;
+
         Child = new GridContainer
         {
             Anchor = Anchor.Centre,

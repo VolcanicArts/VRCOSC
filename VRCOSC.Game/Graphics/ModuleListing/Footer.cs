@@ -16,6 +16,9 @@ public sealed class Footer : Container
 {
     private Bindable<bool> autoStartStop = null!;
 
+    [Resolved]
+    private BindableBool modulesRunning { get; set; } = null!;
+
     public Footer()
     {
         RelativeSizeAxes = Axes.Both;
@@ -26,7 +29,7 @@ public sealed class Footer : Container
     }
 
     [BackgroundDependencyLoader]
-    private void load(VRCOSCConfigManager configManager, VRCOSCGame game)
+    private void load(VRCOSCConfigManager configManager)
     {
         TextButton runButton;
 
@@ -49,7 +52,7 @@ public sealed class Footer : Container
                 CornerRadius = 5,
                 Text = "Run",
                 BackgroundColour = VRCOSCColour.Green,
-                Action = () => game.ModulesRunning.Value = true
+                Action = () => modulesRunning.Value = true
             }
         };
 

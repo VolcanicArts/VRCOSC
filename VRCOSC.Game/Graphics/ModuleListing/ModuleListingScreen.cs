@@ -54,7 +54,7 @@ public sealed class ModuleListingScreen : Container
                 }
             },
             new ModuleEditingPopover(),
-            new RunningPopover()
+            new ModuleRunPopover()
         };
     }
 }

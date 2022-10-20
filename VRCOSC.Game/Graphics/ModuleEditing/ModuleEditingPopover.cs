@@ -4,76 +4,52 @@
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
-using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
-using osu.Framework.Input.Events;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleEditing;
 
-public sealed class ModuleEditingPopover : Container
+public sealed class ModuleEditingPopover : PopoverScreen
 {
-    [Cached]
-    public Bindable<Module?> SourceModule { get; } = new();
+    [Resolved]
+    private Bindable<Module?> editingModule { get; set; } = null!;
 
     public ModuleEditingPopover()
     {
-        Anchor = Anchor.Centre;
-        Origin = Anchor.Centre;
-        RelativeSizeAxes = Axes.Both;
-        RelativePositionAxes = Axes.X;
-        Padding = new MarginPadding(40);
-        X = 1;
-    }
-
-    [BackgroundDependencyLoader]
-    private void load(VRCOSCGame game)
-    {
-        ModuleEditingContent moduleEditingContent;
         Children = new Drawable[]
         {
-            new Container
+            new Box
             {
                 RelativeSizeAxes = Axes.Both,
-                Masking = true,
-                CornerRadius = 5,
-                EdgeEffect = VRCOSCEdgeEffects.DispersedShadow,
-                BorderColour = VRCOSCColour.Gray0,
-                BorderThickness = 2,
-                Children = new Drawable[]
+                Colour = VRCOSCColour.Gray4
+            },
+            new ModuleEditingContent
+            {
+                RelativeSizeAxes = Axes.Both,
+                Padding = new MarginPadding
                 {
-                    new Box
-                    {
-                        RelativeSizeAxes = Axes.Both,
-                        Colour = VRCOSCColour.Gray4
-                    },
-                    moduleEditingContent = new ModuleEditingContent
-                    {
-                        RelativeSizeAxes = Axes.Both,
-                        Padding = new MarginPadding
-                        {
-                            Vertical = 2.5f
-                        }
-                    }
+                    Vertical = 2.5f
                 }
             }
         };
+    }
 
-        game.EditingModule.ValueChanged += e =>
+    protected override void LoadComplete()
+    {
+        base.LoadComplete();
+
+        editingModule.ValueChanged += e =>
         {
-            var module = e.NewValue;
-
-            if (module is null)
-                this.MoveToX(1, 1000, Easing.InQuint).Finally(_ => moduleEditingContent.Clear());
+            if (e.NewValue is null)
+                Hide();
             else
-                this.MoveToX(0, 1000, Easing.OutQuint);
-
-            SourceModule.Value = module;
+                Show();
         };
     }
 
-    protected override bool OnMouseDown(MouseDownEvent e) => true;
-    protected override bool OnClick(ClickEvent e) => true;
-    protected override bool OnHover(HoverEvent e) => true;
-    protected override bool OnScroll(ScrollEvent e) => true;
+    public override void Hide()
+    {
+        base.Hide();
+        editingModule.Value = null;
+    }
 }

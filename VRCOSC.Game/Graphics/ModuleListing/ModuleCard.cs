@@ -17,6 +17,9 @@ public sealed class ModuleCard : Container
 {
     public readonly Module Module;
 
+    [Resolved]
+    private Bindable<Module?> editingModule { get; set; } = null!;
+
     public ModuleCard(Module module)
     {
         Module = module;
@@ -108,7 +111,7 @@ public sealed class ModuleCard : Container
                     Icon = FontAwesome.Solid.Get(0xF013),
                     IconPadding = 5,
                     CornerRadius = 5,
-                    Action = () => game.EditingModule.Value = Module,
+                    Action = () => editingModule.Value = Module,
                     BackgroundColour = VRCOSCColour.Gray5
                 }
             },

@@ -7,9 +7,7 @@ using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Sprites;
 using osuTK;
-using VRCOSC.Game.Graphics.UI.Button;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleEditing;
@@ -23,7 +21,7 @@ public sealed class ModuleEditingContent : Container
     private FillFlowContainer<SeparatedAttributeFlow> separatedAttributeFlowFlow = null!;
 
     [BackgroundDependencyLoader]
-    private void load(VRCOSCGame game, Bindable<Module?> sourceModule)
+    private void load(Bindable<Module?> editingModule)
     {
         Children = new Drawable[]
         {
@@ -69,35 +67,20 @@ public sealed class ModuleEditingContent : Container
                         }
                     }
                 }
-            },
-            new Container
-            {
-                Anchor = Anchor.TopRight,
-                Origin = Anchor.TopRight,
-                Size = new Vector2(70),
-                Padding = new MarginPadding(10),
-                Child = new IconButton
-                {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    RelativeSizeAxes = Axes.Both,
-                    CornerRadius = 10,
-                    IconPadding = 6,
-                    Icon = FontAwesome.Solid.Get(0xf00d),
-                    Action = () => game.EditingModule.Value = null
-                },
             }
         };
 
-        sourceModule.BindValueChanged(_ =>
+        editingModule.BindValueChanged(_ =>
         {
-            if (sourceModule.Value is null) return;
+            if (editingModule.Value is null) return;
 
-            metadataTextFlow.AddText(sourceModule.Value.Title, t =>
+            Clear();
+
+            metadataTextFlow.AddText(editingModule.Value.Title, t =>
             {
                 t.Font = FrameworkFont.Regular.With(size: 75);
             });
-            metadataTextFlow.AddParagraph(sourceModule.Value.Description, t =>
+            metadataTextFlow.AddParagraph(editingModule.Value.Description, t =>
             {
                 t.Font = FrameworkFont.Regular.With(size: 40);
                 t.Colour = VRCOSCColour.Gray9;
@@ -107,17 +90,17 @@ public sealed class ModuleEditingContent : Container
                 t.Font = FrameworkFont.Regular.With(size: 30);
                 t.Colour = VRCOSCColour.Gray9;
             });
-            metadataTextFlow.AddText(sourceModule.Value.Author, t =>
+            metadataTextFlow.AddText(editingModule.Value.Author, t =>
             {
                 t.Font = FrameworkFont.Regular.With(size: 30);
                 t.Colour = VRCOSCColour.GrayE;
             });
 
-            settings.Replace(sourceModule.Value.Settings.Values);
-            parameters.Replace(sourceModule.Value.OutputParameters.Values);
+            settings.Replace(editingModule.Value.Settings.Values);
+            parameters.Replace(editingModule.Value.OutputParameters.Values);
 
-            settings.Alpha = sourceModule.Value.HasSettings ? 1 : 0;
-            parameters.Alpha = sourceModule.Value.HasOutgoingParameters ? 1 : 0;
+            settings.Alpha = editingModule.Value.HasSettings ? 1 : 0;
+            parameters.Alpha = editingModule.Value.HasOutgoingParameters ? 1 : 0;
         }, true);
     }
 
