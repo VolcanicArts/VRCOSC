@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -14,8 +15,8 @@ public sealed class ParameterEntry : Container
     public string Key { get; init; } = null!;
     public Bindable<string> Value { get; } = new();
 
-    private readonly Box background;
-    private readonly SpriteText valueText;
+    private Box background = null!;
+    private SpriteText valueText = null!;
 
     public ParameterEntry()
     {
@@ -23,7 +24,11 @@ public sealed class ParameterEntry : Container
         Origin = Anchor.TopCentre;
         RelativeSizeAxes = Axes.X;
         AutoSizeAxes = Axes.Y;
+    }
 
+    [BackgroundDependencyLoader]
+    private void load()
+    {
         Children = new Drawable[]
         {
             new SpriteText

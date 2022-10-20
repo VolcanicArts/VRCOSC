@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using osu.Framework.Allocation;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -15,14 +16,18 @@ public sealed class ParameterDisplay : Container
     public string Title { get; init; } = null!;
 
     private readonly SortedDictionary<string, ParameterEntry> parameterDict = new();
-    private readonly FillFlowContainer<ParameterEntry> parameterFlow;
+    private FillFlowContainer<ParameterEntry> parameterFlow = null!;
 
     public ParameterDisplay()
     {
         Masking = true;
         BorderThickness = 2;
         BorderColour = VRCOSCColour.Gray0;
+    }
 
+    [BackgroundDependencyLoader]
+    private void load()
+    {
         Children = new Drawable[]
         {
             new GridContainer
