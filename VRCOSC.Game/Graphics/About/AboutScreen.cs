@@ -9,6 +9,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Platform;
 using osuTK;
+using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics.UI.Button;
 
 namespace VRCOSC.Game.Graphics.About;
@@ -18,7 +19,11 @@ public sealed class AboutScreen : Container
     [Resolved]
     private GameHost host { get; set; } = null!;
 
+    [Resolved]
+    private VRCOSCConfigManager configManager { get; set; } = null!;
+
     private readonly FillFlowContainer buttonFlow;
+    private readonly TextFlowContainer text;
 
     public AboutScreen()
     {
@@ -31,23 +36,27 @@ public sealed class AboutScreen : Container
                 RelativeSizeAxes = Axes.Both,
                 Colour = VRCOSCColour.Gray5
             },
-            buttonFlow = new FillFlowContainer
+            new Container
             {
-                Anchor = Anchor.TopCentre,
-                Origin = Anchor.TopCentre,
-                RelativeSizeAxes = Axes.Both,
-                Size = new Vector2(0.5f, 0.9f),
-                Direction = FillDirection.Full,
-                Spacing = new Vector2(5)
-            },
-            new TextFlowContainer
-            {
-                Anchor = Anchor.BottomCentre,
-                Origin = Anchor.BottomCentre,
                 RelativeSizeAxes = Axes.Both,
                 Padding = new MarginPadding(10),
-                TextAnchor = Anchor.BottomCentre,
-                Text = "Copyright VolcanicArts 2022. See license file in repository root for more information"
+                Children = new Drawable[]
+                {
+                    buttonFlow = new FillFlowContainer
+                    {
+                        Anchor = Anchor.TopCentre,
+                        Origin = Anchor.TopCentre,
+                        RelativeSizeAxes = Axes.Both,
+                        Size = new Vector2(0.5f, 0.9f),
+                        Direction = FillDirection.Full,
+                        Spacing = new Vector2(5)
+                    },
+                    text = new TextFlowContainer
+                    {
+                        RelativeSizeAxes = Axes.Both,
+                        TextAnchor = Anchor.BottomCentre
+                    }
+                }
             }
         };
     }
@@ -70,6 +79,9 @@ public sealed class AboutScreen : Container
                 Action = () => host.OpenUrlExternally("https://discord.gg/vj4brHyvT5")
             }
         });
+
+        text.AddText($"VRCOSC {configManager.Get<string>(VRCOSCSetting.Version)}");
+        text.AddParagraph("Copyright VolcanicArts 2022. See license file in repository root for more information");
     }
 
     private sealed class AboutButton : Container
@@ -78,16 +90,13 @@ public sealed class AboutScreen : Container
         public Colour4 BackgroundColour { get; init; }
         public Action Action { get; init; }
 
-        public AboutButton()
+        [BackgroundDependencyLoader]
+        private void load()
         {
             Anchor = Anchor.TopCentre;
             Origin = Anchor.TopCentre;
             Size = new Vector2(100);
-        }
 
-        [BackgroundDependencyLoader]
-        private void load()
-        {
             Child = new IconButton
             {
                 Anchor = Anchor.Centre,
