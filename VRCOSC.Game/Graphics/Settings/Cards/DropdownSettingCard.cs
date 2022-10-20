@@ -20,7 +20,7 @@ public class DropdownSettingCard<T> : SettingCard<T>
     [BackgroundDependencyLoader]
     private void load()
     {
-        ContentFlow.Add(new VRCOSCDropdown<T>()
+        Add(new VRCOSCDropdown<T>
         {
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,

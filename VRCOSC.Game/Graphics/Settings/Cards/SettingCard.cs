@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -15,23 +14,17 @@ namespace VRCOSC.Game.Graphics.Settings.Cards;
 
 public abstract class SettingCard<T> : Container
 {
-    private VRCOSCButton resetToDefault = null!;
-    protected FillFlowContainer ContentFlow = null!;
+    private readonly VRCOSCButton resetToDefault;
 
-    private readonly string title;
-    private readonly string description;
+    protected readonly Container ContentWrapper;
+    protected override FillFlowContainer Content { get; }
+
     protected readonly Bindable<T> SettingBindable;
 
     protected SettingCard(string title, string description, Bindable<T> settingBindable)
     {
-        this.title = title;
-        this.description = description;
         SettingBindable = settingBindable;
-    }
 
-    [BackgroundDependencyLoader]
-    private void load()
-    {
         Anchor = Anchor.TopCentre;
         Origin = Anchor.TopCentre;
         RelativeSizeAxes = Axes.X;
@@ -65,10 +58,8 @@ public abstract class SettingCard<T> : Container
                     }
                 }
             },
-            new Container
+            ContentWrapper = new Container
             {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.X,
                 AutoSizeAxes = Axes.Y,
                 Masking = true,
@@ -79,15 +70,11 @@ public abstract class SettingCard<T> : Container
                 {
                     new Box
                     {
-                        Anchor = Anchor.Centre,
-                        Origin = Anchor.Centre,
                         RelativeSizeAxes = Axes.Both,
                         Colour = VRCOSCColour.Gray2
                     },
                     new FillFlowContainer
                     {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
                         RelativeSizeAxes = Axes.X,
                         AutoSizeAxes = Axes.Y,
                         Direction = FillDirection.Vertical,
@@ -103,7 +90,7 @@ public abstract class SettingCard<T> : Container
                                 RelativeSizeAxes = Axes.X,
                                 AutoSizeAxes = Axes.Y
                             },
-                            ContentFlow = new FillFlowContainer
+                            Content = new FillFlowContainer
                             {
                                 Anchor = Anchor.TopCentre,
                                 Origin = Anchor.TopCentre,
@@ -117,6 +104,7 @@ public abstract class SettingCard<T> : Container
                 }
             }
         };
+
         textFlow.AddText(title, t =>
         {
             t.Font = FrameworkFont.Regular.With(size: 25);

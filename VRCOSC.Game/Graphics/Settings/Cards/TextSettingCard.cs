@@ -20,12 +20,7 @@ public class TextSettingCard : SettingCard<string>
     [BackgroundDependencyLoader]
     private void load()
     {
-        ContentFlow.Add(CreateContent());
-    }
-
-    protected Drawable CreateContent()
-    {
-        return textBox = CreateTextBox().With(t => t.Text = SettingBindable.Value.ToString());
+        Add(textBox = CreateTextBox().With(t => t.Text = SettingBindable.Value));
     }
 
     protected override void LoadComplete()

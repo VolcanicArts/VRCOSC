@@ -21,7 +21,7 @@ public class ToggleSettingCard : SettingCard<bool>
     [BackgroundDependencyLoader]
     private void load()
     {
-        Add(new Container
+        ContentWrapper.Add(new Container
         {
             Anchor = Anchor.CentreRight,
             Origin = Anchor.CentreRight,

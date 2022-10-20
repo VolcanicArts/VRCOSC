@@ -18,32 +18,34 @@ public abstract class SectionContainer : Container
 {
     private const int setting_height = 40;
 
-    private FillFlowContainer flow = null!;
+    private readonly FillFlowContainer flow;
 
     protected virtual string Title => string.Empty;
 
     protected VRCOSCConfigManager ConfigManager = null!;
 
-    [BackgroundDependencyLoader]
-    private void load(VRCOSCConfigManager configManager)
+    protected SectionContainer()
     {
-        ConfigManager = configManager;
-
         Anchor = Anchor.TopCentre;
         Origin = Anchor.TopCentre;
         RelativeSizeAxes = Axes.X;
         AutoSizeAxes = Axes.Y;
         Width = 0.5f;
+
         Child = flow = new FillFlowContainer
         {
-            Anchor = Anchor.TopCentre,
-            Origin = Anchor.TopCentre,
             RelativeSizeAxes = Axes.X,
             AutoSizeAxes = Axes.Y,
             Direction = FillDirection.Vertical,
             Padding = new MarginPadding(5),
             Spacing = new Vector2(0, 5),
         };
+    }
+
+    [BackgroundDependencyLoader]
+    private void load(VRCOSCConfigManager configManager)
+    {
+        ConfigManager = configManager;
 
         flow.Add(new SpriteText
         {
@@ -52,7 +54,11 @@ public abstract class SectionContainer : Container
             Font = FrameworkFont.Regular.With(size: 35),
             Text = Title
         });
+
+        GenerateItems();
     }
+
+    protected abstract void GenerateItems();
 
     protected void AddToggle(string title, string description, Bindable<bool> settingBindable)
     {
@@ -73,13 +79,6 @@ public abstract class SectionContainer : Container
     {
         flow.Add(new DropdownSettingCard<T>(title, description, settingBindable));
     }
-
-    protected override void LoadComplete()
-    {
-        GenerateItems();
-    }
-
-    protected abstract void GenerateItems();
 
     protected void AddButton(string text, Colour4 colour, Action? action = null)
     {
