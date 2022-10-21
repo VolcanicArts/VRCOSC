@@ -20,6 +20,7 @@ using VRCOSC.Game.Modules.Modules.Heartrate.HypeRate;
 using VRCOSC.Game.Modules.Modules.Heartrate.Pulsoid;
 using VRCOSC.Game.Modules.Modules.Media;
 using VRCOSC.Game.Modules.Modules.Random;
+using VRCOSC.Game.Modules.Modules.Spotify;
 using VRCOSC.Game.Util;
 using VRCOSC.OSC;
 
@@ -37,6 +38,7 @@ public sealed class ModuleManager : Component
         typeof(RandomFloatModule),
         typeof(HardwareStatsModule),
         typeof(MediaModule),
+        typeof(SpotifyModule),
         typeof(DiscordModule)
         //typeof(SpeechToTextModule)
     };
