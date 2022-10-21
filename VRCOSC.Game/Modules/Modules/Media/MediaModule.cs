@@ -109,7 +109,7 @@ public sealed class MediaModule : MediaIntegrationModule
 
     private void display()
     {
-        if (MediaState.Title is null || currentTitle == MediaState.Title) return;
+        if (string.IsNullOrEmpty(MediaState.Title) || currentTitle == MediaState.Title) return;
 
         currentTitle = MediaState.Title;
 
