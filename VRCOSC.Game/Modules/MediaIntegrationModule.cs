@@ -76,4 +76,5 @@ public class MediaState
     public bool IsShuffle;
     public GlobalSystemMediaTransportControlsSessionPlaybackStatus Status;
     public GlobalSystemMediaTransportControlsSessionTimelineProperties Position;
+    public bool IsPlaying => Status == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing;
 }

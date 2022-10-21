@@ -108,14 +108,14 @@ public sealed class MediaModule : MediaIntegrationModule
 
     private void setParameters()
     {
-        SendParameter(MediaOutgoingParameter.Play, MediaState.Status == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing);
+        SendParameter(MediaOutgoingParameter.Play, MediaState.IsPlaying);
         SendParameter(MediaOutgoingParameter.Shuffle, MediaState.IsShuffle);
         SendParameter(MediaOutgoingParameter.Repeat, (int)MediaState.RepeatMode);
     }
 
     private void display()
     {
-        if (string.IsNullOrEmpty(MediaState.Title) || currentTitle == MediaState.Title) return;
+        if (string.IsNullOrEmpty(MediaState.Title) || currentTitle == MediaState.Title || !MediaState.IsPlaying) return;
 
         currentTitle = MediaState.Title;
 
