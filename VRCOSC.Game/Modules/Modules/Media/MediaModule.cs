@@ -44,6 +44,11 @@ public sealed class MediaModule : MediaIntegrationModule
         StopMediaHook();
     }
 
+    protected override void OnAvatarChange()
+    {
+        execute();
+    }
+
     protected override void OnBoolParameterReceived(Enum key, bool value)
     {
         switch (key)
@@ -86,6 +91,11 @@ public sealed class MediaModule : MediaIntegrationModule
     }
 
     protected override void OnMediaUpdate()
+    {
+        execute();
+    }
+
+    private void execute()
     {
         setParameters();
         display();
