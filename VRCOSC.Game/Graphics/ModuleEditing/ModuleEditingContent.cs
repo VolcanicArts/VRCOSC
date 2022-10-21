@@ -51,7 +51,8 @@ public sealed class ModuleEditingContent : Container
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
                             TextAnchor = Anchor.Centre,
-                            AutoSizeAxes = Axes.Both
+                            RelativeSizeAxes = Axes.X,
+                            AutoSizeAxes = Axes.Y
                         },
                         separatedAttributeFlowFlow = new FillFlowContainer<SeparatedAttributeFlow>
                         {
