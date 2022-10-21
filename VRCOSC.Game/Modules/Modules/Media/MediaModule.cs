@@ -3,6 +3,7 @@
 
 using System;
 using Windows.Media;
+using Windows.Media.Control;
 
 namespace VRCOSC.Game.Modules.Modules.Media;
 
@@ -24,11 +25,12 @@ public sealed class MediaModule : MediaIntegrationModule
         CreateSetting(MediaSetting.TitleFormat, "Title Format", "How displaying the title should be formatted.\nAvailable values: %title%, %artist%.", "Now Playing: %artist% - %title%");
 
         CreateOutgoingParameter(MediaOutgoingParameter.Repeat, "Repeat Mode", "The repeat mode of the current controller", "/avatar/parameters/VRCOSC/Media/Repeat");
-        CreateOutgoingParameter(MediaOutgoingParameter.Shuffle, "Shuffle", "The whether shuffle is enabled in the current controller", "/avatar/parameters/VRCOSC/Media/Shuffle");
+        CreateOutgoingParameter(MediaOutgoingParameter.Shuffle, "Shuffle", "Whether shuffle is enabled in the current controller", "/avatar/parameters/VRCOSC/Media/Shuffle");
+        CreateOutgoingParameter(MediaOutgoingParameter.Play, "Play", "Whether the song is currently playing or not", "/avatar/parameters/VRCOSC/Media/Play");
 
-        RegisterButtonInput(MediaIncomingParameter.PlayPause, "VRCOSC/Media/PlayPause");
         RegisterButtonInput(MediaIncomingParameter.Next, "VRCOSC/Media/Next");
         RegisterButtonInput(MediaIncomingParameter.Previous, "VRCOSC/Media/Previous");
+        RegisterIncomingParameter<bool>(MediaIncomingParameter.Play, "VRCOSC/Media/Play");
         RegisterIncomingParameter<int>(MediaIncomingParameter.Repeat, "VRCOSC/Media/Repeat");
         RegisterIncomingParameter<bool>(MediaIncomingParameter.Shuffle, "VRCOSC/Media/Shuffle");
     }
@@ -53,6 +55,13 @@ public sealed class MediaModule : MediaIntegrationModule
     {
         switch (key)
         {
+            case MediaIncomingParameter.Play:
+                if (value)
+                    MediaController.TryPlayAsync();
+                else
+                    MediaController.TryPauseAsync();
+                break;
+
             case MediaIncomingParameter.Shuffle:
                 MediaController.TryChangeShuffleActiveAsync(value);
                 break;
@@ -73,10 +82,6 @@ public sealed class MediaModule : MediaIntegrationModule
     {
         switch (key)
         {
-            case MediaIncomingParameter.PlayPause:
-                MediaController.TryTogglePlayPauseAsync();
-                break;
-
             case MediaIncomingParameter.Next:
                 MediaController.TrySkipNextAsync();
                 break;
@@ -103,6 +108,7 @@ public sealed class MediaModule : MediaIntegrationModule
 
     private void setParameters()
     {
+        SendParameter(MediaOutgoingParameter.Play, MediaState.Status == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing);
         SendParameter(MediaOutgoingParameter.Shuffle, MediaState.IsShuffle);
         SendParameter(MediaOutgoingParameter.Repeat, (int)MediaState.RepeatMode);
     }
@@ -128,7 +134,7 @@ public sealed class MediaModule : MediaIntegrationModule
 
     private enum MediaIncomingParameter
     {
-        PlayPause,
+        Play,
         Next,
         Previous,
         Shuffle,
@@ -137,6 +143,7 @@ public sealed class MediaModule : MediaIntegrationModule
 
     private enum MediaOutgoingParameter
     {
+        Play,
         Shuffle,
         Repeat
     }
