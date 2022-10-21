@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net6.0-windows10.0.22000.0</TargetFramework>
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
@@ -8,6 +8,7 @@
     <ProjectReference Include="..\VRCOSC.Resources\VRCOSC.Resources.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Dubya.WindowsMediaController" Version="2.2.0" />
     <PackageReference Include="Google.Apis" Version="1.57.0" />
     <PackageReference Include="Google.Apis.Speech.v1" Version="1.57.0.2786" />
     <PackageReference Include="Google.Cloud.Speech.V1" Version="3.0.0" />
