@@ -11,6 +11,8 @@ public class ChatBox
 {
     private readonly OscClient oscClient;
     private TimedTask? updateTask;
+    private TimedTask? nextAvailableSend;
+    private List<object>? lastValues;
 
     public ChatBox(OscClient oscClient)
     {
@@ -34,7 +36,25 @@ public class ChatBox
 
         if (priority == ChatBoxPriority.Normal && updateTask is not null) return;
 
+        if (nextAvailableSend is not null)
+        {
+            lastValues = values;
+            return;
+        }
+
         oscClient.SendValues("/chatbox/input", values);
+        nextAvailableSend = new TimedTask(markAvailable, 1500).Start();
+    }
+
+    private void markAvailable()
+    {
+        nextAvailableSend?.Stop();
+        nextAvailableSend = null;
+
+        if (lastValues is null) return;
+
+        oscClient.SendValues("/chatbox/input", lastValues);
+        lastValues = null;
     }
 
     private void reset()
