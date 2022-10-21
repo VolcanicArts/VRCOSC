@@ -3,14 +3,11 @@
 
 using System;
 using Windows.Media;
-using Windows.Media.Control;
 
 namespace VRCOSC.Game.Modules.Modules.Media;
 
 public sealed class MediaModule : MediaIntegrationModule
 {
-    private const int chatbox_override_time = 5000;
-
     public override string Title => "Media";
     public override string Description => "Integration with Windows OS Media";
     public override string Author => "VolcanicArts";
@@ -23,6 +20,7 @@ public sealed class MediaModule : MediaIntegrationModule
     {
         CreateSetting(MediaSetting.DisplayTitle, "Display Title", "If the title of the next track should be displayed in VRChat's ChatBox", false);
         CreateSetting(MediaSetting.TitleFormat, "Title Format", "How displaying the title should be formatted.\nAvailable values: %title%, %artist%.", "Now Playing: %artist% - %title%");
+        CreateSetting(MediaSetting.DisplayTime, "Display Time", "How long should the title display for when overwriting the ChatBox (Milliseconds)", 5000);
 
         CreateOutgoingParameter(MediaOutgoingParameter.Repeat, "Repeat Mode", "The repeat mode of the current controller", "/avatar/parameters/VRCOSC/Media/Repeat");
         CreateOutgoingParameter(MediaOutgoingParameter.Shuffle, "Shuffle", "Whether shuffle is enabled in the current controller", "/avatar/parameters/VRCOSC/Media/Shuffle");
@@ -123,13 +121,14 @@ public sealed class MediaModule : MediaIntegrationModule
                             .Replace("%title%", MediaState.Title)
                             .Replace("%artist%", MediaState.Artist);
 
-        ChatBox.SetText(formattedText, true, ChatBoxPriority.Override, chatbox_override_time);
+        ChatBox.SetText(formattedText, true, ChatBoxPriority.Override, GetSetting<int>(MediaSetting.DisplayTime));
     }
 
     private enum MediaSetting
     {
         DisplayTitle,
-        TitleFormat
+        TitleFormat,
+        DisplayTime
     }
 
     private enum MediaIncomingParameter
