@@ -7,12 +7,12 @@ using System.Runtime.InteropServices;
 // ReSharper disable SuspiciousTypeConversion.Global
 // ReSharper disable InconsistentNaming
 
-namespace VRCOSC.Game.Modules;
+namespace VRCOSC.Game.Util;
 
 // https://stackoverflow.com/questions/20938934/controlling-applications-volume-by-process-id
-public static class ProcessVolume
+internal static class ProcessVolume
 {
-    public static float? GetApplicationVolume(int pid)
+    internal static float? GetApplicationVolume(int pid)
     {
         ISimpleAudioVolume? volume = getVolumeObject(pid);
         if (volume == null)
@@ -23,7 +23,7 @@ public static class ProcessVolume
         return percentage;
     }
 
-    public static bool? GetApplicationMute(int pid)
+    internal static bool? GetApplicationMute(int pid)
     {
         ISimpleAudioVolume? volume = getVolumeObject(pid);
         if (volume == null)
@@ -34,7 +34,7 @@ public static class ProcessVolume
         return mute;
     }
 
-    public static void SetApplicationVolume(int pid, float percentage)
+    internal static void SetApplicationVolume(int pid, float percentage)
     {
         ISimpleAudioVolume? volume = getVolumeObject(pid);
         if (volume == null)
@@ -45,7 +45,7 @@ public static class ProcessVolume
         Marshal.ReleaseComObject(volume);
     }
 
-    public static void SetApplicationMute(int pid, bool mute)
+    internal static void SetApplicationMute(int pid, bool mute)
     {
         ISimpleAudioVolume? volume = getVolumeObject(pid);
         if (volume == null)

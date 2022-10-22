@@ -111,13 +111,13 @@ public sealed class ModuleManager : Component
 
         if (process.MainWindowHandle == IntPtr.Zero)
         {
-            ProcessHelper.ShowMainWindow(process, ShowWindowEnum.Restore);
+            ProcessExtensions.ShowMainWindow(process, ShowWindowEnum.Restore);
             await Task.Delay(5);
         }
 
-        ProcessHelper.ShowMainWindow(process, ShowWindowEnum.ShowDefault);
+        ProcessExtensions.ShowMainWindow(process, ShowWindowEnum.ShowDefault);
         await Task.Delay(5);
-        ProcessHelper.SetMainWindowForeground(process);
+        ProcessExtensions.SetMainWindowForeground(process);
     }
 
     private static bool isVrChatRunning => Process.GetProcessesByName("vrchat").Any();

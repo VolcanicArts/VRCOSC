@@ -109,29 +109,17 @@ public abstract class IntegrationModule : Module
     {
         if (process.MainWindowHandle == IntPtr.Zero)
         {
-            ProcessHelper.ShowMainWindow(process, ShowWindowEnum.Restore);
+            ProcessExtensions.ShowMainWindow(process, ShowWindowEnum.Restore);
             await Task.Delay(delay);
         }
 
-        ProcessHelper.ShowMainWindow(process, ShowWindowEnum.ShowDefault);
+        ProcessExtensions.ShowMainWindow(process, ShowWindowEnum.ShowDefault);
         await Task.Delay(delay);
-        ProcessHelper.SetMainWindowForeground(process);
+        ProcessExtensions.SetMainWindowForeground(process);
     }
 
     private async Task performKeyCombination(Enum lookup)
     {
-        var keys = keyCombinations[lookup];
-
-        foreach (var key in keys)
-        {
-            ProcessHelper.HoldKey((int)key);
-        }
-
-        await Task.Delay(delay);
-
-        foreach (var key in keys)
-        {
-            ProcessHelper.ReleaseKey((int)key);
-        }
+        await ProcessExtensions.PressKeys(keyCombinations[lookup], delay);
     }
 }

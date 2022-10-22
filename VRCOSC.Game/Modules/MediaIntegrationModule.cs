@@ -1,13 +1,13 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Media;
 using Windows.Media.Control;
+using VRCOSC.Game.Util;
 using WindowsMediaController;
 
 namespace VRCOSC.Game.Modules;
@@ -92,22 +92,22 @@ public abstract class MediaIntegrationModule : Module
 
     protected void SetVolume(float percentage)
     {
-        ProcessVolume.SetApplicationVolume(processId, percentage);
+        ProcessExtensions.SetProcessVolume(processId, percentage);
     }
 
     protected float GetVolume()
     {
-        return ProcessVolume.GetApplicationVolume(processId)!.Value;
+        return ProcessExtensions.RetrieveProcessVolume(processId);
     }
 
     protected void SetMuted(bool muted)
     {
-        ProcessVolume.SetApplicationMute(processId, muted);
+        ProcessExtensions.SetProcessMuted(processId, muted);
     }
 
     protected bool IsMuted()
     {
-        return ProcessVolume.GetApplicationMute(processId)!.Value;
+        return ProcessExtensions.IsProcessMuted(processId);
     }
 }
 
