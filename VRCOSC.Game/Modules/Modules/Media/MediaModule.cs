@@ -9,21 +9,19 @@ namespace VRCOSC.Game.Modules.Modules.Media;
 public sealed class MediaModule : MediaIntegrationModule
 {
     public override string Title => "Media";
-    public override string Description => "Integration with Windows OS Media";
+    public override string Description => "Integration with Windows Media";
     public override string Author => "VolcanicArts";
     public override string Prefab => "VRCOSC-Media";
     protected override int DeltaUpdate => 2000;
     protected override bool ExecuteUpdateImmediately => false;
     public override ModuleType ModuleType => ModuleType.Integrations;
 
-    private string currentTitle = string.Empty;
-
     protected override void CreateAttributes()
     {
-        CreateSetting(MediaSetting.DisplayTitle, "Display Title", "If the title of the next track should be displayed in VRChat's ChatBox", false);
-        CreateSetting(MediaSetting.TitleFormat, "Title Format", "How displaying the title should be formatted.\nAvailable values: %title%, %artist%, %curtime%, %duration%.", "Now Playing: %artist% - %title%");
-        CreateSetting(MediaSetting.ContinuousShow, "Continuous Show", "Should the ChatBox always be showing the title? If you want to show the current time, this should be on", false);
-        CreateSetting(MediaSetting.DisplayTime, "Display Time", "How long should the title display for when overwriting the ChatBox (Milliseconds)", 5000);
+        CreateSetting(MediaSetting.Display, "Display", "If the song's details should be displayed in VRChat's ChatBox", true);
+        CreateSetting(MediaSetting.TitleFormat, "Title Format", "How displaying the title should be formatted.\nAvailable values: %title%, %artist%, %curtime%, %duration%.", "[%curtime%/%duration%]                            Now Playing: %artist% - %title%");
+        CreateSetting(MediaSetting.ContinuousShow, "Continuous Show", "Should the ChatBox always be showing the song's details? If you want to show the current time, this should be on", true);
+        CreateSetting(MediaSetting.DisplayPeriod, "Display Period", "How long should the song's details display for when overwriting the ChatBox (Milliseconds). This is only applicable when Continuous Show is off", 5000);
 
         CreateOutgoingParameter(MediaOutgoingParameter.Repeat, "Repeat Mode", "The repeat mode of the current controller", "/avatar/parameters/VRCOSC/Media/Repeat");
         CreateOutgoingParameter(MediaOutgoingParameter.Shuffle, "Shuffle", "Whether shuffle is enabled in the current controller", "/avatar/parameters/VRCOSC/Media/Shuffle");
@@ -42,7 +40,6 @@ public sealed class MediaModule : MediaIntegrationModule
 
     protected override void OnStart()
     {
-        currentTitle = string.Empty;
         StartMediaHook();
     }
 
@@ -61,7 +58,7 @@ public sealed class MediaModule : MediaIntegrationModule
         if (GetSetting<bool>(MediaSetting.ContinuousShow))
         {
             MediaState.Position = MediaController.GetTimelineProperties();
-            display(true);
+            execute();
         }
     }
 
@@ -83,7 +80,7 @@ public sealed class MediaModule : MediaIntegrationModule
                 if (value)
                 {
                     MediaController.TryPlayAsync();
-                    display(true);
+                    display();
                 }
                 else
                     MediaController.TryPauseAsync();
@@ -147,12 +144,9 @@ public sealed class MediaModule : MediaIntegrationModule
         SendParameter(MediaOutgoingParameter.Muted, IsMuted());
     }
 
-    private void display(bool forceShow = false)
+    private void display()
     {
-        if (string.IsNullOrEmpty(MediaState.Title)) return;
-        if (!forceShow && (currentTitle == MediaState.Title || !MediaState.IsPlaying)) return;
-
-        currentTitle = MediaState.Title;
+        if (string.IsNullOrEmpty(MediaState.Title) || !GetSetting<bool>(MediaSetting.Display)) return;
 
         var formattedText = GetSetting<string>(MediaSetting.TitleFormat)
                             .Replace("%title%", MediaState.Title)
@@ -160,14 +154,14 @@ public sealed class MediaModule : MediaIntegrationModule
                             .Replace("%curtime%", MediaState.Position.Position.ToString(@"mm\:ss"))
                             .Replace("%duration%", MediaState.Position.EndTime.ToString(@"mm\:ss"));
 
-        ChatBox.SetText(formattedText, true, ChatBoxPriority.Override, GetSetting<int>(MediaSetting.DisplayTime));
+        ChatBox.SetText(formattedText, true, ChatBoxPriority.Override, GetSetting<int>(MediaSetting.DisplayPeriod));
     }
 
     private enum MediaSetting
     {
-        DisplayTitle,
+        Display,
         TitleFormat,
-        DisplayTime,
+        DisplayPeriod,
         ContinuousShow
     }
 
