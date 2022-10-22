@@ -96,7 +96,6 @@ public abstract class MediaIntegrationModule : Module
 
     protected void SetMuted(bool muted)
     {
-        Console.WriteLine(muted);
         ProcessVolume.SetApplicationMute(processId, muted);
     }
 
