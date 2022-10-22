@@ -36,8 +36,8 @@ public abstract class MediaIntegrationModule : Module
         Task.Run(() =>
         {
             mediaManager.Start();
-            Task.Delay(-1);
-        }, tokenSource.Token);
+            tokenSource.Token.WaitHandle.WaitOne();
+        });
     }
 
     protected void StopMediaHook()
