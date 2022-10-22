@@ -49,12 +49,12 @@ public static class ProcessExtensions
 
     public static float RetrieveProcessVolume(int pid)
     {
-        return ProcessVolume.GetApplicationVolume(pid)!.Value;
+        return ProcessVolume.GetApplicationVolume(pid) ?? 0f;
     }
 
     public static bool IsProcessMuted(int pid)
     {
-        return ProcessVolume.GetApplicationMute(pid)!.Value;
+        return ProcessVolume.GetApplicationMute(pid) ?? false;
     }
 
     public static void SetProcessVolume(int pid, float percentage)
