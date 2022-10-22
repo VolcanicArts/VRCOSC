@@ -19,7 +19,7 @@ public sealed class MediaModule : MediaIntegrationModule
     protected override void CreateAttributes()
     {
         CreateSetting(MediaSetting.Display, "Display", "If the song's details should be displayed in VRChat's ChatBox", true);
-        CreateSetting(MediaSetting.TitleFormat, "Title Format", "How displaying the title should be formatted.\nAvailable values: %title%, %artist%, %curtime%, %duration%.", "[%curtime%/%duration%]                            Now Playing: %artist% - %title%");
+        CreateSetting(MediaSetting.ChatBoxFormat, "ChatBox Format", "How displaying the song's details should be formatted for the ChatBox.\nAvailable values: %title%, %artist%, %curtime%, %duration%.", "[%curtime%/%duration%]                            Now Playing: %artist% - %title%");
         CreateSetting(MediaSetting.ContinuousShow, "Continuous Show", "Should the ChatBox always be showing the song's details? If you want to show the current time, this should be on", true);
         CreateSetting(MediaSetting.DisplayPeriod, "Display Period", "How long should the song's details display for when overwriting the ChatBox (Milliseconds). This is only applicable when Continuous Show is off", 5000);
 
@@ -148,7 +148,7 @@ public sealed class MediaModule : MediaIntegrationModule
     {
         if (string.IsNullOrEmpty(MediaState.Title) || !GetSetting<bool>(MediaSetting.Display)) return;
 
-        var formattedText = GetSetting<string>(MediaSetting.TitleFormat)
+        var formattedText = GetSetting<string>(MediaSetting.ChatBoxFormat)
                             .Replace("%title%", MediaState.Title)
                             .Replace("%artist%", MediaState.Artist)
                             .Replace("%curtime%", MediaState.Position.Position.ToString(@"mm\:ss"))
@@ -160,7 +160,7 @@ public sealed class MediaModule : MediaIntegrationModule
     private enum MediaSetting
     {
         Display,
-        TitleFormat,
+        ChatBoxFormat,
         DisplayPeriod,
         ContinuousShow
     }
