@@ -14,13 +14,13 @@ using osu.Framework.Graphics;
 using osu.Framework.Platform;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Modules.Modules.Clock;
+using VRCOSC.Game.Modules.Modules.Deprecated.Spotify;
 using VRCOSC.Game.Modules.Modules.Discord;
 using VRCOSC.Game.Modules.Modules.HardwareStats;
 using VRCOSC.Game.Modules.Modules.Heartrate.HypeRate;
 using VRCOSC.Game.Modules.Modules.Heartrate.Pulsoid;
 using VRCOSC.Game.Modules.Modules.Media;
 using VRCOSC.Game.Modules.Modules.Random;
-using VRCOSC.Game.Modules.Modules.Spotify;
 using VRCOSC.Game.Util;
 using VRCOSC.OSC;
 

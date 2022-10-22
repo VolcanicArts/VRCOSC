@@ -4,7 +4,7 @@
 using System;
 using VRCOSC.Game.Modules.Util;
 
-namespace VRCOSC.Game.Modules.Modules.Spotify;
+namespace VRCOSC.Game.Modules.Modules.Deprecated.Spotify;
 
 public sealed class SpotifyModule : IntegrationModule
 {
