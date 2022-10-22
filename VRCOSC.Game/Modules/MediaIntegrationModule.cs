@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System.Collections.Generic;
@@ -75,8 +75,6 @@ public abstract class MediaIntegrationModule : Module
         MediaState.RepeatMode = playbackInfo.AutoRepeatMode!.Value;
         MediaState.Status = playbackInfo.PlaybackStatus;
         MediaState.Position = sender.ControlSession.GetTimelineProperties();
-        MediaState.Volume = getVolume();
-        MediaState.Muted = isMuted();
 
         OnMediaUpdate();
     }
@@ -89,8 +87,6 @@ public abstract class MediaIntegrationModule : Module
         MediaState.RepeatMode = args.AutoRepeatMode!.Value;
         MediaState.Status = args.PlaybackStatus;
         MediaState.Position = sender.ControlSession.GetTimelineProperties();
-        MediaState.Volume = getVolume();
-        MediaState.Muted = isMuted();
 
         OnMediaUpdate();
     }
@@ -106,8 +102,6 @@ public abstract class MediaIntegrationModule : Module
         MediaState.Title = args.Title;
         MediaState.Artist = args.Artist;
         MediaState.Position = sender.ControlSession.GetTimelineProperties();
-        MediaState.Volume = getVolume();
-        MediaState.Muted = isMuted();
 
         OnMediaUpdate();
     }
@@ -130,7 +124,7 @@ public abstract class MediaIntegrationModule : Module
         ProcessExtensions.SetProcessVolume(processId, percentage);
     }
 
-    private float getVolume()
+    protected float GetVolume()
     {
         return ProcessExtensions.RetrieveProcessVolume(processId);
     }
@@ -140,7 +134,7 @@ public abstract class MediaIntegrationModule : Module
         ProcessExtensions.SetProcessMuted(processId, muted);
     }
 
-    private bool isMuted()
+    protected bool IsMuted()
     {
         return ProcessExtensions.IsProcessMuted(processId);
     }
@@ -150,8 +144,6 @@ public class MediaState
 {
     public string? Title;
     public string? Artist;
-    public float Volume;
-    public bool Muted;
     public MediaPlaybackAutoRepeatMode RepeatMode;
     public bool IsShuffle;
     public GlobalSystemMediaTransportControlsSessionPlaybackStatus Status;
