@@ -25,12 +25,16 @@ public sealed class MediaModule : MediaIntegrationModule
         CreateOutgoingParameter(MediaOutgoingParameter.Repeat, "Repeat Mode", "The repeat mode of the current controller", "/avatar/parameters/VRCOSC/Media/Repeat");
         CreateOutgoingParameter(MediaOutgoingParameter.Shuffle, "Shuffle", "Whether shuffle is enabled in the current controller", "/avatar/parameters/VRCOSC/Media/Shuffle");
         CreateOutgoingParameter(MediaOutgoingParameter.Play, "Play", "Whether the song is currently playing or not", "/avatar/parameters/VRCOSC/Media/Play");
+        CreateOutgoingParameter(MediaOutgoingParameter.Volume, "Volume", "The volume of the process that is controlling the media", "/avatar/parameters/VRCOSC/Media/Volume");
+        CreateOutgoingParameter(MediaOutgoingParameter.Muted, "Mute", "Whether the volume of the process that is controlling the media is muted", "/avatar/parameters/VRCOSC/Media/Muted");
 
         RegisterButtonInput(MediaIncomingParameter.Next, "VRCOSC/Media/Next");
         RegisterButtonInput(MediaIncomingParameter.Previous, "VRCOSC/Media/Previous");
+        RegisterIncomingParameter<float>(MediaIncomingParameter.Volume, "VRCOSC/Media/Volume");
         RegisterIncomingParameter<bool>(MediaIncomingParameter.Play, "VRCOSC/Media/Play");
         RegisterIncomingParameter<int>(MediaIncomingParameter.Repeat, "VRCOSC/Media/Repeat");
         RegisterIncomingParameter<bool>(MediaIncomingParameter.Shuffle, "VRCOSC/Media/Shuffle");
+        RegisterIncomingParameter<bool>(MediaIncomingParameter.Muted, "VRCOSC/Media/Muted");
     }
 
     protected override void OnStart()
@@ -49,19 +53,37 @@ public sealed class MediaModule : MediaIntegrationModule
         execute();
     }
 
+    protected override void OnFloatParameterReceived(Enum key, float value)
+    {
+        switch (key)
+        {
+            case MediaIncomingParameter.Volume:
+                SetVolume(value);
+                break;
+        }
+    }
+
     protected override void OnBoolParameterReceived(Enum key, bool value)
     {
         switch (key)
         {
             case MediaIncomingParameter.Play:
                 if (value)
+                {
                     MediaController.TryPlayAsync();
+                    display(true);
+                }
                 else
                     MediaController.TryPauseAsync();
+
                 break;
 
             case MediaIncomingParameter.Shuffle:
                 MediaController.TryChangeShuffleActiveAsync(value);
+                break;
+
+            case MediaIncomingParameter.Muted:
+                SetMuted(value);
                 break;
         }
     }
@@ -109,11 +131,14 @@ public sealed class MediaModule : MediaIntegrationModule
         SendParameter(MediaOutgoingParameter.Play, MediaState.IsPlaying);
         SendParameter(MediaOutgoingParameter.Shuffle, MediaState.IsShuffle);
         SendParameter(MediaOutgoingParameter.Repeat, (int)MediaState.RepeatMode);
+        SendParameter(MediaOutgoingParameter.Volume, GetVolume());
+        SendParameter(MediaOutgoingParameter.Muted, IsMuted());
     }
 
-    private void display()
+    private void display(bool forceShow = false)
     {
-        if (string.IsNullOrEmpty(MediaState.Title) || currentTitle == MediaState.Title || !MediaState.IsPlaying) return;
+        if (string.IsNullOrEmpty(MediaState.Title)) return;
+        if (!forceShow && (currentTitle == MediaState.Title || !MediaState.IsPlaying)) return;
 
         currentTitle = MediaState.Title;
 
@@ -137,13 +162,17 @@ public sealed class MediaModule : MediaIntegrationModule
         Next,
         Previous,
         Shuffle,
-        Repeat
+        Repeat,
+        Volume,
+        Muted,
     }
 
     private enum MediaOutgoingParameter
     {
         Play,
         Shuffle,
-        Repeat
+        Repeat,
+        Volume,
+        Muted
     }
 }

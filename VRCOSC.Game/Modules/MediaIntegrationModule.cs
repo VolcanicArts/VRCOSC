@@ -1,6 +1,9 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Media;
@@ -65,6 +68,29 @@ public abstract class MediaIntegrationModule : Module
         MediaState.Position = sender.ControlSession.GetTimelineProperties();
 
         OnMediaUpdate();
+    }
+
+    private int processId => Process.GetProcessesByName(MediaController.SourceAppUserModelId.Replace(".exe", string.Empty)).FirstOrDefault()?.Id ?? 0;
+
+    protected void SetVolume(float percentage)
+    {
+        ProcessVolume.SetApplicationVolume(processId, percentage * 100f);
+    }
+
+    protected float GetVolume()
+    {
+        return ProcessVolume.GetApplicationVolume(processId)!.Value / 100f;
+    }
+
+    protected void SetMuted(bool muted)
+    {
+        Console.WriteLine(muted);
+        ProcessVolume.SetApplicationMute(processId, muted);
+    }
+
+    protected bool IsMuted()
+    {
+        return ProcessVolume.GetApplicationMute(processId)!.Value;
     }
 }
 
