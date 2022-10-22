@@ -228,22 +228,18 @@ public abstract class Module
                 value = settingSingle.Attribute.Value;
                 break;
 
-            case ModuleAttributeList settingList:
-                var originalList = settingList.AttributeList.ToList();
+            case ModuleAttributeList settingList when settingList.Type == typeof(string):
+                var originalListStr = settingList.AttributeList.ToList();
+                var convertedListStr = new List<string>();
+                originalListStr.ForEach(obj => convertedListStr.Add((string)obj.Value));
+                value = convertedListStr;
+                break;
 
-                if (settingList.Type == typeof(string))
-                {
-                    var convertedList = new List<string>();
-                    originalList.ForEach(obj => convertedList.Add((string)obj.Value));
-                    value = convertedList;
-                }
-                else if (settingList.Type == typeof(int))
-                {
-                    var convertedList = new List<int>();
-                    originalList.ForEach(obj => convertedList.Add((int)obj.Value));
-                    value = convertedList;
-                }
-
+            case ModuleAttributeList settingList when settingList.Type == typeof(int):
+                var originalListInt = settingList.AttributeList.ToList();
+                var convertedList = new List<int>();
+                originalListInt.ForEach(obj => convertedList.Add((int)obj.Value));
+                value = convertedList;
                 break;
 
             default:
