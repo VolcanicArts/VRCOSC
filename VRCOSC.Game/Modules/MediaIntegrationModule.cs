@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -23,6 +24,8 @@ public abstract class MediaIntegrationModule : Module
     private Process? trackedProcess;
 
     private int processId => trackedProcess?.Id ?? 0;
+
+    private static readonly string[] process_exclusions = { "chrome" };
 
     protected void StartMediaHook()
     {
@@ -49,7 +52,7 @@ public abstract class MediaIntegrationModule : Module
 
     private void MediaManager_OnAnyPlaybackStateChanged(MediaManager.MediaSession sender, GlobalSystemMediaTransportControlsSessionPlaybackInfo args)
     {
-        updateTrackedProcess(sender);
+        if (!updateTrackedProcess(sender)) return;
 
         MediaState.IsShuffle = args.IsShuffleActive!.Value;
         MediaState.RepeatMode = args.AutoRepeatMode!.Value;
@@ -61,7 +64,7 @@ public abstract class MediaIntegrationModule : Module
 
     private void MediaManager_OnAnyMediaPropertyChanged(MediaManager.MediaSession sender, GlobalSystemMediaTransportControlsSessionMediaProperties args)
     {
-        updateTrackedProcess(sender);
+        if (!updateTrackedProcess(sender)) return;
 
         var playbackInfo = sender.ControlSession.GetPlaybackInfo();
         MediaState.IsShuffle = playbackInfo.IsShuffleActive!.Value;
@@ -74,13 +77,17 @@ public abstract class MediaIntegrationModule : Module
         OnMediaUpdate();
     }
 
-    private void updateTrackedProcess(MediaManager.MediaSession sender)
+    private bool updateTrackedProcess(MediaManager.MediaSession sender)
     {
+        if (process_exclusions.Contains(sender.Id.Replace(".exe", string.Empty))) return false;
+
         if (lastSender != sender.Id)
         {
             trackedProcess = Process.GetProcessesByName(sender.Id.Replace(".exe", string.Empty)).FirstOrDefault()!;
             lastSender = sender.Id;
         }
+
+        return true;
     }
 
     protected void SetVolume(float percentage)
