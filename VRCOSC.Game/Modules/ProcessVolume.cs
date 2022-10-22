@@ -4,6 +4,9 @@
 using System;
 using System.Runtime.InteropServices;
 
+// ReSharper disable SuspiciousTypeConversion.Global
+// ReSharper disable InconsistentNaming
+
 namespace VRCOSC.Game.Modules;
 
 // https://stackoverflow.com/questions/20938934/controlling-applications-volume-by-process-id
@@ -57,8 +60,7 @@ public static class ProcessVolume
     {
         // get the speakers (1st render + multimedia) device
         IMMDeviceEnumerator deviceEnumerator = (IMMDeviceEnumerator)(new MMDeviceEnumerator());
-        IMMDevice speakers;
-        deviceEnumerator.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia, out speakers);
+        deviceEnumerator.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia, out var speakers);
 
         // activate the session manager. we need the enumerator
         Guid IID_IAudioSessionManager2 = typeof(IAudioSessionManager2).GUID;
