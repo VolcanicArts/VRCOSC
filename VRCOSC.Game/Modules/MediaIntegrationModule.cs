@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -18,7 +19,21 @@ public abstract class MediaIntegrationModule : Module
     private CancellationTokenSource tokenSource = null!;
 
     protected MediaState MediaState = new();
-    protected GlobalSystemMediaTransportControlsSession MediaController => mediaManager.CurrentMediaSessions[lastSender].ControlSession;
+
+    protected GlobalSystemMediaTransportControlsSession? MediaController
+    {
+        get
+        {
+            try
+            {
+                return mediaManager.CurrentMediaSessions[lastSender].ControlSession;
+            }
+            catch (KeyNotFoundException)
+            {
+                return null;
+            }
+        }
+    }
 
     private string lastSender = string.Empty;
     private Process? trackedProcess;

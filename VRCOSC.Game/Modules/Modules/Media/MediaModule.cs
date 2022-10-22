@@ -62,7 +62,9 @@ public sealed class MediaModule : MediaIntegrationModule
     {
         if (GetSetting<bool>(MediaSetting.ContinuousShow))
         {
-            MediaState.Position = MediaController.GetTimelineProperties();
+            if (MediaController is not null)
+                MediaState.Position = MediaController.GetTimelineProperties();
+
             execute();
         }
     }
@@ -84,16 +86,16 @@ public sealed class MediaModule : MediaIntegrationModule
             case MediaIncomingParameter.Play:
                 if (value)
                 {
-                    MediaController.TryPlayAsync();
+                    MediaController?.TryPlayAsync();
                     display();
                 }
                 else
-                    MediaController.TryPauseAsync();
+                    MediaController?.TryPauseAsync();
 
                 break;
 
             case MediaIncomingParameter.Shuffle:
-                MediaController.TryChangeShuffleActiveAsync(value);
+                MediaController?.TryChangeShuffleActiveAsync(value);
                 break;
 
             case MediaIncomingParameter.Muted:
@@ -107,7 +109,7 @@ public sealed class MediaModule : MediaIntegrationModule
         switch (key)
         {
             case MediaIncomingParameter.Repeat:
-                MediaController.TryChangeAutoRepeatModeAsync((MediaPlaybackAutoRepeatMode)value);
+                MediaController?.TryChangeAutoRepeatModeAsync((MediaPlaybackAutoRepeatMode)value);
                 break;
         }
     }
@@ -117,11 +119,11 @@ public sealed class MediaModule : MediaIntegrationModule
         switch (key)
         {
             case MediaIncomingParameter.Next:
-                MediaController.TrySkipNextAsync();
+                MediaController?.TrySkipNextAsync();
                 break;
 
             case MediaIncomingParameter.Previous:
-                MediaController.TrySkipPreviousAsync();
+                MediaController?.TrySkipPreviousAsync();
                 break;
 
             default:
