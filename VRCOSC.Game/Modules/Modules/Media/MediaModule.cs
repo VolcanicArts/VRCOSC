@@ -32,7 +32,7 @@ public sealed class MediaModule : MediaIntegrationModule
 
         RegisterButtonInput(MediaIncomingParameter.Next, "VRCOSC/Media/Next");
         RegisterButtonInput(MediaIncomingParameter.Previous, "VRCOSC/Media/Previous");
-        RegisterIncomingParameter<float>(MediaIncomingParameter.Volume, "VRCOSC/Media/Volume");
+        RegisterRadialInput(MediaIncomingParameter.Volume, "VRCOSC/Media/Volume");
         RegisterIncomingParameter<bool>(MediaIncomingParameter.Play, "VRCOSC/Media/Play");
         RegisterIncomingParameter<int>(MediaIncomingParameter.Repeat, "VRCOSC/Media/Repeat");
         RegisterIncomingParameter<bool>(MediaIncomingParameter.Shuffle, "VRCOSC/Media/Shuffle");
@@ -63,12 +63,12 @@ public sealed class MediaModule : MediaIntegrationModule
         }
     }
 
-    protected override void OnFloatParameterReceived(Enum key, float value)
+    protected override void OnRadialPuppetChange(Enum key, VRChatRadialPuppet radialData)
     {
         switch (key)
         {
             case MediaIncomingParameter.Volume:
-                SetVolume(value);
+                SetVolume(radialData.Value);
                 break;
         }
     }
