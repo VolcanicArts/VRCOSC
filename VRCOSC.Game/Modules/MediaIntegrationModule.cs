@@ -21,6 +21,9 @@ public abstract class MediaIntegrationModule : Module
     protected GlobalSystemMediaTransportControlsSession MediaController => mediaManager.CurrentMediaSessions[lastSender].ControlSession;
 
     private string lastSender = string.Empty;
+    private Process? trackedProcess;
+
+    private int processId => trackedProcess?.Id ?? 0;
 
     protected void StartMediaHook()
     {
@@ -47,7 +50,8 @@ public abstract class MediaIntegrationModule : Module
 
     private void MediaManager_OnAnyPlaybackStateChanged(MediaManager.MediaSession sender, GlobalSystemMediaTransportControlsSessionPlaybackInfo args)
     {
-        lastSender = sender.Id;
+        updateTrackedProcess(sender);
+
         MediaState.IsShuffle = args.IsShuffleActive!.Value;
         MediaState.RepeatMode = args.AutoRepeatMode!.Value;
         MediaState.Status = args.PlaybackStatus;
@@ -58,7 +62,8 @@ public abstract class MediaIntegrationModule : Module
 
     private void MediaManager_OnAnyMediaPropertyChanged(MediaManager.MediaSession sender, GlobalSystemMediaTransportControlsSessionMediaProperties args)
     {
-        lastSender = sender.Id;
+        updateTrackedProcess(sender);
+
         var playbackInfo = sender.ControlSession.GetPlaybackInfo();
         MediaState.IsShuffle = playbackInfo.IsShuffleActive!.Value;
         MediaState.RepeatMode = playbackInfo.AutoRepeatMode!.Value;
@@ -70,7 +75,14 @@ public abstract class MediaIntegrationModule : Module
         OnMediaUpdate();
     }
 
-    private int processId => Process.GetProcessesByName(MediaController.SourceAppUserModelId.Replace(".exe", string.Empty)).FirstOrDefault()?.Id ?? 0;
+    private void updateTrackedProcess(MediaManager.MediaSession sender)
+    {
+        if (lastSender != sender.Id)
+        {
+            trackedProcess = Process.GetProcessesByName(sender.Id.Replace(".exe", string.Empty)).FirstOrDefault()!;
+            lastSender = sender.Id;
+        }
+    }
 
     protected void SetVolume(float percentage)
     {
