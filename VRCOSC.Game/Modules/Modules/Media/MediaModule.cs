@@ -145,8 +145,8 @@ public sealed class MediaModule : MediaIntegrationModule
         SendParameter(MediaOutgoingParameter.Play, MediaState.IsPlaying);
         SendParameter(MediaOutgoingParameter.Shuffle, MediaState.IsShuffle);
         SendParameter(MediaOutgoingParameter.Repeat, (int)MediaState.RepeatMode);
-        SendParameter(MediaOutgoingParameter.Volume, GetVolume());
-        SendParameter(MediaOutgoingParameter.Muted, IsMuted());
+        SendParameter(MediaOutgoingParameter.Volume, MediaState.Volume);
+        SendParameter(MediaOutgoingParameter.Muted, MediaState.Muted);
     }
 
     private void display()

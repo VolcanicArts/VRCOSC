@@ -30,6 +30,7 @@ public abstract class MediaIntegrationModule : Module
     protected void StartMediaHook()
     {
         mediaManager = new MediaManager();
+        mediaManager.OnAnySessionOpened += MediaSession_OnAnySessionOpened;
         mediaManager.OnAnyPlaybackStateChanged += MediaManager_OnAnyPlaybackStateChanged;
         mediaManager.OnAnyMediaPropertyChanged += MediaManager_OnAnyMediaPropertyChanged;
 
@@ -50,6 +51,21 @@ public abstract class MediaIntegrationModule : Module
 
     protected virtual void OnMediaUpdate() { }
 
+    private void MediaSession_OnAnySessionOpened(MediaManager.MediaSession sender)
+    {
+        if (!updateTrackedProcess(sender)) return;
+
+        var playbackInfo = sender.ControlSession.GetPlaybackInfo();
+        MediaState.IsShuffle = playbackInfo.IsShuffleActive!.Value;
+        MediaState.RepeatMode = playbackInfo.AutoRepeatMode!.Value;
+        MediaState.Status = playbackInfo.PlaybackStatus;
+        MediaState.Position = sender.ControlSession.GetTimelineProperties();
+        MediaState.Volume = getVolume();
+        MediaState.Muted = isMuted();
+
+        OnMediaUpdate();
+    }
+
     private void MediaManager_OnAnyPlaybackStateChanged(MediaManager.MediaSession sender, GlobalSystemMediaTransportControlsSessionPlaybackInfo args)
     {
         if (!updateTrackedProcess(sender)) return;
@@ -58,6 +74,8 @@ public abstract class MediaIntegrationModule : Module
         MediaState.RepeatMode = args.AutoRepeatMode!.Value;
         MediaState.Status = args.PlaybackStatus;
         MediaState.Position = sender.ControlSession.GetTimelineProperties();
+        MediaState.Volume = getVolume();
+        MediaState.Muted = isMuted();
 
         OnMediaUpdate();
     }
@@ -73,6 +91,8 @@ public abstract class MediaIntegrationModule : Module
         MediaState.Title = args.Title;
         MediaState.Artist = args.Artist;
         MediaState.Position = sender.ControlSession.GetTimelineProperties();
+        MediaState.Volume = getVolume();
+        MediaState.Muted = isMuted();
 
         OnMediaUpdate();
     }
@@ -95,7 +115,7 @@ public abstract class MediaIntegrationModule : Module
         ProcessExtensions.SetProcessVolume(processId, percentage);
     }
 
-    protected float GetVolume()
+    private float getVolume()
     {
         return ProcessExtensions.RetrieveProcessVolume(processId);
     }
@@ -105,7 +125,7 @@ public abstract class MediaIntegrationModule : Module
         ProcessExtensions.SetProcessMuted(processId, muted);
     }
 
-    protected bool IsMuted()
+    private bool isMuted()
     {
         return ProcessExtensions.IsProcessMuted(processId);
     }
@@ -115,6 +135,8 @@ public class MediaState
 {
     public string? Title;
     public string? Artist;
+    public float Volume;
+    public bool Muted;
     public MediaPlaybackAutoRepeatMode RepeatMode;
     public bool IsShuffle;
     public GlobalSystemMediaTransportControlsSessionPlaybackStatus Status;
