@@ -12,6 +12,8 @@ public sealed class MediaModule : MediaIntegrationModule
     public override string Description => "Integration with Windows OS Media";
     public override string Author => "VolcanicArts";
     public override string Prefab => "VRCOSC-Media";
+    protected override int DeltaUpdate => 2000;
+    protected override bool ExecuteUpdateImmediately => false;
     public override ModuleType ModuleType => ModuleType.Integrations;
 
     private string currentTitle = string.Empty;
@@ -19,7 +21,8 @@ public sealed class MediaModule : MediaIntegrationModule
     protected override void CreateAttributes()
     {
         CreateSetting(MediaSetting.DisplayTitle, "Display Title", "If the title of the next track should be displayed in VRChat's ChatBox", false);
-        CreateSetting(MediaSetting.TitleFormat, "Title Format", "How displaying the title should be formatted.\nAvailable values: %title%, %artist%.", "Now Playing: %artist% - %title%");
+        CreateSetting(MediaSetting.TitleFormat, "Title Format", "How displaying the title should be formatted.\nAvailable values: %title%, %artist%, %curtime%, %duration%.", "Now Playing: %artist% - %title%");
+        CreateSetting(MediaSetting.ContinuousShow, "Continuous Show", "Should the ChatBox always be showing the title? If you want to show the current time, this should be on", false);
         CreateSetting(MediaSetting.DisplayTime, "Display Time", "How long should the title display for when overwriting the ChatBox (Milliseconds)", 5000);
 
         CreateOutgoingParameter(MediaOutgoingParameter.Repeat, "Repeat Mode", "The repeat mode of the current controller", "/avatar/parameters/VRCOSC/Media/Repeat");
@@ -51,6 +54,15 @@ public sealed class MediaModule : MediaIntegrationModule
     protected override void OnAvatarChange()
     {
         execute();
+    }
+
+    protected override void OnUpdate()
+    {
+        if (GetSetting<bool>(MediaSetting.ContinuousShow))
+        {
+            MediaState.Position = MediaController.GetTimelineProperties();
+            display(true);
+        }
     }
 
     protected override void OnFloatParameterReceived(Enum key, float value)
@@ -144,7 +156,9 @@ public sealed class MediaModule : MediaIntegrationModule
 
         var formattedText = GetSetting<string>(MediaSetting.TitleFormat)
                             .Replace("%title%", MediaState.Title)
-                            .Replace("%artist%", MediaState.Artist);
+                            .Replace("%artist%", MediaState.Artist)
+                            .Replace("%curtime%", MediaState.Position.Position.ToString(@"mm\:ss"))
+                            .Replace("%duration%", MediaState.Position.EndTime.ToString(@"mm\:ss"));
 
         ChatBox.SetText(formattedText, true, ChatBoxPriority.Override, GetSetting<int>(MediaSetting.DisplayTime));
     }
@@ -153,7 +167,8 @@ public sealed class MediaModule : MediaIntegrationModule
     {
         DisplayTitle,
         TitleFormat,
-        DisplayTime
+        DisplayTime,
+        ContinuousShow
     }
 
     private enum MediaIncomingParameter

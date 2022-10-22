@@ -43,6 +43,7 @@ public abstract class Module
     public virtual ModuleType ModuleType => ModuleType.General;
     public virtual string Prefab => string.Empty;
     protected virtual int DeltaUpdate => int.MaxValue;
+    protected virtual bool ExecuteUpdateImmediately => true;
 
     protected Player Player = null!;
     protected ChatBox ChatBox = null!;
@@ -176,7 +177,7 @@ public abstract class Module
 
         OnStart();
 
-        if (ShouldUpdate) updateTask = new TimedTask(OnUpdate, DeltaUpdate, true).Start();
+        if (ShouldUpdate) updateTask = new TimedTask(OnUpdate, DeltaUpdate, ExecuteUpdateImmediately).Start();
 
         OscClient.OnParameterReceived += onParameterReceived;
 
