@@ -2,6 +2,8 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using Windows.Media;
 
 namespace VRCOSC.Game.Modules.Modules.Media;
@@ -22,6 +24,7 @@ public sealed class MediaModule : MediaIntegrationModule
         CreateSetting(MediaSetting.ChatBoxFormat, "ChatBox Format", "How displaying the song's details should be formatted for the ChatBox.\nAvailable values: %title%, %artist%, %curtime%, %duration%.",
             "[%curtime%/%duration%]                            Now Playing: %artist% - %title%");
         CreateSetting(MediaSetting.ContinuousShow, "Continuous Show", "Should the ChatBox always be showing the song's details? If you want to show the current time, this should be on", true);
+        CreateSetting(MediaSetting.LaunchList, "Launch List", "What programs to launch on module start", new[] { $@"C:\Users\{Environment.UserName}\AppData\Roaming\Spotify\spotify.exe" });
         CreateSetting(MediaSetting.DisplayPeriod, "Display Period", "How long should the song's details display for when overwriting the ChatBox (Milliseconds). This is only applicable when Continuous Show is off", 5000);
 
         CreateOutgoingParameter(MediaOutgoingParameter.Repeat, "Repeat Mode", "The repeat mode of the current controller", "/avatar/parameters/VRCOSC/Media/Repeat");
@@ -42,6 +45,7 @@ public sealed class MediaModule : MediaIntegrationModule
     protected override void OnStart()
     {
         StartMediaHook();
+        GetSetting<List<string>>(MediaSetting.LaunchList).ForEach(program => Process.Start(program));
     }
 
     protected override void OnStop()
@@ -165,7 +169,8 @@ public sealed class MediaModule : MediaIntegrationModule
         Display,
         ChatBoxFormat,
         DisplayPeriod,
-        ContinuousShow
+        ContinuousShow,
+        LaunchList
     }
 
     private enum MediaIncomingParameter
