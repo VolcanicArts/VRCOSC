@@ -74,12 +74,12 @@ public abstract class MediaIntegrationModule : Module
 
     protected void SetVolume(float percentage)
     {
-        ProcessVolume.SetApplicationVolume(processId, percentage * 100f);
+        ProcessVolume.SetApplicationVolume(processId, percentage);
     }
 
     protected float GetVolume()
     {
-        return ProcessVolume.GetApplicationVolume(processId)!.Value / 100f;
+        return ProcessVolume.GetApplicationVolume(processId)!.Value;
     }
 
     protected void SetMuted(bool muted)

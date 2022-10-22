@@ -15,9 +15,9 @@ public static class ProcessVolume
         if (volume == null)
             return null;
 
-        volume.GetMasterVolume(out var level);
+        volume.GetMasterVolume(out var percentage);
         Marshal.ReleaseComObject(volume);
-        return level * 100;
+        return percentage;
     }
 
     public static bool? GetApplicationMute(int pid)
@@ -31,14 +31,14 @@ public static class ProcessVolume
         return mute;
     }
 
-    public static void SetApplicationVolume(int pid, float level)
+    public static void SetApplicationVolume(int pid, float percentage)
     {
         ISimpleAudioVolume? volume = getVolumeObject(pid);
         if (volume == null)
             return;
 
         Guid guid = Guid.Empty;
-        volume.SetMasterVolume(level / 100, ref guid);
+        volume.SetMasterVolume(percentage, ref guid);
         Marshal.ReleaseComObject(volume);
     }
 
