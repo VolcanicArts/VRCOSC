@@ -220,12 +220,36 @@ public abstract class Module
     {
         var setting = Settings[lookup.ToString().ToLowerInvariant()];
 
-        object? value = setting switch
+        object? value = null;
+
+        switch (setting)
         {
-            ModuleAttributeSingle settingSingle => settingSingle.Attribute.Value,
-            ModuleAttributeList settingList => settingList.AttributeList.ToList(),
-            _ => null
-        };
+            case ModuleAttributeSingle settingSingle:
+                value = settingSingle.Attribute.Value;
+                break;
+
+            case ModuleAttributeList settingList:
+                var originalList = settingList.AttributeList.ToList();
+
+                if (settingList.Type == typeof(string))
+                {
+                    var convertedList = new List<string>();
+                    originalList.ForEach(obj => convertedList.Add((string)obj.Value));
+                    value = convertedList;
+                }
+                else if (settingList.Type == typeof(int))
+                {
+                    var convertedList = new List<int>();
+                    originalList.ForEach(obj => convertedList.Add((int)obj.Value));
+                    value = convertedList;
+                }
+
+                break;
+
+            default:
+                value = null;
+                break;
+        }
 
         if (value is not T valueCast)
             throw new InvalidCastException($"Setting with lookup '{lookup}' is not of type '{nameof(T)}'");
