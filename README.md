@@ -3,23 +3,23 @@
 # VRCOSC
 A modular OSC program creator made for [VRChat](https://vrchat.com) built on top of the [osu!framework](https://github.com/ppy/osu-framework).
 
-<img src="https://user-images.githubusercontent.com/29819296/193420609-43732aee-8851-4591-a8f2-aed193f650c3.png" width=70% height=70%>
+<img src="https://user-images.githubusercontent.com/29819296/197407575-b81b343a-07ef-4eb1-9322-b5fb8c8afbf6.png" width=70% height=70%>
 
-[![Release version](https://img.shields.io/github/v/release/VolcanicArts/VRCOSC?style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/releases/latest)
-[![license](https://img.shields.io/github/license/VolcanicArts/VRCOSC?style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/blob/main/LICENSE) 
+[![release version](https://img.shields.io/github/v/release/VolcanicArts/VRCOSC?style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/releases/latest)
 [![downloads](https://img.shields.io/github/downloads/VolcanicArts/VRCOSC/total?style=for-the-badge&label=Downloads%20Total)](https://github.com/VolcanicArts/VRCOSC/releases/latest)
 [![downloads@latest](https://img.shields.io/github/downloads/volcanicarts/vrcosc/latest/total?style=for-the-badge&label=Downloads%20For%20Latest)](https://github.com/VolcanicArts/VRCOSC/releases/latest)
-[![Commits](https://img.shields.io/github/commit-activity/m/VolcanicArts/VRCOSC?style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/commits/main)
-[![lastcommit](https://img.shields.io/github/last-commit/VolcanicArts/VRCOSC?style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/commits/main) 
-  
+[![commits](https://img.shields.io/github/commit-activity/m/VolcanicArts/VRCOSC?style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/commits/main)
+<br>
+[![discord](https://discordapp.com/api/guilds/1000862183963496519/widget.png?style=shield)](https://discord.gg/vj4brHyvT5)
+
 </div>
 
 VRCOSC is intended to act as a wrapper around VRChat's OSC system to make creating OSC programs easier, provide interfaces for other APIs and frameworks that might be useful to an OSC project, and act as a centralised source for useful OSC programs so that a user will only need to download a single application.
 
-Containing features such as:
+Featuring:
 - Responsive GUI generation
 - Automated configuration management
-- High modularity
+- Program modularity for easy development
 - Automatic updates
 - Common API interfaces
 - Drag-and-drop Unity prefabs
@@ -47,7 +47,6 @@ Check the [Prefab FAQ](https://github.com/VolcanicArts/VRCOSC/discussions/16) if
 | HypeRate | Connects to [HypeRate.io](https://www.hyperate.io/) to display your live heartrate in-game | [Supported Devices](https://www.hyperate.io/supported-devices). Compatible with WearOS, Apple Watch, and all major dedicated heartrate monitors | VRCOSC-Heartrate.unitypackage |
 | Pulsoid | Connects to [Pulsoid](https://pulsoid.net/) to display your live heartrate in-game | [Supported Devices](https://www.blog.pulsoid.net/monitors). Compatible with 200+ devices including Apple Watch and all dedicated heartrate monitors | VRCOSC-Heartrate.unitypackage |
 | Clock | Sends your local time as hours, minutes, and seconds | | VRCOSC-Watch.unitypackage |
-| Calculator | Calculator integration. Uses the Windows OS calculator | | |
 | Hardware Stats | Sends your system stats | | |
 | Random (Bool/Float/Int) | Sends a random value with adjustable update rate | | |
 
