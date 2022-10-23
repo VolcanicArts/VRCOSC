@@ -43,7 +43,7 @@ public class ChatBox
         }
 
         oscClient.SendValues("/chatbox/input", values);
-        nextAvailableSend = new TimedTask(markAvailable, 1500).Start();
+        nextAvailableSend = new TimedTask(markAvailable, 2000).Start();
     }
 
     private void markAvailable()
