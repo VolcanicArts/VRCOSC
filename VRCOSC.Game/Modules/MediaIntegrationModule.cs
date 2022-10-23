@@ -1,6 +1,7 @@
 // Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -38,7 +39,7 @@ public abstract class MediaIntegrationModule : Module
     private string lastSender = string.Empty;
     private Process? trackedProcess;
 
-    private int processId => trackedProcess?.Id ?? 0;
+    private int processId => trackedProcess?.Id ?? -1;
 
     private static readonly string[] process_exclusions = { "chrome" };
 
@@ -52,6 +53,7 @@ public abstract class MediaIntegrationModule : Module
     {
         mediaManager = new MediaManager();
         mediaManager.OnAnySessionOpened += MediaManager_OnAnySessionOpened;
+        mediaManager.OnAnySessionClosed += MediaManager_OnAnySessionClosed;
         mediaManager.OnAnyPlaybackStateChanged += MediaManager_OnAnyPlaybackStateChanged;
         mediaManager.OnAnyMediaPropertyChanged += MediaManager_OnAnyMediaPropertyChanged;
 
@@ -79,6 +81,12 @@ public abstract class MediaIntegrationModule : Module
         if (!updateTrackedProcess(sender)) return;
 
         OnMediaSessionOpened();
+    }
+
+    private void MediaManager_OnAnySessionClosed(MediaManager.MediaSession sender)
+    {
+        lastSender = string.Empty;
+        trackedProcess = null;
     }
 
     private void MediaManager_OnAnyPlaybackStateChanged(MediaManager.MediaSession sender, GlobalSystemMediaTransportControlsSessionPlaybackInfo args)
@@ -123,22 +131,39 @@ public abstract class MediaIntegrationModule : Module
 
     protected void SetVolume(float percentage)
     {
+        if (!ensureProcessExists()) return;
+
         ProcessExtensions.SetProcessVolume(processId, percentage);
     }
 
     protected float GetVolume()
     {
-        return ProcessExtensions.RetrieveProcessVolume(processId);
+        return ensureProcessExists() ? ProcessExtensions.RetrieveProcessVolume(processId) : 0f;
     }
 
     protected void SetMuted(bool muted)
     {
+        if (!ensureProcessExists()) return;
+
         ProcessExtensions.SetProcessMuted(processId, muted);
     }
 
     protected bool IsMuted()
     {
-        return ProcessExtensions.IsProcessMuted(processId);
+        return ensureProcessExists() ? ProcessExtensions.IsProcessMuted(processId) : false;
+    }
+
+    private bool ensureProcessExists()
+    {
+        try
+        {
+            Process.GetProcessById(processId);
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 }
 
