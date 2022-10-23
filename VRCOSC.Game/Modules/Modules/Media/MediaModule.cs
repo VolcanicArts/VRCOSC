@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using Windows.Media;
 
 namespace VRCOSC.Game.Modules.Modules.Media;
@@ -46,8 +47,12 @@ public sealed class MediaModule : MediaIntegrationModule
 
     protected override void OnStart()
     {
+        base.OnStart();
+
         StartMediaHook();
+
         GetSetting<List<string>>(MediaSetting.LaunchList).ForEach(program => Process.Start(program));
+
         doNotDisplay = false;
     }
 
@@ -58,7 +63,8 @@ public sealed class MediaModule : MediaIntegrationModule
 
     protected override void OnAvatarChange()
     {
-        execute();
+        setParameters();
+        display();
     }
 
     protected override void OnUpdate()
@@ -68,7 +74,8 @@ public sealed class MediaModule : MediaIntegrationModule
             if (MediaController is not null)
                 MediaState.Position = MediaController.GetTimelineProperties();
 
-            execute();
+            setParameters();
+            display();
         }
     }
 
@@ -90,7 +97,6 @@ public sealed class MediaModule : MediaIntegrationModule
                 if (value)
                 {
                     MediaController?.TryPlayAsync();
-                    display();
                 }
                 else
                     MediaController?.TryPauseAsync();
@@ -134,12 +140,14 @@ public sealed class MediaModule : MediaIntegrationModule
         }
     }
 
-    protected override void OnMediaUpdate()
+    protected override async void OnMediaSessionOpened()
     {
-        execute();
+        await Task.Delay(500);
+        MediaController?.TryPlayAsync();
+        setParameters();
     }
 
-    private void execute()
+    protected override void OnMediaUpdate()
     {
         setParameters();
         display();

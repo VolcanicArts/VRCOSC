@@ -42,10 +42,16 @@ public abstract class MediaIntegrationModule : Module
 
     private static readonly string[] process_exclusions = { "chrome" };
 
+    protected override void OnStart()
+    {
+        lastSender = string.Empty;
+        trackedProcess = null;
+    }
+
     protected void StartMediaHook()
     {
         mediaManager = new MediaManager();
-        mediaManager.OnAnySessionOpened += MediaSession_OnAnySessionOpened;
+        mediaManager.OnAnySessionOpened += MediaManager_OnAnySessionOpened;
         mediaManager.OnAnyPlaybackStateChanged += MediaManager_OnAnyPlaybackStateChanged;
         mediaManager.OnAnyMediaPropertyChanged += MediaManager_OnAnyMediaPropertyChanged;
 
@@ -60,23 +66,19 @@ public abstract class MediaIntegrationModule : Module
 
     protected void StopMediaHook()
     {
-        tokenSource.Cancel();
         mediaManager.Dispose();
+        tokenSource.Cancel();
     }
+
+    protected virtual void OnMediaSessionOpened() { }
 
     protected virtual void OnMediaUpdate() { }
 
-    private void MediaSession_OnAnySessionOpened(MediaManager.MediaSession sender)
+    private void MediaManager_OnAnySessionOpened(MediaManager.MediaSession sender)
     {
         if (!updateTrackedProcess(sender)) return;
 
-        var playbackInfo = sender.ControlSession.GetPlaybackInfo();
-        MediaState.IsShuffle = playbackInfo.IsShuffleActive!.Value;
-        MediaState.RepeatMode = playbackInfo.AutoRepeatMode!.Value;
-        MediaState.Status = playbackInfo.PlaybackStatus;
-        MediaState.Position = sender.ControlSession.GetTimelineProperties();
-
-        OnMediaUpdate();
+        OnMediaSessionOpened();
     }
 
     private void MediaManager_OnAnyPlaybackStateChanged(MediaManager.MediaSession sender, GlobalSystemMediaTransportControlsSessionPlaybackInfo args)
