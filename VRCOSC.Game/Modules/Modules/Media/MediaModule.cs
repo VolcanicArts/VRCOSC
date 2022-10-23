@@ -156,6 +156,8 @@ public sealed class MediaModule : MediaIntegrationModule
 
     private void display()
     {
+        if (!GetSetting<bool>(MediaSetting.Display)) return;
+
         if (doNotDisplay)
         {
             if (MediaState.IsPlaying)
@@ -173,8 +175,6 @@ public sealed class MediaModule : MediaIntegrationModule
             }
             else
             {
-                if (string.IsNullOrEmpty(MediaState.Title) || !GetSetting<bool>(MediaSetting.Display)) return;
-
                 var formattedText = GetSetting<string>(MediaSetting.ChatBoxFormat)
                                     .Replace("%title%", MediaState.Title)
                                     .Replace("%artist%", MediaState.Artist)
