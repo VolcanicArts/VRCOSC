@@ -95,9 +95,7 @@ public sealed class MediaModule : MediaIntegrationModule
         {
             case MediaIncomingParameter.Play:
                 if (value)
-                {
                     MediaController?.TryPlayAsync();
-                }
                 else
                     MediaController?.TryPauseAsync();
 
@@ -142,7 +140,9 @@ public sealed class MediaModule : MediaIntegrationModule
 
     protected override async void OnMediaSessionOpened()
     {
+        // We have to wait a little bit to allow the media app that just opened to take control
         await Task.Delay(500);
+        // Playing immediately will cause a media update allowing us to get the media state ASAP
         MediaController?.TryPlayAsync();
         setParameters();
     }
@@ -171,6 +171,8 @@ public sealed class MediaModule : MediaIntegrationModule
             if (MediaState.IsPlaying)
             {
                 doNotDisplay = false;
+                // Call display to display immediately since we know the user just started playing a song
+                // ReSharper disable once TailRecursiveCall
                 display();
             }
         }
