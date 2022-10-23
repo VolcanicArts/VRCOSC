@@ -62,6 +62,11 @@ public class ChatBox
         updateTask?.Stop();
         updateTask = null;
     }
+
+    public void Clear()
+    {
+        SetText(string.Empty, true, ChatBoxPriority.Override, 1);
+    }
 }
 
 public enum ChatBoxPriority

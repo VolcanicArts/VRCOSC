@@ -14,9 +14,11 @@ public sealed class MediaModule : MediaIntegrationModule
     public override string Description => "Integration with Windows Media";
     public override string Author => "VolcanicArts";
     public override string Prefab => "VRCOSC-Media";
-    protected override int DeltaUpdate => 2000;
+    protected override int DeltaUpdate => 4000;
     protected override bool ExecuteUpdateImmediately => false;
     public override ModuleType ModuleType => ModuleType.Integrations;
+
+    private bool doNotDisplay;
 
     protected override void CreateAttributes()
     {
@@ -46,6 +48,7 @@ public sealed class MediaModule : MediaIntegrationModule
     {
         StartMediaHook();
         GetSetting<List<string>>(MediaSetting.LaunchList).ForEach(program => Process.Start(program));
+        doNotDisplay = false;
     }
 
     protected override void OnStop()
@@ -153,17 +156,34 @@ public sealed class MediaModule : MediaIntegrationModule
 
     private void display()
     {
-        if (string.IsNullOrEmpty(MediaState.Title) || !GetSetting<bool>(MediaSetting.Display)) return;
+        if (doNotDisplay)
+        {
+            if (MediaState.IsPlaying)
+            {
+                doNotDisplay = false;
+                display();
+            }
+        }
+        else
+        {
+            if (!MediaState.IsPlaying)
+            {
+                if (GetSetting<bool>(MediaSetting.ContinuousShow)) ChatBox.Clear();
+                doNotDisplay = true;
+            }
+            else
+            {
+                if (string.IsNullOrEmpty(MediaState.Title) || !GetSetting<bool>(MediaSetting.Display)) return;
 
-        if (!GetSetting<bool>(MediaSetting.ContinuousShow) && !MediaState.IsPlaying) return;
+                var formattedText = GetSetting<string>(MediaSetting.ChatBoxFormat)
+                                    .Replace("%title%", MediaState.Title)
+                                    .Replace("%artist%", MediaState.Artist)
+                                    .Replace("%curtime%", MediaState.Position.Position.ToString(@"mm\:ss"))
+                                    .Replace("%duration%", MediaState.Position.EndTime.ToString(@"mm\:ss"));
 
-        var formattedText = GetSetting<string>(MediaSetting.ChatBoxFormat)
-                            .Replace("%title%", MediaState.Title)
-                            .Replace("%artist%", MediaState.Artist)
-                            .Replace("%curtime%", MediaState.Position.Position.ToString(@"mm\:ss"))
-                            .Replace("%duration%", MediaState.Position.EndTime.ToString(@"mm\:ss"));
-
-        ChatBox.SetText(formattedText, true, ChatBoxPriority.Override, GetSetting<int>(MediaSetting.DisplayPeriod));
+                ChatBox.SetText(formattedText, true, ChatBoxPriority.Override, GetSetting<int>(MediaSetting.DisplayPeriod));
+            }
+        }
     }
 
     private enum MediaSetting
