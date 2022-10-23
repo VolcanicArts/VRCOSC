@@ -114,8 +114,8 @@ public abstract class MediaIntegrationModule : Module
 
         if (lastSender != sender.Id)
         {
-            trackedProcess = Process.GetProcessesByName(sender.Id.Replace(".exe", string.Empty)).FirstOrDefault()!;
-            lastSender = sender.Id;
+            trackedProcess = Process.GetProcessesByName(sender.Id.Replace(".exe", string.Empty)).FirstOrDefault();
+            lastSender = trackedProcess is null ? string.Empty : sender.Id;
         }
 
         return true;
