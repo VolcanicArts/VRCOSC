@@ -61,12 +61,15 @@ public class ChatBox
     {
         overrideTask?.Stop();
         overrideTask = null;
-        Clear();
+        Clear(false);
     }
 
-    public void Clear()
+    public void Clear(bool hasPriority = true)
     {
-        SetText(string.Empty, true, ChatBoxPriority.Override, 1);
+        if (hasPriority)
+            SetText(string.Empty, true, ChatBoxPriority.Override, 1);
+        else
+            SetText(string.Empty);
     }
 }
 
