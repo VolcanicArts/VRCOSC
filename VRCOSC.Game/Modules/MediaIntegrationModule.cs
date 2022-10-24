@@ -93,8 +93,8 @@ public abstract class MediaIntegrationModule : Module
     {
         if (!updateTrackedProcess(sender)) return;
 
-        MediaState.IsShuffle = args.IsShuffleActive!.Value;
-        MediaState.RepeatMode = args.AutoRepeatMode!.Value;
+        MediaState.IsShuffle = args.IsShuffleActive ?? false;
+        MediaState.RepeatMode = args.AutoRepeatMode ?? 0;
         MediaState.Status = args.PlaybackStatus;
         MediaState.Position = sender.ControlSession.GetTimelineProperties();
 
@@ -106,8 +106,8 @@ public abstract class MediaIntegrationModule : Module
         if (!updateTrackedProcess(sender)) return;
 
         var playbackInfo = sender.ControlSession.GetPlaybackInfo();
-        MediaState.IsShuffle = playbackInfo.IsShuffleActive!.Value;
-        MediaState.RepeatMode = playbackInfo.AutoRepeatMode!.Value;
+        MediaState.IsShuffle = playbackInfo.IsShuffleActive ?? false;
+        MediaState.RepeatMode = playbackInfo.AutoRepeatMode ?? 0;
         MediaState.Status = playbackInfo.PlaybackStatus;
         MediaState.Title = args.Title;
         MediaState.Artist = args.Artist;
