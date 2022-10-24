@@ -18,7 +18,7 @@ public abstract class AttributeCardSingle : AttributeCard
 
     protected override void LoadComplete()
     {
-        AttributeData.Attribute.BindValueChanged(e => Schedule(() => performAttributeUpdate(e)), true);
+        AttributeData.Attribute.BindValueChanged(e => Schedule(performAttributeUpdate, e), true);
     }
 
     private void performAttributeUpdate(ValueChangedEvent<object> e)

@@ -28,7 +28,7 @@ public sealed class VRCOSCTextBox : BasicTextBox
         host.Window.Resized += KillFocus;
     }
 
-    protected override void KillFocus() => Schedule(() => base.KillFocus());
+    protected override void KillFocus() => Schedule(base.KillFocus);
 
     protected override SpriteText CreatePlaceholder()
     {
