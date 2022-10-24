@@ -177,8 +177,8 @@ public sealed class MediaModule : MediaIntegrationModule
         shouldClear = true;
 
         var formattedText = GetSetting<string>(MediaSetting.ChatBoxFormat)
-                            .Replace("%title%", MediaState.Title)
-                            .Replace("%artist%", MediaState.Artist)
+                            .Replace("%title%", MediaState.Title ?? "Unknown")
+                            .Replace("%artist%", MediaState.Artist ?? "Unknown")
                             .Replace("%curtime%", MediaState.Position?.Position.ToString(@"mm\:ss") ?? "00:00")
                             .Replace("%duration%", MediaState.Position?.EndTime.ToString(@"mm\:ss") ?? "00:00");
 
