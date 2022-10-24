@@ -71,11 +71,10 @@ public sealed class MediaModule : MediaIntegrationModule
 
     protected override void OnUpdate()
     {
+        if (MediaController is not null) MediaState.Position = MediaController.GetTimelineProperties();
+
         if (GetSetting<bool>(MediaSetting.ContinuousShow))
         {
-            if (MediaController is not null)
-                MediaState.Position = MediaController.GetTimelineProperties();
-
             setParameters();
             display();
         }

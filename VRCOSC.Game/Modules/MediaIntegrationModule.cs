@@ -96,7 +96,6 @@ public abstract class MediaIntegrationModule : Module
         MediaState.IsShuffle = args.IsShuffleActive ?? false;
         MediaState.RepeatMode = args.AutoRepeatMode ?? 0;
         MediaState.Status = args.PlaybackStatus;
-        MediaState.Position = sender.ControlSession.GetTimelineProperties();
 
         OnMediaUpdate();
     }
@@ -111,7 +110,6 @@ public abstract class MediaIntegrationModule : Module
         MediaState.Status = playbackInfo.PlaybackStatus;
         MediaState.Title = args.Title;
         MediaState.Artist = args.Artist;
-        MediaState.Position = sender.ControlSession.GetTimelineProperties();
 
         OnMediaUpdate();
     }
