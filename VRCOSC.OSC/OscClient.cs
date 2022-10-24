@@ -3,6 +3,7 @@
 
 using System.Net;
 using System.Net.Sockets;
+using osu.Framework.Logging;
 
 namespace VRCOSC.OSC;
 
@@ -107,6 +108,7 @@ public sealed class OscClient
 
         sendingClient?.SendOscMessage(new OscMessage(oscAddress, values));
         OnParameterSent?.Invoke(oscAddress, values.First());
+        Logger.Log($"[SENT] {oscAddress}: {values.First()}", "osc");
     }
 
     private async void runReceiveLoop()
@@ -119,6 +121,7 @@ public sealed class OscClient
                 if (message is null || !message.Values.Any()) continue;
 
                 OnParameterReceived?.Invoke(message.Address, message.Values.First()!);
+                Logger.Log($"[RECEIVED] {message.Address}: {message.Values.First()}", "osc");
             }
         }
         catch (OperationCanceledException) { }

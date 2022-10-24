@@ -6,4 +6,8 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <PackageReference Include="ppy.osu.Framework" Version="2022.1021.0" />
+    </ItemGroup>
+
 </Project>
