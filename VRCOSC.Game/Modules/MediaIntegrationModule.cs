@@ -47,6 +47,7 @@ public abstract class MediaIntegrationModule : Module
     {
         lastSender = string.Empty;
         trackedProcess = null;
+        MediaState = new MediaState();
     }
 
     protected void StartMediaHook()
