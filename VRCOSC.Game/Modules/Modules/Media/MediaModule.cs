@@ -15,8 +15,7 @@ public sealed class MediaModule : MediaIntegrationModule
     public override string Description => "Integration with Windows Media";
     public override string Author => "VolcanicArts";
     public override string Prefab => "VRCOSC-Media";
-    protected override int DeltaUpdate => 4000;
-    protected override bool ExecuteUpdateImmediately => false;
+    protected override int DeltaUpdate => 2000;
     public override ModuleType ModuleType => ModuleType.Integrations;
     protected override IEnumerable<string> ProcessExclusions => GetSetting<List<string>>(MediaSetting.Exclusions);
 
@@ -65,7 +64,8 @@ public sealed class MediaModule : MediaIntegrationModule
 
     protected override void OnAvatarChange()
     {
-        setParameters();
+        sendVolumeParameters();
+        sendMediaParameters();
         display();
     }
 
@@ -73,11 +73,9 @@ public sealed class MediaModule : MediaIntegrationModule
     {
         if (MediaController is not null) MediaState.Position = MediaController.GetTimelineProperties();
 
-        if (GetSetting<bool>(MediaSetting.ContinuousShow))
-        {
-            setParameters();
-            display();
-        }
+        sendVolumeParameters();
+
+        if (GetSetting<bool>(MediaSetting.ContinuousShow)) display();
     }
 
     protected override void OnRadialPuppetChange(Enum key, VRChatRadialPuppet radialData)
@@ -145,20 +143,24 @@ public sealed class MediaModule : MediaIntegrationModule
         await Task.Delay(500);
         // Playing immediately will cause a media update allowing us to get the media state ASAP
         MediaController?.TryPlayAsync();
-        setParameters();
+        sendMediaParameters();
     }
 
     protected override void OnMediaUpdate()
     {
-        setParameters();
+        sendMediaParameters();
         display();
     }
 
-    private void setParameters()
+    private void sendMediaParameters()
     {
         SendParameter(MediaOutgoingParameter.Play, MediaState.IsPlaying);
         SendParameter(MediaOutgoingParameter.Shuffle, MediaState.IsShuffle);
         SendParameter(MediaOutgoingParameter.Repeat, (int)MediaState.RepeatMode);
+    }
+
+    private void sendVolumeParameters()
+    {
         SendParameter(MediaOutgoingParameter.Volume, GetVolume());
         SendParameter(MediaOutgoingParameter.Muted, IsMuted());
     }
