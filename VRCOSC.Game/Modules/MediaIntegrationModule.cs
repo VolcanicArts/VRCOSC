@@ -41,7 +41,7 @@ public abstract class MediaIntegrationModule : Module
 
     private int processId => trackedProcess?.Id ?? -1;
 
-    private static readonly string[] process_exclusions = { "chrome" };
+    protected virtual IEnumerable<string> ProcessExclusions => Array.Empty<string>();
 
     protected override void OnStart()
     {
@@ -118,7 +118,7 @@ public abstract class MediaIntegrationModule : Module
 
     private bool updateTrackedProcess(MediaManager.MediaSession sender)
     {
-        if (process_exclusions.Contains(sender.Id.Replace(".exe", string.Empty))) return false;
+        if (ProcessExclusions.Contains(sender.Id.Replace(".exe", string.Empty))) return false;
 
         if (lastSender != sender.Id)
         {

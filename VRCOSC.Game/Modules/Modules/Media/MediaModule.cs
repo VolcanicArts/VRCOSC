@@ -18,6 +18,7 @@ public sealed class MediaModule : MediaIntegrationModule
     protected override int DeltaUpdate => 4000;
     protected override bool ExecuteUpdateImmediately => false;
     public override ModuleType ModuleType => ModuleType.Integrations;
+    protected override IEnumerable<string> ProcessExclusions => GetSetting<List<string>>(MediaSetting.Exclusions);
 
     private bool shouldClear;
 
@@ -27,8 +28,9 @@ public sealed class MediaModule : MediaIntegrationModule
         CreateSetting(MediaSetting.ChatBoxFormat, "ChatBox Format", "How displaying the song's details should be formatted for the ChatBox.\nAvailable values: %title%, %artist%, %curtime%, %duration%.",
             "[%curtime%/%duration%]                            Now Playing: %artist% - %title%");
         CreateSetting(MediaSetting.ContinuousShow, "Continuous Show", "Should the ChatBox always be showing the song's details? If you want to show the current time, this should be on", true);
-        CreateSetting(MediaSetting.LaunchList, "Launch List", "What programs to launch on module start", new[] { $@"C:\Users\{Environment.UserName}\AppData\Roaming\Spotify\spotify.exe" });
         CreateSetting(MediaSetting.DisplayPeriod, "Display Period", "How long should the song's details display for when overwriting the ChatBox (Milliseconds). This is only applicable when Continuous Show is off", 5000);
+        CreateSetting(MediaSetting.LaunchList, "Launch List", "What programs to launch on module start", new[] { $@"C:\Users\{Environment.UserName}\AppData\Roaming\Spotify\spotify.exe" });
+        CreateSetting(MediaSetting.Exclusions, "Program Exclusions", "Which programs should be ignored if they try to take control of media? I.E, Chrome, Spotify, etc...", new[] { "chrome" });
 
         CreateOutgoingParameter(MediaOutgoingParameter.Repeat, "Repeat Mode", "The repeat mode of the current controller", "/avatar/parameters/VRCOSC/Media/Repeat");
         CreateOutgoingParameter(MediaOutgoingParameter.Shuffle, "Shuffle", "Whether shuffle is enabled in the current controller", "/avatar/parameters/VRCOSC/Media/Shuffle");
@@ -190,7 +192,8 @@ public sealed class MediaModule : MediaIntegrationModule
         ChatBoxFormat,
         DisplayPeriod,
         ContinuousShow,
-        LaunchList
+        LaunchList,
+        Exclusions
     }
 
     private enum MediaIncomingParameter
