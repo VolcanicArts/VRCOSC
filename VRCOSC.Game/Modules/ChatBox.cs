@@ -10,7 +10,7 @@ namespace VRCOSC.Game.Modules;
 public class ChatBox
 {
     private readonly OscClient oscClient;
-    private TimedTask? updateTask;
+    private TimedTask? overrideTask;
     private TimedTask? nextAvailableSend;
     private List<object>? lastValues;
 
@@ -30,11 +30,11 @@ public class ChatBox
 
         if (priority == ChatBoxPriority.Override)
         {
-            updateTask?.Stop();
-            updateTask = new TimedTask(reset, priorityTimeMilli).Start();
+            overrideTask?.Stop();
+            overrideTask = new TimedTask(resetOverride, priorityTimeMilli).Start();
         }
 
-        if (priority == ChatBoxPriority.Normal && updateTask is not null) return;
+        if (priority == ChatBoxPriority.Normal && overrideTask is not null) return;
 
         if (nextAvailableSend is not null)
         {
@@ -57,10 +57,11 @@ public class ChatBox
         lastValues = null;
     }
 
-    private void reset()
+    private void resetOverride()
     {
-        updateTask?.Stop();
-        updateTask = null;
+        overrideTask?.Stop();
+        overrideTask = null;
+        Clear();
     }
 
     public void Clear()
