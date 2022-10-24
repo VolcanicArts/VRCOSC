@@ -111,7 +111,7 @@ public sealed class ParameterDisplay : Container
             {
                 var (_, entry) = pair;
                 var positionOfEntry = parameterDict.Values.ToList().IndexOf(entry);
-                parameterFlow.SetLayoutPosition(entry, positionOfEntry);
+                parameterFlow.SetLayoutPosition(entry, parameterDict.Count - positionOfEntry);
             });
         }
     });
