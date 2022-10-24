@@ -19,7 +19,7 @@ public sealed class MediaModule : MediaIntegrationModule
     protected override bool ExecuteUpdateImmediately => false;
     public override ModuleType ModuleType => ModuleType.Integrations;
 
-    private bool doNotDisplay;
+    private bool shouldClear;
 
     protected override void CreateAttributes()
     {
@@ -53,7 +53,7 @@ public sealed class MediaModule : MediaIntegrationModule
 
         GetSetting<List<string>>(MediaSetting.LaunchList).ForEach(program => Process.Start(program));
 
-        doNotDisplay = false;
+        shouldClear = false;
     }
 
     protected override void OnStop()
@@ -166,34 +166,22 @@ public sealed class MediaModule : MediaIntegrationModule
     {
         if (!GetSetting<bool>(MediaSetting.Display)) return;
 
-        if (doNotDisplay)
+        if (!MediaState.IsPlaying)
         {
-            if (MediaState.IsPlaying)
-            {
-                doNotDisplay = false;
-                // Call display to display immediately since we know the user just started playing a song
-                // ReSharper disable once TailRecursiveCall
-                display();
-            }
+            if (GetSetting<bool>(MediaSetting.ContinuousShow) && shouldClear) ChatBox.Clear();
+            shouldClear = false;
+            return;
         }
-        else
-        {
-            if (!MediaState.IsPlaying)
-            {
-                if (GetSetting<bool>(MediaSetting.ContinuousShow)) ChatBox.Clear();
-                doNotDisplay = true;
-            }
-            else
-            {
-                var formattedText = GetSetting<string>(MediaSetting.ChatBoxFormat)
-                                    .Replace("%title%", MediaState.Title)
-                                    .Replace("%artist%", MediaState.Artist)
-                                    .Replace("%curtime%", MediaState.Position.Position.ToString(@"mm\:ss"))
-                                    .Replace("%duration%", MediaState.Position.EndTime.ToString(@"mm\:ss"));
 
-                ChatBox.SetText(formattedText, true, ChatBoxPriority.Override, GetSetting<int>(MediaSetting.DisplayPeriod));
-            }
-        }
+        shouldClear = true;
+
+        var formattedText = GetSetting<string>(MediaSetting.ChatBoxFormat)
+                            .Replace("%title%", MediaState.Title)
+                            .Replace("%artist%", MediaState.Artist)
+                            .Replace("%curtime%", MediaState.Position.Position.ToString(@"mm\:ss"))
+                            .Replace("%duration%", MediaState.Position.EndTime.ToString(@"mm\:ss"));
+
+        ChatBox.SetText(formattedText, true, ChatBoxPriority.Override, GetSetting<int>(MediaSetting.DisplayPeriod));
     }
 
     private enum MediaSetting
