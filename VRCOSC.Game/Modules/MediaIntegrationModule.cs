@@ -80,6 +80,8 @@ public abstract class MediaIntegrationModule : Module
     {
         if (!updateTrackedProcess(sender)) return;
 
+        MediaState.Position = sender.ControlSession.GetTimelineProperties();
+
         OnMediaSessionOpened();
     }
 
