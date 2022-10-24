@@ -179,8 +179,8 @@ public sealed class MediaModule : MediaIntegrationModule
         var formattedText = GetSetting<string>(MediaSetting.ChatBoxFormat)
                             .Replace("%title%", MediaState.Title)
                             .Replace("%artist%", MediaState.Artist)
-                            .Replace("%curtime%", MediaState.Position.Position.ToString(@"mm\:ss"))
-                            .Replace("%duration%", MediaState.Position.EndTime.ToString(@"mm\:ss"));
+                            .Replace("%curtime%", MediaState.Position?.Position.ToString(@"mm\:ss") ?? "00:00")
+                            .Replace("%duration%", MediaState.Position?.EndTime.ToString(@"mm\:ss") ?? "00:00");
 
         ChatBox.SetText(formattedText, true, ChatBoxPriority.Override, GetSetting<int>(MediaSetting.DisplayPeriod));
     }

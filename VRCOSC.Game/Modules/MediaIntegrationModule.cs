@@ -175,6 +175,6 @@ public class MediaState
     public MediaPlaybackAutoRepeatMode RepeatMode;
     public bool IsShuffle;
     public GlobalSystemMediaTransportControlsSessionPlaybackStatus Status;
-    public GlobalSystemMediaTransportControlsSessionTimelineProperties Position;
+    public GlobalSystemMediaTransportControlsSessionTimelineProperties? Position;
     public bool IsPlaying => Status == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing;
 }
