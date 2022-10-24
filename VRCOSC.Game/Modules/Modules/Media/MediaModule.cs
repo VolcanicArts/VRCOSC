@@ -52,7 +52,14 @@ public sealed class MediaModule : MediaIntegrationModule
 
         StartMediaHook();
 
-        GetSetting<List<string>>(MediaSetting.LaunchList).ForEach(program => Process.Start(program));
+        GetSetting<List<string>>(MediaSetting.LaunchList).ForEach(program =>
+        {
+            try
+            {
+                Process.Start(program);
+            }
+            catch (Exception) { }
+        });
 
         shouldClear = false;
     }
