@@ -3,7 +3,7 @@
 # VRCOSC
 A modular OSC program creator made for [VRChat](https://vrchat.com) built on top of the [osu!framework](https://github.com/ppy/osu-framework).
 
-<img src="https://user-images.githubusercontent.com/29819296/197407575-b81b343a-07ef-4eb1-9322-b5fb8c8afbf6.png" width=70% height=70%>
+<img src="https://user-images.githubusercontent.com/29819296/198274038-58f9fc91-7369-4b9a-a8ad-19009d9ff1fa.png" width=70% height=70%>
 
 [![release version](https://img.shields.io/github/v/release/VolcanicArts/VRCOSC?style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/releases/latest)
 [![downloads](https://img.shields.io/github/downloads/VolcanicArts/VRCOSC/total?style=for-the-badge&label=Downloads%20Total)](https://github.com/VolcanicArts/VRCOSC/releases/latest)
@@ -41,9 +41,8 @@ Check the [Prefab FAQ](https://github.com/VolcanicArts/VRCOSC/discussions/16) if
 ## Modules
 | Module | Description | Notes | Prefab |
 | :---: | :---: |:---:| :---: |
-| Spotify | Spotify integration. Allows for play/pause, next/previous, and volume up/down from the action menu | Requires the Spotify desktop app | VRCOSC-Spotify.unitypackage |
+| Media | Windows Media integration. Allows for complete control over Windows Media. | Previously Spotify integration | VRCOSC-Media.unitypackage |
 | Discord | Discord integration. Allows for toggling of mute and deafen from the action menu | Requires the Discord desktop app | VRCOSC-Discord.unitypackage |
-| Media | Windows OS media integration. Allows for play/pause and next/previous using the windows OS media keys | | VRCOSC-Media.unitypackage |
 | HypeRate | Connects to [HypeRate.io](https://www.hyperate.io/) to display your live heartrate in-game | [Supported Devices](https://www.hyperate.io/supported-devices). Compatible with WearOS, Apple Watch, and all major dedicated heartrate monitors | VRCOSC-Heartrate.unitypackage |
 | Pulsoid | Connects to [Pulsoid](https://pulsoid.net/) to display your live heartrate in-game | [Supported Devices](https://www.blog.pulsoid.net/monitors). Compatible with 200+ devices including Apple Watch and all dedicated heartrate monitors | VRCOSC-Heartrate.unitypackage |
 | Clock | Sends your local time as hours, minutes, and seconds | | VRCOSC-Watch.unitypackage |
