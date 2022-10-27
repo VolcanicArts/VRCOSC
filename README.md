@@ -7,7 +7,7 @@ A modular OSC program creator made for [VRChat](https://vrchat.com) built on top
 
 [![release version](https://img.shields.io/github/v/release/VolcanicArts/VRCOSC?style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/releases/latest)
 [![downloads](https://img.shields.io/github/downloads/VolcanicArts/VRCOSC/total?style=for-the-badge&label=Downloads%20Total)](https://github.com/VolcanicArts/VRCOSC/releases/latest)
-[![downloads@latest](https://img.shields.io/github/downloads/volcanicarts/vrcosc/latest/total?style=for-the-badge&label=Downloads%20For%20Latest)](https://github.com/VolcanicArts/VRCOSC/releases/latest)
+[![downloads@latest](https://img.shields.io/github/downloads/VolcanicArts/VRCOSC/latest/total?style=for-the-badge&label=Downloads%20For%20Latest)](https://github.com/VolcanicArts/VRCOSC/releases/latest)
 [![commits](https://img.shields.io/github/commit-activity/m/VolcanicArts/VRCOSC?style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/commits/main)
 <br>
 [![discord](https://discordapp.com/api/guilds/1000862183963496519/widget.png?style=shield)](https://discord.gg/vj4brHyvT5)
@@ -39,14 +39,15 @@ If you'd like to make your own module, check the [Wiki](https://github.com/Volca
 Check the [Prefab FAQ](https://github.com/VolcanicArts/VRCOSC/discussions/16) if you have any issues with installing or using any of the prefabs.
 
 ## Modules
+If you have a module idea, join the [Discord Server](https://discord.gg/vj4brHyvT5) and tell us!
 | Module | Description | Notes | Prefab |
 | :---: | :---: |:---:| :---: |
-| Media | Windows Media integration. Allows for complete control over Windows Media. | Previously Spotify integration | VRCOSC-Media.unitypackage |
-| Discord | Discord integration. Allows for toggling of mute and deafen from the action menu | Requires the Discord desktop app | VRCOSC-Discord.unitypackage |
+| Media | Windows Media integration. Allows for full control over Windows Media from your action menu | Previously Spotify integration | VRCOSC-Media.unitypackage |
+| Hardware Stats | Displays your hardware's stats in the ChatBox | Requires VRCOSC to be run as administrator to display CPU temps | |
 | HypeRate | Connects to [HypeRate.io](https://www.hyperate.io/) to display your live heartrate in-game | [Supported Devices](https://www.hyperate.io/supported-devices). Compatible with WearOS, Apple Watch, and all major dedicated heartrate monitors | VRCOSC-Heartrate.unitypackage |
 | Pulsoid | Connects to [Pulsoid](https://pulsoid.net/) to display your live heartrate in-game | [Supported Devices](https://www.blog.pulsoid.net/monitors). Compatible with 200+ devices including Apple Watch and all dedicated heartrate monitors | VRCOSC-Heartrate.unitypackage |
-| Clock | Sends your local time as hours, minutes, and seconds | | VRCOSC-Watch.unitypackage |
-| Hardware Stats | Sends your system stats | | |
+| Clock | Sends your local time as hours, minutes, and seconds to be displayed on a wrist watch | | VRCOSC-Watch.unitypackage |
+| Discord | Discord integration. Allows for toggling of mute and deafen from the action menu | Requires the Discord desktop app | VRCOSC-Discord.unitypackage |
 | Random (Bool/Float/Int) | Sends a random value with adjustable update rate | | |
 
 ## License
