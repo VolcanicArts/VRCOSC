@@ -66,6 +66,9 @@ public sealed class HardwareStatsProvider
             case SensorType.Temperature:
                 switch (sensor.Name)
                 {
+                    // AMD
+                    case "Core (Tctl/Tdie)":
+                    // Intel
                     case "CPU Package":
                         CpuTemp = (int?)sensor.Value ?? 0;
                         break;
