@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Collections.Generic;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
@@ -83,11 +84,10 @@ public sealed class TabBar : Container
             Child = new CircularContainer
             {
                 Anchor = Anchor.CentreLeft,
-                Origin = Anchor.CentreLeft,
+                Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 RelativePositionAxes = Axes.X,
-                X = 0.025f,
-                Size = new Vector2(0.05f, 0.8f),
+                Size = new Vector2(0.1f, 0.8f),
                 Masking = true,
                 Child = new Box
                 {
