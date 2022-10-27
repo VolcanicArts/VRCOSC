@@ -67,7 +67,7 @@ public abstract class VRCOSCUpdateManager : Container
         });
     });
 
-    public abstract Task CheckForUpdate(bool useDelta = true);
+    public abstract Task CheckForUpdate(string repo, bool useDelta = true);
     protected abstract Task ApplyUpdates();
     protected abstract void RequestRestart();
 }

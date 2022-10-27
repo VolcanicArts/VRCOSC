@@ -15,9 +15,6 @@ namespace VRCOSC.Desktop.Updater;
 
 public class SquirrelUpdateManager : VRCOSCUpdateManager
 {
-    private const string? development_access_token = null;
-    private const string repo = @"https://github.com/VolcanicArts/VRCOSC";
-
     private GithubUpdateManager? updateManager;
     private UpdateInfo? updateInfo;
 
@@ -27,11 +24,11 @@ public class SquirrelUpdateManager : VRCOSCUpdateManager
     [Resolved]
     private VRCOSCConfigManager config { get; set; } = null!;
 
-    public override async Task CheckForUpdate(bool useDelta = true)
+    public override async Task CheckForUpdate(string repo, bool useDelta = true)
     {
         try
         {
-            updateManager ??= new GithubUpdateManager(repo, false, development_access_token);
+            updateManager ??= new GithubUpdateManager(repo);
             if (!updateManager.IsInstalledApp) return;
 
             try
@@ -51,7 +48,7 @@ public class SquirrelUpdateManager : VRCOSCUpdateManager
                 //delta update may have failed due to the installed version being too outdated. Retry without trying for delta
                 if (useDelta)
                 {
-                    await CheckForUpdate(false);
+                    await CheckForUpdate(repo, false);
                     return;
                 }
 
