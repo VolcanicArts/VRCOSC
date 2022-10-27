@@ -9,7 +9,7 @@ using Windows.Media;
 
 namespace VRCOSC.Game.Modules.Modules.Media;
 
-public sealed class MediaModule : MediaIntegrationModule
+public sealed class MediaModule : Module
 {
     public override string Title => "Media";
     public override string Description => "Integration with Windows Media";
@@ -17,8 +17,8 @@ public sealed class MediaModule : MediaIntegrationModule
     public override string Prefab => "VRCOSC-Media";
     protected override int DeltaUpdate => 2000;
     public override ModuleType ModuleType => ModuleType.Integrations;
-    protected override IEnumerable<string> ProcessExclusions => GetSetting<List<string>>(MediaSetting.Exclusions);
 
+    private readonly MediaProvider mediaProvider = new();
     private bool shouldClear;
 
     protected override void CreateAttributes()
@@ -50,7 +50,10 @@ public sealed class MediaModule : MediaIntegrationModule
     {
         base.OnStart();
 
-        StartMediaHook();
+        mediaProvider.OnMediaSessionOpened += OnMediaSessionOpened;
+        mediaProvider.OnMediaUpdate += OnMediaUpdate;
+        mediaProvider.ProcessExclusions = GetSetting<List<string>>(MediaSetting.Exclusions);
+        mediaProvider.StartMediaHook();
 
         GetSetting<List<string>>(MediaSetting.LaunchList).ForEach(program =>
         {
@@ -66,7 +69,9 @@ public sealed class MediaModule : MediaIntegrationModule
 
     protected override void OnStop()
     {
-        StopMediaHook();
+        mediaProvider.StopMediaHook();
+        mediaProvider.OnMediaSessionOpened -= OnMediaSessionOpened;
+        mediaProvider.OnMediaUpdate -= OnMediaUpdate;
     }
 
     protected override void OnAvatarChange()
@@ -78,7 +83,7 @@ public sealed class MediaModule : MediaIntegrationModule
 
     protected override void OnUpdate()
     {
-        if (MediaController is not null) MediaState.Position = MediaController.GetTimelineProperties();
+        if (mediaProvider.Controller is not null) mediaProvider.State.Position = mediaProvider.Controller.GetTimelineProperties();
 
         sendVolumeParameters();
 
@@ -90,7 +95,7 @@ public sealed class MediaModule : MediaIntegrationModule
         switch (key)
         {
             case MediaIncomingParameter.Volume:
-                SetVolume(radialData.Value);
+                mediaProvider.SetVolume(radialData.Value);
                 break;
         }
     }
@@ -101,18 +106,18 @@ public sealed class MediaModule : MediaIntegrationModule
         {
             case MediaIncomingParameter.Play:
                 if (value)
-                    MediaController?.TryPlayAsync();
+                    mediaProvider.Controller?.TryPlayAsync();
                 else
-                    MediaController?.TryPauseAsync();
+                    mediaProvider.Controller?.TryPauseAsync();
 
                 break;
 
             case MediaIncomingParameter.Shuffle:
-                MediaController?.TryChangeShuffleActiveAsync(value);
+                mediaProvider.Controller?.TryChangeShuffleActiveAsync(value);
                 break;
 
             case MediaIncomingParameter.Muted:
-                SetMuted(value);
+                mediaProvider.SetMuted(value);
                 break;
         }
     }
@@ -122,7 +127,7 @@ public sealed class MediaModule : MediaIntegrationModule
         switch (key)
         {
             case MediaIncomingParameter.Repeat:
-                MediaController?.TryChangeAutoRepeatModeAsync((MediaPlaybackAutoRepeatMode)value);
+                mediaProvider.Controller?.TryChangeAutoRepeatModeAsync((MediaPlaybackAutoRepeatMode)value);
                 break;
         }
     }
@@ -132,11 +137,11 @@ public sealed class MediaModule : MediaIntegrationModule
         switch (key)
         {
             case MediaIncomingParameter.Next:
-                MediaController?.TrySkipNextAsync();
+                mediaProvider.Controller?.TrySkipNextAsync();
                 break;
 
             case MediaIncomingParameter.Previous:
-                MediaController?.TrySkipPreviousAsync();
+                mediaProvider.Controller?.TrySkipPreviousAsync();
                 break;
 
             default:
@@ -144,16 +149,16 @@ public sealed class MediaModule : MediaIntegrationModule
         }
     }
 
-    protected override async void OnMediaSessionOpened()
+    private async void OnMediaSessionOpened()
     {
         // We have to wait a little bit to allow the media app that just opened to take control
         await Task.Delay(500);
         // Playing immediately will cause a media update allowing us to get the media state ASAP
-        MediaController?.TryPlayAsync();
+        mediaProvider.Controller?.TryPlayAsync();
         sendMediaParameters();
     }
 
-    protected override void OnMediaUpdate()
+    private void OnMediaUpdate()
     {
         sendMediaParameters();
         display();
@@ -161,22 +166,22 @@ public sealed class MediaModule : MediaIntegrationModule
 
     private void sendMediaParameters()
     {
-        SendParameter(MediaOutgoingParameter.Play, MediaState.IsPlaying);
-        SendParameter(MediaOutgoingParameter.Shuffle, MediaState.IsShuffle);
-        SendParameter(MediaOutgoingParameter.Repeat, (int)MediaState.RepeatMode);
+        SendParameter(MediaOutgoingParameter.Play, mediaProvider.State.IsPlaying);
+        SendParameter(MediaOutgoingParameter.Shuffle, mediaProvider.State.IsShuffle);
+        SendParameter(MediaOutgoingParameter.Repeat, (int)mediaProvider.State.RepeatMode);
     }
 
     private void sendVolumeParameters()
     {
-        SendParameter(MediaOutgoingParameter.Volume, GetVolume());
-        SendParameter(MediaOutgoingParameter.Muted, IsMuted());
+        SendParameter(MediaOutgoingParameter.Volume, mediaProvider.GetVolume());
+        SendParameter(MediaOutgoingParameter.Muted, mediaProvider.IsMuted());
     }
 
     private void display()
     {
         if (!GetSetting<bool>(MediaSetting.Display)) return;
 
-        if (!MediaState.IsPlaying)
+        if (!mediaProvider.State.IsPlaying)
         {
             if (GetSetting<bool>(MediaSetting.ContinuousShow) && shouldClear) ChatBox.Clear();
             shouldClear = false;
@@ -186,10 +191,10 @@ public sealed class MediaModule : MediaIntegrationModule
         shouldClear = true;
 
         var formattedText = GetSetting<string>(MediaSetting.ChatBoxFormat)
-                            .Replace("%title%", MediaState.Title ?? "Unknown")
-                            .Replace("%artist%", MediaState.Artist ?? "Unknown")
-                            .Replace("%curtime%", MediaState.Position?.Position.ToString(@"mm\:ss") ?? "00:00")
-                            .Replace("%duration%", MediaState.Position?.EndTime.ToString(@"mm\:ss") ?? "00:00");
+                            .Replace("%title%", mediaProvider.State.Title ?? "Unknown")
+                            .Replace("%artist%", mediaProvider.State.Artist ?? "Unknown")
+                            .Replace("%curtime%", mediaProvider.State.Position?.Position.ToString(@"mm\:ss") ?? "00:00")
+                            .Replace("%duration%", mediaProvider.State.Position?.EndTime.ToString(@"mm\:ss") ?? "00:00");
 
         ChatBox.SetText(formattedText, true, ChatBoxPriority.Override, GetSetting<int>(MediaSetting.DisplayPeriod));
     }

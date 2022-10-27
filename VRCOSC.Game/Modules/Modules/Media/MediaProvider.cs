@@ -12,46 +12,34 @@ using Windows.Media.Control;
 using VRCOSC.Game.Util;
 using WindowsMediaController;
 
-namespace VRCOSC.Game.Modules;
+namespace VRCOSC.Game.Modules.Modules.Media;
 
-public abstract class MediaIntegrationModule : Module
+public class MediaProvider
 {
     private MediaManager mediaManager = null!;
     private CancellationTokenSource tokenSource = null!;
 
-    protected MediaState MediaState = new();
+    public MediaState State { get; private set; } = new();
 
-    protected GlobalSystemMediaTransportControlsSession? MediaController
-    {
-        get
-        {
-            try
-            {
-                return mediaManager.CurrentMediaSessions[lastSender].ControlSession;
-            }
-            catch (KeyNotFoundException)
-            {
-                return null;
-            }
-        }
-    }
+    public GlobalSystemMediaTransportControlsSession? Controller
+        => mediaManager.CurrentMediaSessions.ContainsKey(lastSender) ? mediaManager.CurrentMediaSessions[lastSender].ControlSession : null;
+
+    public IEnumerable<string> ProcessExclusions = Array.Empty<string>();
 
     private string lastSender = string.Empty;
     private Process? trackedProcess;
 
     private int processId => trackedProcess?.Id ?? -1;
 
-    protected virtual IEnumerable<string> ProcessExclusions => Array.Empty<string>();
+    public Action? OnMediaSessionOpened;
+    public Action? OnMediaUpdate;
 
-    protected override void OnStart()
+    public void StartMediaHook()
     {
         lastSender = string.Empty;
         trackedProcess = null;
-        MediaState = new MediaState();
-    }
+        State = new MediaState();
 
-    protected void StartMediaHook()
-    {
         mediaManager = new MediaManager();
         mediaManager.OnAnySessionOpened += MediaManager_OnAnySessionOpened;
         mediaManager.OnAnySessionClosed += MediaManager_OnAnySessionClosed;
@@ -67,23 +55,19 @@ public abstract class MediaIntegrationModule : Module
         });
     }
 
-    protected void StopMediaHook()
+    public void StopMediaHook()
     {
         mediaManager.Dispose();
         tokenSource.Cancel();
     }
 
-    protected virtual void OnMediaSessionOpened() { }
-
-    protected virtual void OnMediaUpdate() { }
-
     private void MediaManager_OnAnySessionOpened(MediaManager.MediaSession sender)
     {
         if (!updateTrackedProcess(sender)) return;
 
-        MediaState.Position = sender.ControlSession.GetTimelineProperties();
+        State.Position = sender.ControlSession.GetTimelineProperties();
 
-        OnMediaSessionOpened();
+        OnMediaSessionOpened?.Invoke();
     }
 
     private void MediaManager_OnAnySessionClosed(MediaManager.MediaSession sender)
@@ -96,11 +80,11 @@ public abstract class MediaIntegrationModule : Module
     {
         if (!updateTrackedProcess(sender)) return;
 
-        MediaState.IsShuffle = args.IsShuffleActive ?? false;
-        MediaState.RepeatMode = args.AutoRepeatMode ?? 0;
-        MediaState.Status = args.PlaybackStatus;
+        State.IsShuffle = args.IsShuffleActive ?? false;
+        State.RepeatMode = args.AutoRepeatMode ?? 0;
+        State.Status = args.PlaybackStatus;
 
-        OnMediaUpdate();
+        OnMediaUpdate?.Invoke();
     }
 
     private void MediaManager_OnAnyMediaPropertyChanged(MediaManager.MediaSession sender, GlobalSystemMediaTransportControlsSessionMediaProperties args)
@@ -108,13 +92,13 @@ public abstract class MediaIntegrationModule : Module
         if (!updateTrackedProcess(sender)) return;
 
         var playbackInfo = sender.ControlSession.GetPlaybackInfo();
-        MediaState.IsShuffle = playbackInfo.IsShuffleActive ?? false;
-        MediaState.RepeatMode = playbackInfo.AutoRepeatMode ?? 0;
-        MediaState.Status = playbackInfo.PlaybackStatus;
-        MediaState.Title = args.Title;
-        MediaState.Artist = args.Artist;
+        State.IsShuffle = playbackInfo.IsShuffleActive ?? false;
+        State.RepeatMode = playbackInfo.AutoRepeatMode ?? 0;
+        State.Status = playbackInfo.PlaybackStatus;
+        State.Title = args.Title;
+        State.Artist = args.Artist;
 
-        OnMediaUpdate();
+        OnMediaUpdate?.Invoke();
     }
 
     private bool updateTrackedProcess(MediaManager.MediaSession sender)
@@ -130,26 +114,26 @@ public abstract class MediaIntegrationModule : Module
         return true;
     }
 
-    protected void SetVolume(float percentage)
+    public void SetVolume(float percentage)
     {
         if (!ensureProcessExists()) return;
 
         ProcessExtensions.SetProcessVolume(processId, percentage);
     }
 
-    protected float GetVolume()
+    public float GetVolume()
     {
         return ensureProcessExists() ? ProcessExtensions.RetrieveProcessVolume(processId) : 0f;
     }
 
-    protected void SetMuted(bool muted)
+    public void SetMuted(bool muted)
     {
         if (!ensureProcessExists()) return;
 
         ProcessExtensions.SetProcessMuted(processId, muted);
     }
 
-    protected bool IsMuted()
+    public bool IsMuted()
     {
         return ensureProcessExists() ? ProcessExtensions.IsProcessMuted(processId) : false;
     }
