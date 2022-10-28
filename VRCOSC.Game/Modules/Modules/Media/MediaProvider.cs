@@ -14,27 +14,24 @@ namespace VRCOSC.Game.Modules.Modules.Media;
 
 public class MediaProvider
 {
-    private MediaManager mediaManager = null!;
+    private MediaManager? mediaManager;
+    private Process? trackedProcess;
+    private string? lastSender;
 
-    public MediaState State { get; private set; } = new();
+    private int trackedProcessId => trackedProcess?.Id ?? -1;
+
+    public MediaState State { get; private set; } = null!;
 
     public GlobalSystemMediaTransportControlsSession? Controller
-        => mediaManager.CurrentMediaSessions.ContainsKey(lastSender) ? mediaManager.CurrentMediaSessions[lastSender].ControlSession : null;
+        => mediaManager?.CurrentMediaSessions.ContainsKey(lastSender ?? string.Empty) ?? false ? mediaManager.CurrentMediaSessions[lastSender].ControlSession : null;
 
     public IEnumerable<string> ProcessExclusions = Array.Empty<string>();
-
-    private string lastSender = string.Empty;
-    private Process? trackedProcess;
-
-    private int processId => trackedProcess?.Id ?? -1;
 
     public Action? OnMediaSessionOpened;
     public Action? OnMediaUpdate;
 
     public void StartMediaHook()
     {
-        lastSender = string.Empty;
-        trackedProcess = null;
         State = new MediaState();
 
         mediaManager = new MediaManager();
@@ -42,13 +39,16 @@ public class MediaProvider
         mediaManager.OnAnySessionClosed += MediaManager_OnAnySessionClosed;
         mediaManager.OnAnyPlaybackStateChanged += MediaManager_OnAnyPlaybackStateChanged;
         mediaManager.OnAnyMediaPropertyChanged += MediaManager_OnAnyMediaPropertyChanged;
-
         mediaManager.Start();
     }
 
     public void StopMediaHook()
     {
-        mediaManager.Dispose();
+        mediaManager?.Dispose();
+        mediaManager = null;
+
+        lastSender = null;
+        trackedProcess = null;
     }
 
     private void MediaManager_OnAnySessionOpened(MediaManager.MediaSession sender)
@@ -62,7 +62,7 @@ public class MediaProvider
 
     private void MediaManager_OnAnySessionClosed(MediaManager.MediaSession sender)
     {
-        lastSender = string.Empty;
+        lastSender = null;
         trackedProcess = null;
     }
 
@@ -98,7 +98,7 @@ public class MediaProvider
         if (lastSender != sender.Id)
         {
             trackedProcess = Process.GetProcessesByName(sender.Id.Replace(".exe", string.Empty)).FirstOrDefault();
-            lastSender = trackedProcess is null ? string.Empty : sender.Id;
+            lastSender = trackedProcess is null ? null : sender.Id;
         }
 
         return true;
@@ -108,31 +108,31 @@ public class MediaProvider
     {
         if (!ensureProcessExists()) return;
 
-        ProcessExtensions.SetProcessVolume(processId, percentage);
+        ProcessExtensions.SetProcessVolume(trackedProcessId, percentage);
     }
 
     public float GetVolume()
     {
-        return ensureProcessExists() ? ProcessExtensions.RetrieveProcessVolume(processId) : 0f;
+        return ensureProcessExists() ? ProcessExtensions.RetrieveProcessVolume(trackedProcessId) : 0f;
     }
 
     public void SetMuted(bool muted)
     {
         if (!ensureProcessExists()) return;
 
-        ProcessExtensions.SetProcessMuted(processId, muted);
+        ProcessExtensions.SetProcessMuted(trackedProcessId, muted);
     }
 
     public bool IsMuted()
     {
-        return ensureProcessExists() ? ProcessExtensions.IsProcessMuted(processId) : false;
+        return ensureProcessExists() ? ProcessExtensions.IsProcessMuted(trackedProcessId) : false;
     }
 
     private bool ensureProcessExists()
     {
         try
         {
-            Process.GetProcessById(processId);
+            Process.GetProcessById(trackedProcessId);
             return true;
         }
         catch (Exception)
@@ -144,8 +144,8 @@ public class MediaProvider
 
 public class MediaState
 {
-    public string? Title;
-    public string? Artist;
+    public string Title = string.Empty;
+    public string Artist = string.Empty;
     public MediaPlaybackAutoRepeatMode RepeatMode;
     public bool IsShuffle;
     public GlobalSystemMediaTransportControlsSessionPlaybackStatus Status;
