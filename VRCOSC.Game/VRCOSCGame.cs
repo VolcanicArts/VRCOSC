@@ -97,7 +97,7 @@ public abstract class VRCOSCGame : VRCOSCGameBase
             Icon = FontAwesome.Brands.Discord,
             Colour = Colour4.FromHex(@"7289DA"),
             ClickCallback = () => host.OpenUrlExternally("https://discord.gg/vj4brHyvT5"),
-            Delay = 7500d
+            Delay = 5000d
         });
     }
 
