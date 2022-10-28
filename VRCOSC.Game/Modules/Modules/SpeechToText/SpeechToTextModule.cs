@@ -1,41 +1,36 @@
 // Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
 using System.IO;
-using System.Linq;
 using System.Speech.Recognition;
-using System.Text;
-using System.Threading;
-using Google.Apis.Auth.OAuth2;
-using Google.Apis.Speech.v1;
-using Google.Cloud.Speech.V1;
-using osu.Framework.Extensions.IEnumerableExtensions;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Vosk;
 
 namespace VRCOSC.Game.Modules.Modules.SpeechToText;
 
 public sealed class SpeechToTextModule : Module
 {
     public override string Title => "Speech To Text";
-    public override string Description => "Speech to text using Google's API for VRChat's ChatBox";
+    public override string Description => "Speech to text using VOSK's local processing for VRChat's ChatBox";
     public override string Author => "VolcanicArts";
     public override ModuleType ModuleType => ModuleType.Accessibility;
 
     private readonly SpeechRecognitionEngine speechRecognitionEngine = new();
-    private SpeechClient speechClient;
-    private RecognitionConfig recognitionConfig;
+    private VoskRecognizer recognizer;
 
     public SpeechToTextModule()
     {
         speechRecognitionEngine.SetInputToDefaultAudioDevice();
         speechRecognitionEngine.LoadGrammar(new DictationGrammar());
+
+        Vosk.Vosk.SetLogLevel(-1);
     }
 
     protected override void CreateAttributes()
     {
-        CreateSetting(SpeechToTextSetting.AccessToken, "Access Token", "Your access token to access the Google Speech-To-Text API", string.Empty, "Obtain Access Token", authenticate);
-        CreateSetting(SpeechToTextSetting.FilterProfanity, "Filter Profanity", "Whether profanity should be replaced with ****", false);
-        CreateSetting(SpeechToTextSetting.LanguageCode, "Language Code", "What language should be detected", LanguageCodes.English.UnitedStates);
+        CreateSetting(SpeechToTextSetting.ModelLocation, "Model Location", "The folder location of the speech model you'd like to use", string.Empty, "Download a model", () => OpenUrlExternally("https://alphacephei.com/vosk/models"));
+        CreateSetting(SpeechToTextSetting.DisplayPeriod, "Display Period", "How long should a valid recognition be shown for?", 10000);
     }
 
     protected override void OnStart()
@@ -44,30 +39,30 @@ public sealed class SpeechToTextModule : Module
         speechRecognitionEngine.SpeechRecognized += speechRecognising;
         speechRecognitionEngine.RecognizeAsync(RecognizeMode.Multiple);
 
-        speechClient = new SpeechClientBuilder
+        if (!Directory.Exists(GetSetting<string>(SpeechToTextSetting.ModelLocation)))
         {
-            GoogleCredential = GoogleCredential.FromAccessToken(GetSetting<string>(SpeechToTextSetting.AccessToken))
-        }.Build();
+            Log("Please enter a valid model folder path");
+            return;
+        }
 
-        recognitionConfig = new RecognitionConfig
+        Task.Run(() =>
         {
-            LanguageCode = GetSetting<string>(SpeechToTextSetting.LanguageCode),
-            ProfanityFilter = GetSetting<bool>(SpeechToTextSetting.FilterProfanity),
-            MaxAlternatives = 0
-        };
+            var model = new Model(GetSetting<string>(SpeechToTextSetting.ModelLocation));
+            recognizer = new VoskRecognizer(model, 16000);
+            recognizer.SetMaxAlternatives(0);
+            recognizer.SetWords(true);
+        });
 
         ChatBox.SetTyping(false);
-        ChatBox.SetText("SpeechToText Activated");
+        ChatBox.SetText("SpeechToText Activated", true, ChatBoxPriority.Override, GetSetting<int>(SpeechToTextSetting.DisplayPeriod));
     }
 
     protected override void OnStop()
     {
         speechRecognitionEngine.RecognizeAsyncStop();
-        speechRecognitionEngine.SpeechHypothesized -= speechHypothesising;
-        speechRecognitionEngine.SpeechRecognized -= speechRecognising;
 
         ChatBox.SetTyping(false);
-        ChatBox.SetText("SpeechToText Deactivated");
+        ChatBox.SetText("SpeechToText Deactivated", true, ChatBoxPriority.Override, GetSetting<int>(SpeechToTextSetting.DisplayPeriod));
     }
 
     private void speechHypothesising(object? sender, SpeechHypothesizedEventArgs e)
@@ -82,43 +77,35 @@ public sealed class SpeechToTextModule : Module
 
         using var memoryStream = new MemoryStream();
         e.Result.Audio.WriteToWaveStream(memoryStream);
-        var audio = RecognitionAudio.FromBytes(memoryStream.GetBuffer());
-        var response = speechClient.Recognize(recognitionConfig, audio);
 
-        try
+        var buffer = new byte[4096];
+        int bytesRead;
+
+        // using a 2nd memory stream as GetBuffer() must be called
+        var wavStream = new MemoryStream(memoryStream.GetBuffer());
+
+        while ((bytesRead = wavStream.Read(buffer, 0, buffer.Length)) > 0)
         {
-            var textBuilder = new StringBuilder();
-            response.Results.ForEach(result => textBuilder.Append(result.Alternatives.First().Transcript + ". "));
-
-            var text = textBuilder.ToString().Trim();
-            if (string.IsNullOrEmpty(text)) return;
-
-            Log($"Recognised: {text}");
-            ChatBox.SetTyping(false);
-            ChatBox.SetText(text);
+            recognizer.AcceptWaveform(buffer, bytesRead);
         }
-        catch (InvalidOperationException) { }
+
+        var finalResult = JsonConvert.DeserializeObject<Recognition>(recognizer.FinalResult())?.Text ?? string.Empty;
+        if (string.IsNullOrEmpty(finalResult)) return;
+
+        Log($"Recognised: {finalResult}");
+        ChatBox.SetTyping(false);
+        ChatBox.SetText(finalResult, true, ChatBoxPriority.Override, GetSetting<int>(SpeechToTextSetting.DisplayPeriod));
     }
 
-    private void authenticate()
+    private class Recognition
     {
-        var credentials = GoogleWebAuthorizationBroker.AuthorizeAsync(
-            new ClientSecrets
-            {
-                ClientId = VRCOSCSecrets.GOOGLE_CLIENT_ID,
-                ClientSecret = VRCOSCSecrets.GOOGLE_CLIENT_SECRET
-            },
-            new[] { SpeechService.Scope.CloudPlatform },
-            "user",
-            CancellationToken.None).Result;
-
-        SetSetting(SpeechToTextSetting.AccessToken, credentials.Token.AccessToken);
+        [JsonProperty("text")]
+        public string Text = null!;
     }
 
     private enum SpeechToTextSetting
     {
-        AccessToken,
-        FilterProfanity,
-        LanguageCode
+        ModelLocation,
+        DisplayPeriod
     }
 }
