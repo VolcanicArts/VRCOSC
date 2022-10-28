@@ -2,10 +2,12 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.IO;
+using System.Linq;
 using System.Speech.Recognition;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Vosk;
+using System;
 
 namespace VRCOSC.Game.Modules.Modules.SpeechToText;
 
@@ -95,6 +97,8 @@ public sealed class SpeechToTextModule : Module
 
         var finalResult = JsonConvert.DeserializeObject<Recognition>(recognizer.FinalResult())?.Text ?? string.Empty;
         if (string.IsNullOrEmpty(finalResult)) return;
+
+        finalResult = string.Concat(finalResult.First().ToString().ToUpper(), finalResult.AsSpan(1));
 
         Log($"Recognised: {finalResult}");
         ChatBox.SetTyping(false);
