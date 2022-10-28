@@ -43,9 +43,9 @@ public sealed class SpeechToTextModule : Module
             return;
         }
 
-        speechRecognitionEngine.SpeechHypothesized += speechHypothesising;
-        speechRecognitionEngine.SpeechRecognized += speechRecognising;
-        speechRecognitionEngine.RecognizeAsync(RecognizeMode.Multiple);
+        speechRecognitionEngine.SpeechHypothesized += onTalkingDetected;
+        speechRecognitionEngine.SpeechRecognized += onTalkingFinished;
+        speechRecognitionEngine.RecognizeAsync(RecognizeMode.Single);
 
         Task.Run(() =>
         {
@@ -62,8 +62,8 @@ public sealed class SpeechToTextModule : Module
     protected override void OnStop()
     {
         speechRecognitionEngine.RecognizeAsyncStop();
-        speechRecognitionEngine.SpeechHypothesized -= speechHypothesising;
-        speechRecognitionEngine.SpeechRecognized -= speechRecognising;
+        speechRecognitionEngine.SpeechHypothesized -= onTalkingDetected;
+        speechRecognitionEngine.SpeechRecognized -= onTalkingFinished;
 
         recognizer.Dispose();
 
@@ -71,12 +71,12 @@ public sealed class SpeechToTextModule : Module
         ChatBox.SetText("SpeechToText Deactivated", true, ChatBoxPriority.Override, GetSetting<int>(SpeechToTextSetting.DisplayPeriod));
     }
 
-    private void speechHypothesising(object? sender, SpeechHypothesizedEventArgs e)
+    private void onTalkingDetected(object? sender, SpeechHypothesizedEventArgs e)
     {
         ChatBox.SetTyping(true);
     }
 
-    private void speechRecognising(object? sender, SpeechRecognizedEventArgs e)
+    private void onTalkingFinished(object? sender, SpeechRecognizedEventArgs e)
     {
         if (e.Result.Audio is null) return;
         if (string.IsNullOrEmpty(e.Result.Text)) return;
