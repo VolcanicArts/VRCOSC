@@ -104,42 +104,11 @@ public class MediaProvider
         return true;
     }
 
-    public void SetVolume(float percentage)
-    {
-        if (!ensureProcessExists()) return;
+    public void SetVolume(float percentage) => ProcessExtensions.SetProcessVolume(trackedProcessId, percentage);
+    public void SetMuted(bool muted) => ProcessExtensions.SetProcessMuted(trackedProcessId, muted);
 
-        ProcessExtensions.SetProcessVolume(trackedProcessId, percentage);
-    }
-
-    public float GetVolume()
-    {
-        return ensureProcessExists() ? ProcessExtensions.RetrieveProcessVolume(trackedProcessId) : 0f;
-    }
-
-    public void SetMuted(bool muted)
-    {
-        if (!ensureProcessExists()) return;
-
-        ProcessExtensions.SetProcessMuted(trackedProcessId, muted);
-    }
-
-    public bool IsMuted()
-    {
-        return ensureProcessExists() ? ProcessExtensions.IsProcessMuted(trackedProcessId) : false;
-    }
-
-    private bool ensureProcessExists()
-    {
-        try
-        {
-            Process.GetProcessById(trackedProcessId);
-            return true;
-        }
-        catch (Exception)
-        {
-            return false;
-        }
-    }
+    public float GetVolume() => ProcessExtensions.RetrieveProcessVolume(trackedProcessId);
+    public bool IsMuted() => ProcessExtensions.IsProcessMuted(trackedProcessId);
 }
 
 public class MediaState
