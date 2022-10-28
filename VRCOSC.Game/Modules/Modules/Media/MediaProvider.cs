@@ -5,8 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Windows.Media;
 using Windows.Media.Control;
 using VRCOSC.Game.Util;
@@ -17,7 +15,6 @@ namespace VRCOSC.Game.Modules.Modules.Media;
 public class MediaProvider
 {
     private MediaManager mediaManager = null!;
-    private CancellationTokenSource tokenSource = null!;
 
     public MediaState State { get; private set; } = new();
 
@@ -46,19 +43,12 @@ public class MediaProvider
         mediaManager.OnAnyPlaybackStateChanged += MediaManager_OnAnyPlaybackStateChanged;
         mediaManager.OnAnyMediaPropertyChanged += MediaManager_OnAnyMediaPropertyChanged;
 
-        tokenSource = new CancellationTokenSource();
-
-        Task.Run(() =>
-        {
-            mediaManager.Start();
-            tokenSource.Token.WaitHandle.WaitOne();
-        });
+        mediaManager.Start();
     }
 
     public void StopMediaHook()
     {
         mediaManager.Dispose();
-        tokenSource.Cancel();
     }
 
     private void MediaManager_OnAnySessionOpened(MediaManager.MediaSession sender)

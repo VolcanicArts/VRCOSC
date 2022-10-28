@@ -48,8 +48,6 @@ public sealed class MediaModule : Module
 
     protected override void OnStart()
     {
-        base.OnStart();
-
         mediaProvider.OnMediaSessionOpened += OnMediaSessionOpened;
         mediaProvider.OnMediaUpdate += OnMediaUpdate;
         mediaProvider.ProcessExclusions = GetSetting<List<string>>(MediaSetting.Exclusions);
