@@ -181,7 +181,7 @@ public sealed class MediaModule : Module
 
         if (!mediaProvider.State.IsPlaying)
         {
-            if (GetSetting<bool>(MediaSetting.ContinuousShow) && shouldClear) ChatBox.Clear();
+            if (GetSetting<bool>(MediaSetting.ContinuousShow) && shouldClear) ChatBox.Clear(1);
             shouldClear = false;
             return;
         }
@@ -194,7 +194,7 @@ public sealed class MediaModule : Module
                             .Replace("%curtime%", mediaProvider.State.Position?.Position.ToString(@"mm\:ss") ?? "00:00")
                             .Replace("%duration%", mediaProvider.State.Position?.EndTime.ToString(@"mm\:ss") ?? "00:00");
 
-        ChatBox.SetText(formattedText, true, ChatBoxPriority.Override, GetSetting<int>(MediaSetting.DisplayPeriod));
+        ChatBox.SetText(formattedText, true, 1, GetSetting<int>(MediaSetting.DisplayPeriod));
     }
 
     private enum MediaSetting

@@ -10,9 +10,9 @@ namespace VRCOSC.Game.Modules;
 public class ChatBox
 {
     private readonly OscClient oscClient;
-    private TimedTask? overrideTask;
-    private TimedTask? nextAvailableSend;
-    private List<object>? lastValues;
+    private TimedTask? nextSend;
+    private TimedTask? priorityTask;
+    private int lastSentPriority;
 
     public ChatBox(OscClient oscClient)
     {
@@ -24,57 +24,42 @@ public class ChatBox
         oscClient.SendValue("/chatbox/typing", typing);
     }
 
-    public void SetText(string text, bool bypassKeyboard = true, ChatBoxPriority priority = ChatBoxPriority.Normal, float priorityTimeMilli = 10000f)
+    public void SetText(string text, bool bypassKeyboard = true, int priority = 0, float priorityTimeMilli = 10000f)
     {
         var values = new List<object>() { text, bypassKeyboard };
 
-        if (priority == ChatBoxPriority.Override)
+        if (priority >= lastSentPriority)
         {
-            overrideTask?.Stop();
-            overrideTask = new TimedTask(resetOverride, priorityTimeMilli).Start();
+            trySendValues(values, priority > lastSentPriority);
+            lastSentPriority = priority;
+            priorityTask?.Stop();
+            priorityTask = new TimedTask(resetPriority, priorityTimeMilli).Start();
         }
+    }
 
-        if (priority == ChatBoxPriority.Normal && overrideTask is not null) return;
-
-        if (nextAvailableSend is not null)
-        {
-            lastValues = values;
-            return;
-        }
+    private void trySendValues(List<object> values, bool shouldBurst)
+    {
+        if (nextSend is not null && !shouldBurst) return;
 
         oscClient.SendValues("/chatbox/input", values);
-        nextAvailableSend = new TimedTask(markAvailable, 2000).Start();
+        nextSend = new TimedTask(resetNextSend, 1500).Start();
     }
 
-    private void markAvailable()
+    private void resetNextSend()
     {
-        nextAvailableSend?.Stop();
-        nextAvailableSend = null;
-
-        if (lastValues is null) return;
-
-        oscClient.SendValues("/chatbox/input", lastValues);
-        lastValues = null;
+        nextSend?.Stop();
+        nextSend = null;
     }
 
-    private void resetOverride()
+    private void resetPriority()
     {
-        overrideTask?.Stop();
-        overrideTask = null;
-        Clear(false);
+        priorityTask?.Stop();
+        priorityTask = null;
+        lastSentPriority = 0;
     }
 
-    public void Clear(bool hasPriority = true)
+    public void Clear(int priority)
     {
-        if (hasPriority)
-            SetText(string.Empty, true, ChatBoxPriority.Override, 1);
-        else
-            SetText(string.Empty);
+        SetText(string.Empty, true, priority, 1);
     }
-}
-
-public enum ChatBoxPriority
-{
-    Normal,
-    Override
 }

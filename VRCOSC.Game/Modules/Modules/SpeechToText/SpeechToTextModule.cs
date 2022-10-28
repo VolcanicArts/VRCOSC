@@ -56,7 +56,7 @@ public sealed class SpeechToTextModule : Module
         });
 
         ChatBox.SetTyping(false);
-        ChatBox.SetText("SpeechToText Activated", true, ChatBoxPriority.Override, GetSetting<int>(SpeechToTextSetting.DisplayPeriod));
+        ChatBox.SetText("SpeechToText Activated", true, 2, GetSetting<int>(SpeechToTextSetting.DisplayPeriod));
     }
 
     protected override void OnStop()
@@ -68,7 +68,7 @@ public sealed class SpeechToTextModule : Module
         recognizer.Dispose();
 
         ChatBox.SetTyping(false);
-        ChatBox.SetText("SpeechToText Deactivated", true, ChatBoxPriority.Override, GetSetting<int>(SpeechToTextSetting.DisplayPeriod));
+        ChatBox.SetText("SpeechToText Deactivated", true, 2, GetSetting<int>(SpeechToTextSetting.DisplayPeriod));
     }
 
     private void onTalkingDetected(object? sender, SpeechHypothesizedEventArgs e)
@@ -102,7 +102,7 @@ public sealed class SpeechToTextModule : Module
 
         Log($"Recognised: {finalResult}");
         ChatBox.SetTyping(false);
-        ChatBox.SetText(finalResult, true, ChatBoxPriority.Override, GetSetting<int>(SpeechToTextSetting.DisplayPeriod));
+        ChatBox.SetText(finalResult, true, 2, GetSetting<int>(SpeechToTextSetting.DisplayPeriod));
 
         recognizer.Reset();
     }
