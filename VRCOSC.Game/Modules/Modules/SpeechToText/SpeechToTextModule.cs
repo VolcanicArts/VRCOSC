@@ -45,7 +45,7 @@ public sealed class SpeechToTextModule : Module
 
         speechRecognitionEngine.SpeechHypothesized += onTalkingDetected;
         speechRecognitionEngine.SpeechRecognized += onTalkingFinished;
-        speechRecognitionEngine.RecognizeAsync(RecognizeMode.Single);
+        speechRecognitionEngine.RecognizeAsync(RecognizeMode.Multiple);
 
         Task.Run(() =>
         {
