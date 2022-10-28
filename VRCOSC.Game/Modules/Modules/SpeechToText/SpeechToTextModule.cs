@@ -17,7 +17,7 @@ public sealed class SpeechToTextModule : Module
     public override ModuleType ModuleType => ModuleType.Accessibility;
 
     private readonly SpeechRecognitionEngine speechRecognitionEngine = new();
-    private VoskRecognizer recognizer;
+    private VoskRecognizer recognizer = null!;
 
     public SpeechToTextModule()
     {
@@ -35,15 +35,15 @@ public sealed class SpeechToTextModule : Module
 
     protected override void OnStart()
     {
-        speechRecognitionEngine.SpeechHypothesized += speechHypothesising;
-        speechRecognitionEngine.SpeechRecognized += speechRecognising;
-        speechRecognitionEngine.RecognizeAsync(RecognizeMode.Multiple);
-
         if (!Directory.Exists(GetSetting<string>(SpeechToTextSetting.ModelLocation)))
         {
             Log("Please enter a valid model folder path");
             return;
         }
+
+        speechRecognitionEngine.SpeechHypothesized += speechHypothesising;
+        speechRecognitionEngine.SpeechRecognized += speechRecognising;
+        speechRecognitionEngine.RecognizeAsync(RecognizeMode.Multiple);
 
         Task.Run(() =>
         {
@@ -60,6 +60,10 @@ public sealed class SpeechToTextModule : Module
     protected override void OnStop()
     {
         speechRecognitionEngine.RecognizeAsyncStop();
+        speechRecognitionEngine.SpeechHypothesized -= speechHypothesising;
+        speechRecognitionEngine.SpeechRecognized -= speechRecognising;
+
+        recognizer.Dispose();
 
         ChatBox.SetTyping(false);
         ChatBox.SetText("SpeechToText Deactivated", true, ChatBoxPriority.Override, GetSetting<int>(SpeechToTextSetting.DisplayPeriod));
@@ -82,7 +86,7 @@ public sealed class SpeechToTextModule : Module
         int bytesRead;
 
         // using a 2nd memory stream as GetBuffer() must be called
-        var wavStream = new MemoryStream(memoryStream.GetBuffer());
+        using var wavStream = new MemoryStream(memoryStream.GetBuffer());
 
         while ((bytesRead = wavStream.Read(buffer, 0, buffer.Length)) > 0)
         {
@@ -95,6 +99,8 @@ public sealed class SpeechToTextModule : Module
         Log($"Recognised: {finalResult}");
         ChatBox.SetTyping(false);
         ChatBox.SetText(finalResult, true, ChatBoxPriority.Override, GetSetting<int>(SpeechToTextSetting.DisplayPeriod));
+
+        recognizer.Reset();
     }
 
     private class Recognition
