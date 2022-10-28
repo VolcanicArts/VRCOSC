@@ -60,6 +60,7 @@ public class ChatBox
 
     public void Clear(int priority)
     {
-        SetText(string.Empty, true, priority, 1);
+        var priorityToSend = lastSentPriority == priority ? priority + 1 : priority;
+        SetText(string.Empty, true, priorityToSend, 1);
     }
 }
