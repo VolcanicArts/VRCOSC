@@ -56,7 +56,6 @@ public sealed class SpeechToTextModule : Module
         });
 
         ChatBox.SetTyping(false);
-        ChatBox.SetText("SpeechToText Activated", true, 2, GetSetting<int>(SpeechToTextSetting.DisplayPeriod));
     }
 
     protected override void OnStop()
@@ -68,7 +67,6 @@ public sealed class SpeechToTextModule : Module
         recognizer.Dispose();
 
         ChatBox.SetTyping(false);
-        ChatBox.SetText("SpeechToText Deactivated", true, 2, GetSetting<int>(SpeechToTextSetting.DisplayPeriod));
     }
 
     private void onTalkingDetected(object? sender, SpeechHypothesizedEventArgs e)
