@@ -182,6 +182,8 @@ public sealed class ModuleManager : Component
             await module.stop();
         }
 
+        ChatBox.Clear(int.MaxValue);
+
         OscClient.DisableSend();
     }
 
