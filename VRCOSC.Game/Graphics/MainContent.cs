@@ -8,14 +8,14 @@ using osu.Framework.Graphics.Containers;
 using VRCOSC.Game.Graphics.About;
 using VRCOSC.Game.Graphics.ModuleListing;
 using VRCOSC.Game.Graphics.Settings;
-using VRCOSC.Game.Graphics.Sidebar;
+using VRCOSC.Game.Graphics.TabBar;
 
 namespace VRCOSC.Game.Graphics;
 
 public sealed class MainContent : Container
 {
     [Resolved]
-    private Bindable<Tabs> selectedTab { get; set; } = null!;
+    private Bindable<Tab> selectedTab { get; set; } = null!;
 
     private Container screenHolder = null!;
 
@@ -32,14 +32,14 @@ public sealed class MainContent : Container
                 RelativeSizeAxes = Axes.Both,
                 ColumnDimensions = new[]
                 {
-                    new Dimension(GridSizeMode.Absolute, 100),
+                    new Dimension(GridSizeMode.Absolute, 75),
                     new Dimension(),
                 },
                 Content = new[]
                 {
                     new Drawable[]
                     {
-                        new TabBar
+                        new TabSelector
                         {
                             RelativeSizeAxes = Axes.Both
                         },

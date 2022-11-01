@@ -1,9 +1,9 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-namespace VRCOSC.Game.Graphics.Sidebar;
+namespace VRCOSC.Game.Graphics.TabBar;
 
-public enum Tabs
+public enum Tab
 {
     Modules,
     Settings,

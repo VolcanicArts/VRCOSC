@@ -7,7 +7,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.UserInterface;
 using osuTK;
 
-namespace VRCOSC.Game.Graphics.Sidebar;
+namespace VRCOSC.Game.Graphics.TabBar;
 
 public sealed class TabPopover : Popover
 {

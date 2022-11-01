@@ -10,7 +10,7 @@ using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics;
 using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Graphics.Settings;
-using VRCOSC.Game.Graphics.Sidebar;
+using VRCOSC.Game.Graphics.TabBar;
 using VRCOSC.Game.Graphics.Updater;
 using VRCOSC.Game.Modules;
 
@@ -33,7 +33,7 @@ public abstract class VRCOSCGame : VRCOSCGameBase
     public Bindable<ModuleType?> TypeFilter = new();
 
     [Cached]
-    private Bindable<Tabs> SelectedTab = new();
+    private Bindable<Tab> SelectedTab = new();
 
     [Cached]
     private BindableBool ModulesRunning = new();
@@ -64,7 +64,7 @@ public abstract class VRCOSCGame : VRCOSCGameBase
 
         ModulesRunning.BindValueChanged(e =>
         {
-            if (e.NewValue) SelectedTab.Value = Tabs.Modules;
+            if (e.NewValue) SelectedTab.Value = Tab.Modules;
         }, true);
 
         var updateMode = ConfigManager.Get<UpdateMode>(VRCOSCSetting.UpdateMode);
