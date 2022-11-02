@@ -22,6 +22,7 @@ using VRCOSC.Game.Modules.Modules.Heartrate.Pulsoid;
 using VRCOSC.Game.Modules.Modules.Media;
 using VRCOSC.Game.Modules.Modules.Random;
 using VRCOSC.Game.Modules.Modules.SpeechToText;
+using VRCOSC.Game.Modules.Modules.SteamVR;
 using VRCOSC.Game.Util;
 using VRCOSC.OSC;
 
@@ -38,6 +39,7 @@ public sealed class ModuleManager : Component
         typeof(RandomIntModule),
         typeof(RandomFloatModule),
         typeof(HardwareStatsModule),
+        typeof(OpenVRModule),
         typeof(MediaModule),
         typeof(SpotifyModule),
         typeof(DiscordModule),
