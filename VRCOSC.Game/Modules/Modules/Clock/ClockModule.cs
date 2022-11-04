@@ -16,7 +16,10 @@ public sealed class ClockModule : Module
 
     protected override void CreateAttributes()
     {
-        CreateSetting(ClockSetting.SmoothSecond, "Smooth Second", "If the seconds hand should be smooth", false);
+        CreateSetting(ClockSetting.SmoothSecond, "Smooth Second", "If the seconds value should be smoothed", false);
+        CreateSetting(ClockSetting.SmoothMinute, "Smooth Minute", "If the minutes value should be smoothed", true);
+        CreateSetting(ClockSetting.SmoothHour, "Smooth Hour", "If the hours value should be smoothed", true);
+        CreateSetting(ClockSetting.Mode, "Mode", "If the clock should be in 12 hour or 24 hour", ClockMode.Twelve);
         CreateSetting(ClockSetting.Timezone, "Timezone", "The timezone the clock should follow", ClockTimeZone.Local);
 
         CreateOutgoingParameter(ClockOutgoingParameter.Hours, "Hour", "The current hour normalised", "/avatar/parameters/VRCOSC/Clock/Hours");
@@ -28,16 +31,12 @@ public sealed class ClockModule : Module
     {
         var time = timezoneToTime(GetSetting<ClockTimeZone>(ClockSetting.Timezone));
 
-        var hours = (float)time.Hour;
-        var minutes = (float)time.Minute;
-        var seconds = (float)time.Second;
+        var hours = GetSetting<bool>(ClockSetting.SmoothHour) ? getSmoothedHours(time) : time.Hour;
+        var minutes = GetSetting<bool>(ClockSetting.SmoothMinute) ? getSmoothedMinutes(time) : time.Minute;
+        var seconds = GetSetting<bool>(ClockSetting.SmoothSecond) ? getSmoothedSeconds(time) : time.Second;
 
-        // smooth hands
-        if (GetSetting<bool>(ClockSetting.SmoothSecond)) seconds += time.Millisecond / 1000f;
-        minutes += seconds / 60f;
-        hours += minutes / 60f;
-
-        var hourNormalised = (hours % 12f) / 12f;
+        var normalisationComponent = GetSetting<ClockMode>(ClockSetting.Mode) == ClockMode.Twelve ? 12f : 24f;
+        var hourNormalised = (hours % normalisationComponent) / normalisationComponent;
         var minuteNormalised = minutes / 60f;
         var secondNormalised = seconds / 60f;
 
@@ -45,6 +44,10 @@ public sealed class ClockModule : Module
         SendParameter(ClockOutgoingParameter.Minutes, minuteNormalised);
         SendParameter(ClockOutgoingParameter.Seconds, secondNormalised);
     }
+
+    private static float getSmoothedSeconds(DateTime time) => time.Second + time.Millisecond / 1000f;
+    private static float getSmoothedMinutes(DateTime time) => time.Minute + getSmoothedSeconds(time) / 60f;
+    private static float getSmoothedHours(DateTime time) => time.Hour + getSmoothedMinutes(time) / 60f;
 
     private static DateTime timezoneToTime(ClockTimeZone timeZone)
     {
@@ -71,7 +74,16 @@ public sealed class ClockModule : Module
     private enum ClockSetting
     {
         Timezone,
-        SmoothSecond
+        SmoothSecond,
+        SmoothMinute,
+        SmoothHour,
+        Mode
+    }
+
+    private enum ClockMode
+    {
+        Twelve,
+        TwentyFour
     }
 
     private enum ClockTimeZone
