@@ -33,6 +33,7 @@ public sealed class SpeechToTextModule : Module
     {
         CreateSetting(SpeechToTextSetting.ModelLocation, "Model Location", "The folder location of the speech model you'd like to use", string.Empty, "Download a model", () => OpenUrlExternally("https://alphacephei.com/vosk/models"));
         CreateSetting(SpeechToTextSetting.DisplayPeriod, "Display Period", "How long should a valid recognition be shown for?", 10000);
+        CreateSetting(SpeechToTextSetting.FollowMute, "Follow Mute", "Should speech to text only be enabled if you're muted in game?", false);
     }
 
     protected override void OnStart()
@@ -71,11 +72,14 @@ public sealed class SpeechToTextModule : Module
 
     private void onTalkingDetected(object? sender, SpeechHypothesizedEventArgs e)
     {
+        if (GetSetting<bool>(SpeechToTextSetting.FollowMute) && !(Player.IsMuted ?? false)) return;
+
         ChatBox.SetTyping(true);
     }
 
     private void onTalkingFinished(object? sender, SpeechRecognizedEventArgs e)
     {
+        if (GetSetting<bool>(SpeechToTextSetting.FollowMute) && !(Player.IsMuted ?? false)) return;
         if (e.Result.Audio is null) return;
         if (string.IsNullOrEmpty(e.Result.Text)) return;
 
@@ -114,6 +118,7 @@ public sealed class SpeechToTextModule : Module
     private enum SpeechToTextSetting
     {
         ModelLocation,
-        DisplayPeriod
+        DisplayPeriod,
+        FollowMute
     }
 }
