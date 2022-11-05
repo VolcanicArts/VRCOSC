@@ -98,12 +98,14 @@ public sealed class SpeechToTextModule : Module
         }
 
         var finalResult = JsonConvert.DeserializeObject<Recognition>(recognizer.FinalResult())?.Text ?? string.Empty;
+
+        ChatBox.SetTyping(false);
+
         if (string.IsNullOrEmpty(finalResult)) return;
 
         finalResult = string.Concat(finalResult.First().ToString().ToUpper(), finalResult.AsSpan(1));
 
         Log($"Recognised: {finalResult}");
-        ChatBox.SetTyping(false);
         ChatBox.SetText(finalResult, true, 2, GetSetting<int>(SpeechToTextSetting.DisplayPeriod));
 
         recognizer.Reset();
