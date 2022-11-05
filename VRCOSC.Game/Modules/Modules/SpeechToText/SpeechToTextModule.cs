@@ -81,7 +81,6 @@ public sealed class SpeechToTextModule : Module
     {
         if (GetSetting<bool>(SpeechToTextSetting.FollowMute) && !(Player.IsMuted ?? false)) return;
         if (e.Result.Audio is null) return;
-        if (string.IsNullOrEmpty(e.Result.Text)) return;
 
         using var memoryStream = new MemoryStream();
         e.Result.Audio.WriteToWaveStream(memoryStream);
