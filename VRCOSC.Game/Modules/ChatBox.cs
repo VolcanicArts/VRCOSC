@@ -13,6 +13,7 @@ public class ChatBox
     private TimedTask? nextSend;
     private TimedTask? priorityTask;
     private int lastSentPriority;
+    private bool isTyping;
 
     public ChatBox(OscClient oscClient)
     {
@@ -21,11 +22,14 @@ public class ChatBox
 
     public void SetTyping(bool typing)
     {
+        isTyping = typing;
         oscClient.SendValue("/chatbox/typing", typing);
     }
 
     public void SetText(string text, bool bypassKeyboard = true, int priority = 0, float priorityTimeMilli = 10000f)
     {
+        if (isTyping) return;
+
         var values = new List<object>() { text, bypassKeyboard };
 
         if (priority >= lastSentPriority)
