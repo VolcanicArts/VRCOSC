@@ -99,6 +99,7 @@ public sealed class SpeechToTextModule : Module
         var finalResult = JsonConvert.DeserializeObject<Recognition>(recognizer.FinalResult())?.Text ?? string.Empty;
 
         ChatBox.SetTyping(false);
+        recognizer.Reset();
 
         if (string.IsNullOrEmpty(finalResult)) return;
 
@@ -106,8 +107,6 @@ public sealed class SpeechToTextModule : Module
 
         Log($"Recognised: {finalResult}");
         ChatBox.SetText(finalResult, true, 2, GetSetting<int>(SpeechToTextSetting.DisplayPeriod));
-
-        recognizer.Reset();
     }
 
     private class Recognition
