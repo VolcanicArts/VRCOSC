@@ -51,9 +51,10 @@ public class VRCOSCGameBase : osu.Framework.Game
     [BackgroundDependencyLoader]
     private void load(GameHost host, Storage storage)
     {
-        host.Window.Title = "VRCOSC";
         Resources.AddStore(new DllResourceStore(typeof(VRCOSCResources).Assembly));
 
         DependencyContainer.CacheAs(ConfigManager = new VRCOSCConfigManager(storage));
+
+        ConfigManager.GetBindable<string>(VRCOSCSetting.Version).BindValueChanged(version => host.Window.Title = $"VRCOSC {version.NewValue}", true);
     }
 }

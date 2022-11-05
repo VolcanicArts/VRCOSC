@@ -80,8 +80,12 @@ public sealed class AboutScreen : Container
             }
         });
 
-        text.AddText($"VRCOSC {configManager.Get<string>(VRCOSCSetting.Version)}");
-        text.AddParagraph("Copyright VolcanicArts 2022. See license file in repository root for more information");
+        configManager.GetBindable<string>(VRCOSCSetting.Version).BindValueChanged(version =>
+        {
+            text.Clear();
+            text.AddText($"VRCOSC {version.NewValue}");
+            text.AddParagraph("Copyright VolcanicArts 2022. See license file in repository root for more information");
+        }, true);
     }
 
     private sealed class AboutButton : Container
