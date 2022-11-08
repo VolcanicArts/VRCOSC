@@ -8,6 +8,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using osuTK;
 using VRCOSC.Game.Graphics.UI.Button;
 using VRCOSC.Game.Modules;
 
@@ -92,27 +93,56 @@ public sealed class ModuleCard : Container
                     }
                 }
             },
-            new Container
+            new FillFlowContainer
             {
                 Anchor = Anchor.CentreRight,
                 Origin = Anchor.CentreRight,
                 RelativeSizeAxes = Axes.Both,
-                FillMode = FillMode.Fit,
+                Width = 0.5f,
                 Padding = new MarginPadding(7),
-                Alpha = Module.HasSettings ? 1 : 0.5f,
-                Child = new IconButton
+                Spacing = new Vector2(7, 0),
+                Children = new Drawable[]
                 {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    RelativeSizeAxes = Axes.Both,
-                    Icon = FontAwesome.Solid.Get(0xF013),
-                    IconPadding = 5,
-                    CornerRadius = 5,
-                    Action = () => editingModule.Value = Module,
-                    BackgroundColour = VRCOSCColour.Gray5,
-                    Enabled = { Value = Module.HasSettings }
+                    new Container
+                    {
+                        Anchor = Anchor.CentreRight,
+                        Origin = Anchor.CentreRight,
+                        RelativeSizeAxes = Axes.Both,
+                        FillMode = FillMode.Fit,
+                        Child = new IconButton
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativeSizeAxes = Axes.Both,
+                            Icon = FontAwesome.Solid.Question,
+                            IconPadding = 5,
+                            CornerRadius = 5,
+                            Action = () => editingModule.Value = Module,
+                            BackgroundColour = VRCOSCColour.Gray5
+                        }
+                    },
+                    new Container
+                    {
+                        Anchor = Anchor.CentreRight,
+                        Origin = Anchor.CentreRight,
+                        RelativeSizeAxes = Axes.Both,
+                        FillMode = FillMode.Fit,
+                        Alpha = Module.HasSettings ? 1 : 0.5f,
+                        Child = new IconButton
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativeSizeAxes = Axes.Both,
+                            Icon = FontAwesome.Solid.Get(0xF013),
+                            IconPadding = 5,
+                            CornerRadius = 5,
+                            Action = () => editingModule.Value = Module,
+                            BackgroundColour = VRCOSCColour.Gray5,
+                            Enabled = { Value = Module.HasSettings }
+                        }
+                    }
                 }
-            },
+            }
         };
 
         metadataTextFlow.AddText(Module.Title, t =>
