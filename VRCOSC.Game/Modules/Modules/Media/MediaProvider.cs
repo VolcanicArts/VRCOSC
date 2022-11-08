@@ -8,7 +8,6 @@ using System.Linq;
 using Windows.Media;
 using Windows.Media.Control;
 using VRCOSC.Game.Util;
-using WindowsMediaController;
 
 namespace VRCOSC.Game.Modules.Modules.Media;
 
@@ -23,7 +22,7 @@ public class MediaProvider
     public MediaState State { get; private set; } = null!;
 
     public GlobalSystemMediaTransportControlsSession? Controller
-        => mediaManager?.CurrentMediaSessions.ContainsKey(lastSender ?? string.Empty) ?? false ? mediaManager.CurrentMediaSessions[lastSender].ControlSession : null;
+        => mediaManager?.CurrentMediaSessions.ContainsKey(lastSender ?? string.Empty) ?? false ? mediaManager.CurrentMediaSessions[lastSender!].ControlSession : null;
 
     public IEnumerable<string> ProcessExclusions = Array.Empty<string>();
 
@@ -39,7 +38,7 @@ public class MediaProvider
         mediaManager.OnAnySessionClosed += MediaManager_OnAnySessionClosed;
         mediaManager.OnAnyPlaybackStateChanged += MediaManager_OnAnyPlaybackStateChanged;
         mediaManager.OnAnyMediaPropertyChanged += MediaManager_OnAnyMediaPropertyChanged;
-        mediaManager.Start();
+        _ = mediaManager.Start();
     }
 
     public void StopMediaHook()
