@@ -16,6 +16,8 @@ public sealed class ClockModule : Module
 
     protected override void CreateAttributes()
     {
+        CreateSetting(ClockSetting.UseChatBox, "Use ChatBox", "Should the module display the time in the ChatBox?", false);
+        CreateSetting(ClockSetting.ChatBoxFormat, "ChatBox Format", "The format for displaying the time in the ChatBox.\nAvailable values: %h%, %m%, %s%, %period%", "%h%:%m%%period%");
         CreateSetting(ClockSetting.SmoothSecond, "Smooth Second", "If the seconds value should be smoothed", false);
         CreateSetting(ClockSetting.SmoothMinute, "Smooth Minute", "If the minutes value should be smoothed", true);
         CreateSetting(ClockSetting.SmoothHour, "Smooth Hour", "If the hours value should be smoothed", true);
@@ -43,6 +45,19 @@ public sealed class ClockModule : Module
         SendParameter(ClockOutgoingParameter.Hours, hourNormalised);
         SendParameter(ClockOutgoingParameter.Minutes, minuteNormalised);
         SendParameter(ClockOutgoingParameter.Seconds, secondNormalised);
+
+        if (GetSetting<bool>(ClockSetting.UseChatBox))
+        {
+            var textHour = GetSetting<ClockMode>(ClockSetting.Mode) == ClockMode.Twelve ? (time.Hour % 12).ToString("00") : time.Hour.ToString("00");
+
+            var text = GetSetting<string>(ClockSetting.ChatBoxFormat)
+                       .Replace("%h%", textHour)
+                       .Replace("%m%", time.Minute.ToString("00"))
+                       .Replace("%s%", time.Second.ToString("00"))
+                       .Replace("%period%", time.Hour >= 12 ? "pm" : "am");
+
+            ChatBox.SetText(text);
+        }
     }
 
     private static float getSmoothedSeconds(DateTime time) => time.Second + time.Millisecond / 1000f;
@@ -77,7 +92,9 @@ public sealed class ClockModule : Module
         SmoothSecond,
         SmoothMinute,
         SmoothHour,
-        Mode
+        Mode,
+        UseChatBox,
+        ChatBoxFormat
     }
 
     private enum ClockMode

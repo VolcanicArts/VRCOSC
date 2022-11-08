@@ -106,7 +106,7 @@ public sealed class SpeechToTextModule : Module
         finalResult = string.Concat(finalResult.First().ToString().ToUpper(), finalResult.AsSpan(1));
 
         Log($"Recognised: {finalResult}");
-        ChatBox.SetText(finalResult, true, 2, GetSetting<int>(SpeechToTextSetting.DisplayPeriod));
+        ChatBox.SetText(finalResult, true, 3, GetSetting<int>(SpeechToTextSetting.DisplayPeriod));
     }
 
     private class Recognition
