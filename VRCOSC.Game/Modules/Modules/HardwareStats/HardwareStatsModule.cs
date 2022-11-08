@@ -12,6 +12,7 @@ public sealed class HardwareStatsModule : Module
     public override string Author => "VolcanicArts";
     public override ModuleType ModuleType => ModuleType.General;
     protected override int DeltaUpdate => 2000;
+    protected override int ChatBoxPriority => 1;
 
     private const string format_description = "How the information should be displayed in the ChatBox.\n"
                                               + "Available values: $cpuusage$ (%), $gpuusage$ (%), $ramusage$ (%), "
@@ -72,13 +73,13 @@ public sealed class HardwareStatsModule : Module
                    .Replace("$ramused$", (hardwareStatsProvider!.RamUsed).ToString("0.0"))
                    .Replace("$ramavailable$", (hardwareStatsProvider!.RamAvailable).ToString("0.0"));
 
-        ChatBox.SetText(text, true, 1);
+        SetChatBoxText(text);
     }
 
     protected override void OnStop()
     {
         hardwareStatsProvider = null;
-        ChatBox.Clear(1);
+        ClearChatBox();
     }
 
     private enum HardwareStatsOutgoingParameter

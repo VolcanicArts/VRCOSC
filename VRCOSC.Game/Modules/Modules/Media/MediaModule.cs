@@ -17,6 +17,7 @@ public sealed class MediaModule : Module
     public override string Prefab => "VRCOSC-Media";
     protected override int DeltaUpdate => 2000;
     public override ModuleType ModuleType => ModuleType.Integrations;
+    protected override int ChatBoxPriority => 2;
 
     private readonly MediaProvider mediaProvider = new();
     private bool shouldClear;
@@ -181,7 +182,7 @@ public sealed class MediaModule : Module
 
         if (!mediaProvider.State.IsPlaying)
         {
-            if (GetSetting<bool>(MediaSetting.ContinuousShow) && shouldClear) ChatBox.Clear(2);
+            if (GetSetting<bool>(MediaSetting.ContinuousShow) && shouldClear) ClearChatBox();
             shouldClear = false;
             return;
         }
@@ -194,7 +195,7 @@ public sealed class MediaModule : Module
                             .Replace("%curtime%", mediaProvider.State.Position?.Position.ToString(@"mm\:ss") ?? "00:00")
                             .Replace("%duration%", mediaProvider.State.Position?.EndTime.ToString(@"mm\:ss") ?? "00:00");
 
-        ChatBox.SetText(formattedText, true, 2, GetSetting<int>(MediaSetting.DisplayPeriod));
+        SetChatBoxText(formattedText, GetSetting<int>(MediaSetting.DisplayPeriod));
     }
 
     private enum MediaSetting

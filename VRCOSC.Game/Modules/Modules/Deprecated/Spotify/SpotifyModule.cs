@@ -17,6 +17,7 @@ public sealed class SpotifyModule : IntegrationModule
     protected override int DeltaUpdate => GetSetting<bool>(SpotifySetting.DisplayTitle) ? 5000 : int.MaxValue;
     protected override string TargetProcess => "spotify";
     protected override string TargetExe => GetSetting<string>(SpotifySetting.InstallLocation);
+    protected override int ChatBoxPriority => 2;
 
     private string currentTitle = null!;
 
@@ -78,11 +79,11 @@ public sealed class SpotifyModule : IntegrationModule
             var author = titleData[0].Trim();
             var title = titleData[1].Trim();
             var formattedText = GetSetting<string>(SpotifySetting.TitleFormat).Replace("%title%", title).Replace("%author%", author);
-            ChatBox.SetText(formattedText, true, 2, chatbox_override_time);
+            SetChatBoxText(formattedText, chatbox_override_time);
         }
         else
         {
-            ChatBox.SetText(currentTitle, true, 2, chatbox_override_time);
+            SetChatBoxText(currentTitle, chatbox_override_time);
         }
     }
 

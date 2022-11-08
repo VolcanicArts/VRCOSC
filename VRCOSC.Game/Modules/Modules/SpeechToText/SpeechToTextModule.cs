@@ -17,6 +17,7 @@ public sealed class SpeechToTextModule : Module
     public override string Description => "Speech to text using VOSK's local processing for VRChat's ChatBox";
     public override string Author => "VolcanicArts";
     public override ModuleType ModuleType => ModuleType.Accessibility;
+    protected override int ChatBoxPriority => 3;
 
     private readonly SpeechRecognitionEngine speechRecognitionEngine = new();
     private VoskRecognizer recognizer = null!;
@@ -56,7 +57,7 @@ public sealed class SpeechToTextModule : Module
             recognizer.SetWords(true);
         });
 
-        ChatBox.SetTyping(false);
+        SetChatBoxTyping(false);
     }
 
     protected override void OnStop()
@@ -67,14 +68,14 @@ public sealed class SpeechToTextModule : Module
 
         recognizer.Dispose();
 
-        ChatBox.SetTyping(false);
+        SetChatBoxTyping(false);
     }
 
     private void onTalkingDetected(object? sender, SpeechHypothesizedEventArgs e)
     {
         if (GetSetting<bool>(SpeechToTextSetting.FollowMute) && !(Player.IsMuted ?? false)) return;
 
-        ChatBox.SetTyping(true);
+        SetChatBoxTyping(true);
     }
 
     private void onTalkingFinished(object? sender, SpeechRecognizedEventArgs e)
@@ -98,7 +99,7 @@ public sealed class SpeechToTextModule : Module
 
         var finalResult = JsonConvert.DeserializeObject<Recognition>(recognizer.FinalResult())?.Text ?? string.Empty;
 
-        ChatBox.SetTyping(false);
+        SetChatBoxTyping(false);
         recognizer.Reset();
 
         if (string.IsNullOrEmpty(finalResult)) return;
@@ -106,7 +107,7 @@ public sealed class SpeechToTextModule : Module
         finalResult = string.Concat(finalResult.First().ToString().ToUpper(), finalResult.AsSpan(1));
 
         Log($"Recognised: {finalResult}");
-        ChatBox.SetText(finalResult, true, 3, GetSetting<int>(SpeechToTextSetting.DisplayPeriod));
+        SetChatBoxText(finalResult, GetSetting<int>(SpeechToTextSetting.DisplayPeriod));
     }
 
     private class Recognition

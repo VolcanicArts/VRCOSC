@@ -56,7 +56,7 @@ public sealed class ClockModule : Module
                        .Replace("%s%", time.Second.ToString("00"))
                        .Replace("%period%", time.Hour >= 12 ? "pm" : "am");
 
-            ChatBox.SetText(text);
+            SetChatBoxText(text);
         }
     }
 

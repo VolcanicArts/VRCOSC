@@ -30,6 +30,7 @@ public abstract class Module
     private TerminalLogger Terminal = null!;
     private Bindable<ModuleState> State = null!;
     private TimedTask? updateTask;
+    private ChatBox ChatBox = null!;
 
     public readonly BindableBool Enabled = new();
     public readonly Dictionary<string, ModuleAttribute> Settings = new();
@@ -44,9 +45,9 @@ public abstract class Module
     public virtual string Prefab => string.Empty;
     protected virtual int DeltaUpdate => int.MaxValue;
     protected virtual bool ExecuteUpdateImmediately => true;
+    protected virtual int ChatBoxPriority => 0;
 
     protected Player Player = null!;
-    protected ChatBox ChatBox = null!;
 
     public const float vrc_osc_update_rate = 20;
     public static readonly int vrc_osc_delta_update = (int)((1f / vrc_osc_update_rate) * 1000f);
@@ -783,6 +784,12 @@ public abstract class Module
     protected void Log(string message) => Terminal.Log(message);
 
     protected void OpenUrlExternally(string Url) => Host.OpenUrlExternally(Url);
+
+    protected void SetChatBoxText(string text, int priorityTimeMilli = 10000, bool bypassKeyboard = true) => ChatBox.SetText(text, bypassKeyboard, ChatBoxPriority, priorityTimeMilli);
+
+    protected void SetChatBoxTyping(bool typing) => ChatBox.SetTyping(typing);
+
+    protected void ClearChatBox() => ChatBox.Clear(ChatBoxPriority);
 
     protected static float Map(float source, float sMin, float sMax, float dMin, float dMax) => dMin + (dMax - dMin) * ((source - sMin) / (sMax - sMin));
 
