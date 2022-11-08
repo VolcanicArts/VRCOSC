@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -34,7 +33,7 @@ public abstract class Module
 
     public readonly BindableBool Enabled = new();
     public readonly Dictionary<string, ModuleAttribute> Settings = new();
-    public readonly Dictionary<string, ModuleAttribute> OutputParameters = new();
+    public readonly Dictionary<string, ModuleAttribute> OutgoingParameters = new();
     private readonly Dictionary<Enum, InputParameterData> InputParameters = new();
     private readonly Dictionary<string, Enum> InputParametersMap = new();
 
@@ -71,8 +70,6 @@ public abstract class Module
     #region Properties
 
     public bool HasSettings => Settings.Any();
-    public bool HasOutgoingParameters => OutputParameters.Any();
-    public bool HasAttributes => HasSettings || HasOutgoingParameters;
 
     private bool IsEnabled => Enabled.Value;
     private bool ShouldUpdate => DeltaUpdate != int.MaxValue;
@@ -116,9 +113,6 @@ public abstract class Module
     protected void CreateOutgoingParameter(Enum lookup, string displayName, string description, string defaultAddress)
         => addSingleOutgoingParameter(lookup, displayName, description, defaultAddress);
 
-    protected void CreateOutgoingParameter(Enum lookup, string displayName, string description, IEnumerable<string> defaultAddresses)
-        => addEnumerableOutgoingParameter(lookup, displayName, description, defaultAddresses);
-
     protected void RegisterIncomingParameter<T>(Enum lookup, string parameterNameOverride = "") where T : struct
         => registerInput(lookup, parameterNameOverride, new InputParameterData(typeof(T)));
 
@@ -157,12 +151,12 @@ public abstract class Module
 
     private void addSingleOutgoingParameter(Enum lookup, string displayName, string description, string defaultAddress)
     {
-        OutputParameters.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeSingle(new ModuleAttributeMetadata(displayName, description), defaultAddress));
+        OutgoingParameters.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeSingle(new ModuleAttributeMetadata(displayName, description), defaultAddress));
     }
 
     private void addEnumerableOutgoingParameter(Enum lookup, string displayName, string description, IEnumerable<string> defaultAddresses)
     {
-        OutputParameters.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeList(new ModuleAttributeMetadata(displayName, description), defaultAddresses, typeof(string)));
+        OutgoingParameters.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeList(new ModuleAttributeMetadata(displayName, description), defaultAddresses, typeof(string)));
     }
 
     #endregion
@@ -406,12 +400,12 @@ public abstract class Module
 
     #region OutgoingParameters
 
-    protected class OscAddress
+    protected class OutputParameter
     {
         private readonly OscClient oscClient;
         private readonly string address;
 
-        public OscAddress(OscClient oscClient, string address)
+        public OutputParameter(OscClient oscClient, string address)
         {
             this.oscClient = oscClient;
             this.address = address;
@@ -420,36 +414,17 @@ public abstract class Module
         public void SendValue<T>(T value) where T : struct => oscClient.SendValue(address, value);
     }
 
-    protected class OutputParameter : IEnumerable<OscAddress>
-    {
-        private readonly List<OscAddress> addresses = new();
-
-        public OutputParameter(OscClient oscClient, IEnumerable<string> addressesStr)
-        {
-            addressesStr.ForEach(address => addresses.Add(new OscAddress(oscClient, address)));
-        }
-
-        public IEnumerator<OscAddress> GetEnumerator() => addresses.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    }
-
     protected OutputParameter GetOutputParameter(Enum lookup)
     {
-        var addresses = OutputParameters[lookup.ToString().ToLowerInvariant()];
-
-        return addresses switch
-        {
-            ModuleAttributeSingle address => new OutputParameter(OscClient, new List<string>() { address.Attribute.Value.ToString()! }),
-            ModuleAttributeList addressList => new OutputParameter(OscClient, addressList.GetValueList<string>()),
-            _ => throw new InvalidCastException($"Unable to parse {nameof(ModuleAttribute)}")
-        };
+        var address = (ModuleAttributeSingle)OutgoingParameters[lookup.ToString().ToLowerInvariant()];
+        return new OutputParameter(OscClient, address.Attribute.Value.ToString()!);
     }
 
     protected void SendParameter<T>(Enum lookup, T value) where T : struct
     {
         if (State.Value == ModuleState.Stopped) return;
 
-        GetOutputParameter(lookup).ForEach(address => address.SendValue(value));
+        GetOutputParameter(lookup).SendValue(value);
     }
 
     #endregion
@@ -474,10 +449,6 @@ public abstract class Module
 
                         case "#Settings":
                             performSettingsLoad(reader);
-                            break;
-
-                        case "#OutputParameters":
-                            performOutputParametersLoad(reader);
                             break;
                     }
                 }
@@ -595,46 +566,12 @@ public abstract class Module
         }
     }
 
-    private void performOutputParametersLoad(TextReader reader)
-    {
-        while (reader.ReadLine() is { } line)
-        {
-            if (line.Equals("#End")) break;
-
-            var lineSplitLookupValue = line.Split(new[] { '=' }, 2);
-            var lookupStr = lineSplitLookupValue[0];
-            var value = lineSplitLookupValue[1];
-
-            var lookup = lookupStr;
-            if (lookupStr.Contains('#')) lookup = lookupStr.Split(new[] { '#' }, 2)[0];
-
-            if (!OutputParameters.ContainsKey(lookup)) continue;
-
-            var parameter = OutputParameters[lookup];
-
-            switch (parameter)
-            {
-                case ModuleAttributeSingle parameterSingle:
-                    parameterSingle.Attribute.Value = value;
-                    break;
-
-                case ModuleAttributeList parameterList:
-                {
-                    var index = int.Parse(lookupStr.Split(new[] { '#' }, 2)[1]);
-                    parameterList.AddAt(index, new Bindable<object>(value));
-                    break;
-                }
-            }
-        }
-    }
-
     private void executeAfterLoad()
     {
         performSave();
 
         Enabled.BindValueChanged(_ => performSave());
         Settings.Values.ForEach(handleAttributeBind);
-        OutputParameters.Values.ForEach(handleAttributeBind);
     }
 
     private void handleAttributeBind(ModuleAttribute value)
@@ -676,7 +613,6 @@ public abstract class Module
 
         performInternalSettingsSave(writer);
         performSettingsSave(writer);
-        performOutputParametersSave(writer);
     }
 
     private void performInternalSettingsSave(TextWriter writer)
@@ -730,43 +666,6 @@ public abstract class Module
                     for (int i = 0; i < values.Count; i++)
                     {
                         writer.WriteLine(@"{0}#{1}:{2}={3}", lookup, i, readableTypeName, values[i].Value);
-                    }
-
-                    break;
-                }
-            }
-        }
-
-        writer.WriteLine(@"#End");
-    }
-
-    private void performOutputParametersSave(TextWriter writer)
-    {
-        var areAllDefault = OutputParameters.All(pair => pair.Value.IsDefault());
-        if (areAllDefault) return;
-
-        writer.WriteLine(@"#OutputParameters");
-
-        foreach (var (lookup, moduleAttributeData) in OutputParameters)
-        {
-            if (moduleAttributeData.IsDefault()) continue;
-
-            switch (moduleAttributeData)
-            {
-                case ModuleAttributeSingle moduleAttributeSingle:
-                {
-                    var value = moduleAttributeSingle.Attribute.Value;
-                    writer.WriteLine(@"{0}={1}", lookup, value);
-                    break;
-                }
-
-                case ModuleAttributeList moduleAttributeList:
-                {
-                    var values = moduleAttributeList.AttributeList.ToList();
-
-                    for (int i = 0; i < values.Count; i++)
-                    {
-                        writer.WriteLine(@"{0}#{1}={2}", lookup, i, values[i].Value);
                     }
 
                     break;

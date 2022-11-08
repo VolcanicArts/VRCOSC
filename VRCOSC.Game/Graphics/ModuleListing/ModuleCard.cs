@@ -99,7 +99,7 @@ public sealed class ModuleCard : Container
                 RelativeSizeAxes = Axes.Both,
                 FillMode = FillMode.Fit,
                 Padding = new MarginPadding(7),
-                Alpha = Module.HasAttributes ? 1 : 0,
+                Alpha = Module.HasSettings ? 1 : 0.5f,
                 Child = new IconButton
                 {
                     Anchor = Anchor.Centre,
@@ -109,7 +109,8 @@ public sealed class ModuleCard : Container
                     IconPadding = 5,
                     CornerRadius = 5,
                     Action = () => editingModule.Value = Module,
-                    BackgroundColour = VRCOSCColour.Gray5
+                    BackgroundColour = VRCOSCColour.Gray5,
+                    Enabled = { Value = Module.HasSettings }
                 }
             },
         };

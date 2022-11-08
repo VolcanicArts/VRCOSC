@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using osu.Framework.Extensions.IEnumerableExtensions;
 using VRCOSC.Game.Modules.Util;
 
 namespace VRCOSC.Game.Modules.Modules.Random;
@@ -20,15 +19,11 @@ public abstract class RandomModule<T> : Module where T : struct
     protected override void CreateAttributes()
     {
         CreateSetting(RandomSetting.DeltaUpdate, "Time Between Value", "The amount of time, in milliseconds, between each random value", 1000);
-
-        var readableTypeName = typeof(T).ToReadableName();
-        CreateOutgoingParameter(RandomOutgoingParameter.RandomValue, $"Random {readableTypeName}", $"A random {readableTypeName.ToLowerInvariant()} value. Each new parameter will receive a different random value",
-            new[] { $"/avatar/parameters/Random{readableTypeName}" });
     }
 
     protected override void OnUpdate()
     {
-        GetOutputParameter(RandomOutgoingParameter.RandomValue).ForEach(oscAddress => oscAddress.SendValue(GetRandomValue()));
+        SendParameter(RandomOutgoingParameter.RandomValue, GetRandomValue());
     }
 
     protected abstract T GetRandomValue();
