@@ -35,7 +35,6 @@ public abstract class Module
     public readonly BindableBool Enabled = new();
     public readonly Dictionary<string, ModuleAttribute> Settings = new();
     public readonly Dictionary<Enum, ParameterMetadata> Parameters = new();
-    private readonly Dictionary<string, Enum> ParameterNameMap = new();
 
     public virtual string Title => string.Empty;
     public virtual string Description => string.Empty;
@@ -239,19 +238,24 @@ public abstract class Module
         var parameterName = address.Remove(0, VRChatOscPrefix.Length);
         updatePlayerState(parameterName, value);
 
-        if (!ParameterNameMap.TryGetValue(parameterName, out var key)) return;
-
-        var parameterData = Parameters[key];
-
-        if (!parameterData.Mode.HasFlagFast(ParameterMode.Read)) return;
-
-        if (value.GetType() != parameterData.ExpectedType)
+        try
         {
-            Log($@"Cannot accept input parameter. `{key}` expects type `{parameterData.ExpectedType}` but received type `{value.GetType()}`");
-            return;
-        }
+            Enum lookup = Parameters.Single(pair => pair.Value.Name == parameterName).Key;
+            var data = Parameters[lookup];
 
-        notifyParameterReceived(key, value, parameterData);
+            if (!data.Mode.HasFlagFast(ParameterMode.Read)) return;
+
+            if (value.GetType() != data.ExpectedType)
+            {
+                Log($@"Cannot accept input parameter. `{lookup}` expects type `{data.ExpectedType}` but received type `{value.GetType()}`");
+                return;
+            }
+
+            notifyParameterReceived(lookup, value, data);
+        }
+        catch (InvalidOperationException)
+        {
+        }
     }
 
     private void notifyParameterReceived(Enum key, object value, ParameterMetadata data)
