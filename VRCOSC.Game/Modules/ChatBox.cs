@@ -1,8 +1,8 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Collections.Generic;
-using VRCOSC.Game.Modules.Util;
 using VRCOSC.OSC;
 
 namespace VRCOSC.Game.Modules;
@@ -10,8 +10,8 @@ namespace VRCOSC.Game.Modules;
 public class ChatBox
 {
     private readonly OscClient oscClient;
-    private TimedTask? nextSend;
-    private TimedTask? priorityTask;
+    private DateTimeOffset sendReset;
+    private DateTimeOffset priorityReset;
     private int lastSentPriority;
     private bool isTyping;
 
@@ -26,40 +26,28 @@ public class ChatBox
         oscClient.SendValue("/chatbox/typing", typing);
     }
 
-    public void SetText(string text, bool bypassKeyboard = true, int priority = 0, float priorityTimeMilli = 10000f)
+    public void SetText(string text, bool bypassKeyboard = true, int priority = 0, int priorityTimeMilli = 1)
     {
         if (isTyping) return;
 
         var values = new List<object>() { text, bypassKeyboard };
 
+        if (priorityReset < DateTimeOffset.Now) lastSentPriority = 0;
+
         if (priority >= lastSentPriority)
         {
             trySendValues(values, priority > lastSentPriority);
             lastSentPriority = priority;
-            priorityTask?.Stop();
-            priorityTask = new TimedTask(resetPriority, priorityTimeMilli).Start();
+            priorityReset = DateTimeOffset.Now + TimeSpan.FromMilliseconds(priorityTimeMilli);
         }
     }
 
     private void trySendValues(List<object> values, bool shouldBurst)
     {
-        if (nextSend is not null && !shouldBurst) return;
+        if (sendReset > DateTimeOffset.Now && !shouldBurst) return;
 
         oscClient.SendValues("/chatbox/input", values);
-        nextSend = new TimedTask(resetNextSend, 2000).Start();
-    }
-
-    private void resetNextSend()
-    {
-        nextSend?.Stop();
-        nextSend = null;
-    }
-
-    private void resetPriority()
-    {
-        priorityTask?.Stop();
-        priorityTask = null;
-        lastSentPriority = 0;
+        sendReset = DateTimeOffset.Now + TimeSpan.FromMilliseconds(1500);
     }
 
     public void Clear(int priority)
