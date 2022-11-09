@@ -17,8 +17,8 @@ public sealed class DiscordModule : IntegrationModule
 
     protected override void CreateAttributes()
     {
-        RegisterButtonInput(DiscordIncomingParameter.Mic, "Becomes true to toggle the mic", "VRCOSC/Discord/Mic");
-        RegisterButtonInput(DiscordIncomingParameter.Deafen, "Becomes true to toggle deafen", "VRCOSC/Discord/Deafen");
+        CreateButtonParameter(DiscordIncomingParameter.Mic, "VRCOSC/Discord/Mic", "Becomes true to toggle the mic");
+        CreateButtonParameter(DiscordIncomingParameter.Deafen, "VRCOSC/Discord/Deafen", "Becomes true to toggle deafen");
 
         RegisterKeyCombination(DiscordIncomingParameter.Mic, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_LSHIFT, WindowsVKey.VK_M);
         RegisterKeyCombination(DiscordIncomingParameter.Deafen, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_LSHIFT, WindowsVKey.VK_D);

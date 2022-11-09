@@ -32,19 +32,13 @@ public sealed class MediaModule : Module
         CreateSetting(MediaSetting.LaunchList, "Launch List", "What programs to launch on module start", new[] { $@"C:\Users\{Environment.UserName}\AppData\Roaming\Spotify\spotify.exe" });
         CreateSetting(MediaSetting.Exclusions, "Program Exclusions", "Which programs should be ignored if they try to take control of media? I.E, Chrome, Spotify, etc...", new[] { "chrome" });
 
-        CreateOutgoingParameter<bool>(MediaOutgoingParameter.Play, "Whether the song is currently playing or not", "VRCOSC/Media/Play");
-        CreateOutgoingParameter<float>(MediaOutgoingParameter.Volume, "The volume of the process that is controlling the media", "VRCOSC/Media/Volume");
-        CreateOutgoingParameter<bool>(MediaOutgoingParameter.Muted, "Whether the volume of the process that is controlling the media is muted", "VRCOSC/Media/Muted");
-        CreateOutgoingParameter<int>(MediaOutgoingParameter.Repeat, "The repeat mode of the current controller", "VRCOSC/Media/Repeat");
-        CreateOutgoingParameter<bool>(MediaOutgoingParameter.Shuffle, "Whether shuffle is enabled in the current controller", "VRCOSC/Media/Shuffle");
-
-        RegisterIncomingParameter<bool>(MediaIncomingParameter.Play, "Is true for playing, false for paused", "VRCOSC/Media/Play");
-        RegisterButtonInput(MediaIncomingParameter.Next, "Becoming true causes the next track to play", "VRCOSC/Media/Next");
-        RegisterButtonInput(MediaIncomingParameter.Previous, "Becoming true causes the previous track to play", "VRCOSC/Media/Previous");
-        RegisterRadialInput(MediaIncomingParameter.Volume, "Controls the volume of the media", "VRCOSC/Media/Volume");
-        RegisterIncomingParameter<bool>(MediaIncomingParameter.Muted, "True to mute the media, false to unmute the media", "VRCOSC/Media/Muted");
-        RegisterIncomingParameter<int>(MediaIncomingParameter.Repeat, "0 for no repeat, 1 for single repeat, 2 for list repeat", "VRCOSC/Media/Repeat");
-        RegisterIncomingParameter<bool>(MediaIncomingParameter.Shuffle, "True to enable shuffle, false to disable shuffle", "VRCOSC/Media/Shuffle");
+        CreateParameter<bool>(MediaOutgoingParameter.Play, ParameterMode.ReadWrite, "VRCOSC/Media/Play", "True for playing. False for paused");
+        CreateParameter<float>(MediaOutgoingParameter.Volume, ParameterMode.ReadWrite, "VRCOSC/Media/Volume", "The volume of the process that is controlling the media", ActionMenu.Radial);
+        CreateParameter<bool>(MediaOutgoingParameter.Muted, ParameterMode.ReadWrite, "VRCOSC/Media/Muted", "True to mute. False to unmute");
+        CreateParameter<int>(MediaOutgoingParameter.Repeat, ParameterMode.ReadWrite, "VRCOSC/Media/Repeat", "0 for disabled. 1 for single. 2 for list");
+        CreateParameter<bool>(MediaOutgoingParameter.Shuffle, ParameterMode.ReadWrite, "VRCOSC/Media/Shuffle", "True for enabled. False for disabled");
+        CreateButtonParameter(MediaIncomingParameter.Next, "VRCOSC/Media/Next", "Becoming true causes the next track to play");
+        CreateButtonParameter(MediaIncomingParameter.Previous, "VRCOSC/Media/Previous", "Becoming true causes the previous track to play");
     }
 
     protected override void OnStart()

@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using osu.Framework.Bindables;
+using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
@@ -33,9 +34,8 @@ public abstract class Module
 
     public readonly BindableBool Enabled = new();
     public readonly Dictionary<string, ModuleAttribute> Settings = new();
-    public readonly Dictionary<Enum, ParameterMetadata> OutgoingParameters = new();
-    public readonly Dictionary<Enum, InputParameterMetadata> IncomingParameters = new();
-    private readonly Dictionary<string, Enum> IncomingParametersNameMap = new();
+    public readonly Dictionary<Enum, ParameterMetadata> Parameters = new();
+    private readonly Dictionary<string, Enum> ParameterNameMap = new();
 
     public virtual string Title => string.Empty;
     public virtual string Description => string.Empty;
@@ -110,23 +110,14 @@ public abstract class Module
     protected void CreateSetting(Enum lookup, string displayName, string description, string defaultValue, string buttonText, Action buttonAction)
         => addTextAndButtonSetting(lookup, displayName, description, defaultValue, buttonText, buttonAction);
 
-    protected void CreateOutgoingParameter<T>(Enum lookup, string description, string parameterName)
-        => addSingleOutgoingParameter(lookup, description, parameterName, typeof(T));
+    protected void CreateButtonParameter(Enum lookup, string parameterName, string description)
+        => CreateParameter<bool>(lookup, ParameterMode.Read, parameterName, description, ActionMenu.Button);
 
-    protected void RegisterIncomingParameter<T>(Enum lookup, string description, string parameterName) where T : struct
-        => registerInput(lookup, description, parameterName, typeof(T), ActionMenu.None);
+    protected void CreateRadialParameter(Enum lookup, string parameterName, string description)
+        => CreateParameter<float>(lookup, ParameterMode.Read, parameterName, description, ActionMenu.Radial);
 
-    protected void RegisterButtonInput(Enum lookup, string description, string parameterName)
-        => registerInput(lookup, description, parameterName, typeof(bool), ActionMenu.Button);
-
-    protected void RegisterRadialInput(Enum lookup, string description, string parameterName)
-        => registerInput(lookup, description, parameterName, typeof(float), ActionMenu.Radial);
-
-    private void registerInput(Enum lookup, string description, string parameterName, Type type, ActionMenu menuLink)
-    {
-        IncomingParameters.Add(lookup, new InputParameterMetadata(parameterName, description, type, menuLink));
-        IncomingParametersNameMap.Add(parameterName, lookup);
-    }
+    protected void CreateParameter<T>(Enum lookup, ParameterMode mode, string parameterName, string description, ActionMenu menuLink = ActionMenu.None)
+        => Parameters.Add(lookup, new ParameterMetadata(mode, parameterName, description, typeof(T), menuLink));
 
     private void addSingleSetting(Enum lookup, string displayName, string description, object defaultValue)
     {
@@ -146,11 +137,6 @@ public abstract class Module
     private void addTextAndButtonSetting(Enum lookup, string displayName, string description, string defaultValue, string buttonText, Action buttonAction)
     {
         Settings.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeSingleWithButton(new ModuleAttributeMetadata(displayName, description), defaultValue, buttonText, buttonAction));
-    }
-
-    private void addSingleOutgoingParameter(Enum lookup, string description, string parameterName, Type type)
-    {
-        OutgoingParameters.Add(lookup, new ParameterMetadata(parameterName, description, type));
     }
 
     #endregion
@@ -259,26 +245,28 @@ public abstract class Module
         var parameterName = address.Remove(0, VRChatOscPrefix.Length);
         updatePlayerState(parameterName, value);
 
-        if (!IncomingParametersNameMap.TryGetValue(parameterName, out var key)) return;
+        if (!ParameterNameMap.TryGetValue(parameterName, out var key)) return;
 
-        var inputParameterData = IncomingParameters[key];
+        var parameterData = Parameters[key];
 
-        if (value.GetType() != inputParameterData.ExpectedType)
+        if (!parameterData.Mode.HasFlagFast(ParameterMode.Read)) return;
+
+        if (value.GetType() != parameterData.ExpectedType)
         {
-            Log($@"Cannot accept input parameter. `{key}` expects type `{inputParameterData.ExpectedType}` but received type `{value.GetType()}`");
+            Log($@"Cannot accept input parameter. `{key}` expects type `{parameterData.ExpectedType}` but received type `{value.GetType()}`");
             return;
         }
 
-        notifyParameterReceived(key, value, inputParameterData);
+        notifyParameterReceived(key, value, parameterData);
     }
 
-    private void notifyParameterReceived(Enum key, object value, InputParameterMetadata data)
+    private void notifyParameterReceived(Enum key, object value, ParameterMetadata data)
     {
         switch (value)
         {
             case bool boolValue:
                 OnBoolParameterReceived(key, boolValue);
-                if (data.MenuLink == ActionMenu.Button && boolValue) OnButtonPressed(key);
+                if (data.Menu == ActionMenu.Button && boolValue) OnButtonPressed(key);
                 break;
 
             case int intValue:
@@ -287,7 +275,7 @@ public abstract class Module
 
             case float floatValue:
                 OnFloatParameterReceived(key, floatValue);
-                if (data.MenuLink == ActionMenu.Radial) OnRadialPuppetChange(key, floatValue);
+                if (data.Menu == ActionMenu.Radial) OnRadialPuppetChange(key, floatValue);
                 break;
         }
     }
@@ -403,7 +391,8 @@ public abstract class Module
 
     protected OutputParameter GetOutputParameter(Enum lookup)
     {
-        var data = OutgoingParameters[lookup];
+        // TODO validation
+        var data = Parameters[lookup];
         return new OutputParameter(OscClient, data.FormattedAddress);
     }
 

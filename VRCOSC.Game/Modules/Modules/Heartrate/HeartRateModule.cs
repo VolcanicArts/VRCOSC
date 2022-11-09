@@ -17,11 +17,11 @@ public abstract class HeartRateModule : Module
 
     protected override void CreateAttributes()
     {
-        CreateOutgoingParameter<bool>(HeartrateOutgoingParameter.Enabled, "Whether this module is attempting to emit values", "VRCOSC/Heartrate/Enabled");
-        CreateOutgoingParameter<float>(HeartrateOutgoingParameter.Normalised, "The heartrate value normalised to 60bpm", "VRCOSC/Heartrate/Normalised");
-        CreateOutgoingParameter<float>(HeartrateOutgoingParameter.Units, "The units digit 0-9 mapped to a float", "VRCOSC/Heartrate/Units");
-        CreateOutgoingParameter<float>(HeartrateOutgoingParameter.Tens, "The tens digit 0-9 mapped to a float", "VRCOSC/Heartrate/Tens");
-        CreateOutgoingParameter<float>(HeartrateOutgoingParameter.Hundreds, "The hundreds digit 0-9 mapped to a float", "VRCOSC/Heartrate/Hundreds");
+        CreateParameter<bool>(HeartrateOutgoingParameter.Enabled, ParameterMode.Write, "VRCOSC/Heartrate/Enabled", "Whether this module is attempting to emit values");
+        CreateParameter<float>(HeartrateOutgoingParameter.Normalised, ParameterMode.Write, "VRCOSC/Heartrate/Normalised", "The heartrate value normalised to 60bpm");
+        CreateParameter<float>(HeartrateOutgoingParameter.Units, ParameterMode.Write, "VRCOSC/Heartrate/Units", "The units digit 0-9 mapped to a float");
+        CreateParameter<float>(HeartrateOutgoingParameter.Tens, ParameterMode.Write, "VRCOSC/Heartrate/Tens", "The tens digit 0-9 mapped to a float");
+        CreateParameter<float>(HeartrateOutgoingParameter.Hundreds, ParameterMode.Write, "VRCOSC/Heartrate/Hundreds", "The hundreds digit 0-9 mapped to a float");
     }
 
     protected override void OnStart()

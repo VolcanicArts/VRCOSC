@@ -7,27 +7,27 @@ namespace VRCOSC.Game.Modules;
 
 public class ParameterMetadata
 {
+    public readonly ParameterMode Mode;
     public readonly string Name;
     public readonly string Description;
     public readonly Type ExpectedType;
+    public readonly ActionMenu Menu;
 
     public string FormattedAddress => $"/avatar/parameters/{Name}";
 
-    public ParameterMetadata(string name, string description, Type expectedType)
+    public ParameterMetadata(ParameterMode mode, string name, string description, Type expectedType, ActionMenu menu)
     {
+        Mode = mode;
         Name = name;
         Description = description;
         ExpectedType = expectedType;
+        Menu = menu;
     }
 }
 
-public class InputParameterMetadata : ParameterMetadata
+public enum ParameterMode
 {
-    public readonly ActionMenu MenuLink;
-
-    public InputParameterMetadata(string name, string description, Type expectedType, ActionMenu menuLink)
-        : base(name, description, expectedType)
-    {
-        MenuLink = menuLink;
-    }
+    Read = 1 << 0,
+    Write = 1 << 1,
+    ReadWrite = Read | Write
 }

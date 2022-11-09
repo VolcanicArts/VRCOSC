@@ -17,19 +17,19 @@ public class OpenVRModule : Module
 
     protected override void CreateAttributes()
     {
-        CreateOutgoingParameter<float>(OpenVROutgoingParameter.HMD_Battery, "The battery percentage normalised of your headset", "VRCOSC/OpenVR/HMD/Battery");
+        CreateParameter<float>(OpenVROutgoingParameter.HMD_Battery, ParameterMode.Write, "VRCOSC/OpenVR/HMD/Battery", "The battery percentage normalised of your headset");
 
-        CreateOutgoingParameter<float>(OpenVROutgoingParameter.LeftController_Battery, "The battery percentage normalised of your left controller", "VRCOSC/OpenVR/LeftController/Battery");
-        CreateOutgoingParameter<float>(OpenVROutgoingParameter.RightController_Battery, "The battery percentage normalised of your right controller", "VRCOSC/OpenVR/RightController/Battery");
+        CreateParameter<float>(OpenVROutgoingParameter.LeftController_Battery, ParameterMode.Write, "VRCOSC/OpenVR/LeftController/Battery", "The battery percentage normalised of your left controller");
+        CreateParameter<float>(OpenVROutgoingParameter.RightController_Battery, ParameterMode.Write, "VRCOSC/OpenVR/RightController/Battery", "The battery percentage normalised of your right controller");
 
-        CreateOutgoingParameter<float>(OpenVROutgoingParameter.Tracker1_Battery, "The battery percentage normalised of tracker 1", "VRCOSC/OpenVR/Trackers/1/Battery");
-        CreateOutgoingParameter<float>(OpenVROutgoingParameter.Tracker2_Battery, "The battery percentage normalised of tracker 2", "VRCOSC/OpenVR/Trackers/2/Battery");
-        CreateOutgoingParameter<float>(OpenVROutgoingParameter.Tracker3_Battery, "The battery percentage normalised of tracker 3", "VRCOSC/OpenVR/Trackers/3/Battery");
-        CreateOutgoingParameter<float>(OpenVROutgoingParameter.Tracker4_Battery, "The battery percentage normalised of tracker 4", "VRCOSC/OpenVR/Trackers/4/Battery");
-        CreateOutgoingParameter<float>(OpenVROutgoingParameter.Tracker5_Battery, "The battery percentage normalised of tracker 5", "VRCOSC/OpenVR/Trackers/5/Battery");
-        CreateOutgoingParameter<float>(OpenVROutgoingParameter.Tracker6_Battery, "The battery percentage normalised of tracker 6", "VRCOSC/OpenVR/Trackers/6/Battery");
-        CreateOutgoingParameter<float>(OpenVROutgoingParameter.Tracker7_Battery, "The battery percentage normalised of tracker 7", "VRCOSC/OpenVR/Trackers/7/Battery");
-        CreateOutgoingParameter<float>(OpenVROutgoingParameter.Tracker8_Battery, "The battery percentage normalised of tracker 8", "VRCOSC/OpenVR/Trackers/8/Battery");
+        CreateParameter<float>(OpenVROutgoingParameter.Tracker1_Battery, ParameterMode.Write, "VRCOSC/OpenVR/Trackers/1/Battery", "The battery percentage normalised of tracker 1");
+        CreateParameter<float>(OpenVROutgoingParameter.Tracker2_Battery, ParameterMode.Write, "VRCOSC/OpenVR/Trackers/2/Battery", "The battery percentage normalised of tracker 2");
+        CreateParameter<float>(OpenVROutgoingParameter.Tracker3_Battery, ParameterMode.Write, "VRCOSC/OpenVR/Trackers/3/Battery", "The battery percentage normalised of tracker 3");
+        CreateParameter<float>(OpenVROutgoingParameter.Tracker4_Battery, ParameterMode.Write, "VRCOSC/OpenVR/Trackers/4/Battery", "The battery percentage normalised of tracker 4");
+        CreateParameter<float>(OpenVROutgoingParameter.Tracker5_Battery, ParameterMode.Write, "VRCOSC/OpenVR/Trackers/5/Battery", "The battery percentage normalised of tracker 5");
+        CreateParameter<float>(OpenVROutgoingParameter.Tracker6_Battery, ParameterMode.Write, "VRCOSC/OpenVR/Trackers/6/Battery", "The battery percentage normalised of tracker 6");
+        CreateParameter<float>(OpenVROutgoingParameter.Tracker7_Battery, ParameterMode.Write, "VRCOSC/OpenVR/Trackers/7/Battery", "The battery percentage normalised of tracker 7");
+        CreateParameter<float>(OpenVROutgoingParameter.Tracker8_Battery, ParameterMode.Write, "VRCOSC/OpenVR/Trackers/8/Battery", "The battery percentage normalised of tracker 8");
     }
 
     protected override void OnStart()
