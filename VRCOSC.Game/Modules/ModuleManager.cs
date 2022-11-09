@@ -14,7 +14,6 @@ using osu.Framework.Graphics;
 using osu.Framework.Platform;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Modules.Modules.Clock;
-using VRCOSC.Game.Modules.Modules.Deprecated.Spotify;
 using VRCOSC.Game.Modules.Modules.Discord;
 using VRCOSC.Game.Modules.Modules.HardwareStats;
 using VRCOSC.Game.Modules.Modules.Heartrate.HypeRate;
@@ -41,7 +40,6 @@ public sealed class ModuleManager : Component
         typeof(HardwareStatsModule),
         typeof(OpenVRModule),
         typeof(MediaModule),
-        typeof(SpotifyModule),
         typeof(DiscordModule),
         typeof(SpeechToTextModule)
     };
