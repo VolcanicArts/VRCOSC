@@ -19,6 +19,8 @@ public abstract class RandomModule<T> : Module where T : struct
     protected override void CreateAttributes()
     {
         CreateSetting(RandomSetting.DeltaUpdate, "Time Between Value", "The amount of time, in milliseconds, between each random value", 1000);
+
+        CreateParameter<T>(RandomParameter.RandomValue, ParameterMode.Write, $"VRCOSC/Random{typeof(T).ToReadableName()}", $"A random {typeof(T).ToReadableName()}");
     }
 
     protected override void OnUpdate()
