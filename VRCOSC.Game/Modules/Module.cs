@@ -391,8 +391,11 @@ public abstract class Module
 
     protected OutputParameter GetOutputParameter(Enum lookup)
     {
-        // TODO validation
+        if (!Parameters.ContainsKey(lookup)) throw new InvalidOperationException($"Parameter {lookup.ToString()} has not been defined");
+
         var data = Parameters[lookup];
+        if (!data.Mode.HasFlagFast(ParameterMode.Write)) throw new InvalidOperationException("Cannot send a value to a read-only parameter");
+
         return new OutputParameter(OscClient, data.FormattedAddress);
     }
 
