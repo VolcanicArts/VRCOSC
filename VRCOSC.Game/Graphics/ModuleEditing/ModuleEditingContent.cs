@@ -7,6 +7,7 @@ using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Sprites;
 using osuTK;
 using VRCOSC.Game.Modules;
 
@@ -14,13 +15,12 @@ namespace VRCOSC.Game.Graphics.ModuleEditing;
 
 public sealed class ModuleEditingContent : Container
 {
-    private readonly TextFlowContainer metadataTextFlow;
+    private readonly SpriteText titleText;
     private readonly SeparatedAttributeFlow settings;
-    private readonly SeparatedAttributeFlow parameters;
     private readonly BasicScrollContainer scrollContainer;
     private readonly FillFlowContainer<SeparatedAttributeFlow> separatedAttributeFlowFlow;
 
-    [Resolved]
+    [Resolved(name: "EditingModule")]
     private Bindable<Module?> editingModule { get; set; } = null!;
 
     public ModuleEditingContent()
@@ -43,16 +43,17 @@ public sealed class ModuleEditingContent : Container
                     RelativeSizeAxes = Axes.X,
                     AutoSizeAxes = Axes.Y,
                     Direction = FillDirection.Vertical,
-                    Spacing = new Vector2(0, 5),
                     Children = new Drawable[]
                     {
-                        metadataTextFlow = new TextFlowContainer
+                        titleText = new SpriteText
                         {
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
-                            TextAnchor = Anchor.Centre,
-                            RelativeSizeAxes = Axes.X,
-                            AutoSizeAxes = Axes.Y
+                            Font = FrameworkFont.Regular.With(size: 75),
+                            Margin = new MarginPadding
+                            {
+                                Vertical = 10
+                            }
                         },
                         separatedAttributeFlowFlow = new FillFlowContainer<SeparatedAttributeFlow>
                         {
@@ -64,8 +65,7 @@ public sealed class ModuleEditingContent : Container
                             Spacing = new Vector2(0, 5),
                             Children = new[]
                             {
-                                settings = new SeparatedAttributeFlow("Settings"),
-                                parameters = new SeparatedAttributeFlow("Parameters")
+                                settings = new SeparatedAttributeFlow(),
                             }
                         }
                     }
@@ -82,35 +82,13 @@ public sealed class ModuleEditingContent : Container
         {
             if (editingModule.Value is null) return;
 
-            metadataTextFlow.Clear();
             separatedAttributeFlowFlow.ForEach(child => child.Clear());
             scrollContainer.ScrollToStart();
 
-            metadataTextFlow.AddText(editingModule.Value.Title, t =>
-            {
-                t.Font = FrameworkFont.Regular.With(size: 75);
-            });
-            metadataTextFlow.AddParagraph(editingModule.Value.Description, t =>
-            {
-                t.Font = FrameworkFont.Regular.With(size: 40);
-                t.Colour = VRCOSCColour.Gray9;
-            });
-            metadataTextFlow.AddParagraph("Made by ", t =>
-            {
-                t.Font = FrameworkFont.Regular.With(size: 30);
-                t.Colour = VRCOSCColour.Gray9;
-            });
-            metadataTextFlow.AddText(editingModule.Value.Author, t =>
-            {
-                t.Font = FrameworkFont.Regular.With(size: 30);
-                t.Colour = VRCOSCColour.GrayE;
-            });
+            titleText.Text = $"{editingModule.Value.Title} Settings";
 
             settings.Replace(editingModule.Value.Settings.Values);
-            parameters.Replace(editingModule.Value.OutputParameters.Values);
-
             settings.Alpha = editingModule.Value.HasSettings ? 1 : 0;
-            parameters.Alpha = editingModule.Value.HasOutgoingParameters ? 1 : 0;
         }, true);
     }
 
@@ -118,7 +96,7 @@ public sealed class ModuleEditingContent : Container
     {
         private readonly AttributeFlow attributeFlow;
 
-        public SeparatedAttributeFlow(string title)
+        public SeparatedAttributeFlow()
         {
             Anchor = Anchor.TopCentre;
             Origin = Anchor.TopCentre;
@@ -131,7 +109,7 @@ public sealed class ModuleEditingContent : Container
                     Anchor = Anchor.TopCentre,
                     Origin = Anchor.TopCentre
                 },
-                attributeFlow = new AttributeFlow(title),
+                attributeFlow = new AttributeFlow(),
             };
         }
 

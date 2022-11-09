@@ -11,7 +11,7 @@ namespace VRCOSC.Game.Graphics.ModuleEditing;
 
 public sealed class ModuleEditingPopover : PopoverScreen
 {
-    [Resolved]
+    [Resolved(name: "EditingModule")]
     private Bindable<Module?> editingModule { get; set; } = null!;
 
     public ModuleEditingPopover()

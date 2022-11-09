@@ -2,13 +2,13 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using osu.Framework.Bindables;
+using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
@@ -34,9 +34,7 @@ public abstract class Module
 
     public readonly BindableBool Enabled = new();
     public readonly Dictionary<string, ModuleAttribute> Settings = new();
-    public readonly Dictionary<string, ModuleAttribute> OutputParameters = new();
-    private readonly Dictionary<Enum, InputParameterData> InputParameters = new();
-    private readonly Dictionary<string, Enum> InputParametersMap = new();
+    public readonly Dictionary<Enum, ParameterMetadata> Parameters = new();
 
     public virtual string Title => string.Empty;
     public virtual string Description => string.Empty;
@@ -71,14 +69,12 @@ public abstract class Module
     #region Properties
 
     public bool HasSettings => Settings.Any();
-    public bool HasOutgoingParameters => OutputParameters.Any();
-    public bool HasAttributes => HasSettings || HasOutgoingParameters;
 
     private bool IsEnabled => Enabled.Value;
     private bool ShouldUpdate => DeltaUpdate != int.MaxValue;
     private string FileName => @$"{GetType().Name}.ini";
 
-    private const string VRChatOscPrefix = @"/avatar/parameters/";
+    public const string VRChatOscPrefix = @"/avatar/parameters/";
 
     #endregion
 
@@ -113,27 +109,8 @@ public abstract class Module
     protected void CreateSetting(Enum lookup, string displayName, string description, string defaultValue, string buttonText, Action buttonAction)
         => addTextAndButtonSetting(lookup, displayName, description, defaultValue, buttonText, buttonAction);
 
-    protected void CreateOutgoingParameter(Enum lookup, string displayName, string description, string defaultAddress)
-        => addSingleOutgoingParameter(lookup, displayName, description, defaultAddress);
-
-    protected void CreateOutgoingParameter(Enum lookup, string displayName, string description, IEnumerable<string> defaultAddresses)
-        => addEnumerableOutgoingParameter(lookup, displayName, description, defaultAddresses);
-
-    protected void RegisterIncomingParameter<T>(Enum lookup, string parameterNameOverride = "") where T : struct
-        => registerInput(lookup, parameterNameOverride, new InputParameterData(typeof(T)));
-
-    protected void RegisterButtonInput(Enum lookup, string parameterNameOverride = "")
-        => registerInput(lookup, parameterNameOverride, new ButtonInputParameterData());
-
-    protected void RegisterRadialInput(Enum lookup, string parameterNameOverride = "")
-        => registerInput(lookup, parameterNameOverride, new RadialInputParameterData());
-
-    private void registerInput(Enum lookup, string parameterNameOverride, InputParameterData parameterData)
-    {
-        var parameterName = string.IsNullOrEmpty(parameterNameOverride) ? lookup.ToString() : parameterNameOverride;
-        InputParameters.Add(lookup, parameterData);
-        InputParametersMap.Add(parameterName, lookup);
-    }
+    protected void CreateParameter<T>(Enum lookup, ParameterMode mode, string parameterName, string description, ActionMenu menuLink = ActionMenu.None)
+        => Parameters.Add(lookup, new ParameterMetadata(mode, parameterName, description, typeof(T), menuLink));
 
     private void addSingleSetting(Enum lookup, string displayName, string description, object defaultValue)
     {
@@ -153,16 +130,6 @@ public abstract class Module
     private void addTextAndButtonSetting(Enum lookup, string displayName, string description, string defaultValue, string buttonText, Action buttonAction)
     {
         Settings.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeSingleWithButton(new ModuleAttributeMetadata(displayName, description), defaultValue, buttonText, buttonAction));
-    }
-
-    private void addSingleOutgoingParameter(Enum lookup, string displayName, string description, string defaultAddress)
-    {
-        OutputParameters.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeSingle(new ModuleAttributeMetadata(displayName, description), defaultAddress));
-    }
-
-    private void addEnumerableOutgoingParameter(Enum lookup, string displayName, string description, IEnumerable<string> defaultAddresses)
-    {
-        OutputParameters.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeList(new ModuleAttributeMetadata(displayName, description), defaultAddresses, typeof(string)));
     }
 
     #endregion
@@ -221,7 +188,7 @@ public abstract class Module
     {
         var setting = Settings[lookup.ToString().ToLowerInvariant()];
 
-        object? value = null;
+        object? value;
 
         switch (setting)
         {
@@ -271,26 +238,33 @@ public abstract class Module
         var parameterName = address.Remove(0, VRChatOscPrefix.Length);
         updatePlayerState(parameterName, value);
 
-        if (!InputParametersMap.TryGetValue(parameterName, out var key)) return;
-
-        var inputParameterData = InputParameters[key];
-
-        if (value.GetType() != inputParameterData.Type)
+        try
         {
-            Log($@"Cannot accept input parameter. `{key}` expects type `{inputParameterData.Type}` but received type `{value.GetType()}`");
-            return;
-        }
+            Enum lookup = Parameters.Single(pair => pair.Value.Name == parameterName).Key;
+            var data = Parameters[lookup];
 
-        notifyParameterReceived(key, value, inputParameterData);
+            if (!data.Mode.HasFlagFast(ParameterMode.Read)) return;
+
+            if (value.GetType() != data.ExpectedType)
+            {
+                Log($@"Cannot accept input parameter. `{lookup}` expects type `{data.ExpectedType}` but received type `{value.GetType()}`");
+                return;
+            }
+
+            notifyParameterReceived(lookup, value, data);
+        }
+        catch (InvalidOperationException)
+        {
+        }
     }
 
-    private void notifyParameterReceived(Enum key, object value, InputParameterData data)
+    private void notifyParameterReceived(Enum key, object value, ParameterMetadata data)
     {
         switch (value)
         {
             case bool boolValue:
                 OnBoolParameterReceived(key, boolValue);
-                if (data.ActionMenu == ActionMenu.Button && boolValue) OnButtonPressed(key);
+                if (data.Menu == ActionMenu.Button && boolValue) OnButtonPressed(key);
                 break;
 
             case int intValue:
@@ -299,14 +273,7 @@ public abstract class Module
 
             case float floatValue:
                 OnFloatParameterReceived(key, floatValue);
-
-                if (data.ActionMenu == ActionMenu.Radial)
-                {
-                    var radialData = (RadialInputParameterData)data;
-                    OnRadialPuppetChange(key, new VRChatRadialPuppet(floatValue, radialData.PreviousValue));
-                    radialData.PreviousValue = floatValue;
-                }
-
+                if (data.Menu == ActionMenu.Radial) OnRadialPuppetChange(key, floatValue);
                 break;
         }
     }
@@ -400,18 +367,18 @@ public abstract class Module
     protected virtual void OnIntParameterReceived(Enum key, int value) { }
     protected virtual void OnFloatParameterReceived(Enum key, float value) { }
     protected virtual void OnButtonPressed(Enum key) { }
-    protected virtual void OnRadialPuppetChange(Enum key, VRChatRadialPuppet radialData) { }
+    protected virtual void OnRadialPuppetChange(Enum key, float radialValue) { }
 
     #endregion
 
     #region OutgoingParameters
 
-    protected class OscAddress
+    protected class OutputParameter
     {
         private readonly OscClient oscClient;
         private readonly string address;
 
-        public OscAddress(OscClient oscClient, string address)
+        public OutputParameter(OscClient oscClient, string address)
         {
             this.oscClient = oscClient;
             this.address = address;
@@ -420,36 +387,21 @@ public abstract class Module
         public void SendValue<T>(T value) where T : struct => oscClient.SendValue(address, value);
     }
 
-    protected class OutputParameter : IEnumerable<OscAddress>
-    {
-        private readonly List<OscAddress> addresses = new();
-
-        public OutputParameter(OscClient oscClient, IEnumerable<string> addressesStr)
-        {
-            addressesStr.ForEach(address => addresses.Add(new OscAddress(oscClient, address)));
-        }
-
-        public IEnumerator<OscAddress> GetEnumerator() => addresses.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    }
-
     protected OutputParameter GetOutputParameter(Enum lookup)
     {
-        var addresses = OutputParameters[lookup.ToString().ToLowerInvariant()];
+        if (!Parameters.ContainsKey(lookup)) throw new InvalidOperationException($"Parameter {lookup.ToString()} has not been defined");
 
-        return addresses switch
-        {
-            ModuleAttributeSingle address => new OutputParameter(OscClient, new List<string>() { address.Attribute.Value.ToString()! }),
-            ModuleAttributeList addressList => new OutputParameter(OscClient, addressList.GetValueList<string>()),
-            _ => throw new InvalidCastException($"Unable to parse {nameof(ModuleAttribute)}")
-        };
+        var data = Parameters[lookup];
+        if (!data.Mode.HasFlagFast(ParameterMode.Write)) throw new InvalidOperationException("Cannot send a value to a read-only parameter");
+
+        return new OutputParameter(OscClient, data.FormattedAddress);
     }
 
     protected void SendParameter<T>(Enum lookup, T value) where T : struct
     {
         if (State.Value == ModuleState.Stopped) return;
 
-        GetOutputParameter(lookup).ForEach(address => address.SendValue(value));
+        GetOutputParameter(lookup).SendValue(value);
     }
 
     #endregion
@@ -474,10 +426,6 @@ public abstract class Module
 
                         case "#Settings":
                             performSettingsLoad(reader);
-                            break;
-
-                        case "#OutputParameters":
-                            performOutputParametersLoad(reader);
                             break;
                     }
                 }
@@ -595,46 +543,12 @@ public abstract class Module
         }
     }
 
-    private void performOutputParametersLoad(TextReader reader)
-    {
-        while (reader.ReadLine() is { } line)
-        {
-            if (line.Equals("#End")) break;
-
-            var lineSplitLookupValue = line.Split(new[] { '=' }, 2);
-            var lookupStr = lineSplitLookupValue[0];
-            var value = lineSplitLookupValue[1];
-
-            var lookup = lookupStr;
-            if (lookupStr.Contains('#')) lookup = lookupStr.Split(new[] { '#' }, 2)[0];
-
-            if (!OutputParameters.ContainsKey(lookup)) continue;
-
-            var parameter = OutputParameters[lookup];
-
-            switch (parameter)
-            {
-                case ModuleAttributeSingle parameterSingle:
-                    parameterSingle.Attribute.Value = value;
-                    break;
-
-                case ModuleAttributeList parameterList:
-                {
-                    var index = int.Parse(lookupStr.Split(new[] { '#' }, 2)[1]);
-                    parameterList.AddAt(index, new Bindable<object>(value));
-                    break;
-                }
-            }
-        }
-    }
-
     private void executeAfterLoad()
     {
         performSave();
 
         Enabled.BindValueChanged(_ => performSave());
         Settings.Values.ForEach(handleAttributeBind);
-        OutputParameters.Values.ForEach(handleAttributeBind);
     }
 
     private void handleAttributeBind(ModuleAttribute value)
@@ -676,7 +590,6 @@ public abstract class Module
 
         performInternalSettingsSave(writer);
         performSettingsSave(writer);
-        performOutputParametersSave(writer);
     }
 
     private void performInternalSettingsSave(TextWriter writer)
@@ -730,43 +643,6 @@ public abstract class Module
                     for (int i = 0; i < values.Count; i++)
                     {
                         writer.WriteLine(@"{0}#{1}:{2}={3}", lookup, i, readableTypeName, values[i].Value);
-                    }
-
-                    break;
-                }
-            }
-        }
-
-        writer.WriteLine(@"#End");
-    }
-
-    private void performOutputParametersSave(TextWriter writer)
-    {
-        var areAllDefault = OutputParameters.All(pair => pair.Value.IsDefault());
-        if (areAllDefault) return;
-
-        writer.WriteLine(@"#OutputParameters");
-
-        foreach (var (lookup, moduleAttributeData) in OutputParameters)
-        {
-            if (moduleAttributeData.IsDefault()) continue;
-
-            switch (moduleAttributeData)
-            {
-                case ModuleAttributeSingle moduleAttributeSingle:
-                {
-                    var value = moduleAttributeSingle.Attribute.Value;
-                    writer.WriteLine(@"{0}={1}", lookup, value);
-                    break;
-                }
-
-                case ModuleAttributeList moduleAttributeList:
-                {
-                    var values = moduleAttributeList.AttributeList.ToList();
-
-                    for (int i = 0; i < values.Count; i++)
-                    {
-                        writer.WriteLine(@"{0}#{1}={2}", lookup, i, values[i].Value);
                     }
 
                     break;

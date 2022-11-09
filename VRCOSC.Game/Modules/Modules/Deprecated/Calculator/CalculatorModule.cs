@@ -20,26 +20,26 @@ public sealed class CalculatorModule : IntegrationModule
 
     protected override void CreateAttributes()
     {
-        CreateOutgoingParameter(CalculatorOutgoingParameter.CalculatorResult, "Result Value", "The current result of the calculator", "/avatar/parameters/CalculatorResult");
+        CreateParameter<float>(CalculatorParameter.CalculatorResult, ParameterMode.Write, "CalculatorResult", "The current result of the calculator");
 
-        RegisterButtonInput(CalculatorIncomingParameter.CalculatorOpen);
-        RegisterButtonInput(CalculatorIncomingParameter.CalculatorClose);
-        RegisterButtonInput(CalculatorIncomingParameter.CalculatorClear);
-        RegisterButtonInput(CalculatorIncomingParameter.CalculatorCalculate);
-        RegisterButtonInput(CalculatorIncomingParameter.CalculatorCopyValue);
-        RegisterButtonInput(CalculatorIncomingParameter.CalculatorAdd);
-        RegisterButtonInput(CalculatorIncomingParameter.CalculatorSubtract);
-        RegisterButtonInput(CalculatorIncomingParameter.CalculatorMultiply);
-        RegisterButtonInput(CalculatorIncomingParameter.CalculatorDivide);
-        RegisterRadialInput(CalculatorIncomingParameter.CalculatorNumber);
+        // RegisterButtonInput(CalculatorParameter.CalculatorOpen);
+        // RegisterButtonInput(CalculatorParameter.CalculatorClose);
+        // RegisterButtonInput(CalculatorParameter.CalculatorClear);
+        // RegisterButtonInput(CalculatorParameter.CalculatorCalculate);
+        // RegisterButtonInput(CalculatorParameter.CalculatorCopyValue);
+        // RegisterButtonInput(CalculatorParameter.CalculatorAdd);
+        // RegisterButtonInput(CalculatorParameter.CalculatorSubtract);
+        // RegisterButtonInput(CalculatorParameter.CalculatorMultiply);
+        // RegisterButtonInput(CalculatorParameter.CalculatorDivide);
+        // RegisterRadialInput(CalculatorParameter.CalculatorNumber);
 
-        RegisterKeyCombination(CalculatorIncomingParameter.CalculatorClear, WindowsVKey.VK_ESCAPE);
-        RegisterKeyCombination(CalculatorIncomingParameter.CalculatorCalculate, WindowsVKey.VK_RETURN);
-        RegisterKeyCombination(CalculatorIncomingParameter.CalculatorCopyValue, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_C);
-        RegisterKeyCombination(CalculatorIncomingParameter.CalculatorAdd, WindowsVKey.VK_ADD);
-        RegisterKeyCombination(CalculatorIncomingParameter.CalculatorSubtract, WindowsVKey.VK_SUBTRACT);
-        RegisterKeyCombination(CalculatorIncomingParameter.CalculatorMultiply, WindowsVKey.VK_MULTIPLY);
-        RegisterKeyCombination(CalculatorIncomingParameter.CalculatorDivide, WindowsVKey.VK_DIVIDE);
+        RegisterKeyCombination(CalculatorParameter.CalculatorClear, WindowsVKey.VK_ESCAPE);
+        RegisterKeyCombination(CalculatorParameter.CalculatorCalculate, WindowsVKey.VK_RETURN);
+        RegisterKeyCombination(CalculatorParameter.CalculatorCopyValue, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_C);
+        RegisterKeyCombination(CalculatorParameter.CalculatorAdd, WindowsVKey.VK_ADD);
+        RegisterKeyCombination(CalculatorParameter.CalculatorSubtract, WindowsVKey.VK_SUBTRACT);
+        RegisterKeyCombination(CalculatorParameter.CalculatorMultiply, WindowsVKey.VK_MULTIPLY);
+        RegisterKeyCombination(CalculatorParameter.CalculatorDivide, WindowsVKey.VK_DIVIDE);
         RegisterKeyCombination(CalculatorNumbers.CalculatorNumber0, WindowsVKey.VK_NUMPAD0);
         RegisterKeyCombination(CalculatorNumbers.CalculatorNumber1, WindowsVKey.VK_NUMPAD1);
         RegisterKeyCombination(CalculatorNumbers.CalculatorNumber2, WindowsVKey.VK_NUMPAD2);
@@ -63,17 +63,17 @@ public sealed class CalculatorModule : IntegrationModule
     {
         switch (key)
         {
-            case CalculatorIncomingParameter.CalculatorOpen:
+            case CalculatorParameter.CalculatorOpen:
                 if (!isCalculatorOpen) StartTarget();
                 isCalculatorOpen = true;
                 break;
 
-            case CalculatorIncomingParameter.CalculatorClose:
+            case CalculatorParameter.CalculatorClose:
                 if (isCalculatorOpen) StopTarget();
                 isCalculatorOpen = false;
                 break;
 
-            case CalculatorIncomingParameter.CalculatorCopyValue:
+            case CalculatorParameter.CalculatorCopyValue:
                 sendResult();
                 break;
         }
@@ -83,7 +83,7 @@ public sealed class CalculatorModule : IntegrationModule
 
     protected override void OnFloatParameterReceived(Enum key, float value)
     {
-        if (!key.Equals(CalculatorIncomingParameter.CalculatorNumber) || !isCalculatorOpen) return;
+        if (!key.Equals(CalculatorParameter.CalculatorNumber) || !isCalculatorOpen) return;
 
         var number = (int)Math.Round(value * 9);
         ExecuteKeyCombination((CalculatorNumbers)number);
@@ -103,9 +103,9 @@ public sealed class CalculatorModule : IntegrationModule
 
     private void sendResult()
     {
-        ExecuteKeyCombination(CalculatorIncomingParameter.CalculatorCopyValue);
+        ExecuteKeyCombination(CalculatorParameter.CalculatorCopyValue);
         calculatorResult = returnClipboardValue();
-        SendParameter(CalculatorOutgoingParameter.CalculatorResult, calculatorResult);
+        SendParameter(CalculatorParameter.CalculatorResult, calculatorResult);
     }
 
     private enum CalculatorNumbers
@@ -122,7 +122,7 @@ public sealed class CalculatorModule : IntegrationModule
         CalculatorNumber9
     }
 
-    private enum CalculatorIncomingParameter
+    private enum CalculatorParameter
     {
         CalculatorOpen,
         CalculatorClose,
@@ -133,11 +133,7 @@ public sealed class CalculatorModule : IntegrationModule
         CalculatorSubtract,
         CalculatorMultiply,
         CalculatorDivide,
-        CalculatorNumber
-    }
-
-    private enum CalculatorOutgoingParameter
-    {
+        CalculatorNumber,
         CalculatorResult
     }
 }

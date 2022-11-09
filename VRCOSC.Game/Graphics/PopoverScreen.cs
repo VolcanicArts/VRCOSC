@@ -12,14 +12,15 @@ namespace VRCOSC.Game.Graphics;
 
 public abstract class PopoverScreen : VisibilityContainer
 {
-    private const int transition_time = 1000;
+    private const int transition_time = 500;
 
     protected override Container<Drawable> Content { get; }
 
     protected PopoverScreen()
     {
         State.Value = Visibility.Hidden;
-
+        Anchor = Anchor.Centre;
+        Origin = Anchor.Centre;
         RelativeSizeAxes = Axes.Both;
         RelativePositionAxes = Axes.X;
         Padding = new MarginPadding(40);
@@ -55,8 +56,17 @@ public abstract class PopoverScreen : VisibilityContainer
         };
     }
 
-    protected override void PopIn() => this.MoveToX(0, transition_time, Easing.OutQuint);
-    protected override void PopOut() => this.MoveToX(1, transition_time, Easing.InQuint);
+    protected override void PopIn()
+    {
+        this.ScaleTo(0.9f).Then().ScaleTo(1.0f, transition_time, Easing.OutQuint);
+        this.FadeInFromZero(transition_time, Easing.OutQuint);
+    }
+
+    protected override void PopOut()
+    {
+        this.ScaleTo(1.0f).Then().ScaleTo(0.9f, transition_time, Easing.InQuint);
+        this.FadeOutFromOne(transition_time, Easing.InQuint);
+    }
 
     protected override bool OnMouseDown(MouseDownEvent e) => true;
     protected override bool OnClick(ClickEvent e) => true;

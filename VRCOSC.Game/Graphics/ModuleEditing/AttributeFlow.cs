@@ -6,7 +6,6 @@ using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Sprites;
 using osuTK;
 using VRCOSC.Game.Graphics.ModuleEditing.Attributes;
 using VRCOSC.Game.Graphics.ModuleEditing.Attributes.Dropdown;
@@ -23,7 +22,7 @@ public sealed class AttributeFlow : FillFlowContainer<AttributeCard>
 
     protected override FillFlowContainer<AttributeCard> Content { get; }
 
-    public AttributeFlow(string title)
+    public AttributeFlow()
     {
         Anchor = Anchor.TopCentre;
         Origin = Anchor.TopCentre;
@@ -35,13 +34,6 @@ public sealed class AttributeFlow : FillFlowContainer<AttributeCard>
 
         InternalChildren = new Drawable[]
         {
-            new SpriteText
-            {
-                Anchor = Anchor.TopCentre,
-                Origin = Anchor.TopCentre,
-                Font = FrameworkFont.Regular.With(size: 50),
-                Text = title
-            },
             Content = new FillFlowContainer<AttributeCard>
             {
                 Anchor = Anchor.TopCentre,

@@ -38,8 +38,11 @@ public abstract class VRCOSCGame : VRCOSCGameBase
     [Cached]
     private BindableBool ModulesRunning = new();
 
-    [Cached]
+    [Cached(name: "EditingModule")]
     private Bindable<Module?> EditingModule = new();
+
+    [Cached(name: "InfoModule")]
+    private IBindable<Module?> InfoModule = new Bindable<Module?>();
 
     [BackgroundDependencyLoader]
     private void load()

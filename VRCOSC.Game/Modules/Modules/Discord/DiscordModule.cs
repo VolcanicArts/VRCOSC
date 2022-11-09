@@ -17,11 +17,11 @@ public sealed class DiscordModule : IntegrationModule
 
     protected override void CreateAttributes()
     {
-        RegisterButtonInput(DiscordIncomingParameter.Mic, "VRCOSC/Discord/Mic");
-        RegisterButtonInput(DiscordIncomingParameter.Deafen, "VRCOSC/Discord/Deafen");
+        CreateParameter<bool>(DiscordParameter.Mic, ParameterMode.Read, "VRCOSC/Discord/Mic", "Becomes true to toggle the mic", ActionMenu.Button);
+        CreateParameter<bool>(DiscordParameter.Deafen, ParameterMode.Read, "VRCOSC/Discord/Deafen", "Becomes true to toggle deafen", ActionMenu.Button);
 
-        RegisterKeyCombination(DiscordIncomingParameter.Mic, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_LSHIFT, WindowsVKey.VK_M);
-        RegisterKeyCombination(DiscordIncomingParameter.Deafen, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_LSHIFT, WindowsVKey.VK_D);
+        RegisterKeyCombination(DiscordParameter.Mic, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_LSHIFT, WindowsVKey.VK_M);
+        RegisterKeyCombination(DiscordParameter.Deafen, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_LSHIFT, WindowsVKey.VK_D);
     }
 
     protected override void OnButtonPressed(Enum key)
@@ -29,7 +29,7 @@ public sealed class DiscordModule : IntegrationModule
         ExecuteKeyCombination(key);
     }
 
-    private enum DiscordIncomingParameter
+    private enum DiscordParameter
     {
         Mic,
         Deafen

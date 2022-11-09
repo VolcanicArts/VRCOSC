@@ -32,19 +32,13 @@ public sealed class MediaModule : Module
         CreateSetting(MediaSetting.LaunchList, "Launch List", "What programs to launch on module start", new[] { $@"C:\Users\{Environment.UserName}\AppData\Roaming\Spotify\spotify.exe" });
         CreateSetting(MediaSetting.Exclusions, "Program Exclusions", "Which programs should be ignored if they try to take control of media? I.E, Chrome, Spotify, etc...", new[] { "chrome" });
 
-        CreateOutgoingParameter(MediaOutgoingParameter.Repeat, "Repeat Mode", "The repeat mode of the current controller", "/avatar/parameters/VRCOSC/Media/Repeat");
-        CreateOutgoingParameter(MediaOutgoingParameter.Shuffle, "Shuffle", "Whether shuffle is enabled in the current controller", "/avatar/parameters/VRCOSC/Media/Shuffle");
-        CreateOutgoingParameter(MediaOutgoingParameter.Play, "Play", "Whether the song is currently playing or not", "/avatar/parameters/VRCOSC/Media/Play");
-        CreateOutgoingParameter(MediaOutgoingParameter.Volume, "Volume", "The volume of the process that is controlling the media", "/avatar/parameters/VRCOSC/Media/Volume");
-        CreateOutgoingParameter(MediaOutgoingParameter.Muted, "Mute", "Whether the volume of the process that is controlling the media is muted", "/avatar/parameters/VRCOSC/Media/Muted");
-
-        RegisterButtonInput(MediaIncomingParameter.Next, "VRCOSC/Media/Next");
-        RegisterButtonInput(MediaIncomingParameter.Previous, "VRCOSC/Media/Previous");
-        RegisterRadialInput(MediaIncomingParameter.Volume, "VRCOSC/Media/Volume");
-        RegisterIncomingParameter<bool>(MediaIncomingParameter.Play, "VRCOSC/Media/Play");
-        RegisterIncomingParameter<int>(MediaIncomingParameter.Repeat, "VRCOSC/Media/Repeat");
-        RegisterIncomingParameter<bool>(MediaIncomingParameter.Shuffle, "VRCOSC/Media/Shuffle");
-        RegisterIncomingParameter<bool>(MediaIncomingParameter.Muted, "VRCOSC/Media/Muted");
+        CreateParameter<bool>(MediaParameter.Play, ParameterMode.ReadWrite, "VRCOSC/Media/Play", "True for playing. False for paused");
+        CreateParameter<float>(MediaParameter.Volume, ParameterMode.ReadWrite, "VRCOSC/Media/Volume", "The volume of the process that is controlling the media", ActionMenu.Radial);
+        CreateParameter<bool>(MediaParameter.Muted, ParameterMode.ReadWrite, "VRCOSC/Media/Muted", "True to mute. False to unmute");
+        CreateParameter<int>(MediaParameter.Repeat, ParameterMode.ReadWrite, "VRCOSC/Media/Repeat", "0 for disabled. 1 for single. 2 for list");
+        CreateParameter<bool>(MediaParameter.Shuffle, ParameterMode.ReadWrite, "VRCOSC/Media/Shuffle", "True for enabled. False for disabled");
+        CreateParameter<bool>(MediaParameter.Next, ParameterMode.Read, "VRCOSC/Media/Next", "Becoming true causes the next track to play", ActionMenu.Button);
+        CreateParameter<bool>(MediaParameter.Previous, ParameterMode.Read, "VRCOSC/Media/Previous", "Becoming true causes the previous track to play", ActionMenu.Button);
     }
 
     protected override void OnStart()
@@ -89,12 +83,12 @@ public sealed class MediaModule : Module
         if (GetSetting<bool>(MediaSetting.ContinuousShow)) display();
     }
 
-    protected override void OnRadialPuppetChange(Enum key, VRChatRadialPuppet radialData)
+    protected override void OnRadialPuppetChange(Enum key, float value)
     {
         switch (key)
         {
-            case MediaIncomingParameter.Volume:
-                mediaProvider.SetVolume(radialData.Value);
+            case MediaParameter.Volume:
+                mediaProvider.SetVolume(value);
                 break;
         }
     }
@@ -103,7 +97,7 @@ public sealed class MediaModule : Module
     {
         switch (key)
         {
-            case MediaIncomingParameter.Play:
+            case MediaParameter.Play:
                 if (value)
                     mediaProvider.Controller?.TryPlayAsync();
                 else
@@ -111,11 +105,11 @@ public sealed class MediaModule : Module
 
                 break;
 
-            case MediaIncomingParameter.Shuffle:
+            case MediaParameter.Shuffle:
                 mediaProvider.Controller?.TryChangeShuffleActiveAsync(value);
                 break;
 
-            case MediaIncomingParameter.Muted:
+            case MediaParameter.Muted:
                 mediaProvider.SetMuted(value);
                 break;
         }
@@ -125,7 +119,7 @@ public sealed class MediaModule : Module
     {
         switch (key)
         {
-            case MediaIncomingParameter.Repeat:
+            case MediaParameter.Repeat:
                 mediaProvider.Controller?.TryChangeAutoRepeatModeAsync((MediaPlaybackAutoRepeatMode)value);
                 break;
         }
@@ -135,11 +129,11 @@ public sealed class MediaModule : Module
     {
         switch (key)
         {
-            case MediaIncomingParameter.Next:
+            case MediaParameter.Next:
                 mediaProvider.Controller?.TrySkipNextAsync();
                 break;
 
-            case MediaIncomingParameter.Previous:
+            case MediaParameter.Previous:
                 mediaProvider.Controller?.TrySkipPreviousAsync();
                 break;
 
@@ -165,15 +159,15 @@ public sealed class MediaModule : Module
 
     private void sendMediaParameters()
     {
-        SendParameter(MediaOutgoingParameter.Play, mediaProvider.State.IsPlaying);
-        SendParameter(MediaOutgoingParameter.Shuffle, mediaProvider.State.IsShuffle);
-        SendParameter(MediaOutgoingParameter.Repeat, (int)mediaProvider.State.RepeatMode);
+        SendParameter(MediaParameter.Play, mediaProvider.State.IsPlaying);
+        SendParameter(MediaParameter.Shuffle, mediaProvider.State.IsShuffle);
+        SendParameter(MediaParameter.Repeat, (int)mediaProvider.State.RepeatMode);
     }
 
     private void sendVolumeParameters()
     {
-        SendParameter(MediaOutgoingParameter.Volume, mediaProvider.GetVolume());
-        SendParameter(MediaOutgoingParameter.Muted, mediaProvider.IsMuted());
+        SendParameter(MediaParameter.Volume, mediaProvider.GetVolume());
+        SendParameter(MediaParameter.Muted, mediaProvider.IsMuted());
     }
 
     private void display()
@@ -208,7 +202,7 @@ public sealed class MediaModule : Module
         Exclusions
     }
 
-    private enum MediaIncomingParameter
+    private enum MediaParameter
     {
         Play,
         Next,
@@ -217,14 +211,5 @@ public sealed class MediaModule : Module
         Repeat,
         Volume,
         Muted,
-    }
-
-    private enum MediaOutgoingParameter
-    {
-        Play,
-        Shuffle,
-        Repeat,
-        Volume,
-        Muted
     }
 }

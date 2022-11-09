@@ -25,14 +25,14 @@ public sealed class HardwareStatsModule : Module
         CreateSetting(HardwareStatsSetting.UseChatBox, "Use ChatBox", "Should values be displayed in the ChatBox?", true);
         CreateSetting(HardwareStatsSetting.ChatBoxFormat, "ChatBox Format", format_description, "CPU: $cpuusage$% | GPU: $gpuusage$% | RAM: $ramusage$%");
 
-        CreateOutgoingParameter(HardwareStatsOutgoingParameter.CpuUsage, "CPU Usage", "The CPU usage normalised", "/avatar/parameters/VRCOSC/Hardware/CPUUsage");
-        CreateOutgoingParameter(HardwareStatsOutgoingParameter.GpuUsage, "GPU Usage", "The GPU usage normalised", "/avatar/parameters/VRCOSC/Hardware/GPUUsage");
-        CreateOutgoingParameter(HardwareStatsOutgoingParameter.RamUsage, "RAM Usage", "The RAM usage normalised", "/avatar/parameters/VRCOSC/Hardware/RAMUsage");
-        CreateOutgoingParameter(HardwareStatsOutgoingParameter.CpuTemp, "CPU Temp", "The CPU temp in C", "/avatar/parameters/VRCOSC/Hardware/CPUTemp");
-        CreateOutgoingParameter(HardwareStatsOutgoingParameter.GpuTemp, "GPU Temp", "The GPU temp in C ", "/avatar/parameters/VRCOSC/Hardware/GPUTemp");
-        CreateOutgoingParameter(HardwareStatsOutgoingParameter.RamTotal, "RAM Total", "The total amount of RAM in GB", "/avatar/parameters/VRCOSC/Hardware/RAMTotal");
-        CreateOutgoingParameter(HardwareStatsOutgoingParameter.RamUsed, "RAM Used", "The used RAM in GB", "/avatar/parameters/VRCOSC/Hardware/RAMUsed");
-        CreateOutgoingParameter(HardwareStatsOutgoingParameter.RamAvailable, "RAM Available", "The available RAM in GB", "/avatar/parameters/VRCOSC/Hardware/RAMAvailable");
+        CreateParameter<float>(HardwareStatsParameter.CpuUsage, ParameterMode.Write, "VRCOSC/Hardware/CPUUsage", "The CPU usage normalised");
+        CreateParameter<float>(HardwareStatsParameter.GpuUsage, ParameterMode.Write, "VRCOSC/Hardware/GPUUsage", "The GPU usage normalised");
+        CreateParameter<float>(HardwareStatsParameter.RamUsage, ParameterMode.Write, "VRCOSC/Hardware/RAMUsage", "The RAM usage normalised");
+        CreateParameter<int>(HardwareStatsParameter.CpuTemp, ParameterMode.Write, "VRCOSC/Hardware/CPUTemp", "The CPU temp in C");
+        CreateParameter<int>(HardwareStatsParameter.GpuTemp, ParameterMode.Write, "VRCOSC/Hardware/GPUTemp", "The GPU temp in C ");
+        CreateParameter<int>(HardwareStatsParameter.RamTotal, ParameterMode.Write, "VRCOSC/Hardware/RAMTotal", "The total amount of RAM in GB");
+        CreateParameter<int>(HardwareStatsParameter.RamUsed, ParameterMode.Write, "VRCOSC/Hardware/RAMUsed", "The used RAM in GB");
+        CreateParameter<int>(HardwareStatsParameter.RamAvailable, ParameterMode.Write, "VRCOSC/Hardware/RAMAvailable", "The available RAM in GB");
     }
 
     protected override void OnStart()
@@ -49,14 +49,14 @@ public sealed class HardwareStatsModule : Module
 
         hardwareStatsProvider.Update();
 
-        SendParameter(HardwareStatsOutgoingParameter.CpuUsage, hardwareStatsProvider.CpuUsage / 100f);
-        SendParameter(HardwareStatsOutgoingParameter.GpuUsage, hardwareStatsProvider.GpuUsage / 100f);
-        SendParameter(HardwareStatsOutgoingParameter.RamUsage, hardwareStatsProvider.RamUsage / 100f);
-        SendParameter(HardwareStatsOutgoingParameter.CpuTemp, hardwareStatsProvider.CpuTemp);
-        SendParameter(HardwareStatsOutgoingParameter.GpuTemp, hardwareStatsProvider.GpuTemp);
-        SendParameter(HardwareStatsOutgoingParameter.RamTotal, hardwareStatsProvider.RamTotal);
-        SendParameter(HardwareStatsOutgoingParameter.RamUsed, hardwareStatsProvider.RamUsed);
-        SendParameter(HardwareStatsOutgoingParameter.RamAvailable, hardwareStatsProvider.RamAvailable);
+        SendParameter(HardwareStatsParameter.CpuUsage, hardwareStatsProvider.CpuUsage / 100f);
+        SendParameter(HardwareStatsParameter.GpuUsage, hardwareStatsProvider.GpuUsage / 100f);
+        SendParameter(HardwareStatsParameter.RamUsage, hardwareStatsProvider.RamUsage / 100f);
+        SendParameter(HardwareStatsParameter.CpuTemp, hardwareStatsProvider.CpuTemp);
+        SendParameter(HardwareStatsParameter.GpuTemp, hardwareStatsProvider.GpuTemp);
+        SendParameter(HardwareStatsParameter.RamTotal, hardwareStatsProvider.RamTotal);
+        SendParameter(HardwareStatsParameter.RamUsed, hardwareStatsProvider.RamUsed);
+        SendParameter(HardwareStatsParameter.RamAvailable, hardwareStatsProvider.RamAvailable);
 
         if (GetSetting<bool>(HardwareStatsSetting.UseChatBox)) updateChatBox();
     }
@@ -82,7 +82,7 @@ public sealed class HardwareStatsModule : Module
         ClearChatBox();
     }
 
-    private enum HardwareStatsOutgoingParameter
+    private enum HardwareStatsParameter
     {
         CpuUsage,
         GpuUsage,

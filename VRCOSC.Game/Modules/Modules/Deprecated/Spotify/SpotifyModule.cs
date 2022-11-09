@@ -29,17 +29,17 @@ public sealed class SpotifyModule : IntegrationModule
         CreateSetting(SpotifySetting.TitleFormat, "Title Format", "How displaying the title should be formatted.\nAvailable values: %title%, %author%.", "Now Playing: %author% - %title%");
         CreateSetting(SpotifySetting.InstallLocation, "Install Location", "The location of your spotify.exe file", $@"C:\Users\{Environment.UserName}\AppData\Roaming\Spotify\spotify.exe");
 
-        RegisterButtonInput(SpotifyIncomingParameter.PlayPause, "VRCOSC/Spotify/PlayPause");
-        RegisterButtonInput(SpotifyIncomingParameter.Next, "VRCOSC/Spotify/Next");
-        RegisterButtonInput(SpotifyIncomingParameter.Previous, "VRCOSC/Spotify/Previous");
-        RegisterButtonInput(SpotifyIncomingParameter.VolumeUp, "VRCOSC/Spotify/VolumeUp");
-        RegisterButtonInput(SpotifyIncomingParameter.VolumeDown, "VRCOSC/Spotify/VolumeDown");
+        CreateParameter<bool>(SpotifyParameter.PlayPause, ParameterMode.Read, "VRCOSC/Spotify/PlayPause", "True/False for Play/Pause", ActionMenu.Button);
+        CreateParameter<bool>(SpotifyParameter.Next, ParameterMode.Read, "VRCOSC/Spotify/Next", "Becomes true to go forward to the next song", ActionMenu.Button);
+        CreateParameter<bool>(SpotifyParameter.Previous, ParameterMode.Read, "VRCOSC/Spotify/Previous", "Becomes true to go back to the previous song", ActionMenu.Button);
+        CreateParameter<bool>(SpotifyParameter.VolumeUp, ParameterMode.Read, "VRCOSC/Spotify/VolumeUp", "Becomes true to increase the volume", ActionMenu.Button);
+        CreateParameter<bool>(SpotifyParameter.VolumeDown, ParameterMode.Read, "VRCOSC/Spotify/VolumeDown", "Becomes true to decrease the volume", ActionMenu.Button);
 
-        RegisterKeyCombination(SpotifyIncomingParameter.PlayPause, WindowsVKey.VK_SPACE);
-        RegisterKeyCombination(SpotifyIncomingParameter.Next, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_RIGHT);
-        RegisterKeyCombination(SpotifyIncomingParameter.Previous, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_LEFT);
-        RegisterKeyCombination(SpotifyIncomingParameter.VolumeUp, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_UP);
-        RegisterKeyCombination(SpotifyIncomingParameter.VolumeDown, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_DOWN);
+        RegisterKeyCombination(SpotifyParameter.PlayPause, WindowsVKey.VK_SPACE);
+        RegisterKeyCombination(SpotifyParameter.Next, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_RIGHT);
+        RegisterKeyCombination(SpotifyParameter.Previous, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_LEFT);
+        RegisterKeyCombination(SpotifyParameter.VolumeUp, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_UP);
+        RegisterKeyCombination(SpotifyParameter.VolumeDown, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_DOWN);
     }
 
     protected override void OnStart()
@@ -107,7 +107,7 @@ public sealed class SpotifyModule : IntegrationModule
         TitleFormat
     }
 
-    private enum SpotifyIncomingParameter
+    private enum SpotifyParameter
     {
         PlayPause,
         Next,
