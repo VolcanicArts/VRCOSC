@@ -110,7 +110,14 @@ public abstract class Module
         => addTextAndButtonSetting(lookup, displayName, description, defaultValue, buttonText, buttonAction);
 
     protected void CreateParameter<T>(Enum lookup, ParameterMode mode, string parameterName, string description, ActionMenu menuLink = ActionMenu.None)
-        => Parameters.Add(lookup, new ParameterMetadata(mode, parameterName, description, typeof(T), menuLink));
+    {
+        if (!mode.HasFlagFast(ParameterMode.Read) && menuLink != ActionMenu.None)
+        {
+            throw new InvalidOperationException("Cannot set an action menu link on a write-only parameter");
+        }
+
+        Parameters.Add(lookup, new ParameterMetadata(mode, parameterName, description, typeof(T), menuLink));
+    }
 
     private void addSingleSetting(Enum lookup, string displayName, string description, object defaultValue)
     {
