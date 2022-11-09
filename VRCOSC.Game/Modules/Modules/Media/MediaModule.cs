@@ -32,19 +32,19 @@ public sealed class MediaModule : Module
         CreateSetting(MediaSetting.LaunchList, "Launch List", "What programs to launch on module start", new[] { $@"C:\Users\{Environment.UserName}\AppData\Roaming\Spotify\spotify.exe" });
         CreateSetting(MediaSetting.Exclusions, "Program Exclusions", "Which programs should be ignored if they try to take control of media? I.E, Chrome, Spotify, etc...", new[] { "chrome" });
 
-        CreateOutgoingParameter(MediaOutgoingParameter.Repeat, "Repeat Mode", "The repeat mode of the current controller", "/avatar/parameters/VRCOSC/Media/Repeat");
-        CreateOutgoingParameter(MediaOutgoingParameter.Shuffle, "Shuffle", "Whether shuffle is enabled in the current controller", "/avatar/parameters/VRCOSC/Media/Shuffle");
-        CreateOutgoingParameter(MediaOutgoingParameter.Play, "Play", "Whether the song is currently playing or not", "/avatar/parameters/VRCOSC/Media/Play");
-        CreateOutgoingParameter(MediaOutgoingParameter.Volume, "Volume", "The volume of the process that is controlling the media", "/avatar/parameters/VRCOSC/Media/Volume");
-        CreateOutgoingParameter(MediaOutgoingParameter.Muted, "Mute", "Whether the volume of the process that is controlling the media is muted", "/avatar/parameters/VRCOSC/Media/Muted");
+        CreateOutgoingParameter<bool>(MediaOutgoingParameter.Play, "Whether the song is currently playing or not", "VRCOSC/Media/Play");
+        CreateOutgoingParameter<float>(MediaOutgoingParameter.Volume, "The volume of the process that is controlling the media", "VRCOSC/Media/Volume");
+        CreateOutgoingParameter<bool>(MediaOutgoingParameter.Muted, "Whether the volume of the process that is controlling the media is muted", "VRCOSC/Media/Muted");
+        CreateOutgoingParameter<int>(MediaOutgoingParameter.Repeat, "The repeat mode of the current controller", "VRCOSC/Media/Repeat");
+        CreateOutgoingParameter<bool>(MediaOutgoingParameter.Shuffle, "Whether shuffle is enabled in the current controller", "VRCOSC/Media/Shuffle");
 
-        RegisterButtonInput(MediaIncomingParameter.Next, "VRCOSC/Media/Next");
-        RegisterButtonInput(MediaIncomingParameter.Previous, "VRCOSC/Media/Previous");
-        RegisterRadialInput(MediaIncomingParameter.Volume, "VRCOSC/Media/Volume");
-        RegisterIncomingParameter<bool>(MediaIncomingParameter.Play, "VRCOSC/Media/Play");
-        RegisterIncomingParameter<int>(MediaIncomingParameter.Repeat, "VRCOSC/Media/Repeat");
-        RegisterIncomingParameter<bool>(MediaIncomingParameter.Shuffle, "VRCOSC/Media/Shuffle");
-        RegisterIncomingParameter<bool>(MediaIncomingParameter.Muted, "VRCOSC/Media/Muted");
+        RegisterIncomingParameter<bool>(MediaIncomingParameter.Play, "Is true for playing, false for paused", "VRCOSC/Media/Play");
+        RegisterButtonInput(MediaIncomingParameter.Next, "Becoming true causes the next track to play", "VRCOSC/Media/Next");
+        RegisterButtonInput(MediaIncomingParameter.Previous, "Becoming true causes the previous track to play", "VRCOSC/Media/Previous");
+        RegisterRadialInput(MediaIncomingParameter.Volume, "Controls the volume of the media", "VRCOSC/Media/Volume");
+        RegisterIncomingParameter<bool>(MediaIncomingParameter.Muted, "True to mute the media, false to unmute the media", "VRCOSC/Media/Muted");
+        RegisterIncomingParameter<int>(MediaIncomingParameter.Repeat, "0 for no repeat, 1 for single repeat, 2 for list repeat", "VRCOSC/Media/Repeat");
+        RegisterIncomingParameter<bool>(MediaIncomingParameter.Shuffle, "True to enable shuffle, false to disable shuffle", "VRCOSC/Media/Shuffle");
     }
 
     protected override void OnStart()
@@ -89,12 +89,12 @@ public sealed class MediaModule : Module
         if (GetSetting<bool>(MediaSetting.ContinuousShow)) display();
     }
 
-    protected override void OnRadialPuppetChange(Enum key, VRChatRadialPuppet radialData)
+    protected override void OnRadialPuppetChange(Enum key, float value)
     {
         switch (key)
         {
             case MediaIncomingParameter.Volume:
-                mediaProvider.SetVolume(radialData.Value);
+                mediaProvider.SetVolume(value);
                 break;
         }
     }

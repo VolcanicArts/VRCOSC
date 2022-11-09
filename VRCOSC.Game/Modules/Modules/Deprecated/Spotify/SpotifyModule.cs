@@ -29,11 +29,11 @@ public sealed class SpotifyModule : IntegrationModule
         CreateSetting(SpotifySetting.TitleFormat, "Title Format", "How displaying the title should be formatted.\nAvailable values: %title%, %author%.", "Now Playing: %author% - %title%");
         CreateSetting(SpotifySetting.InstallLocation, "Install Location", "The location of your spotify.exe file", $@"C:\Users\{Environment.UserName}\AppData\Roaming\Spotify\spotify.exe");
 
-        RegisterButtonInput(SpotifyIncomingParameter.PlayPause, "VRCOSC/Spotify/PlayPause");
-        RegisterButtonInput(SpotifyIncomingParameter.Next, "VRCOSC/Spotify/Next");
-        RegisterButtonInput(SpotifyIncomingParameter.Previous, "VRCOSC/Spotify/Previous");
-        RegisterButtonInput(SpotifyIncomingParameter.VolumeUp, "VRCOSC/Spotify/VolumeUp");
-        RegisterButtonInput(SpotifyIncomingParameter.VolumeDown, "VRCOSC/Spotify/VolumeDown");
+        RegisterButtonInput(SpotifyIncomingParameter.PlayPause, "True/False for Play/Pause", "VRCOSC/Spotify/PlayPause");
+        RegisterButtonInput(SpotifyIncomingParameter.Next, "Becomes true to go forward to the next song", "VRCOSC/Spotify/Next");
+        RegisterButtonInput(SpotifyIncomingParameter.Previous, "Becomes true to go back to the previous song", "VRCOSC/Spotify/Previous");
+        RegisterButtonInput(SpotifyIncomingParameter.VolumeUp, "Becomes true to increase the volume", "VRCOSC/Spotify/VolumeUp");
+        RegisterButtonInput(SpotifyIncomingParameter.VolumeDown, "Becomes true to decrease the volume", "VRCOSC/Spotify/VolumeDown");
 
         RegisterKeyCombination(SpotifyIncomingParameter.PlayPause, WindowsVKey.VK_SPACE);
         RegisterKeyCombination(SpotifyIncomingParameter.Next, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_RIGHT);

@@ -24,9 +24,9 @@ public sealed class ClockModule : Module
         CreateSetting(ClockSetting.Mode, "Mode", "If the clock should be in 12 hour or 24 hour", ClockMode.Twelve);
         CreateSetting(ClockSetting.Timezone, "Timezone", "The timezone the clock should follow", ClockTimeZone.Local);
 
-        CreateOutgoingParameter(ClockOutgoingParameter.Hours, "Hour", "The current hour normalised", "/avatar/parameters/VRCOSC/Clock/Hours");
-        CreateOutgoingParameter(ClockOutgoingParameter.Minutes, "Minute", "The current minute normalised", "/avatar/parameters/VRCOSC/Clock/Minutes");
-        CreateOutgoingParameter(ClockOutgoingParameter.Seconds, "Second", "The current second normalised", "/avatar/parameters/VRCOSC/Clock/Seconds");
+        CreateOutgoingParameter<float>(ClockOutgoingParameter.Hours, "The current hour normalised", "VRCOSC/Clock/Hours");
+        CreateOutgoingParameter<float>(ClockOutgoingParameter.Minutes, "The current minute normalised", "VRCOSC/Clock/Minutes");
+        CreateOutgoingParameter<float>(ClockOutgoingParameter.Seconds, "The current second normalised", "VRCOSC/Clock/Seconds");
     }
 
     protected override void OnUpdate()

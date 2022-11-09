@@ -25,14 +25,14 @@ public sealed class HardwareStatsModule : Module
         CreateSetting(HardwareStatsSetting.UseChatBox, "Use ChatBox", "Should values be displayed in the ChatBox?", true);
         CreateSetting(HardwareStatsSetting.ChatBoxFormat, "ChatBox Format", format_description, "CPU: $cpuusage$% | GPU: $gpuusage$% | RAM: $ramusage$%");
 
-        CreateOutgoingParameter(HardwareStatsOutgoingParameter.CpuUsage, "CPU Usage", "The CPU usage normalised", "/avatar/parameters/VRCOSC/Hardware/CPUUsage");
-        CreateOutgoingParameter(HardwareStatsOutgoingParameter.GpuUsage, "GPU Usage", "The GPU usage normalised", "/avatar/parameters/VRCOSC/Hardware/GPUUsage");
-        CreateOutgoingParameter(HardwareStatsOutgoingParameter.RamUsage, "RAM Usage", "The RAM usage normalised", "/avatar/parameters/VRCOSC/Hardware/RAMUsage");
-        CreateOutgoingParameter(HardwareStatsOutgoingParameter.CpuTemp, "CPU Temp", "The CPU temp in C", "/avatar/parameters/VRCOSC/Hardware/CPUTemp");
-        CreateOutgoingParameter(HardwareStatsOutgoingParameter.GpuTemp, "GPU Temp", "The GPU temp in C ", "/avatar/parameters/VRCOSC/Hardware/GPUTemp");
-        CreateOutgoingParameter(HardwareStatsOutgoingParameter.RamTotal, "RAM Total", "The total amount of RAM in GB", "/avatar/parameters/VRCOSC/Hardware/RAMTotal");
-        CreateOutgoingParameter(HardwareStatsOutgoingParameter.RamUsed, "RAM Used", "The used RAM in GB", "/avatar/parameters/VRCOSC/Hardware/RAMUsed");
-        CreateOutgoingParameter(HardwareStatsOutgoingParameter.RamAvailable, "RAM Available", "The available RAM in GB", "/avatar/parameters/VRCOSC/Hardware/RAMAvailable");
+        CreateOutgoingParameter<float>(HardwareStatsOutgoingParameter.CpuUsage, "The CPU usage normalised", "VRCOSC/Hardware/CPUUsage");
+        CreateOutgoingParameter<float>(HardwareStatsOutgoingParameter.GpuUsage, "The GPU usage normalised", "VRCOSC/Hardware/GPUUsage");
+        CreateOutgoingParameter<float>(HardwareStatsOutgoingParameter.RamUsage, "The RAM usage normalised", "VRCOSC/Hardware/RAMUsage");
+        CreateOutgoingParameter<int>(HardwareStatsOutgoingParameter.CpuTemp, "The CPU temp in C", "VRCOSC/Hardware/CPUTemp");
+        CreateOutgoingParameter<int>(HardwareStatsOutgoingParameter.GpuTemp, "The GPU temp in C ", "VRCOSC/Hardware/GPUTemp");
+        CreateOutgoingParameter<int>(HardwareStatsOutgoingParameter.RamTotal, "The total amount of RAM in GB", "VRCOSC/Hardware/RAMTotal");
+        CreateOutgoingParameter<int>(HardwareStatsOutgoingParameter.RamUsed, "The used RAM in GB", "VRCOSC/Hardware/RAMUsed");
+        CreateOutgoingParameter<int>(HardwareStatsOutgoingParameter.RamAvailable, "The available RAM in GB", "VRCOSC/Hardware/RAMAvailable");
     }
 
     protected override void OnStart()

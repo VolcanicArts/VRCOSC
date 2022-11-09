@@ -232,19 +232,13 @@ public class ModuleInfoPopover : PopoverScreen
         title.Text = $"{infoModule.Value!.Title} Info";
         description.Text = infoModule.Value.Description;
 
-        infoModule.Value.OutgoingParameters.ForEach(parameter =>
+        infoModule.Value.OutgoingParameters.Values.ForEach(parameter =>
         {
-            var parameterCasted = ((ModuleAttributeSingle)parameter.Value);
-            var value = parameterCasted.Attribute.Value;
-            var name = value.ToString()!.Remove(0, Module.VRChatOscPrefix.Length);
-            var description = parameterCasted.Metadata.Description;
-            var type = value.GetType().ToReadableName();
-
             outgoingParamaters.Add(new ParameterData
             {
-                Name = name,
-                Description = description,
-                Type = type
+                Name = parameter.Name,
+                Description = parameter.Description,
+                Type = parameter.ExpectedType.ToReadableName()
             });
         });
 

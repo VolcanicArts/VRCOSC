@@ -33,9 +33,9 @@ public abstract class Module
 
     public readonly BindableBool Enabled = new();
     public readonly Dictionary<string, ModuleAttribute> Settings = new();
-    public readonly Dictionary<string, ModuleAttribute> OutgoingParameters = new();
-    public readonly Dictionary<Enum, InputParameterData> InputParameters = new();
-    public readonly Dictionary<string, Enum> InputParametersMap = new();
+    public readonly Dictionary<Enum, ParameterMetadata> OutgoingParameters = new();
+    public readonly Dictionary<Enum, InputParameterMetadata> IncomingParameters = new();
+    private readonly Dictionary<string, Enum> IncomingParametersNameMap = new();
 
     public virtual string Title => string.Empty;
     public virtual string Description => string.Empty;
@@ -110,23 +110,22 @@ public abstract class Module
     protected void CreateSetting(Enum lookup, string displayName, string description, string defaultValue, string buttonText, Action buttonAction)
         => addTextAndButtonSetting(lookup, displayName, description, defaultValue, buttonText, buttonAction);
 
-    protected void CreateOutgoingParameter(Enum lookup, string displayName, string description, string defaultAddress)
-        => addSingleOutgoingParameter(lookup, displayName, description, defaultAddress);
+    protected void CreateOutgoingParameter<T>(Enum lookup, string description, string parameterName)
+        => addSingleOutgoingParameter(lookup, description, parameterName, typeof(T));
 
-    protected void RegisterIncomingParameter<T>(Enum lookup, string parameterNameOverride = "") where T : struct
-        => registerInput(lookup, parameterNameOverride, new InputParameterData(typeof(T)));
+    protected void RegisterIncomingParameter<T>(Enum lookup, string description, string parameterName) where T : struct
+        => registerInput(lookup, description, parameterName, typeof(T), ActionMenu.None);
 
-    protected void RegisterButtonInput(Enum lookup, string parameterNameOverride = "")
-        => registerInput(lookup, parameterNameOverride, new ButtonInputParameterData());
+    protected void RegisterButtonInput(Enum lookup, string description, string parameterName)
+        => registerInput(lookup, description, parameterName, typeof(bool), ActionMenu.Button);
 
-    protected void RegisterRadialInput(Enum lookup, string parameterNameOverride = "")
-        => registerInput(lookup, parameterNameOverride, new RadialInputParameterData());
+    protected void RegisterRadialInput(Enum lookup, string description, string parameterName)
+        => registerInput(lookup, description, parameterName, typeof(float), ActionMenu.Radial);
 
-    private void registerInput(Enum lookup, string parameterNameOverride, InputParameterData parameterData)
+    private void registerInput(Enum lookup, string description, string parameterName, Type type, ActionMenu menuLink)
     {
-        var parameterName = string.IsNullOrEmpty(parameterNameOverride) ? lookup.ToString() : parameterNameOverride;
-        InputParameters.Add(lookup, parameterData);
-        InputParametersMap.Add(parameterName, lookup);
+        IncomingParameters.Add(lookup, new InputParameterMetadata(parameterName, description, type, menuLink));
+        IncomingParametersNameMap.Add(parameterName, lookup);
     }
 
     private void addSingleSetting(Enum lookup, string displayName, string description, object defaultValue)
@@ -149,14 +148,9 @@ public abstract class Module
         Settings.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeSingleWithButton(new ModuleAttributeMetadata(displayName, description), defaultValue, buttonText, buttonAction));
     }
 
-    private void addSingleOutgoingParameter(Enum lookup, string displayName, string description, string defaultAddress)
+    private void addSingleOutgoingParameter(Enum lookup, string description, string parameterName, Type type)
     {
-        OutgoingParameters.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeSingle(new ModuleAttributeMetadata(displayName, description), defaultAddress));
-    }
-
-    private void addEnumerableOutgoingParameter(Enum lookup, string displayName, string description, IEnumerable<string> defaultAddresses)
-    {
-        OutgoingParameters.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeList(new ModuleAttributeMetadata(displayName, description), defaultAddresses, typeof(string)));
+        OutgoingParameters.Add(lookup, new ParameterMetadata(parameterName, description, type));
     }
 
     #endregion
@@ -215,7 +209,7 @@ public abstract class Module
     {
         var setting = Settings[lookup.ToString().ToLowerInvariant()];
 
-        object? value = null;
+        object? value;
 
         switch (setting)
         {
@@ -265,26 +259,26 @@ public abstract class Module
         var parameterName = address.Remove(0, VRChatOscPrefix.Length);
         updatePlayerState(parameterName, value);
 
-        if (!InputParametersMap.TryGetValue(parameterName, out var key)) return;
+        if (!IncomingParametersNameMap.TryGetValue(parameterName, out var key)) return;
 
-        var inputParameterData = InputParameters[key];
+        var inputParameterData = IncomingParameters[key];
 
-        if (value.GetType() != inputParameterData.Type)
+        if (value.GetType() != inputParameterData.ExpectedType)
         {
-            Log($@"Cannot accept input parameter. `{key}` expects type `{inputParameterData.Type}` but received type `{value.GetType()}`");
+            Log($@"Cannot accept input parameter. `{key}` expects type `{inputParameterData.ExpectedType}` but received type `{value.GetType()}`");
             return;
         }
 
         notifyParameterReceived(key, value, inputParameterData);
     }
 
-    private void notifyParameterReceived(Enum key, object value, InputParameterData data)
+    private void notifyParameterReceived(Enum key, object value, InputParameterMetadata data)
     {
         switch (value)
         {
             case bool boolValue:
                 OnBoolParameterReceived(key, boolValue);
-                if (data.ActionMenu == ActionMenu.Button && boolValue) OnButtonPressed(key);
+                if (data.MenuLink == ActionMenu.Button && boolValue) OnButtonPressed(key);
                 break;
 
             case int intValue:
@@ -293,14 +287,7 @@ public abstract class Module
 
             case float floatValue:
                 OnFloatParameterReceived(key, floatValue);
-
-                if (data.ActionMenu == ActionMenu.Radial)
-                {
-                    var radialData = (RadialInputParameterData)data;
-                    OnRadialPuppetChange(key, new VRChatRadialPuppet(floatValue, radialData.PreviousValue));
-                    radialData.PreviousValue = floatValue;
-                }
-
+                if (data.MenuLink == ActionMenu.Radial) OnRadialPuppetChange(key, floatValue);
                 break;
         }
     }
@@ -394,7 +381,7 @@ public abstract class Module
     protected virtual void OnIntParameterReceived(Enum key, int value) { }
     protected virtual void OnFloatParameterReceived(Enum key, float value) { }
     protected virtual void OnButtonPressed(Enum key) { }
-    protected virtual void OnRadialPuppetChange(Enum key, VRChatRadialPuppet radialData) { }
+    protected virtual void OnRadialPuppetChange(Enum key, float radialValue) { }
 
     #endregion
 
@@ -416,8 +403,8 @@ public abstract class Module
 
     protected OutputParameter GetOutputParameter(Enum lookup)
     {
-        var address = (ModuleAttributeSingle)OutgoingParameters[lookup.ToString().ToLowerInvariant()];
-        return new OutputParameter(OscClient, address.Attribute.Value.ToString()!);
+        var data = OutgoingParameters[lookup];
+        return new OutputParameter(OscClient, data.FormattedAddress);
     }
 
     protected void SendParameter<T>(Enum lookup, T value) where T : struct
