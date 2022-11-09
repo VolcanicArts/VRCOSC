@@ -34,8 +34,8 @@ public abstract class Module
     public readonly BindableBool Enabled = new();
     public readonly Dictionary<string, ModuleAttribute> Settings = new();
     public readonly Dictionary<string, ModuleAttribute> OutgoingParameters = new();
-    private readonly Dictionary<Enum, InputParameterData> InputParameters = new();
-    private readonly Dictionary<string, Enum> InputParametersMap = new();
+    public readonly Dictionary<Enum, InputParameterData> InputParameters = new();
+    public readonly Dictionary<string, Enum> InputParametersMap = new();
 
     public virtual string Title => string.Empty;
     public virtual string Description => string.Empty;
@@ -75,7 +75,7 @@ public abstract class Module
     private bool ShouldUpdate => DeltaUpdate != int.MaxValue;
     private string FileName => @$"{GetType().Name}.ini";
 
-    private const string VRChatOscPrefix = @"/avatar/parameters/";
+    public const string VRChatOscPrefix = @"/avatar/parameters/";
 
     #endregion
 

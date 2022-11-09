@@ -64,8 +64,8 @@ public abstract class PopoverScreen : VisibilityContainer
 
     protected override void PopOut()
     {
-        this.ScaleTo(1.0f).Then().ScaleTo(0.9f, transition_time, Easing.OutQuint);
-        this.FadeOutFromOne(transition_time, Easing.OutQuint);
+        this.ScaleTo(1.0f).Then().ScaleTo(0.9f, transition_time, Easing.InQuint);
+        this.FadeOutFromOne(transition_time, Easing.InQuint);
     }
 
     protected override bool OnMouseDown(MouseDownEvent e) => true;
