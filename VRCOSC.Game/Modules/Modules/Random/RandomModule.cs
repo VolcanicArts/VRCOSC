@@ -23,7 +23,7 @@ public abstract class RandomModule<T> : Module where T : struct
 
     protected override void OnUpdate()
     {
-        SendParameter(RandomOutgoingParameter.RandomValue, GetRandomValue());
+        SendParameter(RandomParameter.RandomValue, GetRandomValue());
     }
 
     protected abstract T GetRandomValue();
@@ -39,7 +39,7 @@ public abstract class RandomModule<T> : Module where T : struct
         DeltaUpdate
     }
 
-    private enum RandomOutgoingParameter
+    private enum RandomParameter
     {
         RandomValue
     }

@@ -33,7 +33,7 @@ public sealed class HypeRateModule : HeartRateModule
             return;
         }
 
-        SendParameter(HeartrateOutgoingParameter.Enabled, false);
+        SendParameter(HeartrateParameter.Enabled, false);
 
         base.OnStart();
     }
@@ -46,7 +46,7 @@ public sealed class HypeRateModule : HeartRateModule
 
     private void handleWsHeartBeat()
     {
-        if (!receivedHeartRate) SendParameter(HeartrateOutgoingParameter.Enabled, false);
+        if (!receivedHeartRate) SendParameter(HeartrateParameter.Enabled, false);
         receivedHeartRate = false;
     }
 

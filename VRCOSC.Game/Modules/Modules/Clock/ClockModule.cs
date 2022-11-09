@@ -24,9 +24,9 @@ public sealed class ClockModule : Module
         CreateSetting(ClockSetting.Mode, "Mode", "If the clock should be in 12 hour or 24 hour", ClockMode.Twelve);
         CreateSetting(ClockSetting.Timezone, "Timezone", "The timezone the clock should follow", ClockTimeZone.Local);
 
-        CreateParameter<float>(ClockOutgoingParameter.Hours, ParameterMode.Write, "VRCOSC/Clock/Hours", "The current hour normalised");
-        CreateParameter<float>(ClockOutgoingParameter.Minutes, ParameterMode.Write, "VRCOSC/Clock/Minutes", "The current minute normalised");
-        CreateParameter<float>(ClockOutgoingParameter.Seconds, ParameterMode.Write, "VRCOSC/Clock/Seconds", "The current second normalised");
+        CreateParameter<float>(ClockParameter.Hours, ParameterMode.Write, "VRCOSC/Clock/Hours", "The current hour normalised");
+        CreateParameter<float>(ClockParameter.Minutes, ParameterMode.Write, "VRCOSC/Clock/Minutes", "The current minute normalised");
+        CreateParameter<float>(ClockParameter.Seconds, ParameterMode.Write, "VRCOSC/Clock/Seconds", "The current second normalised");
     }
 
     protected override void OnUpdate()
@@ -42,9 +42,9 @@ public sealed class ClockModule : Module
         var minuteNormalised = minutes / 60f;
         var secondNormalised = seconds / 60f;
 
-        SendParameter(ClockOutgoingParameter.Hours, hourNormalised);
-        SendParameter(ClockOutgoingParameter.Minutes, minuteNormalised);
-        SendParameter(ClockOutgoingParameter.Seconds, secondNormalised);
+        SendParameter(ClockParameter.Hours, hourNormalised);
+        SendParameter(ClockParameter.Minutes, minuteNormalised);
+        SendParameter(ClockParameter.Seconds, secondNormalised);
 
         if (GetSetting<bool>(ClockSetting.UseChatBox))
         {
@@ -79,7 +79,7 @@ public sealed class ClockModule : Module
         };
     }
 
-    private enum ClockOutgoingParameter
+    private enum ClockParameter
     {
         Hours,
         Minutes,
