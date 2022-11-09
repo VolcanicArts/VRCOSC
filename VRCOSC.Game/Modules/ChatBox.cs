@@ -46,7 +46,7 @@ public class ChatBox
         if (nextSend is not null && !shouldBurst) return;
 
         oscClient.SendValues("/chatbox/input", values);
-        nextSend = new TimedTask(resetNextSend, 1500).Start();
+        nextSend = new TimedTask(resetNextSend, 2000).Start();
     }
 
     private void resetNextSend()
