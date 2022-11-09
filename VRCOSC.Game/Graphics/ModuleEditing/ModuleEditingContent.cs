@@ -20,7 +20,7 @@ public sealed class ModuleEditingContent : Container
     private readonly BasicScrollContainer scrollContainer;
     private readonly FillFlowContainer<SeparatedAttributeFlow> separatedAttributeFlowFlow;
 
-    [Resolved]
+    [Resolved(name: "EditingModule")]
     private Bindable<Module?> editingModule { get; set; } = null!;
 
     public ModuleEditingContent()

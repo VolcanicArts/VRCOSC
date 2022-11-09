@@ -7,14 +7,14 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Shapes;
 using VRCOSC.Game.Modules;
 
-namespace VRCOSC.Game.Graphics.ModuleEditing;
+namespace VRCOSC.Game.Graphics.ModuleListing;
 
-public sealed class ModuleEditingPopover : PopoverScreen
+public class ModuleInfoPopover : PopoverScreen
 {
-    [Resolved(name: "EditingModule")]
-    private Bindable<Module?> editingModule { get; set; } = null!;
+    [Resolved(name: "InfoModule")]
+    private Bindable<Module?> infoModule { get; set; } = null!;
 
-    public ModuleEditingPopover()
+    public ModuleInfoPopover()
     {
         Children = new Drawable[]
         {
@@ -22,14 +22,6 @@ public sealed class ModuleEditingPopover : PopoverScreen
             {
                 RelativeSizeAxes = Axes.Both,
                 Colour = VRCOSCColour.Gray4
-            },
-            new ModuleEditingContent
-            {
-                RelativeSizeAxes = Axes.Both,
-                Padding = new MarginPadding
-                {
-                    Vertical = 2.5f
-                }
             }
         };
     }
@@ -38,7 +30,7 @@ public sealed class ModuleEditingPopover : PopoverScreen
     {
         base.LoadComplete();
 
-        editingModule.ValueChanged += e =>
+        infoModule.ValueChanged += e =>
         {
             if (e.NewValue is null)
                 Hide();
@@ -50,6 +42,6 @@ public sealed class ModuleEditingPopover : PopoverScreen
     public override void Hide()
     {
         base.Hide();
-        editingModule.Value = null;
+        infoModule.Value = null;
     }
 }

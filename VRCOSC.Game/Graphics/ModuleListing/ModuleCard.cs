@@ -18,8 +18,11 @@ public sealed class ModuleCard : Container
 {
     public readonly Module Module;
 
-    [Resolved]
+    [Resolved(name: "EditingModule")]
     private Bindable<Module?> editingModule { get; set; } = null!;
+
+    [Resolved(name: "InfoModule")]
+    private Bindable<Module?> infoModule { get; set; } = null!;
 
     public ModuleCard(Module module)
     {
@@ -117,7 +120,7 @@ public sealed class ModuleCard : Container
                             Icon = FontAwesome.Solid.Question,
                             IconPadding = 5,
                             CornerRadius = 5,
-                            Action = () => editingModule.Value = Module,
+                            Action = () => infoModule.Value = Module,
                             BackgroundColour = VRCOSCColour.Gray5
                         }
                     },
