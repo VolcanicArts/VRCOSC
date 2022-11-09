@@ -110,12 +110,6 @@ public abstract class Module
     protected void CreateSetting(Enum lookup, string displayName, string description, string defaultValue, string buttonText, Action buttonAction)
         => addTextAndButtonSetting(lookup, displayName, description, defaultValue, buttonText, buttonAction);
 
-    protected void CreateButtonParameter(Enum lookup, string parameterName, string description)
-        => CreateParameter<bool>(lookup, ParameterMode.Read, parameterName, description, ActionMenu.Button);
-
-    protected void CreateRadialParameter(Enum lookup, string parameterName, string description)
-        => CreateParameter<float>(lookup, ParameterMode.Read, parameterName, description, ActionMenu.Radial);
-
     protected void CreateParameter<T>(Enum lookup, ParameterMode mode, string parameterName, string description, ActionMenu menuLink = ActionMenu.None)
         => Parameters.Add(lookup, new ParameterMetadata(mode, parameterName, description, typeof(T), menuLink));
 

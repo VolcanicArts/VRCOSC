@@ -29,11 +29,11 @@ public sealed class SpotifyModule : IntegrationModule
         CreateSetting(SpotifySetting.TitleFormat, "Title Format", "How displaying the title should be formatted.\nAvailable values: %title%, %author%.", "Now Playing: %author% - %title%");
         CreateSetting(SpotifySetting.InstallLocation, "Install Location", "The location of your spotify.exe file", $@"C:\Users\{Environment.UserName}\AppData\Roaming\Spotify\spotify.exe");
 
-        CreateButtonParameter(SpotifyIncomingParameter.PlayPause, "VRCOSC/Spotify/PlayPause", "True/False for Play/Pause");
-        CreateButtonParameter(SpotifyIncomingParameter.Next, "VRCOSC/Spotify/Next", "Becomes true to go forward to the next song");
-        CreateButtonParameter(SpotifyIncomingParameter.Previous, "VRCOSC/Spotify/Previous", "Becomes true to go back to the previous song");
-        CreateButtonParameter(SpotifyIncomingParameter.VolumeUp, "VRCOSC/Spotify/VolumeUp", "Becomes true to increase the volume");
-        CreateButtonParameter(SpotifyIncomingParameter.VolumeDown, "VRCOSC/Spotify/VolumeDown", "Becomes true to decrease the volume");
+        CreateParameter<bool>(SpotifyIncomingParameter.PlayPause, ParameterMode.Read, "VRCOSC/Spotify/PlayPause", "True/False for Play/Pause", ActionMenu.Button);
+        CreateParameter<bool>(SpotifyIncomingParameter.Next, ParameterMode.Read, "VRCOSC/Spotify/Next", "Becomes true to go forward to the next song", ActionMenu.Button);
+        CreateParameter<bool>(SpotifyIncomingParameter.Previous, ParameterMode.Read, "VRCOSC/Spotify/Previous", "Becomes true to go back to the previous song", ActionMenu.Button);
+        CreateParameter<bool>(SpotifyIncomingParameter.VolumeUp, ParameterMode.Read, "VRCOSC/Spotify/VolumeUp", "Becomes true to increase the volume", ActionMenu.Button);
+        CreateParameter<bool>(SpotifyIncomingParameter.VolumeDown, ParameterMode.Read, "VRCOSC/Spotify/VolumeDown", "Becomes true to decrease the volume", ActionMenu.Button);
 
         RegisterKeyCombination(SpotifyIncomingParameter.PlayPause, WindowsVKey.VK_SPACE);
         RegisterKeyCombination(SpotifyIncomingParameter.Next, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_RIGHT);

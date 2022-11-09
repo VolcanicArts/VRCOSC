@@ -37,8 +37,8 @@ public sealed class MediaModule : Module
         CreateParameter<bool>(MediaOutgoingParameter.Muted, ParameterMode.ReadWrite, "VRCOSC/Media/Muted", "True to mute. False to unmute");
         CreateParameter<int>(MediaOutgoingParameter.Repeat, ParameterMode.ReadWrite, "VRCOSC/Media/Repeat", "0 for disabled. 1 for single. 2 for list");
         CreateParameter<bool>(MediaOutgoingParameter.Shuffle, ParameterMode.ReadWrite, "VRCOSC/Media/Shuffle", "True for enabled. False for disabled");
-        CreateButtonParameter(MediaIncomingParameter.Next, "VRCOSC/Media/Next", "Becoming true causes the next track to play");
-        CreateButtonParameter(MediaIncomingParameter.Previous, "VRCOSC/Media/Previous", "Becoming true causes the previous track to play");
+        CreateParameter<bool>(MediaIncomingParameter.Next, ParameterMode.Read, "VRCOSC/Media/Next", "Becoming true causes the next track to play", ActionMenu.Button);
+        CreateParameter<bool>(MediaIncomingParameter.Previous, ParameterMode.Read, "VRCOSC/Media/Previous", "Becoming true causes the previous track to play", ActionMenu.Button);
     }
 
     protected override void OnStart()
