@@ -10,8 +10,8 @@ namespace VRCOSC.Game.Modules;
 public class ChatBox
 {
     private readonly OscClient oscClient;
-    private DateTimeOffset sendReset;
-    private DateTimeOffset priorityReset;
+    private DateTimeOffset? sendReset;
+    private DateTimeOffset? priorityReset;
     private int lastSentPriority;
     private bool isTyping;
 
@@ -32,7 +32,16 @@ public class ChatBox
 
         var values = new List<object>() { text, bypassKeyboard };
 
-        if (priorityReset < DateTimeOffset.Now) lastSentPriority = 0;
+        if (priorityReset is not null && priorityReset < DateTimeOffset.Now)
+        {
+            lastSentPriority = 0;
+            priorityReset = null;
+        }
+
+        if (sendReset is not null && sendReset < DateTimeOffset.Now)
+        {
+            sendReset = null;
+        }
 
         if (priority >= lastSentPriority)
         {
@@ -44,7 +53,7 @@ public class ChatBox
 
     private void trySendValues(List<object> values, bool shouldBurst)
     {
-        if (sendReset > DateTimeOffset.Now && !shouldBurst) return;
+        if (sendReset is not null && !shouldBurst) return;
 
         oscClient.SendValues("/chatbox/input", values);
         sendReset = DateTimeOffset.Now + TimeSpan.FromMilliseconds(1500);
