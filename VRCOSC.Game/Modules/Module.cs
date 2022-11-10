@@ -100,11 +100,11 @@ public abstract class Module
     protected void CreateSetting(Enum lookup, string displayName, string description, float defaultValue, float minValue, float maxValue)
         => addRangedSetting(lookup, displayName, description, defaultValue, minValue, maxValue);
 
-    protected void CreateSetting(Enum lookup, string displayName, string description, IEnumerable<int> defaultValues)
-        => addEnumerableSetting(lookup, displayName, description, defaultValues);
+    protected void CreateSetting(Enum lookup, string displayName, string description, IEnumerable<int> defaultValues, bool canBeEmpty)
+        => addEnumerableSetting(lookup, displayName, description, defaultValues, canBeEmpty);
 
-    protected void CreateSetting(Enum lookup, string displayName, string description, IEnumerable<string> defaultValues)
-        => addEnumerableSetting(lookup, displayName, description, defaultValues);
+    protected void CreateSetting(Enum lookup, string displayName, string description, IEnumerable<string> defaultValues, bool canBeEmpty)
+        => addEnumerableSetting(lookup, displayName, description, defaultValues, canBeEmpty);
 
     protected void CreateSetting(Enum lookup, string displayName, string description, string defaultValue, string buttonText, Action buttonAction)
         => addTextAndButtonSetting(lookup, displayName, description, defaultValue, buttonText, buttonAction);
@@ -124,9 +124,9 @@ public abstract class Module
         Settings.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeSingle(new ModuleAttributeMetadata(displayName, description), defaultValue));
     }
 
-    private void addEnumerableSetting<T>(Enum lookup, string displayName, string description, IEnumerable<T> defaultValues)
+    private void addEnumerableSetting<T>(Enum lookup, string displayName, string description, IEnumerable<T> defaultValues, bool canBeEmpty)
     {
-        Settings.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeList(new ModuleAttributeMetadata(displayName, description), defaultValues.Cast<object>(), typeof(T)));
+        Settings.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeList(new ModuleAttributeMetadata(displayName, description), defaultValues.Cast<object>(), typeof(T), canBeEmpty));
     }
 
     private void addRangedSetting<T>(Enum lookup, string displayName, string description, T defaultValue, T minValue, T maxValue) where T : struct
@@ -514,11 +514,14 @@ public abstract class Module
                     break;
                 }
 
-                case ModuleAttributeList settingList when settingList.AttributeList.Count == 0:
-                    continue;
-
                 case ModuleAttributeList settingList:
                 {
+                    if (value == "EMPTY" && settingList.CanBeEmpty)
+                    {
+                        settingList.AttributeList.Clear();
+                        return;
+                    }
+
                     var readableTypeName = settingList.AttributeList.First().Value.GetType().ToReadableName().ToLowerInvariant();
                     if (!readableTypeName.Equals(typeStr)) continue;
 
@@ -632,18 +635,23 @@ public abstract class Module
                     break;
                 }
 
-                case ModuleAttributeList moduleAttributeList when moduleAttributeList.AttributeList.Count == 0:
-                    continue;
-
                 case ModuleAttributeList moduleAttributeList:
                 {
                     var values = moduleAttributeList.AttributeList.ToList();
-                    var valueType = values.First().Value.GetType();
-                    var readableTypeName = valueType.ToReadableName().ToLowerInvariant();
 
-                    for (int i = 0; i < values.Count; i++)
+                    if (!values.Any())
                     {
-                        writer.WriteLine(@"{0}#{1}:{2}={3}", lookup, i, readableTypeName, values[i].Value);
+                        writer.WriteLine(@"{0}:EMPTY=EMPTY", lookup);
+                    }
+                    else
+                    {
+                        var valueType = values.First().Value.GetType();
+                        var readableTypeName = valueType.ToReadableName().ToLowerInvariant();
+
+                        for (int i = 0; i < values.Count; i++)
+                        {
+                            writer.WriteLine(@"{0}#{1}:{2}={3}", lookup, i, readableTypeName, values[i].Value);
+                        }
                     }
 
                     break;

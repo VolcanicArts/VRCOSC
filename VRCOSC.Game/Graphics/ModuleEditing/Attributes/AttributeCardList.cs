@@ -98,7 +98,7 @@ public abstract class AttributeCardList : AttributeCard
 
         removeButton.Action += () =>
         {
-            if (ContentFlow.Count == 1) return;
+            if (!AttributeData.CanBeEmpty && ContentFlow.Count == 1) return;
 
             RemoveItem(ContentFlow.IndexOf(wrapper));
         };

@@ -69,13 +69,15 @@ public sealed class ModuleAttributeList : ModuleAttribute
     public readonly BindableList<Bindable<object>> AttributeList;
     private readonly IEnumerable<object> defaultValues;
     public readonly Type Type;
+    public readonly bool CanBeEmpty;
 
-    public ModuleAttributeList(ModuleAttributeMetadata metadata, IEnumerable<object> defaultValues, Type type)
+    public ModuleAttributeList(ModuleAttributeMetadata metadata, IEnumerable<object> defaultValues, Type type, bool canBeEmpty)
         : base(metadata)
     {
         AttributeList = new BindableList<Bindable<object>>();
         this.defaultValues = defaultValues;
         Type = type;
+        CanBeEmpty = canBeEmpty;
 
         SetDefault();
     }
