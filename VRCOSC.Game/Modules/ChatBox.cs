@@ -13,6 +13,7 @@ public class ChatBox
     private DateTimeOffset? sendReset;
     private DateTimeOffset? priorityReset;
     private int lastSentPriority;
+    private string lastSentText;
     private bool isTyping;
 
     public ChatBox(OscClient oscClient)
@@ -26,19 +27,19 @@ public class ChatBox
         oscClient.SendValue("/chatbox/typing", typing);
     }
 
-    public void SetText(string text, bool bypassKeyboard = true, int priority = 0, int priorityTimeMilli = 1)
+    public void SetText(string text, bool bypassKeyboard = true, int priority = 0, int priorityTimeMilli = 0)
     {
-        if (isTyping) return;
+        if (isTyping || lastSentText == text) return;
 
         var values = new List<object>() { text, bypassKeyboard };
 
-        if (priorityReset is not null && priorityReset < DateTimeOffset.Now)
+        if (priorityReset is not null && priorityReset <= DateTimeOffset.Now)
         {
             lastSentPriority = 0;
             priorityReset = null;
         }
 
-        if (sendReset is not null && sendReset < DateTimeOffset.Now)
+        if (sendReset is not null && sendReset <= DateTimeOffset.Now)
         {
             sendReset = null;
         }
@@ -56,12 +57,12 @@ public class ChatBox
         if (sendReset is not null && !shouldBurst) return;
 
         oscClient.SendValues("/chatbox/input", values);
+        lastSentText = values[0].ToString()!;
         sendReset = DateTimeOffset.Now + TimeSpan.FromMilliseconds(1500);
     }
 
     public void Clear(int priority)
     {
-        var priorityToSend = lastSentPriority == priority ? priority + 1 : priority;
-        SetText(string.Empty, true, priorityToSend, 1);
+        SetText(string.Empty, true, priority + 1, 1500);
     }
 }
