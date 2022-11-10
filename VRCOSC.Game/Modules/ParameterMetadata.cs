@@ -27,7 +27,18 @@ public class ParameterMetadata
 
 public enum ParameterMode
 {
+    /// <summary>
+    /// Has the ability to read from VRChat's value
+    /// </summary>
     Read = 1 << 0,
+
+    /// <summary>
+    /// Has the ability to write to VRChat's value
+    /// </summary>
     Write = 1 << 1,
+
+    /// <summary>
+    /// Has the ability to read from and write to VRChat's value
+    /// </summary>
     ReadWrite = Read | Write
 }
