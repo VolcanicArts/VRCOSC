@@ -29,7 +29,7 @@ public class ChatBox
 
     public void SetText(string text, bool bypassKeyboard = true, int priority = 0, int priorityTimeMilli = 0)
     {
-        if (isTyping || lastSentText == text) return;
+        if (isTyping) return;
 
         var values = new List<object>() { text, bypassKeyboard };
 
