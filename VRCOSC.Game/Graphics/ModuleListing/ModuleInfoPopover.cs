@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.EnumExtensions;
@@ -11,7 +10,6 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
-using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.Modules.Util;
 
@@ -21,8 +19,7 @@ public class ModuleInfoPopover : PopoverScreen
 {
     private readonly SpriteText title;
     private readonly TextFlowContainer description;
-    private readonly ParameterContainer outgoingParameters;
-    private readonly ParameterContainer inputParameters;
+    private readonly FillFlowContainer<ParameterData> parameters;
 
     [Resolved(name: "InfoModule")]
     private Bindable<Module?> infoModule { get; set; } = null!;
@@ -36,84 +33,77 @@ public class ModuleInfoPopover : PopoverScreen
                 RelativeSizeAxes = Axes.Both,
                 Colour = VRCOSCColour.Gray4
             },
-            new FillFlowContainer
+            new Container
             {
-                Anchor = Anchor.TopCentre,
-                Origin = Anchor.TopCentre,
-                RelativeSizeAxes = Axes.X,
-                AutoSizeAxes = Axes.Y,
-                Direction = FillDirection.Vertical,
-                Spacing = new Vector2(0, 5),
-                Padding = new MarginPadding(5),
-                Children = new Drawable[]
+                RelativeSizeAxes = Axes.Both,
+                Padding = new MarginPadding
                 {
-                    title = new SpriteText
+                    Vertical = 2.5f
+                },
+                Child = new BasicScrollContainer
+                {
+                    RelativeSizeAxes = Axes.Both,
+                    ScrollbarVisible = false,
+                    ClampExtension = 20,
+                    Padding = new MarginPadding
                     {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        Font = FrameworkFont.Regular.With(size: 75),
-                        Margin = new MarginPadding
-                        {
-                            Vertical = 10
-                        }
+                        Horizontal = 26
                     },
-                    new Container
+                    Child = new FillFlowContainer
                     {
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
                         RelativeSizeAxes = Axes.X,
                         AutoSizeAxes = Axes.Y,
-                        Width = 0.75f,
-                        Masking = true,
-                        CornerRadius = 5,
+                        Direction = FillDirection.Vertical,
+                        Spacing = new Vector2(0, 5),
+                        Padding = new MarginPadding(5),
                         Children = new Drawable[]
                         {
-                            new Box
+                            title = new SpriteText
                             {
-                                Colour = VRCOSCColour.Gray2,
-                                RelativeSizeAxes = Axes.Both
+                                Anchor = Anchor.TopCentre,
+                                Origin = Anchor.TopCentre,
+                                Font = FrameworkFont.Regular.With(size: 75)
                             },
-                            description = new TextFlowContainer
+                            description = new TextFlowContainer(t => t.Font = FrameworkFont.Regular.With(size: 30))
                             {
+                                Anchor = Anchor.TopCentre,
+                                Origin = Anchor.TopCentre,
                                 RelativeSizeAxes = Axes.X,
                                 AutoSizeAxes = Axes.Y,
                                 Padding = new MarginPadding(5),
                                 TextAnchor = Anchor.Centre
-                            }
-                        }
-                    },
-                    new GridContainer
-                    {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        RelativeSizeAxes = Axes.X,
-                        AutoSizeAxes = Axes.Y,
-                        ColumnDimensions = new[]
-                        {
-                            new Dimension(),
-                            new Dimension()
-                        },
-                        Content = new[]
-                        {
-                            new Drawable[]
+                            },
+                            new LineSeparator
                             {
-                                new Container
+                                Anchor = Anchor.TopCentre,
+                                Origin = Anchor.TopCentre
+                            },
+                            new FillFlowContainer
+                            {
+                                Anchor = Anchor.TopCentre,
+                                Origin = Anchor.TopCentre,
+                                RelativeSizeAxes = Axes.X,
+                                AutoSizeAxes = Axes.Y,
+                                Spacing = new Vector2(0, 5),
+                                Children = new Drawable[]
                                 {
-                                    Anchor = Anchor.TopCentre,
-                                    Origin = Anchor.TopCentre,
-                                    RelativeSizeAxes = Axes.X,
-                                    AutoSizeAxes = Axes.Y,
-                                    Padding = new MarginPadding(10),
-                                    Child = outgoingParameters = new ParameterContainer("Sends")
-                                },
-                                new Container
-                                {
-                                    Anchor = Anchor.TopCentre,
-                                    Origin = Anchor.TopCentre,
-                                    RelativeSizeAxes = Axes.X,
-                                    AutoSizeAxes = Axes.Y,
-                                    Padding = new MarginPadding(10),
-                                    Child = inputParameters = new ParameterContainer("Expects")
+                                    new SpriteText
+                                    {
+                                        Anchor = Anchor.TopCentre,
+                                        Origin = Anchor.TopCentre,
+                                        Font = FrameworkFont.Regular.With(size: 35),
+                                        Text = "Parameters"
+                                    },
+                                    parameters = new FillFlowContainer<ParameterData>
+                                    {
+                                        Anchor = Anchor.TopCentre,
+                                        Origin = Anchor.TopCentre,
+                                        RelativeSizeAxes = Axes.X,
+                                        AutoSizeAxes = Axes.Y,
+                                        Spacing = new Vector2(0, 5)
+                                    }
                                 }
                             }
                         }
@@ -123,75 +113,13 @@ public class ModuleInfoPopover : PopoverScreen
         };
     }
 
-    private sealed class ParameterContainer : Container<ParameterData>
-    {
-        protected override FillFlowContainer<ParameterData> Content { get; }
-
-        public ParameterContainer(string title)
-        {
-            Anchor = Anchor.TopCentre;
-            Origin = Anchor.TopCentre;
-            RelativeSizeAxes = Axes.X;
-            AutoSizeAxes = Axes.Y;
-            Masking = true;
-            CornerRadius = 5;
-            InternalChildren = new Drawable[]
-            {
-                new Box
-                {
-                    Colour = VRCOSCColour.Gray3,
-                    RelativeSizeAxes = Axes.Both,
-                },
-                new FillFlowContainer
-                {
-                    Anchor = Anchor.TopCentre,
-                    Origin = Anchor.TopCentre,
-                    RelativeSizeAxes = Axes.X,
-                    AutoSizeAxes = Axes.Y,
-                    Padding = new MarginPadding(10),
-                    Children = new Drawable[]
-                    {
-                        new SpriteText
-                        {
-                            Anchor = Anchor.TopCentre,
-                            Origin = Anchor.TopCentre,
-                            Text = title,
-                            Font = FrameworkFont.Regular.With(size: 30)
-                        },
-                        new VRCOSCScrollContainer
-                        {
-                            Anchor = Anchor.TopCentre,
-                            Origin = Anchor.TopCentre,
-                            RelativeSizeAxes = Axes.X,
-                            Height = 500,
-                            ClampExtension = 0,
-                            Child = Content = new FillFlowContainer<ParameterData>
-                            {
-                                Anchor = Anchor.TopCentre,
-                                Origin = Anchor.TopCentre,
-                                RelativeSizeAxes = Axes.X,
-                                AutoSizeAxes = Axes.Y,
-                                Direction = FillDirection.Vertical,
-                                Spacing = new Vector2(0, 5),
-                                Padding = new MarginPadding
-                                {
-                                    Vertical = 5,
-                                    Left = 5,
-                                    Right = 15
-                                }
-                            }
-                        },
-                    }
-                }
-            };
-        }
-    }
-
     private sealed class ParameterData : Container
     {
-        public string Name { get; init; } = null!;
+        public string ParameterName { get; init; } = null!;
         public string Description { get; init; } = null!;
         public string Type { get; init; } = null!;
+        public bool Outgoing { get; init; }
+        public bool Incoming { get; init; }
 
         public ParameterData()
         {
@@ -199,11 +127,19 @@ public class ModuleInfoPopover : PopoverScreen
             AutoSizeAxes = Axes.Y;
             Masking = true;
             CornerRadius = 5;
+            BorderThickness = 2;
+            BorderColour = VRCOSCColour.Gray0;
         }
 
         [BackgroundDependencyLoader]
         private void load()
         {
+            var name = $"Name: {ParameterName}";
+            var type = $"Type: {Type}";
+            var outgoing = $"Writes To VRC?: {Outgoing}";
+            var incoming = $"Reads From VRC?: {Incoming}";
+            var description = $"Description: {Description}";
+
             Children = new Drawable[]
             {
                 new Box
@@ -219,19 +155,11 @@ public class ModuleInfoPopover : PopoverScreen
                     Padding = new MarginPadding(5),
                     Children = new Drawable[]
                     {
-                        new SpriteText
-                        {
-                            Text = $"Name: {Name}"
-                        },
                         new TextFlowContainer
                         {
                             RelativeSizeAxes = Axes.X,
                             AutoSizeAxes = Axes.Y,
-                            Text = $"Description: {Description}"
-                        },
-                        new SpriteText
-                        {
-                            Text = $"Type: {Type}"
+                            Text = $"{name}\n{type}\n{outgoing}\n{incoming}\n{description}"
                         }
                     }
                 }
@@ -255,28 +183,19 @@ public class ModuleInfoPopover : PopoverScreen
     public override void Show()
     {
         title.Text = $"{infoModule.Value!.Title} Info";
-        description.Text = infoModule.Value.Description;
+        description.Text = $"{infoModule.Value.Description}\nCreated by {infoModule.Value.Author}";
 
-        outgoingParameters.Clear();
-        inputParameters.Clear();
+        parameters.Clear();
 
-        infoModule.Value.Parameters.Values.Where(data => data.Mode.HasFlagFast(ParameterMode.Write)).ForEach(parameter =>
+        infoModule.Value.Parameters.Values.ForEach(parameter =>
         {
-            outgoingParameters.Add(new ParameterData
+            parameters.Add(new ParameterData
             {
-                Name = parameter.Name,
+                ParameterName = parameter.Name,
                 Description = parameter.Description,
-                Type = parameter.ExpectedType.ToReadableName()
-            });
-        });
-
-        infoModule.Value.Parameters.Values.Where(data => data.Mode.HasFlagFast(ParameterMode.Read)).ForEach(parameter =>
-        {
-            inputParameters.Add(new ParameterData
-            {
-                Name = parameter.Name,
-                Description = parameter.Description,
-                Type = parameter.ExpectedType.ToReadableName()
+                Type = parameter.ExpectedType.ToReadableName(),
+                Outgoing = parameter.Mode.HasFlagFast(ParameterMode.Write),
+                Incoming = parameter.Mode.HasFlagFast(ParameterMode.Read)
             });
         });
 
