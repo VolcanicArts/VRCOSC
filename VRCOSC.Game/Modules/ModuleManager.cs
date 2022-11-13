@@ -51,6 +51,8 @@ public sealed class ModuleManager : Component
     public readonly List<Module> Modules = new();
     public readonly OscClient OscClient = new();
 
+    public bool Running { get; private set; }
+
     private ChatBox ChatBox;
 
     [Resolved]
@@ -174,6 +176,8 @@ public sealed class ModuleManager : Component
         {
             Modules.ForEach(module => module.start());
         });
+
+        Running = true;
     }
 
     private async Task stop()
@@ -188,6 +192,8 @@ public sealed class ModuleManager : Component
         ChatBox.Clear(int.MaxValue);
 
         OscClient.DisableSend();
+
+        Running = false;
     }
 
     protected override void Dispose(bool isDisposing)
