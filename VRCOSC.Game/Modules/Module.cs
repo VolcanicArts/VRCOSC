@@ -670,7 +670,7 @@ public abstract class Module
 
     protected void OpenUrlExternally(string Url) => Host.OpenUrlExternally(Url);
 
-    protected void SetChatBoxText(string text, int priorityTimeMilli = 1, bool bypassKeyboard = true) => ChatBox.SetText(text, bypassKeyboard, ChatBoxPriority, priorityTimeMilli);
+    protected void SetChatBoxText(string text, int priorityTimeMilli = 2000, bool bypassKeyboard = true) => ChatBox.SetText(text, bypassKeyboard, ChatBoxPriority, priorityTimeMilli);
 
     protected void SetChatBoxTyping(bool typing) => ChatBox.SetTyping(typing);
 
