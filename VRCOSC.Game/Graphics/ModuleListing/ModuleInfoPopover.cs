@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.EnumExtensions;
@@ -20,6 +21,7 @@ public class ModuleInfoPopover : PopoverScreen
     private readonly SpriteText title;
     private readonly TextFlowContainer description;
     private readonly FillFlowContainer<ParameterData> parameters;
+    private readonly FillFlowContainer parameterWrapper;
 
     [Resolved(name: "InfoModule")]
     private Bindable<Module?> infoModule { get; set; } = null!;
@@ -80,7 +82,7 @@ public class ModuleInfoPopover : PopoverScreen
                                 Anchor = Anchor.TopCentre,
                                 Origin = Anchor.TopCentre
                             },
-                            new FillFlowContainer
+                            parameterWrapper = new FillFlowContainer
                             {
                                 Anchor = Anchor.TopCentre,
                                 Origin = Anchor.TopCentre,
@@ -186,6 +188,7 @@ public class ModuleInfoPopover : PopoverScreen
         description.Text = $"{infoModule.Value.Description}\nCreated by {infoModule.Value.Author}";
 
         parameters.Clear();
+        parameterWrapper.Alpha = infoModule.Value.Parameters.Any() ? 1 : 0;
 
         infoModule.Value.Parameters.Values.ForEach(parameter =>
         {
