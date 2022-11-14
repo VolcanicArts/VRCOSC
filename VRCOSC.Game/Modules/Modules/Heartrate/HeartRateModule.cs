@@ -10,6 +10,7 @@ public abstract class HeartRateModule : Module
     public override string Author => "VolcanicArts";
     public override string Prefab => "VRCOSC-Heartrate";
     public override ModuleType ModuleType => ModuleType.Health;
+    protected override int ChatBoxPriority => 2;
 
     private HeartRateProvider? heartRateProvider;
 
@@ -17,6 +18,9 @@ public abstract class HeartRateModule : Module
 
     protected override void CreateAttributes()
     {
+        CreateSetting(HeartrateSetting.UseChatBox, "Use ChatBox", "Should your heartrate be displayed in the ChatBox?", false);
+        CreateSetting(HeartrateSetting.ChatBoxFormat, "ChatBox Format", "The format of the ChatBox display.\nAvailable values: %hr%", "Heartrate                        %hr% bpm");
+
         CreateParameter<bool>(HeartrateParameter.Enabled, ParameterMode.Write, "VRCOSC/Heartrate/Enabled", "Whether this module is attempting to emit values");
         CreateParameter<float>(HeartrateParameter.Normalised, ParameterMode.Write, "VRCOSC/Heartrate/Normalised", "The heartrate value normalised to 60bpm");
         CreateParameter<float>(HeartrateParameter.Units, ParameterMode.Write, "VRCOSC/Heartrate/Units", "The units digit 0-9 mapped to a float");
@@ -51,11 +55,23 @@ public abstract class HeartRateModule : Module
         SendParameter(HeartrateParameter.Units, individualValues[2] / 10f);
         SendParameter(HeartrateParameter.Tens, individualValues[1] / 10f);
         SendParameter(HeartrateParameter.Hundreds, individualValues[0] / 10f);
+
+        if (GetSetting<bool>(HeartrateSetting.UseChatBox))
+        {
+            var text = GetSetting<string>(HeartrateSetting.ChatBoxFormat).Replace("%hr%", heartrate.ToString());
+            SetChatBoxText(text);
+        }
     }
 
     private static int[] toDigitArray(int num, int totalWidth)
     {
         return num.ToString().PadLeft(totalWidth, '0').Select(digit => int.Parse(digit.ToString())).ToArray();
+    }
+
+    protected enum HeartrateSetting
+    {
+        UseChatBox,
+        ChatBoxFormat
     }
 
     protected enum HeartrateParameter
