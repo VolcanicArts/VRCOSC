@@ -9,6 +9,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
 using osuTK;
+using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.TabBar;
 
@@ -30,6 +31,9 @@ public sealed class DrawableTab : ClickableContainer
 
     [Resolved]
     private Bindable<Tab> selectedTab { get; set; } = null!;
+
+    [Resolved]
+    private ModuleManager moduleManager { get; set; } = null!;
 
     public DrawableTab()
     {
@@ -92,6 +96,17 @@ public sealed class DrawableTab : ClickableContainer
         }, true);
 
         Action += () => selectedTab.Value = Tab;
+    }
+
+    protected override bool OnClick(ClickEvent e)
+    {
+        if (moduleManager.Running)
+        {
+            background.FlashColour(VRCOSCColour.Red, 250, Easing.OutQuad);
+            return true;
+        }
+
+        return base.OnClick(e);
     }
 
     protected override bool OnHover(HoverEvent e)
