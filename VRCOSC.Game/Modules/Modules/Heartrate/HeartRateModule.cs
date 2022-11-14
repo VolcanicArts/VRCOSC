@@ -1,18 +1,27 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Linq;
 
 namespace VRCOSC.Game.Modules.Modules.Heartrate;
 
 public abstract class HeartRateModule : Module
 {
+    private const int heartrateTimeout = 10;
+
     public override string Author => "VolcanicArts";
     public override string Prefab => "VRCOSC-Heartrate";
     public override ModuleType ModuleType => ModuleType.Health;
+    protected override int DeltaUpdate => 2000;
     protected override int ChatBoxPriority => 2;
 
     private HeartRateProvider? heartRateProvider;
+    private int lastHeartrate;
+    private DateTimeOffset lastHeartrateTime;
+    private bool alreadyCleared;
+
+    protected bool IsReceiving => lastHeartrateTime + TimeSpan.FromSeconds(heartrateTimeout) >= DateTimeOffset.Now;
 
     protected abstract HeartRateProvider CreateHeartRateProvider();
 
@@ -35,6 +44,9 @@ public abstract class HeartRateModule : Module
         heartRateProvider.OnDisconnected += () => SendParameter(HeartrateParameter.Enabled, false);
         heartRateProvider.Initialise();
         heartRateProvider.Connect();
+
+        lastHeartrateTime = DateTimeOffset.Now - TimeSpan.FromSeconds(heartrateTimeout);
+        alreadyCleared = false;
     }
 
     protected override async void OnStop()
@@ -45,8 +57,35 @@ public abstract class HeartRateModule : Module
         SendParameter(HeartrateParameter.Enabled, false);
     }
 
+    protected override void OnUpdate()
+    {
+        if (!IsReceiving)
+        {
+            SendParameter(HeartrateParameter.Enabled, false);
+        }
+
+        if (GetSetting<bool>(HeartrateSetting.UseChatBox))
+        {
+            if (!IsReceiving)
+            {
+                if (!alreadyCleared) ClearChatBox();
+                alreadyCleared = true;
+            }
+            else
+            {
+                alreadyCleared = false;
+
+                var text = GetSetting<string>(HeartrateSetting.ChatBoxFormat).Replace("%hr%", lastHeartrate.ToString());
+                SetChatBoxText(text);
+            }
+        }
+    }
+
     protected virtual void HandleHeartRateUpdate(int heartrate)
     {
+        lastHeartrate = heartrate;
+        lastHeartrateTime = DateTimeOffset.Now;
+
         var normalisedHeartRate = heartrate / 60.0f;
         var individualValues = toDigitArray(heartrate, 3);
 
@@ -55,12 +94,6 @@ public abstract class HeartRateModule : Module
         SendParameter(HeartrateParameter.Units, individualValues[2] / 10f);
         SendParameter(HeartrateParameter.Tens, individualValues[1] / 10f);
         SendParameter(HeartrateParameter.Hundreds, individualValues[0] / 10f);
-
-        if (GetSetting<bool>(HeartrateSetting.UseChatBox))
-        {
-            var text = GetSetting<string>(HeartrateSetting.ChatBoxFormat).Replace("%hr%", heartrate.ToString());
-            SetChatBoxText(text);
-        }
     }
 
     private static int[] toDigitArray(int num, int totalWidth)

@@ -17,7 +17,7 @@ public sealed class SpeechToTextModule : Module
     public override string Description => "Speech to text using VOSK's local processing for VRChat's ChatBox";
     public override string Author => "VolcanicArts";
     public override ModuleType ModuleType => ModuleType.Accessibility;
-    protected override int ChatBoxPriority => 3;
+    protected override int ChatBoxPriority => 4;
 
     private readonly SpeechRecognitionEngine speechRecognitionEngine = new();
     private VoskRecognizer recognizer = null!;
