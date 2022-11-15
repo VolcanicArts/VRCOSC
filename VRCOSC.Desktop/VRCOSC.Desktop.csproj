@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup Label="Project">
-    <TargetFramework>net7.0-windows10.0.22000.0</TargetFramework>
+    <TargetFramework>net6.0-windows10.0.22000.0</TargetFramework>
     <OutputType>Exe</OutputType>
     <AssemblyName>VRCOSC</AssemblyName>
     <ApplicationIcon>game.ico</ApplicationIcon>
