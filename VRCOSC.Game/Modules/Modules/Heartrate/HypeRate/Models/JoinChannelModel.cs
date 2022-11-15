@@ -10,16 +10,16 @@ namespace VRCOSC.Game.Modules.Modules.Heartrate.HypeRate.Models;
 public sealed class JoinChannelModel
 {
     [JsonProperty("event")]
-    private string Event = "phx_join";
+    public string Event = "phx_join";
 
     [JsonProperty("payload")]
-    private JoinChannelPayload Payload = new();
+    public JoinChannelPayload Payload = new();
 
     [JsonProperty("ref")]
-    private int Ref;
+    public int Ref;
 
     [JsonProperty("topic")]
-    private string topic = null!;
+    public string topic = null!;
 
     [JsonIgnore]
     public string Id

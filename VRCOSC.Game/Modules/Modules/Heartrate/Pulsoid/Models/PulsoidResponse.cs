@@ -3,6 +3,8 @@
 
 using Newtonsoft.Json;
 
+#pragma warning disable CS8618
+
 namespace VRCOSC.Game.Modules.Modules.Heartrate.Pulsoid.Models;
 
 public sealed class PulsoidResponse

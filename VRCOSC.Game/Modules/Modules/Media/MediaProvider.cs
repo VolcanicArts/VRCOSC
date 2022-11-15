@@ -54,7 +54,7 @@ public class MediaProvider
     {
         if (!updateTrackedProcess(sender)) return;
 
-        State.Position = sender.ControlSession.GetTimelineProperties();
+        State.Position = sender.ControlSession?.GetTimelineProperties() ?? null;
 
         OnMediaSessionOpened?.Invoke();
     }
@@ -80,7 +80,9 @@ public class MediaProvider
     {
         if (!updateTrackedProcess(sender)) return;
 
-        var playbackInfo = sender.ControlSession.GetPlaybackInfo();
+        var playbackInfo = sender.ControlSession?.GetPlaybackInfo();
+        if (playbackInfo is null) return;
+
         State.IsShuffle = playbackInfo.IsShuffleActive ?? false;
         State.RepeatMode = playbackInfo.AutoRepeatMode ?? 0;
         State.Status = playbackInfo.PlaybackStatus;

@@ -92,7 +92,7 @@ public sealed class AboutScreen : Container
     {
         public IconUsage Icon { get; init; }
         public Colour4 BackgroundColour { get; init; }
-        public Action Action { get; init; }
+        public Action? Action { get; init; }
 
         [BackgroundDependencyLoader]
         private void load()

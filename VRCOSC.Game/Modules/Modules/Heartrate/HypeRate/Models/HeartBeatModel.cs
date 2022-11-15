@@ -10,16 +10,16 @@ namespace VRCOSC.Game.Modules.Modules.Heartrate.HypeRate.Models;
 public sealed class HeartBeatModel
 {
     [JsonProperty("event")]
-    private string Event = "heartbeat";
+    public string Event = "heartbeat";
 
     [JsonProperty("payload")]
-    private WebSocketHeartBeatPayload Payload = new();
+    public WebSocketHeartBeatPayload Payload = new();
 
     [JsonProperty("ref")]
-    private int Ref;
+    public int Ref;
 
     [JsonProperty("topic")]
-    private string Topic = "phoenix";
+    public string Topic = "phoenix";
 }
 
 public sealed class WebSocketHeartBeatPayload

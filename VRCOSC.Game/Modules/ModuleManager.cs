@@ -53,7 +53,7 @@ public sealed class ModuleManager : Component
 
     public bool Running { get; private set; }
 
-    private ChatBox ChatBox;
+    private ChatBox chatBox = null!;
 
     [Resolved]
     private VRCOSCConfigManager configManager { get; set; } = null!;
@@ -64,13 +64,13 @@ public sealed class ModuleManager : Component
     [BackgroundDependencyLoader]
     private void load(GameHost host, Storage storage)
     {
-        ChatBox = new ChatBox(OscClient);
+        chatBox = new ChatBox(OscClient);
 
         var moduleStorage = storage.GetStorageForDirectory("modules");
         module_types.ForEach(type =>
         {
             var module = (Module)Activator.CreateInstance(type)!;
-            module.Initialise(host, moduleStorage, OscClient, ChatBox);
+            module.Initialise(host, moduleStorage, OscClient, chatBox);
             Modules.Add(module);
         });
 
@@ -189,7 +189,7 @@ public sealed class ModuleManager : Component
             await module.stop();
         }
 
-        ChatBox.Clear(int.MaxValue);
+        chatBox.Clear(int.MaxValue);
 
         OscClient.DisableSend();
 
