@@ -3,6 +3,7 @@
 
 using System;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -24,6 +25,7 @@ public sealed class AboutScreen : Container
 
     private readonly FillFlowContainer buttonFlow;
     private readonly TextFlowContainer text;
+    private Bindable<string> versionBindable;
 
     public AboutScreen()
     {
@@ -80,7 +82,8 @@ public sealed class AboutScreen : Container
             }
         });
 
-        configManager.GetBindable<string>(VRCOSCSetting.Version).BindValueChanged(version =>
+        versionBindable = configManager.GetBindable<string>(VRCOSCSetting.Version);
+        versionBindable.BindValueChanged(version =>
         {
             text.Clear();
             text.AddText($"VRCOSC {version.NewValue}");

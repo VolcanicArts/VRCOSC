@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Reflection;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Configuration;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -26,6 +27,8 @@ public class VRCOSCGameBase : osu.Framework.Game
 
     protected DependencyContainer DependencyContainer = null!;
     protected VRCOSCConfigManager ConfigManager = null!;
+
+    private Bindable<string> versionBindable;
 
     private Version assemblyVersion => Assembly.GetEntryAssembly()?.GetName().Version ?? new Version();
 
@@ -55,6 +58,7 @@ public class VRCOSCGameBase : osu.Framework.Game
 
         DependencyContainer.CacheAs(ConfigManager = new VRCOSCConfigManager(storage));
 
-        ConfigManager.GetBindable<string>(VRCOSCSetting.Version).BindValueChanged(version => host.Window.Title = $"VRCOSC {version.NewValue}", true);
+        versionBindable = ConfigManager.GetBindable<string>(VRCOSCSetting.Version);
+        versionBindable.BindValueChanged(version => host.Window.Title = $"VRCOSC {version.NewValue}", true);
     }
 }
