@@ -14,6 +14,7 @@ public class OpenVRModule : Module
     public override string Author => "VolcanicArts";
     public override ModuleType ModuleType => ModuleType.General;
     protected override int DeltaUpdate => 5000;
+    protected override bool ExecuteUpdateImmediately => false;
 
     protected override void CreateAttributes()
     {
@@ -32,21 +33,18 @@ public class OpenVRModule : Module
         CreateParameter<float>(OpenVRParameter.Tracker8_Battery, ParameterMode.Write, "VRCOSC/OpenVR/Trackers/8/Battery", "The battery percentage normalised of tracker 8");
     }
 
-    protected override void OnStart()
-    {
-        OpenVrInterface.Init();
-    }
-
     protected override void OnUpdate()
     {
+        if (!OpenVrInterface.Init()) return;
+
         var battery = OpenVrInterface.GetHMDBatteryPercentage();
         if (battery is not null) SendParameter(OpenVRParameter.HMD_Battery, (float)battery);
 
         var batteryLeft = OpenVrInterface.GetLeftControllerBatteryPercentage();
-        var batteryRight = OpenVrInterface.GetRightControllerBatteryPercentage();
+        SendParameter(OpenVRParameter.LeftController_Battery, batteryLeft);
 
-        if (batteryLeft is not null) SendParameter(OpenVRParameter.LeftController_Battery, (float)batteryLeft);
-        if (batteryRight is not null) SendParameter(OpenVRParameter.RightController_Battery, (float)batteryRight);
+        var batteryRight = OpenVrInterface.GetRightControllerBatteryPercentage();
+        SendParameter(OpenVRParameter.RightController_Battery, batteryRight);
 
         var trackerBatteries = OpenVrInterface.GetTrackersBatteryPercentages().ToList();
 
@@ -54,10 +52,7 @@ public class OpenVRModule : Module
         {
             SendParameter(OpenVRParameter.Tracker1_Battery + i, trackerBatteries[i]);
         }
-    }
 
-    protected override void OnStop()
-    {
         OpenVR.Shutdown();
     }
 
