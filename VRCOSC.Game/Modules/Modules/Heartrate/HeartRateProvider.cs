@@ -34,6 +34,7 @@ public abstract class HeartRateProvider
         {
             HandleWsDisconnected();
             OnDisconnected?.Invoke();
+            wsHeartBeatTask?.Stop();
         };
         webSocket.OnWsMessage += HandleWsMessage;
 

@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace VRCOSC.Game.Modules.Modules.Heartrate;
 
@@ -20,6 +21,7 @@ public abstract class HeartRateModule : Module
     private int lastHeartrate;
     private DateTimeOffset lastHeartrateTime;
     private bool alreadyCleared;
+    private int connectionCount;
 
     protected bool IsReceiving => lastHeartrateTime + TimeSpan.FromSeconds(heartrateTimeout) >= DateTimeOffset.Now;
 
@@ -39,21 +41,39 @@ public abstract class HeartRateModule : Module
 
     protected override void OnStart()
     {
-        heartRateProvider = CreateHeartRateProvider();
-        heartRateProvider.OnHeartRateUpdate += HandleHeartRateUpdate;
-        heartRateProvider.OnDisconnected += () => SendParameter(HeartrateParameter.Enabled, false);
-        heartRateProvider.Initialise();
-        heartRateProvider.Connect();
+        attemptConnection();
 
         lastHeartrateTime = DateTimeOffset.Now - TimeSpan.FromSeconds(heartrateTimeout);
         alreadyCleared = false;
+    }
+
+    private void attemptConnection()
+    {
+        if (connectionCount >= 3)
+        {
+            Log("Connection cannot be established");
+            return;
+        }
+
+        connectionCount++;
+        heartRateProvider = CreateHeartRateProvider();
+        heartRateProvider.OnHeartRateUpdate += HandleHeartRateUpdate;
+        heartRateProvider.OnConnected += () => connectionCount = 0;
+        heartRateProvider.OnDisconnected += async () =>
+        {
+            SendParameter(HeartrateParameter.Enabled, false);
+            await Task.Delay(2000);
+            attemptConnection();
+        };
+        heartRateProvider.Initialise();
+        heartRateProvider.Connect();
     }
 
     protected override async void OnStop()
     {
         if (heartRateProvider is null) return;
 
-        await heartRateProvider.Disconnect();
+        if (connectionCount < 3) await heartRateProvider.Disconnect();
         SendParameter(HeartrateParameter.Enabled, false);
     }
 

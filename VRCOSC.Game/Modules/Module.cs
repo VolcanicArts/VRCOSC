@@ -28,7 +28,7 @@ public abstract class Module
     private Storage Storage = null!;
     private OscClient OscClient = null!;
     private TerminalLogger Terminal = null!;
-    private Bindable<ModuleState> State = null!;
+    protected Bindable<ModuleState> State = null!;
     private TimedTask? updateTask;
     private ChatBox ChatBox = null!;
 
