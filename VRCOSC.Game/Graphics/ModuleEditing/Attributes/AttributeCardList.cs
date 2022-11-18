@@ -110,10 +110,7 @@ public abstract class AttributeCardList : AttributeCard
         checkForDefault();
     }
 
-    protected virtual Bindable<object> GetDefaultItem()
-    {
-        return new Bindable<object>(AttributeData.AttributeList.Last().Value);
-    }
+    protected abstract Bindable<object> GetDefaultItem();
 
     private void performAttributeUpdate(ValueChangedEvent<object> e)
     {

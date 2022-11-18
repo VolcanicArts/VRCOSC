@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
@@ -20,6 +21,12 @@ public class TextAttributeCardList : AttributeCardList
     private void load()
     {
         AttributeData.AttributeList.ForEach(addTextBox);
+    }
+
+    protected override Bindable<object> GetDefaultItem()
+    {
+        var value = AttributeData.AttributeList.LastOrDefault()?.Value ?? string.Empty;
+        return new Bindable<object>(value);
     }
 
     private void addTextBox(Bindable<object> item)
