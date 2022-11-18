@@ -48,6 +48,8 @@ public class IconButton : BasicButton
 
     public int IconPadding { get; init; } = 8;
 
+    public bool IconShadow { get; init; } = false;
+
     [BackgroundDependencyLoader]
     private void load()
     {
@@ -86,7 +88,8 @@ public class IconButton : BasicButton
         {
             Anchor = Anchor.Centre,
             Origin = Anchor.Centre,
-            RelativeSizeAxes = Axes.Both
+            RelativeSizeAxes = Axes.Both,
+            Shadow = IconShadow
         };
     }
 }
