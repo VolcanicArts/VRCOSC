@@ -61,6 +61,8 @@ public abstract class HeartRateModule : Module
         heartRateProvider.OnConnected += () => connectionCount = 0;
         heartRateProvider.OnDisconnected += async () =>
         {
+            if (State.Value is ModuleState.Stopping or ModuleState.Stopped) return;
+
             SendParameter(HeartrateParameter.Enabled, false);
             await Task.Delay(2000);
             attemptConnection();
