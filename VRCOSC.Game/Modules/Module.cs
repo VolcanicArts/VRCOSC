@@ -74,6 +74,11 @@ public abstract class Module
     private bool ShouldUpdate => DeltaUpdate != int.MaxValue;
     private string FileName => @$"{GetType().Name}.ini";
 
+    protected bool IsStarting => State.Value == ModuleState.Starting;
+    protected bool HasStarted => State.Value == ModuleState.Started;
+    protected bool IsStopping => State.Value == ModuleState.Stopping;
+    protected bool HasStopped => State.Value == ModuleState.Stopped;
+
     public const string VRChatOscPrefix = @"/avatar/parameters/";
 
     #endregion
@@ -400,7 +405,7 @@ public abstract class Module
 
     protected void SendParameter<T>(Enum lookup, T value) where T : struct
     {
-        if (State.Value == ModuleState.Stopped) return;
+        if (HasStopped) return;
 
         GetOutputParameter(lookup).SendValue(value);
     }
