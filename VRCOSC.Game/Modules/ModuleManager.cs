@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -98,13 +98,10 @@ public sealed class ModuleManager : Component
 
         modulesRunning.BindValueChanged(e =>
         {
-            if (e.NewValue)
-                start();
-            else
-                _ = stop();
+            _ = e.NewValue ? start() : stop();
         });
 
-        if (modulesRunning.Value) start();
+        if (modulesRunning.Value) _ = start();
     }
 
     private static async Task focusVrc()
@@ -142,8 +139,10 @@ public sealed class ModuleManager : Component
         }
     }
 
-    private void start()
+    private async Task start()
     {
+        await Task.Delay(500);
+
         if (configManager.Get<bool>(VRCOSCSetting.AutoFocus)) _ = focusVrc();
 
         var ipAddress = configManager.Get<string>(VRCOSCSetting.IPAddress);
@@ -172,11 +171,7 @@ public sealed class ModuleManager : Component
             terminal.Log("Select some modules to begin using VRCOSC");
         }
 
-        Task.Run(() =>
-        {
-            Modules.ForEach(module => module.start());
-        });
-
+        Modules.ForEach(module => module.start());
         Running = true;
     }
 
