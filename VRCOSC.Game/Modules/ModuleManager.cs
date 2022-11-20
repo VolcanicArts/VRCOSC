@@ -141,7 +141,7 @@ public sealed class ModuleManager : Component
 
     private async Task start()
     {
-        await Task.Delay(500);
+        await Task.Delay(250);
 
         if (configManager.Get<bool>(VRCOSCSetting.AutoFocus)) _ = focusVrc();
 
