@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.EnumExtensions;
@@ -31,6 +32,7 @@ public abstract class Module
     protected Bindable<ModuleState> State = null!;
     private TimedTask? updateTask;
     private ChatBox ChatBox = null!;
+    private CancellationTokenSource? startCancellationTokenSource;
 
     public readonly BindableBool Enabled = new();
     public readonly Dictionary<string, ModuleAttribute> Settings = new();
@@ -148,25 +150,32 @@ public abstract class Module
 
     #region Events
 
-    internal async Task start()
+    internal void start()
     {
         if (!IsEnabled) return;
 
-        State.Value = ModuleState.Starting;
-        Player.Init();
+        startCancellationTokenSource = new CancellationTokenSource();
 
-        await OnStart();
+        Task.Run(async () =>
+        {
+            State.Value = ModuleState.Starting;
+            Player.Init();
 
-        if (ShouldUpdate) updateTask = new TimedTask(OnUpdate, DeltaUpdate, ExecuteUpdateImmediately).Start();
+            await OnStart();
 
-        OscClient.OnParameterReceived += onParameterReceived;
+            if (ShouldUpdate) updateTask = new TimedTask(OnUpdate, DeltaUpdate, ExecuteUpdateImmediately).Start();
 
-        State.Value = ModuleState.Started;
+            OscClient.OnParameterReceived += onParameterReceived;
+
+            State.Value = ModuleState.Started;
+        });
     }
 
     internal async Task stop()
     {
         if (!IsEnabled) return;
+
+        startCancellationTokenSource?.Cancel();
 
         State.Value = ModuleState.Stopping;
 
