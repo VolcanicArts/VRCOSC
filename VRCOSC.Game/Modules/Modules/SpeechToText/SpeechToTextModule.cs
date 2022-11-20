@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Vosk;
 using System;
+using System.Threading;
 
 namespace VRCOSC.Game.Modules.Modules.SpeechToText;
 
@@ -38,7 +39,7 @@ public sealed class SpeechToTextModule : Module
         CreateSetting(SpeechToTextSetting.FollowMute, "Follow Mute", "Should speech to text only be enabled if you're muted in game?", false);
     }
 
-    protected override Task OnStart()
+    protected override Task OnStart(CancellationToken cancellationToken)
     {
         if (!Directory.Exists(GetSetting<string>(SpeechToTextSetting.ModelLocation)))
         {

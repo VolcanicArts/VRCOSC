@@ -171,7 +171,7 @@ public sealed class ModuleManager : Component
             terminal.Log("Select some modules to begin using VRCOSC");
         }
 
-        Modules.ForEach(module => _ = module.start());
+        Modules.ForEach(module => module.start());
         Running = true;
     }
 

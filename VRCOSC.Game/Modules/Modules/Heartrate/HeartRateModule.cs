@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace VRCOSC.Game.Modules.Modules.Heartrate;
@@ -39,7 +40,7 @@ public abstract class HeartRateModule : Module
         CreateParameter<float>(HeartrateParameter.Hundreds, ParameterMode.Write, "VRCOSC/Heartrate/Hundreds", "The hundreds digit 0-9 mapped to a float");
     }
 
-    protected override Task OnStart()
+    protected override Task OnStart(CancellationToken cancellationToken)
     {
         attemptConnection();
 

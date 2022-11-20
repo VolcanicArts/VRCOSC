@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using VRCOSC.Game.Modules.Util;
 
@@ -43,7 +44,7 @@ public sealed class SpotifyModule : IntegrationModule
         RegisterKeyCombination(SpotifyParameter.VolumeDown, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_DOWN);
     }
 
-    protected override Task OnStart()
+    protected override Task OnStart(CancellationToken cancellationToken)
     {
         var shouldStart = GetSetting<bool>(SpotifySetting.ShouldStart);
         if (shouldStart) StartTarget();

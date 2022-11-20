@@ -161,7 +161,7 @@ public abstract class Module
             State.Value = ModuleState.Starting;
             Player.Init();
 
-            await OnStart();
+            await OnStart(startCancellationTokenSource.Token);
 
             if (ShouldUpdate) updateTask = new TimedTask(OnUpdate, DeltaUpdate, ExecuteUpdateImmediately).Start();
 
@@ -189,7 +189,7 @@ public abstract class Module
         State.Value = ModuleState.Stopped;
     }
 
-    protected virtual Task OnStart() => Task.CompletedTask;
+    protected virtual Task OnStart(CancellationToken cancellationToken) => Task.CompletedTask;
     protected virtual Task OnUpdate() => Task.CompletedTask;
     protected virtual Task OnStop() => Task.CompletedTask;
     protected virtual void OnAvatarChange() { }

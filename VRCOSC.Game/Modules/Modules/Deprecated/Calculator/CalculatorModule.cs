@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using osu.Framework.Platform.Windows;
 using VRCOSC.Game.Modules.Util;
@@ -53,7 +54,7 @@ public sealed class CalculatorModule : IntegrationModule
         RegisterKeyCombination(CalculatorNumbers.CalculatorNumber9, WindowsVKey.VK_NUMPAD9);
     }
 
-    protected override Task OnStart()
+    protected override Task OnStart(CancellationToken cancellationToken)
     {
         isCalculatorOpen = IsTargetProcessOpen();
         EnsureSingleTargetProcess();

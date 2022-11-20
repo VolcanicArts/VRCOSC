@@ -1,6 +1,7 @@
 // Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace VRCOSC.Game.Modules.Modules.HardwareStats;
@@ -35,7 +36,7 @@ public sealed class HardwareStatsModule : Module
         CreateParameter<int>(HardwareStatsParameter.RamAvailable, ParameterMode.Write, "VRCOSC/Hardware/RAMAvailable", "The available RAM in GB");
     }
 
-    protected override async Task OnStart()
+    protected override async Task OnStart(CancellationToken cancellationToken)
     {
         hardwareStatsProvider = new HardwareStatsProvider();
 
@@ -43,7 +44,7 @@ public sealed class HardwareStatsModule : Module
 
         while (!hardwareStatsProvider.CanAcceptQueries)
         {
-            await Task.Delay(1);
+            await Task.Delay(1, cancellationToken);
         }
 
         Log("Hardware monitors loaded!");
