@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Threading.Tasks;
 using VRCOSC.Game.Modules.Util;
 
 namespace VRCOSC.Game.Modules.Modules.Random;
@@ -23,9 +24,10 @@ public abstract class RandomModule<T> : Module where T : struct
         CreateParameter<T>(RandomParameter.RandomValue, ParameterMode.Write, $"VRCOSC/Random{typeof(T).ToReadableName()}", $"A random {typeof(T).ToReadableName()}");
     }
 
-    protected override void OnUpdate()
+    protected override Task OnUpdate()
     {
         SendParameter(RandomParameter.RandomValue, GetRandomValue());
+        return Task.CompletedTask;
     }
 
     protected abstract T GetRandomValue();

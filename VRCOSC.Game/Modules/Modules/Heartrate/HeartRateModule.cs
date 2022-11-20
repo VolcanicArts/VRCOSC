@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -39,12 +39,14 @@ public abstract class HeartRateModule : Module
         CreateParameter<float>(HeartrateParameter.Hundreds, ParameterMode.Write, "VRCOSC/Heartrate/Hundreds", "The hundreds digit 0-9 mapped to a float");
     }
 
-    protected override void OnStart()
+    protected override Task OnStart()
     {
         attemptConnection();
 
         lastHeartrateTime = DateTimeOffset.Now - TimeSpan.FromSeconds(heartrateTimeout);
         alreadyCleared = false;
+
+        return Task.CompletedTask;
     }
 
     private void attemptConnection()
@@ -71,7 +73,7 @@ public abstract class HeartRateModule : Module
         heartRateProvider.Connect();
     }
 
-    protected override async void OnStop()
+    protected override async Task OnStop()
     {
         if (heartRateProvider is null) return;
 
@@ -79,7 +81,7 @@ public abstract class HeartRateModule : Module
         SendParameter(HeartrateParameter.Enabled, false);
     }
 
-    protected override void OnUpdate()
+    protected override Task OnUpdate()
     {
         if (!IsReceiving)
         {
@@ -101,6 +103,8 @@ public abstract class HeartRateModule : Module
                 SetChatBoxText(text);
             }
         }
+
+        return Task.CompletedTask;
     }
 
     protected virtual void HandleHeartRateUpdate(int heartrate)

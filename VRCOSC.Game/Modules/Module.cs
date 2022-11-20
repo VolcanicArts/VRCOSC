@@ -148,14 +148,14 @@ public abstract class Module
 
     #region Events
 
-    internal void start()
+    internal async Task start()
     {
         if (!IsEnabled) return;
 
         State.Value = ModuleState.Starting;
         Player.Init();
 
-        OnStart();
+        await OnStart();
 
         if (ShouldUpdate) updateTask = new TimedTask(OnUpdate, DeltaUpdate, ExecuteUpdateImmediately).Start();
 
@@ -174,15 +174,15 @@ public abstract class Module
 
         if (updateTask is not null) await updateTask.Stop();
 
-        OnStop();
+        await OnStop();
 
         Player.ResetAll();
         State.Value = ModuleState.Stopped;
     }
 
-    protected virtual void OnStart() { }
-    protected virtual void OnUpdate() { }
-    protected virtual void OnStop() { }
+    protected virtual Task OnStart() => Task.CompletedTask;
+    protected virtual Task OnUpdate() => Task.CompletedTask;
+    protected virtual Task OnStop() => Task.CompletedTask;
     protected virtual void OnAvatarChange() { }
     protected virtual void OnPlayerStateUpdate(VRChatInputParameter key) { }
 

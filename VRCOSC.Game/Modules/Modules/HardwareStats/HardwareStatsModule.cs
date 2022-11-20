@@ -1,7 +1,7 @@
 // Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
+using System.Threading.Tasks;
 
 namespace VRCOSC.Game.Modules.Modules.HardwareStats;
 
@@ -35,17 +35,23 @@ public sealed class HardwareStatsModule : Module
         CreateParameter<int>(HardwareStatsParameter.RamAvailable, ParameterMode.Write, "VRCOSC/Hardware/RAMAvailable", "The available RAM in GB");
     }
 
-    protected override void OnStart()
+    protected override async Task OnStart()
     {
         hardwareStatsProvider = new HardwareStatsProvider();
+
         Log("Loading hardware monitors...");
+
+        while (!hardwareStatsProvider.CanAcceptQueries)
+        {
+            await Task.Delay(1);
+        }
+
+        Log("Hardware monitors loaded!");
     }
 
-    protected override void OnUpdate()
+    protected override Task OnUpdate()
     {
-        if (hardwareStatsProvider is null) throw new NullReferenceException();
-
-        if (!hardwareStatsProvider.CanAcceptQueries) return;
+        if (!hardwareStatsProvider!.CanAcceptQueries) return Task.CompletedTask;
 
         hardwareStatsProvider.Update();
 
@@ -59,6 +65,8 @@ public sealed class HardwareStatsModule : Module
         SendParameter(HardwareStatsParameter.RamAvailable, hardwareStatsProvider.RamAvailable);
 
         if (GetSetting<bool>(HardwareStatsSetting.UseChatBox)) updateChatBox();
+
+        return Task.CompletedTask;
     }
 
     private void updateChatBox()
@@ -76,10 +84,12 @@ public sealed class HardwareStatsModule : Module
         SetChatBoxText(text);
     }
 
-    protected override void OnStop()
+    protected override Task OnStop()
     {
         hardwareStatsProvider = null;
         ClearChatBox();
+
+        return Task.CompletedTask;
     }
 
     private enum HardwareStatsParameter

@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Threading.Tasks;
 using VRCOSC.Game.Modules.Util;
 
 namespace VRCOSC.Game.Modules.Modules.Deprecated.Spotify;
@@ -42,18 +43,22 @@ public sealed class SpotifyModule : IntegrationModule
         RegisterKeyCombination(SpotifyParameter.VolumeDown, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_DOWN);
     }
 
-    protected override void OnStart()
+    protected override Task OnStart()
     {
         var shouldStart = GetSetting<bool>(SpotifySetting.ShouldStart);
         if (shouldStart) StartTarget();
 
         currentTitle = string.Empty;
         displayTitle();
+
+        return Task.CompletedTask;
     }
 
-    protected override void OnUpdate()
+    protected override Task OnUpdate()
     {
         displayTitle();
+
+        return Task.CompletedTask;
     }
 
     private void displayTitle()
@@ -87,10 +92,12 @@ public sealed class SpotifyModule : IntegrationModule
         }
     }
 
-    protected override void OnStop()
+    protected override Task OnStop()
     {
         var shouldStop = GetSetting<bool>(SpotifySetting.ShouldStop);
         if (shouldStop) StopTarget();
+
+        return Task.CompletedTask;
     }
 
     protected override void OnButtonPressed(Enum key)

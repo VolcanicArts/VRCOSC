@@ -9,14 +9,14 @@ namespace VRCOSC.Game.Modules.Util;
 
 public sealed class TimedTask
 {
-    private readonly Action action;
+    private readonly Func<Task> action;
     private readonly double deltaTimeMilli;
     private readonly bool executeOnceImmediately;
 
     private PeriodicTimer? timer;
     private Task? timerTask;
 
-    public TimedTask(Action action, double deltaTimeMilli, bool executeOnceImmediately = false)
+    public TimedTask(Func<Task> action, double deltaTimeMilli, bool executeOnceImmediately = false)
     {
         this.action = action;
         this.deltaTimeMilli = deltaTimeMilli;
@@ -32,11 +32,11 @@ public sealed class TimedTask
 
     private async Task executeWork()
     {
-        if (executeOnceImmediately) action.Invoke();
+        if (executeOnceImmediately) await action.Invoke();
 
         while (await timer!.WaitForNextTickAsync())
         {
-            action.Invoke();
+            await action.Invoke();
         }
     }
 

@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Threading.Tasks;
 
 namespace VRCOSC.Game.Modules.Modules.Clock;
 
@@ -29,7 +30,7 @@ public sealed class ClockModule : Module
         CreateParameter<float>(ClockParameter.Seconds, ParameterMode.Write, "VRCOSC/Clock/Seconds", "The current second normalised");
     }
 
-    protected override void OnUpdate()
+    protected override Task OnUpdate()
     {
         var time = timezoneToTime(GetSetting<ClockTimeZone>(ClockSetting.Timezone));
 
@@ -58,6 +59,8 @@ public sealed class ClockModule : Module
 
             SetChatBoxText(text);
         }
+
+        return Task.CompletedTask;
     }
 
     private static float getSmoothedSeconds(DateTime time) => time.Second + time.Millisecond / 1000f;

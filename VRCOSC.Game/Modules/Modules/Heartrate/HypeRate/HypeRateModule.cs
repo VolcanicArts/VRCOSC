@@ -1,6 +1,8 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Threading.Tasks;
+
 namespace VRCOSC.Game.Modules.Modules.Heartrate.HypeRate;
 
 public sealed class HypeRateModule : HeartRateModule
@@ -23,19 +25,19 @@ public sealed class HypeRateModule : HeartRateModule
         CreateSetting(HypeRateSetting.Id, "HypeRate ID", "Your HypeRate ID given on your device", string.Empty);
     }
 
-    protected override void OnStart()
+    protected override Task OnStart()
     {
         var hypeRateId = GetSetting<string>(HypeRateSetting.Id);
 
         if (string.IsNullOrEmpty(hypeRateId))
         {
             Log("Cannot connect to HypeRate. Please enter an Id");
-            return;
+            return Task.CompletedTask;
         }
 
         SendParameter(HeartrateParameter.Enabled, false);
 
-        base.OnStart();
+        return base.OnStart();
     }
 
     protected override void HandleHeartRateUpdate(int heartrate)

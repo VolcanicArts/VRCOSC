@@ -42,6 +42,7 @@ public abstract class HeartRateProvider
         {
             HandleWsHeartBeat();
             OnWsHeartBeat?.Invoke();
+            return Task.CompletedTask;
         }, WebSocketHeartBeat);
     }
 

@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Linq;
+using System.Threading.Tasks;
 using Valve.VR;
 using VRCOSC.Game.Modules.Util;
 
@@ -33,9 +34,9 @@ public class OpenVRModule : Module
         CreateParameter<float>(OpenVRParameter.Tracker8_Battery, ParameterMode.Write, "VRCOSC/OpenVR/Trackers/8/Battery", "The battery percentage normalised of tracker 8");
     }
 
-    protected override void OnUpdate()
+    protected override Task OnUpdate()
     {
-        if (!OpenVrInterface.Init()) return;
+        if (!OpenVrInterface.Init()) return Task.CompletedTask;
 
         var battery = OpenVrInterface.GetHMDBatteryPercentage();
         if (battery is not null) SendParameter(OpenVRParameter.HMD_Battery, (float)battery);
@@ -54,6 +55,8 @@ public class OpenVRModule : Module
         }
 
         OpenVR.Shutdown();
+
+        return Task.CompletedTask;
     }
 
     private enum OpenVRParameter

@@ -41,7 +41,7 @@ public sealed class MediaModule : Module
         CreateParameter<bool>(MediaParameter.Previous, ParameterMode.Read, "VRCOSC/Media/Previous", "Becoming true causes the previous track to play", ActionMenu.Button);
     }
 
-    protected override void OnStart()
+    protected override Task OnStart()
     {
         mediaProvider.OnMediaSessionOpened += OnMediaSessionOpened;
         mediaProvider.OnMediaUpdate += OnMediaUpdate;
@@ -58,13 +58,17 @@ public sealed class MediaModule : Module
         });
 
         shouldClear = false;
+
+        return Task.CompletedTask;
     }
 
-    protected override void OnStop()
+    protected override Task OnStop()
     {
         mediaProvider.StopMediaHook();
         mediaProvider.OnMediaSessionOpened -= OnMediaSessionOpened;
         mediaProvider.OnMediaUpdate -= OnMediaUpdate;
+
+        return Task.CompletedTask;
     }
 
     protected override void OnAvatarChange()
@@ -74,13 +78,15 @@ public sealed class MediaModule : Module
         display();
     }
 
-    protected override void OnUpdate()
+    protected override Task OnUpdate()
     {
         if (mediaProvider.Controller is not null) mediaProvider.State.Position = mediaProvider.Controller.GetTimelineProperties();
 
         sendVolumeParameters();
 
         if (GetSetting<bool>(MediaSetting.ContinuousShow)) display();
+
+        return Task.CompletedTask;
     }
 
     protected override void OnRadialPuppetChange(Enum key, float value)
