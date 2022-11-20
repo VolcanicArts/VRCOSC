@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
@@ -47,6 +48,7 @@ public sealed class ModuleManager : Component
     private bool autoStarted;
     private Bindable<bool> autoStartStop = null!;
     private readonly TerminalLogger terminal = new(nameof(ModuleManager));
+    private CancellationTokenSource startCancellationTokenSource = null!;
 
     public readonly List<Module> Modules = new();
     public readonly OscClient OscClient = new();
@@ -98,13 +100,33 @@ public sealed class ModuleManager : Component
 
         modulesRunning.BindValueChanged(e =>
         {
-            _ = e.NewValue ? start() : stop();
+            if (e.NewValue)
+            {
+                startProxy();
+            }
+            else
+            {
+                Task.Run(stop);
+            }
         });
 
-        if (modulesRunning.Value) _ = start();
+        if (modulesRunning.Value)
+        {
+            startProxy();
+        }
     }
 
-    private static async Task focusVrc()
+    private void startProxy()
+    {
+        try
+        {
+            startCancellationTokenSource = new CancellationTokenSource();
+            Task.Run(start, startCancellationTokenSource.Token);
+        }
+        catch (TaskCanceledException) { }
+    }
+
+    private async Task focusVrc()
     {
         var process = Process.GetProcessesByName("vrchat").FirstOrDefault();
         if (process is null) return;
@@ -112,11 +134,11 @@ public sealed class ModuleManager : Component
         if (process.MainWindowHandle == IntPtr.Zero)
         {
             ProcessExtensions.ShowMainWindow(process, ShowWindowEnum.Restore);
-            await Task.Delay(5);
+            await Task.Delay(5, startCancellationTokenSource.Token);
         }
 
         ProcessExtensions.ShowMainWindow(process, ShowWindowEnum.ShowDefault);
-        await Task.Delay(5);
+        await Task.Delay(5, startCancellationTokenSource.Token);
         ProcessExtensions.SetMainWindowForeground(process);
     }
 
@@ -141,9 +163,9 @@ public sealed class ModuleManager : Component
 
     private async Task start()
     {
-        await Task.Delay(250);
+        await Task.Delay(250, startCancellationTokenSource.Token);
 
-        if (configManager.Get<bool>(VRCOSCSetting.AutoFocus)) _ = focusVrc();
+        if (configManager.Get<bool>(VRCOSCSetting.AutoFocus)) await focusVrc();
 
         var ipAddress = configManager.Get<string>(VRCOSCSetting.IPAddress);
         var sendPort = configManager.Get<int>(VRCOSCSetting.SendPort);
@@ -171,12 +193,18 @@ public sealed class ModuleManager : Component
             terminal.Log("Select some modules to begin using VRCOSC");
         }
 
-        Modules.ForEach(module => module.start());
+        foreach (var module in Modules)
+        {
+            _ = module.start(startCancellationTokenSource.Token);
+        }
+
         Running = true;
     }
 
     private async Task stop()
     {
+        startCancellationTokenSource?.Cancel();
+
         await OscClient.DisableReceive();
 
         foreach (var module in Modules)
@@ -189,11 +217,5 @@ public sealed class ModuleManager : Component
         OscClient.DisableSend();
 
         Running = false;
-    }
-
-    protected override void Dispose(bool isDisposing)
-    {
-        if (modulesRunning.Value) _ = stop();
-        base.Dispose(isDisposing);
     }
 }

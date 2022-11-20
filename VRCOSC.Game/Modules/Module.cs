@@ -32,7 +32,6 @@ public abstract class Module
     protected Bindable<ModuleState> State = null!;
     private TimedTask? updateTask;
     private ChatBox ChatBox = null!;
-    private CancellationTokenSource? startCancellationTokenSource;
 
     public readonly BindableBool Enabled = new();
     public readonly Dictionary<string, ModuleAttribute> Settings = new();
@@ -150,32 +149,25 @@ public abstract class Module
 
     #region Events
 
-    internal void start()
+    internal async Task start(CancellationToken cancellationToken)
     {
         if (!IsEnabled) return;
 
-        startCancellationTokenSource = new CancellationTokenSource();
+        State.Value = ModuleState.Starting;
+        Player.Init();
 
-        Task.Run(async () =>
-        {
-            State.Value = ModuleState.Starting;
-            Player.Init();
+        await OnStart(cancellationToken);
 
-            await OnStart(startCancellationTokenSource.Token);
+        if (ShouldUpdate) updateTask = new TimedTask(OnUpdate, DeltaUpdate, ExecuteUpdateImmediately).Start();
 
-            if (ShouldUpdate) updateTask = new TimedTask(OnUpdate, DeltaUpdate, ExecuteUpdateImmediately).Start();
+        OscClient.OnParameterReceived += onParameterReceived;
 
-            OscClient.OnParameterReceived += onParameterReceived;
-
-            State.Value = ModuleState.Started;
-        });
+        State.Value = ModuleState.Started;
     }
 
     internal async Task stop()
     {
         if (!IsEnabled) return;
-
-        startCancellationTokenSource?.Cancel();
 
         State.Value = ModuleState.Stopping;
 
