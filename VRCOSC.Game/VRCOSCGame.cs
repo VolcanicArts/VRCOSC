@@ -1,7 +1,6 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
@@ -107,14 +106,14 @@ public abstract class VRCOSCGame : VRCOSCGameBase
 
     protected override bool OnExiting()
     {
+        moduleManager.Running.ValueChanged += e =>
+        {
+            if (!e.NewValue) Exit();
+        };
+
         ModulesRunning.Value = false;
 
-        while (moduleManager.Running)
-        {
-            Task.Delay(1);
-        }
-
-        return base.OnExiting();
+        return true;
     }
 
     protected abstract VRCOSCUpdateManager CreateUpdateManager();

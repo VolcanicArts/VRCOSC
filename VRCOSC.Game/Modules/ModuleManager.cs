@@ -52,8 +52,7 @@ public sealed class ModuleManager : Component
 
     public readonly List<Module> Modules = new();
     public readonly OscClient OscClient = new();
-
-    public bool Running { get; private set; }
+    public readonly Bindable<bool> Running = new();
 
     private ChatBox chatBox = null!;
 
@@ -198,7 +197,7 @@ public sealed class ModuleManager : Component
             _ = module.start(startCancellationTokenSource.Token);
         }
 
-        Running = true;
+        Running.Value = true;
     }
 
     private async Task stop()
@@ -216,6 +215,6 @@ public sealed class ModuleManager : Component
 
         OscClient.DisableSend();
 
-        Running = false;
+        Running.Value = false;
     }
 }

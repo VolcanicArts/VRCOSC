@@ -100,7 +100,7 @@ public sealed class DrawableTab : ClickableContainer
 
     protected override bool OnClick(ClickEvent e)
     {
-        if (moduleManager.Running)
+        if (moduleManager.Running.Value)
         {
             background.FlashColour(VRCOSCColour.Red, 250, Easing.OutQuad);
             return true;
