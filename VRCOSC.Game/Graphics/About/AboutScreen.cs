@@ -25,7 +25,7 @@ public sealed class AboutScreen : Container
 
     private readonly FillFlowContainer buttonFlow;
     private readonly TextFlowContainer text;
-    private Bindable<string> versionBindable;
+    private Bindable<string> versionBindable = null!;
 
     public AboutScreen()
     {

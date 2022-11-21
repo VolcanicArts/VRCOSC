@@ -28,7 +28,7 @@ public class VRCOSCGameBase : osu.Framework.Game
     protected DependencyContainer DependencyContainer = null!;
     protected VRCOSCConfigManager ConfigManager = null!;
 
-    private Bindable<string> versionBindable;
+    private Bindable<string> versionBindable = null!;
 
     private Version assemblyVersion => Assembly.GetEntryAssembly()?.GetName().Version ?? new Version();
 
