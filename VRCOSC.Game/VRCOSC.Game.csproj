@@ -11,7 +11,7 @@
   <ItemGroup>
     <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.1" />
     <PackageReference Include="OVRSharp" Version="1.2.0" />
-    <PackageReference Include="ppy.osu.Framework" Version="2022.1118.0" />
+    <PackageReference Include="ppy.osu.Framework" Version="2022.1124.0" />
     <PackageReference Include="System.Speech" Version="7.0.0" />
     <PackageReference Include="Vosk" Version="0.3.38" />
     <PackageReference Include="WebSocket4Net" Version="0.15.2" />
