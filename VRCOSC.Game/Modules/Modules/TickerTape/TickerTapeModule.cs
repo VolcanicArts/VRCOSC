@@ -13,9 +13,9 @@ public class TickerTapeModule : Module
     public override string Author => "VolcanicArts";
     public override ModuleType ModuleType => ModuleType.General;
     protected override int ChatBoxPriority => 2;
-    protected override int DeltaUpdate => 2000;
+    protected override int DeltaUpdate => 1550;
 
-    private const int max_char_length = 15;
+    private const int max_char_length = 20;
     private int startingIndex;
 
     protected override void CreateAttributes()
