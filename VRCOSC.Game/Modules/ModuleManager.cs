@@ -29,7 +29,7 @@ using VRCOSC.OSC;
 
 namespace VRCOSC.Game.Modules;
 
-public sealed class ModuleManager : Component
+public sealed partial class ModuleManager : Component
 {
     private static readonly IReadOnlyList<Type> module_types = new[]
     {
