@@ -23,6 +23,7 @@ using VRCOSC.Game.Modules.Modules.Media;
 using VRCOSC.Game.Modules.Modules.Random;
 //using VRCOSC.Game.Modules.Modules.SpeechToText;
 //using VRCOSC.Game.Modules.Modules.SteamVR;
+using VRCOSC.Game.Modules.Modules.TickerTape;
 using VRCOSC.Game.Util;
 using VRCOSC.OSC;
 
@@ -43,6 +44,7 @@ public sealed class ModuleManager : Component
         typeof(MediaModule),
         typeof(DiscordModule),
         //typeof(SpeechToTextModule)
+        typeof(TickerTapeModule)
     };
 
     private bool autoStarted;
