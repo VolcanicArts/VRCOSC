@@ -47,11 +47,12 @@ public abstract class Module
     protected virtual int ChatBoxPriority => 0;
 
     protected Player Player = null!;
+    protected OpenVrInterface OpenVrInterface = null!;
 
     public const float vrc_osc_update_rate = 20;
     public static readonly int vrc_osc_delta_update = (int)((1f / vrc_osc_update_rate) * 1000f);
 
-    public void Initialise(GameHost host, Storage storage, OscClient oscClient, ChatBox chatBox)
+    public void Initialise(GameHost host, Storage storage, OscClient oscClient, ChatBox chatBox, OpenVrInterface openVrInterface)
     {
         Host = host;
         Storage = storage;
@@ -60,6 +61,7 @@ public abstract class Module
         Terminal = new TerminalLogger(GetType().Name);
         State = new Bindable<ModuleState>(ModuleState.Stopped);
         Player = new Player(OscClient);
+        OpenVrInterface = openVrInterface;
 
         CreateAttributes();
         performLoad();

@@ -6,6 +6,7 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Platform;
+using Valve.VR;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics;
 using VRCOSC.Game.Graphics.Notifications;
@@ -13,13 +14,14 @@ using VRCOSC.Game.Graphics.Settings;
 using VRCOSC.Game.Graphics.TabBar;
 using VRCOSC.Game.Graphics.Updater;
 using VRCOSC.Game.Modules;
+using VRCOSC.Game.Modules.Util;
 
 // ReSharper disable InconsistentNaming
 
 namespace VRCOSC.Game;
 
 [Cached]
-public abstract class VRCOSCGame : VRCOSCGameBase
+public abstract partial class VRCOSCGame : VRCOSCGameBase
 {
     private const string latest_release_url = "https://github.com/volcanicarts/vrcosc/releases/latest";
     private const string discord_invite_url = "https://discord.gg/vj4brHyvT5";
@@ -33,6 +35,7 @@ public abstract class VRCOSCGame : VRCOSCGameBase
     public VRCOSCUpdateManager UpdateManager = null!;
 
     private NotificationContainer notificationContainer = null!;
+    private OpenVrInterface openVrInterface = null!;
 
     public Bindable<string> SearchTermFilter = new(string.Empty);
     public Bindable<ModuleType?> TypeFilter = new();
@@ -55,6 +58,9 @@ public abstract class VRCOSCGame : VRCOSCGameBase
         notificationContainer = new NotificationContainer();
         DependencyContainer.CacheAs(notificationContainer);
 
+        openVrInterface = new OpenVrInterface();
+        DependencyContainer.CacheAs(openVrInterface);
+
         Children = new Drawable[]
         {
             moduleManager,
@@ -66,12 +72,19 @@ public abstract class VRCOSCGame : VRCOSCGameBase
         ChangeChildDepth(notificationContainer, float.MinValue);
     }
 
+    protected override void Update()
+    {
+        openVrInterface.Poll();
+    }
+
     protected override void LoadComplete()
     {
         base.LoadComplete();
 
         checkUpdates();
         checkVersion();
+
+        openVrInterface.Init();
 
         notificationContainer.Notify(new TimedNotification
         {
@@ -122,6 +135,8 @@ public abstract class VRCOSCGame : VRCOSCGameBase
         }, true);
 
         ModulesRunning.Value = false;
+
+        OpenVR.Shutdown();
 
         return true;
     }

@@ -65,7 +65,7 @@ public sealed partial class ModuleManager : Component
     private BindableBool modulesRunning { get; set; } = null!;
 
     [BackgroundDependencyLoader]
-    private void load(GameHost host, Storage storage)
+    private void load(GameHost host, Storage storage, OpenVrInterface openVrInterface)
     {
         chatBox = new ChatBox(OscClient);
 
@@ -73,7 +73,7 @@ public sealed partial class ModuleManager : Component
         module_types.ForEach(type =>
         {
             var module = (Module)Activator.CreateInstance(type)!;
-            module.Initialise(host, moduleStorage, OscClient, chatBox);
+            module.Initialise(host, moduleStorage, OscClient, chatBox, openVrInterface);
             Modules.Add(module);
         });
 

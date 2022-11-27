@@ -9,16 +9,64 @@ using Valve.VR;
 
 namespace VRCOSC.Game.Modules.Util;
 
-public static class OpenVrInterface
+public class OpenVrInterface
 {
-    public static bool Init()
+    private readonly Dictionary<EVRButtonId, bool> touchTracker = new()
+    {
+        { EVRButtonId.k_EButton_IndexController_A, false },
+        { EVRButtonId.k_EButton_IndexController_B, false },
+        { EVRButtonId.k_EButton_SteamVR_Touchpad, false },
+        { EVRButtonId.k_EButton_IndexController_JoyStick, false }
+    };
+
+    public bool Init()
     {
         var err = new EVRInitError();
-        OpenVR.Init(ref err, EVRApplicationType.VRApplication_Background);
+        OpenVR.Init(ref err, EVRApplicationType.VRApplication_Utility);
         return err == EVRInitError.None;
     }
 
-    public static float? GetHMDBatteryPercentage()
+    public unsafe void Poll()
+    {
+        try
+        {
+            bool hasEvents;
+
+            do
+            {
+                var evenT = new VREvent_t();
+                hasEvents = OpenVR.System.PollNextEvent(ref evenT, (uint)sizeof(VREvent_t));
+
+                switch ((EVREventType)evenT.eventType)
+                {
+                    case EVREventType.VREvent_ButtonTouch:
+                        var touchedButton = (EVRButtonId)evenT.data.controller.button;
+
+                        if (touchTracker.ContainsKey(touchedButton))
+                        {
+                            touchTracker[touchedButton] = true;
+                            Console.WriteLine($"Setting {touchedButton} state to true");
+                        }
+
+                        break;
+
+                    case EVREventType.VREvent_ButtonUntouch:
+                        var untouchedButton = (EVRButtonId)evenT.data.controller.button;
+
+                        if (touchTracker.ContainsKey(untouchedButton))
+                        {
+                            touchTracker[untouchedButton] = false;
+                            Console.WriteLine($"Setting {untouchedButton} state to false");
+                        }
+
+                        break;
+                }
+            } while (hasEvents);
+        }
+        catch (NullReferenceException) { }
+    }
+
+    public float? GetHMDBatteryPercentage()
     {
         try
         {
@@ -37,19 +85,19 @@ public static class OpenVrInterface
         }
     }
 
-    public static float GetLeftControllerBatteryPercentage()
+    public float GetLeftControllerBatteryPercentage()
     {
         var id = getControllerUint("left");
         return id == uint.MaxValue ? 0 : getFloatTrackedDeviceProperty(id, ETrackedDeviceProperty.Prop_DeviceBatteryPercentage_Float);
     }
 
-    public static float GetRightControllerBatteryPercentage()
+    public float GetRightControllerBatteryPercentage()
     {
         var id = getControllerUint("right");
         return id == uint.MaxValue ? 0 : getFloatTrackedDeviceProperty(id, ETrackedDeviceProperty.Prop_DeviceBatteryPercentage_Float);
     }
 
-    public static IEnumerable<float> GetTrackersBatteryPercentages()
+    public IEnumerable<float> GetTrackersBatteryPercentages()
     {
         try
         {
@@ -62,7 +110,7 @@ public static class OpenVrInterface
         }
     }
 
-    private static uint getControllerUint(string identifier)
+    private uint getControllerUint(string identifier)
     {
         try
         {
@@ -82,7 +130,7 @@ public static class OpenVrInterface
         }
     }
 
-    private static string getStringTrackedDeviceProperty(uint index, ETrackedDeviceProperty property)
+    private string getStringTrackedDeviceProperty(uint index, ETrackedDeviceProperty property)
     {
         var error = new ETrackedPropertyError();
         StringBuilder sb = new StringBuilder((int)OpenVR.k_unMaxPropertyStringSize);
@@ -90,13 +138,13 @@ public static class OpenVrInterface
         return sb.ToString();
     }
 
-    private static float getFloatTrackedDeviceProperty(uint index, ETrackedDeviceProperty property)
+    private float getFloatTrackedDeviceProperty(uint index, ETrackedDeviceProperty property)
     {
         var error = new ETrackedPropertyError();
         return OpenVR.System.GetFloatTrackedDeviceProperty(index, property, ref error);
     }
 
-    private static List<uint> getIndexesForTrackedDeviceClass(ETrackedDeviceClass klass)
+    private List<uint> getIndexesForTrackedDeviceClass(ETrackedDeviceClass klass)
     {
         var result = new List<uint>();
 
@@ -107,4 +155,13 @@ public static class OpenVrInterface
 
         return result;
     }
+}
+
+public enum OpenVRButton
+{
+    None,
+    A,
+    B,
+    Stick,
+    Pad
 }
