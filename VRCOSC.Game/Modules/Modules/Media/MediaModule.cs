@@ -44,6 +44,8 @@ public sealed class MediaModule : ChatBoxModule
     {
         if (!mediaProvider.State.IsPlaying) return string.Empty;
 
+        mediaProvider.State.Position = mediaProvider.Controller?.GetTimelineProperties() ?? null;
+
         var formattedText = GetSetting<string>(ChatBoxSetting.ChatBoxFormat)
                             .Replace("%title%", mediaProvider.State.Title)
                             .Replace("%artist%", mediaProvider.State.Artist)
@@ -77,10 +79,7 @@ public sealed class MediaModule : ChatBoxModule
 
     protected override Task OnUpdate()
     {
-        if (mediaProvider.Controller is not null) mediaProvider.State.Position = mediaProvider.Controller.GetTimelineProperties();
-
         sendVolumeParameters();
-
         return Task.CompletedTask;
     }
 

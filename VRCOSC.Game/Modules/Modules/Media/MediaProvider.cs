@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,14 +17,10 @@ public class MediaProvider
     private Process? trackedProcess;
     private string? lastSender;
 
-    private int trackedProcessId => trackedProcess?.Id ?? -1;
-
     public MediaState State { get; private set; } = null!;
 
     public GlobalSystemMediaTransportControlsSession? Controller
         => mediaManager?.CurrentMediaSessions.ContainsKey(lastSender ?? string.Empty) ?? false ? mediaManager.CurrentMediaSessions[lastSender!].ControlSession : null;
-
-    public IEnumerable<string> ProcessExclusions = Array.Empty<string>();
 
     public Action? OnMediaSessionOpened;
     public Action? OnMediaUpdate;
@@ -95,14 +90,10 @@ public class MediaProvider
 
     private bool updateTrackedProcess(MediaManager.MediaSession sender)
     {
-        var senderName = sender.Id.Replace(".exe", string.Empty);
-
-        if (ProcessExclusions.Contains(senderName)) return false;
-
-        if (lastSender != senderName)
+        if (lastSender is null || lastSender != sender.Id)
         {
-            trackedProcess = Process.GetProcessesByName(senderName).FirstOrDefault();
-            lastSender = trackedProcess is null ? null : senderName;
+            trackedProcess = Process.GetProcessesByName(sender.Id.Replace(".exe", string.Empty)).FirstOrDefault();
+            lastSender = trackedProcess is null ? null : sender.Id;
         }
 
         return true;
