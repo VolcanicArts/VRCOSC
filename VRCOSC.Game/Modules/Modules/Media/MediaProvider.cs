@@ -41,7 +41,6 @@ public class MediaProvider
     {
         mediaManager?.Dispose();
         mediaManager = null;
-
         lastSender = null;
         trackedProcess = null;
     }
@@ -49,8 +48,6 @@ public class MediaProvider
     private void MediaManager_OnAnySessionOpened(MediaManager.MediaSession sender)
     {
         if (!updateTrackedProcess(sender)) return;
-
-        State.Position = sender.ControlSession?.GetTimelineProperties() ?? null;
 
         OnMediaSessionOpened?.Invoke();
     }
