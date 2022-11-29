@@ -3,14 +3,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Media;
 
 namespace VRCOSC.Game.Modules.Modules.Media;
 
-public sealed class MediaModule : Module
+public sealed class MediaModule : ChatBoxModule
 {
     public override string Title => "Media";
     public override string Description => "Integration with Windows Media";
@@ -20,18 +19,15 @@ public sealed class MediaModule : Module
     public override ModuleType ModuleType => ModuleType.Integrations;
     protected override int ChatBoxPriority => 3;
 
+    protected override bool DefaultChatBoxDisplay => true;
+    protected override string DefaultChatBoxFormat => "[%curtime%/%duration%]                            Now Playing: %artist% - %title%";
+    protected override IEnumerable<string> ChatBoxFormatValues => new[] { "%title%", "%artist%", "%curtime%", "%duration%" };
+
     private readonly MediaProvider mediaProvider = new();
-    private bool shouldClear;
 
     protected override void CreateAttributes()
     {
-        CreateSetting(MediaSetting.Display, "Display", "If the song's details should be displayed in VRChat's ChatBox", true);
-        CreateSetting(MediaSetting.ChatBoxFormat, "ChatBox Format", "How displaying the song's details should be formatted for the ChatBox.\nAvailable values: %title%, %artist%, %curtime%, %duration%.",
-            "[%curtime%/%duration%]                            Now Playing: %artist% - %title%");
-        CreateSetting(MediaSetting.ContinuousShow, "Continuous Show", "Should the ChatBox always be showing the song's details? If you want to show the current time, this should be on", true);
-        CreateSetting(MediaSetting.DisplayPeriod, "Display Period", "How long should the song's details display for when overwriting the ChatBox (Milliseconds). This is only applicable when Continuous Show is off", 5000);
-        CreateSetting(MediaSetting.LaunchList, "Launch List", "What programs to launch on module start", new[] { $@"C:\Users\{Environment.UserName}\AppData\Roaming\Spotify\spotify.exe" }, true);
-        CreateSetting(MediaSetting.Exclusions, "Program Exclusions", "Which programs should be ignored if they try to take control of media? I.E, Chrome, Spotify, etc...", new[] { "chrome" }, true);
+        base.CreateAttributes();
 
         CreateParameter<bool>(MediaParameter.Play, ParameterMode.ReadWrite, "VRCOSC/Media/Play", "True for playing. False for paused");
         CreateParameter<float>(MediaParameter.Volume, ParameterMode.ReadWrite, "VRCOSC/Media/Volume", "The volume of the process that is controlling the media", ActionMenu.Radial);
@@ -42,41 +38,41 @@ public sealed class MediaModule : Module
         CreateParameter<bool>(MediaParameter.Previous, ParameterMode.Read, "VRCOSC/Media/Previous", "Becoming true causes the previous track to play", ActionMenu.Button);
     }
 
+    protected override string GetChatBoxText()
+    {
+        if (!mediaProvider.State.IsPlaying) return string.Empty;
+
+        var formattedText = GetSetting<string>(ChatBoxSetting.ChatBoxFormat)
+                            .Replace("%title%", mediaProvider.State.Title)
+                            .Replace("%artist%", mediaProvider.State.Artist)
+                            .Replace("%curtime%", mediaProvider.State.Position?.Position.ToString(@"mm\:ss") ?? "00:00")
+                            .Replace("%duration%", mediaProvider.State.Position?.EndTime.ToString(@"mm\:ss") ?? "00:00");
+
+        return formattedText;
+    }
+
     protected override Task OnStart(CancellationToken cancellationToken)
     {
+        base.OnStart(cancellationToken);
         mediaProvider.OnMediaSessionOpened += OnMediaSessionOpened;
         mediaProvider.OnMediaUpdate += OnMediaUpdate;
-        mediaProvider.ProcessExclusions = GetSetting<List<string>>(MediaSetting.Exclusions);
         mediaProvider.StartMediaHook();
-
-        GetSetting<List<string>>(MediaSetting.LaunchList).ForEach(program =>
-        {
-            try
-            {
-                Process.Start(program);
-            }
-            catch (Exception) { }
-        });
-
-        shouldClear = false;
 
         return Task.CompletedTask;
     }
 
-    protected override Task OnStop()
+    protected override async Task OnStop()
     {
+        await base.OnStop();
         mediaProvider.StopMediaHook();
         mediaProvider.OnMediaSessionOpened -= OnMediaSessionOpened;
         mediaProvider.OnMediaUpdate -= OnMediaUpdate;
-
-        return Task.CompletedTask;
     }
 
     protected override void OnAvatarChange()
     {
         sendVolumeParameters();
         sendMediaParameters();
-        display();
     }
 
     protected override Task OnUpdate()
@@ -84,8 +80,6 @@ public sealed class MediaModule : Module
         if (mediaProvider.Controller is not null) mediaProvider.State.Position = mediaProvider.Controller.GetTimelineProperties();
 
         sendVolumeParameters();
-
-        if (GetSetting<bool>(MediaSetting.ContinuousShow)) display();
 
         return Task.CompletedTask;
     }
@@ -161,7 +155,6 @@ public sealed class MediaModule : Module
     private void OnMediaUpdate()
     {
         sendMediaParameters();
-        display();
     }
 
     private void sendMediaParameters()
@@ -175,38 +168,6 @@ public sealed class MediaModule : Module
     {
         SendParameter(MediaParameter.Volume, mediaProvider.GetVolume());
         SendParameter(MediaParameter.Muted, mediaProvider.IsMuted());
-    }
-
-    private void display()
-    {
-        if (!GetSetting<bool>(MediaSetting.Display)) return;
-
-        if (!mediaProvider.State.IsPlaying)
-        {
-            if (GetSetting<bool>(MediaSetting.ContinuousShow) && shouldClear) ClearChatBox();
-            shouldClear = false;
-            return;
-        }
-
-        shouldClear = true;
-
-        var formattedText = GetSetting<string>(MediaSetting.ChatBoxFormat)
-                            .Replace("%title%", mediaProvider.State.Title)
-                            .Replace("%artist%", mediaProvider.State.Artist)
-                            .Replace("%curtime%", mediaProvider.State.Position?.Position.ToString(@"mm\:ss") ?? "00:00")
-                            .Replace("%duration%", mediaProvider.State.Position?.EndTime.ToString(@"mm\:ss") ?? "00:00");
-
-        SetChatBoxText(formattedText, GetSetting<int>(MediaSetting.DisplayPeriod));
-    }
-
-    private enum MediaSetting
-    {
-        Display,
-        ChatBoxFormat,
-        DisplayPeriod,
-        ContinuousShow,
-        LaunchList,
-        Exclusions
     }
 
     private enum MediaParameter

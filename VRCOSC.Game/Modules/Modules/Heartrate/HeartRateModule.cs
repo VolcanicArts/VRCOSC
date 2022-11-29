@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace VRCOSC.Game.Modules.Modules.Heartrate;
 
-public abstract class HeartRateModule : Module
+public abstract class HeartRateModule : ChatBoxModule
 {
     private const int heartrateTimeout = 10;
 
@@ -21,7 +21,6 @@ public abstract class HeartRateModule : Module
     private HeartRateProvider? heartRateProvider;
     private int lastHeartrate;
     private DateTimeOffset lastHeartrateTime;
-    private bool alreadyCleared;
     private int connectionCount;
 
     protected bool IsReceiving => lastHeartrateTime + TimeSpan.FromSeconds(heartrateTimeout) >= DateTimeOffset.Now;
@@ -40,12 +39,16 @@ public abstract class HeartRateModule : Module
         CreateParameter<float>(HeartrateParameter.Hundreds, ParameterMode.Write, "VRCOSC/Heartrate/Hundreds", "The hundreds digit 0-9 mapped to a float");
     }
 
+    protected override string GetChatBoxText()
+    {
+        return GetSetting<string>(HeartrateSetting.ChatBoxFormat).Replace("%hr%", lastHeartrate.ToString());
+    }
+
     protected override Task OnStart(CancellationToken cancellationToken)
     {
         attemptConnection();
 
         lastHeartrateTime = DateTimeOffset.Now - TimeSpan.FromSeconds(heartrateTimeout);
-        alreadyCleared = false;
 
         return Task.CompletedTask;
     }
@@ -87,22 +90,6 @@ public abstract class HeartRateModule : Module
         if (!IsReceiving)
         {
             SendParameter(HeartrateParameter.Enabled, false);
-        }
-
-        if (GetSetting<bool>(HeartrateSetting.UseChatBox))
-        {
-            if (!IsReceiving)
-            {
-                if (!alreadyCleared) ClearChatBox();
-                alreadyCleared = true;
-            }
-            else
-            {
-                alreadyCleared = false;
-
-                var text = GetSetting<string>(HeartrateSetting.ChatBoxFormat).Replace("%hr%", lastHeartrate.ToString());
-                SetChatBoxText(text);
-            }
         }
 
         return Task.CompletedTask;

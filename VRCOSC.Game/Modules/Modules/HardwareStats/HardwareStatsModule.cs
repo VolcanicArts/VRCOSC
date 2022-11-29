@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace VRCOSC.Game.Modules.Modules.HardwareStats;
 
-public sealed class HardwareStatsModule : Module
+public sealed class HardwareStatsModule : ChatBoxModule
 {
     public override string Title => "Hardware Stats";
     public override string Description => "Sends hardware stats and displays them in the ChatBox";
@@ -23,9 +23,7 @@ public sealed class HardwareStatsModule : Module
 
     protected override void CreateAttributes()
     {
-        CreateSetting(HardwareStatsSetting.UseChatBox, "Use ChatBox", "Should values be displayed in the ChatBox?", true);
-        CreateSetting(HardwareStatsSetting.ChatBoxFormat, "ChatBox Format", format_description, "CPU: $cpuusage$% | GPU: $gpuusage$% | RAM: $ramusage$%");
-
+        base.CreateAttributes();
         CreateParameter<float>(HardwareStatsParameter.CpuUsage, ParameterMode.Write, "VRCOSC/Hardware/CPUUsage", "The CPU usage normalised");
         CreateParameter<float>(HardwareStatsParameter.GpuUsage, ParameterMode.Write, "VRCOSC/Hardware/GPUUsage", "The GPU usage normalised");
         CreateParameter<float>(HardwareStatsParameter.RamUsage, ParameterMode.Write, "VRCOSC/Hardware/RAMUsage", "The RAM usage normalised");
@@ -36,8 +34,24 @@ public sealed class HardwareStatsModule : Module
         CreateParameter<int>(HardwareStatsParameter.RamAvailable, ParameterMode.Write, "VRCOSC/Hardware/RAMAvailable", "The available RAM in GB");
     }
 
+    protected override string GetChatBoxText()
+    {
+        if (!hardwareStatsProvider!.CanAcceptQueries) return string.Empty;
+
+        return GetSetting<string>(HardwareStatsSetting.ChatBoxFormat)
+               .Replace("$cpuusage$", (hardwareStatsProvider!.CpuUsage).ToString("0.00"))
+               .Replace("$gpuusage$", (hardwareStatsProvider!.GpuUsage).ToString("0.00"))
+               .Replace("$ramusage$", (hardwareStatsProvider!.RamUsage).ToString("0.00"))
+               .Replace("$cputemp$", (hardwareStatsProvider!.CpuTemp).ToString())
+               .Replace("$gputemp$", (hardwareStatsProvider!.GpuTemp).ToString())
+               .Replace("$ramtotal$", (hardwareStatsProvider!.RamTotal).ToString("0.0"))
+               .Replace("$ramused$", (hardwareStatsProvider!.RamUsed).ToString("0.0"))
+               .Replace("$ramavailable$", (hardwareStatsProvider!.RamAvailable).ToString("0.0"));
+    }
+
     protected override async Task OnStart(CancellationToken cancellationToken)
     {
+        await base.OnStart(cancellationToken);
         hardwareStatsProvider = new HardwareStatsProvider();
 
         Log("Loading hardware monitors...");
@@ -65,32 +79,13 @@ public sealed class HardwareStatsModule : Module
         SendParameter(HardwareStatsParameter.RamUsed, hardwareStatsProvider.RamUsed);
         SendParameter(HardwareStatsParameter.RamAvailable, hardwareStatsProvider.RamAvailable);
 
-        if (GetSetting<bool>(HardwareStatsSetting.UseChatBox)) updateChatBox();
-
         return Task.CompletedTask;
     }
 
-    private void updateChatBox()
+    protected override async Task OnStop()
     {
-        var text = GetSetting<string>(HardwareStatsSetting.ChatBoxFormat)
-                   .Replace("$cpuusage$", (hardwareStatsProvider!.CpuUsage).ToString("0.00"))
-                   .Replace("$gpuusage$", (hardwareStatsProvider!.GpuUsage).ToString("0.00"))
-                   .Replace("$ramusage$", (hardwareStatsProvider!.RamUsage).ToString("0.00"))
-                   .Replace("$cputemp$", (hardwareStatsProvider!.CpuTemp).ToString())
-                   .Replace("$gputemp$", (hardwareStatsProvider!.GpuTemp).ToString())
-                   .Replace("$ramtotal$", (hardwareStatsProvider!.RamTotal).ToString("0.0"))
-                   .Replace("$ramused$", (hardwareStatsProvider!.RamUsed).ToString("0.0"))
-                   .Replace("$ramavailable$", (hardwareStatsProvider!.RamAvailable).ToString("0.0"));
-
-        SetChatBoxText(text);
-    }
-
-    protected override Task OnStop()
-    {
+        await base.OnStop();
         hardwareStatsProvider = null;
-        ClearChatBox();
-
-        return Task.CompletedTask;
     }
 
     private enum HardwareStatsParameter

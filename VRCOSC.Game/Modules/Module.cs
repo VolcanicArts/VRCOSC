@@ -678,11 +678,9 @@ public abstract class Module
 
     protected void OpenUrlExternally(string Url) => Host.OpenUrlExternally(Url);
 
-    protected void SetChatBoxText(string text, int priorityTimeMilli = 2000, bool bypassKeyboard = true) => ChatBox.SetText(text, bypassKeyboard, ChatBoxPriority, priorityTimeMilli);
+    protected DateTimeOffset SetChatBoxText(string text, TimeSpan displayLength) => ChatBox.SetText(text, ChatBoxPriority, displayLength);
 
     protected void SetChatBoxTyping(bool typing) => ChatBox.SetTyping(typing);
-
-    protected void ClearChatBox() => ChatBox.Clear(ChatBoxPriority);
 
     protected static float Map(float source, float sMin, float sMax, float dMin, float dMax) => dMin + (dMax - dMin) * ((source - sMin) / (sMax - sMin));
 

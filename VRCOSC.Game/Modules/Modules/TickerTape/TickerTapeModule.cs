@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace VRCOSC.Game.Modules.Modules.TickerTape;
 
-public class TickerTapeModule : Module
+public class TickerTapeModule : ChatBoxModule
 {
     public override string Title => "Ticker Tape";
     public override string Description => "Recreates a ticker tape effect for VRChat's ChatBox";
@@ -17,6 +17,7 @@ public class TickerTapeModule : Module
 
     private const int max_char_length = 20;
     private int startingIndex;
+    private string currentText;
 
     protected override void CreateAttributes()
     {
@@ -26,8 +27,14 @@ public class TickerTapeModule : Module
     protected override Task OnStart(CancellationToken cancellationToken)
     {
         startingIndex = 0;
+        currentText = string.Empty;
 
         return Task.CompletedTask;
+    }
+
+    protected override string GetChatBoxText()
+    {
+        return currentText;
     }
 
     protected override Task OnUpdate()
@@ -42,10 +49,7 @@ public class TickerTapeModule : Module
 
         contents += $" {contents}";
 
-        var text = contents[startIndex..(startIndex + max_char_length)];
-
-        SetChatBoxText(text);
-
+        currentText = contents[startIndex..(startIndex + max_char_length)];
         startingIndex++;
 
         return Task.CompletedTask;

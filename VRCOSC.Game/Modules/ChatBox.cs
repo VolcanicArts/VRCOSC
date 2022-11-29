@@ -2,7 +2,11 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using osu.Framework.Extensions.IEnumerableExtensions;
+using VRCOSC.Game.Modules.Util;
 using VRCOSC.OSC;
 
 namespace VRCOSC.Game.Modules;
@@ -14,64 +18,94 @@ public class ChatBox
     private const string chatbox_address_text = "/chatbox/input";
 
     private readonly OscClient oscClient;
+    private readonly ConcurrentQueue<ChatBoxData> queue = new();
+    private readonly TimedTask queueTask;
 
+    private ChatBoxData? currentData;
     private DateTimeOffset? sendReset;
-    private DateTimeOffset? priorityReset;
-    private int lastSentPriority;
-    private bool isTyping;
+    private DateTimeOffset sendExpire;
 
     public ChatBox(OscClient oscClient)
     {
         this.oscClient = oscClient;
+        sendExpire = DateTimeOffset.Now;
+        queueTask = new TimedTask(update, 5).Start();
     }
 
     public void SetTyping(bool typing)
     {
-        isTyping = typing;
         oscClient.SendValue(chatbox_address_typing, typing);
     }
 
-    public void SetText(string text, bool bypassKeyboard = true, int priority = 0, int priorityTimeMilli = 0)
+    public void Clear()
     {
-        if (isTyping) return;
-
-        tryResetPriority();
-        tryResetSend();
-
-        if (priority < lastSentPriority) return;
-
-        trySendValues(new List<object>() { text, bypassKeyboard }, priority > lastSentPriority);
-        lastSentPriority = priority;
-        priorityReset = DateTimeOffset.Now + TimeSpan.FromMilliseconds(priorityTimeMilli);
+        oscClient.SendValue(chatbox_address_text, new List<object> { string.Empty, true });
     }
 
-    public void Clear(int priority)
+    public DateTimeOffset SetText(string text, int priority, TimeSpan displayLength)
     {
-        SetText(string.Empty, true, priority + 1, chatbox_reset_milli);
-    }
-
-    private void tryResetPriority()
-    {
-        if (priorityReset is not null && priorityReset <= DateTimeOffset.Now)
+        var data = new ChatBoxData
         {
-            lastSentPriority = 0;
-            priorityReset = null;
-        }
-    }
+            Text = text,
+            Priority = priority,
+            DisplayLength = displayLength
+        };
 
-    private void tryResetSend()
-    {
-        if (sendReset is not null && sendReset <= DateTimeOffset.Now)
+        // ChatBoxMode.Always
+        if (displayLength == TimeSpan.Zero)
         {
-            sendReset = null;
+            if (currentData is null || currentData.Priority <= data.Priority)
+            {
+                if (queue.IsEmpty && sendExpire < DateTimeOffset.Now)
+                {
+                    currentData = data;
+                }
+            }
+
+            return DateTimeOffset.Now;
         }
+
+        // ChatBoxMode.Timed
+        queue.Enqueue(new ChatBoxData
+        {
+            Text = text,
+            DisplayLength = displayLength
+        });
+
+        var closestNextSendTime = DateTimeOffset.Now;
+        queue.ForEach(d => closestNextSendTime += d.DisplayLength);
+        return closestNextSendTime;
     }
 
-    private void trySendValues(List<object> values, bool burst)
+    private Task update()
     {
-        if (sendReset is not null && !burst) return;
+        if (!queue.IsEmpty)
+        {
+            if (sendExpire < DateTimeOffset.Now && queue.TryDequeue(out var data))
+            {
+                currentData = data;
+                sendExpire = DateTimeOffset.Now + data.DisplayLength;
+            }
+        }
 
-        oscClient.SendValues(chatbox_address_text, values);
+        if (currentData is not null) trySendText(currentData);
+
+        return Task.CompletedTask;
+    }
+
+    private void trySendText(ChatBoxData? data)
+    {
+        if (sendReset is not null && sendReset <= DateTimeOffset.Now) sendReset = null;
+        if (sendReset is not null) return;
+
+        oscClient.SendValues(chatbox_address_text, new List<object>() { data!.Text, true });
         sendReset = DateTimeOffset.Now + TimeSpan.FromMilliseconds(chatbox_reset_milli);
+    }
+
+    private class ChatBoxData
+    {
+        public string Text { get; init; }
+        public int Priority { get; init; }
+        public TimeSpan DisplayLength { get; init; }
     }
 }

@@ -85,11 +85,11 @@ public sealed class SpotifyModule : IntegrationModule
             var author = titleData[0].Trim();
             var title = titleData[1].Trim();
             var formattedText = GetSetting<string>(SpotifySetting.TitleFormat).Replace("%title%", title).Replace("%author%", author);
-            SetChatBoxText(formattedText, chatbox_override_time);
+            //SetChatBoxText(formattedText, chatbox_override_time);
         }
         else
         {
-            SetChatBoxText(currentTitle, chatbox_override_time);
+            //SetChatBoxText(currentTitle, chatbox_override_time);
         }
     }
 
