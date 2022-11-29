@@ -11,7 +11,7 @@ using VRCOSC.Game.Graphics.ModuleRun;
 namespace VRCOSC.Game.Graphics.ModuleListing;
 
 [Cached]
-public sealed class ModuleListingScreen : Container
+public sealed partial class ModuleListingScreen : Container
 {
     public ModuleListingScreen()
     {

@@ -8,7 +8,7 @@ using osu.Framework.Graphics.Sprites;
 
 namespace VRCOSC.Game.Graphics.UI.Button;
 
-public class IconButton : BasicButton
+public partial class IconButton : BasicButton
 {
     private IconUsage iconStateOff = FontAwesome.Solid.PowerOff;
     private IconUsage iconStateOn = FontAwesome.Solid.PowerOff;

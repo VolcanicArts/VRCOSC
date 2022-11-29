@@ -6,7 +6,7 @@ using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes;
 
-public abstract class AttributeCardSingle : AttributeCard
+public abstract partial class AttributeCardSingle : AttributeCard
 {
     protected readonly ModuleAttributeSingle AttributeData;
 

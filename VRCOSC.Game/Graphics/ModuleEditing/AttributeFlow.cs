@@ -16,7 +16,7 @@ using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleEditing;
 
-public sealed class AttributeFlow : FillFlowContainer<AttributeCard>
+public sealed partial class AttributeFlow : FillFlowContainer<AttributeCard>
 {
     public BindableList<ModuleAttribute> AttributesList = new();
 

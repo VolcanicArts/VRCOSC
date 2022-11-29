@@ -9,7 +9,7 @@ using osu.Framework.Input.Events;
 
 namespace VRCOSC.Game.Graphics.Notifications;
 
-public abstract class Notification : VisibilityContainer
+public abstract partial class Notification : VisibilityContainer
 {
     public override bool DisposeOnDeathRemoval => true;
     protected override bool ShouldBeAlive => Alpha > 0.5f;

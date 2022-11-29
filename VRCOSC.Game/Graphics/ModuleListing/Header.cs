@@ -8,7 +8,7 @@ using VRCOSC.Game.Graphics.UI;
 
 namespace VRCOSC.Game.Graphics.ModuleListing;
 
-public sealed class Header : Container
+public sealed partial class Header : Container
 {
     public Header()
     {

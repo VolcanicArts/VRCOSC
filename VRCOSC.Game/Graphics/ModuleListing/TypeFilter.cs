@@ -10,7 +10,7 @@ using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleListing;
 
-public sealed class TypeFilter : Container
+public sealed partial class TypeFilter : Container
 {
     [Resolved]
     private VRCOSCGame game { get; set; } = null!;

@@ -8,7 +8,7 @@ using osuTK;
 
 namespace VRCOSC.Game.Graphics.Settings;
 
-public sealed class SettingsScreen : Container
+public sealed partial class SettingsScreen : Container
 {
     public SettingsScreen()
     {

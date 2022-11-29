@@ -14,7 +14,7 @@ using VRCOSC.Game.Graphics.UI.Button;
 
 namespace VRCOSC.Game.Graphics.Settings;
 
-public abstract class SectionContainer : Container
+public abstract partial class SectionContainer : Container
 {
     private const int setting_height = 40;
 

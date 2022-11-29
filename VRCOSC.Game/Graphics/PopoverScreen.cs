@@ -10,7 +10,7 @@ using VRCOSC.Game.Graphics.UI.Button;
 
 namespace VRCOSC.Game.Graphics;
 
-public abstract class PopoverScreen : VisibilityContainer
+public abstract partial class PopoverScreen : VisibilityContainer
 {
     private const int transition_time = 500;
 

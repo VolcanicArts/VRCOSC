@@ -10,7 +10,7 @@ using osu.Framework.Graphics.Sprites;
 
 namespace VRCOSC.Game.Graphics.ModuleRun;
 
-public sealed class ParameterEntry : Container
+public sealed partial class ParameterEntry : Container
 {
     public string Key { get; init; } = null!;
     public Bindable<string> Value { get; } = new();

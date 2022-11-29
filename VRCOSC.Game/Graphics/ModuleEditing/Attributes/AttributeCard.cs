@@ -14,7 +14,7 @@ using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes;
 
-public abstract class AttributeCard : Container
+public abstract partial class AttributeCard : Container
 {
     private VRCOSCButton resetToDefault = null!;
     protected FillFlowContainer ContentFlow = null!;

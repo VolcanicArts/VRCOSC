@@ -12,7 +12,7 @@ using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleListing;
 
-public sealed class Listing : Container
+public sealed partial class Listing : Container
 {
     [Resolved]
     private ModuleManager moduleManager { get; set; } = null!;

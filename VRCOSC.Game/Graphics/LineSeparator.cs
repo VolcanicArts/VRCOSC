@@ -8,7 +8,7 @@ using osuTK;
 
 namespace VRCOSC.Game.Graphics;
 
-public sealed class LineSeparator : CircularContainer
+public sealed partial class LineSeparator : CircularContainer
 {
     public LineSeparator()
     {

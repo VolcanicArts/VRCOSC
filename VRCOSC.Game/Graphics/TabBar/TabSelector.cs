@@ -13,7 +13,7 @@ using osu.Framework.Graphics.Sprites;
 
 namespace VRCOSC.Game.Graphics.TabBar;
 
-public sealed class TabSelector : Container<DrawableTab>
+public sealed partial class TabSelector : Container<DrawableTab>
 {
     private static readonly IReadOnlyDictionary<Tab, IconUsage> icon_lookup = new Dictionary<Tab, IconUsage>
     {

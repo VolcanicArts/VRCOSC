@@ -13,7 +13,7 @@ using VRCOSC.Game.Graphics.UI.Button;
 
 namespace VRCOSC.Game.Graphics.Settings.Cards;
 
-public abstract class SettingCard<T> : Container
+public abstract partial class SettingCard<T> : Container
 {
     private readonly VRCOSCButton resetToDefault;
 

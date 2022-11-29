@@ -13,7 +13,7 @@ using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleEditing;
 
-public sealed class ModuleEditingContent : Container
+public sealed partial class ModuleEditingContent : Container
 {
     private readonly SpriteText titleText;
     private readonly SeparatedAttributeFlow settings;
@@ -92,7 +92,7 @@ public sealed class ModuleEditingContent : Container
         }, true);
     }
 
-    private sealed class SeparatedAttributeFlow : Container
+    private sealed partial class SeparatedAttributeFlow : Container
     {
         private readonly AttributeFlow attributeFlow;
 

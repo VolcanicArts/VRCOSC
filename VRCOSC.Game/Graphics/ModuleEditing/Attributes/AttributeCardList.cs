@@ -12,7 +12,7 @@ using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes;
 
-public abstract class AttributeCardList : AttributeCard
+public abstract partial class AttributeCardList : AttributeCard
 {
     protected ModuleAttributeList AttributeData;
 

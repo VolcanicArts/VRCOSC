@@ -11,7 +11,7 @@ using osu.Framework.Graphics.Sprites;
 
 namespace VRCOSC.Game.Graphics.ModuleRun;
 
-public sealed class ParameterDisplay : Container
+public sealed partial class ParameterDisplay : Container
 {
     public string Title { get; init; } = null!;
 

@@ -11,7 +11,7 @@ using osu.Framework.Input.Events;
 
 namespace VRCOSC.Game.Graphics.UI.Button;
 
-public sealed class ToggleButton : VRCOSCButton
+public sealed partial class ToggleButton : VRCOSCButton
 {
     public BindableBool State { get; init; } = new();
 

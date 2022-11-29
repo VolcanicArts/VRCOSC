@@ -8,7 +8,7 @@ using osuTK;
 
 namespace VRCOSC.Game.Graphics.TabBar;
 
-public class SelectedIndicator : Container
+public partial class SelectedIndicator : Container
 {
     public SelectedIndicator()
     {

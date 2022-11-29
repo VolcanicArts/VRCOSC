@@ -5,7 +5,7 @@ using VRCOSC.Game.Config;
 
 namespace VRCOSC.Game.Graphics.Settings;
 
-public sealed class ModulesSection : SectionContainer
+public sealed partial class ModulesSection : SectionContainer
 {
     protected override string Title => "Modules";
 

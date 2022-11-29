@@ -10,7 +10,7 @@ using osu.Framework.Logging;
 
 namespace VRCOSC.Game.Graphics.ModuleRun;
 
-public sealed class TerminalContainer : Container<TerminalEntry>
+public sealed partial class TerminalContainer : Container<TerminalEntry>
 {
     private readonly BasicScrollContainer terminalScroll;
 

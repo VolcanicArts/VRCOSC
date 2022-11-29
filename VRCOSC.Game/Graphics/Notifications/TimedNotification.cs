@@ -3,7 +3,7 @@
 
 namespace VRCOSC.Game.Graphics.Notifications;
 
-public class TimedNotification : BasicNotification
+public partial class TimedNotification : BasicNotification
 {
     public double Delay { get; init; }
 

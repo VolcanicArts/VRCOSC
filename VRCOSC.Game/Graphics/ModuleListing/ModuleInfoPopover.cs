@@ -16,7 +16,7 @@ using VRCOSC.Game.Modules.Util;
 
 namespace VRCOSC.Game.Graphics.ModuleListing;
 
-public class ModuleInfoPopover : PopoverScreen
+public partial class ModuleInfoPopover : PopoverScreen
 {
     private readonly SpriteText title;
     private readonly TextFlowContainer description;
@@ -115,7 +115,7 @@ public class ModuleInfoPopover : PopoverScreen
         };
     }
 
-    private sealed class ParameterData : Container
+    private sealed partial class ParameterData : Container
     {
         public string ParameterName { get; init; } = null!;
         public string Description { get; init; } = null!;

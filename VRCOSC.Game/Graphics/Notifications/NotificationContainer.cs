@@ -13,7 +13,7 @@ using VRCOSC.Game.Graphics.UI.Button;
 
 namespace VRCOSC.Game.Graphics.Notifications;
 
-public sealed class NotificationContainer : VisibilityContainer
+public sealed partial class NotificationContainer : VisibilityContainer
 {
     private const int transition_time = 1000;
 
@@ -86,7 +86,7 @@ public sealed class NotificationContainer : VisibilityContainer
     protected override void PopIn() => this.MoveToX(0, transition_time, Easing.OutQuad);
     protected override void PopOut() => this.MoveToX(1, transition_time, Easing.InQuad);
 
-    private sealed class CloseButton : VRCOSCButton
+    private sealed partial class CloseButton : VRCOSCButton
     {
         private readonly Box background;
 

@@ -6,7 +6,7 @@ using VRCOSC.Game.Config;
 
 namespace VRCOSC.Game.Graphics.Settings;
 
-public sealed class UpdateSection : SectionContainer
+public sealed partial class UpdateSection : SectionContainer
 {
     [Resolved]
     private VRCOSCGame game { get; set; } = null!;

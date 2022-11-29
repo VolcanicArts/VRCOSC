@@ -15,7 +15,7 @@ using osuTK.Graphics;
 namespace VRCOSC.Game.Graphics.UI;
 
 // Taken and modified from https://github.com/ppy/osu/blob/4bc26dbb487241e2bbae73751dbe9e93a4e427da/osu.Game/Graphics/UserInterface/OsuDropdown.cs
-public sealed class VRCOSCDropdown<T> : Dropdown<T>
+public sealed partial class VRCOSCDropdown<T> : Dropdown<T>
 {
     private const float corner_radius = 5;
 
@@ -25,7 +25,7 @@ public sealed class VRCOSCDropdown<T> : Dropdown<T>
 
     #region VRCOSCDropdownMenu
 
-    private class VRCOSCDropdownMenu : DropdownMenu
+    private partial class VRCOSCDropdownMenu : DropdownMenu
     {
         public override bool HandleNonPositionalInput => State == MenuState.Open;
 
@@ -119,7 +119,7 @@ public sealed class VRCOSCDropdown<T> : Dropdown<T>
 
         #region DrawableOsuDropdownMenuItem
 
-        public class DrawableVRCOSCDropdownMenuItem : DrawableDropdownMenuItem
+        public partial class DrawableVRCOSCDropdownMenuItem : DrawableDropdownMenuItem
         {
             public new Color4 BackgroundColourHover
             {
@@ -178,7 +178,7 @@ public sealed class VRCOSCDropdown<T> : Dropdown<T>
 
             protected override Drawable CreateContent() => new Content();
 
-            protected new class Content : CompositeDrawable, IHasText
+            protected new partial class Content : CompositeDrawable, IHasText
             {
                 public LocalisableString Text
                 {
@@ -255,7 +255,7 @@ public sealed class VRCOSCDropdown<T> : Dropdown<T>
 
     #endregion
 
-    public class VRCOSCDropdownHeader : DropdownHeader
+    public partial class VRCOSCDropdownHeader : DropdownHeader
     {
         protected readonly SpriteText Text;
 

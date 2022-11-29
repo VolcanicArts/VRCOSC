@@ -13,7 +13,7 @@ using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.TabBar;
 
-public sealed class DrawableTab : ClickableContainer
+public sealed partial class DrawableTab : ClickableContainer
 {
     private static readonly Colour4 default_colour = VRCOSCColour.Invisible;
     private static readonly Colour4 hover_colour = VRCOSCColour.Gray5;

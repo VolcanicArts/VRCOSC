@@ -8,7 +8,7 @@ using VRCOSC.Game.Graphics.UI;
 
 namespace VRCOSC.Game.Graphics.Settings.Cards;
 
-public sealed class IntTextSettingCard : SettingCard<int>
+public sealed partial class IntTextSettingCard : SettingCard<int>
 {
     private VRCOSCTextBox textBox = null!;
 

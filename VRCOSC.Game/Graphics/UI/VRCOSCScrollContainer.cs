@@ -8,7 +8,7 @@ using osuTK;
 
 namespace VRCOSC.Game.Graphics.UI;
 
-public sealed class VRCOSCScrollContainer : VRCOSCScrollContainer<Drawable>
+public sealed partial class VRCOSCScrollContainer : VRCOSCScrollContainer<Drawable>
 {
     public VRCOSCScrollContainer(Direction scrollDirection = Direction.Vertical)
         : base(scrollDirection)
@@ -16,7 +16,7 @@ public sealed class VRCOSCScrollContainer : VRCOSCScrollContainer<Drawable>
     }
 }
 
-public class VRCOSCScrollContainer<T> : ScrollContainer<T>
+public partial class VRCOSCScrollContainer<T> : ScrollContainer<T>
     where T : Drawable
 {
     protected VRCOSCScrollContainer(Direction scrollDirection = Direction.Vertical)
@@ -34,7 +34,7 @@ public class VRCOSCScrollContainer<T> : ScrollContainer<T>
 
     protected override ScrollbarContainer CreateScrollbar(Direction direction) => new VRCOSCScrollbar(direction);
 
-    private class VRCOSCScrollbar : ScrollbarContainer
+    private partial class VRCOSCScrollbar : ScrollbarContainer
     {
         private const float dim_size = 8;
 

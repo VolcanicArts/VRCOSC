@@ -12,7 +12,7 @@ using VRCOSC.Game.Graphics.UI.Button;
 
 namespace VRCOSC.Game.Graphics.ModuleListing;
 
-public sealed class Footer : Container
+public sealed partial class Footer : Container
 {
     [Resolved]
     private BindableBool modulesRunning { get; set; } = null!;

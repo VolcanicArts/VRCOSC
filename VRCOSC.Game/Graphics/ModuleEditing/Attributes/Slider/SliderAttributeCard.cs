@@ -10,7 +10,7 @@ using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes.Slider;
 
-public abstract class SliderAttributeCard<T> : AttributeCardSingle where T : struct, IComparable<T>, IConvertible, IEquatable<T>
+public abstract partial class SliderAttributeCard<T> : AttributeCardSingle where T : struct, IComparable<T>, IConvertible, IEquatable<T>
 {
     protected ModuleAttributeSingleWithBounds AttributeDataWithBounds;
 
