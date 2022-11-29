@@ -37,9 +37,15 @@ public class ChatBox
         oscClient.SendValue(chatbox_address_typing, typing);
     }
 
-    public void Clear()
+    public async Task Shutdown()
     {
-        oscClient.SendValue(chatbox_address_text, new List<object> { string.Empty, true });
+        await queueTask.Stop();
+        clear();
+    }
+
+    private void clear()
+    {
+        oscClient.SendValues(chatbox_address_text, new List<object> { string.Empty, true });
     }
 
     public DateTimeOffset SetText(string text, int priority, TimeSpan displayLength)

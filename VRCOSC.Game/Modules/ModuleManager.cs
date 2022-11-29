@@ -213,7 +213,7 @@ public sealed partial class ModuleManager : Component
             await module.stop();
         }
 
-        chatBox.Clear();
+        await chatBox.Shutdown();
 
         OscClient.DisableSend();
 
