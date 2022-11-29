@@ -20,7 +20,7 @@ public class ChatBox
     private readonly OscClient oscClient;
     private readonly ConcurrentQueue<ChatBoxData> queue = new();
 
-    private TimedTask queueTask;
+    private TimedTask? queueTask;
     private ChatBoxData? currentData;
     private DateTimeOffset? sendReset;
     private DateTimeOffset sendExpire;
@@ -46,7 +46,7 @@ public class ChatBox
     public async Task Shutdown()
     {
         clear();
-        await queueTask.Stop();
+        await (queueTask?.Stop() ?? Task.CompletedTask);
     }
 
     private void clear()
@@ -107,13 +107,13 @@ public class ChatBox
         if (sendReset is not null && sendReset <= DateTimeOffset.Now) sendReset = null;
         if (sendReset is not null) return;
 
-        oscClient.SendValues(chatbox_address_text, new List<object>() { data!.Text, true });
+        oscClient.SendValues(chatbox_address_text, new List<object> { data!.Text, true });
         sendReset = DateTimeOffset.Now + TimeSpan.FromMilliseconds(chatbox_reset_milli);
     }
 
     private class ChatBoxData
     {
-        public string Text { get; init; }
+        public string Text { get; init; } = null!;
         public TimeSpan DisplayLength { get; init; }
     }
 }
