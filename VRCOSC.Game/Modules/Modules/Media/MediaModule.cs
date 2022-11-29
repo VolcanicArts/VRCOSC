@@ -3,6 +3,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Media;
@@ -29,7 +31,7 @@ public sealed class MediaModule : ChatBoxModule
     {
         base.CreateAttributes();
 
-        // re-add process auto-start and process exclusions when MediaProvider's browser issue has been fixed
+        CreateSetting(MediaSetting.StartList, "Start List", "A list of exe locations to start with this module", new[] { @$"C:\Users\{Environment.UserName}\AppData\Roaming\Spotify\spotify.exe" }, true);
 
         CreateParameter<bool>(MediaParameter.Play, ParameterMode.ReadWrite, "VRCOSC/Media/Play", "True for playing. False for paused");
         CreateParameter<float>(MediaParameter.Volume, ParameterMode.ReadWrite, "VRCOSC/Media/Volume", "The volume of the process that is controlling the media", ActionMenu.Radial);
@@ -61,6 +63,15 @@ public sealed class MediaModule : ChatBoxModule
         mediaProvider.OnMediaSessionOpened += OnMediaSessionOpened;
         mediaProvider.OnMediaUpdate += OnMediaUpdate;
         await mediaProvider.StartMediaHook();
+        startProcesses();
+    }
+
+    private void startProcesses()
+    {
+        GetSetting<List<string>>(MediaSetting.StartList).ForEach(processName =>
+        {
+            if (!Process.GetProcessesByName(processName).Any()) Process.Start(processName);
+        });
     }
 
     protected override async Task OnStop()
@@ -167,6 +178,11 @@ public sealed class MediaModule : ChatBoxModule
     {
         SendParameter(MediaParameter.Volume, mediaProvider.GetVolume());
         SendParameter(MediaParameter.Muted, mediaProvider.IsMuted());
+    }
+
+    private enum MediaSetting
+    {
+        StartList
     }
 
     private enum MediaParameter
