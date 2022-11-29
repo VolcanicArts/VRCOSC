@@ -33,18 +33,21 @@ public sealed class SpeechToTextModule : Module
 
     protected override void CreateAttributes()
     {
+        base.CreateAttributes();
         CreateSetting(SpeechToTextSetting.ModelLocation, "Model Location", "The folder location of the speech model you'd like to use.\nFor standard English, download 'vosk-model-small-en-us-0.15'", string.Empty, "Download a model",
             () => OpenUrlExternally("https://alphacephei.com/vosk/models"));
         CreateSetting(SpeechToTextSetting.DisplayPeriod, "Display Period", "How long should a valid recognition be shown for? (Milliseconds)", 10000);
         CreateSetting(SpeechToTextSetting.FollowMute, "Follow Mute", "Should speech to text only be enabled if you're muted in game?", false);
     }
 
-    protected override Task OnStart(CancellationToken cancellationToken)
+    protected override async Task OnStart(CancellationToken cancellationToken)
     {
+        await base.OnStart(cancellationToken);
+
         if (!Directory.Exists(GetSetting<string>(SpeechToTextSetting.ModelLocation)))
         {
             Log("Please enter a valid model folder path");
-            return Task.CompletedTask;
+            return;
         }
 
         speechRecognitionEngine.SpeechHypothesized += onTalkingDetected;
@@ -61,12 +64,12 @@ public sealed class SpeechToTextModule : Module
         Log("Model loaded!");
 
         SetChatBoxTyping(false);
-
-        return Task.CompletedTask;
     }
 
-    protected override Task OnStop()
+    protected override async Task OnStop()
     {
+        await base.OnStop();
+
         speechRecognitionEngine.RecognizeAsyncStop();
         speechRecognitionEngine.SpeechHypothesized -= onTalkingDetected;
         speechRecognitionEngine.SpeechRecognized -= onTalkingFinished;
@@ -74,8 +77,6 @@ public sealed class SpeechToTextModule : Module
         recognizer.Dispose();
 
         SetChatBoxTyping(false);
-
-        return Task.CompletedTask;
     }
 
     private void onTalkingDetected(object? sender, SpeechHypothesizedEventArgs e)
@@ -114,6 +115,7 @@ public sealed class SpeechToTextModule : Module
         finalResult = string.Concat(finalResult.First().ToString().ToUpper(), finalResult.AsSpan(1));
 
         Log($"Recognised: {finalResult}");
+        // TODO: Find a way to allow SpeechToText to override the whole ChatBox system
         //SetChatBoxText(finalResult, GetSetting<int>(SpeechToTextSetting.DisplayPeriod));
     }
 

@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,6 +19,10 @@ public abstract class HeartRateModule : ChatBoxModule
     protected override int DeltaUpdate => 2000;
     protected override int ChatBoxPriority => 2;
 
+    protected override bool DefaultChatBoxDisplay => false;
+    protected override string DefaultChatBoxFormat => "Heartrate                        %hr% bpm";
+    protected override IEnumerable<string> ChatBoxFormatValues => new[] { "%hr%" };
+
     private HeartRateProvider? heartRateProvider;
     private int lastHeartrate;
     private DateTimeOffset lastHeartrateTime;
@@ -29,9 +34,7 @@ public abstract class HeartRateModule : ChatBoxModule
 
     protected override void CreateAttributes()
     {
-        CreateSetting(HeartrateSetting.UseChatBox, "Use ChatBox", "Should your heartrate be displayed in the ChatBox?", false);
-        CreateSetting(HeartrateSetting.ChatBoxFormat, "ChatBox Format", "The format of the ChatBox display.\nAvailable values: %hr%", "Heartrate                        %hr% bpm");
-
+        base.CreateAttributes();
         CreateParameter<bool>(HeartrateParameter.Enabled, ParameterMode.Write, "VRCOSC/Heartrate/Enabled", "Whether this module is attempting to emit values");
         CreateParameter<float>(HeartrateParameter.Normalised, ParameterMode.Write, "VRCOSC/Heartrate/Normalised", "The heartrate value normalised to 60bpm");
         CreateParameter<float>(HeartrateParameter.Units, ParameterMode.Write, "VRCOSC/Heartrate/Units", "The units digit 0-9 mapped to a float");
@@ -41,16 +44,15 @@ public abstract class HeartRateModule : ChatBoxModule
 
     protected override string GetChatBoxText()
     {
-        return GetSetting<string>(HeartrateSetting.ChatBoxFormat).Replace("%hr%", lastHeartrate.ToString());
+        return GetSetting<string>(ChatBoxSetting.ChatBoxFormat).Replace("%hr%", lastHeartrate.ToString());
     }
 
-    protected override Task OnStart(CancellationToken cancellationToken)
+    protected override async Task OnStart(CancellationToken cancellationToken)
     {
+        await base.OnStart(cancellationToken);
         attemptConnection();
 
         lastHeartrateTime = DateTimeOffset.Now - TimeSpan.FromSeconds(heartrateTimeout);
-
-        return Task.CompletedTask;
     }
 
     private void attemptConnection()
@@ -79,6 +81,7 @@ public abstract class HeartRateModule : ChatBoxModule
 
     protected override async Task OnStop()
     {
+        await base.OnStop();
         if (heartRateProvider is null) return;
 
         if (connectionCount < 3) await heartRateProvider.Disconnect();
@@ -113,12 +116,6 @@ public abstract class HeartRateModule : ChatBoxModule
     private static int[] toDigitArray(int num, int totalWidth)
     {
         return num.ToString().PadLeft(totalWidth, '0').Select(digit => int.Parse(digit.ToString())).ToArray();
-    }
-
-    protected enum HeartrateSetting
-    {
-        UseChatBox,
-        ChatBoxFormat
     }
 
     protected enum HeartrateParameter

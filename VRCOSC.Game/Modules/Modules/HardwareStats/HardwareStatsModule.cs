@@ -1,6 +1,7 @@
 // Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,9 +16,9 @@ public sealed class HardwareStatsModule : ChatBoxModule
     protected override int DeltaUpdate => 2000;
     protected override int ChatBoxPriority => 1;
 
-    private const string format_description = "How the information should be displayed in the ChatBox.\n"
-                                              + "Available values: $cpuusage$ (%), $gpuusage$ (%), $ramusage$ (%), "
-                                              + "$cputemp$ (C), $gputemp$ (C), $ramtotal$ (GB), $ramused$ (GB), $ramavailable$ (GB)";
+    protected override bool DefaultChatBoxDisplay => true;
+    protected override string DefaultChatBoxFormat => "$cpuusage$% | $gpuusage$%                $ramusage$GB/$ramtotal$GB";
+    protected override IEnumerable<string> ChatBoxFormatValues => new[] { "$cpuusage$ (%)", "$gpuusage$ (%)", "$ramusage$ (%)", "$cputemp$ (C)", "$gputemp$ (C)", "$ramtotal$ (GB)", "$ramused$ (GB)", "$ramavailable$ (GB)" };
 
     private HardwareStatsProvider? hardwareStatsProvider;
 

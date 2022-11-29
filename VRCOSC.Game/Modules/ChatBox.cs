@@ -19,8 +19,8 @@ public class ChatBox
 
     private readonly OscClient oscClient;
     private readonly ConcurrentQueue<ChatBoxData> queue = new();
-    private readonly TimedTask queueTask;
 
+    private TimedTask queueTask;
     private ChatBoxData? currentData;
     private DateTimeOffset? sendReset;
     private DateTimeOffset sendExpire;
@@ -28,8 +28,6 @@ public class ChatBox
     public ChatBox(OscClient oscClient)
     {
         this.oscClient = oscClient;
-        sendExpire = DateTimeOffset.Now;
-        queueTask = new TimedTask(update, 5).Start();
     }
 
     public void SetTyping(bool typing)
@@ -37,10 +35,18 @@ public class ChatBox
         oscClient.SendValue(chatbox_address_typing, typing);
     }
 
+    public void Init()
+    {
+        queueTask = new TimedTask(update, 5).Start();
+        currentData = null;
+        sendExpire = DateTimeOffset.Now;
+        sendReset = null;
+    }
+
     public async Task Shutdown()
     {
-        await queueTask.Stop();
         clear();
+        await queueTask.Stop();
     }
 
     private void clear()
@@ -53,19 +59,16 @@ public class ChatBox
         var data = new ChatBoxData
         {
             Text = text,
-            Priority = priority,
             DisplayLength = displayLength
         };
 
         // ChatBoxMode.Always
+        // TODO: Find a way to integrate priority
         if (displayLength == TimeSpan.Zero)
         {
-            if (currentData is null || currentData.Priority <= data.Priority)
+            if (queue.IsEmpty && sendExpire < DateTimeOffset.Now)
             {
-                if (queue.IsEmpty && sendExpire < DateTimeOffset.Now)
-                {
-                    currentData = data;
-                }
+                currentData = data;
             }
 
             return DateTimeOffset.Now;
@@ -111,7 +114,6 @@ public class ChatBox
     private class ChatBoxData
     {
         public string Text { get; init; }
-        public int Priority { get; init; }
         public TimeSpan DisplayLength { get; init; }
     }
 }

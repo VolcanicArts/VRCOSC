@@ -194,6 +194,8 @@ public sealed partial class ModuleManager : Component
             terminal.Log("Select some modules to begin using VRCOSC");
         }
 
+        chatBox.Init();
+
         foreach (var module in Modules)
         {
             _ = module.start(startCancellationTokenSource.Token);

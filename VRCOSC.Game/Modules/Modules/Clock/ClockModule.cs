@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace VRCOSC.Game.Modules.Modules.Clock;
@@ -14,6 +15,10 @@ public sealed class ClockModule : ChatBoxModule
     public override string Prefab => "VRCOSC-Watch";
     public override ModuleType ModuleType => ModuleType.General;
     protected override int DeltaUpdate => GetSetting<bool>(ClockSetting.SmoothSecond) ? vrc_osc_delta_update : 1000;
+
+    protected override bool DefaultChatBoxDisplay => true;
+    protected override string DefaultChatBoxFormat => "Local Time                        %h%:%m%%period%";
+    protected override IEnumerable<string> ChatBoxFormatValues => new[] { "%h%", "%m%", "%s%", "%period%" };
 
     private DateTime time;
 
