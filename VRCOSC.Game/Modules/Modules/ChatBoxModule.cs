@@ -47,7 +47,6 @@ public abstract class ChatBoxModule : Module
         if (GetSetting<ChatBoxMode>(ChatBoxSetting.ChatBoxMode) == ChatBoxMode.Timed && nextSendTime > DateTimeOffset.Now) return Task.CompletedTask;
 
         var text = GetChatBoxText();
-        if (string.IsNullOrEmpty(text)) return Task.CompletedTask;
 
         var displayTimerTimeSpan = TimeSpan.FromSeconds(GetSetting<int>(ChatBoxSetting.ChatBoxTimer));
         var displayLengthTimeSpan = GetSetting<ChatBoxMode>(ChatBoxSetting.ChatBoxMode) == ChatBoxMode.Timed ? TimeSpan.FromSeconds(GetSetting<int>(ChatBoxSetting.ChatBoxLength)) : TimeSpan.Zero;
