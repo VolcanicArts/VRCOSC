@@ -17,7 +17,7 @@ public sealed class HardwareStatsModule : ChatBoxModule
     protected override int ChatBoxPriority => 1;
 
     protected override bool DefaultChatBoxDisplay => true;
-    protected override string DefaultChatBoxFormat => "$cpuusage$% | $gpuusage$%                $ramusage$GB/$ramtotal$GB";
+    protected override string DefaultChatBoxFormat => "CPU: $cpuusage$% | GPU: $gpuusage$%                RAM: $ramusage$GB/$ramtotal$GB";
     protected override IEnumerable<string> ChatBoxFormatValues => new[] { "$cpuusage$ (%)", "$gpuusage$ (%)", "$ramusage$ (%)", "$cputemp$ (C)", "$gputemp$ (C)", "$ramtotal$ (GB)", "$ramused$ (GB)", "$ramavailable$ (GB)" };
 
     private HardwareStatsProvider? hardwareStatsProvider;
