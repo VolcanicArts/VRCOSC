@@ -95,22 +95,24 @@ public class MediaProvider
 
     private bool updateTrackedProcess(MediaManager.MediaSession sender)
     {
-        if (ProcessExclusions.Contains(sender.Id.Replace(".exe", string.Empty))) return false;
+        var senderName = sender.Id.Replace(".exe", string.Empty);
 
-        if (lastSender != sender.Id)
+        if (ProcessExclusions.Contains(senderName)) return false;
+
+        if (lastSender != senderName)
         {
-            trackedProcess = Process.GetProcessesByName(sender.Id.Replace(".exe", string.Empty)).FirstOrDefault();
-            lastSender = trackedProcess is null ? null : sender.Id;
+            trackedProcess = Process.GetProcessesByName(senderName).FirstOrDefault();
+            lastSender = trackedProcess is null ? null : senderName;
         }
 
         return true;
     }
 
-    public void SetVolume(float percentage) => ProcessExtensions.SetProcessVolume(trackedProcessId, percentage);
-    public void SetMuted(bool muted) => ProcessExtensions.SetProcessMuted(trackedProcessId, muted);
+    public void SetVolume(float percentage) => ProcessExtensions.SetProcessVolume(lastSender ?? string.Empty, percentage);
+    public void SetMuted(bool muted) => ProcessExtensions.SetProcessMuted(lastSender ?? string.Empty, muted);
 
-    public float GetVolume() => ProcessExtensions.RetrieveProcessVolume(trackedProcessId);
-    public bool IsMuted() => ProcessExtensions.IsProcessMuted(trackedProcessId);
+    public float GetVolume() => ProcessExtensions.RetrieveProcessVolume(lastSender ?? string.Empty);
+    public bool IsMuted() => ProcessExtensions.IsProcessMuted(lastSender ?? string.Empty);
 }
 
 public class MediaState
