@@ -11,7 +11,7 @@ namespace VRCOSC.Game.Modules.Modules.Heartrate;
 
 public abstract class HeartRateModule : ChatBoxModule
 {
-    private const int heartrateTimeout = 10;
+    private static readonly TimeSpan heartrate_timeout = TimeSpan.FromSeconds(10);
 
     public override string Author => "VolcanicArts";
     public override string Prefab => "VRCOSC-Heartrate";
@@ -28,7 +28,7 @@ public abstract class HeartRateModule : ChatBoxModule
     private DateTimeOffset lastHeartrateTime;
     private int connectionCount;
 
-    protected bool IsReceiving => lastHeartrateTime + TimeSpan.FromSeconds(heartrateTimeout) >= DateTimeOffset.Now;
+    protected bool IsReceiving => lastHeartrateTime + heartrate_timeout >= DateTimeOffset.Now;
 
     protected abstract HeartRateProvider CreateHeartRateProvider();
 
@@ -52,7 +52,7 @@ public abstract class HeartRateModule : ChatBoxModule
         await base.OnStart(cancellationToken);
         attemptConnection();
 
-        lastHeartrateTime = DateTimeOffset.Now - TimeSpan.FromSeconds(heartrateTimeout);
+        lastHeartrateTime = DateTimeOffset.Now - heartrate_timeout;
     }
 
     private void attemptConnection()

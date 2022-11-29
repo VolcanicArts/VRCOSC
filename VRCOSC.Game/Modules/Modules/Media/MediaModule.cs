@@ -29,6 +29,8 @@ public sealed class MediaModule : ChatBoxModule
     {
         base.CreateAttributes();
 
+        // re-add process auto-start and process exclusions when MediaProvider's browser issue has been fixed
+
         CreateParameter<bool>(MediaParameter.Play, ParameterMode.ReadWrite, "VRCOSC/Media/Play", "True for playing. False for paused");
         CreateParameter<float>(MediaParameter.Volume, ParameterMode.ReadWrite, "VRCOSC/Media/Volume", "The volume of the process that is controlling the media", ActionMenu.Radial);
         CreateParameter<bool>(MediaParameter.Muted, ParameterMode.ReadWrite, "VRCOSC/Media/Muted", "True to mute. False to unmute");
@@ -51,14 +53,12 @@ public sealed class MediaModule : ChatBoxModule
         return formattedText;
     }
 
-    protected override Task OnStart(CancellationToken cancellationToken)
+    protected override async Task OnStart(CancellationToken cancellationToken)
     {
-        base.OnStart(cancellationToken);
+        await base.OnStart(cancellationToken);
         mediaProvider.OnMediaSessionOpened += OnMediaSessionOpened;
         mediaProvider.OnMediaUpdate += OnMediaUpdate;
-        mediaProvider.StartMediaHook();
-
-        return Task.CompletedTask;
+        await mediaProvider.StartMediaHook();
     }
 
     protected override async Task OnStop()

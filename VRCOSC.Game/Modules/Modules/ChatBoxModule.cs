@@ -3,9 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using osu.Framework.Extensions.IEnumerableExtensions;
 using VRCOSC.Game.Modules.Util;
 
 namespace VRCOSC.Game.Modules.Modules;
@@ -21,14 +21,12 @@ public abstract class ChatBoxModule : Module
 
     protected override void CreateAttributes()
     {
-        var chatboxFormat = "How should details about this module be displayed in the ChatBox? Available values: ";
-        ChatBoxFormatValues.ForEach(value => chatboxFormat += $"{value} ");
-
+        var chatboxFormat = ChatBoxFormatValues.Aggregate("How should details about this module be displayed in the ChatBox? Available values: ", (current, value) => current + $"{value}, ").Trim().TrimEnd(',');
         CreateSetting(ChatBoxSetting.ChatBoxDisplay, "ChatBox Display", "If details about this module should be displayed in the ChatBox", DefaultChatBoxDisplay);
         CreateSetting(ChatBoxSetting.ChatBoxFormat, "ChatBox Format", chatboxFormat, DefaultChatBoxFormat);
         CreateSetting(ChatBoxSetting.ChatBoxMode, "ChatBox Mode", "Should this module display every X seconds or always show?", ChatBoxMode.Always);
-        CreateSetting(ChatBoxSetting.ChatBoxDisplayTimer, "ChatBox Display Timer", $"How long should this module wait between showing details in the ChatBox? (sec)\nRequires ChatBox Mode to be {ChatBoxMode.Timed}", 60);
-        CreateSetting(ChatBoxSetting.ChatBoxDisplayLength, "ChatBox Display Length", $"How long should this module's details be shown in the ChatBox (sec)\nRequires ChatBox Mode to be {ChatBoxMode.Timed}", 5);
+        CreateSetting(ChatBoxSetting.ChatBoxTimer, "ChatBox Display Timer", $"How long should this module wait between showing details in the ChatBox? (sec)\nRequires ChatBox Mode to be {ChatBoxMode.Timed}", 60);
+        CreateSetting(ChatBoxSetting.ChatBoxLength, "ChatBox Display Length", $"How long should this module's details be shown in the ChatBox (sec)\nRequires ChatBox Mode to be {ChatBoxMode.Timed}", 5);
     }
 
     protected override Task OnStart(CancellationToken cancellationToken)
@@ -51,8 +49,8 @@ public abstract class ChatBoxModule : Module
         var text = GetChatBoxText();
         if (string.IsNullOrEmpty(text)) return Task.CompletedTask;
 
-        var displayTimerTimeSpan = TimeSpan.FromSeconds(GetSetting<int>(ChatBoxSetting.ChatBoxDisplayTimer));
-        var displayLengthTimeSpan = GetSetting<ChatBoxMode>(ChatBoxSetting.ChatBoxMode) == ChatBoxMode.Timed ? TimeSpan.FromSeconds(GetSetting<int>(ChatBoxSetting.ChatBoxDisplayLength)) : TimeSpan.Zero;
+        var displayTimerTimeSpan = TimeSpan.FromSeconds(GetSetting<int>(ChatBoxSetting.ChatBoxTimer));
+        var displayLengthTimeSpan = GetSetting<ChatBoxMode>(ChatBoxSetting.ChatBoxMode) == ChatBoxMode.Timed ? TimeSpan.FromSeconds(GetSetting<int>(ChatBoxSetting.ChatBoxLength)) : TimeSpan.Zero;
 
         var closestNextSendTime = SetChatBoxText(text, displayLengthTimeSpan);
 
@@ -77,8 +75,8 @@ public abstract class ChatBoxModule : Module
         ChatBoxDisplay,
         ChatBoxFormat,
         ChatBoxMode,
-        ChatBoxDisplayTimer,
-        ChatBoxDisplayLength
+        ChatBoxTimer,
+        ChatBoxLength
     }
 
     protected enum ChatBoxMode

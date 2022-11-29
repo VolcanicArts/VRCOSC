@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using Windows.Media;
 using Windows.Media.Control;
 using VRCOSC.Game.Util;
@@ -29,7 +30,7 @@ public class MediaProvider
     public Action? OnMediaSessionOpened;
     public Action? OnMediaUpdate;
 
-    public void StartMediaHook()
+    public async Task StartMediaHook()
     {
         State = new MediaState();
 
@@ -38,7 +39,7 @@ public class MediaProvider
         mediaManager.OnAnySessionClosed += MediaManager_OnAnySessionClosed;
         mediaManager.OnAnyPlaybackStateChanged += MediaManager_OnAnyPlaybackStateChanged;
         mediaManager.OnAnyMediaPropertyChanged += MediaManager_OnAnyMediaPropertyChanged;
-        _ = mediaManager.Start();
+        await mediaManager.Start();
     }
 
     public void StopMediaHook()
