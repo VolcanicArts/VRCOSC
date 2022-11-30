@@ -25,9 +25,16 @@ public class ChatBox
     private DateTimeOffset? sendReset;
     private DateTimeOffset sendExpire;
 
+    private bool canSend;
+
     public ChatBox(OscClient oscClient)
     {
         this.oscClient = oscClient;
+    }
+
+    public void SetSending(bool canSend)
+    {
+        this.canSend = canSend;
     }
 
     public void SetTyping(bool typing)
@@ -41,6 +48,7 @@ public class ChatBox
         currentData = null;
         sendExpire = DateTimeOffset.Now;
         sendReset = null;
+        canSend = true;
     }
 
     public async Task Shutdown()
@@ -107,7 +115,7 @@ public class ChatBox
         if (sendReset is not null && sendReset <= DateTimeOffset.Now) sendReset = null;
         if (sendReset is not null) return;
 
-        oscClient.SendValues(chatbox_address_text, new List<object> { data!.Text, true });
+        if (canSend) oscClient.SendValues(chatbox_address_text, new List<object> { data!.Text, true });
         sendReset = DateTimeOffset.Now + TimeSpan.FromMilliseconds(chatbox_reset_milli);
     }
 
