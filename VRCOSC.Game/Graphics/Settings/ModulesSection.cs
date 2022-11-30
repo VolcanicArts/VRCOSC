@@ -12,6 +12,5 @@ public sealed partial class ModulesSection : SectionContainer
     protected override void GenerateItems()
     {
         AddToggle("Auto Start/Stop", "Auto start/stop modules on VRChat start/stop", ConfigManager.GetBindable<bool>(VRCOSCSetting.AutoStartStop));
-        AddToggle("Auto Focus", "Auto focus VRChat on modules start", ConfigManager.GetBindable<bool>(VRCOSCSetting.AutoFocus));
     }
 }
