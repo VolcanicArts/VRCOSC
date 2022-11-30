@@ -129,9 +129,9 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
     protected override bool OnExiting()
     {
-        moduleManager.Running.BindValueChanged(e =>
+        moduleManager.State.BindValueChanged(e =>
         {
-            if (!e.NewValue) Exit();
+            if (e.NewValue == ManagerState.Stopped) Exit();
         }, true);
 
         ModulesRunning.Value = false;
