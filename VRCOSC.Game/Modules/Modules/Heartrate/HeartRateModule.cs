@@ -42,7 +42,7 @@ public abstract class HeartRateModule : ChatBoxModule
         CreateParameter<float>(HeartrateParameter.Hundreds, ParameterMode.Write, "VRCOSC/Heartrate/Hundreds", "The hundreds digit 0-9 mapped to a float");
     }
 
-    protected override string GetChatBoxText()
+    protected override string? GetChatBoxText()
     {
         return GetSetting<string>(ChatBoxSetting.ChatBoxFormat).Replace("%hr%", lastHeartrate.ToString());
     }

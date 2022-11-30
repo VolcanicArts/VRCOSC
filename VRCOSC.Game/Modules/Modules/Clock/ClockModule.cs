@@ -36,14 +36,15 @@ public sealed class ClockModule : ChatBoxModule
         CreateParameter<float>(ClockParameter.Seconds, ParameterMode.Write, "VRCOSC/Clock/Seconds", "The current second normalised");
     }
 
-    protected override string GetChatBoxText()
+    protected override string? GetChatBoxText()
     {
-        var textHour = GetSetting<ClockMode>(ClockSetting.Mode) == ClockMode.Twelve ? (time.Hour % 12).ToString("00") : time.Hour.ToString("00");
+        var chatBoxTime = timezoneToTime(GetSetting<ClockTimeZone>(ClockSetting.Timezone));
+        var textHour = GetSetting<ClockMode>(ClockSetting.Mode) == ClockMode.Twelve ? (chatBoxTime.Hour % 12).ToString("00") : chatBoxTime.Hour.ToString("00");
         return GetSetting<string>(ClockSetting.ChatBoxFormat)
                .Replace("%h%", textHour)
-               .Replace("%m%", time.Minute.ToString("00"))
-               .Replace("%s%", time.Second.ToString("00"))
-               .Replace("%period%", time.Hour >= 12 ? "pm" : "am");
+               .Replace("%m%", chatBoxTime.Minute.ToString("00"))
+               .Replace("%s%", chatBoxTime.Second.ToString("00"))
+               .Replace("%period%", chatBoxTime.Hour >= 12 ? "pm" : "am");
     }
 
     protected override Task OnUpdate()

@@ -42,8 +42,10 @@ public sealed class MediaModule : ChatBoxModule
         CreateParameter<bool>(MediaParameter.Previous, ParameterMode.Read, "VRCOSC/Media/Previous", "Becoming true causes the previous track to play", ActionMenu.Button);
     }
 
-    protected override string GetChatBoxText()
+    protected override string? GetChatBoxText()
     {
+        // TODO Add setting to either show [Paused] when paused, or return null when paused
+        // This should recreate functionality before of pausing turning off the ChatBox and allowing lower priorities
         if (!mediaProvider.State.IsPlaying) return string.Empty;
 
         mediaProvider.State.Position = mediaProvider.Controller?.GetTimelineProperties() ?? null;

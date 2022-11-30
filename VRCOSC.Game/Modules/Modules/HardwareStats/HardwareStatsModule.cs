@@ -17,7 +17,7 @@ public sealed class HardwareStatsModule : ChatBoxModule
     protected override int ChatBoxPriority => 1;
 
     protected override bool DefaultChatBoxDisplay => true;
-    protected override string DefaultChatBoxFormat => "CPU: $cpuusage$% | GPU: $gpuusage$%                RAM: $ramusage$GB/$ramtotal$GB";
+    protected override string DefaultChatBoxFormat => "CPU: $cpuusage$% | GPU: $gpuusage$%                RAM: $ramused$GB/$ramtotal$GB";
     protected override IEnumerable<string> ChatBoxFormatValues => new[] { "$cpuusage$ (%)", "$gpuusage$ (%)", "$ramusage$ (%)", "$cputemp$ (C)", "$gputemp$ (C)", "$ramtotal$ (GB)", "$ramused$ (GB)", "$ramavailable$ (GB)" };
 
     private HardwareStatsProvider? hardwareStatsProvider;
@@ -35,11 +35,13 @@ public sealed class HardwareStatsModule : ChatBoxModule
         CreateParameter<int>(HardwareStatsParameter.RamAvailable, ParameterMode.Write, "VRCOSC/Hardware/RAMAvailable", "The available RAM in GB");
     }
 
-    protected override string GetChatBoxText()
+    protected override string? GetChatBoxText()
     {
-        if (!hardwareStatsProvider!.CanAcceptQueries) return string.Empty;
+        if (hardwareStatsProvider is null || !hardwareStatsProvider.CanAcceptQueries) return null;
 
-        return GetSetting<string>(HardwareStatsSetting.ChatBoxFormat)
+        hardwareStatsProvider!.Update();
+
+        return GetSetting<string>(ChatBoxSetting.ChatBoxFormat)
                .Replace("$cpuusage$", (hardwareStatsProvider!.CpuUsage).ToString("0.00"))
                .Replace("$gpuusage$", (hardwareStatsProvider!.GpuUsage).ToString("0.00"))
                .Replace("$ramusage$", (hardwareStatsProvider!.RamUsage).ToString("0.00"))
@@ -67,9 +69,9 @@ public sealed class HardwareStatsModule : ChatBoxModule
 
     protected override Task OnUpdate()
     {
-        if (!hardwareStatsProvider!.CanAcceptQueries) return Task.CompletedTask;
+        if (hardwareStatsProvider is null || !hardwareStatsProvider.CanAcceptQueries) return Task.CompletedTask;
 
-        hardwareStatsProvider.Update();
+        hardwareStatsProvider!.Update();
 
         SendParameter(HardwareStatsParameter.CpuUsage, hardwareStatsProvider.CpuUsage / 100f);
         SendParameter(HardwareStatsParameter.GpuUsage, hardwareStatsProvider.GpuUsage / 100f);
@@ -99,11 +101,5 @@ public sealed class HardwareStatsModule : ChatBoxModule
         RamTotal,
         RamUsed,
         RamAvailable
-    }
-
-    private enum HardwareStatsSetting
-    {
-        UseChatBox,
-        ChatBoxFormat
     }
 }
