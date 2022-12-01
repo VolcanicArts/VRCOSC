@@ -48,7 +48,7 @@ public sealed partial class ModuleManager : Component
         typeof(SpeechToTextModule),
     };
 
-    private static readonly TimeSpan vr_chat_process_check_interval = TimeSpan.FromSeconds(5);
+    private const int vr_chat_process_check_interval_milliseconds = 5000;
 
     public readonly List<Module> Modules = new();
     public readonly OscClient OscClient = new();
@@ -83,7 +83,7 @@ public sealed partial class ModuleManager : Component
 
     protected override void LoadComplete()
     {
-        Scheduler.AddDelayed(checkForVrChat, vr_chat_process_check_interval.Milliseconds, true);
+        Scheduler.AddDelayed(checkForVrChat, vr_chat_process_check_interval_milliseconds, true);
 
         autoStartStop.BindValueChanged(e =>
         {
