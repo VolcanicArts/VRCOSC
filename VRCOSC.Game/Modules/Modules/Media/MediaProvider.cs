@@ -47,8 +47,7 @@ public class MediaProvider
 
     private void MediaManager_OnAnySessionOpened(MediaManager.MediaSession sender)
     {
-        if (!updateTrackedProcess(sender)) return;
-
+        updateTrackedProcess(sender);
         OnMediaSessionOpened?.Invoke();
     }
 
@@ -60,7 +59,7 @@ public class MediaProvider
 
     private void MediaManager_OnAnyPlaybackStateChanged(MediaManager.MediaSession sender, GlobalSystemMediaTransportControlsSessionPlaybackInfo args)
     {
-        if (!updateTrackedProcess(sender)) return;
+        updateTrackedProcess(sender);
 
         State.IsShuffle = args.IsShuffleActive ?? false;
         State.RepeatMode = args.AutoRepeatMode ?? 0;
@@ -71,7 +70,7 @@ public class MediaProvider
 
     private void MediaManager_OnAnyMediaPropertyChanged(MediaManager.MediaSession sender, GlobalSystemMediaTransportControlsSessionMediaProperties args)
     {
-        if (!updateTrackedProcess(sender)) return;
+        updateTrackedProcess(sender);
 
         var playbackInfo = sender.ControlSession?.GetPlaybackInfo();
         if (playbackInfo is null) return;
@@ -85,15 +84,13 @@ public class MediaProvider
         OnMediaUpdate?.Invoke();
     }
 
-    private bool updateTrackedProcess(MediaManager.MediaSession sender)
+    private void updateTrackedProcess(MediaManager.MediaSession sender)
     {
         if (lastSender is null || lastSender != sender.Id)
         {
             trackedProcess = Process.GetProcessesByName(sender.Id.Replace(".exe", string.Empty)).FirstOrDefault();
             lastSender = trackedProcess is null ? null : sender.Id;
         }
-
-        return true;
     }
 
     public void SetVolume(float percentage) => ProcessExtensions.SetProcessVolume(lastSender ?? string.Empty, percentage);
