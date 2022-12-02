@@ -83,6 +83,8 @@ public sealed partial class ModuleManager : Component
 
     protected override void LoadComplete()
     {
+        Scheduler.AddDelayed(checkForVrChat, vr_chat_process_check_interval_milliseconds, true);
+
         autoStartStop.BindValueChanged(e =>
         {
             // We reset hasAutoStarted here so that turning auto start off and on again will cause it to work normally
@@ -98,10 +100,6 @@ public sealed partial class ModuleManager : Component
         });
 
         State.BindValueChanged(e => Logger.Log($"ModuleManager now {e.NewValue}"));
-
-        // Check once at the start so the modules will start immediately if VRC is already running on app start
-        checkForVrChat();
-        Scheduler.AddDelayed(checkForVrChat, vr_chat_process_check_interval_milliseconds, true);
     }
 
     private void startProxy()

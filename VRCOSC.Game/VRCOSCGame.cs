@@ -63,6 +63,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
         Children = new Drawable[]
         {
+            moduleManager,
             notificationContainer,
             new MainContent(),
             UpdateManager = CreateUpdateManager()
@@ -99,9 +100,6 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         {
             if (e.NewValue) SelectedTab.Value = Tab.Modules;
         }, true);
-
-        // Add the module manager after everything is complete for force it to be the last thing to load
-        Add(moduleManager);
     }
 
     private void checkUpdates()
