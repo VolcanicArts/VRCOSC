@@ -31,7 +31,8 @@ public sealed class MediaModule : ChatBoxModule
     {
         base.CreateAttributes();
 
-        CreateSetting(MediaSetting.StartList, "Start List", "A list of exe locations to start with this module", new[] { @$"C:\Users\{Environment.UserName}\AppData\Roaming\Spotify\spotify.exe" }, true);
+        CreateSetting(MediaSetting.PausedBehaviour, "Paused Behaviour", "When the media is paused, should the ChatBox be empty or display that it's paused?", MediaPausedBehaviour.Empty);
+        CreateSetting(MediaSetting.StartList, "Start List", "A list of exe locations to start with this module\nThis is handy for starting, for example, Spotify", new[] { @$"C:\Users\{Environment.UserName}\AppData\Roaming\Spotify\spotify.exe" }, true);
 
         CreateParameter<bool>(MediaParameter.Play, ParameterMode.ReadWrite, "VRCOSC/Media/Play", "True for playing. False for paused");
         CreateParameter<float>(MediaParameter.Volume, ParameterMode.ReadWrite, "VRCOSC/Media/Volume", "The volume of the process that is controlling the media", ActionMenu.Radial);
@@ -44,9 +45,9 @@ public sealed class MediaModule : ChatBoxModule
 
     protected override string? GetChatBoxText()
     {
-        // TODO Add setting to either show [Paused] when paused, or return null when paused
-        // This should recreate functionality before of pausing turning off the ChatBox and allowing lower priorities
-        if (!mediaProvider.State.IsPlaying) return string.Empty;
+        // TODO: Replace string.Empty with null when ChatBox's Always queue has been implemented
+        if (!mediaProvider.State.IsPlaying)
+            return GetSetting<MediaPausedBehaviour>(MediaSetting.PausedBehaviour) == MediaPausedBehaviour.Empty ? string.Empty : "[Media Paused]";
 
         mediaProvider.State.Position = mediaProvider.Controller?.GetTimelineProperties() ?? null;
 
@@ -184,7 +185,14 @@ public sealed class MediaModule : ChatBoxModule
 
     private enum MediaSetting
     {
+        PausedBehaviour,
         StartList
+    }
+
+    private enum MediaPausedBehaviour
+    {
+        Empty,
+        Display
     }
 
     private enum MediaParameter
