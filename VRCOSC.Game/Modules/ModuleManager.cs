@@ -99,23 +99,7 @@ public sealed partial class ModuleManager : Component
                 Task.Run(stop);
         });
 
-        OscClient.OnParameterReceived += internalParameterReceived;
-
         State.BindValueChanged(e => Logger.Log($"ModuleManager now {e.NewValue}"));
-    }
-
-    private void internalParameterReceived(string address, object value)
-    {
-        if (!address.StartsWith(Module.VRChatOscPrefix)) return;
-
-        var parameterName = address.Remove(0, Module.VRChatOscPrefix.Length);
-
-        switch (parameterName)
-        {
-            case "VRCOSC/Controls/ChatBox":
-                chatBox.SetSending((bool)value);
-                break;
-        }
     }
 
     private void startProxy()
