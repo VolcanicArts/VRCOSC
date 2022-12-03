@@ -159,9 +159,7 @@ public sealed class MediaModule : ChatBoxModule
     {
         // We have to wait a little bit to allow the media app that just opened to take control
         await Task.Delay(500);
-        // Playing immediately will cause a media update allowing us to get the media state ASAP
-        mediaProvider.Controller?.TryPlayAsync();
-        sendMediaParameters();
+        await mediaProvider.ForceUpdate();
     }
 
     private void OnMediaUpdate()

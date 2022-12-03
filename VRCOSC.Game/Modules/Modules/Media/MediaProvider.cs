@@ -47,19 +47,35 @@ public class MediaProvider
 
     private void MediaManager_OnAnySessionOpened(MediaManager.MediaSession sender)
     {
-        updateTrackedProcess(sender);
+        updateTrackedProcess(sender.Id);
         OnMediaSessionOpened?.Invoke();
+    }
+
+    public async Task ForceUpdate()
+    {
+        if (Controller?.GetPlaybackInfo().PlaybackStatus == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing)
+        {
+            await Controller.TryPauseAsync();
+            await Task.Delay(50);
+            await Controller.TryPlayAsync();
+        }
+        else if (Controller?.GetPlaybackInfo().PlaybackStatus == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Paused)
+        {
+            await Controller.TryPlayAsync();
+            await Task.Delay(50);
+            await Controller.TryPauseAsync();
+        }
     }
 
     private void MediaManager_OnAnySessionClosed(MediaManager.MediaSession sender)
     {
-        lastSender = null;
-        trackedProcess = null;
+        updateTrackedProcess(mediaManager?.CurrentMediaSessions.FirstOrDefault().Value.Id ?? string.Empty);
+        _ = ForceUpdate();
     }
 
     private void MediaManager_OnAnyPlaybackStateChanged(MediaManager.MediaSession sender, GlobalSystemMediaTransportControlsSessionPlaybackInfo args)
     {
-        updateTrackedProcess(sender);
+        updateTrackedProcess(sender.Id);
 
         var mediaProperties = sender.ControlSession?.TryGetMediaPropertiesAsync().GetResults();
 
@@ -78,7 +94,7 @@ public class MediaProvider
 
     private void MediaManager_OnAnyMediaPropertyChanged(MediaManager.MediaSession sender, GlobalSystemMediaTransportControlsSessionMediaProperties args)
     {
-        updateTrackedProcess(sender);
+        updateTrackedProcess(sender.Id);
 
         var playbackInfo = sender.ControlSession?.GetPlaybackInfo();
         if (playbackInfo is null) return;
@@ -92,12 +108,12 @@ public class MediaProvider
         OnMediaUpdate?.Invoke();
     }
 
-    private void updateTrackedProcess(MediaManager.MediaSession sender)
+    private void updateTrackedProcess(string senderId)
     {
-        if (lastSender is null || lastSender != sender.Id)
+        if (lastSender is null || lastSender != senderId)
         {
-            trackedProcess = Process.GetProcessesByName(sender.Id.Replace(".exe", string.Empty)).FirstOrDefault();
-            lastSender = trackedProcess is null ? null : sender.Id;
+            trackedProcess = Process.GetProcessesByName(senderId.Replace(".exe", string.Empty)).FirstOrDefault();
+            lastSender = trackedProcess is null ? null : senderId;
         }
     }
 
