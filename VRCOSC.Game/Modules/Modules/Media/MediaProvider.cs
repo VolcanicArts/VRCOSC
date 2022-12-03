@@ -61,6 +61,14 @@ public class MediaProvider
     {
         updateTrackedProcess(sender);
 
+        var mediaProperties = sender.ControlSession?.TryGetMediaPropertiesAsync().GetResults();
+
+        if (mediaProperties is not null)
+        {
+            State.Title = mediaProperties.Title;
+            State.Artist = mediaProperties.Artist;
+        }
+
         State.IsShuffle = args.IsShuffleActive ?? false;
         State.RepeatMode = args.AutoRepeatMode ?? 0;
         State.Status = args.PlaybackStatus;
