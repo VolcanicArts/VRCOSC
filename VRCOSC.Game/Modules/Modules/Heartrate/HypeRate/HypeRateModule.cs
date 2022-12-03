@@ -22,8 +22,8 @@ public sealed class HypeRateModule : HeartRateModule
 
     protected override void CreateAttributes()
     {
-        base.CreateAttributes();
         CreateSetting(HypeRateSetting.Id, "HypeRate ID", "Your HypeRate ID given on your device", string.Empty);
+        base.CreateAttributes();
     }
 
     protected override Task OnStart(CancellationToken cancellationToken)
