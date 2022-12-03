@@ -14,7 +14,6 @@ public sealed class HardwareStatsModule : ChatBoxModule
     public override string Author => "VolcanicArts";
     public override ModuleType ModuleType => ModuleType.General;
     protected override int DeltaUpdate => 2000;
-    protected override int ChatBoxPriority => 1;
 
     protected override bool DefaultChatBoxDisplay => true;
     protected override string DefaultChatBoxFormat => "CPU: $cpuusage$% | GPU: $gpuusage$%                RAM: $ramused$GB/$ramtotal$GB";

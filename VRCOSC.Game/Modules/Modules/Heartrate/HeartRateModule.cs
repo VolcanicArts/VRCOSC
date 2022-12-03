@@ -17,7 +17,7 @@ public abstract class HeartRateModule : ChatBoxModule
     public override string Prefab => "VRCOSC-Heartrate";
     public override ModuleType ModuleType => ModuleType.Health;
     protected override int DeltaUpdate => 2000;
-    protected override int ChatBoxPriority => 2;
+    protected override int ChatBoxPriority => 1;
 
     protected override bool DefaultChatBoxDisplay => false;
     protected override string DefaultChatBoxFormat => "Heartrate                        %hr% bpm";

@@ -19,7 +19,7 @@ public sealed class MediaModule : ChatBoxModule
     public override string Prefab => "VRCOSC-Media";
     protected override int DeltaUpdate => 2000;
     public override ModuleType ModuleType => ModuleType.Integrations;
-    protected override int ChatBoxPriority => 3;
+    protected override int ChatBoxPriority => 2;
 
     protected override bool DefaultChatBoxDisplay => true;
     protected override string DefaultChatBoxFormat => "[%curtime%/%duration%]                            Now Playing: %artist% - %title%";
