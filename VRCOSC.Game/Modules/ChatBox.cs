@@ -137,6 +137,8 @@ public class ChatBox
 
         alreadyClear = false;
 
+        if (currentData.Text is null) return;
+
         if (sendEnabled) oscClient.SendValues(chatbox_address_text, new List<object> { currentData.Text!, true });
         sendReset = DateTimeOffset.Now + TimeSpan.FromMilliseconds(chatbox_reset_milli);
     }
