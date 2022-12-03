@@ -12,7 +12,7 @@ using osuTK;
 
 namespace VRCOSC.Game.Graphics.Notifications;
 
-public class BasicNotification : Notification
+public partial class BasicNotification : Notification
 {
     public IconUsage Icon { get; init; }
 

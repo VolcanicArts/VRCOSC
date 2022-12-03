@@ -7,7 +7,7 @@ using VRCOSC.Game.Graphics.Updater;
 
 namespace VRCOSC.Desktop;
 
-public class VRCOSCGameDesktop : VRCOSCGame
+public partial class VRCOSCGameDesktop : VRCOSCGame
 {
     protected override VRCOSCUpdateManager CreateUpdateManager()
     {

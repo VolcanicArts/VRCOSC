@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
@@ -13,7 +12,7 @@ using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes;
 
-public abstract class AttributeCardList : AttributeCard
+public abstract partial class AttributeCardList : AttributeCard
 {
     protected ModuleAttributeList AttributeData;
 
@@ -110,10 +109,7 @@ public abstract class AttributeCardList : AttributeCard
         checkForDefault();
     }
 
-    protected virtual Bindable<object> GetDefaultItem()
-    {
-        return new Bindable<object>(AttributeData.AttributeList.Last().Value);
-    }
+    protected abstract Bindable<object> GetDefaultItem();
 
     private void performAttributeUpdate(ValueChangedEvent<object> e)
     {

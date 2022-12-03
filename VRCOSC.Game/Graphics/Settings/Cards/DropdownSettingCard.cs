@@ -10,7 +10,7 @@ using VRCOSC.Game.Graphics.UI;
 
 namespace VRCOSC.Game.Graphics.Settings.Cards;
 
-public class DropdownSettingCard<T> : SettingCard<T>
+public partial class DropdownSettingCard<T> : SettingCard<T>
 {
     public DropdownSettingCard(string title, string description, Bindable<T> settingBindable)
         : base(title, description, settingBindable)

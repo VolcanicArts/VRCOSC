@@ -13,7 +13,7 @@ using VRCOSC.Game.Graphics.Updater;
 
 namespace VRCOSC.Desktop.Updater;
 
-public class SquirrelUpdateManager : VRCOSCUpdateManager
+public partial class SquirrelUpdateManager : VRCOSCUpdateManager
 {
     private GithubUpdateManager? updateManager;
     private UpdateInfo? updateInfo;

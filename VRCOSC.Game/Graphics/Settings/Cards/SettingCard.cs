@@ -2,17 +2,18 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Bindables;
+using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Effects;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Graphics.Sprites;
 using osuTK;
 using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Graphics.UI.Button;
 
 namespace VRCOSC.Game.Graphics.Settings.Cards;
 
-public abstract class SettingCard<T> : Container
+public abstract partial class SettingCard<T> : Container
 {
     private readonly VRCOSCButton resetToDefault;
 
@@ -38,24 +39,21 @@ public abstract class SettingCard<T> : Container
             {
                 Anchor = Anchor.CentreLeft,
                 Origin = Anchor.CentreRight,
-                Size = new Vector2(30, 50),
+                Size = new Vector2(30, 60),
                 Padding = new MarginPadding(5),
-                Child = resetToDefault = new BasicButton
+                Child = resetToDefault = new IconButton
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
                     RelativeSizeAxes = Axes.Both,
-                    Size = new Vector2(0.5f, 1.0f),
-                    CornerRadius = 5,
-                    CornerExponent = 2,
                     Action = setDefault,
-                    BackgroundColour = VRCOSCColour.Blue,
-                    EdgeEffect = new EdgeEffectParameters
-                    {
-                        Type = EdgeEffectType.Glow,
-                        Colour = VRCOSCColour.BlueLight,
-                        Radius = 5
-                    }
+                    IconPadding = 4,
+                    CornerRadius = 10,
+                    BorderThickness = 2,
+                    BorderColour = VRCOSCColour.Gray0,
+                    BackgroundColour = VRCOSCColour.BlueDark.Darken(0.25f),
+                    Icon = FontAwesome.Solid.Undo,
+                    IconShadow = true
                 }
             },
             ContentWrapper = new Container

@@ -9,7 +9,7 @@ using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleEditing;
 
-public sealed class ModuleEditingPopover : PopoverScreen
+public sealed partial class ModuleEditingPopover : PopoverScreen
 {
     [Resolved(name: "EditingModule")]
     private Bindable<Module?> editingModule { get; set; } = null!;

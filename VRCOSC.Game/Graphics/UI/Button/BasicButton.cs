@@ -9,7 +9,7 @@ using osu.Framework.Input.Events;
 
 namespace VRCOSC.Game.Graphics.UI.Button;
 
-public class BasicButton : VRCOSCButton
+public partial class BasicButton : VRCOSCButton
 {
     private Colour4 backgroundColourStateOff = VRCOSCColour.Red;
     private Colour4 backgroundColourStateOn = VRCOSCColour.Green;

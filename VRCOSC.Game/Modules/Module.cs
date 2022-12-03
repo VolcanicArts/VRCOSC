@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.EnumExtensions;
@@ -28,7 +29,7 @@ public abstract class Module
     private Storage Storage = null!;
     private OscClient OscClient = null!;
     private TerminalLogger Terminal = null!;
-    private Bindable<ModuleState> State = null!;
+    protected Bindable<ModuleState> State = null!;
     private TimedTask? updateTask;
     private ChatBox ChatBox = null!;
 
@@ -46,11 +47,12 @@ public abstract class Module
     protected virtual int ChatBoxPriority => 0;
 
     protected Player Player = null!;
+    protected OpenVrInterface OpenVrInterface = null!;
 
     public const float vrc_osc_update_rate = 20;
     public static readonly int vrc_osc_delta_update = (int)((1f / vrc_osc_update_rate) * 1000f);
 
-    public void Initialise(GameHost host, Storage storage, OscClient oscClient, ChatBox chatBox)
+    public void Initialise(GameHost host, Storage storage, OscClient oscClient, ChatBox chatBox, OpenVrInterface openVrInterface)
     {
         Host = host;
         Storage = storage;
@@ -59,6 +61,7 @@ public abstract class Module
         Terminal = new TerminalLogger(GetType().Name);
         State = new Bindable<ModuleState>(ModuleState.Stopped);
         Player = new Player(OscClient);
+        OpenVrInterface = openVrInterface;
 
         CreateAttributes();
         performLoad();
@@ -73,6 +76,11 @@ public abstract class Module
     private bool IsEnabled => Enabled.Value;
     private bool ShouldUpdate => DeltaUpdate != int.MaxValue;
     private string FileName => @$"{GetType().Name}.ini";
+
+    protected bool IsStarting => State.Value == ModuleState.Starting;
+    protected bool HasStarted => State.Value == ModuleState.Started;
+    protected bool IsStopping => State.Value == ModuleState.Stopping;
+    protected bool HasStopped => State.Value == ModuleState.Stopped;
 
     public const string VRChatOscPrefix = @"/avatar/parameters/";
 
@@ -143,14 +151,14 @@ public abstract class Module
 
     #region Events
 
-    internal void start()
+    internal async Task start(CancellationToken cancellationToken)
     {
         if (!IsEnabled) return;
 
         State.Value = ModuleState.Starting;
         Player.Init();
 
-        OnStart();
+        await OnStart(cancellationToken);
 
         if (ShouldUpdate) updateTask = new TimedTask(OnUpdate, DeltaUpdate, ExecuteUpdateImmediately).Start();
 
@@ -169,15 +177,15 @@ public abstract class Module
 
         if (updateTask is not null) await updateTask.Stop();
 
-        OnStop();
+        await OnStop();
 
         Player.ResetAll();
         State.Value = ModuleState.Stopped;
     }
 
-    protected virtual void OnStart() { }
-    protected virtual void OnUpdate() { }
-    protected virtual void OnStop() { }
+    protected virtual Task OnStart(CancellationToken cancellationToken) => Task.CompletedTask;
+    protected virtual Task OnUpdate() => Task.CompletedTask;
+    protected virtual Task OnStop() => Task.CompletedTask;
     protected virtual void OnAvatarChange() { }
     protected virtual void OnPlayerStateUpdate(VRChatInputParameter key) { }
 
@@ -400,7 +408,7 @@ public abstract class Module
 
     protected void SendParameter<T>(Enum lookup, T value) where T : struct
     {
-        if (State.Value == ModuleState.Stopped) return;
+        if (HasStopped) return;
 
         GetOutputParameter(lookup).SendValue(value);
     }
@@ -670,11 +678,9 @@ public abstract class Module
 
     protected void OpenUrlExternally(string Url) => Host.OpenUrlExternally(Url);
 
-    protected void SetChatBoxText(string text, int priorityTimeMilli = 2000, bool bypassKeyboard = true) => ChatBox.SetText(text, bypassKeyboard, ChatBoxPriority, priorityTimeMilli);
+    protected DateTimeOffset SetChatBoxText(string? text, TimeSpan displayLength) => ChatBox.SetText(text, ChatBoxPriority, displayLength);
 
     protected void SetChatBoxTyping(bool typing) => ChatBox.SetTyping(typing);
-
-    protected void ClearChatBox() => ChatBox.Clear(ChatBoxPriority);
 
     protected static float Map(float source, float sMin, float sMax, float dMin, float dMax) => dMin + (dMax - dMin) * ((source - sMin) / (sMax - sMin));
 

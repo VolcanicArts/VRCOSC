@@ -7,7 +7,7 @@ using osu.Framework.Graphics.Pooling;
 
 namespace VRCOSC.Game.Graphics.ModuleRun;
 
-public sealed class TerminalEntry : PoolableDrawable
+public sealed partial class TerminalEntry : PoolableDrawable
 {
     public string Text
     {

@@ -2,10 +2,12 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace VRCOSC.Game.Modules.Modules.Clock;
 
-public sealed class ClockModule : Module
+public sealed class ClockModule : ChatBoxModule
 {
     public override string Title => "Clock";
     public override string Description => "Sends your local time as hours, minutes, and seconds";
@@ -14,24 +16,41 @@ public sealed class ClockModule : Module
     public override ModuleType ModuleType => ModuleType.General;
     protected override int DeltaUpdate => GetSetting<bool>(ClockSetting.SmoothSecond) ? vrc_osc_delta_update : 1000;
 
+    protected override bool DefaultChatBoxDisplay => true;
+    protected override string DefaultChatBoxFormat => "Local Time                        %h%:%m%%period%";
+    protected override IEnumerable<string> ChatBoxFormatValues => new[] { "%h%", "%m%", "%s%", "%period%" };
+
+    private DateTime time;
+
     protected override void CreateAttributes()
     {
-        CreateSetting(ClockSetting.UseChatBox, "Use ChatBox", "Should the module display the time in the ChatBox?", false);
-        CreateSetting(ClockSetting.ChatBoxFormat, "ChatBox Format", "The format for displaying the time in the ChatBox.\nAvailable values: %h%, %m%, %s%, %period%", "%h%:%m%%period%");
         CreateSetting(ClockSetting.SmoothSecond, "Smooth Second", "If the seconds value should be smoothed", false);
         CreateSetting(ClockSetting.SmoothMinute, "Smooth Minute", "If the minutes value should be smoothed", true);
         CreateSetting(ClockSetting.SmoothHour, "Smooth Hour", "If the hours value should be smoothed", true);
         CreateSetting(ClockSetting.Mode, "Mode", "If the clock should be in 12 hour or 24 hour", ClockMode.Twelve);
         CreateSetting(ClockSetting.Timezone, "Timezone", "The timezone the clock should follow", ClockTimeZone.Local);
 
+        base.CreateAttributes();
+
         CreateParameter<float>(ClockParameter.Hours, ParameterMode.Write, "VRCOSC/Clock/Hours", "The current hour normalised");
         CreateParameter<float>(ClockParameter.Minutes, ParameterMode.Write, "VRCOSC/Clock/Minutes", "The current minute normalised");
         CreateParameter<float>(ClockParameter.Seconds, ParameterMode.Write, "VRCOSC/Clock/Seconds", "The current second normalised");
     }
 
-    protected override void OnUpdate()
+    protected override string? GetChatBoxText()
     {
-        var time = timezoneToTime(GetSetting<ClockTimeZone>(ClockSetting.Timezone));
+        var chatBoxTime = timezoneToTime(GetSetting<ClockTimeZone>(ClockSetting.Timezone));
+        var textHour = GetSetting<ClockMode>(ClockSetting.Mode) == ClockMode.Twelve ? (chatBoxTime.Hour % 12).ToString("00") : chatBoxTime.Hour.ToString("00");
+        return GetSetting<string>(ClockSetting.ChatBoxFormat)
+               .Replace("%h%", textHour)
+               .Replace("%m%", chatBoxTime.Minute.ToString("00"))
+               .Replace("%s%", chatBoxTime.Second.ToString("00"))
+               .Replace("%period%", chatBoxTime.Hour >= 12 ? "pm" : "am");
+    }
+
+    protected override Task OnUpdate()
+    {
+        time = timezoneToTime(GetSetting<ClockTimeZone>(ClockSetting.Timezone));
 
         var hours = GetSetting<bool>(ClockSetting.SmoothHour) ? getSmoothedHours(time) : time.Hour;
         var minutes = GetSetting<bool>(ClockSetting.SmoothMinute) ? getSmoothedMinutes(time) : time.Minute;
@@ -46,18 +65,7 @@ public sealed class ClockModule : Module
         SendParameter(ClockParameter.Minutes, minuteNormalised);
         SendParameter(ClockParameter.Seconds, secondNormalised);
 
-        if (GetSetting<bool>(ClockSetting.UseChatBox))
-        {
-            var textHour = GetSetting<ClockMode>(ClockSetting.Mode) == ClockMode.Twelve ? (time.Hour % 12).ToString("00") : time.Hour.ToString("00");
-
-            var text = GetSetting<string>(ClockSetting.ChatBoxFormat)
-                       .Replace("%h%", textHour)
-                       .Replace("%m%", time.Minute.ToString("00"))
-                       .Replace("%s%", time.Second.ToString("00"))
-                       .Replace("%period%", time.Hour >= 12 ? "pm" : "am");
-
-            SetChatBoxText(text);
-        }
+        return Task.CompletedTask;
     }
 
     private static float getSmoothedSeconds(DateTime time) => time.Second + time.Millisecond / 1000f;

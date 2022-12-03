@@ -12,9 +12,9 @@ namespace VRCOSC.Game.Util;
 // https://stackoverflow.com/questions/20938934/controlling-applications-volume-by-process-id
 internal static class ProcessVolume
 {
-    internal static float? GetApplicationVolume(int pid)
+    internal static float? GetApplicationVolume(string processName)
     {
-        ISimpleAudioVolume? volume = getVolumeObject(pid);
+        ISimpleAudioVolume? volume = getVolumeObject(processName);
         if (volume == null)
             return null;
 
@@ -23,9 +23,9 @@ internal static class ProcessVolume
         return percentage;
     }
 
-    internal static bool? GetApplicationMute(int pid)
+    internal static bool? GetApplicationMute(string processName)
     {
-        ISimpleAudioVolume? volume = getVolumeObject(pid);
+        ISimpleAudioVolume? volume = getVolumeObject(processName);
         if (volume == null)
             return null;
 
@@ -34,9 +34,9 @@ internal static class ProcessVolume
         return mute;
     }
 
-    internal static void SetApplicationVolume(int pid, float percentage)
+    internal static void SetApplicationVolume(string processName, float percentage)
     {
-        ISimpleAudioVolume? volume = getVolumeObject(pid);
+        ISimpleAudioVolume? volume = getVolumeObject(processName);
         if (volume == null)
             return;
 
@@ -45,9 +45,9 @@ internal static class ProcessVolume
         Marshal.ReleaseComObject(volume);
     }
 
-    internal static void SetApplicationMute(int pid, bool mute)
+    internal static void SetApplicationMute(string processName, bool mute)
     {
-        ISimpleAudioVolume? volume = getVolumeObject(pid);
+        ISimpleAudioVolume? volume = getVolumeObject(processName);
         if (volume == null)
             return;
 
@@ -56,7 +56,7 @@ internal static class ProcessVolume
         Marshal.ReleaseComObject(volume);
     }
 
-    private static ISimpleAudioVolume? getVolumeObject(int pid)
+    private static ISimpleAudioVolume? getVolumeObject(string processName)
     {
         // get the speakers (1st render + multimedia) device
         IMMDeviceEnumerator deviceEnumerator = (IMMDeviceEnumerator)(new MMDeviceEnumerator());
@@ -78,9 +78,9 @@ internal static class ProcessVolume
         for (int i = 0; i < count; i++)
         {
             sessionEnumerator.GetSession(i, out var ctl);
-            ctl.GetProcessId(out var cpid);
+            ctl.GetSessionIdentifier(out var identifier);
 
-            if (cpid == pid)
+            if (identifier.Contains(processName, StringComparison.InvariantCultureIgnoreCase))
             {
                 volumeControl = ctl as ISimpleAudioVolume;
                 break;

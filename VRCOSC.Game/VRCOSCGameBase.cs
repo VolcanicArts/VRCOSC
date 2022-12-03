@@ -18,7 +18,7 @@ using VRCOSC.Resources;
 
 namespace VRCOSC.Game;
 
-public class VRCOSCGameBase : osu.Framework.Game
+public partial class VRCOSCGameBase : osu.Framework.Game
 {
     private static readonly Vector2 default_size_v = new(1450, 768);
     private static readonly Size default_size = new(1450, 768);
@@ -28,7 +28,7 @@ public class VRCOSCGameBase : osu.Framework.Game
     protected DependencyContainer DependencyContainer = null!;
     protected VRCOSCConfigManager ConfigManager = null!;
 
-    private Bindable<string> versionBindable;
+    private Bindable<string> versionBindable = null!;
 
     private Version assemblyVersion => Assembly.GetEntryAssembly()?.GetName().Version ?? new Version();
 

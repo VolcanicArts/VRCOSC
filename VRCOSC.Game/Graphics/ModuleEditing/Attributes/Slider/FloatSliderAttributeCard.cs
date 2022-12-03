@@ -6,7 +6,7 @@ using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes.Slider;
 
-public sealed class FloatSliderAttributeCard : SliderAttributeCard<float>
+public sealed partial class FloatSliderAttributeCard : SliderAttributeCard<float>
 {
     public FloatSliderAttributeCard(ModuleAttributeSingleWithBounds attributeData)
         : base(attributeData)

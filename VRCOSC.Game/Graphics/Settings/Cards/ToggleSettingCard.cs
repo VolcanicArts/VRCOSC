@@ -9,7 +9,7 @@ using VRCOSC.Game.Graphics.UI.Button;
 
 namespace VRCOSC.Game.Graphics.Settings.Cards;
 
-public class ToggleSettingCard : SettingCard<bool>
+public partial class ToggleSettingCard : SettingCard<bool>
 {
     private ToggleButton toggleButton = null!;
 

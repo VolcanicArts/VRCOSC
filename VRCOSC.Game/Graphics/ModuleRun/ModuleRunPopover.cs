@@ -9,7 +9,7 @@ using osu.Framework.Graphics.Shapes;
 
 namespace VRCOSC.Game.Graphics.ModuleRun;
 
-public sealed class ModuleRunPopover : PopoverScreen
+public sealed partial class ModuleRunPopover : PopoverScreen
 {
     private readonly TerminalContainer terminal;
     private readonly ParameterContainer parameters;

@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -6,11 +6,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
+using osu.Framework.Logging;
 using osu.Framework.Platform;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Modules.Modules.Clock;
@@ -19,15 +21,16 @@ using VRCOSC.Game.Modules.Modules.HardwareStats;
 using VRCOSC.Game.Modules.Modules.Heartrate.HypeRate;
 using VRCOSC.Game.Modules.Modules.Heartrate.Pulsoid;
 using VRCOSC.Game.Modules.Modules.Media;
+using VRCOSC.Game.Modules.Modules.OpenVR;
 using VRCOSC.Game.Modules.Modules.Random;
-//using VRCOSC.Game.Modules.Modules.SpeechToText;
-//using VRCOSC.Game.Modules.Modules.SteamVR;
+using VRCOSC.Game.Modules.Modules.SpeechToText;
+using VRCOSC.Game.Modules.Util;
 using VRCOSC.Game.Util;
 using VRCOSC.OSC;
 
 namespace VRCOSC.Game.Modules;
 
-public sealed class ModuleManager : Component
+public sealed partial class ModuleManager : Component
 {
     private static readonly IReadOnlyList<Type> module_types = new[]
     {
@@ -38,117 +41,127 @@ public sealed class ModuleManager : Component
         typeof(RandomIntModule),
         typeof(RandomFloatModule),
         typeof(HardwareStatsModule),
-        //typeof(OpenVRModule),
+        typeof(OpenVRBatteryModule),
+        typeof(IndexControllerModule),
         typeof(MediaModule),
         typeof(DiscordModule),
-        //typeof(SpeechToTextModule)
+        typeof(SpeechToTextModule),
     };
 
-    private bool autoStarted;
-    private Bindable<bool> autoStartStop = null!;
-    private readonly TerminalLogger terminal = new(nameof(ModuleManager));
+    private const int vr_chat_process_check_interval_milliseconds = 5000;
 
     public readonly List<Module> Modules = new();
     public readonly OscClient OscClient = new();
+    public readonly Bindable<ManagerState> State = new(ManagerState.Stopped);
 
-    public bool Running { get; private set; }
-
+    private bool hasAutoStarted;
+    private Bindable<bool> autoStartStop = null!;
+    private readonly TerminalLogger terminal = new(nameof(ModuleManager));
+    private CancellationTokenSource startCancellationTokenSource = null!;
     private ChatBox chatBox = null!;
 
     [Resolved]
-    private VRCOSCConfigManager configManager { get; set; } = null!;
+    private VRCOSCConfigManager ConfigManager { get; set; } = null!;
 
     [Resolved]
-    private BindableBool modulesRunning { get; set; } = null!;
+    private BindableBool ModuleRun { get; set; } = null!;
 
     [BackgroundDependencyLoader]
-    private void load(GameHost host, Storage storage)
+    private void load(GameHost host, Storage storage, OpenVrInterface openVrInterface)
     {
         chatBox = new ChatBox(OscClient);
+        autoStartStop = ConfigManager.GetBindable<bool>(VRCOSCSetting.AutoStartStop);
 
         var moduleStorage = storage.GetStorageForDirectory("modules");
         module_types.ForEach(type =>
         {
             var module = (Module)Activator.CreateInstance(type)!;
-            module.Initialise(host, moduleStorage, OscClient, chatBox);
+            module.Initialise(host, moduleStorage, OscClient, chatBox, openVrInterface);
             Modules.Add(module);
         });
-
-        autoStartStop = configManager.GetBindable<bool>(VRCOSCSetting.AutoStartStop);
     }
 
     protected override void LoadComplete()
     {
+        Scheduler.AddDelayed(checkForVrChat, vr_chat_process_check_interval_milliseconds, true);
+
         autoStartStop.BindValueChanged(e =>
         {
-            if (e.NewValue)
-            {
-                Scheduler.Add(checkForVrChat);
-                Scheduler.AddDelayed(checkForVrChat, 5000, true);
-            }
-            else
-            {
-                Scheduler.CancelDelayedTasks();
-
-                // this is reset when a user turns off autoStartStop in the case
-                // that they've manually stopped the modules with autoStartStop enabled
-                autoStarted = false;
-            }
-        }, true);
-
-        modulesRunning.BindValueChanged(e =>
-        {
-            if (e.NewValue)
-                start();
-            else
-                _ = stop();
+            // We reset hasAutoStarted here so that turning auto start off and on again will cause it to work normally
+            if (!e.NewValue) hasAutoStarted = false;
         });
 
-        if (modulesRunning.Value) start();
-    }
-
-    private static async Task focusVrc()
-    {
-        var process = Process.GetProcessesByName("vrchat").FirstOrDefault();
-        if (process is null) return;
-
-        if (process.MainWindowHandle == IntPtr.Zero)
+        ModuleRun.BindValueChanged(e =>
         {
-            ProcessExtensions.ShowMainWindow(process, ShowWindowEnum.Restore);
-            await Task.Delay(5);
-        }
+            if (e.NewValue)
+                startProxy();
+            else
+                Task.Run(stop);
+        });
 
-        ProcessExtensions.ShowMainWindow(process, ShowWindowEnum.ShowDefault);
-        await Task.Delay(5);
-        ProcessExtensions.SetMainWindowForeground(process);
+        State.BindValueChanged(e => Logger.Log($"ModuleManager now {e.NewValue}"));
     }
 
-    private static bool isVrChatRunning => Process.GetProcessesByName("vrchat").Any();
+    private void startProxy()
+    {
+        try
+        {
+            startCancellationTokenSource = new CancellationTokenSource();
+            Task.Run(start, startCancellationTokenSource.Token);
+        }
+        catch (TaskCanceledException) { }
+    }
 
     private void checkForVrChat()
     {
-        // autoStarted is checked here to ensure that modules aren't started immediately
+        if (!ConfigManager.Get<bool>(VRCOSCSetting.AutoStartStop)) return;
+
+        static bool isVrChatRunning() => Process.GetProcessesByName("vrchat").Any();
+
+        // hasAutoStarted is checked here to ensure that modules aren't started immediately
         // after a user has manually stopped the modules
-        if (isVrChatRunning && !modulesRunning.Value && !autoStarted)
+        if (isVrChatRunning() && !ModuleRun.Value && !hasAutoStarted)
         {
-            modulesRunning.Value = true;
-            autoStarted = true;
+            ModuleRun.Value = true;
+            hasAutoStarted = true;
         }
 
-        if (!isVrChatRunning && modulesRunning.Value)
+        if (!isVrChatRunning() && ModuleRun.Value)
         {
-            modulesRunning.Value = false;
-            autoStarted = false;
+            ModuleRun.Value = false;
+            hasAutoStarted = false;
         }
     }
 
-    private void start()
+    private async Task start()
     {
-        if (configManager.Get<bool>(VRCOSCSetting.AutoFocus)) _ = focusVrc();
+        State.Value = ManagerState.Starting;
 
-        var ipAddress = configManager.Get<string>(VRCOSCSetting.IPAddress);
-        var sendPort = configManager.Get<int>(VRCOSCSetting.SendPort);
-        var receivePort = configManager.Get<int>(VRCOSCSetting.ReceivePort);
+        await Task.Delay(250, startCancellationTokenSource.Token);
+
+        enableOsc();
+
+        if (Modules.All(module => !module.Enabled.Value))
+        {
+            terminal.Log("You have no modules selected!\nSelect some modules to begin using VRCOSC");
+            return;
+        }
+
+        chatBox.Init();
+
+        foreach (var module in Modules)
+        {
+            _ = module.start(startCancellationTokenSource.Token);
+        }
+
+        State.Value = ManagerState.Started;
+    }
+
+    private void enableOsc()
+    {
+        var ipAddress = ConfigManager.Get<string>(VRCOSCSetting.IPAddress);
+        var sendPort = ConfigManager.Get<int>(VRCOSCSetting.SendPort);
+        var receivePort = ConfigManager.Get<int>(VRCOSCSetting.ReceivePort);
 
         try
         {
@@ -157,31 +170,20 @@ public sealed class ModuleManager : Component
         }
         catch (SocketException)
         {
-            terminal.Log("Exception detected. An invalid OSC IP address has been provided");
-            return;
+            terminal.Log("An invalid OSC IP address has been provided. Please check your settings");
         }
         catch (ArgumentOutOfRangeException)
         {
-            terminal.Log("Exception detected. An invalid OSC port has been provided");
-            return;
+            terminal.Log("An invalid OSC port has been provided. Please check your settings");
         }
-
-        if (Modules.All(module => !module.Enabled.Value))
-        {
-            terminal.Log("You have no modules selected!");
-            terminal.Log("Select some modules to begin using VRCOSC");
-        }
-
-        Task.Run(() =>
-        {
-            Modules.ForEach(module => module.start());
-        });
-
-        Running = true;
     }
 
     private async Task stop()
     {
+        State.Value = ManagerState.Stopping;
+
+        startCancellationTokenSource?.Cancel();
+
         await OscClient.DisableReceive();
 
         foreach (var module in Modules)
@@ -189,16 +191,18 @@ public sealed class ModuleManager : Component
             await module.stop();
         }
 
-        chatBox.Clear(int.MaxValue);
+        await chatBox.Shutdown();
 
         OscClient.DisableSend();
 
-        Running = false;
+        State.Value = ManagerState.Stopped;
     }
+}
 
-    protected override void Dispose(bool isDisposing)
-    {
-        if (modulesRunning.Value) _ = stop();
-        base.Dispose(isDisposing);
-    }
+public enum ManagerState
+{
+    Starting,
+    Started,
+    Stopping,
+    Stopped
 }

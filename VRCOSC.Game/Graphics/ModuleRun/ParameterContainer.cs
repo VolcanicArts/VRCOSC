@@ -9,7 +9,7 @@ using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleRun;
 
-public sealed class ParameterContainer : Container
+public sealed partial class ParameterContainer : Container
 {
     [Resolved]
     private ModuleManager moduleManager { get; set; } = null!;
@@ -75,7 +75,7 @@ public sealed class ParameterContainer : Container
         incomingParameterDisplay.ClearContent();
     }
 
-    private sealed class ParameterSubContainer : Container
+    private sealed partial class ParameterSubContainer : Container
     {
         private ParameterDisplay parameterDisplay = null!;
 

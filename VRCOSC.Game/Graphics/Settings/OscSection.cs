@@ -5,7 +5,7 @@ using VRCOSC.Game.Config;
 
 namespace VRCOSC.Game.Graphics.Settings;
 
-public sealed class OscSection : SectionContainer
+public sealed partial class OscSection : SectionContainer
 {
     protected override string Title => "OSC";
 

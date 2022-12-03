@@ -9,7 +9,7 @@ using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes.Text;
 
-public sealed class ButtonTextAttributeCard : TextAttributeCard
+public sealed partial class ButtonTextAttributeCard : TextAttributeCard
 {
     private readonly ModuleAttributeSingleWithButton attributeSingleWithButton;
 

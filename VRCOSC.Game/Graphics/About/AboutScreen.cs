@@ -15,7 +15,7 @@ using VRCOSC.Game.Graphics.UI.Button;
 
 namespace VRCOSC.Game.Graphics.About;
 
-public sealed class AboutScreen : Container
+public sealed partial class AboutScreen : Container
 {
     [Resolved]
     private GameHost host { get; set; } = null!;
@@ -25,7 +25,7 @@ public sealed class AboutScreen : Container
 
     private readonly FillFlowContainer buttonFlow;
     private readonly TextFlowContainer text;
-    private Bindable<string> versionBindable;
+    private Bindable<string> versionBindable = null!;
 
     public AboutScreen()
     {
@@ -91,7 +91,7 @@ public sealed class AboutScreen : Container
         }, true);
     }
 
-    private sealed class AboutButton : Container
+    private sealed partial class AboutButton : Container
     {
         public IconUsage Icon { get; init; }
         public Colour4 BackgroundColour { get; init; }

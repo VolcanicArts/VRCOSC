@@ -7,7 +7,7 @@ using osuTK.Input;
 
 namespace VRCOSC.Game.Graphics.UI.Button;
 
-public class VRCOSCButton : osu.Framework.Graphics.UserInterface.Button
+public partial class VRCOSCButton : osu.Framework.Graphics.UserInterface.Button
 {
     private const float scale_default = 1.0f;
     private const float scale_hovered = 1.05f;

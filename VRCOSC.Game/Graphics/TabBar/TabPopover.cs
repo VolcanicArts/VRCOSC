@@ -9,7 +9,7 @@ using osuTK;
 
 namespace VRCOSC.Game.Graphics.TabBar;
 
-public sealed class TabPopover : Popover
+public sealed partial class TabPopover : Popover
 {
     public TabPopover()
     {

@@ -10,7 +10,7 @@ using VRCOSC.Game.Graphics.Notifications;
 
 namespace VRCOSC.Game.Graphics.Updater;
 
-public abstract class VRCOSCUpdateManager : Container
+public abstract partial class VRCOSCUpdateManager : Container
 {
     [Resolved]
     private GameHost host { get; set; } = null!;

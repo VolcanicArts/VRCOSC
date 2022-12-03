@@ -12,7 +12,7 @@ using VRCOSC.Game.Graphics.TabBar;
 
 namespace VRCOSC.Game.Graphics;
 
-public sealed class MainContent : Container
+public sealed partial class MainContent : Container
 {
     [Resolved]
     private Bindable<Tab> selectedTab { get; set; } = null!;
