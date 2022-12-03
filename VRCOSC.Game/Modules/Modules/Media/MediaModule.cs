@@ -29,10 +29,10 @@ public sealed class MediaModule : ChatBoxModule
 
     protected override void CreateAttributes()
     {
-        base.CreateAttributes();
-
         CreateSetting(MediaSetting.PausedBehaviour, "Paused Behaviour", "When the media is paused, should the ChatBox be empty or display that it's paused?", MediaPausedBehaviour.Empty);
         CreateSetting(MediaSetting.StartList, "Start List", "A list of exe locations to start with this module\nThis is handy for starting, for example, Spotify", new[] { @$"C:\Users\{Environment.UserName}\AppData\Roaming\Spotify\spotify.exe" }, true);
+
+        base.CreateAttributes();
 
         CreateParameter<bool>(MediaParameter.Play, ParameterMode.ReadWrite, "VRCOSC/Media/Play", "True for playing. False for paused");
         CreateParameter<float>(MediaParameter.Volume, ParameterMode.ReadWrite, "VRCOSC/Media/Volume", "The volume of the process that is controlling the media", ActionMenu.Radial);
