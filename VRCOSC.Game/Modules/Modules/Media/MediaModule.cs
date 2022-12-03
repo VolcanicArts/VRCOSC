@@ -30,6 +30,7 @@ public sealed class MediaModule : ChatBoxModule
     protected override void CreateAttributes()
     {
         CreateSetting(MediaSetting.PausedBehaviour, "Paused Behaviour", "When the media is paused, should the ChatBox be empty or display that it's paused?", MediaPausedBehaviour.Empty);
+        CreateSetting(MediaSetting.PausedText, "Paused Text", $"The text to display when media is paused. Only applicable when Paused Behaviour is set to {MediaPausedBehaviour.Display}", "[Paused]");
         CreateSetting(MediaSetting.StartList, "Start List", "A list of exe locations to start with this module\nThis is handy for starting, for example, Spotify", new[] { @$"C:\Users\{Environment.UserName}\AppData\Roaming\Spotify\spotify.exe" }, true);
 
         base.CreateAttributes();
@@ -46,7 +47,7 @@ public sealed class MediaModule : ChatBoxModule
     protected override string? GetChatBoxText()
     {
         if (!mediaProvider.State.IsPlaying)
-            return GetSetting<MediaPausedBehaviour>(MediaSetting.PausedBehaviour) == MediaPausedBehaviour.Empty ? null : "[Media Paused]";
+            return GetSetting<MediaPausedBehaviour>(MediaSetting.PausedBehaviour) == MediaPausedBehaviour.Empty ? null : GetSetting<string>(MediaSetting.PausedText);
 
         mediaProvider.State.Position = mediaProvider.Controller?.GetTimelineProperties() ?? null;
 
@@ -183,6 +184,7 @@ public sealed class MediaModule : ChatBoxModule
     private enum MediaSetting
     {
         PausedBehaviour,
+        PausedText,
         StartList
     }
 
