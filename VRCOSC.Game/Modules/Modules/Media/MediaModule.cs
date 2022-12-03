@@ -45,9 +45,8 @@ public sealed class MediaModule : ChatBoxModule
 
     protected override string? GetChatBoxText()
     {
-        // TODO: Replace string.Empty with null when ChatBox's Always queue has been implemented
         if (!mediaProvider.State.IsPlaying)
-            return GetSetting<MediaPausedBehaviour>(MediaSetting.PausedBehaviour) == MediaPausedBehaviour.Empty ? string.Empty : "[Media Paused]";
+            return GetSetting<MediaPausedBehaviour>(MediaSetting.PausedBehaviour) == MediaPausedBehaviour.Empty ? null : "[Media Paused]";
 
         mediaProvider.State.Position = mediaProvider.Controller?.GetTimelineProperties() ?? null;
 

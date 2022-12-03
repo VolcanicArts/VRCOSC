@@ -678,7 +678,7 @@ public abstract class Module
 
     protected void OpenUrlExternally(string Url) => Host.OpenUrlExternally(Url);
 
-    protected DateTimeOffset SetChatBoxText(string text, TimeSpan displayLength) => ChatBox.SetText(text, ChatBoxPriority, displayLength);
+    protected DateTimeOffset SetChatBoxText(string? text, TimeSpan displayLength) => ChatBox.SetText(text, ChatBoxPriority, displayLength);
 
     protected void SetChatBoxTyping(bool typing) => ChatBox.SetTyping(typing);
 
