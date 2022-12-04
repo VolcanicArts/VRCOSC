@@ -15,19 +15,19 @@ public class OpenVRControllerValuesModule : Module
 
     protected override void CreateAttributes()
     {
-        CreateParameter<bool>(OpenVRControllerValuesParameter.LeftA, ParameterMode.Write, "VRCOSC/OpenVR/LeftController/Input/A", "Whether the left a button is currently touched");
-        CreateParameter<bool>(OpenVRControllerValuesParameter.LeftB, ParameterMode.Write, "VRCOSC/OpenVR/LeftController/Input/B", "Whether the left b button is currently touched");
-        CreateParameter<bool>(OpenVRControllerValuesParameter.LeftPad, ParameterMode.Write, "VRCOSC/OpenVR/LeftController/Input/Pad", "Whether the left pad is currently touched");
-        CreateParameter<bool>(OpenVRControllerValuesParameter.LeftStick, ParameterMode.Write, "VRCOSC/OpenVR/LeftController/Input/Stick", "Whether the left stick is currently touched");
+        CreateParameter<bool>(OpenVRControllerValuesParameter.LeftATouch, ParameterMode.Write, "VRCOSC/OpenVR/LeftController/Input/A/Touch", "Whether the left a button is currently touched");
+        CreateParameter<bool>(OpenVRControllerValuesParameter.LeftBTouch, ParameterMode.Write, "VRCOSC/OpenVR/LeftController/Input/B/Touch", "Whether the left b button is currently touched");
+        CreateParameter<bool>(OpenVRControllerValuesParameter.LeftPadTouch, ParameterMode.Write, "VRCOSC/OpenVR/LeftController/Input/Pad/Touch", "Whether the left pad is currently touched");
+        CreateParameter<bool>(OpenVRControllerValuesParameter.LeftStickTouch, ParameterMode.Write, "VRCOSC/OpenVR/LeftController/Input/Stick/Touch", "Whether the left stick is currently touched");
         CreateParameter<float>(OpenVRControllerValuesParameter.LeftIndex, ParameterMode.Write, "VRCOSC/OpenVR/LeftController/Input/Finger/Index", "The touch value of your left index finger");
         CreateParameter<float>(OpenVRControllerValuesParameter.LeftMiddle, ParameterMode.Write, "VRCOSC/OpenVR/LeftController/Input/Finger/Middle", "The touch value of your left middle finger");
         CreateParameter<float>(OpenVRControllerValuesParameter.LeftRing, ParameterMode.Write, "VRCOSC/OpenVR/LeftController/Input/Finger/Ring", "The touch value of your left ring finger");
         CreateParameter<float>(OpenVRControllerValuesParameter.LeftPinky, ParameterMode.Write, "VRCOSC/OpenVR/LeftController/Input/Finger/Pinky", "The touch value of your left pinky finger");
 
-        CreateParameter<bool>(OpenVRControllerValuesParameter.RightA, ParameterMode.Write, "VRCOSC/OpenVR/RightController/Input/A", "Whether the right a button is currently touched");
-        CreateParameter<bool>(OpenVRControllerValuesParameter.RightB, ParameterMode.Write, "VRCOSC/OpenVR/RightController/Input/B", "Whether the right b button is currently touched");
-        CreateParameter<bool>(OpenVRControllerValuesParameter.RightPad, ParameterMode.Write, "VRCOSC/OpenVR/RightController/Input/Pad", "Whether the right pad is currently touched");
-        CreateParameter<bool>(OpenVRControllerValuesParameter.RightStick, ParameterMode.Write, "VRCOSC/OpenVR/RightController/Input/Stick", "Whether the right stick is currently touched");
+        CreateParameter<bool>(OpenVRControllerValuesParameter.RightATouch, ParameterMode.Write, "VRCOSC/OpenVR/RightController/Input/A/Touch", "Whether the right a button is currently touched");
+        CreateParameter<bool>(OpenVRControllerValuesParameter.RightBTouch, ParameterMode.Write, "VRCOSC/OpenVR/RightController/Input/B/Touch", "Whether the right b button is currently touched");
+        CreateParameter<bool>(OpenVRControllerValuesParameter.RightPadTouch, ParameterMode.Write, "VRCOSC/OpenVR/RightController/Input/Pad/Touch", "Whether the right pad is currently touched");
+        CreateParameter<bool>(OpenVRControllerValuesParameter.RightStickTouch, ParameterMode.Write, "VRCOSC/OpenVR/RightController/Input/Stick/Touch", "Whether the right stick is currently touched");
         CreateParameter<float>(OpenVRControllerValuesParameter.RightIndex, ParameterMode.Write, "VRCOSC/OpenVR/RightController/Input/Finger/Index", "The touch value of your right index finger");
         CreateParameter<float>(OpenVRControllerValuesParameter.RightMiddle, ParameterMode.Write, "VRCOSC/OpenVR/RightController/Input/Finger/Middle", "The touch value of your right middle finger");
         CreateParameter<float>(OpenVRControllerValuesParameter.RightRing, ParameterMode.Write, "VRCOSC/OpenVR/RightController/Input/Finger/Ring", "The touch value of your right ring finger");
@@ -39,10 +39,10 @@ public class OpenVRControllerValuesModule : Module
         if (OpenVrInterface.IsLeftControllerPresent())
         {
             var leftController = OpenVrInterface.GetLeftControllerData();
-            SendParameter(OpenVRControllerValuesParameter.LeftA, leftController.ATouched);
-            SendParameter(OpenVRControllerValuesParameter.LeftB, leftController.BTouched);
-            SendParameter(OpenVRControllerValuesParameter.LeftPad, leftController.PadTouched);
-            SendParameter(OpenVRControllerValuesParameter.LeftStick, leftController.StickTouched);
+            SendParameter(OpenVRControllerValuesParameter.LeftATouch, leftController.ATouched);
+            SendParameter(OpenVRControllerValuesParameter.LeftBTouch, leftController.BTouched);
+            SendParameter(OpenVRControllerValuesParameter.LeftPadTouch, leftController.PadTouched);
+            SendParameter(OpenVRControllerValuesParameter.LeftStickTouch, leftController.StickTouched);
             SendParameter(OpenVRControllerValuesParameter.LeftIndex, leftController.IndexFinger);
             SendParameter(OpenVRControllerValuesParameter.LeftMiddle, leftController.MiddleFinger);
             SendParameter(OpenVRControllerValuesParameter.LeftRing, leftController.RingFinger);
@@ -52,10 +52,10 @@ public class OpenVRControllerValuesModule : Module
         if (OpenVrInterface.IsRightControllerPresent())
         {
             var rightController = OpenVrInterface.GetRightControllerData();
-            SendParameter(OpenVRControllerValuesParameter.RightA, rightController.ATouched);
-            SendParameter(OpenVRControllerValuesParameter.RightB, rightController.BTouched);
-            SendParameter(OpenVRControllerValuesParameter.RightPad, rightController.PadTouched);
-            SendParameter(OpenVRControllerValuesParameter.RightStick, rightController.StickTouched);
+            SendParameter(OpenVRControllerValuesParameter.RightATouch, rightController.ATouched);
+            SendParameter(OpenVRControllerValuesParameter.RightBTouch, rightController.BTouched);
+            SendParameter(OpenVRControllerValuesParameter.RightPadTouch, rightController.PadTouched);
+            SendParameter(OpenVRControllerValuesParameter.RightStickTouch, rightController.StickTouched);
             SendParameter(OpenVRControllerValuesParameter.RightIndex, rightController.IndexFinger);
             SendParameter(OpenVRControllerValuesParameter.RightMiddle, rightController.MiddleFinger);
             SendParameter(OpenVRControllerValuesParameter.RightRing, rightController.RingFinger);
@@ -67,18 +67,18 @@ public class OpenVRControllerValuesModule : Module
 
     private enum OpenVRControllerValuesParameter
     {
-        LeftA,
-        LeftB,
-        LeftPad,
-        LeftStick,
+        LeftATouch,
+        LeftBTouch,
+        LeftPadTouch,
+        LeftStickTouch,
         LeftIndex,
         LeftMiddle,
         LeftRing,
         LeftPinky,
-        RightA,
-        RightB,
-        RightPad,
-        RightStick,
+        RightATouch,
+        RightBTouch,
+        RightPadTouch,
+        RightStickTouch,
         RightIndex,
         RightMiddle,
         RightRing,
