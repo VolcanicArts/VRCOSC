@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using osu.Framework.Lists;
 using osu.Framework.Logging;
+using osu.Framework.Platform;
 using Valve.VR;
 
 // ReSharper disable MemberCanBeMadeStatic.Global
@@ -17,38 +18,53 @@ namespace VRCOSC.Game.Modules.Util;
 [SuppressMessage("Performance", "CA1822:Mark members as static")]
 public class OpenVRInterface
 {
-    private readonly Dictionary<EVRButtonId, bool> leftTouch = new()
-    {
-        { EVRButtonId.k_EButton_IndexController_A, false },
-        { EVRButtonId.k_EButton_IndexController_B, false },
-        { EVRButtonId.k_EButton_SteamVR_Touchpad, false },
-        { EVRButtonId.k_EButton_IndexController_JoyStick, false },
-        { EVRButtonId.k_EButton_SteamVR_Trigger, false }
-    };
+    public IndexControllerData LeftIndexControllerData = new();
+    public IndexControllerData RightIndexControllerData = new();
 
-    private readonly Dictionary<EVRButtonId, bool> rightTouch = new()
-    {
-        { EVRButtonId.k_EButton_IndexController_A, false },
-        { EVRButtonId.k_EButton_IndexController_B, false },
-        { EVRButtonId.k_EButton_SteamVR_Touchpad, false },
-        { EVRButtonId.k_EButton_IndexController_JoyStick, false },
-        { EVRButtonId.k_EButton_SteamVR_Trigger, false }
-    };
+    private ulong actionSetHandle;
+    private readonly ulong[] leftController = new ulong[8];
+    private readonly ulong[] rightController = new ulong[8];
 
+    private Storage storage;
     public bool HasSession { get; private set; }
+
+    public OpenVRInterface(Storage storage)
+    {
+        this.storage = storage.GetStorageForDirectory("temp");
+    }
 
     public bool Init()
     {
         var err = new EVRInitError();
         OpenVR.Init(ref err, EVRApplicationType.VRApplication_Utility);
 
-        if (err == EVRInitError.None)
-        {
-            HasSession = true;
-            return true;
-        }
+        if (err != EVRInitError.None) return false;
 
-        return false;
+        HasSession = true;
+
+        OpenVR.Input.SetActionManifestPath(storage.GetFullPath("action_manifest.json"));
+
+        OpenVR.Input.GetActionHandle("/actions/main/in/LeftThumbA", ref leftController[0]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/LeftThumbB", ref leftController[1]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/LeftThumbPad", ref leftController[2]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/LeftThumbStick", ref leftController[3]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/LeftFinger1", ref leftController[4]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/LeftFinger2", ref leftController[5]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/LeftFinger3", ref leftController[6]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/LeftFinger4", ref leftController[7]);
+
+        OpenVR.Input.GetActionHandle("/actions/main/in/RightThumbA", ref rightController[0]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/RightThumbB", ref rightController[1]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/RightThumbPad", ref rightController[2]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/RightThumbStick", ref rightController[3]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/RightFinger1", ref rightController[4]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/RightFinger2", ref rightController[5]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/RightFinger3", ref rightController[6]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/RightFinger4", ref rightController[7]);
+
+        OpenVR.Input.GetActionSetHandle("/actions/main", ref actionSetHandle);
+
+        return true;
     }
 
     public bool IsHmdPresent() => getIndexForTrackedDeviceClass(ETrackedDeviceClass.HMD) != uint.MaxValue && OpenVR.IsHmdPresent();
@@ -73,22 +89,15 @@ public class OpenVRInterface
         return error == ETrackedPropertyError.TrackedProp_Success && canProvideBattery;
     }
 
-    public bool IsLeftAButtonTouched() => leftTouch[EVRButtonId.k_EButton_IndexController_A];
-    public bool IsLeftBButtonTouched() => leftTouch[EVRButtonId.k_EButton_IndexController_B];
-    public bool IsLeftPadTouched() => leftTouch[EVRButtonId.k_EButton_SteamVR_Touchpad];
-    public bool IsLeftStickTouched() => leftTouch[EVRButtonId.k_EButton_IndexController_JoyStick];
-    public bool IsLeftTriggerTouched() => leftTouch[EVRButtonId.k_EButton_SteamVR_Trigger];
-
-    public bool IsRightAButtonTouched() => rightTouch[EVRButtonId.k_EButton_IndexController_A];
-    public bool IsRightBButtonTouched() => rightTouch[EVRButtonId.k_EButton_IndexController_B];
-    public bool IsRightPadTouched() => rightTouch[EVRButtonId.k_EButton_SteamVR_Touchpad];
-    public bool IsRightStickTouched() => rightTouch[EVRButtonId.k_EButton_IndexController_JoyStick];
-    public bool IsRightTriggerTouched() => rightTouch[EVRButtonId.k_EButton_SteamVR_Trigger];
+    public IndexControllerData GetLeftIndexControllerData() => LeftIndexControllerData;
+    public IndexControllerData GetRightIndexControllerData() => RightIndexControllerData;
 
     #region Events
 
     public unsafe void Poll()
     {
+        if (!HasSession) return;
+
         try
         {
             bool hasEvents;
@@ -97,50 +106,64 @@ public class OpenVRInterface
             {
                 var evenT = new VREvent_t();
 
-                if (!HasSession) break;
-
                 hasEvents = OpenVR.System.PollNextEvent(ref evenT, (uint)sizeof(VREvent_t));
+
+                if (!HasSession) break;
 
                 switch ((EVREventType)evenT.eventType)
                 {
-                    case EVREventType.VREvent_ButtonTouch:
-                        var touchedButton = (EVRButtonId)evenT.data.controller.button;
-
-                        if (evenT.trackedDeviceIndex == getLeftControllerIndex())
-                        {
-                            Console.WriteLine(touchedButton);
-                            leftTouch[touchedButton] = true;
-                        }
-                        else if (evenT.trackedDeviceIndex == getRightControllerIndex())
-                        {
-                            rightTouch[touchedButton] = true;
-                        }
-
-                        break;
-
-                    case EVREventType.VREvent_ButtonUntouch:
-                        var untouchedButton = (EVRButtonId)evenT.data.controller.button;
-
-                        if (evenT.trackedDeviceIndex == getLeftControllerIndex())
-                        {
-                            leftTouch[untouchedButton] = false;
-                        }
-                        else if (evenT.trackedDeviceIndex == getRightControllerIndex())
-                        {
-                            rightTouch[untouchedButton] = false;
-                        }
-
-                        break;
-
                     case EVREventType.VREvent_Quit:
                         OpenVR.System.AcknowledgeQuit_Exiting();
                         OpenVR.Shutdown();
                         HasSession = false;
                         break;
                 }
+
+                var activeActionSet = new VRActiveActionSet_t[] { new() };
+                activeActionSet[0].ulActionSet = actionSetHandle;
+                activeActionSet[0].ulRestrictedToDevice = OpenVR.k_ulInvalidInputValueHandle;
+                activeActionSet[0].nPriority = 0;
+                OpenVR.Input.UpdateActionState(activeActionSet, (uint)sizeof(VRActiveActionSet_t));
             } while (hasEvents);
         }
         catch (NullReferenceException) { }
+
+        if (HasSession) extractIndexControllerData();
+    }
+
+    private void extractIndexControllerData()
+    {
+        LeftIndexControllerData.ATouched = getDigitalInput(leftController[0]).bState;
+        LeftIndexControllerData.BTouched = getDigitalInput(leftController[1]).bState;
+        LeftIndexControllerData.PadTouched = getDigitalInput(leftController[2]).bState;
+        LeftIndexControllerData.StickTouched = getDigitalInput(leftController[3]).bState;
+        LeftIndexControllerData.IndexFinger = getAnalogueInput(leftController[4]).x;
+        LeftIndexControllerData.MiddleFinger = getAnalogueInput(leftController[5]).x;
+        LeftIndexControllerData.RingFinger = getAnalogueInput(leftController[6]).x;
+        LeftIndexControllerData.PinkyFinger = getAnalogueInput(leftController[7]).x;
+
+        RightIndexControllerData.ATouched = getDigitalInput(rightController[0]).bState;
+        RightIndexControllerData.BTouched = getDigitalInput(rightController[1]).bState;
+        RightIndexControllerData.PadTouched = getDigitalInput(rightController[2]).bState;
+        RightIndexControllerData.StickTouched = getDigitalInput(rightController[3]).bState;
+        RightIndexControllerData.IndexFinger = getAnalogueInput(rightController[4]).x;
+        RightIndexControllerData.MiddleFinger = getAnalogueInput(rightController[5]).x;
+        RightIndexControllerData.RingFinger = getAnalogueInput(rightController[6]).x;
+        RightIndexControllerData.PinkyFinger = getAnalogueInput(rightController[7]).x;
+    }
+
+    private unsafe InputAnalogActionData_t getAnalogueInput(ulong identifier)
+    {
+        var data = new InputAnalogActionData_t();
+        OpenVR.Input.GetAnalogActionData(identifier, ref data, (uint)sizeof(InputAnalogActionData_t), OpenVR.k_ulInvalidInputValueHandle);
+        return data;
+    }
+
+    private unsafe InputDigitalActionData_t getDigitalInput(ulong identifier)
+    {
+        var data = new InputDigitalActionData_t();
+        OpenVR.Input.GetDigitalActionData(identifier, ref data, (uint)sizeof(InputDigitalActionData_t), OpenVR.k_ulInvalidInputValueHandle);
+        return data;
     }
 
     #endregion
@@ -261,4 +284,16 @@ public class OpenVRInterface
     {
         Logger.Log($"[OpenVR] {message}");
     }
+}
+
+public class IndexControllerData
+{
+    public bool ATouched;
+    public bool BTouched;
+    public bool PadTouched;
+    public bool StickTouched;
+    public float IndexFinger;
+    public float MiddleFinger;
+    public float RingFinger;
+    public float PinkyFinger;
 }
