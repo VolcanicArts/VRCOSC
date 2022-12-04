@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -17,12 +17,22 @@ namespace VRCOSC.Game.Modules.Util;
 [SuppressMessage("Performance", "CA1822:Mark members as static")]
 public class OpenVRInterface
 {
-    private readonly Dictionary<EVRButtonId, bool> touchTracker = new()
+    private readonly Dictionary<EVRButtonId, bool> leftTouch = new()
     {
         { EVRButtonId.k_EButton_IndexController_A, false },
         { EVRButtonId.k_EButton_IndexController_B, false },
         { EVRButtonId.k_EButton_SteamVR_Touchpad, false },
-        { EVRButtonId.k_EButton_IndexController_JoyStick, false }
+        { EVRButtonId.k_EButton_IndexController_JoyStick, false },
+        { EVRButtonId.k_EButton_SteamVR_Trigger, false }
+    };
+
+    private readonly Dictionary<EVRButtonId, bool> rightTouch = new()
+    {
+        { EVRButtonId.k_EButton_IndexController_A, false },
+        { EVRButtonId.k_EButton_IndexController_B, false },
+        { EVRButtonId.k_EButton_SteamVR_Touchpad, false },
+        { EVRButtonId.k_EButton_IndexController_JoyStick, false },
+        { EVRButtonId.k_EButton_SteamVR_Trigger, false }
     };
 
     public bool HasSession { get; private set; }
@@ -63,6 +73,18 @@ public class OpenVRInterface
         return error == ETrackedPropertyError.TrackedProp_Success && canProvideBattery;
     }
 
+    public bool IsLeftAButtonTouched() => leftTouch[EVRButtonId.k_EButton_IndexController_A];
+    public bool IsLeftBButtonTouched() => leftTouch[EVRButtonId.k_EButton_IndexController_B];
+    public bool IsLeftPadTouched() => leftTouch[EVRButtonId.k_EButton_SteamVR_Touchpad];
+    public bool IsLeftStickTouched() => leftTouch[EVRButtonId.k_EButton_IndexController_JoyStick];
+    public bool IsLeftTriggerTouched() => leftTouch[EVRButtonId.k_EButton_SteamVR_Trigger];
+
+    public bool IsRightAButtonTouched() => rightTouch[EVRButtonId.k_EButton_IndexController_A];
+    public bool IsRightBButtonTouched() => rightTouch[EVRButtonId.k_EButton_IndexController_B];
+    public bool IsRightPadTouched() => rightTouch[EVRButtonId.k_EButton_SteamVR_Touchpad];
+    public bool IsRightStickTouched() => rightTouch[EVRButtonId.k_EButton_IndexController_JoyStick];
+    public bool IsRightTriggerTouched() => rightTouch[EVRButtonId.k_EButton_SteamVR_Trigger];
+
     #region Events
 
     public unsafe void Poll()
@@ -74,6 +96,9 @@ public class OpenVRInterface
             do
             {
                 var evenT = new VREvent_t();
+
+                if (!HasSession) break;
+
                 hasEvents = OpenVR.System.PollNextEvent(ref evenT, (uint)sizeof(VREvent_t));
 
                 switch ((EVREventType)evenT.eventType)
@@ -81,9 +106,14 @@ public class OpenVRInterface
                     case EVREventType.VREvent_ButtonTouch:
                         var touchedButton = (EVRButtonId)evenT.data.controller.button;
 
-                        if (touchTracker.ContainsKey(touchedButton))
+                        if (evenT.trackedDeviceIndex == getLeftControllerIndex())
                         {
-                            touchTracker[touchedButton] = true;
+                            Console.WriteLine(touchedButton);
+                            leftTouch[touchedButton] = true;
+                        }
+                        else if (evenT.trackedDeviceIndex == getRightControllerIndex())
+                        {
+                            rightTouch[touchedButton] = true;
                         }
 
                         break;
@@ -91,9 +121,13 @@ public class OpenVRInterface
                     case EVREventType.VREvent_ButtonUntouch:
                         var untouchedButton = (EVRButtonId)evenT.data.controller.button;
 
-                        if (touchTracker.ContainsKey(untouchedButton))
+                        if (evenT.trackedDeviceIndex == getLeftControllerIndex())
                         {
-                            touchTracker[untouchedButton] = false;
+                            leftTouch[untouchedButton] = false;
+                        }
+                        else if (evenT.trackedDeviceIndex == getRightControllerIndex())
+                        {
+                            rightTouch[untouchedButton] = false;
                         }
 
                         break;
@@ -227,13 +261,4 @@ public class OpenVRInterface
     {
         Logger.Log($"[OpenVR] {message}");
     }
-}
-
-public enum OpenVRButton
-{
-    None,
-    A,
-    B,
-    Stick,
-    Pad
 }
