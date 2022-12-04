@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Threading.Tasks;
 
 namespace VRCOSC.Game.Modules.Modules.OpenVR;
@@ -38,6 +39,8 @@ public class OpenVRModule : Module
 
     protected override Task OnUpdate()
     {
+        if (!OpenVrInterface.HasSession) return Task.CompletedTask;
+
         handleHmd();
         handleControllers();
         handleTrackers();

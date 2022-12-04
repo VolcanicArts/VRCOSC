@@ -6,7 +6,6 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Platform;
-using Valve.VR;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics;
 using VRCOSC.Game.Graphics.Notifications;
@@ -84,8 +83,6 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         checkUpdates();
         checkVersion();
 
-        openVrInterface.Init();
-
         notificationContainer.Notify(new TimedNotification
         {
             Title = "Join The Community!",
@@ -135,8 +132,6 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         }, true);
 
         ModulesRunning.Value = false;
-
-        OpenVR.Shutdown();
 
         return true;
     }

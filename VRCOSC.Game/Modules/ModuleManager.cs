@@ -14,6 +14,7 @@ using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
+using Valve.VR;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Modules.Modules.Clock;
 using VRCOSC.Game.Modules.Modules.Discord;
@@ -64,6 +65,9 @@ public sealed partial class ModuleManager : Component
 
     [Resolved]
     private BindableBool ModuleRun { get; set; } = null!;
+
+    [Resolved]
+    private OpenVrInterface OpenVrInterface { get; set; } = null!;
 
     [BackgroundDependencyLoader]
     private void load(GameHost host, Storage storage, OpenVrInterface openVrInterface)
@@ -136,6 +140,8 @@ public sealed partial class ModuleManager : Component
     {
         State.Value = ManagerState.Starting;
 
+        OpenVrInterface.Init();
+
         await Task.Delay(250, startCancellationTokenSource.Token);
 
         enableOsc();
@@ -193,6 +199,8 @@ public sealed partial class ModuleManager : Component
         await chatBox.Shutdown();
 
         OscClient.DisableSend();
+
+        if (OpenVrInterface.HasSession) OpenVR.Shutdown();
 
         State.Value = ManagerState.Stopped;
     }

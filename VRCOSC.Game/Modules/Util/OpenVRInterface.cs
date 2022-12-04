@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -24,11 +24,20 @@ public class OpenVrInterface
         { EVRButtonId.k_EButton_IndexController_JoyStick, false }
     };
 
+    public bool HasSession { get; private set; }
+
     public bool Init()
     {
         var err = new EVRInitError();
         OpenVR.Init(ref err, EVRApplicationType.VRApplication_Utility);
-        return err == EVRInitError.None;
+
+        if (err == EVRInitError.None)
+        {
+            HasSession = true;
+            return true;
+        }
+
+        return false;
     }
 
     public bool IsHmdPresent() => OpenVR.IsHmdPresent();
@@ -86,6 +95,12 @@ public class OpenVrInterface
                             touchTracker[untouchedButton] = false;
                         }
 
+                        break;
+
+                    case EVREventType.VREvent_Quit:
+                        OpenVR.System.AcknowledgeQuit_Exiting();
+                        OpenVR.Shutdown();
+                        HasSession = false;
                         break;
                 }
             } while (hasEvents);
