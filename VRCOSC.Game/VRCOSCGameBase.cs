@@ -30,6 +30,9 @@ public partial class VRCOSCGameBase : osu.Framework.Game
 
     private Bindable<string> versionBindable = null!;
 
+    [Resolved]
+    private FrameworkConfigManager frameworkConfigManager { get; set; } = null!;
+
     private Version assemblyVersion => Assembly.GetEntryAssembly()?.GetName().Version ?? new Version();
 
     public string Version => $@"{assemblyVersion.Major}.{assemblyVersion.Minor}.{assemblyVersion.Build}";
@@ -51,9 +54,6 @@ public partial class VRCOSCGameBase : osu.Framework.Game
 
     protected override IReadOnlyDependencyContainer CreateChildDependencies(IReadOnlyDependencyContainer parent)
         => DependencyContainer = new DependencyContainer(base.CreateChildDependencies(parent));
-
-    [Resolved]
-    private FrameworkConfigManager frameworkConfigManager { get; set; }
 
     [BackgroundDependencyLoader]
     private void load(GameHost host, Storage storage)

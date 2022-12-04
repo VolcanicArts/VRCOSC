@@ -53,7 +53,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     [Cached(name: "InfoModule")]
     private IBindable<Module?> InfoModule = new Bindable<Module?>();
 
-    private Storage storage;
+    private Storage storage = null!;
 
     [BackgroundDependencyLoader]
     private void load(Storage storage)
