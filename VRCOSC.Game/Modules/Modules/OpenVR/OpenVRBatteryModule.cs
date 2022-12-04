@@ -1,60 +1,110 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace VRCOSC.Game.Modules.Modules.OpenVR;
 
 public class OpenVRBatteryModule : Module
 {
-    public override string Title => "OpenVR Battery";
-    public override string Description => "Gets battery stats from your OpenVR (SteamVR) session";
+    private const int max_tracker_count = 8;
+
+    public override string Title => "OpenVR";
+    public override string Description => "Gets statistics from your OpenVR (SteamVR) session";
     public override string Author => "VolcanicArts";
     public override ModuleType ModuleType => ModuleType.General;
     protected override int DeltaUpdate => 5000;
-    protected override bool ExecuteUpdateImmediately => false;
 
     protected override void CreateAttributes()
     {
-        CreateParameter<float>(OpenVRParameter.HMD_Battery, ParameterMode.Write, "VRCOSC/OpenVR/Battery/HMD", "The battery percentage normalised of your headset");
+        CreateParameter<bool>(OpenVrParameter.HMD_Present, ParameterMode.Write, "VRCOSC/OpenVR/HMD/Present", "Whether your HMD is connected");
+        CreateParameter<float>(OpenVrParameter.HMD_Battery, ParameterMode.Write, "VRCOSC/OpenVR/HMD/Battery", "The battery percentage normalised of your headset");
+        CreateParameter<bool>(OpenVrParameter.HMD_Charging, ParameterMode.Write, "VRCOSC/OpenVR/HMD/Charging", "The charge state of your headset");
 
-        CreateParameter<float>(OpenVRParameter.LeftController_Battery, ParameterMode.Write, "VRCOSC/OpenVR/Battery/LeftController", "The battery percentage normalised of your left controller");
-        CreateParameter<float>(OpenVRParameter.RightController_Battery, ParameterMode.Write, "VRCOSC/OpenVR/Battery/RightController", "The battery percentage normalised of your right controller");
+        CreateParameter<bool>(OpenVrParameter.LeftController_Present, ParameterMode.Write, "VRCOSC/OpenVR/LeftController/Present", "Whether your left controller is connected");
+        CreateParameter<float>(OpenVrParameter.LeftController_Battery, ParameterMode.Write, "VRCOSC/OpenVR/LeftController/Battery", "The battery percentage normalised of your left controller");
+        CreateParameter<bool>(OpenVrParameter.LeftController_Charging, ParameterMode.Write, "VRCOSC/OpenVR/LeftController/Charging", "The charge state of your left controller");
+        CreateParameter<bool>(OpenVrParameter.RightController_Present, ParameterMode.Write, "VRCOSC/OpenVR/RightController/Present", "Whether your right controller is connected");
+        CreateParameter<float>(OpenVrParameter.RightController_Battery, ParameterMode.Write, "VRCOSC/OpenVR/RightController/Battery", "The battery percentage normalised of your right controller");
+        CreateParameter<bool>(OpenVrParameter.RightController_Charging, ParameterMode.Write, "VRCOSC/OpenVR/RightController/Charging", "The charge state of your right controller");
 
-        CreateParameter<float>(OpenVRParameter.Tracker1_Battery, ParameterMode.Write, "VRCOSC/OpenVR/Battery/Trackers/1", "The battery percentage normalised of tracker 1");
-        CreateParameter<float>(OpenVRParameter.Tracker2_Battery, ParameterMode.Write, "VRCOSC/OpenVR/Battery/Trackers/2", "The battery percentage normalised of tracker 2");
-        CreateParameter<float>(OpenVRParameter.Tracker3_Battery, ParameterMode.Write, "VRCOSC/OpenVR/Battery/Trackers/3", "The battery percentage normalised of tracker 3");
-        CreateParameter<float>(OpenVRParameter.Tracker4_Battery, ParameterMode.Write, "VRCOSC/OpenVR/Battery/Trackers/4", "The battery percentage normalised of tracker 4");
-        CreateParameter<float>(OpenVRParameter.Tracker5_Battery, ParameterMode.Write, "VRCOSC/OpenVR/Battery/Trackers/5", "The battery percentage normalised of tracker 5");
-        CreateParameter<float>(OpenVRParameter.Tracker6_Battery, ParameterMode.Write, "VRCOSC/OpenVR/Battery/Trackers/6", "The battery percentage normalised of tracker 6");
-        CreateParameter<float>(OpenVRParameter.Tracker7_Battery, ParameterMode.Write, "VRCOSC/OpenVR/Battery/Trackers/7", "The battery percentage normalised of tracker 7");
-        CreateParameter<float>(OpenVRParameter.Tracker8_Battery, ParameterMode.Write, "VRCOSC/OpenVR/Battery/Trackers/8", "The battery percentage normalised of tracker 8");
+        for (int i = 0; i < max_tracker_count; i++)
+        {
+            CreateParameter<bool>(OpenVrParameter.Tracker1_Present + i, ParameterMode.Write, $"VRCOSC/OpenVR/Trackers/{i + 1}/Present", $"Whether tracker {i + 1} is connected");
+            CreateParameter<float>(OpenVrParameter.Tracker1_Battery + i, ParameterMode.Write, $"VRCOSC/OpenVR/Trackers/{i + 1}/Battery", $"The battery percentage normalised (0-1) of tracker {i + 1}");
+            CreateParameter<bool>(OpenVrParameter.Tracker1_Charging + i, ParameterMode.Write, $"VRCOSC/OpenVR/Trackers/{i + 1}/Charging", $"Whether tracker {i + 1} is currently charging");
+        }
     }
 
     protected override Task OnUpdate()
     {
-        var battery = OpenVrInterface.GetHMDBatteryPercentage();
-        if (battery is not null) SendParameter(OpenVRParameter.HMD_Battery, (float)battery);
-
-        var batteryLeft = OpenVrInterface.GetLeftControllerBatteryPercentage();
-        SendParameter(OpenVRParameter.LeftController_Battery, batteryLeft);
-
-        var batteryRight = OpenVrInterface.GetRightControllerBatteryPercentage();
-        SendParameter(OpenVRParameter.RightController_Battery, batteryRight);
-
-        var trackerBatteries = OpenVrInterface.GetTrackersBatteryPercentages().ToList();
-
-        for (int i = 0; i < trackerBatteries.Count; i++)
-        {
-            SendParameter(OpenVRParameter.Tracker1_Battery + i, trackerBatteries[i]);
-        }
+        handleHmd();
+        handleControllers();
+        handleTrackers();
 
         return Task.CompletedTask;
     }
 
-    private enum OpenVRParameter
+    private void handleHmd()
     {
+        SendParameter(OpenVrParameter.HMD_Present, OpenVrInterface.IsHmdPresent());
+
+        if (OpenVrInterface.IsHmdPresent())
+        {
+            if (OpenVrInterface.CanHmdProvideBatteryData())
+            {
+                SendParameter(OpenVrParameter.HMD_Battery, OpenVrInterface.GetHmdBatteryPercentage());
+                SendParameter(OpenVrParameter.HMD_Charging, OpenVrInterface.IsHmdCharging());
+            }
+        }
+    }
+
+    private void handleControllers()
+    {
+        SendParameter(OpenVrParameter.LeftController_Present, OpenVrInterface.IsLeftControllerPresent());
+
+        if (OpenVrInterface.IsLeftControllerPresent())
+        {
+            SendParameter(OpenVrParameter.LeftController_Battery, OpenVrInterface.GetLeftControllerBatteryPercentage());
+            SendParameter(OpenVrParameter.LeftController_Charging, OpenVrInterface.IsLeftControllerCharging());
+        }
+
+        SendParameter(OpenVrParameter.RightController_Present, OpenVrInterface.IsRightControllerPresent());
+
+        if (OpenVrInterface.IsRightControllerPresent())
+        {
+            SendParameter(OpenVrParameter.RightController_Battery, OpenVrInterface.GetRightControllerBatteryPercentage());
+            SendParameter(OpenVrParameter.RightController_Charging, OpenVrInterface.IsRightControllerCharging());
+        }
+    }
+
+    private void handleTrackers()
+    {
+        for (int i = 0; i < max_tracker_count; i++)
+        {
+            SendParameter(OpenVrParameter.Tracker1_Present + i, OpenVrInterface.IsTrackerPresent(i));
+
+            if (OpenVrInterface.IsTrackerPresent(i))
+            {
+                SendParameter(OpenVrParameter.Tracker1_Battery + i, OpenVrInterface.GetTrackerBatteryPercentage(i));
+                SendParameter(OpenVrParameter.Tracker1_Charging + i, OpenVrInterface.IsTrackerCharging(i));
+            }
+        }
+    }
+
+    private enum OpenVrParameter
+    {
+        HMD_Present,
+        LeftController_Present,
+        RightController_Present,
+        Tracker1_Present,
+        Tracker2_Present,
+        Tracker3_Present,
+        Tracker4_Present,
+        Tracker5_Present,
+        Tracker6_Present,
+        Tracker7_Present,
+        Tracker8_Present,
         HMD_Battery,
         LeftController_Battery,
         RightController_Battery,
@@ -65,6 +115,17 @@ public class OpenVRBatteryModule : Module
         Tracker5_Battery,
         Tracker6_Battery,
         Tracker7_Battery,
-        Tracker8_Battery
+        Tracker8_Battery,
+        HMD_Charging,
+        LeftController_Charging,
+        RightController_Charging,
+        Tracker1_Charging,
+        Tracker2_Charging,
+        Tracker3_Charging,
+        Tracker4_Charging,
+        Tracker5_Charging,
+        Tracker6_Charging,
+        Tracker7_Charging,
+        Tracker8_Charging
     }
 }

@@ -21,7 +21,7 @@ using VRCOSC.Game.Modules.Modules.HardwareStats;
 using VRCOSC.Game.Modules.Modules.Heartrate.HypeRate;
 using VRCOSC.Game.Modules.Modules.Heartrate.Pulsoid;
 using VRCOSC.Game.Modules.Modules.Media;
-//using VRCOSC.Game.Modules.Modules.OpenVR;
+using VRCOSC.Game.Modules.Modules.OpenVR;
 using VRCOSC.Game.Modules.Modules.Random;
 //using VRCOSC.Game.Modules.Modules.SpeechToText;
 using VRCOSC.Game.Modules.Util;
@@ -41,7 +41,7 @@ public sealed partial class ModuleManager : Component
         typeof(RandomIntModule),
         typeof(RandomFloatModule),
         typeof(HardwareStatsModule),
-        //typeof(OpenVRBatteryModule),
+        typeof(OpenVRBatteryModule),
         //typeof(IndexControllerModule),
         typeof(MediaModule),
         typeof(DiscordModule),
