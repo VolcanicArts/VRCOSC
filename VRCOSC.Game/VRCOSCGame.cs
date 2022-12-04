@@ -1,6 +1,7 @@
 // Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.IO;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
@@ -51,13 +52,17 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     [Cached(name: "InfoModule")]
     private IBindable<Module?> InfoModule = new Bindable<Module?>();
 
+    private Storage storage;
+
     [BackgroundDependencyLoader]
-    private void load()
+    private void load(Storage storage)
     {
+        this.storage = storage;
+
         notificationContainer = new NotificationContainer();
         DependencyContainer.CacheAs(notificationContainer);
 
-        openVrInterface = new OpenVRInterface();
+        openVrInterface = new OpenVRInterface(storage);
         DependencyContainer.CacheAs(openVrInterface);
 
         Children = new Drawable[]
@@ -122,6 +127,16 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         }
 
         ConfigManager.SetValue(VRCOSCSetting.Version, Version);
+
+        copyTempFiles();
+    }
+
+    private void copyTempFiles()
+    {
+        var tempStorage = storage.GetFullPath("temp", true);
+
+        File.WriteAllBytes(Path.Combine(tempStorage, "action_manifest.json"), Resources.Get("OpenVR/action_manifest.json"));
+        File.WriteAllBytes(Path.Combine(tempStorage, "knuckles_bindings.json"), Resources.Get("OpenVR/knuckles_bindings.json"));
     }
 
     protected override bool OnExiting()
@@ -132,6 +147,8 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         }, true);
 
         ModulesRunning.Value = false;
+
+        storage.DeleteDirectory("temp");
 
         return true;
     }

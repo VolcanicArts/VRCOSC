@@ -42,6 +42,7 @@ public sealed partial class ModuleManager : Component
         typeof(RandomFloatModule),
         typeof(HardwareStatsModule),
         typeof(OpenVRModule),
+        typeof(OpenVRIndexValuesModule),
         typeof(MediaModule),
         typeof(DiscordModule),
         //typeof(SpeechToTextModule),

@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using osu.Framework.Lists;
 using osu.Framework.Logging;
+using osu.Framework.Platform;
 using Valve.VR;
 
 // ReSharper disable MemberCanBeMadeStatic.Global
@@ -17,28 +18,53 @@ namespace VRCOSC.Game.Modules.Util;
 [SuppressMessage("Performance", "CA1822:Mark members as static")]
 public class OpenVRInterface
 {
-    private readonly Dictionary<EVRButtonId, bool> touchTracker = new()
-    {
-        { EVRButtonId.k_EButton_IndexController_A, false },
-        { EVRButtonId.k_EButton_IndexController_B, false },
-        { EVRButtonId.k_EButton_SteamVR_Touchpad, false },
-        { EVRButtonId.k_EButton_IndexController_JoyStick, false }
-    };
+    public IndexControllerData LeftIndexControllerData = new();
+    public IndexControllerData RightIndexControllerData = new();
 
+    private ulong actionSetHandle;
+    private readonly ulong[] leftController = new ulong[8];
+    private readonly ulong[] rightController = new ulong[8];
+
+    private Storage storage;
     public bool HasSession { get; private set; }
+
+    public OpenVRInterface(Storage storage)
+    {
+        this.storage = storage.GetStorageForDirectory("temp");
+    }
 
     public bool Init()
     {
         var err = new EVRInitError();
         OpenVR.Init(ref err, EVRApplicationType.VRApplication_Utility);
 
-        if (err == EVRInitError.None)
-        {
-            HasSession = true;
-            return true;
-        }
+        if (err != EVRInitError.None) return false;
 
-        return false;
+        HasSession = true;
+
+        OpenVR.Input.SetActionManifestPath(storage.GetFullPath("action_manifest.json"));
+
+        OpenVR.Input.GetActionHandle("/actions/main/in/lefta", ref leftController[0]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/leftb", ref leftController[1]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/leftpad", ref leftController[2]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/leftstick", ref leftController[3]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/leftfingerindex", ref leftController[4]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/leftfingermiddle", ref leftController[5]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/leftfingerring", ref leftController[6]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/leftfingerpinky", ref leftController[7]);
+
+        OpenVR.Input.GetActionHandle("/actions/main/in/righta", ref rightController[0]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/rightb", ref rightController[1]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/rightpad", ref rightController[2]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/rightstick", ref rightController[3]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/rightfingerindex", ref rightController[4]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/rightfingermiddle", ref rightController[5]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/rightfingerring", ref rightController[6]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/rightfingerpinky", ref rightController[7]);
+
+        OpenVR.Input.GetActionSetHandle("/actions/main", ref actionSetHandle);
+
+        return true;
     }
 
     public void Shutdown()
@@ -69,10 +95,15 @@ public class OpenVRInterface
         return error == ETrackedPropertyError.TrackedProp_Success && canProvideBattery;
     }
 
+    public IndexControllerData GetLeftIndexControllerData() => LeftIndexControllerData;
+    public IndexControllerData GetRightIndexControllerData() => RightIndexControllerData;
+
     #region Events
 
     public unsafe void Poll()
     {
+        if (!HasSession) return;
+
         try
         {
             bool hasEvents;
@@ -80,39 +111,65 @@ public class OpenVRInterface
             do
             {
                 var evenT = new VREvent_t();
+
                 hasEvents = OpenVR.System.PollNextEvent(ref evenT, (uint)sizeof(VREvent_t));
+
+                if (!HasSession) break;
 
                 switch ((EVREventType)evenT.eventType)
                 {
-                    case EVREventType.VREvent_ButtonTouch:
-                        var touchedButton = (EVRButtonId)evenT.data.controller.button;
-
-                        if (touchTracker.ContainsKey(touchedButton))
-                        {
-                            touchTracker[touchedButton] = true;
-                        }
-
-                        break;
-
-                    case EVREventType.VREvent_ButtonUntouch:
-                        var untouchedButton = (EVRButtonId)evenT.data.controller.button;
-
-                        if (touchTracker.ContainsKey(untouchedButton))
-                        {
-                            touchTracker[untouchedButton] = false;
-                        }
-
-                        break;
-
                     case EVREventType.VREvent_Quit:
                         OpenVR.System.AcknowledgeQuit_Exiting();
                         OpenVR.Shutdown();
                         HasSession = false;
                         break;
                 }
+
+                var activeActionSet = new VRActiveActionSet_t[] { new() };
+                activeActionSet[0].ulActionSet = actionSetHandle;
+                activeActionSet[0].ulRestrictedToDevice = OpenVR.k_ulInvalidInputValueHandle;
+                activeActionSet[0].nPriority = 0;
+                OpenVR.Input.UpdateActionState(activeActionSet, (uint)sizeof(VRActiveActionSet_t));
             } while (hasEvents);
         }
         catch (NullReferenceException) { }
+
+        if (HasSession) extractIndexControllerData();
+    }
+
+    private void extractIndexControllerData()
+    {
+        LeftIndexControllerData.ATouched = getDigitalInput(leftController[0]).bState;
+        LeftIndexControllerData.BTouched = getDigitalInput(leftController[1]).bState;
+        LeftIndexControllerData.PadTouched = getDigitalInput(leftController[2]).bState;
+        LeftIndexControllerData.StickTouched = getDigitalInput(leftController[3]).bState;
+        LeftIndexControllerData.IndexFinger = getAnalogueInput(leftController[4]).x;
+        LeftIndexControllerData.MiddleFinger = getAnalogueInput(leftController[5]).x;
+        LeftIndexControllerData.RingFinger = getAnalogueInput(leftController[6]).x;
+        LeftIndexControllerData.PinkyFinger = getAnalogueInput(leftController[7]).x;
+
+        RightIndexControllerData.ATouched = getDigitalInput(rightController[0]).bState;
+        RightIndexControllerData.BTouched = getDigitalInput(rightController[1]).bState;
+        RightIndexControllerData.PadTouched = getDigitalInput(rightController[2]).bState;
+        RightIndexControllerData.StickTouched = getDigitalInput(rightController[3]).bState;
+        RightIndexControllerData.IndexFinger = getAnalogueInput(rightController[4]).x;
+        RightIndexControllerData.MiddleFinger = getAnalogueInput(rightController[5]).x;
+        RightIndexControllerData.RingFinger = getAnalogueInput(rightController[6]).x;
+        RightIndexControllerData.PinkyFinger = getAnalogueInput(rightController[7]).x;
+    }
+
+    private unsafe InputAnalogActionData_t getAnalogueInput(ulong identifier)
+    {
+        var data = new InputAnalogActionData_t();
+        OpenVR.Input.GetAnalogActionData(identifier, ref data, (uint)sizeof(InputAnalogActionData_t), OpenVR.k_ulInvalidInputValueHandle);
+        return data;
+    }
+
+    private unsafe InputDigitalActionData_t getDigitalInput(ulong identifier)
+    {
+        var data = new InputDigitalActionData_t();
+        OpenVR.Input.GetDigitalActionData(identifier, ref data, (uint)sizeof(InputDigitalActionData_t), OpenVR.k_ulInvalidInputValueHandle);
+        return data;
     }
 
     #endregion
@@ -235,11 +292,14 @@ public class OpenVRInterface
     }
 }
 
-public enum OpenVRButton
+public class IndexControllerData
 {
-    None,
-    A,
-    B,
-    Stick,
-    Pad
+    public bool ATouched;
+    public bool BTouched;
+    public bool PadTouched;
+    public bool StickTouched;
+    public float IndexFinger;
+    public float MiddleFinger;
+    public float RingFinger;
+    public float PinkyFinger;
 }
