@@ -18,8 +18,8 @@ namespace VRCOSC.Game.Modules.Util;
 [SuppressMessage("Performance", "CA1822:Mark members as static")]
 public class OpenVRInterface
 {
-    public readonly ControllerData LeftControllerData = new();
-    public readonly ControllerData RightControllerData = new();
+    public readonly ControllerData LeftController = new();
+    public readonly ControllerData RightController = new();
 
     private ulong actionSetHandle;
     private readonly ulong[] leftController = new ulong[8];
@@ -127,23 +127,23 @@ public class OpenVRInterface
 
     private void extractControllerData()
     {
-        LeftControllerData.ATouched = getDigitalInput(leftController[0]).bState;
-        LeftControllerData.BTouched = getDigitalInput(leftController[1]).bState;
-        LeftControllerData.PadTouched = getDigitalInput(leftController[2]).bState;
-        LeftControllerData.StickTouched = getDigitalInput(leftController[3]).bState;
-        LeftControllerData.IndexFinger = getAnalogueInput(leftController[4]).x;
-        LeftControllerData.MiddleFinger = getAnalogueInput(leftController[5]).x;
-        LeftControllerData.RingFinger = getAnalogueInput(leftController[6]).x;
-        LeftControllerData.PinkyFinger = getAnalogueInput(leftController[7]).x;
+        LeftController.ATouched = getDigitalInput(leftController[0]).bState;
+        LeftController.BTouched = getDigitalInput(leftController[1]).bState;
+        LeftController.PadTouched = getDigitalInput(leftController[2]).bState;
+        LeftController.StickTouched = getDigitalInput(leftController[3]).bState;
+        LeftController.IndexFinger = getAnalogueInput(leftController[4]).x;
+        LeftController.MiddleFinger = getAnalogueInput(leftController[5]).x;
+        LeftController.RingFinger = getAnalogueInput(leftController[6]).x;
+        LeftController.PinkyFinger = getAnalogueInput(leftController[7]).x;
 
-        RightControllerData.ATouched = getDigitalInput(rightController[0]).bState;
-        RightControllerData.BTouched = getDigitalInput(rightController[1]).bState;
-        RightControllerData.PadTouched = getDigitalInput(rightController[2]).bState;
-        RightControllerData.StickTouched = getDigitalInput(rightController[3]).bState;
-        RightControllerData.IndexFinger = getAnalogueInput(rightController[4]).x;
-        RightControllerData.MiddleFinger = getAnalogueInput(rightController[5]).x;
-        RightControllerData.RingFinger = getAnalogueInput(rightController[6]).x;
-        RightControllerData.PinkyFinger = getAnalogueInput(rightController[7]).x;
+        RightController.ATouched = getDigitalInput(rightController[0]).bState;
+        RightController.BTouched = getDigitalInput(rightController[1]).bState;
+        RightController.PadTouched = getDigitalInput(rightController[2]).bState;
+        RightController.StickTouched = getDigitalInput(rightController[3]).bState;
+        RightController.IndexFinger = getAnalogueInput(rightController[4]).x;
+        RightController.MiddleFinger = getAnalogueInput(rightController[5]).x;
+        RightController.RingFinger = getAnalogueInput(rightController[6]).x;
+        RightController.PinkyFinger = getAnalogueInput(rightController[7]).x;
     }
 
     private unsafe InputAnalogActionData_t getAnalogueInput(ulong identifier)
