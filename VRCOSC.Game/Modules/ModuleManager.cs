@@ -14,7 +14,6 @@ using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
-using Valve.VR;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Modules.Modules.Clock;
 using VRCOSC.Game.Modules.Modules.Discord;
@@ -200,7 +199,7 @@ public sealed partial class ModuleManager : Component
 
         OscClient.DisableSend();
 
-        if (OpenVrInterface.HasSession) OpenVR.Shutdown();
+        if (OpenVrInterface.HasSession) OpenVrInterface.Shutdown();
 
         State.Value = ManagerState.Stopped;
     }

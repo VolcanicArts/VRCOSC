@@ -41,6 +41,12 @@ public class OpenVRInterface
         return false;
     }
 
+    public void Shutdown()
+    {
+        HasSession = false;
+        OpenVR.Shutdown();
+    }
+
     public bool IsHmdPresent() => getIndexForTrackedDeviceClass(ETrackedDeviceClass.HMD) != uint.MaxValue && OpenVR.IsHmdPresent();
     public bool IsLeftControllerPresent() => getLeftControllerIndex() != uint.MaxValue && OpenVR.System.IsTrackedDeviceConnected(getLeftControllerIndex());
     public bool IsRightControllerPresent() => getRightControllerIndex() != uint.MaxValue && OpenVR.System.IsTrackedDeviceConnected(getRightControllerIndex());
