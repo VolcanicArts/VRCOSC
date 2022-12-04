@@ -44,23 +44,23 @@ public class OpenVRInterface
 
         OpenVR.Input.SetActionManifestPath(storage.GetFullPath("action_manifest.json"));
 
-        OpenVR.Input.GetActionHandle("/actions/main/in/LeftThumbA", ref leftController[0]);
-        OpenVR.Input.GetActionHandle("/actions/main/in/LeftThumbB", ref leftController[1]);
-        OpenVR.Input.GetActionHandle("/actions/main/in/LeftThumbPad", ref leftController[2]);
-        OpenVR.Input.GetActionHandle("/actions/main/in/LeftThumbStick", ref leftController[3]);
-        OpenVR.Input.GetActionHandle("/actions/main/in/LeftFinger1", ref leftController[4]);
-        OpenVR.Input.GetActionHandle("/actions/main/in/LeftFinger2", ref leftController[5]);
-        OpenVR.Input.GetActionHandle("/actions/main/in/LeftFinger3", ref leftController[6]);
-        OpenVR.Input.GetActionHandle("/actions/main/in/LeftFinger4", ref leftController[7]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/lefta", ref leftController[0]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/leftb", ref leftController[1]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/leftpad", ref leftController[2]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/leftstick", ref leftController[3]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/leftfingerindex", ref leftController[4]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/leftfingermiddle", ref leftController[5]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/leftfingerring", ref leftController[6]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/leftfingerpinky", ref leftController[7]);
 
-        OpenVR.Input.GetActionHandle("/actions/main/in/RightThumbA", ref rightController[0]);
-        OpenVR.Input.GetActionHandle("/actions/main/in/RightThumbB", ref rightController[1]);
-        OpenVR.Input.GetActionHandle("/actions/main/in/RightThumbPad", ref rightController[2]);
-        OpenVR.Input.GetActionHandle("/actions/main/in/RightThumbStick", ref rightController[3]);
-        OpenVR.Input.GetActionHandle("/actions/main/in/RightFinger1", ref rightController[4]);
-        OpenVR.Input.GetActionHandle("/actions/main/in/RightFinger2", ref rightController[5]);
-        OpenVR.Input.GetActionHandle("/actions/main/in/RightFinger3", ref rightController[6]);
-        OpenVR.Input.GetActionHandle("/actions/main/in/RightFinger4", ref rightController[7]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/righta", ref rightController[0]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/rightb", ref rightController[1]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/rightpad", ref rightController[2]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/rightstick", ref rightController[3]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/rightfingerindex", ref rightController[4]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/rightfingermiddle", ref rightController[5]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/rightfingerring", ref rightController[6]);
+        OpenVR.Input.GetActionHandle("/actions/main/in/rightfingerpinky", ref rightController[7]);
 
         OpenVR.Input.GetActionSetHandle("/actions/main", ref actionSetHandle);
 
