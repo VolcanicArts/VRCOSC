@@ -40,10 +40,10 @@ public class OpenVRInterface
         return false;
     }
 
-    public bool IsHmdPresent() => OpenVR.IsHmdPresent();
+    public bool IsHmdPresent() => getIndexForTrackedDeviceClass(ETrackedDeviceClass.HMD) != uint.MaxValue && OpenVR.IsHmdPresent();
     public bool IsLeftControllerPresent() => getLeftControllerIndex() != uint.MaxValue && OpenVR.System.IsTrackedDeviceConnected(getLeftControllerIndex());
     public bool IsRightControllerPresent() => getRightControllerIndex() != uint.MaxValue && OpenVR.System.IsTrackedDeviceConnected(getRightControllerIndex());
-    public bool IsTrackerPresent(int trackerNum) => trackerNum < getTrackers().Count() && OpenVR.System.IsTrackedDeviceConnected(getTrackerIndex(trackerNum));
+    public bool IsTrackerPresent(int trackerNum) => getTrackerIndex(trackerNum) != uint.MaxValue && OpenVR.System.IsTrackedDeviceConnected(getTrackerIndex(trackerNum));
 
     public bool IsHmdCharging() => CanHmdProvideBatteryData() && getBoolTrackedDeviceProperty(getHmdIndex(), ETrackedDeviceProperty.Prop_DeviceIsCharging_Bool);
     public bool IsLeftControllerCharging() => getBoolTrackedDeviceProperty(getLeftControllerIndex(), ETrackedDeviceProperty.Prop_DeviceIsCharging_Bool);
@@ -115,7 +115,7 @@ public class OpenVRInterface
     private uint getHmdIndex() => getIndexForTrackedDeviceClass(ETrackedDeviceClass.HMD);
     private uint getLeftControllerIndex() => getController("left");
     private uint getRightControllerIndex() => getController("right");
-    private uint getTrackerIndex(int trackerNum) => getTrackers().ToArray()[trackerNum];
+    private uint getTrackerIndex(int trackerNum) => trackerNum < getTrackers().Count() ? getTrackers().ToArray()[trackerNum] : uint.MaxValue;
 
     // GetTrackedDeviceIndexForControllerRole doesn't work when a tracker thinks it's a controller and assumes that role
     // We can forcibly find the correct indexes by using the model name
@@ -150,7 +150,11 @@ public class OpenVRInterface
         }
     }
 
-    private uint getIndexForTrackedDeviceClass(ETrackedDeviceClass klass) => getIndexesForTrackedDeviceClass(klass).ToArray()[0];
+    private uint getIndexForTrackedDeviceClass(ETrackedDeviceClass klass)
+    {
+        var indexes = getIndexesForTrackedDeviceClass(klass).ToArray();
+        return indexes.Any() ? indexes[0] : uint.MaxValue;
+    }
 
     private IEnumerable<uint> getIndexesForTrackedDeviceClass(ETrackedDeviceClass klass)
     {
