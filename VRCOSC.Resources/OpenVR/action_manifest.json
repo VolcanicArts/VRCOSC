@@ -91,6 +91,10 @@
       {
          "binding_url" : "knuckles_bindings.json",
          "controller_type" : "knuckles"
+      },
+	  {
+         "binding_url" : "oculus_touch_bindings.json",
+         "controller_type" : "oculus_touch"
       }
    ]
 }

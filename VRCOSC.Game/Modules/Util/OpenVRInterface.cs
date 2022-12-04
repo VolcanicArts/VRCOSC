@@ -18,8 +18,8 @@ namespace VRCOSC.Game.Modules.Util;
 [SuppressMessage("Performance", "CA1822:Mark members as static")]
 public class OpenVRInterface
 {
-    public IndexControllerData LeftIndexControllerData = new();
-    public IndexControllerData RightIndexControllerData = new();
+    public ControllerData LeftControllerData = new();
+    public ControllerData RightControllerData = new();
 
     private ulong actionSetHandle;
     private readonly ulong[] leftController = new ulong[8];
@@ -95,8 +95,8 @@ public class OpenVRInterface
         return error == ETrackedPropertyError.TrackedProp_Success && canProvideBattery;
     }
 
-    public IndexControllerData GetLeftIndexControllerData() => LeftIndexControllerData;
-    public IndexControllerData GetRightIndexControllerData() => RightIndexControllerData;
+    public ControllerData GetLeftControllerData() => LeftControllerData;
+    public ControllerData GetRightControllerData() => RightControllerData;
 
     #region Events
 
@@ -104,58 +104,49 @@ public class OpenVRInterface
     {
         if (!HasSession) return;
 
-        try
+        var evenT = new VREvent_t();
+
+        while (OpenVR.System.PollNextEvent(ref evenT, (uint)sizeof(VREvent_t)))
         {
-            bool hasEvents;
+            if (!HasSession) break;
 
-            do
+            var eventType = (EVREventType)evenT.eventType;
+
+            if (eventType == EVREventType.VREvent_Quit)
             {
-                var evenT = new VREvent_t();
-
-                hasEvents = OpenVR.System.PollNextEvent(ref evenT, (uint)sizeof(VREvent_t));
-
-                if (!HasSession) break;
-
-                switch ((EVREventType)evenT.eventType)
-                {
-                    case EVREventType.VREvent_Quit:
-                        OpenVR.System.AcknowledgeQuit_Exiting();
-                        OpenVR.Shutdown();
-                        HasSession = false;
-                        break;
-                }
-
-                var activeActionSet = new VRActiveActionSet_t[] { new() };
-                activeActionSet[0].ulActionSet = actionSetHandle;
-                activeActionSet[0].ulRestrictedToDevice = OpenVR.k_ulInvalidInputValueHandle;
-                activeActionSet[0].nPriority = 0;
-                OpenVR.Input.UpdateActionState(activeActionSet, (uint)sizeof(VRActiveActionSet_t));
-            } while (hasEvents);
+                OpenVR.System.AcknowledgeQuit_Exiting();
+                OpenVR.Shutdown();
+                HasSession = false;
+            }
         }
-        catch (NullReferenceException) { }
 
-        if (HasSession) extractIndexControllerData();
+        var activeActionSet = new VRActiveActionSet_t[] { new() };
+        activeActionSet[0].ulActionSet = actionSetHandle;
+        activeActionSet[0].ulRestrictedToDevice = OpenVR.k_ulInvalidInputValueHandle;
+        activeActionSet[0].nPriority = 0;
+        OpenVR.Input.UpdateActionState(activeActionSet, (uint)sizeof(VRActiveActionSet_t));
+        extractControllerData();
     }
 
-    private void extractIndexControllerData()
+    private void extractControllerData()
     {
-        LeftIndexControllerData.ATouched = getDigitalInput(leftController[0]).bState;
-        LeftIndexControllerData.BTouched = getDigitalInput(leftController[1]).bState;
-        LeftIndexControllerData.PadTouched = getDigitalInput(leftController[2]).bState;
-        LeftIndexControllerData.StickTouched = getDigitalInput(leftController[3]).bState;
-        LeftIndexControllerData.IndexFinger = getAnalogueInput(leftController[4]).x;
-        LeftIndexControllerData.MiddleFinger = getAnalogueInput(leftController[5]).x;
-        LeftIndexControllerData.RingFinger = getAnalogueInput(leftController[6]).x;
-        LeftIndexControllerData.PinkyFinger = getAnalogueInput(leftController[7]).x;
+        LeftControllerData.ATouched = getDigitalInput(leftController[0]).bState;
+        LeftControllerData.BTouched = getDigitalInput(leftController[1]).bState;
+        LeftControllerData.PadTouched = getDigitalInput(leftController[2]).bState;
+        LeftControllerData.StickTouched = getDigitalInput(leftController[3]).bState;
+        LeftControllerData.IndexFinger = getAnalogueInput(leftController[4]).x;
+        LeftControllerData.MiddleFinger = getAnalogueInput(leftController[5]).x;
+        LeftControllerData.RingFinger = getAnalogueInput(leftController[6]).x;
+        LeftControllerData.PinkyFinger = getAnalogueInput(leftController[7]).x;
 
-        RightIndexControllerData.ATouched = getDigitalInput(rightController[0]).bState;
-        RightIndexControllerData.BTouched = getDigitalInput(rightController[1]).bState;
-        RightIndexControllerData.PadTouched = getDigitalInput(rightController[2]).bState;
-        RightIndexControllerData.StickTouched = getDigitalInput(rightController[3]).bState;
-        RightIndexControllerData.IndexFinger = getAnalogueInput(rightController[4]).x;
-        RightIndexControllerData.MiddleFinger = getAnalogueInput(rightController[5]).x;
-        RightIndexControllerData.RingFinger = getAnalogueInput(rightController[6]).x;
-        RightIndexControllerData.PinkyFinger = getAnalogueInput(rightController[7]).x;
+        RightControllerData.ATouched = getDigitalInput(rightController[0]).bState;
+        RightControllerData.BTouched = getDigitalInput(rightController[1]).bState;
+        RightControllerData.PadTouched = getDigitalInput(rightController[2]).bState;
+        RightControllerData.StickTouched = getDigitalInput(rightController[3]).bState;
+        RightControllerData.IndexFinger = getAnalogueInput(rightController[4]).x;
+        RightControllerData.MiddleFinger = getAnalogueInput(rightController[5]).x;
+        RightControllerData.RingFinger = getAnalogueInput(rightController[6]).x;
+        RightControllerData.PinkyFinger = getAnalogueInput(rightController[7]).x;
     }
 
     private unsafe InputAnalogActionData_t getAnalogueInput(ulong identifier)
@@ -292,7 +283,7 @@ public class OpenVRInterface
     }
 }
 
-public class IndexControllerData
+public class ControllerData
 {
     public bool ATouched;
     public bool BTouched;
