@@ -41,9 +41,13 @@ public class OpenVRModule : Module
     {
         if (!OpenVrInterface.HasSession) return Task.CompletedTask;
 
-        handleHmd();
-        handleControllers();
-        handleTrackers();
+        try
+        {
+            handleHmd();
+            handleControllers();
+            handleTrackers();
+        }
+        catch (Exception) { }
 
         return Task.CompletedTask;
     }
