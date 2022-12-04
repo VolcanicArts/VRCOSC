@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace VRCOSC.Game.Modules.Modules.OpenVR;
 
-public class OpenVRBatteryModule : Module
+public class OpenVRModule : Module
 {
     private const int max_tracker_count = 8;
 
