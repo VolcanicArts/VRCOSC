@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
+using osu.Framework.Lists;
 using osu.Framework.Logging;
 using Valve.VR;
 
@@ -133,20 +134,20 @@ public class OpenVRInterface
 
     public IEnumerable<uint> GetTrackers()
     {
+        var trackersList = new SortedList<uint>();
+
         var controllers = getIndexesForTrackedDeviceClass(ETrackedDeviceClass.Controller);
-        var trackers = getIndexesForTrackedDeviceClass(ETrackedDeviceClass.GenericTracker);
 
         foreach (var controller in controllers)
         {
             var controllerRole = (ETrackedControllerRole)getInt32TrackedDeviceProperty(controller, ETrackedDeviceProperty.Prop_ControllerRoleHint_Int32);
             // An invalid controller seems to always be a tracker that took a controller's place when a controller disconnected/reconnected
-            if (controllerRole == ETrackedControllerRole.Invalid) yield return controller;
+            if (controllerRole == ETrackedControllerRole.Invalid) trackersList.Add(controller);
         }
 
-        foreach (var tracker in trackers)
-        {
-            yield return tracker;
-        }
+        trackersList.AddRange(getIndexesForTrackedDeviceClass(ETrackedDeviceClass.GenericTracker));
+        trackersList.Sort();
+        return trackersList;
     }
 
     private uint getIndexForTrackedDeviceClass(ETrackedDeviceClass klass)
