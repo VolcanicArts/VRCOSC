@@ -43,17 +43,17 @@ public class OpenVRInterface
     public bool IsHmdPresent() => getIndexForTrackedDeviceClass(ETrackedDeviceClass.HMD) != uint.MaxValue && OpenVR.IsHmdPresent();
     public bool IsLeftControllerPresent() => getLeftControllerIndex() != uint.MaxValue && OpenVR.System.IsTrackedDeviceConnected(getLeftControllerIndex());
     public bool IsRightControllerPresent() => getRightControllerIndex() != uint.MaxValue && OpenVR.System.IsTrackedDeviceConnected(getRightControllerIndex());
-    public bool IsTrackerPresent(int trackerNum) => getTrackerIndex(trackerNum) != uint.MaxValue && OpenVR.System.IsTrackedDeviceConnected(getTrackerIndex(trackerNum));
+    public bool IsTrackerPresent(uint trackerIndex) => trackerIndex != uint.MaxValue && OpenVR.System.IsTrackedDeviceConnected(trackerIndex);
 
     public bool IsHmdCharging() => CanHmdProvideBatteryData() && getBoolTrackedDeviceProperty(getHmdIndex(), ETrackedDeviceProperty.Prop_DeviceIsCharging_Bool);
     public bool IsLeftControllerCharging() => getBoolTrackedDeviceProperty(getLeftControllerIndex(), ETrackedDeviceProperty.Prop_DeviceIsCharging_Bool);
     public bool IsRightControllerCharging() => getBoolTrackedDeviceProperty(getRightControllerIndex(), ETrackedDeviceProperty.Prop_DeviceIsCharging_Bool);
-    public bool IsTrackerCharging(int trackerNum) => getBoolTrackedDeviceProperty(getTrackerIndex(trackerNum), ETrackedDeviceProperty.Prop_DeviceIsCharging_Bool);
+    public bool IsTrackerCharging(uint trackerIndex) => getBoolTrackedDeviceProperty(trackerIndex, ETrackedDeviceProperty.Prop_DeviceIsCharging_Bool);
 
     public float GetHmdBatteryPercentage() => getFloatTrackedDeviceProperty(getHmdIndex(), ETrackedDeviceProperty.Prop_DeviceBatteryPercentage_Float);
     public float GetLeftControllerBatteryPercentage() => getFloatTrackedDeviceProperty(getLeftControllerIndex(), ETrackedDeviceProperty.Prop_DeviceBatteryPercentage_Float);
     public float GetRightControllerBatteryPercentage() => getFloatTrackedDeviceProperty(getRightControllerIndex(), ETrackedDeviceProperty.Prop_DeviceBatteryPercentage_Float);
-    public float GetTrackerBatteryPercentage(int trackerNum) => getFloatTrackedDeviceProperty(getTrackerIndex(trackerNum), ETrackedDeviceProperty.Prop_DeviceBatteryPercentage_Float);
+    public float GetTrackerBatteryPercentage(uint trackerIndex) => getFloatTrackedDeviceProperty(trackerIndex, ETrackedDeviceProperty.Prop_DeviceBatteryPercentage_Float);
 
     public bool CanHmdProvideBatteryData()
     {
@@ -115,7 +115,6 @@ public class OpenVRInterface
     private uint getHmdIndex() => getIndexForTrackedDeviceClass(ETrackedDeviceClass.HMD);
     private uint getLeftControllerIndex() => getController("left");
     private uint getRightControllerIndex() => getController("right");
-    private uint getTrackerIndex(int trackerNum) => trackerNum < getTrackers().Count() ? getTrackers().ToArray()[trackerNum] : uint.MaxValue;
 
     // GetTrackedDeviceIndexForControllerRole doesn't work when a tracker thinks it's a controller and assumes that role
     // We can forcibly find the correct indexes by using the model name
@@ -132,7 +131,7 @@ public class OpenVRInterface
         return uint.MaxValue;
     }
 
-    private IEnumerable<uint> getTrackers()
+    public IEnumerable<uint> GetTrackers()
     {
         var controllers = getIndexesForTrackedDeviceClass(ETrackedDeviceClass.Controller);
         var trackers = getIndexesForTrackedDeviceClass(ETrackedDeviceClass.GenericTracker);

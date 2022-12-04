@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace VRCOSC.Game.Modules.Modules.OpenVR;
@@ -82,14 +83,18 @@ public class OpenVRModule : Module
 
     private void handleTrackers()
     {
+        var trackers = OpenVrInterface.GetTrackers().ToList();
+
         for (int i = 0; i < max_tracker_count; i++)
         {
-            SendParameter(OpenVrParameter.Tracker1_Present + i, OpenVrInterface.IsTrackerPresent(i));
+            uint trackerIndex = i >= trackers.Count ? uint.MaxValue : trackers[i];
 
-            if (OpenVrInterface.IsTrackerPresent(i))
+            SendParameter(OpenVrParameter.Tracker1_Present + i, OpenVrInterface.IsTrackerPresent(trackerIndex));
+
+            if (OpenVrInterface.IsTrackerPresent(trackerIndex))
             {
-                SendParameter(OpenVrParameter.Tracker1_Battery + i, OpenVrInterface.GetTrackerBatteryPercentage(i));
-                SendParameter(OpenVrParameter.Tracker1_Charging + i, OpenVrInterface.IsTrackerCharging(i));
+                SendParameter(OpenVrParameter.Tracker1_Battery + i, OpenVrInterface.GetTrackerBatteryPercentage(trackerIndex));
+                SendParameter(OpenVrParameter.Tracker1_Charging + i, OpenVrInterface.IsTrackerCharging(trackerIndex));
             }
         }
     }
