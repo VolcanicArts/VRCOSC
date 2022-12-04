@@ -36,7 +36,7 @@ public class OpenVRControllerModule : Module
 
     protected override Task OnUpdate()
     {
-        if (OpenVrInterface.IsLeftControllerPresent())
+        if (OpenVrInterface.IsLeftControllerConnected())
         {
             SendParameter(OpenVRControllerParameter.LeftATouch, OpenVrInterface.LeftController.ATouched);
             SendParameter(OpenVRControllerParameter.LeftBTouch, OpenVrInterface.LeftController.BTouched);
@@ -48,7 +48,7 @@ public class OpenVRControllerModule : Module
             SendParameter(OpenVRControllerParameter.LeftPinky, OpenVrInterface.LeftController.PinkyFinger);
         }
 
-        if (OpenVrInterface.IsRightControllerPresent())
+        if (OpenVrInterface.IsRightControllerConnected())
         {
             SendParameter(OpenVRControllerParameter.RightATouch, OpenVrInterface.RightController.ATouched);
             SendParameter(OpenVRControllerParameter.RightBTouch, OpenVrInterface.RightController.BTouched);
