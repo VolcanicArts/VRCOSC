@@ -18,8 +18,8 @@ namespace VRCOSC.Game.Modules.Util;
 [SuppressMessage("Performance", "CA1822:Mark members as static")]
 public class OpenVRInterface
 {
-    public ControllerData LeftControllerData = new();
-    public ControllerData RightControllerData = new();
+    public readonly ControllerData LeftControllerData = new();
+    public readonly ControllerData RightControllerData = new();
 
     private ulong actionSetHandle;
     private readonly ulong[] leftController = new ulong[8];
@@ -94,9 +94,6 @@ public class OpenVRInterface
         var canProvideBattery = OpenVR.System.GetBoolTrackedDeviceProperty(getHmdIndex(), ETrackedDeviceProperty.Prop_DeviceProvidesBatteryStatus_Bool, ref error);
         return error == ETrackedPropertyError.TrackedProp_Success && canProvideBattery;
     }
-
-    public ControllerData GetLeftControllerData() => LeftControllerData;
-    public ControllerData GetRightControllerData() => RightControllerData;
 
     #region Events
 
