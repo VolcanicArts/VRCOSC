@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -32,8 +32,8 @@ public class OpenVrInterface
     }
 
     public bool IsHmdPresent() => OpenVR.IsHmdPresent();
-    public bool IsLeftControllerPresent() => OpenVR.System.IsTrackedDeviceConnected(getLeftControllerIndex());
-    public bool IsRightControllerPresent() => OpenVR.System.IsTrackedDeviceConnected(getRightControllerIndex());
+    public bool IsLeftControllerPresent() => getLeftControllerIndex() != uint.MaxValue && OpenVR.System.IsTrackedDeviceConnected(getLeftControllerIndex());
+    public bool IsRightControllerPresent() => getRightControllerIndex() != uint.MaxValue && OpenVR.System.IsTrackedDeviceConnected(getRightControllerIndex());
     public bool IsTrackerPresent(int trackerNum) => trackerNum < getTrackers().Count() && OpenVR.System.IsTrackedDeviceConnected(getTrackerIndex(trackerNum));
 
     public bool IsHmdCharging() => CanHmdProvideBatteryData() && getBoolTrackedDeviceProperty(getHmdIndex(), ETrackedDeviceProperty.Prop_DeviceIsCharging_Bool);
