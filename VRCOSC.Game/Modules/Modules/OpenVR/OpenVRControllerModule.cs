@@ -5,10 +5,10 @@ using System.Threading.Tasks;
 
 namespace VRCOSC.Game.Modules.Modules.OpenVR;
 
-public class OpenVRControllerValuesModule : Module
+public class OpenVRControllerModule : Module
 {
-    public override string Title => "OpenVR Controller Values";
-    public override string Description => "Gets controller values to send into VRChat";
+    public override string Title => "OpenVR Controllers";
+    public override string Description => "Gets controller values from your OpenVR (SteamVR) session";
     public override string Author => "VolcanicArts";
     public override ModuleType ModuleType => ModuleType.General;
     protected override int DeltaUpdate => vrc_osc_delta_update;

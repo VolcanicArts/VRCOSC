@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace VRCOSC.Game.Modules.Modules.OpenVR;
 
-public class OpenVRModule : Module
+public class OpenVRStatisticsModule : Module
 {
     private const int max_tracker_count = 8;
 
-    public override string Title => "OpenVR";
+    public override string Title => "OpenVR Statistics";
     public override string Description => "Gets statistics from your OpenVR (SteamVR) session";
     public override string Author => "VolcanicArts";
     public override ModuleType ModuleType => ModuleType.General;
