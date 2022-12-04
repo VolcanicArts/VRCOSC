@@ -30,7 +30,7 @@ public class OpenVRInterface
 
     public OpenVRInterface(Storage storage)
     {
-        this.storage = storage.GetStorageForDirectory("temp");
+        this.storage = storage.GetStorageForDirectory("openvr");
     }
 
     public bool Init()

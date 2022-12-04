@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.IO;
+using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
@@ -128,15 +129,20 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
         ConfigManager.SetValue(VRCOSCSetting.Version, Version);
 
-        copyTempFiles();
+        copyOpenVrFiles();
     }
 
-    private void copyTempFiles()
+    private void copyOpenVrFiles()
     {
-        var tempStorage = storage.GetFullPath("temp", true);
+        var tempStorage = storage.GetStorageForDirectory("openvr");
+        var tempStoragePath = tempStorage.GetFullPath(string.Empty);
 
-        File.WriteAllBytes(Path.Combine(tempStorage, "action_manifest.json"), Resources.Get("OpenVR/action_manifest.json"));
-        File.WriteAllBytes(Path.Combine(tempStorage, "knuckles_bindings.json"), Resources.Get("OpenVR/knuckles_bindings.json"));
+        var openVrFiles = Resources.GetAvailableResources().Where(file => file.StartsWith("OpenVR"));
+
+        foreach (var file in openVrFiles)
+        {
+            File.WriteAllBytes(Path.Combine(tempStoragePath, file.Split('/')[1]), Resources.Get(file));
+        }
     }
 
     protected override bool OnExiting()
@@ -147,8 +153,6 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         }, true);
 
         ModulesRunning.Value = false;
-
-        storage.DeleteDirectory("temp");
 
         return true;
     }
