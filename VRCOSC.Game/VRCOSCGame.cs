@@ -34,7 +34,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     public VRCOSCUpdateManager UpdateManager = null!;
 
     private NotificationContainer notificationContainer = null!;
-    private OpenVrInterface openVrInterface = null!;
+    private OpenVRInterface openVrInterface = null!;
 
     public Bindable<string> SearchTermFilter = new(string.Empty);
     public Bindable<ModuleType?> TypeFilter = new();
@@ -57,7 +57,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         notificationContainer = new NotificationContainer();
         DependencyContainer.CacheAs(notificationContainer);
 
-        openVrInterface = new OpenVrInterface();
+        openVrInterface = new OpenVRInterface();
         DependencyContainer.CacheAs(openVrInterface);
 
         Children = new Drawable[]

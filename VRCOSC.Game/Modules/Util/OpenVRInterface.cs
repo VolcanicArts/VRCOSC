@@ -14,7 +14,7 @@ using Valve.VR;
 namespace VRCOSC.Game.Modules.Util;
 
 [SuppressMessage("Performance", "CA1822:Mark members as static")]
-public class OpenVrInterface
+public class OpenVRInterface
 {
     private readonly Dictionary<EVRButtonId, bool> touchTracker = new()
     {

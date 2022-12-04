@@ -67,10 +67,10 @@ public sealed partial class ModuleManager : Component
     private BindableBool ModuleRun { get; set; } = null!;
 
     [Resolved]
-    private OpenVrInterface OpenVrInterface { get; set; } = null!;
+    private OpenVRInterface OpenVrInterface { get; set; } = null!;
 
     [BackgroundDependencyLoader]
-    private void load(GameHost host, Storage storage, OpenVrInterface openVrInterface)
+    private void load(GameHost host, Storage storage, OpenVRInterface openVrInterface)
     {
         chatBox = new ChatBox(OscClient);
         autoStartStop = ConfigManager.GetBindable<bool>(VRCOSCSetting.AutoStartStop);

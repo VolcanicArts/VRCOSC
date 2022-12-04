@@ -47,12 +47,12 @@ public abstract class Module
     protected virtual int ChatBoxPriority => 0;
 
     protected Player Player = null!;
-    protected OpenVrInterface OpenVrInterface = null!;
+    protected OpenVRInterface OpenVrInterface = null!;
 
     public const float vrc_osc_update_rate = 20;
     public static readonly int vrc_osc_delta_update = (int)((1f / vrc_osc_update_rate) * 1000f);
 
-    public void Initialise(GameHost host, Storage storage, OscClient oscClient, ChatBox chatBox, OpenVrInterface openVrInterface)
+    public void Initialise(GameHost host, Storage storage, OscClient oscClient, ChatBox chatBox, OpenVRInterface openVrInterface)
     {
         Host = host;
         Storage = storage;
