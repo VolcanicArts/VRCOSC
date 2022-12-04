@@ -11,7 +11,7 @@ using VRCOSC.Game.Graphics.Notifications;
 
 namespace VRCOSC.Game.Tests.Visual;
 
-public class TestNotifications : VRCOSCTestScene
+public partial class TestNotifications : VRCOSCTestScene
 {
     private NotificationContainer notifications = null!;
 

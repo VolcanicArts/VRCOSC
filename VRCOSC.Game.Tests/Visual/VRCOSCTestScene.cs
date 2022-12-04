@@ -5,14 +5,14 @@ using osu.Framework.Testing;
 
 namespace VRCOSC.Game.Tests.Visual;
 
-public class VRCOSCTestScene : TestScene
+public partial class VRCOSCTestScene : TestScene
 {
     protected override ITestSceneTestRunner CreateRunner()
     {
         return new VRCOSCTestSceneTestRunner();
     }
 
-    private class VRCOSCTestSceneTestRunner : VRCOSCGameBase, ITestSceneTestRunner
+    private partial class VRCOSCTestSceneTestRunner : VRCOSCGameBase, ITestSceneTestRunner
     {
         private TestSceneTestRunner.TestRunner runner = null!;
 
