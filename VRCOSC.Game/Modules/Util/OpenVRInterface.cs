@@ -7,7 +7,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
-using osu.Framework.Lists;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 using Valve.VR;
