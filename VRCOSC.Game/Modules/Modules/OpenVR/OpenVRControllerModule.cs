@@ -10,7 +10,7 @@ public class OpenVRControllerModule : Module
     public override string Title => "OpenVR Controllers";
     public override string Description => "Gets controller values from your OpenVR (SteamVR) session";
     public override string Author => "VolcanicArts";
-    public override ModuleType ModuleType => ModuleType.General;
+    public override ModuleType ModuleType => ModuleType.OpenVR;
     protected override int DeltaUpdate => vrc_osc_delta_update;
 
     protected override void CreateAttributes()

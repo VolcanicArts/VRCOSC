@@ -13,7 +13,7 @@ public class OpenVRStatisticsModule : Module
     public override string Title => "OpenVR Statistics";
     public override string Description => "Gets statistics from your OpenVR (SteamVR) session";
     public override string Author => "VolcanicArts";
-    public override ModuleType ModuleType => ModuleType.General;
+    public override ModuleType ModuleType => ModuleType.OpenVR;
     protected override int DeltaUpdate => 5000;
 
     protected override void CreateAttributes()

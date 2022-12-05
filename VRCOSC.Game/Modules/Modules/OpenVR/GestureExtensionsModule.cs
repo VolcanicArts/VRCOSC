@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using VRCOSC.Game.Modules.Util;
 
@@ -10,9 +9,9 @@ namespace VRCOSC.Game.Modules.Modules.OpenVR;
 public class GestureExtensionsModule : Module
 {
     public override string Title => "Gesture Extensions";
-    public override string Description => "Detect a range of custom extensions from Index controllers";
+    public override string Description => "Detect a range of custom gestures from Index controllers";
     public override string Author => "VolcanicArts";
-    public override ModuleType ModuleType => ModuleType.General;
+    public override ModuleType ModuleType => ModuleType.OpenVR;
     protected override int DeltaUpdate => vrc_osc_delta_update;
 
     private const float upper_threshold = 0.7f;

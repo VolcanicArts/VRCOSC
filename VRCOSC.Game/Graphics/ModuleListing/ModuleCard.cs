@@ -170,6 +170,7 @@ public sealed partial class ModuleCard : Container
             ModuleType.Health => VRCOSCColour.Red,
             ModuleType.Integrations => VRCOSCColour.Yellow,
             ModuleType.Accessibility => VRCOSCColour.Blue,
+            ModuleType.OpenVR => Colour4.FromHex("#04144d"),
             _ => throw new ArgumentOutOfRangeException()
         };
     }
