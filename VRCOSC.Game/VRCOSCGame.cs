@@ -3,6 +3,7 @@
 
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
@@ -91,9 +92,11 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         openVrInterface.Poll();
     }
 
-    protected override void LoadComplete()
+    protected override async void LoadComplete()
     {
         base.LoadComplete();
+
+        await copyOpenVrFiles();
 
         checkUpdates();
         checkVersion();
@@ -137,11 +140,9 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         }
 
         ConfigManager.SetValue(VRCOSCSetting.Version, Version);
-
-        copyOpenVrFiles();
     }
 
-    private void copyOpenVrFiles()
+    private async Task copyOpenVrFiles()
     {
         var tempStorage = storage.GetStorageForDirectory("openvr");
         var tempStoragePath = tempStorage.GetFullPath(string.Empty);
@@ -150,7 +151,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
         foreach (var file in openVrFiles)
         {
-            File.WriteAllBytes(Path.Combine(tempStoragePath, file.Split('/')[1]), Resources.Get(file));
+            await File.WriteAllBytesAsync(Path.Combine(tempStoragePath, file.Split('/')[1]), await Resources.GetAsync(file));
         }
     }
 
