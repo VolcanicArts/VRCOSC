@@ -111,6 +111,7 @@ public class OpenVRInterface
             if (eventType == EVREventType.VREvent_Quit)
             {
                 OpenVR.System.AcknowledgeQuit_Exiting();
+                OpenVR.Shutdown();
                 HasInitialised = false;
                 return;
             }
