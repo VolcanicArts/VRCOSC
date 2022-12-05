@@ -25,7 +25,7 @@ public class GestureExtensionsModule : Module
 
     protected override Task OnUpdate()
     {
-        if (!OpenVrInterface.HasSession) return Task.CompletedTask;
+        if (!OpenVrInterface.HasInitialised) return Task.CompletedTask;
 
         SendParameter(GestureExtensionsParameter.GestureLeft, (int)getLeftControllerGesture());
         SendParameter(GestureExtensionsParameter.GestureRight, (int)getRightControllerGesture());

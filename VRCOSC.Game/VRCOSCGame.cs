@@ -79,6 +79,15 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
     protected override void Update()
     {
+        pollOpenVR();
+    }
+
+    private void pollOpenVR()
+    {
+        openVrInterface.Init();
+
+        if (!openVrInterface.HasInitialised) return;
+
         openVrInterface.Poll();
     }
 

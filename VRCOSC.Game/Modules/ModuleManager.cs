@@ -141,8 +141,6 @@ public sealed partial class ModuleManager : Component
     {
         State.Value = ManagerState.Starting;
 
-        OpenVrInterface.Init();
-
         await Task.Delay(250, startCancellationTokenSource.Token);
 
         enableOsc();
@@ -200,8 +198,6 @@ public sealed partial class ModuleManager : Component
         await chatBox.Shutdown();
 
         OscClient.DisableSend();
-
-        if (OpenVrInterface.HasSession) OpenVrInterface.Shutdown();
 
         State.Value = ManagerState.Stopped;
     }

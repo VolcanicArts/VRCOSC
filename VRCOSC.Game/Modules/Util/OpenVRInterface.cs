@@ -32,21 +32,27 @@ public class OpenVRInterface
     private readonly ulong[] rightController = new ulong[8];
 
     private readonly Storage storage;
-    public bool HasSession { get; private set; }
+    public bool HasInitialised { get; private set; }
 
     public OpenVRInterface(Storage storage)
     {
         this.storage = storage.GetStorageForDirectory("openvr");
     }
 
-    public bool Init()
+    public void Init()
     {
+        if (HasInitialised) return;
+
         var err = new EVRInitError();
-        OpenVR.Init(ref err, EVRApplicationType.VRApplication_Utility);
+        var state = OpenVR.InitInternal(ref err, EVRApplicationType.VRApplication_Background);
 
-        if (err != EVRInitError.None) return false;
+        if (err != EVRInitError.None || state == 0)
+        {
+            HasInitialised = false;
+            return;
+        }
 
-        HasSession = true;
+        HasInitialised = true;
 
         OpenVR.Input.SetActionManifestPath(storage.GetFullPath("action_manifest.json"));
 
@@ -69,14 +75,6 @@ public class OpenVRInterface
         OpenVR.Input.GetActionHandle("/actions/main/in/rightfingerpinky", ref rightController[7]);
 
         OpenVR.Input.GetActionSetHandle("/actions/main", ref actionSetHandle);
-
-        return true;
-    }
-
-    public void Shutdown()
-    {
-        HasSession = false;
-        OpenVR.Shutdown();
     }
 
     public bool IsHmdConnected() => getIndexForTrackedDeviceClass(ETrackedDeviceClass.HMD) != uint.MaxValue && OpenVR.IsHmdPresent();
@@ -105,21 +103,17 @@ public class OpenVRInterface
 
     public void Poll()
     {
-        if (!HasSession) return;
-
         var evenT = new VREvent_t();
 
         while (OpenVR.System.PollNextEvent(ref evenT, vrevent_t_size))
         {
-            if (!HasSession) break;
-
             var eventType = (EVREventType)evenT.eventType;
 
             if (eventType == EVREventType.VREvent_Quit)
             {
                 OpenVR.System.AcknowledgeQuit_Exiting();
-                OpenVR.Shutdown();
-                HasSession = false;
+                HasInitialised = false;
+                return;
             }
         }
 

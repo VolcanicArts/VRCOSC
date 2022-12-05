@@ -39,7 +39,7 @@ public class OpenVRStatisticsModule : Module
 
     protected override Task OnUpdate()
     {
-        if (!OpenVrInterface.HasSession) return Task.CompletedTask;
+        if (!OpenVrInterface.HasInitialised) return Task.CompletedTask;
 
         handleHmd();
         handleControllers();

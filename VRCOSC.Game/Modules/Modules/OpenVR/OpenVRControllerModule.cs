@@ -36,6 +36,8 @@ public class OpenVRControllerModule : Module
 
     protected override Task OnUpdate()
     {
+        if (!OpenVrInterface.HasInitialised) return Task.CompletedTask;
+
         if (OpenVrInterface.IsLeftControllerConnected())
         {
             SendParameter(OpenVRControllerParameter.LeftATouch, OpenVrInterface.LeftController.ATouched);
