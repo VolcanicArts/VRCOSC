@@ -2,10 +2,12 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using osu.Framework.Lists;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 using Valve.VR;
@@ -165,7 +167,7 @@ public class OpenVRInterface
     private uint getHmdIndex() => getIndexForTrackedDeviceClass(ETrackedDeviceClass.HMD);
     private uint getLeftControllerIndex() => getController("left");
     private uint getRightControllerIndex() => getController("right");
-    public uint[] GetTrackers() => getIndexesForTrackedDeviceClass(ETrackedDeviceClass.GenericTracker);
+    public IEnumerable<uint> GetTrackers() => getIndexesForTrackedDeviceClass(ETrackedDeviceClass.GenericTracker);
 
     // GetTrackedDeviceIndexForControllerRole doesn't work when a tracker thinks it's a controller and assumes that role
     // We can forcibly find the correct indexes by using the model name
@@ -184,15 +186,16 @@ public class OpenVRInterface
 
     private uint getIndexForTrackedDeviceClass(ETrackedDeviceClass klass)
     {
-        var indexes = getIndexesForTrackedDeviceClass(klass);
+        var indexes = getIndexesForTrackedDeviceClass(klass).ToArray();
         return indexes.Any() ? indexes[0] : uint.MaxValue;
     }
 
-    private uint[] getIndexesForTrackedDeviceClass(ETrackedDeviceClass klass)
+    private IEnumerable<uint> getIndexesForTrackedDeviceClass(ETrackedDeviceClass klass)
     {
-        var data = new uint[OpenVR.k_unMaxTrackedDeviceCount];
-        OpenVR.System.GetSortedTrackedDeviceIndicesOfClass(klass, data, OpenVR.k_unTrackedDeviceIndexInvalid);
-        return data;
+        for (uint i = 0; i < OpenVR.k_unMaxTrackedDeviceCount; i++)
+        {
+            if (OpenVR.System.GetTrackedDeviceClass(i) == klass) yield return i;
+        }
     }
 
     private bool getBoolTrackedDeviceProperty(uint index, ETrackedDeviceProperty property)
