@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using osu.Framework.Lists;
 using osu.Framework.Logging;
@@ -18,6 +19,11 @@ namespace VRCOSC.Game.Modules.Util;
 [SuppressMessage("Performance", "CA1822:Mark members as static")]
 public class OpenVRInterface
 {
+    private static readonly uint vrevent_t_size = (uint)Unsafe.SizeOf<VREvent_t>();
+    private static readonly uint vractiveactonset_t_size = (uint)Unsafe.SizeOf<VRActiveActionSet_t>();
+    private static readonly uint inputanalogactiondata_t_size = (uint)Unsafe.SizeOf<InputAnalogActionData_t>();
+    private static readonly uint inputdigitalactiondata_t_size = (uint)Unsafe.SizeOf<InputDigitalActionData_t>();
+
     public readonly ControllerData LeftController = new();
     public readonly ControllerData RightController = new();
 
@@ -25,7 +31,7 @@ public class OpenVRInterface
     private readonly ulong[] leftController = new ulong[8];
     private readonly ulong[] rightController = new ulong[8];
 
-    private Storage storage;
+    private readonly Storage storage;
     public bool HasSession { get; private set; }
 
     public OpenVRInterface(Storage storage)
@@ -97,13 +103,13 @@ public class OpenVRInterface
 
     #region Events
 
-    public unsafe void Poll()
+    public void Poll()
     {
         if (!HasSession) return;
 
         var evenT = new VREvent_t();
 
-        while (OpenVR.System.PollNextEvent(ref evenT, (uint)sizeof(VREvent_t)))
+        while (OpenVR.System.PollNextEvent(ref evenT, vrevent_t_size))
         {
             if (!HasSession) break;
 
@@ -121,7 +127,7 @@ public class OpenVRInterface
         activeActionSet[0].ulActionSet = actionSetHandle;
         activeActionSet[0].ulRestrictedToDevice = OpenVR.k_ulInvalidInputValueHandle;
         activeActionSet[0].nPriority = 0;
-        OpenVR.Input.UpdateActionState(activeActionSet, (uint)sizeof(VRActiveActionSet_t));
+        OpenVR.Input.UpdateActionState(activeActionSet, vractiveactonset_t_size);
         extractControllerData();
     }
 
@@ -146,17 +152,17 @@ public class OpenVRInterface
         RightController.PinkyFinger = getAnalogueInput(rightController[7]).x;
     }
 
-    private unsafe InputAnalogActionData_t getAnalogueInput(ulong identifier)
+    private InputAnalogActionData_t getAnalogueInput(ulong identifier)
     {
         var data = new InputAnalogActionData_t();
-        OpenVR.Input.GetAnalogActionData(identifier, ref data, (uint)sizeof(InputAnalogActionData_t), OpenVR.k_ulInvalidInputValueHandle);
+        OpenVR.Input.GetAnalogActionData(identifier, ref data, inputanalogactiondata_t_size, OpenVR.k_ulInvalidInputValueHandle);
         return data;
     }
 
-    private unsafe InputDigitalActionData_t getDigitalInput(ulong identifier)
+    private InputDigitalActionData_t getDigitalInput(ulong identifier)
     {
         var data = new InputDigitalActionData_t();
-        OpenVR.Input.GetDigitalActionData(identifier, ref data, (uint)sizeof(InputDigitalActionData_t), OpenVR.k_ulInvalidInputValueHandle);
+        OpenVR.Input.GetDigitalActionData(identifier, ref data, inputdigitalactiondata_t_size, OpenVR.k_ulInvalidInputValueHandle);
         return data;
     }
 
