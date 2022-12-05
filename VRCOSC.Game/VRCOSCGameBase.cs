@@ -48,8 +48,7 @@ public partial class VRCOSCGameBase : osu.Framework.Game
     protected override IDictionary<FrameworkSetting, object> GetFrameworkConfigDefaults()
         => new Dictionary<FrameworkSetting, object>
         {
-            { FrameworkSetting.WindowedSize, default_size },
-            { FrameworkSetting.FrameSync, FrameSync.Limit8x }
+            { FrameworkSetting.WindowedSize, default_size }
         };
 
     protected override IReadOnlyDependencyContainer CreateChildDependencies(IReadOnlyDependencyContainer parent)
@@ -64,8 +63,5 @@ public partial class VRCOSCGameBase : osu.Framework.Game
 
         versionBindable = ConfigManager.GetBindable<string>(VRCOSCSetting.Version);
         versionBindable.BindValueChanged(version => host.Window.Title = $"VRCOSC {version.NewValue}", true);
-
-        //TODO: Can be removed after update
-        frameworkConfigManager.SetValue(FrameworkSetting.FrameSync, FrameSync.Limit8x);
     }
 }
