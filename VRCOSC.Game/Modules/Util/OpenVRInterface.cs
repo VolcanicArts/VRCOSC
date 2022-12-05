@@ -46,7 +46,7 @@ public class OpenVRInterface
         var err = new EVRInitError();
         var state = OpenVR.InitInternal(ref err, EVRApplicationType.VRApplication_Background);
 
-        if (err != EVRInitError.None || state == 0)
+        if (err != EVRInitError.None || state <= 0)
         {
             HasInitialised = false;
             return;
