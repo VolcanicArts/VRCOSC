@@ -167,6 +167,7 @@ public class OpenVRInterface
     private uint getHmdIndex() => getIndexForTrackedDeviceClass(ETrackedDeviceClass.HMD);
     private uint getLeftControllerIndex() => getController("left");
     private uint getRightControllerIndex() => getController("right");
+    public IEnumerable<uint> GetTrackers() => getIndexesForTrackedDeviceClass(ETrackedDeviceClass.GenericTracker);
 
     // GetTrackedDeviceIndexForControllerRole doesn't work when a tracker thinks it's a controller and assumes that role
     // We can forcibly find the correct indexes by using the model name
@@ -183,24 +184,6 @@ public class OpenVRInterface
         return uint.MaxValue;
     }
 
-    public IEnumerable<uint> GetTrackers()
-    {
-        var trackersList = new SortedList<uint>();
-
-        var controllers = getIndexesForTrackedDeviceClass(ETrackedDeviceClass.Controller);
-
-        foreach (var controller in controllers)
-        {
-            var controllerRole = (ETrackedControllerRole)getInt32TrackedDeviceProperty(controller, ETrackedDeviceProperty.Prop_ControllerRoleHint_Int32);
-            // An invalid controller seems to always be a tracker that took a controller's place when a controller disconnected/reconnected
-            if (controllerRole == ETrackedControllerRole.Invalid) trackersList.Add(controller);
-        }
-
-        trackersList.AddRange(getIndexesForTrackedDeviceClass(ETrackedDeviceClass.GenericTracker));
-        trackersList.Sort();
-        return trackersList;
-    }
-
     private uint getIndexForTrackedDeviceClass(ETrackedDeviceClass klass)
     {
         var indexes = getIndexesForTrackedDeviceClass(klass).ToArray();
@@ -209,10 +192,16 @@ public class OpenVRInterface
 
     private IEnumerable<uint> getIndexesForTrackedDeviceClass(ETrackedDeviceClass klass)
     {
+        var list = new SortedList<uint>();
+
         for (uint i = 0; i < OpenVR.k_unMaxTrackedDeviceCount; i++)
         {
-            if (OpenVR.System.GetTrackedDeviceClass(i) == klass) yield return i;
+            if (OpenVR.System.GetTrackedDeviceClass(i) == klass) list.Add(i);
         }
+
+        list.Sort();
+
+        return list;
     }
 
     private bool getBoolTrackedDeviceProperty(uint index, ETrackedDeviceProperty property)
