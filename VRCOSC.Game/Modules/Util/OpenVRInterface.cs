@@ -192,16 +192,10 @@ public class OpenVRInterface
 
     private IEnumerable<uint> getIndexesForTrackedDeviceClass(ETrackedDeviceClass klass)
     {
-        var list = new SortedList<uint>();
-
         for (uint i = 0; i < OpenVR.k_unMaxTrackedDeviceCount; i++)
         {
-            if (OpenVR.System.GetTrackedDeviceClass(i) == klass) list.Add(i);
+            if (OpenVR.System.GetTrackedDeviceClass(i) == klass) yield return i;
         }
-
-        list.Sort();
-
-        return list;
     }
 
     private bool getBoolTrackedDeviceProperty(uint index, ETrackedDeviceProperty property)
