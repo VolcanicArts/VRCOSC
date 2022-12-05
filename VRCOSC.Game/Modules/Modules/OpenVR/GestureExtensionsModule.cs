@@ -27,8 +27,8 @@ public class GestureExtensionsModule : Module
     {
         if (!OpenVrInterface.HasInitialised) return Task.CompletedTask;
 
-        SendParameter(GestureExtensionsParameter.GestureLeft, (int)getLeftControllerGesture());
-        SendParameter(GestureExtensionsParameter.GestureRight, (int)getRightControllerGesture());
+        if (OpenVrInterface.IsLeftControllerConnected()) SendParameter(GestureExtensionsParameter.GestureLeft, (int)getLeftControllerGesture());
+        if (OpenVrInterface.IsRightControllerConnected()) SendParameter(GestureExtensionsParameter.GestureRight, (int)getRightControllerGesture());
 
         return Task.CompletedTask;
     }
