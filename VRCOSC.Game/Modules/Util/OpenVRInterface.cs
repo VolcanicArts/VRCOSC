@@ -257,10 +257,12 @@ public class OpenVRInterface
         return value;
     }
 
+    private readonly StringBuilder sb = new((int)OpenVR.k_unMaxPropertyStringSize);
+
     private string getStringTrackedDeviceProperty(uint index, ETrackedDeviceProperty property)
     {
         var error = new ETrackedPropertyError();
-        var sb = new StringBuilder((int)OpenVR.k_unMaxPropertyStringSize);
+        sb.Clear();
         OpenVR.System.GetStringTrackedDeviceProperty(index, property, sb, OpenVR.k_unMaxPropertyStringSize, ref error);
 
         if (error != ETrackedPropertyError.TrackedProp_Success)
