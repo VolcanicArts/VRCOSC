@@ -14,8 +14,8 @@ public class GestureExtensionsModule : Module
     public override ModuleType ModuleType => ModuleType.OpenVR;
     protected override int DeltaUpdate => vrc_osc_delta_update;
 
-    private const float upper_threshold = 0.7f;
-    private const float lower_threshold = 0.3f;
+    private const float upper_threshold = 0.5f;
+    private const float lower_threshold = 0.5f;
 
     protected override void CreateAttributes()
     {
