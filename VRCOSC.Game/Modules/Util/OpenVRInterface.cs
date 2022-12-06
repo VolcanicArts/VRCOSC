@@ -45,7 +45,7 @@ public class OpenVRInterface
         var err = new EVRInitError();
         var state = OpenVR.InitInternal(ref err, EVRApplicationType.VRApplication_Background);
 
-        if (err != EVRInitError.None || state <= 0)
+        if (err != EVRInitError.None || state == 0)
         {
             HasInitialised = false;
             return;
@@ -241,20 +241,28 @@ public class OpenVRInterface
     }
 
     private readonly StringBuilder sb = new((int)OpenVR.k_unMaxPropertyStringSize);
+    private readonly object stringLock = new();
 
     private string getStringTrackedDeviceProperty(uint index, ETrackedDeviceProperty property)
     {
-        var error = new ETrackedPropertyError();
-        sb.Clear();
-        OpenVR.System.GetStringTrackedDeviceProperty(index, property, sb, OpenVR.k_unMaxPropertyStringSize, ref error);
+        string str;
 
-        if (error != ETrackedPropertyError.TrackedProp_Success)
+        lock (stringLock)
         {
-            log($"GetStringTrackedDeviceProperty has given an error: {error}");
-            return string.Empty;
+            var error = new ETrackedPropertyError();
+            sb.Clear();
+            OpenVR.System.GetStringTrackedDeviceProperty(index, property, sb, OpenVR.k_unMaxPropertyStringSize, ref error);
+
+            if (error != ETrackedPropertyError.TrackedProp_Success)
+            {
+                log($"GetStringTrackedDeviceProperty has given an error: {error}");
+                return string.Empty;
+            }
+
+            str = sb.ToString();
         }
 
-        return sb.ToString();
+        return str;
     }
 
     #endregion
