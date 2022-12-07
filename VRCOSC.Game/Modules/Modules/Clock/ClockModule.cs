@@ -17,7 +17,7 @@ public sealed class ClockModule : ChatBoxModule
     protected override int DeltaUpdate => GetSetting<bool>(ClockSetting.SmoothSecond) ? vrc_osc_delta_update : 1000;
 
     protected override bool DefaultChatBoxDisplay => true;
-    protected override string DefaultChatBoxFormat => "Local Time                        %h%:%m%%period%";
+    protected override string DefaultChatBoxFormat => "Local Time                                %h%:%m%%period%";
     protected override IEnumerable<string> ChatBoxFormatValues => new[] { "%h%", "%m%", "%s%", "%period%" };
 
     private DateTime time;
