@@ -80,15 +80,11 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
     protected override void Update()
     {
-        pollOpenVR();
+        if (openVrInterface.HasInitialised) handleOpenVR();
     }
 
-    private void pollOpenVR()
+    private void handleOpenVR()
     {
-        openVrInterface.Init();
-
-        if (!openVrInterface.HasInitialised) return;
-
         openVrInterface.Poll();
     }
 
@@ -97,6 +93,8 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         base.LoadComplete();
 
         await copyOpenVrFiles();
+
+        Scheduler.AddDelayed(() => openVrInterface.Init(), 50d, true);
 
         checkUpdates();
         checkVersion();
