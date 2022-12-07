@@ -279,6 +279,7 @@ public class ControllerData
     public bool BTouched;
     public bool PadTouched;
     public bool StickTouched;
+    public bool ThumbDown => ATouched || BTouched || PadTouched || StickTouched;
     public float IndexFinger;
     public float MiddleFinger;
     public float RingFinger;

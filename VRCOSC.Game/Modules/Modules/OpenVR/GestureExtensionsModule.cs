@@ -45,30 +45,9 @@ public class GestureExtensionsModule : Module
         return GestureNames.None;
     }
 
-    private static bool isGestureDoubleGun(ControllerData controllerData)
-    {
-        return controllerData.IndexFinger < lower_threshold
-               && controllerData.MiddleFinger < lower_threshold
-               && controllerData.RingFinger > upper_threshold
-               && controllerData.PinkyFinger > upper_threshold
-               && !(controllerData.ATouched || controllerData.BTouched || controllerData.PadTouched || controllerData.StickTouched);
-    }
-
-    private static bool isGestureMiddleFinger(ControllerData controllerData)
-    {
-        return controllerData.IndexFinger > upper_threshold
-               && controllerData.MiddleFinger < lower_threshold
-               && controllerData.RingFinger > upper_threshold
-               && controllerData.PinkyFinger > upper_threshold;
-    }
-
-    private static bool isGesturePinkyFinger(ControllerData controllerData)
-    {
-        return controllerData.IndexFinger > upper_threshold
-               && controllerData.MiddleFinger > upper_threshold
-               && controllerData.RingFinger > upper_threshold
-               && controllerData.PinkyFinger < lower_threshold;
-    }
+    private static bool isGestureDoubleGun(ControllerData controllerData) => controllerData is { IndexFinger: < lower_threshold, MiddleFinger: < lower_threshold, RingFinger: > upper_threshold, PinkyFinger: > upper_threshold, ThumbDown: false };
+    private static bool isGestureMiddleFinger(ControllerData controllerData) => controllerData is { IndexFinger: > upper_threshold, MiddleFinger: < lower_threshold, RingFinger: > upper_threshold, PinkyFinger: > upper_threshold };
+    private static bool isGesturePinkyFinger(ControllerData controllerData) => controllerData is { IndexFinger: > upper_threshold, MiddleFinger: > upper_threshold, RingFinger: > upper_threshold, PinkyFinger: < lower_threshold };
 
     private enum GestureNames
     {
