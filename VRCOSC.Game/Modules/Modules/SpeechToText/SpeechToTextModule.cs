@@ -22,6 +22,8 @@ public sealed class SpeechToTextModule : Module
 
     private readonly SpeechRecognitionEngine speechRecognitionEngine = new();
     private VoskRecognizer recognizer = null!;
+    private readonly MemoryStream initialStream = new();
+    private readonly MemoryStream finalStream = new();
 
     public SpeechToTextModule()
     {
@@ -91,16 +93,17 @@ public sealed class SpeechToTextModule : Module
         if (GetSetting<bool>(SpeechToTextSetting.FollowMute) && !(Player.IsMuted ?? false)) return;
         if (e.Result.Audio is null) return;
 
-        using var memoryStream = new MemoryStream();
-        e.Result.Audio.WriteToWaveStream(memoryStream);
+        initialStream.SetLength(0);
+        finalStream.SetLength(0);
+
+        // 2nd stream used as GetBuffer() must be called
+        e.Result.Audio.WriteToWaveStream(initialStream);
+        finalStream.Write(initialStream.GetBuffer());
 
         var buffer = new byte[4096];
         int bytesRead;
 
-        // using a 2nd memory stream as GetBuffer() must be called
-        using var wavStream = new MemoryStream(memoryStream.GetBuffer());
-
-        while ((bytesRead = wavStream.Read(buffer, 0, buffer.Length)) > 0)
+        while ((bytesRead = finalStream.Read(buffer, 0, buffer.Length)) > 0)
         {
             recognizer.AcceptWaveform(buffer, bytesRead);
         }
