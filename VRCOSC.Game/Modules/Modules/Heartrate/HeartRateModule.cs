@@ -28,7 +28,7 @@ public abstract class HeartRateModule : ChatBoxModule
     private DateTimeOffset lastHeartrateTime;
     private int connectionCount;
 
-    protected bool IsReceiving => lastHeartrateTime + heartrate_timeout >= DateTimeOffset.Now;
+    private bool isReceiving => lastHeartrateTime + heartrate_timeout >= DateTimeOffset.Now;
 
     protected abstract HeartRateProvider CreateHeartRateProvider();
 
@@ -67,13 +67,16 @@ public abstract class HeartRateModule : ChatBoxModule
         heartRateProvider = CreateHeartRateProvider();
         heartRateProvider.OnHeartRateUpdate += HandleHeartRateUpdate;
         heartRateProvider.OnConnected += () => connectionCount = 0;
-        heartRateProvider.OnDisconnected += async () =>
+        heartRateProvider.OnDisconnected += () =>
         {
-            if (IsStopping || HasStopped) return;
+            Task.Run(async () =>
+            {
+                if (IsStopping || HasStopped) return;
 
-            SendParameter(HeartrateParameter.Enabled, false);
-            await Task.Delay(2000);
-            attemptConnection();
+                SendParameter(HeartrateParameter.Enabled, false);
+                await Task.Delay(2000);
+                attemptConnection();
+            });
         };
         heartRateProvider.Initialise();
         heartRateProvider.Connect();
@@ -90,7 +93,7 @@ public abstract class HeartRateModule : ChatBoxModule
 
     protected override Task OnUpdate()
     {
-        if (!IsReceiving)
+        if (!isReceiving)
         {
             SendParameter(HeartrateParameter.Enabled, false);
         }

@@ -96,7 +96,7 @@ public sealed partial class ParameterContainer : Container
                     new Box
                     {
                         RelativeSizeAxes = Axes.Both,
-                        Colour = VRCOSCColour.Gray2,
+                        Colour = VRCOSCColour.Gray2
                     },
                     parameterDisplay = new ParameterDisplay
                     {

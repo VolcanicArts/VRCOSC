@@ -41,14 +41,14 @@ public sealed class HardwareStatsModule : ChatBoxModule
         hardwareStatsProvider!.Update();
 
         return GetSetting<string>(ChatBoxSetting.ChatBoxFormat)
-               .Replace("$cpuusage$", (hardwareStatsProvider!.CpuUsage).ToString("0.00"))
-               .Replace("$gpuusage$", (hardwareStatsProvider!.GpuUsage).ToString("0.00"))
-               .Replace("$ramusage$", (hardwareStatsProvider!.RamUsage).ToString("0.00"))
-               .Replace("$cputemp$", (hardwareStatsProvider!.CpuTemp).ToString())
-               .Replace("$gputemp$", (hardwareStatsProvider!.GpuTemp).ToString())
-               .Replace("$ramtotal$", (hardwareStatsProvider!.RamTotal).ToString("0.0"))
-               .Replace("$ramused$", (hardwareStatsProvider!.RamUsed).ToString("0.0"))
-               .Replace("$ramavailable$", (hardwareStatsProvider!.RamAvailable).ToString("0.0"));
+               .Replace("$cpuusage$", hardwareStatsProvider!.CpuUsage.ToString("0.00"))
+               .Replace("$gpuusage$", hardwareStatsProvider!.GpuUsage.ToString("0.00"))
+               .Replace("$ramusage$", hardwareStatsProvider!.RamUsage.ToString("0.00"))
+               .Replace("$cputemp$", hardwareStatsProvider!.CpuTemp.ToString())
+               .Replace("$gputemp$", hardwareStatsProvider!.GpuTemp.ToString())
+               .Replace("$ramtotal$", hardwareStatsProvider!.RamTotal.ToString("0.0"))
+               .Replace("$ramused$", hardwareStatsProvider!.RamUsed.ToString("0.0"))
+               .Replace("$ramavailable$", hardwareStatsProvider!.RamAvailable.ToString("0.0"));
     }
 
     protected override async Task OnStart(CancellationToken cancellationToken)

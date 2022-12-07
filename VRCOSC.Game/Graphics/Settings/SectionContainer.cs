@@ -38,7 +38,7 @@ public abstract partial class SectionContainer : Container
             AutoSizeAxes = Axes.Y,
             Direction = FillDirection.Vertical,
             Padding = new MarginPadding(5),
-            Spacing = new Vector2(0, 5),
+            Spacing = new Vector2(0, 5)
         };
     }
 

@@ -45,7 +45,7 @@ public sealed partial class ModuleManager : Component
         typeof(OpenVRControllerModule),
         typeof(GestureExtensionsModule),
         typeof(MediaModule),
-        typeof(DiscordModule),
+        typeof(DiscordModule)
         //typeof(SpeechToTextModule),
     };
 
@@ -66,9 +66,6 @@ public sealed partial class ModuleManager : Component
 
     [Resolved]
     private BindableBool ModuleRun { get; set; } = null!;
-
-    [Resolved]
-    private OpenVRInterface OpenVrInterface { get; set; } = null!;
 
     [BackgroundDependencyLoader]
     private void load(GameHost host, Storage storage, OpenVRInterface openVrInterface)
@@ -186,7 +183,7 @@ public sealed partial class ModuleManager : Component
     {
         State.Value = ManagerState.Stopping;
 
-        startCancellationTokenSource?.Cancel();
+        startCancellationTokenSource.Cancel();
 
         await OscClient.DisableReceive();
 

@@ -3,8 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using osu.Framework.Allocation;
-using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -23,9 +21,6 @@ public sealed partial class TabSelector : Container<DrawableTab>
     };
 
     protected override FillFlowContainer<DrawableTab> Content { get; }
-
-    [Resolved]
-    private Bindable<Tab> selectedTab { get; set; } = null!;
 
     public TabSelector()
     {

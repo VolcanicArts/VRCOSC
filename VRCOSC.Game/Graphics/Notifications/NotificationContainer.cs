@@ -50,7 +50,7 @@ public sealed partial class NotificationContainer : VisibilityContainer
                 ColumnDimensions = new[]
                 {
                     new Dimension(GridSizeMode.Absolute, 15),
-                    new Dimension(),
+                    new Dimension()
                 },
                 Content = new[]
                 {
@@ -114,7 +114,7 @@ public sealed partial class NotificationContainer : VisibilityContainer
                         RelativeSizeAxes = Axes.Both,
                         Icon = FontAwesome.Solid.Get(0xf101)
                     }
-                },
+                }
             };
         }
 

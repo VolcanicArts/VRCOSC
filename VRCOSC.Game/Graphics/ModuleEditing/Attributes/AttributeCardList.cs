@@ -62,11 +62,11 @@ public abstract partial class AttributeCardList : AttributeCard
             ColumnDimensions = new[]
             {
                 new Dimension(),
-                new Dimension(GridSizeMode.Absolute, 36),
+                new Dimension(GridSizeMode.Absolute, 36)
             },
             Content = new[]
             {
-                new Drawable[]
+                new[]
                 {
                     content,
                     new Container
@@ -77,7 +77,7 @@ public abstract partial class AttributeCardList : AttributeCard
                         Padding = new MarginPadding
                         {
                             Vertical = 4,
-                            Left = 4,
+                            Left = 4
                         },
                         Child = removeButton = new IconButton
                         {

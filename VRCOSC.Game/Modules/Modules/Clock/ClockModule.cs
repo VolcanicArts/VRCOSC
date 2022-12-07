@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -57,7 +57,7 @@ public sealed class ClockModule : ChatBoxModule
         var seconds = GetSetting<bool>(ClockSetting.SmoothSecond) ? getSmoothedSeconds(time) : time.Second;
 
         var normalisationComponent = GetSetting<ClockMode>(ClockSetting.Mode) == ClockMode.Twelve ? 12f : 24f;
-        var hourNormalised = (hours % normalisationComponent) / normalisationComponent;
+        var hourNormalised = hours % normalisationComponent / normalisationComponent;
         var minuteNormalised = minutes / 60f;
         var secondNormalised = seconds / 60f;
 
@@ -91,7 +91,7 @@ public sealed class ClockModule : ChatBoxModule
     {
         Hours,
         Minutes,
-        Seconds,
+        Seconds
     }
 
     private enum ClockSetting

@@ -54,13 +54,12 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     [Cached(name: "InfoModule")]
     private IBindable<Module?> InfoModule = new Bindable<Module?>();
 
-    private Storage storage = null!;
+    [Resolved]
+    private Storage storage { get; set; } = null!;
 
     [BackgroundDependencyLoader]
-    private void load(Storage storage)
+    private void load()
     {
-        this.storage = storage;
-
         notificationContainer = new NotificationContainer();
         DependencyContainer.CacheAs(notificationContainer);
 
@@ -133,7 +132,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
                 Description = "Click to see the changes",
                 Icon = FontAwesome.Solid.Download,
                 Colour = VRCOSCColour.GreenDark,
-                ClickCallback = () => host.OpenUrlExternally(latest_release_url),
+                ClickCallback = () => host.OpenUrlExternally(latest_release_url)
             });
         }
 

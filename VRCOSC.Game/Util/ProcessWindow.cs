@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -23,15 +23,22 @@ internal static class ProcessWindow
 
     internal static void SetMainWindowForeground(Process handle)
     {
-        SetForegroundWindow(handle.MainWindowHandle);
+        _ = SetForegroundWindow(handle.MainWindowHandle);
     }
 }
 
 public enum ShowWindowEnum
 {
-    Hide = 0,
-    ShowNormal = 1, ShowMinimized = 2, ShowMaximized = 3,
-    Maximize = 3, ShowNormalNoActivate = 4, Show = 5,
-    Minimize = 6, ShowMinNoActivate = 7, ShowNoActivate = 8,
-    Restore = 9, ShowDefault = 10, ForceMinimized = 11
-};
+    Hide,
+    ShowNormal,
+    ShowMinimized,
+    ShowMaximized,
+    ShowNormalNoActivate,
+    Show,
+    Minimize,
+    ShowMinNoActivate,
+    ShowNoActivate,
+    Restore,
+    ShowDefault,
+    ForceMinimized
+}

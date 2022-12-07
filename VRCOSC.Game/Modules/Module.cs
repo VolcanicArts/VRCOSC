@@ -43,14 +43,13 @@ public abstract class Module
     public virtual ModuleType ModuleType => ModuleType.General;
     public virtual string Prefab => string.Empty;
     protected virtual int DeltaUpdate => int.MaxValue;
-    protected virtual bool ExecuteUpdateImmediately => true;
     protected virtual int ChatBoxPriority => 0;
 
     protected Player Player = null!;
     protected OpenVRInterface OpenVrInterface = null!;
 
     public const float vrc_osc_update_rate = 20;
-    public static readonly int vrc_osc_delta_update = (int)((1f / vrc_osc_update_rate) * 1000f);
+    public const int vrc_osc_delta_update = (int)(1f / vrc_osc_update_rate * 1000f);
 
     public void Initialise(GameHost host, Storage storage, OscClient oscClient, ChatBox chatBox, OpenVRInterface openVrInterface)
     {
@@ -160,7 +159,7 @@ public abstract class Module
 
         await OnStart(cancellationToken);
 
-        if (ShouldUpdate) updateTask = new TimedTask(OnUpdate, DeltaUpdate, ExecuteUpdateImmediately).Start();
+        if (ShouldUpdate) updateTask = new TimedTask(OnUpdate, DeltaUpdate, true).Start();
 
         OscClient.OnParameterReceived += onParameterReceived;
 

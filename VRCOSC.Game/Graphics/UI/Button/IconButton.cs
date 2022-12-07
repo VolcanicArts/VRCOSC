@@ -38,7 +38,7 @@ public partial class IconButton : BasicButton
 
     public IconUsage IconStateOn
     {
-        get => IconStateOn;
+        get => iconStateOn;
         set
         {
             iconStateOn = value;
@@ -48,7 +48,7 @@ public partial class IconButton : BasicButton
 
     public int IconPadding { get; init; } = 8;
 
-    public bool IconShadow { get; init; } = false;
+    public bool IconShadow { get; init; }
 
     [BackgroundDependencyLoader]
     private void load()
@@ -60,7 +60,7 @@ public partial class IconButton : BasicButton
             RelativeSizeAxes = Axes.Both,
             FillMode = FillMode.Fit,
             Padding = new MarginPadding(IconPadding),
-            Child = spriteIcon = CreateSpriteIcon()
+            Child = spriteIcon = createSpriteIcon()
         });
 
         State.BindValueChanged(_ => updateIcon(), true);
@@ -82,14 +82,11 @@ public partial class IconButton : BasicButton
             spriteIcon.Icon = iconStateOff;
     }
 
-    private SpriteIcon CreateSpriteIcon()
+    private SpriteIcon createSpriteIcon() => new()
     {
-        return new SpriteIcon
-        {
-            Anchor = Anchor.Centre,
-            Origin = Anchor.Centre,
-            RelativeSizeAxes = Axes.Both,
-            Shadow = IconShadow
-        };
-    }
+        Anchor = Anchor.Centre,
+        Origin = Anchor.Centre,
+        RelativeSizeAxes = Axes.Both,
+        Shadow = IconShadow
+    };
 }

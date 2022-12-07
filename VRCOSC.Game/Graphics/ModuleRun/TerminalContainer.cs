@@ -39,7 +39,7 @@ public sealed partial class TerminalContainer : Container<TerminalEntry>
                     new Box
                     {
                         RelativeSizeAxes = Axes.Both,
-                        Colour = VRCOSCColour.Gray2,
+                        Colour = VRCOSCColour.Gray2
                     },
                     new Container
                     {
@@ -60,7 +60,7 @@ public sealed partial class TerminalContainer : Container<TerminalEntry>
                                 Padding = new MarginPadding
                                 {
                                     Horizontal = 3
-                                },
+                                }
                             }
                         }
                     }

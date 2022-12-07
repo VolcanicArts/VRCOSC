@@ -83,7 +83,7 @@ public abstract class ChatBoxModule : Module
         ChatBoxLength
     }
 
-    protected enum ChatBoxMode
+    private enum ChatBoxMode
     {
         Timed,
         Always

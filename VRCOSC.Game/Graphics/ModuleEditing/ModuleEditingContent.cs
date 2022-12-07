@@ -65,7 +65,7 @@ public sealed partial class ModuleEditingContent : Container
                             Spacing = new Vector2(0, 5),
                             Children = new[]
                             {
-                                settings = new SeparatedAttributeFlow(),
+                                settings = new SeparatedAttributeFlow()
                             }
                         }
                     }
@@ -109,7 +109,7 @@ public sealed partial class ModuleEditingContent : Container
                     Anchor = Anchor.TopCentre,
                     Origin = Anchor.TopCentre
                 },
-                attributeFlow = new AttributeFlow(),
+                attributeFlow = new AttributeFlow()
             };
         }
 

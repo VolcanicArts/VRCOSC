@@ -172,7 +172,7 @@ public sealed partial class VRCOSCDropdown<T> : Dropdown<T>
             {
                 base.UpdateForegroundColour();
 
-                if (Foreground.Children.FirstOrDefault() is Content content)
+                if (Foreground.FirstOrDefault() is Content content)
                     content.Hovering = IsHovered;
             }
 
@@ -206,14 +206,14 @@ public sealed partial class VRCOSCDropdown<T> : Dropdown<T>
                             X = chevron_offset,
                             Margin = new MarginPadding { Left = 3, Right = 3 },
                             Origin = Anchor.CentreLeft,
-                            Anchor = Anchor.CentreLeft,
+                            Anchor = Anchor.CentreLeft
                         },
                         Label = new SpriteText
                         {
                             X = 15,
                             Origin = Anchor.CentreLeft,
-                            Anchor = Anchor.CentreLeft,
-                        },
+                            Anchor = Anchor.CentreLeft
+                        }
                     };
                 }
 
@@ -285,12 +285,12 @@ public sealed partial class VRCOSCDropdown<T> : Dropdown<T>
                 AutoSizeAxes = Axes.Y,
                 RowDimensions = new[]
                 {
-                    new Dimension(GridSizeMode.AutoSize),
+                    new Dimension(GridSizeMode.AutoSize)
                 },
                 ColumnDimensions = new[]
                 {
                     new Dimension(),
-                    new Dimension(GridSizeMode.AutoSize),
+                    new Dimension(GridSizeMode.AutoSize)
                 },
                 Content = new[]
                 {
@@ -309,8 +309,8 @@ public sealed partial class VRCOSCDropdown<T> : Dropdown<T>
                             Icon = FontAwesome.Solid.ChevronDown,
                             Anchor = Anchor.CentreRight,
                             Origin = Anchor.CentreRight,
-                            Size = new Vector2(16),
-                        },
+                            Size = new Vector2(16)
+                        }
                     }
                 }
             };

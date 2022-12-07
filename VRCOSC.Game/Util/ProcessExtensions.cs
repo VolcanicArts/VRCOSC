@@ -22,13 +22,6 @@ public static class ProcessExtensions
         windowsVKeys.ForEach(key => ProcessKey.ReleaseKey((int)key));
     }
 
-    public static async Task PressKey(WindowsVKey key, int pressTime)
-    {
-        ProcessKey.HoldKey((int)key);
-        await Task.Delay(pressTime);
-        ProcessKey.ReleaseKey((int)key);
-    }
-
     #endregion
 
     #region Window

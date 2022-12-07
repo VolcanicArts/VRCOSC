@@ -33,7 +33,7 @@ public sealed partial class MainContent : Container
                 ColumnDimensions = new[]
                 {
                     new Dimension(GridSizeMode.Absolute, 75),
-                    new Dimension(),
+                    new Dimension()
                 },
                 Content = new[]
                 {

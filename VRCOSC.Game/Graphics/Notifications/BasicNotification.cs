@@ -34,7 +34,7 @@ public partial class BasicNotification : Notification
             ColumnDimensions = new[]
             {
                 new Dimension(GridSizeMode.Absolute, 55),
-                new Dimension(),
+                new Dimension()
             },
             Content = new[]
             {

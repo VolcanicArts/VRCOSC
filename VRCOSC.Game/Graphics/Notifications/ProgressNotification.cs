@@ -32,7 +32,7 @@ public sealed partial class ProgressNotification : BasicNotification
             RowDimensions = new[]
             {
                 new Dimension(),
-                new Dimension(GridSizeMode.Absolute, 5),
+                new Dimension(GridSizeMode.Absolute, 5)
             },
             Content = new[]
             {

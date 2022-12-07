@@ -95,7 +95,7 @@ public abstract partial class SettingCard<T> : Container
                                 RelativeSizeAxes = Axes.X,
                                 AutoSizeAxes = Axes.Y,
                                 Direction = FillDirection.Vertical,
-                                Spacing = new Vector2(0, 10),
+                                Spacing = new Vector2(0, 10)
                             }
                         }
                     }

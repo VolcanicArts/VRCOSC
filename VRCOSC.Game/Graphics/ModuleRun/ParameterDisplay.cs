@@ -49,7 +49,7 @@ public sealed partial class ParameterDisplay : Container
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
                             Text = Title,
-                            Font = FrameworkFont.Regular.With(size: 30),
+                            Font = FrameworkFont.Regular.With(size: 30)
                         }
                     },
                     new Drawable[]
@@ -72,7 +72,7 @@ public sealed partial class ParameterDisplay : Container
                                 Origin = Anchor.TopCentre,
                                 RelativeSizeAxes = Axes.X,
                                 AutoSizeAxes = Axes.Y
-                            },
+                            }
                         }
                     }
                 }

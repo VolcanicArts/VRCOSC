@@ -17,7 +17,7 @@ public partial class VRCOSCButton : osu.Framework.Graphics.UserInterface.Button
 
     public bool ShouldAnimate { get; init; } = true;
 
-    public VRCOSCButton()
+    protected VRCOSCButton()
     {
         Masking = true;
         Enabled.Value = true;

@@ -202,6 +202,6 @@ public sealed class MediaModule : ChatBoxModule
         Shuffle,
         Repeat,
         Volume,
-        Muted,
+        Muted
     }
 }

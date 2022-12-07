@@ -30,12 +30,9 @@ public partial class VRCOSCGameBase : osu.Framework.Game
 
     private Bindable<string> versionBindable = null!;
 
-    [Resolved]
-    private FrameworkConfigManager frameworkConfigManager { get; set; } = null!;
+    private static Version assemblyVersion => Assembly.GetEntryAssembly()?.GetName().Version ?? new Version();
 
-    private Version assemblyVersion => Assembly.GetEntryAssembly()?.GetName().Version ?? new Version();
-
-    public string Version => $@"{assemblyVersion.Major}.{assemblyVersion.Minor}.{assemblyVersion.Build}";
+    protected string Version => $@"{assemblyVersion.Major}.{assemblyVersion.Minor}.{assemblyVersion.Build}";
 
     protected VRCOSCGameBase()
     {

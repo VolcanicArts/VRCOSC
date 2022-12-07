@@ -99,7 +99,7 @@ public class MediaManager : IDisposable
             CurrentMediaSessions[key].Dispose();
         }
 
-        CurrentMediaSessions?.Clear();
+        CurrentMediaSessions.Clear();
 
         isStarted = false;
         windowsSessionManager = null;
