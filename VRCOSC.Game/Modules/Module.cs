@@ -206,17 +206,11 @@ public abstract class Module
                 break;
 
             case ModuleAttributeList settingList when settingList.Type == typeof(string):
-                var originalListStr = settingList.AttributeList.ToList();
-                var convertedListStr = new List<string>();
-                originalListStr.ForEach(obj => convertedListStr.Add((string)obj.Value));
-                value = convertedListStr;
+                value = settingList.GetValueList<string>();
                 break;
 
             case ModuleAttributeList settingList when settingList.Type == typeof(int):
-                var originalListInt = settingList.AttributeList.ToList();
-                var convertedList = new List<int>();
-                originalListInt.ForEach(obj => convertedList.Add((int)obj.Value));
-                value = convertedList;
+                value = settingList.GetValueList<int>();
                 break;
 
             default:
