@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -41,7 +41,7 @@ public sealed class ClockModule : ChatBoxModule
     {
         var chatBoxTime = timezoneToTime(GetSetting<ClockTimeZone>(ClockSetting.Timezone));
         var textHour = GetSetting<ClockMode>(ClockSetting.Mode) == ClockMode.Twelve ? (chatBoxTime.Hour % 12).ToString("00") : chatBoxTime.Hour.ToString("00");
-        return GetSetting<string>(ClockSetting.ChatBoxFormat)
+        return GetSetting<string>(ChatBoxSetting.ChatBoxFormat)
                .Replace("%h%", textHour)
                .Replace("%m%", chatBoxTime.Minute.ToString("00"))
                .Replace("%s%", chatBoxTime.Second.ToString("00"))
@@ -100,9 +100,7 @@ public sealed class ClockModule : ChatBoxModule
         SmoothSecond,
         SmoothMinute,
         SmoothHour,
-        Mode,
-        UseChatBox,
-        ChatBoxFormat
+        Mode
     }
 
     private enum ClockMode
