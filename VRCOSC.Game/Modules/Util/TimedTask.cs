@@ -23,17 +23,20 @@ public sealed class TimedTask
         this.executeOnceImmediately = executeOnceImmediately;
     }
 
-    public TimedTask Start()
+    public async Task Start()
     {
+        timer?.Dispose();
+        await (timerTask ?? Task.CompletedTask);
+
         timer = new PeriodicTimer(TimeSpan.FromMilliseconds(deltaTimeMilli));
+
+        if (executeOnceImmediately) await action.Invoke();
+
         timerTask = Task.Run(executeWork);
-        return this;
     }
 
     private async void executeWork()
     {
-        if (executeOnceImmediately) await action.Invoke();
-
         while (await timer!.WaitForNextTickAsync())
         {
             await action.Invoke();

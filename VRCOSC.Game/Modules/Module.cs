@@ -159,7 +159,8 @@ public abstract class Module
 
         await OnStart(cancellationToken);
 
-        if (ShouldUpdate) updateTask = new TimedTask(OnUpdate, DeltaUpdate, true).Start();
+        if (ShouldUpdate) updateTask = new TimedTask(OnUpdate, DeltaUpdate, true);
+        await (updateTask?.Start() ?? Task.CompletedTask);
 
         OscClient.OnParameterReceived += onParameterReceived;
 

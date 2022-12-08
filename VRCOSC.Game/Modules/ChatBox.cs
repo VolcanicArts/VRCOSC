@@ -54,7 +54,8 @@ public class ChatBox
         sendEnabled = true;
         timedQueue.Clear();
         alwaysDict.Clear();
-        queueTask = new TimedTask(update, 5).Start();
+        queueTask = new TimedTask(update, 5);
+        _ = queueTask.Start();
     }
 
     public async Task Shutdown()

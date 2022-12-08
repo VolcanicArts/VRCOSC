@@ -31,7 +31,8 @@ public abstract class ChatBoxModule : Module
 
     protected override Task OnStart(CancellationToken cancellationToken)
     {
-        nextSendTask = new TimedTask(trySend, 10f).Start();
+        nextSendTask = new TimedTask(trySend, 10f);
+        _ = nextSendTask.Start();
         nextSendTime = DateTimeOffset.Now;
         return Task.CompletedTask;
     }
