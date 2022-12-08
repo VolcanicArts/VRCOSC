@@ -15,6 +15,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 using VRCOSC.Game.Config;
+using VRCOSC.Game.Modules.Modules.ChatBoxText;
 using VRCOSC.Game.Modules.Modules.Clock;
 using VRCOSC.Game.Modules.Modules.Discord;
 using VRCOSC.Game.Modules.Modules.HardwareStats;
@@ -37,6 +38,7 @@ public sealed partial class ModuleManager : Component
         typeof(HypeRateModule),
         typeof(PulsoidModule),
         typeof(ClockModule),
+        typeof(ChatBoxTextModule),
         typeof(RandomBoolModule),
         typeof(RandomIntModule),
         typeof(RandomFloatModule),

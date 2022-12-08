@@ -23,8 +23,13 @@ public abstract class ChatBoxModule : Module
     {
         var chatboxFormat = ChatBoxFormatValues.Aggregate("How should details about this module be displayed in the ChatBox? Available values: ", (current, value) => current + $"{value}, ").Trim().TrimEnd(',');
         CreateSetting(ChatBoxSetting.ChatBoxDisplay, "ChatBox Display", "If details about this module should be displayed in the ChatBox", DefaultChatBoxDisplay);
-        CreateSetting(ChatBoxSetting.ChatBoxFormat, "ChatBox Format", chatboxFormat, DefaultChatBoxFormat,
-            () => GetSetting<bool>(ChatBoxSetting.ChatBoxDisplay));
+
+        if (ChatBoxFormatValues.Any())
+        {
+            CreateSetting(ChatBoxSetting.ChatBoxFormat, "ChatBox Format", chatboxFormat, DefaultChatBoxFormat,
+                () => GetSetting<bool>(ChatBoxSetting.ChatBoxDisplay));
+        }
+
         CreateSetting(ChatBoxSetting.ChatBoxMode, "ChatBox Mode", "Should this module display every X seconds or always show?", ChatBoxMode.Always,
             () => GetSetting<bool>(ChatBoxSetting.ChatBoxDisplay));
         CreateSetting(ChatBoxSetting.ChatBoxTimer, "ChatBox Display Timer", $"How long should this module wait between showing details in the ChatBox? (sec)\nRequires ChatBox Mode to be {ChatBoxMode.Timed}", 60,
