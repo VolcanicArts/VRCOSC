@@ -9,7 +9,7 @@ namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes;
 
 public abstract partial class AttributeCardSingle : AttributeCard
 {
-    protected readonly ModuleAttributeSingle AttributeData;
+    protected new readonly ModuleAttributeSingle AttributeData;
     protected virtual bool ShouldLimitSaves => false;
 
     private DateTimeOffset lastUpdateTime;

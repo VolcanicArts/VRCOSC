@@ -14,7 +14,7 @@ namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes;
 
 public abstract partial class AttributeCardList : AttributeCard
 {
-    protected ModuleAttributeList AttributeData;
+    protected new ModuleAttributeList AttributeData;
 
     protected AttributeCardList(ModuleAttributeList attributeData)
         : base(attributeData)

@@ -51,7 +51,7 @@ public abstract class HeartRateProvider
         if (webSocket is null || wsHeartBeatTask is null) throw new InvalidOperationException("Please call Initialise first");
 
         webSocket.Connect();
-        if (SendWsHeartBeat) wsHeartBeatTask.Start();
+        if (SendWsHeartBeat) _ = wsHeartBeatTask.Start();
     }
 
     public async Task Disconnect()
