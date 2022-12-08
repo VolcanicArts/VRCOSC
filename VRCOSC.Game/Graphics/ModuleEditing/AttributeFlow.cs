@@ -79,8 +79,6 @@ public sealed partial class AttributeFlow : FillFlowContainer<AttributeCard>
 
     private AttributeCard generateListCard(ModuleAttributeList attributeData)
     {
-        attributeData.AttributeList.BindCollectionChanged((_, _) => checkShouldDisplay(), true);
-
         if (attributeData.Type == typeof(int))
             return new IntTextAttributeCardList(attributeData);
 
@@ -92,12 +90,11 @@ public sealed partial class AttributeFlow : FillFlowContainer<AttributeCard>
 
     private AttributeCard generateSingleCard(ModuleAttributeSingle attributeData)
     {
-        attributeData.Attribute.BindValueChanged(_ => checkShouldDisplay());
-
         var value = attributeData.Attribute.Value;
 
         if (value.GetType().IsSubclassOf(typeof(Enum)))
         {
+            attributeData.Attribute.BindValueChanged(_ => checkShouldDisplay());
             Type instanceType = typeof(DropdownAttributeCard<>).MakeGenericType(value.GetType());
             return (Activator.CreateInstance(instanceType, attributeData) as AttributeCard)!;
         }
@@ -137,6 +134,8 @@ public sealed partial class AttributeFlow : FillFlowContainer<AttributeCard>
                         return new IntTextAttributeCard(attributeData);
 
                     case bool:
+                        Console.WriteLine("Generating bool card");
+                        attributeData.Attribute.BindValueChanged(_ => checkShouldDisplay());
                         return new ToggleAttributeCard(attributeData);
 
                     default:
