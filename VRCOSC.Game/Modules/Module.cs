@@ -89,32 +89,32 @@ public abstract class Module
 
     protected virtual void CreateAttributes() { }
 
-    protected void CreateSetting(Enum lookup, string displayName, string description, bool defaultValue)
-        => addSingleSetting(lookup, displayName, description, defaultValue);
+    protected void CreateSetting(Enum lookup, string displayName, string description, bool defaultValue, Func<bool>? dependsOn = null)
+        => addSingleSetting(lookup, displayName, description, defaultValue, dependsOn);
 
-    protected void CreateSetting(Enum lookup, string displayName, string description, int defaultValue)
-        => addSingleSetting(lookup, displayName, description, defaultValue);
+    protected void CreateSetting(Enum lookup, string displayName, string description, int defaultValue, Func<bool>? dependsOn = null)
+        => addSingleSetting(lookup, displayName, description, defaultValue, dependsOn);
 
-    protected void CreateSetting(Enum lookup, string displayName, string description, string defaultValue)
-        => addSingleSetting(lookup, displayName, description, defaultValue);
+    protected void CreateSetting(Enum lookup, string displayName, string description, string defaultValue, Func<bool>? dependsOn = null)
+        => addSingleSetting(lookup, displayName, description, defaultValue, dependsOn);
 
-    protected void CreateSetting(Enum lookup, string displayName, string description, Enum defaultValue)
-        => addSingleSetting(lookup, displayName, description, defaultValue);
+    protected void CreateSetting(Enum lookup, string displayName, string description, Enum defaultValue, Func<bool>? dependsOn = null)
+        => addSingleSetting(lookup, displayName, description, defaultValue, dependsOn);
 
-    protected void CreateSetting(Enum lookup, string displayName, string description, int defaultValue, int minValue, int maxValue)
-        => addRangedSetting(lookup, displayName, description, defaultValue, minValue, maxValue);
+    protected void CreateSetting(Enum lookup, string displayName, string description, int defaultValue, int minValue, int maxValue, Func<bool>? dependsOn = null)
+        => addRangedSetting(lookup, displayName, description, defaultValue, minValue, maxValue, dependsOn);
 
-    protected void CreateSetting(Enum lookup, string displayName, string description, float defaultValue, float minValue, float maxValue)
-        => addRangedSetting(lookup, displayName, description, defaultValue, minValue, maxValue);
+    protected void CreateSetting(Enum lookup, string displayName, string description, float defaultValue, float minValue, float maxValue, Func<bool>? dependsOn = null)
+        => addRangedSetting(lookup, displayName, description, defaultValue, minValue, maxValue, dependsOn);
 
-    protected void CreateSetting(Enum lookup, string displayName, string description, IEnumerable<int> defaultValues, bool canBeEmpty)
-        => addEnumerableSetting(lookup, displayName, description, defaultValues, canBeEmpty);
+    protected void CreateSetting(Enum lookup, string displayName, string description, IEnumerable<int> defaultValues, bool canBeEmpty, Func<bool>? dependsOn = null)
+        => addEnumerableSetting(lookup, displayName, description, defaultValues, canBeEmpty, dependsOn);
 
-    protected void CreateSetting(Enum lookup, string displayName, string description, IEnumerable<string> defaultValues, bool canBeEmpty)
-        => addEnumerableSetting(lookup, displayName, description, defaultValues, canBeEmpty);
+    protected void CreateSetting(Enum lookup, string displayName, string description, IEnumerable<string> defaultValues, bool canBeEmpty, Func<bool>? dependsOn = null)
+        => addEnumerableSetting(lookup, displayName, description, defaultValues, canBeEmpty, dependsOn);
 
-    protected void CreateSetting(Enum lookup, string displayName, string description, string defaultValue, string buttonText, Action buttonAction)
-        => addTextAndButtonSetting(lookup, displayName, description, defaultValue, buttonText, buttonAction);
+    protected void CreateSetting(Enum lookup, string displayName, string description, string defaultValue, string buttonText, Action buttonAction, Func<bool>? dependsOn = null)
+        => addTextAndButtonSetting(lookup, displayName, description, defaultValue, buttonText, buttonAction, dependsOn);
 
     protected void CreateParameter<T>(Enum lookup, ParameterMode mode, string parameterName, string description, ActionMenu menuLink = ActionMenu.None)
     {
@@ -126,24 +126,24 @@ public abstract class Module
         Parameters.Add(lookup, new ParameterMetadata(mode, parameterName, description, typeof(T), menuLink));
     }
 
-    private void addSingleSetting(Enum lookup, string displayName, string description, object defaultValue)
+    private void addSingleSetting(Enum lookup, string displayName, string description, object defaultValue, Func<bool> dependsOn)
     {
-        Settings.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeSingle(new ModuleAttributeMetadata(displayName, description), defaultValue));
+        Settings.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeSingle(new ModuleAttributeMetadata(displayName, description), defaultValue, dependsOn));
     }
 
-    private void addEnumerableSetting<T>(Enum lookup, string displayName, string description, IEnumerable<T> defaultValues, bool canBeEmpty)
+    private void addEnumerableSetting<T>(Enum lookup, string displayName, string description, IEnumerable<T> defaultValues, bool canBeEmpty, Func<bool> dependsOn)
     {
-        Settings.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeList(new ModuleAttributeMetadata(displayName, description), defaultValues.Cast<object>(), typeof(T), canBeEmpty));
+        Settings.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeList(new ModuleAttributeMetadata(displayName, description), defaultValues.Cast<object>(), typeof(T), canBeEmpty, dependsOn));
     }
 
-    private void addRangedSetting<T>(Enum lookup, string displayName, string description, T defaultValue, T minValue, T maxValue) where T : struct
+    private void addRangedSetting<T>(Enum lookup, string displayName, string description, T defaultValue, T minValue, T maxValue, Func<bool> dependsOn) where T : struct
     {
-        Settings.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeSingleWithBounds(new ModuleAttributeMetadata(displayName, description), defaultValue, minValue, maxValue));
+        Settings.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeSingleWithBounds(new ModuleAttributeMetadata(displayName, description), defaultValue, minValue, maxValue, dependsOn));
     }
 
-    private void addTextAndButtonSetting(Enum lookup, string displayName, string description, string defaultValue, string buttonText, Action buttonAction)
+    private void addTextAndButtonSetting(Enum lookup, string displayName, string description, string defaultValue, string buttonText, Action buttonAction, Func<bool> dependsOn)
     {
-        Settings.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeSingleWithButton(new ModuleAttributeMetadata(displayName, description), defaultValue, buttonText, buttonAction));
+        Settings.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeSingleWithButton(new ModuleAttributeMetadata(displayName, description), defaultValue, buttonText, buttonAction, dependsOn));
     }
 
     #endregion

@@ -12,11 +12,15 @@ namespace VRCOSC.Game.Modules;
 public abstract class ModuleAttribute
 {
     public readonly ModuleAttributeMetadata Metadata;
+    private readonly Func<bool>? dependsOn;
 
-    protected ModuleAttribute(ModuleAttributeMetadata metadata)
+    protected ModuleAttribute(ModuleAttributeMetadata metadata, Func<bool>? dependsOn)
     {
         Metadata = metadata;
+        this.dependsOn = dependsOn;
     }
+
+    public bool Enabled => dependsOn?.Invoke() ?? true;
 
     public abstract void SetDefault();
 
@@ -27,8 +31,8 @@ public class ModuleAttributeSingle : ModuleAttribute
 {
     public readonly Bindable<object> Attribute;
 
-    public ModuleAttributeSingle(ModuleAttributeMetadata metadata, object defaultValue)
-        : base(metadata)
+    public ModuleAttributeSingle(ModuleAttributeMetadata metadata, object defaultValue, Func<bool>? dependsOn)
+        : base(metadata, dependsOn)
     {
         Attribute = new Bindable<object>(defaultValue);
     }
@@ -43,8 +47,8 @@ public sealed class ModuleAttributeSingleWithButton : ModuleAttributeSingle
     public readonly Action ButtonAction;
     public readonly string ButtonText;
 
-    public ModuleAttributeSingleWithButton(ModuleAttributeMetadata metadata, object defaultValue, string buttonText, Action buttonAction)
-        : base(metadata, defaultValue)
+    public ModuleAttributeSingleWithButton(ModuleAttributeMetadata metadata, object defaultValue, string buttonText, Action buttonAction, Func<bool>? dependsOn)
+        : base(metadata, defaultValue, dependsOn)
     {
         ButtonText = buttonText;
         ButtonAction = buttonAction;
@@ -56,8 +60,8 @@ public sealed class ModuleAttributeSingleWithBounds : ModuleAttributeSingle
     public readonly object MinValue;
     public readonly object MaxValue;
 
-    public ModuleAttributeSingleWithBounds(ModuleAttributeMetadata metadata, object defaultValue, object minValue, object maxValue)
-        : base(metadata, defaultValue)
+    public ModuleAttributeSingleWithBounds(ModuleAttributeMetadata metadata, object defaultValue, object minValue, object maxValue, Func<bool>? dependsOn)
+        : base(metadata, defaultValue, dependsOn)
     {
         MinValue = minValue;
         MaxValue = maxValue;
@@ -71,8 +75,8 @@ public sealed class ModuleAttributeList : ModuleAttribute
     public readonly Type Type;
     public readonly bool CanBeEmpty;
 
-    public ModuleAttributeList(ModuleAttributeMetadata metadata, IEnumerable<object> defaultValues, Type type, bool canBeEmpty)
-        : base(metadata)
+    public ModuleAttributeList(ModuleAttributeMetadata metadata, IEnumerable<object> defaultValues, Type type, bool canBeEmpty, Func<bool>? dependsOn)
+        : base(metadata, dependsOn)
     {
         AttributeList = new BindableList<Bindable<object>>();
         this.defaultValues = defaultValues;

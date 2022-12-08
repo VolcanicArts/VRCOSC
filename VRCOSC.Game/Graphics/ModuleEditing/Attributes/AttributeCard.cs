@@ -20,11 +20,14 @@ public abstract partial class AttributeCard : Container
     protected FillFlowContainer ContentFlow = null!;
     protected FillFlowContainer LayoutFlow = null!;
 
-    private readonly ModuleAttribute attributeData;
+    public readonly ModuleAttribute AttributeData;
+    public bool Enable { get; set; } = true;
+
+    protected override bool ShouldBeConsideredForInput(Drawable child) => Enable;
 
     protected AttributeCard(ModuleAttribute attributeData)
     {
-        this.attributeData = attributeData;
+        AttributeData = attributeData;
     }
 
     [BackgroundDependencyLoader]
@@ -112,11 +115,11 @@ public abstract partial class AttributeCard : Container
                 }
             }
         };
-        textFlow.AddText(attributeData.Metadata.DisplayName, t =>
+        textFlow.AddText(AttributeData.Metadata.DisplayName, t =>
         {
             t.Font = FrameworkFont.Regular.With(size: 30);
         });
-        textFlow.AddParagraph(attributeData.Metadata.Description, t =>
+        textFlow.AddParagraph(AttributeData.Metadata.Description, t =>
         {
             t.Font = FrameworkFont.Regular.With(size: 20);
             t.Colour = VRCOSCColour.Gray9;
@@ -125,7 +128,7 @@ public abstract partial class AttributeCard : Container
 
     protected virtual void SetDefault()
     {
-        attributeData.SetDefault();
+        AttributeData.SetDefault();
     }
 
     protected void UpdateResetToDefault(bool show)

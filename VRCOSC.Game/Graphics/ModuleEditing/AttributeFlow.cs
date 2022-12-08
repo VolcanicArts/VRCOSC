@@ -54,10 +54,20 @@ public sealed partial class AttributeFlow : FillFlowContainer<AttributeCard>
         {
             Clear();
             AttributesList.ForEach(attributeData => Add(generateCard(attributeData)));
+            checkShouldDisplay();
         }, true);
     }
 
-    private static AttributeCard generateCard(ModuleAttribute attributeData)
+    private void checkShouldDisplay()
+    {
+        this.ForEach(card =>
+        {
+            card.Enable = card.AttributeData.Enabled;
+            card.FadeTo(card.AttributeData.Enabled ? 1 : 0.25f, 250, Easing.OutQuad);
+        });
+    }
+
+    private AttributeCard generateCard(ModuleAttribute attributeData)
     {
         return attributeData switch
         {
@@ -67,8 +77,10 @@ public sealed partial class AttributeFlow : FillFlowContainer<AttributeCard>
         };
     }
 
-    private static AttributeCard generateListCard(ModuleAttributeList attributeData)
+    private AttributeCard generateListCard(ModuleAttributeList attributeData)
     {
+        attributeData.AttributeList.BindCollectionChanged((_, _) => checkShouldDisplay(), true);
+
         if (attributeData.Type == typeof(int))
             return new IntTextAttributeCardList(attributeData);
 
@@ -78,8 +90,10 @@ public sealed partial class AttributeFlow : FillFlowContainer<AttributeCard>
         throw new ArgumentOutOfRangeException(nameof(attributeData), "Cannot generate lists for non-text values");
     }
 
-    private static AttributeCard generateSingleCard(ModuleAttributeSingle attributeData)
+    private AttributeCard generateSingleCard(ModuleAttributeSingle attributeData)
     {
+        attributeData.Attribute.BindValueChanged(_ => checkShouldDisplay());
+
         var value = attributeData.Attribute.Value;
 
         if (value.GetType().IsSubclassOf(typeof(Enum)))
