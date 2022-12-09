@@ -9,5 +9,5 @@ public enum ModuleType
     Health = 1,
     Integrations = 2,
     Accessibility = 3,
-    OpenVR
+    OpenVR = 4
 }

@@ -44,7 +44,6 @@ public sealed partial class TypeFilter : Container
         General = 0,
         Health = 1,
         Integrations = 2,
-        Accessibility = 3,
         OpenVR = 4
     }
 
