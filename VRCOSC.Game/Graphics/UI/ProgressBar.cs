@@ -3,6 +3,7 @@
 
 using osu.Framework.Bindables;
 using osu.Framework.Graphics.UserInterface;
+using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.UI;
 
@@ -13,8 +14,8 @@ public sealed partial class ProgressBar : BasicSliderBar<float>
 
     public ProgressBar()
     {
-        BackgroundColour = VRCOSCColour.Gray3;
-        SelectionColour = VRCOSCColour.Gray5;
+        BackgroundColour = ThemeManager.Current[ThemeAttribute.Dark];
+        SelectionColour = ThemeManager.Current[ThemeAttribute.Light];
         Current = new BindableNumber<float>
         {
             MinValue = 0f,

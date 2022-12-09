@@ -10,6 +10,7 @@ using osu.Framework.Graphics.Sprites;
 using osuTK;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics.Settings.Cards;
+using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Button;
 
 namespace VRCOSC.Game.Graphics.Settings;
@@ -52,6 +53,7 @@ public abstract partial class SectionContainer : Container
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
             Font = FrameworkFont.Regular.With(size: 35),
+            Colour = ThemeManager.Current[ThemeAttribute.Text],
             Text = Title
         });
 
@@ -97,7 +99,7 @@ public abstract partial class SectionContainer : Container
                 BackgroundColour = colour,
                 Text = text,
                 Action = action,
-                BorderColour = Colour4.Black,
+                BorderColour = ThemeManager.Current[ThemeAttribute.Border],
                 BorderThickness = 2
             }
         });

@@ -14,6 +14,7 @@ using VRCOSC.Game.Graphics;
 using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Graphics.Settings;
 using VRCOSC.Game.Graphics.TabBar;
+using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.Updater;
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.Modules.Util;
@@ -60,6 +61,8 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     [BackgroundDependencyLoader]
     private void load()
     {
+        ThemeManager.Theme = ConfigManager.Get<ColourTheme>(VRCOSCSetting.Theme);
+
         notificationContainer = new NotificationContainer();
         DependencyContainer.CacheAs(notificationContainer);
 
@@ -131,7 +134,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
                 Title = "VRCOSC Updated",
                 Description = "Click to see the changes",
                 Icon = FontAwesome.Solid.Download,
-                Colour = VRCOSCColour.GreenDark,
+                Colour = ThemeManager.Current[ThemeAttribute.Success],
                 ClickCallback = () => host.OpenUrlExternally(latest_release_url)
             });
         }

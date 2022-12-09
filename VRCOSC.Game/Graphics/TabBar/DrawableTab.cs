@@ -9,14 +9,15 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
 using osuTK;
+using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.TabBar;
 
 public sealed partial class DrawableTab : ClickableContainer
 {
-    private static readonly Colour4 default_colour = VRCOSCColour.Invisible;
-    private static readonly Colour4 hover_colour = VRCOSCColour.Gray5;
+    private static readonly Colour4 default_colour = new(0, 0, 0, 0);
+    private static readonly Colour4 hover_colour = ThemeManager.Current[ThemeAttribute.Light];
 
     private const int onhover_duration = 100;
     private const int onhoverlost_duration = onhover_duration;
@@ -59,7 +60,7 @@ public sealed partial class DrawableTab : ClickableContainer
                 Size = new Vector2(0.35f),
                 FillMode = FillMode.Fit,
                 Icon = Icon,
-                Colour = Colour4.White
+                Colour = Colour = ThemeManager.Current[ThemeAttribute.Text]
             },
             indicator = new SelectedIndicator
             {
@@ -73,7 +74,7 @@ public sealed partial class DrawableTab : ClickableContainer
                 Child = new SpriteText
                 {
                     Text = Tab.ToString(),
-                    Colour = Colour4.White,
+                    Colour = ThemeManager.Current[ThemeAttribute.Text],
                     Font = FrameworkFont.Regular.With(size: 20)
                 }
             }
@@ -102,7 +103,7 @@ public sealed partial class DrawableTab : ClickableContainer
     {
         if (moduleManager.State.Value is ManagerState.Starting or ManagerState.Started)
         {
-            background.FlashColour(VRCOSCColour.Red, 250, Easing.OutQuad);
+            background.FlashColour(ThemeManager.Current[ThemeAttribute.Failure], 250, Easing.OutQuad);
             return true;
         }
 

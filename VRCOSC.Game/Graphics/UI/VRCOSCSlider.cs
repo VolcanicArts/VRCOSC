@@ -9,6 +9,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Input.Events;
+using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.UI;
 
@@ -18,8 +19,8 @@ public sealed partial class VRCOSCSlider<T> : BasicSliderBar<T> where T : struct
 
     public VRCOSCSlider()
     {
-        BackgroundColour = VRCOSCColour.Gray4;
-        SelectionColour = VRCOSCColour.Gray6;
+        BackgroundColour = ThemeManager.Current[ThemeAttribute.Mid];
+        SelectionColour = ThemeManager.Current[ThemeAttribute.Lighter];
         Masking = true;
         CornerRadius = 10;
     }
@@ -41,19 +42,22 @@ public sealed partial class VRCOSCSlider<T> : BasicSliderBar<T> where T : struct
                     Anchor = Anchor.CentreLeft,
                     Origin = Anchor.CentreLeft,
                     Font = FrameworkFont.Regular.With(size: 30),
+                    Colour = ThemeManager.Current[ThemeAttribute.Text],
                     Text = CurrentNumber.MinValue.ToString()!
                 },
                 valueText = new SpriteText
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
-                    Font = FrameworkFont.Regular.With(size: 30)
+                    Font = FrameworkFont.Regular.With(size: 30),
+                    Colour = ThemeManager.Current[ThemeAttribute.Text]
                 },
                 new SpriteText
                 {
                     Anchor = Anchor.CentreRight,
                     Origin = Anchor.CentreRight,
                     Font = FrameworkFont.Regular.With(size: 30),
+                    Colour = ThemeManager.Current[ThemeAttribute.Text],
                     Text = CurrentNumber.MaxValue.ToString()!
                 }
             }

@@ -7,6 +7,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Platform;
 using VRCOSC.Game.Graphics.Notifications;
+using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.Updater;
 
@@ -24,7 +25,7 @@ public abstract partial class VRCOSCUpdateManager : Container
         {
             Title = "Update Available",
             Description = "Click to install",
-            Colour = VRCOSCColour.Green,
+            Colour = ThemeManager.Current[ThemeAttribute.Pending],
             Icon = FontAwesome.Solid.ExclamationTriangle,
             ClickCallback = () => ApplyUpdates()
         });
@@ -35,7 +36,7 @@ public abstract partial class VRCOSCUpdateManager : Container
         var progressNotification = new ProgressNotification
         {
             Title = "Installing Update",
-            Colour = VRCOSCColour.Yellow,
+            Colour = ThemeManager.Current[ThemeAttribute.Pending],
             Icon = FontAwesome.Solid.Cog
         };
 
@@ -49,7 +50,7 @@ public abstract partial class VRCOSCUpdateManager : Container
         {
             Title = "Update Complete",
             Description = "Click to restart",
-            Colour = VRCOSCColour.Green,
+            Colour = ThemeManager.Current[ThemeAttribute.Success],
             Icon = FontAwesome.Solid.ExclamationTriangle,
             ClickCallback = RequestRestart
         });
@@ -61,7 +62,7 @@ public abstract partial class VRCOSCUpdateManager : Container
         {
             Title = "Update Failed",
             Description = "Click to reinstall",
-            Colour = VRCOSCColour.Red,
+            Colour = ThemeManager.Current[ThemeAttribute.Failure],
             Icon = FontAwesome.Solid.ExclamationTriangle,
             ClickCallback = () => host.OpenUrlExternally("https://github.com/VolcanicArts/VRCOSC/releases/latest")
         });

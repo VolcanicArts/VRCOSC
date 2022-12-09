@@ -5,6 +5,7 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
+using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.UI.Button;
 
@@ -13,7 +14,7 @@ public partial class IconButton : BasicButton
     private IconUsage iconStateOff = FontAwesome.Solid.PowerOff;
     private IconUsage iconStateOn = FontAwesome.Solid.PowerOff;
 
-    private SpriteIcon spriteIcon = null!;
+    protected SpriteIcon spriteIcon = null!;
 
     public IconUsage Icon
     {
@@ -87,6 +88,7 @@ public partial class IconButton : BasicButton
         Anchor = Anchor.Centre,
         Origin = Anchor.Centre,
         RelativeSizeAxes = Axes.Both,
-        Shadow = IconShadow
+        Shadow = IconShadow,
+        Colour = ThemeManager.Current[ThemeAttribute.Text]
     };
 }

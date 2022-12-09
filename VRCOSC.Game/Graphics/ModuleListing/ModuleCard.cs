@@ -9,6 +9,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
+using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Button;
 using VRCOSC.Game.Modules;
 
@@ -44,7 +45,7 @@ public sealed partial class ModuleCard : Container
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
-                Colour = VRCOSCColour.Gray2
+                Colour = ThemeManager.Current[ThemeAttribute.Darker]
             },
             new Box
             {
@@ -121,7 +122,7 @@ public sealed partial class ModuleCard : Container
                             IconPadding = 5,
                             CornerRadius = 5,
                             Action = () => infoModule.Value = Module,
-                            BackgroundColour = VRCOSCColour.Gray5
+                            BackgroundColour = ThemeManager.Current[ThemeAttribute.Light]
                         }
                     },
                     new Container
@@ -140,7 +141,7 @@ public sealed partial class ModuleCard : Container
                             IconPadding = 5,
                             CornerRadius = 5,
                             Action = () => editingModule.Value = Module,
-                            BackgroundColour = VRCOSCColour.Gray5,
+                            BackgroundColour = ThemeManager.Current[ThemeAttribute.Light],
                             Enabled = { Value = Module.HasSettings }
                         }
                     }
@@ -151,6 +152,7 @@ public sealed partial class ModuleCard : Container
         metadataTextFlow.AddText(Module.Title, t =>
         {
             t.Font = FrameworkFont.Regular.With(size: 25);
+            t.Colour = ThemeManager.Current[ThemeAttribute.Text];
         });
 
         var description = Module.Description;
@@ -159,6 +161,7 @@ public sealed partial class ModuleCard : Container
         metadataTextFlow.AddParagraph(description, t =>
         {
             t.Font = FrameworkFont.Regular.With(size: 20);
+            t.Colour = ThemeManager.Current[ThemeAttribute.Text];
         });
     }
 
@@ -166,11 +169,11 @@ public sealed partial class ModuleCard : Container
     {
         return Module.ModuleType switch
         {
-            ModuleType.General => VRCOSCColour.GrayD,
-            ModuleType.Health => VRCOSCColour.Red,
-            ModuleType.Integrations => VRCOSCColour.Yellow,
-            ModuleType.Accessibility => VRCOSCColour.Blue,
-            ModuleType.OpenVR => Colour4.FromHex("#04144d"),
+            ModuleType.General => Colour4.White.Darken(0.15f),
+            ModuleType.Health => Colour4.Red,
+            ModuleType.Integrations => Colour4.Yellow.Darken(0.25f),
+            ModuleType.Accessibility => Colour4.FromHex(@"66ccff"),
+            ModuleType.OpenVR => Colour4.FromHex(@"04144d"),
             _ => throw new ArgumentOutOfRangeException()
         };
     }

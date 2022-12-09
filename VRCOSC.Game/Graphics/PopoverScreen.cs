@@ -6,6 +6,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
 using osuTK;
+using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Button;
 
 namespace VRCOSC.Game.Graphics;
@@ -34,7 +35,7 @@ public abstract partial class PopoverScreen : VisibilityContainer
                 CornerRadius = 10,
                 BorderThickness = 2,
                 EdgeEffect = VRCOSCEdgeEffects.DispersedShadow,
-                BorderColour = VRCOSCColour.Gray0
+                BorderColour = ThemeManager.Current[ThemeAttribute.Border]
             },
             new Container
             {

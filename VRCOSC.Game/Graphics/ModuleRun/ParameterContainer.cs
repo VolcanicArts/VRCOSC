@@ -5,6 +5,7 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleRun;
@@ -96,7 +97,7 @@ public sealed partial class ParameterContainer : Container
                     new Box
                     {
                         RelativeSizeAxes = Axes.Both,
-                        Colour = VRCOSCColour.Gray2
+                        Colour = ThemeManager.Current[ThemeAttribute.Darker]
                     },
                     parameterDisplay = new ParameterDisplay
                     {

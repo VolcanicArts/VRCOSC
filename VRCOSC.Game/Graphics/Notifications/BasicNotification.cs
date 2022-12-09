@@ -9,6 +9,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
 using osuTK;
+using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.Notifications;
 
@@ -92,10 +93,12 @@ public partial class BasicNotification : Notification
         textFlow.AddText(Title, s =>
         {
             s.Font = FrameworkFont.Regular.With(size: 20);
+            s.Colour = ThemeManager.Current[ThemeAttribute.Text];
         });
         textFlow.AddText($"\n{Description}", s =>
         {
             s.Font = FrameworkFont.Regular.With(size: 13);
+            s.Colour = ThemeManager.Current[ThemeAttribute.Text];
         });
 
         return foreground;

@@ -8,6 +8,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.TabBar;
 
@@ -31,7 +32,7 @@ public sealed partial class TabSelector : Container<DrawableTab>
             new Box
             {
                 RelativeSizeAxes = Axes.Both,
-                Colour = VRCOSCColour.Gray3
+                Colour = ThemeManager.Current[ThemeAttribute.Dark]
             },
             Content = new FillFlowContainer<DrawableTab>
             {

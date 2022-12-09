@@ -8,6 +8,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
+using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.UI.Button;
 
@@ -32,7 +33,7 @@ public sealed partial class ToggleButton : VRCOSCButton
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
-                Colour = VRCOSCColour.Gray4
+                Colour = ThemeManager.Current[ThemeAttribute.Mid]
             },
             new Container
             {
@@ -46,6 +47,7 @@ public sealed partial class ToggleButton : VRCOSCButton
                     Origin = Anchor.Centre,
                     RelativeSizeAxes = Axes.Both,
                     Icon = FontAwesome.Solid.Check,
+                    Colour = ThemeManager.Current[ThemeAttribute.Text],
                     Alpha = State.Value ? 1 : 0
                 }
             }

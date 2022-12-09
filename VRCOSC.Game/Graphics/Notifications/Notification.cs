@@ -6,6 +6,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Input.Events;
+using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.Notifications;
 
@@ -43,7 +44,7 @@ public abstract partial class Notification : VisibilityContainer
                     new Box
                     {
                         RelativeSizeAxes = Axes.Both,
-                        Colour = VRCOSCColour.Gray3
+                        Colour = ThemeManager.Current[ThemeAttribute.Dark]
                     },
                     Content = new Container
                     {

@@ -5,6 +5,7 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Shapes;
+using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleEditing;
@@ -21,7 +22,7 @@ public sealed partial class ModuleEditingPopover : PopoverScreen
             new Box
             {
                 RelativeSizeAxes = Axes.Both,
-                Colour = VRCOSCColour.Gray4
+                Colour = ThemeManager.Current[ThemeAttribute.Mid]
             },
             new ModuleEditingContent
             {

@@ -5,6 +5,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osuTK;
+using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.UI;
 
@@ -48,7 +49,7 @@ public partial class VRCOSCScrollContainer<T> : ScrollContainer<T>
                 Child = new Box
                 {
                     RelativeSizeAxes = Axes.Both,
-                    Colour = VRCOSCColour.Gray2
+                    Colour = ThemeManager.Current[ThemeAttribute.Darker]
                 }
             };
         }

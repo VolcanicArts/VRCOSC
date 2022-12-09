@@ -4,6 +4,7 @@
 using osu.Framework.Configuration;
 using osu.Framework.Platform;
 using VRCOSC.Game.Graphics.Settings;
+using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Config;
 
@@ -25,6 +26,7 @@ public sealed class VRCOSCConfigManager : IniConfigManager<VRCOSCSetting>
         SetDefault(VRCOSCSetting.ReceivePort, 9001);
         SetDefault(VRCOSCSetting.UpdateMode, UpdateMode.Auto);
         SetDefault(VRCOSCSetting.UpdateRepo, @"https://github.com/VolcanicArts/VRCOSC");
+        SetDefault(VRCOSCSetting.Theme, ColourTheme.Dark);
     }
 }
 
@@ -36,5 +38,6 @@ public enum VRCOSCSetting
     SendPort,
     ReceivePort,
     UpdateMode,
-    UpdateRepo
+    UpdateRepo,
+    Theme
 }

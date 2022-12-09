@@ -9,6 +9,7 @@ using osu.Framework.Graphics.Effects;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
+using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Button;
 
 namespace VRCOSC.Game.Graphics.Notifications;
@@ -42,7 +43,7 @@ public sealed partial class NotificationContainer : VisibilityContainer
             new Box
             {
                 RelativeSizeAxes = Axes.Both,
-                Colour = VRCOSCColour.Gray4
+                Colour = ThemeManager.Current[ThemeAttribute.Mid]
             },
             new GridContainer
             {
@@ -100,7 +101,7 @@ public sealed partial class NotificationContainer : VisibilityContainer
                 background = new Box
                 {
                     RelativeSizeAxes = Axes.Both,
-                    Colour = VRCOSCColour.Gray3.Opacity(0.75f)
+                    Colour = ThemeManager.Current[ThemeAttribute.Dark].Opacity(0.75f)
                 },
                 new Container
                 {
@@ -112,7 +113,8 @@ public sealed partial class NotificationContainer : VisibilityContainer
                     Child = new SpriteIcon
                     {
                         RelativeSizeAxes = Axes.Both,
-                        Icon = FontAwesome.Solid.Get(0xf101)
+                        Icon = FontAwesome.Solid.Get(0xf101),
+                        Colour = ThemeManager.Current[ThemeAttribute.Text]
                     }
                 }
             };
@@ -121,14 +123,14 @@ public sealed partial class NotificationContainer : VisibilityContainer
         protected override bool OnHover(HoverEvent e)
         {
             base.OnHover(e);
-            background.FadeColour(VRCOSCColour.Gray5, 100, Easing.OutQuad);
+            background.FadeColour(ThemeManager.Current[ThemeAttribute.Lighter], 100, Easing.OutQuad);
             return true;
         }
 
         protected override void OnHoverLost(HoverLostEvent e)
         {
             base.OnHoverLost(e);
-            background.FadeColour(VRCOSCColour.Gray3.Opacity(0.75f), 100, Easing.InQuad);
+            background.FadeColour(ThemeManager.Current[ThemeAttribute.Dark].Opacity(0.75f), 100, Easing.InQuad);
         }
     }
 }

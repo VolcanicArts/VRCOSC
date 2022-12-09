@@ -5,6 +5,7 @@ using System;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
+using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Modules;
 
@@ -31,7 +32,7 @@ public abstract partial class SliderAttributeCard<T> : AttributeCardSingle where
             Origin = Anchor.TopCentre,
             RelativeSizeAxes = Axes.X,
             Height = 40,
-            BorderColour = VRCOSCColour.Gray0,
+            BorderColour = ThemeManager.Current[ThemeAttribute.Border],
             BorderThickness = 2,
             Current = CreateCurrent()
         });

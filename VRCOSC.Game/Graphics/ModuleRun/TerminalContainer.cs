@@ -7,6 +7,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Pooling;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Logging;
+using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.ModuleRun;
 
@@ -39,7 +40,7 @@ public sealed partial class TerminalContainer : Container<TerminalEntry>
                     new Box
                     {
                         RelativeSizeAxes = Axes.Both,
-                        Colour = VRCOSCColour.Gray2
+                        Colour = ThemeManager.Current[ThemeAttribute.Darker]
                     },
                     new Container
                     {

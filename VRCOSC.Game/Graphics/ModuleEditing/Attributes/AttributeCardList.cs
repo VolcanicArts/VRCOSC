@@ -7,6 +7,7 @@ using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
+using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Button;
 using VRCOSC.Game.Modules;
 
@@ -40,7 +41,7 @@ public abstract partial class AttributeCardList : AttributeCard
                     RelativeSizeAxes = Axes.Both,
                     Width = 0.8f,
                     Icon = FontAwesome.Solid.Plus,
-                    BackgroundColour = VRCOSCColour.Gray3,
+                    BackgroundColour = ThemeManager.Current[ThemeAttribute.Dark],
                     CornerRadius = 5,
                     ShouldAnimate = false,
                     Action = () => AddItem(GetDefaultItem())
@@ -86,7 +87,7 @@ public abstract partial class AttributeCardList : AttributeCard
                             RelativeSizeAxes = Axes.Both,
                             Icon = FontAwesome.Solid.Get(0xf00d),
                             CornerRadius = 5,
-                            BackgroundColour = VRCOSCColour.Gray4
+                            BackgroundColour = ThemeManager.Current[ThemeAttribute.Mid]
                         }
                     }
                 }

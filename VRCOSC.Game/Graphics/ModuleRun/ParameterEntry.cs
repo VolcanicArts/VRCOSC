@@ -7,6 +7,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.ModuleRun;
 
@@ -36,7 +37,7 @@ public sealed partial class ParameterEntry : Container
                 Anchor = Anchor.CentreLeft,
                 Origin = Anchor.CentreLeft,
                 Font = FrameworkFont.Regular.With(size: 20),
-                Colour = VRCOSCColour.Gray8,
+                Colour = ThemeManager.Current[ThemeAttribute.SubText],
                 Text = Key
             },
             new Container
@@ -49,14 +50,14 @@ public sealed partial class ParameterEntry : Container
                     background = new Box
                     {
                         RelativeSizeAxes = Axes.Both,
-                        Colour = VRCOSCColour.Invisible
+                        Colour = new Colour4(0, 0, 0, 0)
                     },
                     valueText = new SpriteText
                     {
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,
                         Font = FrameworkFont.Regular.With(size: 20),
-                        Colour = VRCOSCColour.Gray8
+                        Colour = ThemeManager.Current[ThemeAttribute.SubText]
                     }
                 }
             }
@@ -70,7 +71,7 @@ public sealed partial class ParameterEntry : Container
         Value.BindValueChanged(e =>
         {
             valueText.Text = e.NewValue;
-            background.FlashColour(VRCOSCColour.GrayD, 500, Easing.OutCubic);
+            background.FlashColour(Colour4.White.Darken(0.15f), 500, Easing.OutCubic);
         }, true);
     }
 }

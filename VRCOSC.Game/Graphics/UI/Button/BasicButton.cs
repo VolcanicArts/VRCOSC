@@ -6,13 +6,14 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Input.Events;
+using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.UI.Button;
 
 public partial class BasicButton : VRCOSCButton
 {
-    private Colour4 backgroundColourStateOff = VRCOSCColour.Red;
-    private Colour4 backgroundColourStateOn = VRCOSCColour.Green;
+    private Colour4 backgroundColourStateOff = ThemeManager.Current[ThemeAttribute.Failure];
+    private Colour4 backgroundColourStateOn = ThemeManager.Current[ThemeAttribute.Success];
 
     protected Drawable BackgroundBox = null!;
 
