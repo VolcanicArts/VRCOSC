@@ -96,7 +96,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
         await copyOpenVrFiles();
 
-        Scheduler.AddDelayed(() => openVrInterface.Init(), 50d, true);
+        Scheduler.AddDelayed(() => Task.Run(() => openVrInterface.Init()), 50d, true);
 
         checkUpdates();
         checkVersion();
