@@ -72,7 +72,7 @@ public sealed partial class ModuleManager : Component
     [BackgroundDependencyLoader]
     private void load(GameHost host, Storage storage, OpenVRInterface openVrInterface)
     {
-        chatBox = new ChatBox(OscClient);
+        chatBox = new ChatBox(OscClient, ConfigManager.GetBindable<int>(VRCOSCSetting.ChatBoxTimeSpan));
         autoStartStop = ConfigManager.GetBindable<bool>(VRCOSCSetting.AutoStartStop);
 
         var moduleStorage = storage.GetStorageForDirectory("modules");

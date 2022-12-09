@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
+using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using VRCOSC.Game.Modules.Util;
 using VRCOSC.OSC;
@@ -15,7 +16,6 @@ namespace VRCOSC.Game.Modules;
 
 public class ChatBox
 {
-    private const int chatbox_reset_milli = 1500;
     private const string chatbox_address_typing = "/chatbox/typing";
     private const string chatbox_address_text = "/chatbox/input";
 
@@ -29,10 +29,12 @@ public class ChatBox
     private DateTimeOffset sendExpire;
     private bool alreadyClear;
     private bool sendEnabled;
+    private IBindable<int> resetMilli;
 
-    public ChatBox(OscClient oscClient)
+    public ChatBox(OscClient oscClient, IBindable<int> resetMilli)
     {
         this.oscClient = oscClient;
+        this.resetMilli = resetMilli;
     }
 
     public void SetSending(bool canSend)
@@ -141,7 +143,7 @@ public class ChatBox
         if (currentData.Text is null) return;
 
         if (sendEnabled) oscClient.SendValues(chatbox_address_text, new List<object> { currentData.Text!, true });
-        sendReset = DateTimeOffset.Now + TimeSpan.FromMilliseconds(chatbox_reset_milli);
+        sendReset = DateTimeOffset.Now + TimeSpan.FromMilliseconds(resetMilli.Value);
     }
 
     private class ChatBoxData

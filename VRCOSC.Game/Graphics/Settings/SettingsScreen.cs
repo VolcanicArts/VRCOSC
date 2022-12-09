@@ -53,7 +53,7 @@ public sealed partial class SettingsScreen : Container
                             Spacing = new Vector2(0, 20),
                             Children = new SectionContainer[]
                             {
-                                new ThemeSection(),
+                                new GeneralSection(),
                                 new OscSection(),
                                 new ModulesSection(),
                                 new UpdateSection()
