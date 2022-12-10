@@ -16,9 +16,6 @@ namespace VRCOSC.Game.Modules;
 
 public class ChatBox
 {
-    private const string chatbox_address_typing = "/chatbox/typing";
-    private const string chatbox_address_text = "/chatbox/input";
-
     private readonly OscClient oscClient;
     private readonly ConcurrentQueue<ChatBoxData> timedQueue = new();
     private readonly ConcurrentDictionary<int, ChatBoxData> alwaysDict = new();
@@ -46,7 +43,7 @@ public class ChatBox
 
     public void SetTyping(bool typing)
     {
-        oscClient.SendValue(chatbox_address_typing, typing);
+        oscClient.SendValue(Constants.OSC_ADDRESS_CHATBOX_TYPING, typing);
     }
 
     public void Init()
@@ -70,7 +67,7 @@ public class ChatBox
 
     private void clear()
     {
-        oscClient.SendValues(chatbox_address_text, new List<object> { string.Empty, true });
+        oscClient.SendValues(Constants.OSC_ADDRESS_CHATBOX_INPUT, new List<object> { string.Empty, true });
         alreadyClear = true;
     }
 
@@ -144,7 +141,7 @@ public class ChatBox
 
         if (currentData.Text is null) return;
 
-        if (SendEnabled) oscClient.SendValues(chatbox_address_text, new List<object> { currentData.Text!, true });
+        if (SendEnabled) oscClient.SendValues(Constants.OSC_ADDRESS_CHATBOX_INPUT, new List<object> { currentData.Text!, true });
         sendReset = DateTimeOffset.Now + TimeSpan.FromMilliseconds(resetMilli.Value);
     }
 

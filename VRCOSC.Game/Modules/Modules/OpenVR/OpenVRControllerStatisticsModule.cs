@@ -11,7 +11,7 @@ public class OpenVRControllerStatisticsModule : Module
     public override string Description => "Gets controller statistics from your OpenVR (SteamVR) session";
     public override string Author => "VolcanicArts";
     public override ModuleType ModuleType => ModuleType.OpenVR;
-    protected override int DeltaUpdate => vrc_osc_delta_update;
+    protected override int DeltaUpdate => Constants.OSC_UPDATE_DELTA;
 
     protected override void CreateAttributes()
     {
