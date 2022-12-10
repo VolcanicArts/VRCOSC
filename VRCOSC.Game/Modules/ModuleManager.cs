@@ -30,7 +30,7 @@ using VRCOSC.OSC;
 
 namespace VRCOSC.Game.Modules;
 
-public sealed partial class ModuleManager : Component
+public sealed partial class ModuleManager : Component, IOscListener
 {
     private static readonly IReadOnlyList<Type> module_types = new[]
     {
@@ -140,6 +140,8 @@ public sealed partial class ModuleManager : Component
 
         await Task.Delay(250, startCancellationTokenSource.Token);
 
+        OscClient.RegisterListener(this);
+
         enableOsc();
 
         if (Modules.All(module => !module.Enabled.Value))
@@ -149,6 +151,8 @@ public sealed partial class ModuleManager : Component
         }
 
         chatBox.Init();
+
+        sendInitialValues();
 
         foreach (var module in Modules)
         {
@@ -194,9 +198,32 @@ public sealed partial class ModuleManager : Component
 
         await chatBox.Shutdown();
 
+        OscClient.RegisterListener(this);
+
         OscClient.DisableSend();
 
         State.Value = ManagerState.Stopped;
+    }
+
+    private void sendInitialValues()
+    {
+        OscClient.SendValue("/avatar/parameters/VRCOSC/Controls/ChatBox", chatBox.SendEnabled);
+    }
+
+    void IOscListener.OnDataSent(OscData data) { }
+
+    void IOscListener.OnDataReceived(OscData data)
+    {
+        switch (data.Address)
+        {
+            case "/avatar/parameters/VRCOSC/Controls/ChatBox":
+                chatBox.SetSending((bool)data.Values[0]);
+                break;
+
+            case "/avatar/change":
+                sendInitialValues();
+                break;
+        }
     }
 }
 

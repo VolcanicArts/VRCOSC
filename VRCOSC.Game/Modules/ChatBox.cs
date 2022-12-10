@@ -28,8 +28,9 @@ public class ChatBox
     private DateTimeOffset? sendReset;
     private DateTimeOffset sendExpire;
     private bool alreadyClear;
-    private bool sendEnabled;
     private IBindable<int> resetMilli;
+
+    public bool SendEnabled { get; private set; }
 
     public ChatBox(OscClient oscClient, IBindable<int> resetMilli)
     {
@@ -39,7 +40,8 @@ public class ChatBox
 
     public void SetSending(bool canSend)
     {
-        sendEnabled = canSend;
+        SendEnabled = canSend;
+        if (!SendEnabled) clear();
     }
 
     public void SetTyping(bool typing)
@@ -53,7 +55,7 @@ public class ChatBox
         currentData = null;
         sendExpire = DateTimeOffset.Now;
         sendReset = null;
-        sendEnabled = true;
+        SendEnabled = true;
         timedQueue.Clear();
         alwaysDict.Clear();
         queueTask = new TimedTask(update, 5);
@@ -142,7 +144,7 @@ public class ChatBox
 
         if (currentData.Text is null) return;
 
-        if (sendEnabled) oscClient.SendValues(chatbox_address_text, new List<object> { currentData.Text!, true });
+        if (SendEnabled) oscClient.SendValues(chatbox_address_text, new List<object> { currentData.Text!, true });
         sendReset = DateTimeOffset.Now + TimeSpan.FromMilliseconds(resetMilli.Value);
     }
 
