@@ -161,7 +161,7 @@ public sealed class MediaModule : ChatBoxModule
     {
         // We have to wait a little bit to allow the media app that just opened to take control
         await Task.Delay(500);
-        await mediaProvider.ForceUpdate();
+        mediaProvider.ForceUpdate();
     }
 
     private void OnMediaUpdate()

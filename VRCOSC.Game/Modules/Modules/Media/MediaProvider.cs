@@ -51,26 +51,15 @@ public class MediaProvider
         OnMediaSessionOpened?.Invoke();
     }
 
-    public async Task ForceUpdate()
+    public void ForceUpdate()
     {
-        if (Controller?.GetPlaybackInfo().PlaybackStatus == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing)
-        {
-            await Controller.TryPauseAsync();
-            await Task.Delay(50);
-            await Controller.TryPlayAsync();
-        }
-        else if (Controller?.GetPlaybackInfo().PlaybackStatus == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Paused)
-        {
-            await Controller.TryPlayAsync();
-            await Task.Delay(50);
-            await Controller.TryPauseAsync();
-        }
+        Controller?.TryPlayAsync();
     }
 
     private void MediaManager_OnAnySessionClosed(MediaManager.MediaSession sender)
     {
         updateTrackedProcess(mediaManager?.CurrentMediaSessions.FirstOrDefault().Value.Id ?? string.Empty);
-        _ = ForceUpdate();
+        ForceUpdate();
     }
 
     private void MediaManager_OnAnyPlaybackStateChanged(MediaManager.MediaSession sender, GlobalSystemMediaTransportControlsSessionPlaybackInfo args)
