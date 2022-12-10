@@ -37,7 +37,7 @@ public sealed partial class ModuleManager : Component, IOscListener
         typeof(HypeRateModule),
         typeof(PulsoidModule),
         typeof(OpenVRStatisticsModule),
-        typeof(OpenVRControllerModule),
+        typeof(OpenVRControllerStatisticsModule),
         typeof(GestureExtensionsModule),
         typeof(MediaModule),
         typeof(DiscordModule),
