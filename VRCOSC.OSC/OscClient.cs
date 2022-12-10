@@ -15,17 +15,18 @@ public sealed class OscClient
     private bool sendingEnabled;
     private bool receivingEnabled;
 
-    public Action<string, object>? OnParameterSent;
-    public Action<string, object>? OnParameterReceived;
+    private readonly List<IOscListener> listeners = new();
 
-    /// <summary>
-    /// Initialises the <see cref="OscClient"/> with the required data.
-    /// </summary>
-    /// <remarks>This can be called multiple times without having to make a new <see cref="OscClient"/> as long as the <see cref="OscClient"/> is disabled</remarks>
-    /// <param name="ipAddress">The IP address which which to send and receive data on</param>
-    /// <param name="sendPort">The port with which to send data</param>
-    /// <param name="receivePort">The port with which to receive data</param>
-    /// <exception cref="InvalidOperationException">If the <see cref="OscClient"/> is currently enabled</exception>
+    public void RegisterListener(IOscListener listener)
+    {
+        listeners.Add(listener);
+    }
+
+    public void DeRegisterListener(IOscListener listener)
+    {
+        listeners.Remove(listener);
+    }
+
     public void Initialise(string ipAddress, int sendPort, int receivePort)
     {
         if (sendingEnabled || receivingEnabled) throw new InvalidOperationException($"Cannot initialise when {nameof(OscClient)} is already enabled");
@@ -37,9 +38,6 @@ public sealed class OscClient
         receivingClient.Bind(new IPEndPoint(IPAddress.Parse(ipAddress), receivePort));
     }
 
-    /// <summary>
-    /// Enables the <see cref="OscClient"/> to start sending and receiving data
-    /// </summary>
     public void Enable()
     {
         tokenSource = new CancellationTokenSource();
@@ -48,18 +46,6 @@ public sealed class OscClient
         receivingEnabled = true;
     }
 
-    /// <summary>
-    /// Disables both sending and receiving
-    /// </summary>
-    public async Task Disable()
-    {
-        await DisableReceive();
-        DisableSend();
-    }
-
-    /// <summary>
-    /// Disables just receiving
-    /// </summary>
     public async Task DisableReceive()
     {
         receivingEnabled = false;
@@ -76,9 +62,6 @@ public sealed class OscClient
         receivingClient = null;
     }
 
-    /// <summary>
-    /// Disables just sending
-    /// </summary>
     public void DisableSend()
     {
         sendingEnabled = false;
@@ -86,27 +69,19 @@ public sealed class OscClient
         sendingClient = null;
     }
 
-    /// <summary>
-    /// Sends a value to a specified address
-    /// </summary>
-    /// <param name="oscAddress">The address to send the value to</param>
-    /// <param name="value">The value to send</param>
-    /// <exception cref="ArgumentOutOfRangeException">If the value is not of type bool, int, float, or string</exception>
-    public void SendValue(string oscAddress, object value) => SendValues(oscAddress, new List<object> { value });
+    public void SendValue(string address, object value) => SendValues(address, new List<object> { value });
 
-    /// <summary>
-    /// Sends values to a specified address
-    /// </summary>
-    /// <param name="oscAddress">The address to send the value to</param>
-    /// <param name="values">The values to send</param>
-    /// <exception cref="ArgumentOutOfRangeException">If the values are not of type bool, int, float, or string</exception>
-    public void SendValues(string oscAddress, List<object> values)
+    public void SendValues(string address, List<object> values) => SendData(new OscData
     {
-        if (!values.All(value => value is (bool or int or float or string)))
-            throw new ArgumentOutOfRangeException(nameof(values), "Cannot send values that are not of type bool, int, float, or string");
+        Address = address,
+        Values = values
+    });
 
-        sendingClient?.SendOscMessage(new OscMessage(oscAddress, values));
-        OnParameterSent?.Invoke(oscAddress, values.First());
+    public void SendData(OscData data)
+    {
+        data.PreValidate();
+        sendingClient?.SendOscMessage(new OscMessage(data.Address, data.Values));
+        listeners.ForEach(listener => listener.OnDataSent(data));
     }
 
     private async void runReceiveLoop()
@@ -116,9 +91,15 @@ public sealed class OscClient
             while (!tokenSource!.Token.IsCancellationRequested)
             {
                 var message = await receivingClient!.ReceiveOscMessageAsync(tokenSource.Token);
-                if (message is null || !message.Values.Any()) continue;
+                if (message is null) continue;
 
-                OnParameterReceived?.Invoke(message.Address, message.Values.First()!);
+                var data = new OscData
+                {
+                    Address = message.Address,
+                    Values = message.Values
+                };
+
+                listeners.ForEach(listener => listener.OnDataReceived(data));
             }
         }
         catch (OperationCanceledException) { }

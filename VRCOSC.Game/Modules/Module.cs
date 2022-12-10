@@ -23,7 +23,7 @@ using VRCOSC.OSC;
 namespace VRCOSC.Game.Modules;
 
 [SuppressMessage("Usage", "CA2208:Instantiate argument exceptions correctly")]
-public abstract class Module
+public abstract class Module : IOscListener
 {
     private GameHost Host = null!;
     private Storage Storage = null!;
@@ -163,7 +163,7 @@ public abstract class Module
         if (ShouldUpdate) updateTask = new TimedTask(OnUpdate, DeltaUpdate, true);
         await (updateTask?.Start() ?? Task.CompletedTask);
 
-        OscClient.OnParameterReceived += onParameterReceived;
+        OscClient.RegisterListener(this);
 
         State.Value = ModuleState.Started;
     }
@@ -174,7 +174,7 @@ public abstract class Module
 
         State.Value = ModuleState.Stopping;
 
-        OscClient.OnParameterReceived -= onParameterReceived;
+        OscClient.DeRegisterListener(this);
 
         if (updateTask is not null) await updateTask.Stop();
 
@@ -227,10 +227,17 @@ public abstract class Module
 
     #endregion
 
-    #region IncomingParameters
+    #region Parameters
 
-    private void onParameterReceived(string address, object value)
+    void IOscListener.OnDataSent(OscData data) { }
+
+    void IOscListener.OnDataReceived(OscData data)
     {
+        if (!data.Values.Any()) return;
+
+        var address = data.Address;
+        var value = data.Values;
+
         if (address.StartsWith("/avatar/change"))
         {
             OnAvatarChange();
@@ -245,17 +252,17 @@ public abstract class Module
         try
         {
             Enum lookup = Parameters.Single(pair => pair.Value.Name == parameterName).Key;
-            var data = Parameters[lookup];
+            var parameterData = Parameters[lookup];
 
-            if (!data.Mode.HasFlagFast(ParameterMode.Read)) return;
+            if (!parameterData.Mode.HasFlagFast(ParameterMode.Read)) return;
 
-            if (value.GetType() != data.ExpectedType)
+            if (value.GetType() != parameterData.ExpectedType)
             {
-                Log($@"Cannot accept input parameter. `{lookup}` expects type `{data.ExpectedType}` but received type `{value.GetType()}`");
+                Log($@"Cannot accept input parameter. `{lookup}` expects type `{parameterData.ExpectedType}` but received type `{value.GetType()}`");
                 return;
             }
 
-            notifyParameterReceived(lookup, value, data);
+            notifyParameterReceived(lookup, value, parameterData);
         }
         catch (InvalidOperationException)
         {
@@ -373,39 +380,16 @@ public abstract class Module
     protected virtual void OnButtonPressed(Enum key) { }
     protected virtual void OnRadialPuppetChange(Enum key, float radialValue) { }
 
-    #endregion
-
-    #region OutgoingParameters
-
-    protected class OutputParameter
+    protected void SendParameter<T>(Enum lookup, T value) where T : struct
     {
-        private readonly OscClient oscClient;
-        private readonly string address;
+        if (HasStopped) return;
 
-        public OutputParameter(OscClient oscClient, string address)
-        {
-            this.oscClient = oscClient;
-            this.address = address;
-        }
-
-        public void SendValue<T>(T value) where T : struct => oscClient.SendValue(address, value);
-    }
-
-    protected OutputParameter GetOutputParameter(Enum lookup)
-    {
         if (!Parameters.ContainsKey(lookup)) throw new InvalidOperationException($"Parameter {lookup.ToString()} has not been defined");
 
         var data = Parameters[lookup];
         if (!data.Mode.HasFlagFast(ParameterMode.Write)) throw new InvalidOperationException("Cannot send a value to a read-only parameter");
 
-        return new OutputParameter(OscClient, data.FormattedAddress);
-    }
-
-    protected void SendParameter<T>(Enum lookup, T value) where T : struct
-    {
-        if (HasStopped) return;
-
-        GetOutputParameter(lookup).SendValue(value);
+        OscClient.SendValue(data.FormattedAddress, value);
     }
 
     #endregion
