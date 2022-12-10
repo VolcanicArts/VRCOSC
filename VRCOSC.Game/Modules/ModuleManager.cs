@@ -198,7 +198,7 @@ public sealed partial class ModuleManager : Component, IOscListener
 
         await chatBox.Shutdown();
 
-        OscClient.RegisterListener(this);
+        OscClient.DeRegisterListener(this);
 
         OscClient.DisableSend();
 
