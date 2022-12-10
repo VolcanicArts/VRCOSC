@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using VRCOSC.Game.Modules.Util;
 
 namespace VRCOSC.Game.Modules.Modules.Discord;
 

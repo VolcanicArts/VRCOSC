@@ -4,7 +4,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using VRCOSC.Game.Modules.Util;
+using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Tests.Tests;
 

@@ -24,7 +24,6 @@ using VRCOSC.Game.Modules.Modules.Heartrate.Pulsoid;
 using VRCOSC.Game.Modules.Modules.Media;
 using VRCOSC.Game.Modules.Modules.OpenVR;
 using VRCOSC.Game.Modules.Modules.Random;
-using VRCOSC.Game.Modules.Util;
 using VRCOSC.Game.Util;
 using VRCOSC.OSC;
 

@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using osu.Framework.Extensions.IEnumerableExtensions;
-using VRCOSC.Game.Modules.Util;
+using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Util;
 

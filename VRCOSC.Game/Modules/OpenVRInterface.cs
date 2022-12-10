@@ -13,7 +13,7 @@ using Valve.VR;
 
 // ReSharper disable MemberCanBeMadeStatic.Global
 
-namespace VRCOSC.Game.Modules.Util;
+namespace VRCOSC.Game.Modules;
 
 [SuppressMessage("Performance", "CA1822:Mark members as static")]
 public class OpenVRInterface

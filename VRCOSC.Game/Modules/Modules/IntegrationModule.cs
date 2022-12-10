@@ -8,10 +8,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using osu.Framework.Logging;
-using VRCOSC.Game.Modules.Util;
 using VRCOSC.Game.Util;
 
-namespace VRCOSC.Game.Modules;
+namespace VRCOSC.Game.Modules.Modules;
 
 public abstract class IntegrationModule : Module
 {

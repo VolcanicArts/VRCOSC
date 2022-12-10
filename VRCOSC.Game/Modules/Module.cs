@@ -13,7 +13,7 @@ using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
-using VRCOSC.Game.Modules.Util;
+using VRCOSC.Game.Modules.Modules.OpenVR;
 using VRCOSC.Game.Util;
 using VRCOSC.OSC;
 

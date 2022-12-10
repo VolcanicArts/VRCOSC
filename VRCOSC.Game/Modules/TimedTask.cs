@@ -5,7 +5,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace VRCOSC.Game.Modules.Util;
+namespace VRCOSC.Game.Modules;
 
 public sealed class TimedTask
 {

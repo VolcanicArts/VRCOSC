@@ -9,7 +9,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
-using VRCOSC.Game.Modules.Util;
 using VRCOSC.OSC;
 
 namespace VRCOSC.Game.Modules;

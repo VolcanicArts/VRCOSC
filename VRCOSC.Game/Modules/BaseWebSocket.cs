@@ -10,7 +10,7 @@ using WebSocket4Net;
 
 // ReSharper disable MemberCanBeProtected.Global
 
-namespace VRCOSC.Game.Modules.Websocket;
+namespace VRCOSC.Game.Modules;
 
 public class BaseWebSocket : IDisposable
 {
