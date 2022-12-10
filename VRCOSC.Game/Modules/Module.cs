@@ -71,6 +71,7 @@ public abstract class Module
     #region Properties
 
     public bool HasSettings => Settings.Any();
+    public bool HasParameters => Parameters.Any();
 
     private bool IsEnabled => Enabled.Value;
     private bool ShouldUpdate => DeltaUpdate != int.MaxValue;

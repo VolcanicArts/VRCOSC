@@ -113,6 +113,7 @@ public sealed partial class ModuleCard : Container
                         Origin = Anchor.CentreRight,
                         RelativeSizeAxes = Axes.Both,
                         FillMode = FillMode.Fit,
+                        Alpha = Module.HasParameters ? 1 : 0.5f,
                         Child = new IconButton
                         {
                             Anchor = Anchor.Centre,
@@ -122,7 +123,8 @@ public sealed partial class ModuleCard : Container
                             IconPadding = 5,
                             CornerRadius = 5,
                             Action = () => infoModule.Value = Module,
-                            BackgroundColour = ThemeManager.Current[ThemeAttribute.Light]
+                            BackgroundColour = ThemeManager.Current[ThemeAttribute.Light],
+                            Enabled = { Value = Module.HasParameters }
                         }
                     },
                     new Container
