@@ -24,7 +24,6 @@ using VRCOSC.Game.Modules.Modules.Heartrate.Pulsoid;
 using VRCOSC.Game.Modules.Modules.Media;
 using VRCOSC.Game.Modules.Modules.OpenVR;
 using VRCOSC.Game.Modules.Modules.Random;
-//using VRCOSC.Game.Modules.Modules.SpeechToText;
 using VRCOSC.Game.Modules.Util;
 using VRCOSC.Game.Util;
 using VRCOSC.OSC;
@@ -48,7 +47,6 @@ public sealed partial class ModuleManager : Component
         typeof(GestureExtensionsModule),
         typeof(MediaModule),
         typeof(DiscordModule)
-        //typeof(SpeechToTextModule),
     };
 
     private const int vr_chat_process_check_interval_milliseconds = 5000;
