@@ -236,7 +236,7 @@ public abstract class Module : IOscListener
         if (!data.Values.Any()) return;
 
         var address = data.Address;
-        var value = data.Values;
+        var value = data.Values[0];
 
         if (address.StartsWith("/avatar/change"))
         {
