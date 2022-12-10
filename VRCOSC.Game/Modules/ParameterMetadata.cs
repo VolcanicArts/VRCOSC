@@ -11,17 +11,15 @@ public class ParameterMetadata
     public readonly string Name;
     public readonly string Description;
     public readonly Type ExpectedType;
-    public readonly ActionMenu Menu;
 
     public string FormattedAddress => $"/avatar/parameters/{Name}";
 
-    public ParameterMetadata(ParameterMode mode, string name, string description, Type expectedType, ActionMenu menu)
+    public ParameterMetadata(ParameterMode mode, string name, string description, Type expectedType)
     {
         Mode = mode;
         Name = name;
         Description = description;
         ExpectedType = expectedType;
-        Menu = menu;
     }
 }
 

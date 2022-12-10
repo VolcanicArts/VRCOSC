@@ -117,14 +117,9 @@ public abstract class Module : IOscListener
     protected void CreateSetting(Enum lookup, string displayName, string description, string defaultValue, string buttonText, Action buttonAction, Func<bool>? dependsOn = null)
         => addTextAndButtonSetting(lookup, displayName, description, defaultValue, buttonText, buttonAction, dependsOn);
 
-    protected void CreateParameter<T>(Enum lookup, ParameterMode mode, string parameterName, string description, ActionMenu menuLink = ActionMenu.None)
+    protected void CreateParameter<T>(Enum lookup, ParameterMode mode, string parameterName, string description)
     {
-        if (!mode.HasFlagFast(ParameterMode.Read) && menuLink != ActionMenu.None)
-        {
-            throw new InvalidOperationException("Cannot set an action menu link on a write-only parameter");
-        }
-
-        Parameters.Add(lookup, new ParameterMetadata(mode, parameterName, description, typeof(T), menuLink));
+        Parameters.Add(lookup, new ParameterMetadata(mode, parameterName, description, typeof(T)));
     }
 
     private void addSingleSetting(Enum lookup, string displayName, string description, object defaultValue, Func<bool>? dependsOn)
@@ -275,7 +270,6 @@ public abstract class Module : IOscListener
         {
             case bool boolValue:
                 OnBoolParameterReceived(key, boolValue);
-                if (data.Menu == ActionMenu.Button && boolValue) OnButtonPressed(key);
                 break;
 
             case int intValue:
@@ -284,7 +278,6 @@ public abstract class Module : IOscListener
 
             case float floatValue:
                 OnFloatParameterReceived(key, floatValue);
-                if (data.Menu == ActionMenu.Radial) OnRadialPuppetChange(key, floatValue);
                 break;
         }
     }
@@ -377,8 +370,6 @@ public abstract class Module : IOscListener
     protected virtual void OnBoolParameterReceived(Enum key, bool value) { }
     protected virtual void OnIntParameterReceived(Enum key, int value) { }
     protected virtual void OnFloatParameterReceived(Enum key, float value) { }
-    protected virtual void OnButtonPressed(Enum key) { }
-    protected virtual void OnRadialPuppetChange(Enum key, float radialValue) { }
 
     protected void SendParameter<T>(Enum lookup, T value) where T : struct
     {
