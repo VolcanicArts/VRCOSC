@@ -134,7 +134,6 @@ public sealed partial class AttributeFlow : FillFlowContainer<AttributeCard>
                         return new IntTextAttributeCard(attributeData);
 
                     case bool:
-                        Console.WriteLine("Generating bool card");
                         attributeData.Attribute.BindValueChanged(_ => checkShouldDisplay());
                         return new ToggleAttributeCard(attributeData);
 
