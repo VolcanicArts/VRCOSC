@@ -96,6 +96,8 @@ public sealed class ModuleAttributeList : ModuleAttribute
 
     public override bool IsDefault() => AttributeList.Count == defaultValues.Count() && !AttributeList.Where((t, i) => !t.Value.Equals(defaultValues.ElementAt(i))).Any();
 
+    public List<T> GetValueList<T>() => AttributeList.Select(attribute => (T)attribute.Value).ToList();
+
     public void AddAt(int index, Bindable<object> value)
     {
         try
@@ -106,13 +108,6 @@ public sealed class ModuleAttributeList : ModuleAttribute
         {
             AttributeList.Insert(index, value);
         }
-    }
-
-    public List<T> GetValueList<T>()
-    {
-        List<T> list = new();
-        AttributeList.ForEach(attribute => list.Add((T)attribute.Value));
-        return list;
     }
 }
 

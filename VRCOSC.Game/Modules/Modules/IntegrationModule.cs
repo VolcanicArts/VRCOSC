@@ -109,13 +109,13 @@ public abstract class IntegrationModule : Module
     {
         if (process.MainWindowHandle == IntPtr.Zero)
         {
-            ProcessExtensions.ShowMainWindow(process, ShowWindowEnum.Restore);
+            process.ShowMainWindow(ShowWindowEnum.Restore);
             await Task.Delay(delay);
         }
 
-        ProcessExtensions.ShowMainWindow(process, ShowWindowEnum.ShowDefault);
+        process.ShowMainWindow(ShowWindowEnum.ShowDefault);
         await Task.Delay(delay);
-        ProcessExtensions.SetMainWindowForeground(process);
+        process.SetMainWindowForeground();
     }
 
     private async Task performKeyCombination(Enum lookup)

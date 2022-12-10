@@ -3,7 +3,6 @@
 
 using System;
 using System.Threading.Tasks;
-using VRCOSC.Game.Modules.Util;
 
 namespace VRCOSC.Game.Modules.Modules.Random;
 

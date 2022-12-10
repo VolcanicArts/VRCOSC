@@ -26,12 +26,12 @@ public static class ProcessExtensions
 
     #region Window
 
-    public static void ShowMainWindow(Process process, ShowWindowEnum showWindowEnum)
+    public static void ShowMainWindow(this Process process, ShowWindowEnum showWindowEnum)
     {
         ProcessWindow.ShowMainWindow(process, showWindowEnum);
     }
 
-    public static void SetMainWindowForeground(Process process)
+    public static void SetMainWindowForeground(this Process process)
     {
         ProcessWindow.SetMainWindowForeground(process);
     }

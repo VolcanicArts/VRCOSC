@@ -59,7 +59,7 @@ public sealed partial class ModuleManager : Component, IOscListener
     private Bindable<bool> autoStartStop = null!;
     private readonly TerminalLogger terminal = new(nameof(ModuleManager));
     private CancellationTokenSource startCancellationTokenSource = null!;
-    private ChatBox chatBox = null!;
+    private ChatBoxInterface chatBoxInterface = null!;
 
     [Resolved]
     private VRCOSCConfigManager ConfigManager { get; set; } = null!;
@@ -70,14 +70,14 @@ public sealed partial class ModuleManager : Component, IOscListener
     [BackgroundDependencyLoader]
     private void load(GameHost host, Storage storage, OpenVRInterface openVrInterface)
     {
-        chatBox = new ChatBox(OscClient, ConfigManager.GetBindable<int>(VRCOSCSetting.ChatBoxTimeSpan));
+        chatBoxInterface = new ChatBoxInterface(OscClient, ConfigManager.GetBindable<int>(VRCOSCSetting.ChatBoxTimeSpan));
         autoStartStop = ConfigManager.GetBindable<bool>(VRCOSCSetting.AutoStartStop);
 
         var moduleStorage = storage.GetStorageForDirectory("modules");
         module_types.ForEach(type =>
         {
             var module = (Module)Activator.CreateInstance(type)!;
-            module.Initialise(host, moduleStorage, OscClient, chatBox, openVrInterface);
+            module.Initialise(host, moduleStorage, OscClient, chatBoxInterface, openVrInterface);
             Modules.Add(module);
         });
     }
@@ -150,7 +150,7 @@ public sealed partial class ModuleManager : Component, IOscListener
             return;
         }
 
-        chatBox.Init();
+        chatBoxInterface.Init();
 
         sendInitialValues();
 
@@ -196,7 +196,7 @@ public sealed partial class ModuleManager : Component, IOscListener
             await module.stop();
         }
 
-        await chatBox.Shutdown();
+        await chatBoxInterface.Shutdown();
 
         OscClient.DeRegisterListener(this);
 
@@ -207,7 +207,7 @@ public sealed partial class ModuleManager : Component, IOscListener
 
     private void sendInitialValues()
     {
-        OscClient.SendValue("/avatar/parameters/VRCOSC/Controls/ChatBox", chatBox.SendEnabled);
+        OscClient.SendValue("/avatar/parameters/VRCOSC/Controls/ChatBox", chatBoxInterface.SendEnabled);
     }
 
     void IOscListener.OnDataSent(OscData data) { }
@@ -217,7 +217,7 @@ public sealed partial class ModuleManager : Component, IOscListener
         switch (data.Address)
         {
             case "/avatar/parameters/VRCOSC/Controls/ChatBox":
-                chatBox.SetSending((bool)data.Values[0]);
+                chatBoxInterface.SetSending((bool)data.Values[0]);
                 break;
 
             case "/avatar/change":

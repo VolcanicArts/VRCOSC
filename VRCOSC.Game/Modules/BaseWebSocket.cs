@@ -46,7 +46,7 @@ public class BaseWebSocket : IDisposable
         webSocket.Close();
     }
 
-    protected void Send(string data)
+    public void Send(string data)
     {
         webSocket.Send(data);
     }

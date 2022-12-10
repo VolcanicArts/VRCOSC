@@ -13,7 +13,6 @@ using osu.Framework.Graphics.Sprites;
 using osuTK;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Modules;
-using VRCOSC.Game.Modules.Util;
 
 namespace VRCOSC.Game.Graphics.ModuleListing;
 

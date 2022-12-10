@@ -29,7 +29,7 @@ public abstract class Module : IOscListener
     private Storage Storage = null!;
     private OscClient OscClient = null!;
     private TerminalLogger Terminal = null!;
-    private ChatBox ChatBox = null!;
+    private ChatBoxInterface chatBoxInterface = null!;
     private TimedTask? updateTask;
 
     protected Player Player = null!;
@@ -60,12 +60,12 @@ public abstract class Module : IOscListener
     public bool HasSettings => Settings.Any();
     public bool HasParameters => Parameters.Any();
 
-    public void Initialise(GameHost host, Storage storage, OscClient oscClient, ChatBox chatBox, OpenVRInterface openVrInterface)
+    public void Initialise(GameHost host, Storage storage, OscClient oscClient, ChatBoxInterface chatBoxInterface, OpenVRInterface openVrInterface)
     {
         Host = host;
         Storage = storage;
         OscClient = oscClient;
-        ChatBox = chatBox;
+        this.chatBoxInterface = chatBoxInterface;
         Terminal = new TerminalLogger(GetType().Name);
         State = new Bindable<ModuleState>(ModuleState.Stopped);
         Player = new Player(OscClient);
@@ -624,9 +624,9 @@ public abstract class Module : IOscListener
 
     protected void OpenUrlExternally(string Url) => Host.OpenUrlExternally(Url);
 
-    protected DateTimeOffset SetChatBoxText(string? text, TimeSpan displayLength) => ChatBox.SetText(text, ChatBoxPriority, displayLength);
+    protected DateTimeOffset SetChatBoxText(string? text, TimeSpan displayLength) => chatBoxInterface.SetText(text, ChatBoxPriority, displayLength);
 
-    protected void SetChatBoxTyping(bool typing) => ChatBox.SetTyping(typing);
+    protected void SetChatBoxTyping(bool typing) => chatBoxInterface.SetTyping(typing);
 
     protected static float Map(float source, float sMin, float sMax, float dMin, float dMax) => dMin + (dMax - dMin) * ((source - sMin) / (sMax - sMin));
 

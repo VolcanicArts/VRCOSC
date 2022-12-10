@@ -14,22 +14,22 @@ using VRCOSC.OSC;
 
 namespace VRCOSC.Game.Modules;
 
-public class ChatBox
+public class ChatBoxInterface
 {
-    private readonly OscClient oscClient;
     private readonly ConcurrentQueue<ChatBoxData> timedQueue = new();
     private readonly ConcurrentDictionary<int, ChatBoxData> alwaysDict = new();
+    private readonly OscClient oscClient;
+    private readonly IBindable<int> resetMilli;
 
     private TimedTask? queueTask;
     private ChatBoxData? currentData;
     private DateTimeOffset? sendReset;
     private DateTimeOffset sendExpire;
     private bool alreadyClear;
-    private IBindable<int> resetMilli;
 
     public bool SendEnabled { get; private set; }
 
-    public ChatBox(OscClient oscClient, IBindable<int> resetMilli)
+    public ChatBoxInterface(OscClient oscClient, IBindable<int> resetMilli)
     {
         this.oscClient = oscClient;
         this.resetMilli = resetMilli;
