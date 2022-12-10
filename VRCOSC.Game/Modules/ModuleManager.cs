@@ -36,17 +36,17 @@ public sealed partial class ModuleManager : Component, IOscListener
     {
         typeof(HypeRateModule),
         typeof(PulsoidModule),
-        typeof(ClockModule),
-        typeof(ChatBoxTextModule),
-        typeof(RandomBoolModule),
-        typeof(RandomIntModule),
-        typeof(RandomFloatModule),
-        typeof(HardwareStatsModule),
         typeof(OpenVRStatisticsModule),
         typeof(OpenVRControllerModule),
         typeof(GestureExtensionsModule),
         typeof(MediaModule),
-        typeof(DiscordModule)
+        typeof(DiscordModule),
+        typeof(ClockModule),
+        typeof(ChatBoxTextModule),
+        typeof(HardwareStatsModule),
+        typeof(RandomBoolModule),
+        typeof(RandomIntModule),
+        typeof(RandomFloatModule)
     };
 
     private const int vr_chat_process_check_interval_milliseconds = 5000;
