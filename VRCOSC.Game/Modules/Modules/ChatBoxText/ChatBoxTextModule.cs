@@ -8,7 +8,7 @@ public class ChatBoxTextModule : ChatBoxModule
     public override string Title => "ChatBox Text";
     public override string Description => "Display custom text in the ChatBox";
     public override string Author => "VolcanicArts";
-    public override ModuleType ModuleType => ModuleType.General;
+    public override ModuleType Type => ModuleType.General;
     protected override int ChatBoxPriority => 2;
 
     protected override bool DefaultChatBoxDisplay => true;

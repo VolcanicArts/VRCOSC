@@ -11,7 +11,7 @@ public sealed class DiscordModule : IntegrationModule
     public override string Description => "Integration with the Discord desktop app";
     public override string Author => "VolcanicArts";
     public override string Prefab => "VRCOSC-Discord";
-    public override ModuleType ModuleType => ModuleType.Integrations;
+    public override ModuleType Type => ModuleType.Integrations;
     protected override string TargetProcess => "discord";
 
     protected override void CreateAttributes()

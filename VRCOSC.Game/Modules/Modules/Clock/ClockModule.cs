@@ -13,7 +13,7 @@ public sealed class ClockModule : ChatBoxModule
     public override string Description => "Sends your local time as hours, minutes, and seconds";
     public override string Author => "VolcanicArts";
     public override string Prefab => "VRCOSC-Watch";
-    public override ModuleType ModuleType => ModuleType.General;
+    public override ModuleType Type => ModuleType.General;
     protected override int DeltaUpdate => GetSetting<bool>(ClockSetting.SmoothSecond) ? Constants.OSC_UPDATE_DELTA : 1000;
 
     protected override bool DefaultChatBoxDisplay => true;

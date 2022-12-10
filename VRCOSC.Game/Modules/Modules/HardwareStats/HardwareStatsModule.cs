@@ -12,7 +12,7 @@ public sealed class HardwareStatsModule : ChatBoxModule
     public override string Title => "Hardware Stats";
     public override string Description => "Sends hardware stats and displays them in the ChatBox";
     public override string Author => "VolcanicArts";
-    public override ModuleType ModuleType => ModuleType.General;
+    public override ModuleType Type => ModuleType.General;
     protected override int DeltaUpdate => 2000;
 
     protected override bool DefaultChatBoxDisplay => true;

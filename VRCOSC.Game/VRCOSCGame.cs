@@ -17,7 +17,6 @@ using VRCOSC.Game.Graphics.TabBar;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.Updater;
 using VRCOSC.Game.Modules;
-using VRCOSC.Game.Modules.Modules.OpenVR;
 
 // ReSharper disable InconsistentNaming
 
@@ -41,7 +40,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     private OpenVRInterface openVrInterface = null!;
 
     public Bindable<string> SearchTermFilter = new(string.Empty);
-    public Bindable<ModuleType?> TypeFilter = new();
+    public Bindable<Module.ModuleType?> TypeFilter = new();
 
     [Cached]
     private Bindable<Tab> SelectedTab = new();

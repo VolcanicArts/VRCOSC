@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Windows.Media;
 using Windows.Media.Control;
-using VRCOSC.Game.Util;
+using VRCOSC.Game.Processes;
 using WindowsMediaController;
 
 namespace VRCOSC.Game.Modules.Modules.Media;

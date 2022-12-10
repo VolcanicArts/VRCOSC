@@ -13,8 +13,6 @@ using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
-using VRCOSC.Game.Modules.Modules.OpenVR;
-using VRCOSC.Game.Util;
 using VRCOSC.OSC;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -44,7 +42,7 @@ public abstract class Module : IOscListener
     public virtual string Description => string.Empty;
     public virtual string Author => string.Empty;
     public virtual string Prefab => string.Empty;
-    public virtual ModuleType ModuleType => ModuleType.General;
+    public virtual ModuleType Type => ModuleType.General;
     protected virtual int DeltaUpdate => int.MaxValue;
     protected virtual int ChatBoxPriority => 0;
 
@@ -638,5 +636,14 @@ public abstract class Module : IOscListener
         Started,
         Stopping,
         Stopped
+    }
+
+    public enum ModuleType
+    {
+        General = 0,
+        Health = 1,
+        Integrations = 2,
+        Accessibility = 3,
+        OpenVR = 4
     }
 }

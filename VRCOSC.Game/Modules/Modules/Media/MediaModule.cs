@@ -18,7 +18,7 @@ public sealed class MediaModule : ChatBoxModule
     public override string Author => "VolcanicArts";
     public override string Prefab => "VRCOSC-Media";
     protected override int DeltaUpdate => 2000;
-    public override ModuleType ModuleType => ModuleType.Integrations;
+    public override ModuleType Type => ModuleType.Integrations;
     protected override int ChatBoxPriority => 2;
 
     protected override bool DefaultChatBoxDisplay => true;

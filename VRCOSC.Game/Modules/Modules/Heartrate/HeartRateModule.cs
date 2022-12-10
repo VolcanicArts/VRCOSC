@@ -15,7 +15,7 @@ public abstract class HeartRateModule : ChatBoxModule
 
     public override string Author => "VolcanicArts";
     public override string Prefab => "VRCOSC-Heartrate";
-    public override ModuleType ModuleType => ModuleType.Health;
+    public override ModuleType Type => ModuleType.Health;
     protected override int DeltaUpdate => 2000;
     protected override int ChatBoxPriority => 1;
 

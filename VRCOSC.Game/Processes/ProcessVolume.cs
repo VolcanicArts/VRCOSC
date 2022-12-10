@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 // ReSharper disable SuspiciousTypeConversion.Global
 // ReSharper disable InconsistentNaming
 
-namespace VRCOSC.Game.Util;
+namespace VRCOSC.Game.Processes;
 
 // https://stackoverflow.com/questions/20938934/controlling-applications-volume-by-process-id
 internal static class ProcessVolume

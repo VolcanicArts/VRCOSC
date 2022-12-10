@@ -47,5 +47,5 @@ public sealed partial class TypeFilter : Container
         OpenVR = 4
     }
 
-    private static ModuleType? groupToType(Group group) => group == Group.All ? null : (ModuleType)(int)group;
+    private static Module.ModuleType? groupToType(Group group) => group == Group.All ? null : (Module.ModuleType)(int)group;
 }

@@ -5,7 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace VRCOSC.Game.Util;
+namespace VRCOSC.Game.Processes;
 
 internal static class ProcessWindow
 {

@@ -79,7 +79,7 @@ public sealed partial class Listing : Container
         moduleCardFlow.ForEach(moduleCard =>
         {
             var hasValidTitle = moduleCard.Module.Title.Contains(searchTerm, StringComparison.InvariantCultureIgnoreCase);
-            var hasValidType = type is null || moduleCard.Module.ModuleType.Equals(type);
+            var hasValidType = type is null || moduleCard.Module.Type.Equals(type);
 
             if (hasValidTitle && hasValidType)
                 moduleCard.Show();

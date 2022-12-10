@@ -5,7 +5,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using SuperSocket.ClientEngine;
-using VRCOSC.Game.Util;
 using WebSocket4Net;
 
 // ReSharper disable MemberCanBeProtected.Global

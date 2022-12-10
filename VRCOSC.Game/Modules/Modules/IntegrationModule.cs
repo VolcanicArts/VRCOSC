@@ -8,7 +8,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using osu.Framework.Logging;
-using VRCOSC.Game.Util;
+using VRCOSC.Game.Processes;
 
 namespace VRCOSC.Game.Modules.Modules;
 

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using VRCOSC.Game.Modules;
 
-namespace VRCOSC.Game.Util;
+namespace VRCOSC.Game.Processes;
 
 public static class ProcessExtensions
 {
