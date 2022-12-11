@@ -53,6 +53,8 @@ public class OpenVRInterface
 
         HasInitialised = true;
 
+        OpenVR.Applications.AddApplicationManifest(storage.GetFullPath("app.vrmanifest"), false);
+
         OpenVR.Input.SetActionManifestPath(storage.GetFullPath("action_manifest.json"));
 
         OpenVR.Input.GetActionHandle("/actions/main/in/lefta", ref leftController[0]);

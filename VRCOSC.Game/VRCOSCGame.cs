@@ -4,6 +4,7 @@
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
@@ -152,6 +153,8 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         {
             await File.WriteAllBytesAsync(Path.Combine(tempStoragePath, file.Split('/')[1]), await Resources.GetAsync(file));
         }
+
+        await File.WriteAllTextAsync(Path.Combine(tempStoragePath, "app.vrmanifest"), JsonConvert.SerializeObject(new VRManifest()));
     }
 
     protected override bool OnExiting()
