@@ -4,6 +4,7 @@
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Sprites;
+using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.UI.Button;
 
@@ -33,6 +34,7 @@ public sealed partial class TextButton : BasicButton
             Anchor = Anchor.Centre,
             Origin = Anchor.Centre,
             Font = FrameworkFont.Regular.With(size: FontSize),
+            Colour = ThemeManager.Current[ThemeAttribute.Text],
             Text = Text,
             Shadow = true
         });

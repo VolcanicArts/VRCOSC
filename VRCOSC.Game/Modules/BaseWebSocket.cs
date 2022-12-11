@@ -5,12 +5,11 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using SuperSocket.ClientEngine;
-using VRCOSC.Game.Util;
 using WebSocket4Net;
 
 // ReSharper disable MemberCanBeProtected.Global
 
-namespace VRCOSC.Game.Modules.Websocket;
+namespace VRCOSC.Game.Modules;
 
 public class BaseWebSocket : IDisposable
 {
@@ -46,7 +45,7 @@ public class BaseWebSocket : IDisposable
         webSocket.Close();
     }
 
-    protected void Send(string data)
+    public void Send(string data)
     {
         webSocket.Send(data);
     }

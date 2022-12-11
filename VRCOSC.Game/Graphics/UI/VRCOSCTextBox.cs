@@ -2,10 +2,12 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Platform;
+using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.UI;
 
@@ -16,8 +18,8 @@ public sealed partial class VRCOSCTextBox : BasicTextBox
 
     public VRCOSCTextBox()
     {
-        BackgroundFocused = VRCOSCColour.Gray3;
-        BackgroundUnfocused = VRCOSCColour.Gray3;
+        BackgroundFocused = ThemeManager.Current[ThemeAttribute.Dark];
+        BackgroundUnfocused = ThemeManager.Current[ThemeAttribute.Dark];
         Masking = true;
         CommitOnFocusLost = true;
     }
@@ -32,8 +34,19 @@ public sealed partial class VRCOSCTextBox : BasicTextBox
 
     protected override SpriteText CreatePlaceholder()
     {
-        return base.CreatePlaceholder().With(t => t.Colour = Colour4.White.Opacity(0.5f));
+        return base.CreatePlaceholder().With(t => t.Colour = ThemeManager.Current[ThemeAttribute.Text].Opacity(0.5f));
     }
+
+    protected override Drawable GetDrawableCharacter(char c) => new FallingDownContainer
+    {
+        AutoSizeAxes = Axes.Both,
+        Child = new SpriteText
+        {
+            Text = c.ToString(),
+            Font = FrameworkFont.Condensed.With(size: CalculatedTextSize),
+            Colour = ThemeManager.Current[ThemeAttribute.Text]
+        }
+    };
 
     protected override void Dispose(bool isDisposing)
     {

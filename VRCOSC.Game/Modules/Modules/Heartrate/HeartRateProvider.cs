@@ -3,8 +3,7 @@
 
 using System;
 using System.Threading.Tasks;
-using VRCOSC.Game.Modules.Util;
-using VRCOSC.Game.Modules.Websocket;
+using Newtonsoft.Json;
 
 namespace VRCOSC.Game.Modules.Modules.Heartrate;
 
@@ -14,7 +13,7 @@ public abstract class HeartRateProvider
     protected virtual int WebSocketHeartBeat => int.MaxValue;
     protected virtual bool SendWsHeartBeat => true;
 
-    private JsonWebSocket? webSocket;
+    private BaseWebSocket? webSocket;
     private TimedTask? wsHeartBeatTask;
 
     public Action? OnConnected;
@@ -24,7 +23,7 @@ public abstract class HeartRateProvider
 
     public void Initialise()
     {
-        webSocket = new JsonWebSocket(WebSocketUrl);
+        webSocket = new BaseWebSocket(WebSocketUrl);
         webSocket.OnWsConnected += () =>
         {
             HandleWsConnected();
@@ -51,7 +50,7 @@ public abstract class HeartRateProvider
         if (webSocket is null || wsHeartBeatTask is null) throw new InvalidOperationException("Please call Initialise first");
 
         webSocket.Connect();
-        if (SendWsHeartBeat) wsHeartBeatTask.Start();
+        if (SendWsHeartBeat) _ = wsHeartBeatTask.Start();
     }
 
     public async Task Disconnect()
@@ -66,7 +65,7 @@ public abstract class HeartRateProvider
     {
         if (webSocket is null) throw new InvalidOperationException("Please call Initialise first");
 
-        webSocket.SendAsJson(data);
+        webSocket.Send(JsonConvert.SerializeObject(data));
     }
 
     protected virtual void HandleWsConnected() { }

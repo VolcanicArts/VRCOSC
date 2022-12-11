@@ -5,11 +5,13 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Modules;
+using VRCOSC.OSC;
 
 namespace VRCOSC.Game.Graphics.ModuleRun;
 
-public sealed partial class ParameterContainer : Container
+public sealed partial class ParameterContainer : Container, IOscListener
 {
     [Resolved]
     private ModuleManager moduleManager { get; set; } = null!;
@@ -63,10 +65,17 @@ public sealed partial class ParameterContainer : Container
 
     protected override void LoadComplete()
     {
-        base.LoadComplete();
+        moduleManager.OscClient.RegisterListener(this);
+    }
 
-        moduleManager.OscClient.OnParameterSent += (key, value) => outgoingParameterDisplay.AddEntry(key, value);
-        moduleManager.OscClient.OnParameterReceived += (key, value) => incomingParameterDisplay.AddEntry(key, value);
+    void IOscListener.OnDataSent(OscData data)
+    {
+        outgoingParameterDisplay.AddEntry(data.Address, data.Values[0]);
+    }
+
+    void IOscListener.OnDataReceived(OscData data)
+    {
+        incomingParameterDisplay.AddEntry(data.Address, data.Values[0]);
     }
 
     public void ClearParameters()
@@ -96,7 +105,7 @@ public sealed partial class ParameterContainer : Container
                     new Box
                     {
                         RelativeSizeAxes = Axes.Both,
-                        Colour = VRCOSCColour.Gray2,
+                        Colour = ThemeManager.Current[ThemeAttribute.Darker]
                     },
                     parameterDisplay = new ParameterDisplay
                     {
@@ -117,5 +126,11 @@ public sealed partial class ParameterContainer : Container
 
         public void ClearContent()
             => parameterDisplay.ClearContent();
+    }
+
+    protected override void Dispose(bool isDisposing)
+    {
+        base.Dispose(isDisposing);
+        moduleManager.OscClient.DeRegisterListener(this);
     }
 }

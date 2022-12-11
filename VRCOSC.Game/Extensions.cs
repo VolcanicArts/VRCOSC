@@ -3,18 +3,20 @@
 
 using System;
 
-namespace VRCOSC.Game.Modules.Util;
+namespace VRCOSC.Game;
+
+public static class EnumExtensions
+{
+    public static string ToLookup(this Enum key) => key.ToString().ToLowerInvariant();
+}
 
 public static class TypeExtensions
 {
     public static string ToReadableName(this Type type)
     {
-        if (type.IsSubclassOf(typeof(Enum)))
-            return "Enum";
+        if (type.IsSubclassOf(typeof(Enum))) return "Enum";
 
-        var typeCode = Type.GetTypeCode(type);
-
-        return typeCode switch
+        return Type.GetTypeCode(type) switch
         {
             TypeCode.Empty => "Null",
             TypeCode.Object => "Object",

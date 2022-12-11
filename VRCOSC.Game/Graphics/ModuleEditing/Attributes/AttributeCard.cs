@@ -2,12 +2,12 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
-using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
+using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Graphics.UI.Button;
 using VRCOSC.Game.Modules;
@@ -20,11 +20,14 @@ public abstract partial class AttributeCard : Container
     protected FillFlowContainer ContentFlow = null!;
     protected FillFlowContainer LayoutFlow = null!;
 
-    private readonly ModuleAttribute attributeData;
+    public readonly ModuleAttribute AttributeData;
+    public bool Enable { get; set; } = true;
+
+    protected override bool ShouldBeConsideredForInput(Drawable child) => Enable;
 
     protected AttributeCard(ModuleAttribute attributeData)
     {
-        this.attributeData = attributeData;
+        AttributeData = attributeData;
     }
 
     [BackgroundDependencyLoader]
@@ -54,8 +57,8 @@ public abstract partial class AttributeCard : Container
                     IconPadding = 4,
                     CornerRadius = 10,
                     BorderThickness = 2,
-                    BorderColour = VRCOSCColour.Gray0,
-                    BackgroundColour = VRCOSCColour.BlueDark.Darken(0.25f),
+                    BorderColour = ThemeManager.Current[ThemeAttribute.Border],
+                    BackgroundColour = ThemeManager.Current[ThemeAttribute.Action],
                     Icon = FontAwesome.Solid.Undo,
                     IconShadow = true
                 }
@@ -68,7 +71,7 @@ public abstract partial class AttributeCard : Container
                 AutoSizeAxes = Axes.Y,
                 Masking = true,
                 CornerRadius = 10,
-                BorderColour = VRCOSCColour.Gray0,
+                BorderColour = ThemeManager.Current[ThemeAttribute.Border],
                 BorderThickness = 2,
                 Children = new Drawable[]
                 {
@@ -77,7 +80,7 @@ public abstract partial class AttributeCard : Container
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,
                         RelativeSizeAxes = Axes.Both,
-                        Colour = VRCOSCColour.Gray2
+                        Colour = ThemeManager.Current[ThemeAttribute.Darker]
                     },
                     LayoutFlow = new FillFlowContainer
                     {
@@ -105,27 +108,28 @@ public abstract partial class AttributeCard : Container
                                 RelativeSizeAxes = Axes.X,
                                 AutoSizeAxes = Axes.Y,
                                 Direction = FillDirection.Vertical,
-                                Spacing = new Vector2(0, 10),
+                                Spacing = new Vector2(0, 10)
                             }
                         }
                     }
                 }
             }
         };
-        textFlow.AddText(attributeData.Metadata.DisplayName, t =>
+        textFlow.AddText(AttributeData.Metadata.DisplayName, t =>
         {
             t.Font = FrameworkFont.Regular.With(size: 30);
+            t.Colour = ThemeManager.Current[ThemeAttribute.Text];
         });
-        textFlow.AddParagraph(attributeData.Metadata.Description, t =>
+        textFlow.AddParagraph(AttributeData.Metadata.Description, t =>
         {
             t.Font = FrameworkFont.Regular.With(size: 20);
-            t.Colour = VRCOSCColour.Gray9;
+            t.Colour = ThemeManager.Current[ThemeAttribute.SubText];
         });
     }
 
     protected virtual void SetDefault()
     {
-        attributeData.SetDefault();
+        AttributeData.SetDefault();
     }
 
     protected void UpdateResetToDefault(bool show)
@@ -145,7 +149,7 @@ public abstract partial class AttributeCard : Container
             Height = 40,
             Masking = true,
             CornerRadius = 5,
-            BorderColour = VRCOSCColour.Gray0,
+            BorderColour = ThemeManager.Current[ThemeAttribute.Border],
             BorderThickness = 2
         };
     }

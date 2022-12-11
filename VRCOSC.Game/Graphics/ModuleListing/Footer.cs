@@ -8,6 +8,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osuTK;
 using VRCOSC.Game.Config;
+using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Button;
 
 namespace VRCOSC.Game.Graphics.ModuleListing;
@@ -36,7 +37,7 @@ public sealed partial class Footer : Container
             new Box
             {
                 RelativeSizeAxes = Axes.Both,
-                Colour = VRCOSCColour.Gray4
+                Colour = ThemeManager.Current[ThemeAttribute.Mid]
             },
             runButton = new TextButton
             {
@@ -49,7 +50,7 @@ public sealed partial class Footer : Container
                 Masking = true,
                 CornerRadius = 5,
                 Text = "Run",
-                BackgroundColour = VRCOSCColour.Green,
+                BackgroundColour = ThemeManager.Current[ThemeAttribute.Success],
                 Action = () => modulesRunning.Value = true
             }
         };

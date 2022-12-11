@@ -57,7 +57,7 @@ public abstract class OscPacket
                 case 's':
                     var stringVal = getString(msg, index);
                     values.Add(stringVal);
-                    index += stringVal.Length;
+                    index += Encoding.UTF8.GetBytes(stringVal).Length;
                     break;
 
                 case 'T':
@@ -90,7 +90,7 @@ public abstract class OscPacket
             {
                 if (i == 0) return string.Empty;
 
-                address = Encoding.ASCII.GetString(msg.SubArray(index, i - 1));
+                address = Encoding.UTF8.GetString(msg.SubArray(index, i - 1));
                 break;
             }
         }
@@ -110,7 +110,7 @@ public abstract class OscPacket
         {
             if (msg[i - 1] == 0)
             {
-                types = Encoding.ASCII.GetChars(msg.SubArray(index, i - index));
+                types = Encoding.UTF8.GetChars(msg.SubArray(index, i - index));
                 break;
             }
         }
@@ -147,7 +147,7 @@ public abstract class OscPacket
         {
             if (msg[i - 1] == 0)
             {
-                output = Encoding.ASCII.GetString(msg.SubArray(index, i - index));
+                output = Encoding.UTF8.GetString(msg.SubArray(index, i - index));
                 break;
             }
         }
@@ -186,10 +186,9 @@ public abstract class OscPacket
 
     protected static byte[] SetString(string value)
     {
-        var len = OscUtils.AlignedStringLength(value);
-        var msg = new byte[len];
+        var bytes = Encoding.UTF8.GetBytes(value);
 
-        var bytes = Encoding.ASCII.GetBytes(value);
+        var msg = new byte[(bytes.Length / 4 + 1) * 4];
         bytes.CopyTo(msg, 0);
 
         return msg;

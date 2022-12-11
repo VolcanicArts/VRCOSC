@@ -6,9 +6,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using osu.Framework.Extensions.IEnumerableExtensions;
-using VRCOSC.Game.Modules.Util;
+using VRCOSC.Game.Modules;
 
-namespace VRCOSC.Game.Util;
+namespace VRCOSC.Game.Processes;
 
 public static class ProcessExtensions
 {
@@ -22,23 +22,16 @@ public static class ProcessExtensions
         windowsVKeys.ForEach(key => ProcessKey.ReleaseKey((int)key));
     }
 
-    public static async Task PressKey(WindowsVKey key, int pressTime)
-    {
-        ProcessKey.HoldKey((int)key);
-        await Task.Delay(pressTime);
-        ProcessKey.ReleaseKey((int)key);
-    }
-
     #endregion
 
     #region Window
 
-    public static void ShowMainWindow(Process process, ShowWindowEnum showWindowEnum)
+    public static void ShowMainWindow(this Process process, ShowWindowEnum showWindowEnum)
     {
         ProcessWindow.ShowMainWindow(process, showWindowEnum);
     }
 
-    public static void SetMainWindowForeground(Process process)
+    public static void SetMainWindowForeground(this Process process)
     {
         ProcessWindow.SetMainWindowForeground(process);
     }

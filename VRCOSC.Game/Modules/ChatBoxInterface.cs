@@ -7,42 +7,42 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
+using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
-using VRCOSC.Game.Modules.Util;
 using VRCOSC.OSC;
 
 namespace VRCOSC.Game.Modules;
 
-public class ChatBox
+public class ChatBoxInterface
 {
-    private const int chatbox_reset_milli = 1500;
-    private const string chatbox_address_typing = "/chatbox/typing";
-    private const string chatbox_address_text = "/chatbox/input";
-
-    private readonly OscClient oscClient;
     private readonly ConcurrentQueue<ChatBoxData> timedQueue = new();
     private readonly ConcurrentDictionary<int, ChatBoxData> alwaysDict = new();
+    private readonly OscClient oscClient;
+    private readonly IBindable<int> resetMilli;
 
     private TimedTask? queueTask;
     private ChatBoxData? currentData;
     private DateTimeOffset? sendReset;
     private DateTimeOffset sendExpire;
     private bool alreadyClear;
-    private bool sendEnabled;
 
-    public ChatBox(OscClient oscClient)
+    public bool SendEnabled { get; private set; }
+
+    public ChatBoxInterface(OscClient oscClient, IBindable<int> resetMilli)
     {
         this.oscClient = oscClient;
+        this.resetMilli = resetMilli;
     }
 
     public void SetSending(bool canSend)
     {
-        sendEnabled = canSend;
+        SendEnabled = canSend;
+        if (!SendEnabled) clear();
     }
 
     public void SetTyping(bool typing)
     {
-        oscClient.SendValue(chatbox_address_typing, typing);
+        oscClient.SendValue(Constants.OSC_ADDRESS_CHATBOX_TYPING, typing);
     }
 
     public void Init()
@@ -51,10 +51,11 @@ public class ChatBox
         currentData = null;
         sendExpire = DateTimeOffset.Now;
         sendReset = null;
-        sendEnabled = true;
+        SendEnabled = true;
         timedQueue.Clear();
         alwaysDict.Clear();
-        queueTask = new TimedTask(update, 5).Start();
+        queueTask = new TimedTask(update, 5);
+        _ = queueTask.Start();
     }
 
     public async Task Shutdown()
@@ -65,7 +66,7 @@ public class ChatBox
 
     private void clear()
     {
-        oscClient.SendValues(chatbox_address_text, new List<object> { string.Empty, true });
+        oscClient.SendValues(Constants.OSC_ADDRESS_CHATBOX_INPUT, new List<object> { string.Empty, true });
         alreadyClear = true;
     }
 
@@ -139,8 +140,8 @@ public class ChatBox
 
         if (currentData.Text is null) return;
 
-        if (sendEnabled) oscClient.SendValues(chatbox_address_text, new List<object> { currentData.Text!, true });
-        sendReset = DateTimeOffset.Now + TimeSpan.FromMilliseconds(chatbox_reset_milli);
+        if (SendEnabled) oscClient.SendValues(Constants.OSC_ADDRESS_CHATBOX_INPUT, new List<object> { currentData.Text!, true });
+        sendReset = DateTimeOffset.Now + TimeSpan.FromMilliseconds(resetMilli.Value);
     }
 
     private class ChatBoxData

@@ -11,6 +11,7 @@ using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Localisation;
 using osuTK;
 using osuTK.Graphics;
+using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.UI;
 
@@ -42,9 +43,9 @@ public sealed partial class VRCOSCDropdown<T> : Dropdown<T>
         [BackgroundDependencyLoader(true)]
         private void load()
         {
-            BackgroundColour = VRCOSCColour.Gray2;
-            HoverColour = VRCOSCColour.Gray5;
-            SelectionColour = VRCOSCColour.Gray5;
+            BackgroundColour = ThemeManager.Current[ThemeAttribute.Darker];
+            HoverColour = ThemeManager.Current[ThemeAttribute.Light];
+            SelectionColour = ThemeManager.Current[ThemeAttribute.Light];
         }
 
         private bool wasOpened;
@@ -172,7 +173,7 @@ public sealed partial class VRCOSCDropdown<T> : Dropdown<T>
             {
                 base.UpdateForegroundColour();
 
-                if (Foreground.Children.FirstOrDefault() is Content content)
+                if (Foreground.FirstOrDefault() is Content content)
                     content.Hovering = IsHovered;
             }
 
@@ -206,14 +207,15 @@ public sealed partial class VRCOSCDropdown<T> : Dropdown<T>
                             X = chevron_offset,
                             Margin = new MarginPadding { Left = 3, Right = 3 },
                             Origin = Anchor.CentreLeft,
-                            Anchor = Anchor.CentreLeft,
+                            Anchor = Anchor.CentreLeft
                         },
                         Label = new SpriteText
                         {
                             X = 15,
                             Origin = Anchor.CentreLeft,
                             Anchor = Anchor.CentreLeft,
-                        },
+                            Colour = ThemeManager.Current[ThemeAttribute.Text]
+                        }
                     };
                 }
 
@@ -275,7 +277,7 @@ public sealed partial class VRCOSCDropdown<T> : Dropdown<T>
             Margin = new MarginPadding { Bottom = 4 };
             CornerRadius = corner_radius;
             Masking = true;
-            BorderColour = VRCOSCColour.Gray0;
+            BorderColour = ThemeManager.Current[ThemeAttribute.Border];
             BorderThickness = 2;
             Height = 40;
 
@@ -285,12 +287,12 @@ public sealed partial class VRCOSCDropdown<T> : Dropdown<T>
                 AutoSizeAxes = Axes.Y,
                 RowDimensions = new[]
                 {
-                    new Dimension(GridSizeMode.AutoSize),
+                    new Dimension(GridSizeMode.AutoSize)
                 },
                 ColumnDimensions = new[]
                 {
                     new Dimension(),
-                    new Dimension(GridSizeMode.AutoSize),
+                    new Dimension(GridSizeMode.AutoSize)
                 },
                 Content = new[]
                 {
@@ -302,7 +304,8 @@ public sealed partial class VRCOSCDropdown<T> : Dropdown<T>
                             Origin = Anchor.CentreLeft,
                             RelativeSizeAxes = Axes.X,
                             Truncate = true,
-                            Font = FrameworkFont.Regular.With(size: 25)
+                            Font = FrameworkFont.Regular.With(size: 25),
+                            Colour = ThemeManager.Current[ThemeAttribute.Text]
                         },
                         Icon = new SpriteIcon
                         {
@@ -310,7 +313,8 @@ public sealed partial class VRCOSCDropdown<T> : Dropdown<T>
                             Anchor = Anchor.CentreRight,
                             Origin = Anchor.CentreRight,
                             Size = new Vector2(16),
-                        },
+                            Colour = ThemeManager.Current[ThemeAttribute.Text]
+                        }
                     }
                 }
             };
@@ -319,8 +323,8 @@ public sealed partial class VRCOSCDropdown<T> : Dropdown<T>
         [BackgroundDependencyLoader]
         private void load()
         {
-            BackgroundColour = VRCOSCColour.Gray2;
-            BackgroundColourHover = VRCOSCColour.Gray4;
+            BackgroundColour = ThemeManager.Current[ThemeAttribute.Darker];
+            BackgroundColourHover = ThemeManager.Current[ThemeAttribute.Mid];
         }
     }
 }

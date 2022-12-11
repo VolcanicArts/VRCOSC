@@ -1,12 +1,10 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-namespace VRCOSC.Game.Modules;
+namespace VRCOSC.OSC;
 
-public enum ModuleType
+public interface IOscListener
 {
-    General = 0,
-    Health = 1,
-    Integrations = 2,
-    Accessibility = 3
+    void OnDataSent(OscData data);
+    void OnDataReceived(OscData data);
 }

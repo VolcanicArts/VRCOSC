@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -8,18 +8,17 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using osu.Framework.Logging;
-using VRCOSC.Game.Modules.Util;
-using VRCOSC.Game.Util;
+using VRCOSC.Game.Processes;
 
-namespace VRCOSC.Game.Modules;
+namespace VRCOSC.Game.Modules.Modules;
 
 public abstract class IntegrationModule : Module
 {
     private const int delay = 10;
 
     protected virtual string TargetProcess => string.Empty;
-    protected virtual string ReturnProcess => "vrchat";
-    protected virtual string TargetExe => $@"{TargetProcess}.exe";
+    protected string ReturnProcess => "vrchat";
+    protected string TargetExe => $@"{TargetProcess}.exe";
 
     private readonly Dictionary<Enum, WindowsVKey[]> keyCombinations = new();
 
@@ -109,13 +108,13 @@ public abstract class IntegrationModule : Module
     {
         if (process.MainWindowHandle == IntPtr.Zero)
         {
-            ProcessExtensions.ShowMainWindow(process, ShowWindowEnum.Restore);
+            process.ShowMainWindow(ShowWindowEnum.Restore);
             await Task.Delay(delay);
         }
 
-        ProcessExtensions.ShowMainWindow(process, ShowWindowEnum.ShowDefault);
+        process.ShowMainWindow(ShowWindowEnum.ShowDefault);
         await Task.Delay(delay);
-        ProcessExtensions.SetMainWindowForeground(process);
+        process.SetMainWindowForeground();
     }
 
     private async Task performKeyCombination(Enum lookup)

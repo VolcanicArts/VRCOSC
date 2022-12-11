@@ -11,6 +11,7 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Platform;
 using osuTK;
 using VRCOSC.Game.Config;
+using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Button;
 
 namespace VRCOSC.Game.Graphics.About;
@@ -36,7 +37,7 @@ public sealed partial class AboutScreen : Container
             new Box
             {
                 RelativeSizeAxes = Axes.Both,
-                Colour = VRCOSCColour.Gray5
+                Colour = ThemeManager.Current[ThemeAttribute.Light]
             },
             new Container
             {
@@ -53,7 +54,7 @@ public sealed partial class AboutScreen : Container
                         Direction = FillDirection.Full,
                         Spacing = new Vector2(5)
                     },
-                    text = new TextFlowContainer
+                    text = new TextFlowContainer(t => t.Colour = ThemeManager.Current[ThemeAttribute.Text])
                     {
                         RelativeSizeAxes = Axes.Both,
                         TextAnchor = Anchor.BottomCentre

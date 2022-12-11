@@ -5,6 +5,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osuTK;
+using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.Settings;
 
@@ -19,7 +20,7 @@ public sealed partial class SettingsScreen : Container
             new Box
             {
                 RelativeSizeAxes = Axes.Both,
-                Colour = VRCOSCColour.Gray5
+                Colour = ThemeManager.Current[ThemeAttribute.Light]
             },
             new BasicScrollContainer
             {
@@ -32,7 +33,11 @@ public sealed partial class SettingsScreen : Container
                     AutoSizeAxes = Axes.Y,
                     Children = new Drawable[]
                     {
-                        new TextFlowContainer(t => t.Font = FrameworkFont.Regular.With(size: 80))
+                        new TextFlowContainer(t =>
+                        {
+                            t.Font = FrameworkFont.Regular.With(size: 80);
+                            t.Colour = ThemeManager.Current[ThemeAttribute.Text];
+                        })
                         {
                             RelativeSizeAxes = Axes.X,
                             AutoSizeAxes = Axes.Y,
@@ -48,6 +53,7 @@ public sealed partial class SettingsScreen : Container
                             Spacing = new Vector2(0, 20),
                             Children = new SectionContainer[]
                             {
+                                new GeneralSection(),
                                 new OscSection(),
                                 new ModulesSection(),
                                 new UpdateSection()

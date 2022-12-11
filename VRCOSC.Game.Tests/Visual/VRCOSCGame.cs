@@ -6,7 +6,7 @@ using VRCOSC.Desktop;
 
 namespace VRCOSC.Game.Tests.Visual;
 
-public class VRCOSCGame : VRCOSCTestScene
+public partial class VRCOSCGame : VRCOSCTestScene
 {
     [SetUp]
     public void SetUp()

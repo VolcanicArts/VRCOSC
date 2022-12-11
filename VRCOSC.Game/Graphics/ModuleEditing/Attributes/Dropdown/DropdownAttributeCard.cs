@@ -22,7 +22,7 @@ public sealed partial class DropdownAttributeCard<T> : AttributeCardSingle where
     [BackgroundDependencyLoader]
     private void load()
     {
-        ContentFlow.Add(dropdown = new VRCOSCDropdown<T>()
+        ContentFlow.Add(dropdown = new VRCOSCDropdown<T>
         {
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,

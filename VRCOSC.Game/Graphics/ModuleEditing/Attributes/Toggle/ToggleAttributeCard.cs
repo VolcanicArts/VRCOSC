@@ -4,6 +4,7 @@
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Button;
 using VRCOSC.Game.Modules;
 
@@ -34,7 +35,7 @@ public sealed partial class ToggleAttributeCard : AttributeCardSingle
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 CornerRadius = 10,
-                BorderColour = VRCOSCColour.Gray0,
+                BorderColour = ThemeManager.Current[ThemeAttribute.Border],
                 BorderThickness = 2,
                 ShouldAnimate = false,
                 State = { Value = (bool)AttributeData.Attribute.Value }

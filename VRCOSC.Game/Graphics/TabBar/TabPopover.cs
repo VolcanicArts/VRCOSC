@@ -6,6 +6,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.UserInterface;
 using osuTK;
+using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.TabBar;
 
@@ -13,7 +14,7 @@ public sealed partial class TabPopover : Popover
 {
     public TabPopover()
     {
-        Background.Colour = VRCOSCColour.Gray3;
+        Background.Colour = ThemeManager.Current[ThemeAttribute.Dark];
         Content.Padding = new MarginPadding(10);
         RelativePositionAxes = Axes.X;
     }
@@ -27,7 +28,7 @@ public sealed partial class TabPopover : Popover
 
     protected override Drawable CreateArrow() => new EquilateralTriangle
     {
-        Colour = VRCOSCColour.Gray3,
+        Colour = ThemeManager.Current[ThemeAttribute.Dark],
         Origin = Anchor.TopCentre,
         Scale = new Vector2(1.05f)
     };

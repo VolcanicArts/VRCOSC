@@ -1,20 +1,22 @@
 // Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Platform;
-using Valve.VR;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics;
 using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Graphics.Settings;
 using VRCOSC.Game.Graphics.TabBar;
+using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.Updater;
 using VRCOSC.Game.Modules;
-using VRCOSC.Game.Modules.Util;
 
 // ReSharper disable InconsistentNaming
 
@@ -35,10 +37,10 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     public VRCOSCUpdateManager UpdateManager = null!;
 
     private NotificationContainer notificationContainer = null!;
-    private OpenVrInterface openVrInterface = null!;
+    private OpenVRInterface openVrInterface = null!;
 
     public Bindable<string> SearchTermFilter = new(string.Empty);
-    public Bindable<ModuleType?> TypeFilter = new();
+    public Bindable<Module.ModuleType?> TypeFilter = new();
 
     [Cached]
     private Bindable<Tab> SelectedTab = new();
@@ -52,13 +54,18 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     [Cached(name: "InfoModule")]
     private IBindable<Module?> InfoModule = new Bindable<Module?>();
 
+    [Resolved]
+    private Storage storage { get; set; } = null!;
+
     [BackgroundDependencyLoader]
     private void load()
     {
+        ThemeManager.Theme = ConfigManager.Get<ColourTheme>(VRCOSCSetting.Theme);
+
         notificationContainer = new NotificationContainer();
         DependencyContainer.CacheAs(notificationContainer);
 
-        openVrInterface = new OpenVrInterface();
+        openVrInterface = new OpenVRInterface(storage);
         DependencyContainer.CacheAs(openVrInterface);
 
         Children = new Drawable[]
@@ -74,17 +81,24 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
     protected override void Update()
     {
+        if (openVrInterface.HasInitialised) handleOpenVR();
+    }
+
+    private void handleOpenVR()
+    {
         openVrInterface.Poll();
     }
 
-    protected override void LoadComplete()
+    protected override async void LoadComplete()
     {
         base.LoadComplete();
 
+        await copyOpenVrFiles();
+
+        Scheduler.AddDelayed(() => Task.Run(() => openVrInterface.Init()), 50d, true);
+
         checkUpdates();
         checkVersion();
-
-        openVrInterface.Init();
 
         notificationContainer.Notify(new TimedNotification
         {
@@ -119,12 +133,25 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
                 Title = "VRCOSC Updated",
                 Description = "Click to see the changes",
                 Icon = FontAwesome.Solid.Download,
-                Colour = VRCOSCColour.GreenDark,
-                ClickCallback = () => host.OpenUrlExternally(latest_release_url),
+                Colour = ThemeManager.Current[ThemeAttribute.Success],
+                ClickCallback = () => host.OpenUrlExternally(latest_release_url)
             });
         }
 
         ConfigManager.SetValue(VRCOSCSetting.Version, Version);
+    }
+
+    private async Task copyOpenVrFiles()
+    {
+        var tempStorage = storage.GetStorageForDirectory("openvr");
+        var tempStoragePath = tempStorage.GetFullPath(string.Empty);
+
+        var openVrFiles = Resources.GetAvailableResources().Where(file => file.StartsWith("OpenVR"));
+
+        foreach (var file in openVrFiles)
+        {
+            await File.WriteAllBytesAsync(Path.Combine(tempStoragePath, file.Split('/')[1]), await Resources.GetAsync(file));
+        }
     }
 
     protected override bool OnExiting()
@@ -135,8 +162,6 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         }, true);
 
         ModulesRunning.Value = false;
-
-        OpenVR.Shutdown();
 
         return true;
     }

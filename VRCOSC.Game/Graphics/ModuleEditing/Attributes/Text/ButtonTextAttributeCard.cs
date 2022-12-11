@@ -4,6 +4,7 @@
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osuTK;
+using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Button;
 using VRCOSC.Game.Modules;
 
@@ -47,7 +48,7 @@ public sealed partial class ButtonTextAttributeCard : TextAttributeCard
                         Masking = true,
                         CornerRadius = 5,
                         Action = attributeSingleWithButton.ButtonAction,
-                        BackgroundColour = VRCOSCColour.Blue
+                        BackgroundColour = ThemeManager.Current[ThemeAttribute.Action]
                     }
                 }
             }

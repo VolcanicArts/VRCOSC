@@ -9,6 +9,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
+using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleEditing;
@@ -50,6 +51,7 @@ public sealed partial class ModuleEditingContent : Container
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
                             Font = FrameworkFont.Regular.With(size: 75),
+                            Colour = ThemeManager.Current[ThemeAttribute.Text],
                             Margin = new MarginPadding
                             {
                                 Vertical = 10
@@ -65,7 +67,7 @@ public sealed partial class ModuleEditingContent : Container
                             Spacing = new Vector2(0, 5),
                             Children = new[]
                             {
-                                settings = new SeparatedAttributeFlow(),
+                                settings = new SeparatedAttributeFlow()
                             }
                         }
                     }
@@ -109,7 +111,7 @@ public sealed partial class ModuleEditingContent : Container
                     Anchor = Anchor.TopCentre,
                     Origin = Anchor.TopCentre
                 },
-                attributeFlow = new AttributeFlow(),
+                attributeFlow = new AttributeFlow()
             };
         }
 

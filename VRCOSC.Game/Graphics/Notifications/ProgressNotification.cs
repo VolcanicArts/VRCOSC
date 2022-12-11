@@ -5,6 +5,7 @@ using System;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Input.Events;
+using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI;
 
 namespace VRCOSC.Game.Graphics.Notifications;
@@ -32,7 +33,7 @@ public sealed partial class ProgressNotification : BasicNotification
             RowDimensions = new[]
             {
                 new Dimension(),
-                new Dimension(GridSizeMode.Absolute, 5),
+                new Dimension(GridSizeMode.Absolute, 5)
             },
             Content = new[]
             {
@@ -45,8 +46,8 @@ public sealed partial class ProgressNotification : BasicNotification
                     progressBar = new ProgressBar
                     {
                         RelativeSizeAxes = Axes.Both,
-                        BackgroundColour = VRCOSCColour.Gray2,
-                        SelectionColour = VRCOSCColour.GreenLight
+                        BackgroundColour = ThemeManager.Current[ThemeAttribute.Darker],
+                        SelectionColour = ThemeManager.Current[ThemeAttribute.Success]
                     }
                 }
             }

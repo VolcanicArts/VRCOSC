@@ -4,6 +4,7 @@
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI;
 
 namespace VRCOSC.Game.Graphics.ModuleListing;
@@ -61,7 +62,7 @@ public sealed partial class Header : Container
                                 PlaceholderText = "Search",
                                 Current = game.SearchTermFilter,
                                 Masking = true,
-                                BorderColour = Colour4.Black,
+                                BorderColour = ThemeManager.Current[ThemeAttribute.Border],
                                 BorderThickness = 2
                             }
                         }

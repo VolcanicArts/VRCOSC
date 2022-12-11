@@ -3,6 +3,7 @@
 
 using osu.Framework.Allocation;
 using VRCOSC.Game.Config;
+using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.Settings;
 
@@ -19,6 +20,6 @@ public sealed partial class UpdateSection : SectionContainer
     protected override void GenerateItems()
     {
         AddDropdown("Update Mode", "How should VRCOSC handle updating?", ConfigManager.GetBindable<UpdateMode>(VRCOSCSetting.UpdateMode));
-        AddButton("Check For Update", VRCOSCColour.Gray4, () => game.UpdateManager.CheckForUpdate(configManager.Get<string>(VRCOSCSetting.UpdateRepo)));
+        AddButton("Check For Update", ThemeManager.Current[ThemeAttribute.Mid], () => game.UpdateManager.CheckForUpdate(configManager.Get<string>(VRCOSCSetting.UpdateRepo)));
     }
 }

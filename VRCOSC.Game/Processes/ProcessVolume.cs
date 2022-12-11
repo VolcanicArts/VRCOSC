@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 // ReSharper disable SuspiciousTypeConversion.Global
 // ReSharper disable InconsistentNaming
 
-namespace VRCOSC.Game.Util;
+namespace VRCOSC.Game.Processes;
 
 // https://stackoverflow.com/questions/20938934/controlling-applications-volume-by-process-id
 internal static class ProcessVolume
@@ -59,7 +59,7 @@ internal static class ProcessVolume
     private static ISimpleAudioVolume? getVolumeObject(string processName)
     {
         // get the speakers (1st render + multimedia) device
-        IMMDeviceEnumerator deviceEnumerator = (IMMDeviceEnumerator)(new MMDeviceEnumerator());
+        IMMDeviceEnumerator deviceEnumerator = (IMMDeviceEnumerator)new MMDeviceEnumerator();
         deviceEnumerator.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia, out var speakers);
 
         // activate the session manager. we need the enumerator

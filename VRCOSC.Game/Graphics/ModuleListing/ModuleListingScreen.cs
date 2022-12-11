@@ -7,6 +7,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using VRCOSC.Game.Graphics.ModuleEditing;
 using VRCOSC.Game.Graphics.ModuleRun;
+using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.ModuleListing;
 
@@ -22,7 +23,7 @@ public sealed partial class ModuleListingScreen : Container
             new Box
             {
                 RelativeSizeAxes = Axes.Both,
-                Colour = VRCOSCColour.Gray5
+                Colour = ThemeManager.Current[ThemeAttribute.Light]
             },
             new GridContainer
             {

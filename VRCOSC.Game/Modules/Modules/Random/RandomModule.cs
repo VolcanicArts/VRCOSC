@@ -3,7 +3,6 @@
 
 using System;
 using System.Threading.Tasks;
-using VRCOSC.Game.Modules.Util;
 
 namespace VRCOSC.Game.Modules.Modules.Random;
 
@@ -12,7 +11,7 @@ public abstract class RandomModule<T> : Module where T : struct
     public override string Title => $"Random {typeof(T).ToReadableName()}";
     public override string Description => $"Sends a random {typeof(T).ToReadableName().ToLowerInvariant()} over a variable time period";
     public override string Author => "VolcanicArts";
-    public override ModuleType ModuleType => ModuleType.General;
+    public override ModuleType Type => ModuleType.General;
     protected override int DeltaUpdate => GetSetting<int>(RandomSetting.DeltaUpdate);
 
     private readonly System.Random random = new();

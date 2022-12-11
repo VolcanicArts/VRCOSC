@@ -13,8 +13,6 @@ using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
-using VRCOSC.Game.Modules.Util;
-using VRCOSC.Game.Util;
 using VRCOSC.OSC;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -23,15 +21,18 @@ using VRCOSC.OSC;
 namespace VRCOSC.Game.Modules;
 
 [SuppressMessage("Usage", "CA2208:Instantiate argument exceptions correctly")]
-public abstract class Module
+public abstract class Module : IOscListener
 {
     private GameHost Host = null!;
     private Storage Storage = null!;
     private OscClient OscClient = null!;
     private TerminalLogger Terminal = null!;
-    protected Bindable<ModuleState> State = null!;
+    private ChatBoxInterface chatBoxInterface = null!;
     private TimedTask? updateTask;
-    private ChatBox ChatBox = null!;
+
+    protected Player Player = null!;
+    protected OpenVRInterface OpenVrInterface = null!;
+    protected Bindable<ModuleState> State = null!;
 
     public readonly BindableBool Enabled = new();
     public readonly Dictionary<string, ModuleAttribute> Settings = new();
@@ -40,24 +41,29 @@ public abstract class Module
     public virtual string Title => string.Empty;
     public virtual string Description => string.Empty;
     public virtual string Author => string.Empty;
-    public virtual ModuleType ModuleType => ModuleType.General;
     public virtual string Prefab => string.Empty;
+    public virtual ModuleType Type => ModuleType.General;
     protected virtual int DeltaUpdate => int.MaxValue;
-    protected virtual bool ExecuteUpdateImmediately => true;
     protected virtual int ChatBoxPriority => 0;
 
-    protected Player Player = null!;
-    protected OpenVrInterface OpenVrInterface = null!;
+    private bool IsEnabled => Enabled.Value;
+    private bool ShouldUpdate => DeltaUpdate != int.MaxValue;
+    private string FileName => @$"{GetType().Name}.ini";
 
-    public const float vrc_osc_update_rate = 20;
-    public static readonly int vrc_osc_delta_update = (int)((1f / vrc_osc_update_rate) * 1000f);
+    protected bool IsStarting => State.Value == ModuleState.Starting;
+    protected bool HasStarted => State.Value == ModuleState.Started;
+    protected bool IsStopping => State.Value == ModuleState.Stopping;
+    protected bool HasStopped => State.Value == ModuleState.Stopped;
 
-    public void Initialise(GameHost host, Storage storage, OscClient oscClient, ChatBox chatBox, OpenVrInterface openVrInterface)
+    public bool HasSettings => Settings.Any();
+    public bool HasParameters => Parameters.Any();
+
+    public void Initialise(GameHost host, Storage storage, OscClient oscClient, ChatBoxInterface chatBoxInterface, OpenVRInterface openVrInterface)
     {
         Host = host;
         Storage = storage;
         OscClient = oscClient;
-        ChatBox = chatBox;
+        this.chatBoxInterface = chatBoxInterface;
         Terminal = new TerminalLogger(GetType().Name);
         State = new Bindable<ModuleState>(ModuleState.Stopped);
         Player = new Player(OscClient);
@@ -69,83 +75,51 @@ public abstract class Module
         State.ValueChanged += _ => Log(State.Value.ToString());
     }
 
-    #region Properties
-
-    public bool HasSettings => Settings.Any();
-
-    private bool IsEnabled => Enabled.Value;
-    private bool ShouldUpdate => DeltaUpdate != int.MaxValue;
-    private string FileName => @$"{GetType().Name}.ini";
-
-    protected bool IsStarting => State.Value == ModuleState.Starting;
-    protected bool HasStarted => State.Value == ModuleState.Started;
-    protected bool IsStopping => State.Value == ModuleState.Stopping;
-    protected bool HasStopped => State.Value == ModuleState.Stopped;
-
-    public const string VRChatOscPrefix = @"/avatar/parameters/";
-
-    #endregion
-
     #region Attributes
 
     protected virtual void CreateAttributes() { }
 
-    protected void CreateSetting(Enum lookup, string displayName, string description, bool defaultValue)
-        => addSingleSetting(lookup, displayName, description, defaultValue);
+    protected void CreateSetting(Enum lookup, string displayName, string description, bool defaultValue, Func<bool>? dependsOn = null)
+        => addSingleSetting(lookup, displayName, description, defaultValue, dependsOn);
 
-    protected void CreateSetting(Enum lookup, string displayName, string description, int defaultValue)
-        => addSingleSetting(lookup, displayName, description, defaultValue);
+    protected void CreateSetting(Enum lookup, string displayName, string description, int defaultValue, Func<bool>? dependsOn = null)
+        => addSingleSetting(lookup, displayName, description, defaultValue, dependsOn);
 
-    protected void CreateSetting(Enum lookup, string displayName, string description, string defaultValue)
-        => addSingleSetting(lookup, displayName, description, defaultValue);
+    protected void CreateSetting(Enum lookup, string displayName, string description, string defaultValue, Func<bool>? dependsOn = null)
+        => addSingleSetting(lookup, displayName, description, defaultValue, dependsOn);
 
-    protected void CreateSetting(Enum lookup, string displayName, string description, Enum defaultValue)
-        => addSingleSetting(lookup, displayName, description, defaultValue);
+    protected void CreateSetting(Enum lookup, string displayName, string description, Enum defaultValue, Func<bool>? dependsOn = null)
+        => addSingleSetting(lookup, displayName, description, defaultValue, dependsOn);
 
-    protected void CreateSetting(Enum lookup, string displayName, string description, int defaultValue, int minValue, int maxValue)
-        => addRangedSetting(lookup, displayName, description, defaultValue, minValue, maxValue);
+    protected void CreateSetting(Enum lookup, string displayName, string description, int defaultValue, int minValue, int maxValue, Func<bool>? dependsOn = null)
+        => addRangedSetting(lookup, displayName, description, defaultValue, minValue, maxValue, dependsOn);
 
-    protected void CreateSetting(Enum lookup, string displayName, string description, float defaultValue, float minValue, float maxValue)
-        => addRangedSetting(lookup, displayName, description, defaultValue, minValue, maxValue);
+    protected void CreateSetting(Enum lookup, string displayName, string description, float defaultValue, float minValue, float maxValue, Func<bool>? dependsOn = null)
+        => addRangedSetting(lookup, displayName, description, defaultValue, minValue, maxValue, dependsOn);
 
-    protected void CreateSetting(Enum lookup, string displayName, string description, IEnumerable<int> defaultValues, bool canBeEmpty)
-        => addEnumerableSetting(lookup, displayName, description, defaultValues, canBeEmpty);
+    protected void CreateSetting(Enum lookup, string displayName, string description, IEnumerable<int> defaultValues, bool canBeEmpty, Func<bool>? dependsOn = null)
+        => addEnumerableSetting(lookup, displayName, description, defaultValues, canBeEmpty, dependsOn);
 
-    protected void CreateSetting(Enum lookup, string displayName, string description, IEnumerable<string> defaultValues, bool canBeEmpty)
-        => addEnumerableSetting(lookup, displayName, description, defaultValues, canBeEmpty);
+    protected void CreateSetting(Enum lookup, string displayName, string description, IEnumerable<string> defaultValues, bool canBeEmpty, Func<bool>? dependsOn = null)
+        => addEnumerableSetting(lookup, displayName, description, defaultValues, canBeEmpty, dependsOn);
 
-    protected void CreateSetting(Enum lookup, string displayName, string description, string defaultValue, string buttonText, Action buttonAction)
-        => addTextAndButtonSetting(lookup, displayName, description, defaultValue, buttonText, buttonAction);
+    protected void CreateSetting(Enum lookup, string displayName, string description, string defaultValue, string buttonText, Action buttonAction, Func<bool>? dependsOn = null)
+        => addTextAndButtonSetting(lookup, displayName, description, defaultValue, buttonText, buttonAction, dependsOn);
 
-    protected void CreateParameter<T>(Enum lookup, ParameterMode mode, string parameterName, string description, ActionMenu menuLink = ActionMenu.None)
-    {
-        if (!mode.HasFlagFast(ParameterMode.Read) && menuLink != ActionMenu.None)
-        {
-            throw new InvalidOperationException("Cannot set an action menu link on a write-only parameter");
-        }
+    protected void CreateParameter<T>(Enum lookup, ParameterMode mode, string parameterName, string description)
+        => Parameters.Add(lookup, new ParameterMetadata(mode, parameterName, description, typeof(T)));
 
-        Parameters.Add(lookup, new ParameterMetadata(mode, parameterName, description, typeof(T), menuLink));
-    }
+    private void addSingleSetting(Enum lookup, string displayName, string description, object defaultValue, Func<bool>? dependsOn)
+        => Settings.Add(lookup.ToLookup(), new ModuleAttributeSingle(new ModuleAttributeMetadata(displayName, description), defaultValue, dependsOn));
 
-    private void addSingleSetting(Enum lookup, string displayName, string description, object defaultValue)
-    {
-        Settings.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeSingle(new ModuleAttributeMetadata(displayName, description), defaultValue));
-    }
+    private void addEnumerableSetting<T>(Enum lookup, string displayName, string description, IEnumerable<T> defaultValues, bool canBeEmpty, Func<bool>? dependsOn)
+        => Settings.Add(lookup.ToLookup(), new ModuleAttributeList(new ModuleAttributeMetadata(displayName, description), defaultValues.Cast<object>(), typeof(T), canBeEmpty, dependsOn));
 
-    private void addEnumerableSetting<T>(Enum lookup, string displayName, string description, IEnumerable<T> defaultValues, bool canBeEmpty)
-    {
-        Settings.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeList(new ModuleAttributeMetadata(displayName, description), defaultValues.Cast<object>(), typeof(T), canBeEmpty));
-    }
+    private void addRangedSetting<T>(Enum lookup, string displayName, string description, T defaultValue, T minValue, T maxValue, Func<bool>? dependsOn) where T : struct
+        => Settings.Add(lookup.ToLookup(), new ModuleAttributeSingleWithBounds(new ModuleAttributeMetadata(displayName, description), defaultValue, minValue, maxValue, dependsOn));
 
-    private void addRangedSetting<T>(Enum lookup, string displayName, string description, T defaultValue, T minValue, T maxValue) where T : struct
-    {
-        Settings.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeSingleWithBounds(new ModuleAttributeMetadata(displayName, description), defaultValue, minValue, maxValue));
-    }
-
-    private void addTextAndButtonSetting(Enum lookup, string displayName, string description, string defaultValue, string buttonText, Action buttonAction)
-    {
-        Settings.Add(lookup.ToString().ToLowerInvariant(), new ModuleAttributeSingleWithButton(new ModuleAttributeMetadata(displayName, description), defaultValue, buttonText, buttonAction));
-    }
+    private void addTextAndButtonSetting(Enum lookup, string displayName, string description, string defaultValue, string buttonText, Action buttonAction, Func<bool>? dependsOn)
+        => Settings.Add(lookup.ToLookup(), new ModuleAttributeSingleWithButton(new ModuleAttributeMetadata(displayName, description), defaultValue, buttonText, buttonAction, dependsOn));
 
     #endregion
 
@@ -160,9 +134,10 @@ public abstract class Module
 
         await OnStart(cancellationToken);
 
-        if (ShouldUpdate) updateTask = new TimedTask(OnUpdate, DeltaUpdate, ExecuteUpdateImmediately).Start();
+        if (ShouldUpdate) updateTask = new TimedTask(OnUpdate, DeltaUpdate, true);
+        await (updateTask?.Start() ?? Task.CompletedTask);
 
-        OscClient.OnParameterReceived += onParameterReceived;
+        OscClient.RegisterListener(this);
 
         State.Value = ModuleState.Started;
     }
@@ -173,7 +148,7 @@ public abstract class Module
 
         State.Value = ModuleState.Stopping;
 
-        OscClient.OnParameterReceived -= onParameterReceived;
+        OscClient.DeRegisterListener(this);
 
         if (updateTask is not null) await updateTask.Stop();
 
@@ -195,7 +170,7 @@ public abstract class Module
 
     protected T GetSetting<T>(Enum lookup)
     {
-        var setting = Settings[lookup.ToString().ToLowerInvariant()];
+        var setting = Settings[lookup.ToLookup()];
 
         object? value;
 
@@ -206,17 +181,11 @@ public abstract class Module
                 break;
 
             case ModuleAttributeList settingList when settingList.Type == typeof(string):
-                var originalListStr = settingList.AttributeList.ToList();
-                var convertedListStr = new List<string>();
-                originalListStr.ForEach(obj => convertedListStr.Add((string)obj.Value));
-                value = convertedListStr;
+                value = settingList.GetValueList<string>();
                 break;
 
             case ModuleAttributeList settingList when settingList.Type == typeof(int):
-                var originalListInt = settingList.AttributeList.ToList();
-                var convertedList = new List<int>();
-                originalListInt.ForEach(obj => convertedList.Add((int)obj.Value));
-                value = convertedList;
+                value = settingList.GetValueList<int>();
                 break;
 
             default:
@@ -232,60 +201,76 @@ public abstract class Module
 
     #endregion
 
-    #region IncomingParameters
+    #region Parameters
 
-    private void onParameterReceived(string address, object value)
+    protected void SendParameter<T>(Enum lookup, T value) where T : struct
     {
-        if (address.StartsWith("/avatar/change"))
+        if (HasStopped) return;
+
+        if (!Parameters.ContainsKey(lookup)) throw new InvalidOperationException($"Parameter {lookup} has not been defined");
+
+        var data = Parameters[lookup];
+        if (!data.Mode.HasFlagFast(ParameterMode.Write)) throw new InvalidOperationException("Cannot send a value to a read-only parameter");
+
+        OscClient.SendValue(data.FormattedAddress, value);
+    }
+
+    void IOscListener.OnDataSent(OscData data) { }
+
+    void IOscListener.OnDataReceived(OscData data)
+    {
+        if (!data.Values.Any()) return;
+
+        var address = data.Address;
+        var value = data.Values[0];
+
+        if (address.StartsWith(Constants.OSC_ADDRESS_AVATAR_CHANGE))
         {
             OnAvatarChange();
             return;
         }
 
-        if (!address.StartsWith(VRChatOscPrefix)) return;
+        if (!address.StartsWith(Constants.OSC_ADDRESS_AVATAR_PARAMETERS_PREFIX)) return;
 
-        var parameterName = address.Remove(0, VRChatOscPrefix.Length);
+        var parameterName = address.Remove(0, Constants.OSC_ADDRESS_AVATAR_PARAMETERS_PREFIX.Length);
         updatePlayerState(parameterName, value);
 
         try
         {
             Enum lookup = Parameters.Single(pair => pair.Value.Name == parameterName).Key;
-            var data = Parameters[lookup];
+            var parameterData = Parameters[lookup];
 
-            if (!data.Mode.HasFlagFast(ParameterMode.Read)) return;
+            if (!parameterData.Mode.HasFlagFast(ParameterMode.Read)) return;
 
-            if (value.GetType() != data.ExpectedType)
+            if (value.GetType() != parameterData.ExpectedType)
             {
-                Log($@"Cannot accept input parameter. `{lookup}` expects type `{data.ExpectedType}` but received type `{value.GetType()}`");
+                Log($@"Cannot accept input parameter. `{lookup}` expects type `{parameterData.ExpectedType}` but received type `{value.GetType()}`");
                 return;
             }
 
-            notifyParameterReceived(lookup, value, data);
+            switch (value)
+            {
+                case bool boolValue:
+                    OnBoolParameterReceived(lookup, boolValue);
+                    break;
+
+                case int intValue:
+                    OnIntParameterReceived(lookup, intValue);
+                    break;
+
+                case float floatValue:
+                    OnFloatParameterReceived(lookup, floatValue);
+                    break;
+            }
         }
         catch (InvalidOperationException)
         {
         }
     }
 
-    private void notifyParameterReceived(Enum key, object value, ParameterMetadata data)
-    {
-        switch (value)
-        {
-            case bool boolValue:
-                OnBoolParameterReceived(key, boolValue);
-                if (data.Menu == ActionMenu.Button && boolValue) OnButtonPressed(key);
-                break;
-
-            case int intValue:
-                OnIntParameterReceived(key, intValue);
-                break;
-
-            case float floatValue:
-                OnFloatParameterReceived(key, floatValue);
-                if (data.Menu == ActionMenu.Radial) OnRadialPuppetChange(key, floatValue);
-                break;
-        }
-    }
+    protected virtual void OnBoolParameterReceived(Enum key, bool value) { }
+    protected virtual void OnIntParameterReceived(Enum key, int value) { }
+    protected virtual void OnFloatParameterReceived(Enum key, float value) { }
 
     private void updatePlayerState(string parameterName, object value)
     {
@@ -366,51 +351,10 @@ public abstract class Module
                 break;
 
             default:
-                throw new ArgumentOutOfRangeException(nameof(vrChatInputParameter), vrChatInputParameter, "Unknown VRChatInputParameter");
+                throw new ArgumentOutOfRangeException(nameof(vrChatInputParameter), vrChatInputParameter, $"Unknown {nameof(VRChatInputParameter)}");
         }
 
         OnPlayerStateUpdate(vrChatInputParameter);
-    }
-
-    protected virtual void OnBoolParameterReceived(Enum key, bool value) { }
-    protected virtual void OnIntParameterReceived(Enum key, int value) { }
-    protected virtual void OnFloatParameterReceived(Enum key, float value) { }
-    protected virtual void OnButtonPressed(Enum key) { }
-    protected virtual void OnRadialPuppetChange(Enum key, float radialValue) { }
-
-    #endregion
-
-    #region OutgoingParameters
-
-    protected class OutputParameter
-    {
-        private readonly OscClient oscClient;
-        private readonly string address;
-
-        public OutputParameter(OscClient oscClient, string address)
-        {
-            this.oscClient = oscClient;
-            this.address = address;
-        }
-
-        public void SendValue<T>(T value) where T : struct => oscClient.SendValue(address, value);
-    }
-
-    protected OutputParameter GetOutputParameter(Enum lookup)
-    {
-        if (!Parameters.ContainsKey(lookup)) throw new InvalidOperationException($"Parameter {lookup.ToString()} has not been defined");
-
-        var data = Parameters[lookup];
-        if (!data.Mode.HasFlagFast(ParameterMode.Write)) throw new InvalidOperationException("Cannot send a value to a read-only parameter");
-
-        return new OutputParameter(OscClient, data.FormattedAddress);
-    }
-
-    protected void SendParameter<T>(Enum lookup, T value) where T : struct
-    {
-        if (HasStopped) return;
-
-        GetOutputParameter(lookup).SendValue(value);
     }
 
     #endregion
@@ -678,9 +622,9 @@ public abstract class Module
 
     protected void OpenUrlExternally(string Url) => Host.OpenUrlExternally(Url);
 
-    protected DateTimeOffset SetChatBoxText(string? text, TimeSpan displayLength) => ChatBox.SetText(text, ChatBoxPriority, displayLength);
+    protected DateTimeOffset SetChatBoxText(string? text, TimeSpan displayLength) => chatBoxInterface.SetText(text, ChatBoxPriority, displayLength);
 
-    protected void SetChatBoxTyping(bool typing) => ChatBox.SetTyping(typing);
+    protected void SetChatBoxTyping(bool typing) => chatBoxInterface.SetTyping(typing);
 
     protected static float Map(float source, float sMin, float sMax, float dMin, float dMax) => dMin + (dMax - dMin) * ((source - sMin) / (sMax - sMin));
 
@@ -692,5 +636,14 @@ public abstract class Module
         Started,
         Stopping,
         Stopped
+    }
+
+    public enum ModuleType
+    {
+        General = 0,
+        Health = 1,
+        Integrations = 2,
+        Accessibility = 3,
+        OpenVR = 4
     }
 }

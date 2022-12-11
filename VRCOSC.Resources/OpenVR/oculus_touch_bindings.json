@@ -1,0 +1,69 @@
+{
+   "alias_info" : {},
+   "app_key" : "volcanicarts.vrcosc",
+   "bindings" : {
+      "/actions/main" : {
+         "sources" : [
+            {
+               "inputs" : {
+                  "touch" : {
+                     "output" : "/actions/main/in/leftstick"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/left/input/thumbstick"
+            },
+            {
+               "inputs" : {
+                  "touch" : {
+                     "output" : "/actions/main/in/lefta"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/left/input/x"
+            },
+            {
+               "inputs" : {
+                  "touch" : {
+                     "output" : "/actions/main/in/leftb"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/left/input/y"
+            }
+            {
+               "inputs" : {
+                  "touch" : {
+                     "output" : "/actions/main/in/rightstick"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/right/input/thumbstick"
+            },
+            {
+               "inputs" : {
+                  "touch" : {
+                     "output" : "/actions/main/in/righta"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/right/input/a"
+            },
+            {
+               "inputs" : {
+                  "touch" : {
+                     "output" : "/actions/main/in/rightb"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/right/input/b"
+            }
+         ]
+      }
+   },
+   "controller_type" : "oculus_touch",
+   "description" : "A modular OSC program creator made for VRChat",
+   "name" : "VRCOSC",
+   "options" : {},
+   "simulated_actions" : []
+}

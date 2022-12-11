@@ -5,6 +5,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osuTK;
+using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics;
 
@@ -20,7 +21,7 @@ public sealed partial class LineSeparator : CircularContainer
             Anchor = Anchor.Centre,
             Origin = Anchor.Centre,
             RelativeSizeAxes = Axes.Both,
-            Colour = VRCOSCColour.Gray2
+            Colour = ThemeManager.Current[ThemeAttribute.Darker]
         };
     }
 }

@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using VRCOSC.Game.Modules.Util;
 
 namespace VRCOSC.Game.Modules.Modules.Discord;
 
@@ -12,21 +11,21 @@ public sealed class DiscordModule : IntegrationModule
     public override string Description => "Integration with the Discord desktop app";
     public override string Author => "VolcanicArts";
     public override string Prefab => "VRCOSC-Discord";
-    public override ModuleType ModuleType => ModuleType.Integrations;
+    public override ModuleType Type => ModuleType.Integrations;
     protected override string TargetProcess => "discord";
 
     protected override void CreateAttributes()
     {
-        CreateParameter<bool>(DiscordParameter.Mic, ParameterMode.Read, "VRCOSC/Discord/Mic", "Becomes true to toggle the mic", ActionMenu.Button);
-        CreateParameter<bool>(DiscordParameter.Deafen, ParameterMode.Read, "VRCOSC/Discord/Deafen", "Becomes true to toggle deafen", ActionMenu.Button);
+        CreateParameter<bool>(DiscordParameter.Mic, ParameterMode.Read, "VRCOSC/Discord/Mic", "Becomes true to toggle the mic");
+        CreateParameter<bool>(DiscordParameter.Deafen, ParameterMode.Read, "VRCOSC/Discord/Deafen", "Becomes true to toggle deafen");
 
         RegisterKeyCombination(DiscordParameter.Mic, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_LSHIFT, WindowsVKey.VK_M);
         RegisterKeyCombination(DiscordParameter.Deafen, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_LSHIFT, WindowsVKey.VK_D);
     }
 
-    protected override void OnButtonPressed(Enum key)
+    protected override void OnBoolParameterReceived(Enum key, bool value)
     {
-        ExecuteKeyCombination(key);
+        if (value) ExecuteKeyCombination(key);
     }
 
     private enum DiscordParameter

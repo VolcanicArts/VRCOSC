@@ -8,6 +8,7 @@ using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
+using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.ModuleRun;
 
@@ -22,7 +23,7 @@ public sealed partial class ParameterDisplay : Container
     {
         Masking = true;
         BorderThickness = 2;
-        BorderColour = VRCOSCColour.Gray0;
+        BorderColour = ThemeManager.Current[ThemeAttribute.Border];
     }
 
     [BackgroundDependencyLoader]
@@ -50,6 +51,7 @@ public sealed partial class ParameterDisplay : Container
                             Origin = Anchor.Centre,
                             Text = Title,
                             Font = FrameworkFont.Regular.With(size: 30),
+                            Colour = ThemeManager.Current[ThemeAttribute.Text]
                         }
                     },
                     new Drawable[]
@@ -72,7 +74,7 @@ public sealed partial class ParameterDisplay : Container
                                 Origin = Anchor.TopCentre,
                                 RelativeSizeAxes = Axes.X,
                                 AutoSizeAxes = Axes.Y
-                            },
+                            }
                         }
                     }
                 }

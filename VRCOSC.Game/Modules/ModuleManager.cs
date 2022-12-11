@@ -15,37 +15,36 @@ using osu.Framework.Graphics;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 using VRCOSC.Game.Config;
+using VRCOSC.Game.Modules.Modules.ChatBoxText;
 using VRCOSC.Game.Modules.Modules.Clock;
 using VRCOSC.Game.Modules.Modules.Discord;
 using VRCOSC.Game.Modules.Modules.HardwareStats;
 using VRCOSC.Game.Modules.Modules.Heartrate.HypeRate;
 using VRCOSC.Game.Modules.Modules.Heartrate.Pulsoid;
 using VRCOSC.Game.Modules.Modules.Media;
-//using VRCOSC.Game.Modules.Modules.OpenVR;
+using VRCOSC.Game.Modules.Modules.OpenVR;
 using VRCOSC.Game.Modules.Modules.Random;
-//using VRCOSC.Game.Modules.Modules.SpeechToText;
-using VRCOSC.Game.Modules.Util;
-using VRCOSC.Game.Util;
 using VRCOSC.OSC;
 
 namespace VRCOSC.Game.Modules;
 
-public sealed partial class ModuleManager : Component
+public sealed partial class ModuleManager : Component, IOscListener
 {
     private static readonly IReadOnlyList<Type> module_types = new[]
     {
         typeof(HypeRateModule),
         typeof(PulsoidModule),
-        typeof(ClockModule),
-        typeof(RandomBoolModule),
-        typeof(RandomIntModule),
-        typeof(RandomFloatModule),
-        typeof(HardwareStatsModule),
-        //typeof(OpenVRBatteryModule),
-        //typeof(IndexControllerModule),
+        typeof(OpenVRStatisticsModule),
+        typeof(OpenVRControllerStatisticsModule),
+        typeof(GestureExtensionsModule),
         typeof(MediaModule),
         typeof(DiscordModule),
-        //typeof(SpeechToTextModule),
+        typeof(ClockModule),
+        typeof(ChatBoxTextModule),
+        typeof(HardwareStatsModule),
+        typeof(RandomBoolModule),
+        typeof(RandomIntModule),
+        typeof(RandomFloatModule)
     };
 
     private const int vr_chat_process_check_interval_milliseconds = 5000;
@@ -58,7 +57,7 @@ public sealed partial class ModuleManager : Component
     private Bindable<bool> autoStartStop = null!;
     private readonly TerminalLogger terminal = new(nameof(ModuleManager));
     private CancellationTokenSource startCancellationTokenSource = null!;
-    private ChatBox chatBox = null!;
+    private ChatBoxInterface chatBoxInterface = null!;
 
     [Resolved]
     private VRCOSCConfigManager ConfigManager { get; set; } = null!;
@@ -67,16 +66,16 @@ public sealed partial class ModuleManager : Component
     private BindableBool ModuleRun { get; set; } = null!;
 
     [BackgroundDependencyLoader]
-    private void load(GameHost host, Storage storage, OpenVrInterface openVrInterface)
+    private void load(GameHost host, Storage storage, OpenVRInterface openVrInterface)
     {
-        chatBox = new ChatBox(OscClient);
+        chatBoxInterface = new ChatBoxInterface(OscClient, ConfigManager.GetBindable<int>(VRCOSCSetting.ChatBoxTimeSpan));
         autoStartStop = ConfigManager.GetBindable<bool>(VRCOSCSetting.AutoStartStop);
 
         var moduleStorage = storage.GetStorageForDirectory("modules");
         module_types.ForEach(type =>
         {
             var module = (Module)Activator.CreateInstance(type)!;
-            module.Initialise(host, moduleStorage, OscClient, chatBox, openVrInterface);
+            module.Initialise(host, moduleStorage, OscClient, chatBoxInterface, openVrInterface);
             Modules.Add(module);
         });
     }
@@ -139,6 +138,8 @@ public sealed partial class ModuleManager : Component
 
         await Task.Delay(250, startCancellationTokenSource.Token);
 
+        OscClient.RegisterListener(this);
+
         enableOsc();
 
         if (Modules.All(module => !module.Enabled.Value))
@@ -147,7 +148,9 @@ public sealed partial class ModuleManager : Component
             return;
         }
 
-        chatBox.Init();
+        chatBoxInterface.Init();
+
+        sendInitialValues();
 
         foreach (var module in Modules)
         {
@@ -182,7 +185,7 @@ public sealed partial class ModuleManager : Component
     {
         State.Value = ManagerState.Stopping;
 
-        startCancellationTokenSource?.Cancel();
+        startCancellationTokenSource.Cancel();
 
         await OscClient.DisableReceive();
 
@@ -191,11 +194,34 @@ public sealed partial class ModuleManager : Component
             await module.stop();
         }
 
-        await chatBox.Shutdown();
+        await chatBoxInterface.Shutdown();
+
+        OscClient.DeRegisterListener(this);
 
         OscClient.DisableSend();
 
         State.Value = ManagerState.Stopped;
+    }
+
+    private void sendInitialValues()
+    {
+        OscClient.SendValue("/avatar/parameters/VRCOSC/Controls/ChatBox", chatBoxInterface.SendEnabled);
+    }
+
+    void IOscListener.OnDataSent(OscData data) { }
+
+    void IOscListener.OnDataReceived(OscData data)
+    {
+        switch (data.Address)
+        {
+            case "/avatar/parameters/VRCOSC/Controls/ChatBox":
+                chatBoxInterface.SetSending((bool)data.Values[0]);
+                break;
+
+            case "/avatar/change":
+                sendInitialValues();
+                break;
+        }
     }
 }
 

@@ -4,7 +4,7 @@
 // ReSharper disable IdentifierTypo
 // ReSharper disable UnusedMember.Global
 
-namespace VRCOSC.Game.Modules.Util;
+namespace VRCOSC.Game.Modules;
 
 public enum WindowsVKey
 {

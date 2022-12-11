@@ -11,8 +11,8 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
+using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Modules;
-using VRCOSC.Game.Modules.Util;
 
 namespace VRCOSC.Game.Graphics.ModuleListing;
 
@@ -33,7 +33,7 @@ public partial class ModuleInfoPopover : PopoverScreen
             new Box
             {
                 RelativeSizeAxes = Axes.Both,
-                Colour = VRCOSCColour.Gray4
+                Colour = ThemeManager.Current[ThemeAttribute.Mid]
             },
             new Container
             {
@@ -66,9 +66,14 @@ public partial class ModuleInfoPopover : PopoverScreen
                             {
                                 Anchor = Anchor.TopCentre,
                                 Origin = Anchor.TopCentre,
-                                Font = FrameworkFont.Regular.With(size: 75)
+                                Font = FrameworkFont.Regular.With(size: 75),
+                                Colour = ThemeManager.Current[ThemeAttribute.Text]
                             },
-                            description = new TextFlowContainer(t => t.Font = FrameworkFont.Regular.With(size: 30))
+                            description = new TextFlowContainer(t =>
+                            {
+                                t.Font = FrameworkFont.Regular.With(size: 30);
+                                t.Colour = ThemeManager.Current[ThemeAttribute.Text];
+                            })
                             {
                                 Anchor = Anchor.TopCentre,
                                 Origin = Anchor.TopCentre,
@@ -96,7 +101,8 @@ public partial class ModuleInfoPopover : PopoverScreen
                                         Anchor = Anchor.TopCentre,
                                         Origin = Anchor.TopCentre,
                                         Font = FrameworkFont.Regular.With(size: 35),
-                                        Text = "Parameters"
+                                        Text = "Parameters",
+                                        Colour = ThemeManager.Current[ThemeAttribute.Text]
                                     },
                                     parameters = new FillFlowContainer<ParameterData>
                                     {
@@ -130,7 +136,7 @@ public partial class ModuleInfoPopover : PopoverScreen
             Masking = true;
             CornerRadius = 5;
             BorderThickness = 2;
-            BorderColour = VRCOSCColour.Gray0;
+            BorderColour = ThemeManager.Current[ThemeAttribute.Border];
         }
 
         [BackgroundDependencyLoader]
@@ -146,7 +152,7 @@ public partial class ModuleInfoPopover : PopoverScreen
             {
                 new Box
                 {
-                    Colour = VRCOSCColour.Gray2,
+                    Colour = ThemeManager.Current[ThemeAttribute.Darker],
                     RelativeSizeAxes = Axes.Both
                 },
                 new FillFlowContainer
@@ -157,7 +163,7 @@ public partial class ModuleInfoPopover : PopoverScreen
                     Padding = new MarginPadding(5),
                     Children = new Drawable[]
                     {
-                        new TextFlowContainer
+                        new TextFlowContainer(t => t.Colour = ThemeManager.Current[ThemeAttribute.Text])
                         {
                             RelativeSizeAxes = Axes.X,
                             AutoSizeAxes = Axes.Y,

@@ -4,6 +4,7 @@
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Pooling;
+using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.ModuleRun;
 
@@ -19,14 +20,17 @@ public sealed partial class TerminalEntry : PoolableDrawable
         RelativeSizeAxes = Axes.X;
         AutoSizeAxes = Axes.Y;
 
-        InternalChild = new TextFlowContainer(t => t.Font = FrameworkFont.Regular.With(size: 20))
+        InternalChild = new TextFlowContainer(t =>
+        {
+            t.Font = FrameworkFont.Regular.With(size: 20);
+            t.Colour = ThemeManager.Current[ThemeAttribute.SubText];
+        })
         {
             Anchor = Anchor.CentreLeft,
             Origin = Anchor.CentreLeft,
             RelativeSizeAxes = Axes.X,
             AutoSizeAxes = Axes.Y,
-            TextAnchor = Anchor.CentreLeft,
-            Colour = VRCOSCColour.Gray8
+            TextAnchor = Anchor.CentreLeft
         };
     }
 

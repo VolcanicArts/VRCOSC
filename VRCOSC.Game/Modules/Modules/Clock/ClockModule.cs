@@ -13,11 +13,11 @@ public sealed class ClockModule : ChatBoxModule
     public override string Description => "Sends your local time as hours, minutes, and seconds";
     public override string Author => "VolcanicArts";
     public override string Prefab => "VRCOSC-Watch";
-    public override ModuleType ModuleType => ModuleType.General;
-    protected override int DeltaUpdate => GetSetting<bool>(ClockSetting.SmoothSecond) ? vrc_osc_delta_update : 1000;
+    public override ModuleType Type => ModuleType.General;
+    protected override int DeltaUpdate => GetSetting<bool>(ClockSetting.SmoothSecond) ? Constants.OSC_UPDATE_DELTA : 1000;
 
     protected override bool DefaultChatBoxDisplay => true;
-    protected override string DefaultChatBoxFormat => "Local Time                        %h%:%m%%period%";
+    protected override string DefaultChatBoxFormat => "Local Time                                %h%:%m%%period%";
     protected override IEnumerable<string> ChatBoxFormatValues => new[] { "%h%", "%m%", "%s%", "%period%" };
 
     private DateTime time;
@@ -41,7 +41,7 @@ public sealed class ClockModule : ChatBoxModule
     {
         var chatBoxTime = timezoneToTime(GetSetting<ClockTimeZone>(ClockSetting.Timezone));
         var textHour = GetSetting<ClockMode>(ClockSetting.Mode) == ClockMode.Twelve ? (chatBoxTime.Hour % 12).ToString("00") : chatBoxTime.Hour.ToString("00");
-        return GetSetting<string>(ClockSetting.ChatBoxFormat)
+        return GetSetting<string>(ChatBoxSetting.ChatBoxFormat)
                .Replace("%h%", textHour)
                .Replace("%m%", chatBoxTime.Minute.ToString("00"))
                .Replace("%s%", chatBoxTime.Second.ToString("00"))
@@ -57,7 +57,7 @@ public sealed class ClockModule : ChatBoxModule
         var seconds = GetSetting<bool>(ClockSetting.SmoothSecond) ? getSmoothedSeconds(time) : time.Second;
 
         var normalisationComponent = GetSetting<ClockMode>(ClockSetting.Mode) == ClockMode.Twelve ? 12f : 24f;
-        var hourNormalised = (hours % normalisationComponent) / normalisationComponent;
+        var hourNormalised = hours % normalisationComponent / normalisationComponent;
         var minuteNormalised = minutes / 60f;
         var secondNormalised = seconds / 60f;
 
@@ -91,7 +91,7 @@ public sealed class ClockModule : ChatBoxModule
     {
         Hours,
         Minutes,
-        Seconds,
+        Seconds
     }
 
     private enum ClockSetting
@@ -100,9 +100,7 @@ public sealed class ClockModule : ChatBoxModule
         SmoothSecond,
         SmoothMinute,
         SmoothHour,
-        Mode,
-        UseChatBox,
-        ChatBoxFormat
+        Mode
     }
 
     private enum ClockMode

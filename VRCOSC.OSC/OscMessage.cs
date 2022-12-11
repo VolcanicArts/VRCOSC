@@ -53,18 +53,18 @@ public sealed class OscMessage : OscPacket
 
         var typeString = typeStringBuilder.ToString();
 
-        var addressLen = OscUtils.AlignedStringLength(Address);
-        var typeLen = OscUtils.AlignedStringLength(typeString);
+        var addressLen = (Encoding.UTF8.GetBytes(Address).Length / 4 + 1) * 4;
+        var typeLen = (Encoding.UTF8.GetBytes(typeString).Length / 4 + 1) * 4;
 
         var total = addressLen + typeLen + parts.Sum(x => x.Length);
 
         var output = new byte[total];
         var index = 0;
 
-        Encoding.ASCII.GetBytes(Address).CopyTo(output, index);
+        Encoding.UTF8.GetBytes(Address).CopyTo(output, index);
         index += addressLen;
 
-        Encoding.ASCII.GetBytes(typeString).CopyTo(output, index);
+        Encoding.UTF8.GetBytes(typeString).CopyTo(output, index);
         index += typeLen;
 
         foreach (var part in parts)

@@ -11,6 +11,8 @@ namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes.Text;
 
 public partial class TextAttributeCard : AttributeCardSingle
 {
+    protected override bool ShouldLimitSaves => true;
+
     private VRCOSCTextBox textBox = null!;
 
     public TextAttributeCard(ModuleAttributeSingle attributeData)

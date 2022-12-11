@@ -14,7 +14,7 @@ public static class VRCOSCEdgeEffects
 {
     public static readonly EdgeEffectParameters NoShadow = new()
     {
-        Colour = VRCOSCColour.Invisible,
+        Colour = new Color4(0, 0, 0, 0),
         Radius = 0,
         Type = EdgeEffectType.Shadow,
         Offset = Vector2.Zero

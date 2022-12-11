@@ -8,7 +8,7 @@ using osu.Framework.Testing;
 
 namespace VRCOSC.Game.Tests;
 
-public class VRCOSCTestBrowser : VRCOSCGameBase
+public partial class VRCOSCTestBrowser : VRCOSCGameBase
 {
     protected override void LoadComplete()
     {

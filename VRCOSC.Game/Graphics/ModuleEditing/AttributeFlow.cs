@@ -54,10 +54,20 @@ public sealed partial class AttributeFlow : FillFlowContainer<AttributeCard>
         {
             Clear();
             AttributesList.ForEach(attributeData => Add(generateCard(attributeData)));
+            checkShouldDisplay();
         }, true);
     }
 
-    private static AttributeCard generateCard(ModuleAttribute attributeData)
+    private void checkShouldDisplay()
+    {
+        this.ForEach(card =>
+        {
+            card.Enable = card.AttributeData.Enabled;
+            card.FadeTo(card.AttributeData.Enabled ? 1 : 0.25f, 250, Easing.OutQuad);
+        });
+    }
+
+    private AttributeCard generateCard(ModuleAttribute attributeData)
     {
         return attributeData switch
         {
@@ -67,7 +77,7 @@ public sealed partial class AttributeFlow : FillFlowContainer<AttributeCard>
         };
     }
 
-    private static AttributeCard generateListCard(ModuleAttributeList attributeData)
+    private AttributeCard generateListCard(ModuleAttributeList attributeData)
     {
         if (attributeData.Type == typeof(int))
             return new IntTextAttributeCardList(attributeData);
@@ -78,12 +88,13 @@ public sealed partial class AttributeFlow : FillFlowContainer<AttributeCard>
         throw new ArgumentOutOfRangeException(nameof(attributeData), "Cannot generate lists for non-text values");
     }
 
-    private static AttributeCard generateSingleCard(ModuleAttributeSingle attributeData)
+    private AttributeCard generateSingleCard(ModuleAttributeSingle attributeData)
     {
         var value = attributeData.Attribute.Value;
 
         if (value.GetType().IsSubclassOf(typeof(Enum)))
         {
+            attributeData.Attribute.BindValueChanged(_ => checkShouldDisplay());
             Type instanceType = typeof(DropdownAttributeCard<>).MakeGenericType(value.GetType());
             return (Activator.CreateInstance(instanceType, attributeData) as AttributeCard)!;
         }
@@ -123,6 +134,7 @@ public sealed partial class AttributeFlow : FillFlowContainer<AttributeCard>
                         return new IntTextAttributeCard(attributeData);
 
                     case bool:
+                        attributeData.Attribute.BindValueChanged(_ => checkShouldDisplay());
                         return new ToggleAttributeCard(attributeData);
 
                     default:

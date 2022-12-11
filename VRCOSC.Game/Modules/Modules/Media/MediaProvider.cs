@@ -7,7 +7,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Windows.Media;
 using Windows.Media.Control;
-using VRCOSC.Game.Util;
+using VRCOSC.Game.Processes;
+using WindowsMediaController;
 
 namespace VRCOSC.Game.Modules.Modules.Media;
 
@@ -32,9 +33,10 @@ public class MediaProvider
         mediaManager = new MediaManager();
         mediaManager.OnAnySessionOpened += MediaManager_OnAnySessionOpened;
         mediaManager.OnAnySessionClosed += MediaManager_OnAnySessionClosed;
+        mediaManager.OnFocusedSessionChanged += MediaManager_OnFocusedSessionChanged;
         mediaManager.OnAnyPlaybackStateChanged += MediaManager_OnAnyPlaybackStateChanged;
         mediaManager.OnAnyMediaPropertyChanged += MediaManager_OnAnyMediaPropertyChanged;
-        await mediaManager.Start();
+        await mediaManager.StartAsync();
     }
 
     public void StopMediaHook()
@@ -45,32 +47,26 @@ public class MediaProvider
         trackedProcess = null;
     }
 
+    public void ForceUpdate()
+    {
+        Controller?.TryPlayAsync();
+    }
+
     private void MediaManager_OnAnySessionOpened(MediaManager.MediaSession sender)
     {
         updateTrackedProcess(sender.Id);
         OnMediaSessionOpened?.Invoke();
     }
 
-    public async Task ForceUpdate()
-    {
-        if (Controller?.GetPlaybackInfo().PlaybackStatus == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing)
-        {
-            await Controller.TryPauseAsync();
-            await Task.Delay(50);
-            await Controller.TryPlayAsync();
-        }
-        else if (Controller?.GetPlaybackInfo().PlaybackStatus == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Paused)
-        {
-            await Controller.TryPlayAsync();
-            await Task.Delay(50);
-            await Controller.TryPauseAsync();
-        }
-    }
-
     private void MediaManager_OnAnySessionClosed(MediaManager.MediaSession sender)
     {
         updateTrackedProcess(mediaManager?.CurrentMediaSessions.FirstOrDefault().Value.Id ?? string.Empty);
-        _ = ForceUpdate();
+        ForceUpdate();
+    }
+
+    private void MediaManager_OnFocusedSessionChanged(MediaManager.MediaSession sender)
+    {
+        updateTrackedProcess(mediaManager?.CurrentMediaSessions.FirstOrDefault().Value.Id ?? string.Empty);
     }
 
     private void MediaManager_OnAnyPlaybackStateChanged(MediaManager.MediaSession sender, GlobalSystemMediaTransportControlsSessionPlaybackInfo args)

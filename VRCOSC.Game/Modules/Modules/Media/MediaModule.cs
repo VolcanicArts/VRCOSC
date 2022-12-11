@@ -18,7 +18,7 @@ public sealed class MediaModule : ChatBoxModule
     public override string Author => "VolcanicArts";
     public override string Prefab => "VRCOSC-Media";
     protected override int DeltaUpdate => 2000;
-    public override ModuleType ModuleType => ModuleType.Integrations;
+    public override ModuleType Type => ModuleType.Integrations;
     protected override int ChatBoxPriority => 2;
 
     protected override bool DefaultChatBoxDisplay => true;
@@ -30,18 +30,19 @@ public sealed class MediaModule : ChatBoxModule
     protected override void CreateAttributes()
     {
         CreateSetting(MediaSetting.PausedBehaviour, "Paused Behaviour", "When the media is paused, should the ChatBox be empty or display that it's paused?", MediaPausedBehaviour.Empty);
-        CreateSetting(MediaSetting.PausedText, "Paused Text", $"The text to display when media is paused. Only applicable when Paused Behaviour is set to {MediaPausedBehaviour.Display}", "[Paused]");
+        CreateSetting(MediaSetting.PausedText, "Paused Text", $"The text to display when media is paused. Only applicable when Paused Behaviour is set to {MediaPausedBehaviour.Display}", "[Paused]",
+            () => GetSetting<MediaPausedBehaviour>(MediaSetting.PausedBehaviour) == MediaPausedBehaviour.Display);
         CreateSetting(MediaSetting.StartList, "Start List", "A list of exe locations to start with this module. This is handy for starting media apps on module start. For example, Spotify", new[] { @$"C:\Users\{Environment.UserName}\AppData\Roaming\Spotify\spotify.exe" }, true);
 
         base.CreateAttributes();
 
         CreateParameter<bool>(MediaParameter.Play, ParameterMode.ReadWrite, "VRCOSC/Media/Play", "True for playing. False for paused");
-        CreateParameter<float>(MediaParameter.Volume, ParameterMode.ReadWrite, "VRCOSC/Media/Volume", "The volume of the process that is controlling the media", ActionMenu.Radial);
+        CreateParameter<float>(MediaParameter.Volume, ParameterMode.ReadWrite, "VRCOSC/Media/Volume", "The volume of the process that is controlling the media");
         CreateParameter<bool>(MediaParameter.Muted, ParameterMode.ReadWrite, "VRCOSC/Media/Muted", "True to mute. False to unmute");
         CreateParameter<int>(MediaParameter.Repeat, ParameterMode.ReadWrite, "VRCOSC/Media/Repeat", "0 for disabled. 1 for single. 2 for list");
         CreateParameter<bool>(MediaParameter.Shuffle, ParameterMode.ReadWrite, "VRCOSC/Media/Shuffle", "True for enabled. False for disabled");
-        CreateParameter<bool>(MediaParameter.Next, ParameterMode.Read, "VRCOSC/Media/Next", "Becoming true causes the next track to play", ActionMenu.Button);
-        CreateParameter<bool>(MediaParameter.Previous, ParameterMode.Read, "VRCOSC/Media/Previous", "Becoming true causes the previous track to play", ActionMenu.Button);
+        CreateParameter<bool>(MediaParameter.Next, ParameterMode.Read, "VRCOSC/Media/Next", "Becoming true causes the next track to play");
+        CreateParameter<bool>(MediaParameter.Previous, ParameterMode.Read, "VRCOSC/Media/Previous", "Becoming true causes the previous track to play");
     }
 
     protected override string? GetChatBoxText()
@@ -97,7 +98,7 @@ public sealed class MediaModule : ChatBoxModule
         return Task.CompletedTask;
     }
 
-    protected override void OnRadialPuppetChange(Enum key, float value)
+    protected override void OnFloatParameterReceived(Enum key, float value)
     {
         switch (key)
         {
@@ -111,12 +112,12 @@ public sealed class MediaModule : ChatBoxModule
     {
         switch (key)
         {
-            case MediaParameter.Play:
-                if (value)
-                    mediaProvider.Controller?.TryPlayAsync();
-                else
-                    mediaProvider.Controller?.TryPauseAsync();
+            case MediaParameter.Play when value:
+                mediaProvider.Controller?.TryPlayAsync();
+                break;
 
+            case MediaParameter.Play when !value:
+                mediaProvider.Controller?.TryPauseAsync();
                 break;
 
             case MediaParameter.Shuffle:
@@ -125,6 +126,14 @@ public sealed class MediaModule : ChatBoxModule
 
             case MediaParameter.Muted:
                 mediaProvider.SetMuted(value);
+                break;
+
+            case MediaParameter.Next when value:
+                mediaProvider.Controller?.TrySkipNextAsync();
+                break;
+
+            case MediaParameter.Previous when value:
+                mediaProvider.Controller?.TrySkipPreviousAsync();
                 break;
         }
     }
@@ -139,28 +148,11 @@ public sealed class MediaModule : ChatBoxModule
         }
     }
 
-    protected override void OnButtonPressed(Enum key)
-    {
-        switch (key)
-        {
-            case MediaParameter.Next:
-                mediaProvider.Controller?.TrySkipNextAsync();
-                break;
-
-            case MediaParameter.Previous:
-                mediaProvider.Controller?.TrySkipPreviousAsync();
-                break;
-
-            default:
-                throw new ArgumentOutOfRangeException(nameof(key), key, null);
-        }
-    }
-
     private async void OnMediaSessionOpened()
     {
         // We have to wait a little bit to allow the media app that just opened to take control
         await Task.Delay(500);
-        await mediaProvider.ForceUpdate();
+        mediaProvider.ForceUpdate();
     }
 
     private void OnMediaUpdate()
@@ -202,6 +194,6 @@ public sealed class MediaModule : ChatBoxModule
         Shuffle,
         Repeat,
         Volume,
-        Muted,
+        Muted
     }
 }

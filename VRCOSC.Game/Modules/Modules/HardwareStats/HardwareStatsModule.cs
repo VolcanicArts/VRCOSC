@@ -12,7 +12,7 @@ public sealed class HardwareStatsModule : ChatBoxModule
     public override string Title => "Hardware Stats";
     public override string Description => "Sends hardware stats and displays them in the ChatBox";
     public override string Author => "VolcanicArts";
-    public override ModuleType ModuleType => ModuleType.General;
+    public override ModuleType Type => ModuleType.General;
     protected override int DeltaUpdate => 2000;
 
     protected override bool DefaultChatBoxDisplay => true;
@@ -36,19 +36,19 @@ public sealed class HardwareStatsModule : ChatBoxModule
 
     protected override string? GetChatBoxText()
     {
-        if (hardwareStatsProvider is null || !hardwareStatsProvider.CanAcceptQueries) return null;
+        if (!(hardwareStatsProvider?.CanAcceptQueries ?? false)) return null;
 
-        hardwareStatsProvider!.Update();
+        hardwareStatsProvider?.Update();
 
         return GetSetting<string>(ChatBoxSetting.ChatBoxFormat)
-               .Replace("$cpuusage$", (hardwareStatsProvider!.CpuUsage).ToString("0.00"))
-               .Replace("$gpuusage$", (hardwareStatsProvider!.GpuUsage).ToString("0.00"))
-               .Replace("$ramusage$", (hardwareStatsProvider!.RamUsage).ToString("0.00"))
-               .Replace("$cputemp$", (hardwareStatsProvider!.CpuTemp).ToString())
-               .Replace("$gputemp$", (hardwareStatsProvider!.GpuTemp).ToString())
-               .Replace("$ramtotal$", (hardwareStatsProvider!.RamTotal).ToString("0.0"))
-               .Replace("$ramused$", (hardwareStatsProvider!.RamUsed).ToString("0.0"))
-               .Replace("$ramavailable$", (hardwareStatsProvider!.RamAvailable).ToString("0.0"));
+               .Replace("$cpuusage$", hardwareStatsProvider?.CpuUsage.ToString("0.00") ?? "0.00")
+               .Replace("$gpuusage$", hardwareStatsProvider?.GpuUsage.ToString("0.00") ?? "0.00")
+               .Replace("$ramusage$", hardwareStatsProvider?.RamUsage.ToString("0.00") ?? "0.00")
+               .Replace("$cputemp$", hardwareStatsProvider?.CpuTemp.ToString() ?? "0")
+               .Replace("$gputemp$", hardwareStatsProvider?.GpuTemp.ToString() ?? "0")
+               .Replace("$ramtotal$", hardwareStatsProvider?.RamTotal.ToString("0.0") ?? "0.0")
+               .Replace("$ramused$", hardwareStatsProvider?.RamUsed.ToString("0.0") ?? "0.0")
+               .Replace("$ramavailable$", hardwareStatsProvider?.RamAvailable.ToString("0.0") ?? "0.0");
     }
 
     protected override async Task OnStart(CancellationToken cancellationToken)
