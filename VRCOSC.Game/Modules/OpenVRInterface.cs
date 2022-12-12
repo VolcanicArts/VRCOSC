@@ -93,7 +93,7 @@ public class OpenVRInterface
     public bool IsRightControllerConnected() => getRightControllerIndex() != uint.MaxValue && OpenVR.System.IsTrackedDeviceConnected(getRightControllerIndex());
     public bool IsTrackerConnected(uint trackerIndex) => trackerIndex != uint.MaxValue && OpenVR.System.IsTrackedDeviceConnected(trackerIndex);
 
-    public bool IsHmdCharging() => CanHmdProvideBatteryData() && getBoolTrackedDeviceProperty(getHmdIndex(), ETrackedDeviceProperty.Prop_DeviceIsCharging_Bool);
+    public bool IsHmdCharging() => getBoolTrackedDeviceProperty(getHmdIndex(), ETrackedDeviceProperty.Prop_DeviceIsCharging_Bool);
     public bool IsLeftControllerCharging() => getBoolTrackedDeviceProperty(getLeftControllerIndex(), ETrackedDeviceProperty.Prop_DeviceIsCharging_Bool);
     public bool IsRightControllerCharging() => getBoolTrackedDeviceProperty(getRightControllerIndex(), ETrackedDeviceProperty.Prop_DeviceIsCharging_Bool);
     public bool IsTrackerCharging(uint trackerIndex) => getBoolTrackedDeviceProperty(trackerIndex, ETrackedDeviceProperty.Prop_DeviceIsCharging_Bool);
