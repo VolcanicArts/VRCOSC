@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -20,14 +19,13 @@ using VRCOSC.OSC;
 
 namespace VRCOSC.Game.Modules;
 
-[SuppressMessage("Usage", "CA2208:Instantiate argument exceptions correctly")]
 public abstract class Module : IOscListener
 {
     private GameHost Host = null!;
     private Storage Storage = null!;
     private TerminalLogger Terminal = null!;
-    private TimedTask? updateTask;
     private GameManager GameManager = null!;
+    private TimedTask? updateTask;
 
     protected Player Player => GameManager.Player;
     protected OpenVRInterface OpenVrInterface => GameManager.OpenVRInterface;
