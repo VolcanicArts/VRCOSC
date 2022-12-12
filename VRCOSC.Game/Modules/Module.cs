@@ -239,8 +239,7 @@ public abstract class Module : IOscListener
 
         var parameterData = Parameters[lookup];
 
-        if (!parameterData.Mode.HasFlagFast(ParameterMode.Read))
-            throw new InvalidOperationException($"Parameter {lookup} has been registered without a {ParameterMode.Read} component");
+        if (!parameterData.Mode.HasFlagFast(ParameterMode.Read)) return;
 
         if (value.GetType() != parameterData.ExpectedType)
         {
