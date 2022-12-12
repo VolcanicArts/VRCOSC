@@ -52,13 +52,10 @@ public class OpenVRStatisticsModule : Module
     {
         SendParameter(OpenVrParameter.HMD_Connected, OpenVrInterface.IsHmdConnected());
 
-        if (OpenVrInterface.IsHmdConnected())
+        if (OpenVrInterface.IsHmdConnected() && OpenVrInterface.CanHmdProvideBatteryData())
         {
-            if (OpenVrInterface.CanHmdProvideBatteryData())
-            {
-                SendParameter(OpenVrParameter.HMD_Battery, OpenVrInterface.GetHmdBatteryPercentage());
-                SendParameter(OpenVrParameter.HMD_Charging, OpenVrInterface.IsHmdCharging());
-            }
+            SendParameter(OpenVrParameter.HMD_Battery, OpenVrInterface.GetHmdBatteryPercentage());
+            SendParameter(OpenVrParameter.HMD_Charging, OpenVrInterface.IsHmdCharging());
         }
     }
 
@@ -66,7 +63,7 @@ public class OpenVRStatisticsModule : Module
     {
         SendParameter(OpenVrParameter.LeftController_Connected, OpenVrInterface.IsLeftControllerConnected());
 
-        if (OpenVrInterface.IsLeftControllerConnected())
+        if (OpenVrInterface.IsLeftControllerConnected() && OpenVrInterface.CanLeftControllerProvideBatteryData())
         {
             SendParameter(OpenVrParameter.LeftController_Battery, OpenVrInterface.GetLeftControllerBatteryPercentage());
             SendParameter(OpenVrParameter.LeftController_Charging, OpenVrInterface.IsLeftControllerCharging());
@@ -74,7 +71,7 @@ public class OpenVRStatisticsModule : Module
 
         SendParameter(OpenVrParameter.RightController_Connected, OpenVrInterface.IsRightControllerConnected());
 
-        if (OpenVrInterface.IsRightControllerConnected())
+        if (OpenVrInterface.IsRightControllerConnected() && OpenVrInterface.CanRightControllerProvideBatteryData())
         {
             SendParameter(OpenVrParameter.RightController_Battery, OpenVrInterface.GetRightControllerBatteryPercentage());
             SendParameter(OpenVrParameter.RightController_Charging, OpenVrInterface.IsRightControllerCharging());
@@ -91,7 +88,7 @@ public class OpenVRStatisticsModule : Module
 
             SendParameter(OpenVrParameter.Tracker1_Connected + i, OpenVrInterface.IsTrackerConnected(trackerIndex));
 
-            if (OpenVrInterface.IsTrackerConnected(trackerIndex))
+            if (OpenVrInterface.IsTrackerConnected(trackerIndex) && OpenVrInterface.CanTrackerProvideBatteryData(trackerIndex))
             {
                 SendParameter(OpenVrParameter.Tracker1_Battery + i, OpenVrInterface.GetTrackerBatteryPercentage(trackerIndex));
                 SendParameter(OpenVrParameter.Tracker1_Charging + i, OpenVrInterface.IsTrackerCharging(trackerIndex));

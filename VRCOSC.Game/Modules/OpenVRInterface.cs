@@ -103,12 +103,10 @@ public class OpenVRInterface
     public float GetRightControllerBatteryPercentage() => getFloatTrackedDeviceProperty(getRightControllerIndex(), ETrackedDeviceProperty.Prop_DeviceBatteryPercentage_Float);
     public float GetTrackerBatteryPercentage(uint trackerIndex) => getFloatTrackedDeviceProperty(trackerIndex, ETrackedDeviceProperty.Prop_DeviceBatteryPercentage_Float);
 
-    public bool CanHmdProvideBatteryData()
-    {
-        var error = new ETrackedPropertyError();
-        var canProvideBattery = OpenVR.System.GetBoolTrackedDeviceProperty(getHmdIndex(), ETrackedDeviceProperty.Prop_DeviceProvidesBatteryStatus_Bool, ref error);
-        return error == ETrackedPropertyError.TrackedProp_Success && canProvideBattery;
-    }
+    public bool CanHmdProvideBatteryData() => getBoolTrackedDeviceProperty(getHmdIndex(), ETrackedDeviceProperty.Prop_DeviceProvidesBatteryStatus_Bool);
+    public bool CanLeftControllerProvideBatteryData() => getBoolTrackedDeviceProperty(getLeftControllerIndex(), ETrackedDeviceProperty.Prop_DeviceProvidesBatteryStatus_Bool);
+    public bool CanRightControllerProvideBatteryData() => getBoolTrackedDeviceProperty(getRightControllerIndex(), ETrackedDeviceProperty.Prop_DeviceProvidesBatteryStatus_Bool);
+    public bool CanTrackerProvideBatteryData(uint trackerIndex) => getBoolTrackedDeviceProperty(trackerIndex, ETrackedDeviceProperty.Prop_DeviceProvidesBatteryStatus_Bool);
 
     #endregion
 
