@@ -9,7 +9,7 @@ namespace VRCOSC.Game.Modules.Modules.Heartrate.Pulsoid;
 public sealed class PulsoidProvider : HeartRateProvider
 {
     private readonly string accessToken;
-    private readonly TerminalLogger terminal = new(nameof(PulsoidModule));
+    private readonly TerminalLogger terminal = new(new PulsoidModule().Title);
 
     protected override string WebSocketUrl => $"wss://dev.pulsoid.net/api/v1/data/real_time?access_token={accessToken}";
     protected override bool SendWsHeartBeat => false;
