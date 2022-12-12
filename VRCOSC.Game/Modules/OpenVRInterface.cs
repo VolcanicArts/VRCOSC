@@ -114,8 +114,10 @@ public class OpenVRInterface
 
     #region Events
 
-    public void Poll()
+    public void Update()
     {
+        if (!HasInitialised) return;
+
         var evenT = new VREvent_t();
 
         while (OpenVR.System.PollNextEvent(ref evenT, vrevent_t_size))

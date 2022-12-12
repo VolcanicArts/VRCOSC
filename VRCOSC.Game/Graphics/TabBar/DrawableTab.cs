@@ -34,7 +34,7 @@ public sealed partial class DrawableTab : ClickableContainer
     private Bindable<Tab> selectedTab { get; set; } = null!;
 
     [Resolved]
-    private ModuleManager moduleManager { get; set; } = null!;
+    private GameManager gameManager { get; set; } = null!;
 
     public DrawableTab()
     {
@@ -101,7 +101,7 @@ public sealed partial class DrawableTab : ClickableContainer
 
     protected override bool OnClick(ClickEvent e)
     {
-        if (moduleManager.State.Value is ManagerState.Starting or ManagerState.Started)
+        if (gameManager.State.Value is GameManagerState.Starting or GameManagerState.Started)
         {
             background.FlashColour(ThemeManager.Current[ThemeAttribute.Failure], 250, Easing.OutQuad);
             return true;

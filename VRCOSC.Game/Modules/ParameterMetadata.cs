@@ -12,7 +12,7 @@ public class ParameterMetadata
     public readonly string Description;
     public readonly Type ExpectedType;
 
-    public string FormattedAddress => $"/avatar/parameters/{Name}";
+    public string FormattedAddress => $"{Constants.OSC_ADDRESS_AVATAR_PARAMETERS_PREFIX}/{Name}";
 
     public ParameterMetadata(ParameterMode mode, string name, string description, Type expectedType)
     {

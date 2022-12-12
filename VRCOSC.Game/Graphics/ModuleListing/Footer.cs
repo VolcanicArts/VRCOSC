@@ -10,13 +10,14 @@ using osuTK;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Button;
+using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleListing;
 
 public sealed partial class Footer : Container
 {
     [Resolved]
-    private BindableBool modulesRunning { get; set; } = null!;
+    private GameManager gameManager { get; set; } = null!;
 
     [Resolved]
     private VRCOSCConfigManager configManager { get; set; } = null!;
@@ -51,7 +52,7 @@ public sealed partial class Footer : Container
                 CornerRadius = 5,
                 Text = "Run",
                 BackgroundColour = ThemeManager.Current[ThemeAttribute.Success],
-                Action = () => modulesRunning.Value = true
+                Action = () => gameManager.Start()
             }
         };
     }

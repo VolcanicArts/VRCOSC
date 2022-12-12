@@ -15,7 +15,7 @@ namespace VRCOSC.Game.Graphics.ModuleListing;
 public sealed partial class Listing : Container
 {
     [Resolved]
-    private ModuleManager moduleManager { get; set; } = null!;
+    private GameManager gameManager { get; set; } = null!;
 
     [Resolved]
     private VRCOSCGame game { get; set; } = null!;
@@ -58,7 +58,7 @@ public sealed partial class Listing : Container
     [BackgroundDependencyLoader]
     private void load()
     {
-        moduleManager.Modules.ForEach(module => moduleCardFlow.Add(new ModuleCard(module)));
+        gameManager.ModuleManager.ForEach(module => moduleCardFlow.Add(new ModuleCard(module)));
     }
 
     protected override void LoadComplete()

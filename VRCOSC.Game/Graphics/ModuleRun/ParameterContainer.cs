@@ -14,7 +14,7 @@ namespace VRCOSC.Game.Graphics.ModuleRun;
 public sealed partial class ParameterContainer : Container, IOscListener
 {
     [Resolved]
-    private ModuleManager moduleManager { get; set; } = null!;
+    private GameManager gameManager { get; set; } = null!;
 
     private readonly ParameterSubContainer outgoingParameterDisplay;
     private readonly ParameterSubContainer incomingParameterDisplay;
@@ -65,7 +65,7 @@ public sealed partial class ParameterContainer : Container, IOscListener
 
     protected override void LoadComplete()
     {
-        moduleManager.OscClient.RegisterListener(this);
+        gameManager.OscClient.RegisterListener(this);
     }
 
     void IOscListener.OnDataSent(OscData data)
@@ -131,6 +131,6 @@ public sealed partial class ParameterContainer : Container, IOscListener
     protected override void Dispose(bool isDisposing)
     {
         base.Dispose(isDisposing);
-        moduleManager.OscClient.DeRegisterListener(this);
+        gameManager.OscClient.DeRegisterListener(this);
     }
 }

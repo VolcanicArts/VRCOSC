@@ -25,14 +25,13 @@ public abstract class Module : IOscListener
 {
     private GameHost Host = null!;
     private Storage Storage = null!;
-    private OscClient OscClient = null!;
     private TerminalLogger Terminal = null!;
-    private ChatBoxInterface chatBoxInterface = null!;
     private TimedTask? updateTask;
+    private GameManager GameManager = null!;
 
-    protected Player Player = null!;
-    protected OpenVRInterface OpenVrInterface = null!;
-    protected Bindable<ModuleState> State = null!;
+    protected Player Player => GameManager.Player;
+    protected OpenVRInterface OpenVrInterface => GameManager.OpenVRInterface;
+    protected Bindable<ModuleState> State = new(ModuleState.Stopped);
 
     public readonly BindableBool Enabled = new();
     public readonly Dictionary<string, ModuleAttribute> Settings = new();
@@ -58,16 +57,12 @@ public abstract class Module : IOscListener
     public bool HasSettings => Settings.Any();
     public bool HasParameters => Parameters.Any();
 
-    public void Initialise(GameHost host, Storage storage, OscClient oscClient, ChatBoxInterface chatBoxInterface, OpenVRInterface openVrInterface)
+    public void Initialise(GameHost host, Storage storage, GameManager gameManager)
     {
         Host = host;
         Storage = storage;
-        OscClient = oscClient;
-        this.chatBoxInterface = chatBoxInterface;
-        Terminal = new TerminalLogger(GetType().Name);
-        State = new Bindable<ModuleState>(ModuleState.Stopped);
-        Player = new Player(OscClient);
-        OpenVrInterface = openVrInterface;
+        GameManager = gameManager;
+        Terminal = new TerminalLogger(Title);
 
         CreateAttributes();
         performLoad();
@@ -125,19 +120,18 @@ public abstract class Module : IOscListener
 
     #region Events
 
-    internal async Task start(CancellationToken cancellationToken)
+    internal async Task start(CancellationToken startToken)
     {
         if (!IsEnabled) return;
 
         State.Value = ModuleState.Starting;
-        Player.Init();
 
-        await OnStart(cancellationToken);
+        await OnStart(startToken);
 
         if (ShouldUpdate) updateTask = new TimedTask(OnUpdate, DeltaUpdate, true);
         await (updateTask?.Start() ?? Task.CompletedTask);
 
-        OscClient.RegisterListener(this);
+        GameManager.OscClient.RegisterListener(this);
 
         State.Value = ModuleState.Started;
     }
@@ -148,13 +142,12 @@ public abstract class Module : IOscListener
 
         State.Value = ModuleState.Stopping;
 
-        OscClient.DeRegisterListener(this);
+        GameManager.OscClient.DeRegisterListener(this);
 
         if (updateTask is not null) await updateTask.Stop();
 
         await OnStop();
 
-        Player.ResetAll();
         State.Value = ModuleState.Stopped;
     }
 
@@ -162,7 +155,6 @@ public abstract class Module : IOscListener
     protected virtual Task OnUpdate() => Task.CompletedTask;
     protected virtual Task OnStop() => Task.CompletedTask;
     protected virtual void OnAvatarChange() { }
-    protected virtual void OnPlayerStateUpdate(VRChatInputParameter key) { }
 
     #endregion
 
@@ -212,7 +204,7 @@ public abstract class Module : IOscListener
         var data = Parameters[lookup];
         if (!data.Mode.HasFlagFast(ParameterMode.Write)) throw new InvalidOperationException("Cannot send a value to a read-only parameter");
 
-        OscClient.SendValue(data.FormattedAddress, value);
+        GameManager.OscClient.SendValue(data.FormattedAddress, value);
     }
 
     void IOscListener.OnDataSent(OscData data) { }
@@ -224,7 +216,7 @@ public abstract class Module : IOscListener
         var address = data.Address;
         var value = data.Values[0];
 
-        if (address.StartsWith(Constants.OSC_ADDRESS_AVATAR_CHANGE))
+        if (address == Constants.OSC_ADDRESS_AVATAR_CHANGE)
         {
             OnAvatarChange();
             return;
@@ -232,130 +224,49 @@ public abstract class Module : IOscListener
 
         if (!address.StartsWith(Constants.OSC_ADDRESS_AVATAR_PARAMETERS_PREFIX)) return;
 
-        var parameterName = address.Remove(0, Constants.OSC_ADDRESS_AVATAR_PARAMETERS_PREFIX.Length);
-        updatePlayerState(parameterName, value);
+        var parameterName = address.Remove(0, Constants.OSC_ADDRESS_AVATAR_PARAMETERS_PREFIX.Length + 1);
+
+        Enum? lookup;
 
         try
         {
-            Enum lookup = Parameters.Single(pair => pair.Value.Name == parameterName).Key;
-            var parameterData = Parameters[lookup];
-
-            if (!parameterData.Mode.HasFlagFast(ParameterMode.Read)) return;
-
-            if (value.GetType() != parameterData.ExpectedType)
-            {
-                Log($@"Cannot accept input parameter. `{lookup}` expects type `{parameterData.ExpectedType}` but received type `{value.GetType()}`");
-                return;
-            }
-
-            switch (value)
-            {
-                case bool boolValue:
-                    OnBoolParameterReceived(lookup, boolValue);
-                    break;
-
-                case int intValue:
-                    OnIntParameterReceived(lookup, intValue);
-                    break;
-
-                case float floatValue:
-                    OnFloatParameterReceived(lookup, floatValue);
-                    break;
-            }
+            lookup = Parameters.Single(pair => pair.Value.Name == parameterName).Key;
         }
         catch (InvalidOperationException)
         {
+            return;
+        }
+
+        var parameterData = Parameters[lookup];
+
+        if (!parameterData.Mode.HasFlagFast(ParameterMode.Read))
+            throw new InvalidOperationException($"Parameter {lookup} has been registered without a {ParameterMode.Read} component");
+
+        if (value.GetType() != parameterData.ExpectedType)
+        {
+            Log($@"Cannot accept input parameter. `{lookup}` expects type `{parameterData.ExpectedType}` but received type `{value.GetType()}`");
+            return;
+        }
+
+        switch (value)
+        {
+            case bool boolValue:
+                OnBoolParameterReceived(lookup, boolValue);
+                break;
+
+            case int intValue:
+                OnIntParameterReceived(lookup, intValue);
+                break;
+
+            case float floatValue:
+                OnFloatParameterReceived(lookup, floatValue);
+                break;
         }
     }
 
     protected virtual void OnBoolParameterReceived(Enum key, bool value) { }
     protected virtual void OnIntParameterReceived(Enum key, int value) { }
     protected virtual void OnFloatParameterReceived(Enum key, float value) { }
-
-    private void updatePlayerState(string parameterName, object value)
-    {
-        if (!Enum.TryParse(parameterName, out VRChatInputParameter vrChatInputParameter)) return;
-
-        switch (vrChatInputParameter)
-        {
-            case VRChatInputParameter.Viseme:
-                Player.Viseme = (Viseme)(int)value;
-                break;
-
-            case VRChatInputParameter.Voice:
-                Player.Voice = (float)value;
-                break;
-
-            case VRChatInputParameter.GestureLeft:
-                Player.GestureLeft = (Gesture)(int)value;
-                break;
-
-            case VRChatInputParameter.GestureRight:
-                Player.GestureRight = (Gesture)(int)value;
-                break;
-
-            case VRChatInputParameter.GestureLeftWeight:
-                Player.GestureLeftWeight = (float)value;
-                break;
-
-            case VRChatInputParameter.GestureRightWeight:
-                Player.GestureRightWeight = (float)value;
-                break;
-
-            case VRChatInputParameter.AngularY:
-                Player.AngularY = (float)value;
-                break;
-
-            case VRChatInputParameter.VelocityX:
-                Player.VelocityX = (float)value;
-                break;
-
-            case VRChatInputParameter.VelocityY:
-                Player.VelocityY = (float)value;
-                break;
-
-            case VRChatInputParameter.VelocityZ:
-                Player.VelocityZ = (float)value;
-                break;
-
-            case VRChatInputParameter.Upright:
-                Player.Upright = (float)value;
-                break;
-
-            case VRChatInputParameter.Grounded:
-                Player.Grounded = (bool)value;
-                break;
-
-            case VRChatInputParameter.Seated:
-                Player.Seated = (bool)value;
-                break;
-
-            case VRChatInputParameter.AFK:
-                Player.AFK = (bool)value;
-                break;
-
-            case VRChatInputParameter.TrackingType:
-                Player.TrackingType = (TrackingType)(int)value;
-                break;
-
-            case VRChatInputParameter.VRMode:
-                Player.IsVR = (int)value == 1;
-                break;
-
-            case VRChatInputParameter.MuteSelf:
-                Player.IsMuted = (bool)value;
-                break;
-
-            case VRChatInputParameter.InStation:
-                Player.InStation = (bool)value;
-                break;
-
-            default:
-                throw new ArgumentOutOfRangeException(nameof(vrChatInputParameter), vrChatInputParameter, $"Unknown {nameof(VRChatInputParameter)}");
-        }
-
-        OnPlayerStateUpdate(vrChatInputParameter);
-    }
 
     #endregion
 
@@ -622,9 +533,9 @@ public abstract class Module : IOscListener
 
     protected void OpenUrlExternally(string Url) => Host.OpenUrlExternally(Url);
 
-    protected DateTimeOffset SetChatBoxText(string? text, TimeSpan displayLength) => chatBoxInterface.SetText(text, ChatBoxPriority, displayLength);
+    protected DateTimeOffset SetChatBoxText(string? text, TimeSpan displayLength) => GameManager.ChatBoxInterface.SetText(text, ChatBoxPriority, displayLength);
 
-    protected void SetChatBoxTyping(bool typing) => chatBoxInterface.SetTyping(typing);
+    protected void SetChatBoxTyping(bool typing) => GameManager.ChatBoxInterface.SetTyping(typing);
 
     protected static float Map(float source, float sMin, float sMax, float dMin, float dMax) => dMin + (dMax - dMin) * ((source - sMin) / (sMax - sMin));
 

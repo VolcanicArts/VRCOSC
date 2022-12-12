@@ -29,25 +29,18 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     private const string latest_release_url = "https://github.com/volcanicarts/vrcosc/releases/latest";
     private const string discord_invite_url = "https://discord.gg/vj4brHyvT5";
 
-    [Cached]
-    private ModuleManager moduleManager = new();
-
     [Resolved]
     private GameHost host { get; set; } = null!;
 
     public VRCOSCUpdateManager UpdateManager = null!;
 
     private NotificationContainer notificationContainer = null!;
-    private OpenVRInterface openVrInterface = null!;
 
     public Bindable<string> SearchTermFilter = new(string.Empty);
     public Bindable<Module.ModuleType?> TypeFilter = new();
 
     [Cached]
     private Bindable<Tab> SelectedTab = new();
-
-    [Cached]
-    private BindableBool ModulesRunning = new();
 
     [Cached(name: "EditingModule")]
     private Bindable<Module?> EditingModule = new();
@@ -58,6 +51,9 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     [Resolved]
     private Storage storage { get; set; } = null!;
 
+    [Cached]
+    private GameManager gameManager = new();
+
     [BackgroundDependencyLoader]
     private void load()
     {
@@ -66,12 +62,9 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         notificationContainer = new NotificationContainer();
         DependencyContainer.CacheAs(notificationContainer);
 
-        openVrInterface = new OpenVRInterface(storage);
-        DependencyContainer.CacheAs(openVrInterface);
-
         Children = new Drawable[]
         {
-            moduleManager,
+            gameManager,
             notificationContainer,
             new MainContent(),
             UpdateManager = CreateUpdateManager()
@@ -80,23 +73,11 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         ChangeChildDepth(notificationContainer, float.MinValue);
     }
 
-    protected override void Update()
-    {
-        if (openVrInterface.HasInitialised) handleOpenVR();
-    }
-
-    private void handleOpenVR()
-    {
-        openVrInterface.Poll();
-    }
-
     protected override async void LoadComplete()
     {
         base.LoadComplete();
 
         await copyOpenVrFiles();
-
-        Scheduler.AddDelayed(() => Task.Run(() => openVrInterface.Init()), 50d, true);
 
         checkUpdates();
         checkVersion();
@@ -111,9 +92,9 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
             Delay = 5000d
         });
 
-        ModulesRunning.BindValueChanged(e =>
+        gameManager.State.BindValueChanged(e =>
         {
-            if (e.NewValue) SelectedTab.Value = Tab.Modules;
+            if (e.NewValue == GameManagerState.Starting) SelectedTab.Value = Tab.Modules;
         }, true);
     }
 
@@ -163,12 +144,12 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
     protected override bool OnExiting()
     {
-        moduleManager.State.BindValueChanged(e =>
+        gameManager.State.BindValueChanged(e =>
         {
-            if (e.NewValue == ManagerState.Stopped) Exit();
+            if (e.NewValue == GameManagerState.Stopped) Exit();
         }, true);
 
-        ModulesRunning.Value = false;
+        gameManager.Stop();
 
         return true;
     }
