@@ -154,7 +154,11 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
             await File.WriteAllBytesAsync(Path.Combine(tempStoragePath, file.Split('/')[1]), await Resources.GetAsync(file));
         }
 
-        await File.WriteAllTextAsync(Path.Combine(tempStoragePath, "app.vrmanifest"), JsonConvert.SerializeObject(new VRManifest()));
+        var manifest = new VRManifest();
+        manifest.Applications[0].ActionManifestPath = tempStorage.GetFullPath("action_manifest.json");
+        manifest.Applications[0].ImagePath = tempStorage.GetFullPath("SteamImage.png");
+
+        await File.WriteAllTextAsync(Path.Combine(tempStoragePath, "app.vrmanifest"), JsonConvert.SerializeObject(manifest));
     }
 
     protected override bool OnExiting()

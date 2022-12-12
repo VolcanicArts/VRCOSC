@@ -32,6 +32,12 @@ public class VRApplication
     [JsonProperty("is_dashboard_overlay")]
     public bool IsDashboardOverlay = true;
 
+    [JsonProperty("action_manifest_path")]
+    public string ActionManifestPath = null!;
+
+    [JsonProperty("image_path")]
+    public string ImagePath = null!;
+
     [JsonProperty("strings")]
     public VRStrings Strings = new();
 }

@@ -38,25 +38,31 @@ public class OpenVRInterface
         this.storage = storage.GetStorageForDirectory("openvr");
     }
 
+    #region Boilerplate
+
     public void Init()
     {
         if (HasInitialised) return;
 
+        HasInitialised = initialiseOpenVR();
+
+        if (HasInitialised)
+        {
+            OpenVR.Applications.AddApplicationManifest(storage.GetFullPath("app.vrmanifest"), false);
+            OpenVR.Input.SetActionManifestPath(storage.GetFullPath("action_manifest.json"));
+            getActionHandles();
+        }
+    }
+
+    private bool initialiseOpenVR()
+    {
         var err = new EVRInitError();
         var state = OpenVR.InitInternal(ref err, EVRApplicationType.VRApplication_Background);
+        return err == EVRInitError.None && state != 0;
+    }
 
-        if (err != EVRInitError.None || state == 0)
-        {
-            HasInitialised = false;
-            return;
-        }
-
-        HasInitialised = true;
-
-        OpenVR.Applications.AddApplicationManifest(storage.GetFullPath("app.vrmanifest"), false);
-
-        OpenVR.Input.SetActionManifestPath(storage.GetFullPath("action_manifest.json"));
-
+    private void getActionHandles()
+    {
         OpenVR.Input.GetActionHandle("/actions/main/in/lefta", ref leftController[0]);
         OpenVR.Input.GetActionHandle("/actions/main/in/leftb", ref leftController[1]);
         OpenVR.Input.GetActionHandle("/actions/main/in/leftpad", ref leftController[2]);
@@ -77,6 +83,10 @@ public class OpenVRInterface
 
         OpenVR.Input.GetActionSetHandle("/actions/main", ref actionSetHandle);
     }
+
+    #endregion
+
+    #region Getters
 
     public bool IsHmdConnected() => getIndexForTrackedDeviceClass(ETrackedDeviceClass.HMD) != uint.MaxValue && OpenVR.IsHmdPresent();
     public bool IsLeftControllerConnected() => getLeftControllerIndex() != uint.MaxValue && OpenVR.System.IsTrackedDeviceConnected(getLeftControllerIndex());
@@ -99,6 +109,8 @@ public class OpenVRInterface
         var canProvideBattery = OpenVR.System.GetBoolTrackedDeviceProperty(getHmdIndex(), ETrackedDeviceProperty.Prop_DeviceProvidesBatteryStatus_Bool, ref error);
         return error == ETrackedPropertyError.TrackedProp_Success && canProvideBattery;
     }
+
+    #endregion
 
     #region Events
 
