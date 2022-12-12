@@ -47,8 +47,10 @@ public class MediaProvider
         trackedProcess = null;
     }
 
-    public void ForceUpdate()
+    public async void ForceUpdate()
     {
+        Controller?.TryPauseAsync();
+        await Task.Delay(50);
         Controller?.TryPlayAsync();
     }
 
