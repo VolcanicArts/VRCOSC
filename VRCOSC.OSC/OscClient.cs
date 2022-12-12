@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System.Net;
@@ -81,7 +81,11 @@ public sealed class OscClient
     {
         data.PreValidate();
         sendingClient?.SendOscMessage(new OscMessage(data.Address, data.Values));
-        listeners.ForEach(listener => listener.OnDataSent(data));
+
+        lock (listenerLock)
+        {
+            listeners.ForEach(listener => listener.OnDataSent(data));
+        }
     }
 
     private async void runReceiveLoop()
