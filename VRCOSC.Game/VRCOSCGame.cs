@@ -62,15 +62,15 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         notificationContainer = new NotificationContainer();
         DependencyContainer.CacheAs(notificationContainer);
 
+        LoadComponent(notificationContainer);
+
         Children = new Drawable[]
         {
             gameManager,
-            notificationContainer,
             new MainContent(),
-            UpdateManager = CreateUpdateManager()
+            UpdateManager = CreateUpdateManager(),
+            notificationContainer
         };
-
-        ChangeChildDepth(notificationContainer, float.MinValue);
     }
 
     protected override async void LoadComplete()
