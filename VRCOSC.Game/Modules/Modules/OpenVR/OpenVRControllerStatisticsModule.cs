@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Threading.Tasks;
+using VRCOSC.OSC.VRChat;
 
 namespace VRCOSC.Game.Modules.Modules.OpenVR;
 
@@ -11,7 +12,7 @@ public class OpenVRControllerStatisticsModule : Module
     public override string Description => "Gets controller statistics from your OpenVR (SteamVR) session";
     public override string Author => "VolcanicArts";
     public override ModuleType Type => ModuleType.OpenVR;
-    protected override int DeltaUpdate => Constants.OSC_UPDATE_DELTA;
+    protected override int DeltaUpdate => VRChatOscConstants.UPDATE_DELTA;
 
     protected override void CreateAttributes()
     {

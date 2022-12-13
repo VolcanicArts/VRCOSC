@@ -2,10 +2,9 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Graphics.Sprites;
-using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Graphics.Themes;
 
-namespace VRCOSC.Game.Design;
+namespace VRCOSC.Game.Graphics.Notifications;
 
 public partial class InvalidOSCAttributeNotification : BasicNotification
 {

@@ -3,6 +3,7 @@
 
 using System.Threading;
 using System.Threading.Tasks;
+using VRCOSC.OSC.VRChat;
 
 namespace VRCOSC.Game.Modules.Modules.OpenVR;
 
@@ -12,7 +13,7 @@ public class GestureExtensionsModule : Module
     public override string Description => "Detect a range of custom gestures from Index controllers";
     public override string Author => "VolcanicArts";
     public override ModuleType Type => ModuleType.OpenVR;
-    protected override int DeltaUpdate => Constants.OSC_UPDATE_DELTA;
+    protected override int DeltaUpdate => VRChatOscConstants.UPDATE_DELTA;
 
     private float lowerThreshold;
     private float upperThreshold;

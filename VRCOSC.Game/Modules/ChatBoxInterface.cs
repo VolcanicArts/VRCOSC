@@ -8,7 +8,8 @@ using System.Collections.Immutable;
 using System.Linq;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
-using VRCOSC.OSC;
+using VRCOSC.OSC.Client;
+using VRCOSC.OSC.VRChat;
 
 namespace VRCOSC.Game.Modules;
 
@@ -45,7 +46,7 @@ public class ChatBoxInterface
 
     public void SetTyping(bool typing)
     {
-        oscClient.SendValue(Constants.OSC_ADDRESS_CHATBOX_TYPING, typing);
+        oscClient.SendValue(VRChatOscConstants.ADDRESS_CHATBOX_TYPING, typing);
     }
 
     public void Initialise()
@@ -68,7 +69,7 @@ public class ChatBoxInterface
 
     private void clear()
     {
-        oscClient.SendValues(Constants.OSC_ADDRESS_CHATBOX_INPUT, new List<object> { string.Empty, true });
+        oscClient.SendValues(VRChatOscConstants.ADDRESS_CHATBOX_INPUT, new List<object> { string.Empty, true });
         alreadyClear = true;
     }
 
@@ -142,7 +143,7 @@ public class ChatBoxInterface
 
         if (currentData.Text is null) return;
 
-        if (sendEnabled) oscClient.SendValues(Constants.OSC_ADDRESS_CHATBOX_INPUT, new List<object> { currentData.Text!, true });
+        if (sendEnabled) oscClient.SendValues(VRChatOscConstants.ADDRESS_CHATBOX_INPUT, new List<object> { currentData.Text!, true });
         sendReset = DateTimeOffset.Now + TimeSpan.FromMilliseconds(resetMilli.Value);
     }
 

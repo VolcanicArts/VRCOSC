@@ -13,13 +13,12 @@ using osu.Framework.Graphics;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 using VRCOSC.Game.Config;
-using VRCOSC.Game.Design;
 using VRCOSC.Game.Graphics.Notifications;
-using VRCOSC.OSC;
+using VRCOSC.OSC.VRChat;
 
 namespace VRCOSC.Game.Modules;
 
-public partial class GameManager : Component, IOscListener
+public partial class GameManager : Component
 {
     private const double vrchat_process_check_interval = 5000;
     private const double openvr_interface_init_delay = 50;
@@ -35,7 +34,7 @@ public partial class GameManager : Component, IOscListener
     private CancellationTokenSource? startTokenSource;
     private bool hasAutoStarted;
 
-    public readonly OscClient OscClient = new();
+    public readonly VRChatOscClient OscClient = new();
     public readonly ModuleManager ModuleManager = new();
     public readonly Bindable<GameManagerState> State = new(GameManagerState.Stopped);
     public Player Player = null!;
@@ -95,7 +94,7 @@ public partial class GameManager : Component, IOscListener
                 return;
             }
 
-            OscClient.RegisterListener(this);
+            OscClient.OnParameterReceived += onParameterReceived;
             Player.Initialise();
             ChatBoxInterface.Initialise();
             sendControlValues();
@@ -122,7 +121,7 @@ public partial class GameManager : Component, IOscListener
         await ModuleManager.Stop();
         ChatBoxInterface.Shutdown();
         Player.ResetAll();
-        OscClient.DeRegisterListener(this);
+        OscClient.OnParameterReceived -= onParameterReceived;
         OscClient.DisableSend();
 
         await Task.Delay(startstop_delay);
@@ -182,25 +181,22 @@ public partial class GameManager : Component, IOscListener
 
     private void sendControlValues()
     {
-        OscClient.SendValue($"{Constants.OSC_ADDRESS_AVATAR_PARAMETERS_PREFIX}/VRCOSC/Controls/ChatBox", ChatBoxInterface.SendEnabled);
+        OscClient.SendValue($"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}/VRCOSC/Controls/ChatBox", ChatBoxInterface.SendEnabled);
     }
 
-    void IOscListener.OnDataSent(OscData data) { }
-
-    void IOscListener.OnDataReceived(OscData data)
+    private void onParameterReceived(VRChatOscData data)
     {
-        if (data.Address == Constants.OSC_ADDRESS_AVATAR_CHANGE)
+        if (data.IsAvatarChangeEvent)
         {
             sendControlValues();
             return;
         }
 
-        if (!data.Address.StartsWith(Constants.OSC_ADDRESS_AVATAR_PARAMETERS_PREFIX)) return;
+        if (!data.IsAvatarParameter) return;
 
-        var parameterName = data.Address.Remove(0, Constants.OSC_ADDRESS_AVATAR_PARAMETERS_PREFIX.Length + 1);
-        Player.Update(parameterName, data.Values[0]);
+        Player.Update(data.ParameterName, data.Values[0]);
 
-        switch (parameterName)
+        switch (data.ParameterName)
         {
             case "VRCOSC/Controls/ChatBox":
                 ChatBoxInterface.SendEnabled = (bool)data.Values[0];

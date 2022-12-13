@@ -12,14 +12,14 @@ using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
-using VRCOSC.OSC;
+using VRCOSC.OSC.VRChat;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable InconsistentNaming
 
 namespace VRCOSC.Game.Modules;
 
-public abstract class Module : IOscListener
+public abstract class Module
 {
     private GameHost Host = null!;
     private Storage Storage = null!;
@@ -129,7 +129,7 @@ public abstract class Module : IOscListener
         if (ShouldUpdate) updateTask = new TimedTask(OnUpdate, DeltaUpdate, true);
         await (updateTask?.Start() ?? Task.CompletedTask);
 
-        GameManager.OscClient.RegisterListener(this);
+        GameManager.OscClient.OnParameterReceived += onParameterReceived;
 
         State.Value = ModuleState.Started;
     }
@@ -140,7 +140,7 @@ public abstract class Module : IOscListener
 
         State.Value = ModuleState.Stopping;
 
-        GameManager.OscClient.DeRegisterListener(this);
+        GameManager.OscClient.OnParameterReceived -= onParameterReceived;
 
         if (updateTask is not null) await updateTask.Stop();
 
@@ -205,30 +205,21 @@ public abstract class Module : IOscListener
         GameManager.OscClient.SendValue(data.FormattedAddress, value);
     }
 
-    void IOscListener.OnDataSent(OscData data) { }
-
-    void IOscListener.OnDataReceived(OscData data)
+    private void onParameterReceived(VRChatOscData data)
     {
-        if (!data.Values.Any()) return;
-
-        var address = data.Address;
-        var value = data.Values[0];
-
-        if (address == Constants.OSC_ADDRESS_AVATAR_CHANGE)
+        if (data.IsAvatarChangeEvent)
         {
             OnAvatarChange();
             return;
         }
 
-        if (!address.StartsWith(Constants.OSC_ADDRESS_AVATAR_PARAMETERS_PREFIX)) return;
-
-        var parameterName = address.Remove(0, Constants.OSC_ADDRESS_AVATAR_PARAMETERS_PREFIX.Length + 1);
+        if (!data.IsAvatarParameter) return;
 
         Enum? lookup;
 
         try
         {
-            lookup = Parameters.Single(pair => pair.Value.Name == parameterName).Key;
+            lookup = Parameters.Single(pair => pair.Value.Name == data.ParameterName).Key;
         }
         catch (InvalidOperationException)
         {
@@ -239,13 +230,13 @@ public abstract class Module : IOscListener
 
         if (!parameterData.Mode.HasFlagFast(ParameterMode.Read)) return;
 
-        if (value.GetType() != parameterData.ExpectedType)
+        if (data.ParameterValue.GetType() != parameterData.ExpectedType)
         {
-            Log($@"Cannot accept input parameter. `{lookup}` expects type `{parameterData.ExpectedType}` but received type `{value.GetType()}`");
+            Log($@"Cannot accept input parameter. `{lookup}` expects type `{parameterData.ExpectedType}` but received type `{data.ParameterValue.GetType()}`");
             return;
         }
 
-        switch (value)
+        switch (data.ParameterValue)
         {
             case bool boolValue:
                 OnBoolParameterReceived(lookup, boolValue);

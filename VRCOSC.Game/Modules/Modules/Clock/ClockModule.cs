@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using VRCOSC.OSC.VRChat;
 
 namespace VRCOSC.Game.Modules.Modules.Clock;
 
@@ -14,7 +15,7 @@ public sealed class ClockModule : ChatBoxModule
     public override string Author => "VolcanicArts";
     public override string Prefab => "VRCOSC-Watch";
     public override ModuleType Type => ModuleType.General;
-    protected override int DeltaUpdate => GetSetting<bool>(ClockSetting.SmoothSecond) ? Constants.OSC_UPDATE_DELTA : 1000;
+    protected override int DeltaUpdate => GetSetting<bool>(ClockSetting.SmoothSecond) ? VRChatOscConstants.UPDATE_DELTA : 1000;
 
     protected override bool DefaultChatBoxDisplay => true;
     protected override string DefaultChatBoxFormat => "Local Time                                %h%:%m%%period%";

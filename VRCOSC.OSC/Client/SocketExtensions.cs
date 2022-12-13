@@ -3,7 +3,7 @@
 
 using System.Net.Sockets;
 
-namespace VRCOSC.OSC;
+namespace VRCOSC.OSC.Client;
 
 public static class SocketExtensions
 {

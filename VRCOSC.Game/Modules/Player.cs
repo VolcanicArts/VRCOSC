@@ -1,11 +1,9 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-// ReSharper disable InconsistentNaming
-
 using System;
 using System.Threading.Tasks;
-using VRCOSC.OSC;
+using VRCOSC.OSC.Client;
 
 namespace VRCOSC.Game.Modules;
 
