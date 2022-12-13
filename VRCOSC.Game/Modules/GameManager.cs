@@ -84,15 +84,11 @@ public partial class GameManager : Component
         {
             startTokenSource = new CancellationTokenSource();
 
+            if (!initialiseOscClient()) return;
+
             State.Value = GameManagerState.Starting;
 
             await Task.Delay(startstop_delay, startTokenSource.Token);
-
-            if (!initialiseOscClient())
-            {
-                State.Value = GameManagerState.Stopped;
-                return;
-            }
 
             OscClient.OnParameterReceived += onParameterReceived;
             Player.Initialise();
