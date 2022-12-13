@@ -25,7 +25,7 @@ public sealed partial class DrawableTab : ClickableContainer
     private Box background = null!;
     private SelectedIndicator indicator = null!;
     private TabPopover popover = null!;
-    private SpriteIcon spriteIcon;
+    private SpriteIcon spriteIcon = null!;
 
     public Tab Tab { get; init; }
 
