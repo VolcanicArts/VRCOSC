@@ -19,12 +19,13 @@ public sealed partial class DrawableTab : ClickableContainer
     private static readonly Colour4 default_colour = new(0, 0, 0, 0);
     private static readonly Colour4 hover_colour = ThemeManager.Current[ThemeAttribute.Light];
 
-    private const int onhover_duration = 100;
+    private const int onhover_duration = 250;
     private const int onhoverlost_duration = onhover_duration;
 
     private Box background = null!;
     private SelectedIndicator indicator = null!;
     private TabPopover popover = null!;
+    private SpriteIcon spriteIcon;
 
     public Tab Tab { get; init; }
 
@@ -52,7 +53,7 @@ public sealed partial class DrawableTab : ClickableContainer
                 RelativeSizeAxes = Axes.Both,
                 Colour = default_colour
             },
-            new SpriteIcon
+            spriteIcon = new SpriteIcon
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
@@ -60,7 +61,7 @@ public sealed partial class DrawableTab : ClickableContainer
                 Size = new Vector2(0.35f),
                 FillMode = FillMode.Fit,
                 Icon = Icon,
-                Colour = Colour = ThemeManager.Current[ThemeAttribute.Text]
+                Colour = ThemeManager.Current[ThemeAttribute.Text]
             },
             indicator = new SelectedIndicator
             {
@@ -88,11 +89,15 @@ public sealed partial class DrawableTab : ClickableContainer
         selectedTab.BindValueChanged(tab =>
         {
             if (tab.NewValue == Tab)
+            {
                 indicator.Select();
+                spriteIcon.Colour = ThemeManager.Current[ThemeAttribute.Accent];
+            }
             else
             {
                 indicator.DeSelect();
                 background.FadeColour(default_colour, onhoverlost_duration, Easing.InOutSine);
+                spriteIcon.Colour = ThemeManager.Current[ThemeAttribute.Text];
             }
         }, true);
 
