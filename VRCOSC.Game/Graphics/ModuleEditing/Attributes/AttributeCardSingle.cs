@@ -29,6 +29,9 @@ public abstract partial class AttributeCardSingle : AttributeCard
 
     protected virtual void UpdateValues(object value)
     {
+        //Specifically check for equal values here to stop memory allocations from setting the bindable's value
+        if (value == AttributeData.Attribute.Value) return;
+
         AttributeData.Attribute.Value = value;
     }
 
