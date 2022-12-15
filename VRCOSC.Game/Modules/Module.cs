@@ -9,7 +9,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.EnumExtensions;
-using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 using VRCOSC.OSC.VRChat;
@@ -401,35 +400,6 @@ public abstract class Module
     private void executeAfterLoad()
     {
         performSave();
-
-        Enabled.BindValueChanged(_ => performSave());
-        Settings.Values.ForEach(handleAttributeBind);
-    }
-
-    private void handleAttributeBind(ModuleAttribute value)
-    {
-        switch (value)
-        {
-            case ModuleAttributeSingle valueSingle:
-                valueSingle.Attribute.BindValueChanged(_ => performSave());
-                break;
-
-            case ModuleAttributeList valueList:
-                valueList.AttributeList.BindCollectionChanged((_, e) =>
-                {
-                    if (e.NewItems is not null)
-                    {
-                        foreach (var newItem in e.NewItems)
-                        {
-                            var bindable = (Bindable<object>)newItem;
-                            bindable.BindValueChanged(_ => performSave());
-                        }
-                    }
-
-                    performSave();
-                });
-                break;
-        }
     }
 
     private static Type? enumNameToType(string enumName) => AppDomain.CurrentDomain.GetAssemblies().Select(assembly => assembly.GetType(enumName)).FirstOrDefault(type => type?.IsEnum ?? false);
@@ -437,6 +407,11 @@ public abstract class Module
     #endregion
 
     #region Saving
+
+    public void Save()
+    {
+        performSave();
+    }
 
     private void performSave()
     {

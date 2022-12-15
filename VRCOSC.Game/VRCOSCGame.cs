@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Platform;
@@ -144,14 +145,34 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
     protected override bool OnExiting()
     {
-        gameManager.State.BindValueChanged(e =>
+        prepareForExit();
+        return true;
+    }
+
+    private void prepareForExit()
+    {
+        Task.WhenAll(new[]
         {
-            if (e.NewValue == GameManagerState.Stopped) Exit();
-        }, true);
+            Task.Run(waitForGameManager)
+        }).ContinueWith(_ => performExit());
+    }
+
+    private Task waitForGameManager()
+    {
+        if (gameManager.State.Value == GameManagerState.Stopped) return Task.CompletedTask;
 
         gameManager.Stop();
 
-        return true;
+        while (true)
+        {
+            if (gameManager.State.Value == GameManagerState.Stopped) return Task.CompletedTask;
+        }
+    }
+
+    private void performExit()
+    {
+        gameManager.ModuleManager.ForEach(module => module.Save());
+        Exit();
     }
 
     protected abstract VRCOSCUpdateManager CreateUpdateManager();
