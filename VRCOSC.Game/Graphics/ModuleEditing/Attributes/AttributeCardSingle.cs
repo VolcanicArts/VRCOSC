@@ -18,16 +18,15 @@ public abstract partial class AttributeCardSingle : AttributeCard
 
     protected override void LoadComplete()
     {
-        AttributeData.Attribute.BindValueChanged(performAttributeUpdate, true);
+        AttributeData.Attribute.BindValueChanged(onAttributeUpdate, true);
     }
 
-    private void performAttributeUpdate(ValueChangedEvent<object> e)
+    private void onAttributeUpdate(ValueChangedEvent<object> e)
     {
-        UpdateValues(e.NewValue);
         UpdateResetToDefault(!AttributeData.IsDefault());
     }
 
-    protected virtual void UpdateValues(object value)
+    protected virtual void UpdateAttribute(object value)
     {
         //Specifically check for equal values here to stop memory allocations from setting the bindable's value
         if (value == AttributeData.Attribute.Value) return;
@@ -38,6 +37,6 @@ public abstract partial class AttributeCardSingle : AttributeCard
     protected override void Dispose(bool isDisposing)
     {
         base.Dispose(isDisposing);
-        AttributeData.Attribute.ValueChanged -= performAttributeUpdate;
+        AttributeData.Attribute.ValueChanged -= onAttributeUpdate;
     }
 }

@@ -46,7 +46,7 @@ public sealed partial class ToggleAttributeCard : AttributeCardSingle
     protected override void LoadComplete()
     {
         base.LoadComplete();
-        toggleButton.State.ValueChanged += e => UpdateValues(e.NewValue);
+        toggleButton.State.ValueChanged += e => UpdateAttribute(e.NewValue);
     }
 
     protected override void SetDefault()

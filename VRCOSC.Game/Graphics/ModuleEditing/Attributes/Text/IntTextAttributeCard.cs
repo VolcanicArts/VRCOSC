@@ -17,12 +17,12 @@ public sealed partial class IntTextAttributeCard : TextAttributeCard
     {
         if (string.IsNullOrEmpty(e.NewValue))
         {
-            UpdateValues(0);
+            UpdateAttribute(0);
             TextBox.Current.Value = "0";
         }
 
         if (int.TryParse(e.NewValue, out var intValue))
-            UpdateValues(intValue);
+            UpdateAttribute(intValue);
         else
             TextBox.Current.Value = e.OldValue;
     }

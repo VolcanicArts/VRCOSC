@@ -41,7 +41,7 @@ public abstract partial class SliderAttributeCard<T> : AttributeCardSingle where
     protected override void LoadComplete()
     {
         base.LoadComplete();
-        slider.Current.ValueChanged += e => UpdateValues(e.NewValue);
+        slider.Current.ValueChanged += e => UpdateAttribute(e.NewValue);
     }
 
     protected override void SetDefault()

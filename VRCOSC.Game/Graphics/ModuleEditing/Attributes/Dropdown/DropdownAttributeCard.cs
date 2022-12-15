@@ -34,12 +34,12 @@ public sealed partial class DropdownAttributeCard<T> : AttributeCardSingle where
     protected override void LoadComplete()
     {
         base.LoadComplete();
-        dropdown.Current.ValueChanged += e => UpdateValues(e.NewValue);
+        dropdown.Current.ValueChanged += e => UpdateAttribute(e.NewValue);
     }
 
-    protected override void UpdateValues(object value)
+    protected override void UpdateAttribute(object value)
     {
-        base.UpdateValues(value);
+        base.UpdateAttribute(value);
         dropdown.Current.Value = (T)value;
     }
 }

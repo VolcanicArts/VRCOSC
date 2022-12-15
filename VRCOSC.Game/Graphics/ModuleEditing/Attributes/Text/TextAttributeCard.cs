@@ -41,5 +41,5 @@ public partial class TextAttributeCard : AttributeCardSingle
         TextBox.Current.ValueChanged += OnTextBoxUpdate;
     }
 
-    protected virtual void OnTextBoxUpdate(ValueChangedEvent<string> e) => UpdateValues(e.NewValue);
+    protected virtual void OnTextBoxUpdate(ValueChangedEvent<string> e) => UpdateAttribute(e.NewValue);
 }

@@ -32,7 +32,7 @@ public partial class TextAttributeCardList : AttributeCardList
     private void addTextBox(Bindable<object> item)
     {
         var textBox = CreateTextBox().With(t => t.Text = item.Value.ToString());
-        textBox.Current.ValueChanged += e => item.Value = OnTextWrite(e);
+        textBox.Current.ValueChanged += e => item.Value = e.NewValue;
 
         AddContent(textBox);
     }
@@ -54,10 +54,5 @@ public partial class TextAttributeCardList : AttributeCardList
     {
         base.RemoveItem(index);
         ContentFlow.Children[index].RemoveAndDisposeImmediately();
-    }
-
-    protected virtual object OnTextWrite(ValueChangedEvent<string> e)
-    {
-        return e.NewValue;
     }
 }
