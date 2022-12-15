@@ -89,9 +89,6 @@ public abstract class Module
     protected void CreateSetting(Enum lookup, string displayName, string description, float defaultValue, float minValue, float maxValue, Func<bool>? dependsOn = null)
         => addRangedSetting(lookup, displayName, description, defaultValue, minValue, maxValue, dependsOn);
 
-    protected void CreateSetting(Enum lookup, string displayName, string description, IEnumerable<int> defaultValues, bool canBeEmpty, Func<bool>? dependsOn = null)
-        => addEnumerableSetting(lookup, displayName, description, defaultValues, canBeEmpty, dependsOn);
-
     protected void CreateSetting(Enum lookup, string displayName, string description, IEnumerable<string> defaultValues, bool canBeEmpty, Func<bool>? dependsOn = null)
         => addEnumerableSetting(lookup, displayName, description, defaultValues, canBeEmpty, dependsOn);
 
