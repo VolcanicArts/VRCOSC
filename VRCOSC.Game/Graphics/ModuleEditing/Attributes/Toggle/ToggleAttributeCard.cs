@@ -49,9 +49,9 @@ public sealed partial class ToggleAttributeCard : AttributeCardSingle
         toggleButton.State.ValueChanged += e => UpdateValues(e.NewValue);
     }
 
-    protected override void UpdateValues(object value)
+    protected override void SetDefault()
     {
-        base.UpdateValues(value);
-        toggleButton.State.Value = (bool)value;
+        base.SetDefault();
+        toggleButton.State.Value = (bool)AttributeData.Attribute.Value;
     }
 }

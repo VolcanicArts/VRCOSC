@@ -11,8 +11,6 @@ namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes.Text;
 
 public partial class TextAttributeCard : AttributeCardSingle
 {
-    protected override bool ShouldLimitSaves => true;
-
     private VRCOSCTextBox textBox = null!;
 
     public TextAttributeCard(ModuleAttributeSingle attributeData)
@@ -31,16 +29,16 @@ public partial class TextAttributeCard : AttributeCardSingle
         return textBox = CreateTextBox().With(t => t.Text = AttributeData.Attribute.Value.ToString());
     }
 
+    protected override void SetDefault()
+    {
+        base.SetDefault();
+        textBox.Text = AttributeData.Attribute.Value.ToString();
+    }
+
     protected override void LoadComplete()
     {
         base.LoadComplete();
         textBox.Current.ValueChanged += e => UpdateValues(OnTextWrite(e));
-    }
-
-    protected override void UpdateValues(object value)
-    {
-        base.UpdateValues(value);
-        textBox.Current.Value = value.ToString();
     }
 
     protected virtual object OnTextWrite(ValueChangedEvent<string> e)

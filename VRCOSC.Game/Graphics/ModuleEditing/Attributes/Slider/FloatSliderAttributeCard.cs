@@ -17,6 +17,7 @@ public sealed partial class FloatSliderAttributeCard : SliderAttributeCard<float
     {
         MinValue = (float)AttributeDataWithBounds.MinValue,
         MaxValue = (float)AttributeDataWithBounds.MaxValue,
-        Precision = 0.01f
+        Precision = 0.01f,
+        Value = (float)AttributeData.Attribute.Value
     };
 }
