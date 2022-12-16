@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.Media;
@@ -71,9 +72,13 @@ public sealed partial class MediaModule : ChatBoxModule
 
     private void startProcesses()
     {
-        GetSetting<List<string>>(MediaSetting.StartList).ForEach(processName =>
+        GetSetting<List<string>>(MediaSetting.StartList).ForEach(processExeLocation =>
         {
-            if (!Process.GetProcessesByName(processName).Any()) Process.Start(processName);
+            if (File.Exists(processExeLocation))
+            {
+                var processName = new FileInfo(processExeLocation).Name.ToLowerInvariant().Replace(".exe", string.Empty);
+                if (!Process.GetProcessesByName(processName).Any()) Process.Start(processExeLocation);
+            }
         });
     }
 
