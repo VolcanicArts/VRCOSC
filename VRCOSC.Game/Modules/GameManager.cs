@@ -57,6 +57,10 @@ public partial class GameManager : CompositeComponent
     protected override void Update()
     {
         OpenVRInterface.Update();
+    }
+
+    protected override void UpdateAfterChildren()
+    {
         ChatBoxInterface.Update();
     }
 
