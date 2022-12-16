@@ -48,9 +48,9 @@ public sealed partial class ModuleEditingPopover : PopoverScreen
         };
     }
 
-    public override void Hide()
+    protected override void Close()
     {
-        base.Hide();
+        editingModule.Value?.Save();
         editingModule.Value = null;
     }
 }

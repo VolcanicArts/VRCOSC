@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
-using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Platform;
@@ -171,7 +170,6 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
     private void performExit()
     {
-        gameManager.ModuleManager.ForEach(module => module.Save());
         Exit();
     }
 
