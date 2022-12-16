@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace VRCOSC.Game.Modules.Modules.HardwareStats;
 
-public sealed class HardwareStatsModule : ChatBoxModule
+public sealed partial class HardwareStatsModule : ChatBoxModule
 {
     public override string Title => "Hardware Stats";
     public override string Description => "Sends hardware stats and displays them in the ChatBox";
@@ -51,9 +51,9 @@ public sealed class HardwareStatsModule : ChatBoxModule
                .Replace("$ramavailable$", hardwareStatsProvider?.RamAvailable.ToString("0.0") ?? "0.0");
     }
 
-    protected override async Task OnStart(CancellationToken cancellationToken)
+    protected override async Task OnModuleStart(CancellationToken cancellationToken)
     {
-        await base.OnStart(cancellationToken);
+        await base.OnModuleStart(cancellationToken);
         hardwareStatsProvider = new HardwareStatsProvider();
 
         Log("Loading hardware monitors...");
@@ -66,9 +66,9 @@ public sealed class HardwareStatsModule : ChatBoxModule
         Log("Hardware monitors loaded!");
     }
 
-    protected override Task OnUpdate()
+    protected override void OnModuleUpdate()
     {
-        if (hardwareStatsProvider is null || !hardwareStatsProvider.CanAcceptQueries) return Task.CompletedTask;
+        if (hardwareStatsProvider is null || !hardwareStatsProvider.CanAcceptQueries) return;
 
         hardwareStatsProvider!.Update();
 
@@ -80,14 +80,12 @@ public sealed class HardwareStatsModule : ChatBoxModule
         SendParameter(HardwareStatsParameter.RamTotal, hardwareStatsProvider.RamTotal);
         SendParameter(HardwareStatsParameter.RamUsed, hardwareStatsProvider.RamUsed);
         SendParameter(HardwareStatsParameter.RamAvailable, hardwareStatsProvider.RamAvailable);
-
-        return Task.CompletedTask;
     }
 
-    protected override async Task OnStop()
+    protected override Task OnModuleStop()
     {
-        await base.OnStop();
         hardwareStatsProvider = null;
+        return Task.CompletedTask;
     }
 
     private enum HardwareStatsParameter

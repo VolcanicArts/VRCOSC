@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace VRCOSC.Game.Modules.Modules.Heartrate;
 
-public abstract class HeartRateModule : ChatBoxModule
+public abstract partial class HeartRateModule : ChatBoxModule
 {
     private static readonly TimeSpan heartrate_timeout = TimeSpan.FromSeconds(10);
 
@@ -47,9 +47,9 @@ public abstract class HeartRateModule : ChatBoxModule
         return GetSetting<string>(ChatBoxSetting.ChatBoxFormat).Replace("%hr%", lastHeartrate.ToString());
     }
 
-    protected override async Task OnStart(CancellationToken cancellationToken)
+    protected override async Task OnModuleStart(CancellationToken cancellationToken)
     {
-        await base.OnStart(cancellationToken);
+        await base.OnModuleStart(cancellationToken);
         attemptConnection();
 
         lastHeartrateTime = DateTimeOffset.Now - heartrate_timeout;
@@ -82,23 +82,17 @@ public abstract class HeartRateModule : ChatBoxModule
         heartRateProvider.Connect();
     }
 
-    protected override async Task OnStop()
+    protected override async Task OnModuleStop()
     {
-        await base.OnStop();
         if (heartRateProvider is null) return;
 
         if (connectionCount < 3) await heartRateProvider.Disconnect();
         SendParameter(HeartrateParameter.Enabled, false);
     }
 
-    protected override Task OnUpdate()
+    protected override void OnModuleUpdate()
     {
-        if (!isReceiving)
-        {
-            SendParameter(HeartrateParameter.Enabled, false);
-        }
-
-        return Task.CompletedTask;
+        if (!isReceiving) SendParameter(HeartrateParameter.Enabled, false);
     }
 
     protected virtual void HandleHeartRateUpdate(int heartrate)

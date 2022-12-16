@@ -11,7 +11,7 @@ using Windows.Media;
 
 namespace VRCOSC.Game.Modules.Modules.Media;
 
-public sealed class MediaModule : ChatBoxModule
+public sealed partial class MediaModule : ChatBoxModule
 {
     public override string Title => "Media";
     public override string Description => "Integration with Windows Media";
@@ -61,9 +61,9 @@ public sealed class MediaModule : ChatBoxModule
         return formattedText;
     }
 
-    protected override async Task OnStart(CancellationToken cancellationToken)
+    protected override async Task OnModuleStart(CancellationToken cancellationToken)
     {
-        await base.OnStart(cancellationToken);
+        await base.OnModuleStart(cancellationToken);
         mediaProvider.OnMediaSessionOpened += OnMediaSessionOpened;
         mediaProvider.OnMediaUpdate += OnMediaUpdate;
         await mediaProvider.StartMediaHook();
@@ -78,9 +78,9 @@ public sealed class MediaModule : ChatBoxModule
         });
     }
 
-    protected override async Task OnStop()
+    protected override async Task OnModuleStop()
     {
-        await base.OnStop();
+        await base.OnModuleStop();
         mediaProvider.StopMediaHook();
         mediaProvider.OnMediaSessionOpened -= OnMediaSessionOpened;
         mediaProvider.OnMediaUpdate -= OnMediaUpdate;
@@ -92,10 +92,9 @@ public sealed class MediaModule : ChatBoxModule
         sendMediaParameters();
     }
 
-    protected override Task OnUpdate()
+    protected override void OnModuleUpdate()
     {
         sendVolumeParameters();
-        return Task.CompletedTask;
     }
 
     protected override void OnFloatParameterReceived(Enum key, float value)

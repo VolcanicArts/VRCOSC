@@ -3,7 +3,7 @@
 
 namespace VRCOSC.Game.Modules.Modules.Random;
 
-public sealed class RandomBoolModule : RandomModule<bool>
+public sealed partial class RandomBoolModule : RandomModule<bool>
 {
     protected override bool GetRandomValue() => RandomBool();
 }

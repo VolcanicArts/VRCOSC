@@ -7,7 +7,7 @@ using VRCOSC.OSC.VRChat;
 
 namespace VRCOSC.Game.Modules.Modules.OpenVR;
 
-public class GestureExtensionsModule : Module
+public partial class GestureExtensionsModule : Module
 {
     public override string Title => "Gesture Extensions";
     public override string Description => "Detect a range of custom gestures from Index controllers";
@@ -27,7 +27,7 @@ public class GestureExtensionsModule : Module
         CreateParameter<int>(GestureExtensionsParameter.GestureRight, ParameterMode.Write, "VRCOSC/Gestures/Right", "Custom right hand gesture value");
     }
 
-    protected override Task OnStart(CancellationToken cancellationToken)
+    protected override Task OnModuleStart(CancellationToken cancellationToken)
     {
         lowerThreshold = GetSetting<float>(GestureExtensionsSetting.LowerThreshold);
         upperThreshold = GetSetting<float>(GestureExtensionsSetting.UpperThreshold);
@@ -35,14 +35,12 @@ public class GestureExtensionsModule : Module
         return Task.CompletedTask;
     }
 
-    protected override Task OnUpdate()
+    protected override void OnModuleUpdate()
     {
-        if (!OpenVrInterface.HasInitialised) return Task.CompletedTask;
+        if (!OpenVrInterface.HasInitialised) return;
 
         if (OpenVrInterface.IsLeftControllerConnected()) SendParameter(GestureExtensionsParameter.GestureLeft, (int)getLeftControllerGesture());
         if (OpenVrInterface.IsRightControllerConnected()) SendParameter(GestureExtensionsParameter.GestureRight, (int)getRightControllerGesture());
-
-        return Task.CompletedTask;
     }
 
     private GestureNames getLeftControllerGesture() => getControllerGesture(OpenVrInterface.LeftController);

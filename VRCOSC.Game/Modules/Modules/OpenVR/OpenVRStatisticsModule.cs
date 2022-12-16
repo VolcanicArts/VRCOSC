@@ -2,11 +2,10 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace VRCOSC.Game.Modules.Modules.OpenVR;
 
-public class OpenVRStatisticsModule : Module
+public partial class OpenVRStatisticsModule : Module
 {
     private const int max_tracker_count = 8;
 
@@ -37,15 +36,13 @@ public class OpenVRStatisticsModule : Module
         }
     }
 
-    protected override Task OnUpdate()
+    protected override void OnModuleUpdate()
     {
-        if (!OpenVrInterface.HasInitialised) return Task.CompletedTask;
+        if (!OpenVrInterface.HasInitialised) return;
 
         handleHmd();
         handleControllers();
         handleTrackers();
-
-        return Task.CompletedTask;
     }
 
     private void handleHmd()

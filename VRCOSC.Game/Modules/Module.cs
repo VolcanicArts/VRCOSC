@@ -7,8 +7,10 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.EnumExtensions;
+using osu.Framework.Graphics;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 using VRCOSC.OSC.VRChat;
@@ -18,13 +20,16 @@ using VRCOSC.OSC.VRChat;
 
 namespace VRCOSC.Game.Modules;
 
-public abstract class Module
+public abstract partial class Module : Component
 {
-    private GameHost Host = null!;
+    [Resolved]
+    private GameHost Host { get; set; } = null!;
+
+    [Resolved]
+    private GameManager GameManager { get; set; } = null!;
+
     private Storage Storage = null!;
     private TerminalLogger Terminal = null!;
-    private GameManager GameManager = null!;
-    private TimedTask? updateTask;
 
     protected Player Player => GameManager.Player;
     protected OpenVRInterface OpenVrInterface => GameManager.OpenVRInterface;
@@ -54,16 +59,18 @@ public abstract class Module
     public bool HasSettings => Settings.Any();
     public bool HasParameters => Parameters.Any();
 
-    public void Initialise(GameHost host, Storage storage, GameManager gameManager)
+    [BackgroundDependencyLoader]
+    public void load(Storage storage)
     {
-        Host = host;
-        Storage = storage;
-        GameManager = gameManager;
+        Storage = storage.GetStorageForDirectory("modules");
         Terminal = new TerminalLogger(Title);
 
         CreateAttributes();
         performLoad();
+    }
 
+    protected override void LoadComplete()
+    {
         State.ValueChanged += _ => Log(State.Value.ToString());
     }
 
@@ -120,10 +127,13 @@ public abstract class Module
 
         State.Value = ModuleState.Starting;
 
-        await OnStart(startToken);
+        await OnModuleStart(startToken);
 
-        if (ShouldUpdate) updateTask = new TimedTask(OnUpdate, DeltaUpdate, true);
-        await (updateTask?.Start() ?? Task.CompletedTask);
+        if (ShouldUpdate)
+        {
+            Scheduler.Add(OnModuleUpdate);
+            Scheduler.AddDelayed(OnModuleUpdate, DeltaUpdate, true);
+        }
 
         GameManager.OscClient.OnParameterReceived += onParameterReceived;
 
@@ -138,16 +148,16 @@ public abstract class Module
 
         GameManager.OscClient.OnParameterReceived -= onParameterReceived;
 
-        if (updateTask is not null) await updateTask.Stop();
+        Scheduler.CancelDelayedTasks();
 
-        await OnStop();
+        await OnModuleStop();
 
         State.Value = ModuleState.Stopped;
     }
 
-    protected virtual Task OnStart(CancellationToken cancellationToken) => Task.CompletedTask;
-    protected virtual Task OnUpdate() => Task.CompletedTask;
-    protected virtual Task OnStop() => Task.CompletedTask;
+    protected virtual Task OnModuleStart(CancellationToken cancellationToken) => Task.CompletedTask;
+    protected virtual void OnModuleUpdate() { }
+    protected virtual Task OnModuleStop() => Task.CompletedTask;
     protected virtual void OnAvatarChange() { }
 
     #endregion

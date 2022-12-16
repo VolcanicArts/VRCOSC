@@ -2,11 +2,10 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Threading.Tasks;
 
 namespace VRCOSC.Game.Modules.Modules.Random;
 
-public abstract class RandomModule<T> : Module where T : struct
+public abstract partial class RandomModule<T> : Module where T : struct
 {
     public override string Title => $"Random {typeof(T).ToReadableName()}";
     public override string Description => $"Sends a random {typeof(T).ToReadableName().ToLowerInvariant()} over a variable time period";
@@ -23,10 +22,9 @@ public abstract class RandomModule<T> : Module where T : struct
         CreateParameter<T>(RandomParameter.RandomValue, ParameterMode.Write, $"VRCOSC/Random{typeof(T).ToReadableName()}", $"A random {typeof(T).ToReadableName()}");
     }
 
-    protected override Task OnUpdate()
+    protected override void OnModuleUpdate()
     {
         SendParameter(RandomParameter.RandomValue, GetRandomValue());
-        return Task.CompletedTask;
     }
 
     protected abstract T GetRandomValue();

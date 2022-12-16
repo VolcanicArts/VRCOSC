@@ -1,12 +1,11 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Threading.Tasks;
 using VRCOSC.OSC.VRChat;
 
 namespace VRCOSC.Game.Modules.Modules.OpenVR;
 
-public class OpenVRControllerStatisticsModule : Module
+public partial class OpenVRControllerStatisticsModule : Module
 {
     public override string Title => "OpenVR Controller Statistics";
     public override string Description => "Gets controller statistics from your OpenVR (SteamVR) session";
@@ -35,9 +34,9 @@ public class OpenVRControllerStatisticsModule : Module
         CreateParameter<float>(OpenVRControllerStatisticsParameter.RightPinky, ParameterMode.Write, "VRCOSC/OpenVR/RightController/Input/Finger/Pinky", "The touch value of your right pinky finger");
     }
 
-    protected override Task OnUpdate()
+    protected override void OnModuleUpdate()
     {
-        if (!OpenVrInterface.HasInitialised) return Task.CompletedTask;
+        if (!OpenVrInterface.HasInitialised) return;
 
         if (OpenVrInterface.IsLeftControllerConnected())
         {
@@ -62,8 +61,6 @@ public class OpenVRControllerStatisticsModule : Module
             SendParameter(OpenVRControllerStatisticsParameter.RightRing, OpenVrInterface.RightController.RingFinger);
             SendParameter(OpenVRControllerStatisticsParameter.RightPinky, OpenVrInterface.RightController.PinkyFinger);
         }
-
-        return Task.CompletedTask;
     }
 
     private enum OpenVRControllerStatisticsParameter

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace VRCOSC.Game.Modules.Modules.Heartrate.HypeRate;
 
-public sealed class HypeRateModule : HeartRateModule
+public sealed partial class HypeRateModule : HeartRateModule
 {
     public override string Title => "HypeRate";
     public override string Description => "Connects to HypeRate.io and sends your heartrate to VRChat";
@@ -26,7 +26,7 @@ public sealed class HypeRateModule : HeartRateModule
         base.CreateAttributes();
     }
 
-    protected override Task OnStart(CancellationToken cancellationToken)
+    protected override Task OnModuleStart(CancellationToken cancellationToken)
     {
         var hypeRateId = GetSetting<string>(HypeRateSetting.Id);
 
@@ -38,7 +38,7 @@ public sealed class HypeRateModule : HeartRateModule
 
         SendParameter(HeartrateParameter.Enabled, false);
 
-        return base.OnStart(cancellationToken);
+        return base.OnModuleStart(cancellationToken);
     }
 
     protected override void HandleHeartRateUpdate(int heartrate)

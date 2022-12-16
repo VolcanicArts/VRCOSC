@@ -3,12 +3,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using VRCOSC.OSC.VRChat;
 
 namespace VRCOSC.Game.Modules.Modules.Clock;
 
-public sealed class ClockModule : ChatBoxModule
+public sealed partial class ClockModule : ChatBoxModule
 {
     public override string Title => "Clock";
     public override string Description => "Sends your local time as hours, minutes, and seconds";
@@ -49,7 +48,7 @@ public sealed class ClockModule : ChatBoxModule
                .Replace("%period%", chatBoxTime.Hour >= 12 ? "pm" : "am");
     }
 
-    protected override Task OnUpdate()
+    protected override void OnModuleUpdate()
     {
         time = timezoneToTime(GetSetting<ClockTimeZone>(ClockSetting.Timezone));
 
@@ -65,8 +64,6 @@ public sealed class ClockModule : ChatBoxModule
         SendParameter(ClockParameter.Hours, hourNormalised);
         SendParameter(ClockParameter.Minutes, minuteNormalised);
         SendParameter(ClockParameter.Seconds, secondNormalised);
-
-        return Task.CompletedTask;
     }
 
     private static float getSmoothedSeconds(DateTime time) => time.Second + time.Millisecond / 1000f;

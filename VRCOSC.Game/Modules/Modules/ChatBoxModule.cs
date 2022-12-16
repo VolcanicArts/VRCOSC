@@ -9,13 +9,12 @@ using System.Threading.Tasks;
 
 namespace VRCOSC.Game.Modules.Modules;
 
-public abstract class ChatBoxModule : Module
+public abstract partial class ChatBoxModule : Module
 {
     protected virtual bool DefaultChatBoxDisplay => true;
     protected virtual IEnumerable<string> ChatBoxFormatValues => Array.Empty<string>();
     protected virtual string DefaultChatBoxFormat => string.Empty;
 
-    private TimedTask nextSendTask = null!;
     private DateTimeOffset nextSendTime;
 
     protected override void CreateAttributes()
@@ -37,23 +36,21 @@ public abstract class ChatBoxModule : Module
             () => (GetSetting<bool>(ChatBoxSetting.ChatBoxDisplay) && GetSetting<ChatBoxMode>(ChatBoxSetting.ChatBoxMode) == ChatBoxMode.Timed));
     }
 
-    protected override Task OnStart(CancellationToken cancellationToken)
+    protected override Task OnModuleStart(CancellationToken cancellationToken)
     {
-        nextSendTask = new TimedTask(trySend, 10f);
-        _ = nextSendTask.Start();
         nextSendTime = DateTimeOffset.Now;
         return Task.CompletedTask;
     }
 
-    protected override async Task OnStop()
+    protected override void Update()
     {
-        await nextSendTask.Stop();
+        if (State.Value == ModuleState.Started) trySend();
     }
 
-    private Task trySend()
+    private void trySend()
     {
-        if (!GetSetting<bool>(ChatBoxSetting.ChatBoxDisplay)) return Task.CompletedTask;
-        if (GetSetting<ChatBoxMode>(ChatBoxSetting.ChatBoxMode) == ChatBoxMode.Timed && nextSendTime > DateTimeOffset.Now) return Task.CompletedTask;
+        if (!GetSetting<bool>(ChatBoxSetting.ChatBoxDisplay)) return;
+        if (GetSetting<ChatBoxMode>(ChatBoxSetting.ChatBoxMode) == ChatBoxMode.Timed && nextSendTime > DateTimeOffset.Now) return;
 
         var text = GetChatBoxText();
 
@@ -62,18 +59,12 @@ public abstract class ChatBoxModule : Module
 
         var closestNextSendTime = SetChatBoxText(text, displayLengthTimeSpan);
 
-        if (GetSetting<ChatBoxMode>(ChatBoxSetting.ChatBoxMode) == ChatBoxMode.Always)
-        {
-            nextSendTime = DateTimeOffset.Now;
-            return Task.CompletedTask;
-        }
+        if (GetSetting<ChatBoxMode>(ChatBoxSetting.ChatBoxMode) == ChatBoxMode.Always) nextSendTime = DateTimeOffset.Now;
 
         if (closestNextSendTime >= DateTimeOffset.Now + displayTimerTimeSpan)
             nextSendTime = closestNextSendTime;
         else
             nextSendTime = closestNextSendTime + (displayTimerTimeSpan - displayLengthTimeSpan);
-
-        return Task.CompletedTask;
     }
 
     /// <summary>

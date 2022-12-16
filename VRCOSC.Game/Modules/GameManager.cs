@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
-using osu.Framework.Graphics;
+using osu.Framework.Graphics.Containers;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 using VRCOSC.Game.Config;
@@ -18,7 +18,7 @@ using VRCOSC.OSC.VRChat;
 
 namespace VRCOSC.Game.Modules;
 
-public partial class GameManager : Component
+public partial class GameManager : CompositeComponent
 {
     private const double vrchat_process_check_interval = 5000;
     private const double openvr_interface_init_delay = 50;
@@ -42,7 +42,7 @@ public partial class GameManager : Component
     public ChatBoxInterface ChatBoxInterface = null!;
 
     [BackgroundDependencyLoader]
-    private void load(GameHost host, Storage storage)
+    private void load(Storage storage)
     {
         autoStartStop = configManager.GetBindable<bool>(VRCOSCSetting.AutoStartStop);
 
@@ -50,7 +50,8 @@ public partial class GameManager : Component
         OpenVRInterface = new OpenVRInterface(storage);
         ChatBoxInterface = new ChatBoxInterface(OscClient, configManager.GetBindable<int>(VRCOSCSetting.ChatBoxTimeSpan));
 
-        ModuleManager.Initialise(host, storage, this);
+        LoadComponent(ModuleManager);
+        AddInternal(ModuleManager);
     }
 
     protected override void Update()
