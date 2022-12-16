@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Windows.Media;
 
@@ -61,12 +60,12 @@ public sealed partial class MediaModule : ChatBoxModule
         return formattedText;
     }
 
-    protected override async Task OnModuleStart(CancellationToken cancellationToken)
+    protected override void OnModuleStart()
     {
-        await base.OnModuleStart(cancellationToken);
+        base.OnModuleStart();
         mediaProvider.OnMediaSessionOpened += OnMediaSessionOpened;
         mediaProvider.OnMediaUpdate += OnMediaUpdate;
-        await mediaProvider.StartMediaHook();
+        mediaProvider.StartMediaHook();
         startProcesses();
     }
 
@@ -78,9 +77,8 @@ public sealed partial class MediaModule : ChatBoxModule
         });
     }
 
-    protected override async Task OnModuleStop()
+    protected override void OnModuleStop()
     {
-        await base.OnModuleStop();
         mediaProvider.StopMediaHook();
         mediaProvider.OnMediaSessionOpened -= OnMediaSessionOpened;
         mediaProvider.OnMediaUpdate -= OnMediaUpdate;

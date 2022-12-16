@@ -74,7 +74,7 @@ public partial class GameManager : CompositeComponent
         });
     }
 
-    public void Start() => _ = startAsync();
+    public void Start() => Schedule(() => _ = startAsync());
 
     private async Task startAsync()
     {
@@ -95,14 +95,14 @@ public partial class GameManager : CompositeComponent
             Player.Initialise();
             ChatBoxInterface.Initialise();
             sendControlValues();
-            await ModuleManager.Start(startTokenSource.Token);
+            ModuleManager.Start();
 
             State.Value = GameManagerState.Started;
         }
         catch (TaskCanceledException) { }
     }
 
-    public void Stop() => _ = stopAsync();
+    public void Stop() => Schedule(() => _ = stopAsync());
 
     private async Task stopAsync()
     {
@@ -115,7 +115,7 @@ public partial class GameManager : CompositeComponent
         State.Value = GameManagerState.Stopping;
 
         await OscClient.DisableReceive();
-        await ModuleManager.Stop();
+        ModuleManager.Stop();
         ChatBoxInterface.Shutdown();
         Player.ResetAll();
         OscClient.OnParameterReceived -= onParameterReceived;

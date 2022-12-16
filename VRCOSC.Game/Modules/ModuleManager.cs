@@ -5,8 +5,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics.Containers;
@@ -54,7 +52,7 @@ public sealed partial class ModuleManager : CompositeComponent, IEnumerable<Modu
         });
     }
 
-    public async Task Start(CancellationToken startToken)
+    public void Start()
     {
         if (this.All(module => !module.Enabled.Value))
         {
@@ -64,15 +62,15 @@ public sealed partial class ModuleManager : CompositeComponent, IEnumerable<Modu
 
         foreach (var module in this)
         {
-            await module.start(startToken);
+            module.start();
         }
     }
 
-    public async Task Stop()
+    public void Stop()
     {
         foreach (var module in this)
         {
-            await module.stop();
+            module.stop();
         }
     }
 

@@ -5,8 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.EnumExtensions;
@@ -121,13 +119,13 @@ public abstract partial class Module : Component
 
     #region Events
 
-    internal async Task start(CancellationToken startToken)
+    internal void start()
     {
         if (!IsEnabled) return;
 
         State.Value = ModuleState.Starting;
 
-        await OnModuleStart(startToken);
+        OnModuleStart();
 
         if (ShouldUpdate)
         {
@@ -140,7 +138,7 @@ public abstract partial class Module : Component
         State.Value = ModuleState.Started;
     }
 
-    internal async Task stop()
+    internal void stop()
     {
         if (!IsEnabled) return;
 
@@ -150,14 +148,14 @@ public abstract partial class Module : Component
 
         Scheduler.CancelDelayedTasks();
 
-        await OnModuleStop();
+        OnModuleStop();
 
         State.Value = ModuleState.Stopped;
     }
 
-    protected virtual Task OnModuleStart(CancellationToken cancellationToken) => Task.CompletedTask;
+    protected virtual void OnModuleStart() { }
     protected virtual void OnModuleUpdate() { }
-    protected virtual Task OnModuleStop() => Task.CompletedTask;
+    protected virtual void OnModuleStop() { }
     protected virtual void OnAvatarChange() { }
 
     #endregion

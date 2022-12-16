@@ -1,9 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Threading;
-using System.Threading.Tasks;
-
 namespace VRCOSC.Game.Modules.Modules.Heartrate.Pulsoid;
 
 public sealed partial class PulsoidModule : HeartRateModule
@@ -21,19 +18,19 @@ public sealed partial class PulsoidModule : HeartRateModule
         base.CreateAttributes();
     }
 
-    protected override Task OnModuleStart(CancellationToken cancellationToken)
+    protected override void OnModuleStart()
     {
         var accessToken = GetSetting<string>(PulsoidSetting.AccessToken);
 
         if (string.IsNullOrEmpty(accessToken))
         {
             Log("Cannot connect to Pulsoid. Please obtain an access token");
-            return Task.CompletedTask;
+            return;
         }
 
         SendParameter(HeartrateParameter.Enabled, true);
 
-        return base.OnModuleStart(cancellationToken);
+        base.OnModuleStart();
     }
 
     private enum PulsoidSetting

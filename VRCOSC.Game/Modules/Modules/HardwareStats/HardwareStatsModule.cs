@@ -2,8 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace VRCOSC.Game.Modules.Modules.HardwareStats;
 
@@ -51,19 +49,10 @@ public sealed partial class HardwareStatsModule : ChatBoxModule
                .Replace("$ramavailable$", hardwareStatsProvider?.RamAvailable.ToString("0.0") ?? "0.0");
     }
 
-    protected override async Task OnModuleStart(CancellationToken cancellationToken)
+    protected override void OnModuleStart()
     {
-        await base.OnModuleStart(cancellationToken);
+        base.OnModuleStart();
         hardwareStatsProvider = new HardwareStatsProvider();
-
-        Log("Loading hardware monitors...");
-
-        while (!hardwareStatsProvider.CanAcceptQueries)
-        {
-            await Task.Delay(1, cancellationToken);
-        }
-
-        Log("Hardware monitors loaded!");
     }
 
     protected override void OnModuleUpdate()
@@ -82,10 +71,9 @@ public sealed partial class HardwareStatsModule : ChatBoxModule
         SendParameter(HardwareStatsParameter.RamAvailable, hardwareStatsProvider.RamAvailable);
     }
 
-    protected override Task OnModuleStop()
+    protected override void OnModuleStop()
     {
         hardwareStatsProvider = null;
-        return Task.CompletedTask;
     }
 
     private enum HardwareStatsParameter

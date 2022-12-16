@@ -4,8 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace VRCOSC.Game.Modules.Modules;
 
@@ -36,10 +34,9 @@ public abstract partial class ChatBoxModule : Module
             () => (GetSetting<bool>(ChatBoxSetting.ChatBoxDisplay) && GetSetting<ChatBoxMode>(ChatBoxSetting.ChatBoxMode) == ChatBoxMode.Timed));
     }
 
-    protected override Task OnModuleStart(CancellationToken cancellationToken)
+    protected override void OnModuleStart()
     {
         nextSendTime = DateTimeOffset.Now;
-        return Task.CompletedTask;
     }
 
     protected override void Update()

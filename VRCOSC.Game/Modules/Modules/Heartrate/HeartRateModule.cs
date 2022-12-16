@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace VRCOSC.Game.Modules.Modules.Heartrate;
@@ -47,9 +46,9 @@ public abstract partial class HeartRateModule : ChatBoxModule
         return GetSetting<string>(ChatBoxSetting.ChatBoxFormat).Replace("%hr%", lastHeartrate.ToString());
     }
 
-    protected override async Task OnModuleStart(CancellationToken cancellationToken)
+    protected override void OnModuleStart()
     {
-        await base.OnModuleStart(cancellationToken);
+        base.OnModuleStart();
         attemptConnection();
 
         lastHeartrateTime = DateTimeOffset.Now - heartrate_timeout;
@@ -82,7 +81,7 @@ public abstract partial class HeartRateModule : ChatBoxModule
         heartRateProvider.Connect();
     }
 
-    protected override async Task OnModuleStop()
+    protected override async void OnModuleStop()
     {
         if (heartRateProvider is null) return;
 

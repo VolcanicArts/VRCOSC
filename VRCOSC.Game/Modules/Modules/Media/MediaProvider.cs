@@ -26,7 +26,7 @@ public class MediaProvider
     public Action? OnMediaSessionOpened;
     public Action? OnMediaUpdate;
 
-    public async Task StartMediaHook()
+    public void StartMediaHook()
     {
         State = new MediaState();
 
@@ -36,7 +36,7 @@ public class MediaProvider
         mediaManager.OnFocusedSessionChanged += MediaManager_OnFocusedSessionChanged;
         mediaManager.OnAnyPlaybackStateChanged += MediaManager_OnAnyPlaybackStateChanged;
         mediaManager.OnAnyMediaPropertyChanged += MediaManager_OnAnyMediaPropertyChanged;
-        await mediaManager.StartAsync();
+        mediaManager.Start();
     }
 
     public void StopMediaHook()
