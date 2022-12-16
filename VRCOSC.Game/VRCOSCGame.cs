@@ -46,7 +46,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     private Bindable<Module?> EditingModule = new();
 
     [Cached(name: "InfoModule")]
-    private IBindable<Module?> InfoModule = new Bindable<Module?>();
+    private Bindable<Module?> InfoModule = new();
 
     [Resolved]
     private Storage storage { get; set; } = null!;
@@ -153,7 +153,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         Task.WhenAll(new[]
         {
             Task.Run(waitForGameManager)
-        }).ContinueWith(_ => performExit());
+        }).ContinueWith(_ => Schedule(performExit));
     }
 
     private Task waitForGameManager()
@@ -170,6 +170,8 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
     private void performExit()
     {
+        EditingModule.Value = null;
+        InfoModule.Value = null;
         Exit();
     }
 
