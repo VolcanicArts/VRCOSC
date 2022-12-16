@@ -405,6 +405,7 @@ public abstract partial class Module : Component
     private void executeAfterLoad()
     {
         performSave();
+        Enabled.BindValueChanged(_ => performSave());
     }
 
     private static Type? enumNameToType(string enumName) => AppDomain.CurrentDomain.GetAssemblies().Select(assembly => assembly.GetType(enumName)).FirstOrDefault(type => type?.IsEnum ?? false);
