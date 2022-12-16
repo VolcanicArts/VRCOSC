@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
 using osu.Framework.Allocation;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
@@ -63,25 +62,16 @@ public sealed partial class Listing : Container
 
     protected override void LoadComplete()
     {
-        base.LoadComplete();
-
-        game.SearchTermFilter.BindValueChanged(_ => filter());
-        game.TypeFilter.BindValueChanged(_ => filter());
-
-        filter();
+        game.TypeFilter.BindValueChanged(_ => filter(), true);
     }
 
     private void filter()
     {
-        var searchTerm = game.SearchTermFilter.Value;
         var type = game.TypeFilter.Value;
 
         moduleCardFlow.ForEach(moduleCard =>
         {
-            var hasValidTitle = moduleCard.Module.Title.Contains(searchTerm, StringComparison.InvariantCultureIgnoreCase);
-            var hasValidType = type is null || moduleCard.Module.Type.Equals(type);
-
-            if (hasValidTitle && hasValidType)
+            if (type is null || moduleCard.Module.Type.Equals(type))
                 moduleCard.Show();
             else
                 moduleCard.Hide();

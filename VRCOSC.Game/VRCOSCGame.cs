@@ -36,7 +36,6 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
     private NotificationContainer notificationContainer = null!;
 
-    public Bindable<string> SearchTermFilter = new(string.Empty);
     public Bindable<Module.ModuleType?> TypeFilter = new();
 
     [Cached]
