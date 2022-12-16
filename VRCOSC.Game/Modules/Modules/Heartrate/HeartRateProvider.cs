@@ -16,16 +16,21 @@ public abstract class HeartRateProvider
     public Action? OnDisconnected;
     public Action<int>? OnHeartRateUpdate;
 
+    public bool IsConnected { get; private set; }
+
     public void Initialise()
     {
+        IsConnected = false;
         webSocket = new BaseWebSocket(WebSocketUrl);
         webSocket.OnWsConnected += () =>
         {
+            IsConnected = true;
             HandleWsConnected();
             OnConnected?.Invoke();
         };
         webSocket.OnWsDisconnected += () =>
         {
+            IsConnected = false;
             HandleWsDisconnected();
             OnDisconnected?.Invoke();
         };
