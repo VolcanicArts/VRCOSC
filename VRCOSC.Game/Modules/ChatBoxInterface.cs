@@ -75,6 +75,8 @@ public class ChatBoxInterface
 
     public DateTimeOffset SetText(string? text, int priority, TimeSpan displayLength)
     {
+        if (text is null) return DateTimeOffset.Now;
+
         var data = new ChatBoxData
         {
             Text = text,
@@ -108,7 +110,7 @@ public class ChatBoxInterface
         {
             case true when sendExpire < DateTimeOffset.Now:
             {
-                var validAlwaysData = alwaysDict.Where(pair => pair.Value.Text is not null).ToImmutableSortedDictionary();
+                var validAlwaysData = alwaysDict.ToImmutableSortedDictionary();
                 currentData = validAlwaysData.IsEmpty ? null : validAlwaysData.Last().Value;
                 break;
             }

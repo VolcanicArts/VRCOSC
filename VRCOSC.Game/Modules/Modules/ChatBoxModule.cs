@@ -56,7 +56,20 @@ public abstract partial class ChatBoxModule : Module
 
         var closestNextSendTime = SetChatBoxText(text, displayLengthTimeSpan);
 
-        if (GetSetting<ChatBoxMode>(ChatBoxSetting.ChatBoxMode) == ChatBoxMode.Always) nextSendTime = DateTimeOffset.Now;
+        if (GetSetting<ChatBoxMode>(ChatBoxSetting.ChatBoxMode) == ChatBoxMode.Always)
+        {
+            nextSendTime = DateTimeOffset.Now;
+            return;
+        }
+
+        // Used for late loading modules
+        // I.E. HardwareStats doesn't start producing values for a few seconds but we want to queue it ASAP once it does
+        // so that the timing isn't messed up
+        if (GetSetting<ChatBoxMode>(ChatBoxSetting.ChatBoxMode) == ChatBoxMode.Timed && closestNextSendTime <= DateTimeOffset.Now)
+        {
+            nextSendTime = DateTimeOffset.Now;
+            return;
+        }
 
         if (closestNextSendTime >= DateTimeOffset.Now + displayTimerTimeSpan)
             nextSendTime = closestNextSendTime;
