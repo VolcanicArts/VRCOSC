@@ -72,12 +72,11 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         };
     }
 
-    protected override async void LoadComplete()
+    protected override void LoadComplete()
     {
         base.LoadComplete();
 
-        await copyOpenVrFiles();
-
+        copyOpenVrFiles();
         checkUpdates();
         checkVersion();
 
@@ -122,7 +121,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         ConfigManager.SetValue(VRCOSCSetting.Version, Version);
     }
 
-    private async Task copyOpenVrFiles()
+    private void copyOpenVrFiles()
     {
         var tempStorage = storage.GetStorageForDirectory("openvr");
         var tempStoragePath = tempStorage.GetFullPath(string.Empty);
@@ -131,14 +130,14 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
         foreach (var file in openVrFiles)
         {
-            await File.WriteAllBytesAsync(Path.Combine(tempStoragePath, file.Split('/')[1]), await Resources.GetAsync(file));
+            File.WriteAllBytes(Path.Combine(tempStoragePath, file.Split('/')[1]), Resources.Get(file));
         }
 
         var manifest = new VRManifest();
         manifest.Applications[0].ActionManifestPath = tempStorage.GetFullPath("action_manifest.json");
         manifest.Applications[0].ImagePath = tempStorage.GetFullPath("SteamImage.png");
 
-        await File.WriteAllTextAsync(Path.Combine(tempStoragePath, "app.vrmanifest"), JsonConvert.SerializeObject(manifest));
+        File.WriteAllText(Path.Combine(tempStoragePath, "app.vrmanifest"), JsonConvert.SerializeObject(manifest));
     }
 
     protected override bool OnExiting()
