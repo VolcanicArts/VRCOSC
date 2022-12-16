@@ -143,15 +143,13 @@ public class ChatBoxInterface
 
         alreadyClear = false;
 
-        if (currentData.Text is null) return;
-
-        if (sendEnabled) oscClient.SendValues(VRChatOscConstants.ADDRESS_CHATBOX_INPUT, new List<object> { currentData.Text!, true });
+        if (sendEnabled) oscClient.SendValues(VRChatOscConstants.ADDRESS_CHATBOX_INPUT, new List<object> { currentData.Text, true });
         sendReset = DateTimeOffset.Now + TimeSpan.FromMilliseconds(resetMilli.Value);
     }
 
     private class ChatBoxData
     {
-        public string? Text { get; init; }
+        public string Text { get; init; } = null!;
         public TimeSpan DisplayLength { get; init; }
     }
 }
