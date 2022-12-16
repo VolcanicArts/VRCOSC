@@ -211,9 +211,8 @@ public partial class ModuleInfoPopover : PopoverScreen
         base.Show();
     }
 
-    public override void Hide()
+    protected override void Close()
     {
-        base.Hide();
         infoModule.Value = null;
     }
 }
