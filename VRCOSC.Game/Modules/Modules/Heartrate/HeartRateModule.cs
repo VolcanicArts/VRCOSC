@@ -22,7 +22,7 @@ public abstract partial class HeartRateModule : ChatBoxModule
     protected override string DefaultChatBoxFormat => "Heartrate                        %hr% bpm";
     protected override IEnumerable<string> ChatBoxFormatValues => new[] { "%hr%" };
 
-    private HeartRateProvider? heartRateProvider;
+    protected HeartRateProvider? HeartRateProvider;
     private int lastHeartrate;
     private DateTimeOffset lastHeartrateTime;
     private int connectionCount;
@@ -63,10 +63,10 @@ public abstract partial class HeartRateModule : ChatBoxModule
         }
 
         connectionCount++;
-        heartRateProvider = CreateHeartRateProvider();
-        heartRateProvider.OnHeartRateUpdate += HandleHeartRateUpdate;
-        heartRateProvider.OnConnected += () => connectionCount = 0;
-        heartRateProvider.OnDisconnected += () =>
+        HeartRateProvider = CreateHeartRateProvider();
+        HeartRateProvider.OnHeartRateUpdate += HandleHeartRateUpdate;
+        HeartRateProvider.OnConnected += () => connectionCount = 0;
+        HeartRateProvider.OnDisconnected += () =>
         {
             Task.Run(async () =>
             {
@@ -77,15 +77,15 @@ public abstract partial class HeartRateModule : ChatBoxModule
                 attemptConnection();
             });
         };
-        heartRateProvider.Initialise();
-        heartRateProvider.Connect();
+        HeartRateProvider.Initialise();
+        HeartRateProvider.Connect();
     }
 
-    protected override async void OnModuleStop()
+    protected override void OnModuleStop()
     {
-        if (heartRateProvider is null) return;
+        if (HeartRateProvider is null) return;
 
-        if (connectionCount < 3) await heartRateProvider.Disconnect();
+        if (connectionCount < 3) HeartRateProvider.Disconnect();
         SendParameter(HeartrateParameter.Enabled, false);
     }
 

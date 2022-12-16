@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 namespace VRCOSC.Game.Modules.Modules.Heartrate;
@@ -10,15 +9,11 @@ namespace VRCOSC.Game.Modules.Modules.Heartrate;
 public abstract class HeartRateProvider
 {
     protected virtual string WebSocketUrl => throw new InvalidOperationException("Specify a WebSocket Url");
-    protected virtual int WebSocketHeartBeat => int.MaxValue;
-    protected virtual bool SendWsHeartBeat => true;
 
     private BaseWebSocket? webSocket;
-    private TimedTask? wsHeartBeatTask;
 
     public Action? OnConnected;
     public Action? OnDisconnected;
-    public Action? OnWsHeartBeat;
     public Action<int>? OnHeartRateUpdate;
 
     public void Initialise()
@@ -33,32 +28,22 @@ public abstract class HeartRateProvider
         {
             HandleWsDisconnected();
             OnDisconnected?.Invoke();
-            wsHeartBeatTask?.Stop();
         };
         webSocket.OnWsMessage += HandleWsMessage;
-
-        wsHeartBeatTask = new TimedTask(() =>
-        {
-            HandleWsHeartBeat();
-            OnWsHeartBeat?.Invoke();
-            return Task.CompletedTask;
-        }, WebSocketHeartBeat);
     }
 
     public void Connect()
     {
-        if (webSocket is null || wsHeartBeatTask is null) throw new InvalidOperationException("Please call Initialise first");
+        if (webSocket is null) throw new InvalidOperationException("Please call Initialise first");
 
         webSocket.Connect();
-        if (SendWsHeartBeat) _ = wsHeartBeatTask.Start();
     }
 
-    public async Task Disconnect()
+    public void Disconnect()
     {
-        if (webSocket is null || wsHeartBeatTask is null) throw new InvalidOperationException("Please call Initialise first");
+        if (webSocket is null) throw new InvalidOperationException("Please call Initialise first");
 
         webSocket.Disconnect();
-        await wsHeartBeatTask.Stop();
     }
 
     protected void SendData(object data)
@@ -71,5 +56,4 @@ public abstract class HeartRateProvider
     protected virtual void HandleWsConnected() { }
     protected virtual void HandleWsDisconnected() { }
     protected virtual void HandleWsMessage(string message) { }
-    protected virtual void HandleWsHeartBeat() { }
 }
