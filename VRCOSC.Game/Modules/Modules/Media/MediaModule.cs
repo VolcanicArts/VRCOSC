@@ -51,7 +51,7 @@ public sealed partial class MediaModule : ChatBoxModule
         if (!mediaProvider.State.IsPlaying)
             return GetSetting<MediaPausedBehaviour>(MediaSetting.PausedBehaviour) == MediaPausedBehaviour.Empty ? null : GetSetting<string>(MediaSetting.PausedText);
 
-        mediaProvider.State.Position = mediaProvider.Controller?.GetTimelineProperties() ?? null;
+        mediaProvider.State.Position = mediaProvider.Controller?.GetTimelineProperties();
 
         var formattedText = GetSetting<string>(ChatBoxSetting.ChatBoxFormat)
                             .Replace("%title%", mediaProvider.State.Title)
