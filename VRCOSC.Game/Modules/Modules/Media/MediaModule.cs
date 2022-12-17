@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using Windows.Media;
 
 namespace VRCOSC.Game.Modules.Modules.Media;
@@ -64,7 +63,6 @@ public sealed partial class MediaModule : ChatBoxModule
     protected override void OnModuleStart()
     {
         base.OnModuleStart();
-        mediaProvider.OnMediaSessionOpened += OnMediaSessionOpened;
         mediaProvider.OnMediaUpdate += OnMediaUpdate;
         mediaProvider.StartMediaHook();
         startProcesses();
@@ -85,7 +83,6 @@ public sealed partial class MediaModule : ChatBoxModule
     protected override void OnModuleStop()
     {
         mediaProvider.StopMediaHook();
-        mediaProvider.OnMediaSessionOpened -= OnMediaSessionOpened;
         mediaProvider.OnMediaUpdate -= OnMediaUpdate;
     }
 
@@ -148,13 +145,6 @@ public sealed partial class MediaModule : ChatBoxModule
                 mediaProvider.Controller?.TryChangeAutoRepeatModeAsync((MediaPlaybackAutoRepeatMode)value);
                 break;
         }
-    }
-
-    private async void OnMediaSessionOpened()
-    {
-        // We have to wait a little bit to allow the media app that just opened to take control
-        await Task.Delay(500);
-        mediaProvider.ForceUpdate();
     }
 
     private void OnMediaUpdate()

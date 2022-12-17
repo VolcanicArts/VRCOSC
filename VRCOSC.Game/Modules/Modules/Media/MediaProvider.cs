@@ -20,10 +20,8 @@ public class MediaProvider
 
     public MediaState State { get; private set; } = null!;
 
-    public GlobalSystemMediaTransportControlsSession? Controller
-        => mediaManager?.CurrentMediaSessions.ContainsKey(lastSender ?? string.Empty) ?? false ? mediaManager.CurrentMediaSessions[lastSender!].ControlSession : null;
+    public GlobalSystemMediaTransportControlsSession? Controller => mediaManager?.GetFocusedSession().ControlSession;
 
-    public Action? OnMediaSessionOpened;
     public Action? OnMediaUpdate;
 
     public void StartMediaHook()
@@ -52,21 +50,22 @@ public class MediaProvider
         if (Controller?.GetPlaybackInfo().PlaybackStatus != GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing) Controller?.TryPlayAsync();
     }
 
-    private void MediaManager_OnAnySessionOpened(MediaManager.MediaSession sender)
+    private async void MediaManager_OnAnySessionOpened(MediaManager.MediaSession sender)
     {
         updateTrackedProcess(sender.Id);
-        OnMediaSessionOpened?.Invoke();
+        await Task.Delay(500);
+        ForceUpdate();
     }
 
     private void MediaManager_OnAnySessionClosed(MediaManager.MediaSession sender)
     {
         updateTrackedProcess(mediaManager?.CurrentMediaSessions.FirstOrDefault().Value.Id ?? string.Empty);
-        ForceUpdate();
     }
 
     private void MediaManager_OnFocusedSessionChanged(MediaManager.MediaSession sender)
     {
-        updateTrackedProcess(mediaManager?.CurrentMediaSessions.FirstOrDefault().Value.Id ?? string.Empty);
+        updateTrackedProcess(sender.Id);
+        ForceUpdate();
     }
 
     private void MediaManager_OnAnyPlaybackStateChanged(MediaManager.MediaSession sender, GlobalSystemMediaTransportControlsSessionPlaybackInfo args)
