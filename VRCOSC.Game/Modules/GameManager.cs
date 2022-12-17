@@ -21,7 +21,6 @@ namespace VRCOSC.Game.Modules;
 public partial class GameManager : CompositeComponent
 {
     private const double vrchat_process_check_interval = 5000;
-    private const double openvr_interface_init_delay = 50;
     private const int startstop_delay = 250;
 
     [Resolved]
@@ -72,7 +71,13 @@ public partial class GameManager : CompositeComponent
 
     protected override void LoadComplete()
     {
-        Scheduler.AddDelayed(() => Task.Run(() => OpenVRInterface.Init()), openvr_interface_init_delay, true);
+        void initOpenVR() => Task.Run(() =>
+        {
+            OpenVRInterface.Init();
+            Scheduler.Add(initOpenVR);
+        });
+
+        Scheduler.Add(initOpenVR);
         Scheduler.AddDelayed(checkForVRChat, vrchat_process_check_interval, true);
 
         State.BindValueChanged(e => Logger.Log($"{nameof(GameManager)} state changed to {e.NewValue}"));
