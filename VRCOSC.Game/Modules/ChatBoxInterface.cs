@@ -75,8 +75,6 @@ public class ChatBoxInterface
 
     public DateTimeOffset SetText(string? text, int priority, TimeSpan displayLength)
     {
-        if (text is null) return DateTimeOffset.Now;
-
         var data = new ChatBoxData
         {
             Text = text,
@@ -91,6 +89,9 @@ public class ChatBoxInterface
         }
 
         // ChatBoxMode.Timed
+
+        if (text is null) return DateTimeOffset.Now;
+
         timedQueue.Enqueue(new ChatBoxData
         {
             Text = text,
@@ -110,7 +111,7 @@ public class ChatBoxInterface
         {
             case true when sendExpire < DateTimeOffset.Now:
             {
-                var validAlwaysData = alwaysDict.ToImmutableSortedDictionary();
+                var validAlwaysData = alwaysDict.Where(data => data.Value.Text is not null).ToImmutableSortedDictionary();
                 currentData = validAlwaysData.IsEmpty ? null : validAlwaysData.Last().Value;
                 break;
             }
@@ -143,13 +144,15 @@ public class ChatBoxInterface
 
         alreadyClear = false;
 
-        if (sendEnabled) oscClient.SendValues(VRChatOscConstants.ADDRESS_CHATBOX_INPUT, new List<object> { currentData.Text, true });
+        if (currentData.Text is null) return;
+
+        if (sendEnabled) oscClient.SendValues(VRChatOscConstants.ADDRESS_CHATBOX_INPUT, new List<object> { currentData.Text!, true });
         sendReset = DateTimeOffset.Now + TimeSpan.FromMilliseconds(resetMilli.Value);
     }
 
     private class ChatBoxData
     {
-        public string Text { get; init; } = null!;
+        public string? Text { get; init; }
         public TimeSpan DisplayLength { get; init; }
     }
 }
