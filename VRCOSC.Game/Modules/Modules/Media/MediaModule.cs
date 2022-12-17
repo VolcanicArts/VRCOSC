@@ -46,6 +46,8 @@ public sealed partial class MediaModule : ChatBoxModule
 
     protected override string? GetChatBoxText()
     {
+        if (mediaProvider.Controller is null) return null;
+
         if (!mediaProvider.State.IsPlaying)
             return GetSetting<MediaPausedBehaviour>(MediaSetting.PausedBehaviour) == MediaPausedBehaviour.Empty ? null : GetSetting<string>(MediaSetting.PausedText);
 
