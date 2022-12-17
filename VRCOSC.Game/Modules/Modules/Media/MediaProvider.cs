@@ -47,11 +47,9 @@ public class MediaProvider
         trackedProcess = null;
     }
 
-    public async void ForceUpdate()
+    public void ForceUpdate()
     {
-        Controller?.TryPauseAsync();
-        await Task.Delay(50);
-        Controller?.TryPlayAsync();
+        if (Controller?.GetPlaybackInfo().PlaybackStatus != GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing) Controller?.TryPlayAsync();
     }
 
     private void MediaManager_OnAnySessionOpened(MediaManager.MediaSession sender)
