@@ -20,7 +20,8 @@ public class MediaProvider
 
     public MediaState State { get; private set; } = null!;
 
-    public GlobalSystemMediaTransportControlsSession? Controller => mediaManager?.GetFocusedSession().ControlSession;
+    public GlobalSystemMediaTransportControlsSession? Controller
+        => mediaManager?.CurrentMediaSessions.ContainsKey(lastSender ?? string.Empty) ?? false ? mediaManager.CurrentMediaSessions[lastSender!].ControlSession : null;
 
     public Action? OnMediaUpdate;
 
