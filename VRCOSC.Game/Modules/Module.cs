@@ -374,7 +374,7 @@ public abstract partial class Module : Component
                     if (value == "EMPTY" && settingList.CanBeEmpty)
                     {
                         settingList.AttributeList.Clear();
-                        return;
+                        continue;
                     }
 
                     var readableTypeName = settingList.AttributeList.First().Value.GetType().ToReadableName().ToLowerInvariant();
