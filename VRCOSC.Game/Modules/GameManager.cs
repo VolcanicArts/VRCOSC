@@ -30,6 +30,12 @@ public partial class GameManager : CompositeComponent
     [Resolved]
     private NotificationContainer notifications { get; set; } = null!;
 
+    [Resolved(name: "EditingModule")]
+    private Bindable<Module?> editingModule { get; set; } = null!;
+
+    [Resolved(name: "InfoModule")]
+    private Bindable<Module?> infoModule { get; set; } = null!;
+
     private Bindable<bool> autoStartStop = null!;
     private CancellationTokenSource? startTokenSource;
     private bool hasAutoStarted;
@@ -84,6 +90,12 @@ public partial class GameManager : CompositeComponent
     {
         if (State.Value is not (GameManagerState.Stopping or GameManagerState.Stopped))
             throw new InvalidOperationException($"Cannot start {nameof(GameManager)} when state is {State.Value}");
+
+        if (editingModule.Value is not null || infoModule.Value is not null)
+        {
+            hasAutoStarted = false;
+            return;
+        }
 
         try
         {
