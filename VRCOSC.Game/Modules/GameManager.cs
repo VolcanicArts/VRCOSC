@@ -101,7 +101,11 @@ public partial class GameManager : CompositeComponent
         {
             startTokenSource = new CancellationTokenSource();
 
-            if (!initialiseOscClient()) return;
+            if (!initialiseOscClient())
+            {
+                hasAutoStarted = false;
+                return;
+            }
 
             State.Value = GameManagerState.Starting;
 
