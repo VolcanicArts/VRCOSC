@@ -138,7 +138,12 @@ public class ChatBoxInterface
 
         if (currentData is null)
         {
-            if (!alreadyClear) clear();
+            if (!alreadyClear)
+            {
+                clear();
+                sendReset = DateTimeOffset.Now + TimeSpan.FromMilliseconds(resetMilli.Value);
+            }
+
             return;
         }
 
