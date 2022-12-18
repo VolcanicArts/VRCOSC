@@ -42,9 +42,9 @@ public static class ProcessExtensions
 
     public static float RetrieveProcessVolume(string? processName)
     {
-        if (processName is null) return 0f;
+        if (processName is null) return 1f;
 
-        return ProcessVolume.GetApplicationVolume(processName) ?? 0f;
+        return ProcessVolume.GetApplicationVolume(processName) ?? 1f;
     }
 
     public static bool IsProcessMuted(string? processName)
