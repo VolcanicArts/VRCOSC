@@ -55,7 +55,7 @@ public sealed partial class SettingsScreen : Container
                             {
                                 new GeneralSection(),
                                 new OscSection(),
-                                new ModulesSection(),
+                                new AutomationSection(),
                                 new UpdateSection()
                             }
                         }

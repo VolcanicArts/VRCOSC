@@ -4,12 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace VRCOSC.Game.Modules.Modules.Heartrate;
 
-public abstract class HeartRateModule : ChatBoxModule
+public abstract partial class HeartRateModule : ChatBoxModule
 {
     private static readonly TimeSpan heartrate_timeout = TimeSpan.FromSeconds(10);
 
@@ -23,7 +22,7 @@ public abstract class HeartRateModule : ChatBoxModule
     protected override string DefaultChatBoxFormat => "Heartrate                        %hr% bpm";
     protected override IEnumerable<string> ChatBoxFormatValues => new[] { "%hr%" };
 
-    private HeartRateProvider? heartRateProvider;
+    protected HeartRateProvider? HeartRateProvider;
     private int lastHeartrate;
     private DateTimeOffset lastHeartrateTime;
     private int connectionCount;
@@ -47,9 +46,9 @@ public abstract class HeartRateModule : ChatBoxModule
         return GetSetting<string>(ChatBoxSetting.ChatBoxFormat).Replace("%hr%", lastHeartrate.ToString());
     }
 
-    protected override async Task OnStart(CancellationToken cancellationToken)
+    protected override void OnModuleStart()
     {
-        await base.OnStart(cancellationToken);
+        base.OnModuleStart();
         attemptConnection();
 
         lastHeartrateTime = DateTimeOffset.Now - heartrate_timeout;
@@ -64,10 +63,10 @@ public abstract class HeartRateModule : ChatBoxModule
         }
 
         connectionCount++;
-        heartRateProvider = CreateHeartRateProvider();
-        heartRateProvider.OnHeartRateUpdate += HandleHeartRateUpdate;
-        heartRateProvider.OnConnected += () => connectionCount = 0;
-        heartRateProvider.OnDisconnected += () =>
+        HeartRateProvider = CreateHeartRateProvider();
+        HeartRateProvider.OnHeartRateUpdate += HandleHeartRateUpdate;
+        HeartRateProvider.OnConnected += () => connectionCount = 0;
+        HeartRateProvider.OnDisconnected += () =>
         {
             Task.Run(async () =>
             {
@@ -78,27 +77,21 @@ public abstract class HeartRateModule : ChatBoxModule
                 attemptConnection();
             });
         };
-        heartRateProvider.Initialise();
-        heartRateProvider.Connect();
+        HeartRateProvider.Initialise();
+        HeartRateProvider.Connect();
     }
 
-    protected override async Task OnStop()
+    protected override void OnModuleStop()
     {
-        await base.OnStop();
-        if (heartRateProvider is null) return;
+        if (HeartRateProvider is null) return;
 
-        if (connectionCount < 3) await heartRateProvider.Disconnect();
+        if (connectionCount < 3) HeartRateProvider.Disconnect();
         SendParameter(HeartrateParameter.Enabled, false);
     }
 
-    protected override Task OnUpdate()
+    protected override void OnModuleUpdate()
     {
-        if (!isReceiving)
-        {
-            SendParameter(HeartrateParameter.Enabled, false);
-        }
-
-        return Task.CompletedTask;
+        if (!isReceiving) SendParameter(HeartrateParameter.Enabled, false);
     }
 
     protected virtual void HandleHeartRateUpdate(int heartrate)

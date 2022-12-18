@@ -51,7 +51,7 @@ public abstract partial class PopoverScreen : VisibilityContainer
                     CornerRadius = 7,
                     IconPadding = 5,
                     Icon = FontAwesome.Solid.Get(0xf00d),
-                    Action = Hide
+                    Action = Close
                 }
             }
         };
@@ -65,9 +65,12 @@ public abstract partial class PopoverScreen : VisibilityContainer
 
     protected override void PopOut()
     {
-        this.ScaleTo(1.0f).Then().ScaleTo(0.9f, transition_time, Easing.InQuint);
+        this.ScaleTo(1.0f).Then().ScaleTo(0.9f, transition_time, Easing.InQuint).Finally(_ => HideComplete());
         this.FadeOutFromOne(transition_time, Easing.InQuint);
     }
+
+    protected virtual void Close() => Hide();
+    protected virtual void HideComplete() { }
 
     protected override bool OnMouseDown(MouseDownEvent e) => true;
     protected override bool OnClick(ClickEvent e) => true;

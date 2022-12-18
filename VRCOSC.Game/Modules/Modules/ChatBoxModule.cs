@@ -4,18 +4,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace VRCOSC.Game.Modules.Modules;
 
-public abstract class ChatBoxModule : Module
+public abstract partial class ChatBoxModule : Module
 {
     protected virtual bool DefaultChatBoxDisplay => true;
     protected virtual IEnumerable<string> ChatBoxFormatValues => Array.Empty<string>();
     protected virtual string DefaultChatBoxFormat => string.Empty;
 
-    private TimedTask nextSendTask = null!;
     private DateTimeOffset nextSendTime;
 
     protected override void CreateAttributes()
@@ -37,23 +34,20 @@ public abstract class ChatBoxModule : Module
             () => (GetSetting<bool>(ChatBoxSetting.ChatBoxDisplay) && GetSetting<ChatBoxMode>(ChatBoxSetting.ChatBoxMode) == ChatBoxMode.Timed));
     }
 
-    protected override Task OnStart(CancellationToken cancellationToken)
+    protected override void OnModuleStart()
     {
-        nextSendTask = new TimedTask(trySend, 10f);
-        _ = nextSendTask.Start();
         nextSendTime = DateTimeOffset.Now;
-        return Task.CompletedTask;
     }
 
-    protected override async Task OnStop()
+    protected override void Update()
     {
-        await nextSendTask.Stop();
+        if (State.Value == ModuleState.Started) trySend();
     }
 
-    private Task trySend()
+    private void trySend()
     {
-        if (!GetSetting<bool>(ChatBoxSetting.ChatBoxDisplay)) return Task.CompletedTask;
-        if (GetSetting<ChatBoxMode>(ChatBoxSetting.ChatBoxMode) == ChatBoxMode.Timed && nextSendTime > DateTimeOffset.Now) return Task.CompletedTask;
+        if (!GetSetting<bool>(ChatBoxSetting.ChatBoxDisplay)) return;
+        if (GetSetting<ChatBoxMode>(ChatBoxSetting.ChatBoxMode) == ChatBoxMode.Timed && nextSendTime > DateTimeOffset.Now) return;
 
         var text = GetChatBoxText();
 
@@ -65,15 +59,22 @@ public abstract class ChatBoxModule : Module
         if (GetSetting<ChatBoxMode>(ChatBoxSetting.ChatBoxMode) == ChatBoxMode.Always)
         {
             nextSendTime = DateTimeOffset.Now;
-            return Task.CompletedTask;
+            return;
+        }
+
+        // Used for late loading modules
+        // I.E. HardwareStats doesn't start producing values for a few seconds but we want to queue it ASAP once it does
+        // so that the timing isn't messed up
+        if (GetSetting<ChatBoxMode>(ChatBoxSetting.ChatBoxMode) == ChatBoxMode.Timed && closestNextSendTime <= DateTimeOffset.Now)
+        {
+            nextSendTime = DateTimeOffset.Now;
+            return;
         }
 
         if (closestNextSendTime >= DateTimeOffset.Now + displayTimerTimeSpan)
             nextSendTime = closestNextSendTime;
         else
             nextSendTime = closestNextSendTime + (displayTimerTimeSpan - displayLengthTimeSpan);
-
-        return Task.CompletedTask;
     }
 
     /// <summary>

@@ -1,12 +1,12 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System.Net;
 using System.Net.Sockets;
 
-namespace VRCOSC.OSC;
+namespace VRCOSC.OSC.Client;
 
-public sealed class OscClient
+public abstract class OscClient
 {
     private Socket? sendingClient;
     private Socket? receivingClient;
@@ -14,21 +14,6 @@ public sealed class OscClient
     private Task? incomingTask;
     private bool sendingEnabled;
     private bool receivingEnabled;
-
-    private readonly object listenerLock = new();
-    private readonly List<IOscListener> listeners = new();
-
-    public void RegisterListener(IOscListener listener)
-    {
-        lock (listenerLock)
-            listeners.Add(listener);
-    }
-
-    public void DeRegisterListener(IOscListener listener)
-    {
-        lock (listenerLock)
-            listeners.Remove(listener);
-    }
 
     public void Initialise(string ipAddress, int sendPort, int receivePort)
     {
@@ -84,7 +69,7 @@ public sealed class OscClient
     {
         data.PreValidate();
         sendingClient?.SendOscMessage(new OscMessage(data.Address, data.Values));
-        listeners.ForEach(listener => listener.OnDataSent(data));
+        OnDataSend(data);
     }
 
     private async void runReceiveLoop()
@@ -102,12 +87,12 @@ public sealed class OscClient
                     Values = message.Values
                 };
 
-                lock (listenerLock)
-                {
-                    listeners.ForEach(listener => listener.OnDataReceived(data));
-                }
+                OnDataReceived(data);
             }
         }
         catch (OperationCanceledException) { }
     }
+
+    protected abstract void OnDataSend(OscData data);
+    protected abstract void OnDataReceived(OscData data);
 }

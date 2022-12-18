@@ -79,9 +79,6 @@ public sealed partial class AttributeFlow : FillFlowContainer<AttributeCard>
 
     private AttributeCard generateListCard(ModuleAttributeList attributeData)
     {
-        if (attributeData.Type == typeof(int))
-            return new IntTextAttributeCardList(attributeData);
-
         if (attributeData.Type == typeof(string))
             return new TextAttributeCardList(attributeData);
 

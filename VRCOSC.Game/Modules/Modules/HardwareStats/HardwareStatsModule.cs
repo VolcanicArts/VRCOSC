@@ -2,12 +2,10 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace VRCOSC.Game.Modules.Modules.HardwareStats;
 
-public sealed class HardwareStatsModule : ChatBoxModule
+public sealed partial class HardwareStatsModule : ChatBoxModule
 {
     public override string Title => "Hardware Stats";
     public override string Description => "Sends hardware stats and displays them in the ChatBox";
@@ -51,24 +49,15 @@ public sealed class HardwareStatsModule : ChatBoxModule
                .Replace("$ramavailable$", hardwareStatsProvider?.RamAvailable.ToString("0.0") ?? "0.0");
     }
 
-    protected override async Task OnStart(CancellationToken cancellationToken)
+    protected override void OnModuleStart()
     {
-        await base.OnStart(cancellationToken);
+        base.OnModuleStart();
         hardwareStatsProvider = new HardwareStatsProvider();
-
-        Log("Loading hardware monitors...");
-
-        while (!hardwareStatsProvider.CanAcceptQueries)
-        {
-            await Task.Delay(1, cancellationToken);
-        }
-
-        Log("Hardware monitors loaded!");
     }
 
-    protected override Task OnUpdate()
+    protected override void OnModuleUpdate()
     {
-        if (hardwareStatsProvider is null || !hardwareStatsProvider.CanAcceptQueries) return Task.CompletedTask;
+        if (hardwareStatsProvider is null || !hardwareStatsProvider.CanAcceptQueries) return;
 
         hardwareStatsProvider!.Update();
 
@@ -80,13 +69,10 @@ public sealed class HardwareStatsModule : ChatBoxModule
         SendParameter(HardwareStatsParameter.RamTotal, hardwareStatsProvider.RamTotal);
         SendParameter(HardwareStatsParameter.RamUsed, hardwareStatsProvider.RamUsed);
         SendParameter(HardwareStatsParameter.RamAvailable, hardwareStatsProvider.RamAvailable);
-
-        return Task.CompletedTask;
     }
 
-    protected override async Task OnStop()
+    protected override void OnModuleStop()
     {
-        await base.OnStop();
         hardwareStatsProvider = null;
     }
 

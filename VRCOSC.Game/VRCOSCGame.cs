@@ -4,6 +4,7 @@
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
@@ -28,34 +29,29 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     private const string latest_release_url = "https://github.com/volcanicarts/vrcosc/releases/latest";
     private const string discord_invite_url = "https://discord.gg/vj4brHyvT5";
 
-    [Cached]
-    private ModuleManager moduleManager = new();
-
     [Resolved]
     private GameHost host { get; set; } = null!;
 
     public VRCOSCUpdateManager UpdateManager = null!;
 
     private NotificationContainer notificationContainer = null!;
-    private OpenVRInterface openVrInterface = null!;
 
-    public Bindable<string> SearchTermFilter = new(string.Empty);
     public Bindable<Module.ModuleType?> TypeFilter = new();
 
     [Cached]
     private Bindable<Tab> SelectedTab = new();
 
-    [Cached]
-    private BindableBool ModulesRunning = new();
-
     [Cached(name: "EditingModule")]
     private Bindable<Module?> EditingModule = new();
 
     [Cached(name: "InfoModule")]
-    private IBindable<Module?> InfoModule = new Bindable<Module?>();
+    private Bindable<Module?> InfoModule = new();
 
     [Resolved]
     private Storage storage { get; set; } = null!;
+
+    [Cached]
+    private GameManager gameManager = new();
 
     [BackgroundDependencyLoader]
     private void load()
@@ -65,38 +61,22 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         notificationContainer = new NotificationContainer();
         DependencyContainer.CacheAs(notificationContainer);
 
-        openVrInterface = new OpenVRInterface(storage);
-        DependencyContainer.CacheAs(openVrInterface);
+        LoadComponent(notificationContainer);
 
         Children = new Drawable[]
         {
-            moduleManager,
-            notificationContainer,
+            gameManager,
             new MainContent(),
-            UpdateManager = CreateUpdateManager()
+            UpdateManager = CreateUpdateManager(),
+            notificationContainer
         };
-
-        ChangeChildDepth(notificationContainer, float.MinValue);
     }
 
-    protected override void Update()
-    {
-        if (openVrInterface.HasInitialised) handleOpenVR();
-    }
-
-    private void handleOpenVR()
-    {
-        openVrInterface.Poll();
-    }
-
-    protected override async void LoadComplete()
+    protected override void LoadComplete()
     {
         base.LoadComplete();
 
-        await copyOpenVrFiles();
-
-        Scheduler.AddDelayed(() => Task.Run(() => openVrInterface.Init()), 50d, true);
-
+        copyOpenVrFiles();
         checkUpdates();
         checkVersion();
 
@@ -110,10 +90,15 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
             Delay = 5000d
         });
 
-        ModulesRunning.BindValueChanged(e =>
+        gameManager.State.BindValueChanged(e =>
         {
-            if (e.NewValue) SelectedTab.Value = Tab.Modules;
+            if (e.NewValue == GameManagerState.Starting) SelectedTab.Value = Tab.Modules;
         }, true);
+
+        gameManager.OpenVRInterface.OnOpenVRShutdown += () =>
+        {
+            if (ConfigManager.Get<bool>(VRCOSCSetting.AutoStopOpenVR)) prepareForExit();
+        };
     }
 
     private void checkUpdates()
@@ -141,7 +126,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         ConfigManager.SetValue(VRCOSCSetting.Version, Version);
     }
 
-    private async Task copyOpenVrFiles()
+    private void copyOpenVrFiles()
     {
         var tempStorage = storage.GetStorageForDirectory("openvr");
         var tempStoragePath = tempStorage.GetFullPath(string.Empty);
@@ -150,20 +135,47 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
         foreach (var file in openVrFiles)
         {
-            await File.WriteAllBytesAsync(Path.Combine(tempStoragePath, file.Split('/')[1]), await Resources.GetAsync(file));
+            File.WriteAllBytes(Path.Combine(tempStoragePath, file.Split('/')[1]), Resources.Get(file));
         }
+
+        var manifest = new VRManifest();
+        manifest.Applications[0].ActionManifestPath = tempStorage.GetFullPath("action_manifest.json");
+        manifest.Applications[0].ImagePath = tempStorage.GetFullPath("SteamImage.png");
+
+        File.WriteAllText(Path.Combine(tempStoragePath, "app.vrmanifest"), JsonConvert.SerializeObject(manifest));
     }
 
     protected override bool OnExiting()
     {
-        moduleManager.State.BindValueChanged(e =>
-        {
-            if (e.NewValue == ManagerState.Stopped) Exit();
-        }, true);
-
-        ModulesRunning.Value = false;
-
+        prepareForExit();
         return true;
+    }
+
+    private void prepareForExit()
+    {
+        Task.WhenAll(new[]
+        {
+            Task.Run(waitForGameManager)
+        }).ContinueWith(_ => Schedule(performExit));
+    }
+
+    private Task waitForGameManager()
+    {
+        if (gameManager.State.Value == GameManagerState.Stopped) return Task.CompletedTask;
+
+        gameManager.Stop();
+
+        while (true)
+        {
+            if (gameManager.State.Value == GameManagerState.Stopped) return Task.CompletedTask;
+        }
+    }
+
+    private void performExit()
+    {
+        EditingModule.Value = null;
+        InfoModule.Value = null;
+        Exit();
     }
 
     protected abstract VRCOSCUpdateManager CreateUpdateManager();

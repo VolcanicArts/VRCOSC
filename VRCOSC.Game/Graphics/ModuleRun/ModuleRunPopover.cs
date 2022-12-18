@@ -2,11 +2,11 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
-using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using VRCOSC.Game.Graphics.Themes;
+using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleRun;
 
@@ -16,7 +16,7 @@ public sealed partial class ModuleRunPopover : PopoverScreen
     private readonly ParameterContainer parameters;
 
     [Resolved]
-    private BindableBool modulesRunning { get; set; } = null!;
+    private GameManager gameManager { get; set; } = null!;
 
     public ModuleRunPopover()
     {
@@ -56,25 +56,26 @@ public sealed partial class ModuleRunPopover : PopoverScreen
     {
         base.LoadComplete();
 
-        modulesRunning.ValueChanged += e =>
+        gameManager.State.BindValueChanged(e =>
         {
-            if (e.NewValue)
-                Show();
-            else
-                Hide();
-        };
+            switch (e.NewValue)
+            {
+                case GameManagerState.Starting:
+                    Show();
+                    break;
+
+                case GameManagerState.Stopped:
+                    Hide();
+                    break;
+            }
+        }, true);
     }
 
-    public override void Show()
+    protected override void HideComplete()
     {
         terminal.Reset();
         parameters.ClearParameters();
-        base.Show();
     }
 
-    public override void Hide()
-    {
-        base.Hide();
-        modulesRunning.Value = false;
-    }
+    protected override void Close() => gameManager.Stop();
 }

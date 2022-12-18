@@ -6,10 +6,10 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Threading.Tasks;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
-using VRCOSC.OSC;
+using VRCOSC.OSC.Client;
+using VRCOSC.OSC.VRChat;
 
 namespace VRCOSC.Game.Modules;
 
@@ -20,13 +20,23 @@ public class ChatBoxInterface
     private readonly OscClient oscClient;
     private readonly IBindable<int> resetMilli;
 
-    private TimedTask? queueTask;
     private ChatBoxData? currentData;
     private DateTimeOffset? sendReset;
     private DateTimeOffset sendExpire;
     private bool alreadyClear;
+    private bool running;
 
-    public bool SendEnabled { get; private set; }
+    private bool sendEnabled;
+
+    public bool SendEnabled
+    {
+        get => sendEnabled;
+        set
+        {
+            sendEnabled = value;
+            if (!sendEnabled) clear();
+        }
+    }
 
     public ChatBoxInterface(OscClient oscClient, IBindable<int> resetMilli)
     {
@@ -34,39 +44,32 @@ public class ChatBoxInterface
         this.resetMilli = resetMilli;
     }
 
-    public void SetSending(bool canSend)
-    {
-        SendEnabled = canSend;
-        if (!SendEnabled) clear();
-    }
-
     public void SetTyping(bool typing)
     {
-        oscClient.SendValue(Constants.OSC_ADDRESS_CHATBOX_TYPING, typing);
+        oscClient.SendValue(VRChatOscConstants.ADDRESS_CHATBOX_TYPING, typing);
     }
 
-    public void Init()
+    public void Initialise()
     {
-        alreadyClear = true;
         currentData = null;
-        sendExpire = DateTimeOffset.Now;
         sendReset = null;
+        alreadyClear = true;
         SendEnabled = true;
+        sendExpire = DateTimeOffset.Now;
         timedQueue.Clear();
         alwaysDict.Clear();
-        queueTask = new TimedTask(update, 5);
-        _ = queueTask.Start();
+        running = true;
     }
 
-    public async Task Shutdown()
+    public void Shutdown()
     {
-        await (queueTask?.Stop() ?? Task.CompletedTask);
+        running = false;
         clear();
     }
 
     private void clear()
     {
-        oscClient.SendValues(Constants.OSC_ADDRESS_CHATBOX_INPUT, new List<object> { string.Empty, true });
+        oscClient.SendValues(VRChatOscConstants.ADDRESS_CHATBOX_INPUT, new List<object> { string.Empty, true });
         alreadyClear = true;
     }
 
@@ -86,6 +89,9 @@ public class ChatBoxInterface
         }
 
         // ChatBoxMode.Timed
+
+        if (text is null) return DateTimeOffset.Now;
+
         timedQueue.Enqueue(new ChatBoxData
         {
             Text = text,
@@ -97,13 +103,15 @@ public class ChatBoxInterface
         return closestNextSendTime;
     }
 
-    private Task update()
+    public void Update()
     {
+        if (!running) return;
+
         switch (timedQueue.IsEmpty)
         {
             case true when sendExpire < DateTimeOffset.Now:
             {
-                var validAlwaysData = alwaysDict.Where(pair => pair.Value.Text is not null).ToImmutableSortedDictionary();
+                var validAlwaysData = alwaysDict.Where(data => data.Value.Text is not null).ToImmutableSortedDictionary();
                 currentData = validAlwaysData.IsEmpty ? null : validAlwaysData.Last().Value;
                 break;
             }
@@ -121,8 +129,6 @@ public class ChatBoxInterface
         }
 
         trySendText();
-
-        return Task.CompletedTask;
     }
 
     private void trySendText()
@@ -132,7 +138,12 @@ public class ChatBoxInterface
 
         if (currentData is null)
         {
-            if (!alreadyClear) clear();
+            if (!alreadyClear)
+            {
+                clear();
+                sendReset = DateTimeOffset.Now + TimeSpan.FromMilliseconds(resetMilli.Value);
+            }
+
             return;
         }
 
@@ -140,7 +151,7 @@ public class ChatBoxInterface
 
         if (currentData.Text is null) return;
 
-        if (SendEnabled) oscClient.SendValues(Constants.OSC_ADDRESS_CHATBOX_INPUT, new List<object> { currentData.Text!, true });
+        if (sendEnabled) oscClient.SendValues(VRChatOscConstants.ADDRESS_CHATBOX_INPUT, new List<object> { currentData.Text!, true });
         sendReset = DateTimeOffset.Now + TimeSpan.FromMilliseconds(resetMilli.Value);
     }
 

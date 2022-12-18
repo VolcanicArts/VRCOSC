@@ -10,10 +10,9 @@ public sealed class HypeRateProvider : HeartRateProvider
 {
     private readonly string hypeRateId;
     private readonly string apiKey;
-    private readonly TerminalLogger terminal = new(nameof(HypeRateModule));
+    private readonly TerminalLogger terminal = new(new HypeRateModule().Title);
 
     protected override string WebSocketUrl => $"wss://app.hyperate.io/socket/websocket?token={apiKey}";
-    protected override int WebSocketHeartBeat => 10000;
 
     public HypeRateProvider(string hypeRateId, string apiKey)
     {
@@ -54,7 +53,7 @@ public sealed class HypeRateProvider : HeartRateProvider
         }
     }
 
-    protected override void HandleWsHeartBeat()
+    public void SendWsHeartBeat()
     {
         terminal.Log("Sending HypeRate websocket heartbeat");
         SendData(new HeartBeatModel());

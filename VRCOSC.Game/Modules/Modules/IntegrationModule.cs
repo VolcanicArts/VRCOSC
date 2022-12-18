@@ -12,7 +12,7 @@ using VRCOSC.Game.Processes;
 
 namespace VRCOSC.Game.Modules.Modules;
 
-public abstract class IntegrationModule : Module
+public abstract partial class IntegrationModule : Module
 {
     private const int delay = 10;
 

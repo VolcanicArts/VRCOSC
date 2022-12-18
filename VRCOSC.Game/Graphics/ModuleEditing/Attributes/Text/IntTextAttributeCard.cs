@@ -13,10 +13,17 @@ public sealed partial class IntTextAttributeCard : TextAttributeCard
     {
     }
 
-    protected override object OnTextWrite(ValueChangedEvent<string> e)
+    protected override void OnTextBoxUpdate(ValueChangedEvent<string> e)
     {
-        if (string.IsNullOrEmpty(e.NewValue)) return 0;
+        if (string.IsNullOrEmpty(e.NewValue))
+        {
+            UpdateAttribute(0);
+            TextBox.Current.Value = "0";
+        }
 
-        return int.TryParse(e.NewValue, out var intValue) ? intValue : e.OldValue;
+        if (int.TryParse(e.NewValue, out var intValue))
+            UpdateAttribute(intValue);
+        else
+            TextBox.Current.Value = e.OldValue;
     }
 }

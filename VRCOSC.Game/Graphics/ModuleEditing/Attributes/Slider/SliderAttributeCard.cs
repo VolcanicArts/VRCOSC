@@ -41,13 +41,13 @@ public abstract partial class SliderAttributeCard<T> : AttributeCardSingle where
     protected override void LoadComplete()
     {
         base.LoadComplete();
-        slider.SlowedCurrent.ValueChanged += e => UpdateValues(e.NewValue);
+        slider.Current.ValueChanged += e => UpdateAttribute(e.NewValue);
     }
 
-    protected override void UpdateValues(object value)
+    protected override void SetDefault()
     {
-        base.UpdateValues(value);
-        slider.SlowedCurrent.Value = (T)value;
+        base.SetDefault();
+        slider.Current.Value = (T)AttributeData.Attribute.Value;
     }
 
     protected abstract Bindable<T> CreateCurrent();

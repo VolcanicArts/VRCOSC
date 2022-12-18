@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using VRCOSC.OSC.VRChat;
 
 namespace VRCOSC.Game.Modules;
 
@@ -12,7 +13,7 @@ public class ParameterMetadata
     public readonly string Description;
     public readonly Type ExpectedType;
 
-    public string FormattedAddress => $"/avatar/parameters/{Name}";
+    public string FormattedAddress => $"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}/{Name}";
 
     public ParameterMetadata(ParameterMode mode, string name, string description, Type expectedType)
     {

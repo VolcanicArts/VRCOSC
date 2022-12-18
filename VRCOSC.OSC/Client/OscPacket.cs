@@ -3,7 +3,7 @@
 
 using System.Text;
 
-namespace VRCOSC.OSC;
+namespace VRCOSC.OSC.Client;
 
 public abstract class OscPacket
 {

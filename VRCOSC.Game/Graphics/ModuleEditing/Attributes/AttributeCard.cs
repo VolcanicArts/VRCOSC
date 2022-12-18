@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -134,7 +135,10 @@ public abstract partial class AttributeCard : Container
 
     protected void UpdateResetToDefault(bool show)
     {
-        resetToDefault.FadeTo(show ? 1 : 0, 200, Easing.OutQuart);
+        var newAlpha = show ? 1 : 0;
+        if (Math.Abs(resetToDefault.Alpha - newAlpha) < 0.01f) return;
+
+        resetToDefault.FadeTo(newAlpha, 200, Easing.OutQuart);
     }
 
     #region Graphics

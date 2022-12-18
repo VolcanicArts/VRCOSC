@@ -7,14 +7,14 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Modules;
-using VRCOSC.OSC;
+using VRCOSC.OSC.VRChat;
 
 namespace VRCOSC.Game.Graphics.ModuleRun;
 
-public sealed partial class ParameterContainer : Container, IOscListener
+public sealed partial class ParameterContainer : Container
 {
     [Resolved]
-    private ModuleManager moduleManager { get; set; } = null!;
+    private GameManager gameManager { get; set; } = null!;
 
     private readonly ParameterSubContainer outgoingParameterDisplay;
     private readonly ParameterSubContainer incomingParameterDisplay;
@@ -65,17 +65,18 @@ public sealed partial class ParameterContainer : Container, IOscListener
 
     protected override void LoadComplete()
     {
-        moduleManager.OscClient.RegisterListener(this);
+        gameManager.OscClient.OnParameterSent += onParameterSent;
+        gameManager.OscClient.OnParameterReceived += onParameterReceived;
     }
 
-    void IOscListener.OnDataSent(OscData data)
+    private void onParameterSent(VRChatOscData data)
     {
-        outgoingParameterDisplay.AddEntry(data.Address, data.Values[0]);
+        outgoingParameterDisplay.AddEntry(data.Address, data.ParameterValue);
     }
 
-    void IOscListener.OnDataReceived(OscData data)
+    private void onParameterReceived(VRChatOscData data)
     {
-        incomingParameterDisplay.AddEntry(data.Address, data.Values[0]);
+        incomingParameterDisplay.AddEntry(data.Address, data.ParameterValue);
     }
 
     public void ClearParameters()
@@ -131,6 +132,7 @@ public sealed partial class ParameterContainer : Container, IOscListener
     protected override void Dispose(bool isDisposing)
     {
         base.Dispose(isDisposing);
-        moduleManager.OscClient.DeRegisterListener(this);
+        gameManager.OscClient.OnParameterSent -= onParameterSent;
+        gameManager.OscClient.OnParameterReceived -= onParameterReceived;
     }
 }

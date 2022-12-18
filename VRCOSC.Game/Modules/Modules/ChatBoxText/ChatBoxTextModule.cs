@@ -3,7 +3,7 @@
 
 namespace VRCOSC.Game.Modules.Modules.ChatBoxText;
 
-public class ChatBoxTextModule : ChatBoxModule
+public partial class ChatBoxTextModule : ChatBoxModule
 {
     public override string Title => "ChatBox Text";
     public override string Description => "Display custom text in the ChatBox";

@@ -3,7 +3,6 @@
 
 using System;
 using osu.Framework.Allocation;
-using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
@@ -15,8 +14,6 @@ namespace VRCOSC.Game.Graphics.UI;
 
 public sealed partial class VRCOSCSlider<T> : BasicSliderBar<T> where T : struct, IComparable<T>, IConvertible, IEquatable<T>
 {
-    public Bindable<T> SlowedCurrent = new();
-
     public VRCOSCSlider()
     {
         BackgroundColour = ThemeManager.Current[ThemeAttribute.Mid];
@@ -64,19 +61,11 @@ public sealed partial class VRCOSCSlider<T> : BasicSliderBar<T> where T : struct
         });
 
         Current.BindValueChanged(_ => valueText.Text = getCurrentValue().ToString()!, true);
-        SlowedCurrent.BindValueChanged(e => Current.Value = e.NewValue);
-    }
-
-    protected override void OnDragEnd(DragEndEvent e)
-    {
-        base.OnDragEnd(e);
-        updateSlowedCurrent();
     }
 
     protected override bool OnClick(ClickEvent e)
     {
         var result = base.OnClick(e);
-        updateSlowedCurrent();
         return result;
     }
 
@@ -84,11 +73,6 @@ public sealed partial class VRCOSCSlider<T> : BasicSliderBar<T> where T : struct
     {
         // bit excessive, but it keeps the float as 2 decimal places. Might refactor into multiple slider types
         return (T)Convert.ChangeType(MathF.Round(Convert.ToSingle(Current.Value), 2), typeof(T));
-    }
-
-    private void updateSlowedCurrent()
-    {
-        SlowedCurrent.Value = getCurrentValue();
     }
 
     private T getCurrentValue()

@@ -32,29 +32,38 @@ public class OpenVRInterface
 
     private readonly Storage storage;
     public bool HasInitialised { get; private set; }
+    public Action? OnOpenVRShutdown;
 
     public OpenVRInterface(Storage storage)
     {
         this.storage = storage.GetStorageForDirectory("openvr");
     }
 
+    #region Boilerplate
+
     public void Init()
     {
         if (HasInitialised) return;
 
+        HasInitialised = initialiseOpenVR();
+
+        if (HasInitialised)
+        {
+            OpenVR.Applications.AddApplicationManifest(storage.GetFullPath("app.vrmanifest"), false);
+            OpenVR.Input.SetActionManifestPath(storage.GetFullPath("action_manifest.json"));
+            getActionHandles();
+        }
+    }
+
+    private bool initialiseOpenVR()
+    {
         var err = new EVRInitError();
         var state = OpenVR.InitInternal(ref err, EVRApplicationType.VRApplication_Background);
+        return err == EVRInitError.None && state != 0;
+    }
 
-        if (err != EVRInitError.None || state == 0)
-        {
-            HasInitialised = false;
-            return;
-        }
-
-        HasInitialised = true;
-
-        OpenVR.Input.SetActionManifestPath(storage.GetFullPath("action_manifest.json"));
-
+    private void getActionHandles()
+    {
         OpenVR.Input.GetActionHandle("/actions/main/in/lefta", ref leftController[0]);
         OpenVR.Input.GetActionHandle("/actions/main/in/leftb", ref leftController[1]);
         OpenVR.Input.GetActionHandle("/actions/main/in/leftpad", ref leftController[2]);
@@ -76,12 +85,16 @@ public class OpenVRInterface
         OpenVR.Input.GetActionSetHandle("/actions/main", ref actionSetHandle);
     }
 
+    #endregion
+
+    #region Getters
+
     public bool IsHmdConnected() => getIndexForTrackedDeviceClass(ETrackedDeviceClass.HMD) != uint.MaxValue && OpenVR.IsHmdPresent();
     public bool IsLeftControllerConnected() => getLeftControllerIndex() != uint.MaxValue && OpenVR.System.IsTrackedDeviceConnected(getLeftControllerIndex());
     public bool IsRightControllerConnected() => getRightControllerIndex() != uint.MaxValue && OpenVR.System.IsTrackedDeviceConnected(getRightControllerIndex());
     public bool IsTrackerConnected(uint trackerIndex) => trackerIndex != uint.MaxValue && OpenVR.System.IsTrackedDeviceConnected(trackerIndex);
 
-    public bool IsHmdCharging() => CanHmdProvideBatteryData() && getBoolTrackedDeviceProperty(getHmdIndex(), ETrackedDeviceProperty.Prop_DeviceIsCharging_Bool);
+    public bool IsHmdCharging() => getBoolTrackedDeviceProperty(getHmdIndex(), ETrackedDeviceProperty.Prop_DeviceIsCharging_Bool);
     public bool IsLeftControllerCharging() => getBoolTrackedDeviceProperty(getLeftControllerIndex(), ETrackedDeviceProperty.Prop_DeviceIsCharging_Bool);
     public bool IsRightControllerCharging() => getBoolTrackedDeviceProperty(getRightControllerIndex(), ETrackedDeviceProperty.Prop_DeviceIsCharging_Bool);
     public bool IsTrackerCharging(uint trackerIndex) => getBoolTrackedDeviceProperty(trackerIndex, ETrackedDeviceProperty.Prop_DeviceIsCharging_Bool);
@@ -91,17 +104,19 @@ public class OpenVRInterface
     public float GetRightControllerBatteryPercentage() => getFloatTrackedDeviceProperty(getRightControllerIndex(), ETrackedDeviceProperty.Prop_DeviceBatteryPercentage_Float);
     public float GetTrackerBatteryPercentage(uint trackerIndex) => getFloatTrackedDeviceProperty(trackerIndex, ETrackedDeviceProperty.Prop_DeviceBatteryPercentage_Float);
 
-    public bool CanHmdProvideBatteryData()
-    {
-        var error = new ETrackedPropertyError();
-        var canProvideBattery = OpenVR.System.GetBoolTrackedDeviceProperty(getHmdIndex(), ETrackedDeviceProperty.Prop_DeviceProvidesBatteryStatus_Bool, ref error);
-        return error == ETrackedPropertyError.TrackedProp_Success && canProvideBattery;
-    }
+    public bool CanHmdProvideBatteryData() => getBoolTrackedDeviceProperty(getHmdIndex(), ETrackedDeviceProperty.Prop_DeviceProvidesBatteryStatus_Bool);
+    public bool CanLeftControllerProvideBatteryData() => getBoolTrackedDeviceProperty(getLeftControllerIndex(), ETrackedDeviceProperty.Prop_DeviceProvidesBatteryStatus_Bool);
+    public bool CanRightControllerProvideBatteryData() => getBoolTrackedDeviceProperty(getRightControllerIndex(), ETrackedDeviceProperty.Prop_DeviceProvidesBatteryStatus_Bool);
+    public bool CanTrackerProvideBatteryData(uint trackerIndex) => getBoolTrackedDeviceProperty(trackerIndex, ETrackedDeviceProperty.Prop_DeviceProvidesBatteryStatus_Bool);
+
+    #endregion
 
     #region Events
 
-    public void Poll()
+    public void Update()
     {
+        if (!HasInitialised) return;
+
         var evenT = new VREvent_t();
 
         while (OpenVR.System.PollNextEvent(ref evenT, vrevent_t_size))
@@ -113,6 +128,7 @@ public class OpenVRInterface
                 OpenVR.System.AcknowledgeQuit_Exiting();
                 OpenVR.Shutdown();
                 HasInitialised = false;
+                OnOpenVRShutdown?.Invoke();
                 return;
             }
         }

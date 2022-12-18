@@ -1,18 +1,17 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Threading;
-using System.Threading.Tasks;
+using VRCOSC.OSC.VRChat;
 
 namespace VRCOSC.Game.Modules.Modules.OpenVR;
 
-public class GestureExtensionsModule : Module
+public partial class GestureExtensionsModule : Module
 {
     public override string Title => "Gesture Extensions";
     public override string Description => "Detect a range of custom gestures from Index controllers";
     public override string Author => "VolcanicArts";
     public override ModuleType Type => ModuleType.OpenVR;
-    protected override int DeltaUpdate => Constants.OSC_UPDATE_DELTA;
+    protected override int DeltaUpdate => VRChatOscConstants.UPDATE_DELTA;
 
     private float lowerThreshold;
     private float upperThreshold;
@@ -26,22 +25,18 @@ public class GestureExtensionsModule : Module
         CreateParameter<int>(GestureExtensionsParameter.GestureRight, ParameterMode.Write, "VRCOSC/Gestures/Right", "Custom right hand gesture value");
     }
 
-    protected override Task OnStart(CancellationToken cancellationToken)
+    protected override void OnModuleStart()
     {
         lowerThreshold = GetSetting<float>(GestureExtensionsSetting.LowerThreshold);
         upperThreshold = GetSetting<float>(GestureExtensionsSetting.UpperThreshold);
-
-        return Task.CompletedTask;
     }
 
-    protected override Task OnUpdate()
+    protected override void OnModuleUpdate()
     {
-        if (!OpenVrInterface.HasInitialised) return Task.CompletedTask;
+        if (!OpenVrInterface.HasInitialised) return;
 
         if (OpenVrInterface.IsLeftControllerConnected()) SendParameter(GestureExtensionsParameter.GestureLeft, (int)getLeftControllerGesture());
         if (OpenVrInterface.IsRightControllerConnected()) SendParameter(GestureExtensionsParameter.GestureRight, (int)getRightControllerGesture());
-
-        return Task.CompletedTask;
     }
 
     private GestureNames getLeftControllerGesture() => getControllerGesture(OpenVrInterface.LeftController);

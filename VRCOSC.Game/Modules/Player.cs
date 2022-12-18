@@ -1,33 +1,32 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-// ReSharper disable InconsistentNaming
-
+using System;
 using System.Threading.Tasks;
-using VRCOSC.OSC;
+using VRCOSC.OSC.Client;
 
 namespace VRCOSC.Game.Modules;
 
 public sealed class Player
 {
-    public Viseme? Viseme;
-    public float? Voice;
-    public Gesture? GestureLeft;
-    public Gesture? GestureRight;
-    public float? GestureLeftWeight;
-    public float? GestureRightWeight;
-    public float? AngularY;
-    public float? VelocityX;
-    public float? VelocityY;
-    public float? VelocityZ;
-    public float? Upright;
-    public bool? Grounded;
-    public bool? Seated;
-    public bool? AFK;
-    public TrackingType? TrackingType;
-    public bool? IsVR;
-    public bool? IsMuted;
-    public bool? InStation;
+    public Viseme? Viseme { get; private set; }
+    public float? Voice { get; private set; }
+    public Gesture? GestureLeft { get; private set; }
+    public Gesture? GestureRight { get; private set; }
+    public float? GestureLeftWeight { get; private set; }
+    public float? GestureRightWeight { get; private set; }
+    public float? AngularY { get; private set; }
+    public float? VelocityX { get; private set; }
+    public float? VelocityY { get; private set; }
+    public float? VelocityZ { get; private set; }
+    public float? Upright { get; private set; }
+    public bool? Grounded { get; private set; }
+    public bool? Seated { get; private set; }
+    public bool? AFK { get; private set; }
+    public TrackingType? TrackingType { get; private set; }
+    public bool? IsVR { get; private set; }
+    public bool? IsMuted { get; private set; }
+    public bool? InStation { get; private set; }
 
     private readonly OscClient oscClient;
     private bool hasChanged;
@@ -35,10 +34,9 @@ public sealed class Player
     public Player(OscClient oscClient)
     {
         this.oscClient = oscClient;
-        Init();
     }
 
-    public void Init()
+    public void Initialise()
     {
         Viseme = null;
         Voice = null;
@@ -58,6 +56,89 @@ public sealed class Player
         IsVR = null;
         IsMuted = null;
         InStation = null;
+    }
+
+    public void Update(string parameterName, object value)
+    {
+        if (!Enum.TryParse(parameterName, out VRChatInputParameter vrChatInputParameter)) return;
+
+        switch (vrChatInputParameter)
+        {
+            case VRChatInputParameter.Viseme:
+                Viseme = (Viseme)(int)value;
+                break;
+
+            case VRChatInputParameter.Voice:
+                Voice = (float)value;
+                break;
+
+            case VRChatInputParameter.GestureLeft:
+                GestureLeft = (Gesture)(int)value;
+                break;
+
+            case VRChatInputParameter.GestureRight:
+                GestureRight = (Gesture)(int)value;
+                break;
+
+            case VRChatInputParameter.GestureLeftWeight:
+                GestureLeftWeight = (float)value;
+                break;
+
+            case VRChatInputParameter.GestureRightWeight:
+                GestureRightWeight = (float)value;
+                break;
+
+            case VRChatInputParameter.AngularY:
+                AngularY = (float)value;
+                break;
+
+            case VRChatInputParameter.VelocityX:
+                VelocityX = (float)value;
+                break;
+
+            case VRChatInputParameter.VelocityY:
+                VelocityY = (float)value;
+                break;
+
+            case VRChatInputParameter.VelocityZ:
+                VelocityZ = (float)value;
+                break;
+
+            case VRChatInputParameter.Upright:
+                Upright = (float)value;
+                break;
+
+            case VRChatInputParameter.Grounded:
+                Grounded = (bool)value;
+                break;
+
+            case VRChatInputParameter.Seated:
+                Seated = (bool)value;
+                break;
+
+            case VRChatInputParameter.AFK:
+                AFK = (bool)value;
+                break;
+
+            case VRChatInputParameter.TrackingType:
+                TrackingType = (TrackingType)(int)value;
+                break;
+
+            case VRChatInputParameter.VRMode:
+                IsVR = (int)value == 1;
+                break;
+
+            case VRChatInputParameter.MuteSelf:
+                IsMuted = (bool)value;
+                break;
+
+            case VRChatInputParameter.InStation:
+                InStation = (bool)value;
+                break;
+
+            default:
+                throw new ArgumentOutOfRangeException(nameof(vrChatInputParameter), vrChatInputParameter, $"Unknown {nameof(VRChatInputParameter)}");
+        }
     }
 
     private static string actionToAddress(VRChatInputAction action) => $"/input/{action}";

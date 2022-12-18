@@ -4,14 +4,13 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Windows.Media;
 
 namespace VRCOSC.Game.Modules.Modules.Media;
 
-public sealed class MediaModule : ChatBoxModule
+public sealed partial class MediaModule : ChatBoxModule
 {
     public override string Title => "Media";
     public override string Description => "Integration with Windows Media";
@@ -47,10 +46,12 @@ public sealed class MediaModule : ChatBoxModule
 
     protected override string? GetChatBoxText()
     {
+        if (mediaProvider.Controller is null) return null;
+
         if (!mediaProvider.State.IsPlaying)
             return GetSetting<MediaPausedBehaviour>(MediaSetting.PausedBehaviour) == MediaPausedBehaviour.Empty ? null : GetSetting<string>(MediaSetting.PausedText);
 
-        mediaProvider.State.Position = mediaProvider.Controller?.GetTimelineProperties() ?? null;
+        mediaProvider.State.Position = mediaProvider.Controller?.GetTimelineProperties();
 
         var formattedText = GetSetting<string>(ChatBoxSetting.ChatBoxFormat)
                             .Replace("%title%", mediaProvider.State.Title)
@@ -61,28 +62,29 @@ public sealed class MediaModule : ChatBoxModule
         return formattedText;
     }
 
-    protected override async Task OnStart(CancellationToken cancellationToken)
+    protected override void OnModuleStart()
     {
-        await base.OnStart(cancellationToken);
-        mediaProvider.OnMediaSessionOpened += OnMediaSessionOpened;
+        base.OnModuleStart();
         mediaProvider.OnMediaUpdate += OnMediaUpdate;
-        await mediaProvider.StartMediaHook();
+        mediaProvider.StartMediaHook();
         startProcesses();
     }
 
     private void startProcesses()
     {
-        GetSetting<List<string>>(MediaSetting.StartList).ForEach(processName =>
+        GetSetting<List<string>>(MediaSetting.StartList).ForEach(processExeLocation =>
         {
-            if (!Process.GetProcessesByName(processName).Any()) Process.Start(processName);
+            if (File.Exists(processExeLocation))
+            {
+                var processName = new FileInfo(processExeLocation).Name.ToLowerInvariant().Replace(".exe", string.Empty);
+                if (!Process.GetProcessesByName(processName).Any()) Process.Start(processExeLocation);
+            }
         });
     }
 
-    protected override async Task OnStop()
+    protected override void OnModuleStop()
     {
-        await base.OnStop();
         mediaProvider.StopMediaHook();
-        mediaProvider.OnMediaSessionOpened -= OnMediaSessionOpened;
         mediaProvider.OnMediaUpdate -= OnMediaUpdate;
     }
 
@@ -92,10 +94,9 @@ public sealed class MediaModule : ChatBoxModule
         sendMediaParameters();
     }
 
-    protected override Task OnUpdate()
+    protected override void OnModuleUpdate()
     {
         sendVolumeParameters();
-        return Task.CompletedTask;
     }
 
     protected override void OnFloatParameterReceived(Enum key, float value)
@@ -146,13 +147,6 @@ public sealed class MediaModule : ChatBoxModule
                 mediaProvider.Controller?.TryChangeAutoRepeatModeAsync((MediaPlaybackAutoRepeatMode)value);
                 break;
         }
-    }
-
-    private async void OnMediaSessionOpened()
-    {
-        // We have to wait a little bit to allow the media app that just opened to take control
-        await Task.Delay(500);
-        mediaProvider.ForceUpdate();
     }
 
     private void OnMediaUpdate()

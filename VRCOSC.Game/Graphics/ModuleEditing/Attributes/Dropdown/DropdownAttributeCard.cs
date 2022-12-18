@@ -27,19 +27,20 @@ public sealed partial class DropdownAttributeCard<T> : AttributeCardSingle where
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
             RelativeSizeAxes = Axes.X,
-            Items = Enum.GetValues(typeof(T)).Cast<T>()
+            Items = Enum.GetValues(typeof(T)).Cast<T>(),
+            Current = { Value = (T)AttributeData.Attribute.Value }
         });
     }
 
     protected override void LoadComplete()
     {
         base.LoadComplete();
-        dropdown.Current.ValueChanged += e => UpdateValues(e.NewValue);
+        dropdown.Current.ValueChanged += e => UpdateAttribute(e.NewValue);
     }
 
-    protected override void UpdateValues(object value)
+    protected override void SetDefault()
     {
-        base.UpdateValues(value);
-        dropdown.Current.Value = (T)value;
+        base.SetDefault();
+        dropdown.Current.Value = (T)AttributeData.Attribute.Value;
     }
 }

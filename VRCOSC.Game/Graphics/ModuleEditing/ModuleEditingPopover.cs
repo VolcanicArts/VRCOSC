@@ -39,18 +39,22 @@ public sealed partial class ModuleEditingPopover : PopoverScreen
     {
         base.LoadComplete();
 
-        editingModule.ValueChanged += e =>
+        editingModule.BindValueChanged(e =>
         {
             if (e.NewValue is null)
+            {
+                e.OldValue?.Save();
                 Hide();
+            }
             else
+            {
                 Show();
-        };
+            }
+        }, true);
     }
 
-    public override void Hide()
+    protected override void Close()
     {
-        base.Hide();
         editingModule.Value = null;
     }
 }

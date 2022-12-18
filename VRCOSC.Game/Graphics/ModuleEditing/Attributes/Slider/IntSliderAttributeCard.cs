@@ -17,6 +17,7 @@ public sealed partial class IntSliderAttributeCard : SliderAttributeCard<int>
     {
         MinValue = (int)AttributeDataWithBounds.MinValue,
         MaxValue = (int)AttributeDataWithBounds.MaxValue,
-        Precision = 1
+        Precision = 1,
+        Value = (int)AttributeData.Attribute.Value
     };
 }

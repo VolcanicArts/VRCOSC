@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
 using osu.Framework.Allocation;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
@@ -15,7 +14,7 @@ namespace VRCOSC.Game.Graphics.ModuleListing;
 public sealed partial class Listing : Container
 {
     [Resolved]
-    private ModuleManager moduleManager { get; set; } = null!;
+    private GameManager gameManager { get; set; } = null!;
 
     [Resolved]
     private VRCOSCGame game { get; set; } = null!;
@@ -58,30 +57,21 @@ public sealed partial class Listing : Container
     [BackgroundDependencyLoader]
     private void load()
     {
-        moduleManager.Modules.ForEach(module => moduleCardFlow.Add(new ModuleCard(module)));
+        gameManager.ModuleManager.ForEach(module => moduleCardFlow.Add(new ModuleCard(module)));
     }
 
     protected override void LoadComplete()
     {
-        base.LoadComplete();
-
-        game.SearchTermFilter.BindValueChanged(_ => filter());
-        game.TypeFilter.BindValueChanged(_ => filter());
-
-        filter();
+        game.TypeFilter.BindValueChanged(_ => filter(), true);
     }
 
     private void filter()
     {
-        var searchTerm = game.SearchTermFilter.Value;
         var type = game.TypeFilter.Value;
 
         moduleCardFlow.ForEach(moduleCard =>
         {
-            var hasValidTitle = moduleCard.Module.Title.Contains(searchTerm, StringComparison.InvariantCultureIgnoreCase);
-            var hasValidType = type is null || moduleCard.Module.Type.Equals(type);
-
-            if (hasValidTitle && hasValidType)
+            if (type is null || moduleCard.Module.Type.Equals(type))
                 moduleCard.Show();
             else
                 moduleCard.Hide();
