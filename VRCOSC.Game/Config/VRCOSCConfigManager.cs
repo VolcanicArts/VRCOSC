@@ -28,6 +28,7 @@ public sealed class VRCOSCConfigManager : IniConfigManager<VRCOSCSetting>
         SetDefault(VRCOSCSetting.UpdateRepo, @"https://github.com/VolcanicArts/VRCOSC");
         SetDefault(VRCOSCSetting.Theme, ColourTheme.Dark);
         SetDefault(VRCOSCSetting.ChatBoxTimeSpan, 1500);
+        SetDefault(VRCOSCSetting.AutoStopOpenVR, false);
     }
 }
 
@@ -41,5 +42,6 @@ public enum VRCOSCSetting
     UpdateMode,
     UpdateRepo,
     Theme,
-    ChatBoxTimeSpan
+    ChatBoxTimeSpan,
+    AutoStopOpenVR
 }

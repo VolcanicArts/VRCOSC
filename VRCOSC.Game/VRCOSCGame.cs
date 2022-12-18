@@ -94,6 +94,11 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         {
             if (e.NewValue == GameManagerState.Starting) SelectedTab.Value = Tab.Modules;
         }, true);
+
+        gameManager.OpenVRInterface.OnOpenVRShutdown += () =>
+        {
+            if (ConfigManager.Get<bool>(VRCOSCSetting.AutoStopOpenVR)) prepareForExit();
+        };
     }
 
     private void checkUpdates()

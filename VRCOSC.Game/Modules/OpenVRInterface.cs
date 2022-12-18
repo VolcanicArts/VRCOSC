@@ -32,6 +32,7 @@ public class OpenVRInterface
 
     private readonly Storage storage;
     public bool HasInitialised { get; private set; }
+    public Action? OnOpenVRShutdown;
 
     public OpenVRInterface(Storage storage)
     {
@@ -127,6 +128,7 @@ public class OpenVRInterface
                 OpenVR.System.AcknowledgeQuit_Exiting();
                 OpenVR.Shutdown();
                 HasInitialised = false;
+                OnOpenVRShutdown?.Invoke();
                 return;
             }
         }
