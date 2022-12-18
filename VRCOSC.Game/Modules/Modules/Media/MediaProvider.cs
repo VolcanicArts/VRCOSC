@@ -26,6 +26,7 @@ public class MediaProvider
         mediaManager = new MediaManager();
         mediaManager.OnAnyPlaybackStateChanged += MediaManager_OnAnyPlaybackStateChanged;
         mediaManager.OnAnyMediaPropertyChanged += MediaManager_OnAnyMediaPropertyChanged;
+        mediaManager.OnFocusedSessionChanged += MediaManager_OnFocusedSessionChanged;
         mediaManager.Start();
     }
 
@@ -37,14 +38,6 @@ public class MediaProvider
 
     private void MediaManager_OnAnyPlaybackStateChanged(MediaManager.MediaSession sender, GlobalSystemMediaTransportControlsSessionPlaybackInfo args)
     {
-        var mediaProperties = sender.ControlSession?.TryGetMediaPropertiesAsync().GetResults();
-
-        if (mediaProperties is not null)
-        {
-            State.Title = mediaProperties.Title;
-            State.Artist = mediaProperties.Artist;
-        }
-
         State.IsShuffle = args.IsShuffleActive ?? false;
         State.RepeatMode = args.AutoRepeatMode ?? 0;
         State.Status = args.PlaybackStatus;
@@ -54,14 +47,24 @@ public class MediaProvider
 
     private void MediaManager_OnAnyMediaPropertyChanged(MediaManager.MediaSession sender, GlobalSystemMediaTransportControlsSessionMediaProperties args)
     {
-        var playbackInfo = sender.ControlSession?.GetPlaybackInfo();
-        if (playbackInfo is null) return;
+        State.Title = args.Title;
+        State.Artist = args.Artist;
 
+        OnMediaUpdate?.Invoke();
+    }
+
+    private async void MediaManager_OnFocusedSessionChanged(MediaManager.MediaSession? sender)
+    {
+        if (sender is null) return;
+
+        var properties = await sender.ControlSession.TryGetMediaPropertiesAsync();
+        var playbackInfo = sender.ControlSession.GetPlaybackInfo();
+
+        State.Title = properties.Title;
+        State.Artist = properties.Artist;
         State.IsShuffle = playbackInfo.IsShuffleActive ?? false;
         State.RepeatMode = playbackInfo.AutoRepeatMode ?? 0;
         State.Status = playbackInfo.PlaybackStatus;
-        State.Title = args.Title;
-        State.Artist = args.Artist;
 
         OnMediaUpdate?.Invoke();
     }
