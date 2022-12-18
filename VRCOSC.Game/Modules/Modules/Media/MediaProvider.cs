@@ -21,7 +21,10 @@ public class MediaProvider
 
     public void StartMediaHook()
     {
-        State = new MediaState();
+        State = new MediaState
+        {
+            Volume = 1
+        };
 
         mediaManager = new MediaManager();
         mediaManager.OnAnyPlaybackStateChanged += MediaManager_OnAnyPlaybackStateChanged;
