@@ -38,6 +38,7 @@ public class MediaProvider
 
     private void MediaManager_OnAnyPlaybackStateChanged(MediaManager.MediaSession sender, GlobalSystemMediaTransportControlsSessionPlaybackInfo args)
     {
+        State.ProcessId = Controller?.SourceAppUserModelId;
         State.IsShuffle = args.IsShuffleActive ?? false;
         State.RepeatMode = args.AutoRepeatMode ?? 0;
         State.Status = args.PlaybackStatus;
@@ -47,6 +48,7 @@ public class MediaProvider
 
     private void MediaManager_OnAnyMediaPropertyChanged(MediaManager.MediaSession sender, GlobalSystemMediaTransportControlsSessionMediaProperties args)
     {
+        State.ProcessId = Controller?.SourceAppUserModelId;
         State.Title = args.Title;
         State.Artist = args.Artist;
 
@@ -60,6 +62,7 @@ public class MediaProvider
         var properties = await sender.ControlSession.TryGetMediaPropertiesAsync();
         var playbackInfo = sender.ControlSession.GetPlaybackInfo();
 
+        State.ProcessId = Controller?.SourceAppUserModelId;
         State.Title = properties.Title;
         State.Artist = properties.Artist;
         State.IsShuffle = playbackInfo.IsShuffleActive ?? false;
@@ -68,16 +71,11 @@ public class MediaProvider
 
         OnMediaUpdate?.Invoke();
     }
-
-    public void SetVolume(float percentage) => ProcessExtensions.SetProcessVolume(Controller?.SourceAppUserModelId, percentage);
-    public void SetMuted(bool muted) => ProcessExtensions.SetProcessMuted(Controller?.SourceAppUserModelId, muted);
-
-    public float GetVolume() => ProcessExtensions.RetrieveProcessVolume(Controller?.SourceAppUserModelId);
-    public bool IsMuted() => ProcessExtensions.IsProcessMuted(Controller?.SourceAppUserModelId);
 }
 
 public class MediaState
 {
+    public string? ProcessId;
     public string Title = string.Empty;
     public string Artist = string.Empty;
     public MediaPlaybackAutoRepeatMode RepeatMode;
@@ -85,4 +83,16 @@ public class MediaState
     public GlobalSystemMediaTransportControlsSessionPlaybackStatus Status;
     public GlobalSystemMediaTransportControlsSessionTimelineProperties? Position;
     public bool IsPlaying => Status == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing;
+
+    public float Volume
+    {
+        set => ProcessExtensions.SetProcessVolume(ProcessId, value);
+        get => ProcessExtensions.RetrieveProcessVolume(ProcessId);
+    }
+
+    public bool Muted
+    {
+        set => ProcessExtensions.SetProcessMuted(ProcessId, value);
+        get => ProcessExtensions.IsProcessMuted(ProcessId);
+    }
 }
