@@ -103,7 +103,7 @@ public sealed partial class MediaModule : ChatBoxModule
     {
         switch (key)
         {
-            case MediaParameter.Volume:
+            case MediaParameter.Volume when mediaProvider.Controller is not null:
                 mediaProvider.State.Volume = value;
                 break;
         }
@@ -125,7 +125,7 @@ public sealed partial class MediaModule : ChatBoxModule
                 mediaProvider.Controller?.TryChangeShuffleActiveAsync(value);
                 break;
 
-            case MediaParameter.Muted:
+            case MediaParameter.Muted when mediaProvider.Controller is not null:
                 mediaProvider.State.Muted = value;
                 break;
 
