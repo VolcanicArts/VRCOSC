@@ -66,11 +66,11 @@ public class MediaProvider
         OnMediaUpdate?.Invoke();
     }
 
-    public void SetVolume(float percentage) => ProcessExtensions.SetProcessVolume(Controller?.SourceAppUserModelId ?? string.Empty, percentage);
-    public void SetMuted(bool muted) => ProcessExtensions.SetProcessMuted(Controller?.SourceAppUserModelId ?? string.Empty, muted);
+    public void SetVolume(float percentage) => ProcessExtensions.SetProcessVolume(Controller?.SourceAppUserModelId, percentage);
+    public void SetMuted(bool muted) => ProcessExtensions.SetProcessMuted(Controller?.SourceAppUserModelId, muted);
 
-    public float GetVolume() => ProcessExtensions.RetrieveProcessVolume(Controller?.SourceAppUserModelId ?? string.Empty);
-    public bool IsMuted() => ProcessExtensions.IsProcessMuted(Controller?.SourceAppUserModelId ?? string.Empty);
+    public float GetVolume() => ProcessExtensions.RetrieveProcessVolume(Controller?.SourceAppUserModelId);
+    public bool IsMuted() => ProcessExtensions.IsProcessMuted(Controller?.SourceAppUserModelId);
 }
 
 public class MediaState
