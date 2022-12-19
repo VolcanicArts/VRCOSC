@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace VRCOSC.Game.Modules.Modules.HardwareStats;
 
@@ -58,17 +57,16 @@ public sealed partial class HardwareStatsModule : ChatBoxModule
     {
         if (!(hardwareStatsProvider?.CanAcceptQueries ?? false)) return;
 
-        Task.Run(() => hardwareStatsProvider.Update()).ContinueWith(_ =>
-        {
-            SendParameter(HardwareStatsParameter.CpuUsage, hardwareStatsProvider.CpuUsage / 100f);
-            SendParameter(HardwareStatsParameter.GpuUsage, hardwareStatsProvider.GpuUsage / 100f);
-            SendParameter(HardwareStatsParameter.RamUsage, hardwareStatsProvider.RamUsage / 100f);
-            SendParameter(HardwareStatsParameter.CpuTemp, hardwareStatsProvider.CpuTemp);
-            SendParameter(HardwareStatsParameter.GpuTemp, hardwareStatsProvider.GpuTemp);
-            SendParameter(HardwareStatsParameter.RamTotal, hardwareStatsProvider.RamTotal);
-            SendParameter(HardwareStatsParameter.RamUsed, hardwareStatsProvider.RamUsed);
-            SendParameter(HardwareStatsParameter.RamAvailable, hardwareStatsProvider.RamAvailable);
-        });
+        hardwareStatsProvider.Update();
+
+        SendParameter(HardwareStatsParameter.CpuUsage, hardwareStatsProvider.CpuUsage / 100f);
+        SendParameter(HardwareStatsParameter.GpuUsage, hardwareStatsProvider.GpuUsage / 100f);
+        SendParameter(HardwareStatsParameter.RamUsage, hardwareStatsProvider.RamUsage / 100f);
+        SendParameter(HardwareStatsParameter.CpuTemp, hardwareStatsProvider.CpuTemp);
+        SendParameter(HardwareStatsParameter.GpuTemp, hardwareStatsProvider.GpuTemp);
+        SendParameter(HardwareStatsParameter.RamTotal, hardwareStatsProvider.RamTotal);
+        SendParameter(HardwareStatsParameter.RamUsed, hardwareStatsProvider.RamUsed);
+        SendParameter(HardwareStatsParameter.RamAvailable, hardwareStatsProvider.RamAvailable);
     }
 
     protected override void OnModuleStop()
