@@ -11,7 +11,7 @@ public sealed partial class HardwareStatsModule : ChatBoxModule
     public override string Description => "Sends hardware stats and displays them in the ChatBox";
     public override string Author => "VolcanicArts";
     public override ModuleType Type => ModuleType.General;
-    protected override int DeltaUpdate => 2000;
+    protected override int DeltaUpdate => 500;
 
     protected override bool DefaultChatBoxDisplay => true;
     protected override string DefaultChatBoxFormat => "CPU: $cpuusage$% | GPU: $gpuusage$%                RAM: $ramused$GB/$ramtotal$GB";
@@ -36,17 +36,15 @@ public sealed partial class HardwareStatsModule : ChatBoxModule
     {
         if (!(hardwareStatsProvider?.CanAcceptQueries ?? false)) return null;
 
-        hardwareStatsProvider?.Update();
-
         return GetSetting<string>(ChatBoxSetting.ChatBoxFormat)
-               .Replace("$cpuusage$", hardwareStatsProvider?.CpuUsage.ToString("0.00") ?? "0.00")
-               .Replace("$gpuusage$", hardwareStatsProvider?.GpuUsage.ToString("0.00") ?? "0.00")
-               .Replace("$ramusage$", hardwareStatsProvider?.RamUsage.ToString("0.00") ?? "0.00")
-               .Replace("$cputemp$", hardwareStatsProvider?.CpuTemp.ToString() ?? "0")
-               .Replace("$gputemp$", hardwareStatsProvider?.GpuTemp.ToString() ?? "0")
-               .Replace("$ramtotal$", hardwareStatsProvider?.RamTotal.ToString("0.0") ?? "0.0")
-               .Replace("$ramused$", hardwareStatsProvider?.RamUsed.ToString("0.0") ?? "0.0")
-               .Replace("$ramavailable$", hardwareStatsProvider?.RamAvailable.ToString("0.0") ?? "0.0");
+               .Replace("$cpuusage$", hardwareStatsProvider.CpuUsage.ToString("0.00"))
+               .Replace("$gpuusage$", hardwareStatsProvider.GpuUsage.ToString("0.00"))
+               .Replace("$ramusage$", hardwareStatsProvider.RamUsage.ToString("0.00"))
+               .Replace("$cputemp$", hardwareStatsProvider.CpuTemp.ToString())
+               .Replace("$gputemp$", hardwareStatsProvider.GpuTemp.ToString())
+               .Replace("$ramtotal$", hardwareStatsProvider.RamTotal.ToString("0.0"))
+               .Replace("$ramused$", hardwareStatsProvider.RamUsed.ToString("0.0"))
+               .Replace("$ramavailable$", hardwareStatsProvider.RamAvailable.ToString("0.0"));
     }
 
     protected override void OnModuleStart()
@@ -57,9 +55,9 @@ public sealed partial class HardwareStatsModule : ChatBoxModule
 
     protected override void OnModuleUpdate()
     {
-        if (hardwareStatsProvider is null || !hardwareStatsProvider.CanAcceptQueries) return;
+        if (!(hardwareStatsProvider?.CanAcceptQueries ?? false)) return;
 
-        hardwareStatsProvider!.Update();
+        hardwareStatsProvider.Update();
 
         SendParameter(HardwareStatsParameter.CpuUsage, hardwareStatsProvider.CpuUsage / 100f);
         SendParameter(HardwareStatsParameter.GpuUsage, hardwareStatsProvider.GpuUsage / 100f);

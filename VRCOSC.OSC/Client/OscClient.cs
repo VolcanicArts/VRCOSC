@@ -76,9 +76,9 @@ public abstract class OscClient
     {
         try
         {
-            while (!tokenSource!.Token.IsCancellationRequested)
+            while (!tokenSource?.Token.IsCancellationRequested ?? false)
             {
-                var message = await receivingClient!.ReceiveOscMessageAsync(tokenSource.Token);
+                var message = await receivingClient!.ReceiveOscMessageAsync(tokenSource!.Token);
                 if (message is null) continue;
 
                 var data = new OscData

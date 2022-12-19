@@ -103,8 +103,8 @@ public sealed partial class MediaModule : ChatBoxModule
     {
         switch (key)
         {
-            case MediaParameter.Volume:
-                mediaProvider.SetVolume(value);
+            case MediaParameter.Volume when mediaProvider.Controller is not null:
+                mediaProvider.State.Volume = value;
                 break;
         }
     }
@@ -125,8 +125,8 @@ public sealed partial class MediaModule : ChatBoxModule
                 mediaProvider.Controller?.TryChangeShuffleActiveAsync(value);
                 break;
 
-            case MediaParameter.Muted:
-                mediaProvider.SetMuted(value);
+            case MediaParameter.Muted when mediaProvider.Controller is not null:
+                mediaProvider.State.Muted = value;
                 break;
 
             case MediaParameter.Next when value:
@@ -163,8 +163,8 @@ public sealed partial class MediaModule : ChatBoxModule
 
     private void sendVolumeParameters()
     {
-        SendParameter(MediaParameter.Volume, mediaProvider.GetVolume());
-        SendParameter(MediaParameter.Muted, mediaProvider.IsMuted());
+        SendParameter(MediaParameter.Volume, mediaProvider.State.Volume);
+        SendParameter(MediaParameter.Muted, mediaProvider.State.Muted);
     }
 
     private enum MediaSetting

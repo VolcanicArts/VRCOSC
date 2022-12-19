@@ -40,23 +40,31 @@ public static class ProcessExtensions
 
     #region Volume
 
-    public static float RetrieveProcessVolume(string processName)
+    public static float RetrieveProcessVolume(string? processName)
     {
-        return ProcessVolume.GetApplicationVolume(processName) ?? 0f;
+        if (processName is null) return 1f;
+
+        return ProcessVolume.GetApplicationVolume(processName) ?? 1f;
     }
 
-    public static bool IsProcessMuted(string processName)
+    public static bool IsProcessMuted(string? processName)
     {
+        if (processName is null) return false;
+
         return ProcessVolume.GetApplicationMute(processName) ?? false;
     }
 
-    public static void SetProcessVolume(string processName, float percentage)
+    public static void SetProcessVolume(string? processName, float percentage)
     {
+        if (processName is null) return;
+
         ProcessVolume.SetApplicationVolume(processName, percentage);
     }
 
-    public static void SetProcessMuted(string processName, bool muted)
+    public static void SetProcessMuted(string? processName, bool muted)
     {
+        if (processName is null) return;
+
         ProcessVolume.SetApplicationMute(processName, muted);
     }
 

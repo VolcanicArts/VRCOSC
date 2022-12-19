@@ -36,9 +36,9 @@ public sealed partial class HypeRateModule : HeartRateModule
 
     protected override void OnModuleUpdate()
     {
-        if (!HeartRateProvider?.IsConnected ?? false) return;
+        if (!(HeartRateProvider?.IsConnected ?? false)) return;
 
-        ((HypeRateProvider)HeartRateProvider!).SendWsHeartBeat();
+        ((HypeRateProvider)HeartRateProvider).SendWsHeartBeat();
         if (!receivedHeartRate) SendParameter(HeartrateParameter.Enabled, false);
         receivedHeartRate = false;
     }

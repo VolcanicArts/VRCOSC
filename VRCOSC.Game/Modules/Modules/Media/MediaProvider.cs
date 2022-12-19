@@ -2,9 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 using Windows.Media;
 using Windows.Media.Control;
 using VRCOSC.Game.Processes;
@@ -15,8 +12,6 @@ namespace VRCOSC.Game.Modules.Modules.Media;
 public class MediaProvider
 {
     private MediaManager? mediaManager;
-    private Process? trackedProcess;
-    private string? lastSender;
 
     public MediaState State { get; private set; } = null!;
 
@@ -29,11 +24,9 @@ public class MediaProvider
         State = new MediaState();
 
         mediaManager = new MediaManager();
-        mediaManager.OnAnySessionOpened += MediaManager_OnAnySessionOpened;
-        mediaManager.OnAnySessionClosed += MediaManager_OnAnySessionClosed;
-        mediaManager.OnFocusedSessionChanged += MediaManager_OnFocusedSessionChanged;
         mediaManager.OnAnyPlaybackStateChanged += MediaManager_OnAnyPlaybackStateChanged;
         mediaManager.OnAnyMediaPropertyChanged += MediaManager_OnAnyMediaPropertyChanged;
+        mediaManager.OnFocusedSessionChanged += MediaManager_OnFocusedSessionChanged;
         mediaManager.Start();
     }
 
@@ -41,45 +34,11 @@ public class MediaProvider
     {
         mediaManager?.Dispose();
         mediaManager = null;
-        lastSender = null;
-        trackedProcess = null;
-    }
-
-    public void ForceUpdate()
-    {
-        if (Controller?.GetPlaybackInfo().PlaybackStatus != GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing) Controller?.TryPlayAsync();
-    }
-
-    private async void MediaManager_OnAnySessionOpened(MediaManager.MediaSession sender)
-    {
-        updateTrackedProcess(sender.Id);
-        await Task.Delay(500);
-        ForceUpdate();
-    }
-
-    private void MediaManager_OnAnySessionClosed(MediaManager.MediaSession sender)
-    {
-        updateTrackedProcess(mediaManager?.CurrentMediaSessions.FirstOrDefault().Value.Id ?? string.Empty);
-    }
-
-    private void MediaManager_OnFocusedSessionChanged(MediaManager.MediaSession sender)
-    {
-        updateTrackedProcess(sender.Id);
-        ForceUpdate();
     }
 
     private void MediaManager_OnAnyPlaybackStateChanged(MediaManager.MediaSession sender, GlobalSystemMediaTransportControlsSessionPlaybackInfo args)
     {
-        updateTrackedProcess(sender.Id);
-
-        var mediaProperties = sender.ControlSession?.TryGetMediaPropertiesAsync().GetResults();
-
-        if (mediaProperties is not null)
-        {
-            State.Title = mediaProperties.Title;
-            State.Artist = mediaProperties.Artist;
-        }
-
+        State.ProcessId = Controller?.SourceAppUserModelId;
         State.IsShuffle = args.IsShuffleActive ?? false;
         State.RepeatMode = args.AutoRepeatMode ?? 0;
         State.Status = args.PlaybackStatus;
@@ -89,38 +48,34 @@ public class MediaProvider
 
     private void MediaManager_OnAnyMediaPropertyChanged(MediaManager.MediaSession sender, GlobalSystemMediaTransportControlsSessionMediaProperties args)
     {
-        updateTrackedProcess(sender.Id);
-
-        var playbackInfo = sender.ControlSession?.GetPlaybackInfo();
-        if (playbackInfo is null) return;
-
-        State.IsShuffle = playbackInfo.IsShuffleActive ?? false;
-        State.RepeatMode = playbackInfo.AutoRepeatMode ?? 0;
-        State.Status = playbackInfo.PlaybackStatus;
+        State.ProcessId = Controller?.SourceAppUserModelId;
         State.Title = args.Title;
         State.Artist = args.Artist;
 
         OnMediaUpdate?.Invoke();
     }
 
-    private void updateTrackedProcess(string senderId)
+    private async void MediaManager_OnFocusedSessionChanged(MediaManager.MediaSession? sender)
     {
-        if (lastSender is null || lastSender != senderId)
-        {
-            trackedProcess = Process.GetProcessesByName(senderId.Replace(".exe", string.Empty)).FirstOrDefault();
-            lastSender = trackedProcess is null ? null : senderId;
-        }
+        if (sender is null) return;
+
+        var properties = await sender.ControlSession.TryGetMediaPropertiesAsync();
+        var playbackInfo = sender.ControlSession.GetPlaybackInfo();
+
+        State.ProcessId = Controller?.SourceAppUserModelId;
+        State.Title = properties.Title;
+        State.Artist = properties.Artist;
+        State.IsShuffle = playbackInfo.IsShuffleActive ?? false;
+        State.RepeatMode = playbackInfo.AutoRepeatMode ?? 0;
+        State.Status = playbackInfo.PlaybackStatus;
+
+        OnMediaUpdate?.Invoke();
     }
-
-    public void SetVolume(float percentage) => ProcessExtensions.SetProcessVolume(lastSender ?? string.Empty, percentage);
-    public void SetMuted(bool muted) => ProcessExtensions.SetProcessMuted(lastSender ?? string.Empty, muted);
-
-    public float GetVolume() => ProcessExtensions.RetrieveProcessVolume(lastSender ?? string.Empty);
-    public bool IsMuted() => ProcessExtensions.IsProcessMuted(lastSender ?? string.Empty);
 }
 
 public class MediaState
 {
+    public string? ProcessId;
     public string Title = string.Empty;
     public string Artist = string.Empty;
     public MediaPlaybackAutoRepeatMode RepeatMode;
@@ -128,4 +83,16 @@ public class MediaState
     public GlobalSystemMediaTransportControlsSessionPlaybackStatus Status;
     public GlobalSystemMediaTransportControlsSessionTimelineProperties? Position;
     public bool IsPlaying => Status == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing;
+
+    public float Volume
+    {
+        set => ProcessExtensions.SetProcessVolume(ProcessId, value);
+        get => ProcessExtensions.RetrieveProcessVolume(ProcessId);
+    }
+
+    public bool Muted
+    {
+        set => ProcessExtensions.SetProcessMuted(ProcessId, value);
+        get => ProcessExtensions.IsProcessMuted(ProcessId);
+    }
 }
