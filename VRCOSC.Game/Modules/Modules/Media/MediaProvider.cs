@@ -65,6 +65,8 @@ public class MediaProvider
 
     private async void OnFocusedSessionChanged(WindowsMediaInterface.Session? session)
     {
+        State.ProcessId = session?.Controller.SourceAppUserModelId;
+
         if (session is null) return;
 
         OnAnyPlaybackStateChanged(session, session.Controller.GetPlaybackInfo());
