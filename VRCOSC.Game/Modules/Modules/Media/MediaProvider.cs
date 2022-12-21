@@ -14,17 +14,17 @@ public class MediaProvider
 
     public MediaState State { get; private set; } = null!;
 
-    public GlobalSystemMediaTransportControlsSession? Controller => mediaInterface?.FocusedSession?.Controller;
+    public GlobalSystemMediaTransportControlsSession? Controller => mediaInterface?.CurrentSession;
 
-    public Action? OnMediaUpdate;
+    public Action? OnPlaybackStateUpdate;
 
     public MediaProvider()
     {
         mediaInterface = new WindowsMediaInterface();
-        mediaInterface.OnAnyPlaybackStateChanged += OnAnyPlaybackStateChanged;
-        mediaInterface.OnAnyMediaPropertyChanged += OnAnyMediaPropertyChanged;
-        mediaInterface.OnAnyTimelinePropertiesChanged += OnAnyTimelinePropertiesChanged;
-        mediaInterface.OnFocusedSessionChanged += OnFocusedSessionChanged;
+        mediaInterface.OnAnyPlaybackInfoChanged += onAnyPlaybackStateChanged;
+        mediaInterface.OnAnyMediaPropertiesChanged += onAnyMediaPropertyChanged;
+        mediaInterface.OnAnyTimelinePropertiesChanged += onAnyTimelinePropertiesChanged;
+        mediaInterface.OnCurrentSessionChanged += onCurrentSessionChanged;
         mediaInterface.Initialise();
     }
 
@@ -39,39 +39,47 @@ public class MediaProvider
         mediaInterface.UnHook();
     }
 
-    private void OnAnyPlaybackStateChanged(WindowsMediaInterface.Session session, GlobalSystemMediaTransportControlsSessionPlaybackInfo args)
+    private bool isFocusedSession(GlobalSystemMediaTransportControlsSession session) => session.SourceAppUserModelId == Controller?.SourceAppUserModelId;
+
+    private void onAnyPlaybackStateChanged(GlobalSystemMediaTransportControlsSession session, GlobalSystemMediaTransportControlsSessionPlaybackInfo args)
     {
-        State.IsShuffle = args.IsShuffleActive ?? false;
-        State.RepeatMode = args.AutoRepeatMode ?? 0;
+        if (!isFocusedSession(session)) return;
+
+        State.IsShuffle = args.IsShuffleActive ?? default;
+        State.RepeatMode = args.AutoRepeatMode ?? default;
         State.Status = args.PlaybackStatus;
 
-        OnMediaUpdate?.Invoke();
+        OnPlaybackStateUpdate?.Invoke();
     }
 
-    private void OnAnyMediaPropertyChanged(WindowsMediaInterface.Session session, GlobalSystemMediaTransportControlsSessionMediaProperties args)
+    private void onAnyMediaPropertyChanged(GlobalSystemMediaTransportControlsSession session, GlobalSystemMediaTransportControlsSessionMediaProperties args)
     {
+        if (!isFocusedSession(session)) return;
+
         State.Title = args.Title;
         State.Artist = args.Artist;
-
-        OnMediaUpdate?.Invoke();
     }
 
-    private void OnAnyTimelinePropertiesChanged(WindowsMediaInterface.Session session, GlobalSystemMediaTransportControlsSessionTimelineProperties args)
+    private void onAnyTimelinePropertiesChanged(GlobalSystemMediaTransportControlsSession session, GlobalSystemMediaTransportControlsSessionTimelineProperties args)
     {
+        if (!isFocusedSession(session)) return;
+
         State.Position = args;
-
-        OnMediaUpdate?.Invoke();
     }
 
-    private async void OnFocusedSessionChanged(WindowsMediaInterface.Session? session)
+    private async void onCurrentSessionChanged(GlobalSystemMediaTransportControlsSession? session)
     {
-        State.ProcessId = session?.Controller.SourceAppUserModelId;
+        if (session is null)
+        {
+            State = new MediaState();
+            return;
+        }
 
-        if (session is null) return;
+        State.ProcessId = session.SourceAppUserModelId;
 
-        OnAnyPlaybackStateChanged(session, session.Controller.GetPlaybackInfo());
-        OnAnyMediaPropertyChanged(session, await session.Controller.TryGetMediaPropertiesAsync());
-        OnAnyTimelinePropertiesChanged(session, session.Controller.GetTimelineProperties());
+        onAnyPlaybackStateChanged(session, session.GetPlaybackInfo());
+        onAnyMediaPropertyChanged(session, await session.TryGetMediaPropertiesAsync());
+        onAnyTimelinePropertiesChanged(session, session.GetTimelineProperties());
     }
 }
 
