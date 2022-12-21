@@ -5,40 +5,42 @@ using System;
 using Windows.Media;
 using Windows.Media.Control;
 using VRCOSC.Game.Processes;
-using WindowsMediaController;
 
 namespace VRCOSC.Game.Modules.Modules.Media;
 
 public class MediaProvider
 {
-    private MediaManager? mediaManager;
+    private readonly WindowsMediaInterface mediaInterface;
 
     public MediaState State { get; private set; } = null!;
 
-    public GlobalSystemMediaTransportControlsSession? Controller => mediaManager?.GetFocusedSession()?.ControlSession;
+    public GlobalSystemMediaTransportControlsSession? Controller => mediaInterface?.FocusedSession?.Controller;
 
     public Action? OnMediaUpdate;
+
+    public MediaProvider()
+    {
+        mediaInterface = new WindowsMediaInterface();
+        mediaInterface.OnAnyPlaybackStateChanged += OnAnyPlaybackStateChanged;
+        mediaInterface.OnAnyMediaPropertyChanged += OnAnyMediaPropertyChanged;
+        mediaInterface.OnAnyTimelinePropertiesChanged += OnAnyTimelinePropertiesChanged;
+        mediaInterface.OnFocusedSessionChanged += OnFocusedSessionChanged;
+        mediaInterface.Initialise();
+    }
 
     public void StartMediaHook()
     {
         State = new MediaState();
-
-        mediaManager = new MediaManager();
-        mediaManager.OnAnyPlaybackStateChanged += MediaManager_OnAnyPlaybackStateChanged;
-        mediaManager.OnAnyMediaPropertyChanged += MediaManager_OnAnyMediaPropertyChanged;
-        mediaManager.OnFocusedSessionChanged += MediaManager_OnFocusedSessionChanged;
-        mediaManager.Start();
+        mediaInterface.Hook();
     }
 
     public void StopMediaHook()
     {
-        mediaManager?.Dispose();
-        mediaManager = null;
+        mediaInterface.UnHook();
     }
 
-    private void MediaManager_OnAnyPlaybackStateChanged(MediaManager.MediaSession sender, GlobalSystemMediaTransportControlsSessionPlaybackInfo args)
+    private void OnAnyPlaybackStateChanged(WindowsMediaInterface.Session session, GlobalSystemMediaTransportControlsSessionPlaybackInfo args)
     {
-        State.ProcessId = Controller?.SourceAppUserModelId;
         State.IsShuffle = args.IsShuffleActive ?? false;
         State.RepeatMode = args.AutoRepeatMode ?? 0;
         State.Status = args.PlaybackStatus;
@@ -46,30 +48,28 @@ public class MediaProvider
         OnMediaUpdate?.Invoke();
     }
 
-    private void MediaManager_OnAnyMediaPropertyChanged(MediaManager.MediaSession sender, GlobalSystemMediaTransportControlsSessionMediaProperties args)
+    private void OnAnyMediaPropertyChanged(WindowsMediaInterface.Session session, GlobalSystemMediaTransportControlsSessionMediaProperties args)
     {
-        State.ProcessId = Controller?.SourceAppUserModelId;
         State.Title = args.Title;
         State.Artist = args.Artist;
 
         OnMediaUpdate?.Invoke();
     }
 
-    private async void MediaManager_OnFocusedSessionChanged(MediaManager.MediaSession? sender)
+    private void OnAnyTimelinePropertiesChanged(WindowsMediaInterface.Session session, GlobalSystemMediaTransportControlsSessionTimelineProperties args)
     {
-        if (sender is null) return;
-
-        var properties = await sender.ControlSession.TryGetMediaPropertiesAsync();
-        var playbackInfo = sender.ControlSession.GetPlaybackInfo();
-
-        State.ProcessId = Controller?.SourceAppUserModelId;
-        State.Title = properties.Title;
-        State.Artist = properties.Artist;
-        State.IsShuffle = playbackInfo.IsShuffleActive ?? false;
-        State.RepeatMode = playbackInfo.AutoRepeatMode ?? 0;
-        State.Status = playbackInfo.PlaybackStatus;
+        State.Position = args;
 
         OnMediaUpdate?.Invoke();
+    }
+
+    private async void OnFocusedSessionChanged(WindowsMediaInterface.Session? session)
+    {
+        if (session is null) return;
+
+        OnAnyPlaybackStateChanged(session, session.Controller.GetPlaybackInfo());
+        OnAnyMediaPropertyChanged(session, await session.Controller.TryGetMediaPropertiesAsync());
+        OnAnyTimelinePropertiesChanged(session, session.Controller.GetTimelineProperties());
     }
 }
 
