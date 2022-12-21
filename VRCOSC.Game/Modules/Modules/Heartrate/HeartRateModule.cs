@@ -19,7 +19,7 @@ public abstract partial class HeartRateModule : ChatBoxModule
     protected override int ChatBoxPriority => 1;
 
     protected override bool DefaultChatBoxDisplay => false;
-    protected override string DefaultChatBoxFormat => "Heartrate                        %hr% bpm";
+    protected override string DefaultChatBoxFormat => "Heartrate                                        %hr% bpm";
     protected override IEnumerable<string> ChatBoxFormatValues => new[] { "%hr%" };
 
     protected HeartRateProvider? HeartRateProvider;
