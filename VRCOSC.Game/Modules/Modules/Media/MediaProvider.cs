@@ -5,71 +5,81 @@ using System;
 using Windows.Media;
 using Windows.Media.Control;
 using VRCOSC.Game.Processes;
-using WindowsMediaController;
 
 namespace VRCOSC.Game.Modules.Modules.Media;
 
 public class MediaProvider
 {
-    private MediaManager? mediaManager;
+    private readonly WindowsMediaInterface mediaInterface;
 
     public MediaState State { get; private set; } = null!;
 
-    public GlobalSystemMediaTransportControlsSession? Controller => mediaManager?.GetFocusedSession()?.ControlSession;
+    public GlobalSystemMediaTransportControlsSession? Controller => mediaInterface?.CurrentSession;
 
-    public Action? OnMediaUpdate;
+    public Action? OnPlaybackStateUpdate;
+
+    public MediaProvider()
+    {
+        mediaInterface = new WindowsMediaInterface();
+        mediaInterface.OnAnyPlaybackInfoChanged += onAnyPlaybackStateChanged;
+        mediaInterface.OnAnyMediaPropertiesChanged += onAnyMediaPropertyChanged;
+        mediaInterface.OnAnyTimelinePropertiesChanged += onAnyTimelinePropertiesChanged;
+        mediaInterface.OnCurrentSessionChanged += onCurrentSessionChanged;
+        mediaInterface.Initialise();
+    }
 
     public void StartMediaHook()
     {
         State = new MediaState();
-
-        mediaManager = new MediaManager();
-        mediaManager.OnAnyPlaybackStateChanged += MediaManager_OnAnyPlaybackStateChanged;
-        mediaManager.OnAnyMediaPropertyChanged += MediaManager_OnAnyMediaPropertyChanged;
-        mediaManager.OnFocusedSessionChanged += MediaManager_OnFocusedSessionChanged;
-        mediaManager.Start();
+        mediaInterface.Hook();
     }
 
     public void StopMediaHook()
     {
-        mediaManager?.Dispose();
-        mediaManager = null;
+        mediaInterface.UnHook();
     }
 
-    private void MediaManager_OnAnyPlaybackStateChanged(MediaManager.MediaSession sender, GlobalSystemMediaTransportControlsSessionPlaybackInfo args)
+    private bool isFocusedSession(GlobalSystemMediaTransportControlsSession session) => session.SourceAppUserModelId == Controller?.SourceAppUserModelId;
+
+    private void onAnyPlaybackStateChanged(GlobalSystemMediaTransportControlsSession session, GlobalSystemMediaTransportControlsSessionPlaybackInfo args)
     {
-        State.ProcessId = Controller?.SourceAppUserModelId;
-        State.IsShuffle = args.IsShuffleActive ?? false;
-        State.RepeatMode = args.AutoRepeatMode ?? 0;
+        if (!isFocusedSession(session)) return;
+
+        State.IsShuffle = args.IsShuffleActive ?? default;
+        State.RepeatMode = args.AutoRepeatMode ?? default;
         State.Status = args.PlaybackStatus;
 
-        OnMediaUpdate?.Invoke();
+        OnPlaybackStateUpdate?.Invoke();
     }
 
-    private void MediaManager_OnAnyMediaPropertyChanged(MediaManager.MediaSession sender, GlobalSystemMediaTransportControlsSessionMediaProperties args)
+    private void onAnyMediaPropertyChanged(GlobalSystemMediaTransportControlsSession session, GlobalSystemMediaTransportControlsSessionMediaProperties args)
     {
-        State.ProcessId = Controller?.SourceAppUserModelId;
+        if (!isFocusedSession(session)) return;
+
         State.Title = args.Title;
         State.Artist = args.Artist;
-
-        OnMediaUpdate?.Invoke();
     }
 
-    private async void MediaManager_OnFocusedSessionChanged(MediaManager.MediaSession? sender)
+    private void onAnyTimelinePropertiesChanged(GlobalSystemMediaTransportControlsSession session, GlobalSystemMediaTransportControlsSessionTimelineProperties args)
     {
-        if (sender is null) return;
+        if (!isFocusedSession(session)) return;
 
-        var properties = await sender.ControlSession.TryGetMediaPropertiesAsync();
-        var playbackInfo = sender.ControlSession.GetPlaybackInfo();
+        State.Position = args;
+    }
 
-        State.ProcessId = Controller?.SourceAppUserModelId;
-        State.Title = properties.Title;
-        State.Artist = properties.Artist;
-        State.IsShuffle = playbackInfo.IsShuffleActive ?? false;
-        State.RepeatMode = playbackInfo.AutoRepeatMode ?? 0;
-        State.Status = playbackInfo.PlaybackStatus;
+    private async void onCurrentSessionChanged(GlobalSystemMediaTransportControlsSession? session)
+    {
+        if (session is null)
+        {
+            State = new MediaState();
+            return;
+        }
 
-        OnMediaUpdate?.Invoke();
+        State.ProcessId = session.SourceAppUserModelId;
+
+        onAnyPlaybackStateChanged(session, session.GetPlaybackInfo());
+        onAnyMediaPropertyChanged(session, await session.TryGetMediaPropertiesAsync());
+        onAnyTimelinePropertiesChanged(session, session.GetTimelineProperties());
     }
 }
 

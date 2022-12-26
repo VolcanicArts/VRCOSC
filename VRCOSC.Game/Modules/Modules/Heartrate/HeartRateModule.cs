@@ -19,7 +19,7 @@ public abstract partial class HeartRateModule : ChatBoxModule
     protected override int ChatBoxPriority => 1;
 
     protected override bool DefaultChatBoxDisplay => false;
-    protected override string DefaultChatBoxFormat => "Heartrate                        %hr% bpm";
+    protected override string DefaultChatBoxFormat => "Heartrate                                        %hr% bpm";
     protected override IEnumerable<string> ChatBoxFormatValues => new[] { "%hr%" };
 
     protected HeartRateProvider? HeartRateProvider;
@@ -35,7 +35,7 @@ public abstract partial class HeartRateModule : ChatBoxModule
     {
         base.CreateAttributes();
         CreateParameter<bool>(HeartrateParameter.Enabled, ParameterMode.Write, "VRCOSC/Heartrate/Enabled", "Whether this module is attempting to emit values");
-        CreateParameter<float>(HeartrateParameter.Normalised, ParameterMode.Write, "VRCOSC/Heartrate/Normalised", "The heartrate value normalised to 60bpm");
+        CreateParameter<float>(HeartrateParameter.Normalised, ParameterMode.Write, "VRCOSC/Heartrate/Normalised", "The heartrate value normalised to 240bpm");
         CreateParameter<float>(HeartrateParameter.Units, ParameterMode.Write, "VRCOSC/Heartrate/Units", "The units digit 0-9 mapped to a float");
         CreateParameter<float>(HeartrateParameter.Tens, ParameterMode.Write, "VRCOSC/Heartrate/Tens", "The tens digit 0-9 mapped to a float");
         CreateParameter<float>(HeartrateParameter.Hundreds, ParameterMode.Write, "VRCOSC/Heartrate/Hundreds", "The hundreds digit 0-9 mapped to a float");
@@ -99,7 +99,7 @@ public abstract partial class HeartRateModule : ChatBoxModule
         lastHeartrate = heartrate;
         lastHeartrateTime = DateTimeOffset.Now;
 
-        var normalisedHeartRate = heartrate / 60.0f;
+        var normalisedHeartRate = heartrate / 240.0f;
         var individualValues = toDigitArray(heartrate, 3);
 
         SendParameter(HeartrateParameter.Enabled, true);

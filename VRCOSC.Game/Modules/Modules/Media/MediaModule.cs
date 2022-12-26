@@ -51,13 +51,11 @@ public sealed partial class MediaModule : ChatBoxModule
         if (!mediaProvider.State.IsPlaying)
             return GetSetting<MediaPausedBehaviour>(MediaSetting.PausedBehaviour) == MediaPausedBehaviour.Empty ? null : GetSetting<string>(MediaSetting.PausedText);
 
-        mediaProvider.State.Position = mediaProvider.Controller?.GetTimelineProperties();
-
         var formattedText = GetSetting<string>(ChatBoxSetting.ChatBoxFormat)
                             .Replace("%title%", mediaProvider.State.Title)
                             .Replace("%artist%", mediaProvider.State.Artist)
-                            .Replace("%curtime%", mediaProvider.State.Position?.Position.ToString(@"mm\:ss") ?? "00:00")
-                            .Replace("%duration%", mediaProvider.State.Position?.EndTime.ToString(@"mm\:ss") ?? "00:00");
+                            .Replace("%curtime%", mediaProvider.State.Position?.Position.ToString(@"mm\:ss"))
+                            .Replace("%duration%", mediaProvider.State.Position?.EndTime.ToString(@"mm\:ss"));
 
         return formattedText;
     }
@@ -65,7 +63,7 @@ public sealed partial class MediaModule : ChatBoxModule
     protected override void OnModuleStart()
     {
         base.OnModuleStart();
-        mediaProvider.OnMediaUpdate += OnMediaUpdate;
+        mediaProvider.OnPlaybackStateUpdate += onPlaybackStateUpdate;
         mediaProvider.StartMediaHook();
         startProcesses();
     }
@@ -85,7 +83,7 @@ public sealed partial class MediaModule : ChatBoxModule
     protected override void OnModuleStop()
     {
         mediaProvider.StopMediaHook();
-        mediaProvider.OnMediaUpdate -= OnMediaUpdate;
+        mediaProvider.OnPlaybackStateUpdate -= onPlaybackStateUpdate;
     }
 
     protected override void OnAvatarChange()
@@ -96,7 +94,25 @@ public sealed partial class MediaModule : ChatBoxModule
 
     protected override void OnModuleUpdate()
     {
-        sendVolumeParameters();
+        if (mediaProvider.Controller is not null) sendVolumeParameters();
+    }
+
+    private void onPlaybackStateUpdate()
+    {
+        sendMediaParameters();
+    }
+
+    private void sendMediaParameters()
+    {
+        SendParameter(MediaParameter.Play, mediaProvider.State.IsPlaying);
+        SendParameter(MediaParameter.Shuffle, mediaProvider.State.IsShuffle);
+        SendParameter(MediaParameter.Repeat, (int)mediaProvider.State.RepeatMode);
+    }
+
+    private void sendVolumeParameters()
+    {
+        SendParameter(MediaParameter.Volume, mediaProvider.State.Volume);
+        SendParameter(MediaParameter.Muted, mediaProvider.State.Muted);
     }
 
     protected override void OnFloatParameterReceived(Enum key, float value)
@@ -147,24 +163,6 @@ public sealed partial class MediaModule : ChatBoxModule
                 mediaProvider.Controller?.TryChangeAutoRepeatModeAsync((MediaPlaybackAutoRepeatMode)value);
                 break;
         }
-    }
-
-    private void OnMediaUpdate()
-    {
-        sendMediaParameters();
-    }
-
-    private void sendMediaParameters()
-    {
-        SendParameter(MediaParameter.Play, mediaProvider.State.IsPlaying);
-        SendParameter(MediaParameter.Shuffle, mediaProvider.State.IsShuffle);
-        SendParameter(MediaParameter.Repeat, (int)mediaProvider.State.RepeatMode);
-    }
-
-    private void sendVolumeParameters()
-    {
-        SendParameter(MediaParameter.Volume, mediaProvider.State.Volume);
-        SendParameter(MediaParameter.Muted, mediaProvider.State.Muted);
     }
 
     private enum MediaSetting
