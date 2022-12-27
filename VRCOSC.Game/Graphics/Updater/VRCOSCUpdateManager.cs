@@ -1,25 +1,44 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Threading.Tasks;
 using osu.Framework.Allocation;
-using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics;
 using osu.Framework.Graphics.Sprites;
-using osu.Framework.Platform;
+using osu.Framework.Logging;
+using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics.Notifications;
+using VRCOSC.Game.Graphics.Settings;
 using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.Updater;
 
-public abstract partial class VRCOSCUpdateManager : Container
+public abstract partial class VRCOSCUpdateManager : Component
 {
     [Resolved]
-    private GameHost host { get; set; } = null!;
+    private VRCOSCGame game { get; set; } = null!;
 
     [Resolved]
     private NotificationContainer notifications { get; set; } = null!;
 
-    protected void PostCheckNotification() => Schedule(() =>
+    [Resolved]
+    private VRCOSCConfigManager configManager { get; set; } = null!;
+
+    protected ProgressNotification PostCheckNotification()
+    {
+        var progressNotification = new ProgressNotification
+        {
+            Title = "Checking For Update",
+            Colour = ThemeManager.Current[ThemeAttribute.Pending],
+            Icon = FontAwesome.Solid.Cog
+        };
+
+        Schedule(() => notifications.Notify(progressNotification));
+        return progressNotification;
+    }
+
+    protected void PostUpdateAvailableNotification() => Schedule(() =>
     {
         notifications.Notify(new BasicNotification
         {
@@ -27,7 +46,7 @@ public abstract partial class VRCOSCUpdateManager : Container
             Description = "Click to install",
             Colour = ThemeManager.Current[ThemeAttribute.Pending],
             Icon = FontAwesome.Solid.ExclamationTriangle,
-            ClickCallback = () => ApplyUpdates()
+            ClickCallback = () => ApplyUpdates().ConfigureAwait(false)
         });
     });
 
@@ -61,14 +80,20 @@ public abstract partial class VRCOSCUpdateManager : Container
         notifications.Notify(new BasicNotification
         {
             Title = "Update Failed",
-            Description = "Click to reinstall",
+            Description = "Report on the Discord server",
             Colour = ThemeManager.Current[ThemeAttribute.Failure],
-            Icon = FontAwesome.Solid.ExclamationTriangle,
-            ClickCallback = () => host.OpenUrlExternally("https://github.com/VolcanicArts/VRCOSC/releases/latest")
+            Icon = FontAwesome.Solid.ExclamationTriangle
         });
     });
 
-    public abstract Task CheckForUpdate(string repo, bool useDelta = true);
+    protected static void Log(string message) => Logger.Log(message, "updater");
+    protected static void LogError(Exception e, string message = "") => Logger.Error(e, message, "updater", true);
+    protected void Exit() => Schedule(() => game.RequestExit());
+    protected bool ShouldApplyImmediately() => configManager.Get<UpdateMode>(VRCOSCSetting.UpdateMode) == UpdateMode.Auto;
+
+    public void CheckForUpdate() => CheckForUpdateAsync().ConfigureAwait(false);
+
+    protected abstract Task CheckForUpdateAsync();
     protected abstract Task ApplyUpdates();
     protected abstract void RequestRestart();
 }

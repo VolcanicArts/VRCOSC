@@ -12,14 +12,11 @@ public sealed partial class UpdateSection : SectionContainer
     [Resolved]
     private VRCOSCGame game { get; set; } = null!;
 
-    [Resolved]
-    private VRCOSCConfigManager configManager { get; set; } = null!;
-
     protected override string Title => "Update";
 
     protected override void GenerateItems()
     {
         AddDropdown("Update Mode", "How should VRCOSC handle updating?", ConfigManager.GetBindable<UpdateMode>(VRCOSCSetting.UpdateMode));
-        AddButton("Check For Update", ThemeManager.Current[ThemeAttribute.Mid], () => game.UpdateManager.CheckForUpdate(configManager.Get<string>(VRCOSCSetting.UpdateRepo)));
+        AddButton("Check For Update", ThemeManager.Current[ThemeAttribute.Mid], () => game.UpdateManager.CheckForUpdate());
     }
 }
