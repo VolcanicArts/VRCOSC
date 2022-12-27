@@ -46,7 +46,7 @@ public abstract partial class VRCOSCUpdateManager : Component
             Description = "Click to install",
             Colour = ThemeManager.Current[ThemeAttribute.Pending],
             Icon = FontAwesome.Solid.ExclamationTriangle,
-            ClickCallback = () => ApplyUpdates().ConfigureAwait(false)
+            ClickCallback = () => ApplyUpdatesAsync().ConfigureAwait(false)
         });
     });
 
@@ -71,7 +71,7 @@ public abstract partial class VRCOSCUpdateManager : Component
             Description = "Click to restart",
             Colour = ThemeManager.Current[ThemeAttribute.Success],
             Icon = FontAwesome.Solid.ExclamationTriangle,
-            ClickCallback = RequestRestart
+            ClickCallback = () => PrepareUpdateAsync().ContinueWith(_ => Schedule(() => game.RequestExit()))
         });
     });
 
@@ -88,12 +88,9 @@ public abstract partial class VRCOSCUpdateManager : Component
 
     protected static void Log(string message) => Logger.Log(message, "updater");
     protected static void LogError(Exception e, string message = "") => Logger.Error(e, message, "updater", true);
-    protected void Exit() => Schedule(() => game.RequestExit());
-    protected bool ShouldApplyImmediately() => configManager.Get<UpdateMode>(VRCOSCSetting.UpdateMode) == UpdateMode.Auto;
 
-    public void CheckForUpdate() => CheckForUpdateAsync().ConfigureAwait(false);
-
-    protected abstract Task CheckForUpdateAsync();
-    protected abstract Task ApplyUpdates();
-    protected abstract void RequestRestart();
+    protected bool ApplyUpdatesImmediately => configManager.Get<UpdateMode>(VRCOSCSetting.UpdateMode) == UpdateMode.Auto;
+    public abstract Task PerformUpdateCheck();
+    protected abstract Task ApplyUpdatesAsync();
+    protected abstract Task PrepareUpdateAsync();
 }

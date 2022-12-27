@@ -13,12 +13,13 @@ public partial class SquirrelUpdateManager : VRCOSCUpdateManager
 {
     private const string repo = "https://github.com/VolcanicArts/VRCOSC";
 
-    private GithubUpdateManager? updateManager;
+    private readonly GithubUpdateManager updateManager;
     private UpdateInfo? updateInfo;
     private bool useDelta;
 
     public SquirrelUpdateManager()
     {
+        updateManager = new GithubUpdateManager(repo);
         initialise();
     }
 
@@ -28,11 +29,13 @@ public partial class SquirrelUpdateManager : VRCOSCUpdateManager
         useDelta = true;
     }
 
-    protected override async Task CheckForUpdateAsync()
+    protected override Task PrepareUpdateAsync() => UpdateManager.RestartAppWhenExited();
+
+    public override async Task PerformUpdateCheck() => await checkForUpdateAsync().ConfigureAwait(false);
+
+    private async Task checkForUpdateAsync()
     {
         Log("Checking for updates");
-
-        updateManager ??= new GithubUpdateManager(repo);
 
         if (!updateManager.IsInstalledApp)
         {
@@ -54,8 +57,8 @@ public partial class SquirrelUpdateManager : VRCOSCUpdateManager
 
             Log($"{updateInfo.ReleasesToApply.Count} updates found");
 
-            if (ShouldApplyImmediately())
-                await ApplyUpdates();
+            if (ApplyUpdatesImmediately)
+                await ApplyUpdatesAsync();
             else
                 PostUpdateAvailableNotification();
         }
@@ -67,11 +70,11 @@ public partial class SquirrelUpdateManager : VRCOSCUpdateManager
         }
     }
 
-    protected override async Task ApplyUpdates()
+    protected override async Task ApplyUpdatesAsync()
     {
         Log("Attempting to apply updates");
 
-        if (updateManager is null || updateInfo is null)
+        if (updateInfo is null)
             throw new InvalidOperationException("Cannot apply updates without checking");
 
         try
@@ -90,7 +93,7 @@ public partial class SquirrelUpdateManager : VRCOSCUpdateManager
             if (useDelta)
             {
                 useDelta = false;
-                await CheckForUpdateAsync();
+                await checkForUpdateAsync();
                 return;
             }
 
@@ -98,11 +101,6 @@ public partial class SquirrelUpdateManager : VRCOSCUpdateManager
             LogError(e);
             initialise();
         }
-    }
-
-    protected override void RequestRestart()
-    {
-        UpdateManager.RestartAppWhenExited().ContinueWith(_ => Exit());
     }
 
     private static float map(float source, float sMin, float sMax, float dMin, float dMax)
@@ -113,6 +111,6 @@ public partial class SquirrelUpdateManager : VRCOSCUpdateManager
     protected override void Dispose(bool isDisposing)
     {
         base.Dispose(isDisposing);
-        updateManager?.Dispose();
+        updateManager.Dispose();
     }
 }

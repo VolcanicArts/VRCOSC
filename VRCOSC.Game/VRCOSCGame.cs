@@ -104,7 +104,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     private void checkUpdates()
     {
         var updateMode = ConfigManager.Get<UpdateMode>(VRCOSCSetting.UpdateMode);
-        if (updateMode != UpdateMode.Off) UpdateManager.CheckForUpdate();
+        if (updateMode != UpdateMode.Off) UpdateManager.PerformUpdateCheck();
     }
 
     private void checkVersion()
