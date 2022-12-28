@@ -21,8 +21,8 @@ public sealed partial class MediaModule : ChatBoxModule
     protected override int ChatBoxPriority => 2;
 
     protected override bool DefaultChatBoxDisplay => true;
-    protected override string DefaultChatBoxFormat => "[%curtime%/%duration%]                            Now Playing: %artist% - %title%";
-    protected override IEnumerable<string> ChatBoxFormatValues => new[] { "%title%", "%artist%", "%curtime%", "%duration%" };
+    protected override string DefaultChatBoxFormat => @"[%curtime%/%duration%]                            Now Playing: %artist% - %title%";
+    protected override IEnumerable<string> ChatBoxFormatValues => new[] { @"%title%", @"%artist%", @"%curtime%", @"%duration%" };
 
     private readonly MediaProvider mediaProvider = new();
 
@@ -35,13 +35,13 @@ public sealed partial class MediaModule : ChatBoxModule
 
         base.CreateAttributes();
 
-        CreateParameter<bool>(MediaParameter.Play, ParameterMode.ReadWrite, "VRCOSC/Media/Play", "True for playing. False for paused");
-        CreateParameter<float>(MediaParameter.Volume, ParameterMode.ReadWrite, "VRCOSC/Media/Volume", "The volume of the process that is controlling the media");
-        CreateParameter<bool>(MediaParameter.Muted, ParameterMode.ReadWrite, "VRCOSC/Media/Muted", "True to mute. False to unmute");
-        CreateParameter<int>(MediaParameter.Repeat, ParameterMode.ReadWrite, "VRCOSC/Media/Repeat", "0 for disabled. 1 for single. 2 for list");
-        CreateParameter<bool>(MediaParameter.Shuffle, ParameterMode.ReadWrite, "VRCOSC/Media/Shuffle", "True for enabled. False for disabled");
-        CreateParameter<bool>(MediaParameter.Next, ParameterMode.Read, "VRCOSC/Media/Next", "Becoming true causes the next track to play");
-        CreateParameter<bool>(MediaParameter.Previous, ParameterMode.Read, "VRCOSC/Media/Previous", "Becoming true causes the previous track to play");
+        CreateParameter<bool>(MediaParameter.Play, ParameterMode.ReadWrite, @"VRCOSC/Media/Play", @"True for playing. False for paused");
+        CreateParameter<float>(MediaParameter.Volume, ParameterMode.ReadWrite, @"VRCOSC/Media/Volume", @"The volume of the process that is controlling the media");
+        CreateParameter<bool>(MediaParameter.Muted, ParameterMode.ReadWrite, @"VRCOSC/Media/Muted", @"True to mute. False to unmute");
+        CreateParameter<int>(MediaParameter.Repeat, ParameterMode.ReadWrite, @"VRCOSC/Media/Repeat", @"0 for disabled. 1 for single. 2 for list");
+        CreateParameter<bool>(MediaParameter.Shuffle, ParameterMode.ReadWrite, @"VRCOSC/Media/Shuffle", @"True for enabled. False for disabled");
+        CreateParameter<bool>(MediaParameter.Next, ParameterMode.Read, @"VRCOSC/Media/Next", @"Becoming true causes the next track to play");
+        CreateParameter<bool>(MediaParameter.Previous, ParameterMode.Read, @"VRCOSC/Media/Previous", @"Becoming true causes the previous track to play");
     }
 
     protected override string? GetChatBoxText()
@@ -52,10 +52,10 @@ public sealed partial class MediaModule : ChatBoxModule
             return GetSetting<MediaPausedBehaviour>(MediaSetting.PausedBehaviour) == MediaPausedBehaviour.Empty ? null : GetSetting<string>(MediaSetting.PausedText);
 
         var formattedText = GetSetting<string>(ChatBoxSetting.ChatBoxFormat)
-                            .Replace("%title%", mediaProvider.State.Title)
-                            .Replace("%artist%", mediaProvider.State.Artist)
-                            .Replace("%curtime%", mediaProvider.State.Position?.Position.ToString(@"mm\:ss"))
-                            .Replace("%duration%", mediaProvider.State.Position?.EndTime.ToString(@"mm\:ss"));
+                            .Replace(@"%title%", mediaProvider.State.Title)
+                            .Replace(@"%artist%", mediaProvider.State.Artist)
+                            .Replace(@"%curtime%", mediaProvider.State.Position?.Position.ToString(@"mm\:ss"))
+                            .Replace(@"%duration%", mediaProvider.State.Position?.EndTime.ToString(@"mm\:ss"));
 
         return formattedText;
     }
@@ -74,7 +74,7 @@ public sealed partial class MediaModule : ChatBoxModule
         {
             if (File.Exists(processExeLocation))
             {
-                var processName = new FileInfo(processExeLocation).Name.ToLowerInvariant().Replace(".exe", string.Empty);
+                var processName = new FileInfo(processExeLocation).Name.ToLowerInvariant().Replace(@".exe", string.Empty);
                 if (!Process.GetProcessesByName(processName).Any()) Process.Start(processExeLocation);
             }
         });

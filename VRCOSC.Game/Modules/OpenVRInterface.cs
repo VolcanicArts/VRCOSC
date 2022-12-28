@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -15,7 +14,6 @@ using Valve.VR;
 
 namespace VRCOSC.Game.Modules;
 
-[SuppressMessage("Performance", "CA1822:Mark members as static")]
 public class OpenVRInterface
 {
     private static readonly uint vrevent_t_size = (uint)Unsafe.SizeOf<VREvent_t>();
@@ -36,7 +34,7 @@ public class OpenVRInterface
 
     public OpenVRInterface(Storage storage)
     {
-        this.storage = storage.GetStorageForDirectory("openvr");
+        this.storage = storage.GetStorageForDirectory(@"openvr");
     }
 
     #region Boilerplate
@@ -49,8 +47,8 @@ public class OpenVRInterface
 
         if (HasInitialised)
         {
-            OpenVR.Applications.AddApplicationManifest(storage.GetFullPath("app.vrmanifest"), false);
-            OpenVR.Input.SetActionManifestPath(storage.GetFullPath("action_manifest.json"));
+            OpenVR.Applications.AddApplicationManifest(storage.GetFullPath(@"app.vrmanifest"), false);
+            OpenVR.Input.SetActionManifestPath(storage.GetFullPath(@"action_manifest.json"));
             getActionHandles();
         }
     }
@@ -64,25 +62,25 @@ public class OpenVRInterface
 
     private void getActionHandles()
     {
-        OpenVR.Input.GetActionHandle("/actions/main/in/lefta", ref leftController[0]);
-        OpenVR.Input.GetActionHandle("/actions/main/in/leftb", ref leftController[1]);
-        OpenVR.Input.GetActionHandle("/actions/main/in/leftpad", ref leftController[2]);
-        OpenVR.Input.GetActionHandle("/actions/main/in/leftstick", ref leftController[3]);
-        OpenVR.Input.GetActionHandle("/actions/main/in/leftfingerindex", ref leftController[4]);
-        OpenVR.Input.GetActionHandle("/actions/main/in/leftfingermiddle", ref leftController[5]);
-        OpenVR.Input.GetActionHandle("/actions/main/in/leftfingerring", ref leftController[6]);
-        OpenVR.Input.GetActionHandle("/actions/main/in/leftfingerpinky", ref leftController[7]);
+        OpenVR.Input.GetActionHandle(@"/actions/main/in/lefta", ref leftController[0]);
+        OpenVR.Input.GetActionHandle(@"/actions/main/in/leftb", ref leftController[1]);
+        OpenVR.Input.GetActionHandle(@"/actions/main/in/leftpad", ref leftController[2]);
+        OpenVR.Input.GetActionHandle(@"/actions/main/in/leftstick", ref leftController[3]);
+        OpenVR.Input.GetActionHandle(@"/actions/main/in/leftfingerindex", ref leftController[4]);
+        OpenVR.Input.GetActionHandle(@"/actions/main/in/leftfingermiddle", ref leftController[5]);
+        OpenVR.Input.GetActionHandle(@"/actions/main/in/leftfingerring", ref leftController[6]);
+        OpenVR.Input.GetActionHandle(@"/actions/main/in/leftfingerpinky", ref leftController[7]);
 
-        OpenVR.Input.GetActionHandle("/actions/main/in/righta", ref rightController[0]);
-        OpenVR.Input.GetActionHandle("/actions/main/in/rightb", ref rightController[1]);
-        OpenVR.Input.GetActionHandle("/actions/main/in/rightpad", ref rightController[2]);
-        OpenVR.Input.GetActionHandle("/actions/main/in/rightstick", ref rightController[3]);
-        OpenVR.Input.GetActionHandle("/actions/main/in/rightfingerindex", ref rightController[4]);
-        OpenVR.Input.GetActionHandle("/actions/main/in/rightfingermiddle", ref rightController[5]);
-        OpenVR.Input.GetActionHandle("/actions/main/in/rightfingerring", ref rightController[6]);
-        OpenVR.Input.GetActionHandle("/actions/main/in/rightfingerpinky", ref rightController[7]);
+        OpenVR.Input.GetActionHandle(@"/actions/main/in/righta", ref rightController[0]);
+        OpenVR.Input.GetActionHandle(@"/actions/main/in/rightb", ref rightController[1]);
+        OpenVR.Input.GetActionHandle(@"/actions/main/in/rightpad", ref rightController[2]);
+        OpenVR.Input.GetActionHandle(@"/actions/main/in/rightstick", ref rightController[3]);
+        OpenVR.Input.GetActionHandle(@"/actions/main/in/rightfingerindex", ref rightController[4]);
+        OpenVR.Input.GetActionHandle(@"/actions/main/in/rightfingermiddle", ref rightController[5]);
+        OpenVR.Input.GetActionHandle(@"/actions/main/in/rightfingerring", ref rightController[6]);
+        OpenVR.Input.GetActionHandle(@"/actions/main/in/rightfingerpinky", ref rightController[7]);
 
-        OpenVR.Input.GetActionSetHandle("/actions/main", ref actionSetHandle);
+        OpenVR.Input.GetActionSetHandle(@"/actions/main", ref actionSetHandle);
     }
 
     #endregion
@@ -181,8 +179,8 @@ public class OpenVRInterface
     #region OpenVR Abstraction
 
     private uint getHmdIndex() => getIndexForTrackedDeviceClass(ETrackedDeviceClass.HMD);
-    private uint getLeftControllerIndex() => getController("left");
-    private uint getRightControllerIndex() => getController("right");
+    private uint getLeftControllerIndex() => getController(@"left");
+    private uint getRightControllerIndex() => getController(@"right");
     public IEnumerable<uint> GetTrackers() => getIndexesForTrackedDeviceClass(ETrackedDeviceClass.GenericTracker);
 
     // GetTrackedDeviceIndexForControllerRole doesn't work when a tracker thinks it's a controller and assumes that role

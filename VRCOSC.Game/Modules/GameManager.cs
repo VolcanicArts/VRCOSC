@@ -177,7 +177,7 @@ public partial class GameManager : CompositeComponent
 
     private void checkForOpenVR() => Task.Run(() =>
     {
-        static bool isOpenVROpen() => Process.GetProcessesByName("vrmonitor").Any();
+        static bool isOpenVROpen() => Process.GetProcessesByName(@"vrmonitor").Any();
         if (isOpenVROpen()) OpenVRInterface.Init();
     });
 
@@ -185,7 +185,7 @@ public partial class GameManager : CompositeComponent
     {
         if (!configManager.Get<bool>(VRCOSCSetting.AutoStartStop)) return;
 
-        static bool isVRChatOpen() => Process.GetProcessesByName("vrchat").Any();
+        static bool isVRChatOpen() => Process.GetProcessesByName(@"vrchat").Any();
 
         // hasAutoStarted is checked here to ensure that modules aren't started immediately
         // after a user has manually stopped the modules
@@ -204,7 +204,7 @@ public partial class GameManager : CompositeComponent
 
     private void sendControlValues()
     {
-        OscClient.SendValue($"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}/VRCOSC/Controls/ChatBox", ChatBoxInterface.SendEnabled);
+        OscClient.SendValue(@$"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}/VRCOSC/Controls/ChatBox", ChatBoxInterface.SendEnabled);
     }
 
     private void onParameterReceived(VRChatOscData data)
@@ -221,7 +221,7 @@ public partial class GameManager : CompositeComponent
 
         switch (data.ParameterName)
         {
-            case "VRCOSC/Controls/ChatBox":
+            case @"VRCOSC/Controls/ChatBox":
                 ChatBoxInterface.SendEnabled = (bool)data.Values[0];
                 break;
         }

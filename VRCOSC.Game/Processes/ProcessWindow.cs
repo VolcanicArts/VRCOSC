@@ -14,7 +14,7 @@ internal static class ProcessWindow
     private static extern bool ShowWindow(IntPtr hWnd, ShowWindowEnum flags);
 
     [DllImport("user32.dll")]
-    private static extern int SetForegroundWindow(IntPtr hwnd);
+    private static extern int SetForegroundWindow(IntPtr windowIntPtr);
 
     internal static void ShowMainWindow(Process handle, ShowWindowEnum showWindowEnum)
     {
