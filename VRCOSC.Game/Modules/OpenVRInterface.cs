@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -14,6 +15,7 @@ using Valve.VR;
 
 namespace VRCOSC.Game.Modules;
 
+[SuppressMessage("Performance", "CA1822:Mark members as static")]
 public class OpenVRInterface
 {
     private static readonly uint vrevent_t_size = (uint)Unsafe.SizeOf<VREvent_t>();
@@ -121,13 +123,14 @@ public class OpenVRInterface
         {
             var eventType = (EVREventType)evenT.eventType;
 
-            if (eventType == EVREventType.VREvent_Quit)
+            switch (eventType)
             {
-                OpenVR.System.AcknowledgeQuit_Exiting();
-                OpenVR.Shutdown();
-                HasInitialised = false;
-                OnOpenVRShutdown?.Invoke();
-                return;
+                case EVREventType.VREvent_Quit:
+                    OpenVR.System.AcknowledgeQuit_Exiting();
+                    OpenVR.Shutdown();
+                    HasInitialised = false;
+                    OnOpenVRShutdown?.Invoke();
+                    return;
             }
         }
 
@@ -217,13 +220,10 @@ public class OpenVRInterface
         var error = new ETrackedPropertyError();
         var value = OpenVR.System.GetBoolTrackedDeviceProperty(index, property, ref error);
 
-        if (error != ETrackedPropertyError.TrackedProp_Success)
-        {
-            log($"GetBoolTrackedDeviceProperty has given an error: {error}");
-            return false;
-        }
+        if (error == ETrackedPropertyError.TrackedProp_Success) return value;
 
-        return value;
+        logError(nameof(getBoolTrackedDeviceProperty), index, error);
+        return false;
     }
 
     private int getInt32TrackedDeviceProperty(uint index, ETrackedDeviceProperty property)
@@ -231,13 +231,10 @@ public class OpenVRInterface
         var error = new ETrackedPropertyError();
         var value = OpenVR.System.GetInt32TrackedDeviceProperty(index, property, ref error);
 
-        if (error != ETrackedPropertyError.TrackedProp_Success)
-        {
-            log($"GetInt32TrackedDeviceProperty has given an error: {error}");
-            return 0;
-        }
+        if (error == ETrackedPropertyError.TrackedProp_Success) return value;
 
-        return value;
+        logError(nameof(getInt32TrackedDeviceProperty), index, error);
+        return 0;
     }
 
     private float getFloatTrackedDeviceProperty(uint index, ETrackedDeviceProperty property)
@@ -245,13 +242,10 @@ public class OpenVRInterface
         var error = new ETrackedPropertyError();
         var value = OpenVR.System.GetFloatTrackedDeviceProperty(index, property, ref error);
 
-        if (error != ETrackedPropertyError.TrackedProp_Success)
-        {
-            log($"GetFloatTrackedDeviceProperty has given an error: {error}");
-            return 0f;
-        }
+        if (error == ETrackedPropertyError.TrackedProp_Success) return value;
 
-        return value;
+        logError(nameof(getFloatTrackedDeviceProperty), index, error);
+        return 0f;
     }
 
     private readonly StringBuilder sb = new((int)OpenVR.k_unMaxPropertyStringSize);
@@ -269,7 +263,7 @@ public class OpenVRInterface
 
             if (error != ETrackedPropertyError.TrackedProp_Success)
             {
-                log($"GetStringTrackedDeviceProperty has given an error: {error}");
+                logError(nameof(getStringTrackedDeviceProperty), index, error);
                 return string.Empty;
             }
 
@@ -281,7 +275,12 @@ public class OpenVRInterface
 
     #endregion
 
-    private static void log(string message)
+    private void logError(string methodName, uint index, ETrackedPropertyError error)
+    {
+        log($"[Error] {methodName}: {getStringTrackedDeviceProperty(index, ETrackedDeviceProperty.Prop_TrackingSystemName_String)}: {error}");
+    }
+
+    private void log(string message)
     {
         Logger.Log($"[OpenVR] {message}");
     }
