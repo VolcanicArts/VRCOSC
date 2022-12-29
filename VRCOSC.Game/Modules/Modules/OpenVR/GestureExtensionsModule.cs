@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using VRCOSC.Game.OpenVR;
 using VRCOSC.OSC.VRChat;
 
 namespace VRCOSC.Game.Modules.Modules.OpenVR;
@@ -35,12 +36,12 @@ public partial class GestureExtensionsModule : Module
     {
         if (!OpenVrInterface.HasInitialised) return;
 
-        if (OpenVrInterface.IsLeftControllerConnected()) SendParameter(GestureExtensionsParameter.GestureLeft, (int)getLeftControllerGesture());
-        if (OpenVrInterface.IsRightControllerConnected()) SendParameter(GestureExtensionsParameter.GestureRight, (int)getRightControllerGesture());
-    }
+        var leftController = OpenVrInterface.LeftController!;
+        var rightController = OpenVrInterface.RightController!;
 
-    private GestureNames getLeftControllerGesture() => getControllerGesture(OpenVrInterface.LeftController);
-    private GestureNames getRightControllerGesture() => getControllerGesture(OpenVrInterface.RightController);
+        if (leftController.IsConnected) SendParameter(GestureExtensionsParameter.GestureLeft, (int)getControllerGesture(leftController.Data));
+        if (rightController.IsConnected) SendParameter(GestureExtensionsParameter.GestureRight, (int)getControllerGesture(rightController.Data));
+    }
 
     private GestureNames getControllerGesture(ControllerData controllerData)
     {

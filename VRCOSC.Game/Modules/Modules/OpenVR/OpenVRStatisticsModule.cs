@@ -47,48 +47,54 @@ public partial class OpenVRStatisticsModule : Module
 
     private void handleHmd()
     {
-        SendParameter(OpenVrParameter.HMD_Connected, OpenVrInterface.IsHmdConnected());
+        var hmd = OpenVrInterface.HMD!;
 
-        if (OpenVrInterface.IsHmdConnected() && OpenVrInterface.CanHmdProvideBatteryData())
+        SendParameter(OpenVrParameter.HMD_Connected, hmd.IsConnected);
+
+        if (hmd.IsConnected && hmd.CanProvideBatteryInfo)
         {
-            SendParameter(OpenVrParameter.HMD_Battery, OpenVrInterface.GetHmdBatteryPercentage());
-            SendParameter(OpenVrParameter.HMD_Charging, OpenVrInterface.IsHmdCharging());
+            SendParameter(OpenVrParameter.HMD_Battery, hmd.BatteryPercentage);
+            SendParameter(OpenVrParameter.HMD_Charging, hmd.IsCharging);
         }
     }
 
     private void handleControllers()
     {
-        SendParameter(OpenVrParameter.LeftController_Connected, OpenVrInterface.IsLeftControllerConnected());
+        var leftController = OpenVrInterface.LeftController!;
 
-        if (OpenVrInterface.IsLeftControllerConnected() && OpenVrInterface.CanLeftControllerProvideBatteryData())
+        SendParameter(OpenVrParameter.LeftController_Connected, leftController.IsConnected);
+
+        if (leftController.IsConnected && leftController.CanProvideBatteryInfo)
         {
-            SendParameter(OpenVrParameter.LeftController_Battery, OpenVrInterface.GetLeftControllerBatteryPercentage());
-            SendParameter(OpenVrParameter.LeftController_Charging, OpenVrInterface.IsLeftControllerCharging());
+            SendParameter(OpenVrParameter.LeftController_Battery, leftController.BatteryPercentage);
+            SendParameter(OpenVrParameter.LeftController_Charging, leftController.IsCharging);
         }
 
-        SendParameter(OpenVrParameter.RightController_Connected, OpenVrInterface.IsRightControllerConnected());
+        var rightController = OpenVrInterface.RightController!;
 
-        if (OpenVrInterface.IsRightControllerConnected() && OpenVrInterface.CanRightControllerProvideBatteryData())
+        SendParameter(OpenVrParameter.RightController_Connected, rightController.IsConnected);
+
+        if (rightController.IsConnected && rightController.CanProvideBatteryInfo)
         {
-            SendParameter(OpenVrParameter.RightController_Battery, OpenVrInterface.GetRightControllerBatteryPercentage());
-            SendParameter(OpenVrParameter.RightController_Charging, OpenVrInterface.IsRightControllerCharging());
+            SendParameter(OpenVrParameter.RightController_Battery, rightController.BatteryPercentage);
+            SendParameter(OpenVrParameter.RightController_Charging, rightController.IsCharging);
         }
     }
 
     private void handleTrackers()
     {
-        var trackers = OpenVrInterface.GetTrackers().ToList();
+        var trackers = OpenVrInterface.Trackers!.TrackerEnumerable.Take(max_tracker_count).ToList();
 
         for (int i = 0; i < max_tracker_count; i++)
         {
-            uint trackerIndex = i >= trackers.Count ? uint.MaxValue : trackers[i];
+            var tracker = trackers[i];
 
-            SendParameter(OpenVrParameter.Tracker1_Connected + i, OpenVrInterface.IsTrackerConnected(trackerIndex));
+            SendParameter(OpenVrParameter.Tracker1_Connected + i, tracker.IsConnected);
 
-            if (OpenVrInterface.IsTrackerConnected(trackerIndex) && OpenVrInterface.CanTrackerProvideBatteryData(trackerIndex))
+            if (tracker.IsConnected && tracker.CanProvideBatteryInfo)
             {
-                SendParameter(OpenVrParameter.Tracker1_Battery + i, OpenVrInterface.GetTrackerBatteryPercentage(trackerIndex));
-                SendParameter(OpenVrParameter.Tracker1_Charging + i, OpenVrInterface.IsTrackerCharging(trackerIndex));
+                SendParameter(OpenVrParameter.Tracker1_Battery + i, tracker.BatteryPercentage);
+                SendParameter(OpenVrParameter.Tracker1_Charging + i, tracker.IsCharging);
             }
         }
     }

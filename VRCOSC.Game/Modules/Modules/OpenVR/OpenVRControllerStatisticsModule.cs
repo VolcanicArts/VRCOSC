@@ -38,28 +38,31 @@ public partial class OpenVRControllerStatisticsModule : Module
     {
         if (!OpenVrInterface.HasInitialised) return;
 
-        if (OpenVrInterface.IsLeftControllerConnected())
+        var leftController = OpenVrInterface.LeftController!;
+        var rightController = OpenVrInterface.RightController!;
+
+        if (leftController.IsConnected)
         {
-            SendParameter(OpenVRControllerStatisticsParameter.LeftATouch, OpenVrInterface.LeftController.ATouched);
-            SendParameter(OpenVRControllerStatisticsParameter.LeftBTouch, OpenVrInterface.LeftController.BTouched);
-            SendParameter(OpenVRControllerStatisticsParameter.LeftPadTouch, OpenVrInterface.LeftController.PadTouched);
-            SendParameter(OpenVRControllerStatisticsParameter.LeftStickTouch, OpenVrInterface.LeftController.StickTouched);
-            SendParameter(OpenVRControllerStatisticsParameter.LeftIndex, OpenVrInterface.LeftController.IndexFinger);
-            SendParameter(OpenVRControllerStatisticsParameter.LeftMiddle, OpenVrInterface.LeftController.MiddleFinger);
-            SendParameter(OpenVRControllerStatisticsParameter.LeftRing, OpenVrInterface.LeftController.RingFinger);
-            SendParameter(OpenVRControllerStatisticsParameter.LeftPinky, OpenVrInterface.LeftController.PinkyFinger);
+            SendParameter(OpenVRControllerStatisticsParameter.LeftATouch, leftController.Data.ATouched);
+            SendParameter(OpenVRControllerStatisticsParameter.LeftBTouch, leftController.Data.BTouched);
+            SendParameter(OpenVRControllerStatisticsParameter.LeftPadTouch, leftController.Data.PadTouched);
+            SendParameter(OpenVRControllerStatisticsParameter.LeftStickTouch, leftController.Data.StickTouched);
+            SendParameter(OpenVRControllerStatisticsParameter.LeftIndex, leftController.Data.IndexFinger);
+            SendParameter(OpenVRControllerStatisticsParameter.LeftMiddle, leftController.Data.MiddleFinger);
+            SendParameter(OpenVRControllerStatisticsParameter.LeftRing, leftController.Data.RingFinger);
+            SendParameter(OpenVRControllerStatisticsParameter.LeftPinky, leftController.Data.PinkyFinger);
         }
 
-        if (OpenVrInterface.IsRightControllerConnected())
+        if (rightController.IsConnected)
         {
-            SendParameter(OpenVRControllerStatisticsParameter.RightATouch, OpenVrInterface.RightController.ATouched);
-            SendParameter(OpenVRControllerStatisticsParameter.RightBTouch, OpenVrInterface.RightController.BTouched);
-            SendParameter(OpenVRControllerStatisticsParameter.RightPadTouch, OpenVrInterface.RightController.PadTouched);
-            SendParameter(OpenVRControllerStatisticsParameter.RightStickTouch, OpenVrInterface.RightController.StickTouched);
-            SendParameter(OpenVRControllerStatisticsParameter.RightIndex, OpenVrInterface.RightController.IndexFinger);
-            SendParameter(OpenVRControllerStatisticsParameter.RightMiddle, OpenVrInterface.RightController.MiddleFinger);
-            SendParameter(OpenVRControllerStatisticsParameter.RightRing, OpenVrInterface.RightController.RingFinger);
-            SendParameter(OpenVRControllerStatisticsParameter.RightPinky, OpenVrInterface.RightController.PinkyFinger);
+            SendParameter(OpenVRControllerStatisticsParameter.RightATouch, rightController.Data.ATouched);
+            SendParameter(OpenVRControllerStatisticsParameter.RightBTouch, rightController.Data.BTouched);
+            SendParameter(OpenVRControllerStatisticsParameter.RightPadTouch, rightController.Data.PadTouched);
+            SendParameter(OpenVRControllerStatisticsParameter.RightStickTouch, rightController.Data.StickTouched);
+            SendParameter(OpenVRControllerStatisticsParameter.RightIndex, rightController.Data.IndexFinger);
+            SendParameter(OpenVRControllerStatisticsParameter.RightMiddle, rightController.Data.MiddleFinger);
+            SendParameter(OpenVRControllerStatisticsParameter.RightRing, rightController.Data.RingFinger);
+            SendParameter(OpenVRControllerStatisticsParameter.RightPinky, rightController.Data.PinkyFinger);
         }
     }
 

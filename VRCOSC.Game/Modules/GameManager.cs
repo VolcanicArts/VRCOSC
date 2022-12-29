@@ -14,6 +14,7 @@ using osu.Framework.Logging;
 using osu.Framework.Platform;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics.Notifications;
+using VRCOSC.Game.OpenVR;
 using VRCOSC.OSC.VRChat;
 
 namespace VRCOSC.Game.Modules;
