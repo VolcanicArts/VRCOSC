@@ -1,21 +1,29 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using VRCOSC.OpenVR;
 
 namespace VRCOSC.Game.Modules.Modules.OpenVR;
 
-public partial class OpenVRStatisticsModule : Module
+public partial class OpenVRStatisticsModule : ChatBoxModule
 {
     public override string Title => "OpenVR Statistics";
     public override string Description => "Gets statistics from your OpenVR (SteamVR) session";
     public override string Author => "VolcanicArts";
     public override ModuleType Type => ModuleType.OpenVR;
     protected override int DeltaUpdate => 5000;
+    protected override int ChatBoxPriority => 1;
+    protected override bool DefaultChatBoxDisplay => false;
+    protected override IEnumerable<string> ChatBoxFormatValues => new[] { "$fps$", "$hmdbattery$", "$leftcontrollerbattery$", "$rightcontrollerbattery$" };
+    protected override string DefaultChatBoxFormat => "FPS: $fps$ | HMD: $hmdbattery$ | LC: $leftcontrollerbattery$ | RC: $rightcontrollerbattery$";
 
     protected override void CreateAttributes()
     {
+        base.CreateAttributes();
+
         CreateParameter<float>(OpenVrParameter.FPS, ParameterMode.Write, "VRCOSC/OpenVR/FPS", "The current FPS normalised to 240 FPS");
 
         CreateParameter<bool>(OpenVrParameter.HMD_Connected, ParameterMode.Write, "VRCOSC/OpenVR/HMD/Connected", "Whether your HMD is connected");
@@ -35,6 +43,17 @@ public partial class OpenVRStatisticsModule : Module
             CreateParameter<float>(OpenVrParameter.Tracker1_Battery + i, ParameterMode.Write, $"VRCOSC/OpenVR/Trackers/{i + 1}/Battery", $"The battery percentage normalised (0-1) of tracker {i + 1}");
             CreateParameter<bool>(OpenVrParameter.Tracker1_Charging + i, ParameterMode.Write, $"VRCOSC/OpenVR/Trackers/{i + 1}/Charging", $"Whether tracker {i + 1} is currently charging");
         }
+    }
+
+    protected override string? GetChatBoxText()
+    {
+        if (!OVRClient.HasInitialised) return null;
+
+        return GetSetting<string>(ChatBoxSetting.ChatBoxFormat)
+               .Replace("$fps$", OVRClient.System.FPS.ToString("00", CultureInfo.InvariantCulture))
+               .Replace("$hmdbattery$", ((int)(OVRClient.HMD.BatteryPercentage * 100)).ToString(CultureInfo.InvariantCulture))
+               .Replace("$leftcontrollerbattery$", ((int)(OVRClient.LeftController.BatteryPercentage * 100)).ToString(CultureInfo.InvariantCulture))
+               .Replace("$rightcontrollerbattery$", ((int)(OVRClient.RightController.BatteryPercentage * 100)).ToString(CultureInfo.InvariantCulture));
     }
 
     protected override void OnModuleUpdate()
