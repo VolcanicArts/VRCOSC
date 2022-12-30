@@ -55,10 +55,15 @@ public class OVRInput
 
     private void updateActionSet()
     {
-        var activeActionSet = new VRActiveActionSet_t[] { new() };
-        activeActionSet[0].ulActionSet = actionSetHandle;
-        activeActionSet[0].ulRestrictedToDevice = Valve.VR.OpenVR.k_ulInvalidInputValueHandle;
-        activeActionSet[0].nPriority = 0;
+        var activeActionSet = new VRActiveActionSet_t[]
+        {
+            new()
+            {
+                ulActionSet = actionSetHandle,
+                ulRestrictedToDevice = Valve.VR.OpenVR.k_ulInvalidInputValueHandle,
+                nPriority = 0
+            }
+        };
         Valve.VR.OpenVR.Input.UpdateActionState(activeActionSet, vractiveactonset_t_size);
     }
 
