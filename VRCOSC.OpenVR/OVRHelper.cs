@@ -1,11 +1,21 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Valve.VR;
 
 namespace VRCOSC.OpenVR;
 
-internal static class OVRHelper
+[SuppressMessage("Usage", "CA2211:Non-constant fields should not be visible")]
+public static class OVRHelper
 {
+    public static Action<string>? OnError;
+
+    private static void error(string methodName, ETrackedDeviceProperty property, ETrackedPropertyError error, uint index)
+    {
+        var name = GetStringTrackedDeviceProperty(index, ETrackedDeviceProperty.Prop_RenderModelName_String);
+        OnError?.Invoke($"{methodName} encountered error {error} on device {name} when getting property {property}");
+    }
+
     private static readonly uint compositor_frametiming_size = (uint)Unsafe.SizeOf<Compositor_FrameTiming>();
     private static readonly uint inputanalogactiondata_t_size = (uint)Unsafe.SizeOf<InputAnalogActionData_t>();
     private static readonly uint inputdigitalactiondata_t_size = (uint)Unsafe.SizeOf<InputDigitalActionData_t>();
@@ -77,6 +87,7 @@ internal static class OVRHelper
 
         if (error == ETrackedPropertyError.TrackedProp_Success) return value;
 
+        OVRHelper.error(nameof(GetBoolTrackedDeviceProperty), property, error, index);
         return false;
     }
 
@@ -87,6 +98,7 @@ internal static class OVRHelper
 
         if (error == ETrackedPropertyError.TrackedProp_Success) return value;
 
+        OVRHelper.error(nameof(GetInt32TrackedDeviceProperty), property, error, index);
         return 0;
     }
 
@@ -97,6 +109,7 @@ internal static class OVRHelper
 
         if (error == ETrackedPropertyError.TrackedProp_Success) return value;
 
+        OVRHelper.error(nameof(GetFloatTrackedDeviceProperty), property, error, index);
         return 0f;
     }
 
@@ -115,6 +128,7 @@ internal static class OVRHelper
 
             if (error != ETrackedPropertyError.TrackedProp_Success)
             {
+                OVRHelper.error(nameof(GetStringTrackedDeviceProperty), property, error, index);
                 return string.Empty;
             }
 

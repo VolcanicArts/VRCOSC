@@ -56,12 +56,15 @@ public partial class GameManager : CompositeComponent
         autoStartStop = configManager.GetBindable<bool>(VRCOSCSetting.AutoStartStop);
 
         Player = new Player(OscClient);
+
         OVRClient = new OVRClient(new OVRMetadata
         {
             ApplicationType = EVRApplicationType.VRApplication_Background,
             ApplicationManifest = storage.GetFullPath(@"app.vrmanifest"),
             ActionManifest = storage.GetFullPath(@"action_manifest.json")
         });
+        OVRHelper.OnError += m => Logger.Log($"[OpenVR] {m}");
+
         ChatBoxInterface = new ChatBoxInterface(OscClient, configManager.GetBindable<int>(VRCOSCSetting.ChatBoxTimeSpan));
 
         LoadComponent(ModuleManager);
