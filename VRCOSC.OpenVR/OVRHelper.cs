@@ -63,13 +63,13 @@ public static class OVRHelper
             if (renderModelName.Contains(controllerHint, StringComparison.InvariantCultureIgnoreCase)) return index;
         }
 
-        return uint.MaxValue;
+        return Valve.VR.OpenVR.k_unTrackedDeviceIndexInvalid;
     }
 
     internal static uint GetIndexForTrackedDeviceClass(ETrackedDeviceClass klass)
     {
         var indexes = GetIndexesForTrackedDeviceClass(klass).ToArray();
-        return indexes.Any() ? indexes[0] : uint.MaxValue;
+        return indexes.Any() ? indexes[0] : Valve.VR.OpenVR.k_unTrackedDeviceIndexInvalid;
     }
 
     internal static IEnumerable<uint> GetIndexesForTrackedDeviceClass(ETrackedDeviceClass klass)
