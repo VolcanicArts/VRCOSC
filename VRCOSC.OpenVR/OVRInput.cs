@@ -74,9 +74,7 @@ public class OVRInput
         if (leftControllerState is not null)
         {
             leftControllerState.A.Touched = OVRHelper.GetDigitalInput(leftControllerActions[0]).bState;
-            leftControllerState.A.Pressed = OVRHelper.GetDigitalInput(leftControllerActions[0]).bActive;
             leftControllerState.B.Touched = OVRHelper.GetDigitalInput(leftControllerActions[1]).bState;
-            leftControllerState.B.Pressed = OVRHelper.GetDigitalInput(leftControllerActions[1]).bActive;
             leftControllerState.PadTouched = OVRHelper.GetDigitalInput(leftControllerActions[2]).bState;
             leftControllerState.StickTouched = OVRHelper.GetDigitalInput(leftControllerActions[3]).bState;
             leftControllerState.IndexFinger = OVRHelper.GetAnalogueInput(leftControllerActions[4]).x;
@@ -90,9 +88,7 @@ public class OVRInput
         if (rightControllerState is not null)
         {
             rightControllerState.A.Touched = OVRHelper.GetDigitalInput(rightControllerActions[0]).bState;
-            rightControllerState.A.Pressed = OVRHelper.GetDigitalInput(rightControllerActions[0]).bActive;
             rightControllerState.B.Touched = OVRHelper.GetDigitalInput(rightControllerActions[1]).bState;
-            rightControllerState.B.Pressed = OVRHelper.GetDigitalInput(rightControllerActions[1]).bActive;
             rightControllerState.PadTouched = OVRHelper.GetDigitalInput(rightControllerActions[2]).bState;
             rightControllerState.StickTouched = OVRHelper.GetDigitalInput(rightControllerActions[3]).bState;
             rightControllerState.IndexFinger = OVRHelper.GetAnalogueInput(rightControllerActions[4]).x;
