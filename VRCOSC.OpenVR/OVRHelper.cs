@@ -6,6 +6,7 @@ namespace VRCOSC.OpenVR;
 
 internal static class OVRHelper
 {
+    private static readonly uint compositor_frametiming_size = (uint)Unsafe.SizeOf<Compositor_FrameTiming>();
     private static readonly uint inputanalogactiondata_t_size = (uint)Unsafe.SizeOf<InputAnalogActionData_t>();
     private static readonly uint inputdigitalactiondata_t_size = (uint)Unsafe.SizeOf<InputDigitalActionData_t>();
 
@@ -14,6 +15,16 @@ internal static class OVRHelper
         var err = new EVRInitError();
         var state = Valve.VR.OpenVR.InitInternal(ref err, applicationType);
         return err == EVRInitError.None && state != 0;
+    }
+
+    internal static float GetFrameTimeMilli()
+    {
+        var frameTiming = new Compositor_FrameTiming
+        {
+            m_nSize = compositor_frametiming_size
+        };
+        Valve.VR.OpenVR.Compositor.GetFrameTiming(ref frameTiming, 0);
+        return frameTiming.m_flTotalRenderGpuMs;
     }
 
     internal static InputAnalogActionData_t GetAnalogueInput(ulong identifier)

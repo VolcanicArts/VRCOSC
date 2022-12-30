@@ -16,6 +16,8 @@ public partial class OpenVRStatisticsModule : Module
 
     protected override void CreateAttributes()
     {
+        CreateParameter<float>(OpenVrParameter.FPS, ParameterMode.Write, "VRCOSC/OpenVR/FPS", "The current FPS normalised to 240 FPS");
+
         CreateParameter<bool>(OpenVrParameter.HMD_Connected, ParameterMode.Write, "VRCOSC/OpenVR/HMD/Connected", "Whether your HMD is connected");
         CreateParameter<float>(OpenVrParameter.HMD_Battery, ParameterMode.Write, "VRCOSC/OpenVR/HMD/Battery", "The battery percentage normalised of your headset");
         CreateParameter<bool>(OpenVrParameter.HMD_Charging, ParameterMode.Write, "VRCOSC/OpenVR/HMD/Charging", "The charge state of your headset");
@@ -39,6 +41,7 @@ public partial class OpenVRStatisticsModule : Module
     {
         if (!OVRClient.HasInitialised) return;
 
+        SendParameter(OpenVrParameter.FPS, OVRClient.System.FPS / 240.0f);
         handleHmd();
         handleControllers();
         handleTrackers();
@@ -94,6 +97,7 @@ public partial class OpenVRStatisticsModule : Module
 
     private enum OpenVrParameter
     {
+        FPS,
         HMD_Connected,
         LeftController_Connected,
         RightController_Connected,
