@@ -7,7 +7,7 @@ public class OVRDevice
     /// <summary>
     /// The OVR ID of the device
     /// </summary>
-    public uint Id { get; private set; }
+    public uint Id { get; private set; } = Valve.VR.OpenVR.k_unTrackedDeviceIndexInvalid;
 
     /// <summary>
     /// Whether the device has been registed in this OVR session
