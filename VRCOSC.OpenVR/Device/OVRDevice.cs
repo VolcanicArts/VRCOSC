@@ -7,7 +7,7 @@ public class OVRDevice
     /// <summary>
     /// The OVR ID of the device
     /// </summary>
-    public uint Id;
+    public uint Id { get; private set; }
 
     /// <summary>
     /// Whether the device has been registed in this OVR session
@@ -22,7 +22,7 @@ public class OVRDevice
     /// <summary>
     /// Whether the device can provide battery information
     /// </summary>
-    public bool CanProvideBatteryInfo { get; private set; }
+    public bool ProvidesBatteryStatus { get; private set; }
 
     /// <summary>
     /// Whether the device is currently charging
@@ -43,7 +43,7 @@ public class OVRDevice
     {
         IsPresent = Id != uint.MaxValue;
         IsConnected = IsPresent && IsTrackedDeviceConnected();
-        CanProvideBatteryInfo = OVRHelper.GetBoolTrackedDeviceProperty(Id, ETrackedDeviceProperty.Prop_DeviceProvidesBatteryStatus_Bool);
+        ProvidesBatteryStatus = OVRHelper.GetBoolTrackedDeviceProperty(Id, ETrackedDeviceProperty.Prop_DeviceProvidesBatteryStatus_Bool);
         IsCharging = OVRHelper.GetBoolTrackedDeviceProperty(Id, ETrackedDeviceProperty.Prop_DeviceIsCharging_Bool);
         BatteryPercentage = OVRHelper.GetFloatTrackedDeviceProperty(Id, ETrackedDeviceProperty.Prop_DeviceBatteryPercentage_Float);
     }

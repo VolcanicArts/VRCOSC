@@ -70,7 +70,7 @@ public partial class OpenVRStatisticsModule : ChatBoxModule
     {
         SendParameter(OpenVrParameter.HMD_Connected, OVRClient.HMD.IsConnected);
 
-        if (OVRClient.HMD.IsConnected && OVRClient.HMD.CanProvideBatteryInfo)
+        if (OVRClient.HMD.IsConnected && OVRClient.HMD.ProvidesBatteryStatus)
         {
             SendParameter(OpenVrParameter.HMD_Battery, OVRClient.HMD.BatteryPercentage);
             SendParameter(OpenVrParameter.HMD_Charging, OVRClient.HMD.IsCharging);
@@ -81,7 +81,7 @@ public partial class OpenVRStatisticsModule : ChatBoxModule
     {
         SendParameter(OpenVrParameter.LeftController_Connected, OVRClient.LeftController.IsConnected);
 
-        if (OVRClient.LeftController.IsConnected && OVRClient.LeftController.CanProvideBatteryInfo)
+        if (OVRClient.LeftController.IsConnected && OVRClient.LeftController.ProvidesBatteryStatus)
         {
             SendParameter(OpenVrParameter.LeftController_Battery, OVRClient.LeftController.BatteryPercentage);
             SendParameter(OpenVrParameter.LeftController_Charging, OVRClient.LeftController.IsCharging);
@@ -89,7 +89,7 @@ public partial class OpenVRStatisticsModule : ChatBoxModule
 
         SendParameter(OpenVrParameter.RightController_Connected, OVRClient.RightController.IsConnected);
 
-        if (OVRClient.RightController.IsConnected && OVRClient.RightController.CanProvideBatteryInfo)
+        if (OVRClient.RightController.IsConnected && OVRClient.RightController.ProvidesBatteryStatus)
         {
             SendParameter(OpenVrParameter.RightController_Battery, OVRClient.RightController.BatteryPercentage);
             SendParameter(OpenVrParameter.RightController_Charging, OVRClient.RightController.IsCharging);
@@ -106,7 +106,7 @@ public partial class OpenVRStatisticsModule : ChatBoxModule
 
             SendParameter(OpenVrParameter.Tracker1_Connected + i, tracker.IsConnected);
 
-            if (tracker.IsConnected && tracker.CanProvideBatteryInfo)
+            if (tracker.IsConnected && tracker.ProvidesBatteryStatus)
             {
                 SendParameter(OpenVrParameter.Tracker1_Battery + i, tracker.BatteryPercentage);
                 SendParameter(OpenVrParameter.Tracker1_Charging + i, tracker.IsCharging);
