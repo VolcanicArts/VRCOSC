@@ -14,7 +14,7 @@ public class MediaProvider
 
     public MediaState State { get; private set; } = null!;
 
-    public GlobalSystemMediaTransportControlsSession? Controller => mediaInterface?.CurrentSession;
+    public GlobalSystemMediaTransportControlsSession? Controller => mediaInterface.CurrentSession;
 
     public Action? OnPlaybackStateUpdate;
 
