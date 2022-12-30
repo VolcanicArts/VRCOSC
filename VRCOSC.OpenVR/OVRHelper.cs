@@ -53,17 +53,11 @@ public static class OVRHelper
 
     // GetTrackedDeviceIndexForControllerRole doesn't work when a tracker thinks it's a controller and assumes that role
     // We can forcibly find the correct indexes by using the model name
-    internal static uint GetController(string controllerHint)
+    internal static uint GetControllerIdFromHint(string controllerHint)
     {
-        var indexes = GetIndexesForTrackedDeviceClass(ETrackedDeviceClass.Controller);
-
-        foreach (var index in indexes)
-        {
-            var renderModelName = GetStringTrackedDeviceProperty(index, ETrackedDeviceProperty.Prop_RenderModelName_String);
-            if (renderModelName.Contains(controllerHint, StringComparison.InvariantCultureIgnoreCase)) return index;
-        }
-
-        return Valve.VR.OpenVR.k_unTrackedDeviceIndexInvalid;
+        return GetIndexesForTrackedDeviceClass(ETrackedDeviceClass.Controller)
+               .Where(index => GetStringTrackedDeviceProperty(index, ETrackedDeviceProperty.Prop_RenderModelName_String).Contains(controllerHint, StringComparison.InvariantCultureIgnoreCase))
+               .SingleOrDefault(Valve.VR.OpenVR.k_unTrackedDeviceIndexInvalid);
     }
 
     internal static uint GetIndexForTrackedDeviceClass(ETrackedDeviceClass klass)
