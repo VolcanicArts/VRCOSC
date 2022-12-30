@@ -12,9 +12,11 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
+using Valve.VR;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics.Notifications;
-using VRCOSC.Game.OpenVR;
+using VRCOSC.OpenVR;
+using VRCOSC.OpenVR.Metadata;
 using VRCOSC.OSC.VRChat;
 
 namespace VRCOSC.Game.Modules;
@@ -45,7 +47,7 @@ public partial class GameManager : CompositeComponent
     public readonly ModuleManager ModuleManager = new();
     public readonly Bindable<GameManagerState> State = new(GameManagerState.Stopped);
     public Player Player = null!;
-    public OpenVRInterface OpenVRInterface = null!;
+    public OVRClient OVRClient = null!;
     public ChatBoxInterface ChatBoxInterface = null!;
 
     [BackgroundDependencyLoader]
@@ -54,7 +56,12 @@ public partial class GameManager : CompositeComponent
         autoStartStop = configManager.GetBindable<bool>(VRCOSCSetting.AutoStartStop);
 
         Player = new Player(OscClient);
-        OpenVRInterface = new OpenVRInterface(storage);
+        OVRClient = new OVRClient(new OVRMetadata
+        {
+            ApplicationType = EVRApplicationType.VRApplication_Background,
+            ApplicationManifest = storage.GetFullPath(@"app.vrmanifest"),
+            ActionManifest = storage.GetFullPath(@"action_manifest.json")
+        });
         ChatBoxInterface = new ChatBoxInterface(OscClient, configManager.GetBindable<int>(VRCOSCSetting.ChatBoxTimeSpan));
 
         LoadComponent(ModuleManager);
@@ -63,7 +70,7 @@ public partial class GameManager : CompositeComponent
 
     protected override void Update()
     {
-        OpenVRInterface.Update();
+        OVRClient.Update();
     }
 
     protected override void UpdateAfterChildren()
@@ -179,7 +186,7 @@ public partial class GameManager : CompositeComponent
     private void checkForOpenVR() => Task.Run(() =>
     {
         static bool isOpenVROpen() => Process.GetProcessesByName(@"vrmonitor").Any();
-        if (isOpenVROpen()) OpenVRInterface.Init();
+        if (isOpenVROpen()) OVRClient.Init();
     });
 
     private void checkForVRChat()

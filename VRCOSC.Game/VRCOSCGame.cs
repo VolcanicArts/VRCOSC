@@ -18,6 +18,7 @@ using VRCOSC.Game.Graphics.TabBar;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.Updater;
 using VRCOSC.Game.Modules;
+using VRCOSC.OpenVR.Metadata;
 
 // ReSharper disable InconsistentNaming
 
@@ -95,7 +96,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
             if (e.NewValue == GameManagerState.Starting) SelectedTab.Value = Tab.Modules;
         }, true);
 
-        gameManager.OpenVRInterface.OnOpenVRShutdown += () =>
+        gameManager.OVRClient.OnShutdown += () =>
         {
             if (ConfigManager.Get<bool>(VRCOSCSetting.AutoStopOpenVR)) prepareForExit();
         };
@@ -138,7 +139,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
             File.WriteAllBytes(Path.Combine(tempStoragePath, file.Split('/')[1]), Resources.Get(file));
         }
 
-        var manifest = new VRManifest();
+        var manifest = new OVRManifest();
         manifest.Applications[0].ActionManifestPath = tempStorage.GetFullPath("action_manifest.json");
         manifest.Applications[0].ImagePath = tempStorage.GetFullPath("SteamImage.png");
 

@@ -11,7 +11,7 @@ using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
-using VRCOSC.Game.OpenVR;
+using VRCOSC.OpenVR;
 using VRCOSC.OSC.VRChat;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -31,7 +31,7 @@ public abstract partial class Module : Component
     private TerminalLogger Terminal = null!;
 
     protected Player Player => GameManager.Player;
-    protected OpenVRInterface OpenVrInterface => GameManager.OpenVRInterface;
+    protected OVRClient OVRClient => GameManager.OVRClient;
     protected Bindable<ModuleState> State = new(ModuleState.Stopped);
 
     public readonly BindableBool Enabled = new();

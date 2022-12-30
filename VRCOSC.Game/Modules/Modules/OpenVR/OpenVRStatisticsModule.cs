@@ -2,13 +2,12 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Linq;
+using VRCOSC.OpenVR;
 
 namespace VRCOSC.Game.Modules.Modules.OpenVR;
 
 public partial class OpenVRStatisticsModule : Module
 {
-    private const int max_tracker_count = 8;
-
     public override string Title => "OpenVR Statistics";
     public override string Description => "Gets statistics from your OpenVR (SteamVR) session";
     public override string Author => "VolcanicArts";
@@ -28,7 +27,7 @@ public partial class OpenVRStatisticsModule : Module
         CreateParameter<float>(OpenVrParameter.RightController_Battery, ParameterMode.Write, "VRCOSC/OpenVR/RightController/Battery", "The battery percentage normalised of your right controller");
         CreateParameter<bool>(OpenVrParameter.RightController_Charging, ParameterMode.Write, "VRCOSC/OpenVR/RightController/Charging", "The charge state of your right controller");
 
-        for (int i = 0; i < max_tracker_count; i++)
+        for (int i = 0; i < OVRSystem.MAX_TRACKER_COUNT; i++)
         {
             CreateParameter<bool>(OpenVrParameter.Tracker1_Connected + i, ParameterMode.Write, $"VRCOSC/OpenVR/Trackers/{i + 1}/Connected", $"Whether tracker {i + 1} is connected");
             CreateParameter<float>(OpenVrParameter.Tracker1_Battery + i, ParameterMode.Write, $"VRCOSC/OpenVR/Trackers/{i + 1}/Battery", $"The battery percentage normalised (0-1) of tracker {i + 1}");
@@ -38,7 +37,7 @@ public partial class OpenVRStatisticsModule : Module
 
     protected override void OnModuleUpdate()
     {
-        if (!OpenVrInterface.HasInitialised) return;
+        if (!OVRClient.HasInitialised) return;
 
         handleHmd();
         handleControllers();
@@ -47,45 +46,39 @@ public partial class OpenVRStatisticsModule : Module
 
     private void handleHmd()
     {
-        var hmd = OpenVrInterface.HMD!;
+        SendParameter(OpenVrParameter.HMD_Connected, OVRClient.HMD.IsConnected);
 
-        SendParameter(OpenVrParameter.HMD_Connected, hmd.IsConnected);
-
-        if (hmd.IsConnected && hmd.CanProvideBatteryInfo)
+        if (OVRClient.HMD.IsConnected && OVRClient.HMD.CanProvideBatteryInfo)
         {
-            SendParameter(OpenVrParameter.HMD_Battery, hmd.BatteryPercentage);
-            SendParameter(OpenVrParameter.HMD_Charging, hmd.IsCharging);
+            SendParameter(OpenVrParameter.HMD_Battery, OVRClient.HMD.BatteryPercentage);
+            SendParameter(OpenVrParameter.HMD_Charging, OVRClient.HMD.IsCharging);
         }
     }
 
     private void handleControllers()
     {
-        var leftController = OpenVrInterface.LeftController!;
+        SendParameter(OpenVrParameter.LeftController_Connected, OVRClient.LeftController.IsConnected);
 
-        SendParameter(OpenVrParameter.LeftController_Connected, leftController.IsConnected);
-
-        if (leftController.IsConnected && leftController.CanProvideBatteryInfo)
+        if (OVRClient.LeftController.IsConnected && OVRClient.LeftController.CanProvideBatteryInfo)
         {
-            SendParameter(OpenVrParameter.LeftController_Battery, leftController.BatteryPercentage);
-            SendParameter(OpenVrParameter.LeftController_Charging, leftController.IsCharging);
+            SendParameter(OpenVrParameter.LeftController_Battery, OVRClient.LeftController.BatteryPercentage);
+            SendParameter(OpenVrParameter.LeftController_Charging, OVRClient.LeftController.IsCharging);
         }
 
-        var rightController = OpenVrInterface.RightController!;
+        SendParameter(OpenVrParameter.RightController_Connected, OVRClient.RightController.IsConnected);
 
-        SendParameter(OpenVrParameter.RightController_Connected, rightController.IsConnected);
-
-        if (rightController.IsConnected && rightController.CanProvideBatteryInfo)
+        if (OVRClient.RightController.IsConnected && OVRClient.RightController.CanProvideBatteryInfo)
         {
-            SendParameter(OpenVrParameter.RightController_Battery, rightController.BatteryPercentage);
-            SendParameter(OpenVrParameter.RightController_Charging, rightController.IsCharging);
+            SendParameter(OpenVrParameter.RightController_Battery, OVRClient.RightController.BatteryPercentage);
+            SendParameter(OpenVrParameter.RightController_Charging, OVRClient.RightController.IsCharging);
         }
     }
 
     private void handleTrackers()
     {
-        var trackers = OpenVrInterface.Trackers!.TrackerEnumerable.Take(max_tracker_count).ToList();
+        var trackers = OVRClient.Trackers.ToList();
 
-        for (int i = 0; i < max_tracker_count; i++)
+        for (int i = 0; i < OVRSystem.MAX_TRACKER_COUNT; i++)
         {
             var tracker = trackers[i];
 
