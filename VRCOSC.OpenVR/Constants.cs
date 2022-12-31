@@ -1,4 +1,7 @@
-﻿using System.Runtime.CompilerServices;
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// See the LICENSE file in the repository root for full license text.
+
+using System.Runtime.CompilerServices;
 using Valve.VR;
 
 namespace VRCOSC.OpenVR;
