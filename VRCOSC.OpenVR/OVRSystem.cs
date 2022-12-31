@@ -5,58 +5,51 @@ namespace VRCOSC.OpenVR;
 
 public class OVRSystem
 {
-    public const int MAX_TRACKER_COUNT = 8;
+    private readonly SortedDictionary<uint, OVRDevice> devices = new();
 
-    public HMD HMD { get; private set; } = null!;
-    public Controller LeftController { get; private set; } = null!;
-    public Controller RightController { get; private set; } = null!;
-    public List<Tracker> Trackers = new();
-    public float FPS => 1 / OVRHelper.GetFrameTimeMilli();
+    public HMD? HMD => devices.Values.OfType<HMD>().SingleOrDefault();
+    public Controller? LeftController => devices.Values.OfType<Controller>().SingleOrDefault(controller => controller.Role == ETrackedControllerRole.LeftHand);
+    public Controller? RightController => devices.Values.OfType<Controller>().SingleOrDefault(controller => controller.Role == ETrackedControllerRole.RightHand);
+    public IEnumerable<GenericTracker> Trackers => devices.Values.OfType<GenericTracker>();
 
     public void Init()
     {
-        HMD = new HMD();
-        LeftController = new Controller();
-        RightController = new Controller();
+        devices.Clear();
 
-        Trackers.Clear();
-
-        for (int i = 0; i < MAX_TRACKER_COUNT; i++)
+        for (uint i = 0; i < Constants.MAX_DEVICE_COUNT; i++)
         {
-            Trackers.Add(new Tracker());
+            RegisterDevice(i);
         }
     }
 
-    public void Update()
+    public void RegisterDevice(uint id)
     {
-        auditDevices();
-        updateDevices();
-    }
+        var deviceClass = Valve.VR.OpenVR.System.GetTrackedDeviceClass(id);
 
-    private void auditDevices()
-    {
-        HMD.BindTo(getHmdIndex());
-        LeftController.BindTo(getLeftControllerIndex());
-        RightController.BindTo(getRightControllerIndex());
-
-        var trackerIds = getTrackerIndexes().ToList();
-
-        for (int i = 0; i < MAX_TRACKER_COUNT; i++)
+        switch (deviceClass)
         {
-            Trackers[i].BindTo(trackerIds[i]);
+            case ETrackedDeviceClass.HMD:
+                devices.Add(id, new HMD(id));
+                break;
+
+            case ETrackedDeviceClass.Controller:
+                devices.Add(id, new Controller(id));
+                break;
+
+            case ETrackedDeviceClass.GenericTracker:
+                devices.Add(id, new GenericTracker(id));
+                break;
+
+            case ETrackedDeviceClass.TrackingReference:
+            case ETrackedDeviceClass.DisplayRedirect:
+            case ETrackedDeviceClass.Max:
+            case ETrackedDeviceClass.Invalid:
+                break;
         }
     }
 
-    private void updateDevices()
+    public void UpdateDevice(uint id)
     {
-        HMD.Update();
-        LeftController.Update();
-        RightController.Update();
-        Trackers.ForEach(tracker => tracker.Update());
+        devices[id].Update();
     }
-
-    private static uint getHmdIndex() => OVRHelper.GetIndexForTrackedDeviceClass(ETrackedDeviceClass.HMD);
-    private static uint getLeftControllerIndex() => OVRHelper.GetControllerIdFromHint(@"left");
-    private static uint getRightControllerIndex() => OVRHelper.GetControllerIdFromHint(@"right");
-    private static IEnumerable<uint> getTrackerIndexes() => OVRHelper.GetIndexesForTrackedDeviceClass(ETrackedDeviceClass.GenericTracker);
 }

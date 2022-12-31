@@ -13,20 +13,21 @@ public class OVRClient
 
     public bool HasInitialised { get; private set; }
 
-    public readonly OVRMetadata Metadata;
-    public readonly OVRSystem System;
-    public readonly OVRInput Input;
+    public HMD? HMD => system.HMD;
+    public Controller? LeftController => system.LeftController;
+    public Controller? RightController => system.RightController;
+    public IEnumerable<GenericTracker> Trackers => system.Trackers;
 
-    public HMD HMD => System.HMD;
-    public Controller LeftController => System.LeftController;
-    public Controller RightController => System.RightController;
-    public IEnumerable<Tracker> Trackers => System.Trackers;
+    internal readonly OVRMetadata Metadata;
+
+    private readonly OVRSystem system;
+    private readonly OVRInput input;
 
     public OVRClient(OVRMetadata metadata)
     {
         Metadata = metadata;
-        System = new OVRSystem();
-        Input = new OVRInput(this);
+        system = new OVRSystem();
+        input = new OVRInput(this);
     }
 
     public void Init()
@@ -38,8 +39,8 @@ public class OVRClient
         if (!HasInitialised) return;
 
         Valve.VR.OpenVR.Applications.AddApplicationManifest(Metadata.ApplicationManifest, false);
-        System.Init();
-        Input.Init();
+        system.Init();
+        input.Init();
     }
 
     public void Update()
@@ -50,8 +51,7 @@ public class OVRClient
 
         if (!HasInitialised) return;
 
-        System.Update();
-        Input.Update();
+        input.Update();
     }
 
     private void pollEvents()
@@ -68,6 +68,15 @@ public class OVRClient
                     Valve.VR.OpenVR.System.AcknowledgeQuit_Exiting();
                     shutdown();
                     return;
+
+                case EVREventType.VREvent_TrackedDeviceActivated: // registration or connection
+                    system.RegisterDevice(evenT.trackedDeviceIndex);
+                    break;
+
+                case EVREventType.VREvent_TrackedDeviceDeactivated: // disconnection but not a deregistration
+                case EVREventType.VREvent_TrackedDeviceUpdated: // anything else about the device could've been updated
+                    system.UpdateDevice(evenT.trackedDeviceIndex);
+                    break;
             }
         }
     }

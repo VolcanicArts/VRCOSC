@@ -38,7 +38,7 @@ public partial class OpenVRControllerStatisticsModule : Module
     {
         if (!OVRClient.HasInitialised) return;
 
-        if (OVRClient.LeftController.IsConnected)
+        if (OVRClient.LeftController?.IsConnected ?? false)
         {
             var input = OVRClient.LeftController.Input;
             SendParameter(OpenVRControllerStatisticsParameter.LeftATouch, input.A.Touched);
@@ -51,7 +51,7 @@ public partial class OpenVRControllerStatisticsModule : Module
             SendParameter(OpenVRControllerStatisticsParameter.LeftPinky, input.PinkyFinger);
         }
 
-        if (OVRClient.RightController.IsConnected)
+        if (OVRClient.RightController?.IsConnected ?? false)
         {
             var input = OVRClient.RightController.Input;
             SendParameter(OpenVRControllerStatisticsParameter.RightATouch, input.A.Touched);

@@ -2,17 +2,12 @@
 
 namespace VRCOSC.OpenVR.Device;
 
-public class OVRDevice
+public abstract class OVRDevice
 {
     /// <summary>
     /// The OVR ID of the device
     /// </summary>
-    public uint Id { get; private set; } = Valve.VR.OpenVR.k_unTrackedDeviceIndexInvalid;
-
-    /// <summary>
-    /// Whether the device has been registed in this OVR session
-    /// </summary>
-    public bool IsPresent { get; private set; }
+    public readonly uint Id;
 
     /// <summary>
     /// Whether the device is currently connected to this OVR session
@@ -34,19 +29,17 @@ public class OVRDevice
     /// </summary>
     public float BatteryPercentage { get; private set; }
 
-    public void BindTo(uint id)
+    protected OVRDevice(uint id)
     {
         Id = id;
+        Update();
     }
 
     public void Update()
     {
-        IsPresent = Id != Valve.VR.OpenVR.k_unTrackedDeviceIndexInvalid;
-        IsConnected = IsPresent && IsTrackedDeviceConnected();
+        IsConnected = Valve.VR.OpenVR.System.IsTrackedDeviceConnected(Id);
         ProvidesBatteryStatus = OVRHelper.GetBoolTrackedDeviceProperty(Id, ETrackedDeviceProperty.Prop_DeviceProvidesBatteryStatus_Bool);
         IsCharging = OVRHelper.GetBoolTrackedDeviceProperty(Id, ETrackedDeviceProperty.Prop_DeviceIsCharging_Bool);
         BatteryPercentage = OVRHelper.GetFloatTrackedDeviceProperty(Id, ETrackedDeviceProperty.Prop_DeviceBatteryPercentage_Float);
     }
-
-    protected virtual bool IsTrackedDeviceConnected() => Valve.VR.OpenVR.System.IsTrackedDeviceConnected(Id);
 }
