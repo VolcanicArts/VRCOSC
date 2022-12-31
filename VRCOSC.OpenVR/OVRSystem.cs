@@ -18,15 +18,15 @@ public class OVRSystem
 
         for (uint i = 0; i < Constants.MAX_DEVICE_COUNT; i++)
         {
-            RegisterDevice(i);
+            HandleDevice(i);
         }
     }
 
-    public void RegisterDevice(uint id)
+    public void HandleDevice(uint id)
     {
         if (devices.ContainsKey(id))
         {
-            UpdateDevice(id);
+            devices[id].Update();
             return;
         }
 
@@ -52,10 +52,5 @@ public class OVRSystem
             case ETrackedDeviceClass.Invalid:
                 break;
         }
-    }
-
-    public void UpdateDevice(uint id)
-    {
-        devices[id].Update();
     }
 }

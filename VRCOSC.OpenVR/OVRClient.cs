@@ -70,12 +70,9 @@ public class OVRClient
                     return;
 
                 case EVREventType.VREvent_TrackedDeviceActivated: // registration or connection
-                    system.RegisterDevice(evenT.trackedDeviceIndex);
-                    break;
-
                 case EVREventType.VREvent_TrackedDeviceDeactivated: // disconnection but not a deregistration
                 case EVREventType.VREvent_TrackedDeviceUpdated: // anything else about the device could've been updated
-                    system.UpdateDevice(evenT.trackedDeviceIndex);
+                    system.HandleDevice(evenT.trackedDeviceIndex);
                     break;
             }
         }
