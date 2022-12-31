@@ -24,6 +24,8 @@ public class OVRSystem
 
     public void RegisterDevice(uint id)
     {
+        if (devices.ContainsKey(id)) return;
+
         var deviceClass = Valve.VR.OpenVR.System.GetTrackedDeviceClass(id);
 
         switch (deviceClass)
