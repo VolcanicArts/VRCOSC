@@ -8,13 +8,13 @@ public class OscData
     public readonly string Address;
     public readonly List<object> Values;
 
-    public OscData(string address, List<object> values)
+    internal OscData(string address, List<object> values)
     {
         Address = address;
         Values = values;
     }
 
-    public void PreValidate()
+    internal void PreValidate()
     {
         if (!Values.All(value => value is (bool or int or float or string)))
             throw new ArgumentOutOfRangeException(nameof(Values), "Cannot send values that are not of type bool, int, float, or string");

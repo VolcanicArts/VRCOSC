@@ -1,25 +1,35 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Text;
-
 namespace VRCOSC.OSC.Client;
 
-public static class OscDecoder
+internal static class OscDecoder
 {
-    public static OscMessage Decode(byte[] msg)
+    internal static OscMessage Decode(byte[] msg)
     {
         var index = 0;
         var values = new List<object>();
 
-        var address = getAddress(msg, index, out index);
-        if (index.Misaligned()) throw new InvalidOperationException("Misaligned OSC packet data after address");
+        var address = getAddress(msg, index);
+        index += msg.FirstIndexAfter(address.Length, x => x == ',');
 
-        var types = getTypes(msg, index, out index);
-        if (index.Misaligned()) throw new InvalidOperationException("Misaligned OSC packet data after type codes");
+        if (index.IsMisaligned()) throw new Exception("Misaligned OSC packet data");
+
+        var types = getTypes(msg, index);
+        index += types.Length;
+
+        while (index.IsMisaligned()) index++;
+
+        var commaParsed = false;
 
         foreach (var type in types)
         {
+            if (!commaParsed && type == ',')
+            {
+                commaParsed = true;
+                continue;
+            }
+
             switch (type)
             {
                 case '\0':
@@ -38,9 +48,9 @@ public static class OscDecoder
                     break;
 
                 case 's':
-                    var stringVal = OscTypeConverter.BytesToString(msg, index).Replace("\0", string.Empty);
+                    var stringVal = OscTypeConverter.BytesToString(msg, index);
                     values.Add(stringVal);
-                    index += Encoding.UTF8.GetBytes(stringVal).Length;
+                    index += OscConstants.OSC_ENCODING.GetBytes(stringVal).Length;
                     break;
 
                 case 'T':
@@ -55,31 +65,19 @@ public static class OscDecoder
                     throw new InvalidOperationException($"OSC type tag '{type}' is unknown");
             }
 
-            while (index % 4 != 0) index++;
+            while (index.IsMisaligned()) index++;
         }
 
         return new OscMessage(address, values);
     }
 
-    private static string getAddress(byte[] msg, int start, out int newPos)
+    private static string getAddress(byte[] msg, int index)
     {
-        newPos = start;
-        if (start == 0) return string.Empty;
-
-        var addressEnd = msg.FirstIndexAfter(start, x => x == ',');
+        var addressEnd = msg.FirstIndexAfter(index, x => x == ',');
         if (addressEnd == -1) throw new InvalidOperationException("No comma found when retrieving address");
 
-        newPos += addressEnd;
-        return Encoding.UTF8.GetString(msg.SubArray(start, addressEnd - 1)).Replace("\0", string.Empty);
+        return OscConstants.OSC_ENCODING.GetString(msg.SubArray(index, addressEnd - 1)).Replace("\0", string.Empty);
     }
 
-    private static char[] getTypes(byte[] msg, int start, out int newPos)
-    {
-        newPos = start;
-
-        var typesArray = OscTypeConverter.BytesToString(msg, start).ToArray();
-
-        newPos += msg.FirstIndexAfter(typesArray.Length, x => x == ',');
-        return typesArray;
-    }
+    private static char[] getTypes(byte[] msg, int index) => OscTypeConverter.BytesToString(msg, index).ToArray();
 }

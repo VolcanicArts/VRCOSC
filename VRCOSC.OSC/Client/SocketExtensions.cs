@@ -11,7 +11,7 @@ public static class SocketExtensions
 
     public static void SendOscMessage(this Socket socket, OscMessage message)
     {
-        socket.Send(message.GetBytes());
+        socket.Send(message.Encode());
     }
 
     public static async Task<OscMessage?> ReceiveOscMessageAsync(this Socket socket, CancellationToken token)
