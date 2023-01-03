@@ -14,8 +14,7 @@ public class VRChatOscData : OscData
     public object ParameterValue => Values[0];
 
     public VRChatOscData(OscData data)
+        : base(data.Address, data.Values)
     {
-        Address = data.Address;
-        Values = data.Values;
     }
 }

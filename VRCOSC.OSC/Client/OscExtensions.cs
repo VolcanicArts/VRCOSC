@@ -9,13 +9,14 @@ internal static class OscExtensions
     {
         var itemsList = items.ToList();
 
+        if (!itemsList.Any()) throw new ArgumentException($"{nameof(items)} cannot be empty", nameof(items));
         if (start >= itemsList.Count) throw new ArgumentOutOfRangeException(nameof(start));
 
         var retVal = 0;
 
         foreach (var item in itemsList)
         {
-            if (retVal >= start && predicate(item)) return retVal;
+            if (retVal >= start && retVal <= itemsList.Count && predicate(item)) return retVal;
 
             retVal++;
         }
@@ -29,4 +30,6 @@ internal static class OscExtensions
         Array.Copy(data, index, result, 0, length);
         return result;
     }
+
+    public static bool Misaligned(this int index) => index % 4 != 0;
 }

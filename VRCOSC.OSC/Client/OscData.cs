@@ -5,8 +5,14 @@ namespace VRCOSC.OSC.Client;
 
 public class OscData
 {
-    public string Address { get; init; } = string.Empty;
-    public List<object> Values { get; init; } = Array.Empty<object>().ToList();
+    public readonly string Address;
+    public readonly List<object> Values;
+
+    public OscData(string address, List<object> values)
+    {
+        Address = address;
+        Values = values;
+    }
 
     public void PreValidate()
     {

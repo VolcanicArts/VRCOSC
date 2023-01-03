@@ -5,7 +5,7 @@ using System.Text;
 
 namespace VRCOSC.OSC.Client;
 
-public sealed class OscMessage : OscPacket
+public sealed class OscMessage
 {
     public readonly string Address;
     public readonly List<object> Values;
@@ -13,6 +13,7 @@ public sealed class OscMessage : OscPacket
     public OscMessage(string address, List<object> values)
     {
         if (address.Length == 0) throw new InvalidOperationException($"{nameof(address)} must have a non-zero length");
+        if (values.Count == 0) throw new InvalidOperationException($"{nameof(values)} must contain at least one element");
 
         Address = address;
         Values = values;
@@ -27,23 +28,27 @@ public sealed class OscMessage : OscPacket
         {
             switch (value)
             {
-                case int intArg:
+                case int intValue:
                     typeStringBuilder.Append('i');
-                    parts.Add(SetInt(intArg));
+                    parts.Add(OscTypeConverter.IntToBytes(intValue));
                     break;
 
-                case float floatArg:
+                case float floatValue:
                     typeStringBuilder.Append('f');
-                    parts.Add(SetFloat(floatArg));
+                    parts.Add(OscTypeConverter.FloatToBytes(floatValue));
                     break;
 
-                case string stringArg:
+                case string stringValue:
                     typeStringBuilder.Append('s');
-                    parts.Add(SetString(stringArg));
+                    parts.Add(OscTypeConverter.StringToBytes(stringValue));
                     break;
 
-                case bool boolArg:
-                    typeStringBuilder.Append(boolArg ? 'T' : 'F');
+                case true:
+                    typeStringBuilder.Append('T');
+                    break;
+
+                case false:
+                    typeStringBuilder.Append('F');
                     break;
 
                 default:
@@ -53,19 +58,17 @@ public sealed class OscMessage : OscPacket
 
         var typeString = typeStringBuilder.ToString();
 
-        var addressLen = (Encoding.UTF8.GetBytes(Address).Length / 4 + 1) * 4;
-        var typeLen = (Encoding.UTF8.GetBytes(typeString).Length / 4 + 1) * 4;
+        var addressBytes = Encoding.UTF8.GetBytes(Address);
+        var typeBytes = Encoding.UTF8.GetBytes(typeString);
 
-        var total = addressLen + typeLen + parts.Sum(x => x.Length);
-
-        var output = new byte[total];
+        var output = new byte[OscTypeConverter.CalculateAlignedLength(addressBytes) + OscTypeConverter.CalculateAlignedLength(typeBytes) + parts.Sum(x => x.Length)];
         var index = 0;
 
-        Encoding.UTF8.GetBytes(Address).CopyTo(output, index);
-        index += addressLen;
+        addressBytes.CopyTo(output, index);
+        index += OscTypeConverter.CalculateAlignedLength(addressBytes);
 
-        Encoding.UTF8.GetBytes(typeString).CopyTo(output, index);
-        index += typeLen;
+        typeBytes.CopyTo(output, index);
+        index += OscTypeConverter.CalculateAlignedLength(typeBytes);
 
         foreach (var part in parts)
         {

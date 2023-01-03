@@ -18,6 +18,6 @@ public static class SocketExtensions
     {
         buffer.Initialize();
         await socket.ReceiveAsync(buffer, SocketFlags.None, token);
-        return OscPacket.ParseMessage(buffer);
+        return OscDecoder.Decode(buffer);
     }
 }
