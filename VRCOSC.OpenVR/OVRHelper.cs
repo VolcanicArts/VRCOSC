@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Valve.VR;
@@ -12,6 +12,8 @@ public static class OVRHelper
 
     private static void error(string methodName, ETrackedDeviceProperty property, ETrackedPropertyError error, uint index)
     {
+        if (error == ETrackedPropertyError.TrackedProp_UnknownProperty) return;
+
         var name = GetStringTrackedDeviceProperty(index, ETrackedDeviceProperty.Prop_RenderModelName_String);
         OnError?.Invoke($"{methodName} encountered error {error} on device {name} when getting property {property}");
     }
