@@ -55,9 +55,23 @@ public static class OVRHelper
     // We can forcibly find the correct indexes by using the model name
     internal static uint GetControllerIdFromHint(string controllerHint)
     {
+        // prioritise the latest connected controller
+
+        var controllerIds = getAllControllersFromHint(controllerHint);
+
+        var connectedId = controllerIds
+                          .Where(index => Valve.VR.OpenVR.System.IsTrackedDeviceConnected(index))
+                          .LastOrDefault(Valve.VR.OpenVR.k_unTrackedDeviceIndexInvalid);
+
+        if (connectedId != Valve.VR.OpenVR.k_unTrackedDeviceIndexInvalid) return connectedId;
+
+        return controllerIds.LastOrDefault(Valve.VR.OpenVR.k_unTrackedDeviceIndexInvalid);
+    }
+
+    private static IEnumerable<uint> getAllControllersFromHint(string controllerHint)
+    {
         return GetIndexesForTrackedDeviceClass(ETrackedDeviceClass.Controller)
-               .Where(index => GetStringTrackedDeviceProperty(index, ETrackedDeviceProperty.Prop_RenderModelName_String).Contains(controllerHint, StringComparison.InvariantCultureIgnoreCase))
-               .SingleOrDefault(Valve.VR.OpenVR.k_unTrackedDeviceIndexInvalid);
+            .Where(index => GetStringTrackedDeviceProperty(index, ETrackedDeviceProperty.Prop_RenderModelName_String).Contains(controllerHint, StringComparison.InvariantCultureIgnoreCase));
     }
 
     internal static uint GetIndexForTrackedDeviceClass(ETrackedDeviceClass klass)
