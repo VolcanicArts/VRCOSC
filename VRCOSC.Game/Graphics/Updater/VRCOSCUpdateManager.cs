@@ -25,19 +25,6 @@ public abstract partial class VRCOSCUpdateManager : Component
     [Resolved]
     private VRCOSCConfigManager configManager { get; set; } = null!;
 
-    protected ProgressNotification PostCheckNotification()
-    {
-        var progressNotification = new ProgressNotification
-        {
-            Title = "Checking For Update",
-            Colour = ThemeManager.Current[ThemeAttribute.Pending],
-            Icon = FontAwesome.Solid.Cog
-        };
-
-        Schedule(() => notifications.Notify(progressNotification));
-        return progressNotification;
-    }
-
     protected void PostUpdateAvailableNotification() => Schedule(() =>
     {
         notifications.Notify(new BasicNotification

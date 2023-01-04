@@ -45,8 +45,7 @@ public partial class SquirrelUpdateManager : VRCOSCUpdateManager
 
         try
         {
-            var checkNotification = PostCheckNotification();
-            updateInfo = await updateManager.CheckForUpdate(!useDelta, p => checkNotification.Progress = p / 100f);
+            updateInfo = await updateManager.CheckForUpdate(!useDelta);
 
             if (!updateInfo.ReleasesToApply.Any())
             {
