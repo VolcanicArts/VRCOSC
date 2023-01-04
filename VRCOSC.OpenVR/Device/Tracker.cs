@@ -3,10 +3,6 @@
 
 namespace VRCOSC.OpenVR.Device;
 
-public class GenericTracker : OVRDevice
+public class Tracker : OVRDevice
 {
-    public GenericTracker(uint id)
-        : base(id)
-    {
-    }
 }

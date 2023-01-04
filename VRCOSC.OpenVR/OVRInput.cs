@@ -1,6 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
-// See the LICENSE file in the repository root for full license text.
-
+﻿using System.Runtime.CompilerServices;
 using Valve.VR;
 
 namespace VRCOSC.OpenVR;
@@ -8,6 +6,8 @@ namespace VRCOSC.OpenVR;
 public class OVRInput
 {
     private readonly OVRClient client;
+
+    private static readonly uint vractiveactonset_t_size = (uint)Unsafe.SizeOf<VRActiveActionSet_t>();
 
     private ulong actionSetHandle;
     private readonly ulong[] leftControllerActions = new ulong[8];
@@ -64,37 +64,31 @@ public class OVRInput
                 nPriority = 0
             }
         };
-        Valve.VR.OpenVR.Input.UpdateActionState(activeActionSet, Constants.VRACTIVEACTONSET_T_SIZE);
+        Valve.VR.OpenVR.Input.UpdateActionState(activeActionSet, vractiveactonset_t_size);
     }
 
     private void updateDevices()
     {
-        var leftControllerState = client.LeftController?.Input;
+        var leftControllerState = client.LeftController.Input;
 
-        if (leftControllerState is not null)
-        {
-            leftControllerState.A.Touched = OVRHelper.GetDigitalInput(leftControllerActions[0]).bState;
-            leftControllerState.B.Touched = OVRHelper.GetDigitalInput(leftControllerActions[1]).bState;
-            leftControllerState.PadTouched = OVRHelper.GetDigitalInput(leftControllerActions[2]).bState;
-            leftControllerState.StickTouched = OVRHelper.GetDigitalInput(leftControllerActions[3]).bState;
-            leftControllerState.IndexFinger = OVRHelper.GetAnalogueInput(leftControllerActions[4]).x;
-            leftControllerState.MiddleFinger = OVRHelper.GetAnalogueInput(leftControllerActions[5]).x;
-            leftControllerState.RingFinger = OVRHelper.GetAnalogueInput(leftControllerActions[6]).x;
-            leftControllerState.PinkyFinger = OVRHelper.GetAnalogueInput(leftControllerActions[7]).x;
-        }
+        leftControllerState.A.Touched = OVRHelper.GetDigitalInput(leftControllerActions[0]).bState;
+        leftControllerState.B.Touched = OVRHelper.GetDigitalInput(leftControllerActions[1]).bState;
+        leftControllerState.PadTouched = OVRHelper.GetDigitalInput(leftControllerActions[2]).bState;
+        leftControllerState.StickTouched = OVRHelper.GetDigitalInput(leftControllerActions[3]).bState;
+        leftControllerState.IndexFinger = OVRHelper.GetAnalogueInput(leftControllerActions[4]).x;
+        leftControllerState.MiddleFinger = OVRHelper.GetAnalogueInput(leftControllerActions[5]).x;
+        leftControllerState.RingFinger = OVRHelper.GetAnalogueInput(leftControllerActions[6]).x;
+        leftControllerState.PinkyFinger = OVRHelper.GetAnalogueInput(leftControllerActions[7]).x;
 
-        var rightControllerState = client.RightController?.Input;
+        var rightControllerState = client.RightController.Input;
 
-        if (rightControllerState is not null)
-        {
-            rightControllerState.A.Touched = OVRHelper.GetDigitalInput(rightControllerActions[0]).bState;
-            rightControllerState.B.Touched = OVRHelper.GetDigitalInput(rightControllerActions[1]).bState;
-            rightControllerState.PadTouched = OVRHelper.GetDigitalInput(rightControllerActions[2]).bState;
-            rightControllerState.StickTouched = OVRHelper.GetDigitalInput(rightControllerActions[3]).bState;
-            rightControllerState.IndexFinger = OVRHelper.GetAnalogueInput(rightControllerActions[4]).x;
-            rightControllerState.MiddleFinger = OVRHelper.GetAnalogueInput(rightControllerActions[5]).x;
-            rightControllerState.RingFinger = OVRHelper.GetAnalogueInput(rightControllerActions[6]).x;
-            rightControllerState.PinkyFinger = OVRHelper.GetAnalogueInput(rightControllerActions[7]).x;
-        }
+        rightControllerState.A.Touched = OVRHelper.GetDigitalInput(rightControllerActions[0]).bState;
+        rightControllerState.B.Touched = OVRHelper.GetDigitalInput(rightControllerActions[1]).bState;
+        rightControllerState.PadTouched = OVRHelper.GetDigitalInput(rightControllerActions[2]).bState;
+        rightControllerState.StickTouched = OVRHelper.GetDigitalInput(rightControllerActions[3]).bState;
+        rightControllerState.IndexFinger = OVRHelper.GetAnalogueInput(rightControllerActions[4]).x;
+        rightControllerState.MiddleFinger = OVRHelper.GetAnalogueInput(rightControllerActions[5]).x;
+        rightControllerState.RingFinger = OVRHelper.GetAnalogueInput(rightControllerActions[6]).x;
+        rightControllerState.PinkyFinger = OVRHelper.GetAnalogueInput(rightControllerActions[7]).x;
     }
 }

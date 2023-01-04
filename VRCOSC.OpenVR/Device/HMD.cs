@@ -5,8 +5,6 @@ namespace VRCOSC.OpenVR.Device;
 
 public class HMD : OVRDevice
 {
-    public HMD(uint id)
-        : base(id)
-    {
-    }
+    // TODO Check if this override is actually needed
+    protected override bool IsTrackedDeviceConnected() => Valve.VR.OpenVR.IsHmdPresent();
 }

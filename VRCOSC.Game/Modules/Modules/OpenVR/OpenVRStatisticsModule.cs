@@ -1,7 +1,8 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using VRCOSC.OpenVR;
 
@@ -9,8 +10,6 @@ namespace VRCOSC.Game.Modules.Modules.OpenVR;
 
 public partial class OpenVRStatisticsModule : ChatBoxModule
 {
-    private const int max_tracker_count = 8;
-
     public override string Title => "OpenVR Statistics";
     public override string Description => "Gets statistics from your OpenVR (SteamVR) session";
     public override string Author => "VolcanicArts";
@@ -18,8 +17,8 @@ public partial class OpenVRStatisticsModule : ChatBoxModule
     protected override int DeltaUpdate => 5000;
     protected override int ChatBoxPriority => 1;
     protected override bool DefaultChatBoxDisplay => false;
-    protected override IEnumerable<string> ChatBoxFormatValues => new[] { @"$fps$", @"$hmdbattery$", @"$leftcontrollerbattery$", @"$rightcontrollerbattery$" };
-    protected override string DefaultChatBoxFormat => @"FPS: $fps$ | HMD: $hmdbattery$ | LC: $leftcontrollerbattery$ | RC: $rightcontrollerbattery$";
+    protected override IEnumerable<string> ChatBoxFormatValues => new[] { "$fps$", "$hmdbattery$", "$leftcontrollerbattery$", "$rightcontrollerbattery$" };
+    protected override string DefaultChatBoxFormat => "FPS: $fps$ | HMD: $hmdbattery$ | LC: $leftcontrollerbattery$ | RC: $rightcontrollerbattery$";
 
     protected override void CreateAttributes()
     {
@@ -38,7 +37,7 @@ public partial class OpenVRStatisticsModule : ChatBoxModule
         CreateParameter<float>(OpenVrParameter.RightController_Battery, ParameterMode.Write, "VRCOSC/OpenVR/RightController/Battery", "The battery percentage normalised of your right controller");
         CreateParameter<bool>(OpenVrParameter.RightController_Charging, ParameterMode.Write, "VRCOSC/OpenVR/RightController/Charging", "The charge state of your right controller");
 
-        for (int i = 0; i < max_tracker_count; i++)
+        for (int i = 0; i < OVRSystem.MAX_TRACKER_COUNT; i++)
         {
             CreateParameter<bool>(OpenVrParameter.Tracker1_Connected + i, ParameterMode.Write, $"VRCOSC/OpenVR/Trackers/{i + 1}/Connected", $"Whether tracker {i + 1} is connected");
             CreateParameter<float>(OpenVrParameter.Tracker1_Battery + i, ParameterMode.Write, $"VRCOSC/OpenVR/Trackers/{i + 1}/Battery", $"The battery percentage normalised (0-1) of tracker {i + 1}");
@@ -51,77 +50,49 @@ public partial class OpenVRStatisticsModule : ChatBoxModule
         if (!OVRClient.HasInitialised) return null;
 
         return GetSetting<string>(ChatBoxSetting.ChatBoxFormat)
-               .Replace(@"$fps$", OVRHelper.FPS.ToString("00"))
-               .Replace(@"$hmdbattery$", (OVRClient.HMD?.BatteryPercentage * 100)?.ToString("#.##"))
-               .Replace(@"$leftcontrollerbattery$", (OVRClient.LeftController?.BatteryPercentage * 100)?.ToString("#.##"))
-               .Replace(@"$rightcontrollerbattery$", (OVRClient.RightController?.BatteryPercentage * 100)?.ToString("#.##"));
+               .Replace("$fps$", OVRClient.System.FPS.ToString("00", CultureInfo.InvariantCulture))
+               .Replace("$hmdbattery$", ((int)(OVRClient.HMD.BatteryPercentage * 100)).ToString(CultureInfo.InvariantCulture))
+               .Replace("$leftcontrollerbattery$", ((int)(OVRClient.LeftController.BatteryPercentage * 100)).ToString(CultureInfo.InvariantCulture))
+               .Replace("$rightcontrollerbattery$", ((int)(OVRClient.RightController.BatteryPercentage * 100)).ToString(CultureInfo.InvariantCulture));
     }
 
     protected override void OnModuleUpdate()
     {
         if (!OVRClient.HasInitialised) return;
 
-        SendParameter(OpenVrParameter.FPS, OVRHelper.FPS / 240.0f);
+        SendParameter(OpenVrParameter.FPS, OVRClient.System.FPS / 240.0f);
         handleHmd();
-        handleLeftController();
-        handleRightController();
+        handleControllers();
         handleTrackers();
     }
 
     private void handleHmd()
     {
-        var hmd = OVRClient.HMD;
+        SendParameter(OpenVrParameter.HMD_Connected, OVRClient.HMD.IsConnected);
 
-        if (hmd is null)
+        if (OVRClient.HMD.IsConnected && OVRClient.HMD.ProvidesBatteryStatus)
         {
-            SendParameter(OpenVrParameter.HMD_Connected, false);
-            return;
-        }
-
-        SendParameter(OpenVrParameter.HMD_Connected, hmd.IsConnected);
-
-        if (hmd.IsConnected && hmd.ProvidesBatteryStatus)
-        {
-            SendParameter(OpenVrParameter.HMD_Battery, hmd.BatteryPercentage);
-            SendParameter(OpenVrParameter.HMD_Charging, hmd.IsCharging);
+            SendParameter(OpenVrParameter.HMD_Battery, OVRClient.HMD.BatteryPercentage);
+            SendParameter(OpenVrParameter.HMD_Charging, OVRClient.HMD.IsCharging);
         }
     }
 
-    private void handleLeftController()
+    private void handleControllers()
     {
-        var leftController = OVRClient.LeftController;
+        SendParameter(OpenVrParameter.LeftController_Connected, OVRClient.LeftController.IsConnected);
 
-        if (leftController is null)
+        if (OVRClient.LeftController.IsConnected && OVRClient.LeftController.ProvidesBatteryStatus)
         {
-            SendParameter(OpenVrParameter.LeftController_Connected, false);
-            return;
+            SendParameter(OpenVrParameter.LeftController_Battery, OVRClient.LeftController.BatteryPercentage);
+            SendParameter(OpenVrParameter.LeftController_Charging, OVRClient.LeftController.IsCharging);
         }
 
-        SendParameter(OpenVrParameter.LeftController_Connected, leftController.IsConnected);
+        SendParameter(OpenVrParameter.RightController_Connected, OVRClient.RightController.IsConnected);
 
-        if (leftController.IsConnected && leftController.ProvidesBatteryStatus)
+        if (OVRClient.RightController.IsConnected && OVRClient.RightController.ProvidesBatteryStatus)
         {
-            SendParameter(OpenVrParameter.LeftController_Battery, leftController.BatteryPercentage);
-            SendParameter(OpenVrParameter.LeftController_Charging, leftController.IsCharging);
-        }
-    }
-
-    private void handleRightController()
-    {
-        var rightController = OVRClient.RightController;
-
-        if (rightController is null)
-        {
-            SendParameter(OpenVrParameter.RightController_Connected, false);
-            return;
-        }
-
-        SendParameter(OpenVrParameter.RightController_Connected, rightController.IsConnected);
-
-        if (rightController.IsConnected && rightController.ProvidesBatteryStatus)
-        {
-            SendParameter(OpenVrParameter.RightController_Battery, rightController.BatteryPercentage);
-            SendParameter(OpenVrParameter.RightController_Charging, rightController.IsCharging);
+            SendParameter(OpenVrParameter.RightController_Battery, OVRClient.RightController.BatteryPercentage);
+            SendParameter(OpenVrParameter.RightController_Charging, OVRClient.RightController.IsCharging);
         }
     }
 
@@ -129,14 +100,8 @@ public partial class OpenVRStatisticsModule : ChatBoxModule
     {
         var trackers = OVRClient.Trackers.ToList();
 
-        for (int i = 0; i < max_tracker_count; i++)
+        for (int i = 0; i < OVRSystem.MAX_TRACKER_COUNT; i++)
         {
-            if (i >= trackers.Count)
-            {
-                SendParameter(OpenVrParameter.Tracker1_Connected + i, false);
-                continue;
-            }
-
             var tracker = trackers[i];
 
             SendParameter(OpenVrParameter.Tracker1_Connected + i, tracker.IsConnected);
