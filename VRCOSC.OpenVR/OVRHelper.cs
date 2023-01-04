@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Valve.VR;
@@ -35,7 +35,7 @@ public static class OVRHelper
         {
             m_nSize = compositor_frametiming_size
         };
-        Valve.VR.OpenVR.Compositor.GetFrameTiming(ref frameTiming, 0);
+        Valve.VR.OpenVR.Compositor.GetFrameTiming(ref frameTiming, 60);
         return frameTiming.m_flTotalRenderGpuMs;
     }
 
