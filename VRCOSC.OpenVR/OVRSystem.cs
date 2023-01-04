@@ -44,7 +44,7 @@ public class OVRSystem
 
         var trackerIds = getTrackerIndexes().ToList();
 
-        for (int i = 0; i < MAX_TRACKER_COUNT; i++)
+        for (int i = 0; i < Math.Min(MAX_TRACKER_COUNT, trackerIds.Count); i++)
         {
             Trackers[i].BindTo(trackerIds[i]);
         }
