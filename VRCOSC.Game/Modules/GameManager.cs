@@ -60,8 +60,8 @@ public partial class GameManager : CompositeComponent
         OVRClient = new OVRClient(new OVRMetadata
         {
             ApplicationType = EVRApplicationType.VRApplication_Background,
-            ApplicationManifest = storage.GetFullPath(@"app.vrmanifest"),
-            ActionManifest = storage.GetFullPath(@"action_manifest.json")
+            ApplicationManifest = storage.GetFullPath(@"openvr/app.vrmanifest"),
+            ActionManifest = storage.GetFullPath(@"openvr/action_manifest.json")
         });
         OVRHelper.OnError += m => Logger.Log($"[OpenVR] {m}");
 
