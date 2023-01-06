@@ -88,7 +88,7 @@ public sealed partial class AboutScreen : Container
         {
             text.Clear();
             text.AddText($"VRCOSC {version.NewValue}");
-            text.AddParagraph("Copyright VolcanicArts 2022. See license file in repository root for more information");
+            text.AddParagraph("Copyright VolcanicArts 2023. See license file in repository root for more information");
         }, true);
     }
 
