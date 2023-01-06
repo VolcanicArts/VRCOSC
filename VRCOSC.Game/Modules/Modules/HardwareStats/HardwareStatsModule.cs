@@ -13,7 +13,6 @@ public sealed partial class HardwareStatsModule : ChatBoxModule
     public override ModuleType Type => ModuleType.General;
     protected override int DeltaUpdate => 500;
 
-    protected override bool DefaultChatBoxDisplay => true;
     protected override string DefaultChatBoxFormat => @"CPU: $cpuusage$% | GPU: $gpuusage$%                RAM: $ramused$GB/$ramtotal$GB";
     protected override IEnumerable<string> ChatBoxFormatValues => new[] { @"$cpuusage$ (%)", @"$gpuusage$ (%)", @"$ramusage$ (%)", @"$cputemp$ (C)", @"$gputemp$ (C)", @"$ramtotal$ (GB)", @"$ramused$ (GB)", @"$ramavailable$ (GB)" };
 

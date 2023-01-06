@@ -16,7 +16,7 @@ public partial class WeatherModule : ChatBoxModule
     protected override int ChatBoxPriority => 1;
 
     protected override IEnumerable<string> ChatBoxFormatValues => new[] { "%tempc%", "%tempf%", "%humidity%" };
-    protected override string DefaultChatBoxFormat => "Local Weather                        %tempc%C";
+    protected override string DefaultChatBoxFormat => "Local Weather                                %tempc%C";
 
     private Weather? currentWeather;
 
@@ -59,8 +59,8 @@ public partial class WeatherModule : ChatBoxModule
         if (currentWeather is null) return null;
 
         return GetSetting<string>(ChatBoxSetting.ChatBoxFormat)
-               .Replace("%tempc%", currentWeather.TempC.ToString("##.##"))
-               .Replace("%tempf%", currentWeather.TempF.ToString("##.##"))
+               .Replace(@"%tempc%", currentWeather.TempC.ToString("##.##"))
+               .Replace(@"%tempf%", currentWeather.TempF.ToString("##.##"))
                .Replace("%humidity%", currentWeather.Humidity.ToString());
     }
 

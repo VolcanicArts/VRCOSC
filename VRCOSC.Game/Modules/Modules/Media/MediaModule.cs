@@ -20,7 +20,6 @@ public sealed partial class MediaModule : ChatBoxModule
     public override ModuleType Type => ModuleType.Integrations;
     protected override int ChatBoxPriority => 2;
 
-    protected override bool DefaultChatBoxDisplay => true;
     protected override string DefaultChatBoxFormat => @"[%curtime%/%duration%]                            Now Playing: %artist% - %title%";
     protected override IEnumerable<string> ChatBoxFormatValues => new[] { @"%title%", @"%artist%", @"%curtime%", @"%duration%" };
 

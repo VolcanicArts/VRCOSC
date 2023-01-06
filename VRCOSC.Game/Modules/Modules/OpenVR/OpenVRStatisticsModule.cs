@@ -16,9 +16,10 @@ public partial class OpenVRStatisticsModule : ChatBoxModule
     public override ModuleType Type => ModuleType.OpenVR;
     protected override int DeltaUpdate => 5000;
     protected override int ChatBoxPriority => 1;
+
     protected override bool DefaultChatBoxDisplay => false;
-    protected override IEnumerable<string> ChatBoxFormatValues => new[] { "$fps$", "$hmdbattery$", "$leftcontrollerbattery$", "$rightcontrollerbattery$" };
-    protected override string DefaultChatBoxFormat => "FPS: $fps$ | HMD: $hmdbattery$ | LC: $leftcontrollerbattery$ | RC: $rightcontrollerbattery$";
+    protected override IEnumerable<string> ChatBoxFormatValues => new[] { "$fps$", @"$hmdbattery$", @"$leftcontrollerbattery$", @"$rightcontrollerbattery$" };
+    protected override string DefaultChatBoxFormat => @"FPS: $fps$ | HMD: $hmdbattery$ | LC: $leftcontrollerbattery$ | RC: $rightcontrollerbattery$";
 
     protected override void CreateAttributes()
     {
@@ -51,9 +52,9 @@ public partial class OpenVRStatisticsModule : ChatBoxModule
 
         return GetSetting<string>(ChatBoxSetting.ChatBoxFormat)
                .Replace("$fps$", OVRClient.System.FPS.ToString("00", CultureInfo.InvariantCulture))
-               .Replace("$hmdbattery$", ((int)(OVRClient.HMD.BatteryPercentage * 100)).ToString(CultureInfo.InvariantCulture))
-               .Replace("$leftcontrollerbattery$", ((int)(OVRClient.LeftController.BatteryPercentage * 100)).ToString(CultureInfo.InvariantCulture))
-               .Replace("$rightcontrollerbattery$", ((int)(OVRClient.RightController.BatteryPercentage * 100)).ToString(CultureInfo.InvariantCulture));
+               .Replace(@"$hmdbattery$", ((int)(OVRClient.HMD.BatteryPercentage * 100)).ToString(CultureInfo.InvariantCulture))
+               .Replace(@"$leftcontrollerbattery$", ((int)(OVRClient.LeftController.BatteryPercentage * 100)).ToString(CultureInfo.InvariantCulture))
+               .Replace(@"$rightcontrollerbattery$", ((int)(OVRClient.RightController.BatteryPercentage * 100)).ToString(CultureInfo.InvariantCulture));
     }
 
     protected override void OnModuleUpdate()

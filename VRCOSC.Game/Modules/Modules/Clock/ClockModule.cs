@@ -16,7 +16,6 @@ public sealed partial class ClockModule : ChatBoxModule
     public override ModuleType Type => ModuleType.General;
     protected override int DeltaUpdate => GetSetting<bool>(ClockSetting.SmoothSecond) ? VRChatOscConstants.UPDATE_DELTA : 1000;
 
-    protected override bool DefaultChatBoxDisplay => true;
     protected override string DefaultChatBoxFormat => "Local Time                                %h%:%m%%period%";
     protected override IEnumerable<string> ChatBoxFormatValues => new[] { "%h%", "%m%", "%s%", "%period%" };
 
