@@ -17,6 +17,7 @@ using VRCOSC.Game.Modules.Modules.Heartrate.Pulsoid;
 using VRCOSC.Game.Modules.Modules.Media;
 using VRCOSC.Game.Modules.Modules.OpenVR;
 using VRCOSC.Game.Modules.Modules.Random;
+using VRCOSC.Game.Modules.Modules.Weather;
 
 namespace VRCOSC.Game.Modules;
 
@@ -34,6 +35,7 @@ public sealed partial class ModuleManager : CompositeComponent, IEnumerable<Modu
         typeof(ClockModule),
         typeof(ChatBoxTextModule),
         typeof(HardwareStatsModule),
+        typeof(WeatherModule),
         typeof(RandomBoolModule),
         typeof(RandomIntModule),
         typeof(RandomFloatModule)
