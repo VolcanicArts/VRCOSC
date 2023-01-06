@@ -36,7 +36,7 @@ public sealed partial class ModuleCard : Container
         Masking = true;
         CornerRadius = 5;
 
-        TextFlowContainer metadataTextFlow;
+        SpriteText description;
 
         Children = new Drawable[]
         {
@@ -84,15 +84,34 @@ public sealed partial class ModuleCard : Container
                             State = (BindableBool)Module.Enabled.GetBoundCopy()
                         }
                     },
-                    metadataTextFlow = new TextFlowContainer
+                    new FillFlowContainer
                     {
                         Anchor = Anchor.CentreLeft,
                         Origin = Anchor.CentreLeft,
                         RelativeSizeAxes = Axes.X,
                         AutoSizeAxes = Axes.Y,
+                        Direction = FillDirection.Vertical,
                         Padding = new MarginPadding
                         {
-                            Vertical = 5
+                            Vertical = 4
+                        },
+                        Children = new Drawable[]
+                        {
+                            new SpriteText
+                            {
+                                Anchor = Anchor.TopLeft,
+                                Origin = Anchor.TopLeft,
+                                Font = FrameworkFont.Regular.With(size: 25),
+                                Colour = ThemeManager.Current[ThemeAttribute.Text],
+                                Text = module.Title
+                            },
+                            description = new SpriteText
+                            {
+                                Anchor = Anchor.TopLeft,
+                                Origin = Anchor.TopLeft,
+                                Font = FrameworkFont.Regular.With(size: 20),
+                                Colour = ThemeManager.Current[ThemeAttribute.Text]
+                            }
                         }
                     }
                 }
@@ -150,21 +169,10 @@ public sealed partial class ModuleCard : Container
                 }
             }
         };
+        var descriptionText = Module.Description;
+        if (!string.IsNullOrEmpty(Module.Prefab)) descriptionText += $". Pairs with {Module.Prefab}";
 
-        metadataTextFlow.AddText(Module.Title, t =>
-        {
-            t.Font = FrameworkFont.Regular.With(size: 25);
-            t.Colour = ThemeManager.Current[ThemeAttribute.Text];
-        });
-
-        var description = Module.Description;
-        if (!string.IsNullOrEmpty(Module.Prefab)) description += $". Pairs with {Module.Prefab}";
-
-        metadataTextFlow.AddParagraph(description, t =>
-        {
-            t.Font = FrameworkFont.Regular.With(size: 20);
-            t.Colour = ThemeManager.Current[ThemeAttribute.Text];
-        });
+        description.Text = descriptionText;
     }
 
     private Colour4 calculateModuleColour()
