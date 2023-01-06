@@ -8,6 +8,7 @@ using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.EnumExtensions;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
@@ -37,6 +38,7 @@ public abstract partial class Module : Component
     public readonly BindableBool Enabled = new();
     public readonly Dictionary<string, ModuleAttribute> Settings = new();
     public readonly Dictionary<Enum, ParameterMetadata> Parameters = new();
+    private readonly Dictionary<string, Enum> parametersReversed = new();
 
     public virtual string Title => string.Empty;
     public virtual string Description => string.Empty;
@@ -65,6 +67,9 @@ public abstract partial class Module : Component
         Terminal = new TerminalLogger(Title);
 
         CreateAttributes();
+
+        Parameters.ForEach(pair => parametersReversed.Add(pair.Value.Name, pair.Key));
+
         performLoad();
     }
 
@@ -218,19 +223,9 @@ public abstract partial class Module : Component
             return;
         }
 
-        if (!data.IsAvatarParameter) return;
+        if (!data.IsAvatarParameter || !parametersReversed.ContainsKey(data.ParameterName)) return;
 
-        Enum? lookup;
-
-        try
-        {
-            lookup = Parameters.Single(pair => pair.Value.Name == data.ParameterName).Key;
-        }
-        catch (InvalidOperationException)
-        {
-            return;
-        }
-
+        var lookup = parametersReversed[data.ParameterName];
         var parameterData = Parameters[lookup];
 
         if (!parameterData.Mode.HasFlagFast(ParameterMode.Read)) return;
