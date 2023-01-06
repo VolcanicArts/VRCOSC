@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -12,11 +13,11 @@ public partial class WeatherModule : ChatBoxModule
     public override string Description => "Retrieves weather information";
     public override string Author => "VolcanicArts";
     public override ModuleType Type => ModuleType.General;
-    protected override int DeltaUpdate => 600000;
+    protected override TimeSpan DeltaUpdate => TimeSpan.FromMinutes(10);
     protected override int ChatBoxPriority => 1;
 
-    protected override IEnumerable<string> ChatBoxFormatValues => new[] { "%tempc%", "%tempf%", "%humidity%" };
-    protected override string DefaultChatBoxFormat => "Local Weather                                %tempc%C";
+    protected override IEnumerable<string> ChatBoxFormatValues => new[] { @"%tempc%", @"%tempf%", @"%humidity%" };
+    protected override string DefaultChatBoxFormat => @"Local Weather                                %tempc%C";
 
     private Weather? currentWeather;
 

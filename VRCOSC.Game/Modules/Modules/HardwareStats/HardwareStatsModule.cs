@@ -1,6 +1,7 @@
 // Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Collections.Generic;
 
 namespace VRCOSC.Game.Modules.Modules.HardwareStats;
@@ -11,7 +12,7 @@ public sealed partial class HardwareStatsModule : ChatBoxModule
     public override string Description => "Sends hardware stats and displays them in the ChatBox";
     public override string Author => "VolcanicArts";
     public override ModuleType Type => ModuleType.General;
-    protected override int DeltaUpdate => 500;
+    protected override TimeSpan DeltaUpdate => TimeSpan.FromSeconds(0.5);
 
     protected override string DefaultChatBoxFormat => @"CPU: $cpuusage$% | GPU: $gpuusage$%                RAM: $ramused$GB/$ramtotal$GB";
     protected override IEnumerable<string> ChatBoxFormatValues => new[] { @"$cpuusage$ (%)", @"$gpuusage$ (%)", @"$ramusage$ (%)", @"$cputemp$ (C)", @"$gputemp$ (C)", @"$ramtotal$ (GB)", @"$ramused$ (GB)", @"$ramavailable$ (GB)" };

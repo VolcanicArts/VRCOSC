@@ -14,7 +14,7 @@ public sealed partial class ClockModule : ChatBoxModule
     public override string Author => "VolcanicArts";
     public override string Prefab => "VRCOSC-Watch";
     public override ModuleType Type => ModuleType.General;
-    protected override int DeltaUpdate => GetSetting<bool>(ClockSetting.SmoothSecond) ? VRChatOscConstants.UPDATE_DELTA : 1000;
+    protected override TimeSpan DeltaUpdate => GetSetting<bool>(ClockSetting.SmoothSecond) ? VRChatOscConstants.UPDATE_TIME_SPAN : TimeSpan.FromSeconds(1);
 
     protected override string DefaultChatBoxFormat => "Local Time                                %h%:%m%%period%";
     protected override IEnumerable<string> ChatBoxFormatValues => new[] { "%h%", "%m%", "%s%", "%period%" };

@@ -11,7 +11,7 @@ public abstract partial class RandomModule<T> : Module where T : struct
     public override string Description => $"Sends a random {typeof(T).ToReadableName().ToLowerInvariant()} over a variable time period";
     public override string Author => "VolcanicArts";
     public override ModuleType Type => ModuleType.General;
-    protected override int DeltaUpdate => GetSetting<int>(RandomSetting.DeltaUpdate);
+    protected override TimeSpan DeltaUpdate => TimeSpan.FromMilliseconds(GetSetting<int>(RandomSetting.DeltaUpdate));
 
     private readonly System.Random random = new();
 

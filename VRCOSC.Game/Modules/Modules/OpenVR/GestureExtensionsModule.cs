@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using VRCOSC.OpenVR.Input;
 using VRCOSC.OSC.VRChat;
 
@@ -12,7 +13,7 @@ public partial class GestureExtensionsModule : Module
     public override string Description => "Detect a range of custom gestures from Index controllers";
     public override string Author => "VolcanicArts";
     public override ModuleType Type => ModuleType.OpenVR;
-    protected override int DeltaUpdate => VRChatOscConstants.UPDATE_DELTA;
+    protected override TimeSpan DeltaUpdate => VRChatOscConstants.UPDATE_TIME_SPAN;
 
     private float lowerThreshold;
     private float upperThreshold;

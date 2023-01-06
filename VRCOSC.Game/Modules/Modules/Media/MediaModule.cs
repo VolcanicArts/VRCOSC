@@ -16,7 +16,7 @@ public sealed partial class MediaModule : ChatBoxModule
     public override string Description => "Integration with Windows Media";
     public override string Author => "VolcanicArts";
     public override string Prefab => "VRCOSC-Media";
-    protected override int DeltaUpdate => 2000;
+    protected override TimeSpan DeltaUpdate => TimeSpan.FromSeconds(2);
     public override ModuleType Type => ModuleType.Integrations;
     protected override int ChatBoxPriority => 2;
 

@@ -43,11 +43,11 @@ public abstract partial class Module : Component
     public virtual string Author => string.Empty;
     public virtual string Prefab => string.Empty;
     public virtual ModuleType Type => ModuleType.General;
-    protected virtual int DeltaUpdate => int.MaxValue;
+    protected virtual TimeSpan DeltaUpdate => TimeSpan.MaxValue;
     protected virtual int ChatBoxPriority => 0;
 
     private bool IsEnabled => Enabled.Value;
-    private bool ShouldUpdate => DeltaUpdate != int.MaxValue;
+    private bool ShouldUpdate => DeltaUpdate != TimeSpan.MaxValue;
     private string FileName => @$"{GetType().Name}.ini";
 
     protected bool IsStarting => State.Value == ModuleState.Starting;
@@ -131,7 +131,7 @@ public abstract partial class Module : Component
         if (ShouldUpdate)
         {
             Scheduler.Add(OnModuleUpdate);
-            Scheduler.AddDelayed(OnModuleUpdate, DeltaUpdate, true);
+            Scheduler.AddDelayed(OnModuleUpdate, DeltaUpdate.TotalMilliseconds, true);
         }
 
         GameManager.OscClient.OnParameterReceived += onParameterReceived;

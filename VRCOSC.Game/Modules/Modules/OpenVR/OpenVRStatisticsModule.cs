@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -14,7 +15,7 @@ public partial class OpenVRStatisticsModule : ChatBoxModule
     public override string Description => "Gets statistics from your OpenVR (SteamVR) session";
     public override string Author => "VolcanicArts";
     public override ModuleType Type => ModuleType.OpenVR;
-    protected override int DeltaUpdate => 5000;
+    protected override TimeSpan DeltaUpdate => TimeSpan.FromSeconds(5);
     protected override int ChatBoxPriority => 1;
 
     protected override bool DefaultChatBoxDisplay => false;
