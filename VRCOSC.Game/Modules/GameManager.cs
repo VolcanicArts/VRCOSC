@@ -5,7 +5,6 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Sockets;
-using System.Threading;
 using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
@@ -40,7 +39,6 @@ public partial class GameManager : CompositeComponent
     private Bindable<Module?> infoModule { get; set; } = null!;
 
     private Bindable<bool> autoStartStop = null!;
-    private CancellationTokenSource? startTokenSource;
     private bool hasAutoStarted;
 
     public readonly VRChatOscClient OscClient = new();
@@ -99,7 +97,7 @@ public partial class GameManager : CompositeComponent
 
     private async Task startAsync()
     {
-        if (State.Value is not (GameManagerState.Stopping or GameManagerState.Stopped))
+        if (State.Value is GameManagerState.Starting or GameManagerState.Started)
             throw new InvalidOperationException($"Cannot start {nameof(GameManager)} when state is {State.Value}");
 
         if (editingModule.Value is not null || infoModule.Value is not null)
@@ -108,40 +106,31 @@ public partial class GameManager : CompositeComponent
             return;
         }
 
-        try
+        if (!initialiseOscClient())
         {
-            startTokenSource = new CancellationTokenSource();
-
-            if (!initialiseOscClient())
-            {
-                hasAutoStarted = false;
-                return;
-            }
-
-            State.Value = GameManagerState.Starting;
-
-            await Task.Delay(startstop_delay, startTokenSource.Token);
-
-            OscClient.OnParameterReceived += onParameterReceived;
-            Player.Initialise();
-            ChatBoxInterface.Initialise();
-            sendControlValues();
-            ModuleManager.Start();
-
-            State.Value = GameManagerState.Started;
+            hasAutoStarted = false;
+            return;
         }
-        catch (TaskCanceledException) { }
+
+        State.Value = GameManagerState.Starting;
+
+        await Task.Delay(startstop_delay);
+
+        OscClient.OnParameterReceived += onParameterReceived;
+        Player.Initialise();
+        ChatBoxInterface.Initialise();
+        sendControlValues();
+        ModuleManager.Start();
+
+        State.Value = GameManagerState.Started;
     }
 
     public void Stop() => Schedule(() => _ = stopAsync());
 
     private async Task stopAsync()
     {
-        if (State.Value is not (GameManagerState.Starting or GameManagerState.Started))
+        if (State.Value is GameManagerState.Stopping or GameManagerState.Stopped)
             throw new InvalidOperationException($"Cannot stop {nameof(GameManager)} when state is {State.Value}");
-
-        startTokenSource?.Cancel();
-        startTokenSource = null;
 
         State.Value = GameManagerState.Stopping;
 
