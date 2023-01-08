@@ -122,27 +122,16 @@ public static class OVRHelper
     }
 
     private static readonly StringBuilder sb = new((int)Valve.VR.OpenVR.k_unMaxPropertyStringSize);
-    private static readonly object string_lock = new();
 
     internal static string GetStringTrackedDeviceProperty(uint index, ETrackedDeviceProperty property)
     {
-        string str;
+        var error = new ETrackedPropertyError();
+        sb.Clear();
+        Valve.VR.OpenVR.System.GetStringTrackedDeviceProperty(index, property, sb, Valve.VR.OpenVR.k_unMaxPropertyStringSize, ref error);
 
-        lock (string_lock)
-        {
-            var error = new ETrackedPropertyError();
-            sb.Clear();
-            Valve.VR.OpenVR.System.GetStringTrackedDeviceProperty(index, property, sb, Valve.VR.OpenVR.k_unMaxPropertyStringSize, ref error);
+        if (error == ETrackedPropertyError.TrackedProp_Success) return sb.ToString();
 
-            if (error != ETrackedPropertyError.TrackedProp_Success)
-            {
-                OVRHelper.error(nameof(GetStringTrackedDeviceProperty), property, error, index);
-                return string.Empty;
-            }
-
-            str = sb.ToString();
-        }
-
-        return str;
+        OVRHelper.error(nameof(GetStringTrackedDeviceProperty), property, error, index);
+        return string.Empty;
     }
 }
