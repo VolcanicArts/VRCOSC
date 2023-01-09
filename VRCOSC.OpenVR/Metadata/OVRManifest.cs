@@ -1,24 +1,23 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
 using Newtonsoft.Json;
 
-namespace VRCOSC.Game;
+namespace VRCOSC.OpenVR.Metadata;
 
-public class VRManifest
+public class OVRManifest
 {
     [JsonProperty("source")]
     public string Source = "builtin";
 
     [JsonProperty("applications")]
-    public VRApplication[] Applications =
+    public OVRApplication[] Applications =
     {
         new()
     };
 }
 
-public class VRApplication
+public class OVRApplication
 {
     [JsonProperty("app_key")]
     public string AppKey = "volcanicarts.vrcosc";
@@ -39,16 +38,16 @@ public class VRApplication
     public string ImagePath = null!;
 
     [JsonProperty("strings")]
-    public VRStrings Strings = new();
+    public OVRStrings Strings = new();
 }
 
-public class VRStrings
+public class OVRStrings
 {
     [JsonProperty("en_us")]
-    public VRLocalisation Localisation = new();
+    public OVRLocalisation Localisation = new();
 }
 
-public class VRLocalisation
+public class OVRLocalisation
 {
     [JsonProperty("name")]
     public string Name = "VRCOSC";

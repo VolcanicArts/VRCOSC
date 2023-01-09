@@ -39,7 +39,7 @@ public abstract class OscClient
         receivingEnabled = false;
         tokenSource?.Cancel();
 
-        if (incomingTask is not null) await incomingTask;
+        await (incomingTask ?? Task.CompletedTask);
 
         incomingTask?.Dispose();
         tokenSource?.Dispose();
@@ -58,14 +58,9 @@ public abstract class OscClient
     }
 
     public void SendValue(string address, object value) => SendValues(address, new List<object> { value });
+    public void SendValues(string address, List<object> values) => sendData(new OscData(address, values));
 
-    public void SendValues(string address, List<object> values) => SendData(new OscData
-    {
-        Address = address,
-        Values = values
-    });
-
-    public void SendData(OscData data)
+    private void sendData(OscData data)
     {
         data.PreValidate();
         sendingClient?.SendOscMessage(new OscMessage(data.Address, data.Values));
@@ -74,23 +69,20 @@ public abstract class OscClient
 
     private async void runReceiveLoop()
     {
-        try
+        while (true)
         {
-            while (!tokenSource?.Token.IsCancellationRequested ?? false)
+            try
             {
                 var message = await receivingClient!.ReceiveOscMessageAsync(tokenSource!.Token);
                 if (message is null) continue;
 
-                var data = new OscData
-                {
-                    Address = message.Address,
-                    Values = message.Values
-                };
-
-                OnDataReceived(data);
+                OnDataReceived(new OscData(message.Address, message.Values));
+            }
+            catch (OperationCanceledException)
+            {
+                break;
             }
         }
-        catch (OperationCanceledException) { }
     }
 
     protected abstract void OnDataSend(OscData data);

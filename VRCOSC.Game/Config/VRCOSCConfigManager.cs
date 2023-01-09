@@ -25,7 +25,6 @@ public sealed class VRCOSCConfigManager : IniConfigManager<VRCOSCSetting>
         SetDefault(VRCOSCSetting.SendPort, 9000);
         SetDefault(VRCOSCSetting.ReceivePort, 9001);
         SetDefault(VRCOSCSetting.UpdateMode, UpdateMode.Auto);
-        SetDefault(VRCOSCSetting.UpdateRepo, @"https://github.com/VolcanicArts/VRCOSC");
         SetDefault(VRCOSCSetting.Theme, ColourTheme.Dark);
         SetDefault(VRCOSCSetting.ChatBoxTimeSpan, 1500);
         SetDefault(VRCOSCSetting.AutoStopOpenVR, false);
@@ -40,7 +39,6 @@ public enum VRCOSCSetting
     SendPort,
     ReceivePort,
     UpdateMode,
-    UpdateRepo,
     Theme,
     ChatBoxTimeSpan,
     AutoStopOpenVR

@@ -1,13 +1,15 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
+
 namespace VRCOSC.Game.Modules.Modules.Heartrate.HypeRate;
 
 public sealed partial class HypeRateModule : HeartRateModule
 {
     public override string Title => "HypeRate";
     public override string Description => "Connects to HypeRate.io and sends your heartrate to VRChat";
-    protected override int DeltaUpdate => 10000;
+    protected override TimeSpan DeltaUpdate => TimeSpan.FromSeconds(10);
 
     private bool receivedHeartRate;
 

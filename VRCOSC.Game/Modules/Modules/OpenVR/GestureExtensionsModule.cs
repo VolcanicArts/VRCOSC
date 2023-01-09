@@ -1,6 +1,8 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
+using VRCOSC.OpenVR.Input;
 using VRCOSC.OSC.VRChat;
 
 namespace VRCOSC.Game.Modules.Modules.OpenVR;
@@ -11,7 +13,7 @@ public partial class GestureExtensionsModule : Module
     public override string Description => "Detect a range of custom gestures from Index controllers";
     public override string Author => "VolcanicArts";
     public override ModuleType Type => ModuleType.OpenVR;
-    protected override int DeltaUpdate => VRChatOscConstants.UPDATE_DELTA;
+    protected override TimeSpan DeltaUpdate => VRChatOscConstants.UPDATE_TIME_SPAN;
 
     private float lowerThreshold;
     private float upperThreshold;
@@ -33,47 +35,44 @@ public partial class GestureExtensionsModule : Module
 
     protected override void OnModuleUpdate()
     {
-        if (!OpenVrInterface.HasInitialised) return;
+        if (!OVRClient.HasInitialised) return;
 
-        if (OpenVrInterface.IsLeftControllerConnected()) SendParameter(GestureExtensionsParameter.GestureLeft, (int)getLeftControllerGesture());
-        if (OpenVrInterface.IsRightControllerConnected()) SendParameter(GestureExtensionsParameter.GestureRight, (int)getRightControllerGesture());
+        if (OVRClient.LeftController.IsConnected) SendParameter(GestureExtensionsParameter.GestureLeft, (int)getControllerGesture(OVRClient.LeftController.Input));
+        if (OVRClient.RightController.IsConnected) SendParameter(GestureExtensionsParameter.GestureRight, (int)getControllerGesture(OVRClient.RightController.Input));
     }
 
-    private GestureNames getLeftControllerGesture() => getControllerGesture(OpenVrInterface.LeftController);
-    private GestureNames getRightControllerGesture() => getControllerGesture(OpenVrInterface.RightController);
-
-    private GestureNames getControllerGesture(ControllerData controllerData)
+    private GestureNames getControllerGesture(InputStates input)
     {
-        if (isGestureDoubleGun(controllerData)) return GestureNames.DoubleGun;
-        if (isGestureMiddleFinger(controllerData)) return GestureNames.MiddleFinger;
-        if (isGesturePinkyFinger(controllerData)) return GestureNames.PinkyFinger;
+        if (isGestureDoubleGun(input)) return GestureNames.DoubleGun;
+        if (isGestureMiddleFinger(input)) return GestureNames.MiddleFinger;
+        if (isGesturePinkyFinger(input)) return GestureNames.PinkyFinger;
 
         return GestureNames.None;
     }
 
-    private bool isGestureDoubleGun(ControllerData controllerData)
+    private bool isGestureDoubleGun(InputStates input)
     {
-        return controllerData.IndexFinger < lowerThreshold
-               && controllerData.MiddleFinger < lowerThreshold
-               && controllerData.RingFinger > upperThreshold
-               && controllerData.PinkyFinger > upperThreshold
-               && !controllerData.ThumbDown;
+        return input.IndexFinger < lowerThreshold
+               && input.MiddleFinger < lowerThreshold
+               && input.RingFinger > upperThreshold
+               && input.PinkyFinger > upperThreshold
+               && input.ThumbUp;
     }
 
-    private bool isGestureMiddleFinger(ControllerData controllerData)
+    private bool isGestureMiddleFinger(InputStates input)
     {
-        return controllerData.IndexFinger > upperThreshold
-               && controllerData.MiddleFinger < lowerThreshold
-               && controllerData.RingFinger > upperThreshold
-               && controllerData.PinkyFinger > upperThreshold;
+        return input.IndexFinger > upperThreshold
+               && input.MiddleFinger < lowerThreshold
+               && input.RingFinger > upperThreshold
+               && input.PinkyFinger > upperThreshold;
     }
 
-    private bool isGesturePinkyFinger(ControllerData controllerData)
+    private bool isGesturePinkyFinger(InputStates input)
     {
-        return controllerData.IndexFinger > upperThreshold
-               && controllerData.MiddleFinger > upperThreshold
-               && controllerData.RingFinger > upperThreshold
-               && controllerData.PinkyFinger < lowerThreshold;
+        return input.IndexFinger > upperThreshold
+               && input.MiddleFinger > upperThreshold
+               && input.RingFinger > upperThreshold
+               && input.PinkyFinger < lowerThreshold;
     }
 
     private enum GestureExtensionsSetting

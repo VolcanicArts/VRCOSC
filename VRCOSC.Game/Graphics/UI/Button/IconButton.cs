@@ -14,7 +14,7 @@ public partial class IconButton : BasicButton
     private IconUsage iconStateOff = FontAwesome.Solid.PowerOff;
     private IconUsage iconStateOn = FontAwesome.Solid.PowerOff;
 
-    protected SpriteIcon spriteIcon = null!;
+    private SpriteIcon spriteIcon = null!;
 
     public IconUsage Icon
     {

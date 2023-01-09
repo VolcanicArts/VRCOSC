@@ -30,7 +30,7 @@
                },
                "mode" : "button",
                "path" : "/user/hand/left/input/y"
-            }
+            },
             {
                "inputs" : {
                   "touch" : {

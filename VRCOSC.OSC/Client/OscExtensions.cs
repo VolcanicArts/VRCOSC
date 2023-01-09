@@ -29,4 +29,6 @@ internal static class OscExtensions
         Array.Copy(data, index, result, 0, length);
         return result;
     }
+
+    public static bool IsMisaligned(this int index) => index % 4 != 0;
 }

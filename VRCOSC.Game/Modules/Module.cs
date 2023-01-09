@@ -8,9 +8,11 @@ using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.EnumExtensions;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
+using VRCOSC.OpenVR;
 using VRCOSC.OSC.VRChat;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -30,23 +32,24 @@ public abstract partial class Module : Component
     private TerminalLogger Terminal = null!;
 
     protected Player Player => GameManager.Player;
-    protected OpenVRInterface OpenVrInterface => GameManager.OpenVRInterface;
+    protected OVRClient OVRClient => GameManager.OVRClient;
     protected Bindable<ModuleState> State = new(ModuleState.Stopped);
 
     public readonly BindableBool Enabled = new();
     public readonly Dictionary<string, ModuleAttribute> Settings = new();
     public readonly Dictionary<Enum, ParameterMetadata> Parameters = new();
+    private readonly Dictionary<string, Enum> parametersReversed = new();
 
     public virtual string Title => string.Empty;
     public virtual string Description => string.Empty;
     public virtual string Author => string.Empty;
     public virtual string Prefab => string.Empty;
     public virtual ModuleType Type => ModuleType.General;
-    protected virtual int DeltaUpdate => int.MaxValue;
+    protected virtual TimeSpan DeltaUpdate => TimeSpan.MaxValue;
     protected virtual int ChatBoxPriority => 0;
 
     private bool IsEnabled => Enabled.Value;
-    private bool ShouldUpdate => DeltaUpdate != int.MaxValue;
+    private bool ShouldUpdate => DeltaUpdate != TimeSpan.MaxValue;
     private string FileName => @$"{GetType().Name}.ini";
 
     protected bool IsStarting => State.Value == ModuleState.Starting;
@@ -64,6 +67,9 @@ public abstract partial class Module : Component
         Terminal = new TerminalLogger(Title);
 
         CreateAttributes();
+
+        Parameters.ForEach(pair => parametersReversed.Add(pair.Value.Name, pair.Key));
+
         performLoad();
     }
 
@@ -130,7 +136,7 @@ public abstract partial class Module : Component
         if (ShouldUpdate)
         {
             Scheduler.Add(OnModuleUpdate);
-            Scheduler.AddDelayed(OnModuleUpdate, DeltaUpdate, true);
+            Scheduler.AddDelayed(OnModuleUpdate, DeltaUpdate.TotalMilliseconds, true);
         }
 
         GameManager.OscClient.OnParameterReceived += onParameterReceived;
@@ -217,19 +223,9 @@ public abstract partial class Module : Component
             return;
         }
 
-        if (!data.IsAvatarParameter) return;
+        if (!data.IsAvatarParameter || !parametersReversed.ContainsKey(data.ParameterName)) return;
 
-        Enum? lookup;
-
-        try
-        {
-            lookup = Parameters.Single(pair => pair.Value.Name == data.ParameterName).Key;
-        }
-        catch (InvalidOperationException)
-        {
-            return;
-        }
-
+        var lookup = parametersReversed[data.ParameterName];
         var parameterData = Parameters[lookup];
 
         if (!parameterData.Mode.HasFlagFast(ParameterMode.Read)) return;

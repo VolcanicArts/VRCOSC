@@ -11,9 +11,7 @@ public partial class ChatBoxTextModule : ChatBoxModule
     public override ModuleType Type => ModuleType.General;
     protected override int ChatBoxPriority => 2;
 
-    protected override bool DefaultChatBoxDisplay => true;
-
-    protected override string? GetChatBoxText() => GetSetting<string>(ChatBoxTextSetting.ChatBoxText);
+    protected override string GetChatBoxText() => GetSetting<string>(ChatBoxTextSetting.ChatBoxText);
 
     protected override void CreateAttributes()
     {

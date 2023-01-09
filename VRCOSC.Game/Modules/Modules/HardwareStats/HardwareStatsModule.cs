@@ -1,6 +1,7 @@
 // Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Collections.Generic;
 
 namespace VRCOSC.Game.Modules.Modules.HardwareStats;
@@ -11,11 +12,10 @@ public sealed partial class HardwareStatsModule : ChatBoxModule
     public override string Description => "Sends hardware stats and displays them in the ChatBox";
     public override string Author => "VolcanicArts";
     public override ModuleType Type => ModuleType.General;
-    protected override int DeltaUpdate => 500;
+    protected override TimeSpan DeltaUpdate => TimeSpan.FromSeconds(0.5);
 
-    protected override bool DefaultChatBoxDisplay => true;
-    protected override string DefaultChatBoxFormat => "CPU: $cpuusage$% | GPU: $gpuusage$%                RAM: $ramused$GB/$ramtotal$GB";
-    protected override IEnumerable<string> ChatBoxFormatValues => new[] { "$cpuusage$ (%)", "$gpuusage$ (%)", "$ramusage$ (%)", "$cputemp$ (C)", "$gputemp$ (C)", "$ramtotal$ (GB)", "$ramused$ (GB)", "$ramavailable$ (GB)" };
+    protected override string DefaultChatBoxFormat => @"CPU: $cpuusage$% | GPU: $gpuusage$%                RAM: $ramused$GB/$ramtotal$GB";
+    protected override IEnumerable<string> ChatBoxFormatValues => new[] { @"$cpuusage$ (%)", @"$gpuusage$ (%)", @"$ramusage$ (%)", @"$cputemp$ (C)", @"$gputemp$ (C)", @"$ramtotal$ (GB)", @"$ramused$ (GB)", @"$ramavailable$ (GB)" };
 
     private HardwareStatsProvider? hardwareStatsProvider;
 
@@ -37,14 +37,14 @@ public sealed partial class HardwareStatsModule : ChatBoxModule
         if (!(hardwareStatsProvider?.CanAcceptQueries ?? false)) return null;
 
         return GetSetting<string>(ChatBoxSetting.ChatBoxFormat)
-               .Replace("$cpuusage$", hardwareStatsProvider.CpuUsage.ToString("0.00"))
-               .Replace("$gpuusage$", hardwareStatsProvider.GpuUsage.ToString("0.00"))
-               .Replace("$ramusage$", hardwareStatsProvider.RamUsage.ToString("0.00"))
-               .Replace("$cputemp$", hardwareStatsProvider.CpuTemp.ToString())
-               .Replace("$gputemp$", hardwareStatsProvider.GpuTemp.ToString())
-               .Replace("$ramtotal$", hardwareStatsProvider.RamTotal.ToString("0.0"))
-               .Replace("$ramused$", hardwareStatsProvider.RamUsed.ToString("0.0"))
-               .Replace("$ramavailable$", hardwareStatsProvider.RamAvailable.ToString("0.0"));
+               .Replace(@"$cpuusage$", hardwareStatsProvider.CpuUsage.ToString("0.00"))
+               .Replace(@"$gpuusage$", hardwareStatsProvider.GpuUsage.ToString("0.00"))
+               .Replace(@"$ramusage$", hardwareStatsProvider.RamUsage.ToString("0.00"))
+               .Replace(@"$cputemp$", hardwareStatsProvider.CpuTemp.ToString())
+               .Replace(@"$gputemp$", hardwareStatsProvider.GpuTemp.ToString())
+               .Replace(@"$ramtotal$", hardwareStatsProvider.RamTotal.ToString("0.0"))
+               .Replace(@"$ramused$", hardwareStatsProvider.RamUsed.ToString("0.0"))
+               .Replace(@"$ramavailable$", hardwareStatsProvider.RamAvailable.ToString("0.0"));
     }
 
     protected override void OnModuleStart()

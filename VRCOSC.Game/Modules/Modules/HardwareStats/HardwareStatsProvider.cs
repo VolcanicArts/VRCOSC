@@ -48,15 +48,15 @@ public sealed class HardwareStatsProvider
             case SensorType.Load:
                 switch (sensor.Name)
                 {
-                    case "CPU Total":
+                    case @"CPU Total":
                         CpuUsage = sensor.Value ?? 0f;
                         break;
 
-                    case "GPU Core":
+                    case @"GPU Core":
                         GpuUsage = sensor.Value ?? 0f;
                         break;
 
-                    case "Memory":
+                    case @"Memory":
                         RamUsage = sensor.Value ?? 0f;
                         break;
                 }
@@ -67,13 +67,13 @@ public sealed class HardwareStatsProvider
                 switch (sensor.Name)
                 {
                     // AMD
-                    case "Core (Tctl/Tdie)":
+                    case @"Core (Tctl/Tdie)":
                     // Intel
-                    case "CPU Package":
+                    case @"CPU Package":
                         CpuTemp = (int?)sensor.Value ?? 0;
                         break;
 
-                    case "GPU Core":
+                    case @"GPU Core":
                         GpuTemp = (int?)sensor.Value ?? 0;
                         break;
                 }
@@ -83,11 +83,11 @@ public sealed class HardwareStatsProvider
             case SensorType.Data:
                 switch (sensor.Name)
                 {
-                    case "Memory Used":
+                    case @"Memory Used":
                         RamUsed = sensor.Value ?? 0f;
                         break;
 
-                    case "Memory Available":
+                    case @"Memory Available":
                         RamAvailable = sensor.Value ?? 0f;
                         break;
                 }

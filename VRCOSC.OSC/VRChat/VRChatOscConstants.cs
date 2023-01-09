@@ -14,4 +14,5 @@ public static class VRChatOscConstants
 
     public const int UPDATE_FREQUENCY = 20;
     public const int UPDATE_DELTA = (int)(1f / UPDATE_FREQUENCY * 1000f);
+    public static readonly TimeSpan UPDATE_TIME_SPAN = TimeSpan.FromMilliseconds(UPDATE_DELTA);
 }

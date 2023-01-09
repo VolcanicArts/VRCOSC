@@ -5,15 +5,17 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Sockets;
-using System.Threading;
 using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
+using Valve.VR;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics.Notifications;
+using VRCOSC.OpenVR;
+using VRCOSC.OpenVR.Metadata;
 using VRCOSC.OSC.VRChat;
 
 namespace VRCOSC.Game.Modules;
@@ -37,14 +39,13 @@ public partial class GameManager : CompositeComponent
     private Bindable<Module?> infoModule { get; set; } = null!;
 
     private Bindable<bool> autoStartStop = null!;
-    private CancellationTokenSource? startTokenSource;
     private bool hasAutoStarted;
 
     public readonly VRChatOscClient OscClient = new();
     public readonly ModuleManager ModuleManager = new();
     public readonly Bindable<GameManagerState> State = new(GameManagerState.Stopped);
     public Player Player = null!;
-    public OpenVRInterface OpenVRInterface = null!;
+    public OVRClient OVRClient = null!;
     public ChatBoxInterface ChatBoxInterface = null!;
 
     [BackgroundDependencyLoader]
@@ -53,7 +54,15 @@ public partial class GameManager : CompositeComponent
         autoStartStop = configManager.GetBindable<bool>(VRCOSCSetting.AutoStartStop);
 
         Player = new Player(OscClient);
-        OpenVRInterface = new OpenVRInterface(storage);
+
+        OVRClient = new OVRClient(new OVRMetadata
+        {
+            ApplicationType = EVRApplicationType.VRApplication_Background,
+            ApplicationManifest = storage.GetFullPath(@"openvr/app.vrmanifest"),
+            ActionManifest = storage.GetFullPath(@"openvr/action_manifest.json")
+        });
+        OVRHelper.OnError += m => Logger.Log($"[OpenVR] {m}");
+
         ChatBoxInterface = new ChatBoxInterface(OscClient, configManager.GetBindable<int>(VRCOSCSetting.ChatBoxTimeSpan));
 
         LoadComponent(ModuleManager);
@@ -62,7 +71,7 @@ public partial class GameManager : CompositeComponent
 
     protected override void Update()
     {
-        OpenVRInterface.Update();
+        OVRClient.Update();
     }
 
     protected override void UpdateAfterChildren()
@@ -88,7 +97,7 @@ public partial class GameManager : CompositeComponent
 
     private async Task startAsync()
     {
-        if (State.Value is not (GameManagerState.Stopping or GameManagerState.Stopped))
+        if (State.Value is GameManagerState.Starting or GameManagerState.Started)
             throw new InvalidOperationException($"Cannot start {nameof(GameManager)} when state is {State.Value}");
 
         if (editingModule.Value is not null || infoModule.Value is not null)
@@ -97,40 +106,31 @@ public partial class GameManager : CompositeComponent
             return;
         }
 
-        try
+        if (!initialiseOscClient())
         {
-            startTokenSource = new CancellationTokenSource();
-
-            if (!initialiseOscClient())
-            {
-                hasAutoStarted = false;
-                return;
-            }
-
-            State.Value = GameManagerState.Starting;
-
-            await Task.Delay(startstop_delay, startTokenSource.Token);
-
-            OscClient.OnParameterReceived += onParameterReceived;
-            Player.Initialise();
-            ChatBoxInterface.Initialise();
-            sendControlValues();
-            ModuleManager.Start();
-
-            State.Value = GameManagerState.Started;
+            hasAutoStarted = false;
+            return;
         }
-        catch (TaskCanceledException) { }
+
+        State.Value = GameManagerState.Starting;
+
+        await Task.Delay(startstop_delay);
+
+        OscClient.OnParameterReceived += onParameterReceived;
+        Player.Initialise();
+        ChatBoxInterface.Initialise();
+        sendControlValues();
+        ModuleManager.Start();
+
+        State.Value = GameManagerState.Started;
     }
 
     public void Stop() => Schedule(() => _ = stopAsync());
 
     private async Task stopAsync()
     {
-        if (State.Value is not (GameManagerState.Starting or GameManagerState.Started))
+        if (State.Value is GameManagerState.Stopping or GameManagerState.Stopped)
             throw new InvalidOperationException($"Cannot stop {nameof(GameManager)} when state is {State.Value}");
-
-        startTokenSource?.Cancel();
-        startTokenSource = null;
 
         State.Value = GameManagerState.Stopping;
 
@@ -177,15 +177,15 @@ public partial class GameManager : CompositeComponent
 
     private void checkForOpenVR() => Task.Run(() =>
     {
-        static bool isOpenVROpen() => Process.GetProcessesByName("vrmonitor").Any();
-        if (isOpenVROpen()) OpenVRInterface.Init();
+        static bool isOpenVROpen() => Process.GetProcessesByName(@"vrmonitor").Any();
+        if (isOpenVROpen()) OVRClient.Init();
     });
 
     private void checkForVRChat()
     {
         if (!configManager.Get<bool>(VRCOSCSetting.AutoStartStop)) return;
 
-        static bool isVRChatOpen() => Process.GetProcessesByName("vrchat").Any();
+        static bool isVRChatOpen() => Process.GetProcessesByName(@"vrchat").Any();
 
         // hasAutoStarted is checked here to ensure that modules aren't started immediately
         // after a user has manually stopped the modules
@@ -204,7 +204,7 @@ public partial class GameManager : CompositeComponent
 
     private void sendControlValues()
     {
-        OscClient.SendValue($"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}/VRCOSC/Controls/ChatBox", ChatBoxInterface.SendEnabled);
+        OscClient.SendValue(@$"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}/VRCOSC/Controls/ChatBox", ChatBoxInterface.SendEnabled);
     }
 
     private void onParameterReceived(VRChatOscData data)
@@ -221,7 +221,7 @@ public partial class GameManager : CompositeComponent
 
         switch (data.ParameterName)
         {
-            case "VRCOSC/Controls/ChatBox":
+            case @"VRCOSC/Controls/ChatBox":
                 ChatBoxInterface.SendEnabled = (bool)data.Values[0];
                 break;
         }
