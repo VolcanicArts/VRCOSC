@@ -71,9 +71,18 @@ public class WindowsMediaInterface
 
     private void addControlSession(GlobalSystemMediaTransportControlsSession controlSession)
     {
-        controlSession.PlaybackInfoChanged += (_, _) => OnAnyPlaybackInfoChanged?.Invoke(controlSession, controlSession.GetPlaybackInfo());
-        controlSession.MediaPropertiesChanged += async (_, _) => OnAnyMediaPropertiesChanged?.Invoke(controlSession, await controlSession.TryGetMediaPropertiesAsync());
-        controlSession.TimelinePropertiesChanged += (_, _) => OnAnyTimelinePropertiesChanged?.Invoke(controlSession, controlSession.GetTimelineProperties());
-        currentSessions.Add(controlSession);
+        try
+        {
+            controlSession.PlaybackInfoChanged += (_, _) => OnAnyPlaybackInfoChanged?.Invoke(controlSession, controlSession.GetPlaybackInfo());
+            controlSession.MediaPropertiesChanged += async (_, _) => OnAnyMediaPropertiesChanged?.Invoke(controlSession, await controlSession.TryGetMediaPropertiesAsync());
+            controlSession.TimelinePropertiesChanged += (_, _) => OnAnyTimelinePropertiesChanged?.Invoke(controlSession, controlSession.GetTimelineProperties());
+            currentSessions.Add(controlSession);
+        }
+        catch (Exception e)
+        {
+            if (e.Message.Contains("0x80030070")) return;
+
+            throw;
+        }
     }
 }
