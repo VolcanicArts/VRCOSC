@@ -34,9 +34,9 @@ public abstract partial class Module : Component, IComparable<Module>
     protected ChatBoxInterface ChatBoxInterface => GameManager.ChatBoxInterface;
     protected Bindable<ModuleState> State = new(ModuleState.Stopped);
 
-    public readonly BindableBool Enabled = new();
-    public readonly Dictionary<string, ModuleAttribute> Settings = new();
-    public readonly Dictionary<Enum, ParameterMetadata> Parameters = new();
+    internal readonly BindableBool Enabled = new();
+    internal readonly Dictionary<string, ModuleAttribute> Settings = new();
+    internal readonly Dictionary<Enum, ParameterMetadata> Parameters = new();
     private readonly Dictionary<string, Enum> parametersReversed = new();
 
     public virtual string Title => string.Empty;
@@ -55,11 +55,11 @@ public abstract partial class Module : Component, IComparable<Module>
     protected bool IsStopping => State.Value == ModuleState.Stopping;
     protected bool HasStopped => State.Value == ModuleState.Stopped;
 
-    public bool HasSettings => Settings.Any();
-    public bool HasParameters => Parameters.Any();
+    internal bool HasSettings => Settings.Any();
+    internal bool HasParameters => Parameters.Any();
 
     [BackgroundDependencyLoader]
-    public void load(Storage storage)
+    internal void load(Storage storage)
     {
         Storage = storage.GetStorageForDirectory("modules");
         Terminal = new TerminalLogger(Title);
@@ -123,7 +123,7 @@ public abstract partial class Module : Component, IComparable<Module>
 
     #region Events
 
-    internal void start()
+    internal void Start()
     {
         if (!IsEnabled) return;
 
@@ -140,7 +140,7 @@ public abstract partial class Module : Component, IComparable<Module>
         OnModuleUpdate();
     }
 
-    internal void stop()
+    internal void Stop()
     {
         if (!IsEnabled) return;
 

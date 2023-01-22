@@ -72,7 +72,7 @@ public sealed partial class ModuleManager : CompositeComponent, IEnumerable<Modu
 
         foreach (var module in this)
         {
-            module.start();
+            module.Start();
         }
     }
 
@@ -80,7 +80,7 @@ public sealed partial class ModuleManager : CompositeComponent, IEnumerable<Modu
     {
         foreach (var module in this)
         {
-            module.stop();
+            module.Stop();
         }
     }
 
