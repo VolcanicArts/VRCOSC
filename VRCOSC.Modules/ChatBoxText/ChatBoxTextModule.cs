@@ -22,10 +22,12 @@ public partial class ChatBoxTextModule : ChatBoxModule
 
         if (!GetSetting<bool>(ChatBoxTextSetting.Animate)) return text;
 
-        var tickerText = $"{text}{GetSetting<string>(ChatBoxTextSetting.Splitter)}{text}";
-        var maxLength = GetSetting<int>(ChatBoxTextSetting.MaxLength);
+        var splitter = GetSetting<string>(ChatBoxTextSetting.Splitter);
 
-        if (index + maxLength > tickerText.Length) index = 0;
+        var tickerText = $"{text}{splitter}{text}";
+        var maxLength = Math.Min(GetSetting<int>(ChatBoxTextSetting.MaxLength), text.Length);
+
+        if (index > text.Length + splitter.Length - 1) index = 0;
 
         tickerText = tickerText[index..(maxLength + index)];
 
