@@ -1,14 +1,16 @@
 // Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
 using osu.Framework.Logging;
 using PInvoke;
-using VRCOSC.Game.Modules;
 using VRCOSC.Game.Processes;
-using Win32Exception = System.ComponentModel.Win32Exception;
 
-namespace VRCOSC.Modules;
+namespace VRCOSC.Game.Modules;
 
 public abstract partial class IntegrationModule : Module
 {
