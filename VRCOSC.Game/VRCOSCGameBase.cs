@@ -17,6 +17,12 @@ namespace VRCOSC.Game;
 
 public partial class VRCOSCGameBase : osu.Framework.Game
 {
+#if DEBUG
+    private const string base_game_name = @"VRCOSC-Development";
+#else
+    private const string base_game_name = @"VRCOSC";
+#endif
+
     private static readonly Size default_size = new(1450, 768);
 
     protected DependencyContainer DependencyContainer = null!;
@@ -45,6 +51,6 @@ public partial class VRCOSCGameBase : osu.Framework.Game
         DependencyContainer.CacheAs(ConfigManager = new VRCOSCConfigManager(storage));
 
         versionBindable = ConfigManager.GetBindable<string>(VRCOSCSetting.Version);
-        versionBindable.BindValueChanged(version => host.Window.Title = $"VRCOSC {version.NewValue}", true);
+        versionBindable.BindValueChanged(version => host.Window.Title = $"{base_game_name} {version.NewValue}", true);
     }
 }
