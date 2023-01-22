@@ -41,10 +41,10 @@ public sealed partial class TypeFilter : Container
     private enum Group
     {
         All = -1,
-        General = 0,
-        Health = 1,
+        Health = 0,
+        OpenVR = 1,
         Integrations = 2,
-        OpenVR = 4
+        General = 3,
     }
 
     private static Module.ModuleType? groupToType(Group group) => group == Group.All ? null : (Module.ModuleType)(int)group;

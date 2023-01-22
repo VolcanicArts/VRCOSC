@@ -18,7 +18,7 @@ using VRCOSC.OSC.VRChat;
 
 namespace VRCOSC.Game.Modules;
 
-public abstract partial class Module : Component
+public abstract partial class Module : Component, IComparable<Module>
 {
     [Resolved]
     private GameHost Host { get; set; } = null!;
@@ -280,10 +280,18 @@ public abstract partial class Module : Component
 
     public enum ModuleType
     {
-        General = 0,
-        Health = 1,
+        Health = 0,
+        OpenVR = 1,
         Integrations = 2,
-        Accessibility = 3,
-        OpenVR = 4
+        General = 3,
+    }
+
+    public int CompareTo(Module? other)
+    {
+        if (other is null) return 1;
+        if (Type > other.Type) return 1;
+        if (Type < other.Type) return -1;
+
+        return Type == other.Type ? string.CompareOrdinal(Title, other.Title) : 0;
     }
 }

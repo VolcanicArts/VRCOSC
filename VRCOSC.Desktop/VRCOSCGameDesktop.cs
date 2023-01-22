@@ -4,7 +4,6 @@
 using VRCOSC.Desktop.Updater;
 using VRCOSC.Game;
 using VRCOSC.Game.Graphics.Updater;
-using VRCOSC.Modules;
 
 namespace VRCOSC.Desktop;
 
@@ -13,10 +12,5 @@ public partial class VRCOSCGameDesktop : VRCOSCGame
     protected override VRCOSCUpdateManager CreateUpdateManager()
     {
         return new SquirrelUpdateManager();
-    }
-
-    public VRCOSCGameDesktop()
-    {
-        gameManager.ModuleManager.RegisterInternalModules(InternalModules.MODULE_TYPES);
     }
 }

@@ -10,6 +10,8 @@ using System.Reflection;
 using osu.Framework.Allocation;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Lists;
+using osu.Framework.Logging;
 using osu.Framework.Platform;
 
 namespace VRCOSC.Game.Modules;
@@ -18,7 +20,7 @@ public sealed partial class ModuleManager : CompositeComponent, IEnumerable<Modu
 {
     private readonly TerminalLogger terminal = new(nameof(ModuleManager));
 
-    private IReadOnlyList<Type> moduleTypes = null!;
+    private readonly SortedList<Module> tempModuleList = new();
 
     [Resolved]
     private Storage storage { get; set; } = null!;
@@ -28,35 +30,36 @@ public sealed partial class ModuleManager : CompositeComponent, IEnumerable<Modu
     {
         loadInternalModules();
         loadExternalModules();
+        AddRangeInternal(tempModuleList);
     }
 
     private void loadInternalModules()
     {
-        moduleTypes.ForEach(instanciateModule);
-    }
+        var assemblyPath = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll", SearchOption.AllDirectories)
+                                    .FirstOrDefault(fileName => fileName.Contains("VRCOSC.Modules"));
 
-    public void RegisterInternalModules(IReadOnlyList<Type> moduleTypes)
-    {
-        this.moduleTypes = moduleTypes;
+        if (string.IsNullOrEmpty(assemblyPath))
+        {
+            Logger.Log("Could not find internal module assembly");
+            return;
+        }
+
+        loadModuleAssembly(assemblyPath);
     }
 
     private void loadExternalModules()
     {
         var moduleDirectoryPath = storage.GetStorageForDirectory("custom").GetFullPath(string.Empty, true);
-        Directory.GetFiles(moduleDirectoryPath, "*.dll").ForEach(createModule);
+        Directory.GetFiles(moduleDirectoryPath, "*.dll", SearchOption.AllDirectories)
+                 .ForEach(loadModuleAssembly);
     }
 
-    private void createModule(string dllPath)
+    private void loadModuleAssembly(string assemblyPath)
     {
-        var moduleAssemblyTypes = Assembly.LoadFile(dllPath).GetTypes();
-        var moduleType = moduleAssemblyTypes.First(type => type.IsSubclassOf(typeof(Module)) && !type.IsAbstract);
-        instanciateModule(moduleType);
-    }
-
-    private void instanciateModule(Type type)
-    {
-        var instance = (Module)Activator.CreateInstance(type)!;
-        AddInternal(instance);
+        Assembly.LoadFile(assemblyPath).GetTypes()
+                .Where(type => type.IsSubclassOf(typeof(Module)) && !type.IsAbstract)
+                .Select(type => (Module)Activator.CreateInstance(type)!)
+                .ForEach(module => tempModuleList.Add(module));
     }
 
     public void Start()
