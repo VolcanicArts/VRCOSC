@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Linq;
 using osu.Framework.Bindables;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Logging;
 
 namespace VRCOSC.Game.Modules;
@@ -90,7 +91,8 @@ public partial class Module
                     {
                         case "enum":
                             var typeAndValue = value.Split(new[] { '#' }, 2);
-                            var enumType = enumNameToType(typeAndValue[0]);
+                            var enumName = typeAndValue[0].Split('+')[1];
+                            var enumType = enumNameToType(enumName);
                             if (enumType is not null) settingSingle.Attribute.Value = Enum.ToObject(enumType, int.Parse(typeAndValue[1]));
                             break;
 
@@ -157,7 +159,20 @@ public partial class Module
         Enabled.BindValueChanged(_ => performSave());
     }
 
-    private static Type? enumNameToType(string enumName) => AppDomain.CurrentDomain.GetAssemblies().Select(assembly => assembly.GetType(enumName)).FirstOrDefault(type => type?.IsEnum ?? false);
+    private static Type? enumNameToType(string enumName)
+    {
+        Type? returnType = null;
+
+        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+        {
+            assembly.GetTypes().ForEach(type =>
+            {
+                if (type.Name.Equals(enumName, StringComparison.Ordinal)) returnType = type;
+            });
+        }
+
+        return returnType;
+    }
 
     #endregion
 
