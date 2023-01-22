@@ -5,6 +5,7 @@ using System.Runtime.Versioning;
 using osu.Framework;
 using osu.Framework.Platform;
 using Squirrel;
+using VRCOSC.Modules;
 
 namespace VRCOSC.Desktop;
 
@@ -19,6 +20,7 @@ public static class Program
     public static void Main()
     {
         initSquirrel();
+        VRCOSCSecrets.Init();
 
         using GameHost host = Host.GetSuitableDesktopHost(base_game_name);
         using osu.Framework.Game game = new VRCOSCGameDesktop();

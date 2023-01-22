@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using Newtonsoft.Json;
-using VRCOSC.Game;
 
 namespace VRCOSC.Modules.Weather;
 
