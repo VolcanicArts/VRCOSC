@@ -1,9 +1,12 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
-namespace VRCOSC.OSC.Client;
+namespace VRCOSC.Game.OSC.Client;
 
 internal static class OscEncoder
 {

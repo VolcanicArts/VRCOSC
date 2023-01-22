@@ -16,7 +16,7 @@ using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.OpenVR;
 using VRCOSC.Game.OpenVR.Metadata;
-using VRCOSC.OSC.VRChat;
+using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Game.Modules;
 

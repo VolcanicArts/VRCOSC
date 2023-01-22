@@ -7,7 +7,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Modules;
-using VRCOSC.OSC.VRChat;
+using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Game.Graphics.ModuleRun;
 

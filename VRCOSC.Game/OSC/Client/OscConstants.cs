@@ -3,7 +3,7 @@
 
 using System.Text;
 
-namespace VRCOSC.OSC.Client;
+namespace VRCOSC.Game.OSC.Client;
 
 internal static class OscConstants
 {

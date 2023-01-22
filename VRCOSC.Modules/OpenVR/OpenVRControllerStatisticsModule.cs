@@ -2,7 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.Game.Modules;
-using VRCOSC.OSC.VRChat;
+using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Modules.OpenVR;
 

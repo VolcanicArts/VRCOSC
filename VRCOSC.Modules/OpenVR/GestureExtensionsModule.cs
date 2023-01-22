@@ -3,7 +3,7 @@
 
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.OpenVR.Input;
-using VRCOSC.OSC.VRChat;
+using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Modules.OpenVR;
 

@@ -1,10 +1,14 @@
 // Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace VRCOSC.OSC.Client;
+namespace VRCOSC.Game.OSC.Client;
 
 public abstract class OscClient
 {

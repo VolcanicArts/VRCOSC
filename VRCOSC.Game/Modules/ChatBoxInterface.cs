@@ -8,8 +8,8 @@ using System.Collections.Immutable;
 using System.Linq;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
-using VRCOSC.OSC.Client;
-using VRCOSC.OSC.VRChat;
+using VRCOSC.Game.OSC.Client;
+using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Game.Modules;
 

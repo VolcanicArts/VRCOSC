@@ -3,7 +3,7 @@
 
 using System;
 using System.Threading.Tasks;
-using VRCOSC.OSC.Client;
+using VRCOSC.Game.OSC.Client;
 
 namespace VRCOSC.Game.Modules;
 
