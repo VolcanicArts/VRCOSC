@@ -10,7 +10,7 @@ using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Platform;
-using VRCOSC.OpenVR;
+using VRCOSC.Game.OpenVR;
 using VRCOSC.OSC.VRChat;
 
 // ReSharper disable MemberCanBePrivate.Global

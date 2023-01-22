@@ -3,7 +3,7 @@
 
 using Valve.VR;
 
-namespace VRCOSC.OpenVR.Device;
+namespace VRCOSC.Game.OpenVR.Device;
 
 public class OVRDevice
 {

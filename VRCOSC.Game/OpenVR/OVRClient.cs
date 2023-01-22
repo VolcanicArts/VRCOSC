@@ -1,12 +1,14 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Valve.VR;
-using VRCOSC.OpenVR.Device;
-using VRCOSC.OpenVR.Metadata;
+using VRCOSC.Game.OpenVR.Device;
+using VRCOSC.Game.OpenVR.Metadata;
 
-namespace VRCOSC.OpenVR;
+namespace VRCOSC.Game.OpenVR;
 
 public class OVRClient
 {

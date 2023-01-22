@@ -3,7 +3,7 @@
 
 using System.Globalization;
 using VRCOSC.Game.Modules;
-using VRCOSC.OpenVR;
+using VRCOSC.Game.OpenVR;
 
 namespace VRCOSC.Modules.OpenVR;
 

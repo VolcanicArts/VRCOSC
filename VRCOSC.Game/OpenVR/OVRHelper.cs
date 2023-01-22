@@ -1,9 +1,12 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Valve.VR;
 
-namespace VRCOSC.OpenVR;
+namespace VRCOSC.Game.OpenVR;
 
 [SuppressMessage("Usage", "CA2211:Non-constant fields should not be visible")]
 public static class OVRHelper

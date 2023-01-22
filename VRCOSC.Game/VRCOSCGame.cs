@@ -18,7 +18,7 @@ using VRCOSC.Game.Graphics.TabBar;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.Updater;
 using VRCOSC.Game.Modules;
-using VRCOSC.OpenVR.Metadata;
+using VRCOSC.Game.OpenVR.Metadata;
 
 // ReSharper disable InconsistentNaming
 

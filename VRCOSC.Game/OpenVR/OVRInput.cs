@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using Valve.VR;
 
-namespace VRCOSC.OpenVR;
+namespace VRCOSC.Game.OpenVR;
 
 public class OVRInput
 {

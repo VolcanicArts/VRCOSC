@@ -1,9 +1,8 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-namespace VRCOSC.OpenVR.Input;
+namespace VRCOSC.Game.OpenVR.Device;
 
-public class Button
+public class Tracker : OVRDevice
 {
-    public bool Touched { get; internal set; }
 }
