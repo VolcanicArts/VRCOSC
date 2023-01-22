@@ -12,7 +12,7 @@ public partial class ChatBoxTextModule : ChatBoxModule
     public override string Author => "VolcanicArts";
     public override ModuleType Type => ModuleType.General;
     protected override TimeSpan DeltaUpdate => TimeSpan.FromSeconds(1.5f);
-    protected override int ChatBoxPriority => 2;
+    protected override int ChatBoxPriority => 1;
 
     private int index;
 
