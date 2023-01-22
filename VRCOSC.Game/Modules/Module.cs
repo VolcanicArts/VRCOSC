@@ -131,15 +131,13 @@ public abstract partial class Module : Component, IComparable<Module>
 
         OnModuleStart();
 
-        if (ShouldUpdate)
-        {
-            Scheduler.Add(OnModuleUpdate);
-            Scheduler.AddDelayed(OnModuleUpdate, DeltaUpdate.TotalMilliseconds, true);
-        }
+        if (ShouldUpdate) Scheduler.AddDelayed(OnModuleUpdate, DeltaUpdate.TotalMilliseconds, true);
 
         GameManager.OscClient.OnParameterReceived += onParameterReceived;
 
         State.Value = ModuleState.Started;
+
+        OnModuleUpdate();
     }
 
     internal void stop()
