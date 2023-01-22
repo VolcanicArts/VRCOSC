@@ -15,7 +15,7 @@
     "sources": [
         {
             "modifiers": [
-                { "exclude": [ "obj/**", "bin/**", ".template_config/**" ] }
+                { "exclude": [ "obj/**", "bin/**", ".template.config/**" ] }
             ]
         }
     ],
