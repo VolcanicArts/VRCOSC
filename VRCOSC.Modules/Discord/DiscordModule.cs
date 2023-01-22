@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using PInvoke;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Modules.Discord;
@@ -19,8 +20,8 @@ public sealed partial class DiscordModule : IntegrationModule
         CreateParameter<bool>(DiscordParameter.Mic, ParameterMode.Read, "VRCOSC/Discord/Mic", "Becomes true to toggle the mic");
         CreateParameter<bool>(DiscordParameter.Deafen, ParameterMode.Read, "VRCOSC/Discord/Deafen", "Becomes true to toggle deafen");
 
-        RegisterKeyCombination(DiscordParameter.Mic, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_LSHIFT, WindowsVKey.VK_M);
-        RegisterKeyCombination(DiscordParameter.Deafen, WindowsVKey.VK_LCONTROL, WindowsVKey.VK_LSHIFT, WindowsVKey.VK_D);
+        RegisterKeyCombination(DiscordParameter.Mic, User32.VirtualKey.VK_LCONTROL, User32.VirtualKey.VK_LSHIFT, User32.VirtualKey.VK_M);
+        RegisterKeyCombination(DiscordParameter.Deafen, User32.VirtualKey.VK_LCONTROL, User32.VirtualKey.VK_LSHIFT, User32.VirtualKey.VK_D);
     }
 
     protected override void OnBoolParameterReceived(Enum key, bool value)

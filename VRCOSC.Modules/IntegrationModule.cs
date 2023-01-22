@@ -1,11 +1,12 @@
 // Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.ComponentModel;
 using System.Diagnostics;
 using osu.Framework.Logging;
+using PInvoke;
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.Processes;
+using Win32Exception = System.ComponentModel.Win32Exception;
 
 namespace VRCOSC.Modules;
 
@@ -17,9 +18,9 @@ public abstract partial class IntegrationModule : Module
     protected string ReturnProcess => @"vrchat";
     protected string TargetExe => @$"{TargetProcess}.exe";
 
-    private readonly Dictionary<Enum, WindowsVKey[]> keyCombinations = new();
+    private readonly Dictionary<Enum, User32.VirtualKey[]> keyCombinations = new();
 
-    protected void RegisterKeyCombination(Enum lookup, params WindowsVKey[] keys)
+    protected void RegisterKeyCombination(Enum lookup, params User32.VirtualKey[] keys)
     {
         keyCombinations.Add(lookup, keys);
     }
@@ -105,11 +106,11 @@ public abstract partial class IntegrationModule : Module
     {
         if (process.MainWindowHandle == IntPtr.Zero)
         {
-            process.ShowMainWindow(ShowWindowEnum.Restore);
+            process.ShowMainWindow(User32.WindowShowStyle.SW_RESTORE);
             await Task.Delay(delay);
         }
 
-        process.ShowMainWindow(ShowWindowEnum.ShowDefault);
+        process.ShowMainWindow(User32.WindowShowStyle.SW_SHOWDEFAULT);
         await Task.Delay(delay);
         process.SetMainWindowForeground();
     }
