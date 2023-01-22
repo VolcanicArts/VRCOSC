@@ -165,10 +165,16 @@ public partial class Module
 
         foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
         {
-            assembly.GetTypes().ForEach(type =>
+            try
             {
-                if (type.Name.Equals(enumName, StringComparison.Ordinal)) returnType = type;
-            });
+                assembly.GetTypes().ForEach(type =>
+                {
+                    if (!type.IsSubclassOf(typeof(Enum))) return;
+
+                    if (type.Name.Equals(enumName, StringComparison.Ordinal)) returnType = type;
+                });
+            }
+            catch { }
         }
 
         return returnType;
