@@ -12,7 +12,7 @@ public static class WeatherProvider
 
     public static async Task<Weather?> RetrieveFor(string postcode)
     {
-        var uri = $"https://api.weatherapi.com/v1/current.json?key={VRCOSCSecrets.KEYS_WEATHER}&q={postcode}";
+        var uri = $"https://api.weatherapi.com/v1/current.json?key={VRCOSCSecrets.GetKey(VRCOSCSecrets.Keys.Weather)}&q={postcode}";
         var data = await http_client.GetAsync(new Uri(uri));
         var responseString = await data.Content.ReadAsStringAsync();
         return JsonConvert.DeserializeObject<WeatherResponse>(responseString)?.Current;

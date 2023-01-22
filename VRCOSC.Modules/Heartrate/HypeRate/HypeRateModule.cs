@@ -13,7 +13,7 @@ public sealed partial class HypeRateModule : HeartRateModule
 
     private bool receivedHeartRate;
 
-    protected override HeartRateProvider CreateHeartRateProvider() => new HypeRateProvider(GetSetting<string>(HypeRateSetting.Id), VRCOSCSecrets.KEYS_HYPERATE);
+    protected override HeartRateProvider CreateHeartRateProvider() => new HypeRateProvider(GetSetting<string>(HypeRateSetting.Id), VRCOSCSecrets.GetKey(VRCOSCSecrets.Keys.Hyperate));
 
     protected override void CreateAttributes()
     {

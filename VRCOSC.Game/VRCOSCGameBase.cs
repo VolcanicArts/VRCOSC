@@ -46,6 +46,8 @@ public partial class VRCOSCGameBase : osu.Framework.Game
     [BackgroundDependencyLoader]
     private void load(GameHost host, Storage storage)
     {
+        VRCOSCSecrets.Init();
+
         Resources.AddStore(new DllResourceStore(typeof(VRCOSCResources).Assembly));
 
         DependencyContainer.CacheAs(ConfigManager = new VRCOSCConfigManager(storage));
