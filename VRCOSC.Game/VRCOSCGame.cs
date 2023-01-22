@@ -52,7 +52,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     private Storage storage { get; set; } = null!;
 
     [Cached]
-    private GameManager gameManager = new();
+    protected GameManager gameManager = new();
 
     [BackgroundDependencyLoader]
     private void load()

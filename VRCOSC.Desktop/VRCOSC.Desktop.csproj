@@ -15,6 +15,7 @@
   </PropertyGroup>
   <ItemGroup Label="Project References">
     <ProjectReference Include="..\VRCOSC.Game\VRCOSC.Game.csproj" />
+    <ProjectReference Include="..\VRCOSC.Modules\VRCOSC.Modules.csproj" />
   </ItemGroup>
   <ItemGroup Label="Resources">
     <EmbeddedResource Include="game.ico" />

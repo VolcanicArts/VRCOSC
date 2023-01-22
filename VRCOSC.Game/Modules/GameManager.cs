@@ -65,7 +65,6 @@ public partial class GameManager : CompositeComponent
 
         ChatBoxInterface = new ChatBoxInterface(OscClient, configManager.GetBindable<int>(VRCOSCSetting.ChatBoxTimeSpan));
 
-        LoadComponent(ModuleManager);
         AddInternal(ModuleManager);
     }
 

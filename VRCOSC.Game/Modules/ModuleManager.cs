@@ -11,40 +11,14 @@ using osu.Framework.Allocation;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Platform;
-using VRCOSC.Game.Modules.Modules.ChatBoxText;
-using VRCOSC.Game.Modules.Modules.Clock;
-using VRCOSC.Game.Modules.Modules.Discord;
-using VRCOSC.Game.Modules.Modules.HardwareStats;
-using VRCOSC.Game.Modules.Modules.Heartrate.HypeRate;
-using VRCOSC.Game.Modules.Modules.Heartrate.Pulsoid;
-using VRCOSC.Game.Modules.Modules.Media;
-using VRCOSC.Game.Modules.Modules.OpenVR;
-using VRCOSC.Game.Modules.Modules.Random;
-using VRCOSC.Game.Modules.Modules.Weather;
 
 namespace VRCOSC.Game.Modules;
 
 public sealed partial class ModuleManager : CompositeComponent, IEnumerable<Module>
 {
-    private static readonly IReadOnlyList<Type> module_types = new[]
-    {
-        typeof(HypeRateModule),
-        typeof(PulsoidModule),
-        typeof(OpenVRStatisticsModule),
-        typeof(OpenVRControllerStatisticsModule),
-        typeof(GestureExtensionsModule),
-        typeof(MediaModule),
-        typeof(DiscordModule),
-        typeof(ClockModule),
-        typeof(ChatBoxTextModule),
-        typeof(HardwareStatsModule),
-        typeof(WeatherModule),
-        typeof(RandomBoolModule),
-        typeof(RandomIntModule),
-        typeof(RandomFloatModule)
-    };
-
     private readonly TerminalLogger terminal = new(nameof(ModuleManager));
+
+    private IReadOnlyList<Type> moduleTypes = null!;
 
     [Resolved]
     private Storage storage { get; set; } = null!;
@@ -52,14 +26,18 @@ public sealed partial class ModuleManager : CompositeComponent, IEnumerable<Modu
     [BackgroundDependencyLoader]
     private void load()
     {
-        module_types.ForEach(type =>
-        {
-            var module = (Module)Activator.CreateInstance(type)!;
-            LoadComponent(module);
-            AddInternal(module);
-        });
-
+        loadInternalModules();
         loadExternalModules();
+    }
+
+    private void loadInternalModules()
+    {
+        moduleTypes.ForEach(instanciateModule);
+    }
+
+    public void RegisterInternalModules(IReadOnlyList<Type> moduleTypes)
+    {
+        this.moduleTypes = moduleTypes;
     }
 
     private void loadExternalModules()
@@ -72,9 +50,13 @@ public sealed partial class ModuleManager : CompositeComponent, IEnumerable<Modu
     {
         var moduleAssemblyTypes = Assembly.LoadFile(dllPath).GetTypes();
         var moduleType = moduleAssemblyTypes.First(type => type.IsSubclassOf(typeof(Module)) && !type.IsAbstract);
-        var moduleInstance = (Module)Activator.CreateInstance(moduleType)!;
-        LoadComponent(moduleInstance);
-        AddInternal(moduleInstance);
+        instanciateModule(moduleType);
+    }
+
+    private void instanciateModule(Type type)
+    {
+        var instance = (Module)Activator.CreateInstance(type)!;
+        AddInternal(instance);
     }
 
     public void Start()
