@@ -31,6 +31,7 @@ public abstract partial class Module : Component, IComparable<Module>
 
     protected Player Player => GameManager.Player;
     protected OVRClient OVRClient => GameManager.OVRClient;
+    protected ChatBoxInterface ChatBoxInterface => GameManager.ChatBoxInterface;
     protected Bindable<ModuleState> State = new(ModuleState.Stopped);
 
     public readonly BindableBool Enabled = new();
@@ -44,7 +45,6 @@ public abstract partial class Module : Component, IComparable<Module>
     public virtual string Prefab => string.Empty;
     public virtual ModuleType Type => ModuleType.General;
     protected virtual TimeSpan DeltaUpdate => TimeSpan.MaxValue;
-    protected virtual int ChatBoxPriority => 0;
 
     private bool IsEnabled => Enabled.Value;
     private bool ShouldUpdate => DeltaUpdate != TimeSpan.MaxValue;
@@ -261,10 +261,6 @@ public abstract partial class Module : Component, IComparable<Module>
     protected void Log(string message) => Terminal.Log(message);
 
     protected void OpenUrlExternally(string Url) => Host.OpenUrlExternally(Url);
-
-    protected DateTimeOffset SetChatBoxText(string? text, TimeSpan displayLength) => GameManager.ChatBoxInterface.SetText(text, ChatBoxPriority, displayLength);
-
-    protected void SetChatBoxTyping(bool typing) => GameManager.ChatBoxInterface.SetTyping(typing);
 
     protected static float Map(float source, float sMin, float sMax, float dMin, float dMax) => dMin + (dMax - dMin) * ((source - sMin) / (sMax - sMin));
 

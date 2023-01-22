@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.Game.Modules;
@@ -10,6 +10,7 @@ public abstract partial class ChatBoxModule : Module
     protected virtual bool DefaultChatBoxDisplay => true;
     protected virtual IEnumerable<string> ChatBoxFormatValues => Array.Empty<string>();
     protected virtual string DefaultChatBoxFormat => string.Empty;
+    protected virtual int ChatBoxPriority => 0;
 
     private DateTimeOffset nextSendTime;
 
@@ -81,6 +82,10 @@ public abstract partial class ChatBoxModule : Module
     /// </summary>
     /// <returns></returns>
     protected abstract string? GetChatBoxText();
+
+    protected DateTimeOffset SetChatBoxText(string? text, TimeSpan displayLength) => ChatBoxInterface.SetText(text, ChatBoxPriority, displayLength);
+
+    protected void SetChatBoxTyping(bool typing) => ChatBoxInterface.SetTyping(typing);
 
     protected enum ChatBoxSetting
     {
