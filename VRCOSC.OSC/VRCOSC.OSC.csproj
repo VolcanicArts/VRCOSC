@@ -5,6 +5,14 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <LangVersion>10</LangVersion>
+        <PackageId>VolcanicArts.VRCOSC.OSC</PackageId>
+        <Version>2023.122.0</Version>
+        <Title>VRCOSC OSC</Title>
+        <Authors>VolcanicArts</Authors>
+        <Description>VRCOSC's OSC interface class library</Description>
+        <PackageProjectUrl>https://github.com/VolcanicArts/VRCOSC</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/VolcanicArts/VRCOSC</RepositoryUrl>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
 
 </Project>

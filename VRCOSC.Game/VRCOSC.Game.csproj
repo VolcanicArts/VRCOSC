@@ -3,6 +3,15 @@
     <TargetFramework>net6.0-windows10.0.22000.0</TargetFramework>
     <Nullable>enable</Nullable>
     <LangVersion>11</LangVersion>
+    <PackageId>VolcanicArts.VRCOSC.SDK</PackageId>
+    <Version>2023.122.1</Version>
+    <Title>VRCOSC SDK</Title>
+    <Authors>VolcanicArts</Authors>
+    <Description>SDK for creating custom modules with VRCOSC</Description>
+    <PackageProjectUrl>https://github.com/VolcanicArts/VRCOSC</PackageProjectUrl>
+    <PackageLicenseUrl></PackageLicenseUrl>
+    <RepositoryUrl>https://github.com/VolcanicArts/VRCOSC</RepositoryUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\VRCOSC.OpenVR\VRCOSC.OpenVR.csproj" />

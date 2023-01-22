@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29409.12
@@ -22,6 +22,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VRCOSC.OpenVR", "VRCOSC.OpenVR\VRCOSC.OpenVR.csproj", "{315007FF-DE2B-4231-9674-0750AE03186F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VRCOSC.Modules", "VRCOSC.Modules\VRCOSC.Modules.csproj", "{936B16A3-A07B-4280-AD03-4330BEE4F0D5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VRCOSC.Templates", "VRCOSC.Templates\VRCOSC.Templates.csproj", "{5B401F37-6C2F-416B-AE7E-64525AF3B46D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,6 +59,10 @@ Global
 		{936B16A3-A07B-4280-AD03-4330BEE4F0D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{936B16A3-A07B-4280-AD03-4330BEE4F0D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{936B16A3-A07B-4280-AD03-4330BEE4F0D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5B401F37-6C2F-416B-AE7E-64525AF3B46D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B401F37-6C2F-416B-AE7E-64525AF3B46D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B401F37-6C2F-416B-AE7E-64525AF3B46D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B401F37-6C2F-416B-AE7E-64525AF3B46D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
