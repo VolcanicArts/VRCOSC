@@ -3,6 +3,9 @@
 
 using LibreHardwareMonitor.Hardware;
 using osu.Framework.Extensions.IEnumerableExtensions;
+using VRCOSC.Modules.HardwareStats.Provider;
+
+// ReSharper disable InconsistentNaming
 
 namespace VRCOSC.Modules.HardwareStats;
 
@@ -11,6 +14,10 @@ public sealed class HardwareStatsProvider
     private readonly Computer computer;
 
     public bool CanAcceptQueries { get; private set; }
+
+    public readonly List<CPU> CPUs = new();
+    public readonly List<GPU> GPUs = new();
+    public readonly RAM RAM = new();
 
     public HardwareStatsProvider()
     {
@@ -37,10 +44,64 @@ public sealed class HardwareStatsProvider
     {
         hardware.Update();
         hardware.SubHardware.ForEach(updateHardware);
-        hardware.Sensors.ForEach(handleSensor);
+
+        var type = decypherComponent(hardware.Identifier.ToString());
+
+        switch (type)
+        {
+            case CPU cpu:
+                hardware.Sensors.ForEach(sensor => handleCPU(cpu, sensor));
+                break;
+
+            case GPU gpu:
+                hardware.Sensors.ForEach(sensor => handleGPU(gpu, sensor));
+                break;
+
+            case RAM ram:
+                hardware.Sensors.ForEach(sensor => handleRAM(ram, sensor));
+                break;
+        }
     }
 
-    private void handleSensor(ISensor sensor)
+    private Component decypherComponent(string address)
+    {
+        int index = 0;
+
+        try
+        {
+            index = int.Parse(address.Split('/').Last());
+        }
+        catch (FormatException) { }
+
+        if (address.Contains("cpu", StringComparison.InvariantCultureIgnoreCase))
+        {
+            while (index >= CPUs.Count)
+            {
+                CPUs.Add(new CPU());
+            }
+
+            return CPUs[index];
+        }
+
+        if (address.Contains("gpu", StringComparison.InvariantCultureIgnoreCase))
+        {
+            while (index >= GPUs.Count)
+            {
+                GPUs.Add(new GPU());
+            }
+
+            return GPUs[index];
+        }
+
+        if (address.Contains("ram", StringComparison.InvariantCultureIgnoreCase))
+        {
+            return RAM;
+        }
+
+        throw new InvalidOperationException("Could not find correct component to audit");
+    }
+
+    private void handleCPU(CPU cpu, ISensor sensor)
     {
         switch (sensor.SensorType)
         {
@@ -48,15 +109,7 @@ public sealed class HardwareStatsProvider
                 switch (sensor.Name)
                 {
                     case @"CPU Total":
-                        CpuUsage = sensor.Value ?? 0f;
-                        break;
-
-                    case @"GPU Core":
-                        GpuUsage = sensor.Value ?? 0f;
-                        break;
-
-                    case @"Memory":
-                        RamUsage = sensor.Value ?? 0f;
+                        cpu.Usage = sensor.Value ?? 0f;
                         break;
                 }
 
@@ -69,11 +122,49 @@ public sealed class HardwareStatsProvider
                     case @"Core (Tctl/Tdie)":
                     // Intel
                     case @"CPU Package":
-                        CpuTemp = (int?)sensor.Value ?? 0;
+                        cpu.Temperature = (int?)sensor.Value ?? 0;
                         break;
+                }
 
+                break;
+        }
+    }
+
+    private void handleGPU(GPU gpu, ISensor sensor)
+    {
+        switch (sensor.SensorType)
+        {
+            case SensorType.Load:
+                switch (sensor.Name)
+                {
                     case @"GPU Core":
-                        GpuTemp = (int?)sensor.Value ?? 0;
+                        gpu.Usage = sensor.Value ?? 0f;
+                        break;
+                }
+
+                break;
+
+            case SensorType.Temperature:
+                switch (sensor.Name)
+                {
+                    case @"GPU Core":
+                        gpu.Temperature = (int?)sensor.Value ?? 0;
+                        break;
+                }
+
+                break;
+        }
+    }
+
+    private void handleRAM(RAM ram, ISensor sensor)
+    {
+        switch (sensor.SensorType)
+        {
+            case SensorType.Load:
+                switch (sensor.Name)
+                {
+                    case @"Memory":
+                        ram.Usage = sensor.Value ?? 0f;
                         break;
                 }
 
@@ -83,26 +174,15 @@ public sealed class HardwareStatsProvider
                 switch (sensor.Name)
                 {
                     case @"Memory Used":
-                        RamUsed = sensor.Value ?? 0f;
+                        ram.Used = sensor.Value ?? 0f;
                         break;
 
                     case @"Memory Available":
-                        RamAvailable = sensor.Value ?? 0f;
+                        ram.Available = sensor.Value ?? 0f;
                         break;
                 }
 
                 break;
         }
     }
-
-    public float CpuUsage { get; private set; }
-    public float GpuUsage { get; private set; }
-    public float RamUsage { get; private set; }
-
-    public int CpuTemp { get; private set; }
-    public int GpuTemp { get; private set; }
-
-    public float RamUsed { get; private set; }
-    public float RamAvailable { get; private set; }
-    public float RamTotal => RamUsed + RamAvailable;
 }

@@ -20,7 +20,11 @@ public sealed partial class HardwareStatsModule : ChatBoxModule
 
     protected override void CreateAttributes()
     {
+        CreateSetting(HardwareStatsSetting.SelectedCPU, "Selected CPU", "If you have multiple CPUs, enter the (0th based) index of the one you want to track", 0);
+        CreateSetting(HardwareStatsSetting.SelectedGPU, "Selected GPU", "If you have multiple GPUs, enter the (0th based) index of the one you want to track", 0);
+
         base.CreateAttributes();
+
         CreateParameter<float>(HardwareStatsParameter.CpuUsage, ParameterMode.Write, "VRCOSC/Hardware/CPUUsage", "The CPU usage normalised");
         CreateParameter<float>(HardwareStatsParameter.GpuUsage, ParameterMode.Write, "VRCOSC/Hardware/GPUUsage", "The GPU usage normalised");
         CreateParameter<float>(HardwareStatsParameter.RamUsage, ParameterMode.Write, "VRCOSC/Hardware/RAMUsage", "The RAM usage normalised");
@@ -35,15 +39,25 @@ public sealed partial class HardwareStatsModule : ChatBoxModule
     {
         if (!(hardwareStatsProvider?.CanAcceptQueries ?? false)) return null;
 
-        return GetSetting<string>(ChatBoxSetting.ChatBoxFormat)
-               .Replace(@"$cpuusage$", hardwareStatsProvider.CpuUsage.ToString("0.00"))
-               .Replace(@"$gpuusage$", hardwareStatsProvider.GpuUsage.ToString("0.00"))
-               .Replace(@"$ramusage$", hardwareStatsProvider.RamUsage.ToString("0.00"))
-               .Replace(@"$cputemp$", hardwareStatsProvider.CpuTemp.ToString())
-               .Replace(@"$gputemp$", hardwareStatsProvider.GpuTemp.ToString())
-               .Replace(@"$ramtotal$", hardwareStatsProvider.RamTotal.ToString("0.0"))
-               .Replace(@"$ramused$", hardwareStatsProvider.RamUsed.ToString("0.0"))
-               .Replace(@"$ramavailable$", hardwareStatsProvider.RamAvailable.ToString("0.0"));
+        try
+        {
+            var cpu = hardwareStatsProvider.CPUs[GetSetting<int>(HardwareStatsSetting.SelectedCPU)];
+            var gpu = hardwareStatsProvider.GPUs[GetSetting<int>(HardwareStatsSetting.SelectedGPU)];
+            var ram = hardwareStatsProvider.RAM;
+
+            return GetSetting<string>(ChatBoxSetting.ChatBoxFormat)
+                   .Replace(@"$cpuusage$", cpu.Usage.ToString("0.00"))
+                   .Replace(@"$gpuusage$", gpu.Usage.ToString("0.00"))
+                   .Replace(@"$ramusage$", ram.Usage.ToString("0.00"))
+                   .Replace(@"$cputemp$", cpu.Temperature.ToString())
+                   .Replace(@"$gputemp$", gpu.Temperature.ToString())
+                   .Replace(@"$ramtotal$", ram.Total.ToString("0.0"))
+                   .Replace(@"$ramused$", ram.Used.ToString("0.0"))
+                   .Replace(@"$ramavailable$", ram.Available.ToString("0.0"));
+        }
+        catch { }
+
+        return null;
     }
 
     protected override void OnModuleStart()
@@ -58,19 +72,33 @@ public sealed partial class HardwareStatsModule : ChatBoxModule
 
         hardwareStatsProvider.Update();
 
-        SendParameter(HardwareStatsParameter.CpuUsage, hardwareStatsProvider.CpuUsage / 100f);
-        SendParameter(HardwareStatsParameter.GpuUsage, hardwareStatsProvider.GpuUsage / 100f);
-        SendParameter(HardwareStatsParameter.RamUsage, hardwareStatsProvider.RamUsage / 100f);
-        SendParameter(HardwareStatsParameter.CpuTemp, hardwareStatsProvider.CpuTemp);
-        SendParameter(HardwareStatsParameter.GpuTemp, hardwareStatsProvider.GpuTemp);
-        SendParameter(HardwareStatsParameter.RamTotal, hardwareStatsProvider.RamTotal);
-        SendParameter(HardwareStatsParameter.RamUsed, hardwareStatsProvider.RamUsed);
-        SendParameter(HardwareStatsParameter.RamAvailable, hardwareStatsProvider.RamAvailable);
+        try
+        {
+            var cpu = hardwareStatsProvider.CPUs[GetSetting<int>(HardwareStatsSetting.SelectedCPU)];
+            var gpu = hardwareStatsProvider.GPUs[GetSetting<int>(HardwareStatsSetting.SelectedGPU)];
+            var ram = hardwareStatsProvider.RAM;
+
+            SendParameter(HardwareStatsParameter.CpuUsage, cpu.Usage / 100f);
+            SendParameter(HardwareStatsParameter.GpuUsage, gpu.Usage / 100f);
+            SendParameter(HardwareStatsParameter.RamUsage, ram.Usage / 100f);
+            SendParameter(HardwareStatsParameter.CpuTemp, cpu.Temperature);
+            SendParameter(HardwareStatsParameter.GpuTemp, gpu.Temperature);
+            SendParameter(HardwareStatsParameter.RamTotal, ram.Total);
+            SendParameter(HardwareStatsParameter.RamUsed, ram.Used);
+            SendParameter(HardwareStatsParameter.RamAvailable, ram.Available);
+        }
+        catch { }
     }
 
     protected override void OnModuleStop()
     {
         hardwareStatsProvider = null;
+    }
+
+    private enum HardwareStatsSetting
+    {
+        SelectedCPU,
+        SelectedGPU
     }
 
     private enum HardwareStatsParameter
