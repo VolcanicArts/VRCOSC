@@ -21,7 +21,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="ppy.osu.Framework" Version="2023.120.0" />
+    <PackageReference Include="ppy.osu.Framework" Version="2023.124.0" />
     <PackageReference Include="WebSocket4Net" Version="0.15.2" />
     <PackageReference Include="VolcanicArts.Libs.OpenVR" Version="1.23.7" />
   </ItemGroup>
