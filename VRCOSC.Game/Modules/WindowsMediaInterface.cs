@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Windows.Media.Control;
 using osu.Framework.Extensions.IEnumerableExtensions;
 
@@ -78,11 +79,8 @@ public class WindowsMediaInterface
             controlSession.TimelinePropertiesChanged += (_, _) => OnAnyTimelinePropertiesChanged?.Invoke(controlSession, controlSession.GetTimelineProperties());
             currentSessions.Add(controlSession);
         }
-        catch (Exception e)
+        catch (COMException)
         {
-            if (e.Message.Contains("0x80030070")) return;
-
-            throw;
         }
     }
 }
