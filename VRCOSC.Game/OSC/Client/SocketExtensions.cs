@@ -9,7 +9,7 @@ namespace VRCOSC.Game.OSC.Client;
 
 public static class SocketExtensions
 {
-    private static readonly byte[] buffer = new byte[1024];
+    private static readonly byte[] buffer = new byte[4096];
 
     public static void SendOscMessage(this Socket socket, OscMessage message)
     {
