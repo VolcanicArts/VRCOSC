@@ -18,6 +18,7 @@ public sealed partial class ModuleEditingContent : Container
 {
     private readonly SpriteText titleText;
     private readonly SeparatedAttributeFlow settings;
+    private readonly SeparatedAttributeFlow parameters;
     private readonly BasicScrollContainer scrollContainer;
     private readonly FillFlowContainer<SeparatedAttributeFlow> separatedAttributeFlowFlow;
 
@@ -67,7 +68,12 @@ public sealed partial class ModuleEditingContent : Container
                             Spacing = new Vector2(0, 5),
                             Children = new[]
                             {
-                                settings = new SeparatedAttributeFlow()
+                                settings = new SeparatedAttributeFlow(),
+                                parameters = new SeparatedAttributeFlow
+                                {
+                                    Title = "Parameter Names",
+                                    SubTitle = "Only edit these if you know what you are doing"
+                                }
                             }
                         }
                     }
@@ -91,25 +97,57 @@ public sealed partial class ModuleEditingContent : Container
 
             settings.Replace(editingModule.Value.Settings.Values);
             settings.Alpha = editingModule.Value.HasSettings ? 1 : 0;
+
+            parameters.Replace(editingModule.Value.Parameters.Values);
+            settings.Alpha = editingModule.Value.HasParameters ? 1 : 0;
         }, true);
     }
 
-    private sealed partial class SeparatedAttributeFlow : Container
+    private sealed partial class SeparatedAttributeFlow : FillFlowContainer
     {
-        private readonly AttributeFlow attributeFlow;
+        public string Title { get; init; } = string.Empty;
+        public string SubTitle { get; init; } = string.Empty;
 
-        public SeparatedAttributeFlow()
+        private AttributeFlow attributeFlow = null!;
+
+        [BackgroundDependencyLoader]
+        private void load()
         {
             Anchor = Anchor.TopCentre;
             Origin = Anchor.TopCentre;
             RelativeSizeAxes = Axes.X;
             AutoSizeAxes = Axes.Y;
+            Spacing = new Vector2(0, 5);
+            Direction = FillDirection.Vertical;
+
             Children = new Drawable[]
             {
                 new LineSeparator
                 {
                     Anchor = Anchor.TopCentre,
                     Origin = Anchor.TopCentre
+                },
+                new SpriteText
+                {
+                    Anchor = Anchor.TopCentre,
+                    Origin = Anchor.TopCentre,
+                    Font = FrameworkFont.Regular.With(size: 60),
+                    Colour = ThemeManager.Current[ThemeAttribute.Text],
+                    Text = Title,
+                    Alpha = string.IsNullOrEmpty(Title) ? 0 : 1
+                },
+                new SpriteText
+                {
+                    Anchor = Anchor.TopCentre,
+                    Origin = Anchor.TopCentre,
+                    Font = FrameworkFont.Regular.With(size: 25),
+                    Colour = ThemeManager.Current[ThemeAttribute.SubText],
+                    Margin = new MarginPadding
+                    {
+                        Vertical = 10
+                    },
+                    Text = SubTitle,
+                    Alpha = string.IsNullOrEmpty(SubTitle) ? 0 : 1
                 },
                 attributeFlow = new AttributeFlow()
             };

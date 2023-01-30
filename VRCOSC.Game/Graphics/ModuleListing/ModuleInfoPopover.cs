@@ -123,11 +123,12 @@ public partial class ModuleInfoPopover : PopoverScreen
 
     private sealed partial class ParameterData : Container
     {
-        public string ParameterName { get; init; } = null!;
-        public string Description { get; init; } = null!;
-        public string Type { get; init; } = null!;
-        public bool Outgoing { get; init; }
-        public bool Incoming { get; init; }
+        public required string ParameterName;
+        public required string DisplayName;
+        public required string Description;
+        public required string Type;
+        public required bool Outgoing;
+        public required bool Incoming;
 
         public ParameterData()
         {
@@ -142,11 +143,11 @@ public partial class ModuleInfoPopover : PopoverScreen
         [BackgroundDependencyLoader]
         private void load()
         {
-            var name = $"Name: {ParameterName}";
+            var metadata = $"{DisplayName} - {Description}";
+            var name = $"Parameter Name: {ParameterName}";
             var type = $"Type: {Type}";
             var outgoing = $"Writes To VRC?: {Outgoing}";
             var incoming = $"Reads From VRC?: {Incoming}";
-            var description = $"Description: {Description}";
 
             Children = new Drawable[]
             {
@@ -167,7 +168,7 @@ public partial class ModuleInfoPopover : PopoverScreen
                         {
                             RelativeSizeAxes = Axes.X,
                             AutoSizeAxes = Axes.Y,
-                            Text = $"{name}\n{type}\n{outgoing}\n{incoming}\n{description}"
+                            Text = $"{metadata}\n\n{name}\n{type}\n{outgoing}\n{incoming}"
                         }
                     }
                 }
@@ -200,8 +201,9 @@ public partial class ModuleInfoPopover : PopoverScreen
         {
             parameters.Add(new ParameterData
             {
-                ParameterName = parameter.Name,
-                Description = parameter.Description,
+                ParameterName = (string)parameter.Attribute.Value,
+                DisplayName = parameter.Metadata.DisplayName,
+                Description = parameter.Metadata.Description,
                 Type = parameter.ExpectedType.ToReadableName(),
                 Outgoing = parameter.Mode.HasFlagFast(ParameterMode.Write),
                 Incoming = parameter.Mode.HasFlagFast(ParameterMode.Read)

@@ -17,8 +17,8 @@ public sealed partial class DiscordModule : IntegrationModule
 
     protected override void CreateAttributes()
     {
-        CreateParameter<bool>(DiscordParameter.Mic, ParameterMode.Read, "VRCOSC/Discord/Mic", "Becomes true to toggle the mic");
-        CreateParameter<bool>(DiscordParameter.Deafen, ParameterMode.Read, "VRCOSC/Discord/Deafen", "Becomes true to toggle deafen");
+        CreateParameter<bool>(DiscordParameter.Mic, ParameterMode.Read, "VRCOSC/Discord/Mic", "Mic", "Becomes true to toggle the mic");
+        CreateParameter<bool>(DiscordParameter.Deafen, ParameterMode.Read, "VRCOSC/Discord/Deafen", "Deafen", "Becomes true to toggle deafen");
 
         RegisterKeyCombination(DiscordParameter.Mic, User32.VirtualKey.VK_LCONTROL, User32.VirtualKey.VK_LSHIFT, User32.VirtualKey.VK_M);
         RegisterKeyCombination(DiscordParameter.Deafen, User32.VirtualKey.VK_LCONTROL, User32.VirtualKey.VK_LSHIFT, User32.VirtualKey.VK_D);

@@ -24,24 +24,24 @@ public partial class OpenVRStatisticsModule : ChatBoxModule
     {
         base.CreateAttributes();
 
-        CreateParameter<float>(OpenVrParameter.FPS, ParameterMode.Write, "VRCOSC/OpenVR/FPS", "The current FPS normalised to 240 FPS");
+        CreateParameter<float>(OpenVrParameter.FPS, ParameterMode.Write, "VRCOSC/OpenVR/FPS", "FPS", "The current FPS normalised to 240 FPS");
 
-        CreateParameter<bool>(OpenVrParameter.HMD_Connected, ParameterMode.Write, "VRCOSC/OpenVR/HMD/Connected", "Whether your HMD is connected");
-        CreateParameter<float>(OpenVrParameter.HMD_Battery, ParameterMode.Write, "VRCOSC/OpenVR/HMD/Battery", "The battery percentage normalised of your headset");
-        CreateParameter<bool>(OpenVrParameter.HMD_Charging, ParameterMode.Write, "VRCOSC/OpenVR/HMD/Charging", "The charge state of your headset");
+        CreateParameter<bool>(OpenVrParameter.HMD_Connected, ParameterMode.Write, "VRCOSC/OpenVR/HMD/Connected", "HMD Connected", "Whether your HMD is connected");
+        CreateParameter<float>(OpenVrParameter.HMD_Battery, ParameterMode.Write, "VRCOSC/OpenVR/HMD/Battery", "HMD Battery", "The battery percentage normalised of your headset");
+        CreateParameter<bool>(OpenVrParameter.HMD_Charging, ParameterMode.Write, "VRCOSC/OpenVR/HMD/Charging", "HMD Charging", "The charge state of your headset");
 
-        CreateParameter<bool>(OpenVrParameter.LeftController_Connected, ParameterMode.Write, "VRCOSC/OpenVR/LeftController/Connected", "Whether your left controller is connected");
-        CreateParameter<float>(OpenVrParameter.LeftController_Battery, ParameterMode.Write, "VRCOSC/OpenVR/LeftController/Battery", "The battery percentage normalised of your left controller");
-        CreateParameter<bool>(OpenVrParameter.LeftController_Charging, ParameterMode.Write, "VRCOSC/OpenVR/LeftController/Charging", "The charge state of your left controller");
-        CreateParameter<bool>(OpenVrParameter.RightController_Connected, ParameterMode.Write, "VRCOSC/OpenVR/RightController/Connected", "Whether your right controller is connected");
-        CreateParameter<float>(OpenVrParameter.RightController_Battery, ParameterMode.Write, "VRCOSC/OpenVR/RightController/Battery", "The battery percentage normalised of your right controller");
-        CreateParameter<bool>(OpenVrParameter.RightController_Charging, ParameterMode.Write, "VRCOSC/OpenVR/RightController/Charging", "The charge state of your right controller");
+        CreateParameter<bool>(OpenVrParameter.LeftController_Connected, ParameterMode.Write, "VRCOSC/OpenVR/LeftController/Connected", "Left Controller Connected", "Whether your left controller is connected");
+        CreateParameter<float>(OpenVrParameter.LeftController_Battery, ParameterMode.Write, "VRCOSC/OpenVR/LeftController/Battery", "Left Controller Battery", "The battery percentage normalised of your left controller");
+        CreateParameter<bool>(OpenVrParameter.LeftController_Charging, ParameterMode.Write, "VRCOSC/OpenVR/LeftController/Charging", "Left Controller Charging", "The charge state of your left controller");
+        CreateParameter<bool>(OpenVrParameter.RightController_Connected, ParameterMode.Write, "VRCOSC/OpenVR/RightController/Connected", "Right Controller Connected", "Whether your right controller is connected");
+        CreateParameter<float>(OpenVrParameter.RightController_Battery, ParameterMode.Write, "VRCOSC/OpenVR/RightController/Battery", "Right Controller Battery", "The battery percentage normalised of your right controller");
+        CreateParameter<bool>(OpenVrParameter.RightController_Charging, ParameterMode.Write, "VRCOSC/OpenVR/RightController/Charging", "Right Controller Charging", "The charge state of your right controller");
 
         for (int i = 0; i < OVRSystem.MAX_TRACKER_COUNT; i++)
         {
-            CreateParameter<bool>(OpenVrParameter.Tracker1_Connected + i, ParameterMode.Write, $"VRCOSC/OpenVR/Trackers/{i + 1}/Connected", $"Whether tracker {i + 1} is connected");
-            CreateParameter<float>(OpenVrParameter.Tracker1_Battery + i, ParameterMode.Write, $"VRCOSC/OpenVR/Trackers/{i + 1}/Battery", $"The battery percentage normalised (0-1) of tracker {i + 1}");
-            CreateParameter<bool>(OpenVrParameter.Tracker1_Charging + i, ParameterMode.Write, $"VRCOSC/OpenVR/Trackers/{i + 1}/Charging", $"Whether tracker {i + 1} is currently charging");
+            CreateParameter<bool>(OpenVrParameter.Tracker1_Connected + i, ParameterMode.Write, $"VRCOSC/OpenVR/Trackers/{i + 1}/Connected", $"Tracker {i + 1} Connected", $"Whether tracker {i + 1} is connected");
+            CreateParameter<float>(OpenVrParameter.Tracker1_Battery + i, ParameterMode.Write, $"VRCOSC/OpenVR/Trackers/{i + 1}/Battery", $"Tracker {i + 1} Battery", $"The battery percentage normalised (0-1) of tracker {i + 1}");
+            CreateParameter<bool>(OpenVrParameter.Tracker1_Charging + i, ParameterMode.Write, $"VRCOSC/OpenVR/Trackers/{i + 1}/Charging", $"Tracker {i + 1} Charging", $"Whether tracker {i + 1} is currently charging");
         }
     }
 

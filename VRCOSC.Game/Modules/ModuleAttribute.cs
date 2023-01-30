@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
+using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Game.Modules;
 
@@ -40,6 +41,21 @@ public class ModuleAttributeSingle : ModuleAttribute
     public override void SetDefault() => Attribute.SetDefault();
 
     public override bool IsDefault() => Attribute.IsDefault;
+}
+
+public sealed class ParameterAttribute : ModuleAttributeSingle
+{
+    public readonly ParameterMode Mode;
+    public readonly Type ExpectedType;
+
+    public string FormattedAddress => $"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}/{Attribute.Value}";
+
+    public ParameterAttribute(ParameterMode mode, ModuleAttributeMetadata metadata, string defaultName, Type expectedType, Func<bool>? dependsOn)
+        : base(metadata, defaultName, dependsOn)
+    {
+        Mode = mode;
+        ExpectedType = expectedType;
+    }
 }
 
 public sealed class ModuleAttributeSingleWithButton : ModuleAttributeSingle

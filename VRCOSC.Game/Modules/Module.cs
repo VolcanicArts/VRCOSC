@@ -36,8 +36,8 @@ public abstract partial class Module : Component, IComparable<Module>
 
     internal readonly BindableBool Enabled = new();
     internal readonly Dictionary<string, ModuleAttribute> Settings = new();
-    internal readonly Dictionary<Enum, ParameterMetadata> Parameters = new();
-    private readonly Dictionary<string, Enum> parametersReversed = new();
+    internal readonly Dictionary<Enum, ParameterAttribute> Parameters = new();
+    internal readonly Dictionary<string, Enum> ParametersLookup = new();
 
     public virtual string Title => string.Empty;
     public virtual string Description => string.Empty;
@@ -66,7 +66,7 @@ public abstract partial class Module : Component, IComparable<Module>
 
         CreateAttributes();
 
-        Parameters.ForEach(pair => parametersReversed.Add(pair.Value.Name, pair.Key));
+        Parameters.ForEach(pair => ParametersLookup.Add(pair.Key.ToLookup(), pair.Key));
 
         performLoad();
     }
@@ -104,8 +104,8 @@ public abstract partial class Module : Component, IComparable<Module>
     protected void CreateSetting(Enum lookup, string displayName, string description, string defaultValue, string buttonText, Action buttonAction, Func<bool>? dependsOn = null)
         => addTextAndButtonSetting(lookup, displayName, description, defaultValue, buttonText, buttonAction, dependsOn);
 
-    protected void CreateParameter<T>(Enum lookup, ParameterMode mode, string parameterName, string description)
-        => Parameters.Add(lookup, new ParameterMetadata(mode, parameterName, description, typeof(T)));
+    protected void CreateParameter<T>(Enum lookup, ParameterMode mode, string parameterName, string displayName, string description)
+        => Parameters.Add(lookup, new ParameterAttribute(mode, new ModuleAttributeMetadata(displayName, description), parameterName, typeof(T), null));
 
     private void addSingleSetting(Enum lookup, string displayName, string description, object defaultValue, Func<bool>? dependsOn)
         => Settings.Add(lookup.ToLookup(), new ModuleAttributeSingle(new ModuleAttributeMetadata(displayName, description), defaultValue, dependsOn));
@@ -219,9 +219,9 @@ public abstract partial class Module : Component, IComparable<Module>
             return;
         }
 
-        if (!data.IsAvatarParameter || !parametersReversed.ContainsKey(data.ParameterName)) return;
+        if (!data.IsAvatarParameter || Parameters.Select(pair => pair.Value).All(parameter => parameter.Attribute.Value != data.ParameterName)) return;
 
-        var lookup = parametersReversed[data.ParameterName];
+        var lookup = Parameters.Single(pair => pair.Value.Attribute.Value == data.ParameterName).Key;
         var parameterData = Parameters[lookup];
 
         if (!parameterData.Mode.HasFlagFast(ParameterMode.Read)) return;

@@ -25,7 +25,7 @@ public partial class WeatherModule : ChatBoxModule
 
         base.CreateAttributes();
 
-        CreateParameter<int>(WeatherParameter.Code, ParameterMode.Write, "VRCOSC/Weather/Code", "The current weather's code");
+        CreateParameter<int>(WeatherParameter.Code, ParameterMode.Write, "VRCOSC/Weather/Code", "Weather Code", "The current weather's code");
     }
 
     protected override void OnModuleStart()

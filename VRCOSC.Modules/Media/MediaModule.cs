@@ -31,13 +31,13 @@ public sealed partial class MediaModule : ChatBoxModule
 
         base.CreateAttributes();
 
-        CreateParameter<bool>(MediaParameter.Play, ParameterMode.ReadWrite, @"VRCOSC/Media/Play", @"True for playing. False for paused");
-        CreateParameter<float>(MediaParameter.Volume, ParameterMode.ReadWrite, @"VRCOSC/Media/Volume", @"The volume of the process that is controlling the media");
-        CreateParameter<bool>(MediaParameter.Muted, ParameterMode.ReadWrite, @"VRCOSC/Media/Muted", @"True to mute. False to unmute");
-        CreateParameter<int>(MediaParameter.Repeat, ParameterMode.ReadWrite, @"VRCOSC/Media/Repeat", @"0 for disabled. 1 for single. 2 for list");
-        CreateParameter<bool>(MediaParameter.Shuffle, ParameterMode.ReadWrite, @"VRCOSC/Media/Shuffle", @"True for enabled. False for disabled");
-        CreateParameter<bool>(MediaParameter.Next, ParameterMode.Read, @"VRCOSC/Media/Next", @"Becoming true causes the next track to play");
-        CreateParameter<bool>(MediaParameter.Previous, ParameterMode.Read, @"VRCOSC/Media/Previous", @"Becoming true causes the previous track to play");
+        CreateParameter<bool>(MediaParameter.Play, ParameterMode.ReadWrite, @"VRCOSC/Media/Play", "Play/Pause", @"True for playing. False for paused");
+        CreateParameter<float>(MediaParameter.Volume, ParameterMode.ReadWrite, @"VRCOSC/Media/Volume", "Volume", @"The volume of the process that is controlling the media");
+        CreateParameter<bool>(MediaParameter.Muted, ParameterMode.ReadWrite, @"VRCOSC/Media/Muted", "Muted", @"True to mute. False to unmute");
+        CreateParameter<int>(MediaParameter.Repeat, ParameterMode.ReadWrite, @"VRCOSC/Media/Repeat", "Repeat", @"0 for disabled. 1 for single. 2 for list");
+        CreateParameter<bool>(MediaParameter.Shuffle, ParameterMode.ReadWrite, @"VRCOSC/Media/Shuffle", "Shuffle", @"True for enabled. False for disabled");
+        CreateParameter<bool>(MediaParameter.Next, ParameterMode.Read, @"VRCOSC/Media/Next", "Next", @"Becoming true causes the next track to play");
+        CreateParameter<bool>(MediaParameter.Previous, ParameterMode.Read, @"VRCOSC/Media/Previous", "Previous", @"Becoming true causes the previous track to play");
     }
 
     protected override string? GetChatBoxText()

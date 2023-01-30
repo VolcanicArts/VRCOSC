@@ -23,8 +23,8 @@ public partial class GestureExtensionsModule : Module
         CreateSetting(GestureExtensionsSetting.LowerThreshold, "Lower Threshold", "How far down a finger should be until it's not considered up", 0.5f, 0, 1);
         CreateSetting(GestureExtensionsSetting.UpperThreshold, "Upper Threshold", "How far down a finger should be before it's considered down", 0.5f, 0, 1);
 
-        CreateParameter<int>(GestureExtensionsParameter.GestureLeft, ParameterMode.Write, "VRCOSC/Gestures/Left", "Custom left hand gesture value");
-        CreateParameter<int>(GestureExtensionsParameter.GestureRight, ParameterMode.Write, "VRCOSC/Gestures/Right", "Custom right hand gesture value");
+        CreateParameter<int>(GestureExtensionsParameter.GestureLeft, ParameterMode.Write, "VRCOSC/Gestures/Left", "Left Gestures", "Custom left hand gesture value");
+        CreateParameter<int>(GestureExtensionsParameter.GestureRight, ParameterMode.Write, "VRCOSC/Gestures/Right", "Right Gestures", "Custom right hand gesture value");
     }
 
     protected override void OnModuleStart()

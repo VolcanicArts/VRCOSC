@@ -33,6 +33,10 @@ public partial class Module
                         case "#Settings":
                             performSettingsLoad(reader);
                             break;
+
+                        case "#Parameters":
+                            performParametersLoad(reader);
+                            break;
                     }
                 }
             }
@@ -153,6 +157,23 @@ public partial class Module
         }
     }
 
+    private void performParametersLoad(TextReader reader)
+    {
+        while (reader.ReadLine() is { } line)
+        {
+            if (line.Equals("#End")) break;
+
+            var lineSplit = line.Split(new[] { '=' }, 2);
+            var lookup = lineSplit[0];
+            var value = lineSplit[1];
+
+            if (!ParametersLookup.ContainsKey(lookup)) continue;
+
+            var parameter = Parameters[ParametersLookup[lookup]];
+            parameter.Attribute.Value = value;
+        }
+    }
+
     private void executeAfterLoad()
     {
         performSave();
@@ -196,6 +217,7 @@ public partial class Module
 
         performInternalSettingsSave(writer);
         performSettingsSave(writer);
+        performParametersSave(writer);
     }
 
     private void performInternalSettingsSave(TextWriter writer)
@@ -259,6 +281,26 @@ public partial class Module
                     break;
                 }
             }
+        }
+
+        writer.WriteLine(@"#End");
+    }
+
+    private void performParametersSave(TextWriter writer)
+    {
+        var areAllDefault = Parameters.All(pair => pair.Value.IsDefault());
+        if (areAllDefault) return;
+
+        writer.WriteLine(@"#Parameters");
+
+        foreach (var (lookup, parameterAttribute) in Parameters)
+        {
+            if (parameterAttribute.IsDefault()) continue;
+
+            var value = parameterAttribute.Attribute.Value;
+            writer.WriteLine(@"{0}={1}", lookup.ToLookup(), value);
+
+            break;
         }
 
         writer.WriteLine(@"#End");
