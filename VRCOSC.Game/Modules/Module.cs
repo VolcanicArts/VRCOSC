@@ -286,6 +286,6 @@ public abstract partial class Module : Component, IComparable<Module>
         if (Type > other.Type) return 1;
         if (Type < other.Type) return -1;
 
-        return Type == other.Type ? string.CompareOrdinal(Title, other.Title) : 0;
+        return string.CompareOrdinal(Title, other.Title);
     }
 }
