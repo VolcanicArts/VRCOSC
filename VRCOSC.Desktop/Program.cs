@@ -20,7 +20,6 @@ public static class Program
     public static void Main()
     {
         initSquirrel();
-        VRCOSCSecrets.Init();
 
         using GameHost host = Host.GetSuitableDesktopHost(base_game_name);
         using osu.Framework.Game game = new VRCOSCGameDesktop();

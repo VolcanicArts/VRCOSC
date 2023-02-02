@@ -33,7 +33,8 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     [Resolved]
     private GameHost host { get; set; } = null!;
 
-    public VRCOSCUpdateManager UpdateManager = null!;
+    private IVRCOSCSecrets vrcoscSecrets = null!;
+    private VRCOSCUpdateManager UpdateManager = null!;
 
     private NotificationContainer notificationContainer = null!;
 
@@ -61,6 +62,9 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
         notificationContainer = new NotificationContainer();
         DependencyContainer.CacheAs(notificationContainer);
+
+        vrcoscSecrets = GetSecrets();
+        DependencyContainer.CacheAs(typeof(IVRCOSCSecrets), vrcoscSecrets);
 
         LoadComponent(notificationContainer);
 
@@ -179,5 +183,6 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         Exit();
     }
 
+    protected abstract IVRCOSCSecrets GetSecrets();
     protected abstract VRCOSCUpdateManager CreateUpdateManager();
 }

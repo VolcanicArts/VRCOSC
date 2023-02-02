@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using VRCOSC.Game;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Modules.Weather;
@@ -17,6 +18,7 @@ public partial class WeatherModule : ChatBoxModule
     protected override IEnumerable<string> ChatBoxFormatValues => new[] { @"%tempc%", @"%tempf%", @"%humidity%" };
     protected override string DefaultChatBoxFormat => @"Local Weather                                %tempc%C";
 
+    private WeatherProvider? weatherProvider;
     private Weather? currentWeather;
 
     protected override void CreateAttributes()
@@ -34,6 +36,7 @@ public partial class WeatherModule : ChatBoxModule
 
         if (string.IsNullOrEmpty(GetSetting<string>(WeatherSetting.Postcode))) Log("Please provide a postcode/zip code");
 
+        weatherProvider = new WeatherProvider(Secrets.GetSecret(VRCOSCSecretsKeys.Weather));
         currentWeather = null;
     }
 
@@ -41,11 +44,18 @@ public partial class WeatherModule : ChatBoxModule
     {
         if (string.IsNullOrEmpty(GetSetting<string>(WeatherSetting.Postcode))) return;
 
+        if (weatherProvider is null) return;
+
         Task.Run(async () =>
         {
-            currentWeather = await WeatherProvider.RetrieveFor(GetSetting<string>(WeatherSetting.Postcode));
+            currentWeather = await weatherProvider.RetrieveFor(GetSetting<string>(WeatherSetting.Postcode));
             sendParameters();
         });
+    }
+
+    protected override void OnModuleStop()
+    {
+        weatherProvider = null;
     }
 
     protected override void OnAvatarChange()

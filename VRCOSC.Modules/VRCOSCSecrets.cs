@@ -1,21 +1,17 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
+
+using VRCOSC.Game;
 
 namespace VRCOSC.Modules;
 
-public static class VRCOSCSecrets
+public class VRCOSCModuleSecrets : IVRCOSCSecrets
 {
-    private static readonly Dictionary<Keys, string> secrets = new();
+    private readonly Dictionary<VRCOSCSecretsKeys, string> secrets = new();
 
-    public static void Init()
+    public VRCOSCModuleSecrets()
     {
     }
 
-    public static string GetKey(Keys key) => secrets.TryGetValue(key, out var value) ? value : string.Empty;
-
-    public enum Keys
-    {
-        Hyperate,
-        Weather
-    }
+    public string GetSecret(VRCOSCSecretsKeys key) => secrets.TryGetValue(key, out var value) ? value : string.Empty;
 }

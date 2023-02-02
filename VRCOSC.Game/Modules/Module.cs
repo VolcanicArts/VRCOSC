@@ -26,6 +26,9 @@ public abstract partial class Module : Component, IComparable<Module>
     [Resolved]
     private GameManager GameManager { get; set; } = null!;
 
+    [Resolved]
+    private IVRCOSCSecrets secrets { get; set; } = null!;
+
     private Storage Storage = null!;
     private TerminalLogger Terminal = null!;
 
@@ -33,6 +36,7 @@ public abstract partial class Module : Component, IComparable<Module>
     protected OVRClient OVRClient => GameManager.OVRClient;
     protected ChatBoxInterface ChatBoxInterface => GameManager.ChatBoxInterface;
     protected Bindable<ModuleState> State = new(ModuleState.Stopped);
+    protected IVRCOSCSecrets Secrets => secrets;
 
     internal readonly BindableBool Enabled = new();
     internal readonly Dictionary<string, ModuleAttribute> Settings = new();

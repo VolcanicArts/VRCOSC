@@ -5,14 +5,20 @@ using Newtonsoft.Json;
 
 namespace VRCOSC.Modules.Weather;
 
-public static class WeatherProvider
+public class WeatherProvider
 {
-    private static readonly HttpClient http_client = new();
+    private readonly HttpClient httpClient = new();
+    private readonly string apiKey;
 
-    public static async Task<Weather?> RetrieveFor(string postcode)
+    public WeatherProvider(string apiKey)
     {
-        var uri = $"https://api.weatherapi.com/v1/current.json?key={VRCOSCSecrets.GetKey(VRCOSCSecrets.Keys.Weather)}&q={postcode}";
-        var data = await http_client.GetAsync(new Uri(uri));
+        this.apiKey = apiKey;
+    }
+
+    public async Task<Weather?> RetrieveFor(string postcode)
+    {
+        var uri = $"https://api.weatherapi.com/v1/current.json?key={apiKey}&q={postcode}";
+        var data = await httpClient.GetAsync(new Uri(uri));
         var responseString = await data.Content.ReadAsStringAsync();
         return JsonConvert.DeserializeObject<WeatherResponse>(responseString)?.Current;
     }
