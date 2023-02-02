@@ -68,8 +68,8 @@ public partial class WeatherModule : ChatBoxModule
         if (currentWeather is null) return null;
 
         return GetSetting<string>(ChatBoxSetting.ChatBoxFormat)
-               .Replace(@"%tempc%", currentWeather.TempC.ToString("##.##"))
-               .Replace(@"%tempf%", currentWeather.TempF.ToString("##.##"))
+               .Replace(@"%tempc%", currentWeather.TempC.ToString("0.0"))
+               .Replace(@"%tempf%", currentWeather.TempF.ToString("0.0"))
                .Replace("%humidity%", currentWeather.Humidity.ToString());
     }
 
