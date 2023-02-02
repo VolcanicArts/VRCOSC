@@ -62,87 +62,83 @@ public sealed class Player
     {
         if (!Enum.TryParse(parameterName, out VRChatInputParameter vrChatInputParameter)) return;
 
-        try
+        switch (vrChatInputParameter)
         {
-            switch (vrChatInputParameter)
-            {
-                case VRChatInputParameter.Viseme:
-                    Viseme = (Viseme)(int)value;
-                    break;
+            case VRChatInputParameter.Viseme:
+                Viseme = (Viseme)(int)value;
+                break;
 
-                case VRChatInputParameter.Voice:
-                    Voice = (float)value;
-                    break;
+            case VRChatInputParameter.Voice:
+                Voice = (float)value;
+                break;
 
-                case VRChatInputParameter.GestureLeft:
-                    GestureLeft = (Gesture)(int)value;
-                    break;
+            case VRChatInputParameter.GestureLeft:
+                GestureLeft = (Gesture)(int)value;
+                break;
 
-                case VRChatInputParameter.GestureRight:
-                    GestureRight = (Gesture)(int)value;
-                    break;
+            case VRChatInputParameter.GestureRight:
+                GestureRight = (Gesture)(int)value;
+                break;
 
-                case VRChatInputParameter.GestureLeftWeight:
-                    GestureLeftWeight = (float)value;
-                    break;
+            case VRChatInputParameter.GestureLeftWeight:
+                GestureLeftWeight = (float)value;
+                break;
 
-                case VRChatInputParameter.GestureRightWeight:
-                    GestureRightWeight = (float)value;
-                    break;
+            case VRChatInputParameter.GestureRightWeight:
+                GestureRightWeight = (float)value;
+                break;
 
-                case VRChatInputParameter.AngularY:
-                    AngularY = (float)value;
-                    break;
+            case VRChatInputParameter.AngularY:
+                AngularY = (float)value;
+                break;
 
-                case VRChatInputParameter.VelocityX:
-                    VelocityX = (float)value;
-                    break;
+            case VRChatInputParameter.VelocityX:
+                VelocityX = (float)value;
+                break;
 
-                case VRChatInputParameter.VelocityY:
-                    VelocityY = (float)value;
-                    break;
+            case VRChatInputParameter.VelocityY:
+                VelocityY = (float)value;
+                break;
 
-                case VRChatInputParameter.VelocityZ:
-                    VelocityZ = (float)value;
-                    break;
+            case VRChatInputParameter.VelocityZ:
+                VelocityZ = (float)value;
+                break;
 
-                case VRChatInputParameter.Upright:
-                    Upright = (float)value;
-                    break;
+            case VRChatInputParameter.Upright:
+                Upright = (float)value;
+                break;
 
-                case VRChatInputParameter.Grounded:
-                    Grounded = (bool)value;
-                    break;
+            case VRChatInputParameter.Grounded:
+                Grounded = (bool)value;
+                break;
 
-                case VRChatInputParameter.Seated:
-                    Seated = (bool)value;
-                    break;
+            case VRChatInputParameter.Seated:
+                Seated = (bool)value;
+                break;
 
-                case VRChatInputParameter.AFK:
-                    AFK = (bool)value;
-                    break;
+            case VRChatInputParameter.AFK:
+                AFK = (bool)value;
+                break;
 
-                case VRChatInputParameter.TrackingType:
-                    TrackingType = (TrackingType)(int)value;
-                    break;
+            case VRChatInputParameter.TrackingType:
+                TrackingType = (TrackingType)(int)value;
+                break;
 
-                case VRChatInputParameter.VRMode:
-                    IsVR = (int)value == 1;
-                    break;
+            case VRChatInputParameter.VRMode:
+                IsVR = (int)value == 1;
+                break;
 
-                case VRChatInputParameter.MuteSelf:
-                    IsMuted = (bool)value;
-                    break;
+            case VRChatInputParameter.MuteSelf:
+                IsMuted = (bool)value;
+                break;
 
-                case VRChatInputParameter.InStation:
-                    InStation = (bool)value;
-                    break;
+            case VRChatInputParameter.InStation:
+                InStation = (bool)value;
+                break;
 
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(vrChatInputParameter), vrChatInputParameter, $"Unknown {nameof(VRChatInputParameter)}");
-            }
+            default:
+                throw new ArgumentOutOfRangeException(nameof(vrChatInputParameter), vrChatInputParameter, $"Unknown {nameof(VRChatInputParameter)}");
         }
-        catch (InvalidCastException) { }
     }
 
     private static string actionToAddress(VRChatInputAction action) => $"/input/{action}";
