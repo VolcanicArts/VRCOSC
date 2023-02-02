@@ -162,7 +162,7 @@ public abstract partial class Module : Component, IComparable<Module>
     protected virtual void OnModuleStart() { }
     protected virtual void OnModuleUpdate() { }
     protected virtual void OnModuleStop() { }
-    protected virtual void OnAvatarChange() { }
+    protected virtual void OnAvatarChange(string avatarId) { }
 
     #endregion
 
@@ -219,7 +219,7 @@ public abstract partial class Module : Component, IComparable<Module>
     {
         if (data.IsAvatarChangeEvent)
         {
-            OnAvatarChange();
+            OnAvatarChange((string)data.ParameterValue);
             return;
         }
 

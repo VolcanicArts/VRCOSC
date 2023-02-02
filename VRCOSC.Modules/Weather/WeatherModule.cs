@@ -58,7 +58,7 @@ public partial class WeatherModule : ChatBoxModule
         weatherProvider = null;
     }
 
-    protected override void OnAvatarChange()
+    protected override void OnAvatarChange(string avatarId)
     {
         sendParameters();
     }

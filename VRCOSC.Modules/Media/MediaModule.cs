@@ -82,7 +82,7 @@ public sealed partial class MediaModule : ChatBoxModule
         mediaProvider.OnPlaybackStateUpdate -= onPlaybackStateUpdate;
     }
 
-    protected override void OnAvatarChange()
+    protected override void OnAvatarChange(string avatarId)
     {
         sendVolumeParameters();
         sendMediaParameters();
