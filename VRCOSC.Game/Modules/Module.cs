@@ -223,9 +223,9 @@ public abstract partial class Module : Component, IComparable<Module>
             return;
         }
 
-        if (!data.IsAvatarParameter || Parameters.Select(pair => pair.Value).All(parameter => parameter.Attribute.Value != data.ParameterName)) return;
+        if (!data.IsAvatarParameter || Parameters.Select(pair => pair.Value).All(parameter => (string)parameter.Attribute.Value != data.ParameterName)) return;
 
-        var lookup = Parameters.Single(pair => pair.Value.Attribute.Value == data.ParameterName).Key;
+        var lookup = Parameters.Single(pair => (string)pair.Value.Attribute.Value == data.ParameterName).Key;
         var parameterData = Parameters[lookup];
 
         if (!parameterData.Mode.HasFlagFast(ParameterMode.Read)) return;
