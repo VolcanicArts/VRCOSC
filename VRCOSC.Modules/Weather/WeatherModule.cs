@@ -9,7 +9,7 @@ namespace VRCOSC.Modules.Weather;
 public partial class WeatherModule : ChatBoxModule
 {
     public override string Title => "Weather";
-    public override string Description => "Retrieves weather information";
+    public override string Description => "Retrieves weather information for a specific area";
     public override string Author => "VolcanicArts";
     public override ModuleType Type => ModuleType.General;
     protected override TimeSpan DeltaUpdate => TimeSpan.FromMinutes(10);
@@ -23,7 +23,7 @@ public partial class WeatherModule : ChatBoxModule
 
     protected override void CreateAttributes()
     {
-        CreateSetting(WeatherSetting.Postcode, "Postcode/Zip Code", "The postcode/zip code to retrieve weather data for", string.Empty);
+        CreateSetting(WeatherSetting.Postcode, "Location", "The postcode/zip code or city name to retrieve weather data for", string.Empty);
 
         base.CreateAttributes();
 
@@ -34,7 +34,7 @@ public partial class WeatherModule : ChatBoxModule
     {
         base.OnModuleStart();
 
-        if (string.IsNullOrEmpty(GetSetting<string>(WeatherSetting.Postcode))) Log("Please provide a postcode/zip code");
+        if (string.IsNullOrEmpty(GetSetting<string>(WeatherSetting.Postcode))) Log("Please provide a postcode/zip code or city name");
 
         weatherProvider = new WeatherProvider(Secrets.GetSecret(VRCOSCSecretsKeys.Weather));
         currentWeather = null;
