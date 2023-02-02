@@ -12,6 +12,7 @@ namespace VRCOSC.Game.OSC.Client;
 public class OscReceiver
 {
     private Socket? socket;
+    private IPEndPoint endPoint;
     private CancellationTokenSource? tokenSource;
     private Task? incomingTask;
 
@@ -21,12 +22,14 @@ public class OscReceiver
 
     public void Initialise(IPEndPoint endPoint)
     {
-        socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-        socket.Bind(endPoint);
+        this.endPoint = endPoint;
     }
 
     public void Enable()
     {
+        socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+        socket.Bind(endPoint);
+
         tokenSource = new CancellationTokenSource();
         incomingTask = Task.Run(runReceiveLoop);
     }
