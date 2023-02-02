@@ -65,8 +65,8 @@ public sealed partial class ParameterContainer : Container
 
     protected override void LoadComplete()
     {
-        gameManager.OscClient.OnParameterSent += onParameterSent;
-        gameManager.OscClient.OnParameterReceived += onParameterReceived;
+        gameManager.VRChatOscClient.OnParameterSent += onParameterSent;
+        gameManager.VRChatOscClient.OnParameterReceived += onParameterReceived;
     }
 
     private void onParameterSent(VRChatOscData data)
@@ -132,7 +132,7 @@ public sealed partial class ParameterContainer : Container
     protected override void Dispose(bool isDisposing)
     {
         base.Dispose(isDisposing);
-        gameManager.OscClient.OnParameterSent -= onParameterSent;
-        gameManager.OscClient.OnParameterReceived -= onParameterReceived;
+        gameManager.VRChatOscClient.OnParameterSent -= onParameterSent;
+        gameManager.VRChatOscClient.OnParameterReceived -= onParameterReceived;
     }
 }

@@ -137,7 +137,7 @@ public abstract partial class Module : Component, IComparable<Module>
 
         if (ShouldUpdate) Scheduler.AddDelayed(OnModuleUpdate, DeltaUpdate.TotalMilliseconds, true);
 
-        GameManager.OscClient.OnParameterReceived += onParameterReceived;
+        GameManager.VRChatOscClient.OnParameterReceived += onParameterReceived;
 
         State.Value = ModuleState.Started;
 
@@ -150,7 +150,7 @@ public abstract partial class Module : Component, IComparable<Module>
 
         State.Value = ModuleState.Stopping;
 
-        GameManager.OscClient.OnParameterReceived -= onParameterReceived;
+        GameManager.VRChatOscClient.OnParameterReceived -= onParameterReceived;
 
         Scheduler.CancelDelayedTasks();
 
@@ -212,7 +212,7 @@ public abstract partial class Module : Component, IComparable<Module>
         var data = Parameters[lookup];
         if (!data.Mode.HasFlagFast(ParameterMode.Write)) throw new InvalidOperationException("Cannot send a value to a read-only parameter");
 
-        GameManager.OscClient.SendValue(data.FormattedAddress, value);
+        GameManager.VRChatOscClient.SendValue(data.FormattedAddress, value);
     }
 
     private void onParameterReceived(VRChatOscData data)

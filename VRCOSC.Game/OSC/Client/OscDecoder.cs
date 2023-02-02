@@ -17,7 +17,7 @@ internal static class OscDecoder
         var address = getAddress(msg, index);
         index += msg.FirstIndexAfter(address.Length, x => x == ',');
 
-        if (index.IsMisaligned()) throw new Exception("Misaligned OSC packet data");
+        if (index.IsMisaligned()) throw new InvalidOperationException("Misaligned packet");
 
         var types = getTypes(msg, index);
         index += types.Length;
@@ -66,7 +66,7 @@ internal static class OscDecoder
                     break;
 
                 default:
-                    throw new InvalidOperationException($"OSC type tag '{type}' is unknown");
+                    throw new InvalidOperationException("Unknown tag");
             }
 
             while (index.IsMisaligned()) index++;

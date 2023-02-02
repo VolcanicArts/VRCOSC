@@ -8,7 +8,6 @@ using System.Collections.Immutable;
 using System.Linq;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
-using VRCOSC.Game.OSC.Client;
 using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Game.Modules;
@@ -17,7 +16,7 @@ public class ChatBoxInterface
 {
     private readonly ConcurrentQueue<ChatBoxData> timedQueue = new();
     private readonly ConcurrentDictionary<int, ChatBoxData> alwaysDict = new();
-    private readonly OscClient oscClient;
+    private readonly VRChatOscClient oscClient;
     private readonly IBindable<int> resetMilli;
 
     private ChatBoxData? currentData;
@@ -38,7 +37,7 @@ public class ChatBoxInterface
         }
     }
 
-    public ChatBoxInterface(OscClient oscClient, IBindable<int> resetMilli)
+    public ChatBoxInterface(VRChatOscClient oscClient, IBindable<int> resetMilli)
     {
         this.oscClient = oscClient;
         this.resetMilli = resetMilli;

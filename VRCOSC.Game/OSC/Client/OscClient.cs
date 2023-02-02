@@ -2,93 +2,46 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Collections.Generic;
 using System.Net;
-using System.Net.Sockets;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace VRCOSC.Game.OSC.Client;
 
 public abstract class OscClient
 {
-    private Socket? sendingClient;
-    private Socket? receivingClient;
-    private CancellationTokenSource? tokenSource;
-    private Task? incomingTask;
-    private bool sendingEnabled;
-    private bool receivingEnabled;
+    protected readonly OscSender Sender = new();
+    protected readonly OscReceiver Receiver = new();
+
+    public Action<byte[]>? OnRawDataSend;
+    public Action<byte[]>? OnRawDataReceived;
 
     public void Initialise(string ipAddress, int sendPort, int receivePort)
     {
-        if (sendingEnabled || receivingEnabled) throw new InvalidOperationException($"Cannot initialise when {nameof(OscClient)} is already enabled");
+        Sender.Initialise(new IPEndPoint(IPAddress.Parse(ipAddress), sendPort));
+        Receiver.Initialise(new IPEndPoint(IPAddress.Parse(ipAddress), receivePort));
 
-        sendingClient = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-        receivingClient = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-
-        sendingClient.Connect(new IPEndPoint(IPAddress.Parse(ipAddress), sendPort));
-        receivingClient.Bind(new IPEndPoint(IPAddress.Parse(ipAddress), receivePort));
+        Receiver.OnRawDataReceived += byteData => OnRawDataReceived?.Invoke(byteData);
     }
 
     public void Enable()
     {
-        tokenSource = new CancellationTokenSource();
-        incomingTask = Task.Run(runReceiveLoop);
-        sendingEnabled = true;
-        receivingEnabled = true;
+        Sender.Enable();
+        Receiver.Enable();
     }
 
-    public async Task DisableReceive()
+    public void DisableSender()
     {
-        receivingEnabled = false;
-        tokenSource?.Cancel();
-
-        await (incomingTask ?? Task.CompletedTask);
-
-        incomingTask?.Dispose();
-        tokenSource?.Dispose();
-        receivingClient?.Close();
-
-        incomingTask = null;
-        tokenSource = null;
-        receivingClient = null;
+        Sender.Disable();
     }
 
-    public void DisableSend()
+    public async Task DisableReceiver()
     {
-        sendingEnabled = false;
-        sendingClient?.Close();
-        sendingClient = null;
+        await Receiver.Disable();
     }
 
-    public void SendValue(string address, object value) => SendValues(address, new List<object> { value });
-    public void SendValues(string address, List<object> values) => sendData(new OscData(address, values));
-
-    private void sendData(OscData data)
+    public void SendByteData(byte[] data)
     {
-        data.PreValidate();
-        sendingClient?.SendOscMessage(new OscMessage(data.Address, data.Values));
-        OnDataSend(data);
+        Sender.Send(data);
+        OnRawDataSend?.Invoke(data);
     }
-
-    private async void runReceiveLoop()
-    {
-        while (true)
-        {
-            try
-            {
-                var message = await receivingClient!.ReceiveOscMessageAsync(tokenSource!.Token);
-                if (message is null) continue;
-
-                OnDataReceived(new OscData(message.Address, message.Values));
-            }
-            catch (OperationCanceledException)
-            {
-                break;
-            }
-        }
-    }
-
-    protected abstract void OnDataSend(OscData data);
-    protected abstract void OnDataReceived(OscData data);
 }

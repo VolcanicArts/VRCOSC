@@ -5,7 +5,6 @@ using System.Runtime.Versioning;
 using osu.Framework;
 using osu.Framework.Platform;
 using Squirrel;
-using VRCOSC.Modules;
 
 namespace VRCOSC.Desktop;
 

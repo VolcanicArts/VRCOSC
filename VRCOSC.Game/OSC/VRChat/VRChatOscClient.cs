@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using VRCOSC.Game.OSC.Client;
 
@@ -12,15 +13,26 @@ public class VRChatOscClient : OscClient
     public Action<VRChatOscData>? OnParameterSent;
     public Action<VRChatOscData>? OnParameterReceived;
 
-    protected override void OnDataSend(OscData data)
+    public VRChatOscClient()
     {
-        OnParameterSent?.Invoke(new VRChatOscData(data));
+        OnRawDataReceived += byteData =>
+        {
+            var message = OscDecoder.Decode(byteData);
+            var data = new VRChatOscData(new OscData(message.Address, message.Values));
+
+            if (!data.Values.Any()) return;
+
+            OnParameterReceived?.Invoke(new VRChatOscData(data));
+        };
     }
 
-    protected override void OnDataReceived(OscData data)
-    {
-        if (!data.Values.Any()) return;
+    public void SendValue(string address, object value) => SendValues(address, new List<object> { value });
+    public void SendValues(string address, List<object> values) => SendData(new OscData(address, values));
 
-        OnParameterReceived?.Invoke(new VRChatOscData(data));
+    public void SendData(OscData data)
+    {
+        data.PreValidate();
+        SendByteData(OscEncoder.Encode(new OscMessage(data.Address, data.Values)));
+        OnParameterSent?.Invoke(new VRChatOscData(data));
     }
 }
