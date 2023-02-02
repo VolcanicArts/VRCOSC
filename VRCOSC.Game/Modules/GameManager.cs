@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using osu.Framework.Allocation;
@@ -125,12 +126,12 @@ public partial class GameManager : CompositeComponent
         sendControlValues();
         ModuleManager.Start();
 
-        OSCRouter.Initialise(new List<OSCRouterPair>
+        OSCRouter.Initialise(new List<OSCRouterEndpoints>
         {
             new()
             {
-                Listen = 9002,
-                Send = 9003
+                SendEndpoint = new IPEndPoint(IPAddress.Loopback, 9003),
+                ReceiveEndPoint = new IPEndPoint(IPAddress.Loopback, 9002)
             }
         });
         OSCRouter.Enable();

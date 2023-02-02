@@ -22,20 +22,17 @@ public class OSCRouter
         this.vrChatOscClient = vrChatOscClient;
     }
 
-    public void Initialise(List<OSCRouterPair> pairs)
+    public void Initialise(List<OSCRouterEndpoints> pairs)
     {
-        Senders.Clear();
-        Receivers.Clear();
-
         pairs.ForEach(pair =>
         {
             var sender = new OscSender();
             var receiver = new OscReceiver();
 
-            sender.Initialise(new IPEndPoint(IPAddress.Parse("127.0.0.1"), pair.Send));
-            receiver.Initialise(new IPEndPoint(IPAddress.Parse("127.0.0.1"), pair.Listen));
+            sender.Initialise(pair.SendEndpoint);
+            receiver.Initialise(pair.ReceiveEndPoint);
 
-            Logger.Log($"Initialising new router on {pair.Listen}:{pair.Send}");
+            Logger.Log($"Initialising new router on {pair.ReceiveEndPoint}:{pair.SendEndpoint}");
 
             Senders.Add(sender);
             Receivers.Add(receiver);
@@ -48,21 +45,13 @@ public class OSCRouter
     {
         Senders.ForEach(sender =>
         {
-            vrChatOscClient.OnParameterReceived += parameter =>
-            {
-                sender.Send(OscEncoder.Encode(new OscMessage(parameter.Address, parameter.Values)));
-            };
-
+            vrChatOscClient.OnParameterReceived += parameter => sender.Send(OscEncoder.Encode(new OscMessage(parameter.Address, parameter.Values)));
             sender.Enable();
         });
 
         Receivers.ForEach(receiver =>
         {
-            receiver.OnRawDataReceived += byteData =>
-            {
-                vrChatOscClient.SendByteData(byteData);
-            };
-
+            receiver.OnRawDataReceived += vrChatOscClient.SendByteData;
             receiver.Enable();
         });
     }
@@ -71,11 +60,14 @@ public class OSCRouter
     {
         foreach (var sender in Senders) sender.Disable();
         foreach (var receiver in Receivers) await receiver.Disable();
+
+        Senders.Clear();
+        Receivers.Clear();
     }
 }
 
-public class OSCRouterPair
+public class OSCRouterEndpoints
 {
-    public required int Send { get; init; }
-    public required int Listen { get; init; }
+    public required IPEndPoint SendEndpoint { get; init; }
+    public required IPEndPoint ReceiveEndPoint { get; init; }
 }

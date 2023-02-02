@@ -12,7 +12,7 @@ namespace VRCOSC.Game.OSC.Client;
 public class OscReceiver
 {
     private Socket? socket;
-    private IPEndPoint endPoint;
+    private IPEndPoint endPoint = null!;
     private CancellationTokenSource? tokenSource;
     private Task? incomingTask;
 
