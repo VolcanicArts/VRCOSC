@@ -32,7 +32,7 @@ public class VRChatOscClient : OscClient
     public void SendData(OscData data)
     {
         data.PreValidate();
-        SendByteData(OscEncoder.Encode(new OscMessage(data.Address, data.Values)));
+        SendByteData(data.Encode());
         OnParameterSent?.Invoke(new VRChatOscData(data));
     }
 }

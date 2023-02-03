@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System.Collections.Generic;
@@ -45,7 +45,7 @@ public class OSCRouter
     {
         Senders.ForEach(sender =>
         {
-            vrChatOscClient.OnParameterReceived += parameter => sender.Send(OscEncoder.Encode(new OscMessage(parameter.Address, parameter.Values)));
+            vrChatOscClient.OnParameterReceived += parameter => sender.Send(parameter.Encode());
             sender.Enable();
         });
 
