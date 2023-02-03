@@ -35,6 +35,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
     private IVRCOSCSecrets vrcoscSecrets = null!;
     private VRCOSCUpdateManager UpdateManager = null!;
+    private RouterManager routerManager;
 
     private NotificationContainer notificationContainer = null!;
 
@@ -66,7 +67,11 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         vrcoscSecrets = GetSecrets();
         DependencyContainer.CacheAs(typeof(IVRCOSCSecrets), vrcoscSecrets);
 
+        DependencyContainer.CacheAs(routerManager = new RouterManager(storage));
+
         LoadComponent(notificationContainer);
+
+        routerManager.LoadData();
 
         Children = new Drawable[]
         {
@@ -104,6 +109,11 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         {
             if (ConfigManager.Get<bool>(VRCOSCSetting.AutoStopOpenVR)) prepareForExit();
         };
+
+        SelectedTab.BindValueChanged(tab =>
+        {
+            if (tab.OldValue == Tab.Router) routerManager.SaveData();
+        });
     }
 
     private void checkUpdates()
@@ -180,6 +190,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     {
         EditingModule.Value = null;
         InfoModule.Value = null;
+        routerManager.SaveData();
         Exit();
     }
 

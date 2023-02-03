@@ -1,10 +1,10 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
-using osu.Framework.Logging;
+using VRCOSC.Game.Modules;
 using VRCOSC.Game.OSC.Client;
 using VRCOSC.Game.OSC.VRChat;
 
@@ -13,6 +13,7 @@ namespace VRCOSC.Game.OSC;
 public class OSCRouter
 {
     private readonly VRChatOscClient vrChatOscClient;
+    private readonly TerminalLogger terminal = new("OSCRouter");
 
     public readonly List<OscSender> Senders = new();
     public readonly List<OscReceiver> Receivers = new();
@@ -22,20 +23,29 @@ public class OSCRouter
         this.vrChatOscClient = vrChatOscClient;
     }
 
-    public void Initialise(List<OSCRouterEndpoints> pairs)
+    public void Initialise(List<RouterData> data)
     {
-        pairs.ForEach(pair =>
+        data.ForEach(routerData =>
         {
-            var sender = new OscSender();
-            var receiver = new OscReceiver();
+            var pair = routerData.Endpoints;
 
-            sender.Initialise(pair.SendEndpoint);
-            receiver.Initialise(pair.ReceiveEndPoint);
+            if (!string.IsNullOrEmpty(pair.SendAddress))
+            {
+                var sender = new OscSender();
+                sender.Initialise(new IPEndPoint(IPAddress.Parse(pair.SendAddress), pair.SendPort));
+                Senders.Add(sender);
 
-            Logger.Log($"Initialising new router on {pair.ReceiveEndPoint}:{pair.SendEndpoint}");
+                terminal.Log($"Initialising sender labelled {routerData.Label} on {pair.SendAddress}:{pair.SendPort}");
+            }
 
-            Senders.Add(sender);
-            Receivers.Add(receiver);
+            if (!string.IsNullOrEmpty(pair.ReceiveAddress))
+            {
+                var receiver = new OscReceiver();
+                receiver.Initialise(new IPEndPoint(IPAddress.Parse(pair.ReceiveAddress), pair.ReceivePort));
+                Receivers.Add(receiver);
+
+                terminal.Log($"Initialising receiver labelled {routerData.Label} on {pair.ReceiveAddress}:{pair.ReceivePort}");
+            }
         });
     }
 
@@ -68,6 +78,8 @@ public class OSCRouter
 
 public class OSCRouterEndpoints
 {
-    public required IPEndPoint SendEndpoint { get; init; }
-    public required IPEndPoint ReceiveEndPoint { get; init; }
+    public string SendAddress { get; set; } = string.Empty;
+    public int SendPort { get; set; }
+    public string ReceiveAddress { get; set; } = string.Empty;
+    public int ReceivePort { get; set; }
 }

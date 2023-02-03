@@ -18,6 +18,7 @@ public sealed partial class TabSelector : Container<DrawableTab>
     {
         { Tab.Modules, FontAwesome.Solid.ListUl },
         { Tab.Settings, FontAwesome.Solid.Cog },
+        { Tab.Router, FontAwesome.Solid.ArrowRight },
         { Tab.About, FontAwesome.Solid.Info }
     };
 

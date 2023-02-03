@@ -2,10 +2,8 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using osu.Framework.Allocation;
@@ -31,6 +29,9 @@ public partial class GameManager : CompositeComponent
 
     [Resolved]
     private VRCOSCConfigManager configManager { get; set; } = null!;
+
+    [Resolved]
+    private RouterManager routerManager { get; set; } = null!;
 
     [Resolved]
     private NotificationContainer notifications { get; set; } = null!;
@@ -126,14 +127,7 @@ public partial class GameManager : CompositeComponent
         sendControlValues();
         ModuleManager.Start();
 
-        OSCRouter.Initialise(new List<OSCRouterEndpoints>
-        {
-            new()
-            {
-                SendEndpoint = new IPEndPoint(IPAddress.Loopback, 9003),
-                ReceiveEndPoint = new IPEndPoint(IPAddress.Loopback, 9002)
-            }
-        });
+        OSCRouter.Initialise(routerManager.Store);
         OSCRouter.Enable();
 
         State.Value = GameManagerState.Started;

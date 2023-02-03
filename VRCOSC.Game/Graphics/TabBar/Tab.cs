@@ -7,5 +7,6 @@ public enum Tab
 {
     Modules,
     Settings,
+    Router,
     About
 }
