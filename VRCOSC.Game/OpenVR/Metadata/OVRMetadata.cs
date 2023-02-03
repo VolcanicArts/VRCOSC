@@ -8,6 +8,6 @@ namespace VRCOSC.Game.OpenVR.Metadata;
 public class OVRMetadata
 {
     public EVRApplicationType ApplicationType { get; init; }
-    public string ApplicationManifest { get; init; }
-    public string ActionManifest { get; init; }
+    public string ApplicationManifest { get; init; } = null!;
+    public string ActionManifest { get; init; } = null!;
 }

@@ -35,7 +35,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
     private IVRCOSCSecrets vrcoscSecrets = null!;
     private VRCOSCUpdateManager UpdateManager = null!;
-    private RouterManager routerManager;
+    private RouterManager routerManager = null!;
 
     private NotificationContainer notificationContainer = null!;
 
