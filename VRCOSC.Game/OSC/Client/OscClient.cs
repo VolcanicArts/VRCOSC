@@ -9,39 +9,37 @@ namespace VRCOSC.Game.OSC.Client;
 
 public abstract class OscClient
 {
-    protected readonly OscSender Sender = new();
-    protected readonly OscReceiver Receiver = new();
+    private readonly OscSender sender = new();
+    private readonly OscReceiver receiver = new();
 
-    public Action<byte[]>? OnRawDataSend;
-    public Action<byte[]>? OnRawDataReceived;
+    protected Action<byte[]>? OnRawDataReceived;
 
     public void Initialise(string ipAddress, int sendPort, int receivePort)
     {
-        Sender.Initialise(new IPEndPoint(IPAddress.Parse(ipAddress), sendPort));
-        Receiver.Initialise(new IPEndPoint(IPAddress.Parse(ipAddress), receivePort));
+        sender.Initialise(new IPEndPoint(IPAddress.Parse(ipAddress), sendPort));
+        receiver.Initialise(new IPEndPoint(IPAddress.Parse(ipAddress), receivePort));
 
-        Receiver.OnRawDataReceived += byteData => OnRawDataReceived?.Invoke(byteData);
+        receiver.OnRawDataReceived += byteData => OnRawDataReceived?.Invoke(byteData);
     }
 
     public void Enable()
     {
-        Sender.Enable();
-        Receiver.Enable();
+        sender.Enable();
+        receiver.Enable();
     }
 
     public void DisableSender()
     {
-        Sender.Disable();
+        sender.Disable();
     }
 
     public async Task DisableReceiver()
     {
-        await Receiver.Disable();
+        await receiver.Disable();
     }
 
     public void SendByteData(byte[] data)
     {
-        Sender.Send(data);
-        OnRawDataSend?.Invoke(data);
+        sender.Send(data);
     }
 }

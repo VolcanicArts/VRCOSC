@@ -27,9 +27,9 @@ public class VRChatOscClient : OscClient
     }
 
     public void SendValue(string address, object value) => SendValues(address, new List<object> { value });
-    public void SendValues(string address, List<object> values) => SendData(new OscData(address, values));
+    public void SendValues(string address, List<object> values) => sendData(new OscData(address, values));
 
-    public void SendData(OscData data)
+    private void sendData(OscData data)
     {
         data.PreValidate();
         SendByteData(data.Encode());
