@@ -299,8 +299,6 @@ public partial class Module
 
             var value = parameterAttribute.Attribute.Value;
             writer.WriteLine(@"{0}={1}", lookup.ToLookup(), value);
-
-            break;
         }
 
         writer.WriteLine(@"#End");
