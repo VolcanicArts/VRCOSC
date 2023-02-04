@@ -37,6 +37,7 @@ public partial class RouterScreen : Container
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 ClampExtension = 20,
+                ScrollbarVisible = false,
                 Child = new FillFlowContainer
                 {
                     Anchor = Anchor.TopCentre,
