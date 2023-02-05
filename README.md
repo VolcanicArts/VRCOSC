@@ -16,6 +16,10 @@ A modular OSC program creator made for [VRChat](https://vrchat.com) built on top
 
 VRCOSC is intended to act as a wrapper around VRChat's OSC system to make creating OSC programs easier, provide interfaces for other APIs and frameworks that might be useful to an OSC project, and act as a centralised source for useful OSC programs so that a user will only need to download a single application.
 
+VRCOSC supports developing your own modules on top of our framework to save you the trouble of having to setup everything yourself, as well as allowing other people to seamlessly use your module on their PC. Check out how to create a module [here](https://github.com/VolcanicArts/VRCOSC/wiki/Module-Creation)
+
+VRCOSC also contains an OSC router, similar in functionality to OSCRouter, but with proper support for apps such as VRCFaceTracking.
+
 Featuring:
 - Responsive GUI generation
 - Automated configuration management
@@ -28,8 +32,6 @@ If you like VRCOSC, please star the repo. It really helps!
 
 We have a [Discord Server](https://discord.gg/vj4brHyvT5) for posting suggestions or to get help with anything to do with VRCOSC.
 
-If you'd like to make your own module, check the [Wiki](https://github.com/VolcanicArts/VRCOSC/wiki/Module-Creation) page.
-
 ## Getting Started
 - Download `VRCOSCSetup.exe` from the [Releases](https://github.com/VolcanicArts/VRCOSC/releases/latest) page
 - Tick the modules you'd like to use
@@ -38,8 +40,8 @@ If you'd like to make your own module, check the [Wiki](https://github.com/Volca
 
 Check the [Prefab FAQ](https://github.com/VolcanicArts/VRCOSC/discussions/16) if you have any issues with installing or using any of the prefabs.
 
-## Modules
-If you have a module idea, join the [Discord Server](https://discord.gg/vj4brHyvT5) and tell us!
+## Official Modules
+If you have a module idea join the [Discord Server](https://discord.gg/vj4brHyvT5) and tell us or create it yourself!
 
 P.S. The VRCOSC-Controls.unitypackage prefab is global controls for VRCOSC. It does not require a module to use.
 
@@ -52,7 +54,7 @@ P.S. The VRCOSC-Controls.unitypackage prefab is global controls for VRCOSC. It d
 | OpenVR Statistics | Gets statistics from your OpenVR (SteamVR) session | | VRCOSC-Trackers.unitypackage |
 | OpenVR Controller Statistics | Gets controller statistics from your OpenVR (SteamVR) session | | |
 | Gesture Extensions | Allows for custom gestures to be sent to VRChat from your Index controllers | | |
-| Weather | Gets weather from a postcode/zipcode to display in the ChatBox | If a postcode/zipcode doesn't work, try a city name | |
+| Weather | Gets weather from a postcode/zipcode/city to display in the ChatBox | | |
 | ChatBox Text | Display custom text in the ChatBox | | |
 | Clock | Sends your local time as hours, minutes, and seconds to be displayed on a wrist watch | | VRCOSC-Watch.unitypackage |
 | Discord | Discord integration. Allows for toggling of mute and deafen from the action menu | Requires the Discord desktop app | VRCOSC-Discord.unitypackage |
