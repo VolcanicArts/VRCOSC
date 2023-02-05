@@ -12,6 +12,7 @@ using VRCOSC.Game.Graphics.ModuleEditing.Attributes.Dropdown;
 using VRCOSC.Game.Graphics.ModuleEditing.Attributes.Slider;
 using VRCOSC.Game.Graphics.ModuleEditing.Attributes.Text;
 using VRCOSC.Game.Graphics.ModuleEditing.Attributes.Toggle;
+using VRCOSC.Game.Graphics.UI.Text;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleEditing;
@@ -102,7 +103,7 @@ public sealed partial class AttributeFlow : FillFlowContainer<AttributeCard>
                 switch (value)
                 {
                     case string:
-                        return new ButtonTextAttributeCard(attributeSingleWithButton);
+                        return new ButtonStringAttributeCard(attributeSingleWithButton);
 
                     default:
                         throw new ArgumentOutOfRangeException(nameof(attributeSingleWithButton), "Cannot generate button with non-text counterpart");
@@ -125,10 +126,10 @@ public sealed partial class AttributeFlow : FillFlowContainer<AttributeCard>
                 switch (value)
                 {
                     case string:
-                        return new TextAttributeCard(attributeData);
+                        return new TextAttributeCard<StringTextBox, string>(attributeData);
 
                     case int:
-                        return new IntTextAttributeCard(attributeData);
+                        return new TextAttributeCard<IntTextBox, int>(attributeData);
 
                     case bool:
                         attributeData.Attribute.BindValueChanged(_ => checkShouldDisplay());
