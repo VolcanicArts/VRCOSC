@@ -99,7 +99,7 @@ public sealed partial class ModuleEditingContent : Container
             settings.Alpha = editingModule.Value.HasSettings ? 1 : 0;
 
             parameters.Replace(editingModule.Value.Parameters.Values);
-            settings.Alpha = editingModule.Value.HasParameters ? 1 : 0;
+            parameters.Alpha = editingModule.Value.HasParameters ? 1 : 0;
         }, true);
     }
 
