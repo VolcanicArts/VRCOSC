@@ -49,6 +49,7 @@ public abstract partial class Module : Component, IComparable<Module>
     public virtual string Prefab => string.Empty;
     public virtual ModuleType Type => ModuleType.General;
     protected virtual TimeSpan DeltaUpdate => TimeSpan.MaxValue;
+    protected virtual bool ShouldUpdateImmediately => true;
 
     private bool IsEnabled => Enabled.Value;
     private bool ShouldUpdate => DeltaUpdate != TimeSpan.MaxValue;
@@ -141,7 +142,7 @@ public abstract partial class Module : Component, IComparable<Module>
 
         State.Value = ModuleState.Started;
 
-        OnModuleUpdate();
+        if (ShouldUpdateImmediately) OnModuleUpdate();
     }
 
     internal void Stop()
