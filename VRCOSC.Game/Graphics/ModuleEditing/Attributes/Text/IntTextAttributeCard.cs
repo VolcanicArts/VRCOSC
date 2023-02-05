@@ -19,6 +19,7 @@ public sealed partial class IntTextAttributeCard : TextAttributeCard
         {
             UpdateAttribute(0);
             TextBox.Current.Value = "0";
+            return;
         }
 
         if (int.TryParse(e.NewValue, out var intValue))

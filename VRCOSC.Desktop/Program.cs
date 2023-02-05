@@ -10,11 +10,17 @@ namespace VRCOSC.Desktop;
 
 public static class Program
 {
+#if DEBUG
+    private const string base_game_name = @"VRCOSC-Development";
+#else
+    private const string base_game_name = @"VRCOSC";
+#endif
+
     public static void Main()
     {
         initSquirrel();
 
-        using GameHost host = Host.GetSuitableDesktopHost(@"VRCOSC");
+        using GameHost host = Host.GetSuitableDesktopHost(base_game_name);
         using osu.Framework.Game game = new VRCOSCGameDesktop();
         host.Run(game);
     }

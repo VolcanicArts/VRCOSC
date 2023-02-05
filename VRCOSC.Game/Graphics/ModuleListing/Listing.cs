@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -17,7 +18,7 @@ public sealed partial class Listing : Container
     private GameManager gameManager { get; set; } = null!;
 
     [Resolved]
-    private VRCOSCGame game { get; set; } = null!;
+    private Bindable<Module.ModuleType?> typeFilter { get; set; } = null!;
 
     private readonly FillFlowContainer<ModuleCard> moduleCardFlow;
 
@@ -62,12 +63,12 @@ public sealed partial class Listing : Container
 
     protected override void LoadComplete()
     {
-        game.TypeFilter.BindValueChanged(_ => filter(), true);
+        typeFilter.BindValueChanged(_ => filter(), true);
     }
 
     private void filter()
     {
-        var type = game.TypeFilter.Value;
+        var type = typeFilter.Value;
 
         moduleCardFlow.ForEach(moduleCard =>
         {

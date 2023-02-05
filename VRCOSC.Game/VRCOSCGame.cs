@@ -18,9 +18,7 @@ using VRCOSC.Game.Graphics.TabBar;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.Updater;
 using VRCOSC.Game.Modules;
-using VRCOSC.OpenVR.Metadata;
-
-// ReSharper disable InconsistentNaming
+using VRCOSC.Game.OpenVR.Metadata;
 
 namespace VRCOSC.Game;
 
@@ -33,42 +31,46 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     [Resolved]
     private GameHost host { get; set; } = null!;
 
-    public VRCOSCUpdateManager UpdateManager = null!;
-
-    private NotificationContainer notificationContainer = null!;
-
-    public Bindable<Module.ModuleType?> TypeFilter = new();
-
-    [Cached]
-    private Bindable<Tab> SelectedTab = new();
-
-    [Cached(name: "EditingModule")]
-    private Bindable<Module?> EditingModule = new();
-
-    [Cached(name: "InfoModule")]
-    private Bindable<Module?> InfoModule = new();
-
     [Resolved]
     private Storage storage { get; set; } = null!;
 
     [Cached]
-    private GameManager gameManager = new();
+    private Bindable<Tab> selectedTab = new();
+
+    [Cached(name: "EditingModule")]
+    private Bindable<Module?> editingModule = new();
+
+    [Cached(name: "InfoModule")]
+    private Bindable<Module?> infoModule = new();
+
+    [Cached]
+    private Bindable<Module.ModuleType?> typeFilter = new();
+
+    [Cached]
+    protected GameManager GameManager = new();
+
+    private NotificationContainer notificationContainer = null!;
+    private VRCOSCUpdateManager updateManager = null!;
+    private RouterManager routerManager = null!;
 
     [BackgroundDependencyLoader]
     private void load()
     {
         ThemeManager.Theme = ConfigManager.Get<ColourTheme>(VRCOSCSetting.Theme);
 
-        notificationContainer = new NotificationContainer();
-        DependencyContainer.CacheAs(notificationContainer);
+        DependencyContainer.CacheAs(notificationContainer = new NotificationContainer());
+        DependencyContainer.CacheAs(typeof(IVRCOSCSecrets), GetSecrets());
+        DependencyContainer.CacheAs(routerManager = new RouterManager(storage));
 
         LoadComponent(notificationContainer);
 
+        routerManager.LoadData();
+
         Children = new Drawable[]
         {
-            gameManager,
+            GameManager,
             new MainContent(),
-            UpdateManager = CreateUpdateManager(),
+            updateManager = CreateUpdateManager(),
             notificationContainer
         };
     }
@@ -91,21 +93,26 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
             Delay = 5000d
         });
 
-        gameManager.State.BindValueChanged(e =>
+        GameManager.State.BindValueChanged(e =>
         {
-            if (e.NewValue == GameManagerState.Starting) SelectedTab.Value = Tab.Modules;
+            if (e.NewValue == GameManagerState.Starting) selectedTab.Value = Tab.Modules;
         }, true);
 
-        gameManager.OVRClient.OnShutdown += () =>
+        GameManager.OVRClient.OnShutdown += () =>
         {
             if (ConfigManager.Get<bool>(VRCOSCSetting.AutoStopOpenVR)) prepareForExit();
         };
+
+        selectedTab.BindValueChanged(tab =>
+        {
+            if (tab.OldValue == Tab.Router) routerManager.SaveData();
+        });
     }
 
     private void checkUpdates()
     {
         var updateMode = ConfigManager.Get<UpdateMode>(VRCOSCSetting.UpdateMode);
-        if (updateMode != UpdateMode.Off) UpdateManager.PerformUpdateCheck();
+        if (updateMode != UpdateMode.Off) updateManager.PerformUpdateCheck();
     }
 
     private void checkVersion()
@@ -129,10 +136,10 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
     private void copyOpenVrFiles()
     {
-        var tempStorage = storage.GetStorageForDirectory("openvr");
+        var tempStorage = storage.GetStorageForDirectory(@"openvr");
         var tempStoragePath = tempStorage.GetFullPath(string.Empty);
 
-        var openVrFiles = Resources.GetAvailableResources().Where(file => file.StartsWith("OpenVR"));
+        var openVrFiles = Resources.GetAvailableResources().Where(file => file.StartsWith(@"OpenVR"));
 
         foreach (var file in openVrFiles)
         {
@@ -140,10 +147,10 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         }
 
         var manifest = new OVRManifest();
-        manifest.Applications[0].ActionManifestPath = tempStorage.GetFullPath("action_manifest.json");
-        manifest.Applications[0].ImagePath = tempStorage.GetFullPath("SteamImage.png");
+        manifest.Applications[0].ActionManifestPath = tempStorage.GetFullPath(@"action_manifest.json");
+        manifest.Applications[0].ImagePath = tempStorage.GetFullPath(@"SteamImage.png");
 
-        File.WriteAllText(Path.Combine(tempStoragePath, "app.vrmanifest"), JsonConvert.SerializeObject(manifest));
+        File.WriteAllText(Path.Combine(tempStoragePath, @"app.vrmanifest"), JsonConvert.SerializeObject(manifest));
     }
 
     protected override bool OnExiting()
@@ -154,6 +161,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
     private void prepareForExit()
     {
+        // ReSharper disable once RedundantExplicitParamsArrayCreation
         Task.WhenAll(new[]
         {
             Task.Run(waitForGameManager)
@@ -162,22 +170,24 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
     private Task waitForGameManager()
     {
-        if (gameManager.State.Value == GameManagerState.Stopped) return Task.CompletedTask;
+        if (GameManager.State.Value == GameManagerState.Stopped) return Task.CompletedTask;
 
-        gameManager.Stop();
+        GameManager.Stop();
 
         while (true)
         {
-            if (gameManager.State.Value == GameManagerState.Stopped) return Task.CompletedTask;
+            if (GameManager.State.Value == GameManagerState.Stopped) return Task.CompletedTask;
         }
     }
 
     private void performExit()
     {
-        EditingModule.Value = null;
-        InfoModule.Value = null;
+        editingModule.Value = null;
+        infoModule.Value = null;
+        routerManager.SaveData();
         Exit();
     }
 
+    protected abstract IVRCOSCSecrets GetSecrets();
     protected abstract VRCOSCUpdateManager CreateUpdateManager();
 }

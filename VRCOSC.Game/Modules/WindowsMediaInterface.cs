@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Windows.Media.Control;
 using osu.Framework.Extensions.IEnumerableExtensions;
 
@@ -71,18 +72,19 @@ public class WindowsMediaInterface
 
     private void addControlSession(GlobalSystemMediaTransportControlsSession controlSession)
     {
-        try
-        {
-            controlSession.PlaybackInfoChanged += (_, _) => OnAnyPlaybackInfoChanged?.Invoke(controlSession, controlSession.GetPlaybackInfo());
-            controlSession.MediaPropertiesChanged += async (_, _) => OnAnyMediaPropertiesChanged?.Invoke(controlSession, await controlSession.TryGetMediaPropertiesAsync());
-            controlSession.TimelinePropertiesChanged += (_, _) => OnAnyTimelinePropertiesChanged?.Invoke(controlSession, controlSession.GetTimelineProperties());
-            currentSessions.Add(controlSession);
-        }
-        catch (Exception e)
-        {
-            if (e.Message.Contains("0x80030070")) return;
+        controlSession.PlaybackInfoChanged += (_, _) => OnAnyPlaybackInfoChanged?.Invoke(controlSession, controlSession.GetPlaybackInfo());
 
-            throw;
-        }
+        controlSession.MediaPropertiesChanged += async (_, _) =>
+        {
+            try
+            {
+                OnAnyMediaPropertiesChanged?.Invoke(controlSession, await controlSession.TryGetMediaPropertiesAsync());
+            }
+            catch (COMException) { }
+        };
+
+        controlSession.TimelinePropertiesChanged += (_, _) => OnAnyTimelinePropertiesChanged?.Invoke(controlSession, controlSession.GetTimelineProperties());
+
+        currentSessions.Add(controlSession);
     }
 }

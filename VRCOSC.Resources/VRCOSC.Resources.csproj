@@ -1,6 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
+    <PackageId>VolcanicArts.VRCOSC.Resources</PackageId>
+    <Version>2023.205.0</Version>
+    <Title>VRCOSC Resources</Title>
+    <Authors>VolcanicArts</Authors>
+    <Description>VRCOSC's resources</Description>
+    <PackageProjectUrl>https://github.com/VolcanicArts/VRCOSC</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/VolcanicArts/VRCOSC</RepositoryUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="Fonts\**\*"/>

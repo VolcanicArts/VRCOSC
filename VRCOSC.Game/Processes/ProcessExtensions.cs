@@ -1,44 +1,28 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using osu.Framework.Extensions.IEnumerableExtensions;
-using VRCOSC.Game.Modules;
+using PInvoke;
 
 namespace VRCOSC.Game.Processes;
 
 public static class ProcessExtensions
 {
-    #region Keys
-
-    public static async Task PressKeys(IEnumerable<WindowsVKey> keys, int pressTime)
+    public static async Task PressKeys(IEnumerable<User32.VirtualKey> keys, int pressTime)
     {
-        var windowsVKeys = keys as WindowsVKey[] ?? keys.ToArray();
-        windowsVKeys.ForEach(key => ProcessKey.HoldKey((int)key));
+        var windowsVKeys = keys as User32.VirtualKey[] ?? keys.ToArray();
+        windowsVKeys.ForEach(key => User32.keybd_event((byte)(int)key, (byte)(int)key, 0, IntPtr.Zero));
         await Task.Delay(pressTime);
-        windowsVKeys.ForEach(key => ProcessKey.ReleaseKey((int)key));
+        windowsVKeys.ForEach(key => User32.keybd_event((byte)(int)key, (byte)(int)key, User32.KEYEVENTF.KEYEVENTF_KEYUP, IntPtr.Zero));
     }
 
-    #endregion
-
-    #region Window
-
-    public static void ShowMainWindow(this Process process, ShowWindowEnum showWindowEnum)
-    {
-        ProcessWindow.ShowMainWindow(process, showWindowEnum);
-    }
-
-    public static void SetMainWindowForeground(this Process process)
-    {
-        ProcessWindow.SetMainWindowForeground(process);
-    }
-
-    #endregion
-
-    #region Volume
+    public static void ShowMainWindow(this Process process, User32.WindowShowStyle style) => User32.ShowWindow(process.MainWindowHandle, style);
+    public static void SetMainWindowForeground(this Process process) => User32.SetForegroundWindow(process.MainWindowHandle);
 
     public static float RetrieveProcessVolume(string? processName)
     {
@@ -67,6 +51,4 @@ public static class ProcessExtensions
 
         ProcessVolume.SetApplicationMute(processName, muted);
     }
-
-    #endregion
 }

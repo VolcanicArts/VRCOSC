@@ -4,54 +4,62 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using osu.Framework.Allocation;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics.Containers;
-using VRCOSC.Game.Modules.Modules.ChatBoxText;
-using VRCOSC.Game.Modules.Modules.Clock;
-using VRCOSC.Game.Modules.Modules.Discord;
-using VRCOSC.Game.Modules.Modules.HardwareStats;
-using VRCOSC.Game.Modules.Modules.Heartrate.HypeRate;
-using VRCOSC.Game.Modules.Modules.Heartrate.Pulsoid;
-using VRCOSC.Game.Modules.Modules.Media;
-using VRCOSC.Game.Modules.Modules.OpenVR;
-using VRCOSC.Game.Modules.Modules.Random;
-using VRCOSC.Game.Modules.Modules.Weather;
+using osu.Framework.Lists;
+using osu.Framework.Logging;
+using osu.Framework.Platform;
 
 namespace VRCOSC.Game.Modules;
 
 public sealed partial class ModuleManager : CompositeComponent, IEnumerable<Module>
 {
-    private static readonly IReadOnlyList<Type> module_types = new[]
-    {
-        typeof(HypeRateModule),
-        typeof(PulsoidModule),
-        typeof(OpenVRStatisticsModule),
-        typeof(OpenVRControllerStatisticsModule),
-        typeof(GestureExtensionsModule),
-        typeof(MediaModule),
-        typeof(DiscordModule),
-        typeof(ClockModule),
-        typeof(ChatBoxTextModule),
-        typeof(HardwareStatsModule),
-        typeof(WeatherModule),
-        typeof(RandomBoolModule),
-        typeof(RandomIntModule),
-        typeof(RandomFloatModule)
-    };
-
     private readonly TerminalLogger terminal = new(nameof(ModuleManager));
+
+    private readonly SortedList<Module> tempModuleList = new();
+
+    [Resolved]
+    private Storage storage { get; set; } = null!;
 
     [BackgroundDependencyLoader]
     private void load()
     {
-        module_types.ForEach(type =>
+        loadInternalModules();
+        loadExternalModules();
+        AddRangeInternal(tempModuleList);
+    }
+
+    private void loadInternalModules()
+    {
+        var assemblyPath = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll", SearchOption.AllDirectories)
+                                    .FirstOrDefault(fileName => fileName.Contains("VRCOSC.Modules"));
+
+        if (string.IsNullOrEmpty(assemblyPath))
         {
-            var module = (Module)Activator.CreateInstance(type)!;
-            LoadComponent(module);
-            AddInternal(module);
-        });
+            Logger.Log("Could not find internal module assembly");
+            return;
+        }
+
+        loadModuleAssembly(assemblyPath);
+    }
+
+    private void loadExternalModules()
+    {
+        var moduleDirectoryPath = storage.GetStorageForDirectory("custom").GetFullPath(string.Empty, true);
+        Directory.GetFiles(moduleDirectoryPath, "*.dll", SearchOption.AllDirectories)
+                 .ForEach(loadModuleAssembly);
+    }
+
+    private void loadModuleAssembly(string assemblyPath)
+    {
+        Assembly.LoadFile(assemblyPath).GetTypes()
+                .Where(type => type.IsSubclassOf(typeof(Module)) && !type.IsAbstract)
+                .Select(type => (Module)Activator.CreateInstance(type)!)
+                .ForEach(module => tempModuleList.Add(module));
     }
 
     public void Start()
@@ -64,7 +72,7 @@ public sealed partial class ModuleManager : CompositeComponent, IEnumerable<Modu
 
         foreach (var module in this)
         {
-            module.start();
+            module.Start();
         }
     }
 
@@ -72,7 +80,7 @@ public sealed partial class ModuleManager : CompositeComponent, IEnumerable<Modu
     {
         foreach (var module in this)
         {
-            module.stop();
+            module.Stop();
         }
     }
 

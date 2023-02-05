@@ -11,7 +11,7 @@ using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.UI;
 
-public sealed partial class VRCOSCTextBox : BasicTextBox
+public partial class VRCOSCTextBox : BasicTextBox
 {
     [Resolved]
     private GameHost host { get; set; } = null!;

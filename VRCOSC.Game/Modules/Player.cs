@@ -3,7 +3,7 @@
 
 using System;
 using System.Threading.Tasks;
-using VRCOSC.OSC.Client;
+using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Game.Modules;
 
@@ -28,10 +28,10 @@ public sealed class Player
     public bool? IsMuted { get; private set; }
     public bool? InStation { get; private set; }
 
-    private readonly OscClient oscClient;
+    private readonly VRChatOscClient oscClient;
     private bool hasChanged;
 
-    public Player(OscClient oscClient)
+    public Player(VRChatOscClient oscClient)
     {
         this.oscClient = oscClient;
     }

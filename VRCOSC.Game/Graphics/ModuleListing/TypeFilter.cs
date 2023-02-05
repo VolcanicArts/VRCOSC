@@ -3,6 +3,7 @@
 
 using System;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using VRCOSC.Game.Graphics.UI;
@@ -13,7 +14,7 @@ namespace VRCOSC.Game.Graphics.ModuleListing;
 public sealed partial class TypeFilter : Container
 {
     [Resolved]
-    private VRCOSCGame game { get; set; } = null!;
+    private Bindable<Module.ModuleType?> typeFilter { get; set; } = null!;
 
     private readonly VRCOSCDropdown<Group> dropdown;
 
@@ -35,16 +36,16 @@ public sealed partial class TypeFilter : Container
     {
         base.LoadComplete();
 
-        dropdown.Current.BindValueChanged(group => game.TypeFilter.Value = groupToType(group.NewValue), true);
+        dropdown.Current.BindValueChanged(group => typeFilter.Value = groupToType(group.NewValue), true);
     }
 
     private enum Group
     {
         All = -1,
-        General = 0,
-        Health = 1,
+        Health = 0,
+        OpenVR = 1,
         Integrations = 2,
-        OpenVR = 4
+        General = 3,
     }
 
     private static Module.ModuleType? groupToType(Group group) => group == Group.All ? null : (Module.ModuleType)(int)group;

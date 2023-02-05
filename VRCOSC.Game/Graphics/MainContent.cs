@@ -7,6 +7,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using VRCOSC.Game.Graphics.About;
 using VRCOSC.Game.Graphics.ModuleListing;
+using VRCOSC.Game.Graphics.Router;
 using VRCOSC.Game.Graphics.Settings;
 using VRCOSC.Game.Graphics.TabBar;
 
@@ -51,6 +52,7 @@ public sealed partial class MainContent : Container
                             {
                                 new ModuleListingScreen(),
                                 new SettingsScreen(),
+                                new RouterScreen(),
                                 new AboutScreen()
                             }
                         }

@@ -14,9 +14,10 @@ using osu.Framework.Platform;
 using Valve.VR;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics.Notifications;
-using VRCOSC.OpenVR;
-using VRCOSC.OpenVR.Metadata;
-using VRCOSC.OSC.VRChat;
+using VRCOSC.Game.OpenVR;
+using VRCOSC.Game.OpenVR.Metadata;
+using VRCOSC.Game.OSC;
+using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Game.Modules;
 
@@ -30,6 +31,9 @@ public partial class GameManager : CompositeComponent
     private VRCOSCConfigManager configManager { get; set; } = null!;
 
     [Resolved]
+    private RouterManager routerManager { get; set; } = null!;
+
+    [Resolved]
     private NotificationContainer notifications { get; set; } = null!;
 
     [Resolved(name: "EditingModule")]
@@ -41,9 +45,10 @@ public partial class GameManager : CompositeComponent
     private Bindable<bool> autoStartStop = null!;
     private bool hasAutoStarted;
 
-    public readonly VRChatOscClient OscClient = new();
+    public readonly VRChatOscClient VRChatOscClient = new();
     public readonly ModuleManager ModuleManager = new();
     public readonly Bindable<GameManagerState> State = new(GameManagerState.Stopped);
+    public OSCRouter OSCRouter = null!;
     public Player Player = null!;
     public OVRClient OVRClient = null!;
     public ChatBoxInterface ChatBoxInterface = null!;
@@ -53,7 +58,8 @@ public partial class GameManager : CompositeComponent
     {
         autoStartStop = configManager.GetBindable<bool>(VRCOSCSetting.AutoStartStop);
 
-        Player = new Player(OscClient);
+        OSCRouter = new OSCRouter(VRChatOscClient);
+        Player = new Player(VRChatOscClient);
 
         OVRClient = new OVRClient(new OVRMetadata
         {
@@ -63,9 +69,8 @@ public partial class GameManager : CompositeComponent
         });
         OVRHelper.OnError += m => Logger.Log($"[OpenVR] {m}");
 
-        ChatBoxInterface = new ChatBoxInterface(OscClient, configManager.GetBindable<int>(VRCOSCSetting.ChatBoxTimeSpan));
+        ChatBoxInterface = new ChatBoxInterface(VRChatOscClient, configManager.GetBindable<int>(VRCOSCSetting.ChatBoxTimeSpan));
 
-        LoadComponent(ModuleManager);
         AddInternal(ModuleManager);
     }
 
@@ -116,11 +121,14 @@ public partial class GameManager : CompositeComponent
 
         await Task.Delay(startstop_delay);
 
-        OscClient.OnParameterReceived += onParameterReceived;
+        VRChatOscClient.OnParameterReceived += onParameterReceived;
         Player.Initialise();
         ChatBoxInterface.Initialise();
         sendControlValues();
         ModuleManager.Start();
+
+        OSCRouter.Initialise(routerManager.Store);
+        OSCRouter.Enable();
 
         State.Value = GameManagerState.Started;
     }
@@ -134,12 +142,14 @@ public partial class GameManager : CompositeComponent
 
         State.Value = GameManagerState.Stopping;
 
-        await OscClient.DisableReceive();
+        await OSCRouter.Disable();
+
+        await VRChatOscClient.DisableReceiver();
         ModuleManager.Stop();
         ChatBoxInterface.Shutdown();
         Player.ResetAll();
-        OscClient.OnParameterReceived -= onParameterReceived;
-        OscClient.DisableSend();
+        VRChatOscClient.OnParameterReceived -= onParameterReceived;
+        VRChatOscClient.DisableSender();
 
         await Task.Delay(startstop_delay);
 
@@ -154,8 +164,8 @@ public partial class GameManager : CompositeComponent
             var sendPort = configManager.Get<int>(VRCOSCSetting.SendPort);
             var receivePort = configManager.Get<int>(VRCOSCSetting.ReceivePort);
 
-            OscClient.Initialise(ipAddress, sendPort, receivePort);
-            OscClient.Enable();
+            VRChatOscClient.Initialise(ipAddress, sendPort, receivePort);
+            VRChatOscClient.Enable();
             return true;
         }
         catch (SocketException)
@@ -204,7 +214,7 @@ public partial class GameManager : CompositeComponent
 
     private void sendControlValues()
     {
-        OscClient.SendValue(@$"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}/VRCOSC/Controls/ChatBox", ChatBoxInterface.SendEnabled);
+        VRChatOscClient.SendValue(@$"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}/VRCOSC/Controls/ChatBox", ChatBoxInterface.SendEnabled);
     }
 
     private void onParameterReceived(VRChatOscData data)

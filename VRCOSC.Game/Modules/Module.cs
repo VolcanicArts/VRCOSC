@@ -3,24 +3,22 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
-using osu.Framework.Logging;
 using osu.Framework.Platform;
-using VRCOSC.OpenVR;
-using VRCOSC.OSC.VRChat;
+using VRCOSC.Game.OpenVR;
+using VRCOSC.Game.OSC.VRChat;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable InconsistentNaming
 
 namespace VRCOSC.Game.Modules;
 
-public abstract partial class Module : Component
+public abstract partial class Module : Component, IComparable<Module>
 {
     [Resolved]
     private GameHost Host { get; set; } = null!;
@@ -28,17 +26,22 @@ public abstract partial class Module : Component
     [Resolved]
     private GameManager GameManager { get; set; } = null!;
 
+    [Resolved]
+    private IVRCOSCSecrets secrets { get; set; } = null!;
+
     private Storage Storage = null!;
     private TerminalLogger Terminal = null!;
 
     protected Player Player => GameManager.Player;
     protected OVRClient OVRClient => GameManager.OVRClient;
+    protected ChatBoxInterface ChatBoxInterface => GameManager.ChatBoxInterface;
     protected Bindable<ModuleState> State = new(ModuleState.Stopped);
+    protected IVRCOSCSecrets Secrets => secrets;
 
-    public readonly BindableBool Enabled = new();
-    public readonly Dictionary<string, ModuleAttribute> Settings = new();
-    public readonly Dictionary<Enum, ParameterMetadata> Parameters = new();
-    private readonly Dictionary<string, Enum> parametersReversed = new();
+    internal readonly BindableBool Enabled = new();
+    internal readonly Dictionary<string, ModuleAttribute> Settings = new();
+    internal readonly Dictionary<Enum, ParameterAttribute> Parameters = new();
+    internal readonly Dictionary<string, Enum> ParametersLookup = new();
 
     public virtual string Title => string.Empty;
     public virtual string Description => string.Empty;
@@ -46,7 +49,7 @@ public abstract partial class Module : Component
     public virtual string Prefab => string.Empty;
     public virtual ModuleType Type => ModuleType.General;
     protected virtual TimeSpan DeltaUpdate => TimeSpan.MaxValue;
-    protected virtual int ChatBoxPriority => 0;
+    protected virtual bool ShouldUpdateImmediately => true;
 
     private bool IsEnabled => Enabled.Value;
     private bool ShouldUpdate => DeltaUpdate != TimeSpan.MaxValue;
@@ -57,18 +60,18 @@ public abstract partial class Module : Component
     protected bool IsStopping => State.Value == ModuleState.Stopping;
     protected bool HasStopped => State.Value == ModuleState.Stopped;
 
-    public bool HasSettings => Settings.Any();
-    public bool HasParameters => Parameters.Any();
+    internal bool HasSettings => Settings.Any();
+    internal bool HasParameters => Parameters.Any();
 
     [BackgroundDependencyLoader]
-    public void load(Storage storage)
+    internal void load(Storage storage)
     {
         Storage = storage.GetStorageForDirectory("modules");
         Terminal = new TerminalLogger(Title);
 
         CreateAttributes();
 
-        Parameters.ForEach(pair => parametersReversed.Add(pair.Value.Name, pair.Key));
+        Parameters.ForEach(pair => ParametersLookup.Add(pair.Key.ToLookup(), pair.Key));
 
         performLoad();
     }
@@ -106,8 +109,8 @@ public abstract partial class Module : Component
     protected void CreateSetting(Enum lookup, string displayName, string description, string defaultValue, string buttonText, Action buttonAction, Func<bool>? dependsOn = null)
         => addTextAndButtonSetting(lookup, displayName, description, defaultValue, buttonText, buttonAction, dependsOn);
 
-    protected void CreateParameter<T>(Enum lookup, ParameterMode mode, string parameterName, string description)
-        => Parameters.Add(lookup, new ParameterMetadata(mode, parameterName, description, typeof(T)));
+    protected void CreateParameter<T>(Enum lookup, ParameterMode mode, string parameterName, string displayName, string description)
+        => Parameters.Add(lookup, new ParameterAttribute(mode, new ModuleAttributeMetadata(displayName, description), parameterName, typeof(T), null));
 
     private void addSingleSetting(Enum lookup, string displayName, string description, object defaultValue, Func<bool>? dependsOn)
         => Settings.Add(lookup.ToLookup(), new ModuleAttributeSingle(new ModuleAttributeMetadata(displayName, description), defaultValue, dependsOn));
@@ -125,7 +128,7 @@ public abstract partial class Module : Component
 
     #region Events
 
-    internal void start()
+    internal void Start()
     {
         if (!IsEnabled) return;
 
@@ -133,24 +136,22 @@ public abstract partial class Module : Component
 
         OnModuleStart();
 
-        if (ShouldUpdate)
-        {
-            Scheduler.Add(OnModuleUpdate);
-            Scheduler.AddDelayed(OnModuleUpdate, DeltaUpdate.TotalMilliseconds, true);
-        }
+        if (ShouldUpdate) Scheduler.AddDelayed(OnModuleUpdate, DeltaUpdate.TotalMilliseconds, true);
 
-        GameManager.OscClient.OnParameterReceived += onParameterReceived;
+        GameManager.VRChatOscClient.OnParameterReceived += onParameterReceived;
 
         State.Value = ModuleState.Started;
+
+        if (ShouldUpdateImmediately) OnModuleUpdate();
     }
 
-    internal void stop()
+    internal void Stop()
     {
         if (!IsEnabled) return;
 
         State.Value = ModuleState.Stopping;
 
-        GameManager.OscClient.OnParameterReceived -= onParameterReceived;
+        GameManager.VRChatOscClient.OnParameterReceived -= onParameterReceived;
 
         Scheduler.CancelDelayedTasks();
 
@@ -162,7 +163,7 @@ public abstract partial class Module : Component
     protected virtual void OnModuleStart() { }
     protected virtual void OnModuleUpdate() { }
     protected virtual void OnModuleStop() { }
-    protected virtual void OnAvatarChange() { }
+    protected virtual void OnAvatarChange(string avatarId) { }
 
     #endregion
 
@@ -212,20 +213,20 @@ public abstract partial class Module : Component
         var data = Parameters[lookup];
         if (!data.Mode.HasFlagFast(ParameterMode.Write)) throw new InvalidOperationException("Cannot send a value to a read-only parameter");
 
-        GameManager.OscClient.SendValue(data.FormattedAddress, value);
+        GameManager.VRChatOscClient.SendValue(data.FormattedAddress, value);
     }
 
     private void onParameterReceived(VRChatOscData data)
     {
         if (data.IsAvatarChangeEvent)
         {
-            OnAvatarChange();
+            OnAvatarChange((string)data.ParameterValue);
             return;
         }
 
-        if (!data.IsAvatarParameter || !parametersReversed.ContainsKey(data.ParameterName)) return;
+        if (!data.IsAvatarParameter || Parameters.Select(pair => pair.Value).All(parameter => (string)parameter.Attribute.Value != data.ParameterName)) return;
 
-        var lookup = parametersReversed[data.ParameterName];
+        var lookup = Parameters.Single(pair => (string)pair.Value.Attribute.Value == data.ParameterName).Key;
         var parameterData = Parameters[lookup];
 
         if (!parameterData.Mode.HasFlagFast(ParameterMode.Read)) return;
@@ -258,249 +259,11 @@ public abstract partial class Module : Component
 
     #endregion
 
-    #region Loading
-
-    private void performLoad()
-    {
-        using (var stream = Storage.GetStream(FileName))
-        {
-            if (stream is not null)
-            {
-                using var reader = new StreamReader(stream);
-
-                while (reader.ReadLine() is { } line)
-                {
-                    switch (line)
-                    {
-                        case "#InternalSettings":
-                            performInternalSettingsLoad(reader);
-                            break;
-
-                        case "#Settings":
-                            performSettingsLoad(reader);
-                            break;
-                    }
-                }
-            }
-        }
-
-        executeAfterLoad();
-    }
-
-    private void performInternalSettingsLoad(TextReader reader)
-    {
-        while (reader.ReadLine() is { } line)
-        {
-            if (line.Equals("#End")) break;
-
-            var lineSplit = line.Split(new[] { '=' }, 2);
-            var lookup = lineSplit[0];
-            var value = lineSplit[1];
-
-            switch (lookup)
-            {
-                case "enabled":
-                    Enabled.Value = bool.Parse(value);
-                    break;
-            }
-        }
-    }
-
-    private void performSettingsLoad(TextReader reader)
-    {
-        while (reader.ReadLine() is { } line)
-        {
-            if (line.Equals("#End")) break;
-
-            var lineSplitLookupValue = line.Split(new[] { '=' }, 2);
-            var lookupType = lineSplitLookupValue[0].Split(new[] { ':' }, 2);
-            var value = lineSplitLookupValue[1];
-
-            var lookupStr = lookupType[0];
-            var typeStr = lookupType[1];
-
-            var lookup = lookupStr;
-            if (lookupStr.Contains('#')) lookup = lookupStr.Split(new[] { '#' }, 2)[0];
-
-            if (!Settings.ContainsKey(lookup)) continue;
-
-            var setting = Settings[lookup];
-
-            switch (setting)
-            {
-                case ModuleAttributeSingle settingSingle:
-                {
-                    var readableTypeName = settingSingle.Attribute.Value.GetType().ToReadableName().ToLowerInvariant();
-                    if (!readableTypeName.Equals(typeStr)) continue;
-
-                    switch (typeStr)
-                    {
-                        case "enum":
-                            var typeAndValue = value.Split(new[] { '#' }, 2);
-                            var enumType = enumNameToType(typeAndValue[0]);
-                            if (enumType is not null) settingSingle.Attribute.Value = Enum.ToObject(enumType, int.Parse(typeAndValue[1]));
-                            break;
-
-                        case "string":
-                            settingSingle.Attribute.Value = value;
-                            break;
-
-                        case "int":
-                            settingSingle.Attribute.Value = int.Parse(value);
-                            break;
-
-                        case "float":
-                            settingSingle.Attribute.Value = float.Parse(value);
-                            break;
-
-                        case "bool":
-                            settingSingle.Attribute.Value = bool.Parse(value);
-                            break;
-
-                        default:
-                            Logger.Log($"Unknown type found in file: {typeStr}");
-                            break;
-                    }
-
-                    break;
-                }
-
-                case ModuleAttributeList settingList:
-                {
-                    if (value == "EMPTY" && settingList.CanBeEmpty)
-                    {
-                        settingList.AttributeList.Clear();
-                        continue;
-                    }
-
-                    var readableTypeName = settingList.AttributeList.First().Value.GetType().ToReadableName().ToLowerInvariant();
-                    if (!readableTypeName.Equals(typeStr)) continue;
-
-                    var index = int.Parse(lookupStr.Split(new[] { '#' }, 2)[1]);
-
-                    switch (typeStr)
-                    {
-                        case "string":
-                            settingList.AddAt(index, new Bindable<object>(value));
-                            break;
-
-                        case "int":
-                            settingList.AddAt(index, new Bindable<object>(int.Parse(value)));
-                            break;
-
-                        default:
-                            throw new ArgumentOutOfRangeException(nameof(value), value, $"Unknown type found in file for {nameof(ModuleAttributeList)}: {value.GetType()}");
-                    }
-
-                    break;
-                }
-            }
-        }
-    }
-
-    private void executeAfterLoad()
-    {
-        performSave();
-        Enabled.BindValueChanged(_ => performSave());
-    }
-
-    private static Type? enumNameToType(string enumName) => AppDomain.CurrentDomain.GetAssemblies().Select(assembly => assembly.GetType(enumName)).FirstOrDefault(type => type?.IsEnum ?? false);
-
-    #endregion
-
-    #region Saving
-
-    public void Save()
-    {
-        performSave();
-    }
-
-    private void performSave()
-    {
-        using var stream = Storage.CreateFileSafely(FileName);
-        using var writer = new StreamWriter(stream);
-
-        performInternalSettingsSave(writer);
-        performSettingsSave(writer);
-    }
-
-    private void performInternalSettingsSave(TextWriter writer)
-    {
-        writer.WriteLine(@"#InternalSettings");
-        writer.WriteLine(@"{0}={1}", "enabled", Enabled.Value.ToString());
-        writer.WriteLine(@"#End");
-    }
-
-    private void performSettingsSave(TextWriter writer)
-    {
-        var areAllDefault = Settings.All(pair => pair.Value.IsDefault());
-        if (areAllDefault) return;
-
-        writer.WriteLine(@"#Settings");
-
-        foreach (var (lookup, moduleAttributeData) in Settings)
-        {
-            if (moduleAttributeData.IsDefault()) continue;
-
-            switch (moduleAttributeData)
-            {
-                case ModuleAttributeSingle moduleAttributeSingle:
-                {
-                    var value = moduleAttributeSingle.Attribute.Value;
-                    var valueType = value.GetType();
-                    var readableTypeName = valueType.ToReadableName().ToLowerInvariant();
-
-                    if (valueType.IsSubclassOf(typeof(Enum)))
-                    {
-                        var enumClass = valueType.FullName;
-                        writer.WriteLine(@"{0}:{1}={2}#{3}", lookup, readableTypeName, enumClass, (int)value);
-                    }
-                    else
-                    {
-                        writer.WriteLine(@"{0}:{1}={2}", lookup, readableTypeName, value);
-                    }
-
-                    break;
-                }
-
-                case ModuleAttributeList moduleAttributeList:
-                {
-                    var values = moduleAttributeList.AttributeList.ToList();
-
-                    if (!values.Any())
-                    {
-                        writer.WriteLine(@"{0}:EMPTY=EMPTY", lookup);
-                    }
-                    else
-                    {
-                        var valueType = values.First().Value.GetType();
-                        var readableTypeName = valueType.ToReadableName().ToLowerInvariant();
-
-                        for (int i = 0; i < values.Count; i++)
-                        {
-                            writer.WriteLine(@"{0}#{1}:{2}={3}", lookup, i, readableTypeName, values[i].Value);
-                        }
-                    }
-
-                    break;
-                }
-            }
-        }
-
-        writer.WriteLine(@"#End");
-    }
-
-    #endregion
-
     #region Extensions
 
     protected void Log(string message) => Terminal.Log(message);
 
     protected void OpenUrlExternally(string Url) => Host.OpenUrlExternally(Url);
-
-    protected DateTimeOffset SetChatBoxText(string? text, TimeSpan displayLength) => GameManager.ChatBoxInterface.SetText(text, ChatBoxPriority, displayLength);
-
-    protected void SetChatBoxTyping(bool typing) => GameManager.ChatBoxInterface.SetTyping(typing);
 
     protected static float Map(float source, float sMin, float sMax, float dMin, float dMax) => dMin + (dMax - dMin) * ((source - sMin) / (sMax - sMin));
 
@@ -516,10 +279,18 @@ public abstract partial class Module : Component
 
     public enum ModuleType
     {
-        General = 0,
-        Health = 1,
+        Health = 0,
+        OpenVR = 1,
         Integrations = 2,
-        Accessibility = 3,
-        OpenVR = 4
+        General = 3,
+    }
+
+    public int CompareTo(Module? other)
+    {
+        if (other is null) return 1;
+        if (Type > other.Type) return 1;
+        if (Type < other.Type) return -1;
+
+        return string.CompareOrdinal(Title, other.Title);
     }
 }

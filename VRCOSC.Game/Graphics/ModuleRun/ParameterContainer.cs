@@ -7,7 +7,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Modules;
-using VRCOSC.OSC.VRChat;
+using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Game.Graphics.ModuleRun;
 
@@ -65,8 +65,8 @@ public sealed partial class ParameterContainer : Container
 
     protected override void LoadComplete()
     {
-        gameManager.OscClient.OnParameterSent += onParameterSent;
-        gameManager.OscClient.OnParameterReceived += onParameterReceived;
+        gameManager.VRChatOscClient.OnParameterSent += onParameterSent;
+        gameManager.VRChatOscClient.OnParameterReceived += onParameterReceived;
     }
 
     private void onParameterSent(VRChatOscData data)
@@ -132,7 +132,7 @@ public sealed partial class ParameterContainer : Container
     protected override void Dispose(bool isDisposing)
     {
         base.Dispose(isDisposing);
-        gameManager.OscClient.OnParameterSent -= onParameterSent;
-        gameManager.OscClient.OnParameterReceived -= onParameterReceived;
+        gameManager.VRChatOscClient.OnParameterSent -= onParameterSent;
+        gameManager.VRChatOscClient.OnParameterReceived -= onParameterReceived;
     }
 }
