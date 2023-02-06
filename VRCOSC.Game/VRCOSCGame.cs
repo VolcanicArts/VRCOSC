@@ -155,6 +155,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
     protected override bool OnExiting()
     {
+        base.OnExiting();
         prepareForExit();
         return true;
     }
