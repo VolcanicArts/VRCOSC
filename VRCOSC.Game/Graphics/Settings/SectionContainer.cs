@@ -12,6 +12,7 @@ using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics.Settings.Cards;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Button;
+using VRCOSC.Game.Graphics.UI.Text;
 
 namespace VRCOSC.Game.Graphics.Settings;
 
@@ -67,14 +68,9 @@ public abstract partial class SectionContainer : Container
         flow.Add(new ToggleSettingCard(title, description, settingBindable));
     }
 
-    protected void AddTextBox(string title, string description, Bindable<string> settingBindable)
+    protected void AddTextBox<TTextBox, TSetting>(string title, string description, Bindable<TSetting> settingBindable) where TTextBox : ValidationTextBox<TSetting>, new()
     {
-        flow.Add(new TextSettingCard(title, description, settingBindable));
-    }
-
-    protected void AddIntTextBox(string title, string description, Bindable<int> settingBindable)
-    {
-        flow.Add(new IntTextSettingCard(title, description, settingBindable));
+        flow.Add(new TextSettingCard<TTextBox, TSetting>(title, description, settingBindable));
     }
 
     protected void AddDropdown<T>(string title, string description, Bindable<T> settingBindable)
