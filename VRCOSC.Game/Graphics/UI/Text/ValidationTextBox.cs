@@ -43,12 +43,7 @@ public abstract partial class ValidationTextBox<T> : VRCOSCTextBox
         }, true);
     }
 
-    private bool validate(string text)
-    {
-        if (EmptyIsValid && string.IsNullOrEmpty(text)) return true;
-
-        return IsTextValid(text);
-    }
+    private bool validate(string text) => string.IsNullOrEmpty(text) ? EmptyIsValid : IsTextValid(text);
 
     protected abstract bool IsTextValid(string text);
 
