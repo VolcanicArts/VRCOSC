@@ -219,6 +219,8 @@ public partial class GameManager : CompositeComponent
 
     private void onParameterReceived(VRChatOscData data)
     {
+        ModuleManager.OnParameterReceived(data);
+
         if (data.IsAvatarChangeEvent)
         {
             sendControlValues();

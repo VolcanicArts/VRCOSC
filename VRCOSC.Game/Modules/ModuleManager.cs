@@ -13,6 +13,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Lists;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
+using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Game.Modules;
 
@@ -81,6 +82,14 @@ public sealed partial class ModuleManager : CompositeComponent, IEnumerable<Modu
         foreach (var module in this)
         {
             module.Stop();
+        }
+    }
+
+    public void OnParameterReceived(VRChatOscData data)
+    {
+        foreach (var module in this)
+        {
+            module.OnParameterReceived(data);
         }
     }
 
