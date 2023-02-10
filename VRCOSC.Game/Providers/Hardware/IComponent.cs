@@ -17,6 +17,9 @@ public class GPU : IComponent
 {
     public float Usage { get; internal set; }
     public int Temperature { get; internal set; }
+    public int MemoryFree { get; internal set; }
+    public int MemoryUsed { get; internal set; }
+    public int MemoryTotal { get; internal set; }
 }
 
 public class RAM : IComponent

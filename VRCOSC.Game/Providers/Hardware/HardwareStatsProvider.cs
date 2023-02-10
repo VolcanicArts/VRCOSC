@@ -154,6 +154,24 @@ public sealed class HardwareStatsProvider
                 }
 
                 break;
+
+            case SensorType.SmallData:
+                switch (sensor.Name)
+                {
+                    case @"GPU Memory Free":
+                        gpu.MemoryFree = (int?)sensor.Value ?? 0;
+                        break;
+
+                    case @"GPU Memory Used":
+                        gpu.MemoryUsed = (int?)sensor.Value ?? 0;
+                        break;
+
+                    case @"GPU Memory Total":
+                        gpu.MemoryTotal = (int?)sensor.Value ?? 0;
+                        break;
+                }
+
+                break;
         }
     }
 

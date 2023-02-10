@@ -15,7 +15,9 @@ public sealed partial class HardwareStatsModule : ChatBoxModule
     protected override TimeSpan DeltaUpdate => TimeSpan.FromSeconds(0.5);
 
     protected override string DefaultChatBoxFormat => @"CPU: $cpuusage$% | GPU: $gpuusage$%                RAM: $ramused$GB/$ramtotal$GB";
-    protected override IEnumerable<string> ChatBoxFormatValues => new[] { @"$cpuusage$ (%)", @"$gpuusage$ (%)", @"$ramusage$ (%)", @"$cputemp$ (C)", @"$gputemp$ (C)", @"$ramtotal$ (GB)", @"$ramused$ (GB)", @"$ramavailable$ (GB)" };
+
+    protected override IEnumerable<string> ChatBoxFormatValues => new[]
+        { @"$cpuusage$ (%)", @"$gpuusage$ (%)", @"$ramusage$ (%)", @"$cputemp$ (C)", @"$gputemp$ (C)", @"$ramtotal$ (GB)", @"$ramused$ (GB)", @"$ramavailable$ (GB)", @"$vramused$ (GB)", @"$vramfree$ (GB)", @"$vramtotal$ (GB)" };
 
     private HardwareStatsProvider? hardwareStatsProvider;
 
@@ -34,6 +36,9 @@ public sealed partial class HardwareStatsModule : ChatBoxModule
         CreateParameter<int>(HardwareStatsParameter.RamTotal, ParameterMode.Write, "VRCOSC/Hardware/RAMTotal", "RAM Total", "The total amount of RAM in GB");
         CreateParameter<int>(HardwareStatsParameter.RamUsed, ParameterMode.Write, "VRCOSC/Hardware/RAMUsed", "RAM Used", "The used RAM in GB");
         CreateParameter<int>(HardwareStatsParameter.RamAvailable, ParameterMode.Write, "VRCOSC/Hardware/RAMAvailable", "RAM Available", "The available RAM in GB");
+        CreateParameter<int>(HardwareStatsParameter.VRamFree, ParameterMode.Write, "VRCOSC/Hardware/VRamFree", "VRAM Free", "The amount of free VRAM in GB");
+        CreateParameter<int>(HardwareStatsParameter.VRamUsed, ParameterMode.Write, "VRCOSC/Hardware/VRamUsed", "VRAM Used", "The amount of used VRAM in GB");
+        CreateParameter<int>(HardwareStatsParameter.VRamTotal, ParameterMode.Write, "VRCOSC/Hardware/VRamTotal", "VRAM Total", "The amount of total VRAM in GB");
     }
 
     protected override string? GetChatBoxText()
@@ -54,7 +59,10 @@ public sealed partial class HardwareStatsModule : ChatBoxModule
                    .Replace(@"$gputemp$", gpu.Temperature.ToString())
                    .Replace(@"$ramtotal$", ram.Total.ToString("0.0"))
                    .Replace(@"$ramused$", ram.Used.ToString("0.0"))
-                   .Replace(@"$ramavailable$", ram.Available.ToString("0.0"));
+                   .Replace(@"$ramavailable$", ram.Available.ToString("0.0"))
+                   .Replace(@"$vramfree$", (gpu.MemoryFree / 1000f).ToString("0.0"))
+                   .Replace(@"$vramused$", (gpu.MemoryUsed / 1000f).ToString("0.0"))
+                   .Replace(@"$vramtotal$", (gpu.MemoryTotal / 1000f).ToString("0.0"));
         }
         catch { }
 
@@ -87,6 +95,9 @@ public sealed partial class HardwareStatsModule : ChatBoxModule
             SendParameter(HardwareStatsParameter.RamTotal, ram.Total);
             SendParameter(HardwareStatsParameter.RamUsed, ram.Used);
             SendParameter(HardwareStatsParameter.RamAvailable, ram.Available);
+            SendParameter(HardwareStatsParameter.VRamFree, gpu.MemoryFree);
+            SendParameter(HardwareStatsParameter.VRamUsed, gpu.MemoryUsed);
+            SendParameter(HardwareStatsParameter.VRamTotal, gpu.MemoryTotal);
         }
         catch { }
     }
@@ -111,6 +122,9 @@ public sealed partial class HardwareStatsModule : ChatBoxModule
         GpuTemp,
         RamTotal,
         RamUsed,
-        RamAvailable
+        RamAvailable,
+        VRamFree,
+        VRamUsed,
+        VRamTotal
     }
 }
