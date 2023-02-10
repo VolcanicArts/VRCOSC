@@ -45,7 +45,13 @@ public sealed partial class MediaModule : ChatBoxModule
         if (mediaProvider.Controller is null) return null;
 
         if (!mediaProvider.State.IsPlaying)
-            return GetSetting<MediaPausedBehaviour>(MediaSetting.PausedBehaviour) == MediaPausedBehaviour.Empty ? null : GetSetting<string>(MediaSetting.PausedText);
+        {
+            if (GetSetting<MediaPausedBehaviour>(MediaSetting.PausedBehaviour) == MediaPausedBehaviour.Empty) return null;
+
+            return GetSetting<string>(MediaSetting.PausedText)
+                   .Replace(@"%title%", mediaProvider.State.Title)
+                   .Replace(@"%artist%", mediaProvider.State.Artist);
+        }
 
         var formattedText = GetSetting<string>(ChatBoxSetting.ChatBoxFormat)
                             .Replace(@"%title%", mediaProvider.State.Title)
