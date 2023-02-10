@@ -5,6 +5,7 @@ using System.Diagnostics;
 using Windows.Media;
 using osu.Framework.Bindables;
 using VRCOSC.Game.Modules;
+using VRCOSC.Game.Providers.Media;
 
 namespace VRCOSC.Modules.Media;
 
@@ -21,9 +22,14 @@ public sealed partial class MediaModule : ChatBoxModule
     protected override string DefaultChatBoxFormat => @"[%curtime%/%duration%]                            Now Playing: %artist% - %title%";
     protected override IEnumerable<string> ChatBoxFormatValues => new[] { @"%title%", @"%artist%", @"%curtime%", @"%duration%" };
 
-    private readonly MediaProvider mediaProvider = new();
-    private Bindable<bool> currentlySeeking = new();
+    private readonly WindowsMediaProvider mediaProvider = new();
+    private readonly Bindable<bool> currentlySeeking = new();
     private TimeSpan targetPosition;
+
+    public MediaModule()
+    {
+        mediaProvider.OnPlaybackStateUpdate += onPlaybackStateUpdate;
+    }
 
     protected override void CreateAttributes()
     {
@@ -69,8 +75,7 @@ public sealed partial class MediaModule : ChatBoxModule
     protected override void OnModuleStart()
     {
         base.OnModuleStart();
-        mediaProvider.OnPlaybackStateUpdate += onPlaybackStateUpdate;
-        mediaProvider.StartMediaHook();
+        mediaProvider.Hook();
         startProcesses();
     }
 
@@ -88,8 +93,7 @@ public sealed partial class MediaModule : ChatBoxModule
 
     protected override void OnModuleStop()
     {
-        mediaProvider.StopMediaHook();
-        mediaProvider.OnPlaybackStateUpdate -= onPlaybackStateUpdate;
+        mediaProvider.UnHook();
     }
 
     protected override void OnAvatarChange(string avatarId)
