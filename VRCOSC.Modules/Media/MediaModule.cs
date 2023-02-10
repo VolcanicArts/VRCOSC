@@ -3,6 +3,7 @@
 
 using System.Diagnostics;
 using Windows.Media;
+using osu.Framework.Bindables;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Modules.Media;
@@ -21,6 +22,8 @@ public sealed partial class MediaModule : ChatBoxModule
     protected override IEnumerable<string> ChatBoxFormatValues => new[] { @"%title%", @"%artist%", @"%curtime%", @"%duration%" };
 
     private readonly MediaProvider mediaProvider = new();
+    private Bindable<bool> currentlySeeking = new();
+    private TimeSpan targetPosition;
 
     protected override void CreateAttributes()
     {
@@ -33,11 +36,12 @@ public sealed partial class MediaModule : ChatBoxModule
 
         CreateParameter<bool>(MediaParameter.Play, ParameterMode.ReadWrite, @"VRCOSC/Media/Play", "Play/Pause", @"True for playing. False for paused");
         CreateParameter<float>(MediaParameter.Volume, ParameterMode.ReadWrite, @"VRCOSC/Media/Volume", "Volume", @"The volume of the process that is controlling the media");
-        CreateParameter<bool>(MediaParameter.Muted, ParameterMode.ReadWrite, @"VRCOSC/Media/Muted", "Muted", @"True to mute. False to unmute");
         CreateParameter<int>(MediaParameter.Repeat, ParameterMode.ReadWrite, @"VRCOSC/Media/Repeat", "Repeat", @"0 for disabled. 1 for single. 2 for list");
         CreateParameter<bool>(MediaParameter.Shuffle, ParameterMode.ReadWrite, @"VRCOSC/Media/Shuffle", "Shuffle", @"True for enabled. False for disabled");
         CreateParameter<bool>(MediaParameter.Next, ParameterMode.Read, @"VRCOSC/Media/Next", "Next", @"Becoming true causes the next track to play");
         CreateParameter<bool>(MediaParameter.Previous, ParameterMode.Read, @"VRCOSC/Media/Previous", "Previous", @"Becoming true causes the previous track to play");
+        CreateParameter<bool>(MediaParameter.Seeking, ParameterMode.Read, @"VRCOSC/Media/Seeking", "Seeking", "Whether the user is currently seeking");
+        CreateParameter<float>(MediaParameter.Position, ParameterMode.ReadWrite, @"VRCOSC/Media/Position", "Position", "The position of the song as a percentage");
     }
 
     protected override string? GetChatBoxText()
@@ -90,13 +94,13 @@ public sealed partial class MediaModule : ChatBoxModule
 
     protected override void OnAvatarChange(string avatarId)
     {
-        sendVolumeParameters();
+        sendUpdatableParameters();
         sendMediaParameters();
     }
 
     protected override void OnModuleUpdate()
     {
-        if (mediaProvider.Controller is not null) sendVolumeParameters();
+        if (mediaProvider.Controller is not null) sendUpdatableParameters();
     }
 
     private void onPlaybackStateUpdate()
@@ -111,10 +115,17 @@ public sealed partial class MediaModule : ChatBoxModule
         SendParameter(MediaParameter.Repeat, (int)mediaProvider.State.RepeatMode);
     }
 
-    private void sendVolumeParameters()
+    private void sendUpdatableParameters()
     {
         SendParameter(MediaParameter.Volume, mediaProvider.State.Volume);
-        SendParameter(MediaParameter.Muted, mediaProvider.State.Muted);
+
+        var position = mediaProvider.State.Position;
+
+        if (position is not null && !currentlySeeking.Value)
+        {
+            var percentagePosition = position.Position.Ticks / (float)(position.EndTime.Ticks - position.StartTime.Ticks);
+            SendParameter(MediaParameter.Position, percentagePosition);
+        }
     }
 
     protected override void OnFloatParameterReceived(Enum key, float value)
@@ -123,6 +134,16 @@ public sealed partial class MediaModule : ChatBoxModule
         {
             case MediaParameter.Volume when mediaProvider.Controller is not null:
                 mediaProvider.State.Volume = value;
+                break;
+
+            case MediaParameter.Position when mediaProvider.Controller is not null:
+
+                if (!currentlySeeking.Value) return;
+
+                var position = mediaProvider.State.Position;
+                if (position is null) return;
+
+                targetPosition = (position.EndTime - position.StartTime) * value;
                 break;
         }
     }
@@ -143,16 +164,17 @@ public sealed partial class MediaModule : ChatBoxModule
                 mediaProvider.Controller?.TryChangeShuffleActiveAsync(value);
                 break;
 
-            case MediaParameter.Muted when mediaProvider.Controller is not null:
-                mediaProvider.State.Muted = value;
-                break;
-
             case MediaParameter.Next when value:
                 mediaProvider.Controller?.TrySkipNextAsync();
                 break;
 
             case MediaParameter.Previous when value:
                 mediaProvider.Controller?.TrySkipPreviousAsync();
+                break;
+
+            case MediaParameter.Seeking:
+                currentlySeeking.Value = value;
+                if (!currentlySeeking.Value) mediaProvider.Controller?.TryChangePlaybackPositionAsync(targetPosition.Ticks);
                 break;
         }
     }
@@ -188,6 +210,7 @@ public sealed partial class MediaModule : ChatBoxModule
         Shuffle,
         Repeat,
         Volume,
-        Muted
+        Seeking,
+        Position
     }
 }
