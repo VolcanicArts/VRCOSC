@@ -1,13 +1,14 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using LibreHardwareMonitor.Hardware;
 using osu.Framework.Extensions.IEnumerableExtensions;
-using VRCOSC.Modules.HardwareStats.Provider;
 
-// ReSharper disable InconsistentNaming
-
-namespace VRCOSC.Modules.HardwareStats;
+namespace VRCOSC.Game.Providers.Hardware;
 
 public sealed class HardwareStatsProvider
 {
@@ -15,9 +16,9 @@ public sealed class HardwareStatsProvider
 
     public bool CanAcceptQueries { get; private set; }
 
-    public readonly List<CPU> CPUs = new();
-    public readonly List<GPU> GPUs = new();
-    public readonly RAM RAM = new();
+    public readonly List<CPU> Cpus = new();
+    public readonly List<GPU> Gpus = new();
+    public readonly RAM Ram = new();
 
     public HardwareStatsProvider()
     {
@@ -63,7 +64,7 @@ public sealed class HardwareStatsProvider
         }
     }
 
-    private Component decypherComponent(string address)
+    private IComponent decypherComponent(string address)
     {
         int index = 0;
 
@@ -75,33 +76,33 @@ public sealed class HardwareStatsProvider
 
         if (address.Contains("cpu", StringComparison.InvariantCultureIgnoreCase))
         {
-            while (index >= CPUs.Count)
+            while (index >= Cpus.Count)
             {
-                CPUs.Add(new CPU());
+                Cpus.Add(new CPU());
             }
 
-            return CPUs[index];
+            return Cpus[index];
         }
 
         if (address.Contains("gpu", StringComparison.InvariantCultureIgnoreCase))
         {
-            while (index >= GPUs.Count)
+            while (index >= Gpus.Count)
             {
-                GPUs.Add(new GPU());
+                Gpus.Add(new GPU());
             }
 
-            return GPUs[index];
+            return Gpus[index];
         }
 
         if (address.Contains("ram", StringComparison.InvariantCultureIgnoreCase))
         {
-            return RAM;
+            return Ram;
         }
 
         throw new InvalidOperationException("Could not find correct component to audit");
     }
 
-    private void handleCPU(CPU cpu, ISensor sensor)
+    private static void handleCPU(CPU cpu, ISensor sensor)
     {
         switch (sensor.SensorType)
         {
@@ -130,7 +131,7 @@ public sealed class HardwareStatsProvider
         }
     }
 
-    private void handleGPU(GPU gpu, ISensor sensor)
+    private static void handleGPU(GPU gpu, ISensor sensor)
     {
         switch (sensor.SensorType)
         {
@@ -156,7 +157,7 @@ public sealed class HardwareStatsProvider
         }
     }
 
-    private void handleRAM(RAM ram, ISensor sensor)
+    private static void handleRAM(RAM ram, ISensor sensor)
     {
         switch (sensor.SensorType)
         {

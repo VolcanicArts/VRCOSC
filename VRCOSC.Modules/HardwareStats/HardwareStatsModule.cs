@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.Game.Modules;
+using VRCOSC.Game.Providers.Hardware;
 
 namespace VRCOSC.Modules.HardwareStats;
 
@@ -41,9 +42,9 @@ public sealed partial class HardwareStatsModule : ChatBoxModule
 
         try
         {
-            var cpu = hardwareStatsProvider.CPUs[GetSetting<int>(HardwareStatsSetting.SelectedCPU)];
-            var gpu = hardwareStatsProvider.GPUs[GetSetting<int>(HardwareStatsSetting.SelectedGPU)];
-            var ram = hardwareStatsProvider.RAM;
+            var cpu = hardwareStatsProvider.Cpus[GetSetting<int>(HardwareStatsSetting.SelectedCPU)];
+            var gpu = hardwareStatsProvider.Gpus[GetSetting<int>(HardwareStatsSetting.SelectedGPU)];
+            var ram = hardwareStatsProvider.Ram;
 
             return GetSetting<string>(ChatBoxSetting.ChatBoxFormat)
                    .Replace(@"$cpuusage$", cpu.Usage.ToString("0.00"))
@@ -74,9 +75,9 @@ public sealed partial class HardwareStatsModule : ChatBoxModule
 
         try
         {
-            var cpu = hardwareStatsProvider.CPUs[GetSetting<int>(HardwareStatsSetting.SelectedCPU)];
-            var gpu = hardwareStatsProvider.GPUs[GetSetting<int>(HardwareStatsSetting.SelectedGPU)];
-            var ram = hardwareStatsProvider.RAM;
+            var cpu = hardwareStatsProvider.Cpus[GetSetting<int>(HardwareStatsSetting.SelectedCPU)];
+            var gpu = hardwareStatsProvider.Gpus[GetSetting<int>(HardwareStatsSetting.SelectedGPU)];
+            var ram = hardwareStatsProvider.Ram;
 
             SendParameter(HardwareStatsParameter.CpuUsage, cpu.Usage / 100f);
             SendParameter(HardwareStatsParameter.GpuUsage, gpu.Usage / 100f);
