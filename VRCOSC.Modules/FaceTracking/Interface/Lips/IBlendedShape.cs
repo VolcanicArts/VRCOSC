@@ -76,42 +76,70 @@ public class SteppedPercentageShape : BlendedShape
 
 public class PercentageAveragedShape : BlendedShape
 {
-    private readonly IEnumerable<int> positiveKeys;
-    private readonly IEnumerable<int> negativeKeys;
+    private readonly int[] positiveKeys;
+    private readonly int[] negativeKeys;
     private readonly int positiveLength;
     private readonly int negativeLength;
 
+    private float positiveSum;
+    private float negativeSum;
+
     public PercentageAveragedShape(IReadOnlyCollection<LipShapeV2> positiveShapes, IReadOnlyCollection<LipShapeV2> negativeShapes)
     {
-        positiveKeys = positiveShapes.Select(k => (int)k);
-        negativeKeys = negativeShapes.Select(k => (int)k);
+        positiveKeys = positiveShapes.Select(k => (int)k).ToArray();
+        negativeKeys = negativeShapes.Select(k => (int)k).ToArray();
         positiveLength = positiveShapes.Count;
         negativeLength = negativeShapes.Count;
     }
 
     protected override float CalculateShape(float[] values)
     {
-        var positiveAverage = positiveKeys.Sum(k => values[k]) / positiveLength;
-        var negativeAverage = negativeKeys.Sum(k => values[k] * -1) / negativeLength;
-        return positiveAverage + negativeAverage;
+        positiveSum = 0;
+        negativeSum = 0;
+
+        foreach (var positiveKey in positiveKeys)
+        {
+            positiveSum += values[positiveKey];
+        }
+
+        foreach (var negativeKey in negativeKeys)
+        {
+            negativeSum += values[negativeKey] * -1;
+        }
+
+        return positiveSum / positiveLength + negativeSum / negativeLength;
     }
 }
 
 public class MaxAveragedShape : BlendedShape
 {
-    private readonly IEnumerable<int> positiveKeys;
-    private readonly IEnumerable<int> negativeKeys;
+    private readonly int[] positiveKeys;
+    private readonly int[] negativeKeys;
+
+    private float positiveMax;
+    private float negativeMax;
 
     public MaxAveragedShape(IEnumerable<LipShapeV2> positiveShapes, IEnumerable<LipShapeV2> negativeShapes)
     {
-        positiveKeys = positiveShapes.Select(k => (int)k);
-        negativeKeys = negativeShapes.Select(k => (int)k);
+        positiveKeys = positiveShapes.Select(k => (int)k).ToArray();
+        negativeKeys = negativeShapes.Select(k => (int)k).ToArray();
     }
 
     protected override float CalculateShape(float[] values)
     {
-        var positiveMax = positiveKeys.Select(k => values[k]).Max();
-        var negativeMax = negativeKeys.Select(k => values[k]).Max() * -1;
-        return positiveMax + negativeMax;
+        positiveMax = float.MinValue;
+        negativeMax = float.MinValue;
+
+        foreach (var positiveKey in positiveKeys)
+        {
+            positiveMax = Math.Max(positiveMax, values[positiveKey]);
+        }
+
+        foreach (var negativeKey in negativeKeys)
+        {
+            negativeMax = Math.Max(negativeMax, values[negativeKey]);
+        }
+
+        return positiveMax + negativeMax * -1;
     }
 }

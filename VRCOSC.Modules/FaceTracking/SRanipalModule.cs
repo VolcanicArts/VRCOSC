@@ -19,8 +19,8 @@ public partial class SRanipalModule : Module
     protected override bool ShouldUpdateImmediately => false;
 
     private readonly SRanipalInterface sRanipalInterface = new();
-
     private readonly Dictionary<Enum, SRanipalParameterData> parameterData = new();
+    private readonly IEnumerable<LipParam> lipParams = Enum.GetValues<LipParam>();
 
     public SRanipalModule()
     {
@@ -47,7 +47,7 @@ public partial class SRanipalModule : Module
         CreateSetting(SRanipalSetting.EyeEnable, "Enable Eye", "Whether to enable eye tracking", true);
         CreateSetting(SRanipalSetting.LipEnable, "Enable Lip", "Whether to enable lip tracking", true);
 
-        Enum.GetValues<LipParam>().ForEach(shapeKey => createParameter(shapeKey));
+        lipParams.ForEach(shapeKey => createParameter(shapeKey));
     }
 
     private void createParameter(Enum shapeKey)
@@ -75,7 +75,7 @@ public partial class SRanipalModule : Module
 
     private void auditParameters()
     {
-        Enum.GetValues<LipParam>().ForEach(key => auditParameter(key));
+        lipParams.ForEach(key => auditParameter(key));
     }
 
     private void auditParameter(Enum lookup)
@@ -117,7 +117,7 @@ public partial class SRanipalModule : Module
     {
         var rawValues = sRanipalInterface.LipData.Shapes.Values.ToArray();
 
-        foreach (var key in Enum.GetValues<LipParam>())
+        foreach (var key in lipParams)
         {
             var shape = LipShapeGenerator.SHAPES[key];
             var value = shape.GetShape(rawValues);
