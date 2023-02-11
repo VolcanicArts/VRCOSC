@@ -19,12 +19,12 @@ public partial class SRanipalModule : Module
     {
         get
         {
-            return GetSetting<UpdateRate>(SRanipalSetting.UpdateRate) switch
+            return GetSetting<TrackingQuality>(SRanipalSetting.TrackingQuality) switch
             {
-                UpdateRate.Slow => TimeSpan.FromSeconds(1f / 20f),
-                UpdateRate.Medium => TimeSpan.FromSeconds(1f / 40f),
-                UpdateRate.Fast => TimeSpan.FromSeconds(1f / 60f),
-                UpdateRate.Ultra => TimeSpan.FromSeconds(1f / 120f),
+                TrackingQuality.Low => TimeSpan.FromSeconds(1f / 20f),
+                TrackingQuality.Medium => TimeSpan.FromSeconds(1f / 40f),
+                TrackingQuality.High => TimeSpan.FromSeconds(1f / 60f),
+                TrackingQuality.Ultra => TimeSpan.FromSeconds(1f / 120f),
                 _ => throw new ArgumentOutOfRangeException()
             };
         }
@@ -60,7 +60,7 @@ public partial class SRanipalModule : Module
     {
         CreateSetting(SRanipalSetting.EyeEnable, "Enable Eye", "Whether to enable eye tracking", true);
         CreateSetting(SRanipalSetting.LipEnable, "Enable Lip", "Whether to enable lip tracking", true);
-        CreateSetting(SRanipalSetting.UpdateRate, "Update Rate", "The update rate of tracking", UpdateRate.Fast);
+        CreateSetting(SRanipalSetting.TrackingQuality, "Update Rate", "The update rate of tracking", TrackingQuality.High);
 
         lipParams.ForEach(shapeKey => createParameter(shapeKey));
     }
@@ -74,6 +74,15 @@ public partial class SRanipalModule : Module
     {
         sRanipalInterface.Initialise(GetSetting<bool>(SRanipalSetting.EyeEnable), GetSetting<bool>(SRanipalSetting.LipEnable));
         parameterData.Clear();
+
+        BlendedShape.ShapeTolerance = GetSetting<TrackingQuality>(SRanipalSetting.TrackingQuality) switch
+        {
+            TrackingQuality.Low => 1f / 64f,
+            TrackingQuality.Medium => 1f / 128f,
+            TrackingQuality.High => 1f / 256f,
+            TrackingQuality.Ultra => 1f / 512f,
+            _ => throw new ArgumentOutOfRangeException()
+        };
     }
 
     protected override void OnAvatarChange(string avatarId)
@@ -188,14 +197,14 @@ public partial class SRanipalModule : Module
     {
         EyeEnable,
         LipEnable,
-        UpdateRate
+        TrackingQuality
     }
 
-    private enum UpdateRate
+    private enum TrackingQuality
     {
-        Slow,
+        Low,
         Medium,
-        Fast,
+        High,
         Ultra
     }
 }
