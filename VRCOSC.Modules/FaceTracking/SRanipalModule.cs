@@ -60,7 +60,7 @@ public partial class SRanipalModule : Module
     {
         CreateSetting(SRanipalSetting.EyeEnable, "Enable Eye", "Whether to enable eye tracking", true);
         CreateSetting(SRanipalSetting.LipEnable, "Enable Lip", "Whether to enable lip tracking", true);
-        CreateSetting(SRanipalSetting.TrackingQuality, "Update Rate", "The update rate of tracking", TrackingQuality.High);
+        CreateSetting(SRanipalSetting.TrackingQuality, "Tracking Quality", "The tracking quality level of eye and lip parameters", TrackingQuality.High);
 
         lipParams.ForEach(shapeKey => createParameter(shapeKey));
     }
