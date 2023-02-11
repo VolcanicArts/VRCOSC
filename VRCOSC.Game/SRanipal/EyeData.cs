@@ -5,20 +5,7 @@ using osuTK;
 
 namespace VRCOSC.Game.SRanipal;
 
-public enum EyeIndex
-{
-    LEFT,
-    RIGHT,
-}
-
-public enum GazeIndex
-{
-    LEFT,
-    RIGHT,
-    COMBINE
-}
-
-public enum SingleEyeDataValidity : int
+public enum SingleEyeDataValidity
 {
     SINGLE_EYE_DATA_GAZE_ORIGIN_VALIDITY,
     SINGLE_EYE_DATA_GAZE_DIRECTION_VALIDITY,
@@ -62,27 +49,6 @@ public struct VerboseData
     public SingleEyeData right;
     public CombinedEyeData combined;
     public TrackingImprovements tracking_improvements;
-}
-
-public enum EyeShapeV2
-{
-    None = -1,
-    Eye_Left_Blink = 0,
-    Eye_Left_Wide,
-    Eye_Left_Right,
-    Eye_Left_Left,
-    Eye_Left_Up,
-    Eye_Left_Down,
-    Eye_Right_Blink = 6,
-    Eye_Right_Wide,
-    Eye_Right_Right,
-    Eye_Right_Left,
-    Eye_Right_Up,
-    Eye_Right_Down,
-    Eye_Frown = 12,
-    Eye_Left_Squeeze,
-    Eye_Right_Squeeze,
-    Max = 15,
 }
 
 [StructLayout(LayoutKind.Sequential)]

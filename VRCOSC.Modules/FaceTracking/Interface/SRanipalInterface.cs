@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.Game.Modules;
+using VRCOSC.Modules.FaceTracking.Interface.Eyes;
 using VRCOSC.Modules.FaceTracking.Interface.Lips;
 
 namespace VRCOSC.Modules.FaceTracking.Interface;

@@ -3,12 +3,13 @@
 
 using VRCOSC.Game.SRanipal;
 
-namespace VRCOSC.Modules.FaceTracking.Interface;
+namespace VRCOSC.Modules.FaceTracking.Interface.Eyes;
 
 public class EyeTrackingData
 {
     public Eye Left;
     public Eye Right;
+    public Eye Combined;
 
     public float EyesDilation;
     public float EyesPupilDiameter;
@@ -25,7 +26,7 @@ public class EyeTrackingData
         EyesPupilDiameter = 0f;
 
         maxDilation = float.MaxValue;
-        minDilation = 0;
+        minDilation = 0f;
     }
 
     public void Update(EyeDataV2 eyeData)
@@ -46,10 +47,14 @@ public class EyeTrackingData
         Left.Update(eyeData.verbose_data.left, eyeData.expression_data.left);
         Right.Update(eyeData.verbose_data.right, eyeData.expression_data.right);
 
+        Combined.Update(eyeData.verbose_data.combined.eye_data);
+        Combined.Widen = (Left.Widen + Right.Widen) / 2f;
+        Combined.Squeeze = (Left.Squeeze + Right.Squeeze) / 2f;
+
         if (dilation == 0) return;
 
         EyesDilation = (dilation - minDilation) / (maxDilation - minDilation);
-        EyesPupilDiameter = dilation > 10 ? 1 : dilation / 10;
+        EyesPupilDiameter = dilation > 10f ? 1f : dilation / 10f;
     }
 
     private void updateMinMaxDilation(float readDilation)

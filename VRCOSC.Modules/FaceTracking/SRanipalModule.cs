@@ -4,6 +4,7 @@
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.SRanipal;
 using VRCOSC.Modules.FaceTracking.Interface;
+using VRCOSC.Modules.FaceTracking.Interface.Eyes;
 using VRCOSC.Modules.FaceTracking.Interface.Lips;
 
 namespace VRCOSC.Modules.FaceTracking;
@@ -35,6 +36,7 @@ public partial class SRanipalModule : Module
     private readonly SRanipalInterface sRanipalInterface = new();
     private readonly Dictionary<Enum, SRanipalParameterData> parameterData = new();
     private readonly List<LipParam> lipParams = Enum.GetValues<LipParam>().ToList();
+    private readonly List<EyeParam> eyeParams = Enum.GetValues<EyeParam>().ToList();
 
     public SRanipalModule()
     {
@@ -92,6 +94,7 @@ public partial class SRanipalModule : Module
 
         Log($"Avatar change detected. Parsing avatar {AvatarConfig.Name} with {AvatarConfig.Parameters.Count} parameters");
         lipParams.ForEach(key => auditParameter(key));
+        eyeParams.ForEach(key => auditParameter(key));
 
         var finalCount = parameterData.Select(pair => pair.Value.TotalCount).Sum();
         Log($"Detected {finalCount} usable parameters");
@@ -143,6 +146,20 @@ public partial class SRanipalModule : Module
 
     private void sendEyes()
     {
+        foreach (var key in eyeParams)
+        {
+            if (EyeParameterGenerator.FLOAT_VALUES.TryGetValue(key, out var floatFunc))
+            {
+                var value = floatFunc(sRanipalInterface.EyeData);
+                sendParameter(key, value); // may be binary encoded
+            }
+
+            if (EyeParameterGenerator.BOOL_VALUES.TryGetValue(key, out var boolFunc))
+            {
+                var value = boolFunc(sRanipalInterface.EyeData);
+                SendParameter(key, value); // directly send bool values
+            }
+        }
     }
 
     private void sendLips()
