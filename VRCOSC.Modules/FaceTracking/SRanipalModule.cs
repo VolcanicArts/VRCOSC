@@ -141,8 +141,8 @@ public partial class SRanipalModule : Module
     {
         sRanipalInterface.Update();
 
-        if (GetSetting<bool>(SRanipalSetting.EyeEnable)) sendEyes();
-        if (GetSetting<bool>(SRanipalSetting.LipEnable)) sendLips();
+        if (GetSetting<bool>(SRanipalSetting.EyeEnable) && sRanipalInterface.APIInterface.EyeStatus.Value == Error.WORK) sendEyes();
+        if (GetSetting<bool>(SRanipalSetting.LipEnable) && sRanipalInterface.APIInterface.LipStatus.Value == Error.WORK) sendLips();
     }
 
     private void sendEyes()
