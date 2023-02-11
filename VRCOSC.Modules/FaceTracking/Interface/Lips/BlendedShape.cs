@@ -9,19 +9,31 @@ public abstract class BlendedShape
 {
     // Multiple of VRC remote sync precision
     public static float ShapeTolerance;
-    private float previousValue;
+
     private float value;
 
-    public bool HasChanged => Math.Abs(previousValue - value) > ShapeTolerance;
-
-    public float GetShape(float[] values)
+    public ShapeValue GetShape(float[] values)
     {
-        previousValue = value;
+        var previousValue = value;
         value = CalculateShape(values);
-        return value;
+
+        var hasChanged = Math.Abs(previousValue - value) >= ShapeTolerance;
+        if (!hasChanged) value = previousValue;
+
+        return new ShapeValue
+        {
+            Value = value,
+            HasChanged = hasChanged
+        };
     }
 
     protected abstract float CalculateShape(float[] values);
+}
+
+public struct ShapeValue
+{
+    public float Value;
+    public bool HasChanged;
 }
 
 public class DirectShape : BlendedShape

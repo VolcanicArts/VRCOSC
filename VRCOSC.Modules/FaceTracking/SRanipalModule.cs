@@ -138,7 +138,7 @@ public partial class SRanipalModule : Module
         {
             var shape = LipShapeGenerator.SHAPES[key];
             var value = shape.GetShape(sRanipalInterface.LipData.Shapes);
-            if (shape.HasChanged) sendParameter(key, value);
+            if (value.HasChanged) sendParameter(key, value.Value);
         }
     }
 
