@@ -107,12 +107,25 @@ public partial class SRanipalModule : Module
         {
             if (param.Name.Length < checkName.Length || param.Name[..checkName.Length] != checkName) return;
 
-            paramData ??= new SRanipalParameterData();
             var paramSuffix = param.Name[checkName.Length..];
 
-            if (param.Name == checkName) paramData.FloatPresent = true;
-            if (int.TryParse(paramSuffix, out _)) paramData.BoolCount++;
-            if (paramSuffix == "Negative") paramData.NegativePresent = true;
+            if (param.Name == checkName)
+            {
+                paramData ??= new SRanipalParameterData();
+                paramData.FloatPresent = true;
+            }
+
+            if (int.TryParse(paramSuffix, out _))
+            {
+                paramData ??= new SRanipalParameterData();
+                paramData.BoolCount++;
+            }
+
+            if (paramSuffix == "Negative")
+            {
+                paramData ??= new SRanipalParameterData();
+                paramData.NegativePresent = true;
+            }
         });
 
         if (paramData is null) return;
