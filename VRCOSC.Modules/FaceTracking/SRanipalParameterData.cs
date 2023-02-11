@@ -10,4 +10,5 @@ public class SRanipalParameterData
     public bool FloatPresent;
 
     public bool ShouldEncode => BoolCount > 0;
+    public int TotalCount => BoolCount + (NegativePresent ? 1 : 0) + (FloatPresent ? 1 : 0);
 }

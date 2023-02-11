@@ -52,19 +52,22 @@ public class PercentageAveragedShape : IBlendedShape
 {
     private readonly IEnumerable<int> positiveKeys;
     private readonly IEnumerable<int> negativeKeys;
+    private readonly int positiveLength;
+    private readonly int negativeLength;
 
-    public PercentageAveragedShape(IEnumerable<LipShapeV2> positiveShapes, IEnumerable<LipShapeV2> negativeShapes)
+    public PercentageAveragedShape(IReadOnlyCollection<LipShapeV2> positiveShapes, IReadOnlyCollection<LipShapeV2> negativeShapes)
     {
         positiveKeys = positiveShapes.Select(k => (int)k);
         negativeKeys = negativeShapes.Select(k => (int)k);
+        positiveLength = positiveShapes.Count;
+        negativeLength = negativeShapes.Count;
     }
 
     public float GetBlendedShape(float[] values)
     {
-        var positive = positiveKeys.Sum(k => values[k]);
-        var negative = negativeKeys.Sum(k => values[k] * -1);
-
-        return positive / positiveKeys.Count() + negative / negativeKeys.Count();
+        var positiveAverage = positiveKeys.Sum(k => values[k]) / positiveLength;
+        var negativeAverage = negativeKeys.Sum(k => values[k] * -1) / negativeLength;
+        return positiveAverage + negativeAverage;
     }
 }
 
@@ -81,9 +84,8 @@ public class MaxAveragedShape : IBlendedShape
 
     public float GetBlendedShape(float[] values)
     {
-        var positiveValues = positiveKeys.Select(k => values[k]);
-        var negativeValues = negativeKeys.Select(k => values[k]);
-
-        return positiveValues.Max() + -1 * negativeValues.Max();
+        var positiveMax = positiveKeys.Select(k => values[k]).Max();
+        var negativeMax = negativeKeys.Select(k => values[k]).Max() * -1;
+        return positiveMax + negativeMax;
     }
 }

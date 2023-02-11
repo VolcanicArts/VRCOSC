@@ -59,6 +59,7 @@ public partial class SRanipalModule : Module
     protected override void OnModuleStart()
     {
         sRanipalInterface.Initialise(GetSetting<bool>(SRanipalSetting.EyeEnable), GetSetting<bool>(SRanipalSetting.LipEnable));
+        parameterData.Clear();
     }
 
     protected override void OnAvatarChange(string avatarId)
@@ -66,25 +67,16 @@ public partial class SRanipalModule : Module
         parameterData.Clear();
         if (AvatarConfig is null) return;
 
-        Log($"Avatar change detected. Parsed new avatar {AvatarConfig.Name} with {AvatarConfig.Parameters.Count} parameters");
+        Log($"Avatar change detected. Parsing avatar {AvatarConfig.Name} with {AvatarConfig.Parameters.Count} parameters");
         auditParameters();
 
-        var finalCount = 0;
-
-        foreach (var (_, value) in parameterData)
-        {
-            if (value.FloatPresent) finalCount++;
-            if (value.NegativePresent) finalCount++;
-            finalCount += value.BoolCount;
-        }
-
-        Log($"Final eye and lip parameter count: {finalCount}");
+        var finalCount = parameterData.Select(pair => pair.Value.TotalCount).Sum();
+        Log($"Detected {finalCount} usable parameters");
     }
 
     private void auditParameters()
     {
-        Enum.GetValues<LipShapeV2>().ForEach(lookup => auditParameter(lookup));
-        Enum.GetValues<LipParam>().ForEach(lookup => auditParameter(lookup));
+        Enum.GetValues<LipShapeV2>().Cast<Enum>().Concat(Enum.GetValues<LipParam>().Cast<Enum>()).ForEach(auditParameter);
     }
 
     private void auditParameter(Enum lookup)
@@ -100,22 +92,9 @@ public partial class SRanipalModule : Module
             paramData ??= new SRanipalParameterData();
             var paramSuffix = param.Name[checkName.Length..];
 
-            if (param.Name == checkName)
-            {
-                paramData.FloatPresent = true;
-                return;
-            }
-
-            if (int.TryParse(paramSuffix, out _))
-            {
-                paramData.BoolCount++;
-                return;
-            }
-
-            if (paramSuffix == "Negative")
-            {
-                paramData.NegativePresent = true;
-            }
+            if (param.Name == checkName) paramData.FloatPresent = true;
+            if (int.TryParse(paramSuffix, out _)) paramData.BoolCount++;
+            if (paramSuffix == "Negative") paramData.NegativePresent = true;
         });
 
         if (paramData is null) return;
@@ -165,8 +144,7 @@ public partial class SRanipalModule : Module
         }
         else
         {
-            if (value < 0) return;
-            //value = Math.Max(value, 0);
+            value = Math.Max(value, 0);
         }
 
         encodeAndSend(lookup, value, paramData.BoolCount);
