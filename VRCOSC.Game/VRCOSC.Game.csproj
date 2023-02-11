@@ -11,6 +11,7 @@
     <PackageProjectUrl>https://github.com/VolcanicArts/VRCOSC</PackageProjectUrl>
     <RepositoryUrl>https://github.com/VolcanicArts/VRCOSC</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\VRCOSC.Resources\VRCOSC.Resources.csproj" />

@@ -10,6 +10,7 @@ using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Platform;
+using VRCOSC.Game.Modules.Avatar;
 using VRCOSC.Game.OpenVR;
 using VRCOSC.Game.OSC.VRChat;
 
@@ -38,6 +39,7 @@ public abstract partial class Module : Component, IComparable<Module>
     protected ChatBoxInterface ChatBoxInterface => GameManager.ChatBoxInterface;
     protected Bindable<ModuleState> State = new(ModuleState.Stopped);
     protected IVRCOSCSecrets Secrets => secrets;
+    protected AvatarConfig? AvatarConfig;
 
     internal readonly BindableBool Enabled = new();
     internal readonly Dictionary<string, ModuleAttribute> Settings = new();
@@ -201,6 +203,20 @@ public abstract partial class Module : Component, IComparable<Module>
 
     #region Parameters
 
+    // As a workaround for binary encoding floats, we can add an addition to the formatted address
+    // This saves us defining multiple parameters for the same value
+    protected void SendParameter<T>(Enum lookup, T value, string addition) where T : struct
+    {
+        if (HasStopped) return;
+
+        if (!Parameters.ContainsKey(lookup)) throw new InvalidOperationException($"Parameter {lookup} has not been defined");
+
+        var data = Parameters[lookup];
+        if (!data.Mode.HasFlagFast(ParameterMode.Write)) throw new InvalidOperationException("Cannot send a value to a read-only parameter");
+
+        OscClient.SendValue(data.FormattedAddress + addition, value);
+    }
+
     protected void SendParameter<T>(Enum lookup, T value) where T : struct
     {
         if (HasStopped) return;
@@ -213,11 +229,18 @@ public abstract partial class Module : Component, IComparable<Module>
         OscClient.SendValue(data.FormattedAddress, value);
     }
 
+    private const string avatarIdFormat = "avtr_XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
+
     internal void OnParameterReceived(VRChatOscData data)
     {
+        if (!IsEnabled) return;
+        if (!HasStarted) return;
+
         if (data.IsAvatarChangeEvent)
         {
-            OnAvatarChange((string)data.ParameterValue);
+            var avatarId = data.ParameterValue.ToString()![..avatarIdFormat.Length];
+            AvatarConfig = AvatarConfigLoader.LoadConfigFor(avatarId);
+            OnAvatarChange(avatarId);
             return;
         }
 

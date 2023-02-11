@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using osuTK;
 
 namespace VRCOSC.Game;
 
@@ -39,4 +40,15 @@ public static class TypeExtensions
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, "Unknown type provided")
         };
     }
+}
+
+public static class Vector3Extensions
+{
+    public static Vector3 Invert(this Vector3 v3)
+    {
+        v3.X *= -1;
+        return v3;
+    }
+
+    public static Vector2 ToVec2(this Vector3 v3) => new(v3.X, v3.Y);
 }
