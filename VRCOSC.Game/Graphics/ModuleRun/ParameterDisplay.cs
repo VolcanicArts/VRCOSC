@@ -96,7 +96,6 @@ public sealed partial class ParameterDisplay : Container
         {
             var existingEntry = parameterDict[key];
             existingEntry.Value.Value = valueStr;
-            existingEntry.Value.TriggerChange();
         }
         else
         {
