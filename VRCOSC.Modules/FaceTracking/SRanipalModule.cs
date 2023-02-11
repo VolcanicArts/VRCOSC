@@ -65,6 +65,7 @@ public partial class SRanipalModule : Module
         CreateSetting(SRanipalSetting.TrackingQuality, "Tracking Quality", "The tracking quality level of eye and lip parameters", TrackingQuality.High);
 
         lipParams.ForEach(shapeKey => createParameter(shapeKey));
+        eyeParams.ForEach(key => createParameter(key));
     }
 
     private void createParameter(Enum shapeKey)
