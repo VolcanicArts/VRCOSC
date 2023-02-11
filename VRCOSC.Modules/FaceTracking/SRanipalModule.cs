@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Diagnostics;
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.SRanipal;
 using VRCOSC.Modules.FaceTracking.Interface;
@@ -75,6 +76,12 @@ public partial class SRanipalModule : Module
 
     protected override void OnModuleStart()
     {
+        if (!isOpenVROpen())
+        {
+            Log("Cannot start module without SteamVR launched");
+            return;
+        }
+
         sRanipalInterface.Initialise(GetSetting<bool>(SRanipalSetting.EyeEnable), GetSetting<bool>(SRanipalSetting.LipEnable));
         parameterData.Clear();
 
@@ -87,6 +94,8 @@ public partial class SRanipalModule : Module
             _ => throw new ArgumentOutOfRangeException()
         };
     }
+
+    private bool isOpenVROpen() => Process.GetProcessesByName(@"vrmonitor").Any();
 
     protected override void OnAvatarChange(string avatarId)
     {
