@@ -5,12 +5,38 @@ using VRCOSC.Game.SRanipal;
 
 namespace VRCOSC.Modules.FaceTracking.Interface.Lips;
 
-public interface IBlendedShape
+public abstract class BlendedShape
 {
-    public float GetBlendedShape(float[] values);
+    // VRC remote sync precision
+    private const float shape_tolerance = 1f / 128f;
+    private float previousValue;
+    private float value;
+
+    public bool HasChanged => Math.Abs(previousValue - value) > shape_tolerance;
+
+    public float GetShape(float[] values)
+    {
+        previousValue = value;
+        value = CalculateShape(values);
+        return value;
+    }
+
+    protected abstract float CalculateShape(float[] values);
 }
 
-public class PercentageShape : IBlendedShape
+public class DirectShape : BlendedShape
+{
+    private readonly int key;
+
+    public DirectShape(LipShapeV2 key)
+    {
+        this.key = (int)key;
+    }
+
+    protected override float CalculateShape(float[] values) => values[key];
+}
+
+public class PercentageShape : BlendedShape
 {
     private readonly int positiveKey;
     private readonly int negativeKey;
@@ -21,7 +47,7 @@ public class PercentageShape : IBlendedShape
         this.negativeKey = (int)negativeKey;
     }
 
-    public float GetBlendedShape(float[] values)
+    protected override float CalculateShape(float[] values)
     {
         var positiveValue = values[positiveKey];
         var negativeValue = values[negativeKey] * -1;
@@ -29,7 +55,7 @@ public class PercentageShape : IBlendedShape
     }
 }
 
-public class SteppedPercentageShape : IBlendedShape
+public class SteppedPercentageShape : BlendedShape
 {
     private readonly int positiveKey;
     private readonly int negativeKey;
@@ -40,7 +66,7 @@ public class SteppedPercentageShape : IBlendedShape
         this.negativeKey = (int)negativeKey;
     }
 
-    public float GetBlendedShape(float[] values)
+    protected override float CalculateShape(float[] values)
     {
         var positiveValue = values[positiveKey];
         var negativeValue = values[negativeKey] * -1;
@@ -48,7 +74,7 @@ public class SteppedPercentageShape : IBlendedShape
     }
 }
 
-public class PercentageAveragedShape : IBlendedShape
+public class PercentageAveragedShape : BlendedShape
 {
     private readonly IEnumerable<int> positiveKeys;
     private readonly IEnumerable<int> negativeKeys;
@@ -63,7 +89,7 @@ public class PercentageAveragedShape : IBlendedShape
         negativeLength = negativeShapes.Count;
     }
 
-    public float GetBlendedShape(float[] values)
+    protected override float CalculateShape(float[] values)
     {
         var positiveAverage = positiveKeys.Sum(k => values[k]) / positiveLength;
         var negativeAverage = negativeKeys.Sum(k => values[k] * -1) / negativeLength;
@@ -71,7 +97,7 @@ public class PercentageAveragedShape : IBlendedShape
     }
 }
 
-public class MaxAveragedShape : IBlendedShape
+public class MaxAveragedShape : BlendedShape
 {
     private readonly IEnumerable<int> positiveKeys;
     private readonly IEnumerable<int> negativeKeys;
@@ -82,7 +108,7 @@ public class MaxAveragedShape : IBlendedShape
         negativeKeys = negativeShapes.Select(k => (int)k);
     }
 
-    public float GetBlendedShape(float[] values)
+    protected override float CalculateShape(float[] values)
     {
         var positiveMax = positiveKeys.Select(k => values[k]).Max();
         var negativeMax = negativeKeys.Select(k => values[k]).Max() * -1;

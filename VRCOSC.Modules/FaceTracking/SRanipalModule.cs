@@ -47,7 +47,6 @@ public partial class SRanipalModule : Module
         CreateSetting(SRanipalSetting.EyeEnable, "Enable Eye", "Whether to enable eye tracking", true);
         CreateSetting(SRanipalSetting.LipEnable, "Enable Lip", "Whether to enable lip tracking", true);
 
-        Enum.GetValues<LipShapeV2>().ForEach(shapeKey => createParameter(shapeKey));
         Enum.GetValues<LipParam>().ForEach(shapeKey => createParameter(shapeKey));
     }
 
@@ -76,7 +75,7 @@ public partial class SRanipalModule : Module
 
     private void auditParameters()
     {
-        Enum.GetValues<LipShapeV2>().Cast<Enum>().Concat(Enum.GetValues<LipParam>().Cast<Enum>()).ForEach(auditParameter);
+        Enum.GetValues<LipParam>().ForEach(key => auditParameter(key));
     }
 
     private void auditParameter(Enum lookup)
@@ -116,16 +115,13 @@ public partial class SRanipalModule : Module
 
     private void sendLips()
     {
-        foreach (var srParam in Enum.GetValues<LipShapeV2>())
-        {
-            sendParameter(srParam, sRanipalInterface.LipData.Shapes[srParam]);
-        }
-
         var rawValues = sRanipalInterface.LipData.Shapes.Values.ToArray();
 
-        foreach (var shape in Enum.GetValues<LipParam>())
+        foreach (var key in Enum.GetValues<LipParam>())
         {
-            sendParameter(shape, LipShapeGenerator.SHAPES[shape].GetBlendedShape(rawValues));
+            var shape = LipShapeGenerator.SHAPES[key];
+            var value = shape.GetShape(rawValues);
+            if (shape.HasChanged) sendParameter(key, value);
         }
     }
 
