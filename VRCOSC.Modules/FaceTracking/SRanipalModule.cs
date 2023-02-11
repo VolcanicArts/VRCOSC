@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using osu.Framework.Extensions.IEnumerableExtensions;
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.SRanipal;
 using VRCOSC.Modules.FaceTracking.Interface;
@@ -15,12 +14,27 @@ public partial class SRanipalModule : Module
     public override string Description => "Hooks into SRanipal and sends face tracking data to VRChat. Interchangeable with VRCFaceTracking";
     public override string Author => "VolcanicArts";
     public override ModuleType Type => ModuleType.Integrations;
-    protected override TimeSpan DeltaUpdate => TimeSpan.FromSeconds(1f / 20f);
+
+    protected override TimeSpan DeltaUpdate
+    {
+        get
+        {
+            return GetSetting<UpdateRate>(SRanipalSetting.UpdateRate) switch
+            {
+                UpdateRate.Slow => TimeSpan.FromSeconds(1f / 20f),
+                UpdateRate.Medium => TimeSpan.FromSeconds(1f / 40f),
+                UpdateRate.Fast => TimeSpan.FromSeconds(1f / 60f),
+                UpdateRate.Ultra => TimeSpan.FromSeconds(1f / 120f),
+                _ => throw new ArgumentOutOfRangeException()
+            };
+        }
+    }
+
     protected override bool ShouldUpdateImmediately => false;
 
     private readonly SRanipalInterface sRanipalInterface = new();
     private readonly Dictionary<Enum, SRanipalParameterData> parameterData = new();
-    private readonly IEnumerable<LipParam> lipParams = Enum.GetValues<LipParam>();
+    private readonly List<LipParam> lipParams = Enum.GetValues<LipParam>().ToList();
 
     public SRanipalModule()
     {
@@ -46,6 +60,7 @@ public partial class SRanipalModule : Module
     {
         CreateSetting(SRanipalSetting.EyeEnable, "Enable Eye", "Whether to enable eye tracking", true);
         CreateSetting(SRanipalSetting.LipEnable, "Enable Lip", "Whether to enable lip tracking", true);
+        CreateSetting(SRanipalSetting.UpdateRate, "Update Rate", "The update rate of tracking", UpdateRate.Fast);
 
         lipParams.ForEach(shapeKey => createParameter(shapeKey));
     }
@@ -67,15 +82,10 @@ public partial class SRanipalModule : Module
         if (AvatarConfig is null) return;
 
         Log($"Avatar change detected. Parsing avatar {AvatarConfig.Name} with {AvatarConfig.Parameters.Count} parameters");
-        auditParameters();
+        lipParams.ForEach(key => auditParameter(key));
 
         var finalCount = parameterData.Select(pair => pair.Value.TotalCount).Sum();
         Log($"Detected {finalCount} usable parameters");
-    }
-
-    private void auditParameters()
-    {
-        lipParams.ForEach(key => auditParameter(key));
     }
 
     private void auditParameter(Enum lookup)
@@ -115,12 +125,10 @@ public partial class SRanipalModule : Module
 
     private void sendLips()
     {
-        var rawValues = sRanipalInterface.LipData.Shapes.Values.ToArray();
-
         foreach (var key in lipParams)
         {
             var shape = LipShapeGenerator.SHAPES[key];
-            var value = shape.GetShape(rawValues);
+            var value = shape.GetShape(sRanipalInterface.LipData.Shapes);
             if (shape.HasChanged) sendParameter(key, value);
         }
     }
@@ -179,6 +187,15 @@ public partial class SRanipalModule : Module
     private enum SRanipalSetting
     {
         EyeEnable,
-        LipEnable
+        LipEnable,
+        UpdateRate
+    }
+
+    private enum UpdateRate
+    {
+        Slow,
+        Medium,
+        Fast,
+        Ultra
     }
 }

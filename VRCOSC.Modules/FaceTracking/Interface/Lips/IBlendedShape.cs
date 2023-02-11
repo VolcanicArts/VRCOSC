@@ -7,8 +7,8 @@ namespace VRCOSC.Modules.FaceTracking.Interface.Lips;
 
 public abstract class BlendedShape
 {
-    // VRC remote sync precision
-    private const float shape_tolerance = 1f / 128f;
+    // Multiple of VRC remote sync precision
+    private const float shape_tolerance = (1f / 128f) / 2f;
     private float previousValue;
     private float value;
 
