@@ -15,7 +15,11 @@ public static class AvatarConfigLoader
     public static AvatarConfig? LoadConfigFor(string avatarId)
     {
         var oscFolder = Directory.GetDirectories(Directory.GetDirectories(vr_chat_osc_folder_path).First()).First();
-        var avatarFile = Directory.GetFiles(oscFolder).First(filePath => filePath.Contains(avatarId));
+        var avatarFiles = Directory.GetFiles(oscFolder);
+
+        if (!avatarFiles.Any()) return null;
+
+        var avatarFile = avatarFiles.First(filePath => filePath.Contains(avatarId));
         var avatarConfigRaw = File.ReadAllText(avatarFile);
         return JsonConvert.DeserializeObject<AvatarConfig>(avatarConfigRaw);
     }
