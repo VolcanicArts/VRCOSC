@@ -228,7 +228,12 @@ public partial class GameManager : CompositeComponent
     private void checkForOpenVR() => Task.Run(() =>
     {
         static bool isOpenVROpen() => Process.GetProcessesByName(@"vrmonitor").Any();
-        if (isOpenVROpen()) OVRClient.Init();
+
+        if (isOpenVROpen())
+        {
+            OVRClient.Init();
+            OVRClient.SetAutoLaunch(configManager.Get<bool>(VRCOSCSetting.AutoStartOpenVR));
+        }
     });
 
     private void checkForVRChat()
