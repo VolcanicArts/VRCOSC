@@ -51,12 +51,12 @@ public class OscReceiver
 
     private async void runReceiveLoop()
     {
-        while (true)
+        while (!tokenSource!.Token.IsCancellationRequested)
         {
             try
             {
                 buffer.Initialize();
-                await socket!.ReceiveAsync(buffer, SocketFlags.None, tokenSource!.Token);
+                await socket!.ReceiveAsync(buffer, SocketFlags.None, tokenSource.Token);
                 OnRawDataReceived?.Invoke(buffer);
             }
             catch (OperationCanceledException)
