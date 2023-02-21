@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System.Diagnostics;
@@ -26,7 +26,6 @@ public partial class SRanipalModule : Module
                 TrackingQuality.Low => TimeSpan.FromSeconds(1f / 20f),
                 TrackingQuality.Medium => TimeSpan.FromSeconds(1f / 40f),
                 TrackingQuality.High => TimeSpan.FromSeconds(1f / 60f),
-                TrackingQuality.Ultra => TimeSpan.FromSeconds(1f / 120f),
                 _ => throw new ArgumentOutOfRangeException()
             };
         }
@@ -90,7 +89,6 @@ public partial class SRanipalModule : Module
             TrackingQuality.Low => 1f / 64f,
             TrackingQuality.Medium => 1f / 128f,
             TrackingQuality.High => 1f / 256f,
-            TrackingQuality.Ultra => 1f / 512f,
             _ => throw new ArgumentOutOfRangeException()
         };
     }
@@ -244,7 +242,6 @@ public partial class SRanipalModule : Module
     {
         Low,
         Medium,
-        High,
-        Ultra
+        High
     }
 }
