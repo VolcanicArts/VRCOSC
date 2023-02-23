@@ -1,8 +1,10 @@
 // Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Net;
 using System.Threading.Tasks;
+using osu.Framework.Extensions.EnumExtensions;
 
 namespace VRCOSC.Game.OSC.Client;
 
@@ -17,24 +19,27 @@ public abstract class OscClient
         Receiver.Initialise(new IPEndPoint(IPAddress.Parse(ipAddress), receivePort));
     }
 
-    public void Enable()
+    public void Enable(OscClientFlag flag)
     {
-        Sender.Enable();
-        Receiver.Enable();
+        if (flag.HasFlagFast(OscClientFlag.Send)) Sender.Enable();
+        if (flag.HasFlagFast(OscClientFlag.Receive)) Receiver.Enable();
     }
 
-    public void DisableSender()
+    public async Task Disable(OscClientFlag flag)
     {
-        Sender.Disable();
-    }
-
-    public async Task DisableReceiver()
-    {
-        await Receiver.Disable();
+        if (flag.HasFlagFast(OscClientFlag.Send)) Sender.Disable();
+        if (flag.HasFlagFast(OscClientFlag.Receive)) await Receiver.Disable();
     }
 
     public void SendByteData(byte[] data)
     {
         Sender.Send(data);
     }
+}
+
+[Flags]
+public enum OscClientFlag
+{
+    Send = 1 << 0,
+    Receive = 1 << 1
 }

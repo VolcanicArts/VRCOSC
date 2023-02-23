@@ -18,6 +18,7 @@ using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.OpenVR;
 using VRCOSC.Game.OpenVR.Metadata;
 using VRCOSC.Game.OSC;
+using VRCOSC.Game.OSC.Client;
 using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Game.Modules;
@@ -79,9 +80,40 @@ public partial class GameManager : CompositeComponent
 
     protected override void Update()
     {
+        if (State.Value != GameManagerState.Started) return;
+
         OVRClient.Update();
 
         handleOscDataCache();
+    }
+
+    protected override void UpdateAfterChildren()
+    {
+        if (State.Value != GameManagerState.Started) return;
+
+        ChatBoxInterface.Update();
+    }
+
+    protected override void LoadComplete()
+    {
+        Scheduler.AddDelayed(checkForOpenVR, openvr_check_interval, true);
+        Scheduler.AddDelayed(checkForVRChat, vrchat_process_check_interval, true);
+
+        State.BindValueChanged(e => Logger.Log($"{nameof(GameManager)} state changed to {e.NewValue}"));
+
+        // We reset hasAutoStarted here so that turning auto start off and on again will cause it to work normally
+        autoStartStop.BindValueChanged(e =>
+        {
+            if (!e.NewValue) hasAutoStarted = false;
+        });
+
+        VRChatOscClient.OnParameterReceived += data =>
+        {
+            lock (oscDataCacheLock)
+            {
+                oscDataCache.Add(data);
+            }
+        };
     }
 
     private void handleOscDataCache()
@@ -114,25 +146,6 @@ public partial class GameManager : CompositeComponent
         }
     }
 
-    protected override void UpdateAfterChildren()
-    {
-        ChatBoxInterface.Update();
-    }
-
-    protected override void LoadComplete()
-    {
-        Scheduler.AddDelayed(checkForOpenVR, openvr_check_interval, true);
-        Scheduler.AddDelayed(checkForVRChat, vrchat_process_check_interval, true);
-
-        State.BindValueChanged(e => Logger.Log($"{nameof(GameManager)} state changed to {e.NewValue}"));
-
-        // We reset hasAutoStarted here so that turning auto start off and on again will cause it to work normally
-        autoStartStop.BindValueChanged(e =>
-        {
-            if (!e.NewValue) hasAutoStarted = false;
-        });
-    }
-
     public void Start() => Schedule(() => _ = startAsync());
 
     private async Task startAsync()
@@ -161,11 +174,12 @@ public partial class GameManager : CompositeComponent
 
         await Task.Delay(startstop_delay);
 
-        VRChatOscClient.OnParameterReceived += onParameterReceived;
+        VRChatOscClient.Enable(OscClientFlag.Send);
         Player.Initialise();
         ChatBoxInterface.Initialise();
         sendControlValues();
         ModuleManager.Start();
+        VRChatOscClient.Enable(OscClientFlag.Receive);
 
         OSCRouter.Initialise(routerManager.Store);
         OSCRouter.Enable();
@@ -182,14 +196,18 @@ public partial class GameManager : CompositeComponent
 
         State.Value = GameManagerState.Stopping;
 
-        await OSCRouter.Disable();
+        await VRChatOscClient.Disable(OscClientFlag.Receive);
 
-        await VRChatOscClient.DisableReceiver();
+        lock (oscDataCacheLock)
+        {
+            oscDataCache.Clear();
+        }
+
+        await OSCRouter.Disable();
         ModuleManager.Stop();
         ChatBoxInterface.Shutdown();
         Player.ResetAll();
-        VRChatOscClient.OnParameterReceived -= onParameterReceived;
-        VRChatOscClient.DisableSender();
+        await VRChatOscClient.Disable(OscClientFlag.Send);
 
         await Task.Delay(startstop_delay);
 
@@ -205,7 +223,6 @@ public partial class GameManager : CompositeComponent
             var receivePort = configManager.Get<int>(VRCOSCSetting.ReceivePort);
 
             VRChatOscClient.Initialise(ipAddress, sendPort, receivePort);
-            VRChatOscClient.Enable();
             return true;
         }
         catch (SocketException)
@@ -260,14 +277,6 @@ public partial class GameManager : CompositeComponent
     private void sendControlValues()
     {
         VRChatOscClient.SendValue(@$"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}/VRCOSC/Controls/ChatBox", ChatBoxInterface.SendEnabled);
-    }
-
-    private void onParameterReceived(VRChatOscData data)
-    {
-        lock (oscDataCacheLock)
-        {
-            oscDataCache.Add(data);
-        }
     }
 }
 
