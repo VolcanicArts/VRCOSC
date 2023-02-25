@@ -20,7 +20,7 @@ public sealed partial class MediaModule : ChatBoxModule
     protected override int ChatBoxPriority => 2;
 
     protected override string DefaultChatBoxFormat => @"[%curtime%/%duration%]                            Now Playing: %artist% - %title%";
-    protected override IEnumerable<string> ChatBoxFormatValues => new[] { @"%title%", @"%artist%", @"%curtime%", @"%duration%" };
+    protected override IEnumerable<string> ChatBoxFormatValues => new[] { @"%title%", @"%artist%", @"%curtime%", @"%duration%", @"%volume%" };
 
     private readonly WindowsMediaProvider mediaProvider = new();
     private readonly Bindable<bool> currentlySeeking = new();
@@ -34,8 +34,7 @@ public sealed partial class MediaModule : ChatBoxModule
     protected override void CreateAttributes()
     {
         CreateSetting(MediaSetting.PausedBehaviour, "Paused Behaviour", "When the media is paused, should the ChatBox be empty or display that it's paused?", MediaPausedBehaviour.Empty);
-        CreateSetting(MediaSetting.PausedText, "Paused Text", $"The text to display when media is paused. Only applicable when Paused Behaviour is set to {MediaPausedBehaviour.Display}", "[Paused]",
-            () => GetSetting<MediaPausedBehaviour>(MediaSetting.PausedBehaviour) == MediaPausedBehaviour.Display);
+        CreateSetting(MediaSetting.PausedText, "Paused Text", $"The text to display when media is paused. Only applicable when Paused Behaviour is set to {MediaPausedBehaviour.Display}", "[Paused]", () => GetSetting<MediaPausedBehaviour>(MediaSetting.PausedBehaviour) == MediaPausedBehaviour.Display);
         CreateSetting(MediaSetting.StartList, "Start List", "A list of exe locations to start with this module. This is handy for starting media apps on module start. For example, Spotify", new[] { @$"C:\Users\{Environment.UserName}\AppData\Roaming\Spotify\spotify.exe" }, true);
 
         base.CreateAttributes();
@@ -60,14 +59,16 @@ public sealed partial class MediaModule : ChatBoxModule
 
             return GetSetting<string>(MediaSetting.PausedText)
                    .Replace(@"%title%", mediaProvider.State.Title)
-                   .Replace(@"%artist%", mediaProvider.State.Artist);
+                   .Replace(@"%artist%", mediaProvider.State.Artist)
+                   .Replace(@"%volume%", (mediaProvider.State.Volume * 100).ToString("##0"));
         }
 
         var formattedText = GetSetting<string>(ChatBoxSetting.ChatBoxFormat)
                             .Replace(@"%title%", mediaProvider.State.Title)
                             .Replace(@"%artist%", mediaProvider.State.Artist)
                             .Replace(@"%curtime%", mediaProvider.State.Position?.Position.ToString(@"mm\:ss"))
-                            .Replace(@"%duration%", mediaProvider.State.Position?.EndTime.ToString(@"mm\:ss"));
+                            .Replace(@"%duration%", mediaProvider.State.Position?.EndTime.ToString(@"mm\:ss"))
+                            .Replace(@"%volume%", (mediaProvider.State.Volume * 100).ToString("##0"));
 
         return formattedText;
     }
