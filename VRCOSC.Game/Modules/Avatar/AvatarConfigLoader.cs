@@ -19,7 +19,11 @@ public static class AvatarConfigLoader
 
         if (!avatarFiles.Any()) return null;
 
-        var avatarFile = avatarFiles.First(filePath => filePath.Contains(avatarId));
+        var avatarIdFiles = avatarFiles.Where(filePath => filePath.Contains(avatarId)).ToList();
+
+        if (!avatarIdFiles.Any()) return null;
+
+        var avatarFile = avatarIdFiles.First();
         var avatarConfigRaw = File.ReadAllText(avatarFile);
         return JsonConvert.DeserializeObject<AvatarConfig>(avatarConfigRaw);
     }
