@@ -1,3 +1,6 @@
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// See the LICENSE file in the repository root for full license text.
+
 using System;
 using System.Runtime.InteropServices;
 
@@ -39,7 +42,7 @@ public static class SRanipalAPI
     public static Error GetEyeData(ref EyeDataV2 data) => getEyeDataV2(ref data);
 
     /// <summary>
-    /// Gets ata from anipal's Lip module.
+    /// Gets data from anipal's Lip module.
     /// </summary>
     /// <param name="data"><see cref="LipDataV2"/></param>
     /// <returns>Indicates the resulting <see cref="Error"/> status of this method.</returns>

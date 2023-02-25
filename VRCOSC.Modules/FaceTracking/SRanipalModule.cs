@@ -64,7 +64,7 @@ public partial class SRanipalModule : Module
         CreateSetting(SRanipalSetting.LipEnable, "Enable Lip", "Whether to enable lip tracking", true);
         CreateSetting(SRanipalSetting.TrackingQuality, "Tracking Quality", "The tracking quality level of eye and lip parameters", TrackingQuality.High);
 
-        lipParams.ForEach(shapeKey => createParameter(shapeKey));
+        lipParams.ForEach(key => createParameter(key));
         eyeParams.ForEach(key => createParameter(key));
     }
 
@@ -93,7 +93,7 @@ public partial class SRanipalModule : Module
         };
     }
 
-    private bool isOpenVROpen() => Process.GetProcessesByName(@"vrmonitor").Any();
+    private static bool isOpenVROpen() => Process.GetProcessesByName(@"vrmonitor").Any();
 
     protected override void OnAvatarChange(string avatarId)
     {
@@ -164,6 +164,8 @@ public partial class SRanipalModule : Module
 
             if (EyeParameterGenerator.BOOL_VALUES.TryGetValue(key, out var boolFunc))
             {
+                if (!parameterData.ContainsKey(key)) return;
+
                 var value = boolFunc(sRanipalInterface.EyeData);
                 SendParameter(key, value); // directly send bool values
             }
