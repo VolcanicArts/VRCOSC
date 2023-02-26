@@ -7,17 +7,14 @@ namespace VRCOSC.Modules.FaceTracking.Interface.Lips;
 
 public abstract class BlendedShape
 {
-    // Multiple of VRC remote sync precision
-    public static float ShapeTolerance;
-
     private float value;
 
-    public ShapeValue GetShape(float[] values)
+    public ShapeValue GetShape(float[] values, float changeTolerance)
     {
         var previousValue = value;
         value = CalculateShape(values);
 
-        var hasChanged = Math.Abs(previousValue - value) >= ShapeTolerance;
+        var hasChanged = Math.Abs(previousValue - value) >= changeTolerance;
         if (!hasChanged) value = previousValue;
 
         return new ShapeValue

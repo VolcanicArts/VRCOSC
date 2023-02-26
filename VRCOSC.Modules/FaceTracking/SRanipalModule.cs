@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System.Diagnostics;
@@ -83,14 +83,6 @@ public partial class SRanipalModule : Module
 
         sRanipalInterface.Initialise(GetSetting<bool>(SRanipalSetting.EyeEnable), GetSetting<bool>(SRanipalSetting.LipEnable));
         parameterData.Clear();
-
-        BlendedShape.ShapeTolerance = GetSetting<TrackingQuality>(SRanipalSetting.TrackingQuality) switch
-        {
-            TrackingQuality.Low => 1f / 64f,
-            TrackingQuality.Medium => 1f / 128f,
-            TrackingQuality.High => 1f / 256f,
-            _ => throw new ArgumentOutOfRangeException()
-        };
     }
 
     private static bool isOpenVROpen() => Process.GetProcessesByName(@"vrmonitor").Any();
@@ -174,10 +166,18 @@ public partial class SRanipalModule : Module
 
     private void sendLips()
     {
+        var changeTolerance = GetSetting<TrackingQuality>(SRanipalSetting.TrackingQuality) switch
+        {
+            TrackingQuality.Low => 1f / 64f,
+            TrackingQuality.Medium => 1f / 128f,
+            TrackingQuality.High => 1f / 256f,
+            _ => throw new ArgumentOutOfRangeException()
+        };
+
         foreach (var key in lipParams)
         {
             var shape = LipShapeGenerator.SHAPES[key];
-            var value = shape.GetShape(sRanipalInterface.LipData.Shapes);
+            var value = shape.GetShape(sRanipalInterface.LipData.Shapes, changeTolerance);
             if (value.HasChanged) sendParameter(key, value.Value);
         }
     }
