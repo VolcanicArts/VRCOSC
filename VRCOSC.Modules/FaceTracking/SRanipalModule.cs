@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System.Diagnostics;
@@ -203,15 +203,13 @@ public partial class SRanipalModule : Module
         encodeAndSend(lookup, value, paramData.BoolCount);
     }
 
-    private readonly string[] addonCache = { "1", "2", "4", "8" };
-
     private void encodeAndSend(Enum lookup, float value, int binaryDepth)
     {
         var binaryRep = encodeFloat(value, binaryDepth);
 
         for (var i = 0; i < binaryDepth; i++)
         {
-            SendParameter(lookup, binaryRep[i], addonCache[i]);
+            SendParameter(lookup, binaryRep[i], ((int)Math.Pow(2, i)).ToString("#"));
         }
     }
 
