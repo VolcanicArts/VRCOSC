@@ -133,7 +133,7 @@ public sealed partial class MediaModule : ChatBoxModule
         }
     }
 
-    protected override void OnFloatParameterReceived(Enum key, float value, string extension)
+    protected override void OnFloatParameterReceived(Enum key, float value)
     {
         switch (key)
         {
@@ -153,7 +153,7 @@ public sealed partial class MediaModule : ChatBoxModule
         }
     }
 
-    protected override void OnBoolParameterReceived(Enum key, bool value, string extension)
+    protected override void OnBoolParameterReceived(Enum key, bool value)
     {
         switch (key)
         {
@@ -184,7 +184,7 @@ public sealed partial class MediaModule : ChatBoxModule
         }
     }
 
-    protected override void OnIntParameterReceived(Enum key, int value, string extension)
+    protected override void OnIntParameterReceived(Enum key, int value)
     {
         switch (key)
         {
