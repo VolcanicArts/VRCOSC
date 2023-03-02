@@ -27,6 +27,7 @@ public sealed class Player
     public bool? IsVR { get; private set; }
     public bool? IsMuted { get; private set; }
     public bool? InStation { get; private set; }
+    public bool? Earmuffs { get; private set; }
 
     private readonly VRChatOscClient oscClient;
     private bool hasChanged;
@@ -134,6 +135,10 @@ public sealed class Player
 
             case VRChatInputParameter.InStation:
                 InStation = (bool)value;
+                break;
+
+            case VRChatInputParameter.Earmuffs:
+                Earmuffs = (bool)value;
                 break;
 
             default:
@@ -400,5 +405,6 @@ public enum VRChatInputParameter
     TrackingType,
     VRMode,
     MuteSelf,
-    InStation
+    InStation,
+    Earmuffs
 }
