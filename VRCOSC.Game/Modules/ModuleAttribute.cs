@@ -47,14 +47,17 @@ public sealed class ParameterAttribute : ModuleAttributeSingle
 {
     public readonly ParameterMode Mode;
     public readonly Type ExpectedType;
+    public readonly IEnumerable<string>? Extensions;
 
-    public string FormattedAddress => $"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}/{Attribute.Value}";
+    public string RootName => (string)Attribute.Value;
+    public string FormattedAddress => $"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}/{RootName}";
 
-    public ParameterAttribute(ParameterMode mode, ModuleAttributeMetadata metadata, string defaultName, Type expectedType, Func<bool>? dependsOn)
+    public ParameterAttribute(ParameterMode mode, IEnumerable<string>? extensions, ModuleAttributeMetadata metadata, string defaultName, Type expectedType, Func<bool>? dependsOn)
         : base(metadata, defaultName, dependsOn)
     {
         Mode = mode;
         ExpectedType = expectedType;
+        Extensions = extensions;
     }
 }
 

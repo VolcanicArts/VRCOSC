@@ -70,7 +70,7 @@ public partial class SRanipalModule : Module
 
     private void createParameter(Enum shapeKey)
     {
-        CreateParameter<float>(shapeKey, ParameterMode.Write, shapeKey.ToString(), shapeKey.ToString(), $"{shapeKey} + 1/2/4/8/Negative");
+        CreateParameter<float>(shapeKey, ParameterMode.Write, shapeKey.ToString(), shapeKey.ToString(), $"{shapeKey} + 1/2/4/8/Negative", new[] { string.Empty, "1", "2", "4", "8", "Negative" });
     }
 
     protected override void OnModuleStart()

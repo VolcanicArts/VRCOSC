@@ -112,8 +112,10 @@ public abstract partial class Module : Component, IComparable<Module>
     protected void CreateSetting(Enum lookup, string displayName, string description, string defaultValue, string buttonText, Action buttonAction, Func<bool>? dependsOn = null)
         => addTextAndButtonSetting(lookup, displayName, description, defaultValue, buttonText, buttonAction, dependsOn);
 
-    protected void CreateParameter<T>(Enum lookup, ParameterMode mode, string parameterName, string displayName, string description)
-        => Parameters.Add(lookup, new ParameterAttribute(mode, new ModuleAttributeMetadata(displayName, description), parameterName, typeof(T), null));
+    protected void CreateParameter<T>(Enum lookup, ParameterMode mode, string parameterName, string displayName, string description, IEnumerable<string>? extensions = null)
+    {
+        Parameters.Add(lookup, new ParameterAttribute(mode, extensions, new ModuleAttributeMetadata(displayName, description), parameterName, typeof(T), null));
+    }
 
     private void addSingleSetting(Enum lookup, string displayName, string description, object defaultValue, Func<bool>? dependsOn)
         => Settings.Add(lookup.ToLookup(), new ModuleAttributeSingle(new ModuleAttributeMetadata(displayName, description), defaultValue, dependsOn));
@@ -203,9 +205,7 @@ public abstract partial class Module : Component, IComparable<Module>
 
     #region Parameters
 
-    // As a workaround for binary encoding floats, we can add an addition to the formatted address
-    // This saves us defining multiple parameters for the same value
-    protected void SendParameter<T>(Enum lookup, T value, string addition) where T : struct
+    protected void SendParameter<T>(Enum lookup, T value, string extension = "") where T : struct
     {
         if (HasStopped) return;
 
@@ -213,20 +213,9 @@ public abstract partial class Module : Component, IComparable<Module>
 
         var data = Parameters[lookup];
         if (!data.Mode.HasFlagFast(ParameterMode.Write)) throw new InvalidOperationException("Cannot send a value to a read-only parameter");
+        if (data.Extensions is not null && !data.Extensions.Contains(extension)) throw new InvalidOperationException("Cannot send parameter with undefined extension");
 
-        OscClient.SendValue(data.FormattedAddress + addition, value);
-    }
-
-    protected void SendParameter<T>(Enum lookup, T value) where T : struct
-    {
-        if (HasStopped) return;
-
-        if (!Parameters.ContainsKey(lookup)) throw new InvalidOperationException($"Parameter {lookup} has not been defined");
-
-        var data = Parameters[lookup];
-        if (!data.Mode.HasFlagFast(ParameterMode.Write)) throw new InvalidOperationException("Cannot send a value to a read-only parameter");
-
-        OscClient.SendValue(data.FormattedAddress, value);
+        OscClient.SendValue(data.FormattedAddress + extension, value);
     }
 
     private const string avatarIdFormat = "avtr_XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
@@ -236,46 +225,63 @@ public abstract partial class Module : Component, IComparable<Module>
         if (!IsEnabled) return;
         if (!HasStarted) return;
 
-        if (data.IsAvatarChangeEvent)
+        handleIfAvatarChange(data);
+
+        if (!data.IsAvatarParameter) return;
+
+        Enum? lookup;
+
+        try
         {
-            var avatarId = data.ParameterValue.ToString()![..avatarIdFormat.Length];
-            AvatarConfig = AvatarConfigLoader.LoadConfigFor(avatarId);
-            OnAvatarChange(avatarId);
+            lookup = Parameters.Where(pair => data.ParameterName.Length >= pair.Value.RootName.Length).Single(pair => pair.Value.RootName == data.ParameterName[..pair.Value.RootName.Length]).Key;
+        }
+        catch (InvalidOperationException)
+        {
             return;
         }
 
-        if (!data.IsAvatarParameter || Parameters.Select(pair => pair.Value).All(parameter => (string)parameter.Attribute.Value != data.ParameterName)) return;
+        if (lookup is null) return;
 
-        var lookup = Parameters.Single(pair => (string)pair.Value.Attribute.Value == data.ParameterName).Key;
-        var parameterData = Parameters[lookup];
+        var parameterAttribute = Parameters[lookup];
 
-        if (!parameterData.Mode.HasFlagFast(ParameterMode.Read)) return;
+        if (!parameterAttribute.Mode.HasFlagFast(ParameterMode.Read)) return;
 
-        if (data.ParameterValue.GetType() != parameterData.ExpectedType)
+        if (data.ParameterValue.GetType() != parameterAttribute.ExpectedType)
         {
-            Log($@"Cannot accept input parameter. `{lookup}` expects type `{parameterData.ExpectedType}` but received type `{data.ParameterValue.GetType()}`");
+            Log($@"Cannot accept input parameter. `{lookup}` expects type `{parameterAttribute.ExpectedType}` but received type `{data.ParameterValue.GetType()}`");
             return;
         }
+
+        var extension = data.ParameterName[parameterAttribute.RootName.Length..];
 
         switch (data.ParameterValue)
         {
             case bool boolValue:
-                OnBoolParameterReceived(lookup, boolValue);
+                OnBoolParameterReceived(lookup, boolValue, extension);
                 break;
 
             case int intValue:
-                OnIntParameterReceived(lookup, intValue);
+                OnIntParameterReceived(lookup, intValue, extension);
                 break;
 
             case float floatValue:
-                OnFloatParameterReceived(lookup, floatValue);
+                OnFloatParameterReceived(lookup, floatValue, extension);
                 break;
         }
     }
 
-    protected virtual void OnBoolParameterReceived(Enum key, bool value) { }
-    protected virtual void OnIntParameterReceived(Enum key, int value) { }
-    protected virtual void OnFloatParameterReceived(Enum key, float value) { }
+    private void handleIfAvatarChange(VRChatOscData data)
+    {
+        if (!data.IsAvatarChangeEvent) return;
+
+        var avatarId = data.ParameterValue.ToString()![..avatarIdFormat.Length];
+        AvatarConfig = AvatarConfigLoader.LoadConfigFor(avatarId);
+        OnAvatarChange(avatarId);
+    }
+
+    protected virtual void OnBoolParameterReceived(Enum key, bool value, string extension) { }
+    protected virtual void OnIntParameterReceived(Enum key, int value, string extension) { }
+    protected virtual void OnFloatParameterReceived(Enum key, float value, string extension) { }
 
     #endregion
 

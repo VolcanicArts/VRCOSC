@@ -24,7 +24,7 @@ public sealed partial class DiscordModule : IntegrationModule
         RegisterKeyCombination(DiscordParameter.Deafen, User32.VirtualKey.VK_LCONTROL, User32.VirtualKey.VK_LSHIFT, User32.VirtualKey.VK_D);
     }
 
-    protected override void OnBoolParameterReceived(Enum key, bool value)
+    protected override void OnBoolParameterReceived(Enum key, bool value, string extension)
     {
         if (value) ExecuteKeyCombination(key);
     }
