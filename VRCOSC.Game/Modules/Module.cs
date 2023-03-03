@@ -162,7 +162,7 @@ public abstract partial class Module : Component, IComparable<Module>
     protected virtual void OnModuleStart() { }
     protected virtual void OnModuleUpdate() { }
     protected virtual void OnModuleStop() { }
-    protected virtual void OnAvatarChange(string avatarId) { }
+    protected virtual void OnAvatarChange() { }
 
     #endregion
 
@@ -232,7 +232,7 @@ public abstract partial class Module : Component, IComparable<Module>
         {
             var avatarId = data.ParameterValue.ToString()![..avatarIdFormat.Length];
             AvatarConfig = AvatarConfigLoader.LoadConfigFor(avatarId);
-            OnAvatarChange(avatarId);
+            OnAvatarChange();
             return;
         }
 

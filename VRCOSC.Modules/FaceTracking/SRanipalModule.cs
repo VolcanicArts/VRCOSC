@@ -87,7 +87,7 @@ public partial class SRanipalModule : Module
 
     private static bool isOpenVROpen() => Process.GetProcessesByName(@"vrmonitor").Any();
 
-    protected override void OnAvatarChange(string avatarId)
+    protected override void OnAvatarChange()
     {
         parameterData.Clear();
         if (AvatarConfig is null) return;

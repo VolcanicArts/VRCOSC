@@ -97,7 +97,7 @@ public sealed partial class MediaModule : ChatBoxModule
         mediaProvider.UnHook();
     }
 
-    protected override void OnAvatarChange(string avatarId)
+    protected override void OnAvatarChange()
     {
         sendUpdatableParameters();
         sendMediaParameters();
