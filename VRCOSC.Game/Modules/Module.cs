@@ -203,9 +203,13 @@ public abstract partial class Module : Component, IComparable<Module>
 
     #region Parameters
 
-    // As a workaround for binary encoding floats, we can add an addition to the formatted address
-    // This saves us defining multiple parameters for the same value
-    protected void SendParameter<T>(Enum lookup, T value, string addition) where T : struct
+    /// <summary>
+    /// Sends a parameter value to a specified parameter name (that may have been modified), with an optional parameter name suffix
+    /// </summary>
+    /// <param name="lookup">The lookup key of the parameter</param>
+    /// <param name="value">The value to send</param>
+    /// <param name="suffix">The optional suffix to add to the parameter name</param>
+    protected void SendParameter<T>(Enum lookup, T value, string suffix = "") where T : struct
     {
         if (HasStopped) return;
 
@@ -214,19 +218,7 @@ public abstract partial class Module : Component, IComparable<Module>
         var data = Parameters[lookup];
         if (!data.Mode.HasFlagFast(ParameterMode.Write)) throw new InvalidOperationException("Cannot send a value to a read-only parameter");
 
-        OscClient.SendValue(data.FormattedAddress + addition, value);
-    }
-
-    protected void SendParameter<T>(Enum lookup, T value) where T : struct
-    {
-        if (HasStopped) return;
-
-        if (!Parameters.ContainsKey(lookup)) throw new InvalidOperationException($"Parameter {lookup} has not been defined");
-
-        var data = Parameters[lookup];
-        if (!data.Mode.HasFlagFast(ParameterMode.Write)) throw new InvalidOperationException("Cannot send a value to a read-only parameter");
-
-        OscClient.SendValue(data.FormattedAddress, value);
+        OscClient.SendValue(data.FormattedAddress + suffix, value);
     }
 
     private const string avatarIdFormat = "avtr_XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
