@@ -48,6 +48,7 @@ public sealed class ParameterAttribute : ModuleAttributeSingle
     public readonly ParameterMode Mode;
     public readonly Type ExpectedType;
 
+    public string Name => (string)Attribute.Value;
     public string FormattedAddress => $"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}/{Attribute.Value}";
 
     public ParameterAttribute(ParameterMode mode, ModuleAttributeMetadata metadata, string defaultName, Type expectedType, Func<bool>? dependsOn)

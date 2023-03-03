@@ -230,15 +230,15 @@ public abstract partial class Module : Component, IComparable<Module>
 
         if (data.IsAvatarChangeEvent)
         {
-            var avatarId = data.ParameterValue.ToString()![..avatarIdFormat.Length];
+            var avatarId = ((string)data.ParameterValue)[..avatarIdFormat.Length];
             AvatarConfig = AvatarConfigLoader.LoadConfigFor(avatarId);
             OnAvatarChange();
             return;
         }
 
-        if (!data.IsAvatarParameter || Parameters.Select(pair => pair.Value).All(parameter => (string)parameter.Attribute.Value != data.ParameterName)) return;
+        if (!data.IsAvatarParameter || Parameters.Select(pair => pair.Value).All(parameter => parameter.Name != data.ParameterName)) return;
 
-        var lookup = Parameters.Single(pair => (string)pair.Value.Attribute.Value == data.ParameterName).Key;
+        var lookup = Parameters.Single(pair => pair.Value.Name == data.ParameterName).Key;
         var parameterData = Parameters[lookup];
 
         if (!parameterData.Mode.HasFlagFast(ParameterMode.Read)) return;
