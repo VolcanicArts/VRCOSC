@@ -5,9 +5,9 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 
-namespace VRCOSC.Game.Graphics.ChatBox;
+namespace VRCOSC.Game.Graphics.ChatBox.Timeline;
 
-public partial class SelectedClipEditorWrapper : Container
+public partial class TimelineEditorWrapper : Container
 {
     [BackgroundDependencyLoader]
     private void load()
@@ -17,27 +17,20 @@ public partial class SelectedClipEditorWrapper : Container
             RelativeSizeAxes = Axes.Both,
             ColumnDimensions = new[]
             {
-                new Dimension(GridSizeMode.Relative, 0.15f),
-                new Dimension(GridSizeMode.Absolute, 10),
-                new Dimension(GridSizeMode.Relative, 0.15f),
-                new Dimension(GridSizeMode.Absolute, 10),
+                new Dimension(GridSizeMode.Relative, 0.175f),
+                new Dimension(GridSizeMode.Absolute, 5),
                 new Dimension(),
             },
             Content = new[]
             {
                 new Drawable?[]
                 {
-                    new SelectedClipMetadataEditor
+                    new TimelineMetadataEditor
                     {
                         RelativeSizeAxes = Axes.Both
                     },
                     null,
-                    new SelectedClipModuleSelector
-                    {
-                        RelativeSizeAxes = Axes.Both
-                    },
-                    null,
-                    new SelectedClipStateEditor
+                    new TimelineEditor
                     {
                         RelativeSizeAxes = Axes.Both
                     }

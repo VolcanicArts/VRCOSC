@@ -7,7 +7,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osuTK.Graphics;
 
-namespace VRCOSC.Game.Graphics.ChatBox;
+namespace VRCOSC.Game.Graphics.ChatBox.Timeline;
 
 public partial class TimelineEditor : Container
 {

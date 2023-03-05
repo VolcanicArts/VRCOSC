@@ -7,9 +7,9 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osuTK.Graphics;
 
-namespace VRCOSC.Game.Graphics.ChatBox;
+namespace VRCOSC.Game.Graphics.ChatBox.SelectedClip;
 
-public partial class SelectedClipMetadataEditor : Container
+public partial class SelectedClipModuleSelector : Container
 {
     [BackgroundDependencyLoader]
     private void load()

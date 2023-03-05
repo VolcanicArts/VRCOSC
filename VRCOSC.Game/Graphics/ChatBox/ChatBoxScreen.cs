@@ -23,30 +23,34 @@ public partial class ChatBoxScreen : Container
                 RelativeSizeAxes = Axes.Both,
                 Colour = ThemeManager.Current[ThemeAttribute.Light]
             },
-            new SelectedClipEditorWrapper
+            new Container
             {
-                Anchor = Anchor.TopCentre,
-                Origin = Anchor.TopCentre,
                 RelativeSizeAxes = Axes.Both,
-                Height = 0.5f,
-                Padding = new MarginPadding
+                Padding = new MarginPadding(10),
+                Children = new Drawable[]
                 {
-                    Horizontal = 10,
-                    Top = 10,
-                    Bottom = 5
-                }
-            },
-            new TimelineEditorWrapper
-            {
-                Anchor = Anchor.BottomCentre,
-                Origin = Anchor.BottomCentre,
-                RelativeSizeAxes = Axes.Both,
-                Height = 0.5f,
-                Padding = new MarginPadding
-                {
-                    Horizontal = 10,
-                    Top = 5,
-                    Bottom = 10
+                    new SelectedClip.SelectedClipEditorWrapper
+                    {
+                        Anchor = Anchor.TopCentre,
+                        Origin = Anchor.TopCentre,
+                        RelativeSizeAxes = Axes.Both,
+                        Height = 0.5f,
+                        Padding = new MarginPadding
+                        {
+                            Bottom = 2.5f
+                        }
+                    },
+                    new Timeline.TimelineEditorWrapper
+                    {
+                        Anchor = Anchor.BottomCentre,
+                        Origin = Anchor.BottomCentre,
+                        RelativeSizeAxes = Axes.Both,
+                        Height = 0.5f,
+                        Padding = new MarginPadding
+                        {
+                            Top = 2.5f,
+                        }
+                    }
                 }
             }
         };

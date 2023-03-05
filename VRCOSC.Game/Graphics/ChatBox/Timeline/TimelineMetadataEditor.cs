@@ -7,9 +7,9 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osuTK.Graphics;
 
-namespace VRCOSC.Game.Graphics.ChatBox;
+namespace VRCOSC.Game.Graphics.ChatBox.Timeline;
 
-public partial class SelectedClipStateEditor : Container
+public partial class TimelineMetadataEditor : Container
 {
     [BackgroundDependencyLoader]
     private void load()
