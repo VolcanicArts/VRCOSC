@@ -2,18 +2,25 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using VRCOSC.Game.ChatBox;
 using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.ChatBox;
 
 public partial class ChatBoxScreen : Container
 {
+    [Cached]
+    private Bindable<Clip?> selectedClip { get; set; } = new();
+
     [BackgroundDependencyLoader]
     private void load()
     {
+        selectedClip.Value = new Clip();
+
         RelativeSizeAxes = Axes.Both;
 
         Children = new Drawable[]

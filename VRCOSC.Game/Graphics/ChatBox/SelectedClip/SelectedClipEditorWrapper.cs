@@ -5,53 +5,99 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Shapes;
+using osu.Framework.Graphics.Sprites;
 using VRCOSC.Game.ChatBox;
+using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.ChatBox.SelectedClip;
 
 public partial class SelectedClipEditorWrapper : Container
 {
-    [Cached]
-    private Bindable<Clip?> selectedClip { get; set; } = new();
+    [Resolved]
+    private Bindable<Clip?> selectedClip { get; set; } = null!;
+
+    private Container noClipContent = null!;
+    private GridContainer gridContent = null!;
 
     [BackgroundDependencyLoader]
     private void load()
     {
-        selectedClip.Value = new Clip();
-
-        Child = new GridContainer
+        Children = new Drawable[]
         {
-            RelativeSizeAxes = Axes.Both,
-            ColumnDimensions = new[]
+            noClipContent = new Container
             {
-                new Dimension(GridSizeMode.Relative, 0.15f),
-                new Dimension(GridSizeMode.Absolute, 5),
-                new Dimension(GridSizeMode.Relative, 0.15f),
-                new Dimension(GridSizeMode.Absolute, 5),
-                new Dimension()
-            },
-            Content = new[]
-            {
-                new Drawable?[]
+                Alpha = 0,
+                RelativeSizeAxes = Axes.Both,
+                Masking = true,
+                CornerRadius = 10,
+                Children = new Drawable[]
                 {
-                    new SelectedClipMetadataEditor
+                    new Box
                     {
-                        RelativeSizeAxes = Axes.Both,
-                        Masking = true,
-                        CornerRadius = 10
-                    },
-                    null,
-                    new SelectedClipModuleSelector
-                    {
+                        Colour = ThemeManager.Current[ThemeAttribute.Dark],
                         RelativeSizeAxes = Axes.Both
                     },
-                    null,
-                    new SelectedClipStateEditor
+                    new SpriteText
                     {
-                        RelativeSizeAxes = Axes.Both
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.Centre,
+                        Font = FrameworkFont.Regular.With(size: 40),
+                        Text = "Select a clip to edit"
+                    }
+                }
+            },
+            gridContent = new GridContainer
+            {
+                Alpha = 0,
+                RelativeSizeAxes = Axes.Both,
+                ColumnDimensions = new[]
+                {
+                    new Dimension(GridSizeMode.Relative, 0.15f),
+                    new Dimension(GridSizeMode.Absolute, 5),
+                    new Dimension(GridSizeMode.Relative, 0.15f),
+                    new Dimension(GridSizeMode.Absolute, 5),
+                    new Dimension()
+                },
+                Content = new[]
+                {
+                    new Drawable?[]
+                    {
+                        new SelectedClipMetadataEditor
+                        {
+                            RelativeSizeAxes = Axes.Both,
+                            Masking = true,
+                            CornerRadius = 10
+                        },
+                        null,
+                        new SelectedClipModuleSelector
+                        {
+                            RelativeSizeAxes = Axes.Both
+                        },
+                        null,
+                        new SelectedClipStateEditor
+                        {
+                            RelativeSizeAxes = Axes.Both
+                        }
                     }
                 }
             }
         };
+
+        selectedClip.BindValueChanged(e => selectBestVisual(e.NewValue), true);
+    }
+
+    private void selectBestVisual(Clip? clip)
+    {
+        if (clip is null)
+        {
+            gridContent.FadeOut(250, Easing.OutQuad);
+            noClipContent.FadeIn(250, Easing.InQuad);
+        }
+        else
+        {
+            noClipContent.FadeOut(250, Easing.OutQuad);
+            gridContent.FadeIn(250, Easing.InQuad);
+        }
     }
 }
