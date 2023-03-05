@@ -55,5 +55,17 @@ public partial class SelectedClipMetadataEditor : Container
             Label = "Enabled",
             State = clip.Enabled
         });
+
+        metadataFlow.Add(new ClipMetadataTime
+        {
+            Label = "Start",
+            Current = clip.Start
+        });
+
+        metadataFlow.Add(new ClipMetadataTime
+        {
+            Label = "End",
+            Current = clip.End
+        });
     }
 }

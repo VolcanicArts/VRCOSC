@@ -17,8 +17,8 @@ public class Clip
     public readonly List<string> AssociatedModules = new();
     public readonly Dictionary<string, ClipState> States = new();
     public readonly Dictionary<string, ClipEvent> Events = new();
+    public readonly Bindable<TimeSpan> Start = new();
+    public readonly Bindable<TimeSpan> End = new();
 
-    public DateTimeOffset Start { get; private set; }
-    public DateTimeOffset End { get; private set; }
-    public TimeSpan Length => End - Start;
+    public TimeSpan Length => End.Value - Start.Value;
 }

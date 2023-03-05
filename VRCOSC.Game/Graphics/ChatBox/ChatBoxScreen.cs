@@ -7,6 +7,8 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using VRCOSC.Game.ChatBox;
+using VRCOSC.Game.Graphics.ChatBox.SelectedClip;
+using VRCOSC.Game.Graphics.ChatBox.Timeline;
 using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.ChatBox;
@@ -36,7 +38,7 @@ public partial class ChatBoxScreen : Container
                 Padding = new MarginPadding(10),
                 Children = new Drawable[]
                 {
-                    new SelectedClip.SelectedClipEditorWrapper
+                    new SelectedClipEditorWrapper
                     {
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
@@ -47,7 +49,7 @@ public partial class ChatBoxScreen : Container
                             Bottom = 2.5f
                         }
                     },
-                    new Timeline.TimelineEditorWrapper
+                    new TimelineEditorWrapper
                     {
                         Anchor = Anchor.BottomCentre,
                         Origin = Anchor.BottomCentre,
