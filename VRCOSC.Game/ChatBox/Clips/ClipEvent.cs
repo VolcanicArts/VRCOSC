@@ -3,7 +3,7 @@
 
 using System;
 
-namespace VRCOSC.Game.ChatBox;
+namespace VRCOSC.Game.ChatBox.Clips;
 
 public class ClipEvent : ClipState
 {

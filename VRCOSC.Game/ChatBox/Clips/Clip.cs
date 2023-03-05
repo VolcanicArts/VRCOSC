@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using osu.Framework.Bindables;
 
-namespace VRCOSC.Game.ChatBox;
+namespace VRCOSC.Game.ChatBox.Clips;
 
 /// <summary>
 /// Represents a timespan that contains all information the ChatBox will need for displaying

@@ -6,7 +6,7 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
-using VRCOSC.Game.ChatBox;
+using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.Graphics.ChatBox.SelectedClip;
 using VRCOSC.Game.Graphics.ChatBox.Timeline;
 using VRCOSC.Game.Graphics.Themes;

@@ -3,7 +3,7 @@
 
 using osu.Framework.Bindables;
 
-namespace VRCOSC.Game.ChatBox;
+namespace VRCOSC.Game.ChatBox.Clips;
 
 public class ClipState
 {
