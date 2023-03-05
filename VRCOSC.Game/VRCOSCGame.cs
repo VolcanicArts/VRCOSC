@@ -10,6 +10,7 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Platform;
+using VRCOSC.Game.ChatBox;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics;
 using VRCOSC.Game.Graphics.Notifications;
@@ -48,6 +49,9 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
     [Cached]
     protected GameManager GameManager = new();
+
+    [Cached]
+    protected ChatBoxManager ChatBoxManager = new();
 
     private NotificationContainer notificationContainer = null!;
     private VRCOSCUpdateManager updateManager = null!;

@@ -27,12 +27,16 @@ public partial class TimelineEditorWrapper : Container
                 {
                     new TimelineMetadataEditor
                     {
-                        RelativeSizeAxes = Axes.Both
+                        RelativeSizeAxes = Axes.Both,
+                        Masking = true,
+                        CornerRadius = 10
                     },
                     null,
                     new TimelineEditor
                     {
-                        RelativeSizeAxes = Axes.Both
+                        RelativeSizeAxes = Axes.Both,
+                        Masking = true,
+                        CornerRadius = 10
                     }
                 }
             }

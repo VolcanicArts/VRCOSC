@@ -8,9 +8,9 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using VRCOSC.Game.Graphics.UI.Button;
 
-namespace VRCOSC.Game.Graphics.ChatBox.SelectedClip.Metadata;
+namespace VRCOSC.Game.Graphics.ChatBox.Metadata;
 
-public partial class ClipMetadataToggle : Container
+public partial class MetadataToggle : Container
 {
     public required string Label { get; init; }
     public required BindableBool State { get; init; }

@@ -7,22 +7,23 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
+using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Text;
 
-namespace VRCOSC.Game.Graphics.ChatBox.SelectedClip.Metadata;
+namespace VRCOSC.Game.Graphics.ChatBox.Metadata;
 
-public partial class ClipMetadataTime : Container
+public partial class MetadataTime : Container
 {
     public required string Label { get; init; }
     public required Bindable<TimeSpan> Current { get; init; }
+
+    private IntTextBox inputTextBox = null!;
 
     [BackgroundDependencyLoader]
     private void load()
     {
         RelativeSizeAxes = Axes.X;
         AutoSizeAxes = Axes.Y;
-
-        IntTextBox inputTextBox;
 
         Children = new Drawable[]
         {
@@ -45,14 +46,29 @@ public partial class ClipMetadataTime : Container
                 Origin = Anchor.CentreRight,
                 RelativeSizeAxes = Axes.Both,
                 Width = 0.5f,
-                Child = inputTextBox = new IntTextBox
+                Child = inputTextBox = new LocalTextBox
                 {
                     RelativeSizeAxes = Axes.Both,
-                    Text = ((int)Current.Value.TotalSeconds).ToString()
+                    CornerRadius = 5
                 }
             }
         };
 
         inputTextBox.OnValidEntry += value => Current.Value = TimeSpan.FromSeconds(value);
+    }
+
+    protected override void LoadComplete()
+    {
+        inputTextBox.Text = ((int)Current.Value.TotalSeconds).ToString();
+    }
+
+    private partial class LocalTextBox : IntTextBox
+    {
+        [BackgroundDependencyLoader]
+        private void load()
+        {
+            BackgroundUnfocused = ThemeManager.Current[ThemeAttribute.Darker];
+            BackgroundFocused = ThemeManager.Current[ThemeAttribute.Darker];
+        }
     }
 }

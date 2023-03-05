@@ -72,12 +72,16 @@ public partial class SelectedClipEditorWrapper : Container
                         null,
                         new SelectedClipModuleSelector
                         {
-                            RelativeSizeAxes = Axes.Both
+                            RelativeSizeAxes = Axes.Both,
+                            Masking = true,
+                            CornerRadius = 10
                         },
                         null,
                         new SelectedClipStateEditor
                         {
-                            RelativeSizeAxes = Axes.Both
+                            RelativeSizeAxes = Axes.Both,
+                            Masking = true,
+                            CornerRadius = 10
                         }
                     }
                 }

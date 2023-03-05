@@ -8,7 +8,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osuTK;
 using VRCOSC.Game.ChatBox.Clips;
-using VRCOSC.Game.Graphics.ChatBox.SelectedClip.Metadata;
+using VRCOSC.Game.Graphics.ChatBox.Metadata;
 using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.ChatBox.SelectedClip;
@@ -50,19 +50,19 @@ public partial class SelectedClipMetadataEditor : Container
 
         if (clip is null) return;
 
-        metadataFlow.Add(new ClipMetadataToggle
+        metadataFlow.Add(new MetadataToggle
         {
             Label = "Enabled",
             State = clip.Enabled
         });
 
-        metadataFlow.Add(new ClipMetadataTime
+        metadataFlow.Add(new MetadataTime
         {
             Label = "Start",
             Current = clip.Start
         });
 
-        metadataFlow.Add(new ClipMetadataTime
+        metadataFlow.Add(new MetadataTime
         {
             Label = "End",
             Current = clip.End
