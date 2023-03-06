@@ -2,8 +2,8 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Diagnostics;
+using SRanipalLib;
 using VRCOSC.Game.Modules;
-using VRCOSC.Game.SRanipal;
 using VRCOSC.Modules.FaceTracking.Interface;
 using VRCOSC.Modules.FaceTracking.Interface.Eyes;
 using VRCOSC.Modules.FaceTracking.Interface.Lips;
