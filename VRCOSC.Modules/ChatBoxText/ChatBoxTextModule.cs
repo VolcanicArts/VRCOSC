@@ -16,6 +16,7 @@ public partial class ChatBoxTextModule : ChatBoxModule
     protected override int ChatBoxPriority => 1;
 
     private int index;
+    private int speed = 1;
 
     protected override string GetChatBoxText()
     {
@@ -27,6 +28,7 @@ public partial class ChatBoxTextModule : ChatBoxModule
 
         var tickerText = $"{text}{splitter}{text}";
         var maxLength = Math.Min(GetSetting<int>(ChatBoxTextSetting.MaxLength), text.Length);
+        speed = GetSetting<int>(ChatBoxTextSetting.ScrollSpeed);
 
         if (index > text.Length + splitter.Length - 1) index = 0;
 
@@ -42,13 +44,14 @@ public partial class ChatBoxTextModule : ChatBoxModule
 
     protected override void OnModuleUpdate()
     {
-        index++;
+        index += speed;
     }
 
     protected override void CreateAttributes()
     {
         CreateSetting(ChatBoxTextSetting.ChatBoxText, "ChatBox Text", "What text should be displayed in the ChatBox?", string.Empty);
         CreateSetting(ChatBoxTextSetting.Animate, "Animate", "Should the text animate like a ticker tape?", false);
+        CreateSetting(ChatBoxTextSetting.ScrollSpeed, "Scroll Speed", "How fast should the text scroll? Measured in characters per update.", 5, () => GetSetting<bool>(ChatBoxTextSetting.Animate));
         CreateSetting(ChatBoxTextSetting.Splitter, "Splitter", "The splitter that goes between loops of the text", " | ", () => GetSetting<bool>(ChatBoxTextSetting.Animate));
         CreateSetting(ChatBoxTextSetting.MaxLength, "Max Length", "The maximum length to show at one time when animating", 16, () => GetSetting<bool>(ChatBoxTextSetting.Animate));
         base.CreateAttributes();
@@ -58,6 +61,7 @@ public partial class ChatBoxTextModule : ChatBoxModule
     {
         ChatBoxText,
         Animate,
+        ScrollSpeed,
         Splitter,
         MaxLength
     }
