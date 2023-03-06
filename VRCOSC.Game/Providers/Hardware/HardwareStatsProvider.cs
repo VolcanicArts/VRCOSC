@@ -121,6 +121,7 @@ public sealed class HardwareStatsProvider
                 {
                     // AMD
                     case @"Core (Tctl/Tdie)":
+                    case @"Core (Tctl)":
                     // Intel
                     case @"CPU Package":
                         cpu.Temperature = (int?)sensor.Value ?? 0;
