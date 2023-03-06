@@ -6,6 +6,8 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
+using VRCOSC.Game.Graphics.Themes;
+using VRCOSC.Game.Graphics.UI.Text;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes.Text;
@@ -31,8 +33,19 @@ public partial class TextAttributeCardList : AttributeCardList
 
     private void addTextBox(Bindable<object> item)
     {
-        var textBox = CreateTextBox().With(t => t.Text = item.Value.ToString());
-        textBox.Current.ValueChanged += e => item.Value = e.NewValue;
+        var textBox = new StringTextBox
+        {
+            Anchor = Anchor.TopCentre,
+            Origin = Anchor.TopCentre,
+            RelativeSizeAxes = Axes.X,
+            Height = 40,
+            Masking = true,
+            CornerRadius = 5,
+            BorderColour = ThemeManager.Current[ThemeAttribute.Border],
+            BorderThickness = 2,
+            Text = item.Value.ToString()
+        };
+        textBox.OnValidEntry += e => item.Value = e;
 
         AddContent(textBox);
     }

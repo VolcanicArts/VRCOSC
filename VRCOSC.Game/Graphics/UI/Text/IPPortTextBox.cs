@@ -22,15 +22,20 @@ public partial class IPPortTextBox : ValidationTextBox<IPPortTextBox.IPPortResul
         return port is >= 0 and <= 65535;
     }
 
-    protected override IPPortResult GetConvertedText() => new()
+    protected override IPPortResult GetConvertedText()
     {
-        IP = Current.Value.Split(':')[0],
-        Port = int.Parse(Current.Value.Split(':')[1])
-    };
+        if (string.IsNullOrEmpty(Current.Value)) return new IPPortResult();
 
-    public struct IPPortResult
+        return new IPPortResult
+        {
+            IP = Current.Value.Split(':')[0],
+            Port = int.Parse(Current.Value.Split(':')[1])
+        };
+    }
+
+    public class IPPortResult
     {
-        public string IP;
+        public string IP = string.Empty;
         public int Port;
     }
 }

@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Sockets;
@@ -17,6 +18,7 @@ using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.OpenVR;
 using VRCOSC.Game.OpenVR.Metadata;
 using VRCOSC.Game.OSC;
+using VRCOSC.Game.OSC.Client;
 using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Game.Modules;
@@ -44,6 +46,8 @@ public partial class GameManager : CompositeComponent
 
     private Bindable<bool> autoStartStop = null!;
     private bool hasAutoStarted;
+    private readonly List<VRChatOscData> oscDataCache = new();
+    private readonly object oscDataCacheLock = new();
 
     public readonly VRChatOscClient VRChatOscClient = new();
     public readonly ModuleManager ModuleManager = new();
@@ -76,11 +80,17 @@ public partial class GameManager : CompositeComponent
 
     protected override void Update()
     {
+        if (State.Value != GameManagerState.Started) return;
+
         OVRClient.Update();
+
+        handleOscDataCache();
     }
 
     protected override void UpdateAfterChildren()
     {
+        if (State.Value != GameManagerState.Started) return;
+
         ChatBoxInterface.Update();
     }
 
@@ -96,6 +106,44 @@ public partial class GameManager : CompositeComponent
         {
             if (!e.NewValue) hasAutoStarted = false;
         });
+
+        VRChatOscClient.OnParameterReceived += data =>
+        {
+            lock (oscDataCacheLock)
+            {
+                oscDataCache.Add(data);
+            }
+        };
+    }
+
+    private void handleOscDataCache()
+    {
+        lock (oscDataCacheLock)
+        {
+            oscDataCache.ForEach(data =>
+            {
+                ModuleManager.OnParameterReceived(data);
+
+                if (data.IsAvatarChangeEvent)
+                {
+                    sendControlValues();
+                    return;
+                }
+
+                if (!data.IsAvatarParameter) return;
+
+                Player.Update(data.ParameterName, data.Values[0]);
+
+                switch (data.ParameterName)
+                {
+                    case @"VRCOSC/Controls/ChatBox":
+                        ChatBoxInterface.SendEnabled = (bool)data.Values[0];
+                        break;
+                }
+            });
+
+            oscDataCache.Clear();
+        }
     }
 
     public void Start() => Schedule(() => _ = startAsync());
@@ -111,6 +159,11 @@ public partial class GameManager : CompositeComponent
             return;
         }
 
+        lock (oscDataCacheLock)
+        {
+            oscDataCache.Clear();
+        }
+
         if (!initialiseOscClient())
         {
             hasAutoStarted = false;
@@ -121,11 +174,12 @@ public partial class GameManager : CompositeComponent
 
         await Task.Delay(startstop_delay);
 
-        VRChatOscClient.OnParameterReceived += onParameterReceived;
+        VRChatOscClient.Enable(OscClientFlag.Send);
         Player.Initialise();
         ChatBoxInterface.Initialise();
         sendControlValues();
         ModuleManager.Start();
+        VRChatOscClient.Enable(OscClientFlag.Receive);
 
         OSCRouter.Initialise(routerManager.Store);
         OSCRouter.Enable();
@@ -142,14 +196,18 @@ public partial class GameManager : CompositeComponent
 
         State.Value = GameManagerState.Stopping;
 
-        await OSCRouter.Disable();
+        await VRChatOscClient.Disable(OscClientFlag.Receive);
 
-        await VRChatOscClient.DisableReceiver();
+        lock (oscDataCacheLock)
+        {
+            oscDataCache.Clear();
+        }
+
+        await OSCRouter.Disable();
         ModuleManager.Stop();
         ChatBoxInterface.Shutdown();
         Player.ResetAll();
-        VRChatOscClient.OnParameterReceived -= onParameterReceived;
-        VRChatOscClient.DisableSender();
+        await VRChatOscClient.Disable(OscClientFlag.Send);
 
         await Task.Delay(startstop_delay);
 
@@ -165,7 +223,6 @@ public partial class GameManager : CompositeComponent
             var receivePort = configManager.Get<int>(VRCOSCSetting.ReceivePort);
 
             VRChatOscClient.Initialise(ipAddress, sendPort, receivePort);
-            VRChatOscClient.Enable();
             return true;
         }
         catch (SocketException)
@@ -188,7 +245,12 @@ public partial class GameManager : CompositeComponent
     private void checkForOpenVR() => Task.Run(() =>
     {
         static bool isOpenVROpen() => Process.GetProcessesByName(@"vrmonitor").Any();
-        if (isOpenVROpen()) OVRClient.Init();
+
+        if (isOpenVROpen())
+        {
+            OVRClient.Init();
+            OVRClient.SetAutoLaunch(configManager.Get<bool>(VRCOSCSetting.AutoStartOpenVR));
+        }
     });
 
     private void checkForVRChat()
@@ -215,26 +277,6 @@ public partial class GameManager : CompositeComponent
     private void sendControlValues()
     {
         VRChatOscClient.SendValue(@$"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}/VRCOSC/Controls/ChatBox", ChatBoxInterface.SendEnabled);
-    }
-
-    private void onParameterReceived(VRChatOscData data)
-    {
-        if (data.IsAvatarChangeEvent)
-        {
-            sendControlValues();
-            return;
-        }
-
-        if (!data.IsAvatarParameter) return;
-
-        Player.Update(data.ParameterName, data.Values[0]);
-
-        switch (data.ParameterName)
-        {
-            case @"VRCOSC/Controls/ChatBox":
-                ChatBoxInterface.SendEnabled = (bool)data.Values[0];
-                break;
-        }
     }
 }
 

@@ -10,6 +10,7 @@ using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Platform;
+using VRCOSC.Game.Modules.Avatar;
 using VRCOSC.Game.OpenVR;
 using VRCOSC.Game.OSC.VRChat;
 
@@ -34,9 +35,11 @@ public abstract partial class Module : Component, IComparable<Module>
 
     protected Player Player => GameManager.Player;
     protected OVRClient OVRClient => GameManager.OVRClient;
+    protected VRChatOscClient OscClient => GameManager.VRChatOscClient;
     protected ChatBoxInterface ChatBoxInterface => GameManager.ChatBoxInterface;
     protected Bindable<ModuleState> State = new(ModuleState.Stopped);
     protected IVRCOSCSecrets Secrets => secrets;
+    protected AvatarConfig? AvatarConfig;
 
     internal readonly BindableBool Enabled = new();
     internal readonly Dictionary<string, ModuleAttribute> Settings = new();
@@ -138,8 +141,6 @@ public abstract partial class Module : Component, IComparable<Module>
 
         if (ShouldUpdate) Scheduler.AddDelayed(OnModuleUpdate, DeltaUpdate.TotalMilliseconds, true);
 
-        GameManager.VRChatOscClient.OnParameterReceived += onParameterReceived;
-
         State.Value = ModuleState.Started;
 
         if (ShouldUpdateImmediately) OnModuleUpdate();
@@ -151,8 +152,6 @@ public abstract partial class Module : Component, IComparable<Module>
 
         State.Value = ModuleState.Stopping;
 
-        GameManager.VRChatOscClient.OnParameterReceived -= onParameterReceived;
-
         Scheduler.CancelDelayedTasks();
 
         OnModuleStop();
@@ -163,7 +162,7 @@ public abstract partial class Module : Component, IComparable<Module>
     protected virtual void OnModuleStart() { }
     protected virtual void OnModuleUpdate() { }
     protected virtual void OnModuleStop() { }
-    protected virtual void OnAvatarChange(string avatarId) { }
+    protected virtual void OnAvatarChange() { }
 
     #endregion
 
@@ -204,7 +203,13 @@ public abstract partial class Module : Component, IComparable<Module>
 
     #region Parameters
 
-    protected void SendParameter<T>(Enum lookup, T value) where T : struct
+    /// <summary>
+    /// Sends a parameter value to a specified parameter name (that may have been modified), with an optional parameter name suffix
+    /// </summary>
+    /// <param name="lookup">The lookup key of the parameter</param>
+    /// <param name="value">The value to send</param>
+    /// <param name="suffix">The optional suffix to add to the parameter name</param>
+    protected void SendParameter<T>(Enum lookup, T value, string suffix = "") where T : struct
     {
         if (HasStopped) return;
 
@@ -213,20 +218,27 @@ public abstract partial class Module : Component, IComparable<Module>
         var data = Parameters[lookup];
         if (!data.Mode.HasFlagFast(ParameterMode.Write)) throw new InvalidOperationException("Cannot send a value to a read-only parameter");
 
-        GameManager.VRChatOscClient.SendValue(data.FormattedAddress, value);
+        OscClient.SendValue(data.FormattedAddress + suffix, value);
     }
 
-    private void onParameterReceived(VRChatOscData data)
+    private const string avatarIdFormat = "avtr_XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
+
+    internal void OnParameterReceived(VRChatOscData data)
     {
+        if (!IsEnabled) return;
+        if (!HasStarted) return;
+
         if (data.IsAvatarChangeEvent)
         {
-            OnAvatarChange((string)data.ParameterValue);
+            var avatarId = ((string)data.ParameterValue)[..avatarIdFormat.Length];
+            AvatarConfig = AvatarConfigLoader.LoadConfigFor(avatarId);
+            OnAvatarChange();
             return;
         }
 
-        if (!data.IsAvatarParameter || Parameters.Select(pair => pair.Value).All(parameter => (string)parameter.Attribute.Value != data.ParameterName)) return;
+        if (!data.IsAvatarParameter || Parameters.Select(pair => pair.Value).All(parameter => parameter.Name != data.ParameterName)) return;
 
-        var lookup = Parameters.Single(pair => (string)pair.Value.Attribute.Value == data.ParameterName).Key;
+        var lookup = Parameters.Single(pair => pair.Value.Name == data.ParameterName).Key;
         var parameterData = Parameters[lookup];
 
         if (!parameterData.Mode.HasFlagFast(ParameterMode.Read)) return;

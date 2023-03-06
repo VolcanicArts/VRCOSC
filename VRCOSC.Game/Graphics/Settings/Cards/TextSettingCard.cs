@@ -4,15 +4,16 @@
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
-using VRCOSC.Game.Graphics.UI;
+using VRCOSC.Game.Graphics.Themes;
+using VRCOSC.Game.Graphics.UI.Text;
 
 namespace VRCOSC.Game.Graphics.Settings.Cards;
 
-public partial class TextSettingCard : SettingCard<string>
+public partial class TextSettingCard<TTextBox, TType> : SettingCard<TType> where TTextBox : ValidationTextBox<TType>, new()
 {
-    private VRCOSCTextBox textBox = null!;
+    private TTextBox textBox = null!;
 
-    public TextSettingCard(string title, string description, Bindable<string> settingBindable)
+    public TextSettingCard(string title, string description, Bindable<TType> settingBindable)
         : base(title, description, settingBindable)
     {
     }
@@ -20,18 +21,24 @@ public partial class TextSettingCard : SettingCard<string>
     [BackgroundDependencyLoader]
     private void load()
     {
-        Add(textBox = CreateTextBox().With(t => t.Text = SettingBindable.Value));
+        Add(textBox = new TTextBox
+        {
+            Anchor = Anchor.TopCentre,
+            Origin = Anchor.TopCentre,
+            RelativeSizeAxes = Axes.X,
+            Height = 40,
+            Masking = true,
+            CornerRadius = 5,
+            BorderColour = ThemeManager.Current[ThemeAttribute.Border],
+            BorderThickness = 2,
+            Text = SettingBindable.Value?.ToString(),
+            EmptyIsValid = false
+        });
     }
 
     protected override void LoadComplete()
     {
         base.LoadComplete();
-        textBox.Current.ValueChanged += e => UpdateValues(e.NewValue);
-    }
-
-    protected override void UpdateValues(string value)
-    {
-        base.UpdateValues(value);
-        textBox.Current.Value = value;
+        textBox.OnValidEntry += UpdateValues;
     }
 }

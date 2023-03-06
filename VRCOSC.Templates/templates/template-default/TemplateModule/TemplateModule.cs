@@ -13,7 +13,7 @@ namespace TemplateModule
         protected override void CreateAttributes()
         {
             CreateSetting(TemplateSetting.ExampleSetting, "Example Setting", "An example setting", string.Empty);
-            CreateParameter<bool>(TemplateParameter.ExampleParameter, ParameterMode.ReadWrite, "ExampleParameter", "An example parameter");
+            CreateParameter<bool>(TemplateParameter.ExampleParameter, ParameterMode.ReadWrite, "ExampleParameterName", "Example Parameter Display Name", "This is an example parameter");
         }
 
         protected override void OnModuleStart()

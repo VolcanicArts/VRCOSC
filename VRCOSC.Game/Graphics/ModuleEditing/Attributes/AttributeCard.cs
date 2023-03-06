@@ -9,7 +9,6 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
 using VRCOSC.Game.Graphics.Themes;
-using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Graphics.UI.Button;
 using VRCOSC.Game.Modules;
 
@@ -140,23 +139,4 @@ public abstract partial class AttributeCard : Container
 
         resetToDefault.FadeTo(newAlpha, 200, Easing.OutQuart);
     }
-
-    #region Graphics
-
-    protected static VRCOSCTextBox CreateTextBox()
-    {
-        return new VRCOSCTextBox
-        {
-            Anchor = Anchor.TopCentre,
-            Origin = Anchor.TopCentre,
-            RelativeSizeAxes = Axes.X,
-            Height = 40,
-            Masking = true,
-            CornerRadius = 5,
-            BorderColour = ThemeManager.Current[ThemeAttribute.Border],
-            BorderThickness = 2
-        };
-    }
-
-    #endregion
 }

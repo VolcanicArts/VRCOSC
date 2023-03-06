@@ -2,12 +2,9 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Collections.Generic;
-using System.Drawing;
 using System.Reflection;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
-using osu.Framework.Configuration;
 using osu.Framework.IO.Stores;
 using osu.Framework.Platform;
 using VRCOSC.Game.Config;
@@ -23,8 +20,6 @@ public partial class VRCOSCGameBase : osu.Framework.Game
     private const string base_game_name = @"VRCOSC";
 #endif
 
-    private static readonly Size default_size = new(1450, 768);
-
     protected DependencyContainer DependencyContainer = null!;
     protected VRCOSCConfigManager ConfigManager = null!;
 
@@ -33,12 +28,6 @@ public partial class VRCOSCGameBase : osu.Framework.Game
     private static Version assemblyVersion => Assembly.GetEntryAssembly()?.GetName().Version ?? new Version();
 
     protected string Version => $@"{assemblyVersion.Major}.{assemblyVersion.Minor}.{assemblyVersion.Build}";
-
-    protected override IDictionary<FrameworkSetting, object> GetFrameworkConfigDefaults()
-        => new Dictionary<FrameworkSetting, object>
-        {
-            { FrameworkSetting.WindowedSize, default_size }
-        };
 
     protected override IReadOnlyDependencyContainer CreateChildDependencies(IReadOnlyDependencyContainer parent)
         => DependencyContainer = new DependencyContainer(base.CreateChildDependencies(parent));
@@ -52,5 +41,13 @@ public partial class VRCOSCGameBase : osu.Framework.Game
 
         versionBindable = ConfigManager.GetBindable<string>(VRCOSCSetting.Version);
         versionBindable.BindValueChanged(version => host.Window.Title = $"{base_game_name} {version.NewValue}", true);
+
+        Window.WindowState = ConfigManager.Get<WindowState>(VRCOSCSetting.WindowState);
+    }
+
+    protected override bool OnExiting()
+    {
+        ConfigManager.SetValue(VRCOSCSetting.WindowState, Window.WindowState);
+        return false;
     }
 }

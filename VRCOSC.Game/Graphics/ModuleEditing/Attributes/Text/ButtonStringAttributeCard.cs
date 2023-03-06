@@ -6,15 +6,16 @@ using osu.Framework.Graphics.Containers;
 using osuTK;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Button;
+using VRCOSC.Game.Graphics.UI.Text;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes.Text;
 
-public sealed partial class ButtonTextAttributeCard : TextAttributeCard
+public sealed partial class ButtonStringAttributeCard : TextAttributeCard<StringTextBox, string>
 {
     private readonly ModuleAttributeSingleWithButton attributeSingleWithButton;
 
-    public ButtonTextAttributeCard(ModuleAttributeSingleWithButton attributeData)
+    public ButtonStringAttributeCard(ModuleAttributeSingleWithButton attributeData)
         : base(attributeData)
     {
         attributeSingleWithButton = attributeData;

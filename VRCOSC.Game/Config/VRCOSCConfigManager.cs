@@ -28,6 +28,8 @@ public sealed class VRCOSCConfigManager : IniConfigManager<VRCOSCSetting>
         SetDefault(VRCOSCSetting.Theme, ColourTheme.Dark);
         SetDefault(VRCOSCSetting.ChatBoxTimeSpan, 1500);
         SetDefault(VRCOSCSetting.AutoStopOpenVR, false);
+        SetDefault(VRCOSCSetting.AutoStartOpenVR, false);
+        SetDefault(VRCOSCSetting.WindowState, WindowState.Maximised);
     }
 }
 
@@ -41,5 +43,7 @@ public enum VRCOSCSetting
     UpdateMode,
     Theme,
     ChatBoxTimeSpan,
-    AutoStopOpenVR
+    AutoStopOpenVR,
+    AutoStartOpenVR,
+    WindowState
 }
