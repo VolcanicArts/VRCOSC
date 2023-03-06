@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using osu.Framework.Bindables;
-using VRCOSC.Game.SRanipal;
+using SRanipalLib;
 
 namespace VRCOSC.Game.Modules;
 
