@@ -38,6 +38,8 @@ public partial class SRanipalModule : Module
     private readonly List<LipParam> lipParams = Enum.GetValues<LipParam>().ToList();
     private readonly List<EyeParam> eyeParams = Enum.GetValues<EyeParam>().ToList();
 
+    private float changeTolerance = 0f;
+
     public SRanipalModule()
     {
         sRanipalInterface.APIInterface.EyeStatus.BindValueChanged(e => handleStatus("Eye", e.NewValue));
@@ -57,6 +59,8 @@ public partial class SRanipalModule : Module
                 break;
         }
     }
+
+    private static bool isOpenVROpen() => Process.GetProcessesByName(@"vrmonitor").Any();
 
     protected override void CreateAttributes()
     {
@@ -78,18 +82,39 @@ public partial class SRanipalModule : Module
         if (!isOpenVROpen())
         {
             Log("Cannot start module without SteamVR launched");
+            Log("Restart all modules when SteamVR is launched");
             return;
         }
 
         sRanipalInterface.Initialise(GetSetting<bool>(SRanipalSetting.EyeEnable), GetSetting<bool>(SRanipalSetting.LipEnable));
         parameterData.Clear();
+
+        changeTolerance = GetSetting<TrackingQuality>(SRanipalSetting.TrackingQuality) switch
+        {
+            TrackingQuality.Low => 1f / 64f,
+            TrackingQuality.Medium => 1f / 128f,
+            TrackingQuality.High => 1f / 256f,
+            _ => throw new ArgumentOutOfRangeException()
+        };
     }
 
-    private static bool isOpenVROpen() => Process.GetProcessesByName(@"vrmonitor").Any();
+    protected override void OnModuleUpdate()
+    {
+        sRanipalInterface.Update();
+
+        if (GetSetting<bool>(SRanipalSetting.EyeEnable) && sRanipalInterface.EyeAvailable) sendEyes();
+        if (GetSetting<bool>(SRanipalSetting.LipEnable) && sRanipalInterface.LipAvailable) sendLips();
+    }
+
+    protected override void OnModuleStop()
+    {
+        sRanipalInterface.Release();
+    }
 
     protected override void OnAvatarChange()
     {
         parameterData.Clear();
+
         if (AvatarConfig is null) return;
 
         Log($"Avatar change detected. Parsing avatar {AvatarConfig.Name} with {AvatarConfig.Parameters.Count} parameters");
@@ -136,14 +161,6 @@ public partial class SRanipalModule : Module
         parameterData.Add(lookup, paramData);
     }
 
-    protected override void OnModuleUpdate()
-    {
-        sRanipalInterface.Update();
-
-        if (GetSetting<bool>(SRanipalSetting.EyeEnable) && sRanipalInterface.APIInterface.EyeStatus.Value == Error.WORK) sendEyes();
-        if (GetSetting<bool>(SRanipalSetting.LipEnable) && sRanipalInterface.APIInterface.LipStatus.Value == Error.WORK) sendLips();
-    }
-
     private void sendEyes()
     {
         foreach (var key in eyeParams)
@@ -164,14 +181,6 @@ public partial class SRanipalModule : Module
 
     private void sendLips()
     {
-        var changeTolerance = GetSetting<TrackingQuality>(SRanipalSetting.TrackingQuality) switch
-        {
-            TrackingQuality.Low => 1f / 64f,
-            TrackingQuality.Medium => 1f / 128f,
-            TrackingQuality.High => 1f / 256f,
-            _ => throw new ArgumentOutOfRangeException()
-        };
-
         foreach (var key in lipParams)
         {
             var shape = LipShapeGenerator.SHAPES[key];
@@ -222,11 +231,6 @@ public partial class SRanipalModule : Module
         }
 
         return array;
-    }
-
-    protected override void OnModuleStop()
-    {
-        sRanipalInterface.Release();
     }
 
     private enum SRanipalSetting

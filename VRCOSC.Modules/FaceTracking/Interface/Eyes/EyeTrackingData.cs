@@ -34,16 +34,8 @@ public class EyeTrackingData
 
     public void Update(EyeDataV2 eyeData)
     {
-        if (eyeData.verbose_data.right.GetValidity(SingleEyeDataValidity.SINGLE_EYE_DATA_PUPIL_DIAMETER_VALIDITY))
-        {
-            rawDilation = eyeData.verbose_data.right.pupil_diameter_mm;
-            updateMinMaxDilation(eyeData.verbose_data.right.pupil_diameter_mm);
-        }
-        else if (eyeData.verbose_data.left.GetValidity(SingleEyeDataValidity.SINGLE_EYE_DATA_PUPIL_DIAMETER_VALIDITY))
-        {
-            rawDilation = eyeData.verbose_data.left.pupil_diameter_mm;
-            updateMinMaxDilation(eyeData.verbose_data.left.pupil_diameter_mm);
-        }
+        updatePupil(eyeData.verbose_data.left);
+        updatePupil(eyeData.verbose_data.right);
 
         Left.Update(eyeData.verbose_data.left, eyeData.expression_data.left);
         Right.Update(eyeData.verbose_data.right, eyeData.expression_data.right);
@@ -58,9 +50,12 @@ public class EyeTrackingData
         EyesPupilDiameter = rawDilation > 10f ? 1f : rawDilation / 10f;
     }
 
-    private void updateMinMaxDilation(float readDilation)
+    private void updatePupil(SingleEyeData data)
     {
-        maxDilation = Math.Max(maxDilation, readDilation);
-        minDilation = Math.Min(minDilation, readDilation);
+        if (!data.GetValidity(SingleEyeDataValidity.SINGLE_EYE_DATA_PUPIL_DIAMETER_VALIDITY)) return;
+
+        rawDilation = data.pupil_diameter_mm;
+        maxDilation = Math.Max(maxDilation, rawDilation);
+        minDilation = Math.Min(minDilation, rawDilation);
     }
 }
