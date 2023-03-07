@@ -29,11 +29,12 @@ public class EyeTrackingData
 
         maxDilation = 0f;
         minDilation = float.MaxValue;
-        rawDilation = 0f;
     }
 
     public void Update(EyeDataV2 eyeData)
     {
+        rawDilation = 0f;
+
         updatePupil(eyeData.verbose_data.left);
         updatePupil(eyeData.verbose_data.right);
 

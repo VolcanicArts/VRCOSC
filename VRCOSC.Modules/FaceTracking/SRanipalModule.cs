@@ -38,7 +38,7 @@ public partial class SRanipalModule : Module
     private readonly List<LipParam> lipParams = Enum.GetValues<LipParam>().ToList();
     private readonly List<EyeParam> eyeParams = Enum.GetValues<EyeParam>().ToList();
 
-    private float changeTolerance = 0f;
+    private float changeTolerance;
 
     public SRanipalModule()
     {
