@@ -12,8 +12,8 @@ public class SRanipalAPIInterface
     public LipDataV2 LipData;
     public EyeDataV2 EyeData;
 
-    private bool eyeAvailable => EyeStatus.Value != Error.UNDEFINED;
-    private bool lipAvailable => LipStatus.Value != Error.UNDEFINED;
+    private bool eyeAvailable => EyeStatus.Value == Error.WORK;
+    private bool lipAvailable => LipStatus.Value == Error.WORK;
 
     public void Initialise(bool eye, bool lip)
     {

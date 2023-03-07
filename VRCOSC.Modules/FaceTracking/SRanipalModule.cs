@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System.Diagnostics;
@@ -150,15 +150,13 @@ public partial class SRanipalModule : Module
         {
             if (EyeParameterGenerator.FLOAT_VALUES.TryGetValue(key, out var floatFunc))
             {
-                var value = floatFunc(sRanipalInterface.EyeData);
-                sendParameter(key, value); // may be binary encoded
+                var value = floatFunc.Invoke(sRanipalInterface.EyeData);
+                sendEncodedParameter(key, value); // may be binary encoded
             }
 
             if (EyeParameterGenerator.BOOL_VALUES.TryGetValue(key, out var boolFunc))
             {
-                if (!parameterData.ContainsKey(key)) return;
-
-                var value = boolFunc(sRanipalInterface.EyeData);
+                var value = boolFunc.Invoke(sRanipalInterface.EyeData);
                 SendParameter(key, value); // directly send bool values
             }
         }
@@ -178,11 +176,11 @@ public partial class SRanipalModule : Module
         {
             var shape = LipShapeGenerator.SHAPES[key];
             var value = shape.GetShape(sRanipalInterface.LipData.Shapes, changeTolerance);
-            if (value.HasChanged) sendParameter(key, value.Value);
+            if (value.HasChanged) sendEncodedParameter(key, value.Value);
         }
     }
 
-    private void sendParameter(Enum lookup, float value)
+    private void sendEncodedParameter(Enum lookup, float value)
     {
         if (!parameterData.TryGetValue(lookup, out var paramData)) return;
 

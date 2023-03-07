@@ -137,6 +137,8 @@ public abstract partial class Module : Component, IComparable<Module>
 
         State.Value = ModuleState.Starting;
 
+        AvatarConfig = null;
+
         OnModuleStart();
 
         if (ShouldUpdate) Scheduler.AddDelayed(OnModuleUpdate, DeltaUpdate.TotalMilliseconds, true);
