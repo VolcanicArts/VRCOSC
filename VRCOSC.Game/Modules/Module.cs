@@ -226,6 +226,12 @@ public abstract partial class Module : Component, IComparable<Module>
         if (!IsEnabled) return;
         if (!HasStarted) return;
 
+        if (data.IsAvatarChangeEvent)
+        {
+            OnAvatarChange();
+            return;
+        }
+
         if (!data.IsAvatarParameter || Parameters.Select(pair => pair.Value).All(parameter => parameter.Name != data.ParameterName)) return;
 
         var lookup = Parameters.Single(pair => pair.Value.Name == data.ParameterName).Key;
