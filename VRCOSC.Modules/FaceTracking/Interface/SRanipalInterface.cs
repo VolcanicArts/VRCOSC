@@ -27,8 +27,8 @@ public class SRanipalInterface
     public void Update()
     {
         APIInterface.Update();
-        EyeData.Update(APIInterface.EyeData);
-        LipData.Update(APIInterface.LipData);
+        if (EyeAvailable) EyeData.Update(APIInterface.EyeData);
+        if (LipAvailable) LipData.Update(APIInterface.LipData);
     }
 
     public void Release()

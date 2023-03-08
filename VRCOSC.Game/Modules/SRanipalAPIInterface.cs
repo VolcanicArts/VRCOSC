@@ -26,8 +26,8 @@ public class SRanipalAPIInterface
 
     public void Release()
     {
-        if (eyeAvailable) SRanipalAPI.Release(2);
-        if (lipAvailable) SRanipalAPI.Release(3);
+        SRanipalAPI.Release(2);
+        SRanipalAPI.Release(3);
 
         EyeStatus.SetDefault();
         LipStatus.SetDefault();
@@ -35,17 +35,7 @@ public class SRanipalAPIInterface
 
     public void Update()
     {
-        if (eyeAvailable) updateEye();
-        if (lipAvailable) updateLip();
-    }
-
-    private void updateEye()
-    {
-        SRanipalAPI.GetEyeData(ref EyeData);
-    }
-
-    private void updateLip()
-    {
-        SRanipalAPI.GetLipData(ref LipData);
+        if (eyeAvailable) SRanipalAPI.GetEyeData(ref EyeData);
+        if (lipAvailable) SRanipalAPI.GetLipData(ref LipData);
     }
 }

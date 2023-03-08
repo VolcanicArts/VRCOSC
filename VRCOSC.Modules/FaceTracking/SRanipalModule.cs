@@ -48,6 +48,8 @@ public partial class SRanipalModule : Module
 
     private void handleStatus(string name, Error status)
     {
+        if (State.Value != ModuleState.Started) return;
+
         switch (status)
         {
             case Error.WORK:
@@ -118,8 +120,8 @@ public partial class SRanipalModule : Module
         if (AvatarConfig is null) return;
 
         Log($"Avatar change detected. Parsing avatar {AvatarConfig.Name} with {AvatarConfig.Parameters.Count} parameters");
-        lipParams.ForEach(key => auditParameter(key));
-        eyeParams.ForEach(key => auditParameter(key));
+        if (GetSetting<bool>(SRanipalSetting.EyeEnable)) eyeParams.ForEach(key => auditParameter(key));
+        if (GetSetting<bool>(SRanipalSetting.LipEnable)) lipParams.ForEach(key => auditParameter(key));
 
         var finalCount = parameterData.Select(pair => pair.Value.TotalCount).Sum();
         Log($"Detected {finalCount} usable parameters");
