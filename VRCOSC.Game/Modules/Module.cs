@@ -39,7 +39,7 @@ public abstract partial class Module : Component, IComparable<Module>
     protected ChatBoxInterface ChatBoxInterface => GameManager.ChatBoxInterface;
     protected Bindable<ModuleState> State = new(ModuleState.Stopped);
     protected IVRCOSCSecrets Secrets => secrets;
-    protected AvatarConfig? AvatarConfig;
+    protected AvatarConfig? AvatarConfig => GameManager.AvatarConfig;
 
     internal readonly BindableBool Enabled = new();
     internal readonly Dictionary<string, ModuleAttribute> Settings = new();
@@ -137,8 +137,6 @@ public abstract partial class Module : Component, IComparable<Module>
 
         State.Value = ModuleState.Starting;
 
-        AvatarConfig = null;
-
         OnModuleStart();
 
         if (ShouldUpdate) Scheduler.AddDelayed(OnModuleUpdate, DeltaUpdate.TotalMilliseconds, true);
@@ -223,20 +221,10 @@ public abstract partial class Module : Component, IComparable<Module>
         OscClient.SendValue(data.FormattedAddress + suffix, value);
     }
 
-    private const string avatarIdFormat = "avtr_XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
-
     internal void OnParameterReceived(VRChatOscData data)
     {
         if (!IsEnabled) return;
         if (!HasStarted) return;
-
-        if (data.IsAvatarChangeEvent)
-        {
-            var avatarId = ((string)data.ParameterValue)[..avatarIdFormat.Length];
-            AvatarConfig = AvatarConfigLoader.LoadConfigFor(avatarId);
-            OnAvatarChange();
-            return;
-        }
 
         if (!data.IsAvatarParameter || Parameters.Select(pair => pair.Value).All(parameter => parameter.Name != data.ParameterName)) return;
 
