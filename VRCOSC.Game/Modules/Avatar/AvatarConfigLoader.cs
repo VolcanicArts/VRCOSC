@@ -17,29 +17,47 @@ public static class AvatarConfigLoader
     {
         Logger.Log($"Attempting to load avatar {avatarId}...");
 
-        if (!Directory.Exists(vr_chat_osc_folder_path)) return null;
+        if (!Directory.Exists(vr_chat_osc_folder_path))
+        {
+            Logger.Log("OSC folder unavailable");
+            return null;
+        }
 
         Logger.Log("OSC folder exists...");
         var oscFolderContents = Directory.GetDirectories(vr_chat_osc_folder_path);
 
-        if (!oscFolderContents.Any()) return null;
+        if (!oscFolderContents.Any())
+        {
+            Logger.Log("User folder unavailable");
+            return null;
+        }
 
         Logger.Log("User folder exists...");
         var userFolder = oscFolderContents.First();
 
         var avatarFolderPath = Path.Combine(userFolder, "Avatars");
-        if (!Directory.Exists(avatarFolderPath)) return null;
+
+        if (!Directory.Exists(avatarFolderPath))
+        {
+            Logger.Log("Avatars folder unavailable");
+            return null;
+        }
 
         Logger.Log("Avatars folder exists...");
         var avatarFiles = Directory.GetFiles(avatarFolderPath);
-        if (!avatarFiles.Any()) return null;
+
+        if (!avatarFiles.Any())
+        {
+            Logger.Log("No configs present");
+            return null;
+        }
 
         Logger.Log($"Found {avatarFiles.Length} total configs");
         var avatarIdFiles = avatarFiles.Where(filePath => filePath.Contains(avatarId)).ToArray();
 
         if (!avatarIdFiles.Any())
         {
-            Logger.Log("No config available");
+            Logger.Log("No config available for specified Id");
             return null;
         }
 
