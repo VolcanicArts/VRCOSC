@@ -135,12 +135,12 @@ public partial class GameManager : CompositeComponent
                 }
                 else
                 {
-                    Player.Update(data.ParameterName, data.Values[0]);
+                    Player.Update(data.ParameterName, data.ParameterValue);
 
                     switch (data.ParameterName)
                     {
                         case @"VRCOSC/Controls/ChatBox":
-                            ChatBoxInterface.SendEnabled = (bool)data.Values[0];
+                            ChatBoxInterface.SendEnabled = (bool)data.ParameterValue;
                             break;
                     }
                 }
