@@ -169,6 +169,8 @@ public partial class GameManager : CompositeComponent
             oscDataCache.Clear();
         }
 
+        AvatarConfig = null;
+
         if (!initialiseOscClient())
         {
             hasAutoStarted = false;
