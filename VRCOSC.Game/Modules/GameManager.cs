@@ -15,6 +15,7 @@ using osu.Framework.Platform;
 using Valve.VR;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics.Notifications;
+using VRCOSC.Game.Modules.Avatar;
 using VRCOSC.Game.OpenVR;
 using VRCOSC.Game.OpenVR.Metadata;
 using VRCOSC.Game.OSC;
@@ -56,6 +57,7 @@ public partial class GameManager : CompositeComponent
     public Player Player = null!;
     public OVRClient OVRClient = null!;
     public ChatBoxInterface ChatBoxInterface = null!;
+    public AvatarConfig? AvatarConfig;
 
     [BackgroundDependencyLoader]
     private void load(Storage storage)
@@ -116,32 +118,35 @@ public partial class GameManager : CompositeComponent
         };
     }
 
+    private const string avatar_id_format = "avtr_XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
+
     private void handleOscDataCache()
     {
         lock (oscDataCacheLock)
         {
             oscDataCache.ForEach(data =>
             {
-                ModuleManager.OnParameterReceived(data);
-
                 if (data.IsAvatarChangeEvent)
                 {
+                    var avatarId = ((string)data.ParameterValue)[..avatar_id_format.Length];
+                    AvatarConfig = AvatarConfigLoader.LoadConfigFor(avatarId);
+
                     sendControlValues();
-                    return;
                 }
-
-                if (!data.IsAvatarParameter) return;
-
-                Player.Update(data.ParameterName, data.Values[0]);
-
-                switch (data.ParameterName)
+                else
                 {
-                    case @"VRCOSC/Controls/ChatBox":
-                        ChatBoxInterface.SendEnabled = (bool)data.Values[0];
-                        break;
-                }
-            });
+                    Player.Update(data.ParameterName, data.ParameterValue);
 
+                    switch (data.ParameterName)
+                    {
+                        case @"VRCOSC/Controls/ChatBox":
+                            ChatBoxInterface.SendEnabled = (bool)data.ParameterValue;
+                            break;
+                    }
+                }
+
+                ModuleManager.OnParameterReceived(data);
+            });
             oscDataCache.Clear();
         }
     }
@@ -163,6 +168,8 @@ public partial class GameManager : CompositeComponent
         {
             oscDataCache.Clear();
         }
+
+        AvatarConfig = null;
 
         if (!initialiseOscClient())
         {

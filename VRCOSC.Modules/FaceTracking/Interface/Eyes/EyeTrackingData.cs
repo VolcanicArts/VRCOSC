@@ -16,33 +16,27 @@ public class EyeTrackingData
 
     private float maxDilation;
     private float minDilation;
+    private float rawDilation;
 
     public void Initialise()
     {
         Left.Initialise();
         Right.Initialise();
+        Combined.Initialise();
 
         EyesDilation = 0f;
         EyesPupilDiameter = 0f;
 
-        maxDilation = float.MaxValue;
-        minDilation = 0f;
+        maxDilation = 0f;
+        minDilation = float.MaxValue;
     }
 
     public void Update(EyeDataV2 eyeData)
     {
-        var dilation = 0f;
+        rawDilation = 0f;
 
-        if (eyeData.verbose_data.right.GetValidity(SingleEyeDataValidity.SINGLE_EYE_DATA_PUPIL_DIAMETER_VALIDITY))
-        {
-            dilation = eyeData.verbose_data.right.pupil_diameter_mm;
-            updateMinMaxDilation(eyeData.verbose_data.right.pupil_diameter_mm);
-        }
-        else if (eyeData.verbose_data.left.GetValidity(SingleEyeDataValidity.SINGLE_EYE_DATA_PUPIL_DIAMETER_VALIDITY))
-        {
-            dilation = eyeData.verbose_data.left.pupil_diameter_mm;
-            updateMinMaxDilation(eyeData.verbose_data.left.pupil_diameter_mm);
-        }
+        updatePupil(eyeData.verbose_data.left);
+        updatePupil(eyeData.verbose_data.right);
 
         Left.Update(eyeData.verbose_data.left, eyeData.expression_data.left);
         Right.Update(eyeData.verbose_data.right, eyeData.expression_data.right);
@@ -51,18 +45,18 @@ public class EyeTrackingData
         Combined.Widen = (Left.Widen + Right.Widen) / 2f;
         Combined.Squeeze = (Left.Squeeze + Right.Squeeze) / 2f;
 
-        if (dilation == 0) return;
+        if (rawDilation == 0) return;
 
-        EyesDilation = (dilation - minDilation) / (maxDilation - minDilation);
-        EyesPupilDiameter = dilation > 10f ? 1f : dilation / 10f;
+        EyesDilation = (rawDilation - minDilation) / (maxDilation - minDilation);
+        EyesPupilDiameter = rawDilation > 10f ? 1f : rawDilation / 10f;
     }
 
-    private void updateMinMaxDilation(float readDilation)
+    private void updatePupil(SingleEyeData data)
     {
-        if (readDilation > maxDilation)
-            maxDilation = readDilation;
+        if (!data.GetValidity(SingleEyeDataValidity.SINGLE_EYE_DATA_PUPIL_DIAMETER_VALIDITY)) return;
 
-        if (readDilation < minDilation)
-            minDilation = readDilation;
+        rawDilation = data.pupil_diameter_mm;
+        maxDilation = Math.Max(maxDilation, rawDilation);
+        minDilation = Math.Min(minDilation, rawDilation);
     }
 }

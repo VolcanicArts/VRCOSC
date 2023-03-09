@@ -17,7 +17,7 @@ public sealed partial class TerminalContainer : Container<TerminalEntry>
 
     protected override FillFlowContainer<TerminalEntry> Content { get; }
 
-    private readonly DrawablePool<TerminalEntry> terminalEntryPool = new(50);
+    private readonly DrawablePool<TerminalEntry> terminalEntryPool = new(75);
 
     public TerminalContainer()
     {

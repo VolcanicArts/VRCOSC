@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
+using osu.Framework.Logging;
 
 namespace VRCOSC.Game.Modules.Avatar;
 
@@ -14,17 +15,59 @@ public static class AvatarConfigLoader
 
     public static AvatarConfig? LoadConfigFor(string avatarId)
     {
-        var oscFolder = Directory.GetDirectories(Directory.GetDirectories(vr_chat_osc_folder_path).First()).First();
-        var avatarFiles = Directory.GetFiles(oscFolder);
+        Logger.Log($"Attempting to load avatar {avatarId}...");
 
-        if (!avatarFiles.Any()) return null;
+        if (!Directory.Exists(vr_chat_osc_folder_path))
+        {
+            Logger.Log("OSC folder unavailable");
+            return null;
+        }
 
-        var avatarIdFiles = avatarFiles.Where(filePath => filePath.Contains(avatarId)).ToList();
+        Logger.Log("OSC folder exists...");
+        var oscFolderContents = Directory.GetDirectories(vr_chat_osc_folder_path);
 
-        if (!avatarIdFiles.Any()) return null;
+        if (!oscFolderContents.Any())
+        {
+            Logger.Log("User folder unavailable");
+            return null;
+        }
 
+        Logger.Log("User folder exists...");
+        var userFolder = oscFolderContents.First();
+
+        var avatarFolderPath = Path.Combine(userFolder, "Avatars");
+
+        if (!Directory.Exists(avatarFolderPath))
+        {
+            Logger.Log("Avatars folder unavailable");
+            return null;
+        }
+
+        Logger.Log("Avatars folder exists...");
+        var avatarFiles = Directory.GetFiles(avatarFolderPath);
+
+        if (!avatarFiles.Any())
+        {
+            Logger.Log("No configs present");
+            return null;
+        }
+
+        Logger.Log($"Found {avatarFiles.Length} total configs");
+        var avatarIdFiles = avatarFiles.Where(filePath => filePath.Contains(avatarId)).ToArray();
+
+        if (!avatarIdFiles.Any())
+        {
+            Logger.Log("No config available for specified Id");
+            return null;
+        }
+
+        Logger.Log($"Final matching config count: {avatarIdFiles.Length}");
         var avatarFile = avatarIdFiles.First();
-        var avatarConfigRaw = File.ReadAllText(avatarFile);
-        return JsonConvert.DeserializeObject<AvatarConfig>(avatarConfigRaw);
+
+        Logger.Log($"Attempting to load avatar config named: {avatarFile}");
+        var data = JsonConvert.DeserializeObject<AvatarConfig>(File.ReadAllText(avatarFile));
+
+        if (data is not null) Logger.Log($"Successfully loaded config for avatar {data.Name} containing {data.Parameters.Count} parameters");
+        return data;
     }
 }
