@@ -7,9 +7,11 @@ using System.Collections.Generic;
 using System.Linq;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Lists;
+using osu.Framework.Logging;
+using VRCOSC.Game.Modules.Serialisation;
 using VRCOSC.Game.Modules.Sources;
 
-namespace VRCOSC.Game.Modules;
+namespace VRCOSC.Game.Modules.Manager;
 
 public sealed partial class ModuleManager : CompositeComponent, IModuleManager
 {
@@ -17,9 +19,11 @@ public sealed partial class ModuleManager : CompositeComponent, IModuleManager
 
     private readonly List<IModuleSource> sources = new();
     private readonly SortedList<Module> modules = new();
+    private IModuleSerialiser? serialiser;
 
     public void AddSource(IModuleSource source) => sources.Add(source);
     public bool RemoveSource(IModuleSource source) => sources.Remove(source);
+    public void SetSerialiser(IModuleSerialiser serialiser) => this.serialiser = serialiser;
 
     public void Load()
     {
@@ -34,7 +38,20 @@ public sealed partial class ModuleManager : CompositeComponent, IModuleManager
             }
         });
 
+        // TODO - Remove after decoupling
         AddRangeInternal(modules);
+
+        if (serialiser is null)
+        {
+            Logger.Log("Warning. No serialiser has been set. Aborting module load");
+            return;
+        }
+
+        foreach (var module in this)
+        {
+            module.Load();
+            serialiser?.Deserialise(module);
+        }
     }
 
     public void Start()

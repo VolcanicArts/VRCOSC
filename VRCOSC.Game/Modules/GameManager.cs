@@ -16,6 +16,8 @@ using Valve.VR;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Modules.Avatar;
+using VRCOSC.Game.Modules.Manager;
+using VRCOSC.Game.Modules.Serialisation;
 using VRCOSC.Game.Modules.Sources;
 using VRCOSC.Game.OpenVR;
 using VRCOSC.Game.OpenVR.Metadata;
@@ -55,8 +57,8 @@ public partial class GameManager : CompositeComponent
     private readonly object oscDataCacheLock = new();
 
     public readonly VRChatOscClient VRChatOscClient = new();
-    public readonly ModuleManager ModuleManager = new();
     public readonly Bindable<GameManagerState> State = new(GameManagerState.Stopped);
+    public ModuleManager ModuleManager = null!;
     public OSCRouter OSCRouter = null!;
     public Player Player = null!;
     public OVRClient OVRClient = null!;
@@ -86,8 +88,10 @@ public partial class GameManager : CompositeComponent
 
     private void setupModules()
     {
+        ModuleManager = new ModuleManager();
         ModuleManager.AddSource(new InternalModuleSource());
         ModuleManager.AddSource(new ExternalModuleSource(storage));
+        ModuleManager.SetSerialiser(new ModuleSerialiser(storage));
         ModuleManager.Load();
         AddInternal(ModuleManager);
     }

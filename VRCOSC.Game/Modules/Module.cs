@@ -30,7 +30,6 @@ public abstract partial class Module : Component, IComparable<Module>
     [Resolved]
     private IVRCOSCSecrets secrets { get; set; } = null!;
 
-    private Storage Storage = null!;
     private TerminalLogger Terminal = null!;
 
     protected Player Player => GameManager.Player;
@@ -56,7 +55,7 @@ public abstract partial class Module : Component, IComparable<Module>
 
     private bool IsEnabled => Enabled.Value;
     private bool ShouldUpdate => DeltaUpdate != TimeSpan.MaxValue;
-    private string FileName => @$"{GetType().Name}.ini";
+    internal string FileName => @$"{GetType().Name}.ini";
 
     protected bool IsStarting => State.Value == ModuleState.Starting;
     protected bool HasStarted => State.Value == ModuleState.Started;
@@ -66,21 +65,13 @@ public abstract partial class Module : Component, IComparable<Module>
     internal bool HasSettings => Settings.Any();
     internal bool HasParameters => Parameters.Any();
 
-    [BackgroundDependencyLoader]
-    internal void load(Storage storage)
+    public void Load()
     {
-        Storage = storage.GetStorageForDirectory("modules");
         Terminal = new TerminalLogger(Title);
 
         CreateAttributes();
 
         Parameters.ForEach(pair => ParametersLookup.Add(pair.Key.ToLookup(), pair.Key));
-
-        performLoad();
-    }
-
-    protected override void LoadComplete()
-    {
         State.ValueChanged += _ => Log(State.Value.ToString());
     }
 
@@ -139,6 +130,7 @@ public abstract partial class Module : Component, IComparable<Module>
 
         OnModuleStart();
 
+        // TODO - Get scheduler from ModuleManager
         if (ShouldUpdate) Scheduler.AddDelayed(OnModuleUpdate, DeltaUpdate.TotalMilliseconds, true);
 
         State.Value = ModuleState.Started;
