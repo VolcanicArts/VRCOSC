@@ -66,7 +66,7 @@ public partial class GameManager : Component
 
     public readonly VRChatOscClient VRChatOscClient = new();
     public readonly Bindable<GameManagerState> State = new(GameManagerState.Stopped);
-    public ModuleManager ModuleManager = null!;
+    public IModuleManager ModuleManager = null!;
     public OSCRouter OSCRouter = null!;
     public Player Player = null!;
     public OVRClient OVRClient = null!;
@@ -96,12 +96,13 @@ public partial class GameManager : Component
 
     private void setupModules()
     {
-        ModuleManager = new ModuleManager();
-        ModuleManager.AddSource(new InternalModuleSource());
-        ModuleManager.AddSource(new ExternalModuleSource(storage));
-        ModuleManager.SetSerialiser(new ModuleSerialiser(storage));
-        ModuleManager.InjectModuleDependencies(host, this, secrets, new Scheduler(() => ThreadSafety.IsUpdateThread, Clock));
-        ModuleManager.Load();
+        var moduleManager = new ModuleManager();
+        moduleManager.AddSource(new InternalModuleSource());
+        moduleManager.AddSource(new ExternalModuleSource(storage));
+        moduleManager.SetSerialiser(new ModuleSerialiser(storage));
+        moduleManager.InjectModuleDependencies(host, this, secrets, new Scheduler(() => ThreadSafety.IsUpdateThread, Clock));
+        moduleManager.Load();
+        ModuleManager = moduleManager;
     }
 
     protected override void Update()

@@ -13,6 +13,8 @@ public interface IModuleManager : IEnumerable<Module>
     public bool RemoveSource(IModuleSource source);
     public void SetSerialiser(IModuleSerialiser serialiser);
     public void Load();
+    public void SaveAll();
+    public void Save(Module module);
     public void Start();
     public void Update();
     public void Stop();

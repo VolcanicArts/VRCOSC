@@ -15,6 +15,9 @@ public sealed partial class ModuleEditingPopover : PopoverScreen
     [Resolved(name: "EditingModule")]
     private Bindable<Module?> editingModule { get; set; } = null!;
 
+    [Resolved]
+    private GameManager gameManager { get; set; } = null!;
+
     public ModuleEditingPopover()
     {
         Children = new Drawable[]
@@ -43,7 +46,9 @@ public sealed partial class ModuleEditingPopover : PopoverScreen
         {
             if (e.NewValue is null)
             {
-                e.OldValue?.Save();
+                if (e.OldValue is not null)
+                    gameManager.ModuleManager.Save(e.OldValue);
+
                 Hide();
             }
             else

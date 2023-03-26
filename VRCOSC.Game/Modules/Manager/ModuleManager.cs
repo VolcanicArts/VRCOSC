@@ -6,7 +6,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using osu.Framework.Lists;
-using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Framework.Threading;
 using VRCOSC.Game.Modules.Serialisation;
@@ -53,17 +52,24 @@ public sealed class ModuleManager : IModuleManager
             }
         });
 
-        if (serialiser is null)
-        {
-            Logger.Log("Warning. No serialiser has been set. Aborting module load");
-            return;
-        }
-
         foreach (var module in this)
         {
             module.Load();
             serialiser?.Deserialise(module);
         }
+    }
+
+    public void SaveAll()
+    {
+        foreach (var module in this)
+        {
+            serialiser?.Serialise(module);
+        }
+    }
+
+    public void Save(Module module)
+    {
+        serialiser?.Serialise(module);
     }
 
     public void Start()
