@@ -5,15 +5,16 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using osu.Framework.Graphics.Containers;
 using osu.Framework.Lists;
 using osu.Framework.Logging;
+using osu.Framework.Platform;
+using osu.Framework.Threading;
 using VRCOSC.Game.Modules.Serialisation;
 using VRCOSC.Game.Modules.Sources;
 
 namespace VRCOSC.Game.Modules.Manager;
 
-public sealed partial class ModuleManager : CompositeComponent, IModuleManager
+public sealed class ModuleManager : IModuleManager
 {
     private static TerminalLogger terminal => new("ModuleManager");
 
@@ -25,6 +26,19 @@ public sealed partial class ModuleManager : CompositeComponent, IModuleManager
     public bool RemoveSource(IModuleSource source) => sources.Remove(source);
     public void SetSerialiser(IModuleSerialiser serialiser) => this.serialiser = serialiser;
 
+    private GameHost host = null!;
+    private GameManager gameManager = null!;
+    private IVRCOSCSecrets secrets = null!;
+    private Scheduler scheduler = null!;
+
+    public void InjectModuleDependencies(GameHost host, GameManager gameManager, IVRCOSCSecrets secrets, Scheduler scheduler)
+    {
+        this.host = host;
+        this.gameManager = gameManager;
+        this.secrets = secrets;
+        this.scheduler = scheduler;
+    }
+
     public void Load()
     {
         modules.Clear();
@@ -34,12 +48,10 @@ public sealed partial class ModuleManager : CompositeComponent, IModuleManager
             foreach (var type in source.Load())
             {
                 var module = (Module)Activator.CreateInstance(type)!;
+                module.InjectDependencies(host, gameManager, secrets, scheduler);
                 modules.Add(module);
             }
         });
-
-        // TODO - Remove after decoupling
-        AddRangeInternal(modules);
 
         if (serialiser is null)
         {
@@ -65,8 +77,20 @@ public sealed partial class ModuleManager : CompositeComponent, IModuleManager
         }
     }
 
+    public void Update()
+    {
+        scheduler.Update();
+
+        foreach (var module in modules)
+        {
+            module.internalUpdate();
+        }
+    }
+
     public void Stop()
     {
+        scheduler.CancelDelayedTasks();
+
         foreach (var module in modules)
         {
             module.Stop();

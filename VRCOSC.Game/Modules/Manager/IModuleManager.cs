@@ -14,5 +14,6 @@ public interface IModuleManager : IEnumerable<Module>
     public void SetSerialiser(IModuleSerialiser serialiser);
     public void Load();
     public void Start();
+    public void Update();
     public void Stop();
 }

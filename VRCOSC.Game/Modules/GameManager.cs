@@ -9,9 +9,11 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
-using osu.Framework.Graphics.Containers;
+using osu.Framework.Development;
+using osu.Framework.Graphics;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
+using osu.Framework.Threading;
 using Valve.VR;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics.Notifications;
@@ -27,7 +29,7 @@ using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Game.Modules;
 
-public partial class GameManager : CompositeComponent
+public partial class GameManager : Component
 {
     private const double openvr_check_interval = 1000;
     private const double vrchat_process_check_interval = 5000;
@@ -50,6 +52,12 @@ public partial class GameManager : CompositeComponent
 
     [Resolved]
     private Storage storage { get; set; } = null!;
+
+    [Resolved]
+    private GameHost host { get; set; } = null!;
+
+    [Resolved]
+    private IVRCOSCSecrets secrets { get; set; } = null!;
 
     private Bindable<bool> autoStartStop = null!;
     private bool hasAutoStarted;
@@ -92,8 +100,8 @@ public partial class GameManager : CompositeComponent
         ModuleManager.AddSource(new InternalModuleSource());
         ModuleManager.AddSource(new ExternalModuleSource(storage));
         ModuleManager.SetSerialiser(new ModuleSerialiser(storage));
+        ModuleManager.InjectModuleDependencies(host, this, secrets, new Scheduler(() => ThreadSafety.IsUpdateThread, Clock));
         ModuleManager.Load();
-        AddInternal(ModuleManager);
     }
 
     protected override void Update()
@@ -103,11 +111,8 @@ public partial class GameManager : CompositeComponent
         OVRClient.Update();
 
         handleOscDataCache();
-    }
 
-    protected override void UpdateAfterChildren()
-    {
-        if (State.Value != GameManagerState.Started) return;
+        ModuleManager.Update();
 
         ChatBoxInterface.Update();
     }

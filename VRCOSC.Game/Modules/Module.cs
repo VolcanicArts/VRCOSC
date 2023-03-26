@@ -4,12 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
-using osu.Framework.Graphics;
 using osu.Framework.Platform;
+using osu.Framework.Threading;
 using VRCOSC.Game.Modules.Avatar;
 using VRCOSC.Game.OpenVR;
 using VRCOSC.Game.OSC.VRChat;
@@ -19,16 +18,12 @@ using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Game.Modules;
 
-public abstract partial class Module : Component, IComparable<Module>
+public abstract class Module : IComparable<Module>
 {
-    [Resolved]
-    private GameHost Host { get; set; } = null!;
-
-    [Resolved]
-    private GameManager GameManager { get; set; } = null!;
-
-    [Resolved]
-    private IVRCOSCSecrets secrets { get; set; } = null!;
+    private GameHost Host = null!;
+    private GameManager GameManager = null!;
+    protected IVRCOSCSecrets Secrets { get; private set; } = null!;
+    private Scheduler Scheduler = null!;
 
     private TerminalLogger Terminal = null!;
 
@@ -37,7 +32,6 @@ public abstract partial class Module : Component, IComparable<Module>
     protected VRChatOscClient OscClient => GameManager.VRChatOscClient;
     protected ChatBoxInterface ChatBoxInterface => GameManager.ChatBoxInterface;
     protected Bindable<ModuleState> State = new(ModuleState.Stopped);
-    protected IVRCOSCSecrets Secrets => secrets;
     protected AvatarConfig? AvatarConfig => GameManager.AvatarConfig;
 
     internal readonly BindableBool Enabled = new();
@@ -64,6 +58,14 @@ public abstract partial class Module : Component, IComparable<Module>
 
     internal bool HasSettings => Settings.Any();
     internal bool HasParameters => Parameters.Any();
+
+    public void InjectDependencies(GameHost host, GameManager gameManager, IVRCOSCSecrets secrets, Scheduler scheduler)
+    {
+        Host = host;
+        GameManager = gameManager;
+        Secrets = secrets;
+        Scheduler = scheduler;
+    }
 
     public void Load()
     {
@@ -130,7 +132,6 @@ public abstract partial class Module : Component, IComparable<Module>
 
         OnModuleStart();
 
-        // TODO - Get scheduler from ModuleManager
         if (ShouldUpdate) Scheduler.AddDelayed(OnModuleUpdate, DeltaUpdate.TotalMilliseconds, true);
 
         State.Value = ModuleState.Started;
@@ -138,13 +139,15 @@ public abstract partial class Module : Component, IComparable<Module>
         if (ShouldUpdateImmediately) OnModuleUpdate();
     }
 
+    // TODO - Proxy for now until ChatBoxV3 is decoupled from ChatBoxModule
+    internal void internalUpdate() => Update();
+    protected virtual void Update() { }
+
     internal void Stop()
     {
         if (!IsEnabled) return;
 
         State.Value = ModuleState.Stopping;
-
-        Scheduler.CancelDelayedTasks();
 
         OnModuleStop();
 
