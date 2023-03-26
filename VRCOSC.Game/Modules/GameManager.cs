@@ -16,6 +16,7 @@ using Valve.VR;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Modules.Avatar;
+using VRCOSC.Game.Modules.Sources;
 using VRCOSC.Game.OpenVR;
 using VRCOSC.Game.OpenVR.Metadata;
 using VRCOSC.Game.OSC;
@@ -45,6 +46,9 @@ public partial class GameManager : CompositeComponent
     [Resolved(name: "InfoModule")]
     private Bindable<Module?> infoModule { get; set; } = null!;
 
+    [Resolved]
+    private Storage storage { get; set; } = null!;
+
     private Bindable<bool> autoStartStop = null!;
     private bool hasAutoStarted;
     private readonly List<VRChatOscData> oscDataCache = new();
@@ -60,7 +64,7 @@ public partial class GameManager : CompositeComponent
     public AvatarConfig? AvatarConfig;
 
     [BackgroundDependencyLoader]
-    private void load(Storage storage)
+    private void load()
     {
         autoStartStop = configManager.GetBindable<bool>(VRCOSCSetting.AutoStartStop);
 
@@ -77,6 +81,14 @@ public partial class GameManager : CompositeComponent
 
         ChatBoxInterface = new ChatBoxInterface(VRChatOscClient, configManager.GetBindable<int>(VRCOSCSetting.ChatBoxTimeSpan));
 
+        setupModules();
+    }
+
+    private void setupModules()
+    {
+        ModuleManager.AddSource(new InternalModuleSource());
+        ModuleManager.AddSource(new ExternalModuleSource(storage));
+        ModuleManager.Load();
         AddInternal(ModuleManager);
     }
 
@@ -145,7 +157,10 @@ public partial class GameManager : CompositeComponent
                     }
                 }
 
-                ModuleManager.OnParameterReceived(data);
+                foreach (var module in ModuleManager)
+                {
+                    module.OnParameterReceived(data);
+                }
             });
             oscDataCache.Clear();
         }

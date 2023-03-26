@@ -4,74 +4,45 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using osu.Framework.Allocation;
-using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Lists;
-using osu.Framework.Logging;
-using osu.Framework.Platform;
-using VRCOSC.Game.OSC.VRChat;
+using VRCOSC.Game.Modules.Sources;
 
 namespace VRCOSC.Game.Modules;
 
-public sealed partial class ModuleManager : CompositeComponent, IEnumerable<Module>
+public sealed partial class ModuleManager : CompositeComponent, IModuleManager
 {
-    private readonly TerminalLogger terminal = new(nameof(ModuleManager));
+    private static TerminalLogger terminal => new("ModuleManager");
 
-    private readonly SortedList<Module> tempModuleList = new();
+    private readonly List<IModuleSource> sources = new();
+    private readonly SortedList<Module> modules = new();
 
-    [Resolved]
-    private Storage storage { get; set; } = null!;
+    public void AddSource(IModuleSource source) => sources.Add(source);
+    public bool RemoveSource(IModuleSource source) => sources.Remove(source);
 
-    [BackgroundDependencyLoader]
-    private void load()
+    public void Load()
     {
-        loadInternalModules();
-        loadExternalModules();
-        AddRangeInternal(tempModuleList);
-    }
+        modules.Clear();
 
-    private void loadInternalModules()
-    {
-        var assemblyPath = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll", SearchOption.AllDirectories)
-                                    .FirstOrDefault(fileName => fileName.Contains("VRCOSC.Modules"));
-
-        if (string.IsNullOrEmpty(assemblyPath))
+        sources.ForEach(source =>
         {
-            Logger.Log("Could not find internal module assembly");
-            return;
-        }
+            foreach (var type in source.Load())
+            {
+                var module = (Module)Activator.CreateInstance(type)!;
+                modules.Add(module);
+            }
+        });
 
-        loadModuleAssembly(assemblyPath);
-    }
-
-    private void loadExternalModules()
-    {
-        var moduleDirectoryPath = storage.GetStorageForDirectory("custom").GetFullPath(string.Empty, true);
-        Directory.GetFiles(moduleDirectoryPath, "*.dll", SearchOption.AllDirectories)
-                 .ForEach(loadModuleAssembly);
-    }
-
-    private void loadModuleAssembly(string assemblyPath)
-    {
-        Assembly.LoadFile(assemblyPath).GetTypes()
-                .Where(type => type.IsSubclassOf(typeof(Module)) && !type.IsAbstract)
-                .Select(type => (Module)Activator.CreateInstance(type)!)
-                .ForEach(module => tempModuleList.Add(module));
+        AddRangeInternal(modules);
     }
 
     public void Start()
     {
-        if (this.All(module => !module.Enabled.Value))
-        {
+        if (modules.All(module => !module.Enabled.Value))
             terminal.Log("You have no modules selected!\nSelect some modules to begin using VRCOSC");
-            return;
-        }
 
-        foreach (var module in this)
+        foreach (var module in modules)
         {
             module.Start();
         }
@@ -79,20 +50,12 @@ public sealed partial class ModuleManager : CompositeComponent, IEnumerable<Modu
 
     public void Stop()
     {
-        foreach (var module in this)
+        foreach (var module in modules)
         {
             module.Stop();
         }
     }
 
-    public void OnParameterReceived(VRChatOscData data)
-    {
-        foreach (var module in this)
-        {
-            module.OnParameterReceived(data);
-        }
-    }
-
-    public IEnumerator<Module> GetEnumerator() => InternalChildren.Select(child => (Module)child).GetEnumerator();
+    public IEnumerator<Module> GetEnumerator() => modules.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
