@@ -96,13 +96,12 @@ public partial class GameManager : Component
 
     private void setupModules()
     {
-        var moduleManager = new ModuleManager();
-        moduleManager.AddSource(new InternalModuleSource());
-        moduleManager.AddSource(new ExternalModuleSource(storage));
-        moduleManager.SetSerialiser(new ModuleSerialiser(storage));
-        moduleManager.InjectModuleDependencies(host, this, secrets, new Scheduler(() => ThreadSafety.IsUpdateThread, Clock));
-        moduleManager.Load();
-        ModuleManager = moduleManager;
+        ModuleManager = new ModuleManager();
+        ModuleManager.AddSource(new InternalModuleSource());
+        ModuleManager.AddSource(new ExternalModuleSource(storage));
+        ModuleManager.SetSerialiser(new ModuleSerialiser(storage));
+        ModuleManager.InjectModuleDependencies(host, this, secrets, new Scheduler(() => ThreadSafety.IsUpdateThread, Clock));
+        ModuleManager.Load();
     }
 
     protected override void Update()

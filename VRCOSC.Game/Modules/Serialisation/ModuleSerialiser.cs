@@ -50,7 +50,6 @@ public class ModuleSerialiser : IModuleSerialiser
         }
 
         Serialise(module);
-        module.Enabled.BindValueChanged(_ => Serialise(module));
     }
 
     private static void performInternalSettingsLoad(TextReader reader, Module module)

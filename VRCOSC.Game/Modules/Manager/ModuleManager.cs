@@ -56,6 +56,7 @@ public sealed class ModuleManager : IModuleManager
         {
             module.Load();
             serialiser?.Deserialise(module);
+            module.Enabled.BindValueChanged(_ => serialiser?.Serialise(module));
         }
     }
 
