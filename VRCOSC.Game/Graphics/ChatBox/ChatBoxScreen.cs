@@ -21,8 +21,6 @@ public partial class ChatBoxScreen : Container
     [BackgroundDependencyLoader]
     private void load()
     {
-        selectedClip.Value = new Clip();
-
         RelativeSizeAxes = Axes.Both;
 
         Children = new Drawable[]

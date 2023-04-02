@@ -7,6 +7,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osuTK;
+using VRCOSC.Game.ChatBox;
 using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.Graphics.ChatBox.Metadata;
 using VRCOSC.Game.Graphics.Themes;
@@ -15,6 +16,9 @@ namespace VRCOSC.Game.Graphics.ChatBox.SelectedClip;
 
 public partial class SelectedClipMetadataEditor : Container
 {
+    [Resolved]
+    private ChatBoxManager chatBoxManager { get; set; } = null!;
+
     [Resolved]
     private Bindable<Clip?> selectedClip { get; set; } = null!;
 

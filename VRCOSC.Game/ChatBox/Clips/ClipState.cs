@@ -7,6 +7,7 @@ namespace VRCOSC.Game.ChatBox.Clips;
 
 public class ClipState
 {
-    public string Format = string.Empty;
+    public required string Name { get; init; }
+    public string Format { get; init; } = string.Empty;
     public BindableBool Enabled = new();
 }

@@ -13,16 +13,19 @@ public class ChatBoxManager
     public IReadOnlyList<Clip> Clips => clips;
     private readonly List<Clip> clips = new();
 
-    public readonly Bindable<TimeSpan> TimelineLength = new(TimeSpan.FromSeconds(60));
+    public readonly Bindable<TimeSpan> TimelineLength = new(TimeSpan.FromMinutes(1));
 
-    public Clip CreateClip()
+    public ChatBoxManager()
     {
-        var clip = new Clip();
-        clips.Add(clip);
-        return clip;
+        AddClip(new Clip());
     }
 
-    public void DeleteClip(Clip clip)
+    public void AddClip(Clip clip)
+    {
+        clips.Add(clip);
+    }
+
+    public void RemoveClip(Clip clip)
     {
         clips.Remove(clip);
     }
