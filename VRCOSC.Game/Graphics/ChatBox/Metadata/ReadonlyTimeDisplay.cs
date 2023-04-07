@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
 using System.Globalization;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
@@ -10,19 +9,19 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using VRCOSC.Game.ChatBox;
 using VRCOSC.Game.Graphics.Themes;
-using VRCOSC.Game.Graphics.UI.Text;
+using VRCOSC.Game.Graphics.UI;
 
 namespace VRCOSC.Game.Graphics.ChatBox.Metadata;
 
-public partial class MetadataTime : Container
+public partial class ReadonlyTimeDisplay : Container
 {
     [Resolved]
     private ChatBoxManager chatBoxManager { get; set; } = null!;
 
     public required string Label { get; init; }
-    public required Bindable<TimeSpan> Current { get; init; }
+    public required Bindable<float> Current { get; init; }
 
-    private IntTextBox inputTextBox = null!;
+    private VRCOSCTextBox textBox = null!;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -51,10 +50,11 @@ public partial class MetadataTime : Container
                 Origin = Anchor.CentreRight,
                 RelativeSizeAxes = Axes.Both,
                 Width = 0.5f,
-                Child = inputTextBox = new LocalTextBox
+                Child = textBox = new LocalTextBox
                 {
                     RelativeSizeAxes = Axes.Both,
-                    CornerRadius = 5
+                    CornerRadius = 5,
+                    ReadOnly = true
                 }
             }
         };
@@ -62,11 +62,17 @@ public partial class MetadataTime : Container
 
     protected override void LoadComplete()
     {
-        inputTextBox.Text = Current.Value.TotalSeconds.ToString(CultureInfo.InvariantCulture);
-        inputTextBox.OnValidEntry += value => Current.Value = TimeSpan.FromSeconds(value);
+        chatBoxManager.TimelineLength.BindValueChanged(_ => updateText());
+        Current.BindValueChanged(_ => updateText());
+        updateText();
     }
 
-    private partial class LocalTextBox : IntTextBox
+    private void updateText()
+    {
+        textBox.Text = (chatBoxManager.TimelineLength.Value.TotalSeconds * Current.Value).ToString("##0", CultureInfo.InvariantCulture);
+    }
+
+    private partial class LocalTextBox : VRCOSCTextBox
     {
         [BackgroundDependencyLoader]
         private void load()

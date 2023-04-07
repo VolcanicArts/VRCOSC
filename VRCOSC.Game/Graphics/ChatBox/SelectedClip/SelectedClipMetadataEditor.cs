@@ -60,13 +60,13 @@ public partial class SelectedClipMetadataEditor : Container
             State = clip.Enabled
         });
 
-        metadataFlow.Add(new MetadataTime
+        metadataFlow.Add(new ReadonlyTimeDisplay
         {
             Label = "Start",
             Current = clip.Start
         });
 
-        metadataFlow.Add(new MetadataTime
+        metadataFlow.Add(new ReadonlyTimeDisplay
         {
             Label = "End",
             Current = clip.End

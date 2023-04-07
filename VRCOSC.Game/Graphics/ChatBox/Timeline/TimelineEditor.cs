@@ -8,6 +8,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Input.Events;
+using osuTK;
 using VRCOSC.Game.ChatBox;
 using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.Graphics.Themes;
@@ -23,25 +24,73 @@ public partial class TimelineEditor : Container
     [Resolved]
     private ChatBoxManager chatBoxManager { get; set; } = null!;
 
-    private Container<DrawableClip> clipContainer = null!;
+    private RectangularPositionSnapGrid snapping = null!;
 
     [BackgroundDependencyLoader]
     private void load()
     {
+        TimelineLayer layer3;
+
         Children = new Drawable[]
         {
             new Box
             {
-                Colour = ThemeManager.Current[ThemeAttribute.Dark],
-                RelativeSizeAxes = Axes.Both,
+                Colour = ThemeManager.Current[ThemeAttribute.Mid],
+                RelativeSizeAxes = Axes.Both
             },
-            clipContainer = new Container<DrawableClip>
+            snapping = new RectangularPositionSnapGrid(Vector2.Zero)
             {
                 RelativeSizeAxes = Axes.Both
+            },
+            new Container
+            {
+                RelativeSizeAxes = Axes.Both,
+                Padding = new MarginPadding(2),
+                Child = new GridContainer
+                {
+                    RelativeSizeAxes = Axes.Both,
+                    RowDimensions = new[]
+                    {
+                        new Dimension(),
+                        new Dimension(GridSizeMode.Absolute, 2),
+                        new Dimension(),
+                        new Dimension(GridSizeMode.Absolute, 2),
+                        new Dimension(),
+                        new Dimension(GridSizeMode.Absolute, 2),
+                        new Dimension(),
+                    },
+                    Content = new[]
+                    {
+                        new Drawable[]
+                        {
+                            layer3 = new TimelineLayer()
+                        },
+                        null,
+                        new Drawable[]
+                        {
+                            new TimelineLayer()
+                        },
+                        null,
+                        new Drawable[]
+                        {
+                            new TimelineLayer()
+                        },
+                        null,
+                        new Drawable[]
+                        {
+                            new TimelineLayer()
+                        }
+                    }
+                }
             }
         };
 
-        chatBoxManager.Clips.ForEach(clip => clipContainer.Add(new DrawableClip(clip)));
+        chatBoxManager.Clips.ForEach(clip => layer3.Add(clip));
+    }
+
+    protected override void LoadComplete()
+    {
+        chatBoxManager.TimelineLength.BindValueChanged(e => snapping.Spacing = new Vector2(DrawWidth / (float)e.NewValue.TotalSeconds, 175), true);
     }
 
     protected override bool OnClick(ClickEvent e)
@@ -49,4 +98,6 @@ public partial class TimelineEditor : Container
         selectedClip.Value = null;
         return true;
     }
+
+    public Vector2 GetSnappedPosition(Vector2 pos) => snapping.GetSnappedPosition(pos);
 }

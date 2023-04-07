@@ -13,13 +13,13 @@ public class Clip
 {
     public readonly BindableBool Enabled = new(true);
     public readonly Bindable<string> Name = new("New Clip");
+    public readonly Bindable<int> Priority = new();
     public readonly BindableList<string> AssociatedModules = new();
     public readonly BindableList<ChatBoxVariable> AvailableVariables = new();
     public readonly Dictionary<string, ClipState> States = new();
     public readonly Dictionary<string, ClipEvent> Events = new();
     public readonly Bindable<float> Start = new();
     public readonly Bindable<float> End = new(0.5f);
-
     public float Length => End.Value - Start.Value;
 
     public Clip()

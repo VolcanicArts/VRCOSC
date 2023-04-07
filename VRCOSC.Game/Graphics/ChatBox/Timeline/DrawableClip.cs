@@ -9,8 +9,11 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Input.Events;
+using osuTK;
 using osuTK.Graphics;
+using VRCOSC.Game.ChatBox;
 using VRCOSC.Game.ChatBox.Clips;
+using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.ChatBox.Timeline;
 
@@ -19,7 +22,15 @@ public partial class DrawableClip : Container
     [Resolved]
     private Bindable<Clip?> selectedClip { get; set; } = null!;
 
+    [Resolved]
+    private TimelineEditor timelineEditor { get; set; } = null!;
+
+    [Resolved]
+    private ChatBoxManager chatBoxManager { get; set; } = null!;
+
     private readonly Clip clip;
+
+    private float cumulativeDrag;
 
     public DrawableClip(Clip clip)
     {
@@ -29,35 +40,35 @@ public partial class DrawableClip : Container
     [BackgroundDependencyLoader]
     private void load()
     {
-        Height = 120;
-        RelativeSizeAxes = Axes.X;
+        RelativeSizeAxes = Axes.Both;
         RelativePositionAxes = Axes.X;
         Masking = true;
-        CornerRadius = 5;
-        BorderColour = Colour4.Aqua.Darken(0.5f);
+        CornerRadius = 10;
+        BorderColour = ThemeManager.Current[ThemeAttribute.Lighter];
 
+        // TODO - Solve unbind issue after 2nd+ selection
         clip.Start.BindValueChanged(_ => updateSizeAndPosition());
         clip.End.BindValueChanged(_ => updateSizeAndPosition());
         updateSizeAndPosition();
 
         selectedClip.BindValueChanged(e =>
         {
-            BorderThickness = clip == e.NewValue ? 3 : 0;
+            BorderThickness = clip == e.NewValue ? 4 : 2;
         }, true);
 
         Children = new Drawable[]
         {
             new Box
             {
-                Colour = Color4.OrangeRed,
-                RelativeSizeAxes = Axes.Both,
+                Colour = ThemeManager.Current[ThemeAttribute.Light],
+                RelativeSizeAxes = Axes.Both
             },
-            new ResizeDetector(clip.Start, v => v / Parent.DrawWidth)
+            new StartResizeDetector(clip, v => v / Parent.DrawWidth)
             {
                 RelativeSizeAxes = Axes.Y,
                 Width = 20
             },
-            new ResizeDetector(clip.End, v => v / Parent.DrawWidth)
+            new EndResizeDetector(clip, v => v / Parent.DrawWidth)
             {
                 Anchor = Anchor.TopRight,
                 Origin = Anchor.TopRight,
@@ -82,11 +93,25 @@ public partial class DrawableClip : Container
         selectedClip.Value = clip;
 
         e.Target = Parent;
-        var delta = e.Delta.X / Parent.DrawWidth;
-        // TODO - Apply snapping
-        // TODO - Apply limits
-        clip.Start.Value += delta;
-        clip.End.Value += delta;
+
+        var deltaX = e.Delta.X / Parent.DrawWidth;
+        cumulativeDrag += deltaX;
+
+        if (Math.Abs(cumulativeDrag) >= chatBoxManager.Resolution)
+        {
+            var newStart = clip.Start.Value + chatBoxManager.Resolution * (float.IsNegative(cumulativeDrag) ? -1 : 1);
+            var newEnd = clip.End.Value + chatBoxManager.Resolution * (float.IsNegative(cumulativeDrag) ? -1 : 1);
+
+            if (newStart >= 0 && newEnd <= 1)
+            {
+                clip.Start.Value = newStart;
+                clip.End.Value = newEnd;
+            }
+
+            cumulativeDrag = 0f;
+        }
+
+        // TODO - Implement delta Y for dragging between priorities
     }
 
     private void updateSizeAndPosition()
@@ -97,13 +122,15 @@ public partial class DrawableClip : Container
 
     private partial class ResizeDetector : Container
     {
-        private readonly Bindable<float> value;
-        private readonly Func<float, float> normaliseFunc;
+        protected readonly Clip Clip;
+        protected readonly Func<float, float> NormaliseFunc;
 
-        public ResizeDetector(Bindable<float> value, Func<float, float> normaliseFunc)
+        protected float CumulativeDrag;
+
+        public ResizeDetector(Clip clip, Func<float, float> normaliseFunc)
         {
-            this.value = value;
-            this.normaliseFunc = normaliseFunc;
+            Clip = clip;
+            NormaliseFunc = normaliseFunc;
         }
 
         [BackgroundDependencyLoader]
@@ -118,14 +145,6 @@ public partial class DrawableClip : Container
 
         protected override bool OnDragStart(DragStartEvent e) => true;
 
-        protected override void OnDrag(DragEvent e)
-        {
-            base.OnDrag(e);
-
-            e.Target = Parent.Parent;
-            value.Value += normaliseFunc.Invoke(e.Delta.X);
-        }
-
         protected override bool OnHover(HoverEvent e)
         {
             Child.FadeColour(Colour4.Black.Opacity(0.5f), 100);
@@ -135,6 +154,68 @@ public partial class DrawableClip : Container
         protected override void OnHoverLost(HoverLostEvent e)
         {
             Child.FadeColour(Colour4.Black.Opacity(0f), 100);
+        }
+    }
+
+    private partial class StartResizeDetector : ResizeDetector
+    {
+        [Resolved]
+        private ChatBoxManager chatBoxManager { get; set; } = null!;
+
+        public StartResizeDetector(Clip clip, Func<float, float> normaliseFunc)
+            : base(clip, normaliseFunc)
+        {
+        }
+
+        protected override void OnDrag(DragEvent e)
+        {
+            base.OnDrag(e);
+
+            e.Target = Parent.Parent;
+            CumulativeDrag += NormaliseFunc.Invoke(e.Delta.X);
+
+            if (Math.Abs(CumulativeDrag) >= chatBoxManager.Resolution)
+            {
+                var newStart = Clip.Start.Value + chatBoxManager.Resolution * (float.IsNegative(CumulativeDrag) ? -1 : 1);
+
+                if (newStart < Clip.End.Value && newStart >= 0)
+                {
+                    Clip.Start.Value = newStart;
+                }
+
+                CumulativeDrag = 0f;
+            }
+        }
+    }
+
+    private partial class EndResizeDetector : ResizeDetector
+    {
+        [Resolved]
+        private ChatBoxManager chatBoxManager { get; set; } = null!;
+
+        public EndResizeDetector(Clip clip, Func<float, float> normaliseFunc)
+            : base(clip, normaliseFunc)
+        {
+        }
+
+        protected override void OnDrag(DragEvent e)
+        {
+            base.OnDrag(e);
+
+            e.Target = Parent.Parent;
+            CumulativeDrag += NormaliseFunc.Invoke(e.Delta.X);
+
+            if (Math.Abs(CumulativeDrag) >= chatBoxManager.Resolution)
+            {
+                var newEnd = Clip.End.Value + chatBoxManager.Resolution * (float.IsNegative(CumulativeDrag) ? -1 : 1);
+
+                if (newEnd > Clip.Start.Value && newEnd <= 1)
+                {
+                    Clip.End.Value = newEnd;
+                }
+
+                CumulativeDrag = 0f;
+            }
         }
     }
 }

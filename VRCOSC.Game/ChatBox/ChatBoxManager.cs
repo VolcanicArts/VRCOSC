@@ -15,6 +15,8 @@ public class ChatBoxManager
 
     public readonly Bindable<TimeSpan> TimelineLength = new(TimeSpan.FromMinutes(1));
 
+    public float Resolution => 1f / (float)TimelineLength.Value.TotalSeconds;
+
     public ChatBoxManager()
     {
         AddClip(new Clip());
