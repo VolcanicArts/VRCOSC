@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using osu.Framework.Allocation;
@@ -18,6 +19,8 @@ public partial class TimelineLayer : Container<DrawableClip>
 {
     [Resolved]
     private TimelineEditor timelineEditor { get; set; } = null!;
+
+    public required int Priority { get; init; }
 
     [BackgroundDependencyLoader]
     private void load()
@@ -74,7 +77,9 @@ public partial class TimelineLayer : Container<DrawableClip>
     {
         if (e.Button == MouseButton.Right)
         {
-            timelineEditor.ShowLayerMenu(e);
+            e.Target = this;
+            var xPos = (int)MathF.Floor(e.MousePosition.X / DrawWidth * 60);
+            timelineEditor.ShowLayerMenu(e, xPos, this);
             return true;
         }
 

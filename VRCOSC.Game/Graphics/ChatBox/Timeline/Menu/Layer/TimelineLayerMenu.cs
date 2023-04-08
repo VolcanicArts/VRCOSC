@@ -4,11 +4,18 @@
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using VRCOSC.Game.ChatBox;
 
 namespace VRCOSC.Game.Graphics.ChatBox.Timeline.Menu.Layer;
 
 public partial class TimelineLayerMenu : TimelineMenu
 {
+    [Resolved]
+    private ChatBoxManager chatBoxManager { get; set; } = null!;
+
+    public int XPos;
+    public TimelineLayer Layer;
+
     [BackgroundDependencyLoader]
     private void load()
     {
@@ -31,8 +38,14 @@ public partial class TimelineLayerMenu : TimelineMenu
 
     private void createClip()
     {
-        // get layer
-        // create new clip
-        // fill in info
+        var clip = new Game.ChatBox.Clips.Clip();
+
+        var (lowerBound, upperBound) = Layer.GetBoundsNearestTo(XPos, false);
+
+        clip.Start.Value = lowerBound;
+        clip.End.Value = upperBound;
+        clip.Priority.Value = Layer.Priority;
+
+        chatBoxManager.Clips.Add(clip);
     }
 }

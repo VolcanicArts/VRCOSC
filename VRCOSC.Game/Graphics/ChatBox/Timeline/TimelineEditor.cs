@@ -81,32 +81,50 @@ public partial class TimelineEditor : Container
                     {
                         new Drawable[]
                         {
-                            layer5 = new TimelineLayer()
+                            layer5 = new TimelineLayer
+                            {
+                                Priority = 5
+                            }
                         },
                         null,
                         new Drawable[]
                         {
-                            layer4 = new TimelineLayer()
+                            layer4 = new TimelineLayer
+                            {
+                                Priority = 4
+                            }
                         },
                         null,
                         new Drawable[]
                         {
-                            layer3 = new TimelineLayer()
+                            layer3 = new TimelineLayer
+                            {
+                                Priority = 3
+                            }
                         },
                         null,
                         new Drawable[]
                         {
-                            layer2 = new TimelineLayer()
+                            layer2 = new TimelineLayer
+                            {
+                                Priority = 2
+                            }
                         },
                         null,
                         new Drawable[]
                         {
-                            layer1 = new TimelineLayer()
+                            layer1 = new TimelineLayer
+                            {
+                                Priority = 1
+                            }
                         },
                         null,
                         new Drawable[]
                         {
-                            layer0 = new TimelineLayer()
+                            layer0 = new TimelineLayer
+                            {
+                                Priority = 0
+                            }
                         }
                     }
                 }
@@ -148,50 +166,37 @@ public partial class TimelineEditor : Container
                     default:
                         throw new InvalidProgramException("Invalid priority");
                 }
+
+                newClip.Priority.BindValueChanged(e =>
+                {
+                    getLayer(e.OldValue).Remove(newClip);
+                    getLayer(e.NewValue).Add(newClip);
+                });
             }
         }, true);
-
-        foreach (var clip in chatBoxManager.Clips)
-        {
-            clip.Priority.BindValueChanged(e =>
-            {
-                getLayer(e.OldValue).Remove(clip);
-                getLayer(e.NewValue).Add(clip);
-            });
-        }
     }
 
     private TimelineLayer getLayer(int priority)
     {
-        switch (priority)
+        return priority switch
         {
-            case 0:
-                return layer0;
-
-            case 1:
-                return layer1;
-
-            case 2:
-                return layer2;
-
-            case 3:
-                return layer3;
-
-            case 4:
-                return layer4;
-
-            case 5:
-                return layer5;
-        }
-
-        return layer0;
+            0 => layer0,
+            1 => layer1,
+            2 => layer2,
+            3 => layer3,
+            4 => layer4,
+            5 => layer5,
+            _ => throw new InvalidOperationException($"No layer with priority {priority}")
+        };
     }
 
-    public void ShowLayerMenu(MouseDownEvent e)
+    public void ShowLayerMenu(MouseDownEvent e, int xPos, TimelineLayer layer)
     {
         clipMenu.Hide();
         layerMenu.Hide();
         layerMenu.SetPosition(e);
+        layerMenu.XPos = xPos;
+        layerMenu.Layer = layer;
         layerMenu.Show();
     }
 
