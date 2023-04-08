@@ -37,14 +37,26 @@ public sealed partial class ModuleRunPopover : PopoverScreen
                     ColumnDimensions = new[]
                     {
                         new Dimension(GridSizeMode.Relative, 0.35f),
+                        new Dimension(GridSizeMode.Absolute, 15),
                         new Dimension()
                     },
                     Content = new[]
                     {
-                        new Drawable[]
+                        new Drawable?[]
                         {
-                            terminal = new TerminalContainer(),
-                            parameters = new ParameterContainer()
+                            terminal = new TerminalContainer
+                            {
+                                RelativeSizeAxes = Axes.Both,
+                                BorderThickness = 3,
+                                Masking = true,
+                            },
+                            null,
+                            parameters = new ParameterContainer
+                            {
+                                RelativeSizeAxes = Axes.Both,
+                                BorderThickness = 3,
+                                Masking = true,
+                            }
                         }
                     }
                 }
