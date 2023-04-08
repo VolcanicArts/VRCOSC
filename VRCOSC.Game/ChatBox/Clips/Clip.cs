@@ -13,7 +13,7 @@ public class Clip
 {
     public readonly BindableBool Enabled = new(true);
     public readonly Bindable<string> Name = new("New Clip");
-    public readonly Bindable<int> Priority = new();
+    public readonly BindableNumber<int> Priority = new();
     public readonly BindableList<string> AssociatedModules = new();
     public readonly BindableList<ChatBoxVariable> AvailableVariables = new();
     public readonly Dictionary<string, ClipState> States = new();
@@ -35,5 +35,14 @@ public class Clip
         {
             //AvailableVariables.AddRange(module.Variables);
         }
+    }
+
+    public bool Intersects(Clip other)
+    {
+        if (other.Start.Value >= Start.Value && other.Start.Value <= End.Value) return true;
+        if (other.End.Value >= Start.Value && other.End.Value <= End.Value) return true;
+        if (other.Start.Value <= Start.Value && other.End.Value >= End.Value) return true;
+
+        return false;
     }
 }

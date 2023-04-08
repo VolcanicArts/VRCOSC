@@ -77,7 +77,7 @@ public partial class RectangularPositionSnapGrid : CompositeDrawable
         float currentPosition = startPosition;
 
         // Make lines the same width independent of display resolution.
-        float lineWidth = DrawWidth / ScreenSpaceDrawQuad.Width * 7f;
+        float lineWidth = DrawWidth / ScreenSpaceDrawQuad.Width * 2f;
 
         var generatedLines = new List<Box>();
 

@@ -2,16 +2,18 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Input.Events;
 using osu.Framework.Platform;
-using osuTK.Graphics;
+using osuTK;
+using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.ChatBox.Timeline.Menu;
 
-public partial class TimelineMenu : VisibilityContainer
+public abstract partial class TimelineMenu : VisibilityContainer
 {
     [Resolved]
     private GameHost host { get; set; } = null!;
@@ -19,38 +21,30 @@ public partial class TimelineMenu : VisibilityContainer
     [Resolved]
     private ChatBoxScreen chatBoxScreen { get; set; } = null!;
 
-    private Container innerContainer = null!;
+    protected override FillFlowContainer Content { get; }
 
-    [BackgroundDependencyLoader]
-    private void load()
+    protected TimelineMenu()
     {
-        Child = innerContainer = new Container
+        InternalChild = new Container
         {
             Width = 200,
             AutoSizeAxes = Axes.Y,
+            BorderThickness = 2,
+            Masking = true,
+            CornerRadius = 5,
             Children = new Drawable[]
             {
                 new Box
                 {
-                    Colour = Color4.Black,
+                    Colour = ThemeManager.Current[ThemeAttribute.Dark].Opacity(0.5f),
                     RelativeSizeAxes = Axes.Both
                 },
-                new FillFlowContainer
+                Content = new FillFlowContainer
                 {
-                    Anchor = Anchor.TopCentre,
-                    Origin = Anchor.TopCentre,
                     RelativeSizeAxes = Axes.X,
                     AutoSizeAxes = Axes.Y,
-                    Children = new Drawable[]
-                    {
-                        new Container
-                        {
-                            Anchor = Anchor.TopCentre,
-                            Origin = Anchor.TopCentre,
-                            RelativeSizeAxes = Axes.X,
-                            Height = 300
-                        }
-                    }
+                    Padding = new MarginPadding(10),
+                    Spacing = new Vector2(0, 10)
                 }
             }
         };
@@ -58,17 +52,17 @@ public partial class TimelineMenu : VisibilityContainer
 
     protected override void PopIn()
     {
-        Alpha = 1;
+        this.FadeInFromZero(100, Easing.OutQuad);
 
-        if (Position.Y + innerContainer.DrawHeight < host.Window.ClientSize.Height)
-            innerContainer.Origin = innerContainer.Anchor = Position.X + innerContainer.DrawWidth < host.Window.ClientSize.Width ? Anchor.TopLeft : Anchor.TopRight;
+        if (Position.Y + InternalChild.DrawHeight < host.Window.ClientSize.Height)
+            InternalChild.Origin = InternalChild.Anchor = Position.X + InternalChild.DrawWidth < host.Window.ClientSize.Width ? Anchor.TopLeft : Anchor.TopRight;
         else
-            innerContainer.Origin = innerContainer.Anchor = Position.X + innerContainer.DrawWidth < host.Window.ClientSize.Width ? Anchor.BottomLeft : Anchor.BottomRight;
+            InternalChild.Origin = InternalChild.Anchor = Position.X + InternalChild.DrawWidth < host.Window.ClientSize.Width ? Anchor.BottomLeft : Anchor.BottomRight;
     }
 
     protected override void PopOut()
     {
-        Alpha = 0;
+        this.FadeOutFromOne(100, Easing.OutQuad);
     }
 
     public void SetPosition(MouseDownEvent e)

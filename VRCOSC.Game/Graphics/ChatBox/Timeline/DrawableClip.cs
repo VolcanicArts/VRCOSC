@@ -8,14 +8,18 @@ using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
+using osu.Framework.Utils;
 using osuTK.Graphics;
+using osuTK.Input;
 using VRCOSC.Game.ChatBox;
 using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.ChatBox.Timeline;
 
+[Cached]
 public partial class DrawableClip : Container
 {
     [Resolved]
@@ -27,13 +31,13 @@ public partial class DrawableClip : Container
     [Resolved]
     private ChatBoxManager chatBoxManager { get; set; } = null!;
 
-    private readonly Clip clip;
+    public readonly Clip Clip;
 
     private float cumulativeDrag;
 
     public DrawableClip(Clip clip)
     {
-        this.clip = clip;
+        Clip = clip;
     }
 
     [BackgroundDependencyLoader]
@@ -45,15 +49,14 @@ public partial class DrawableClip : Container
         CornerRadius = 10;
         BorderColour = ThemeManager.Current[ThemeAttribute.Lighter];
 
-        // TODO - Solve unbind issue after 2nd+ selection
-        clip.Start.BindValueChanged(_ => updateSizeAndPosition());
-        clip.End.BindValueChanged(_ => updateSizeAndPosition());
         updateSizeAndPosition();
 
         selectedClip.BindValueChanged(e =>
         {
-            BorderThickness = clip == e.NewValue ? 4 : 2;
+            BorderThickness = Clip == e.NewValue ? 4 : 2;
         }, true);
+
+        SpriteText drawName;
 
         Children = new Drawable[]
         {
@@ -62,24 +65,49 @@ public partial class DrawableClip : Container
                 Colour = ThemeManager.Current[ThemeAttribute.Light],
                 RelativeSizeAxes = Axes.Both
             },
-            new StartResizeDetector(clip, v => v / Parent.DrawWidth)
+            new StartResizeDetector(Clip, v => v / Parent.DrawWidth)
             {
                 RelativeSizeAxes = Axes.Y,
                 Width = 20
             },
-            new EndResizeDetector(clip, v => v / Parent.DrawWidth)
+            new EndResizeDetector(Clip, v => v / Parent.DrawWidth)
             {
                 Anchor = Anchor.TopRight,
                 Origin = Anchor.TopRight,
                 RelativeSizeAxes = Axes.Y,
                 Width = 20
+            },
+            new Container
+            {
+                RelativeSizeAxes = Axes.Both,
+                Padding = new MarginPadding(10),
+                Children = new Drawable[]
+                {
+                    drawName = new SpriteText
+                    {
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.Centre,
+                        Font = FrameworkFont.Regular.With(size: 20)
+                    }
+                }
             }
         };
+
+        Clip.Name.BindValueChanged(e => drawName.Text = e.NewValue, true);
     }
 
-    protected override bool OnClick(ClickEvent e)
+    protected override bool OnMouseDown(MouseDownEvent e)
     {
-        selectedClip.Value = clip;
+        if (e.Button == MouseButton.Left)
+        {
+            timelineEditor.HideClipMenu();
+            selectedClip.Value = Clip;
+        }
+        else if (e.Button == MouseButton.Right)
+        {
+            timelineEditor.ShowClipMenu(Clip, e);
+        }
+
         return true;
     }
 
@@ -89,7 +117,7 @@ public partial class DrawableClip : Container
     {
         base.OnDrag(e);
 
-        selectedClip.Value = clip;
+        selectedClip.Value = Clip;
 
         e.Target = Parent;
 
@@ -98,25 +126,25 @@ public partial class DrawableClip : Container
 
         if (Math.Abs(cumulativeDrag) >= chatBoxManager.Resolution)
         {
-            var newStart = clip.Start.Value + chatBoxManager.Resolution * (float.IsNegative(cumulativeDrag) ? -1 : 1);
-            var newEnd = clip.End.Value + chatBoxManager.Resolution * (float.IsNegative(cumulativeDrag) ? -1 : 1);
+            var newStart = Clip.Start.Value + chatBoxManager.Resolution * (float.IsNegative(cumulativeDrag) ? -1 : 1);
+            var newEnd = Clip.End.Value + chatBoxManager.Resolution * (float.IsNegative(cumulativeDrag) ? -1 : 1);
 
-            if (newStart >= 0 && newEnd <= 1)
+            if (Precision.AlmostBigger(newStart, 0) && Precision.AlmostBigger(-1 * newEnd, -1))
             {
-                clip.Start.Value = newStart;
-                clip.End.Value = newEnd;
+                Clip.Start.Value = newStart;
+                Clip.End.Value = newEnd;
             }
 
             cumulativeDrag = 0f;
         }
 
-        // TODO - Implement delta Y for dragging between priorities
+        updateSizeAndPosition();
     }
 
     private void updateSizeAndPosition()
     {
-        Width = clip.Length;
-        X = clip.Start.Value;
+        Width = Clip.Length;
+        X = Clip.Start.Value;
     }
 
     private partial class ResizeDetector : Container
@@ -161,6 +189,9 @@ public partial class DrawableClip : Container
         [Resolved]
         private ChatBoxManager chatBoxManager { get; set; } = null!;
 
+        [Resolved]
+        private DrawableClip parentDrawableClip { get; set; } = null!;
+
         public StartResizeDetector(Clip clip, Func<float, float> normaliseFunc)
             : base(clip, normaliseFunc)
         {
@@ -177,13 +208,15 @@ public partial class DrawableClip : Container
             {
                 var newStart = Clip.Start.Value + chatBoxManager.Resolution * (float.IsNegative(CumulativeDrag) ? -1 : 1);
 
-                if (newStart < Clip.End.Value && newStart >= 0)
+                if (Precision.AlmostBigger(newStart, 0) && Precision.AlmostBigger(-1 * newStart, -1 * Clip.End.Value))
                 {
                     Clip.Start.Value = newStart;
                 }
 
                 CumulativeDrag = 0f;
             }
+
+            parentDrawableClip.updateSizeAndPosition();
         }
     }
 
@@ -191,6 +224,9 @@ public partial class DrawableClip : Container
     {
         [Resolved]
         private ChatBoxManager chatBoxManager { get; set; } = null!;
+
+        [Resolved]
+        private DrawableClip parentDrawableClip { get; set; } = null!;
 
         public EndResizeDetector(Clip clip, Func<float, float> normaliseFunc)
             : base(clip, normaliseFunc)
@@ -208,13 +244,15 @@ public partial class DrawableClip : Container
             {
                 var newEnd = Clip.End.Value + chatBoxManager.Resolution * (float.IsNegative(CumulativeDrag) ? -1 : 1);
 
-                if (newEnd > Clip.Start.Value && newEnd <= 1)
+                if (Precision.AlmostBigger(newEnd, Clip.Start.Value) && Precision.AlmostBigger(-1 * newEnd, -1))
                 {
                     Clip.End.Value = newEnd;
                 }
 
                 CumulativeDrag = 0f;
             }
+
+            parentDrawableClip.updateSizeAndPosition();
         }
     }
 }

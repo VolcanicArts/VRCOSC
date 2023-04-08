@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Input.Events;
@@ -10,7 +11,7 @@ using VRCOSC.Game.ChatBox.Clips;
 
 namespace VRCOSC.Game.Graphics.ChatBox.Timeline;
 
-public partial class TimelineLayer : Container
+public partial class TimelineLayer : Container<DrawableClip>
 {
     [Resolved]
     private TimelineEditor timelineEditor { get; set; } = null!;
@@ -21,15 +22,6 @@ public partial class TimelineLayer : Container
         RelativeSizeAxes = Axes.Both;
         Masking = true;
         CornerRadius = 10;
-
-        Children = new Drawable[]
-        {
-            // new Box
-            // {
-            //     Colour = ThemeManager.Current[ThemeAttribute.Dark],
-            //     RelativeSizeAxes = Axes.Both,
-            // }
-        };
     }
 
     public void Add(Clip clip)
@@ -37,11 +29,19 @@ public partial class TimelineLayer : Container
         Add(new DrawableClip(clip));
     }
 
+    public void Remove(Clip clip)
+    {
+        Children.ForEach(child =>
+        {
+            if (child.Clip == clip) Schedule(child.RemoveAndDisposeImmediately);
+        });
+    }
+
     protected override bool OnMouseDown(MouseDownEvent e)
     {
         if (e.Button == MouseButton.Right)
         {
-            timelineEditor.ShowMenu(e);
+            timelineEditor.ShowLayerMenu(e);
             return true;
         }
 

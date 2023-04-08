@@ -9,7 +9,8 @@ using osu.Framework.Graphics.Shapes;
 using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.Graphics.ChatBox.SelectedClip;
 using VRCOSC.Game.Graphics.ChatBox.Timeline;
-using VRCOSC.Game.Graphics.ChatBox.Timeline.Menu;
+using VRCOSC.Game.Graphics.ChatBox.Timeline.Menu.Clip;
+using VRCOSC.Game.Graphics.ChatBox.Timeline.Menu.Layer;
 using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.ChatBox;
@@ -21,7 +22,10 @@ public partial class ChatBoxScreen : Container
     private Bindable<Clip?> selectedClip { get; set; } = new();
 
     [Cached]
-    private TimelineMenu timelineMenu = new();
+    private TimelineLayerMenu layerMenu = new();
+
+    [Cached]
+    private TimelineClipMenu clipMenu = new();
 
     [BackgroundDependencyLoader]
     private void load()
@@ -65,7 +69,8 @@ public partial class ChatBoxScreen : Container
                     }
                 }
             },
-            timelineMenu
+            layerMenu,
+            clipMenu
         };
     }
 }
