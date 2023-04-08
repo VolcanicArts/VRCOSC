@@ -4,14 +4,17 @@
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Shapes;
+using osu.Framework.Input.Events;
+using osuTK.Input;
 using VRCOSC.Game.ChatBox.Clips;
-using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.ChatBox.Timeline;
 
 public partial class TimelineLayer : Container
 {
+    [Resolved]
+    private TimelineEditor timelineEditor { get; set; } = null!;
+
     [BackgroundDependencyLoader]
     private void load()
     {
@@ -32,5 +35,16 @@ public partial class TimelineLayer : Container
     public void Add(Clip clip)
     {
         Add(new DrawableClip(clip));
+    }
+
+    protected override bool OnMouseDown(MouseDownEvent e)
+    {
+        if (e.Button == MouseButton.Right)
+        {
+            timelineEditor.ShowMenu(e);
+            return true;
+        }
+
+        return base.OnMouseDown(e);
     }
 }

@@ -8,7 +8,6 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
 using VRCOSC.Game.ChatBox;
-using VRCOSC.Game.Graphics.ChatBox.Metadata;
 using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.ChatBox.Timeline;
@@ -46,13 +45,13 @@ public partial class TimelineMetadataEditor : Container
                         Font = FrameworkFont.Regular.With(size: 30),
                         Text = "Timeline"
                     },
-                    new MetadataTime
-                    {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        Label = "Length",
-                        Current = chatBoxManager.TimelineLength
-                    }
+                    // new MetadataTime
+                    // {
+                    //     Anchor = Anchor.TopCentre,
+                    //     Origin = Anchor.TopCentre,
+                    //     Label = "Length",
+                    //     Current = chatBoxManager.TimelineLength
+                    // }
                 }
             }
         };

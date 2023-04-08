@@ -11,6 +11,7 @@ using osu.Framework.Input.Events;
 using osuTK;
 using VRCOSC.Game.ChatBox;
 using VRCOSC.Game.ChatBox.Clips;
+using VRCOSC.Game.Graphics.ChatBox.Timeline.Menu;
 using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.ChatBox.Timeline;
@@ -23,6 +24,9 @@ public partial class TimelineEditor : Container
 
     [Resolved]
     private ChatBoxManager chatBoxManager { get; set; } = null!;
+
+    [Resolved]
+    private TimelineMenu timelineMenu { get; set; } = null!;
 
     private RectangularPositionSnapGrid snapping = null!;
 
@@ -88,6 +92,13 @@ public partial class TimelineEditor : Container
         chatBoxManager.Clips.ForEach(clip => layer3.Add(clip));
     }
 
+    public void ShowMenu(MouseDownEvent e)
+    {
+        timelineMenu.Hide();
+        timelineMenu.SetPosition(e);
+        timelineMenu.Show();
+    }
+
     protected override void LoadComplete()
     {
         chatBoxManager.TimelineLength.BindValueChanged(e => snapping.Spacing = new Vector2(DrawWidth / (float)e.NewValue.TotalSeconds, 175), true);
@@ -96,8 +107,7 @@ public partial class TimelineEditor : Container
     protected override bool OnClick(ClickEvent e)
     {
         selectedClip.Value = null;
+        timelineMenu.Hide();
         return true;
     }
-
-    public Vector2 GetSnappedPosition(Vector2 pos) => snapping.GetSnappedPosition(pos);
 }
