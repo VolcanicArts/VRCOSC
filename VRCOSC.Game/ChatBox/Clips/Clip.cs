@@ -18,9 +18,9 @@ public class Clip
     public readonly BindableList<ChatBoxVariable> AvailableVariables = new();
     public readonly Dictionary<string, ClipState> States = new();
     public readonly Dictionary<string, ClipEvent> Events = new();
-    public readonly Bindable<float> Start = new();
-    public readonly Bindable<float> End = new(0.5f);
-    public float Length => End.Value - Start.Value;
+    public readonly Bindable<int> Start = new();
+    public readonly Bindable<int> End = new(30);
+    public int Length => End.Value - Start.Value;
 
     public Clip()
     {
@@ -39,9 +39,9 @@ public class Clip
 
     public bool Intersects(Clip other)
     {
-        if (other.Start.Value >= Start.Value && other.Start.Value <= End.Value) return true;
-        if (other.End.Value >= Start.Value && other.End.Value <= End.Value) return true;
-        if (other.Start.Value <= Start.Value && other.End.Value >= End.Value) return true;
+        if (Start.Value >= other.Start.Value && Start.Value < other.End.Value) return true;
+        if (End.Value <= other.End.Value && End.Value > other.Start.Value) return true;
+        if (Start.Value < other.Start.Value && End.Value > other.End.Value) return true;
 
         return false;
     }

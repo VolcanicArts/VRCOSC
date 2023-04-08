@@ -10,7 +10,6 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
-using osu.Framework.Utils;
 using osuTK.Graphics;
 using osuTK.Input;
 using VRCOSC.Game.ChatBox;
@@ -27,6 +26,9 @@ public partial class DrawableClip : Container
 
     [Resolved]
     private TimelineEditor timelineEditor { get; set; } = null!;
+
+    [Resolved]
+    private TimelineLayer timelineLayer { get; set; } = null!;
 
     [Resolved]
     private ChatBoxManager chatBoxManager { get; set; } = null!;
@@ -126,10 +128,13 @@ public partial class DrawableClip : Container
 
         if (Math.Abs(cumulativeDrag) >= chatBoxManager.Resolution)
         {
-            var newStart = Clip.Start.Value + chatBoxManager.Resolution * (float.IsNegative(cumulativeDrag) ? -1 : 1);
-            var newEnd = Clip.End.Value + chatBoxManager.Resolution * (float.IsNegative(cumulativeDrag) ? -1 : 1);
+            var newStart = Clip.Start.Value + (float.IsNegative(cumulativeDrag) ? -1 : 1);
+            var newEnd = Clip.End.Value + (float.IsNegative(cumulativeDrag) ? -1 : 1);
 
-            if (Precision.AlmostBigger(newStart, 0) && Precision.AlmostBigger(-1 * newEnd, -1))
+            var (lowerBound, _) = timelineLayer.GetBoundsNearestTo(Clip.Start.Value, false);
+            var (_, upperBound) = timelineLayer.GetBoundsNearestTo(Clip.End.Value, true);
+
+            if (newStart >= lowerBound && newEnd <= upperBound)
             {
                 Clip.Start.Value = newStart;
                 Clip.End.Value = newEnd;
@@ -143,8 +148,8 @@ public partial class DrawableClip : Container
 
     private void updateSizeAndPosition()
     {
-        Width = Clip.Length;
-        X = Clip.Start.Value;
+        Width = Clip.Length * chatBoxManager.Resolution;
+        X = Clip.Start.Value * chatBoxManager.Resolution;
     }
 
     private partial class ResizeDetector : Container
@@ -192,6 +197,9 @@ public partial class DrawableClip : Container
         [Resolved]
         private DrawableClip parentDrawableClip { get; set; } = null!;
 
+        [Resolved]
+        private TimelineLayer timelineLayer { get; set; } = null!;
+
         public StartResizeDetector(Clip clip, Func<float, float> normaliseFunc)
             : base(clip, normaliseFunc)
         {
@@ -206,9 +214,11 @@ public partial class DrawableClip : Container
 
             if (Math.Abs(CumulativeDrag) >= chatBoxManager.Resolution)
             {
-                var newStart = Clip.Start.Value + chatBoxManager.Resolution * (float.IsNegative(CumulativeDrag) ? -1 : 1);
+                var newStart = Clip.Start.Value + (float.IsNegative(CumulativeDrag) ? -1 : 1);
 
-                if (Precision.AlmostBigger(newStart, 0) && Precision.AlmostBigger(-1 * newStart, -1 * Clip.End.Value))
+                var (lowerBound, upperBound) = timelineLayer.GetBoundsNearestTo(float.IsNegative(CumulativeDrag) ? Clip.Start.Value : newStart, false);
+
+                if (newStart >= lowerBound && newStart < upperBound)
                 {
                     Clip.Start.Value = newStart;
                 }
@@ -228,6 +238,9 @@ public partial class DrawableClip : Container
         [Resolved]
         private DrawableClip parentDrawableClip { get; set; } = null!;
 
+        [Resolved]
+        private TimelineLayer timelineLayer { get; set; } = null!;
+
         public EndResizeDetector(Clip clip, Func<float, float> normaliseFunc)
             : base(clip, normaliseFunc)
         {
@@ -242,9 +255,11 @@ public partial class DrawableClip : Container
 
             if (Math.Abs(CumulativeDrag) >= chatBoxManager.Resolution)
             {
-                var newEnd = Clip.End.Value + chatBoxManager.Resolution * (float.IsNegative(CumulativeDrag) ? -1 : 1);
+                var newEnd = Clip.End.Value + (float.IsNegative(CumulativeDrag) ? -1 : 1);
 
-                if (Precision.AlmostBigger(newEnd, Clip.Start.Value) && Precision.AlmostBigger(-1 * newEnd, -1))
+                var (lowerBound, upperBound) = timelineLayer.GetBoundsNearestTo(float.IsNegative(CumulativeDrag) ? newEnd : Clip.End.Value, true);
+
+                if (newEnd > lowerBound && newEnd <= upperBound)
                 {
                     Clip.End.Value = newEnd;
                 }

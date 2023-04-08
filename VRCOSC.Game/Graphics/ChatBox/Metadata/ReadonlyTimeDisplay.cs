@@ -19,7 +19,7 @@ public partial class ReadonlyTimeDisplay : Container
     private ChatBoxManager chatBoxManager { get; set; } = null!;
 
     public required string Label { get; init; }
-    public required Bindable<float> Current { get; init; }
+    public required Bindable<int> Current { get; init; }
 
     private VRCOSCTextBox textBox = null!;
 
@@ -69,7 +69,7 @@ public partial class ReadonlyTimeDisplay : Container
 
     private void updateText()
     {
-        textBox.Text = (chatBoxManager.TimelineLength.Value.TotalSeconds * Current.Value).ToString("##0", CultureInfo.InvariantCulture);
+        textBox.Text = Current.Value.ToString("##0", CultureInfo.InvariantCulture);
     }
 
     private partial class LocalTextBox : VRCOSCTextBox
