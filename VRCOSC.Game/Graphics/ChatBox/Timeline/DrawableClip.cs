@@ -47,53 +47,57 @@ public partial class DrawableClip : Container
     {
         RelativeSizeAxes = Axes.Both;
         RelativePositionAxes = Axes.X;
-        Masking = true;
-        CornerRadius = 10;
-        BorderColour = ThemeManager.Current[ThemeAttribute.Lighter];
+
+        SpriteText drawName;
+
+        Child = new Container
+        {
+            RelativeSizeAxes = Axes.Both,
+            Masking = true,
+            CornerRadius = 10,
+            BorderColour = ThemeManager.Current[ThemeAttribute.Lighter],
+            Children = new Drawable[]
+            {
+                new Box
+                {
+                    Colour = ThemeManager.Current[ThemeAttribute.Light],
+                    RelativeSizeAxes = Axes.Both
+                },
+                new StartResizeDetector(Clip, v => v / Parent.DrawWidth)
+                {
+                    RelativeSizeAxes = Axes.Y,
+                    Width = 20
+                },
+                new EndResizeDetector(Clip, v => v / Parent.DrawWidth)
+                {
+                    Anchor = Anchor.TopRight,
+                    Origin = Anchor.TopRight,
+                    RelativeSizeAxes = Axes.Y,
+                    Width = 20
+                },
+                new Container
+                {
+                    RelativeSizeAxes = Axes.Both,
+                    Padding = new MarginPadding(10),
+                    Children = new Drawable[]
+                    {
+                        drawName = new SpriteText
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            Font = FrameworkFont.Regular.With(size: 20)
+                        }
+                    }
+                }
+            }
+        };
 
         updateSizeAndPosition();
 
         selectedClip.BindValueChanged(e =>
         {
-            BorderThickness = Clip == e.NewValue ? 4 : 2;
+            ((Container)Child).BorderThickness = Clip == e.NewValue ? 4 : 2;
         }, true);
-
-        SpriteText drawName;
-
-        Children = new Drawable[]
-        {
-            new Box
-            {
-                Colour = ThemeManager.Current[ThemeAttribute.Light],
-                RelativeSizeAxes = Axes.Both
-            },
-            new StartResizeDetector(Clip, v => v / Parent.DrawWidth)
-            {
-                RelativeSizeAxes = Axes.Y,
-                Width = 20
-            },
-            new EndResizeDetector(Clip, v => v / Parent.DrawWidth)
-            {
-                Anchor = Anchor.TopRight,
-                Origin = Anchor.TopRight,
-                RelativeSizeAxes = Axes.Y,
-                Width = 20
-            },
-            new Container
-            {
-                RelativeSizeAxes = Axes.Both,
-                Padding = new MarginPadding(10),
-                Children = new Drawable[]
-                {
-                    drawName = new SpriteText
-                    {
-                        Anchor = Anchor.Centre,
-                        Origin = Anchor.Centre,
-                        Font = FrameworkFont.Regular.With(size: 20)
-                    }
-                }
-            }
-        };
 
         Clip.Name.BindValueChanged(e => drawName.Text = e.NewValue, true);
     }
