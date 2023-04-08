@@ -4,6 +4,7 @@
 using System;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
+using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -33,14 +34,13 @@ public partial class TimelineEditor : Container
     [Resolved]
     private TimelineClipMenu clipMenu { get; set; } = null!;
 
-    private RectangularPositionSnapGrid snapping = null!;
-
     private TimelineLayer layer5 = null!;
     private TimelineLayer layer4 = null!;
     private TimelineLayer layer3 = null!;
     private TimelineLayer layer2 = null!;
     private TimelineLayer layer1 = null!;
     private TimelineLayer layer0 = null!;
+    private Container gridGenerator = null!;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -52,9 +52,10 @@ public partial class TimelineEditor : Container
                 Colour = ThemeManager.Current[ThemeAttribute.Mid],
                 RelativeSizeAxes = Axes.Both
             },
-            snapping = new RectangularPositionSnapGrid(Vector2.Zero)
+            gridGenerator = new Container
             {
-                RelativeSizeAxes = Axes.Both
+                RelativeSizeAxes = Axes.Both,
+                Position = new Vector2(-2.5f)
             },
             new Container
             {
@@ -174,6 +175,35 @@ public partial class TimelineEditor : Container
                 });
             }
         }, true);
+
+        generateGrid();
+    }
+
+    private void generateGrid()
+    {
+        for (var i = 0; i < 60; i++)
+        {
+            gridGenerator.Add(new Box
+            {
+                Colour = ThemeManager.Current[ThemeAttribute.Dark].Opacity(0.5f),
+                RelativeSizeAxes = Axes.Y,
+                RelativePositionAxes = Axes.X,
+                Width = 5,
+                X = (chatBoxManager.Resolution * i)
+            });
+        }
+
+        for (var i = 0; i < 6; i++)
+        {
+            gridGenerator.Add(new Box
+            {
+                Colour = ThemeManager.Current[ThemeAttribute.Dark].Opacity(0.5f),
+                RelativeSizeAxes = Axes.X,
+                RelativePositionAxes = Axes.Y,
+                Height = 5,
+                Y = (DrawHeight / 6 * i)
+            });
+        }
     }
 
     private TimelineLayer getLayer(int priority)
@@ -212,11 +242,6 @@ public partial class TimelineEditor : Container
         clipMenu.SetClip(clip);
         clipMenu.SetPosition(e);
         clipMenu.Show();
-    }
-
-    protected override void LoadComplete()
-    {
-        chatBoxManager.TimelineLength.BindValueChanged(e => snapping.Spacing = new Vector2(DrawWidth / (float)e.NewValue.TotalSeconds, DrawHeight / 6), true);
     }
 
     protected override bool OnMouseDown(MouseDownEvent e)

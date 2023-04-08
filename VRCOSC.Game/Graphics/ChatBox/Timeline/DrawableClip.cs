@@ -132,8 +132,8 @@ public partial class DrawableClip : Container
 
         if (Math.Abs(cumulativeDrag) >= chatBoxManager.Resolution)
         {
-            var newStart = Clip.Start.Value + (float.IsNegative(cumulativeDrag) ? -1 : 1);
-            var newEnd = Clip.End.Value + (float.IsNegative(cumulativeDrag) ? -1 : 1);
+            var newStart = Clip.Start.Value + Math.Sign(cumulativeDrag);
+            var newEnd = Clip.End.Value + Math.Sign(cumulativeDrag);
 
             var (lowerBound, _) = timelineLayer.GetBoundsNearestTo(Clip.Start.Value, false);
             var (_, upperBound) = timelineLayer.GetBoundsNearestTo(Clip.End.Value, true);
@@ -218,7 +218,7 @@ public partial class DrawableClip : Container
 
             if (Math.Abs(CumulativeDrag) >= chatBoxManager.Resolution)
             {
-                var newStart = Clip.Start.Value + (float.IsNegative(CumulativeDrag) ? -1 : 1);
+                var newStart = Clip.Start.Value + Math.Sign(CumulativeDrag);
 
                 var (lowerBound, upperBound) = timelineLayer.GetBoundsNearestTo(float.IsNegative(CumulativeDrag) ? Clip.Start.Value : newStart, false);
 
@@ -259,7 +259,7 @@ public partial class DrawableClip : Container
 
             if (Math.Abs(CumulativeDrag) >= chatBoxManager.Resolution)
             {
-                var newEnd = Clip.End.Value + (float.IsNegative(CumulativeDrag) ? -1 : 1);
+                var newEnd = Clip.End.Value + Math.Sign(CumulativeDrag);
 
                 var (lowerBound, upperBound) = timelineLayer.GetBoundsNearestTo(float.IsNegative(CumulativeDrag) ? newEnd : Clip.End.Value, true);
 

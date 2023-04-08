@@ -21,10 +21,12 @@ public class ChatBoxManager
     {
         for (var i = 0; i < 6; i++)
         {
-            Clips.Add(new Clip
+            Clip clip;
+            Clips.Add(clip = new Clip
             {
-                Priority = { Value = i }
+                Priority = { Value = i },
             });
+            clip.AssociatedModules.Add("Test " + i);
         }
     }
 
