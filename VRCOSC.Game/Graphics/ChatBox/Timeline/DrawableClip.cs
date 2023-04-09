@@ -100,6 +100,8 @@ public partial class DrawableClip : Container
         }, true);
 
         Clip.Name.BindValueChanged(e => drawName.Text = e.NewValue, true);
+
+        Clip.Enabled.BindValueChanged(e => Child.FadeTo(e.NewValue ? 1 : 0.5f), true);
     }
 
     protected override bool OnMouseDown(MouseDownEvent e)

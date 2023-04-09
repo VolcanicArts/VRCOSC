@@ -138,35 +138,7 @@ public partial class TimelineEditor : Container
 
             foreach (Clip newClip in e.NewItems)
             {
-                switch (newClip.Priority.Value)
-                {
-                    case 0:
-                        layer0.Add(newClip);
-                        break;
-
-                    case 1:
-                        layer1.Add(newClip);
-                        break;
-
-                    case 2:
-                        layer2.Add(newClip);
-                        break;
-
-                    case 3:
-                        layer3.Add(newClip);
-                        break;
-
-                    case 4:
-                        layer4.Add(newClip);
-                        break;
-
-                    case 5:
-                        layer5.Add(newClip);
-                        break;
-
-                    default:
-                        throw new InvalidProgramException("Invalid priority");
-                }
+                getLayer(newClip.Priority.Value).Add(newClip);
 
                 newClip.Priority.BindValueChanged(e =>
                 {

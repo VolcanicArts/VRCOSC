@@ -10,6 +10,7 @@ using osu.Framework.Graphics.Sprites;
 using osuTK;
 using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.Graphics.Themes;
+using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ChatBox.SelectedClip;
 
@@ -17,6 +18,9 @@ public partial class SelectedClipModuleSelector : Container
 {
     [Resolved]
     private Bindable<Clip?> selectedClip { get; set; } = null!;
+
+    [Resolved]
+    private GameManager gameManager { get; set; } = null!;
 
     private FillFlowContainer moduleFlow = null!;
 
@@ -72,29 +76,40 @@ public partial class SelectedClipModuleSelector : Container
             }
         };
 
+        foreach (var module in gameManager.ModuleManager)
+        {
+            DrawableAssociatedModule drawableAssociatedModule;
+
+            moduleFlow.Add(drawableAssociatedModule = new DrawableAssociatedModule
+            {
+                ModuleName = module.Title
+            });
+
+            drawableAssociatedModule.State.BindValueChanged(e =>
+            {
+                if (e.NewValue)
+                {
+                    selectedClip.Value!.AssociatedModules.Add(module.Title);
+                }
+                else
+                {
+                    selectedClip.Value!.AssociatedModules.Remove(module.Title);
+                }
+            });
+        }
+
         selectedClip.BindValueChanged(e =>
         {
-            if (e.NewValue is null)
+            if (e.NewValue is null) return;
+
+            foreach (string newModule in e.NewValue.AssociatedModules)
             {
-                e.OldValue?.AssociatedModules.UnbindBindings();
-                return;
-            }
-
-            e.NewValue.AssociatedModules.BindCollectionChanged((_, e) =>
-            {
-                if (e.NewItems is null) return;
-
-                moduleFlow.Clear();
-
-                foreach (string newModule in e.NewItems)
+                moduleFlow.Add(new DrawableAssociatedModule
                 {
-                    moduleFlow.Add(new SpriteText
-                    {
-                        Font = FrameworkFont.Regular.With(size: 20),
-                        Text = newModule
-                    });
-                }
-            }, true);
+                    ModuleName = newModule,
+                    State = { Value = true }
+                });
+            }
         }, true);
     }
 }

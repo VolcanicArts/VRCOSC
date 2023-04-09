@@ -20,8 +20,6 @@ public partial class TimelineMetadataEditor : Container
     [BackgroundDependencyLoader]
     private void load()
     {
-        // TODO - Add snap resolution
-
         Children = new Drawable[]
         {
             new Box
