@@ -9,6 +9,7 @@ namespace VRCOSC.Game.ChatBox;
 public class ChatBoxVariable
 {
     public required string Lookup { get; init; }
+    public required string Name { get; init; }
     public required string Format { get; init; }
-    public required string Description { get; init; }
+    public string? Value { get; set; }
 }

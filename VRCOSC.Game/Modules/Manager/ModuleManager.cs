@@ -87,11 +87,6 @@ public sealed class ModuleManager : IModuleManager
     public void Update()
     {
         scheduler.Update();
-
-        foreach (var module in modules)
-        {
-            module.internalUpdate();
-        }
     }
 
     public void Stop()

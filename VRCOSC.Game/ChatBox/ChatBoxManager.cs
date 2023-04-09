@@ -13,6 +13,8 @@ public class ChatBoxManager
 {
     public readonly BindableList<Clip> Clips = new();
 
+    public readonly Dictionary<string, ChatBoxVariable> Variables = new();
+
     public readonly Bindable<TimeSpan> TimelineLength = new(TimeSpan.FromMinutes(1));
 
     public float Resolution => 1f / (float)TimelineLength.Value.TotalSeconds;
@@ -22,6 +24,7 @@ public class ChatBoxManager
         for (var i = 0; i < 6; i++)
         {
             Clip clip;
+
             Clips.Add(clip = new Clip
             {
                 Priority = { Value = i },
@@ -40,6 +43,21 @@ public class ChatBoxManager
 
         clip.Priority.Value = priority;
         return true;
+    }
+
+    public void RegisterVariable(string lookup, string name, string format)
+    {
+        Variables.Add(lookup, new ChatBoxVariable
+        {
+            Lookup = lookup,
+            Name = name,
+            Format = format
+        });
+    }
+
+    public void SetVariable(string lookup, string? value)
+    {
+        Variables[lookup].Value = value;
     }
 
     public IReadOnlyList<Clip> RetrieveClipsWithPriority(int priority) => Clips.Where(clip => clip.Priority.Value == priority).ToList();

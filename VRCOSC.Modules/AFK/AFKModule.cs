@@ -1,7 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using VRCOSC.Game.Modules;
+using VRCOSC.Game.Modules.ChatBox;
 
 namespace VRCOSC.Modules.AFK;
 
@@ -12,41 +12,52 @@ public class AFKModule : ChatBoxModule
     public override string Author => "VolcanicArts";
     public override ModuleType Type => ModuleType.General;
     protected override TimeSpan DeltaUpdate => TimeSpan.FromSeconds(1.5f);
-    protected override int ChatBoxPriority => 4;
-    protected override IEnumerable<string> ChatBoxFormatValues => new[] { "%duration%" };
-    protected override string DefaultChatBoxFormat => "AFK for %duration%";
 
-    private bool isAFK;
     private DateTime? afkBegan;
+
+    protected override void CreateAttributes()
+    {
+        CreateVariable(AFKModuleVariable.Duration, "Duration", "{duration}");
+
+        CreateState(AFKModuleState.AFK, "AFK", "AFK for {duration}");
+        CreateState(AFKModuleState.NotAFK, "Not AFK", string.Empty);
+    }
 
     protected override void OnModuleStart()
     {
-        isAFK = false;
         afkBegan = null;
-    }
-
-    protected override string? GetChatBoxText()
-    {
-        if (afkBegan is null) return null;
-
-        return GetSetting<string>(ChatBoxSetting.ChatBoxFormat)
-            .Replace("%duration%", (DateTime.Now - afkBegan.Value).ToString(@"hh\:mm\:ss"));
     }
 
     protected override void OnModuleUpdate()
     {
-        if (Player.AFK is null) return;
+        if (Player.AFK is null)
+        {
+            ChangeStateTo(AFKModuleState.NotAFK);
+            return;
+        }
 
-        if (Player.AFK.Value && !isAFK)
+        if (Player.AFK.Value && afkBegan is null)
         {
             afkBegan = DateTime.Now;
-            isAFK = true;
         }
 
-        if (!Player.AFK.Value && isAFK)
+        if (!Player.AFK.Value && afkBegan is not null)
         {
             afkBegan = null;
-            isAFK = false;
         }
+
+        SetVariableValue(AFKModuleVariable.Duration, afkBegan is null ? null : (DateTime.Now - afkBegan.Value).ToString(@"hh\:mm\:ss"));
+        ChangeStateTo(afkBegan is null ? AFKModuleState.NotAFK : AFKModuleState.AFK);
+    }
+
+    private enum AFKModuleVariable
+    {
+        Duration
+    }
+
+    private enum AFKModuleState
+    {
+        AFK,
+        NotAFK
     }
 }

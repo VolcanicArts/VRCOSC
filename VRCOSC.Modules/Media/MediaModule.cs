@@ -5,22 +5,19 @@ using System.Diagnostics;
 using Windows.Media;
 using osu.Framework.Bindables;
 using VRCOSC.Game.Modules;
+using VRCOSC.Game.Modules.ChatBox;
 using VRCOSC.Game.Providers.Media;
 
 namespace VRCOSC.Modules.Media;
 
-public sealed partial class MediaModule : ChatBoxModule
+public class MediaModule : ChatBoxModule
 {
     public override string Title => "Media";
     public override string Description => "Integration with Windows Media";
     public override string Author => "VolcanicArts";
     public override string Prefab => "VRCOSC-Media";
-    protected override TimeSpan DeltaUpdate => TimeSpan.FromSeconds(2);
+    protected override TimeSpan DeltaUpdate => TimeSpan.FromSeconds(1);
     public override ModuleType Type => ModuleType.Integrations;
-    protected override int ChatBoxPriority => 2;
-
-    protected override string DefaultChatBoxFormat => @"[%curtime%/%duration%]                            Now Playing: %artist% - %title%";
-    protected override IEnumerable<string> ChatBoxFormatValues => new[] { @"%title%", @"%artist%", @"%curtime%", @"%duration%", @"%volume%" };
 
     private readonly WindowsMediaProvider mediaProvider = new();
     private readonly Bindable<bool> currentlySeeking = new();
@@ -33,11 +30,7 @@ public sealed partial class MediaModule : ChatBoxModule
 
     protected override void CreateAttributes()
     {
-        CreateSetting(MediaSetting.PausedBehaviour, "Paused Behaviour", "When the media is paused, should the ChatBox be empty or display that it's paused?", MediaPausedBehaviour.Empty);
-        CreateSetting(MediaSetting.PausedText, "Paused Text", $"The text to display when media is paused. Only applicable when Paused Behaviour is set to {MediaPausedBehaviour.Display}", "[Paused]", () => GetSetting<MediaPausedBehaviour>(MediaSetting.PausedBehaviour) == MediaPausedBehaviour.Display);
         CreateSetting(MediaSetting.StartList, "Start List", "A list of exe locations to start with this module. This is handy for starting media apps on module start. For example, Spotify", new[] { @$"C:\Users\{Environment.UserName}\AppData\Roaming\Spotify\spotify.exe" }, true);
-
-        base.CreateAttributes();
 
         CreateParameter<bool>(MediaParameter.Play, ParameterMode.ReadWrite, @"VRCOSC/Media/Play", "Play/Pause", @"True for playing. False for paused");
         CreateParameter<float>(MediaParameter.Volume, ParameterMode.ReadWrite, @"VRCOSC/Media/Volume", "Volume", @"The volume of the process that is controlling the media");
@@ -47,30 +40,15 @@ public sealed partial class MediaModule : ChatBoxModule
         CreateParameter<bool>(MediaParameter.Previous, ParameterMode.Read, @"VRCOSC/Media/Previous", "Previous", @"Becoming true causes the previous track to play");
         CreateParameter<bool>(MediaParameter.Seeking, ParameterMode.Read, @"VRCOSC/Media/Seeking", "Seeking", "Whether the user is currently seeking");
         CreateParameter<float>(MediaParameter.Position, ParameterMode.ReadWrite, @"VRCOSC/Media/Position", "Position", "The position of the song as a percentage");
-    }
 
-    protected override string? GetChatBoxText()
-    {
-        if (mediaProvider.Controller is null) return null;
+        CreateState(MediaState.Playing, "Playing", @"[{time}/{duration}]                            Now Playing: {artist} - {title}");
+        CreateState(MediaState.Paused, "Paused", @"[Paused]");
 
-        if (!mediaProvider.State.IsPlaying)
-        {
-            if (GetSetting<MediaPausedBehaviour>(MediaSetting.PausedBehaviour) == MediaPausedBehaviour.Empty) return null;
-
-            return GetSetting<string>(MediaSetting.PausedText)
-                   .Replace(@"%title%", mediaProvider.State.Title)
-                   .Replace(@"%artist%", mediaProvider.State.Artist)
-                   .Replace(@"%volume%", (mediaProvider.State.Volume * 100).ToString("##0"));
-        }
-
-        var formattedText = GetSetting<string>(ChatBoxSetting.ChatBoxFormat)
-                            .Replace(@"%title%", mediaProvider.State.Title)
-                            .Replace(@"%artist%", mediaProvider.State.Artist)
-                            .Replace(@"%curtime%", mediaProvider.State.Position?.Position.ToString(@"mm\:ss"))
-                            .Replace(@"%duration%", mediaProvider.State.Position?.EndTime.ToString(@"mm\:ss"))
-                            .Replace(@"%volume%", (mediaProvider.State.Volume * 100).ToString("##0"));
-
-        return formattedText;
+        CreateVariable(MediaVariable.Title, @"Title", @"{title}");
+        CreateVariable(MediaVariable.Artist, @"Artist", @"{artist}");
+        CreateVariable(MediaVariable.Time, @"Time", @"{time}");
+        CreateVariable(MediaVariable.Duration, @"Duration", @"{duration}");
+        CreateVariable(MediaVariable.Volume, @"Volume", @"{volume}");
     }
 
     protected override async void OnModuleStart()
@@ -114,6 +92,12 @@ public sealed partial class MediaModule : ChatBoxModule
     protected override void OnModuleUpdate()
     {
         if (mediaProvider.Controller is not null) sendUpdatableParameters();
+
+        SetVariableValue(MediaVariable.Title, mediaProvider.State.Title);
+        SetVariableValue(MediaVariable.Artist, mediaProvider.State.Artist);
+        SetVariableValue(MediaVariable.Title, mediaProvider.State.Position?.Position.ToString(@"mm\:ss"));
+        SetVariableValue(MediaVariable.Duration, mediaProvider.State.Position?.EndTime.ToString(@"mm\:ss"));
+        SetVariableValue(MediaVariable.Volume, (mediaProvider.State.Volume * 100).ToString("##0"));
     }
 
     private void onPlaybackStateUpdate()
@@ -209,10 +193,19 @@ public sealed partial class MediaModule : ChatBoxModule
         StartList
     }
 
-    private enum MediaPausedBehaviour
+    private enum MediaState
     {
-        Empty,
-        Display
+        Playing,
+        Paused
+    }
+
+    private enum MediaVariable
+    {
+        Title,
+        Artist,
+        Time,
+        Duration,
+        Volume
     }
 
     private enum MediaParameter

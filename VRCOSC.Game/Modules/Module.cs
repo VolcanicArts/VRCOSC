@@ -9,6 +9,7 @@ using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Platform;
 using osu.Framework.Threading;
+using VRCOSC.Game.ChatBox;
 using VRCOSC.Game.Modules.Avatar;
 using VRCOSC.Game.OpenVR;
 using VRCOSC.Game.OSC.VRChat;
@@ -30,7 +31,7 @@ public abstract class Module : IComparable<Module>
     protected Player Player => GameManager.Player;
     protected OVRClient OVRClient => GameManager.OVRClient;
     protected VRChatOscClient OscClient => GameManager.VRChatOscClient;
-    protected ChatBoxInterface ChatBoxInterface => GameManager.ChatBoxInterface;
+    protected ChatBoxManager ChatBoxManager => GameManager.ChatBoxManager;
     protected Bindable<ModuleState> State = new(ModuleState.Stopped);
     protected AvatarConfig? AvatarConfig => GameManager.AvatarConfig;
 
@@ -139,10 +140,6 @@ public abstract class Module : IComparable<Module>
 
         if (ShouldUpdateImmediately) OnModuleUpdate();
     }
-
-    // TODO - Proxy for now until ChatBoxV3 is decoupled from ChatBoxModule
-    internal void internalUpdate() => Update();
-    protected virtual void Update() { }
 
     internal void Stop()
     {
