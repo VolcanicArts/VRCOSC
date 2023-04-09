@@ -22,9 +22,7 @@ public struct Eye
 
     public void Update(SingleEyeData eyeData, SingleEyeExpression? expression = null)
     {
-        if (eyeData.GetValidity(SingleEyeDataValidity.SINGLE_EYE_DATA_GAZE_DIRECTION_VALIDITY))
-            Look = eyeData.gaze_direction_normalized.Invert().ToVec2();
-
+        Look = eyeData.GetValidity(SingleEyeDataValidity.SINGLE_EYE_DATA_GAZE_DIRECTION_VALIDITY) ? eyeData.gaze_direction_normalized.Invert().ToVec2() : new Vector2();
         Openness = eyeData.eye_openness;
 
         if (expression is null) return;

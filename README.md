@@ -49,6 +49,7 @@ P.S. The VRCOSC-Controls.unitypackage prefab is global controls for VRCOSC. It d
 | :---: | :---: |:---:| :---: |
 | Media | Windows Media integration. Allows for full control over Windows Media from your action menu | Previously Spotify integration | VRCOSC-Media.unitypackage |
 | Hardware Stats | Displays your hardware's stats in the ChatBox | Requires VRCOSC to be run as administrator to display CPU temps | |
+| SRanipal | A hot-swappable replacement for VRCFaceTracking's Vive face and eye tracking | No avatar work is needed. All parameters sent are the exact same as VRCFaceTracking | |
 | HypeRate | Connects to [HypeRate.io](https://www.hyperate.io/) to display your live heartrate in-game | [Supported Devices](https://www.hyperate.io/supported-devices). Compatible with WearOS, Apple Watch, and all major dedicated heartrate monitors | VRCOSC-Heartrate.unitypackage |
 | Pulsoid | Connects to [Pulsoid](https://pulsoid.net/) to display your live heartrate in-game | [Supported Devices](https://www.blog.pulsoid.net/monitors). Compatible with 200+ devices including WearOS, Apple Watch, and all dedicated heartrate monitors | VRCOSC-Heartrate.unitypackage |
 | OpenVR Statistics | Gets statistics from your OpenVR (SteamVR) session | | VRCOSC-Trackers.unitypackage |

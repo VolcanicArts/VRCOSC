@@ -73,10 +73,18 @@ public sealed partial class MediaModule : ChatBoxModule
         return formattedText;
     }
 
-    protected override void OnModuleStart()
+    protected override async void OnModuleStart()
     {
         base.OnModuleStart();
-        mediaProvider.Hook();
+
+        var result = await mediaProvider.Hook();
+
+        if (!result)
+        {
+            Log("Could not hook into Windows media");
+            Log("Try restarting the modules\nIf this persists you will need to restart your PC as Windows has not initialised media correctly");
+        }
+
         startProcesses();
     }
 

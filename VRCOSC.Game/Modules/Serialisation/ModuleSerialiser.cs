@@ -7,16 +7,23 @@ using System.Linq;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Logging;
+using osu.Framework.Platform;
 
-namespace VRCOSC.Game.Modules;
+namespace VRCOSC.Game.Modules.Serialisation;
 
-public partial class Module
+public class ModuleSerialiser : IModuleSerialiser
 {
-    #region Loading
+    private const string directory_name = "modules";
+    private readonly Storage storage;
 
-    private void performLoad()
+    public ModuleSerialiser(Storage storage)
     {
-        using (var stream = Storage.GetStream(FileName))
+        this.storage = storage.GetStorageForDirectory(directory_name);
+    }
+
+    public void Deserialise(Module module)
+    {
+        using (var stream = storage.GetStream(module.FileName))
         {
             if (stream is not null)
             {
@@ -27,25 +34,25 @@ public partial class Module
                     switch (line)
                     {
                         case "#InternalSettings":
-                            performInternalSettingsLoad(reader);
+                            performInternalSettingsLoad(reader, module);
                             break;
 
                         case "#Settings":
-                            performSettingsLoad(reader);
+                            performSettingsLoad(reader, module);
                             break;
 
                         case "#Parameters":
-                            performParametersLoad(reader);
+                            performParametersLoad(reader, module);
                             break;
                     }
                 }
             }
         }
 
-        executeAfterLoad();
+        Serialise(module);
     }
 
-    private void performInternalSettingsLoad(TextReader reader)
+    private static void performInternalSettingsLoad(TextReader reader, Module module)
     {
         while (reader.ReadLine() is { } line)
         {
@@ -58,13 +65,13 @@ public partial class Module
             switch (lookup)
             {
                 case "enabled":
-                    Enabled.Value = bool.Parse(value);
+                    module.Enabled.Value = bool.Parse(value);
                     break;
             }
         }
     }
 
-    private void performSettingsLoad(TextReader reader)
+    private static void performSettingsLoad(TextReader reader, Module module)
     {
         while (reader.ReadLine() is { } line)
         {
@@ -80,9 +87,9 @@ public partial class Module
             var lookup = lookupStr;
             if (lookupStr.Contains('#')) lookup = lookupStr.Split(new[] { '#' }, 2)[0];
 
-            if (!Settings.ContainsKey(lookup)) continue;
+            if (!module.Settings.ContainsKey(lookup)) continue;
 
-            var setting = Settings[lookup];
+            var setting = module.Settings[lookup];
 
             switch (setting)
             {
@@ -157,7 +164,7 @@ public partial class Module
         }
     }
 
-    private void performParametersLoad(TextReader reader)
+    private static void performParametersLoad(TextReader reader, Module module)
     {
         while (reader.ReadLine() is { } line)
         {
@@ -167,17 +174,11 @@ public partial class Module
             var lookup = lineSplit[0];
             var value = lineSplit[1];
 
-            if (!ParametersLookup.ContainsKey(lookup)) continue;
+            if (!module.ParametersLookup.ContainsKey(lookup)) continue;
 
-            var parameter = Parameters[ParametersLookup[lookup]];
+            var parameter = module.Parameters[module.ParametersLookup[lookup]];
             parameter.Attribute.Value = value;
         }
-    }
-
-    private void executeAfterLoad()
-    {
-        performSave();
-        Enabled.BindValueChanged(_ => performSave());
     }
 
     private static Type? enumNameToType(string enumName)
@@ -201,40 +202,31 @@ public partial class Module
         return returnType;
     }
 
-    #endregion
-
-    #region Saving
-
-    public void Save()
+    public void Serialise(Module module)
     {
-        performSave();
-    }
-
-    private void performSave()
-    {
-        using var stream = Storage.CreateFileSafely(FileName);
+        using var stream = storage.CreateFileSafely(module.FileName);
         using var writer = new StreamWriter(stream);
 
-        performInternalSettingsSave(writer);
-        performSettingsSave(writer);
-        performParametersSave(writer);
+        performInternalSettingsSave(writer, module);
+        performSettingsSave(writer, module);
+        performParametersSave(writer, module);
     }
 
-    private void performInternalSettingsSave(TextWriter writer)
+    private static void performInternalSettingsSave(TextWriter writer, Module module)
     {
         writer.WriteLine(@"#InternalSettings");
-        writer.WriteLine(@"{0}={1}", "enabled", Enabled.Value.ToString());
+        writer.WriteLine(@"{0}={1}", "enabled", module.Enabled.Value.ToString());
         writer.WriteLine(@"#End");
     }
 
-    private void performSettingsSave(TextWriter writer)
+    private static void performSettingsSave(TextWriter writer, Module module)
     {
-        var areAllDefault = Settings.All(pair => pair.Value.IsDefault());
+        var areAllDefault = module.Settings.All(pair => pair.Value.IsDefault());
         if (areAllDefault) return;
 
         writer.WriteLine(@"#Settings");
 
-        foreach (var (lookup, moduleAttributeData) in Settings)
+        foreach (var (lookup, moduleAttributeData) in module.Settings)
         {
             if (moduleAttributeData.IsDefault()) continue;
 
@@ -286,14 +278,14 @@ public partial class Module
         writer.WriteLine(@"#End");
     }
 
-    private void performParametersSave(TextWriter writer)
+    private static void performParametersSave(TextWriter writer, Module module)
     {
-        var areAllDefault = Parameters.All(pair => pair.Value.IsDefault());
+        var areAllDefault = module.Parameters.All(pair => pair.Value.IsDefault());
         if (areAllDefault) return;
 
         writer.WriteLine(@"#Parameters");
 
-        foreach (var (lookup, parameterAttribute) in Parameters)
+        foreach (var (lookup, parameterAttribute) in module.Parameters)
         {
             if (parameterAttribute.IsDefault()) continue;
 
@@ -303,6 +295,4 @@ public partial class Module
 
         writer.WriteLine(@"#End");
     }
-
-    #endregion
 }
