@@ -5,6 +5,7 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osuTK;
 using VRCOSC.Game.Graphics.UI.Button;
 
 namespace VRCOSC.Game.Graphics.ChatBox.SelectedClip;
@@ -17,32 +18,44 @@ public partial class DrawableAssociatedModule : Container
     [BackgroundDependencyLoader]
     private void load()
     {
+        RelativeSizeAxes = Axes.X;
+        Height = 50;
+
         Children = new Drawable[]
         {
-            new Container
+            new FillFlowContainer
             {
-                Anchor = Anchor.CentreLeft,
-                Origin = Anchor.CentreLeft,
+                Direction = FillDirection.Horizontal,
                 RelativeSizeAxes = Axes.Both,
-                FillMode = FillMode.Fit,
-                Child = new ToggleButton
+                Spacing = new Vector2(10, 0),
+                Children = new Drawable[]
                 {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    RelativeSizeAxes = Axes.Both,
-                    State = State
-                }
-            },
-            new Container
-            {
-                Anchor = Anchor.CentreRight,
-                Origin = Anchor.CentreRight,
-                RelativeSizeAxes = Axes.Both,
-                Width = 0.5f,
-                Child = new TextFlowContainer(t => t.Font = FrameworkFont.Regular.With(size: 20))
-                {
-                    RelativeSizeAxes = Axes.Both,
-                    Text = ModuleName
+                    new Container
+                    {
+                        Anchor = Anchor.CentreLeft,
+                        Origin = Anchor.CentreLeft,
+                        RelativeSizeAxes = Axes.Both,
+                        FillMode = FillMode.Fit,
+                        Child = new ToggleButton
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativeSizeAxes = Axes.Both,
+                            State = State
+                        }
+                    },
+                    new Container
+                    {
+                        Anchor = Anchor.CentreLeft,
+                        Origin = Anchor.CentreLeft,
+                        RelativeSizeAxes = Axes.Both,
+                        Child = new TextFlowContainer(t => t.Font = FrameworkFont.Regular.With(size: 20))
+                        {
+                            RelativeSizeAxes = Axes.Both,
+                            TextAnchor = Anchor.CentreLeft,
+                            Text = ModuleName
+                        }
+                    }
                 }
             }
         };

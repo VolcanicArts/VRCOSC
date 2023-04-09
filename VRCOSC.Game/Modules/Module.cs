@@ -49,7 +49,8 @@ public abstract class Module : IComparable<Module>
 
     private bool IsEnabled => Enabled.Value;
     private bool ShouldUpdate => DeltaUpdate != TimeSpan.MaxValue;
-    internal string FileName => @$"{GetType().Name}.ini";
+    internal string SerialisedName => GetType().Name;
+    internal string FileName => @$"{SerialisedName}.ini";
 
     protected bool IsStarting => State.Value == ModuleState.Starting;
     protected bool HasStarted => State.Value == ModuleState.Started;

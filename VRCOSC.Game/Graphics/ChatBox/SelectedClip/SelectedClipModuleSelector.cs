@@ -6,10 +6,10 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
-using osu.Framework.Graphics.Sprites;
 using osuTK;
 using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.Graphics.Themes;
+using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ChatBox.SelectedClip;
@@ -22,7 +22,7 @@ public partial class SelectedClipModuleSelector : Container
     [Resolved]
     private GameManager gameManager { get; set; } = null!;
 
-    private FillFlowContainer moduleFlow = null!;
+    private FillFlowContainer<DrawableAssociatedModule> moduleFlow = null!;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -37,7 +37,7 @@ public partial class SelectedClipModuleSelector : Container
             new Container
             {
                 RelativeSizeAxes = Axes.Both,
-                Padding = new MarginPadding(5),
+                Padding = new MarginPadding(10),
                 Child = new GridContainer
                 {
                     RelativeSizeAxes = Axes.Both,
@@ -61,13 +61,16 @@ public partial class SelectedClipModuleSelector : Container
                         null,
                         new Drawable[]
                         {
-                            new BasicScrollContainer
+                            new VRCOSCScrollContainer
                             {
                                 RelativeSizeAxes = Axes.Both,
-                                Child = moduleFlow = new FillFlowContainer
+                                ClampExtension = 20,
+                                Child = moduleFlow = new FillFlowContainer<DrawableAssociatedModule>
                                 {
+                                    RelativeSizeAxes = Axes.X,
+                                    AutoSizeAxes = Axes.Y,
                                     Direction = FillDirection.Vertical,
-                                    Spacing = new Vector2(0, 5)
+                                    Spacing = new Vector2(0, 20)
                                 }
                             }
                         }
@@ -76,38 +79,35 @@ public partial class SelectedClipModuleSelector : Container
             }
         };
 
-        foreach (var module in gameManager.ModuleManager)
-        {
-            DrawableAssociatedModule drawableAssociatedModule;
-
-            moduleFlow.Add(drawableAssociatedModule = new DrawableAssociatedModule
-            {
-                ModuleName = module.Title
-            });
-
-            drawableAssociatedModule.State.BindValueChanged(e =>
-            {
-                if (e.NewValue)
-                {
-                    selectedClip.Value!.AssociatedModules.Add(module.Title);
-                }
-                else
-                {
-                    selectedClip.Value!.AssociatedModules.Remove(module.Title);
-                }
-            });
-        }
-
         selectedClip.BindValueChanged(e =>
         {
             if (e.NewValue is null) return;
 
-            foreach (string newModule in e.NewValue.AssociatedModules)
+            moduleFlow.Clear();
+
+            foreach (var module in gameManager.ModuleManager)
             {
-                moduleFlow.Add(new DrawableAssociatedModule
+                DrawableAssociatedModule drawableAssociatedModule;
+
+                moduleFlow.Add(drawableAssociatedModule = new DrawableAssociatedModule
                 {
-                    ModuleName = newModule,
-                    State = { Value = true }
+                    ModuleName = module.Title
+                });
+
+                foreach (string moduleName in e.NewValue.AssociatedModules)
+                {
+                    if (module.SerialisedName == moduleName)
+                    {
+                        drawableAssociatedModule.State.Value = true;
+                    }
+                }
+
+                drawableAssociatedModule.State.BindValueChanged(e =>
+                {
+                    if (e.NewValue)
+                        selectedClip.Value!.AssociatedModules.Add(module.SerialisedName);
+                    else
+                        selectedClip.Value!.AssociatedModules.Remove(module.SerialisedName);
                 });
             }
         }, true);
