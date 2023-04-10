@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -152,9 +152,7 @@ public class ChatBoxManager
     {
         var state = new ClipState
         {
-            Modules = new List<string> { module },
-            States = new List<string> { lookup },
-            Name = name,
+            States = new List<(string, string)> { (module, lookup) },
             Format = { Value = defaultFormat }
         };
 
@@ -183,8 +181,8 @@ public class ChatBoxManager
     {
         var clipEvent = new ClipEvent
         {
-            Modules = new List<string> { module },
-            States = new List<string> { lookup },
+            Module = module,
+            Lookup = lookup,
             Name = name,
             Format = { Value = defaultFormat },
             Length = { Value = defaultLength }

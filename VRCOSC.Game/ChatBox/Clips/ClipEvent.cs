@@ -5,7 +5,12 @@ using osu.Framework.Bindables;
 
 namespace VRCOSC.Game.ChatBox.Clips;
 
-public class ClipEvent : ClipState
+public class ClipEvent
 {
+    public required string Module { get; init; }
+    public required string Lookup { get; init; }
+    public required string Name { get; init; }
+    public Bindable<string> Format = new();
+    public BindableBool Enabled = new();
     public Bindable<int> Length = new();
 }

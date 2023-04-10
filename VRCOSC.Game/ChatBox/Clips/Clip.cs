@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
+using NuGet.Packaging;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 
@@ -26,8 +27,6 @@ public class Clip
     public readonly Bindable<int> Start = new();
     public readonly Bindable<int> End = new(30);
     public int Length => End.Value - Start.Value;
-
-    public readonly List<DateTimeOffset> ModuleEvents = new();
 
     private readonly ChatBoxManager chatBoxManager;
 
@@ -58,7 +57,7 @@ public class Clip
         if (Start.Value > chatBoxManager.CurrentSecond || End.Value <= chatBoxManager.CurrentSecond) return false;
         if (ModuleEvents.Any()) return true;
 
-        var localStates = getCopyOfStates();
+        var localStates = States.Select(state => state.Copy()).ToList();
         removeDisabledModules(localStates);
         removeLessCompoundedStates(localStates);
         removeInvalidStates(localStates);
@@ -69,20 +68,13 @@ public class Clip
         return chosenState.Enabled.Value;
     }
 
-    private List<ClipState> getCopyOfStates()
-    {
-        var localStates = new List<ClipState>();
-        States.ForEach(state => localStates.Add(state));
-        return localStates;
-    }
-
     private void removeDisabledModules(List<ClipState> localStates)
     {
         var statesToRemove = new List<ClipState>();
 
         foreach (ClipState clipState in localStates)
         {
-            var stateValid = clipState.Modules.All(moduleName => chatBoxManager.ModuleEnabledStore[moduleName]);
+            var stateValid = clipState.ModuleNames.All(moduleName => chatBoxManager.ModuleEnabledStore[moduleName]);
             if (!stateValid) statesToRemove.Add(clipState);
         }
 
@@ -98,7 +90,7 @@ public class Clip
 
         localStates.ForEach(clipState =>
         {
-            var clipStateModules = clipState.Modules;
+            var clipStateModules = clipState.ModuleNames;
             clipStateModules.Sort();
 
             if (!clipStateModules.SequenceEqual(enabledAndAssociatedModules)) statesToRemove.Add(clipState);
@@ -116,7 +108,7 @@ public class Clip
 
         localStates.ForEach(clipState =>
         {
-            var clipStateStates = clipState.States;
+            var clipStateStates = clipState.StateNames;
             clipStateStates.Sort();
 
             if (!clipStateStates.SequenceEqual(currentStates)) statesToRemove.Add(clipState);
@@ -149,30 +141,39 @@ public class Clip
 
     private void populateStates(NotifyCollectionChangedEventArgs e)
     {
-        if (e.NewItems is not null)
+        if (e.OldItems is not null) removeStatesOfRemovedModules(e);
+        if (e.NewItems is not null) addStatesOfAddedModules(e);
+    }
+
+    private void removeStatesOfRemovedModules(NotifyCollectionChangedEventArgs e)
+    {
+        foreach (string oldModule in e.OldItems!)
         {
-            foreach (string newModule in e.NewItems)
+            States.RemoveAll(clipState => clipState.ModuleNames.Contains(oldModule));
+        }
+    }
+
+    private void addStatesOfAddedModules(NotifyCollectionChangedEventArgs e)
+    {
+        foreach (string moduleName in e.NewItems!)
+        {
+            var statesPrevious = States.Select(clipState => clipState.Copy()).ToList();
+
+            var states = chatBoxManager.States[moduleName];
+
+            foreach (var (stateName, clipState) in states)
             {
-                var states = chatBoxManager.States[newModule];
+                var statesPreviousLocal = statesPrevious.Select(clipStateLocal => clipStateLocal.Copy()).ToList();
 
-                States.Add(newModule, new Dictionary<string, ClipState>());
-
-                foreach (var (key, value) in states)
+                statesPreviousLocal.ForEach(localState =>
                 {
-                    States[newModule][key] = value;
-                }
+                    localState.States.Add((moduleName, stateName));
+                });
+
+                States.AddRange(statesPreviousLocal);
+                States.Add(clipState);
             }
         }
-
-        if (e.OldItems is not null)
-        {
-            foreach (string oldModule in e.OldItems)
-            {
-                States.Remove(oldModule);
-            }
-        }
-
-        // compound state calculation
     }
 
     private void populateEvents(NotifyCollectionChangedEventArgs e)
