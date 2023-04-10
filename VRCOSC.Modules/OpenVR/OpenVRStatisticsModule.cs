@@ -45,6 +45,11 @@ public class OpenVRStatisticsModule : ChatBoxModule
         CreateVariable(OpenVrVariable.RightControllerBattery, @"Right Controller Battery", @"{rightcontrollerbattery}");
     }
 
+    protected override void OnModuleStart()
+    {
+        ChangeStateTo(OpenVrState.Default);
+    }
+
     protected override void OnModuleUpdate()
     {
         if (OVRClient.HasInitialised)

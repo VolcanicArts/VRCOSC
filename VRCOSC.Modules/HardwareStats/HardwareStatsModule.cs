@@ -52,13 +52,19 @@ public sealed class HardwareStatsModule : ChatBoxModule
 
     protected override void OnModuleStart()
     {
-        base.OnModuleStart();
         hardwareStatsProvider = new HardwareStatsProvider();
+        ChangeStateTo(HardwareStatsState.Unavailable);
     }
 
     protected override void OnModuleUpdate()
     {
-        if (hardwareStatsProvider is null || !hardwareStatsProvider.CanAcceptQueries) return;
+        if (hardwareStatsProvider is null || !hardwareStatsProvider.CanAcceptQueries)
+        {
+            ChangeStateTo(HardwareStatsState.Unavailable);
+            return;
+        }
+
+        ChangeStateTo(HardwareStatsState.Available);
 
         hardwareStatsProvider.Update();
 

@@ -161,7 +161,7 @@ public partial class TimelineEditor : Container
                 RelativeSizeAxes = Axes.Y,
                 RelativePositionAxes = Axes.X,
                 Width = 5,
-                X = (chatBoxManager.Resolution * i)
+                X = (chatBoxManager.TimelineResolution * i)
             });
         }
 

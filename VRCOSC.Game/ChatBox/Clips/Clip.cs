@@ -29,7 +29,7 @@ public class Clip
 
     private readonly ChatBoxManager chatBoxManager;
 
-    // TODO turn into struct
+    // TODO Dumb just store the ClipEvent somehow
     private ((string, string), DateTimeOffset)? currentEvent;
     private ClipState? currentState;
 
@@ -47,12 +47,12 @@ public class Clip
 
     public void Update()
     {
-        chatBoxManager.ModuleEvents.ForEach(moduleEvent =>
+        chatBoxManager.TriggeredEvents.ForEach(moduleEvent =>
         {
             var (module, lookup) = moduleEvent;
 
             // TODO if new event's module name is equal to the current event's module name, it should replace
-            // TODO if new event's module name is different, add to a queue to be put into current event when current even expires
+            // TODO if new event's module name is different, add to a queue to be put into current event when current event expires
 
             var clipEvent = Events.Where(clipEvent => clipEvent.Module == module && clipEvent.Lookup == lookup);
         });
@@ -88,7 +88,7 @@ public class Clip
 
         foreach (ClipState clipState in localStates)
         {
-            var stateValid = clipState.ModuleNames.All(moduleName => chatBoxManager.ModuleEnabledStore[moduleName]);
+            var stateValid = clipState.ModuleNames.All(moduleName => chatBoxManager.ModuleEnabledCache[moduleName]);
             if (!stateValid) statesToRemove.Add(clipState);
         }
 
@@ -97,7 +97,7 @@ public class Clip
 
     private void removeLessCompoundedStates(List<ClipState> localStates)
     {
-        var enabledAndAssociatedModules = AssociatedModules.Where(moduleName => chatBoxManager.ModuleEnabledStore[moduleName]).ToList();
+        var enabledAndAssociatedModules = AssociatedModules.Where(moduleName => chatBoxManager.ModuleEnabledCache[moduleName]).ToList();
         enabledAndAssociatedModules.Sort();
 
         var statesToRemove = new List<ClipState>();
@@ -115,7 +115,7 @@ public class Clip
 
     private void removeInvalidStates(List<ClipState> localStates)
     {
-        var currentStates = AssociatedModules.Where(moduleName => chatBoxManager.ModuleEnabledStore[moduleName] && chatBoxManager.ModuleStates.TryGetValue(moduleName, out _)).Select(moduleName => chatBoxManager.ModuleStates[moduleName]).ToList();
+        var currentStates = AssociatedModules.Where(moduleName => chatBoxManager.ModuleEnabledCache[moduleName] && chatBoxManager.StateValues.TryGetValue(moduleName, out _)).Select(moduleName => chatBoxManager.StateValues[moduleName]).ToList();
         currentStates.Sort();
 
         if (!currentStates.Any()) return;
@@ -150,7 +150,7 @@ public class Clip
 
         AvailableVariables.ForEach(clipVariable =>
         {
-            var variableValue = chatBoxManager.ModuleVariables[(clipVariable.Module, clipVariable.Lookup)] ?? string.Empty;
+            var variableValue = chatBoxManager.VariableValues[clipVariable.Module][clipVariable.Lookup] ?? string.Empty;
             returnText = returnText.Replace(clipVariable.Format, variableValue);
         });
 
@@ -170,7 +170,7 @@ public class Clip
 
         foreach (var module in AssociatedModules)
         {
-            var clipVariables = chatBoxManager.Variables[module].Values.Select(clipVariable => clipVariable.Copy()).ToList();
+            var clipVariables = chatBoxManager.TemplateVariables[module].Values.ToList();
             AvailableVariables.AddRange(clipVariables);
         }
     }
@@ -195,7 +195,7 @@ public class Clip
         {
             var statesPrevious = States.Select(clipState => clipState.Copy()).ToList();
 
-            var states = chatBoxManager.States[moduleName];
+            var states = chatBoxManager.TemplateStates[moduleName];
 
             foreach (var (stateName, clipState) in states)
             {
@@ -230,7 +230,7 @@ public class Clip
     {
         foreach (string moduleName in e.NewItems!)
         {
-            if (!chatBoxManager.Events.TryGetValue(moduleName, out var events)) continue;
+            if (!chatBoxManager.TemplateEvents.TryGetValue(moduleName, out var events)) continue;
 
             foreach (var (_, clipEvent) in events)
             {

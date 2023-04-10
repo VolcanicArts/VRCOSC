@@ -132,7 +132,7 @@ public partial class DrawableClip : Container
         var deltaX = e.Delta.X / Parent.DrawWidth;
         cumulativeDrag += deltaX;
 
-        if (Math.Abs(cumulativeDrag) >= chatBoxManager.Resolution)
+        if (Math.Abs(cumulativeDrag) >= chatBoxManager.TimelineResolution)
         {
             var newStart = Clip.Start.Value + Math.Sign(cumulativeDrag);
             var newEnd = Clip.End.Value + Math.Sign(cumulativeDrag);
@@ -154,8 +154,8 @@ public partial class DrawableClip : Container
 
     private void updateSizeAndPosition()
     {
-        Width = Clip.Length * chatBoxManager.Resolution;
-        X = Clip.Start.Value * chatBoxManager.Resolution;
+        Width = Clip.Length * chatBoxManager.TimelineResolution;
+        X = Clip.Start.Value * chatBoxManager.TimelineResolution;
     }
 
     private partial class ResizeDetector : Container
@@ -218,7 +218,7 @@ public partial class DrawableClip : Container
             e.Target = Parent.Parent;
             CumulativeDrag += NormaliseFunc.Invoke(e.Delta.X);
 
-            if (Math.Abs(CumulativeDrag) >= chatBoxManager.Resolution)
+            if (Math.Abs(CumulativeDrag) >= chatBoxManager.TimelineResolution)
             {
                 var newStart = Clip.Start.Value + Math.Sign(CumulativeDrag);
 
@@ -259,7 +259,7 @@ public partial class DrawableClip : Container
             e.Target = Parent.Parent;
             CumulativeDrag += NormaliseFunc.Invoke(e.Delta.X);
 
-            if (Math.Abs(CumulativeDrag) >= chatBoxManager.Resolution)
+            if (Math.Abs(CumulativeDrag) >= chatBoxManager.TimelineResolution)
             {
                 var newEnd = Clip.End.Value + Math.Sign(CumulativeDrag);
 

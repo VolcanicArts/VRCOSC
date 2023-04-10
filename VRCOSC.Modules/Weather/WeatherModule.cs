@@ -33,19 +33,22 @@ public class WeatherModule : ChatBoxModule
 
     protected override void OnModuleStart()
     {
-        base.OnModuleStart();
-
         if (string.IsNullOrEmpty(GetSetting<string>(WeatherSetting.Postcode))) Log("Please provide a postcode/zip code or city name");
 
         weatherProvider = new WeatherProvider(Secrets.GetSecret(VRCOSCSecretsKeys.Weather));
         currentWeather = null;
+        ChangeStateTo(WeatherState.Default);
     }
 
     protected override void OnModuleUpdate()
     {
         if (string.IsNullOrEmpty(GetSetting<string>(WeatherSetting.Postcode))) return;
 
-        if (weatherProvider is null) return;
+        if (weatherProvider is null)
+        {
+            Log("Unable to connect to weather service");
+            return;
+        }
 
         Task.Run(async () =>
         {
@@ -66,7 +69,12 @@ public class WeatherModule : ChatBoxModule
 
     private void updateParameters()
     {
-        if (currentWeather is null) return;
+        if (currentWeather is null)
+        {
+            Log("Cannot retrieve weather for provided location");
+            Log("If you've entered a post/zip code, try your closest city's name");
+            return;
+        }
 
         SendParameter(WeatherParameter.Code, convertedWeatherCode);
 

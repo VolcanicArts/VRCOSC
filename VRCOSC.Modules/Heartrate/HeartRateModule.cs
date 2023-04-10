@@ -39,10 +39,9 @@ public abstract class HeartRateModule : ChatBoxModule
 
     protected override void OnModuleStart()
     {
-        base.OnModuleStart();
         attemptConnection();
-
         lastHeartrateTime = DateTimeOffset.Now - heartrate_timeout;
+        ChangeStateTo(HeartrateState.Default);
     }
 
     private void attemptConnection()

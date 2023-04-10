@@ -31,6 +31,7 @@ public class ChatBoxTextModule : ChatBoxModule
     protected override void OnModuleStart()
     {
         index = 0;
+        ChangeStateTo(ChatBoxTextState.Default);
     }
 
     protected override void OnModuleUpdate()

@@ -38,6 +38,11 @@ public sealed class ClockModule : ChatBoxModule
         CreateVariable(ClockVariable.Period, "AM/PM", "{period}");
     }
 
+    protected override void OnModuleStart()
+    {
+        ChangeStateTo(ClockState.Default);
+    }
+
     protected override void OnModuleUpdate()
     {
         time = timezoneToTime(GetSetting<ClockTimeZone>(ClockSetting.Timezone));

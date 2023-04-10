@@ -57,8 +57,6 @@ public class MediaModule : ChatBoxModule
 
     protected override async void OnModuleStart()
     {
-        base.OnModuleStart();
-
         var result = await mediaProvider.Hook();
 
         if (!result)
@@ -66,6 +64,8 @@ public class MediaModule : ChatBoxModule
             Log("Could not hook into Windows media");
             Log("Try restarting the modules\nIf this persists you will need to restart your PC as Windows has not initialised media correctly");
         }
+
+        ChangeStateTo(mediaProvider.State.IsPlaying ? MediaState.Playing : MediaState.Paused);
 
         startProcesses();
     }
@@ -204,8 +204,6 @@ public class MediaModule : ChatBoxModule
 
     private enum MediaSetting
     {
-        PausedBehaviour,
-        PausedText,
         StartList
     }
 
