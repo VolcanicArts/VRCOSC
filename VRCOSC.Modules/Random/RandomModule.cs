@@ -6,7 +6,7 @@ using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Modules.Random;
 
-public abstract partial class RandomModule<T> : Module where T : struct
+public abstract class RandomModule<T> : Module where T : struct
 {
     public override string Title => $"Random {typeof(T).ToReadableName()}";
     public override string Description => $"Sends a random {typeof(T).ToReadableName().ToLowerInvariant()} over a variable time period";

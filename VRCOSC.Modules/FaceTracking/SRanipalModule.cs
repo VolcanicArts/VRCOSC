@@ -10,7 +10,7 @@ using VRCOSC.Modules.FaceTracking.Interface.Lips;
 
 namespace VRCOSC.Modules.FaceTracking;
 
-public partial class SRanipalModule : Module
+public class SRanipalModule : Module
 {
     public override string Title => "SRanipal";
     public override string Description => "Hooks into SRanipal and sends face tracking data to VRChat. Interchangeable with VRCFaceTracking";

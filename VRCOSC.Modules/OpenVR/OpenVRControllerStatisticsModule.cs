@@ -6,7 +6,7 @@ using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Modules.OpenVR;
 
-public partial class OpenVRControllerStatisticsModule : Module
+public class OpenVRControllerStatisticsModule : Module
 {
     public override string Title => "OpenVR Controller Statistics";
     public override string Description => "Gets controller statistics from your OpenVR (SteamVR) session";

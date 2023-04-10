@@ -3,7 +3,7 @@
 
 namespace VRCOSC.Modules.Random;
 
-public sealed partial class RandomIntModule : RandomModule<int>
+public sealed class RandomIntModule : RandomModule<int>
 {
     protected override void CreateAttributes()
     {
