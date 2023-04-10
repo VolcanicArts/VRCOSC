@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Development;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
@@ -116,7 +117,7 @@ public partial class GameManager : Component
 
         ModuleManager.Update();
 
-        //ChatBoxInterface.Update();
+        ChatBoxManager.Update();
     }
 
     protected override void LoadComplete()
@@ -163,7 +164,7 @@ public partial class GameManager : Component
                     switch (data.ParameterName)
                     {
                         case @"VRCOSC/Controls/ChatBox":
-                            //ChatBoxInterface.SendEnabled = (bool)data.ParameterValue;
+                            ChatBoxManager.SendEnabled = (bool)data.ParameterValue;
                             break;
                     }
                 }
@@ -203,13 +204,16 @@ public partial class GameManager : Component
             return;
         }
 
+        var moduleEnabled = new Dictionary<string, bool>();
+        ModuleManager.ForEach(module => moduleEnabled.Add(module.SerialisedName, module.Enabled.Value));
+
         State.Value = GameManagerState.Starting;
 
         await Task.Delay(startstop_delay);
 
         VRChatOscClient.Enable(OscClientFlag.Send);
         Player.Initialise();
-        //ChatBoxInterface.Initialise();
+        ChatBoxManager.Initialise(moduleEnabled);
         sendControlValues();
         ModuleManager.Start();
         VRChatOscClient.Enable(OscClientFlag.Receive);
@@ -238,7 +242,7 @@ public partial class GameManager : Component
 
         await OSCRouter.Disable();
         ModuleManager.Stop();
-        //ChatBoxInterface.Shutdown();
+        ChatBoxManager.Shutdown();
         Player.ResetAll();
         await VRChatOscClient.Disable(OscClientFlag.Send);
 
@@ -309,7 +313,7 @@ public partial class GameManager : Component
 
     private void sendControlValues()
     {
-        //VRChatOscClient.SendValue(@$"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}/VRCOSC/Controls/ChatBox", ChatBoxInterface.SendEnabled);
+        VRChatOscClient.SendValue(@$"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}/VRCOSC/Controls/ChatBox", ChatBoxManager.SendEnabled);
     }
 }
 

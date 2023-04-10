@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
@@ -11,6 +12,7 @@ using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Modules;
+using VRCOSC.Game.Modules.ChatBox;
 
 namespace VRCOSC.Game.Graphics.ChatBox.SelectedClip;
 
@@ -85,7 +87,7 @@ public partial class SelectedClipModuleSelector : Container
 
             moduleFlow.Clear();
 
-            foreach (var module in gameManager.ModuleManager)
+            foreach (var module in gameManager.ModuleManager.Where(module => module.GetType().IsSubclassOf(typeof(ChatBoxModule))))
             {
                 DrawableAssociatedModule drawableAssociatedModule;
 

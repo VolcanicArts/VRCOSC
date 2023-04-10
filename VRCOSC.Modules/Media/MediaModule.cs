@@ -31,6 +31,7 @@ public class MediaModule : ChatBoxModule
 
     protected override void CreateAttributes()
     {
+        // TODO - Remove into a separate screen that allows for start options
         CreateSetting(MediaSetting.StartList, "Start List", "A list of exe locations to start with this module. This is handy for starting media apps on module start. For example, Spotify", new[] { @$"C:\Users\{Environment.UserName}\AppData\Roaming\Spotify\spotify.exe" }, true);
 
         CreateParameter<bool>(MediaParameter.Play, ParameterMode.ReadWrite, @"VRCOSC/Media/Play", "Play/Pause", @"True for playing. False for paused");

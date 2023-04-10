@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using osu.Framework.Bindables;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using VRCOSC.Game.ChatBox.Clips;
 
 namespace VRCOSC.Game.ChatBox;
@@ -18,14 +19,29 @@ public class ChatBoxManager
     public readonly Dictionary<string, Dictionary<string, ClipEvent>> Events = new();
 
     public readonly Dictionary<string, string> ModuleStates = new();
-
-    // TODO - module events will become true for 1 update check and then reset to false
-    // Each clip evaluation that checks if an event has occured will have to locally store a DateTimeOffset
-    public readonly Dictionary<string, Dictionary<string, bool>> ModuleEvents = new();
+    public readonly List<(string, string)> ModuleEvents = new();
+    public IReadOnlyDictionary<string, bool> ModuleEnabledStore => moduleEnabledStore;
 
     public readonly Bindable<TimeSpan> TimelineLength = new(TimeSpan.FromMinutes(1));
 
+    private bool sendEnabled;
+
+    public bool SendEnabled
+    {
+        get => sendEnabled;
+        set
+        {
+            if (sendEnabled && !value) clearChatBox();
+            sendEnabled = value;
+        }
+    }
+
     public float Resolution => 1f / (float)TimelineLength.Value.TotalSeconds;
+    public int CurrentSecond => (int)Math.Floor((DateTimeOffset.Now - startTime).TotalSeconds) % (int)TimelineLength.Value.TotalSeconds;
+
+    private DateTimeOffset startTime;
+    private Dictionary<string, bool> moduleEnabledStore = null!;
+    private bool isClear = true;
 
     public ChatBoxManager()
     {
@@ -35,23 +51,63 @@ public class ChatBoxManager
 
             Clips.Add(clip = new Clip(this)
             {
-                Priority = { Value = i },
+                Priority = { Value = i }
             });
-            clip.AssociatedModules.Add("Test " + i);
         }
     }
 
     public Clip CreateClip() => new(this);
 
-    public void Initialise()
+    public void Initialise(Dictionary<string, bool> moduleEnabled)
     {
+        startTime = DateTimeOffset.Now;
+        moduleEnabledStore = moduleEnabled;
     }
 
     public void Update()
     {
-        // evaluate clips
+        Clips.ForEach(clip => clip.Update());
 
-        // reset module event triggers
+        Clip? validClip = null;
+
+        for (var i = 5; i >= 0; i--)
+        {
+            Clips.Where(clip => clip.Priority.Value == i).ForEach(clip =>
+            {
+                if (!clip.Evalulate() || validClip is not null) return;
+
+                validClip = clip;
+            });
+
+            if (validClip is not null) break;
+        }
+
+        handleClip(validClip);
+
+        ModuleEvents.Clear();
+    }
+
+    public void Shutdown()
+    {
+        ModuleEvents.Clear();
+    }
+
+    private void handleClip(Clip? clip)
+    {
+        if (clip is null && !isClear)
+        {
+            clearChatBox();
+            return;
+        }
+
+        if (clip is null) return;
+
+        // format clip and send to ChatBox
+    }
+
+    private void clearChatBox()
+    {
+        isClear = true;
     }
 
     public bool IncreasePriority(Clip clip) => SetPriority(clip, clip.Priority.Value + 1);
@@ -96,7 +152,8 @@ public class ChatBoxManager
     {
         var state = new ClipState
         {
-            Lookup = lookup,
+            Modules = new List<string> { module },
+            States = new List<string> { lookup },
             Name = name,
             Format = { Value = defaultFormat }
         };
@@ -126,7 +183,8 @@ public class ChatBoxManager
     {
         var clipEvent = new ClipEvent
         {
-            Lookup = lookup,
+            Modules = new List<string> { module },
+            States = new List<string> { lookup },
             Name = name,
             Format = { Value = defaultFormat },
             Length = { Value = defaultLength }
@@ -141,29 +199,11 @@ public class ChatBoxManager
             Events.Add(module, new Dictionary<string, ClipEvent>());
             Events[module].Add(lookup, clipEvent);
         }
-
-        if (ModuleEvents.TryGetValue(module, out var innerDict2))
-        {
-            innerDict2[lookup] = false;
-        }
-        else
-        {
-            ModuleEvents.Add(module, new Dictionary<string, bool>());
-
-            if (ModuleEvents[module].ContainsKey(lookup))
-            {
-                ModuleEvents[module][lookup] = false;
-            }
-            else
-            {
-                ModuleEvents[module].Add(lookup, false);
-            }
-        }
     }
 
     public void TriggerEvent(string module, string lookup)
     {
-        ModuleEvents[module][lookup] = true;
+        ModuleEvents.Add((module, lookup));
     }
 
     public IReadOnlyList<Clip> RetrieveClipsWithPriority(int priority) => Clips.Where(clip => clip.Priority.Value == priority).ToList();
