@@ -38,7 +38,7 @@ public partial class TimelineLayerMenu : TimelineMenu
 
     private void createClip()
     {
-        var clip = new Game.ChatBox.Clips.Clip();
+        var clip = chatBoxManager.CreateClip();
 
         var (lowerBound, upperBound) = Layer.GetBoundsNearestTo(XPos, false);
 

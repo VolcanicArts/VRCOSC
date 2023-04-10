@@ -26,6 +26,7 @@ public class MediaModule : ChatBoxModule
     public MediaModule()
     {
         mediaProvider.OnPlaybackStateUpdate += onPlaybackStateUpdate;
+        mediaProvider.OnTrackChange += onTrackChange;
     }
 
     protected override void CreateAttributes()
@@ -43,6 +44,8 @@ public class MediaModule : ChatBoxModule
 
         CreateState(MediaState.Playing, "Playing", @"[{time}/{duration}]                            Now Playing: {artist} - {title}");
         CreateState(MediaState.Paused, "Paused", @"[Paused]");
+
+        CreateEvent(MediaEvent.NowPlaying, "Now Playing", @"[Now Playing]                            {artist} - {title}", 5);
 
         CreateVariable(MediaVariable.Title, @"Title", @"{title}");
         CreateVariable(MediaVariable.Artist, @"Artist", @"{artist}");
@@ -93,9 +96,14 @@ public class MediaModule : ChatBoxModule
     {
         if (mediaProvider.Controller is not null) sendUpdatableParameters();
 
+        updateVariables();
+    }
+
+    private void updateVariables()
+    {
         SetVariableValue(MediaVariable.Title, mediaProvider.State.Title);
         SetVariableValue(MediaVariable.Artist, mediaProvider.State.Artist);
-        SetVariableValue(MediaVariable.Title, mediaProvider.State.Position?.Position.ToString(@"mm\:ss"));
+        SetVariableValue(MediaVariable.Time, mediaProvider.State.Position?.Position.ToString(@"mm\:ss"));
         SetVariableValue(MediaVariable.Duration, mediaProvider.State.Position?.EndTime.ToString(@"mm\:ss"));
         SetVariableValue(MediaVariable.Volume, (mediaProvider.State.Volume * 100).ToString("##0"));
     }
@@ -103,6 +111,13 @@ public class MediaModule : ChatBoxModule
     private void onPlaybackStateUpdate()
     {
         sendMediaParameters();
+        ChangeStateTo(mediaProvider.State.IsPlaying ? MediaState.Playing : MediaState.Paused);
+    }
+
+    private void onTrackChange()
+    {
+        updateVariables();
+        TriggerEvent(MediaEvent.NowPlaying);
     }
 
     private void sendMediaParameters()
@@ -197,6 +212,11 @@ public class MediaModule : ChatBoxModule
     {
         Playing,
         Paused
+    }
+
+    private enum MediaEvent
+    {
+        NowPlaying
     }
 
     private enum MediaVariable

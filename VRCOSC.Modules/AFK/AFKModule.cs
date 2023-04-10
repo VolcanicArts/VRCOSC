@@ -26,6 +26,8 @@ public class AFKModule : ChatBoxModule
     protected override void OnModuleStart()
     {
         afkBegan = null;
+
+        ChangeStateTo(AFKModuleState.NotAFK);
     }
 
     protected override void OnModuleUpdate()
