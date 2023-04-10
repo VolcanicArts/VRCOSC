@@ -13,4 +13,13 @@ public class ClipEvent
     public Bindable<string> Format = new();
     public BindableBool Enabled = new();
     public Bindable<int> Length = new();
+
+    public ClipEvent Copy() => new()
+    {
+        Module = Module,
+        Lookup = Lookup,
+        Name = Name,
+        Format = Format,
+        Length = Length
+    };
 }

@@ -6,9 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
-using NuGet.Packaging;
 using osu.Framework.Bindables;
-using osu.Framework.Extensions.IEnumerableExtensions;
 
 namespace VRCOSC.Game.ChatBox.Clips;
 
@@ -30,6 +28,8 @@ public class Clip
 
     private readonly ChatBoxManager chatBoxManager;
 
+    private ((string, string), DateTimeOffset)? currentEvent;
+
     public Clip(ChatBoxManager chatBoxManager)
     {
         this.chatBoxManager = chatBoxManager;
@@ -41,21 +41,22 @@ public class Clip
         chatBoxManager.ModuleEvents.ForEach(moduleEvent =>
         {
             var (module, lookup) = moduleEvent;
-            var clipEvent = Events[module][lookup];
-            ModuleEvents.Add(DateTimeOffset.Now + TimeSpan.FromSeconds(clipEvent.Length.Value));
+
+            // TODO if new event's module name is equal to the current event's module name, it should replace
+            // TODO if new event's module name is different, add to a queue to be put into current event when current even expires
+
+            var clipEvent = Events.Where(clipEvent => clipEvent.Module == module && clipEvent.Lookup == lookup);
         });
 
-        ModuleEvents.ForEach(moduleEvent =>
-        {
-            if (moduleEvent <= DateTimeOffset.Now) ModuleEvents.Remove(moduleEvent);
-        });
+        if (currentEvent?.Item2 <= DateTimeOffset.Now) currentEvent = null;
     }
 
     public bool Evalulate()
     {
         if (!Enabled.Value) return false;
         if (Start.Value > chatBoxManager.CurrentSecond || End.Value <= chatBoxManager.CurrentSecond) return false;
-        if (ModuleEvents.Any()) return true;
+
+        if (currentEvent is not null) return true;
 
         var localStates = States.Select(state => state.Copy()).ToList();
         removeDisabledModules(localStates);
@@ -135,7 +136,8 @@ public class Clip
 
         foreach (var module in AssociatedModules)
         {
-            AvailableVariables.AddRange(chatBoxManager.Variables[module].Values.ToList());
+            var clipVariables = chatBoxManager.Variables[module].Values.Select(clipVariable => clipVariable.Copy()).ToList();
+            AvailableVariables.AddRange(clipVariables);
         }
     }
 
@@ -178,27 +180,27 @@ public class Clip
 
     private void populateEvents(NotifyCollectionChangedEventArgs e)
     {
-        if (e.NewItems is not null)
-        {
-            foreach (string newModule in e.NewItems)
-            {
-                if (chatBoxManager.Events.TryGetValue(newModule, out var events))
-                {
-                    Events.Add(newModule, new Dictionary<string, ClipEvent>());
+        if (e.OldItems is not null) removeEventsOfRemovedModules(e);
+        if (e.NewItems is not null) addEventsOfAddedModules(e);
+    }
 
-                    foreach (var (key, value) in events)
-                    {
-                        Events[newModule][key] = value;
-                    }
-                }
-            }
+    private void removeEventsOfRemovedModules(NotifyCollectionChangedEventArgs e)
+    {
+        foreach (string oldModule in e.OldItems!)
+        {
+            Events.RemoveAll(clipEvent => clipEvent.Module == oldModule);
         }
+    }
 
-        if (e.OldItems is not null)
+    private void addEventsOfAddedModules(NotifyCollectionChangedEventArgs e)
+    {
+        foreach (string moduleName in e.NewItems!)
         {
-            foreach (string oldModule in e.OldItems)
+            if (!chatBoxManager.Events.TryGetValue(moduleName, out var events)) continue;
+
+            foreach (var (_, clipEvent) in events)
             {
-                Events.Remove(oldModule);
+                Events.Add(clipEvent.Copy());
             }
         }
     }

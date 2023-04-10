@@ -13,4 +13,12 @@ public class ClipVariable
     public required string Name { get; init; }
     public required string Format { get; init; }
     public string? Value { get; set; }
+
+    public ClipVariable Copy() => new()
+    {
+        Module = Module,
+        Lookup = Lookup,
+        Name = Name,
+        Format = Format
+    };
 }
