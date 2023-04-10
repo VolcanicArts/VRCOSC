@@ -7,6 +7,7 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
 using osu.Framework.Bindables;
+using osu.Framework.Extensions.IEnumerableExtensions;
 
 namespace VRCOSC.Game.ChatBox.Clips;
 
@@ -28,12 +29,20 @@ public class Clip
 
     private readonly ChatBoxManager chatBoxManager;
 
+    // TODO turn into struct
     private ((string, string), DateTimeOffset)? currentEvent;
+    private ClipState? currentState;
 
     public Clip(ChatBoxManager chatBoxManager)
     {
         this.chatBoxManager = chatBoxManager;
         AssociatedModules.BindCollectionChanged((_, e) => onAssociatedModulesChanged(e), true);
+    }
+
+    public void Initialise()
+    {
+        currentEvent = null;
+        currentState = null;
     }
 
     public void Update()
@@ -63,9 +72,13 @@ public class Clip
         removeLessCompoundedStates(localStates);
         removeInvalidStates(localStates);
 
-        Debug.Assert(localStates.Count == 1);
+        Debug.Assert(localStates.Count is 0 or 1);
+
+        if (!localStates.Any()) return false;
 
         var chosenState = localStates.First();
+
+        currentState = chosenState.Enabled.Value ? chosenState : null;
         return chosenState.Enabled.Value;
     }
 
@@ -102,8 +115,10 @@ public class Clip
 
     private void removeInvalidStates(List<ClipState> localStates)
     {
-        var currentStates = AssociatedModules.Where(moduleName => chatBoxManager.ModuleEnabledStore[moduleName]).Select(moduleName => chatBoxManager.ModuleStates[moduleName]).ToList();
+        var currentStates = AssociatedModules.Where(moduleName => chatBoxManager.ModuleEnabledStore[moduleName] && chatBoxManager.ModuleStates.TryGetValue(moduleName, out _)).Select(moduleName => chatBoxManager.ModuleStates[moduleName]).ToList();
         currentStates.Sort();
+
+        if (!currentStates.Any()) return;
 
         var statesToRemove = new List<ClipState>();
 
@@ -118,9 +133,28 @@ public class Clip
         statesToRemove.ForEach(clipState => localStates.Remove(clipState));
     }
 
-    public void GetFormat()
+    public string GetFormattedText()
     {
-        // return events if one exists before returning chosen state
+        if (currentEvent is not null)
+            return formatText(Events.Single(clipEvent => clipEvent.Module == currentEvent.Value.Item1.Item1 && clipEvent.Lookup == currentEvent.Value.Item1.Item2));
+
+        return formatText(currentState!);
+    }
+
+    private string formatText(ClipState clipState) => formatText(clipState.Format.Value);
+    private string formatText(ClipEvent clipEvent) => formatText(clipEvent.Format.Value);
+
+    private string formatText(string text)
+    {
+        var returnText = text;
+
+        AvailableVariables.ForEach(clipVariable =>
+        {
+            var variableValue = chatBoxManager.ModuleVariables[(clipVariable.Module, clipVariable.Lookup)] ?? string.Empty;
+            returnText = returnText.Replace(clipVariable.Format, variableValue);
+        });
+
+        return returnText;
     }
 
     private void onAssociatedModulesChanged(NotifyCollectionChangedEventArgs e)

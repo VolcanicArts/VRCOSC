@@ -18,6 +18,7 @@ public class ChatBoxManager
     public readonly Dictionary<string, Dictionary<string, ClipState>> States = new();
     public readonly Dictionary<string, Dictionary<string, ClipEvent>> Events = new();
 
+    public readonly Dictionary<(string, string), string?> ModuleVariables = new();
     public readonly Dictionary<string, string> ModuleStates = new();
     public readonly List<(string, string)> ModuleEvents = new();
     public IReadOnlyDictionary<string, bool> ModuleEnabledStore => moduleEnabledStore;
@@ -62,6 +63,8 @@ public class ChatBoxManager
     {
         startTime = DateTimeOffset.Now;
         moduleEnabledStore = moduleEnabled;
+
+        Clips.ForEach(clip => clip.Initialise());
     }
 
     public void Update()
@@ -90,6 +93,8 @@ public class ChatBoxManager
     public void Shutdown()
     {
         ModuleEvents.Clear();
+        ModuleVariables.Clear();
+        ModuleStates.Clear();
     }
 
     private void handleClip(Clip? clip)
@@ -145,7 +150,7 @@ public class ChatBoxManager
 
     public void SetVariable(string module, string lookup, string? value)
     {
-        Variables[module][lookup].Value = value;
+        ModuleVariables[(module, lookup)] = value;
     }
 
     public void RegisterState(string module, string lookup, string name, string defaultFormat)
