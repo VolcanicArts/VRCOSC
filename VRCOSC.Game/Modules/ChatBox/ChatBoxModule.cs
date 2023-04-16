@@ -17,6 +17,11 @@ public abstract class ChatBoxModule : Module
         ChatBoxManager.SetVariable(SerialisedName, lookup.ToLookup(), value);
     }
 
+    protected string GetVariableFormat(Enum lookup)
+    {
+        return ChatBoxManager.VariableMetadata[SerialisedName][lookup.ToLookup()].DisplayableFormat;
+    }
+
     protected void CreateState(Enum lookup, string name, string defaultFormat)
     {
         ChatBoxManager.RegisterState(SerialisedName, lookup.ToLookup(), name, defaultFormat);

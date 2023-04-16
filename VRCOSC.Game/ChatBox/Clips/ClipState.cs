@@ -9,15 +9,40 @@ namespace VRCOSC.Game.ChatBox.Clips;
 
 public class ClipState
 {
-    public required List<(string, string)> States { get; init; }
+    public List<(string, string)> States { get; init; }
     public Bindable<string> Format = new();
     public BindableBool Enabled = new();
 
     public List<string> ModuleNames => States.Select(state => state.Item1).ToList();
     public List<string> StateNames => States.Select(state => state.Item2).ToList();
 
-    public ClipState Copy() => new()
+    public ClipState Copy()
     {
-        States = States
-    };
+        var statesCopy = new List<(string, string)>();
+        States.ForEach(state => statesCopy.Add(state));
+
+        return new ClipState
+        {
+            States = statesCopy
+        };
+    }
+
+    public ClipState()
+    {
+    }
+
+    public ClipState(ClipStateMetadata metadata)
+    {
+        States = new List<(string, string)> { (metadata.Module, metadata.Lookup) };
+        Format.Value = metadata.DefaultFormat;
+        Format.Default = metadata.DefaultFormat;
+    }
+}
+
+public class ClipStateMetadata
+{
+    public required string Module { get; init; }
+    public required string Lookup { get; init; }
+    public required string Name { get; init; }
+    public required string DefaultFormat { get; init; }
 }

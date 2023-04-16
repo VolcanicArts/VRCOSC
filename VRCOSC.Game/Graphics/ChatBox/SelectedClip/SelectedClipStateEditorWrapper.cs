@@ -11,10 +11,13 @@ using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.ChatBox.SelectedClip;
 
-public partial class SelectedClipStateEditor : Container
+public partial class SelectedClipStateEditorWrapper : Container
 {
     [Resolved]
     private Bindable<Clip?> selectedClip { get; set; } = null!;
+
+    private Container stateEditorContainer = null!;
+    private Container variableContainer = null!;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -43,39 +46,38 @@ public partial class SelectedClipStateEditor : Container
                     {
                         new Drawable?[]
                         {
-                            new Container
+                            stateEditorContainer = new Container
                             {
-                                RelativeSizeAxes = Axes.Both,
-                                Masking = true,
-                                CornerRadius = 5,
-                                Children = new Drawable[]
-                                {
-                                    new Box
-                                    {
-                                        Colour = ThemeManager.Current[ThemeAttribute.Darker],
-                                        RelativeSizeAxes = Axes.Both
-                                    },
-                                }
+                                RelativeSizeAxes = Axes.Both
                             },
                             null,
-                            new Container
+                            variableContainer = new Container
                             {
-                                RelativeSizeAxes = Axes.Both,
-                                Masking = true,
-                                CornerRadius = 5,
-                                Children = new Drawable[]
-                                {
-                                    new Box
-                                    {
-                                        Colour = ThemeManager.Current[ThemeAttribute.Darker],
-                                        RelativeSizeAxes = Axes.Both
-                                    },
-                                }
+                                RelativeSizeAxes = Axes.Both
                             }
                         }
                     }
                 }
             }
         };
+
+        selectedClip.BindValueChanged(clip =>
+        {
+            if (clip.NewValue is null) return;
+
+            stateEditorContainer.Child = new SelectedClipStateEditorContainer(clip.NewValue)
+            {
+                RelativeSizeAxes = Axes.Both,
+                Masking = true,
+                CornerRadius = 5
+            };
+
+            variableContainer.Child = new SelectedClipVariableContainer(clip.NewValue)
+            {
+                RelativeSizeAxes = Axes.Both,
+                Masking = true,
+                CornerRadius = 5
+            };
+        }, true);
     }
 }

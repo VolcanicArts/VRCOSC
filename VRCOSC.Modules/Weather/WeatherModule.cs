@@ -24,11 +24,11 @@ public class WeatherModule : ChatBoxModule
 
         CreateParameter<int>(WeatherParameter.Code, ParameterMode.Write, "VRCOSC/Weather/Code", "Weather Code", "The current weather's code");
 
-        CreateState(WeatherState.Default, @"Default", @"Local Weather                                {tempc}C - {tempf}F");
+        CreateVariable(WeatherVariable.TempC, @"Temp C", @"tempc");
+        CreateVariable(WeatherVariable.TempF, @"Temp F", @"tempf");
+        CreateVariable(WeatherVariable.Humidity, @"Humidity", @"humidity");
 
-        CreateVariable(WeatherVariable.TempC, @"Temp C", @"{tempc}");
-        CreateVariable(WeatherVariable.TempF, @"Temp F", @"{tempf}");
-        CreateVariable(WeatherVariable.Humidity, @"Humidity", @"{humidity}");
+        CreateState(WeatherState.Default, @"Default", $@"Local Weather                                {GetVariableFormat(WeatherVariable.TempC)}C - {GetVariableFormat(WeatherVariable.TempF)}F");
     }
 
     protected override void OnModuleStart()

@@ -17,9 +17,9 @@ public class AFKModule : ChatBoxModule
 
     protected override void CreateAttributes()
     {
-        CreateVariable(AFKModuleVariable.Duration, "Duration", "{duration}");
+        CreateVariable(AFKModuleVariable.Duration, "Duration", "duration");
 
-        CreateState(AFKModuleState.AFK, "AFK", "AFK for {duration}");
+        CreateState(AFKModuleState.AFK, "AFK", $"AFK for {GetVariableFormat(AFKModuleVariable.Duration)}");
         CreateState(AFKModuleState.NotAFK, "Not AFK", string.Empty);
     }
 

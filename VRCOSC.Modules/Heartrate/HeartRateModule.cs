@@ -32,9 +32,9 @@ public abstract class HeartRateModule : ChatBoxModule
         CreateParameter<float>(HeartrateParameter.Tens, ParameterMode.Write, "VRCOSC/Heartrate/Tens", "Tens", "The tens digit 0-9 mapped to a float");
         CreateParameter<float>(HeartrateParameter.Hundreds, ParameterMode.Write, "VRCOSC/Heartrate/Hundreds", "Hundreds", "The hundreds digit 0-9 mapped to a float");
 
-        CreateState(HeartrateState.Default, @"Default", @"Heartrate                                        {hr} bpm");
+        CreateVariable(HeartrateVariable.Heartrate, @"Heartrate", @"hr");
 
-        CreateVariable(HeartrateVariable.Heartrate, @"Heartrate", @"{hr}");
+        CreateState(HeartrateState.Default, @"Default", $@"Heartrate                                        {GetVariableFormat(HeartrateVariable.Heartrate)} bpm");
     }
 
     protected override void OnModuleStart()

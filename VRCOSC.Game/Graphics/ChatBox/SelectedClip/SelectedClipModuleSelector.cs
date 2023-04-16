@@ -72,7 +72,7 @@ public partial class SelectedClipModuleSelector : Container
                                     RelativeSizeAxes = Axes.X,
                                     AutoSizeAxes = Axes.Y,
                                     Direction = FillDirection.Vertical,
-                                    Spacing = new Vector2(0, 20)
+                                    Spacing = new Vector2(0, 10)
                                 }
                             }
                         }

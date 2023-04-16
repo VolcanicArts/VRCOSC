@@ -28,16 +28,13 @@ public class ChatBoxManager
 
     public readonly BindableList<Clip> Clips = new();
 
-    // TODO Might be best to refactor all this into metadata vs data. The template stuff should be the metadata which gets referenced by all the clips. The stored data for each state and event gets stored in the clips
-    // Dictionary<ModuleName, Dictionary<ClipFooLookup, ClipFoo>>
-    public readonly Dictionary<string, Dictionary<string, ClipVariable>> TemplateVariables = new();
-    public readonly Dictionary<string, Dictionary<string, ClipState>> TemplateStates = new();
-    public readonly Dictionary<string, Dictionary<string, ClipEvent>> TemplateEvents = new();
+    public readonly Dictionary<string, Dictionary<string, ClipVariableMetadata>> VariableMetadata = new();
+    public readonly Dictionary<string, Dictionary<string, ClipStateMetadata>> StateMetadata = new();
+    public readonly Dictionary<string, Dictionary<string, ClipEventMetadata>> EventMetadata = new();
     public IReadOnlyDictionary<string, bool> ModuleEnabledCache = null!;
 
     // TODO These still get stored here since they're shared between clips for evaluation, but could be abstracted behind some helper methods to make things cleaner
-    // Dictionary<ModuleName, Dictionary<VariableLookup, VariableValue>>
-    public readonly Dictionary<string, Dictionary<string, string?>> VariableValues = new();
+    public readonly Dictionary<(string, string), string?> VariableValues = new();
 
     // Dictionary<ModuleName, ModuleState>
     public readonly Dictionary<string, string> StateValues = new();
@@ -139,7 +136,7 @@ public class ChatBoxManager
 
     public void RegisterVariable(string module, string lookup, string name, string format)
     {
-        var variable = new ClipVariable
+        var variableMetadata = new ClipVariableMetadata
         {
             Module = module,
             Lookup = lookup,
@@ -147,40 +144,35 @@ public class ChatBoxManager
             Format = format
         };
 
-        if (TemplateVariables.TryGetValue(module, out var innerDict))
+        if (!VariableMetadata.ContainsKey(module))
         {
-            innerDict.Add(lookup, variable);
+            VariableMetadata.Add(module, new Dictionary<string, ClipVariableMetadata>());
         }
-        else
-        {
-            TemplateVariables.Add(module, new Dictionary<string, ClipVariable>());
-            TemplateVariables[module].Add(lookup, variable);
-        }
+
+        VariableMetadata[module][lookup] = variableMetadata;
     }
 
     public void SetVariable(string module, string lookup, string? value)
     {
-        if (!VariableValues.ContainsKey(module)) VariableValues.Add(module, new Dictionary<string, string?>());
-        VariableValues[module][lookup] = value;
+        VariableValues[(module, lookup)] = value;
     }
 
     public void RegisterState(string module, string lookup, string name, string defaultFormat)
     {
-        var state = new ClipState
+        var stateMetadata = new ClipStateMetadata
         {
-            States = new List<(string, string)> { (module, lookup) },
-            Format = { Value = defaultFormat }
+            Module = module,
+            Lookup = lookup,
+            Name = name,
+            DefaultFormat = defaultFormat
         };
 
-        if (TemplateStates.TryGetValue(module, out var innerDict))
+        if (!StateMetadata.ContainsKey(module))
         {
-            innerDict.Add(lookup, state);
+            StateMetadata.Add(module, new Dictionary<string, ClipStateMetadata>());
         }
-        else
-        {
-            TemplateStates.Add(module, new Dictionary<string, ClipState>());
-            TemplateStates[module].Add(lookup, state);
-        }
+
+        StateMetadata[module][lookup] = stateMetadata;
 
         if (!StateValues.TryAdd(module, lookup))
         {
@@ -195,24 +187,21 @@ public class ChatBoxManager
 
     public void RegisterEvent(string module, string lookup, string name, string defaultFormat, int defaultLength)
     {
-        var clipEvent = new ClipEvent
+        var eventMetadata = new ClipEventMetadata
         {
             Module = module,
             Lookup = lookup,
             Name = name,
-            Format = { Value = defaultFormat },
-            Length = { Value = defaultLength }
+            DefaultFormat = defaultFormat,
+            DefaultLength = defaultLength
         };
 
-        if (TemplateEvents.TryGetValue(module, out var innerDict))
+        if (!EventMetadata.ContainsKey(module))
         {
-            innerDict.Add(lookup, clipEvent);
+            EventMetadata.Add(module, new Dictionary<string, ClipEventMetadata>());
         }
-        else
-        {
-            TemplateEvents.Add(module, new Dictionary<string, ClipEvent>());
-            TemplateEvents[module].Add(lookup, clipEvent);
-        }
+
+        EventMetadata[module][lookup] = eventMetadata;
     }
 
     public void TriggerEvent(string module, string lookup)

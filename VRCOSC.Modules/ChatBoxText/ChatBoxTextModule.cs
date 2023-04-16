@@ -24,8 +24,9 @@ public class ChatBoxTextModule : ChatBoxModule
         CreateSetting(ChatBoxTextSetting.Splitter, "Splitter", "The splitter that goes between loops of the text", " | ", () => GetSetting<bool>(ChatBoxTextSetting.Animate));
         CreateSetting(ChatBoxTextSetting.MaxLength, "Max Length", "The maximum length to show at one time when animating", 16, () => GetSetting<bool>(ChatBoxTextSetting.Animate));
 
-        CreateState(ChatBoxTextState.Default, "Default", "{text}");
-        CreateVariable(ChatBoxTextVariable.Text, "Text", "{text}");
+        CreateVariable(ChatBoxTextVariable.Text, "Text", "text");
+
+        CreateState(ChatBoxTextState.Default, "Default", $"{GetVariableFormat(ChatBoxTextVariable.Text)}");
     }
 
     protected override void OnModuleStart()

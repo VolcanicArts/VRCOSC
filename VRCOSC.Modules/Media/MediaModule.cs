@@ -43,16 +43,16 @@ public class MediaModule : ChatBoxModule
         CreateParameter<bool>(MediaParameter.Seeking, ParameterMode.Read, @"VRCOSC/Media/Seeking", "Seeking", "Whether the user is currently seeking");
         CreateParameter<float>(MediaParameter.Position, ParameterMode.ReadWrite, @"VRCOSC/Media/Position", "Position", "The position of the song as a percentage");
 
-        CreateState(MediaState.Playing, "Playing", @"[{time}/{duration}]                            Now Playing: {artist} - {title}");
+        CreateVariable(MediaVariable.Title, @"Title", @"title");
+        CreateVariable(MediaVariable.Artist, @"Artist", @"artist");
+        CreateVariable(MediaVariable.Time, @"Time", @"time");
+        CreateVariable(MediaVariable.Duration, @"Duration", @"duration");
+        CreateVariable(MediaVariable.Volume, @"Volume", @"volume");
+
+        CreateState(MediaState.Playing, "Playing", $@"[{GetVariableFormat(MediaVariable.Time)}/{GetVariableFormat(MediaVariable.Duration)}]                            Now Playing: {GetVariableFormat(MediaVariable.Artist)} - {GetVariableFormat(MediaVariable.Title)}");
         CreateState(MediaState.Paused, "Paused", @"[Paused]");
 
-        CreateEvent(MediaEvent.NowPlaying, "Now Playing", @"[Now Playing]                            {artist} - {title}", 5);
-
-        CreateVariable(MediaVariable.Title, @"Title", @"{title}");
-        CreateVariable(MediaVariable.Artist, @"Artist", @"{artist}");
-        CreateVariable(MediaVariable.Time, @"Time", @"{time}");
-        CreateVariable(MediaVariable.Duration, @"Duration", @"{duration}");
-        CreateVariable(MediaVariable.Volume, @"Volume", @"{volume}");
+        CreateEvent(MediaEvent.NowPlaying, "Now Playing", $@"[Now Playing]                            {GetVariableFormat(MediaVariable.Artist)} - {GetVariableFormat(MediaVariable.Title)}", 5);
     }
 
     protected override async void OnModuleStart()

@@ -20,7 +20,7 @@ public class Clip
     public readonly Bindable<string> Name = new("New Clip");
     public readonly BindableNumber<int> Priority = new();
     public readonly BindableList<string> AssociatedModules = new();
-    public readonly BindableList<ClipVariable> AvailableVariables = new();
+    public readonly BindableList<ClipVariableMetadata> AvailableVariables = new();
     public readonly BindableList<ClipState> States = new();
     public readonly BindableList<ClipEvent> Events = new();
     public readonly Bindable<int> Start = new();
@@ -150,8 +150,8 @@ public class Clip
 
         AvailableVariables.ForEach(clipVariable =>
         {
-            var variableValue = chatBoxManager.VariableValues[clipVariable.Module][clipVariable.Lookup] ?? string.Empty;
-            returnText = returnText.Replace(clipVariable.Format, variableValue);
+            var variableValue = chatBoxManager.VariableValues[(clipVariable.Module, clipVariable.Lookup)] ?? string.Empty;
+            returnText = returnText.Replace(clipVariable.DisplayableFormat, variableValue);
         });
 
         return returnText;
@@ -170,8 +170,7 @@ public class Clip
 
         foreach (var module in AssociatedModules)
         {
-            var clipVariables = chatBoxManager.TemplateVariables[module].Values.ToList();
-            AvailableVariables.AddRange(clipVariables);
+            AvailableVariables.AddRange(chatBoxManager.VariableMetadata[module].Values);
         }
     }
 
@@ -191,24 +190,25 @@ public class Clip
 
     private void addStatesOfAddedModules(NotifyCollectionChangedEventArgs e)
     {
-        foreach (string moduleName in e.NewItems!)
+        foreach (string moduleName in e.NewItems!) addStatesOfAddedModule(moduleName);
+    }
+
+    private void addStatesOfAddedModule(string moduleName)
+    {
+        var currentStateCopy = States.Select(clipState => clipState.Copy()).ToList();
+        var statesToAdd = chatBoxManager.StateMetadata[moduleName];
+
+        foreach (var (newStateName, newStateMetadata) in statesToAdd)
         {
-            var statesPrevious = States.Select(clipState => clipState.Copy()).ToList();
+            var localCurrentStatesCopy = currentStateCopy.Select(clipState => clipState.Copy()).ToList();
 
-            var states = chatBoxManager.TemplateStates[moduleName];
-
-            foreach (var (stateName, clipState) in states)
+            localCurrentStatesCopy.ForEach(newStateLocal =>
             {
-                var statesPreviousLocal = statesPrevious.Select(clipStateLocal => clipStateLocal.Copy()).ToList();
+                newStateLocal.States.Add((moduleName, newStateName));
+            });
 
-                statesPreviousLocal.ForEach(localState =>
-                {
-                    localState.States.Add((moduleName, stateName));
-                });
-
-                States.AddRange(statesPreviousLocal);
-                States.Add(clipState);
-            }
+            States.AddRange(localCurrentStatesCopy);
+            States.Add(new ClipState(newStateMetadata));
         }
     }
 
@@ -230,11 +230,11 @@ public class Clip
     {
         foreach (string moduleName in e.NewItems!)
         {
-            if (!chatBoxManager.TemplateEvents.TryGetValue(moduleName, out var events)) continue;
+            if (!chatBoxManager.EventMetadata.TryGetValue(moduleName, out var events)) continue;
 
-            foreach (var (_, clipEvent) in events)
+            foreach (var (_, metadata) in events)
             {
-                Events.Add(clipEvent.Copy());
+                Events.Add(new ClipEvent(metadata));
             }
         }
     }

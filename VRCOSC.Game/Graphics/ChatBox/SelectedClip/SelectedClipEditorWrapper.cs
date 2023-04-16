@@ -77,7 +77,7 @@ public partial class SelectedClipEditorWrapper : Container
                             CornerRadius = 10
                         },
                         null,
-                        new SelectedClipStateEditor
+                        new SelectedClipStateEditorWrapper
                         {
                             RelativeSizeAxes = Axes.Both,
                             Masking = true,

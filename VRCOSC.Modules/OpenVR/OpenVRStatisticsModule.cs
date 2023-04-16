@@ -37,12 +37,12 @@ public class OpenVRStatisticsModule : ChatBoxModule
             CreateParameter<bool>(OpenVrParameter.Tracker1_Charging + i, ParameterMode.Write, $"VRCOSC/OpenVR/Trackers/{i + 1}/Charging", $"Tracker {i + 1} Charging", $"Whether tracker {i + 1} is currently charging");
         }
 
-        CreateState(OpenVrState.Default, "Default", @"FPS: {fps} | HMD: {hmdbattery} | LC: {leftcontrollerbattery} | RC: {rightcontrollerbattery$}");
+        CreateVariable(OpenVrVariable.FPS, @"FPS", @"fps");
+        CreateVariable(OpenVrVariable.HMDBattery, @"HMD Battery", @"hmdbattery");
+        CreateVariable(OpenVrVariable.LeftControllerBattery, @"Left Controller Battery", @"leftcontrollerbattery");
+        CreateVariable(OpenVrVariable.RightControllerBattery, @"Right Controller Battery", @"rightcontrollerbattery");
 
-        CreateVariable(OpenVrVariable.FPS, @"FPS", @"{fps}");
-        CreateVariable(OpenVrVariable.HMDBattery, @"HMD Battery", @"{hmdbattery}");
-        CreateVariable(OpenVrVariable.LeftControllerBattery, @"Left Controller Battery", @"{leftcontrollerbattery}");
-        CreateVariable(OpenVrVariable.RightControllerBattery, @"Right Controller Battery", @"{rightcontrollerbattery}");
+        CreateState(OpenVrState.Default, "Default", $@"FPS: {GetVariableFormat(OpenVrVariable.FPS)} | HMD: {GetVariableFormat(OpenVrVariable.HMDBattery)} | LC: {GetVariableFormat(OpenVrVariable.LeftControllerBattery)} | RC: {GetVariableFormat(OpenVrVariable.RightControllerBattery)}");
     }
 
     protected override void OnModuleStart()

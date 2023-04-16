@@ -30,12 +30,12 @@ public sealed class ClockModule : ChatBoxModule
         CreateParameter<float>(ClockParameter.Minutes, ParameterMode.Write, "VRCOSC/Clock/Minutes", "Minutes", "The current minute normalised");
         CreateParameter<float>(ClockParameter.Seconds, ParameterMode.Write, "VRCOSC/Clock/Seconds", "Seconds", "The current second normalised");
 
-        CreateState(ClockState.Default, "Default", "Local Time                                {h}:{m}{period}");
+        CreateVariable(ClockVariable.Hours, "Hours", "h");
+        CreateVariable(ClockVariable.Minutes, "Minutes", "m");
+        CreateVariable(ClockVariable.Seconds, "Seconds", "s");
+        CreateVariable(ClockVariable.Period, "AM/PM", "period");
 
-        CreateVariable(ClockVariable.Hours, "Hours", "{h}");
-        CreateVariable(ClockVariable.Minutes, "Minutes", "{m}");
-        CreateVariable(ClockVariable.Seconds, "Seconds", "{s}");
-        CreateVariable(ClockVariable.Period, "AM/PM", "{period}");
+        CreateState(ClockState.Default, "Default", $"Local Time                                {GetVariableFormat(ClockVariable.Hours)}:{GetVariableFormat(ClockVariable.Minutes)}{GetVariableFormat(ClockVariable.Period)}");
     }
 
     protected override void OnModuleStart()
