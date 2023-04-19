@@ -3,12 +3,11 @@
 
 using System.Linq;
 using osu.Framework.Allocation;
-using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osuTK;
-using VRCOSC.Game.ChatBox.Clips;
+using VRCOSC.Game.ChatBox;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Modules;
@@ -19,7 +18,7 @@ namespace VRCOSC.Game.Graphics.ChatBox.SelectedClip;
 public partial class SelectedClipModuleSelector : Container
 {
     [Resolved]
-    private Bindable<Clip?> selectedClip { get; set; } = null!;
+    private ChatBoxManager chatBoxManager { get; set; } = null!;
 
     [Resolved]
     private GameManager gameManager { get; set; } = null!;
@@ -81,9 +80,11 @@ public partial class SelectedClipModuleSelector : Container
             }
         };
 
-        selectedClip.BindValueChanged(e =>
+        chatBoxManager.SelectedClip.BindValueChanged(e =>
         {
             if (e.NewValue is null) return;
+
+            var newClip = e.NewValue;
 
             moduleFlow.Clear();
 
@@ -107,9 +108,9 @@ public partial class SelectedClipModuleSelector : Container
                 drawableAssociatedModule.State.BindValueChanged(e =>
                 {
                     if (e.NewValue)
-                        selectedClip.Value!.AssociatedModules.Add(module.SerialisedName);
+                        newClip.AssociatedModules.Add(module.SerialisedName);
                     else
-                        selectedClip.Value!.AssociatedModules.Remove(module.SerialisedName);
+                        newClip.AssociatedModules.Remove(module.SerialisedName);
                 });
             }
         }, true);

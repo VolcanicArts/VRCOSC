@@ -2,11 +2,10 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
-using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
-using VRCOSC.Game.ChatBox.Clips;
+using VRCOSC.Game.ChatBox;
 using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.ChatBox.SelectedClip;
@@ -14,7 +13,7 @@ namespace VRCOSC.Game.Graphics.ChatBox.SelectedClip;
 public partial class SelectedClipStateEditorWrapper : Container
 {
     [Resolved]
-    private Bindable<Clip?> selectedClip { get; set; } = null!;
+    private ChatBoxManager chatBoxManager { get; set; } = null!;
 
     private Container stateEditorContainer = null!;
     private Container variableContainer = null!;
@@ -61,7 +60,7 @@ public partial class SelectedClipStateEditorWrapper : Container
             }
         };
 
-        selectedClip.BindValueChanged(clip =>
+        chatBoxManager.SelectedClip.BindValueChanged(clip =>
         {
             if (clip.NewValue is null) return;
 

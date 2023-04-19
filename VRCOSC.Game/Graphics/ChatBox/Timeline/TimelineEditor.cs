@@ -3,7 +3,6 @@
 
 using System;
 using osu.Framework.Allocation;
-using osu.Framework.Bindables;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -22,9 +21,6 @@ namespace VRCOSC.Game.Graphics.ChatBox.Timeline;
 [Cached]
 public partial class TimelineEditor : Container
 {
-    [Resolved]
-    private Bindable<Clip?> selectedClip { get; set; } = null!;
-
     [Resolved]
     private ChatBoxManager chatBoxManager { get; set; } = null!;
 
@@ -220,7 +216,7 @@ public partial class TimelineEditor : Container
     {
         if (e.Button == MouseButton.Left)
         {
-            selectedClip.Value = null;
+            chatBoxManager.SelectedClip.Value = null;
             clipMenu.Hide();
             layerMenu.Hide();
         }

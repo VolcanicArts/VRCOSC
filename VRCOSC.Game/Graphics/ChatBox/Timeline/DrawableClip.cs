@@ -3,7 +3,6 @@
 
 using System;
 using osu.Framework.Allocation;
-using osu.Framework.Bindables;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -21,9 +20,6 @@ namespace VRCOSC.Game.Graphics.ChatBox.Timeline;
 [Cached]
 public partial class DrawableClip : Container
 {
-    [Resolved]
-    private Bindable<Clip?> selectedClip { get; set; } = null!;
-
     [Resolved]
     private TimelineEditor timelineEditor { get; set; } = null!;
 
@@ -94,13 +90,12 @@ public partial class DrawableClip : Container
 
         updateSizeAndPosition();
 
-        selectedClip.BindValueChanged(e =>
+        chatBoxManager.SelectedClip.BindValueChanged(e =>
         {
             ((Container)Child).BorderThickness = Clip == e.NewValue ? 4 : 2;
         }, true);
 
         Clip.Name.BindValueChanged(e => drawName.Text = e.NewValue, true);
-
         Clip.Enabled.BindValueChanged(e => Child.FadeTo(e.NewValue ? 1 : 0.5f), true);
     }
 
@@ -109,7 +104,7 @@ public partial class DrawableClip : Container
         if (e.Button == MouseButton.Left)
         {
             timelineEditor.HideClipMenu();
-            selectedClip.Value = Clip;
+            chatBoxManager.SelectedClip.Value = Clip;
         }
         else if (e.Button == MouseButton.Right)
         {
@@ -125,7 +120,7 @@ public partial class DrawableClip : Container
     {
         base.OnDrag(e);
 
-        selectedClip.Value = Clip;
+        chatBoxManager.SelectedClip.Value = Clip;
 
         e.Target = Parent;
 

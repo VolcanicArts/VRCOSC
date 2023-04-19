@@ -6,14 +6,21 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
-using VRCOSC.Game.Graphics.UI.Button;
+using VRCOSC.Game.ChatBox;
+using VRCOSC.Game.Graphics.Themes;
+using VRCOSC.Game.Graphics.UI.Text;
 
 namespace VRCOSC.Game.Graphics.ChatBox.Metadata;
 
-public partial class MetadataToggle : Container
+public partial class MetadataString : Container
 {
+    [Resolved]
+    private ChatBoxManager chatBoxManager { get; set; } = null!;
+
     public required string Label { get; init; }
-    public required BindableBool State { get; init; }
+    public required Bindable<string> Current { get; init; }
+
+    private LocalTextBox inputTextBox = null!;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -41,15 +48,30 @@ public partial class MetadataToggle : Container
                 Anchor = Anchor.CentreRight,
                 Origin = Anchor.CentreRight,
                 RelativeSizeAxes = Axes.Both,
-                FillMode = FillMode.Fit,
-                Child = new ToggleButton
+                Width = 0.5f,
+                Child = inputTextBox = new LocalTextBox
                 {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
                     RelativeSizeAxes = Axes.Both,
-                    State = State
+                    CornerRadius = 5,
+                    MinimumLength = 2,
                 }
             }
         };
+    }
+
+    protected override void LoadComplete()
+    {
+        inputTextBox.Text = Current.Value;
+        inputTextBox.OnValidEntry += value => Current.Value = value;
+    }
+
+    private partial class LocalTextBox : StringTextBox
+    {
+        [BackgroundDependencyLoader]
+        private void load()
+        {
+            BackgroundUnfocused = ThemeManager.Current[ThemeAttribute.Darker];
+            BackgroundFocused = ThemeManager.Current[ThemeAttribute.Darker];
+        }
     }
 }

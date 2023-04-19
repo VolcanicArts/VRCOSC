@@ -26,6 +26,8 @@ public class ChatBoxManager
         }
     }
 
+    public readonly Bindable<Clip?> SelectedClip = new();
+
     public readonly BindableList<Clip> Clips = new();
 
     public readonly Dictionary<string, Dictionary<string, ClipVariableMetadata>> VariableMetadata = new();

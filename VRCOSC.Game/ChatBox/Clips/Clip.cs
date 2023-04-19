@@ -84,15 +84,11 @@ public class Clip
 
     private void removeDisabledModules(List<ClipState> localStates)
     {
-        var statesToRemove = new List<ClipState>();
-
-        foreach (ClipState clipState in localStates)
+        foreach (var clipState in localStates)
         {
             var stateValid = clipState.ModuleNames.All(moduleName => chatBoxManager.ModuleEnabledCache[moduleName]);
-            if (!stateValid) statesToRemove.Add(clipState);
+            if (!stateValid) localStates.Remove(clipState);
         }
-
-        statesToRemove.ForEach(moduleName => localStates.Remove(moduleName));
     }
 
     private void removeLessCompoundedStates(List<ClipState> localStates)
@@ -100,17 +96,13 @@ public class Clip
         var enabledAndAssociatedModules = AssociatedModules.Where(moduleName => chatBoxManager.ModuleEnabledCache[moduleName]).ToList();
         enabledAndAssociatedModules.Sort();
 
-        var statesToRemove = new List<ClipState>();
-
-        localStates.ForEach(clipState =>
+        foreach (var clipState in localStates)
         {
             var clipStateModules = clipState.ModuleNames;
             clipStateModules.Sort();
 
-            if (!clipStateModules.SequenceEqual(enabledAndAssociatedModules)) statesToRemove.Add(clipState);
-        });
-
-        statesToRemove.ForEach(clipState => localStates.Remove(clipState));
+            if (!clipStateModules.SequenceEqual(enabledAndAssociatedModules)) localStates.Remove(clipState);
+        }
     }
 
     private void removeInvalidStates(List<ClipState> localStates)
@@ -120,17 +112,13 @@ public class Clip
 
         if (!currentStates.Any()) return;
 
-        var statesToRemove = new List<ClipState>();
-
-        localStates.ForEach(clipState =>
+        foreach (var clipState in localStates)
         {
             var clipStateStates = clipState.StateNames;
             clipStateStates.Sort();
 
-            if (!clipStateStates.SequenceEqual(currentStates)) statesToRemove.Add(clipState);
-        });
-
-        statesToRemove.ForEach(clipState => localStates.Remove(clipState));
+            if (!clipStateStates.SequenceEqual(currentStates)) localStates.Remove(clipState);
+        }
     }
 
     public string GetFormattedText()

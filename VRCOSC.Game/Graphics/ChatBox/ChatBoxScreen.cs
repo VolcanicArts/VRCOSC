@@ -2,11 +2,9 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
-using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
-using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.Graphics.ChatBox.SelectedClip;
 using VRCOSC.Game.Graphics.ChatBox.Timeline;
 using VRCOSC.Game.Graphics.ChatBox.Timeline.Menu.Clip;
@@ -18,9 +16,6 @@ namespace VRCOSC.Game.Graphics.ChatBox;
 [Cached]
 public partial class ChatBoxScreen : Container
 {
-    [Cached]
-    private Bindable<Clip?> selectedClip { get; set; } = new();
-
     [Cached]
     private TimelineLayerMenu layerMenu = new();
 

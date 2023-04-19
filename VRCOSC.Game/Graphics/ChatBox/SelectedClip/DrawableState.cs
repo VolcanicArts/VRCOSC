@@ -60,12 +60,11 @@ public partial class DrawableState : Container
                     ColumnDimensions = new[]
                     {
                         new Dimension(GridSizeMode.Relative, 0.25f),
-                        new Dimension(GridSizeMode.Absolute, 10),
                         new Dimension()
                     },
                     Content = new[]
                     {
-                        new Drawable?[]
+                        new Drawable[]
                         {
                             new FillFlowContainer
                             {
@@ -99,7 +98,6 @@ public partial class DrawableState : Container
                                     }
                                 }
                             },
-                            null,
                             new Container
                             {
                                 RelativeSizeAxes = Axes.Both,

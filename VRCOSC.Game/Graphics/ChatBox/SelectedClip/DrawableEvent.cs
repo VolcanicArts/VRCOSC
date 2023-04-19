@@ -114,7 +114,8 @@ public partial class DrawableEvent : Container
                                     RelativeSizeAxes = Axes.Both,
                                     Text = clipEvent.Length.Value.ToString(),
                                     Masking = true,
-                                    CornerRadius = 5
+                                    CornerRadius = 5,
+                                    PlaceholderText = "Length"
                                 }
                             },
                         }
