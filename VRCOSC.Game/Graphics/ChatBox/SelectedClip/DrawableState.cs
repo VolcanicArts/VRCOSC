@@ -37,11 +37,12 @@ public partial class DrawableState : Container
             var (moduleName, lookup) = pair;
             var stateMetadata = chatBoxManager.StateMetadata[moduleName][lookup];
             stateNameList += moduleName.Replace("Module", string.Empty);
-            if (stateMetadata.Name != "Default") stateNameList += ":" + stateMetadata.Name;
-            stateNameList += " + ";
+            if (stateMetadata.Name != "Default") stateNameList += " - " + stateMetadata.Name;
+            stateNameList += " & ";
         });
 
-        stateNameList = stateNameList.TrimEnd(' ', '+');
+        stateNameList = stateNameList.TrimEnd(' ', '&');
+        stateNameList += ":";
 
         Children = new Drawable[]
         {
@@ -50,67 +51,66 @@ public partial class DrawableState : Container
                 Colour = ThemeManager.Current[ThemeAttribute.Light],
                 RelativeSizeAxes = Axes.Both
             },
-            new Container
+            new FillFlowContainer
             {
-                RelativeSizeAxes = Axes.Both,
-                Padding = new MarginPadding(5),
-                Child = new GridContainer
+                RelativeSizeAxes = Axes.X,
+                AutoSizeAxes = Axes.Y,
+                Direction = FillDirection.Vertical,
+                Padding = new MarginPadding(3),
+                Spacing = new Vector2(0, 2),
+                Children = new Drawable[]
                 {
-                    RelativeSizeAxes = Axes.Both,
-                    ColumnDimensions = new[]
+                    new Container
                     {
-                        new Dimension(GridSizeMode.Relative, 0.25f),
-                        new Dimension()
-                    },
-                    Content = new[]
-                    {
-                        new Drawable[]
+                        Anchor = Anchor.TopCentre,
+                        Origin = Anchor.TopCentre,
+                        RelativeSizeAxes = Axes.X,
+                        Height = 30,
+                        Children = new Drawable[]
                         {
-                            new FillFlowContainer
-                            {
-                                Anchor = Anchor.CentreLeft,
-                                Origin = Anchor.CentreLeft,
-                                RelativeSizeAxes = Axes.Both,
-                                Direction = FillDirection.Horizontal,
-                                Spacing = new Vector2(5, 0),
-                                Children = new Drawable[]
-                                {
-                                    new Container
-                                    {
-                                        Anchor = Anchor.CentreLeft,
-                                        Origin = Anchor.CentreLeft,
-                                        RelativeSizeAxes = Axes.Both,
-                                        FillMode = FillMode.Fit,
-                                        Child = new ToggleButton
-                                        {
-                                            Anchor = Anchor.Centre,
-                                            Origin = Anchor.Centre,
-                                            RelativeSizeAxes = Axes.Both,
-                                            State = state.Enabled
-                                        }
-                                    },
-                                    new SpriteText
-                                    {
-                                        Anchor = Anchor.CentreLeft,
-                                        Origin = Anchor.CentreLeft,
-                                        Font = FrameworkFont.Regular.With(size: 20),
-                                        Text = stateNameList
-                                    }
-                                }
-                            },
                             new Container
                             {
+                                Anchor = Anchor.CentreRight,
+                                Origin = Anchor.CentreRight,
                                 RelativeSizeAxes = Axes.Both,
-                                Child = new VRCOSCTextBox
+                                FillMode = FillMode.Fit,
+                                Child = new ToggleButton
                                 {
                                     Anchor = Anchor.Centre,
                                     Origin = Anchor.Centre,
                                     RelativeSizeAxes = Axes.Both,
-                                    Current = state.Format,
-                                    Masking = true,
-                                    CornerRadius = 5
+                                    State = state.Enabled
+                                }
+                            },
+                            new Container
+                            {
+                                Anchor = Anchor.CentreLeft,
+                                Origin = Anchor.CentreLeft,
+                                RelativeSizeAxes = Axes.Both,
+                                Padding = new MarginPadding(3),
+                                Child = new SpriteText
+                                {
+                                    Anchor = Anchor.CentreLeft,
+                                    Origin = Anchor.CentreLeft,
+                                    Font = FrameworkFont.Regular.With(size: 20),
+                                    Text = stateNameList
                                 }
                             }
+                        }
+                    },
+                    new Container
+                    {
+                        Anchor = Anchor.TopCentre,
+                        Origin = Anchor.TopCentre,
+                        RelativeSizeAxes = Axes.X,
+                        AutoSizeAxes = Axes.Y,
+                        Child = new VRCOSCTextBox
+                        {
+                            RelativeSizeAxes = Axes.X,
+                            Height = 30,
+                            Current = state.Format,
+                            Masking = true,
+                            CornerRadius = 5
                         }
                     }
                 }

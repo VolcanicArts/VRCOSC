@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using osu.Framework.Allocation;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
@@ -9,25 +10,26 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
+using VRCOSC.Game.ChatBox;
 using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.Graphics.Themes;
-using VRCOSC.Game.Graphics.UI;
 
 namespace VRCOSC.Game.Graphics.ChatBox.SelectedClip;
 
 public partial class SelectedClipVariableContainer : Container
 {
-    private readonly Clip? clip;
-    private FillFlowContainer moduleVariableFlow = null!;
+    [Resolved]
+    private ChatBoxManager chatBoxManager { get; set; } = null!;
 
-    public SelectedClipVariableContainer(Clip? clip)
-    {
-        this.clip = clip;
-    }
+    private FillFlowContainer moduleVariableFlow = null!;
 
     [BackgroundDependencyLoader]
     private void load()
     {
+        RelativeSizeAxes = Axes.Both;
+        Masking = true;
+        CornerRadius = 10;
+
         Children = new Drawable[]
         {
             new Box
@@ -38,48 +40,41 @@ public partial class SelectedClipVariableContainer : Container
             new Container
             {
                 RelativeSizeAxes = Axes.Both,
-                Padding = new MarginPadding(5),
+                Padding = new MarginPadding(10),
                 Child = new GridContainer
                 {
                     RelativeSizeAxes = Axes.Both,
                     RowDimensions = new[]
                     {
                         new Dimension(GridSizeMode.Relative, 0.05f),
-                        new Dimension(GridSizeMode.Absolute, 5),
+                        new Dimension(GridSizeMode.Absolute, 10),
                         new Dimension()
                     },
                     Content = new[]
                     {
                         new Drawable[]
                         {
-                            new Container
+                            new SpriteText
                             {
-                                Anchor = Anchor.TopCentre,
-                                Origin = Anchor.TopCentre,
-                                RelativeSizeAxes = Axes.Both,
-                                Child = new SpriteText
-                                {
-                                    Anchor = Anchor.Centre,
-                                    Origin = Anchor.Centre,
-                                    Text = "Available Variables",
-                                    Font = FrameworkFont.Regular.With(size: 30)
-                                }
+                                Anchor = Anchor.Centre,
+                                Origin = Anchor.Centre,
+                                Text = "Available Variables",
+                                Font = FrameworkFont.Regular.With(size: 30)
                             }
                         },
                         null,
                         new Drawable[]
                         {
-                            new VRCOSCScrollContainer
+                            new BasicScrollContainer
                             {
                                 RelativeSizeAxes = Axes.Both,
-                                ShowScrollbar = false,
+                                ScrollbarVisible = false,
                                 ClampExtension = 5,
                                 Child = moduleVariableFlow = new FillFlowContainer
                                 {
                                     RelativeSizeAxes = Axes.X,
                                     AutoSizeAxes = Axes.Y,
                                     Direction = FillDirection.Vertical,
-                                    Padding = new MarginPadding(5),
                                     Spacing = new Vector2(0, 10)
                                 }
                             }
@@ -92,30 +87,43 @@ public partial class SelectedClipVariableContainer : Container
 
     protected override void LoadComplete()
     {
-        clip?.AvailableVariables.BindCollectionChanged((_, _) =>
+        chatBoxManager.SelectedClip.BindValueChanged(e =>
         {
-            moduleVariableFlow.Clear();
+            if (e.OldValue is not null) e.OldValue.AvailableVariables.CollectionChanged -= availableVariablesOnCollectionChanged;
 
-            var groupedVariables = new Dictionary<string, List<ClipVariableMetadata>>();
-
-            clip.AvailableVariables.ForEach(clipVariable =>
+            if (e.NewValue is not null)
             {
-                if (!groupedVariables.ContainsKey(clipVariable.Module)) groupedVariables.Add(clipVariable.Module, new List<ClipVariableMetadata>());
-                groupedVariables[clipVariable.Module].Add(clipVariable);
-            });
-
-            groupedVariables.ForEach(pair =>
-            {
-                var (moduleName, clipVariables) = pair;
-
-                moduleVariableFlow.Add(new DrawableModuleVariables(moduleName, clipVariables)
-                {
-                    Anchor = Anchor.TopCentre,
-                    Origin = Anchor.TopCentre,
-                    RelativeSizeAxes = Axes.X,
-                    AutoSizeAxes = Axes.Y
-                });
-            });
+                e.NewValue.AvailableVariables.CollectionChanged += availableVariablesOnCollectionChanged;
+                availableVariablesOnCollectionChanged(null, null);
+            }
         }, true);
+    }
+
+    private void availableVariablesOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs? e)
+    {
+        moduleVariableFlow.Clear();
+
+        // TODO Don't regenerate whole
+
+        var groupedVariables = new Dictionary<string, List<ClipVariableMetadata>>();
+
+        chatBoxManager.SelectedClip.Value?.AvailableVariables.ForEach(clipVariable =>
+        {
+            if (!groupedVariables.ContainsKey(clipVariable.Module)) groupedVariables.Add(clipVariable.Module, new List<ClipVariableMetadata>());
+            groupedVariables[clipVariable.Module].Add(clipVariable);
+        });
+
+        groupedVariables.ForEach(pair =>
+        {
+            var (moduleName, clipVariables) = pair;
+
+            moduleVariableFlow.Add(new DrawableModuleVariables(moduleName, clipVariables)
+            {
+                Anchor = Anchor.TopCentre,
+                Origin = Anchor.TopCentre,
+                RelativeSizeAxes = Axes.X,
+                AutoSizeAxes = Axes.Y
+            });
+        });
     }
 }

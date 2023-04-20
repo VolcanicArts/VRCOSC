@@ -6,10 +6,10 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Graphics.Sprites;
 using osuTK;
 using VRCOSC.Game.ChatBox;
 using VRCOSC.Game.Graphics.Themes;
-using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.Modules.ChatBox;
 
@@ -20,7 +20,6 @@ public partial class SelectedClipModuleSelector : Container
     [Resolved]
     private ChatBoxManager chatBoxManager { get; set; } = null!;
 
-    [Resolved]
     private GameManager gameManager { get; set; } = null!;
 
     private FillFlowContainer<DrawableAssociatedModule> moduleFlow = null!;
@@ -28,11 +27,15 @@ public partial class SelectedClipModuleSelector : Container
     [BackgroundDependencyLoader]
     private void load()
     {
+        RelativeSizeAxes = Axes.Both;
+        Masking = true;
+        CornerRadius = 10;
+
         Children = new Drawable[]
         {
             new Box
             {
-                Colour = ThemeManager.Current[ThemeAttribute.Dark],
+                Colour = ThemeManager.Current[ThemeAttribute.Darker],
                 RelativeSizeAxes = Axes.Both
             },
             new Container
@@ -44,34 +47,36 @@ public partial class SelectedClipModuleSelector : Container
                     RelativeSizeAxes = Axes.Both,
                     RowDimensions = new[]
                     {
-                        new Dimension(GridSizeMode.Relative, 0.15f),
-                        new Dimension(GridSizeMode.Absolute, 5),
+                        new Dimension(GridSizeMode.Relative, 0.05f),
+                        new Dimension(GridSizeMode.Absolute, 10),
                         new Dimension()
                     },
                     Content = new[]
                     {
                         new Drawable[]
                         {
-                            new TextFlowContainer(t => t.Font = FrameworkFont.Regular.With(size: 30))
+                            new SpriteText
                             {
-                                RelativeSizeAxes = Axes.Both,
-                                Text = "Select ChatBox-enabled\nModules",
-                                TextAnchor = Anchor.TopCentre
+                                Anchor = Anchor.Centre,
+                                Origin = Anchor.Centre,
+                                Text = "Select Modules",
+                                Font = FrameworkFont.Regular.With(size: 30)
                             }
                         },
                         null,
                         new Drawable[]
                         {
-                            new VRCOSCScrollContainer
+                            new BasicScrollContainer
                             {
                                 RelativeSizeAxes = Axes.Both,
-                                ClampExtension = 20,
+                                ClampExtension = 5,
+                                ScrollbarVisible = false,
                                 Child = moduleFlow = new FillFlowContainer<DrawableAssociatedModule>
                                 {
                                     RelativeSizeAxes = Axes.X,
                                     AutoSizeAxes = Axes.Y,
                                     Direction = FillDirection.Vertical,
-                                    Spacing = new Vector2(0, 10)
+                                    Spacing = new Vector2(0, 5)
                                 }
                             }
                         }
@@ -97,7 +102,7 @@ public partial class SelectedClipModuleSelector : Container
                     ModuleName = module.Title
                 });
 
-                foreach (string moduleName in e.NewValue.AssociatedModules)
+                foreach (string moduleName in newClip.AssociatedModules)
                 {
                     if (module.SerialisedName == moduleName)
                     {

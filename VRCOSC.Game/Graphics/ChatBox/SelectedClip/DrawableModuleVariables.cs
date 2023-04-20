@@ -45,15 +45,7 @@ public partial class DrawableModuleVariables : Container
 
         clipVariables.ForEach(clipVariable =>
         {
-            variableFlow.Add(new DrawableVariable(clipVariable)
-            {
-                Anchor = Anchor.TopCentre,
-                Origin = Anchor.TopCentre,
-                RelativeSizeAxes = Axes.X,
-                AutoSizeAxes = Axes.Y,
-                Masking = true,
-                CornerRadius = 5
-            });
+            variableFlow.Add(new DrawableVariable(clipVariable));
         });
     }
 }

@@ -99,6 +99,8 @@ public sealed class ModuleManager : IModuleManager
         }
     }
 
+    public IEnumerable<string> GetEnabledModuleNames() => modules.Where(module => module.Enabled.Value).Select(module => module.SerialisedName);
+
     public IEnumerator<Module> GetEnumerator() => modules.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

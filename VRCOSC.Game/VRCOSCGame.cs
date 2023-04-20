@@ -48,10 +48,10 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     private Bindable<Module.ModuleType?> typeFilter = new();
 
     [Cached]
-    protected GameManager GameManager = new();
+    public GameManager GameManager = new();
 
     [Cached]
-    protected ChatBoxManager ChatBoxManager = new();
+    public ChatBoxManager ChatBoxManager = new();
 
     private NotificationContainer notificationContainer = null!;
     private VRCOSCUpdateManager updateManager = null!;

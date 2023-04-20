@@ -40,7 +40,7 @@ public partial class TimelineLayerMenu : TimelineMenu
     {
         var clip = chatBoxManager.CreateClip();
 
-        var (lowerBound, upperBound) = Layer.GetBoundsNearestTo(XPos, false);
+        var (lowerBound, upperBound) = Layer.GetBoundsNearestTo(XPos, false, true);
 
         clip.Start.Value = lowerBound;
         clip.End.Value = upperBound;

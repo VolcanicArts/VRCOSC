@@ -41,6 +41,9 @@ public partial class TimelineEditor : Container
     [BackgroundDependencyLoader]
     private void load()
     {
+        Masking = true;
+        CornerRadius = 10;
+
         Children = new Drawable[]
         {
             new Box
@@ -56,22 +59,16 @@ public partial class TimelineEditor : Container
             new Container
             {
                 RelativeSizeAxes = Axes.Both,
-                Padding = new MarginPadding(2),
                 Child = new GridContainer
                 {
                     RelativeSizeAxes = Axes.Both,
                     RowDimensions = new[]
                     {
                         new Dimension(),
-                        new Dimension(GridSizeMode.Absolute, 2),
                         new Dimension(),
-                        new Dimension(GridSizeMode.Absolute, 2),
                         new Dimension(),
-                        new Dimension(GridSizeMode.Absolute, 2),
                         new Dimension(),
-                        new Dimension(GridSizeMode.Absolute, 2),
                         new Dimension(),
-                        new Dimension(GridSizeMode.Absolute, 2),
                         new Dimension(),
                     },
                     Content = new[]
@@ -83,7 +80,6 @@ public partial class TimelineEditor : Container
                                 Priority = 5
                             }
                         },
-                        null,
                         new Drawable[]
                         {
                             layer4 = new TimelineLayer
@@ -91,7 +87,6 @@ public partial class TimelineEditor : Container
                                 Priority = 4
                             }
                         },
-                        null,
                         new Drawable[]
                         {
                             layer3 = new TimelineLayer
@@ -99,7 +94,6 @@ public partial class TimelineEditor : Container
                                 Priority = 3
                             }
                         },
-                        null,
                         new Drawable[]
                         {
                             layer2 = new TimelineLayer
@@ -107,7 +101,6 @@ public partial class TimelineEditor : Container
                                 Priority = 2
                             }
                         },
-                        null,
                         new Drawable[]
                         {
                             layer1 = new TimelineLayer
@@ -115,7 +108,6 @@ public partial class TimelineEditor : Container
                                 Priority = 1
                             }
                         },
-                        null,
                         new Drawable[]
                         {
                             layer0 = new TimelineLayer

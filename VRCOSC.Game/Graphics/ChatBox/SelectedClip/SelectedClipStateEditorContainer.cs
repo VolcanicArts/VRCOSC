@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Collections.Specialized;
 using osu.Framework.Allocation;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
@@ -9,9 +10,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
 using VRCOSC.Game.ChatBox;
-using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.Graphics.Themes;
-using VRCOSC.Game.Graphics.UI;
 
 namespace VRCOSC.Game.Graphics.ChatBox.SelectedClip;
 
@@ -20,20 +19,19 @@ public partial class SelectedClipStateEditorContainer : Container
     [Resolved]
     private ChatBoxManager chatBoxManager { get; set; } = null!;
 
-    private Clip clip;
-    private Container statesTitle;
-    private FillFlowContainer stateFlow;
-    private Container eventsTitle;
-    private FillFlowContainer eventFlow;
-
-    public SelectedClipStateEditorContainer(Clip clip)
-    {
-        this.clip = clip;
-    }
+    private Container statesTitle = null!;
+    private FillFlowContainer stateFlow = null!;
+    private LineSeparator separator = null!;
+    private Container eventsTitle = null!;
+    private FillFlowContainer eventFlow = null!;
 
     [BackgroundDependencyLoader]
     private void load()
     {
+        RelativeSizeAxes = Axes.Both;
+        Masking = true;
+        CornerRadius = 10;
+
         Children = new Drawable[]
         {
             new Box
@@ -41,88 +39,95 @@ public partial class SelectedClipStateEditorContainer : Container
                 Colour = ThemeManager.Current[ThemeAttribute.Darker],
                 RelativeSizeAxes = Axes.Both
             },
-            new VRCOSCScrollContainer
+            new Container
             {
                 RelativeSizeAxes = Axes.Both,
-                ClampExtension = 5,
-                ShowScrollbar = false,
-                Child = new FillFlowContainer
+                Padding = new MarginPadding(10),
+                Child = new BasicScrollContainer
                 {
-                    RelativeSizeAxes = Axes.X,
-                    AutoSizeAxes = Axes.Y,
-                    Padding = new MarginPadding(5),
-                    Spacing = new Vector2(0, 5),
-                    Children = new Drawable[]
+                    RelativeSizeAxes = Axes.Both,
+                    ClampExtension = 5,
+                    ScrollbarVisible = false,
+                    Child = new FillFlowContainer
                     {
-                        new Container
+                        RelativeSizeAxes = Axes.X,
+                        AutoSizeAxes = Axes.Y,
+                        Spacing = new Vector2(0, 10),
+                        Children = new Drawable[]
                         {
-                            RelativeSizeAxes = Axes.X,
-                            AutoSizeAxes = Axes.Y,
-                            Children = new Drawable[]
+                            new FillFlowContainer
                             {
-                                statesTitle = new Container
+                                Anchor = Anchor.TopCentre,
+                                Origin = Anchor.TopCentre,
+                                RelativeSizeAxes = Axes.X,
+                                AutoSizeAxes = Axes.Y,
+                                Direction = FillDirection.Vertical,
+                                Spacing = new Vector2(0, 5),
+                                Children = new Drawable[]
                                 {
-                                    Anchor = Anchor.TopCentre,
-                                    Origin = Anchor.TopCentre,
-                                    RelativeSizeAxes = Axes.X,
-                                    AutoSizeAxes = Axes.Y,
-                                    Padding = new MarginPadding(5),
-                                    Child = new SpriteText
+                                    statesTitle = new Container
                                     {
-                                        Anchor = Anchor.Centre,
-                                        Origin = Anchor.Centre,
-                                        Text = "States",
-                                        Font = FrameworkFont.Regular.With(size: 30)
-                                    }
-                                },
-                                stateFlow = new FillFlowContainer
-                                {
-                                    RelativeSizeAxes = Axes.X,
-                                    AutoSizeAxes = Axes.Y,
-                                    Direction = FillDirection.Vertical,
-                                    Spacing = new Vector2(0, 5),
-                                    Padding = new MarginPadding
+                                        Anchor = Anchor.TopCentre,
+                                        Origin = Anchor.TopCentre,
+                                        RelativeSizeAxes = Axes.X,
+                                        AutoSizeAxes = Axes.Y,
+                                        Child = new SpriteText
+                                        {
+                                            Anchor = Anchor.Centre,
+                                            Origin = Anchor.Centre,
+                                            Text = "States",
+                                            Font = FrameworkFont.Regular.With(size: 30)
+                                        }
+                                    },
+                                    stateFlow = new FillFlowContainer
                                     {
-                                        Horizontal = 5,
-                                        Bottom = 5,
-                                        Top = 40
+                                        Anchor = Anchor.TopCentre,
+                                        Origin = Anchor.TopCentre,
+                                        RelativeSizeAxes = Axes.X,
+                                        AutoSizeAxes = Axes.Y,
+                                        Direction = FillDirection.Vertical,
+                                        Spacing = new Vector2(0, 5)
                                     }
                                 }
-                            }
-                        },
-                        new LineSeparator(),
-                        new Container
-                        {
-                            RelativeSizeAxes = Axes.X,
-                            AutoSizeAxes = Axes.Y,
-                            Children = new Drawable[]
+                            },
+                            separator = new LineSeparator
                             {
-                                eventsTitle = new Container
+                                Anchor = Anchor.TopCentre,
+                                Origin = Anchor.TopCentre,
+                                LineColour = ThemeManager.Current[ThemeAttribute.Mid]
+                            },
+                            new FillFlowContainer
+                            {
+                                Anchor = Anchor.TopCentre,
+                                Origin = Anchor.TopCentre,
+                                RelativeSizeAxes = Axes.X,
+                                AutoSizeAxes = Axes.Y,
+                                Direction = FillDirection.Vertical,
+                                Spacing = new Vector2(0, 5),
+                                Children = new Drawable[]
                                 {
-                                    Anchor = Anchor.TopCentre,
-                                    Origin = Anchor.TopCentre,
-                                    RelativeSizeAxes = Axes.X,
-                                    AutoSizeAxes = Axes.Y,
-                                    Padding = new MarginPadding(5),
-                                    Child = new SpriteText
+                                    eventsTitle = new Container
                                     {
-                                        Anchor = Anchor.Centre,
-                                        Origin = Anchor.Centre,
-                                        Text = "Events",
-                                        Font = FrameworkFont.Regular.With(size: 30)
-                                    }
-                                },
-                                eventFlow = new FillFlowContainer
-                                {
-                                    RelativeSizeAxes = Axes.X,
-                                    AutoSizeAxes = Axes.Y,
-                                    Direction = FillDirection.Vertical,
-                                    Spacing = new Vector2(0, 5),
-                                    Padding = new MarginPadding
+                                        Anchor = Anchor.TopCentre,
+                                        Origin = Anchor.TopCentre,
+                                        RelativeSizeAxes = Axes.X,
+                                        AutoSizeAxes = Axes.Y,
+                                        Child = new SpriteText
+                                        {
+                                            Anchor = Anchor.Centre,
+                                            Origin = Anchor.Centre,
+                                            Text = "Events",
+                                            Font = FrameworkFont.Regular.With(size: 30)
+                                        }
+                                    },
+                                    eventFlow = new FillFlowContainer
                                     {
-                                        Horizontal = 5,
-                                        Bottom = 5,
-                                        Top = 40
+                                        Anchor = Anchor.TopCentre,
+                                        Origin = Anchor.TopCentre,
+                                        RelativeSizeAxes = Axes.X,
+                                        AutoSizeAxes = Axes.Y,
+                                        Direction = FillDirection.Vertical,
+                                        Spacing = new Vector2(0, 5)
                                     }
                                 }
                             }
@@ -135,42 +140,60 @@ public partial class SelectedClipStateEditorContainer : Container
 
     protected override void LoadComplete()
     {
-        clip.AssociatedModules.BindCollectionChanged((_, _) =>
+        chatBoxManager.SelectedClip.BindValueChanged(e =>
         {
-            stateFlow.Clear();
-            eventFlow.Clear();
+            if (e.OldValue is not null) e.OldValue.AssociatedModules.CollectionChanged -= associatedModulesOnCollectionChanged;
 
-            clip.States.ForEach(clipState =>
+            if (e.NewValue is not null)
             {
-                DrawableState drawableState;
-
-                stateFlow.Add(drawableState = new DrawableState(clipState)
-                {
-                    Anchor = Anchor.TopCentre,
-                    Origin = Anchor.TopCentre,
-                    RelativeSizeAxes = Axes.X,
-                    Masking = true,
-                    CornerRadius = 5,
-                    Height = 40
-                });
-                stateFlow.SetLayoutPosition(drawableState, clipState.States.Count);
-            });
-
-            clip.Events.ForEach(clipEvent =>
-            {
-                eventFlow.Add(new DrawableEvent(clipEvent)
-                {
-                    Anchor = Anchor.TopCentre,
-                    Origin = Anchor.TopCentre,
-                    RelativeSizeAxes = Axes.X,
-                    Masking = true,
-                    CornerRadius = 5,
-                    Height = 40
-                });
-            });
-
-            statesTitle.Alpha = stateFlow.Children.Count == 0 ? 0 : 1;
-            eventsTitle.Alpha = eventFlow.Children.Count == 0 ? 0 : 1;
+                e.NewValue.AssociatedModules.CollectionChanged += associatedModulesOnCollectionChanged;
+                associatedModulesOnCollectionChanged(null, null);
+            }
         }, true);
+    }
+
+    private void associatedModulesOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs? e)
+    {
+        // TODO Add button to filter states/events of modules where the module is relevant (enabled) or show all states/events
+        gameManager.ModuleManager.GetEnabledModuleNames();
+
+        // Get module states of all associated modules, then filter states that contain all enabled associated modules
+
+        stateFlow.Clear();
+        eventFlow.Clear();
+
+        // TODO - Don't regenerate whole
+
+        chatBoxManager.SelectedClip.Value?.States.ForEach(clipState =>
+        {
+            DrawableState drawableState;
+
+            stateFlow.Add(drawableState = new DrawableState(clipState)
+            {
+                Anchor = Anchor.TopCentre,
+                Origin = Anchor.TopCentre,
+                RelativeSizeAxes = Axes.X,
+                AutoSizeAxes = Axes.Y,
+                Masking = true,
+                CornerRadius = 5,
+            });
+            stateFlow.SetLayoutPosition(drawableState, clipState.States.Count);
+        });
+
+        chatBoxManager.SelectedClip.Value?.Events.ForEach(clipEvent =>
+        {
+            eventFlow.Add(new DrawableEvent(clipEvent)
+            {
+                Anchor = Anchor.TopCentre,
+                Origin = Anchor.TopCentre,
+                RelativeSizeAxes = Axes.X,
+                Masking = true,
+                CornerRadius = 5,
+                Height = 40
+            });
+        });
+
+        statesTitle.Alpha = stateFlow.Children.Count == 0 ? 0 : 1;
+        eventsTitle.Alpha = separator.Alpha = eventFlow.Children.Count == 0 ? 0 : 1;
     }
 }

@@ -18,6 +18,7 @@ public class AFKModule : ChatBoxModule
     protected override void CreateAttributes()
     {
         CreateVariable(AFKModuleVariable.Duration, "Duration", "duration");
+        CreateVariable(AFKModuleVariable.Since, "Since", "since");
 
         CreateState(AFKModuleState.AFK, "AFK", $"AFK for {GetVariableFormat(AFKModuleVariable.Duration)}");
         CreateState(AFKModuleState.NotAFK, "Not AFK", string.Empty);
@@ -49,12 +50,14 @@ public class AFKModule : ChatBoxModule
         }
 
         SetVariableValue(AFKModuleVariable.Duration, afkBegan is null ? null : (DateTime.Now - afkBegan.Value).ToString(@"hh\:mm\:ss"));
+        SetVariableValue(AFKModuleVariable.Since, afkBegan?.ToString(@"hh\:mm"));
         ChangeStateTo(afkBegan is null ? AFKModuleState.NotAFK : AFKModuleState.AFK);
     }
 
     private enum AFKModuleVariable
     {
-        Duration
+        Duration,
+        Since
     }
 
     private enum AFKModuleState

@@ -43,7 +43,7 @@ public partial class TimelineLayer : Container<DrawableClip>
         });
     }
 
-    public (int, int) GetBoundsNearestTo(int value, bool end)
+    public (int, int) GetBoundsNearestTo(int value, bool end, bool isCreating = false)
     {
         var boundsList = new List<int>();
 
@@ -68,7 +68,7 @@ public partial class TimelineLayer : Container<DrawableClip>
         boundsList.Sort();
 
         var lowerBound = boundsList.Last(bound => bound <= value);
-        var upperBound = boundsList.First(bound => bound >= value);
+        var upperBound = boundsList.First(bound => bound >= value && (!isCreating || bound > lowerBound));
 
         return (lowerBound, upperBound);
     }

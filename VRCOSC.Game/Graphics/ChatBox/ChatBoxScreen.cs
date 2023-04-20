@@ -38,28 +38,35 @@ public partial class ChatBoxScreen : Container
             {
                 RelativeSizeAxes = Axes.Both,
                 Padding = new MarginPadding(10),
-                Children = new Drawable[]
+                Child = new GridContainer
                 {
-                    new SelectedClipEditorWrapper
+                    RelativeSizeAxes = Axes.Both,
+                    RowDimensions = new[]
                     {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        RelativeSizeAxes = Axes.Both,
-                        Height = 0.5f,
-                        Padding = new MarginPadding
-                        {
-                            Bottom = 2.5f
-                        }
+                        new Dimension(),
+                        new Dimension(GridSizeMode.Absolute, 5),
+                        new Dimension()
                     },
-                    new TimelineEditorWrapper
+                    Content = new[]
                     {
-                        Anchor = Anchor.BottomCentre,
-                        Origin = Anchor.BottomCentre,
-                        RelativeSizeAxes = Axes.Both,
-                        Height = 0.5f,
-                        Padding = new MarginPadding
+                        new Drawable[]
                         {
-                            Top = 2.5f,
+                            new SelectedClipEditorWrapper
+                            {
+                                Anchor = Anchor.TopCentre,
+                                Origin = Anchor.TopCentre,
+                                RelativeSizeAxes = Axes.Both
+                            },
+                        },
+                        null,
+                        new Drawable[]
+                        {
+                            new TimelineEditor
+                            {
+                                Anchor = Anchor.BottomCentre,
+                                Origin = Anchor.BottomCentre,
+                                RelativeSizeAxes = Axes.Both
+                            }
                         }
                     }
                 }

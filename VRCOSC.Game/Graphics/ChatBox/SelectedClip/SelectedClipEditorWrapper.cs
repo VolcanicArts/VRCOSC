@@ -25,9 +25,8 @@ public partial class SelectedClipEditorWrapper : Container
     {
         Children = new Drawable[]
         {
-            noClipContent = new Container
+            new Container
             {
-                Alpha = 0,
                 RelativeSizeAxes = Axes.Both,
                 Masking = true,
                 CornerRadius = 10,
@@ -38,50 +37,55 @@ public partial class SelectedClipEditorWrapper : Container
                         Colour = ThemeManager.Current[ThemeAttribute.Dark],
                         RelativeSizeAxes = Axes.Both
                     },
-                    new SpriteText
+                    new Container
                     {
-                        Anchor = Anchor.Centre,
-                        Origin = Anchor.Centre,
-                        Font = FrameworkFont.Regular.With(size: 40),
-                        Text = "Select a clip to edit"
-                    }
-                }
-            },
-            gridContent = new GridContainer
-            {
-                Alpha = 0,
-                RelativeSizeAxes = Axes.Both,
-                ColumnDimensions = new[]
-                {
-                    new Dimension(GridSizeMode.Relative, 0.15f),
-                    new Dimension(GridSizeMode.Absolute, 5),
-                    new Dimension(GridSizeMode.Relative, 0.15f),
-                    new Dimension(GridSizeMode.Absolute, 5),
-                    new Dimension()
-                },
-                Content = new[]
-                {
-                    new Drawable?[]
-                    {
-                        new SelectedClipMetadataEditor
+                        RelativeSizeAxes = Axes.Both,
+                        Padding = new MarginPadding(5),
+                        Children = new Drawable[]
                         {
-                            RelativeSizeAxes = Axes.Both,
-                            Masking = true,
-                            CornerRadius = 10
-                        },
-                        null,
-                        new SelectedClipModuleSelector
-                        {
-                            RelativeSizeAxes = Axes.Both,
-                            Masking = true,
-                            CornerRadius = 10
-                        },
-                        null,
-                        new SelectedClipStateEditorWrapper
-                        {
-                            RelativeSizeAxes = Axes.Both,
-                            Masking = true,
-                            CornerRadius = 10
+                            noClipContent = new Container
+                            {
+                                Alpha = 0,
+                                RelativeSizeAxes = Axes.Both,
+                                Children = new Drawable[]
+                                {
+                                    new SpriteText
+                                    {
+                                        Anchor = Anchor.Centre,
+                                        Origin = Anchor.Centre,
+                                        Font = FrameworkFont.Regular.With(size: 40),
+                                        Text = "Select a clip to edit"
+                                    }
+                                }
+                            },
+                            gridContent = new GridContainer
+                            {
+                                Alpha = 0,
+                                RelativeSizeAxes = Axes.Both,
+                                ColumnDimensions = new[]
+                                {
+                                    new Dimension(GridSizeMode.Relative, 0.15f),
+                                    new Dimension(GridSizeMode.Absolute, 5),
+                                    new Dimension(GridSizeMode.Relative, 0.15f),
+                                    new Dimension(GridSizeMode.Absolute, 5),
+                                    new Dimension(),
+                                    new Dimension(GridSizeMode.Absolute, 5),
+                                    new Dimension(GridSizeMode.Relative, 0.15f),
+                                },
+                                Content = new[]
+                                {
+                                    new Drawable?[]
+                                    {
+                                        new SelectedClipMetadataEditor(),
+                                        null,
+                                        new SelectedClipModuleSelector(),
+                                        null,
+                                        new SelectedClipStateEditorContainer(),
+                                        null,
+                                        new SelectedClipVariableContainer()
+                                    }
+                                }
+                            }
                         }
                     }
                 }

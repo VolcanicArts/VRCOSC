@@ -5,6 +5,7 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using VRCOSC.Game.ChatBox;
 using VRCOSC.Game.Graphics.Themes;
@@ -27,33 +28,53 @@ public partial class MetadataString : Container
     {
         RelativeSizeAxes = Axes.X;
         AutoSizeAxes = Axes.Y;
+        Masking = true;
+        CornerRadius = 5;
 
         Children = new Drawable[]
         {
-            new Container
+            new Box
             {
-                Anchor = Anchor.CentreLeft,
-                Origin = Anchor.CentreLeft,
-                RelativeSizeAxes = Axes.X,
-                AutoSizeAxes = Axes.Y,
-                Width = 0.5f,
-                Child = new SpriteText
-                {
-                    Font = FrameworkFont.Regular.With(size: 25),
-                    Text = Label
-                }
+                Colour = ThemeManager.Current[ThemeAttribute.Light],
+                RelativeSizeAxes = Axes.Both
             },
             new Container
             {
-                Anchor = Anchor.CentreRight,
-                Origin = Anchor.CentreRight,
-                RelativeSizeAxes = Axes.Both,
-                Width = 0.5f,
-                Child = inputTextBox = new LocalTextBox
+                RelativeSizeAxes = Axes.X,
+                AutoSizeAxes = Axes.Y,
+                Padding = new MarginPadding(3),
+                Children = new Drawable[]
                 {
-                    RelativeSizeAxes = Axes.Both,
-                    CornerRadius = 5,
-                    MinimumLength = 2,
+                    new Container
+                    {
+                        Anchor = Anchor.CentreLeft,
+                        Origin = Anchor.CentreLeft,
+                        RelativeSizeAxes = Axes.X,
+                        AutoSizeAxes = Axes.Y,
+                        Width = 0.5f,
+                        Padding = new MarginPadding(2),
+                        Child = new SpriteText
+                        {
+                            Font = FrameworkFont.Regular.With(size: 22),
+                            Text = Label
+                        }
+                    },
+                    new Container
+                    {
+                        Anchor = Anchor.CentreRight,
+                        Origin = Anchor.CentreRight,
+                        RelativeSizeAxes = Axes.Both,
+                        Width = 0.5f,
+                        Children = new Drawable[]
+                        {
+                            inputTextBox = new LocalTextBox
+                            {
+                                RelativeSizeAxes = Axes.Both,
+                                CornerRadius = 5,
+                                MinimumLength = 2,
+                            }
+                        }
+                    }
                 }
             }
         };
@@ -70,8 +91,8 @@ public partial class MetadataString : Container
         [BackgroundDependencyLoader]
         private void load()
         {
-            BackgroundUnfocused = ThemeManager.Current[ThemeAttribute.Darker];
-            BackgroundFocused = ThemeManager.Current[ThemeAttribute.Darker];
+            BackgroundUnfocused = ThemeManager.Current[ThemeAttribute.Dark];
+            BackgroundFocused = ThemeManager.Current[ThemeAttribute.Dark];
         }
     }
 }

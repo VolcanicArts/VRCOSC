@@ -5,7 +5,9 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osuTK;
+using osu.Framework.Graphics.Shapes;
+using osu.Framework.Graphics.Sprites;
+using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Button;
 
 namespace VRCOSC.Game.Graphics.ChatBox.SelectedClip;
@@ -19,41 +21,55 @@ public partial class DrawableAssociatedModule : Container
     private void load()
     {
         RelativeSizeAxes = Axes.X;
-        Height = 50;
+        AutoSizeAxes = Axes.Y;
+        Masking = true;
+        CornerRadius = 5;
 
         Children = new Drawable[]
         {
-            new FillFlowContainer
+            new Box
             {
-                Direction = FillDirection.Horizontal,
-                RelativeSizeAxes = Axes.Both,
-                Spacing = new Vector2(10, 0),
+                Colour = ThemeManager.Current[ThemeAttribute.Light],
+                RelativeSizeAxes = Axes.Both
+            },
+            new Container
+            {
+                RelativeSizeAxes = Axes.X,
+                AutoSizeAxes = Axes.Y,
+                Padding = new MarginPadding(3),
                 Children = new Drawable[]
                 {
                     new Container
                     {
                         Anchor = Anchor.CentreLeft,
                         Origin = Anchor.CentreLeft,
-                        RelativeSizeAxes = Axes.Both,
-                        FillMode = FillMode.Fit,
-                        Child = new ToggleButton
+                        RelativeSizeAxes = Axes.X,
+                        AutoSizeAxes = Axes.Y,
+                        Width = 0.5f,
+                        Padding = new MarginPadding(2),
+                        Child = new SpriteText
                         {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
-                            RelativeSizeAxes = Axes.Both,
-                            State = State
+                            Font = FrameworkFont.Regular.With(size: 22),
+                            Text = ModuleName
                         }
                     },
                     new Container
                     {
-                        Anchor = Anchor.CentreLeft,
-                        Origin = Anchor.CentreLeft,
+                        Anchor = Anchor.CentreRight,
+                        Origin = Anchor.CentreRight,
                         RelativeSizeAxes = Axes.Both,
-                        Child = new TextFlowContainer(t => t.Font = FrameworkFont.Regular.With(size: 20))
+                        FillMode = FillMode.Fit,
+                        Masking = true,
+                        CornerRadius = 5,
+                        Children = new Drawable[]
                         {
-                            RelativeSizeAxes = Axes.Both,
-                            TextAnchor = Anchor.CentreLeft,
-                            Text = ModuleName
+                            new ToggleButton
+                            {
+                                Anchor = Anchor.Centre,
+                                Origin = Anchor.Centre,
+                                RelativeSizeAxes = Axes.Both,
+                                State = State
+                            }
                         }
                     }
                 }
