@@ -104,17 +104,6 @@ public sealed partial class DrawableTab : ClickableContainer
         Action += () => selectedTab.Value = Tab;
     }
 
-    protected override bool OnClick(ClickEvent e)
-    {
-        if (gameManager.State.Value is GameManagerState.Starting or GameManagerState.Started)
-        {
-            background.FlashColour(ThemeManager.Current[ThemeAttribute.Failure], 250, Easing.OutQuad);
-            return true;
-        }
-
-        return base.OnClick(e);
-    }
-
     protected override bool OnHover(HoverEvent e)
     {
         background.FadeColour(hover_colour, onhover_duration, Easing.InOutSine);
