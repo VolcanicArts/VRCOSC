@@ -32,6 +32,7 @@ public partial class DrawableClip : Container
     public readonly Clip Clip;
 
     private float cumulativeDrag;
+    private SpriteText drawName = null!;
 
     public DrawableClip(Clip clip)
     {
@@ -44,14 +45,12 @@ public partial class DrawableClip : Container
         RelativeSizeAxes = Axes.Both;
         RelativePositionAxes = Axes.X;
 
-        SpriteText drawName;
-
         Child = new Container
         {
             RelativeSizeAxes = Axes.Both,
             Masking = true,
             CornerRadius = 10,
-            BorderColour = ThemeManager.Current[ThemeAttribute.Lighter],
+            BorderColour = ThemeManager.Current[ThemeAttribute.Accent],
             Children = new Drawable[]
             {
                 new Box
@@ -62,14 +61,12 @@ public partial class DrawableClip : Container
                 new StartResizeDetector(Clip, v => v / Parent.DrawWidth)
                 {
                     RelativeSizeAxes = Axes.Y,
-                    Width = 20
+                    Width = 15
                 },
                 new EndResizeDetector(Clip, v => v / Parent.DrawWidth)
                 {
-                    Anchor = Anchor.TopRight,
-                    Origin = Anchor.TopRight,
                     RelativeSizeAxes = Axes.Y,
-                    Width = 20
+                    Width = 15
                 },
                 new Container
                 {
@@ -81,15 +78,17 @@ public partial class DrawableClip : Container
                         {
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
-                            Font = FrameworkFont.Regular.With(size: 20)
+                            Font = FrameworkFont.Regular.With(size: 20),
+                            Colour = ThemeManager.Current[ThemeAttribute.Text]
                         }
                     }
                 }
             }
         };
+    }
 
-        updateSizeAndPosition();
-
+    protected override void LoadComplete()
+    {
         chatBoxManager.SelectedClip.BindValueChanged(e =>
         {
             ((Container)Child).BorderThickness = Clip == e.NewValue ? 4 : 2;
@@ -97,6 +96,8 @@ public partial class DrawableClip : Container
 
         Clip.Name.BindValueChanged(e => drawName.Text = e.NewValue, true);
         Clip.Enabled.BindValueChanged(e => Child.FadeTo(e.NewValue ? 1 : 0.5f), true);
+
+        updateSizeAndPosition();
     }
 
     protected override bool OnMouseDown(MouseDownEvent e)
@@ -171,7 +172,7 @@ public partial class DrawableClip : Container
         {
             Child = new Box
             {
-                Colour = Color4.Black.Opacity(0f),
+                Colour = Color4.Black.Opacity(0.2f),
                 RelativeSizeAxes = Axes.Both
             };
         }
@@ -186,7 +187,7 @@ public partial class DrawableClip : Container
 
         protected override void OnHoverLost(HoverLostEvent e)
         {
-            Child.FadeColour(Colour4.Black.Opacity(0f), 100);
+            Child.FadeColour(Colour4.Black.Opacity(0.2f), 100);
         }
     }
 
@@ -204,6 +205,8 @@ public partial class DrawableClip : Container
         public StartResizeDetector(Clip clip, Func<float, float> normaliseFunc)
             : base(clip, normaliseFunc)
         {
+            Anchor = Anchor.CentreLeft;
+            Origin = Anchor.CentreLeft;
         }
 
         protected override void OnDrag(DragEvent e)
@@ -245,6 +248,8 @@ public partial class DrawableClip : Container
         public EndResizeDetector(Clip clip, Func<float, float> normaliseFunc)
             : base(clip, normaliseFunc)
         {
+            Anchor = Anchor.CentreRight;
+            Origin = Anchor.CentreRight;
         }
 
         protected override void OnDrag(DragEvent e)

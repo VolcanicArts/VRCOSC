@@ -26,6 +26,7 @@ public sealed partial class ToggleButton : VRCOSCButton
     private void load()
     {
         SpriteIcon icon;
+
         Children = new Drawable[]
         {
             new Box

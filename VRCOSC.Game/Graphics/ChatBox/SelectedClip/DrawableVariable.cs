@@ -57,7 +57,8 @@ public partial class DrawableVariable : Container
                         Child = new SpriteText
                         {
                             Font = FrameworkFont.Regular.With(size: 20),
-                            Text = clipVariable.Name + ":"
+                            Text = clipVariable.Name + ":",
+                            Colour = ThemeManager.Current[ThemeAttribute.Text]
                         }
                     },
                     new LocalTextBox

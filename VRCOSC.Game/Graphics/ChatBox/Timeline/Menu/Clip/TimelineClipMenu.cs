@@ -13,7 +13,7 @@ public partial class TimelineClipMenu : TimelineMenu
     [Resolved]
     private ChatBoxManager chatBoxManager { get; set; } = null!;
 
-    private Game.ChatBox.Clips.Clip clip;
+    private Game.ChatBox.Clips.Clip clip { get; set; } = null!;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -47,6 +47,27 @@ public partial class TimelineClipMenu : TimelineMenu
                 RelativeSizeAxes = Axes.Both,
                 CornerRadius = 5,
                 Action = () => chatBoxManager.DecreasePriority(clip)
+            }
+        });
+
+        Add(new Container
+        {
+            RelativeSizeAxes = Axes.X,
+            Height = 25,
+            Child = new MenuButton
+            {
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                Text = "Delete",
+                FontSize = 20,
+                RelativeSizeAxes = Axes.Both,
+                CornerRadius = 5,
+                Action = () =>
+                {
+                    chatBoxManager.DeleteClip(clip);
+                    if (chatBoxManager.SelectedClip.Value == clip) chatBoxManager.SelectedClip.Value = null;
+                    Hide();
+                }
             }
         });
     }

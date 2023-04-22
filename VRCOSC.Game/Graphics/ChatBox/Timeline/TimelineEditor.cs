@@ -1,7 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
+using System.Collections.Generic;
 using osu.Framework.Allocation;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
@@ -30,12 +30,9 @@ public partial class TimelineEditor : Container
     [Resolved]
     private TimelineClipMenu clipMenu { get; set; } = null!;
 
-    private TimelineLayer layer5 = null!;
-    private TimelineLayer layer4 = null!;
-    private TimelineLayer layer3 = null!;
-    private TimelineLayer layer2 = null!;
-    private TimelineLayer layer1 = null!;
-    private TimelineLayer layer0 = null!;
+    private const int grid_line_width = 3;
+
+    private Dictionary<int, TimelineLayer> layers = new();
     private Container gridGenerator = null!;
 
     [BackgroundDependencyLoader]
@@ -43,6 +40,8 @@ public partial class TimelineEditor : Container
     {
         Masking = true;
         CornerRadius = 10;
+
+        GridContainer layerContainer;
 
         Children = new Drawable[]
         {
@@ -54,12 +53,12 @@ public partial class TimelineEditor : Container
             gridGenerator = new Container
             {
                 RelativeSizeAxes = Axes.Both,
-                Position = new Vector2(-2.5f)
+                Position = new Vector2(-(grid_line_width / 2f))
             },
             new Container
             {
                 RelativeSizeAxes = Axes.Both,
-                Child = new GridContainer
+                Child = layerContainer = new GridContainer
                 {
                     RelativeSizeAxes = Axes.Both,
                     RowDimensions = new[]
@@ -73,66 +72,45 @@ public partial class TimelineEditor : Container
                     },
                     Content = new[]
                     {
-                        new Drawable[]
-                        {
-                            layer5 = new TimelineLayer
-                            {
-                                Priority = 5
-                            }
-                        },
-                        new Drawable[]
-                        {
-                            layer4 = new TimelineLayer
-                            {
-                                Priority = 4
-                            }
-                        },
-                        new Drawable[]
-                        {
-                            layer3 = new TimelineLayer
-                            {
-                                Priority = 3
-                            }
-                        },
-                        new Drawable[]
-                        {
-                            layer2 = new TimelineLayer
-                            {
-                                Priority = 2
-                            }
-                        },
-                        new Drawable[]
-                        {
-                            layer1 = new TimelineLayer
-                            {
-                                Priority = 1
-                            }
-                        },
-                        new Drawable[]
-                        {
-                            layer0 = new TimelineLayer
-                            {
-                                Priority = 0
-                            }
-                        }
+                        new Drawable[] { new TimelineLayer(5) },
+                        new Drawable[] { new TimelineLayer(4) },
+                        new Drawable[] { new TimelineLayer(3) },
+                        new Drawable[] { new TimelineLayer(2) },
+                        new Drawable[] { new TimelineLayer(1) },
+                        new Drawable[] { new TimelineLayer(0) }
                     }
                 }
             }
         };
 
+        foreach (var array in layerContainer.Content)
+        {
+            var timelineLayer = (TimelineLayer)array[0];
+            layers.Add(timelineLayer.Priority, timelineLayer);
+        }
+
         chatBoxManager.Clips.BindCollectionChanged((_, e) =>
         {
-            if (e.NewItems == null) return;
-
-            foreach (Clip newClip in e.NewItems)
+            if (e.OldItems is not null)
             {
-                getLayer(newClip.Priority.Value).Add(newClip);
-
-                newClip.Priority.BindValueChanged(e =>
+                foreach (Clip oldClip in e.OldItems)
                 {
-                    getLayer(e.OldValue).Remove(newClip);
-                    getLayer(e.NewValue).Add(newClip);
-                });
+                    layers[oldClip.Priority.Value].Remove(oldClip);
+                }
+            }
+
+            if (e.NewItems is not null)
+            {
+                foreach (Clip newClip in e.NewItems)
+                {
+                    layers[newClip.Priority.Value].Add(newClip);
+
+                    newClip.Priority.BindValueChanged(priorityValue =>
+                    {
+                        layers[priorityValue.OldValue].Remove(newClip);
+                        layers[priorityValue.NewValue].Add(newClip);
+                    });
+                }
             }
         }, true);
 
@@ -148,7 +126,7 @@ public partial class TimelineEditor : Container
                 Colour = ThemeManager.Current[ThemeAttribute.Dark].Opacity(0.5f),
                 RelativeSizeAxes = Axes.Y,
                 RelativePositionAxes = Axes.X,
-                Width = 5,
+                Width = grid_line_width,
                 X = (chatBoxManager.TimelineResolution * i)
             });
         }
@@ -160,24 +138,10 @@ public partial class TimelineEditor : Container
                 Colour = ThemeManager.Current[ThemeAttribute.Dark].Opacity(0.5f),
                 RelativeSizeAxes = Axes.X,
                 RelativePositionAxes = Axes.Y,
-                Height = 5,
+                Height = grid_line_width,
                 Y = (DrawHeight / 6 * i)
             });
         }
-    }
-
-    private TimelineLayer getLayer(int priority)
-    {
-        return priority switch
-        {
-            0 => layer0,
-            1 => layer1,
-            2 => layer2,
-            3 => layer3,
-            4 => layer4,
-            5 => layer5,
-            _ => throw new InvalidOperationException($"No layer with priority {priority}")
-        };
     }
 
     public void ShowLayerMenu(MouseDownEvent e, int xPos, TimelineLayer layer)

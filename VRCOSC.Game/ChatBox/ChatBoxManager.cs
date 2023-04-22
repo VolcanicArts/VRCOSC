@@ -7,6 +7,7 @@ using System.Linq;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using VRCOSC.Game.ChatBox.Clips;
+using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Game.ChatBox;
 
@@ -34,43 +35,36 @@ public class ChatBoxManager
     public readonly Dictionary<string, Dictionary<string, ClipStateMetadata>> StateMetadata = new();
     public readonly Dictionary<string, Dictionary<string, ClipEventMetadata>> EventMetadata = new();
     public IReadOnlyDictionary<string, bool> ModuleEnabledCache = null!;
+    private Bindable<int> sendDelay = null!;
+    private VRChatOscClient oscClient = null!;
 
-    // TODO These still get stored here since they're shared between clips for evaluation, but could be abstracted behind some helper methods to make things cleaner
     public readonly Dictionary<(string, string), string?> VariableValues = new();
-
-    // Dictionary<ModuleName, ModuleState>
     public readonly Dictionary<string, string> StateValues = new();
-
-    /// <summary>
-    /// The events occuring in the current update. Gets cleared after all Clips have been updated to ensure the event is only handled once
-    /// </summary>
-    // List<ModuleName, OccuredEventLookup>
     public readonly List<(string, string)> TriggeredEvents = new();
+    private readonly object triggeredEventsLock = new();
 
     public readonly Bindable<TimeSpan> TimelineLength = new(TimeSpan.FromMinutes(1));
     public float TimelineResolution => 1f / (float)TimelineLength.Value.TotalSeconds;
 
     public int CurrentSecond => (int)Math.Floor((DateTimeOffset.Now - startTime).TotalSeconds) % (int)TimelineLength.Value.TotalSeconds;
+    private bool sendAllowed => nextValidTime <= DateTimeOffset.Now;
 
     private DateTimeOffset startTime;
+    private DateTimeOffset nextValidTime;
     private bool isClear;
 
-    public ChatBoxManager()
+    public void Load()
     {
-        for (var i = 0; i < priority_count; i++)
-        {
-            Clips.Add(new Clip(this)
-            {
-                Priority = { Value = i }
-            });
-        }
+        // TODO Check for serialised file. If no file, generate default timeline
+        Clips.AddRange(DefaultTimeline.GenerateDefaultTimeline(this));
     }
 
-    public Clip CreateClip() => new(this);
-
-    public void Initialise(Dictionary<string, bool> moduleEnabledCache)
+    public void Initialise(VRChatOscClient oscClient, Bindable<int> sendDelay, Dictionary<string, bool> moduleEnabledCache)
     {
+        this.oscClient = oscClient;
+        this.sendDelay = sendDelay;
         startTime = DateTimeOffset.Now;
+        nextValidTime = startTime;
         isClear = true;
         ModuleEnabledCache = moduleEnabledCache;
 
@@ -79,50 +73,70 @@ public class ChatBoxManager
 
     public void Update()
     {
-        Clips.ForEach(clip => clip.Update());
-
-        Clip? validClip = null;
-
-        for (var i = priority_count - 1; i >= 0; i--)
+        lock (triggeredEventsLock)
         {
-            Clips.Where(clip => clip.Priority.Value == i).ForEach(clip =>
-            {
-                if (!clip.Evalulate() || validClip is not null) return;
-
-                validClip = clip;
-            });
-
-            if (validClip is not null) break;
+            Clips.ForEach(clip => clip.Update());
+            // Events get handled by clips in the same update cycle they're triggered
+            TriggeredEvents.Clear();
         }
 
-        handleClip(validClip);
-
-        TriggeredEvents.Clear();
+        if (sendAllowed) evaluateClips();
     }
 
     public void Shutdown()
     {
-        TriggeredEvents.Clear();
+        lock (triggeredEventsLock) { TriggeredEvents.Clear(); }
+
         VariableValues.Clear();
         StateValues.Clear();
     }
 
+    private void evaluateClips()
+    {
+        var validClip = getValidClip();
+        handleClip(validClip);
+        nextValidTime += TimeSpan.FromMilliseconds(sendDelay.Value);
+    }
+
+    private Clip? getValidClip()
+    {
+        for (var i = priority_count - 1; i >= 0; i--)
+        {
+            foreach (var clip in Clips.Where(clip => clip.Priority.Value == i))
+            {
+                if (clip.Evalulate()) return clip;
+            }
+        }
+
+        return null;
+    }
+
     private void handleClip(Clip? clip)
     {
-        if (clip is null && !isClear)
+        if (clip is null)
         {
-            clearChatBox();
+            if (!isClear) clearChatBox();
             return;
         }
 
-        if (clip is null) return;
+        isClear = false;
+        sendText(clip.GetFormattedText());
+    }
 
-        // format clip and send to ChatBox
+    private void sendText(string text)
+    {
+        oscClient.SendValues(VRChatOscConstants.ADDRESS_CHATBOX_INPUT, new List<object> { text, true, false });
     }
 
     private void clearChatBox()
     {
+        sendText(string.Empty);
         isClear = true;
+    }
+
+    public void SetTyping(bool typing)
+    {
+        oscClient.SendValue(VRChatOscConstants.ADDRESS_CHATBOX_TYPING, typing);
     }
 
     public void IncreasePriority(Clip clip) => setPriority(clip, clip.Priority.Value + 1);
@@ -131,10 +145,12 @@ public class ChatBoxManager
     private void setPriority(Clip clip, int priority)
     {
         if (priority is > priority_count - 1 or < 0) return;
-        if (RetrieveClipsWithPriority(priority).Any(clip.Intersects)) return;
+        if (Clips.Where(other => other.Priority.Value == priority).Any(clip.Intersects)) return;
 
         clip.Priority.Value = priority;
     }
+
+    public void DeleteClip(Clip clip) => Clips.Remove(clip);
 
     public void RegisterVariable(string module, string lookup, string name, string format)
     {
@@ -208,8 +224,6 @@ public class ChatBoxManager
 
     public void TriggerEvent(string module, string lookup)
     {
-        TriggeredEvents.Add((module, lookup));
+        lock (triggeredEventsLock) { TriggeredEvents.Add((module, lookup)); }
     }
-
-    public IReadOnlyList<Clip> RetrieveClipsWithPriority(int priority) => Clips.Where(clip => clip.Priority.Value == priority).ToList();
 }

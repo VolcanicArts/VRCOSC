@@ -1,10 +1,10 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.Specialized;
-using System.Diagnostics;
 using System.Linq;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
@@ -24,13 +24,13 @@ public class Clip
     public readonly BindableList<ClipState> States = new();
     public readonly BindableList<ClipEvent> Events = new();
     public readonly Bindable<int> Start = new();
-    public readonly Bindable<int> End = new(30);
+    public readonly Bindable<int> End = new();
     public int Length => End.Value - Start.Value;
 
     private readonly ChatBoxManager chatBoxManager;
 
-    // TODO Dumb just store the ClipEvent somehow
-    private ((string, string), DateTimeOffset)? currentEvent;
+    private readonly Queue<ClipEvent> eventQueue = new();
+    private (ClipEvent, DateTimeOffset)? currentEvent;
     private ClipState? currentState;
 
     public Clip(ChatBoxManager chatBoxManager)
@@ -41,24 +41,53 @@ public class Clip
 
     public void Initialise()
     {
+        eventQueue.Clear();
         currentEvent = null;
         currentState = null;
     }
 
     public void Update()
     {
+        auditEvents();
+        setCurrentEvent();
+    }
+
+    private void auditEvents()
+    {
         chatBoxManager.TriggeredEvents.ForEach(moduleEvent =>
         {
             var (module, lookup) = moduleEvent;
 
-            // TODO if new event's module name is equal to the current event's module name, it should replace
-            // TODO if new event's module name is different, add to a queue to be put into current event when current event expires
+            var clipEvents = Events.Where(clipEvent => clipEvent.Module == module && clipEvent.Lookup == lookup).ToList();
+            if (!clipEvents.Any()) return;
 
-            var clipEvent = Events.Where(clipEvent => clipEvent.Module == module && clipEvent.Lookup == lookup);
+            var clipEvent = clipEvents.Single();
+            if (!clipEvent.Enabled.Value) return;
+
+            if (currentEvent?.Item1.Module == module)
+                // If the new event and current event are from the same module, overwrite the current event
+                currentEvent = (clipEvent, DateTimeOffset.Now + TimeSpan.FromSeconds(clipEvent.Length.Value));
+            else
+                // If the new event and current event are from different modules, queue the new event
+                eventQueue.Enqueue(clipEvent);
         });
-
-        if (currentEvent?.Item2 <= DateTimeOffset.Now) currentEvent = null;
     }
+
+    private void setCurrentEvent()
+    {
+        if (currentEvent is not null && currentEvent.Value.Item2 < DateTimeOffset.Now) currentEvent = null;
+
+        if (currentEvent is null && eventQueue.Any())
+        {
+            var nextEvent = eventQueue.Dequeue();
+            currentEvent = (nextEvent, DateTimeOffset.Now + TimeSpan.FromSeconds(nextEvent.Length.Value));
+        }
+    }
+
+    public ClipState GetStateFor(string module, string lookup) => getStateFor(new List<string> { module }, new List<string> { lookup });
+
+    private ClipState getStateFor(IReadOnlyCollection<string> modules, IReadOnlyCollection<string> lookups) =>
+        States.Single(clipState => clipState.ModuleNames.SequenceEqual(modules) && clipState.StateNames.SequenceEqual(lookups));
 
     public bool Evalulate()
     {
@@ -67,24 +96,23 @@ public class Clip
 
         if (currentEvent is not null) return true;
 
-        var localStates = States.Select(state => state.Copy()).ToList();
+        var localStates = States.Select(state => state.Copy(true)).ToList();
         removeDisabledModules(localStates);
         removeLessCompoundedStates(localStates);
         removeInvalidStates(localStates);
 
-        Debug.Assert(localStates.Count is 0 or 1);
-
         if (!localStates.Any()) return false;
 
-        var chosenState = localStates.First();
+        var chosenState = localStates.Single();
+        if (!chosenState.Enabled.Value) return false;
 
-        currentState = chosenState.Enabled.Value ? chosenState : null;
-        return chosenState.Enabled.Value;
+        currentState = chosenState;
+        return true;
     }
 
     private void removeDisabledModules(List<ClipState> localStates)
     {
-        foreach (var clipState in localStates)
+        foreach (var clipState in localStates.ToImmutableList())
         {
             var stateValid = clipState.ModuleNames.All(moduleName => chatBoxManager.ModuleEnabledCache[moduleName]);
             if (!stateValid) localStates.Remove(clipState);
@@ -96,7 +124,7 @@ public class Clip
         var enabledAndAssociatedModules = AssociatedModules.Where(moduleName => chatBoxManager.ModuleEnabledCache[moduleName]).ToList();
         enabledAndAssociatedModules.Sort();
 
-        foreach (var clipState in localStates)
+        foreach (var clipState in localStates.ToImmutableList())
         {
             var clipStateModules = clipState.ModuleNames;
             clipStateModules.Sort();
@@ -112,7 +140,7 @@ public class Clip
 
         if (!currentStates.Any()) return;
 
-        foreach (var clipState in localStates)
+        foreach (var clipState in localStates.ToImmutableList())
         {
             var clipStateStates = clipState.StateNames;
             clipStateStates.Sort();
@@ -121,13 +149,7 @@ public class Clip
         }
     }
 
-    public string GetFormattedText()
-    {
-        if (currentEvent is not null)
-            return formatText(Events.Single(clipEvent => clipEvent.Module == currentEvent.Value.Item1.Item1 && clipEvent.Lookup == currentEvent.Value.Item1.Item2));
-
-        return formatText(currentState!);
-    }
+    public string GetFormattedText() => currentEvent is not null ? formatText(currentEvent.Value.Item1) : formatText(currentState!);
 
     private string formatText(ClipState clipState) => formatText(clipState.Format.Value);
     private string formatText(ClipEvent clipEvent) => formatText(clipEvent.Format.Value);
@@ -138,8 +160,11 @@ public class Clip
 
         AvailableVariables.ForEach(clipVariable =>
         {
-            var variableValue = chatBoxManager.VariableValues[(clipVariable.Module, clipVariable.Lookup)] ?? string.Empty;
-            returnText = returnText.Replace(clipVariable.DisplayableFormat, variableValue);
+            if (!chatBoxManager.ModuleEnabledCache[clipVariable.Module]) return;
+
+            chatBoxManager.VariableValues.TryGetValue((clipVariable.Module, clipVariable.Lookup), out var variableValue);
+
+            returnText = returnText.Replace(clipVariable.DisplayableFormat, variableValue ?? string.Empty);
         });
 
         return returnText;

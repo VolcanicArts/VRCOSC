@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -58,7 +59,8 @@ public partial class SelectedClipMetadataEditor : Container
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
                                 Text = "Clip Settings",
-                                Font = FrameworkFont.Regular.With(size: 30)
+                                Font = FrameworkFont.Regular.With(size: 30),
+                                Colour = ThemeManager.Current[ThemeAttribute.Text]
                             }
                         },
                         null,
@@ -98,25 +100,40 @@ public partial class SelectedClipMetadataEditor : Container
         metadataFlow.Add(new MetadataToggle
         {
             Label = "Enabled",
-            State = clip.Enabled
+            State = (BindableBool)clip.Enabled.GetBoundCopy()
         });
 
         metadataFlow.Add(new MetadataString
         {
             Label = "Name",
-            Current = clip.Name
+            Current = clip.Name.GetBoundCopy()
+        });
+
+        metadataFlow.Add(new SpriteText
+        {
+            Anchor = Anchor.TopCentre,
+            Origin = Anchor.TopCentre,
+            Text = "Metadata",
+            Font = FrameworkFont.Regular.With(size: 25),
+            Colour = ThemeManager.Current[ThemeAttribute.Text]
         });
 
         metadataFlow.Add(new ReadonlyTimeDisplay
         {
             Label = "Start",
-            Current = clip.Start
+            Current = clip.Start.GetBoundCopy()
         });
 
         metadataFlow.Add(new ReadonlyTimeDisplay
         {
             Label = "End",
-            Current = clip.End
+            Current = clip.End.GetBoundCopy()
+        });
+
+        metadataFlow.Add(new ReadonlyTimeDisplay
+        {
+            Label = "Priority",
+            Current = clip.Priority.GetBoundCopy()
         });
     }
 }

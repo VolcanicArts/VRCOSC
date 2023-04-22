@@ -11,7 +11,7 @@ public sealed partial class AutomationSection : SectionContainer
 
     protected override void GenerateItems()
     {
-        AddToggle("Start/Stop with VRChat", "Auto start/stop modules on VRChat open/close", ConfigManager.GetBindable<bool>(VRCOSCSetting.AutoStartStop));
+        AddToggle("Start/Stop with VRChat", "Auto start/stop modules on VRChat open/close (Note: Disables run button from being used manually)", ConfigManager.GetBindable<bool>(VRCOSCSetting.AutoStartStop));
         AddToggle("Open with SteamVR", "Should VRCOSC open when SteamVR launches? Requires a manual launch when changing to true", ConfigManager.GetBindable<bool>(VRCOSCSetting.AutoStartOpenVR));
         AddToggle("Close with SteamVR", "Should VRCOSC close when SteamVR closes?", ConfigManager.GetBindable<bool>(VRCOSCSetting.AutoStopOpenVR));
     }

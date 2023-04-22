@@ -20,7 +20,12 @@ public partial class TimelineLayer : Container<DrawableClip>
     [Resolved]
     private TimelineEditor timelineEditor { get; set; } = null!;
 
-    public required int Priority { get; init; }
+    public readonly int Priority;
+
+    public TimelineLayer(int priority)
+    {
+        Priority = priority;
+    }
 
     [BackgroundDependencyLoader]
     private void load()

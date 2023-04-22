@@ -16,5 +16,5 @@ public class ClipVariableMetadata
     public required string Name { get; init; }
     public required string Format { get; init; }
 
-    public string DisplayableFormat => $"{variable_start_char}{Module.ToLowerInvariant().Replace("module", string.Empty)}.{Format}{variable_end_char}";
+    public string DisplayableFormat => $"{variable_start_char}{Module.Replace("module", string.Empty)}.{Format}{variable_end_char}";
 }

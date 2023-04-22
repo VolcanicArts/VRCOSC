@@ -20,6 +20,7 @@ public partial class SelectedClipModuleSelector : Container
     [Resolved]
     private ChatBoxManager chatBoxManager { get; set; } = null!;
 
+    [Resolved]
     private GameManager gameManager { get; set; } = null!;
 
     private FillFlowContainer<DrawableAssociatedModule> moduleFlow = null!;
@@ -60,7 +61,8 @@ public partial class SelectedClipModuleSelector : Container
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
                                 Text = "Select Modules",
-                                Font = FrameworkFont.Regular.With(size: 30)
+                                Font = FrameworkFont.Regular.With(size: 30),
+                                Colour = ThemeManager.Current[ThemeAttribute.Text]
                             }
                         },
                         null,

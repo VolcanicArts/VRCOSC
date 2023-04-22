@@ -8,11 +8,16 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
 using VRCOSC.Game.ChatBox.Clips;
+using VRCOSC.Game.Graphics.Themes;
+using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ChatBox.SelectedClip;
 
 public partial class DrawableModuleVariables : Container
 {
+    [Resolved]
+    private GameManager gameManager { get; set; } = null!;
+
     private readonly string module;
     private readonly List<ClipVariableMetadata> clipVariables;
 
@@ -39,8 +44,9 @@ public partial class DrawableModuleVariables : Container
         {
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
-            Text = module.Replace("Module", string.Empty),
-            Font = FrameworkFont.Regular.With(size: 20)
+            Text = gameManager.ModuleManager.GetModuleName(module),
+            Font = FrameworkFont.Regular.With(size: 20),
+            Colour = ThemeManager.Current[ThemeAttribute.Text]
         });
 
         clipVariables.ForEach(clipVariable =>

@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -12,6 +13,7 @@ using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Graphics.UI.Button;
+using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ChatBox.SelectedClip;
 
@@ -20,11 +22,14 @@ public partial class DrawableState : Container
     [Resolved]
     private ChatBoxManager chatBoxManager { get; set; } = null!;
 
-    private readonly ClipState state;
+    [Resolved]
+    private GameManager gameManager { get; set; } = null!;
 
-    public DrawableState(ClipState state)
+    private readonly ClipState clipState;
+
+    public DrawableState(ClipState clipState)
     {
-        this.state = state;
+        this.clipState = clipState;
     }
 
     [BackgroundDependencyLoader]
@@ -32,11 +37,11 @@ public partial class DrawableState : Container
     {
         var stateNameList = string.Empty;
 
-        state.States.ForEach(pair =>
+        clipState.States.ForEach(pair =>
         {
             var (moduleName, lookup) = pair;
             var stateMetadata = chatBoxManager.StateMetadata[moduleName][lookup];
-            stateNameList += moduleName.Replace("Module", string.Empty);
+            stateNameList += gameManager.ModuleManager.GetModuleName(moduleName);
             if (stateMetadata.Name != "Default") stateNameList += " - " + stateMetadata.Name;
             stateNameList += " & ";
         });
@@ -79,7 +84,7 @@ public partial class DrawableState : Container
                                     Anchor = Anchor.Centre,
                                     Origin = Anchor.Centre,
                                     RelativeSizeAxes = Axes.Both,
-                                    State = state.Enabled
+                                    State = (BindableBool)clipState.Enabled.GetBoundCopy()
                                 }
                             },
                             new Container
@@ -93,7 +98,8 @@ public partial class DrawableState : Container
                                     Anchor = Anchor.CentreLeft,
                                     Origin = Anchor.CentreLeft,
                                     Font = FrameworkFont.Regular.With(size: 20),
-                                    Text = stateNameList
+                                    Text = stateNameList,
+                                    Colour = ThemeManager.Current[ThemeAttribute.Text]
                                 }
                             }
                         }
@@ -108,7 +114,7 @@ public partial class DrawableState : Container
                         {
                             RelativeSizeAxes = Axes.X,
                             Height = 30,
-                            Current = state.Format,
+                            Current = clipState.Format.GetBoundCopy(),
                             Masking = true,
                             CornerRadius = 5
                         }

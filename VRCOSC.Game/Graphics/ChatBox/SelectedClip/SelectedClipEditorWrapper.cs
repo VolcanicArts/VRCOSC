@@ -54,7 +54,8 @@ public partial class SelectedClipEditorWrapper : Container
                                         Anchor = Anchor.Centre,
                                         Origin = Anchor.Centre,
                                         Font = FrameworkFont.Regular.With(size: 40),
-                                        Text = "Select a clip to edit"
+                                        Text = "Select a clip to edit",
+                                        Colour = ThemeManager.Current[ThemeAttribute.Text]
                                     }
                                 }
                             },

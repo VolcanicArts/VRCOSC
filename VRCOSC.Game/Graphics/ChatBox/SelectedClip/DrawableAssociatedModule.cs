@@ -50,7 +50,8 @@ public partial class DrawableAssociatedModule : Container
                         Child = new SpriteText
                         {
                             Font = FrameworkFont.Regular.With(size: 22),
-                            Text = ModuleName
+                            Text = ModuleName,
+                            Colour = ThemeManager.Current[ThemeAttribute.Text]
                         }
                     },
                     new Container

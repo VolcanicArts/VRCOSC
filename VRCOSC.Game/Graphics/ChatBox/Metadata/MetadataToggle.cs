@@ -50,7 +50,8 @@ public partial class MetadataToggle : Container
                         Child = new SpriteText
                         {
                             Font = FrameworkFont.Regular.With(size: 22),
-                            Text = Label
+                            Text = Label,
+                            Colour = ThemeManager.Current[ThemeAttribute.Text]
                         }
                     },
                     new Container

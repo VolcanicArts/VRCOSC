@@ -12,7 +12,6 @@ public class ChatBoxTextModule : ChatBoxModule
     public override string Author => "VolcanicArts";
     public override ModuleType Type => ModuleType.General;
     protected override TimeSpan DeltaUpdate => TimeSpan.FromSeconds(1.5f);
-    protected override bool ShouldUpdateImmediately => false;
 
     private int index;
 
@@ -31,7 +30,7 @@ public class ChatBoxTextModule : ChatBoxModule
 
     protected override void OnModuleStart()
     {
-        index = 0;
+        index = -1;
         ChangeStateTo(ChatBoxTextState.Default);
     }
 

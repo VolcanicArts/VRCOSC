@@ -14,7 +14,7 @@ public partial class TimelineLayerMenu : TimelineMenu
     private ChatBoxManager chatBoxManager { get; set; } = null!;
 
     public int XPos;
-    public TimelineLayer Layer;
+    public TimelineLayer Layer { get; set; } = null!;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -38,7 +38,7 @@ public partial class TimelineLayerMenu : TimelineMenu
 
     private void createClip()
     {
-        var clip = chatBoxManager.CreateClip();
+        var clip = new Game.ChatBox.Clips.Clip(chatBoxManager);
 
         var (lowerBound, upperBound) = Layer.GetBoundsNearestTo(XPos, false, true);
 

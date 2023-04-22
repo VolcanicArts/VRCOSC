@@ -56,7 +56,8 @@ public partial class MetadataString : Container
                         Child = new SpriteText
                         {
                             Font = FrameworkFont.Regular.With(size: 22),
-                            Text = Label
+                            Text = Label,
+                            Colour = ThemeManager.Current[ThemeAttribute.Text]
                         }
                     },
                     new Container
@@ -72,6 +73,7 @@ public partial class MetadataString : Container
                                 RelativeSizeAxes = Axes.Both,
                                 CornerRadius = 5,
                                 MinimumLength = 2,
+                                EmptyIsValid = false
                             }
                         }
                     }

@@ -59,7 +59,8 @@ public partial class SelectedClipVariableContainer : Container
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
                                 Text = "Available Variables",
-                                Font = FrameworkFont.Regular.With(size: 30)
+                                Font = FrameworkFont.Regular.With(size: 30),
+                                Colour = ThemeManager.Current[ThemeAttribute.Text]
                             }
                         },
                         null,

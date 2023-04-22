@@ -76,7 +76,8 @@ public partial class SelectedClipStateEditorContainer : Container
                                             Anchor = Anchor.Centre,
                                             Origin = Anchor.Centre,
                                             Text = "States",
-                                            Font = FrameworkFont.Regular.With(size: 30)
+                                            Font = FrameworkFont.Regular.With(size: 30),
+                                            Colour = ThemeManager.Current[ThemeAttribute.Text]
                                         }
                                     },
                                     stateFlow = new FillFlowContainer
@@ -117,7 +118,8 @@ public partial class SelectedClipStateEditorContainer : Container
                                             Anchor = Anchor.Centre,
                                             Origin = Anchor.Centre,
                                             Text = "Events",
-                                            Font = FrameworkFont.Regular.With(size: 30)
+                                            Font = FrameworkFont.Regular.With(size: 30),
+                                            Colour = ThemeManager.Current[ThemeAttribute.Text]
                                         }
                                     },
                                     eventFlow = new FillFlowContainer
@@ -155,7 +157,7 @@ public partial class SelectedClipStateEditorContainer : Container
     private void associatedModulesOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs? e)
     {
         // TODO Add button to filter states/events of modules where the module is relevant (enabled) or show all states/events
-        gameManager.ModuleManager.GetEnabledModuleNames();
+        //gameManager.ModuleManager.GetEnabledModuleNames();
 
         // Get module states of all associated modules, then filter states that contain all enabled associated modules
 
@@ -187,9 +189,9 @@ public partial class SelectedClipStateEditorContainer : Container
                 Anchor = Anchor.TopCentre,
                 Origin = Anchor.TopCentre,
                 RelativeSizeAxes = Axes.X,
+                AutoSizeAxes = Axes.Y,
                 Masking = true,
-                CornerRadius = 5,
-                Height = 40
+                CornerRadius = 5
             });
         });
 

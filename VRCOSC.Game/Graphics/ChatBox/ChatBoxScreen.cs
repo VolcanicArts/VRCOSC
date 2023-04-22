@@ -61,7 +61,7 @@ public partial class ChatBoxScreen : Container
                         null,
                         new Drawable[]
                         {
-                            new TimelineEditor
+                            new TimelineWrapper
                             {
                                 Anchor = Anchor.BottomCentre,
                                 Origin = Anchor.BottomCentre,

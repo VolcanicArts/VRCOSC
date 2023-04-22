@@ -7,25 +7,18 @@ namespace VRCOSC.Game.ChatBox.Clips;
 
 public class ClipEvent
 {
-    public string Module { get; init; }
-    public string Lookup { get; init; }
-    public string Name { get; init; }
-    public Bindable<string> Format = new();
-    public BindableBool Enabled = new();
-    public Bindable<int> Length = new();
+    public readonly string Module;
+    public readonly string Lookup;
+    public readonly string Name;
 
-    public ClipEvent Copy() => new()
+    public Bindable<string> Format = new()
     {
-        Module = Module,
-        Lookup = Lookup,
-        Name = Name,
-        Format = new Bindable<string>(Format.Value),
-        Length = new Bindable<int>(Length.Value)
+        Default = string.Empty,
+        Value = string.Empty
     };
 
-    public ClipEvent()
-    {
-    }
+    public BindableBool Enabled = new();
+    public Bindable<int> Length = new();
 
     public ClipEvent(ClipEventMetadata metadata)
     {

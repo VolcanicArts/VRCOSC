@@ -95,6 +95,8 @@ public partial class GameManager : Component
         OVRHelper.OnError += m => Logger.Log($"[OpenVR] {m}");
 
         setupModules();
+
+        chatBoxManager.Load();
     }
 
     private void setupModules()
@@ -213,7 +215,7 @@ public partial class GameManager : Component
 
         VRChatOscClient.Enable(OscClientFlag.Send);
         Player.Initialise();
-        ChatBoxManager.Initialise(moduleEnabled);
+        ChatBoxManager.Initialise(VRChatOscClient, configManager.GetBindable<int>(VRCOSCSetting.ChatBoxTimeSpan), moduleEnabled);
         sendControlValues();
         ModuleManager.Start();
         VRChatOscClient.Enable(OscClientFlag.Receive);
