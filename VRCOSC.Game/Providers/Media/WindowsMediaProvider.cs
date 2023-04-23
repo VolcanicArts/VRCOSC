@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using Windows.Media;
 using Windows.Media.Control;
 using osu.Framework.Extensions.IEnumerableExtensions;
@@ -17,21 +18,26 @@ public class WindowsMediaProvider
     private readonly List<GlobalSystemMediaTransportControlsSession> sessions = new();
     private GlobalSystemMediaTransportControlsSessionManager? sessionManager;
 
-    public GlobalSystemMediaTransportControlsSession? Controller => sessionManager!.GetCurrentSession();
+    public GlobalSystemMediaTransportControlsSession? Controller => sessionManager?.GetCurrentSession();
 
     public Action? OnPlaybackStateUpdate;
+    public Action? OnTrackChange;
     public MediaState State { get; private set; } = null!;
 
-    public async void Hook()
+    public async Task<bool> Hook()
     {
         State = new MediaState();
         sessionManager ??= await GlobalSystemMediaTransportControlsSessionManager.RequestAsync();
 
-        sessionManager!.CurrentSessionChanged += onCurrentSessionChanged;
+        if (sessionManager is null) return false;
+
+        sessionManager.CurrentSessionChanged += onCurrentSessionChanged;
         sessionManager.SessionsChanged += sessionsChanged;
 
         sessionsChanged(null, null);
         onCurrentSessionChanged(null, null);
+
+        return true;
     }
 
     public void UnHook()
@@ -61,6 +67,12 @@ public class WindowsMediaProvider
 
         State.Title = args.Title;
         State.Artist = args.Artist;
+        State.TrackNumber = args.TrackNumber;
+        State.AlbumTitle = args.AlbumTitle;
+        State.AlbumArtist = args.AlbumArtist;
+        State.AlbumTrackCount = args.AlbumTrackCount;
+
+        OnTrackChange?.Invoke();
     }
 
     private void onAnyTimelinePropertiesChanged(GlobalSystemMediaTransportControlsSession session, GlobalSystemMediaTransportControlsSessionTimelineProperties args)
@@ -116,6 +128,10 @@ public class MediaState
     public string? ProcessId;
     public string Title = string.Empty;
     public string Artist = string.Empty;
+    public int TrackNumber;
+    public string AlbumTitle = string.Empty;
+    public string AlbumArtist = string.Empty;
+    public int AlbumTrackCount;
     public MediaPlaybackAutoRepeatMode RepeatMode;
     public bool IsShuffle;
     public GlobalSystemMediaTransportControlsSessionPlaybackStatus Status;

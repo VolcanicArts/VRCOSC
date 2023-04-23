@@ -21,48 +21,32 @@ public sealed partial class TerminalContainer : Container<TerminalEntry>
 
     public TerminalContainer()
     {
-        RelativeSizeAxes = Axes.Both;
-        Padding = new MarginPadding
+        InternalChildren = new Drawable[]
         {
-            Right = 15 / 2f
-        };
-
-        InternalChild = new Container
-        {
-            RelativeSizeAxes = Axes.Both,
-            Child = new Container
+            new Box
             {
                 RelativeSizeAxes = Axes.Both,
-                BorderThickness = 3,
-                Masking = true,
-                Children = new Drawable[]
+                Colour = ThemeManager.Current[ThemeAttribute.Darker]
+            },
+            new Container
+            {
+                RelativeSizeAxes = Axes.Both,
+                Padding = new MarginPadding(3f),
+                Child = terminalScroll = new BasicScrollContainer
                 {
-                    new Box
+                    RelativeSizeAxes = Axes.Both,
+                    ScrollbarVisible = false,
+                    ClampExtension = 0,
+                    Child = Content = new FillFlowContainer<TerminalEntry>
                     {
-                        RelativeSizeAxes = Axes.Both,
-                        Colour = ThemeManager.Current[ThemeAttribute.Darker]
-                    },
-                    new Container
-                    {
-                        RelativeSizeAxes = Axes.Both,
-                        Padding = new MarginPadding(3f),
-                        Child = terminalScroll = new BasicScrollContainer
+                        Anchor = Anchor.TopCentre,
+                        Origin = Anchor.TopCentre,
+                        RelativeSizeAxes = Axes.X,
+                        AutoSizeAxes = Axes.Y,
+                        Direction = FillDirection.Vertical,
+                        Padding = new MarginPadding
                         {
-                            RelativeSizeAxes = Axes.Both,
-                            ScrollbarVisible = false,
-                            ClampExtension = 0,
-                            Child = Content = new FillFlowContainer<TerminalEntry>
-                            {
-                                Anchor = Anchor.TopCentre,
-                                Origin = Anchor.TopCentre,
-                                RelativeSizeAxes = Axes.X,
-                                AutoSizeAxes = Axes.Y,
-                                Direction = FillDirection.Vertical,
-                                Padding = new MarginPadding
-                                {
-                                    Horizontal = 3
-                                }
-                            }
+                            Horizontal = 3
                         }
                     }
                 }
@@ -99,12 +83,17 @@ public sealed partial class TerminalContainer : Container<TerminalEntry>
         terminalScroll.ScrollToEnd();
     }
 
-    private void log(string text) => Schedule(() =>
+    private void log(string text)
     {
-        var entry = terminalEntryPool.Get();
-        entry.Text = $"[{DateTime.Now:HH:mm:ss}] {text}";
-        Add(entry);
-        entry.Hide();
-        entry.Show();
-    });
+        var dateTimeText = $"[{DateTime.Now:HH:mm:ss}] {text}";
+
+        Schedule(() =>
+        {
+            var entry = terminalEntryPool.Get();
+            entry.Text = dateTimeText;
+            Add(entry);
+            entry.Hide();
+            entry.Show();
+        });
+    }
 }

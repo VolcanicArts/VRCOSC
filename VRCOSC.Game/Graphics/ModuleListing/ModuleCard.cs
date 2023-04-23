@@ -81,7 +81,7 @@ public sealed partial class ModuleCard : Container
                             Origin = Anchor.Centre,
                             RelativeSizeAxes = Axes.Both,
                             ShouldAnimate = false,
-                            State = (BindableBool)Module.Enabled.GetBoundCopy()
+                            State = Module.Enabled.GetBoundCopy()
                         }
                     },
                     new FillFlowContainer
@@ -152,7 +152,7 @@ public sealed partial class ModuleCard : Container
                         Origin = Anchor.CentreRight,
                         RelativeSizeAxes = Axes.Both,
                         FillMode = FillMode.Fit,
-                        Alpha = Module.HasSettings ? 1 : 0.5f,
+                        Alpha = Module.HasSettings || Module.HasParameters ? 1 : 0.5f,
                         Child = new IconButton
                         {
                             Anchor = Anchor.Centre,
@@ -163,7 +163,7 @@ public sealed partial class ModuleCard : Container
                             CornerRadius = 5,
                             Action = () => editingModule.Value = Module,
                             BackgroundColour = ThemeManager.Current[ThemeAttribute.Light],
-                            Enabled = { Value = Module.HasSettings }
+                            Enabled = { Value = Module.HasSettings || Module.HasParameters }
                         }
                     }
                 }

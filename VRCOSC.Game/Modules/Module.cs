@@ -4,12 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
-using osu.Framework.Graphics;
 using osu.Framework.Platform;
+using osu.Framework.Threading;
+using VRCOSC.Game.ChatBox;
 using VRCOSC.Game.Modules.Avatar;
 using VRCOSC.Game.OpenVR;
 using VRCOSC.Game.OSC.VRChat;
@@ -19,26 +19,20 @@ using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Game.Modules;
 
-public abstract partial class Module : Component, IComparable<Module>
+public abstract class Module : IComparable<Module>
 {
-    [Resolved]
-    private GameHost Host { get; set; } = null!;
+    private GameHost Host = null!;
+    private GameManager GameManager = null!;
+    protected IVRCOSCSecrets Secrets { get; private set; } = null!;
+    private Scheduler Scheduler = null!;
 
-    [Resolved]
-    private GameManager GameManager { get; set; } = null!;
-
-    [Resolved]
-    private IVRCOSCSecrets secrets { get; set; } = null!;
-
-    private Storage Storage = null!;
     private TerminalLogger Terminal = null!;
 
     protected Player Player => GameManager.Player;
     protected OVRClient OVRClient => GameManager.OVRClient;
     protected VRChatOscClient OscClient => GameManager.VRChatOscClient;
-    protected ChatBoxInterface ChatBoxInterface => GameManager.ChatBoxInterface;
+    protected ChatBoxManager ChatBoxManager => GameManager.ChatBoxManager;
     protected Bindable<ModuleState> State = new(ModuleState.Stopped);
-    protected IVRCOSCSecrets Secrets => secrets;
     protected AvatarConfig? AvatarConfig => GameManager.AvatarConfig;
 
     internal readonly BindableBool Enabled = new();
@@ -56,7 +50,9 @@ public abstract partial class Module : Component, IComparable<Module>
 
     private bool IsEnabled => Enabled.Value;
     private bool ShouldUpdate => DeltaUpdate != TimeSpan.MaxValue;
-    private string FileName => @$"{GetType().Name}.ini";
+    internal string Name => GetType().Name;
+    internal string SerialisedName => Name.ToLowerInvariant();
+    internal string FileName => @$"{Name}.ini";
 
     protected bool IsStarting => State.Value == ModuleState.Starting;
     protected bool HasStarted => State.Value == ModuleState.Started;
@@ -66,21 +62,21 @@ public abstract partial class Module : Component, IComparable<Module>
     internal bool HasSettings => Settings.Any();
     internal bool HasParameters => Parameters.Any();
 
-    [BackgroundDependencyLoader]
-    internal void load(Storage storage)
+    public void InjectDependencies(GameHost host, GameManager gameManager, IVRCOSCSecrets secrets, Scheduler scheduler)
     {
-        Storage = storage.GetStorageForDirectory("modules");
+        Host = host;
+        GameManager = gameManager;
+        Secrets = secrets;
+        Scheduler = scheduler;
+    }
+
+    public void Load()
+    {
         Terminal = new TerminalLogger(Title);
 
         CreateAttributes();
 
         Parameters.ForEach(pair => ParametersLookup.Add(pair.Key.ToLookup(), pair.Key));
-
-        performLoad();
-    }
-
-    protected override void LoadComplete()
-    {
         State.ValueChanged += _ => Log(State.Value.ToString());
     }
 
@@ -146,13 +142,13 @@ public abstract partial class Module : Component, IComparable<Module>
         if (ShouldUpdateImmediately) OnModuleUpdate();
     }
 
+    internal void FrameUpdate() => OnFrameUpdate();
+
     internal void Stop()
     {
         if (!IsEnabled) return;
 
         State.Value = ModuleState.Stopping;
-
-        Scheduler.CancelDelayedTasks();
 
         OnModuleStop();
 
@@ -161,6 +157,7 @@ public abstract partial class Module : Component, IComparable<Module>
 
     protected virtual void OnModuleStart() { }
     protected virtual void OnModuleUpdate() { }
+    protected virtual void OnFrameUpdate() { }
     protected virtual void OnModuleStop() { }
     protected virtual void OnAvatarChange() { }
 

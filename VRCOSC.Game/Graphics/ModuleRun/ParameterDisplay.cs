@@ -4,16 +4,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
+using VRCOSC.Game.Graphics.TabBar;
 using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.ModuleRun;
 
 public sealed partial class ParameterDisplay : Container
 {
+    [Resolved]
+    private Bindable<Tab> selectedTab { get; set; } = null!;
+
     public string Title { get; init; } = null!;
 
     private readonly SortedDictionary<string, ParameterEntry> parameterDict = new();
@@ -88,32 +93,36 @@ public sealed partial class ParameterDisplay : Container
         parameterDict.Clear();
     }
 
-    public void AddEntry(string key, object value) => Schedule(() =>
+    public void AddEntry(string key, object value)
     {
-        var valueStr = value.ToString() ?? "Invalid Object";
+        if (selectedTab.Value != Tab.Modules) return;
 
-        if (parameterDict.ContainsKey(key))
+        Schedule(() =>
         {
-            var existingEntry = parameterDict[key];
-            existingEntry.Value.Value = valueStr;
-        }
-        else
-        {
-            var newEntry = new ParameterEntry
-            {
-                Key = key,
-                Value = { Value = valueStr }
-            };
+            var valueStr = value.ToString() ?? "Invalid Object";
 
-            parameterDict.Add(key, newEntry);
-            parameterFlow.Add(newEntry);
-
-            parameterDict.ForEach(pair =>
+            if (parameterDict.TryGetValue(key, out var existingEntry))
             {
-                var (_, entry) = pair;
-                var positionOfEntry = parameterDict.Values.ToList().IndexOf(entry);
-                parameterFlow.SetLayoutPosition(entry, parameterDict.Count - positionOfEntry);
-            });
-        }
-    });
+                existingEntry.Value.Value = valueStr;
+            }
+            else
+            {
+                var newEntry = new ParameterEntry
+                {
+                    Key = key,
+                    Value = { Value = valueStr }
+                };
+
+                parameterDict.Add(key, newEntry);
+                parameterFlow.Add(newEntry);
+
+                parameterDict.ForEach(pair =>
+                {
+                    var (_, entry) = pair;
+                    var positionOfEntry = parameterDict.Values.ToList().IndexOf(entry);
+                    parameterFlow.SetLayoutPosition(entry, parameterDict.Count - positionOfEntry);
+                });
+            }
+        });
+    }
 }

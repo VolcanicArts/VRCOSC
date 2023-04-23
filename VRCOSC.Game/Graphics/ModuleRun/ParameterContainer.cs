@@ -21,18 +21,13 @@ public sealed partial class ParameterContainer : Container
 
     public ParameterContainer()
     {
-        RelativeSizeAxes = Axes.Both;
-        Padding = new MarginPadding
-        {
-            Left = 15 / 2f
-        };
-
         Child = new GridContainer
         {
             RelativeSizeAxes = Axes.Both,
             RowDimensions = new[]
             {
                 new Dimension(),
+                new Dimension(GridSizeMode.Absolute, 15),
                 new Dimension()
             },
             Content = new[]
@@ -41,22 +36,21 @@ public sealed partial class ParameterContainer : Container
                 {
                     outgoingParameterDisplay = new ParameterSubContainer
                     {
-                        Title = "Outgoing",
-                        Padding = new MarginPadding
-                        {
-                            Bottom = 15 / 2f
-                        }
+                        RelativeSizeAxes = Axes.Both,
+                        BorderThickness = 3,
+                        Masking = true,
+                        Title = "Outgoing"
                     }
                 },
+                null,
                 new Drawable[]
                 {
                     incomingParameterDisplay = new ParameterSubContainer
                     {
-                        Title = "Incoming",
-                        Padding = new MarginPadding
-                        {
-                            Top = 15 / 2f
-                        }
+                        RelativeSizeAxes = Axes.Both,
+                        BorderThickness = 3,
+                        Masking = true,
+                        Title = "Incoming"
                     }
                 }
             }
@@ -94,30 +88,22 @@ public sealed partial class ParameterContainer : Container
         [BackgroundDependencyLoader]
         private void load()
         {
-            RelativeSizeAxes = Axes.Both;
-
-            Child = new Container
+            Children = new Drawable[]
             {
-                RelativeSizeAxes = Axes.Both,
-                BorderThickness = 3,
-                Masking = true,
-                Children = new Drawable[]
+                new Box
                 {
-                    new Box
+                    RelativeSizeAxes = Axes.Both,
+                    Colour = ThemeManager.Current[ThemeAttribute.Darker]
+                },
+                parameterDisplay = new ParameterDisplay
+                {
+                    RelativeSizeAxes = Axes.Both,
+                    Padding = new MarginPadding
                     {
-                        RelativeSizeAxes = Axes.Both,
-                        Colour = ThemeManager.Current[ThemeAttribute.Darker]
+                        Vertical = 1.5f,
+                        Horizontal = 3
                     },
-                    parameterDisplay = new ParameterDisplay
-                    {
-                        RelativeSizeAxes = Axes.Both,
-                        Padding = new MarginPadding
-                        {
-                            Vertical = 1.5f,
-                            Horizontal = 3
-                        },
-                        Title = Title
-                    }
+                    Title = Title
                 }
             };
         }
