@@ -215,6 +215,8 @@ public class ChatBoxManager
 
     private void handleClip(Clip? clip)
     {
+        if (!sendEnabled) return;
+
         if (clip is null)
         {
             if (!isClear) clearChatBox();
