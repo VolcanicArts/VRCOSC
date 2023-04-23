@@ -8,7 +8,7 @@ using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.UI.Button;
 
-public sealed partial class TextButton : BasicButton
+public partial class TextButton : BasicButton
 {
     private string text = string.Empty;
 

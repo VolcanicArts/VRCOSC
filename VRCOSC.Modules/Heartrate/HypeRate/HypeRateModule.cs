@@ -5,7 +5,7 @@ using VRCOSC.Game;
 
 namespace VRCOSC.Modules.Heartrate.HypeRate;
 
-public sealed partial class HypeRateModule : HeartRateModule
+public sealed class HypeRateModule : HeartRateModule
 {
     public override string Title => "HypeRate";
     public override string Description => "Connects to HypeRate.io and sends your heartrate to VRChat";

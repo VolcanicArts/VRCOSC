@@ -10,6 +10,7 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Platform;
+using VRCOSC.Game.ChatBox;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics;
 using VRCOSC.Game.Graphics.Notifications;
@@ -47,7 +48,10 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     private Bindable<Module.ModuleType?> typeFilter = new();
 
     [Cached]
-    protected GameManager GameManager = new();
+    public GameManager GameManager = new();
+
+    [Cached]
+    public ChatBoxManager ChatBoxManager = new();
 
     private NotificationContainer notificationContainer = null!;
     private VRCOSCUpdateManager updateManager = null!;
@@ -186,6 +190,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         editingModule.Value = null;
         infoModule.Value = null;
         routerManager.SaveData();
+        ChatBoxManager.Save();
         Exit();
     }
 

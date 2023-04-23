@@ -6,6 +6,7 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using VRCOSC.Game.Graphics.About;
+using VRCOSC.Game.Graphics.ChatBox;
 using VRCOSC.Game.Graphics.ModuleListing;
 using VRCOSC.Game.Graphics.Router;
 using VRCOSC.Game.Graphics.Settings;
@@ -51,6 +52,7 @@ public sealed partial class MainContent : Container
                             Children = new Drawable[]
                             {
                                 new ModuleListingScreen(),
+                                new ChatBoxScreen(),
                                 new SettingsScreen(),
                                 new RouterScreen(),
                                 new AboutScreen()

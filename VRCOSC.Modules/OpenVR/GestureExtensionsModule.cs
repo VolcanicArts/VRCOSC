@@ -7,7 +7,7 @@ using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Modules.OpenVR;
 
-public partial class GestureExtensionsModule : Module
+public class GestureExtensionsModule : Module
 {
     public override string Title => "Gesture Extensions";
     public override string Description => "Detect a range of custom gestures from Index controllers";

@@ -2,11 +2,12 @@
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.Game.Modules;
+using VRCOSC.Game.Modules.ChatBox;
 using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Modules.Clock;
 
-public sealed partial class ClockModule : ChatBoxModule
+public sealed class ClockModule : ChatBoxModule
 {
     public override string Title => "Clock";
     public override string Description => "Sends your local time as hours, minutes, and seconds";
@@ -14,9 +15,6 @@ public sealed partial class ClockModule : ChatBoxModule
     public override string Prefab => "VRCOSC-Watch";
     public override ModuleType Type => ModuleType.General;
     protected override TimeSpan DeltaUpdate => GetSetting<bool>(ClockSetting.SmoothSecond) ? VRChatOscConstants.UPDATE_TIME_SPAN : TimeSpan.FromSeconds(1);
-
-    protected override string DefaultChatBoxFormat => "Local Time                                %h%:%m%%period%";
-    protected override IEnumerable<string> ChatBoxFormatValues => new[] { "%h%", "%m%", "%s%", "%period%" };
 
     private DateTime time;
 
@@ -28,22 +26,21 @@ public sealed partial class ClockModule : ChatBoxModule
         CreateSetting(ClockSetting.Mode, "Mode", "If the clock should be in 12 hour or 24 hour", ClockMode.Twelve);
         CreateSetting(ClockSetting.Timezone, "Timezone", "The timezone the clock should follow", ClockTimeZone.Local);
 
-        base.CreateAttributes();
-
         CreateParameter<float>(ClockParameter.Hours, ParameterMode.Write, "VRCOSC/Clock/Hours", "Hours", "The current hour normalised");
         CreateParameter<float>(ClockParameter.Minutes, ParameterMode.Write, "VRCOSC/Clock/Minutes", "Minutes", "The current minute normalised");
         CreateParameter<float>(ClockParameter.Seconds, ParameterMode.Write, "VRCOSC/Clock/Seconds", "Seconds", "The current second normalised");
+
+        CreateVariable(ClockVariable.Hours, "Hours", "h");
+        CreateVariable(ClockVariable.Minutes, "Minutes", "m");
+        CreateVariable(ClockVariable.Seconds, "Seconds", "s");
+        CreateVariable(ClockVariable.Period, "AM/PM", "period");
+
+        CreateState(ClockState.Default, "Default", $"Local Time                                {GetVariableFormat(ClockVariable.Hours)}:{GetVariableFormat(ClockVariable.Minutes)}{GetVariableFormat(ClockVariable.Period)}");
     }
 
-    protected override string? GetChatBoxText()
+    protected override void OnModuleStart()
     {
-        var chatBoxTime = timezoneToTime(GetSetting<ClockTimeZone>(ClockSetting.Timezone));
-        var textHour = GetSetting<ClockMode>(ClockSetting.Mode) == ClockMode.Twelve ? (chatBoxTime.Hour % 12).ToString("00") : chatBoxTime.Hour.ToString("00");
-        return GetSetting<string>(ChatBoxSetting.ChatBoxFormat)
-               .Replace("%h%", textHour)
-               .Replace("%m%", chatBoxTime.Minute.ToString("00"))
-               .Replace("%s%", chatBoxTime.Second.ToString("00"))
-               .Replace("%period%", chatBoxTime.Hour >= 12 ? "pm" : "am");
+        ChangeStateTo(ClockState.Default);
     }
 
     protected override void OnModuleUpdate()
@@ -62,6 +59,16 @@ public sealed partial class ClockModule : ChatBoxModule
         SendParameter(ClockParameter.Hours, hourNormalised);
         SendParameter(ClockParameter.Minutes, minuteNormalised);
         SendParameter(ClockParameter.Seconds, secondNormalised);
+
+        var hourText = GetSetting<ClockMode>(ClockSetting.Mode) == ClockMode.Twelve ? (time.Hour % 12).ToString("00") : time.Hour.ToString("00");
+        var minuteText = time.Minute.ToString("00");
+        var secondText = time.Second.ToString("00");
+        var periodText = time.Hour >= 12 ? "pm" : "am";
+
+        SetVariableValue(ClockVariable.Hours, hourText);
+        SetVariableValue(ClockVariable.Minutes, minuteText);
+        SetVariableValue(ClockVariable.Seconds, secondText);
+        SetVariableValue(ClockVariable.Period, periodText);
     }
 
     private static float getSmoothedSeconds(DateTime time) => time.Second + time.Millisecond / 1000f;
@@ -97,6 +104,19 @@ public sealed partial class ClockModule : ChatBoxModule
         SmoothMinute,
         SmoothHour,
         Mode
+    }
+
+    private enum ClockState
+    {
+        Default
+    }
+
+    private enum ClockVariable
+    {
+        Hours,
+        Minutes,
+        Seconds,
+        Period
     }
 
     private enum ClockMode

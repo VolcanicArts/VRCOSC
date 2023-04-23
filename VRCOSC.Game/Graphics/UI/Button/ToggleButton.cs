@@ -14,7 +14,7 @@ namespace VRCOSC.Game.Graphics.UI.Button;
 
 public sealed partial class ToggleButton : VRCOSCButton
 {
-    public BindableBool State { get; init; } = new();
+    public Bindable<bool> State { get; init; } = new();
 
     public ToggleButton()
     {
@@ -26,6 +26,7 @@ public sealed partial class ToggleButton : VRCOSCButton
     private void load()
     {
         SpriteIcon icon;
+
         Children = new Drawable[]
         {
             new Box
@@ -58,7 +59,7 @@ public sealed partial class ToggleButton : VRCOSCButton
 
     protected override bool OnClick(ClickEvent e)
     {
-        State.Toggle();
+        State.Value = !State.Value;
         return base.OnClick(e);
     }
 }

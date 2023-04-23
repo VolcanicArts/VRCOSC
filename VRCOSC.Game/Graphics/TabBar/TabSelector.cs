@@ -17,6 +17,7 @@ public sealed partial class TabSelector : Container<DrawableTab>
     private static readonly IReadOnlyDictionary<Tab, IconUsage> icon_lookup = new Dictionary<Tab, IconUsage>
     {
         { Tab.Modules, FontAwesome.Solid.ListUl },
+        { Tab.ChatBox, FontAwesome.Solid.Get(62074) },
         { Tab.Settings, FontAwesome.Solid.Cog },
         { Tab.Router, FontAwesome.Solid.Get(61920) },
         { Tab.About, FontAwesome.Solid.Info }
