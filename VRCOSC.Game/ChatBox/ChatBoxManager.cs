@@ -158,6 +158,7 @@ public class ChatBoxManager
     {
         this.oscClient = oscClient;
         this.sendDelay = sendDelay;
+        sendEnabled = true;
         startTime = DateTimeOffset.Now;
         nextValidTime = startTime;
         isClear = true;
