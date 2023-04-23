@@ -45,6 +45,10 @@ public class MediaModule : ChatBoxModule
 
         CreateVariable(MediaVariable.Title, @"Title", @"title");
         CreateVariable(MediaVariable.Artist, @"Artist", @"artist");
+        CreateVariable(MediaVariable.TrackNumber, @"Track Number", @"tracknumber");
+        CreateVariable(MediaVariable.AlbumTitle, @"Album Title", @"albumtitle");
+        CreateVariable(MediaVariable.AlbumArtist, @"Album Artist", @"albumartist");
+        CreateVariable(MediaVariable.AlbumTrackCount, @"Album Track Count", @"albumtrackcount");
         CreateVariable(MediaVariable.Time, @"Time", @"time");
         CreateVariable(MediaVariable.Duration, @"Duration", @"duration");
         CreateVariable(MediaVariable.Volume, @"Volume", @"volume");
@@ -108,6 +112,10 @@ public class MediaModule : ChatBoxModule
     {
         SetVariableValue(MediaVariable.Title, mediaProvider.State.Title);
         SetVariableValue(MediaVariable.Artist, mediaProvider.State.Artist);
+        SetVariableValue(MediaVariable.TrackNumber, mediaProvider.State.TrackNumber.ToString());
+        SetVariableValue(MediaVariable.AlbumTitle, mediaProvider.State.AlbumTitle);
+        SetVariableValue(MediaVariable.AlbumArtist, mediaProvider.State.AlbumArtist);
+        SetVariableValue(MediaVariable.AlbumTrackCount, mediaProvider.State.AlbumTrackCount.ToString());
         SetVariableValue(MediaVariable.Time, mediaProvider.State.Position?.Position.ToString(@"mm\:ss"));
         SetVariableValue(MediaVariable.Duration, mediaProvider.State.Position?.EndTime.ToString(@"mm\:ss"));
         SetVariableValue(MediaVariable.Volume, (mediaProvider.State.Volume * 100).ToString("##0"));
@@ -228,7 +236,11 @@ public class MediaModule : ChatBoxModule
         Artist,
         Time,
         Duration,
-        Volume
+        Volume,
+        TrackNumber,
+        AlbumTitle,
+        AlbumArtist,
+        AlbumTrackCount
     }
 
     private enum MediaParameter

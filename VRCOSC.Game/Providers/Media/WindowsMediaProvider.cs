@@ -67,6 +67,10 @@ public class WindowsMediaProvider
 
         State.Title = args.Title;
         State.Artist = args.Artist;
+        State.TrackNumber = args.TrackNumber;
+        State.AlbumTitle = args.AlbumTitle;
+        State.AlbumArtist = args.AlbumArtist;
+        State.AlbumTrackCount = args.AlbumTrackCount;
 
         OnTrackChange?.Invoke();
     }
@@ -124,6 +128,10 @@ public class MediaState
     public string? ProcessId;
     public string Title = string.Empty;
     public string Artist = string.Empty;
+    public int TrackNumber;
+    public string AlbumTitle = string.Empty;
+    public string AlbumArtist = string.Empty;
+    public int AlbumTrackCount;
     public MediaPlaybackAutoRepeatMode RepeatMode;
     public bool IsShuffle;
     public GlobalSystemMediaTransportControlsSessionPlaybackStatus Status;
