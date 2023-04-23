@@ -87,11 +87,6 @@ public sealed class ModuleManager : IModuleManager
     public void Update()
     {
         scheduler.Update();
-
-        foreach (var module in modules)
-        {
-            module.internalUpdate();
-        }
     }
 
     public void Stop()
@@ -103,6 +98,10 @@ public sealed class ModuleManager : IModuleManager
             module.Stop();
         }
     }
+
+    public IEnumerable<string> GetEnabledModuleNames() => modules.Where(module => module.Enabled.Value).Select(module => module.SerialisedName);
+
+    public string GetModuleName(string serialisedName) => modules.Single(module => module.SerialisedName == serialisedName).Title;
 
     public IEnumerator<Module> GetEnumerator() => modules.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

@@ -1,29 +1,22 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Globalization;
 using VRCOSC.Game.Modules;
+using VRCOSC.Game.Modules.ChatBox;
 using VRCOSC.Game.OpenVR;
 
 namespace VRCOSC.Modules.OpenVR;
 
-public partial class OpenVRStatisticsModule : ChatBoxModule
+public class OpenVRStatisticsModule : ChatBoxModule
 {
     public override string Title => "OpenVR Statistics";
     public override string Description => "Gets statistics from your OpenVR (SteamVR) session";
     public override string Author => "VolcanicArts";
     public override ModuleType Type => ModuleType.OpenVR;
     protected override TimeSpan DeltaUpdate => TimeSpan.FromSeconds(5);
-    protected override int ChatBoxPriority => 1;
-
-    protected override bool DefaultChatBoxDisplay => false;
-    protected override IEnumerable<string> ChatBoxFormatValues => new[] { "$fps$", @"$hmdbattery$", @"$leftcontrollerbattery$", @"$rightcontrollerbattery$" };
-    protected override string DefaultChatBoxFormat => @"FPS: $fps$ | HMD: $hmdbattery$ | LC: $leftcontrollerbattery$ | RC: $rightcontrollerbattery$";
 
     protected override void CreateAttributes()
     {
-        base.CreateAttributes();
-
         CreateParameter<float>(OpenVrParameter.FPS, ParameterMode.Write, "VRCOSC/OpenVR/FPS", "FPS", "The current FPS normalised to 240 FPS");
 
         CreateParameter<bool>(OpenVrParameter.HMD_Connected, ParameterMode.Write, "VRCOSC/OpenVR/HMD/Connected", "HMD Connected", "Whether your HMD is connected");
@@ -43,27 +36,41 @@ public partial class OpenVRStatisticsModule : ChatBoxModule
             CreateParameter<float>(OpenVrParameter.Tracker1_Battery + i, ParameterMode.Write, $"VRCOSC/OpenVR/Trackers/{i + 1}/Battery", $"Tracker {i + 1} Battery", $"The battery percentage normalised (0-1) of tracker {i + 1}");
             CreateParameter<bool>(OpenVrParameter.Tracker1_Charging + i, ParameterMode.Write, $"VRCOSC/OpenVR/Trackers/{i + 1}/Charging", $"Tracker {i + 1} Charging", $"Whether tracker {i + 1} is currently charging");
         }
+
+        CreateVariable(OpenVrVariable.FPS, @"FPS", @"fps");
+        CreateVariable(OpenVrVariable.HMDBattery, @"HMD Battery", @"hmdbattery");
+        CreateVariable(OpenVrVariable.LeftControllerBattery, @"Left Controller Battery", @"leftcontrollerbattery");
+        CreateVariable(OpenVrVariable.RightControllerBattery, @"Right Controller Battery", @"rightcontrollerbattery");
+
+        CreateState(OpenVrState.Default, "Default", $@"FPS: {GetVariableFormat(OpenVrVariable.FPS)} | HMD: {GetVariableFormat(OpenVrVariable.HMDBattery)} | LC: {GetVariableFormat(OpenVrVariable.LeftControllerBattery)} | RC: {GetVariableFormat(OpenVrVariable.RightControllerBattery)}");
     }
 
-    protected override string? GetChatBoxText()
+    protected override void OnModuleStart()
     {
-        if (!OVRClient.HasInitialised) return null;
-
-        return GetSetting<string>(ChatBoxSetting.ChatBoxFormat)
-               .Replace("$fps$", OVRClient.System.FPS.ToString("00", CultureInfo.InvariantCulture))
-               .Replace(@"$hmdbattery$", ((int)(OVRClient.HMD.BatteryPercentage * 100)).ToString(CultureInfo.InvariantCulture))
-               .Replace(@"$leftcontrollerbattery$", ((int)(OVRClient.LeftController.BatteryPercentage * 100)).ToString(CultureInfo.InvariantCulture))
-               .Replace(@"$rightcontrollerbattery$", ((int)(OVRClient.RightController.BatteryPercentage * 100)).ToString(CultureInfo.InvariantCulture));
+        ChangeStateTo(OpenVrState.Default);
     }
 
     protected override void OnModuleUpdate()
     {
-        if (!OVRClient.HasInitialised) return;
+        if (OVRClient.HasInitialised)
+        {
+            SendParameter(OpenVrParameter.FPS, OVRClient.System.FPS / 240.0f);
+            handleHmd();
+            handleControllers();
+            handleTrackers();
 
-        SendParameter(OpenVrParameter.FPS, OVRClient.System.FPS / 240.0f);
-        handleHmd();
-        handleControllers();
-        handleTrackers();
+            SetVariableValue(OpenVrVariable.FPS, OVRClient.System.FPS.ToString("00"));
+            SetVariableValue(OpenVrVariable.HMDBattery, ((int)(OVRClient.HMD.BatteryPercentage * 100)).ToString());
+            SetVariableValue(OpenVrVariable.LeftControllerBattery, ((int)(OVRClient.LeftController.BatteryPercentage * 100)).ToString());
+            SetVariableValue(OpenVrVariable.RightControllerBattery, ((int)(OVRClient.RightController.BatteryPercentage * 100)).ToString());
+        }
+        else
+        {
+            SetVariableValue(OpenVrVariable.FPS, "0");
+            SetVariableValue(OpenVrVariable.HMDBattery, "0");
+            SetVariableValue(OpenVrVariable.LeftControllerBattery, "0");
+            SetVariableValue(OpenVrVariable.RightControllerBattery, "0");
+        }
     }
 
     private void handleHmd()
@@ -150,5 +157,18 @@ public partial class OpenVRStatisticsModule : ChatBoxModule
         Tracker6_Charging,
         Tracker7_Charging,
         Tracker8_Charging
+    }
+
+    private enum OpenVrState
+    {
+        Default
+    }
+
+    private enum OpenVrVariable
+    {
+        FPS,
+        HMDBattery,
+        LeftControllerBattery,
+        RightControllerBattery
     }
 }

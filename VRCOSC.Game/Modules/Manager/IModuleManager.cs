@@ -21,4 +21,6 @@ public interface IModuleManager : IEnumerable<Module>
     public void Start();
     public void Update();
     public void Stop();
+    public IEnumerable<string> GetEnabledModuleNames();
+    public string GetModuleName(string serialisedName);
 }

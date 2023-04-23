@@ -15,7 +15,7 @@ public static class VRCOSCEdgeEffects
     public static readonly EdgeEffectParameters NoShadow = new()
     {
         Colour = new Color4(0, 0, 0, 0),
-        Radius = 0,
+        Radius = 0f,
         Type = EdgeEffectType.Shadow,
         Offset = Vector2.Zero
     };
@@ -28,11 +28,19 @@ public static class VRCOSCEdgeEffects
         Offset = new Vector2(0.0f, 1.5f)
     };
 
+    public static readonly EdgeEffectParameters UniformShadow = new()
+    {
+        Colour = Color4.Black.Opacity(0.6f),
+        Radius = 5f,
+        Type = EdgeEffectType.Shadow,
+        Offset = new Vector2(0f)
+    };
+
     public static readonly EdgeEffectParameters DispersedShadow = new()
     {
         Colour = Color4.Black.Opacity(0.75f),
-        Radius = 15,
+        Radius = 15f,
         Type = EdgeEffectType.Shadow,
-        Offset = new Vector2(0)
+        Offset = new Vector2(0f)
     };
 }

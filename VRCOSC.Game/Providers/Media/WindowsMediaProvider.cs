@@ -21,6 +21,7 @@ public class WindowsMediaProvider
     public GlobalSystemMediaTransportControlsSession? Controller => sessionManager?.GetCurrentSession();
 
     public Action? OnPlaybackStateUpdate;
+    public Action? OnTrackChange;
     public MediaState State { get; private set; } = null!;
 
     public async Task<bool> Hook()
@@ -66,6 +67,8 @@ public class WindowsMediaProvider
 
         State.Title = args.Title;
         State.Artist = args.Artist;
+
+        OnTrackChange?.Invoke();
     }
 
     private void onAnyTimelinePropertiesChanged(GlobalSystemMediaTransportControlsSession session, GlobalSystemMediaTransportControlsSessionTimelineProperties args)

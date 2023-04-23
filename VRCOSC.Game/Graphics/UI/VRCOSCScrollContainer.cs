@@ -20,6 +20,8 @@ public sealed partial class VRCOSCScrollContainer : VRCOSCScrollContainer<Drawab
 public partial class VRCOSCScrollContainer<T> : ScrollContainer<T>
     where T : Drawable
 {
+    public bool ShowScrollbar { get; init; } = true;
+
     protected VRCOSCScrollContainer(Direction scrollDirection = Direction.Vertical)
         : base(scrollDirection)
     {
@@ -30,7 +32,7 @@ public partial class VRCOSCScrollContainer<T> : ScrollContainer<T>
         base.UpdateAfterChildren();
 
         // we always want this to show
-        Scrollbar.Show();
+        if (ShowScrollbar) Scrollbar.Show();
     }
 
     protected override ScrollbarContainer CreateScrollbar(Direction direction) => new VRCOSCScrollbar(direction);

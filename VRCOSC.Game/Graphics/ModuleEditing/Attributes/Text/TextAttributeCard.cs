@@ -40,7 +40,7 @@ public partial class TextAttributeCard<TTextBox, TType> : AttributeCardSingle wh
     protected override void LoadComplete()
     {
         base.LoadComplete();
-        textBox.OnValidEntry += entry => UpdateAttribute(entry);
+        textBox.OnValidEntry += entry => UpdateAttribute(entry!);
     }
 
     protected override void SetDefault()
