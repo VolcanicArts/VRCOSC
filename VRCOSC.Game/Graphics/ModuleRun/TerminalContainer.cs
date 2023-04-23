@@ -2,14 +2,11 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using osu.Framework.Allocation;
-using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Pooling;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Logging;
-using VRCOSC.Game.Graphics.TabBar;
 using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.ModuleRun;
@@ -21,9 +18,6 @@ public sealed partial class TerminalContainer : Container<TerminalEntry>
     protected override FillFlowContainer<TerminalEntry> Content { get; }
 
     private readonly DrawablePool<TerminalEntry> terminalEntryPool = new(75);
-
-    [Resolved]
-    private Bindable<Tab> selectedTab { get; set; } = null!;
 
     public TerminalContainer()
     {
@@ -91,12 +85,12 @@ public sealed partial class TerminalContainer : Container<TerminalEntry>
 
     private void log(string text)
     {
-        if (selectedTab.Value != Tab.Modules) return;
+        var dateTimeText = $"[{DateTime.Now:HH:mm:ss}] {text}";
 
         Schedule(() =>
         {
             var entry = terminalEntryPool.Get();
-            entry.Text = $"[{DateTime.Now:HH:mm:ss}] {text}";
+            entry.Text = dateTimeText;
             Add(entry);
             entry.Hide();
             entry.Show();
