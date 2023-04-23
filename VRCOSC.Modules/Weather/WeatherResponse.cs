@@ -24,10 +24,28 @@ public class Weather
 
     [JsonProperty("condition")]
     public Condition Condition = null!;
+
+    [JsonIgnore]
+    public string ConditionString = null!;
 }
 
 public class Condition
 {
     [JsonProperty("code")]
     public int Code;
+}
+
+public class WeatherCondition
+{
+    [JsonProperty("code")]
+    public int Code;
+
+    [JsonProperty("day")]
+    public string Day = null!;
+
+    [JsonProperty("night")]
+    public string Night = null!;
+
+    [JsonProperty("icon")]
+    public int Icon;
 }

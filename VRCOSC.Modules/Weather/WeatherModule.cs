@@ -27,6 +27,7 @@ public class WeatherModule : ChatBoxModule
         CreateVariable(WeatherVariable.TempC, @"Temp C", @"tempc");
         CreateVariable(WeatherVariable.TempF, @"Temp F", @"tempf");
         CreateVariable(WeatherVariable.Humidity, @"Humidity", @"humidity");
+        CreateVariable(WeatherVariable.Condition, @"Condition", @"condition");
 
         CreateState(WeatherState.Default, @"Default", $@"Local Weather                                {GetVariableFormat(WeatherVariable.TempC)}C - {GetVariableFormat(WeatherVariable.TempF)}F");
     }
@@ -81,6 +82,7 @@ public class WeatherModule : ChatBoxModule
         SetVariableValue(WeatherVariable.TempC, currentWeather.TempC.ToString("0.0"));
         SetVariableValue(WeatherVariable.TempF, currentWeather.TempF.ToString("0.0"));
         SetVariableValue(WeatherVariable.Humidity, currentWeather.Humidity.ToString());
+        SetVariableValue(WeatherVariable.Condition, currentWeather.ConditionString);
     }
 
     private int convertedWeatherCode => currentWeather!.Condition.Code switch
@@ -155,6 +157,7 @@ public class WeatherModule : ChatBoxModule
     {
         TempC,
         TempF,
-        Humidity
+        Humidity,
+        Condition
     }
 }
