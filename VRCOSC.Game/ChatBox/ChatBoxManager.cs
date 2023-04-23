@@ -50,6 +50,7 @@ public class ChatBoxManager
     public readonly Bindable<TimeSpan> TimelineLength = new(TimeSpan.FromMinutes(1));
     public float TimelineResolution => 1f / (float)TimelineLength.Value.TotalSeconds;
 
+    public float CurrentPercentage => ((DateTimeOffset.Now - startTime).Ticks % TimelineLength.Value.Ticks) / (float)TimelineLength.Value.Ticks;
     public int CurrentSecond => (int)Math.Floor((DateTimeOffset.Now - startTime).TotalSeconds) % (int)TimelineLength.Value.TotalSeconds;
     private bool sendAllowed => nextValidTime <= DateTimeOffset.Now;
 

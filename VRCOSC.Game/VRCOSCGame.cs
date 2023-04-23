@@ -190,6 +190,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         editingModule.Value = null;
         infoModule.Value = null;
         routerManager.SaveData();
+        ChatBoxManager.Save();
         Exit();
     }
 

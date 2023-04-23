@@ -15,6 +15,7 @@ using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.Graphics.ChatBox.Timeline.Menu.Clip;
 using VRCOSC.Game.Graphics.ChatBox.Timeline.Menu.Layer;
 using VRCOSC.Game.Graphics.Themes;
+using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ChatBox.Timeline;
 
@@ -23,6 +24,9 @@ public partial class TimelineEditor : Container
 {
     [Resolved]
     private ChatBoxManager chatBoxManager { get; set; } = null!;
+
+    [Resolved]
+    private GameManager gameManager { get; set; } = null!;
 
     [Resolved]
     private TimelineLayerMenu layerMenu { get; set; } = null!;
@@ -34,6 +38,7 @@ public partial class TimelineEditor : Container
 
     private Dictionary<int, TimelineLayer> layers = new();
     private Container gridGenerator = null!;
+    private Container positionIndicator = null!;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -80,6 +85,22 @@ public partial class TimelineEditor : Container
                         new Drawable[] { new TimelineLayer(0) }
                     }
                 }
+            },
+            positionIndicator = new Container
+            {
+                Anchor = Anchor.TopLeft,
+                Origin = Anchor.TopCentre,
+                RelativeSizeAxes = Axes.Y,
+                RelativePositionAxes = Axes.X,
+                Width = 5,
+                CornerRadius = 2,
+                EdgeEffect = VRCOSCEdgeEffects.BasicShadow,
+                Masking = true,
+                Child = new Box
+                {
+                    Colour = ThemeManager.Current[ThemeAttribute.Accent],
+                    RelativeSizeAxes = Axes.Both
+                }
             }
         };
 
@@ -115,6 +136,19 @@ public partial class TimelineEditor : Container
         }, true);
 
         generateGrid();
+    }
+
+    protected override void Update()
+    {
+        if (gameManager.State.Value == GameManagerState.Started)
+        {
+            positionIndicator.Alpha = 1;
+            positionIndicator.X = chatBoxManager.CurrentPercentage;
+        }
+        else
+        {
+            positionIndicator.Alpha = 0;
+        }
     }
 
     private void generateGrid()
