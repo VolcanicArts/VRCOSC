@@ -56,7 +56,7 @@ public class MediaModule : ChatBoxModule
         CreateState(MediaState.Playing, "Playing", $@"[{GetVariableFormat(MediaVariable.Time)}/{GetVariableFormat(MediaVariable.Duration)}]                            Now Playing: {GetVariableFormat(MediaVariable.Artist)} - {GetVariableFormat(MediaVariable.Title)}");
         CreateState(MediaState.Paused, "Paused", @"[Paused]");
 
-        CreateEvent(MediaEvent.NowPlaying, "Now Playing", $@"[Now Playing]                            {GetVariableFormat(MediaVariable.Artist)} - {GetVariableFormat(MediaVariable.Title)}", 5);
+        CreateEvent(MediaEvent.NowPlaying, "Now Playing", $@"[Now Playing]                                {GetVariableFormat(MediaVariable.Artist)} - {GetVariableFormat(MediaVariable.Title)}", 5);
     }
 
     protected override void OnModuleStart()
