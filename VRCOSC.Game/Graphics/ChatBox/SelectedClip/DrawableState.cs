@@ -24,11 +24,11 @@ public partial class DrawableState : Container
     [Resolved]
     private GameManager gameManager { get; set; } = null!;
 
-    private readonly ClipState clipState;
+    public readonly ClipState ClipState;
 
     public DrawableState(ClipState clipState)
     {
-        this.clipState = clipState;
+        ClipState = clipState;
     }
 
     [BackgroundDependencyLoader]
@@ -36,7 +36,7 @@ public partial class DrawableState : Container
     {
         var stateNameList = string.Empty;
 
-        clipState.States.ForEach(pair =>
+        ClipState.States.ForEach(pair =>
         {
             var stateMetadata = chatBoxManager.StateMetadata[pair.Item1][pair.Item2];
             stateNameList += gameManager.ModuleManager.GetModuleName(pair.Item1);
@@ -82,7 +82,7 @@ public partial class DrawableState : Container
                                     Anchor = Anchor.Centre,
                                     Origin = Anchor.Centre,
                                     RelativeSizeAxes = Axes.Both,
-                                    State = clipState.Enabled.GetBoundCopy()
+                                    State = ClipState.Enabled.GetBoundCopy()
                                 }
                             },
                             new Container
@@ -112,7 +112,7 @@ public partial class DrawableState : Container
                         {
                             RelativeSizeAxes = Axes.X,
                             Height = 30,
-                            Current = clipState.Format.GetBoundCopy(),
+                            Current = ClipState.Format.GetBoundCopy(),
                             Masking = true,
                             CornerRadius = 5
                         }

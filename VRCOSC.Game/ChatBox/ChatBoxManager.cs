@@ -10,6 +10,7 @@ using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Platform;
 using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.ChatBox.Serialisation.V1;
+using VRCOSC.Game.Modules;
 using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Game.ChatBox;
@@ -54,13 +55,16 @@ public class ChatBoxManager
     public int CurrentSecond => (int)Math.Floor((DateTimeOffset.Now - startTime).TotalSeconds) % (int)TimelineLength.Value.TotalSeconds;
     private bool sendAllowed => nextValidTime <= DateTimeOffset.Now;
 
+    public GameManager GameManager = null!;
+
     private DateTimeOffset startTime;
     private DateTimeOffset nextValidTime;
     private bool isClear;
     private bool isLoaded;
 
-    public void Load(Storage storage)
+    public void Load(Storage storage, GameManager gameManager)
     {
+        GameManager = gameManager;
         serialiser = new TimelineSerialiser(storage);
 
         if (storage.Exists(@"chatbox.json"))

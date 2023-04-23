@@ -2,7 +2,9 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Collections.Specialized;
+using System.Linq;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -11,6 +13,8 @@ using osu.Framework.Graphics.Sprites;
 using osuTK;
 using VRCOSC.Game.ChatBox;
 using VRCOSC.Game.Graphics.Themes;
+using VRCOSC.Game.Graphics.UI.Button;
+using VRCOSC.Game.Modules.Manager;
 
 namespace VRCOSC.Game.Graphics.ChatBox.SelectedClip;
 
@@ -20,10 +24,12 @@ public partial class SelectedClipStateEditorContainer : Container
     private ChatBoxManager chatBoxManager { get; set; } = null!;
 
     private Container statesTitle = null!;
-    private FillFlowContainer stateFlow = null!;
+    private FillFlowContainer<DrawableState> stateFlow = null!;
     private LineSeparator separator = null!;
     private Container eventsTitle = null!;
-    private FillFlowContainer eventFlow = null!;
+    private FillFlowContainer<DrawableEvent> eventFlow = null!;
+
+    private Bindable<bool> showRelevantStates = new(true);
 
     [BackgroundDependencyLoader]
     private void load()
@@ -42,7 +48,12 @@ public partial class SelectedClipStateEditorContainer : Container
             new Container
             {
                 RelativeSizeAxes = Axes.Both,
-                Padding = new MarginPadding(10),
+                Padding = new MarginPadding
+                {
+                    Horizontal = 10,
+                    Top = 10,
+                    Bottom = 50
+                },
                 Child = new BasicScrollContainer
                 {
                     RelativeSizeAxes = Axes.Both,
@@ -80,7 +91,7 @@ public partial class SelectedClipStateEditorContainer : Container
                                             Colour = ThemeManager.Current[ThemeAttribute.Text]
                                         }
                                     },
-                                    stateFlow = new FillFlowContainer
+                                    stateFlow = new FillFlowContainer<DrawableState>
                                     {
                                         Anchor = Anchor.TopCentre,
                                         Origin = Anchor.TopCentre,
@@ -122,7 +133,7 @@ public partial class SelectedClipStateEditorContainer : Container
                                             Colour = ThemeManager.Current[ThemeAttribute.Text]
                                         }
                                     },
-                                    eventFlow = new FillFlowContainer
+                                    eventFlow = new FillFlowContainer<DrawableEvent>
                                     {
                                         Anchor = Anchor.TopCentre,
                                         Origin = Anchor.TopCentre,
@@ -132,6 +143,51 @@ public partial class SelectedClipStateEditorContainer : Container
                                         Spacing = new Vector2(0, 5)
                                     }
                                 }
+                            }
+                        }
+                    }
+                }
+            },
+            new Container
+            {
+                Anchor = Anchor.BottomCentre,
+                Origin = Anchor.BottomCentre,
+                RelativeSizeAxes = Axes.X,
+                Height = 50,
+                Children = new Drawable[]
+                {
+                    new FillFlowContainer
+                    {
+                        Anchor = Anchor.CentreLeft,
+                        Origin = Anchor.CentreLeft,
+                        RelativeSizeAxes = Axes.Both,
+                        Direction = FillDirection.Horizontal,
+                        Children = new Drawable[]
+                        {
+                            new Container
+                            {
+                                Anchor = Anchor.CentreLeft,
+                                Origin = Anchor.CentreLeft,
+                                RelativeSizeAxes = Axes.Both,
+                                FillMode = FillMode.Fit,
+                                Padding = new MarginPadding(5),
+                                Children = new Drawable[]
+                                {
+                                    new ToggleButton
+                                    {
+                                        Anchor = Anchor.Centre,
+                                        Origin = Anchor.Centre,
+                                        RelativeSizeAxes = Axes.Both,
+                                        State = showRelevantStates.GetBoundCopy()
+                                    }
+                                }
+                            },
+                            new SpriteText
+                            {
+                                Anchor = Anchor.CentreLeft,
+                                Origin = Anchor.CentreLeft,
+                                Text = "Show relevant states only",
+                                Colour = ThemeManager.Current[ThemeAttribute.SubText]
                             }
                         }
                     }
@@ -152,15 +208,34 @@ public partial class SelectedClipStateEditorContainer : Container
                 associatedModulesOnCollectionChanged(null, null);
             }
         }, true);
+
+        ((ModuleManager)chatBoxManager.GameManager.ModuleManager).OnModuleEnabledChanged += filterFlows;
+        showRelevantStates.BindValueChanged(_ => filterFlows(), true);
+    }
+
+    private void filterFlows()
+    {
+        if (showRelevantStates.Value)
+        {
+            var enabledModuleNames = chatBoxManager.GameManager.ModuleManager.GetEnabledModuleNames().Where(moduleName => chatBoxManager.SelectedClip.Value!.AssociatedModules.Contains(moduleName)).ToList();
+            enabledModuleNames.Sort();
+
+            stateFlow.ForEach(drawableState =>
+            {
+                var sortedClipModuleNames = drawableState.ClipState.ModuleNames;
+                sortedClipModuleNames.Sort();
+
+                drawableState.Alpha = enabledModuleNames.SequenceEqual(sortedClipModuleNames) ? 1 : 0;
+            });
+        }
+        else
+        {
+            stateFlow.ForEach(drawableState => drawableState.Alpha = 1);
+        }
     }
 
     private void associatedModulesOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs? e)
     {
-        // TODO Add button to filter states/events of modules where the module is relevant (enabled) or show all states/events
-        //gameManager.ModuleManager.GetEnabledModuleNames();
-
-        // Get module states of all associated modules, then filter states that contain all enabled associated modules
-
         stateFlow.Clear();
         eventFlow.Clear();
 
@@ -197,5 +272,7 @@ public partial class SelectedClipStateEditorContainer : Container
 
         statesTitle.Alpha = stateFlow.Children.Count == 0 ? 0 : 1;
         eventsTitle.Alpha = separator.Alpha = eventFlow.Children.Count == 0 ? 0 : 1;
+
+        filterFlows();
     }
 }

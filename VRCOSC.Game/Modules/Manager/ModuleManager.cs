@@ -21,6 +21,8 @@ public sealed class ModuleManager : IModuleManager
     private readonly SortedList<Module> modules = new();
     private IModuleSerialiser? serialiser;
 
+    public Action? OnModuleEnabledChanged;
+
     public void AddSource(IModuleSource source) => sources.Add(source);
     public bool RemoveSource(IModuleSource source) => sources.Remove(source);
     public void SetSerialiser(IModuleSerialiser serialiser) => this.serialiser = serialiser;
@@ -56,7 +58,12 @@ public sealed class ModuleManager : IModuleManager
         {
             module.Load();
             serialiser?.Deserialise(module);
-            module.Enabled.BindValueChanged(_ => serialiser?.Serialise(module));
+
+            module.Enabled.BindValueChanged(_ =>
+            {
+                OnModuleEnabledChanged?.Invoke();
+                serialiser?.Serialise(module);
+            });
         }
     }
 
