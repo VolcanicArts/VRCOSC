@@ -11,7 +11,6 @@ using VRCOSC.Game.ChatBox;
 using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.Graphics.ChatBox.Metadata;
 using VRCOSC.Game.Graphics.Themes;
-using VRCOSC.Game.Graphics.UI;
 
 namespace VRCOSC.Game.Graphics.ChatBox.SelectedClip;
 
@@ -65,10 +64,10 @@ public partial class SelectedClipMetadataEditor : Container
                         null,
                         new Drawable[]
                         {
-                            new VRCOSCScrollContainer
+                            new BasicScrollContainer
                             {
                                 RelativeSizeAxes = Axes.Both,
-                                ShowScrollbar = false,
+                                ScrollbarVisible = false,
                                 ClampExtension = 5,
                                 Child = metadataFlow = new FillFlowContainer
                                 {

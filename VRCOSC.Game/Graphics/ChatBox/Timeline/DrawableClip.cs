@@ -102,10 +102,11 @@ public partial class DrawableClip : Container
 
     protected override bool OnMouseDown(MouseDownEvent e)
     {
+        chatBoxManager.SelectedClip.Value = Clip;
+
         if (e.Button == MouseButton.Left)
         {
             timelineEditor.HideClipMenu();
-            chatBoxManager.SelectedClip.Value = Clip;
         }
         else if (e.Button == MouseButton.Right)
         {

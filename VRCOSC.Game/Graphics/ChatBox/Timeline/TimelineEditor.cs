@@ -94,7 +94,7 @@ public partial class TimelineEditor : Container
                 RelativePositionAxes = Axes.X,
                 Width = 5,
                 CornerRadius = 2,
-                EdgeEffect = VRCOSCEdgeEffects.BasicShadow,
+                EdgeEffect = VRCOSCEdgeEffects.UniformShadow,
                 Masking = true,
                 Child = new Box
                 {
