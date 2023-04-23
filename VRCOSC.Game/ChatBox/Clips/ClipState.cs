@@ -17,7 +17,7 @@ public class ClipState
         Value = string.Empty
     };
 
-    public BindableBool Enabled = new();
+    public Bindable<bool> Enabled = new();
 
     public List<string> ModuleNames => States.Select(state => state.Item1).ToList();
     public List<string> StateNames => States.Select(state => state.Item2).ToList();
@@ -35,7 +35,7 @@ public class ClipState
         if (includeData)
         {
             copy.Format = Format.GetUnboundCopy();
-            copy.Enabled = (BindableBool)Enabled.GetUnboundCopy();
+            copy.Enabled = Enabled.GetUnboundCopy();
         }
 
         return copy;
@@ -45,7 +45,7 @@ public class ClipState
 
     public ClipState(ClipStateMetadata metadata)
     {
-        States = new List<(string, string)> { (metadata.Module, metadata.Lookup) };
+        States = new List<(string, string)> { new(metadata.Module, metadata.Lookup) };
         Format.Value = metadata.DefaultFormat;
         Format.Default = metadata.DefaultFormat;
     }

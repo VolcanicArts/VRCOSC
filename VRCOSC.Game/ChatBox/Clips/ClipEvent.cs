@@ -17,7 +17,7 @@ public class ClipEvent
         Value = string.Empty
     };
 
-    public BindableBool Enabled = new();
+    public Bindable<bool> Enabled = new();
     public Bindable<int> Length = new();
 
     public ClipEvent(ClipEventMetadata metadata)

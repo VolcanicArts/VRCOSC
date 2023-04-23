@@ -16,27 +16,33 @@ namespace VRCOSC.Game.ChatBox.Clips;
 /// </summary>
 public class Clip
 {
-    public readonly BindableBool Enabled = new(true);
+    public readonly Bindable<bool> Enabled = new(true);
     public readonly Bindable<string> Name = new("New Clip");
     public readonly BindableNumber<int> Priority = new();
     public readonly BindableList<string> AssociatedModules = new();
-    public readonly BindableList<ClipVariableMetadata> AvailableVariables = new();
-    public readonly BindableList<ClipState> States = new();
-    public readonly BindableList<ClipEvent> Events = new();
     public readonly Bindable<int> Start = new();
     public readonly Bindable<int> End = new();
+    public readonly BindableList<ClipState> States = new();
+    public readonly BindableList<ClipEvent> Events = new();
+
+    public readonly BindableList<ClipVariableMetadata> AvailableVariables = new();
     public int Length => End.Value - Start.Value;
-
-    private readonly ChatBoxManager chatBoxManager;
-
+    private ChatBoxManager chatBoxManager = null!;
     private readonly Queue<ClipEvent> eventQueue = new();
     private (ClipEvent, DateTimeOffset)? currentEvent;
     private ClipState? currentState;
 
-    public Clip(ChatBoxManager chatBoxManager)
+    public void InjectDependencies(ChatBoxManager chatBoxManager)
     {
         this.chatBoxManager = chatBoxManager;
         AssociatedModules.BindCollectionChanged((_, e) => onAssociatedModulesChanged(e), true);
+        AssociatedModules.BindCollectionChanged((_, _) => chatBoxManager.Save());
+        Enabled.BindValueChanged(_ => chatBoxManager.Save());
+        Name.BindValueChanged(_ => chatBoxManager.Save());
+        Start.BindValueChanged(_ => chatBoxManager.Save());
+        End.BindValueChanged(_ => chatBoxManager.Save());
+        States.BindCollectionChanged((_, _) => chatBoxManager.Save());
+        Events.BindCollectionChanged((_, _) => chatBoxManager.Save());
     }
 
     public void Initialise()
@@ -84,10 +90,31 @@ public class Clip
         }
     }
 
-    public ClipState GetStateFor(string module, string lookup) => getStateFor(new List<string> { module }, new List<string> { lookup });
+    public ClipEvent? GetEventFor(string module, string lookup)
+    {
+        try
+        {
+            return Events.Single(clipEvent => clipEvent.Module == module && clipEvent.Lookup == lookup);
+        }
+        catch (InvalidOperationException)
+        {
+            return null;
+        }
+    }
 
-    private ClipState getStateFor(IReadOnlyCollection<string> modules, IReadOnlyCollection<string> lookups) =>
-        States.Single(clipState => clipState.ModuleNames.SequenceEqual(modules) && clipState.StateNames.SequenceEqual(lookups));
+    public ClipState? GetStateFor(string module, string lookup) => GetStateFor(new List<string> { module }, new List<string> { lookup });
+
+    public ClipState? GetStateFor(IEnumerable<string> modules, IEnumerable<string> lookups)
+    {
+        try
+        {
+            return States.Single(clipState => clipState.ModuleNames.SequenceEqual(modules) && clipState.StateNames.SequenceEqual(lookups));
+        }
+        catch (InvalidOperationException)
+        {
+            return null;
+        }
+    }
 
     public bool Evalulate()
     {
@@ -218,10 +245,15 @@ public class Clip
             localCurrentStatesCopy.ForEach(newStateLocal =>
             {
                 newStateLocal.States.Add((moduleName, newStateName));
+                newStateLocal.Enabled.BindValueChanged(_ => chatBoxManager.Save());
+                newStateLocal.Format.BindValueChanged(_ => chatBoxManager.Save());
             });
 
             States.AddRange(localCurrentStatesCopy);
-            States.Add(new ClipState(newStateMetadata));
+            var singleState = new ClipState(newStateMetadata);
+            singleState.Enabled.BindValueChanged(_ => chatBoxManager.Save());
+            singleState.Format.BindValueChanged(_ => chatBoxManager.Save());
+            States.Add(singleState);
         }
     }
 
@@ -247,7 +279,11 @@ public class Clip
 
             foreach (var (_, metadata) in events)
             {
-                Events.Add(new ClipEvent(metadata));
+                var newEvent = new ClipEvent(metadata);
+                newEvent.Enabled.BindValueChanged(_ => chatBoxManager.Save());
+                newEvent.Format.BindValueChanged(_ => chatBoxManager.Save());
+                newEvent.Length.BindValueChanged(_ => chatBoxManager.Save());
+                Events.Add(newEvent);
             }
         }
     }

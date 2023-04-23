@@ -96,7 +96,7 @@ public partial class GameManager : Component
 
         setupModules();
 
-        chatBoxManager.Load();
+        chatBoxManager.Load(storage);
     }
 
     private void setupModules()

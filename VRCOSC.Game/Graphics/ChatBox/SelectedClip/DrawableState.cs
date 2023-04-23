@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
-using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -39,9 +38,8 @@ public partial class DrawableState : Container
 
         clipState.States.ForEach(pair =>
         {
-            var (moduleName, lookup) = pair;
-            var stateMetadata = chatBoxManager.StateMetadata[moduleName][lookup];
-            stateNameList += gameManager.ModuleManager.GetModuleName(moduleName);
+            var stateMetadata = chatBoxManager.StateMetadata[pair.Item1][pair.Item2];
+            stateNameList += gameManager.ModuleManager.GetModuleName(pair.Item1);
             if (stateMetadata.Name != "Default") stateNameList += " - " + stateMetadata.Name;
             stateNameList += " & ";
         });
@@ -84,7 +82,7 @@ public partial class DrawableState : Container
                                     Anchor = Anchor.Centre,
                                     Origin = Anchor.Centre,
                                     RelativeSizeAxes = Axes.Both,
-                                    State = (BindableBool)clipState.Enabled.GetBoundCopy()
+                                    State = clipState.Enabled.GetBoundCopy()
                                 }
                             },
                             new Container

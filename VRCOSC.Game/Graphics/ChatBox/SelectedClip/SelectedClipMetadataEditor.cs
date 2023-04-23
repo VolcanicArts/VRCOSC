@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
-using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -100,7 +99,7 @@ public partial class SelectedClipMetadataEditor : Container
         metadataFlow.Add(new MetadataToggle
         {
             Label = "Enabled",
-            State = (BindableBool)clip.Enabled.GetBoundCopy()
+            State = clip.Enabled.GetBoundCopy()
         });
 
         metadataFlow.Add(new MetadataString

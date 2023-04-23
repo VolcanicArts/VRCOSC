@@ -81,7 +81,7 @@ public sealed partial class ModuleCard : Container
                             Origin = Anchor.Centre,
                             RelativeSizeAxes = Axes.Both,
                             ShouldAnimate = false,
-                            State = (BindableBool)Module.Enabled.GetBoundCopy()
+                            State = Module.Enabled.GetBoundCopy()
                         }
                     },
                     new FillFlowContainer

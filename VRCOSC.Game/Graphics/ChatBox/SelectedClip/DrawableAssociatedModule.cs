@@ -15,7 +15,7 @@ namespace VRCOSC.Game.Graphics.ChatBox.SelectedClip;
 public partial class DrawableAssociatedModule : Container
 {
     public required string ModuleName { get; init; }
-    public readonly BindableBool State = new();
+    public readonly Bindable<bool> State = new();
 
     [BackgroundDependencyLoader]
     private void load()
@@ -69,7 +69,7 @@ public partial class DrawableAssociatedModule : Container
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
                                 RelativeSizeAxes = Axes.Both,
-                                State = State
+                                State = State.GetBoundCopy()
                             }
                         }
                     }

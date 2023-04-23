@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
-using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -69,7 +68,7 @@ public partial class DrawableEvent : Container
                                     Anchor = Anchor.Centre,
                                     Origin = Anchor.Centre,
                                     RelativeSizeAxes = Axes.Both,
-                                    State = (BindableBool)clipEvent.Enabled.GetBoundCopy()
+                                    State = clipEvent.Enabled.GetBoundCopy()
                                 }
                             },
                             new Container

@@ -3,10 +3,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
+using osu.Framework.Platform;
 using VRCOSC.Game.ChatBox.Clips;
+using VRCOSC.Game.ChatBox.Serialisation.V1;
 using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Game.ChatBox;
@@ -37,6 +40,7 @@ public class ChatBoxManager
     public IReadOnlyDictionary<string, bool> ModuleEnabledCache = null!;
     private Bindable<int> sendDelay = null!;
     private VRChatOscClient oscClient = null!;
+    private TimelineSerialiser serialiser = null!;
 
     public readonly Dictionary<(string, string), string?> VariableValues = new();
     public readonly Dictionary<string, string> StateValues = new();
@@ -52,11 +56,97 @@ public class ChatBoxManager
     private DateTimeOffset startTime;
     private DateTimeOffset nextValidTime;
     private bool isClear;
+    private bool isLoaded;
 
-    public void Load()
+    public void Load(Storage storage)
     {
-        // TODO Check for serialised file. If no file, generate default timeline
-        Clips.AddRange(DefaultTimeline.GenerateDefaultTimeline(this));
+        serialiser = new TimelineSerialiser(storage);
+
+        if (storage.Exists(@"chatbox.json"))
+            loadClipData();
+        else
+            Clips.AddRange(DefaultTimeline.GenerateDefaultTimeline(this));
+
+        Clips.BindCollectionChanged((_, _) => Save());
+
+        isLoaded = true;
+
+        Save();
+    }
+
+    private void loadClipData()
+    {
+        var clips = serialiser.Deserialise()?.Clips;
+
+        if (clips is null) return;
+
+        clips.ForEach(clip =>
+        {
+            clip.AssociatedModules.ToImmutableList().ForEach(moduleName =>
+            {
+                if (!StateMetadata.ContainsKey(moduleName))
+                {
+                    clip.AssociatedModules.Remove(moduleName);
+
+                    clip.States.ToImmutableList().ForEach(clipState =>
+                    {
+                        clipState.States.RemoveAll(pair => pair.Module == moduleName);
+                    });
+
+                    clip.Events.RemoveAll(clipEvent => clipEvent.Module == moduleName);
+
+                    return;
+                }
+
+                clip.States.ToImmutableList().ForEach(clipState =>
+                {
+                    clipState.States.RemoveAll(pair => !StateMetadata[pair.Module].ContainsKey(pair.Lookup));
+                });
+
+                clip.Events.RemoveAll(clipEvent => !EventMetadata[clipEvent.Module].ContainsKey(clipEvent.Lookup));
+            });
+        });
+
+        clips.ForEach(clip =>
+        {
+            var newClip = CreateClip();
+
+            newClip.Enabled.Value = clip.Enabled;
+            newClip.Name.Value = clip.Name;
+            newClip.Priority.Value = clip.Priority;
+            newClip.Start.Value = clip.Start;
+            newClip.End.Value = clip.End;
+
+            newClip.AssociatedModules.AddRange(clip.AssociatedModules);
+
+            clip.States.ForEach(clipState =>
+            {
+                var stateData = newClip.GetStateFor(clipState.States.Select(state => state.Module), clipState.States.Select(state => state.Lookup));
+                if (stateData is null) return;
+
+                stateData.Enabled.Value = clipState.Enabled;
+                stateData.Format.Value = clipState.Format;
+            });
+
+            clip.Events.ForEach(clipEvent =>
+            {
+                var eventData = newClip.GetEventFor(clipEvent.Module, clipEvent.Lookup);
+                if (eventData is null) return;
+
+                eventData.Enabled.Value = clipEvent.Enabled;
+                eventData.Format.Value = clipEvent.Format;
+                eventData.Length.Value = clipEvent.Length;
+            });
+
+            Clips.Add(newClip);
+        });
+    }
+
+    public void Save()
+    {
+        if (!isLoaded) return;
+
+        serialiser.Serialise(Clips.ToList());
     }
 
     public void Initialise(VRChatOscClient oscClient, Bindable<int> sendDelay, Dictionary<string, bool> moduleEnabledCache)
@@ -69,6 +159,13 @@ public class ChatBoxManager
         ModuleEnabledCache = moduleEnabledCache;
 
         Clips.ForEach(clip => clip.Initialise());
+    }
+
+    public Clip CreateClip()
+    {
+        var newClip = new Clip();
+        newClip.InjectDependencies(this);
+        return newClip;
     }
 
     public void Update()

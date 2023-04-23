@@ -15,7 +15,7 @@ namespace VRCOSC.Game.Graphics.ChatBox.Metadata;
 public partial class MetadataToggle : Container
 {
     public required string Label { get; init; }
-    public required BindableBool State { get; init; }
+    public required Bindable<bool> State { get; init; }
 
     [BackgroundDependencyLoader]
     private void load()
