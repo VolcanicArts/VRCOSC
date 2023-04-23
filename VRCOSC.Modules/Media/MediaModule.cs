@@ -55,7 +55,13 @@ public class MediaModule : ChatBoxModule
         CreateEvent(MediaEvent.NowPlaying, "Now Playing", $@"[Now Playing]                            {GetVariableFormat(MediaVariable.Artist)} - {GetVariableFormat(MediaVariable.Title)}", 5);
     }
 
-    protected override async void OnModuleStart()
+    protected override void OnModuleStart()
+    {
+        hookIntoMedia();
+        startProcesses();
+    }
+
+    private void hookIntoMedia() => Task.Run(async () =>
     {
         var result = await mediaProvider.Hook();
 
@@ -66,9 +72,7 @@ public class MediaModule : ChatBoxModule
         }
 
         ChangeStateTo(mediaProvider.State.IsPlaying ? MediaState.Playing : MediaState.Paused);
-
-        startProcesses();
-    }
+    });
 
     private void startProcesses()
     {
