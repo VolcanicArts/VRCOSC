@@ -94,6 +94,11 @@ public sealed class ModuleManager : IModuleManager
     public void Update()
     {
         scheduler.Update();
+
+        foreach (var module in modules)
+        {
+            module.FrameUpdate();
+        }
     }
 
     public void Stop()

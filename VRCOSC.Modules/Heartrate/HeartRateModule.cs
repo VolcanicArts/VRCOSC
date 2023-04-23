@@ -13,10 +13,12 @@ public abstract class HeartRateModule : ChatBoxModule
     public override string Author => "VolcanicArts";
     public override string Prefab => "VRCOSC-Heartrate";
     public override ModuleType Type => ModuleType.Health;
-    protected override TimeSpan DeltaUpdate => TimeSpan.FromSeconds(2);
 
     protected HeartRateProvider? HeartRateProvider;
-    private int lastHeartrate;
+    private int currentHeartrate;
+    private int targetHeartrate;
+    private TimeSpan targetInterval;
+    private DateTimeOffset lastIntervalUpdate;
     private DateTimeOffset lastHeartrateTime;
     private int connectionCount;
 
@@ -26,8 +28,13 @@ public abstract class HeartRateModule : ChatBoxModule
 
     protected override void CreateAttributes()
     {
+        CreateSetting(HeartrateSetting.Smoothed, @"Smoothed", @"Whether the heartrate value should jump to the correct value, or smoothly climb over a set period", false);
+        CreateSetting(HeartrateSetting.SmoothingLength, @"Smoothing Length", @"The length of time (in milliseconds) the heartrate value should take to reach the correct value", 1000, () => GetSetting<bool>(HeartrateSetting.Smoothed));
+        CreateSetting(HeartrateSetting.NormalisedLowerbound, @"Normalised Lowerbound", @"The lower bound BPM the normalised parameter should use", 0);
+        CreateSetting(HeartrateSetting.NormalisedUpperbound, @"Normalised Upperbound", @"The upper bound BPM the normalised parameter should use", 240);
+
         CreateParameter<bool>(HeartrateParameter.Enabled, ParameterMode.Write, "VRCOSC/Heartrate/Enabled", "Enabled", "Whether this module is attempting to emit values");
-        CreateParameter<float>(HeartrateParameter.Normalised, ParameterMode.Write, "VRCOSC/Heartrate/Normalised", "Normalised", "The heartrate value normalised to 240bpm");
+        CreateParameter<float>(HeartrateParameter.Normalised, ParameterMode.Write, "VRCOSC/Heartrate/Normalised", "Normalised", "The heartrate value normalised to the set bounds");
         CreateParameter<float>(HeartrateParameter.Units, ParameterMode.Write, "VRCOSC/Heartrate/Units", "Units", "The units digit 0-9 mapped to a float");
         CreateParameter<float>(HeartrateParameter.Tens, ParameterMode.Write, "VRCOSC/Heartrate/Tens", "Tens", "The tens digit 0-9 mapped to a float");
         CreateParameter<float>(HeartrateParameter.Hundreds, ParameterMode.Write, "VRCOSC/Heartrate/Hundreds", "Hundreds", "The hundreds digit 0-9 mapped to a float");
@@ -41,6 +48,9 @@ public abstract class HeartRateModule : ChatBoxModule
     {
         attemptConnection();
         lastHeartrateTime = DateTimeOffset.Now - heartrate_timeout;
+        lastIntervalUpdate = DateTimeOffset.Now;
+        currentHeartrate = 0;
+        targetHeartrate = 0;
         ChangeStateTo(HeartrateState.Default);
     }
 
@@ -80,22 +90,41 @@ public abstract class HeartRateModule : ChatBoxModule
         SendParameter(HeartrateParameter.Enabled, false);
     }
 
-    protected override void OnModuleUpdate()
+    protected override void OnFrameUpdate()
     {
         if (!isReceiving) SendParameter(HeartrateParameter.Enabled, false);
 
-        SetVariableValue(HeartrateVariable.Heartrate, lastHeartrate.ToString());
+        if (GetSetting<bool>(HeartrateSetting.Smoothed))
+        {
+            if (lastIntervalUpdate + targetInterval <= DateTimeOffset.Now)
+            {
+                lastIntervalUpdate = DateTimeOffset.Now;
+                currentHeartrate += Math.Sign(targetHeartrate - currentHeartrate);
+            }
+        }
+        else
+        {
+            currentHeartrate = targetHeartrate;
+        }
+
+        SetVariableValue(HeartrateVariable.Heartrate, currentHeartrate.ToString());
+        sendParameters();
     }
 
     protected virtual void HandleHeartRateUpdate(int heartrate)
     {
-        lastHeartrate = heartrate;
+        targetHeartrate = heartrate;
         lastHeartrateTime = DateTimeOffset.Now;
-
-        var normalisedHeartRate = heartrate / 240.0f;
-        var individualValues = toDigitArray(heartrate, 3);
+        targetInterval = TimeSpan.FromTicks(TimeSpan.FromMilliseconds(GetSetting<int>(HeartrateSetting.SmoothingLength)).Ticks / Math.Abs(currentHeartrate - targetHeartrate));
 
         SendParameter(HeartrateParameter.Enabled, true);
+    }
+
+    private void sendParameters()
+    {
+        var normalisedHeartRate = Map(currentHeartrate, GetSetting<int>(HeartrateSetting.NormalisedLowerbound), GetSetting<int>(HeartrateSetting.NormalisedUpperbound), 0, 1);
+        var individualValues = toDigitArray(currentHeartrate, 3);
+
         SendParameter(HeartrateParameter.Normalised, normalisedHeartRate);
         SendParameter(HeartrateParameter.Units, individualValues[2] / 10f);
         SendParameter(HeartrateParameter.Tens, individualValues[1] / 10f);
@@ -105,6 +134,14 @@ public abstract class HeartRateModule : ChatBoxModule
     private static int[] toDigitArray(int num, int totalWidth)
     {
         return num.ToString().PadLeft(totalWidth, '0').Select(digit => int.Parse(digit.ToString())).ToArray();
+    }
+
+    protected enum HeartrateSetting
+    {
+        NormalisedLowerbound,
+        NormalisedUpperbound,
+        Smoothed,
+        SmoothingLength
     }
 
     protected enum HeartrateParameter
