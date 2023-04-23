@@ -48,7 +48,15 @@ public class SerialisableClip
         AssociatedModules = clip.AssociatedModules.ToList();
         Start = clip.Start.Value;
         End = clip.End.Value;
-        clip.States.ForEach(clipState => States.Add(new SerialisableClipState(clipState)));
-        clip.Events.ForEach(clipEvent => Events.Add(new SerialisableClipEvent(clipEvent)));
+
+        clip.States.ForEach(clipState =>
+        {
+            if (!clipState.IsDefault) States.Add(new SerialisableClipState(clipState));
+        });
+
+        clip.Events.ForEach(clipEvent =>
+        {
+            if (!clipEvent.IsDefault) Events.Add(new SerialisableClipEvent(clipEvent));
+        });
     }
 }

@@ -22,6 +22,8 @@ public class ClipState
     public List<string> ModuleNames => States.Select(state => state.Item1).ToList();
     public List<string> StateNames => States.Select(state => state.Item2).ToList();
 
+    public bool IsDefault => Format.IsDefault && Enabled.IsDefault;
+
     public ClipState Copy(bool includeData = false)
     {
         var statesCopy = new List<(string, string)>();

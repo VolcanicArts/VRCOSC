@@ -20,6 +20,8 @@ public class ClipEvent
     public Bindable<bool> Enabled = new();
     public Bindable<int> Length = new();
 
+    public bool IsDefault => Format.IsDefault && Enabled.IsDefault && Length.IsDefault;
+
     public ClipEvent(ClipEventMetadata metadata)
     {
         Module = metadata.Module;
@@ -28,6 +30,7 @@ public class ClipEvent
         Format.Value = metadata.DefaultFormat;
         Format.Default = metadata.DefaultFormat;
         Length.Value = metadata.DefaultLength;
+        Length.Default = metadata.DefaultLength;
     }
 }
 
