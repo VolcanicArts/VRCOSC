@@ -40,3 +40,8 @@ public static class TypeExtensions
         };
     }
 }
+
+public static class TimeSpanExtensions
+{
+    public static string Format(this TimeSpan timeSpan) => string.Format(timeSpan.TotalHours >= 1 ? @"{0:hh\:mm\:ss}" : @"{0:mm\:ss}", timeSpan);
+}
