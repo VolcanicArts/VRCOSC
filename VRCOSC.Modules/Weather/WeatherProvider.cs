@@ -41,7 +41,7 @@ public class WeatherProvider
 
         var conditionResponseData = await httpClient.GetAsync(condition_url);
         var conditionResponseString = await conditionResponseData.Content.ReadAsStringAsync();
-        var conditionResponse = JsonConvert.DeserializeObject<List<WeatherCondition>>(conditionResponseString)?.Single(condition => condition.Code == 1000);
+        var conditionResponse = JsonConvert.DeserializeObject<List<WeatherCondition>>(conditionResponseString)?.Single(condition => condition.Code == currentResponse.Condition.Code);
 
         var dateTimeNow = DateTime.Now;
 
