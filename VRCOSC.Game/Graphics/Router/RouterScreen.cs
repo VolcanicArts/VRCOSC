@@ -6,6 +6,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using osu.Framework.Platform;
 using osuTK;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Button;
@@ -14,6 +15,11 @@ namespace VRCOSC.Game.Graphics.Router;
 
 public partial class RouterScreen : Container
 {
+    private const string vrcosc_router_wiki_url = @"https://github.com/VolcanicArts/VRCOSC/wiki/VRCOSC-Router";
+
+    [Resolved]
+    private GameHost host { get; set; } = null!;
+
     [Resolved]
     private RouterManager routerManager { get; set; } = null!;
 
@@ -90,6 +96,26 @@ public partial class RouterScreen : Container
                             Action = addInstance
                         }
                     }
+                }
+            },
+            new Container
+            {
+                Anchor = Anchor.TopRight,
+                Origin = Anchor.TopRight,
+                Size = new Vector2(70),
+                Padding = new MarginPadding(10),
+                Child = new IconButton
+                {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    RelativeSizeAxes = Axes.Both,
+                    Icon = FontAwesome.Solid.Question,
+                    BackgroundColour = ThemeManager.Current[ThemeAttribute.Action],
+                    IconShadow = true,
+                    Masking = true,
+                    CornerRadius = 25,
+                    IconPadding = 6,
+                    Action = () => host.OpenUrlExternally(vrcosc_router_wiki_url)
                 }
             }
         };
