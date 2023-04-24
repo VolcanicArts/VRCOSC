@@ -5,10 +5,16 @@ using Newtonsoft.Json;
 
 namespace VRCOSC.Modules.Weather;
 
-public class WeatherResponse
+public class WeatherCurrentResponse
 {
     [JsonProperty("current")]
     public Weather Current = null!;
+}
+
+public class WeatherAstronomyResponse
+{
+    [JsonProperty("astronomy")]
+    public Astronomy Astronomy = null!;
 }
 
 public class Weather
@@ -27,6 +33,21 @@ public class Weather
 
     [JsonIgnore]
     public string ConditionString = null!;
+}
+
+public class Astronomy
+{
+    [JsonProperty(@"astro")]
+    public Astro Astro = null!;
+}
+
+public class Astro
+{
+    [JsonProperty("sunrise")]
+    public string Sunrise = null!;
+
+    [JsonProperty("sunset")]
+    public string Sunset = null!;
 }
 
 public class Condition
