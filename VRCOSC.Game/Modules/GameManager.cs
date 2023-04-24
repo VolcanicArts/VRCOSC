@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -283,13 +283,10 @@ public partial class GameManager : Component
 
     private void checkForOpenVR() => Task.Run(() =>
     {
-        static bool isOpenVROpen() => Process.GetProcessesByName(@"vrmonitor").Any();
+        if (!Process.GetProcessesByName(@"vrmonitor").Any()) return;
 
-        if (isOpenVROpen())
-        {
-            OVRClient.Init();
-            OVRClient.SetAutoLaunch(configManager.Get<bool>(VRCOSCSetting.AutoStartOpenVR));
-        }
+        OVRClient.Init();
+        OVRClient.SetAutoLaunch(configManager.Get<bool>(VRCOSCSetting.AutoStartOpenVR));
     });
 
     private void checkForVRChat()

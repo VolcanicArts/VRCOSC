@@ -84,8 +84,10 @@ public class OVRClient
         OnShutdown?.Invoke();
     }
 
-    public static void SetAutoLaunch(bool value)
+    public void SetAutoLaunch(bool value)
     {
+        if (!HasInitialised) return;
+
         Valve.VR.OpenVR.Applications.SetApplicationAutoLaunch("volcanicarts.vrcosc", value);
     }
 }
