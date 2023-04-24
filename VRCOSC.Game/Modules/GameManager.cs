@@ -302,8 +302,6 @@ public partial class GameManager : Component
 
     private void checkForOpenVR() => Task.Run(() =>
     {
-        if (!Process.GetProcessesByName(@"vrserver").Any()) return;
-
         OVRClient.Init();
         OVRClient.SetAutoLaunch(configManager.Get<bool>(VRCOSCSetting.AutoStartOpenVR));
     });
