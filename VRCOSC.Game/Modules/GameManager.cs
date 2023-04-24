@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -213,17 +213,36 @@ public partial class GameManager : Component
 
         await Task.Delay(startstop_delay);
 
-        VRChatOscClient.Enable(OscClientFlag.Send);
+        enableOscFlag(OscClientFlag.Send);
         Player.Initialise();
         ChatBoxManager.Initialise(VRChatOscClient, configManager.GetBindable<int>(VRCOSCSetting.ChatBoxTimeSpan), moduleEnabled);
         sendControlValues();
         ModuleManager.Start();
-        VRChatOscClient.Enable(OscClientFlag.Receive);
+        enableOscFlag(OscClientFlag.Receive);
 
-        OSCRouter.Initialise(routerManager.Store);
-        OSCRouter.Enable();
+        try
+        {
+            OSCRouter.Initialise(routerManager.Store);
+            OSCRouter.Enable();
+        }
+        catch
+        {
+            notifications.Notify(new PortInUseNotification("Cannot initialise a port from OSCRouter"));
+        }
 
         State.Value = GameManagerState.Started;
+    }
+
+    private void enableOscFlag(OscClientFlag flag)
+    {
+        try
+        {
+            VRChatOscClient.Enable(flag);
+        }
+        catch
+        {
+            notifications.Notify(new PortInUseNotification(flag == OscClientFlag.Send ? configManager.Get<int>(VRCOSCSetting.SendPort) : configManager.Get<int>(VRCOSCSetting.ReceivePort)));
+        }
     }
 
     public void Stop() => Schedule(() => _ = stopAsync());
