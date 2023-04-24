@@ -4,6 +4,7 @@
 using System.Diagnostics;
 using Windows.Media;
 using osu.Framework.Bindables;
+using VRCOSC.Game;
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.Modules.ChatBox;
 using VRCOSC.Game.Providers.Media;
@@ -116,8 +117,8 @@ public class MediaModule : ChatBoxModule
         SetVariableValue(MediaVariable.AlbumTitle, mediaProvider.State.AlbumTitle);
         SetVariableValue(MediaVariable.AlbumArtist, mediaProvider.State.AlbumArtist);
         SetVariableValue(MediaVariable.AlbumTrackCount, mediaProvider.State.AlbumTrackCount.ToString());
-        SetVariableValue(MediaVariable.Time, mediaProvider.State.Position?.Position.ToString(@"mm\:ss"));
-        SetVariableValue(MediaVariable.Duration, mediaProvider.State.Position?.EndTime.ToString(@"mm\:ss"));
+        SetVariableValue(MediaVariable.Time, mediaProvider.State.Position?.Position.Format());
+        SetVariableValue(MediaVariable.Duration, mediaProvider.State.Position?.EndTime.Format());
         SetVariableValue(MediaVariable.Volume, (mediaProvider.State.Volume * 100).ToString("##0"));
     }
 

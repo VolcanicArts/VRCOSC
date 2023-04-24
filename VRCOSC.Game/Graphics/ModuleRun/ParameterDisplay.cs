@@ -11,6 +11,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using VRCOSC.Game.Graphics.TabBar;
 using VRCOSC.Game.Graphics.Themes;
+using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Game.Graphics.ModuleRun;
 
@@ -95,7 +96,7 @@ public sealed partial class ParameterDisplay : Container
 
     public void AddEntry(string key, object value)
     {
-        if (selectedTab.Value != Tab.Modules) return;
+        if (selectedTab.Value != Tab.Modules && key != VRChatOscConstants.ADDRESS_CHATBOX_INPUT && key != VRChatOscConstants.ADDRESS_CHATBOX_TYPING) return;
 
         Schedule(() =>
         {

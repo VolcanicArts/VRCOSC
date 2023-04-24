@@ -28,8 +28,8 @@ public static class OVRHelper
     internal static bool InitialiseOpenVR(EVRApplicationType applicationType)
     {
         var err = new EVRInitError();
-        var state = Valve.VR.OpenVR.InitInternal(ref err, applicationType);
-        return err == EVRInitError.None && state != 0;
+        Valve.VR.OpenVR.Init(ref err, applicationType);
+        return err == EVRInitError.None;
     }
 
     internal static float GetFrameTimeMilli()

@@ -158,6 +158,7 @@ public class ChatBoxManager
     {
         this.oscClient = oscClient;
         this.sendDelay = sendDelay;
+        sendEnabled = true;
         startTime = DateTimeOffset.Now;
         nextValidTime = startTime;
         isClear = true;
@@ -215,6 +216,8 @@ public class ChatBoxManager
 
     private void handleClip(Clip? clip)
     {
+        if (!sendEnabled) return;
+
         if (clip is null)
         {
             if (!isClear) clearChatBox();

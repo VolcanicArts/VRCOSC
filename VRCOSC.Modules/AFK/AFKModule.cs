@@ -11,7 +11,7 @@ public class AFKModule : ChatBoxModule
     public override string Description => "Display text and time since going AFK";
     public override string Author => "VolcanicArts";
     public override ModuleType Type => ModuleType.General;
-    protected override TimeSpan DeltaUpdate => TimeSpan.FromSeconds(1.5f);
+    protected override TimeSpan DeltaUpdate => TimeSpan.FromSeconds(1);
 
     private DateTime? afkBegan;
 

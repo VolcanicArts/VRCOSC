@@ -38,13 +38,13 @@ public class OVRClient
     {
         if (HasInitialised) return;
 
-        HasInitialised = OVRHelper.InitialiseOpenVR(Metadata.ApplicationType);
-
-        if (!HasInitialised) return;
+        if (!OVRHelper.InitialiseOpenVR(Metadata.ApplicationType)) return;
 
         Valve.VR.OpenVR.Applications.AddApplicationManifest(Metadata.ApplicationManifest, false);
         System.Init();
         Input.Init();
+
+        HasInitialised = true;
     }
 
     public void Update()
@@ -84,8 +84,10 @@ public class OVRClient
         OnShutdown?.Invoke();
     }
 
-    public static void SetAutoLaunch(bool value)
+    public void SetAutoLaunch(bool value)
     {
+        if (!HasInitialised) return;
+
         Valve.VR.OpenVR.Applications.SetApplicationAutoLaunch("volcanicarts.vrcosc", value);
     }
 }
