@@ -42,7 +42,9 @@ public class WindowsMediaProvider
 
     public void UnHook()
     {
-        sessionManager!.CurrentSessionChanged -= onCurrentSessionChanged;
+        if (sessionManager is null) return;
+
+        sessionManager.CurrentSessionChanged -= onCurrentSessionChanged;
         sessionManager.SessionsChanged -= sessionsChanged;
 
         sessions.Clear();
