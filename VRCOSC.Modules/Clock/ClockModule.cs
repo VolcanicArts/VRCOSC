@@ -60,10 +60,31 @@ public sealed class ClockModule : ChatBoxModule
         SendParameter(ClockParameter.Minutes, minuteNormalised);
         SendParameter(ClockParameter.Seconds, secondNormalised);
 
-        var hourText = GetSetting<ClockMode>(ClockSetting.Mode) == ClockMode.Twelve ? (time.Hour % 12).ToString("00") : time.Hour.ToString("00");
-        var minuteText = time.Minute.ToString("00");
-        var secondText = time.Second.ToString("00");
-        var periodText = time.Hour >= 12 ? "pm" : "am";
+        string hourText, minuteText, secondText, periodText;
+
+        if (GetSetting<ClockMode>(ClockSetting.Mode) == ClockMode.Twelve)
+        {
+            var formattedTime = time.ToString("hh:mm:ss tt");
+            var timeSplitPeriod = formattedTime.Split(new[] { ' ' }, 2);
+            var timeText = timeSplitPeriod[0];
+
+            var timeTextSplit = timeText.Split(new[] { ':' }, 3);
+
+            hourText = timeTextSplit[0];
+            minuteText = timeTextSplit[1];
+            secondText = timeTextSplit[2];
+            periodText = timeSplitPeriod[1].ToLowerInvariant();
+        }
+        else
+        {
+            var formattedTime = time.ToString("HH:mm:ss");
+            var timeTextSplit = formattedTime.Split(new[] { ':' }, 3);
+
+            hourText = timeTextSplit[0];
+            minuteText = timeTextSplit[1];
+            secondText = timeTextSplit[2];
+            periodText = string.Empty;
+        }
 
         SetVariableValue(ClockVariable.Hours, hourText);
         SetVariableValue(ClockVariable.Minutes, minuteText);
