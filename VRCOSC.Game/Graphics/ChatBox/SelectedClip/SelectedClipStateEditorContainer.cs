@@ -10,6 +10,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using osu.Framework.Platform;
 using osuTK;
 using VRCOSC.Game.ChatBox;
 using VRCOSC.Game.Graphics.Themes;
@@ -20,6 +21,11 @@ namespace VRCOSC.Game.Graphics.ChatBox.SelectedClip;
 
 public partial class SelectedClipStateEditorContainer : Container
 {
+    private const string chatbox_v3_wiki_url = @"https://github.com/VolcanicArts/VRCOSC/wiki/ChatBox-V3";
+
+    [Resolved]
+    private GameHost host { get; set; } = null!;
+
     [Resolved]
     private ChatBoxManager chatBoxManager { get; set; } = null!;
 
@@ -29,7 +35,7 @@ public partial class SelectedClipStateEditorContainer : Container
     private Container eventsTitle = null!;
     private FillFlowContainer<DrawableEvent> eventFlow = null!;
 
-    private Bindable<bool> showRelevantStates = new(true);
+    private readonly Bindable<bool> showRelevantStates = new(true);
 
     [BackgroundDependencyLoader]
     private void load()
@@ -192,7 +198,27 @@ public partial class SelectedClipStateEditorContainer : Container
                         }
                     }
                 }
-            }
+            },
+            new Container
+            {
+                Anchor = Anchor.TopRight,
+                Origin = Anchor.TopRight,
+                Size = new Vector2(40),
+                Padding = new MarginPadding(3),
+                Child = new IconButton
+                {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    RelativeSizeAxes = Axes.Both,
+                    Icon = FontAwesome.Solid.Question,
+                    BackgroundColour = ThemeManager.Current[ThemeAttribute.Action],
+                    IconShadow = true,
+                    Masking = true,
+                    CornerRadius = 17,
+                    IconPadding = 6,
+                    Action = () => host.OpenUrlExternally(chatbox_v3_wiki_url)
+                }
+            },
         };
     }
 
