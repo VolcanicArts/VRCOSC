@@ -38,13 +38,13 @@ public class OVRClient
     {
         if (HasInitialised) return;
 
-        HasInitialised = OVRHelper.InitialiseOpenVR(Metadata.ApplicationType);
-
-        if (!HasInitialised) return;
+        if (!OVRHelper.InitialiseOpenVR(Metadata.ApplicationType)) return;
 
         Valve.VR.OpenVR.Applications.AddApplicationManifest(Metadata.ApplicationManifest, false);
         System.Init();
         Input.Init();
+
+        HasInitialised = true;
     }
 
     public void Update()
