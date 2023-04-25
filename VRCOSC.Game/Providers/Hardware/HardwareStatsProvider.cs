@@ -12,7 +12,12 @@ namespace VRCOSC.Game.Providers.Hardware;
 
 public sealed class HardwareStatsProvider
 {
-    private readonly Computer computer;
+    private readonly Computer computer = new()
+    {
+        IsCpuEnabled = true,
+        IsGpuEnabled = true,
+        IsMemoryEnabled = true
+    };
 
     public bool CanAcceptQueries { get; private set; }
 
@@ -20,20 +25,22 @@ public sealed class HardwareStatsProvider
     public readonly List<GPU> Gpus = new();
     public readonly RAM Ram = new();
 
-    public HardwareStatsProvider()
+    public void Init()
     {
-        computer = new Computer
-        {
-            IsCpuEnabled = true,
-            IsGpuEnabled = true,
-            IsMemoryEnabled = true
-        };
-
         Task.Run(() =>
         {
             computer.Open();
             CanAcceptQueries = true;
-        });
+        }).ConfigureAwait(false);
+    }
+
+    public void Shutdown()
+    {
+        Task.Run(() =>
+        {
+            CanAcceptQueries = false;
+            computer.Close();
+        }).ConfigureAwait(false);
     }
 
     public void Update()
