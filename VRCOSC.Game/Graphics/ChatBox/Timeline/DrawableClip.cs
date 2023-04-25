@@ -33,7 +33,7 @@ public partial class DrawableClip : Container
 
     private float cumulativeDrag;
     private SpriteText drawName = null!;
-    private Box background;
+    private Box background = null!;
 
     public DrawableClip(Clip clip)
     {
