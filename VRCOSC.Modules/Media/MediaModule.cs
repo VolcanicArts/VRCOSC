@@ -104,9 +104,11 @@ public class MediaModule : ChatBoxModule
 
     protected override void OnModuleUpdate()
     {
-        if (mediaProvider.Controller is not null) sendUpdatableParameters();
-
-        updateVariables();
+        if (mediaProvider.Controller is not null)
+        {
+            updateVariables();
+            sendUpdatableParameters();
+        }
     }
 
     private void updateVariables()
