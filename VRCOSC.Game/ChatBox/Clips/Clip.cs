@@ -129,7 +129,7 @@ public class Clip
         removeLessCompoundedStates(localStates);
         removeInvalidStates(localStates);
 
-        if (!localStates.Any()) return false;
+        if (localStates.Count != 1) return false;
 
         var chosenState = localStates.Single();
         if (!chosenState.Enabled.Value) return false;
