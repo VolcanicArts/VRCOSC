@@ -20,7 +20,7 @@ public partial class TimelineNumberBar : Container
     [BackgroundDependencyLoader]
     private void load()
     {
-        for (var i = 0; i < chatBoxManager.TimelineLengthSeconds; i++)
+        for (var i = 0; i <= chatBoxManager.TimelineLengthSeconds; i++)
         {
             if (i != 0 && i != chatBoxManager.TimelineLengthSeconds && i % 5 == 0)
             {
@@ -29,6 +29,7 @@ public partial class TimelineNumberBar : Container
                     Anchor = Anchor.TopLeft,
                     Origin = Anchor.TopCentre,
                     RelativePositionAxes = Axes.X,
+                    RelativeSizeAxes = Axes.Y,
                     X = chatBoxManager.TimelineResolution * i,
                     Children = new Drawable[]
                     {
@@ -36,7 +37,7 @@ public partial class TimelineNumberBar : Container
                         {
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
-                            AutoSizeAxes = Axes.Y,
+                            RelativeSizeAxes = Axes.Y,
                             Width = 10,
                             Direction = FillDirection.Vertical,
                             Spacing = new Vector2(0, 2),
@@ -47,14 +48,16 @@ public partial class TimelineNumberBar : Container
                                     Anchor = Anchor.TopCentre,
                                     Origin = Anchor.TopCentre,
                                     Text = i.ToString(),
-                                    Font = FrameworkFont.Regular.With(size: 15)
+                                    Font = FrameworkFont.Regular.With(size: 15),
+                                    Colour = ThemeManager.Current[ThemeAttribute.Text]
                                 },
                                 new Box
                                 {
                                     Anchor = Anchor.TopCentre,
                                     Origin = Anchor.TopCentre,
                                     Colour = ThemeManager.Current[ThemeAttribute.Lighter],
-                                    Size = new Vector2(3, 10)
+                                    Width = 3,
+                                    RelativeSizeAxes = Axes.Y
                                 }
                             }
                         }

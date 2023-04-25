@@ -57,8 +57,7 @@ public partial class TimelineEditor : Container
             },
             new TimelineNumberBar
             {
-                RelativeSizeAxes = Axes.X,
-                Height = 40
+                RelativeSizeAxes = Axes.Both
             },
             new Container
             {
@@ -169,7 +168,7 @@ public partial class TimelineEditor : Container
 
     private void generateGrid()
     {
-        for (var i = 0; i < chatBoxManager.TimelineLengthSeconds; i++)
+        for (var i = 0; i <= chatBoxManager.TimelineLengthSeconds; i++)
         {
             gridGenerator.Add(new Box
             {
@@ -177,11 +176,11 @@ public partial class TimelineEditor : Container
                 RelativeSizeAxes = Axes.Y,
                 RelativePositionAxes = Axes.X,
                 Width = grid_line_width,
-                X = (chatBoxManager.TimelineResolution * i)
+                X = chatBoxManager.TimelineResolution * i
             });
         }
 
-        for (var i = 0; i < 6; i++)
+        for (var i = 0; i <= 6; i++)
         {
             gridGenerator.Add(new Box
             {
@@ -189,7 +188,7 @@ public partial class TimelineEditor : Container
                 RelativeSizeAxes = Axes.X,
                 RelativePositionAxes = Axes.Y,
                 Height = grid_line_width,
-                Y = (DrawHeight / 6 * i)
+                Y = DrawHeight / 6 * i
             });
         }
     }
