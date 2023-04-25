@@ -33,6 +33,7 @@ public partial class DrawableClip : Container
 
     private float cumulativeDrag;
     private SpriteText drawName = null!;
+    private Box background;
 
     public DrawableClip(Clip clip)
     {
@@ -53,7 +54,7 @@ public partial class DrawableClip : Container
             BorderColour = ThemeManager.Current[ThemeAttribute.Accent],
             Children = new Drawable[]
             {
-                new Box
+                background = new Box
                 {
                     Colour = ThemeManager.Current[ThemeAttribute.Light],
                     RelativeSizeAxes = Axes.Both
@@ -92,6 +93,7 @@ public partial class DrawableClip : Container
         chatBoxManager.SelectedClip.BindValueChanged(e =>
         {
             ((Container)Child).BorderThickness = Clip == e.NewValue ? 4 : 2;
+            background.FadeColour(Clip == e.NewValue ? ThemeManager.Current[ThemeAttribute.Dark] : ThemeManager.Current[ThemeAttribute.Light], 300, Easing.OutQuart);
         }, true);
 
         Clip.Name.BindValueChanged(e => drawName.Text = e.NewValue, true);
@@ -173,7 +175,7 @@ public partial class DrawableClip : Container
         {
             Child = new Box
             {
-                Colour = Color4.Black.Opacity(0.2f),
+                Colour = Color4.Black.Opacity(0.4f),
                 RelativeSizeAxes = Axes.Both
             };
         }
@@ -182,13 +184,13 @@ public partial class DrawableClip : Container
 
         protected override bool OnHover(HoverEvent e)
         {
-            Child.FadeColour(Colour4.Black.Opacity(0.5f), 100);
+            Child.FadeColour(Colour4.Black.Opacity(0.7f), 100);
             return true;
         }
 
         protected override void OnHoverLost(HoverLostEvent e)
         {
-            Child.FadeColour(Colour4.Black.Opacity(0.2f), 100);
+            Child.FadeColour(Colour4.Black.Opacity(0.4f), 100);
         }
     }
 
