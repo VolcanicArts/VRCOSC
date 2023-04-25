@@ -10,6 +10,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Input.Events;
 using osuTK.Input;
+using VRCOSC.Game.ChatBox;
 using VRCOSC.Game.ChatBox.Clips;
 
 namespace VRCOSC.Game.Graphics.ChatBox.Timeline;
@@ -19,6 +20,9 @@ public partial class TimelineLayer : Container<DrawableClip>
 {
     [Resolved]
     private TimelineEditor timelineEditor { get; set; } = null!;
+
+    [Resolved]
+    private ChatBoxManager chatBoxManager { get; set; } = null!;
 
     public readonly int Priority;
 
@@ -69,7 +73,7 @@ public partial class TimelineLayer : Container<DrawableClip>
         });
 
         boundsList.Add(0);
-        boundsList.Add(60);
+        boundsList.Add(chatBoxManager.TimelineLengthSeconds);
         boundsList.Sort();
 
         var lowerBound = boundsList.Last(bound => bound <= value);

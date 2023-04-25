@@ -153,7 +153,7 @@ public partial class TimelineEditor : Container
 
     private void generateGrid()
     {
-        for (var i = 0; i < 60; i++)
+        for (var i = 0; i < chatBoxManager.TimelineLengthSeconds; i++)
         {
             gridGenerator.Add(new Box
             {

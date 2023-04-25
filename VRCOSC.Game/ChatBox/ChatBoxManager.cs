@@ -52,6 +52,7 @@ public class ChatBoxManager
     private readonly object triggeredEventsLock = new();
 
     public readonly Bindable<TimeSpan> TimelineLength = new(TimeSpan.FromMinutes(1));
+    public int TimelineLengthSeconds => (int)TimelineLength.Value.TotalSeconds;
     public float TimelineResolution => 1f / (float)TimelineLength.Value.TotalSeconds;
 
     public float CurrentPercentage => ((DateTimeOffset.Now - startTime).Ticks % TimelineLength.Value.Ticks) / (float)TimelineLength.Value.Ticks;
