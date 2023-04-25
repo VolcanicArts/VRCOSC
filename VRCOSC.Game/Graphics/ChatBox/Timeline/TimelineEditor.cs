@@ -55,34 +55,50 @@ public partial class TimelineEditor : Container
                 Colour = ThemeManager.Current[ThemeAttribute.Mid],
                 RelativeSizeAxes = Axes.Both
             },
-            gridGenerator = new Container
+            new TimelineNumberBar
             {
-                RelativeSizeAxes = Axes.Both,
-                Position = new Vector2(-(grid_line_width / 2f))
+                RelativeSizeAxes = Axes.X,
+                Height = 40
             },
             new Container
             {
                 RelativeSizeAxes = Axes.Both,
-                Child = layerContainer = new GridContainer
+                Padding = new MarginPadding
                 {
-                    RelativeSizeAxes = Axes.Both,
-                    RowDimensions = new[]
+                    Top = 25
+                },
+                Children = new Drawable[]
+                {
+                    gridGenerator = new Container
                     {
-                        new Dimension(),
-                        new Dimension(),
-                        new Dimension(),
-                        new Dimension(),
-                        new Dimension(),
-                        new Dimension(),
+                        RelativeSizeAxes = Axes.Both,
+                        Position = new Vector2(-(grid_line_width / 2f))
                     },
-                    Content = new[]
+                    new Container
                     {
-                        new Drawable[] { new TimelineLayer(5) },
-                        new Drawable[] { new TimelineLayer(4) },
-                        new Drawable[] { new TimelineLayer(3) },
-                        new Drawable[] { new TimelineLayer(2) },
-                        new Drawable[] { new TimelineLayer(1) },
-                        new Drawable[] { new TimelineLayer(0) }
+                        RelativeSizeAxes = Axes.Both,
+                        Child = layerContainer = new GridContainer
+                        {
+                            RelativeSizeAxes = Axes.Both,
+                            RowDimensions = new[]
+                            {
+                                new Dimension(),
+                                new Dimension(),
+                                new Dimension(),
+                                new Dimension(),
+                                new Dimension(),
+                                new Dimension(),
+                            },
+                            Content = new[]
+                            {
+                                new Drawable[] { new TimelineLayer(5) },
+                                new Drawable[] { new TimelineLayer(4) },
+                                new Drawable[] { new TimelineLayer(3) },
+                                new Drawable[] { new TimelineLayer(2) },
+                                new Drawable[] { new TimelineLayer(1) },
+                                new Drawable[] { new TimelineLayer(0) }
+                            }
+                        }
                     }
                 }
             },
