@@ -163,6 +163,7 @@ public partial class DrawableClip : Container
         protected readonly Func<float, float> NormaliseFunc;
 
         protected float CumulativeDrag;
+        private Box resizeBackground = null!;
 
         public ResizeDetector(Clip clip, Func<float, float> normaliseFunc)
         {
@@ -173,10 +174,22 @@ public partial class DrawableClip : Container
         [BackgroundDependencyLoader]
         private void load()
         {
-            Child = new Box
+            Children = new Drawable[]
             {
-                Colour = Color4.Black.Opacity(0.4f),
-                RelativeSizeAxes = Axes.Both
+                resizeBackground = new Box
+                {
+                    Colour = Color4.Black.Opacity(0.4f),
+                    RelativeSizeAxes = Axes.Both
+                },
+                new SpriteIcon
+                {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    RelativeSizeAxes = Axes.Both,
+                    FillMode = FillMode.Fit,
+                    Icon = FontAwesome.Solid.GripLinesVertical,
+                    Colour = ThemeManager.Current[ThemeAttribute.SubText]
+                }
             };
         }
 
@@ -184,13 +197,13 @@ public partial class DrawableClip : Container
 
         protected override bool OnHover(HoverEvent e)
         {
-            Child.FadeColour(Colour4.Black.Opacity(0.7f), 100);
+            resizeBackground.FadeColour(Colour4.Black.Opacity(0.7f), 100);
             return true;
         }
 
         protected override void OnHoverLost(HoverLostEvent e)
         {
-            Child.FadeColour(Colour4.Black.Opacity(0.4f), 100);
+            resizeBackground.FadeColour(Colour4.Black.Opacity(0.4f), 100);
         }
     }
 
