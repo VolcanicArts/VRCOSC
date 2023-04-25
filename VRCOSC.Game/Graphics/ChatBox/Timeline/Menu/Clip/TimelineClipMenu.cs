@@ -58,7 +58,7 @@ public partial class TimelineClipMenu : TimelineMenu
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
-                Text = "Delete",
+                Text = "Delete Clip",
                 FontSize = 20,
                 RelativeSizeAxes = Axes.Both,
                 CornerRadius = 5,

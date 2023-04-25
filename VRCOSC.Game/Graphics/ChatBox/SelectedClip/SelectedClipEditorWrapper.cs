@@ -57,13 +57,14 @@ public partial class SelectedClipEditorWrapper : Container
                                 RelativeSizeAxes = Axes.Both,
                                 Children = new Drawable[]
                                 {
-                                    new SpriteText
+                                    new TextFlowContainer(t => t.Font = FrameworkFont.Regular.With(size: 35))
                                     {
                                         Anchor = Anchor.Centre,
                                         Origin = Anchor.Centre,
-                                        Font = FrameworkFont.Regular.With(size: 40),
-                                        Text = "Select a clip to edit",
-                                        Colour = ThemeManager.Current[ThemeAttribute.Text]
+                                        TextAnchor = Anchor.Centre,
+                                        RelativeSizeAxes = Axes.Both,
+                                        Text = "Left click a clip to edit\nRight click a clip for options\nRight click the timeline for options",
+                                        Colour = ThemeManager.Current[ThemeAttribute.SubText]
                                     },
                                     new Container
                                     {
