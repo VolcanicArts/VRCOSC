@@ -32,6 +32,7 @@ public abstract partial class TimelineMenu : VisibilityContainer
             BorderThickness = 2,
             Masking = true,
             CornerRadius = 5,
+            EdgeEffect = VRCOSCEdgeEffects.UniformShadow,
             Children = new Drawable[]
             {
                 new Box
