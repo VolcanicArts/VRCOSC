@@ -144,8 +144,6 @@ public partial class DrawableClip : Container
             }
 
             cumulativeDrag = 0f;
-
-            Clip.Save();
         }
 
         updateSizeAndPosition();
