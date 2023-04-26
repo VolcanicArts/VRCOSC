@@ -7,7 +7,7 @@ public enum Tab
 {
     Modules,
     ChatBox,
-    Settings,
     Router,
+    Settings,
     About
 }
