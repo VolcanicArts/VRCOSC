@@ -33,7 +33,10 @@ public partial class VRCOSCTextBox : BasicTextBox
         MoveCursorBy(int.MinValue);
     }
 
-    protected override void KillFocus() => Schedule(base.KillFocus);
+    protected override void KillFocus()
+    {
+        if (HasFocus) Scheduler.AddOnce(base.KillFocus);
+    }
 
     protected override SpriteText CreatePlaceholder()
     {
