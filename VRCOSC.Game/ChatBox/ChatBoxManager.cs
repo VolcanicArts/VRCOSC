@@ -239,6 +239,7 @@ public class ChatBoxManager
     private void setNewTime(TimeSpan newTime)
     {
         if (newTime.TotalSeconds < 1) newTime = TimeSpan.FromSeconds(1);
+        if (newTime.TotalSeconds > 4 * 60) newTime = TimeSpan.FromSeconds(4 * 60);
 
         TimelineLength.Value = newTime;
     }
