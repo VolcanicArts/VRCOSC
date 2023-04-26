@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
@@ -99,7 +99,7 @@ public partial class SelectedClipEditorWrapper : Container
                                     new Dimension(GridSizeMode.Absolute, 5),
                                     new Dimension(),
                                     new Dimension(GridSizeMode.Absolute, 5),
-                                    new Dimension(GridSizeMode.Relative, 0.15f),
+                                    new Dimension(GridSizeMode.Relative, 0.2f),
                                 },
                                 Content = new[]
                                 {
