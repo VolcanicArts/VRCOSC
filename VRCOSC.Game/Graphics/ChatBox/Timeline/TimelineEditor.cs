@@ -191,7 +191,6 @@ public partial class TimelineEditor : Container
             {
                 Colour = ThemeManager.Current[ThemeAttribute.Dark].Opacity(0.5f),
                 RelativeSizeAxes = Axes.X,
-                RelativePositionAxes = Axes.Y,
                 Height = grid_line_width,
                 Y = layerContainer.DrawHeight / 6 * i
             });
