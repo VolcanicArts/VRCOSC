@@ -6,14 +6,19 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using osu.Framework.Platform;
 using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI;
+using VRCOSC.Game.Graphics.UI.Button;
 
 namespace VRCOSC.Game.Graphics.ChatBox.SelectedClip;
 
 public partial class DrawableVariable : Container
 {
+    [Resolved]
+    private GameHost host { get; set; } = null!;
+
     private readonly ClipVariableMetadata clipVariable;
 
     public DrawableVariable(ClipVariableMetadata clipVariable)
@@ -61,15 +66,45 @@ public partial class DrawableVariable : Container
                             Colour = ThemeManager.Current[ThemeAttribute.Text]
                         }
                     },
-                    new LocalTextBox
+                    new Container
                     {
-                        Anchor = Anchor.TopLeft,
-                        Origin = Anchor.TopLeft,
+                        Anchor = Anchor.TopCentre,
+                        Origin = Anchor.TopCentre,
                         RelativeSizeAxes = Axes.X,
-                        Height = 25,
-                        CornerRadius = 5,
-                        Text = clipVariable.DisplayableFormat,
-                        ReadOnly = true
+                        AutoSizeAxes = Axes.Y,
+                        Children = new Drawable[]
+                        {
+                            new LocalTextBox
+                            {
+                                Anchor = Anchor.TopCentre,
+                                Origin = Anchor.TopCentre,
+                                RelativeSizeAxes = Axes.X,
+                                Height = 25,
+                                CornerRadius = 5,
+                                Text = clipVariable.DisplayableFormat,
+                                ReadOnly = true
+                            },
+                            new Container
+                            {
+                                Anchor = Anchor.CentreRight,
+                                Origin = Anchor.CentreRight,
+                                RelativeSizeAxes = Axes.Both,
+                                FillMode = FillMode.Fit,
+                                Padding = new MarginPadding(3),
+                                Child = new IconButton
+                                {
+                                    Anchor = Anchor.Centre,
+                                    Origin = Anchor.Centre,
+                                    RelativeSizeAxes = Axes.Both,
+                                    Icon = FontAwesome.Solid.Copy,
+                                    BackgroundColour = ThemeManager.Current[ThemeAttribute.Action],
+                                    IconShadow = true,
+                                    IconPadding = 4,
+                                    Circular = true,
+                                    Action = () => host.GetClipboard()?.SetText(clipVariable.DisplayableFormat)
+                                }
+                            }
+                        }
                     }
                 }
             }
