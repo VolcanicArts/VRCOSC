@@ -127,7 +127,8 @@ public partial class IntegerValueContainer : Container
                     {
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,
-                        Font = FrameworkFont.Regular.With(size: 20)
+                        Font = FrameworkFont.Regular.With(size: 20),
+                        Colour = ThemeManager.Current[ThemeAttribute.Text]
                     }
                 }
             };
