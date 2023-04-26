@@ -1,15 +1,13 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
 using osu.Framework.Allocation;
-using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
-using osuTK.Graphics;
 using osuTK.Input;
 using VRCOSC.Game.ChatBox;
 using VRCOSC.Game.ChatBox.Clips;
@@ -59,12 +57,12 @@ public partial class DrawableClip : Container
                     Colour = ThemeManager.Current[ThemeAttribute.Light],
                     RelativeSizeAxes = Axes.Both
                 },
-                new StartResizeDetector(Clip, v => v / Parent.DrawWidth)
+                new StartResizeDetector(Clip)
                 {
                     RelativeSizeAxes = Axes.Y,
                     Width = 15
                 },
-                new EndResizeDetector(Clip, v => v / Parent.DrawWidth)
+                new EndResizeDetector(Clip)
                 {
                     RelativeSizeAxes = Axes.Y,
                     Width = 15
@@ -128,10 +126,8 @@ public partial class DrawableClip : Container
 
         chatBoxManager.SelectedClip.Value = Clip;
 
-        e.Target = Parent;
-
-        var deltaX = e.Delta.X / Parent.DrawWidth;
-        cumulativeDrag += deltaX;
+        e.Target = timelineLayer;
+        cumulativeDrag += e.Delta.X / Parent.DrawWidth;
 
         if (Math.Abs(cumulativeDrag) >= chatBoxManager.TimelineResolution)
         {
@@ -164,15 +160,12 @@ public partial class DrawableClip : Container
     private partial class ResizeDetector : Container
     {
         protected readonly Clip Clip;
-        protected readonly Func<float, float> NormaliseFunc;
 
-        protected float CumulativeDrag;
         private Box resizeBackground = null!;
 
-        public ResizeDetector(Clip clip, Func<float, float> normaliseFunc)
+        protected ResizeDetector(Clip clip)
         {
             Clip = clip;
-            NormaliseFunc = normaliseFunc;
         }
 
         [BackgroundDependencyLoader]
@@ -182,7 +175,7 @@ public partial class DrawableClip : Container
             {
                 resizeBackground = new Box
                 {
-                    Colour = Color4.Black.Opacity(0.4f),
+                    Colour = ThemeManager.Current[ThemeAttribute.Mid],
                     RelativeSizeAxes = Axes.Both
                 },
                 new SpriteIcon
@@ -199,15 +192,17 @@ public partial class DrawableClip : Container
 
         protected override bool OnDragStart(DragStartEvent e) => true;
 
+        protected override void OnDragEnd(DragEndEvent e) => Clip.Save();
+
         protected override bool OnHover(HoverEvent e)
         {
-            resizeBackground.FadeColour(Colour4.Black.Opacity(0.7f), 100);
+            resizeBackground.FadeColour(ThemeManager.Current[ThemeAttribute.Darker], 100);
             return true;
         }
 
         protected override void OnHoverLost(HoverLostEvent e)
         {
-            resizeBackground.FadeColour(Colour4.Black.Opacity(0.4f), 100);
+            resizeBackground.FadeColour(ThemeManager.Current[ThemeAttribute.Mid], 100);
         }
     }
 
@@ -222,8 +217,8 @@ public partial class DrawableClip : Container
         [Resolved]
         private TimelineLayer timelineLayer { get; set; } = null!;
 
-        public StartResizeDetector(Clip clip, Func<float, float> normaliseFunc)
-            : base(clip, normaliseFunc)
+        public StartResizeDetector(Clip clip)
+            : base(clip)
         {
             Anchor = Anchor.CentreLeft;
             Origin = Anchor.CentreLeft;
@@ -233,21 +228,19 @@ public partial class DrawableClip : Container
         {
             base.OnDrag(e);
 
-            e.Target = Parent.Parent;
-            CumulativeDrag += NormaliseFunc.Invoke(e.Delta.X);
+            e.Target = timelineLayer;
 
-            if (Math.Abs(CumulativeDrag) >= chatBoxManager.TimelineResolution)
+            var mousePosNormalised = e.MousePosition.X / timelineLayer.DrawWidth;
+            var newStart = (int)Math.Floor(mousePosNormalised * chatBoxManager.TimelineLengthSeconds);
+
+            if (newStart != Clip.Start.Value)
             {
-                var newStart = Clip.Start.Value + Math.Sign(CumulativeDrag);
-
-                var (lowerBound, upperBound) = timelineLayer.GetBoundsNearestTo(float.IsNegative(CumulativeDrag) ? Clip.Start.Value : newStart, false);
+                var (lowerBound, upperBound) = timelineLayer.GetBoundsNearestTo(newStart < Clip.Start.Value ? Clip.Start.Value : newStart, false);
 
                 if (newStart >= lowerBound && newStart < upperBound)
                 {
                     Clip.Start.Value = newStart;
                 }
-
-                CumulativeDrag = 0f;
             }
 
             parentDrawableClip.updateSizeAndPosition();
@@ -265,8 +258,8 @@ public partial class DrawableClip : Container
         [Resolved]
         private TimelineLayer timelineLayer { get; set; } = null!;
 
-        public EndResizeDetector(Clip clip, Func<float, float> normaliseFunc)
-            : base(clip, normaliseFunc)
+        public EndResizeDetector(Clip clip)
+            : base(clip)
         {
             Anchor = Anchor.CentreRight;
             Origin = Anchor.CentreRight;
@@ -276,21 +269,18 @@ public partial class DrawableClip : Container
         {
             base.OnDrag(e);
 
-            e.Target = Parent.Parent;
-            CumulativeDrag += NormaliseFunc.Invoke(e.Delta.X);
+            e.Target = timelineLayer;
+            var mousePosNormalised = e.MousePosition.X / timelineLayer.DrawWidth;
+            var newEnd = (int)Math.Ceiling(mousePosNormalised * chatBoxManager.TimelineLengthSeconds);
 
-            if (Math.Abs(CumulativeDrag) >= chatBoxManager.TimelineResolution)
+            if (newEnd != Clip.Start.Value)
             {
-                var newEnd = Clip.End.Value + Math.Sign(CumulativeDrag);
-
-                var (lowerBound, upperBound) = timelineLayer.GetBoundsNearestTo(float.IsNegative(CumulativeDrag) ? newEnd : Clip.End.Value, true);
+                var (lowerBound, upperBound) = timelineLayer.GetBoundsNearestTo(newEnd < Clip.End.Value ? newEnd : Clip.End.Value, true);
 
                 if (newEnd > lowerBound && newEnd <= upperBound)
                 {
                     Clip.End.Value = newEnd;
                 }
-
-                CumulativeDrag = 0f;
             }
 
             parentDrawableClip.updateSizeAndPosition();
