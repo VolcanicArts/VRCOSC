@@ -54,6 +54,8 @@ public partial class TimelineLayer : Container<DrawableClip>
 
     public (int, int) GetBoundsNearestTo(int value, bool end, bool isCreating = false)
     {
+        value = Math.Clamp(value, 0, chatBoxManager.TimelineLengthSeconds);
+
         var boundsList = new List<int>();
 
         Children.ForEach(child =>
@@ -87,7 +89,7 @@ public partial class TimelineLayer : Container<DrawableClip>
         if (e.Button == MouseButton.Right)
         {
             e.Target = this;
-            var xPos = (int)MathF.Floor(e.MousePosition.X / DrawWidth * 60);
+            var xPos = (int)MathF.Floor(e.MousePosition.X / DrawWidth * chatBoxManager.TimelineLengthSeconds);
             timelineEditor.ShowLayerMenu(e, xPos, this);
             return true;
         }
