@@ -29,7 +29,7 @@ public class WeatherModule : ChatBoxModule
         CreateVariable(WeatherVariable.Humidity, @"Humidity", @"humidity");
         CreateVariable(WeatherVariable.Condition, @"Condition", @"condition");
 
-        CreateState(WeatherState.Default, @"Default", $@"Local Weather                                {GetVariableFormat(WeatherVariable.Condition)}                                {GetVariableFormat(WeatherVariable.TempC)}C - {GetVariableFormat(WeatherVariable.TempF)}F");
+        CreateState(WeatherState.Default, @"Default", $@"Local Weather                                        {GetVariableFormat(WeatherVariable.Condition)}                                            {GetVariableFormat(WeatherVariable.TempC)}C - {GetVariableFormat(WeatherVariable.TempF)}F");
     }
 
     protected override void OnModuleStart()
