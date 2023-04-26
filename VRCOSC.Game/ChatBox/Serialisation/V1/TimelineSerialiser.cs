@@ -1,11 +1,9 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
 using osu.Framework.Platform;
-using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.ChatBox.Serialisation.V1.Structures;
 
 namespace VRCOSC.Game.ChatBox.Serialisation.V1;
@@ -20,11 +18,11 @@ public class TimelineSerialiser : ITimelineSerialiser
         this.storage = storage;
     }
 
-    public void Serialise(List<Clip> clips)
+    public void Serialise(ChatBoxManager chatBoxManager)
     {
         using var stream = storage.CreateFileSafely(file_name);
         using var writer = new StreamWriter(stream);
-        writer.Write(JsonConvert.SerializeObject(new SerialisableTimeline(clips)));
+        writer.Write(JsonConvert.SerializeObject(new SerialisableTimeline(chatBoxManager)));
     }
 
     public SerialisableTimeline? Deserialise()

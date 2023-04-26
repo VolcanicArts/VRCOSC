@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Collections.Generic;
 using osu.Framework.Allocation;
 using osu.Framework.Extensions.Color4Extensions;
@@ -39,14 +40,13 @@ public partial class TimelineEditor : Container
     private Dictionary<int, TimelineLayer> layers = new();
     private Container gridGenerator = null!;
     private Container positionIndicator = null!;
+    private GridContainer layerContainer = null!;
 
     [BackgroundDependencyLoader]
     private void load()
     {
         Masking = true;
         CornerRadius = 10;
-
-        GridContainer layerContainer;
 
         Children = new Drawable[]
         {
@@ -149,8 +149,11 @@ public partial class TimelineEditor : Container
                 }
             }
         }, true);
+    }
 
-        generateGrid();
+    protected override void LoadComplete()
+    {
+        chatBoxManager.TimelineLength.BindValueChanged(_ => generateGrid(), true);
     }
 
     protected override void Update()
@@ -168,6 +171,8 @@ public partial class TimelineEditor : Container
 
     private void generateGrid()
     {
+        gridGenerator.Clear();
+
         for (var i = 0; i <= chatBoxManager.TimelineLengthSeconds; i++)
         {
             gridGenerator.Add(new Box
@@ -188,7 +193,7 @@ public partial class TimelineEditor : Container
                 RelativeSizeAxes = Axes.X,
                 RelativePositionAxes = Axes.Y,
                 Height = grid_line_width,
-                Y = DrawHeight / 6 * i
+                Y = layerContainer.DrawHeight / 6 * i
             });
         }
     }

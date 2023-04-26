@@ -51,7 +51,7 @@ public class ChatBoxManager
     public readonly List<(string, string)> TriggeredEvents = new();
     private readonly object triggeredEventsLock = new();
 
-    public readonly Bindable<TimeSpan> TimelineLength = new(TimeSpan.FromMinutes(1));
+    public readonly Bindable<TimeSpan> TimelineLength = new();
     public int TimelineLengthSeconds => (int)TimelineLength.Value.TotalSeconds;
     public float TimelineResolution => 1f / (float)TimelineLength.Value.TotalSeconds;
 
@@ -81,10 +81,12 @@ public class ChatBoxManager
         else
         {
             Clips.AddRange(DefaultTimeline.GenerateDefaultTimeline(this));
+            TimelineLength.Value = TimeSpan.FromMinutes(1);
             clipDataLoaded = true;
         }
 
         Clips.BindCollectionChanged((_, _) => Save());
+        TimelineLength.BindValueChanged(_ => Save());
 
         isLoaded = true;
 
@@ -95,15 +97,17 @@ public class ChatBoxManager
     {
         try
         {
-            var clips = serialiser.Deserialise()?.Clips;
+            var data = serialiser.Deserialise();
 
-            if (clips is null)
+            if (data is null)
             {
                 notification.Notify(new ExceptionNotification("Could not parse ChatBox config. Report on the Discord server"));
                 return false;
             }
 
-            clips.ForEach(clip =>
+            TimelineLength.Value = TimeSpan.FromTicks(data.Ticks);
+
+            data.Clips.ForEach(clip =>
             {
                 clip.AssociatedModules.ToImmutableList().ForEach(moduleName =>
                 {
@@ -130,7 +134,7 @@ public class ChatBoxManager
                 });
             });
 
-            clips.ForEach(clip =>
+            data.Clips.ForEach(clip =>
             {
                 var newClip = CreateClip();
 
@@ -177,7 +181,7 @@ public class ChatBoxManager
     {
         if (!isLoaded) return;
 
-        serialiser.Serialise(Clips.ToList());
+        serialiser.Serialise(this);
     }
 
     public void Initialise(VRChatOscClient oscClient, Bindable<int> sendDelay, Dictionary<string, bool> moduleEnabledCache)
@@ -218,6 +222,25 @@ public class ChatBoxManager
 
         VariableValues.Clear();
         StateValues.Clear();
+    }
+
+    public void IncreaseTime(int amount)
+    {
+        var newTime = TimelineLength.Value + TimeSpan.FromSeconds(amount);
+        setNewTime(newTime);
+    }
+
+    public void DecreaseTime(int amount)
+    {
+        var newTime = TimelineLength.Value - TimeSpan.FromSeconds(amount);
+        setNewTime(newTime);
+    }
+
+    private void setNewTime(TimeSpan newTime)
+    {
+        if (newTime.TotalSeconds < 1) newTime = TimeSpan.FromSeconds(1);
+
+        TimelineLength.Value = newTime;
     }
 
     private void evaluateClips()

@@ -42,6 +42,17 @@ public class Clip
         Priority.BindValueChanged(_ => chatBoxManager.Save());
         States.BindCollectionChanged((_, _) => chatBoxManager.Save());
         Events.BindCollectionChanged((_, _) => chatBoxManager.Save());
+
+        chatBoxManager.TimelineLength.BindValueChanged(_ =>
+        {
+            if (chatBoxManager.TimelineLengthSeconds <= Start.Value)
+            {
+                chatBoxManager.DeleteClip(this);
+                return;
+            }
+
+            if (chatBoxManager.TimelineLengthSeconds < End.Value) End.Value = chatBoxManager.TimelineLengthSeconds;
+        });
     }
 
     public void Initialise()

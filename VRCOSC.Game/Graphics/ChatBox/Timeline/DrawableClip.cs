@@ -94,10 +94,9 @@ public partial class DrawableClip : Container
             background.FadeColour(Clip == e.NewValue ? ThemeManager.Current[ThemeAttribute.Dark] : ThemeManager.Current[ThemeAttribute.Light], 300, Easing.OutQuart);
         }, true);
 
+        chatBoxManager.TimelineLength.BindValueChanged(_ => updateSizeAndPosition(), true);
         Clip.Name.BindValueChanged(e => drawName.Text = e.NewValue, true);
         Clip.Enabled.BindValueChanged(e => Child.FadeTo(e.NewValue ? 1 : 0.5f), true);
-
-        updateSizeAndPosition();
     }
 
     protected override bool OnMouseDown(MouseDownEvent e)
