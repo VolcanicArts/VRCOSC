@@ -18,8 +18,8 @@ public sealed partial class TabSelector : Container<DrawableTab>
     {
         { Tab.Modules, FontAwesome.Solid.ListUl },
         { Tab.ChatBox, FontAwesome.Solid.Get(62074) },
-        { Tab.Settings, FontAwesome.Solid.Cog },
         { Tab.Router, FontAwesome.Solid.Get(61920) },
+        { Tab.Settings, FontAwesome.Solid.Cog },
         { Tab.About, FontAwesome.Solid.Info }
     };
 

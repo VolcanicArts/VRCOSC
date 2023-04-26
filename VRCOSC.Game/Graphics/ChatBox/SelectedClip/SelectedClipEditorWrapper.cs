@@ -6,14 +6,22 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using osu.Framework.Platform;
+using osuTK;
 using VRCOSC.Game.ChatBox;
 using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.Graphics.Themes;
+using VRCOSC.Game.Graphics.UI.Button;
 
 namespace VRCOSC.Game.Graphics.ChatBox.SelectedClip;
 
 public partial class SelectedClipEditorWrapper : Container
 {
+    private const string chatbox_v3_wiki_url = @"https://github.com/VolcanicArts/VRCOSC/wiki/ChatBox-V3";
+
+    [Resolved]
+    private GameHost host { get; set; } = null!;
+
     [Resolved]
     private ChatBoxManager chatBoxManager { get; set; } = null!;
 
@@ -49,13 +57,33 @@ public partial class SelectedClipEditorWrapper : Container
                                 RelativeSizeAxes = Axes.Both,
                                 Children = new Drawable[]
                                 {
-                                    new SpriteText
+                                    new TextFlowContainer(t => t.Font = FrameworkFont.Regular.With(size: 35))
                                     {
                                         Anchor = Anchor.Centre,
                                         Origin = Anchor.Centre,
-                                        Font = FrameworkFont.Regular.With(size: 40),
-                                        Text = "Select a clip to edit",
-                                        Colour = ThemeManager.Current[ThemeAttribute.Text]
+                                        TextAnchor = Anchor.Centre,
+                                        RelativeSizeAxes = Axes.Both,
+                                        Text = "Left click a clip to edit\nRight click a clip for options\nRight click the timeline for options",
+                                        Colour = ThemeManager.Current[ThemeAttribute.SubText]
+                                    },
+                                    new Container
+                                    {
+                                        Anchor = Anchor.TopRight,
+                                        Origin = Anchor.TopRight,
+                                        Size = new Vector2(80),
+                                        Padding = new MarginPadding(5),
+                                        Child = new IconButton
+                                        {
+                                            Anchor = Anchor.Centre,
+                                            Origin = Anchor.Centre,
+                                            RelativeSizeAxes = Axes.Both,
+                                            Icon = FontAwesome.Solid.Question,
+                                            BackgroundColour = ThemeManager.Current[ThemeAttribute.Action],
+                                            IconShadow = true,
+                                            Masking = true,
+                                            Circular = true,
+                                            Action = () => host.OpenUrlExternally(chatbox_v3_wiki_url)
+                                        }
                                     }
                                 }
                             },
@@ -71,7 +99,7 @@ public partial class SelectedClipEditorWrapper : Container
                                     new Dimension(GridSizeMode.Absolute, 5),
                                     new Dimension(),
                                     new Dimension(GridSizeMode.Absolute, 5),
-                                    new Dimension(GridSizeMode.Relative, 0.15f),
+                                    new Dimension(GridSizeMode.Relative, 0.2f),
                                 },
                                 Content = new[]
                                 {

@@ -115,7 +115,15 @@ public abstract class HeartRateModule : ChatBoxModule
     {
         targetHeartrate = heartrate;
         lastHeartrateTime = DateTimeOffset.Now;
-        targetInterval = currentHeartrate != targetHeartrate ? TimeSpan.FromTicks(TimeSpan.FromMilliseconds(GetSetting<int>(HeartrateSetting.SmoothingLength)).Ticks / Math.Abs(currentHeartrate - targetHeartrate)) : TimeSpan.Zero;
+
+        try
+        {
+            targetInterval = TimeSpan.FromTicks(TimeSpan.FromMilliseconds(GetSetting<int>(HeartrateSetting.SmoothingLength)).Ticks / Math.Abs(currentHeartrate - targetHeartrate));
+        }
+        catch (DivideByZeroException)
+        {
+            targetInterval = TimeSpan.Zero;
+        }
 
         SendParameter(HeartrateParameter.Enabled, true);
     }

@@ -45,6 +45,8 @@ public partial class ChatBoxScreen : Container
                     {
                         new Dimension(),
                         new Dimension(GridSizeMode.Absolute, 5),
+                        new Dimension(GridSizeMode.Absolute, 40),
+                        new Dimension(GridSizeMode.Absolute, 5),
                         new Dimension()
                     },
                     Content = new[]
@@ -57,6 +59,19 @@ public partial class ChatBoxScreen : Container
                                 Origin = Anchor.TopCentre,
                                 RelativeSizeAxes = Axes.Both
                             },
+                        },
+                        null,
+                        new Drawable[]
+                        {
+                            new TimelineLengthContainer
+                            {
+                                Anchor = Anchor.Centre,
+                                Origin = Anchor.Centre,
+                                RelativeSizeAxes = Axes.Both,
+                                Width = 0.2f,
+                                Masking = true,
+                                CornerRadius = 10
+                            }
                         },
                         null,
                         new Drawable[]

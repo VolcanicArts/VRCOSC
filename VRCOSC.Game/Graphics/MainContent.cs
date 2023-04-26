@@ -53,8 +53,8 @@ public sealed partial class MainContent : Container
                             {
                                 new ModuleListingScreen(),
                                 new ChatBoxScreen(),
-                                new SettingsScreen(),
                                 new RouterScreen(),
+                                new SettingsScreen(),
                                 new AboutScreen()
                             }
                         }

@@ -58,6 +58,18 @@ public sealed partial class ModuleEditingContent : Container
                                 Vertical = 10
                             }
                         },
+                        new SpriteText
+                        {
+                            Anchor = Anchor.TopCentre,
+                            Origin = Anchor.TopCentre,
+                            Font = FrameworkFont.Regular.With(size: 25),
+                            Colour = ThemeManager.Current[ThemeAttribute.SubText],
+                            Text = "Looking for the ChatBox settings? They're in a new screen on the left bar",
+                            Margin = new MarginPadding
+                            {
+                                Vertical = 5
+                            }
+                        },
                         separatedAttributeFlowFlow = new FillFlowContainer<SeparatedAttributeFlow>
                         {
                             Anchor = Anchor.TopCentre,

@@ -39,14 +39,13 @@ public partial class TimelineEditor : Container
     private Dictionary<int, TimelineLayer> layers = new();
     private Container gridGenerator = null!;
     private Container positionIndicator = null!;
+    private GridContainer layerContainer = null!;
 
     [BackgroundDependencyLoader]
     private void load()
     {
         Masking = true;
         CornerRadius = 10;
-
-        GridContainer layerContainer;
 
         Children = new Drawable[]
         {
@@ -55,34 +54,49 @@ public partial class TimelineEditor : Container
                 Colour = ThemeManager.Current[ThemeAttribute.Mid],
                 RelativeSizeAxes = Axes.Both
             },
-            gridGenerator = new Container
+            new TimelineNumberBar
             {
-                RelativeSizeAxes = Axes.Both,
-                Position = new Vector2(-(grid_line_width / 2f))
+                RelativeSizeAxes = Axes.Both
             },
             new Container
             {
                 RelativeSizeAxes = Axes.Both,
-                Child = layerContainer = new GridContainer
+                Padding = new MarginPadding
                 {
-                    RelativeSizeAxes = Axes.Both,
-                    RowDimensions = new[]
+                    Top = 25
+                },
+                Children = new Drawable[]
+                {
+                    gridGenerator = new Container
                     {
-                        new Dimension(),
-                        new Dimension(),
-                        new Dimension(),
-                        new Dimension(),
-                        new Dimension(),
-                        new Dimension(),
+                        RelativeSizeAxes = Axes.Both,
+                        Position = new Vector2(-(grid_line_width / 2f))
                     },
-                    Content = new[]
+                    new Container
                     {
-                        new Drawable[] { new TimelineLayer(5) },
-                        new Drawable[] { new TimelineLayer(4) },
-                        new Drawable[] { new TimelineLayer(3) },
-                        new Drawable[] { new TimelineLayer(2) },
-                        new Drawable[] { new TimelineLayer(1) },
-                        new Drawable[] { new TimelineLayer(0) }
+                        RelativeSizeAxes = Axes.Both,
+                        Child = layerContainer = new GridContainer
+                        {
+                            RelativeSizeAxes = Axes.Both,
+                            RowDimensions = new[]
+                            {
+                                new Dimension(),
+                                new Dimension(),
+                                new Dimension(),
+                                new Dimension(),
+                                new Dimension(),
+                                new Dimension(),
+                            },
+                            Content = new[]
+                            {
+                                new Drawable[] { new TimelineLayer(5) },
+                                new Drawable[] { new TimelineLayer(4) },
+                                new Drawable[] { new TimelineLayer(3) },
+                                new Drawable[] { new TimelineLayer(2) },
+                                new Drawable[] { new TimelineLayer(1) },
+                                new Drawable[] { new TimelineLayer(0) }
+                            }
+                        }
                     }
                 }
             },
@@ -134,8 +148,11 @@ public partial class TimelineEditor : Container
                 }
             }
         }, true);
+    }
 
-        generateGrid();
+    protected override void LoadComplete()
+    {
+        chatBoxManager.TimelineLength.BindValueChanged(_ => generateGrid(), true);
     }
 
     protected override void Update()
@@ -153,7 +170,9 @@ public partial class TimelineEditor : Container
 
     private void generateGrid()
     {
-        for (var i = 0; i < 60; i++)
+        gridGenerator.Clear();
+
+        for (var i = 0; i <= chatBoxManager.TimelineLengthSeconds; i++)
         {
             gridGenerator.Add(new Box
             {
@@ -161,19 +180,18 @@ public partial class TimelineEditor : Container
                 RelativeSizeAxes = Axes.Y,
                 RelativePositionAxes = Axes.X,
                 Width = grid_line_width,
-                X = (chatBoxManager.TimelineResolution * i)
+                X = chatBoxManager.TimelineResolution * i
             });
         }
 
-        for (var i = 0; i < 6; i++)
+        for (var i = 0; i <= 6; i++)
         {
             gridGenerator.Add(new Box
             {
                 Colour = ThemeManager.Current[ThemeAttribute.Dark].Opacity(0.5f),
                 RelativeSizeAxes = Axes.X,
-                RelativePositionAxes = Axes.Y,
                 Height = grid_line_width,
-                Y = (DrawHeight / 6 * i)
+                Y = layerContainer.DrawHeight / 6 * i
             });
         }
     }

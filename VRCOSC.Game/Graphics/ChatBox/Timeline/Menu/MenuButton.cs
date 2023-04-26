@@ -11,6 +11,6 @@ public partial class MenuButton : TextButton
     public MenuButton()
     {
         Stateful = false;
-        BackgroundColour = ThemeManager.Current[ThemeAttribute.Accent];
+        BackgroundColour = ThemeManager.Current[ThemeAttribute.Light];
     }
 }

@@ -32,6 +32,7 @@ public abstract partial class TimelineMenu : VisibilityContainer
             BorderThickness = 2,
             Masking = true,
             CornerRadius = 5,
+            EdgeEffect = VRCOSCEdgeEffects.UniformShadow,
             Children = new Drawable[]
             {
                 new Box
@@ -52,7 +53,7 @@ public abstract partial class TimelineMenu : VisibilityContainer
 
     protected override void PopIn()
     {
-        this.FadeInFromZero(100, Easing.OutQuad);
+        this.FadeIn(100, Easing.OutQuad);
 
         if (Position.Y + InternalChild.DrawHeight < host.Window.ClientSize.Height)
             InternalChild.Origin = InternalChild.Anchor = Position.X + InternalChild.DrawWidth < host.Window.ClientSize.Width ? Anchor.TopLeft : Anchor.TopRight;
@@ -62,7 +63,7 @@ public abstract partial class TimelineMenu : VisibilityContainer
 
     protected override void PopOut()
     {
-        this.FadeOutFromOne(100, Easing.OutQuad);
+        this.FadeOut(100, Easing.OutQuad);
     }
 
     public void SetPosition(MouseDownEvent e)

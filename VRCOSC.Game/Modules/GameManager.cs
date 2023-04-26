@@ -96,7 +96,7 @@ public partial class GameManager : Component
 
         setupModules();
 
-        chatBoxManager.Load(storage, this);
+        chatBoxManager.Load(storage, this, notifications);
     }
 
     private void setupModules()
@@ -154,8 +154,13 @@ public partial class GameManager : Component
             {
                 if (data.IsAvatarChangeEvent)
                 {
-                    var avatarId = ((string)data.ParameterValue)[..avatar_id_format.Length];
-                    AvatarConfig = AvatarConfigLoader.LoadConfigFor(avatarId);
+                    var avatarIdRaw = (string)data.ParameterValue;
+
+                    if (!avatarIdRaw.StartsWith("local"))
+                    {
+                        var avatarId = avatarIdRaw[..avatar_id_format.Length];
+                        AvatarConfig = AvatarConfigLoader.LoadConfigFor(avatarId);
+                    }
 
                     sendControlValues();
                 }

@@ -40,10 +40,19 @@ public class Clip
         Enabled.BindValueChanged(_ => chatBoxManager.Save());
         Name.BindValueChanged(_ => chatBoxManager.Save());
         Priority.BindValueChanged(_ => chatBoxManager.Save());
-        Start.BindValueChanged(_ => chatBoxManager.Save());
-        End.BindValueChanged(_ => chatBoxManager.Save());
         States.BindCollectionChanged((_, _) => chatBoxManager.Save());
         Events.BindCollectionChanged((_, _) => chatBoxManager.Save());
+
+        chatBoxManager.TimelineLength.BindValueChanged(_ =>
+        {
+            if (chatBoxManager.TimelineLengthSeconds <= Start.Value)
+            {
+                chatBoxManager.DeleteClip(this);
+                return;
+            }
+
+            if (chatBoxManager.TimelineLengthSeconds < End.Value) End.Value = chatBoxManager.TimelineLengthSeconds;
+        });
     }
 
     public void Initialise()
@@ -57,6 +66,11 @@ public class Clip
     {
         auditEvents();
         setCurrentEvent();
+    }
+
+    public void Save()
+    {
+        chatBoxManager.Save();
     }
 
     private void auditEvents()
@@ -129,7 +143,7 @@ public class Clip
         removeLessCompoundedStates(localStates);
         removeInvalidStates(localStates);
 
-        if (!localStates.Any()) return false;
+        if (localStates.Count != 1) return false;
 
         var chosenState = localStates.Single();
         if (!chosenState.Enabled.Value) return false;

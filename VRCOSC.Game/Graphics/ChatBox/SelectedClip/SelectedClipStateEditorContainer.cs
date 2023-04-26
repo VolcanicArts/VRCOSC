@@ -21,7 +21,7 @@ namespace VRCOSC.Game.Graphics.ChatBox.SelectedClip;
 
 public partial class SelectedClipStateEditorContainer : Container
 {
-    private const string chatbox_v3_wiki_url = @"https://github.com/VolcanicArts/VRCOSC/wiki/ChatBox-V3";
+    private const string chatbox_v3_wiki_url = @"https://github.com/VolcanicArts/VRCOSC/wiki/ChatBox-V3#clips";
 
     [Resolved]
     private GameHost host { get; set; } = null!;
@@ -214,11 +214,11 @@ public partial class SelectedClipStateEditorContainer : Container
                     BackgroundColour = ThemeManager.Current[ThemeAttribute.Action],
                     IconShadow = true,
                     Masking = true,
-                    CornerRadius = 17,
+                    Circular = true,
                     IconPadding = 6,
                     Action = () => host.OpenUrlExternally(chatbox_v3_wiki_url)
                 }
-            },
+            }
         };
     }
 

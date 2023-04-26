@@ -71,7 +71,8 @@ public partial class RouterScreen : Container
                             AutoSizeAxes = Axes.Y,
                             TextAnchor = Anchor.TopCentre,
                             Text = "This screen allows you to route data from other applications through VRCOSC to fix the port binding issues\n"
-                                   + "This is functionally similar to OSCRouter, but has proper support for apps such as VRCFaceTracking",
+                                   + "This is functionally similar to OSCRouter, but has proper support for apps such as VRCFaceTracking\n"
+                                   + "Check the Router wiki page (top right) for common setups",
                             Colour = ThemeManager.Current[ThemeAttribute.SubText]
                         },
                         instanceFlow = new FillFlowContainer
@@ -113,7 +114,7 @@ public partial class RouterScreen : Container
                     BackgroundColour = ThemeManager.Current[ThemeAttribute.Action],
                     IconShadow = true,
                     Masking = true,
-                    CornerRadius = 25,
+                    Circular = true,
                     IconPadding = 6,
                     Action = () => host.OpenUrlExternally(vrcosc_router_wiki_url)
                 }

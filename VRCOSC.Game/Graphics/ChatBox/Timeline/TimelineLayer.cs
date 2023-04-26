@@ -10,6 +10,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Input.Events;
 using osuTK.Input;
+using VRCOSC.Game.ChatBox;
 using VRCOSC.Game.ChatBox.Clips;
 
 namespace VRCOSC.Game.Graphics.ChatBox.Timeline;
@@ -19,6 +20,9 @@ public partial class TimelineLayer : Container<DrawableClip>
 {
     [Resolved]
     private TimelineEditor timelineEditor { get; set; } = null!;
+
+    [Resolved]
+    private ChatBoxManager chatBoxManager { get; set; } = null!;
 
     public readonly int Priority;
 
@@ -50,6 +54,8 @@ public partial class TimelineLayer : Container<DrawableClip>
 
     public (int, int) GetBoundsNearestTo(int value, bool end, bool isCreating = false)
     {
+        value = Math.Clamp(value, 0, chatBoxManager.TimelineLengthSeconds);
+
         var boundsList = new List<int>();
 
         Children.ForEach(child =>
@@ -69,7 +75,7 @@ public partial class TimelineLayer : Container<DrawableClip>
         });
 
         boundsList.Add(0);
-        boundsList.Add(60);
+        boundsList.Add(chatBoxManager.TimelineLengthSeconds);
         boundsList.Sort();
 
         var lowerBound = boundsList.Last(bound => bound <= value);
@@ -83,7 +89,7 @@ public partial class TimelineLayer : Container<DrawableClip>
         if (e.Button == MouseButton.Right)
         {
             e.Target = this;
-            var xPos = (int)MathF.Floor(e.MousePosition.X / DrawWidth * 60);
+            var xPos = (int)MathF.Floor(e.MousePosition.X / DrawWidth * chatBoxManager.TimelineLengthSeconds);
             timelineEditor.ShowLayerMenu(e, xPos, this);
             return true;
         }
