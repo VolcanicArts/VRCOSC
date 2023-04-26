@@ -20,50 +20,55 @@ public partial class TimelineNumberBar : Container
     [BackgroundDependencyLoader]
     private void load()
     {
-        for (var i = 0; i <= chatBoxManager.TimelineLengthSeconds; i++)
+        chatBoxManager.TimelineLength.BindValueChanged(_ =>
         {
-            if (i != 0 && i != chatBoxManager.TimelineLengthSeconds && i % 5 == 0)
+            Clear();
+
+            for (var i = 0; i <= chatBoxManager.TimelineLengthSeconds; i++)
             {
-                Add(new Container
+                if (i != 0 && i != chatBoxManager.TimelineLengthSeconds && i % 5 == 0)
                 {
-                    Anchor = Anchor.TopLeft,
-                    Origin = Anchor.TopCentre,
-                    RelativePositionAxes = Axes.X,
-                    RelativeSizeAxes = Axes.Y,
-                    X = chatBoxManager.TimelineResolution * i,
-                    Children = new Drawable[]
+                    Add(new Container
                     {
-                        new FillFlowContainer
+                        Anchor = Anchor.TopLeft,
+                        Origin = Anchor.TopCentre,
+                        RelativePositionAxes = Axes.X,
+                        RelativeSizeAxes = Axes.Y,
+                        X = chatBoxManager.TimelineResolution * i,
+                        Children = new Drawable[]
                         {
-                            Anchor = Anchor.TopCentre,
-                            Origin = Anchor.TopCentre,
-                            RelativeSizeAxes = Axes.Y,
-                            Width = 10,
-                            Direction = FillDirection.Vertical,
-                            Spacing = new Vector2(0, 2),
-                            Children = new Drawable[]
+                            new FillFlowContainer
                             {
-                                new SpriteText
+                                Anchor = Anchor.TopCentre,
+                                Origin = Anchor.TopCentre,
+                                RelativeSizeAxes = Axes.Y,
+                                Width = 10,
+                                Direction = FillDirection.Vertical,
+                                Spacing = new Vector2(0, 2),
+                                Children = new Drawable[]
                                 {
-                                    Anchor = Anchor.TopCentre,
-                                    Origin = Anchor.TopCentre,
-                                    Text = i.ToString(),
-                                    Font = FrameworkFont.Regular.With(size: 15),
-                                    Colour = ThemeManager.Current[ThemeAttribute.Text]
-                                },
-                                new Box
-                                {
-                                    Anchor = Anchor.TopCentre,
-                                    Origin = Anchor.TopCentre,
-                                    Colour = ThemeManager.Current[ThemeAttribute.Lighter],
-                                    Width = 3,
-                                    RelativeSizeAxes = Axes.Y
+                                    new SpriteText
+                                    {
+                                        Anchor = Anchor.TopCentre,
+                                        Origin = Anchor.TopCentre,
+                                        Text = i.ToString(),
+                                        Font = FrameworkFont.Regular.With(size: 15),
+                                        Colour = ThemeManager.Current[ThemeAttribute.Text]
+                                    },
+                                    new Box
+                                    {
+                                        Anchor = Anchor.TopCentre,
+                                        Origin = Anchor.TopCentre,
+                                        Colour = ThemeManager.Current[ThemeAttribute.Lighter],
+                                        Width = 3,
+                                        RelativeSizeAxes = Axes.Y
+                                    }
                                 }
                             }
                         }
-                    }
-                });
+                    });
+                }
             }
-        }
+        }, true);
     }
 }
