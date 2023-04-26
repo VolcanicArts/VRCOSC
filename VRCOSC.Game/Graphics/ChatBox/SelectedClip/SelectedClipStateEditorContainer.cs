@@ -241,6 +241,8 @@ public partial class SelectedClipStateEditorContainer : Container
 
     private void filterFlows()
     {
+        if (chatBoxManager.SelectedClip.Value is null) return;
+
         if (showRelevantStates.Value)
         {
             var enabledModuleNames = chatBoxManager.GameManager.ModuleManager.GetEnabledModuleNames().Where(moduleName => chatBoxManager.SelectedClip.Value!.AssociatedModules.Contains(moduleName)).ToList();
