@@ -113,7 +113,7 @@ public partial class RouterScreen : Container
                     BackgroundColour = ThemeManager.Current[ThemeAttribute.Action],
                     IconShadow = true,
                     Masking = true,
-                    CornerRadius = 25,
+                    Circular = true,
                     IconPadding = 6,
                     Action = () => host.OpenUrlExternally(vrcosc_router_wiki_url)
                 }

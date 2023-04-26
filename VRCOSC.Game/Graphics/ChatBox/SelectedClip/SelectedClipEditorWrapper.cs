@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
@@ -81,7 +81,7 @@ public partial class SelectedClipEditorWrapper : Container
                                             BackgroundColour = ThemeManager.Current[ThemeAttribute.Action],
                                             IconShadow = true,
                                             Masking = true,
-                                            CornerRadius = 35,
+                                            Circular = true,
                                             Action = () => host.OpenUrlExternally(chatbox_v3_wiki_url)
                                         }
                                     }

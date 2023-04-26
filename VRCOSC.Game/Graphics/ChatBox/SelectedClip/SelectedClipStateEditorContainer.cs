@@ -214,7 +214,7 @@ public partial class SelectedClipStateEditorContainer : Container
                     BackgroundColour = ThemeManager.Current[ThemeAttribute.Action],
                     IconShadow = true,
                     Masking = true,
-                    CornerRadius = 17,
+                    Circular = true,
                     IconPadding = 6,
                     Action = () => host.OpenUrlExternally(chatbox_v3_wiki_url)
                 }

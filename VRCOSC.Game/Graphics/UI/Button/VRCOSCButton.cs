@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using osu.Framework.Graphics;
 using osu.Framework.Input.Events;
 using osuTK.Input;
@@ -16,12 +17,19 @@ public partial class VRCOSCButton : osu.Framework.Graphics.UserInterface.Button
     private const float alpha_disabled = 0.5f;
 
     public bool ShouldAnimate { get; init; } = true;
+    public bool Circular { get; init; } = false;
 
     protected VRCOSCButton()
     {
         Masking = true;
         Enabled.Value = true;
         Enabled.BindValueChanged(_ => this.FadeTo(Enabled.Value ? alpha_enabled : alpha_disabled, 500, Easing.OutCirc), true);
+    }
+
+    protected override void UpdateAfterAutoSize()
+    {
+        if (Circular) CornerRadius = Math.Min(DrawSize.X, DrawSize.Y) / 2f;
+        base.UpdateAfterAutoSize();
     }
 
     protected override bool OnHover(HoverEvent e)
