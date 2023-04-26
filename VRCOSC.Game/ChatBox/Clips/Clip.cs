@@ -40,8 +40,6 @@ public class Clip
         Enabled.BindValueChanged(_ => chatBoxManager.Save());
         Name.BindValueChanged(_ => chatBoxManager.Save());
         Priority.BindValueChanged(_ => chatBoxManager.Save());
-        Start.BindValueChanged(_ => chatBoxManager.Save());
-        End.BindValueChanged(_ => chatBoxManager.Save());
         States.BindCollectionChanged((_, _) => chatBoxManager.Save());
         Events.BindCollectionChanged((_, _) => chatBoxManager.Save());
     }
@@ -57,6 +55,11 @@ public class Clip
     {
         auditEvents();
         setCurrentEvent();
+    }
+
+    public void Save()
+    {
+        chatBoxManager.Save();
     }
 
     private void auditEvents()

@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -120,6 +120,8 @@ public partial class DrawableClip : Container
 
     protected override bool OnDragStart(DragStartEvent e) => true;
 
+    protected override void OnDragEnd(DragEndEvent e) => Clip.Save();
+
     protected override void OnDrag(DragEvent e)
     {
         base.OnDrag(e);
@@ -146,6 +148,8 @@ public partial class DrawableClip : Container
             }
 
             cumulativeDrag = 0f;
+
+            Clip.Save();
         }
 
         updateSizeAndPosition();
