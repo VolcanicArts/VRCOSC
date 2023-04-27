@@ -86,7 +86,7 @@ public class SpeechToTextModule : ChatBoxModule
     {
         switch (key)
         {
-            case SpeechToTextParameter.Reset:
+            case SpeechToTextParameter.Reset when value:
                 SetChatBoxTyping(false);
                 ChangeStateTo(SpeechToTextState.Idle);
                 SetVariableValue(SpeechToTextVariable.Text, string.Empty);
