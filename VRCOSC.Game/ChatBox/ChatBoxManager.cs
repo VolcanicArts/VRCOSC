@@ -111,7 +111,7 @@ public class ChatBoxManager
             {
                 clip.AssociatedModules.ToImmutableList().ForEach(moduleName =>
                 {
-                    if (!StateMetadata.ContainsKey(moduleName))
+                    if (!StateMetadata.ContainsKey(moduleName) && !EventMetadata.ContainsKey(moduleName))
                     {
                         clip.AssociatedModules.Remove(moduleName);
 

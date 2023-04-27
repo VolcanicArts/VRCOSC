@@ -251,7 +251,7 @@ public class Clip
     private void addStatesOfAddedModule(string moduleName)
     {
         var currentStateCopy = States.Select(clipState => clipState.Copy()).ToList();
-        var statesToAdd = chatBoxManager.StateMetadata[moduleName];
+        if (!chatBoxManager.StateMetadata.TryGetValue(moduleName, out var statesToAdd)) return;
 
         foreach (var (newStateName, newStateMetadata) in statesToAdd)
         {
