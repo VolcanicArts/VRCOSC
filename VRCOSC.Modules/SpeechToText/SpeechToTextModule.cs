@@ -25,6 +25,7 @@ public class SpeechToTextModule : ChatBoxModule
     {
         speechRecognitionEngine.SetInputToDefaultAudioDevice();
         speechRecognitionEngine.LoadGrammar(new DictationGrammar());
+        speechRecognitionEngine.MaxAlternates = 1;
         speechRecognitionEngine.SpeechHypothesized += speechHypothesised;
         speechRecognitionEngine.SpeechRecognized += speechRecognised;
 
