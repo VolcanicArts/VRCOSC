@@ -86,6 +86,7 @@ public class SpeechToTextModule : ChatBoxModule
         switch (key)
         {
             case SpeechToTextParameter.Reset:
+                SetChatBoxTyping(false);
                 ChangeStateTo(SpeechToTextState.Idle);
                 SetVariableValue(SpeechToTextVariable.Text, string.Empty);
                 break;
@@ -97,8 +98,6 @@ public class SpeechToTextModule : ChatBoxModule
         if (!readyToAccept) return;
 
         SetChatBoxTyping(true);
-        SetVariableValue(SpeechToTextVariable.Text, string.Empty);
-        ChangeStateTo(SpeechToTextState.Idle);
     }
 
     private void speechRecognised(object? sender, SpeechRecognizedEventArgs e)
@@ -107,8 +106,7 @@ public class SpeechToTextModule : ChatBoxModule
 
         if (e.Result.Audio is null)
         {
-            ChangeStateTo(SpeechToTextState.Idle);
-            SetChatBoxTyping(false);
+            reset();
             return;
         }
 
@@ -130,20 +128,22 @@ public class SpeechToTextModule : ChatBoxModule
 
         if (string.IsNullOrEmpty(finalResult))
         {
-            Log("Recognition failure");
-            ChangeStateTo(SpeechToTextState.Idle);
-        }
-        else
-        {
-            finalResult = finalResult[..1].ToUpper(CultureInfo.CurrentCulture) + finalResult[1..];
-            Log($"Recognised: \"{finalResult}\"");
-            ChangeStateTo(SpeechToTextState.TextGenerated);
+            reset();
+            return;
         }
 
-        SetChatBoxTyping(false);
+        finalResult = finalResult[..1].ToUpper(CultureInfo.CurrentCulture) + finalResult[1..];
+        Log($"Recognised: \"{finalResult}\"");
+
         SetVariableValue(SpeechToTextVariable.Text, finalResult);
+        ChangeStateTo(SpeechToTextState.TextGenerated);
         TriggerEvent(SpeechToTextEvent.TextGenerated);
+        reset();
+    }
 
+    private void reset()
+    {
+        SetChatBoxTyping(false);
         recognizer.Reset();
     }
 
