@@ -65,6 +65,7 @@ public class ChatBoxManager
     private DateTimeOffset nextValidTime;
     private bool isClear;
     private bool isLoaded;
+    private string lastText;
 
     public void Load(Storage storage, GameManager gameManager, NotificationContainer notification)
     {
@@ -193,6 +194,7 @@ public class ChatBoxManager
         nextValidTime = startTime;
         isClear = true;
         ModuleEnabledCache = moduleEnabledCache;
+        lastText = string.Empty;
 
         Clips.ForEach(clip => clip.Initialise());
     }
@@ -280,6 +282,9 @@ public class ChatBoxManager
 
     private void sendText(string text)
     {
+        if (text == lastText) return;
+
+        lastText = text;
         oscClient.SendValues(VRChatOscConstants.ADDRESS_CHATBOX_INPUT, new List<object> { text, true, false });
     }
 
