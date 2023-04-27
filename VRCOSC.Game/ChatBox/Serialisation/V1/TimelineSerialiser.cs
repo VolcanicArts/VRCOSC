@@ -12,6 +12,7 @@ public class TimelineSerialiser : ITimelineSerialiser
 {
     private const string file_name = @"chatbox.json";
     private readonly Storage storage;
+    private readonly object saveLock = new();
 
     public TimelineSerialiser(Storage storage)
     {
@@ -20,9 +21,12 @@ public class TimelineSerialiser : ITimelineSerialiser
 
     public void Serialise(ChatBoxManager chatBoxManager)
     {
-        using var stream = storage.CreateFileSafely(file_name);
-        using var writer = new StreamWriter(stream);
-        writer.Write(JsonConvert.SerializeObject(new SerialisableTimeline(chatBoxManager)));
+        lock (saveLock)
+        {
+            using var stream = storage.CreateFileSafely(file_name);
+            using var writer = new StreamWriter(stream);
+            writer.Write(JsonConvert.SerializeObject(new SerialisableTimeline(chatBoxManager)));
+        }
     }
 
     public SerialisableTimeline? Deserialise()
