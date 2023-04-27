@@ -23,7 +23,6 @@ public class SpeechToTextModule : ChatBoxModule
 
     public SpeechToTextModule()
     {
-        speechRecognitionEngine.SetInputToDefaultAudioDevice();
         speechRecognitionEngine.LoadGrammar(new DictationGrammar());
         speechRecognitionEngine.MaxAlternates = 1;
         speechRecognitionEngine.SpeechHypothesized += speechHypothesised;
@@ -54,6 +53,7 @@ public class SpeechToTextModule : ChatBoxModule
             return;
         }
 
+        speechRecognitionEngine.SetInputToDefaultAudioDevice();
         speechRecognitionEngine.RecognizeAsync(RecognizeMode.Multiple);
 
         Log("Model loading...");
@@ -67,7 +67,7 @@ public class SpeechToTextModule : ChatBoxModule
             recognizer.SetWords(true);
             Log("Model loaded!");
             readyToAccept = true;
-        });
+        }).ConfigureAwait(false);
 
         SetChatBoxTyping(false);
         SetVariableValue(SpeechToTextVariable.Text, string.Empty);
@@ -94,6 +94,8 @@ public class SpeechToTextModule : ChatBoxModule
 
     private void speechHypothesised(object? sender, SpeechHypothesizedEventArgs e)
     {
+        if (!readyToAccept) return;
+
         SetChatBoxTyping(true);
         SetVariableValue(SpeechToTextVariable.Text, string.Empty);
         ChangeStateTo(SpeechToTextState.Idle);
@@ -103,7 +105,7 @@ public class SpeechToTextModule : ChatBoxModule
     {
         if (!readyToAccept) return;
 
-        if (e.Result.Audio is null || string.IsNullOrEmpty(e.Result.Text))
+        if (e.Result.Audio is null)
         {
             ChangeStateTo(SpeechToTextState.Idle);
             SetChatBoxTyping(false);
