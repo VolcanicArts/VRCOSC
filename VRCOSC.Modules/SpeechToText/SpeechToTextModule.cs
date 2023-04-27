@@ -18,7 +18,7 @@ public class SpeechToTextModule : ChatBoxModule
     public override ModuleType Type => ModuleType.General;
 
     private readonly SpeechRecognitionEngine speechRecognitionEngine = new();
-    private VoskRecognizer recognizer = null!;
+    private VoskRecognizer? recognizer;
     private bool readyToAccept;
 
     public SpeechToTextModule()
@@ -78,7 +78,8 @@ public class SpeechToTextModule : ChatBoxModule
     {
         SetChatBoxTyping(false);
         speechRecognitionEngine.RecognizeAsyncStop();
-        recognizer.Dispose();
+        recognizer?.Dispose();
+        recognizer = null;
     }
 
     protected override void OnBoolParameterReceived(Enum key, bool value)
@@ -121,10 +122,10 @@ public class SpeechToTextModule : ChatBoxModule
 
         while ((bytesRead = wavStream.Read(buffer, 0, buffer.Length)) > 0)
         {
-            recognizer.AcceptWaveform(buffer, bytesRead);
+            recognizer!.AcceptWaveform(buffer, bytesRead);
         }
 
-        var finalResult = JsonConvert.DeserializeObject<Recognition>(recognizer.FinalResult())?.Text ?? string.Empty;
+        var finalResult = JsonConvert.DeserializeObject<Recognition>(recognizer!.FinalResult())?.Text ?? string.Empty;
 
         if (string.IsNullOrEmpty(finalResult))
         {
@@ -144,7 +145,7 @@ public class SpeechToTextModule : ChatBoxModule
     private void reset()
     {
         SetChatBoxTyping(false);
-        recognizer.Reset();
+        recognizer!.Reset();
     }
 
     private class Recognition
