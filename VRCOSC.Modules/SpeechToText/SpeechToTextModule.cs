@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Globalization;
 using System.Speech.Recognition;
 using Newtonsoft.Json;
 using Vosk;
@@ -131,6 +132,7 @@ public class SpeechToTextModule : ChatBoxModule
         }
         else
         {
+            finalResult = finalResult[..1].ToUpper(CultureInfo.CurrentCulture) + finalResult[1..];
             Log($"Recognised: \"{finalResult}\"");
             ChangeStateTo(SpeechToTextState.TextGenerated);
         }
