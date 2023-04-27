@@ -28,7 +28,7 @@ public class ChatBoxManager
         get => sendEnabled;
         set
         {
-            if (sendEnabled && !value) clearChatBox();
+            if (sendEnabled && !value) Clear();
             sendEnabled = value;
         }
     }
@@ -270,7 +270,7 @@ public class ChatBoxManager
 
         if (clip is null)
         {
-            if (!isClear) clearChatBox();
+            if (!isClear) Clear();
             return;
         }
 
@@ -283,7 +283,7 @@ public class ChatBoxManager
         oscClient.SendValues(VRChatOscConstants.ADDRESS_CHATBOX_INPUT, new List<object> { text, true, false });
     }
 
-    private void clearChatBox()
+    public void Clear()
     {
         sendText(string.Empty);
         isClear = true;
