@@ -3,7 +3,6 @@
 
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osuTK;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Button;
 using VRCOSC.Game.Graphics.UI.Text;
@@ -32,6 +31,7 @@ public sealed partial class ButtonStringAttributeCard : TextAttributeCard<String
             ColumnDimensions = new[]
             {
                 new Dimension(GridSizeMode.Relative, 0.75f),
+                new Dimension(GridSizeMode.Absolute, 5),
                 new Dimension()
             },
             Content = new[]
@@ -39,17 +39,24 @@ public sealed partial class ButtonStringAttributeCard : TextAttributeCard<String
                 new[]
                 {
                     base.CreateContent(),
-                    new TextButton
+                    null,
+                    new Container
                     {
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,
                         RelativeSizeAxes = Axes.Both,
-                        Size = new Vector2(0.9f),
-                        Text = attributeSingleWithButton.ButtonText,
-                        Masking = true,
-                        CornerRadius = 5,
-                        Action = attributeSingleWithButton.ButtonAction,
-                        BackgroundColour = ThemeManager.Current[ThemeAttribute.Action]
+                        Padding = new MarginPadding(5),
+                        Child = new TextButton
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativeSizeAxes = Axes.Both,
+                            Text = attributeSingleWithButton.ButtonText,
+                            Masking = true,
+                            CornerRadius = 5,
+                            Action = attributeSingleWithButton.ButtonAction,
+                            BackgroundColour = ThemeManager.Current[ThemeAttribute.Action]
+                        }
                     }
                 }
             }
