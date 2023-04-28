@@ -18,9 +18,11 @@ public class SpeechToTextModule : ChatBoxModule
     public override ModuleType Type => ModuleType.General;
 
     private readonly SpeechRecognitionEngine speechRecognitionEngine = new();
-    private VoskRecognizer? recognizer;
+    private VoskRecognizer? recogniser;
     private bool readyToAccept;
     private bool shouldAnalyse => readyToAccept && (!GetSetting<bool>(SpeechToTextSetting.FollowMute) || Player.IsMuted.GetValueOrDefault());
+    private readonly object processingLock = new();
+    private byte[]? buffer;
 
     public SpeechToTextModule()
     {
@@ -57,6 +59,7 @@ public class SpeechToTextModule : ChatBoxModule
 
         speechRecognitionEngine.SetInputToDefaultAudioDevice();
         speechRecognitionEngine.RecognizeAsync(RecognizeMode.Multiple);
+        buffer = new byte[1024 * 8];
 
         Log("Model loading...");
         readyToAccept = false;
@@ -64,9 +67,14 @@ public class SpeechToTextModule : ChatBoxModule
         Task.Run(() =>
         {
             var model = new Model(GetSetting<string>(SpeechToTextSetting.ModelLocation));
-            recognizer = new VoskRecognizer(model, 16000);
-            recognizer.SetMaxAlternatives(0);
-            recognizer.SetWords(true);
+
+            lock (processingLock)
+            {
+                recogniser = new VoskRecognizer(model, 16000);
+                recogniser.SetMaxAlternatives(0);
+                recogniser.SetWords(true);
+            }
+
             Log("Model loaded!");
             readyToAccept = true;
         }).ConfigureAwait(false);
@@ -79,9 +87,15 @@ public class SpeechToTextModule : ChatBoxModule
     protected override void OnModuleStop()
     {
         SetChatBoxTyping(false);
-        speechRecognitionEngine.RecognizeAsyncStop();
-        recognizer?.Dispose();
-        recognizer = null;
+
+        lock (processingLock)
+        {
+            speechRecognitionEngine.RecognizeAsyncStop();
+            recogniser?.Dispose();
+            recogniser = null;
+        }
+
+        buffer = null;
     }
 
     protected override void OnBoolParameterReceived(Enum key, bool value)
@@ -107,47 +121,55 @@ public class SpeechToTextModule : ChatBoxModule
     {
         if (!shouldAnalyse) return;
 
-        if (e.Result.Audio is null)
+        if (buffer is null) return;
+
+        lock (processingLock)
         {
+            if (e.Result.Audio is null || recogniser is null)
+            {
+                reset();
+                return;
+            }
+
+            var memoryStream = new MemoryStream();
+            e.Result.Audio.WriteToWaveStream(memoryStream);
+
+            // using a 2nd memory stream as GetBuffer() must be called
+            var wavStream = new MemoryStream(memoryStream.GetBuffer());
+            memoryStream.Dispose();
+
+            buffer.Initialize();
+            int bytesRead;
+
+            while ((bytesRead = wavStream.Read(buffer, 0, buffer.Length)) > 0)
+            {
+                recogniser.AcceptWaveform(buffer, bytesRead);
+            }
+
+            wavStream.Dispose();
+
+            var finalResult = JsonConvert.DeserializeObject<Recognition>(recogniser.FinalResult())?.Text ?? string.Empty;
+
+            if (string.IsNullOrEmpty(finalResult))
+            {
+                reset();
+                return;
+            }
+
+            finalResult = finalResult[..1].ToUpper(CultureInfo.CurrentCulture) + finalResult[1..];
+            Log($"Recognised: \"{finalResult}\"");
+
+            SetVariableValue(SpeechToTextVariable.Text, finalResult);
+            ChangeStateTo(SpeechToTextState.TextGenerated);
+            TriggerEvent(SpeechToTextEvent.TextGenerated);
             reset();
-            return;
         }
-
-        using var memoryStream = new MemoryStream();
-        e.Result.Audio.WriteToWaveStream(memoryStream);
-
-        // using a 2nd memory stream as GetBuffer() must be called
-        using var wavStream = new MemoryStream(memoryStream.GetBuffer());
-
-        var buffer = new byte[1024 * 8];
-        int bytesRead;
-
-        while ((bytesRead = wavStream.Read(buffer, 0, buffer.Length)) > 0)
-        {
-            recognizer!.AcceptWaveform(buffer, bytesRead);
-        }
-
-        var finalResult = JsonConvert.DeserializeObject<Recognition>(recognizer!.FinalResult())?.Text ?? string.Empty;
-
-        if (string.IsNullOrEmpty(finalResult))
-        {
-            reset();
-            return;
-        }
-
-        finalResult = finalResult[..1].ToUpper(CultureInfo.CurrentCulture) + finalResult[1..];
-        Log($"Recognised: \"{finalResult}\"");
-
-        SetVariableValue(SpeechToTextVariable.Text, finalResult);
-        ChangeStateTo(SpeechToTextState.TextGenerated);
-        TriggerEvent(SpeechToTextEvent.TextGenerated);
-        reset();
     }
 
     private void reset()
     {
         SetChatBoxTyping(false);
-        recognizer!.Reset();
+        recogniser?.Reset();
     }
 
     private class Recognition
