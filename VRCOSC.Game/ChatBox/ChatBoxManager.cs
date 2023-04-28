@@ -65,7 +65,7 @@ public class ChatBoxManager
     private DateTimeOffset nextValidTime;
     private bool isClear;
     private bool isLoaded;
-    private string lastText;
+    private string lastText = string.Empty;
 
     public void Load(Storage storage, GameManager gameManager, NotificationContainer notification)
     {

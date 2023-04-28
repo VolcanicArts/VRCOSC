@@ -95,7 +95,7 @@ public partial class IntegerValueContainer : Container
         [Resolved]
         private ChatBoxManager chatBoxManager { get; set; } = null!;
 
-        private SpriteText text;
+        private SpriteText text = null!;
 
         [BackgroundDependencyLoader]
         private void load()
