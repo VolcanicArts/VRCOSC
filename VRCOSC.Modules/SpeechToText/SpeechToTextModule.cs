@@ -20,6 +20,7 @@ public class SpeechToTextModule : ChatBoxModule
     private readonly SpeechRecognitionEngine speechRecognitionEngine = new();
     private VoskRecognizer? recognizer;
     private bool readyToAccept;
+    private bool shouldAnalyse => readyToAccept && (!GetSetting<bool>(SpeechToTextSetting.FollowMute) || Player.IsMuted.GetValueOrDefault());
 
     public SpeechToTextModule()
     {
@@ -33,7 +34,8 @@ public class SpeechToTextModule : ChatBoxModule
 
     protected override void CreateAttributes()
     {
-        CreateSetting(SpeechToTextSetting.ModelLocation, "Model Location", "The folder location of the speech model you'd like to use", string.Empty, "Download a model", () => OpenUrlExternally("https://alphacephei.com/vosk/models"));
+        CreateSetting(SpeechToTextSetting.ModelLocation, "Model Location", "The folder location of the speech model you'd like to use\nRecommended default: vosk-model-small-en-us-0.15", string.Empty, "Download a model", () => OpenUrlExternally("https://alphacephei.com/vosk/models"));
+        CreateSetting(SpeechToTextSetting.FollowMute, "Follow Mute", "Only run recognition when you're muted", false);
 
         CreateParameter<bool>(SpeechToTextParameter.Reset, ParameterMode.Read, "VRCOSC/SpeechToText/Reset", "Reset", "Manually reset the state to idle to remove the generated text from the ChatBox");
 
@@ -96,14 +98,14 @@ public class SpeechToTextModule : ChatBoxModule
 
     private void speechHypothesised(object? sender, SpeechHypothesizedEventArgs e)
     {
-        if (!readyToAccept) return;
+        if (!shouldAnalyse) return;
 
         SetChatBoxTyping(true);
     }
 
     private void speechRecognised(object? sender, SpeechRecognizedEventArgs e)
     {
-        if (!readyToAccept) return;
+        if (!shouldAnalyse) return;
 
         if (e.Result.Audio is null)
         {
@@ -156,7 +158,8 @@ public class SpeechToTextModule : ChatBoxModule
 
     private enum SpeechToTextSetting
     {
-        ModelLocation
+        ModelLocation,
+        FollowMute
     }
 
     private enum SpeechToTextParameter
