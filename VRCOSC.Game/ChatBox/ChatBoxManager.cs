@@ -28,7 +28,7 @@ public class ChatBoxManager
         get => sendEnabled;
         set
         {
-            if (sendEnabled && !value) clearChatBox();
+            if (sendEnabled && !value) Clear();
             sendEnabled = value;
         }
     }
@@ -65,6 +65,7 @@ public class ChatBoxManager
     private DateTimeOffset nextValidTime;
     private bool isClear;
     private bool isLoaded;
+    private string lastText = string.Empty;
 
     public void Load(Storage storage, GameManager gameManager, NotificationContainer notification)
     {
@@ -111,7 +112,7 @@ public class ChatBoxManager
             {
                 clip.AssociatedModules.ToImmutableList().ForEach(moduleName =>
                 {
-                    if (!StateMetadata.ContainsKey(moduleName))
+                    if (!StateMetadata.ContainsKey(moduleName) && !EventMetadata.ContainsKey(moduleName))
                     {
                         clip.AssociatedModules.Remove(moduleName);
 
@@ -193,6 +194,7 @@ public class ChatBoxManager
         nextValidTime = startTime;
         isClear = true;
         ModuleEnabledCache = moduleEnabledCache;
+        lastText = string.Empty;
 
         Clips.ForEach(clip => clip.Initialise());
     }
@@ -270,7 +272,7 @@ public class ChatBoxManager
 
         if (clip is null)
         {
-            if (!isClear) clearChatBox();
+            if (!isClear) Clear();
             return;
         }
 
@@ -280,10 +282,13 @@ public class ChatBoxManager
 
     private void sendText(string text)
     {
+        if (text == lastText) return;
+
+        lastText = text;
         oscClient.SendValues(VRChatOscConstants.ADDRESS_CHATBOX_INPUT, new List<object> { text, true, false });
     }
 
-    private void clearChatBox()
+    public void Clear()
     {
         sendText(string.Empty);
         isClear = true;

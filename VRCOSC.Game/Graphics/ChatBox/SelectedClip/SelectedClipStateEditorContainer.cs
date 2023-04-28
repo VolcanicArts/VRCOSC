@@ -241,6 +241,8 @@ public partial class SelectedClipStateEditorContainer : Container
 
     private void filterFlows()
     {
+        if (chatBoxManager.SelectedClip.Value is null) return;
+
         if (showRelevantStates.Value)
         {
             var enabledModuleNames = chatBoxManager.GameManager.ModuleManager.GetEnabledModuleNames().Where(moduleName => chatBoxManager.SelectedClip.Value!.AssociatedModules.Contains(moduleName)).ToList();
@@ -297,7 +299,8 @@ public partial class SelectedClipStateEditorContainer : Container
         });
 
         statesTitle.Alpha = stateFlow.Children.Count == 0 ? 0 : 1;
-        eventsTitle.Alpha = separator.Alpha = eventFlow.Children.Count == 0 ? 0 : 1;
+        eventsTitle.Alpha = eventFlow.Children.Count == 0 ? 0 : 1;
+        separator.Alpha = stateFlow.Children.Count == 0 || eventFlow.Children.Count == 0 ? 0 : 1;
 
         filterFlows();
     }

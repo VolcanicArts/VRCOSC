@@ -180,7 +180,7 @@ public partial class TimelineEditor : Container
                 RelativeSizeAxes = Axes.Y,
                 RelativePositionAxes = Axes.X,
                 Width = grid_line_width,
-                X = chatBoxManager.TimelineResolution * i
+                X = i * chatBoxManager.TimelineResolution
             });
         }
 
@@ -190,8 +190,9 @@ public partial class TimelineEditor : Container
             {
                 Colour = ThemeManager.Current[ThemeAttribute.Dark].Opacity(0.5f),
                 RelativeSizeAxes = Axes.X,
+                RelativePositionAxes = Axes.Y,
                 Height = grid_line_width,
-                Y = layerContainer.DrawHeight / 6 * i
+                Y = i / 6f
             });
         }
     }

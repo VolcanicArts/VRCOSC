@@ -268,6 +268,8 @@ public partial class GameManager : Component
 
         await OSCRouter.Disable();
         ModuleManager.Stop();
+        ChatBoxManager.SetTyping(false);
+        ChatBoxManager.Clear();
         ChatBoxManager.Shutdown();
         Player.ResetAll();
         await VRChatOscClient.Disable(OscClientFlag.Send);
