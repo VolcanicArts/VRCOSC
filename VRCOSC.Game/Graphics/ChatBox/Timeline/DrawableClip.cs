@@ -117,12 +117,10 @@ public partial class DrawableClip : Container
 
     protected override bool OnDragStart(DragStartEvent e) => true;
 
-    protected override void OnDragEnd(DragEndEvent e) => Clip.Save();
+    protected override void OnDragEnd(DragEndEvent e) => chatBoxManager.Save();
 
     protected override void OnDrag(DragEvent e)
     {
-        base.OnDrag(e);
-
         chatBoxManager.SelectedClip.Value = Clip;
 
         e.Target = timelineLayer;
@@ -156,6 +154,9 @@ public partial class DrawableClip : Container
 
     private partial class ResizeDetector : Container
     {
+        [Resolved]
+        private ChatBoxManager chatBoxManager { get; set; } = null!;
+
         protected readonly Clip Clip;
 
         private Box resizeBackground = null!;
@@ -189,7 +190,7 @@ public partial class DrawableClip : Container
 
         protected override bool OnDragStart(DragStartEvent e) => true;
 
-        protected override void OnDragEnd(DragEndEvent e) => Clip.Save();
+        protected override void OnDragEnd(DragEndEvent e) => chatBoxManager.Save();
 
         protected override bool OnHover(HoverEvent e)
         {
@@ -223,8 +224,6 @@ public partial class DrawableClip : Container
 
         protected override void OnDrag(DragEvent e)
         {
-            base.OnDrag(e);
-
             e.Target = timelineLayer;
 
             var mousePosNormalised = e.MousePosition.X / timelineLayer.DrawWidth;
@@ -264,8 +263,6 @@ public partial class DrawableClip : Container
 
         protected override void OnDrag(DragEvent e)
         {
-            base.OnDrag(e);
-
             e.Target = timelineLayer;
             var mousePosNormalised = e.MousePosition.X / timelineLayer.DrawWidth;
             var newEnd = (int)Math.Ceiling(mousePosNormalised * chatBoxManager.TimelineLengthSeconds);

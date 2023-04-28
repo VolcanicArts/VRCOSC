@@ -68,11 +68,6 @@ public class Clip
         setCurrentEvent();
     }
 
-    public void Save()
-    {
-        chatBoxManager.Save();
-    }
-
     private void auditEvents()
     {
         chatBoxManager.TriggeredEvents.ForEach(moduleEvent =>
