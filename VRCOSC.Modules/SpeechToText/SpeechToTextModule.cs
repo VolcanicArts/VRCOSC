@@ -20,7 +20,8 @@ public class SpeechToTextModule : ChatBoxModule
     private readonly SpeechRecognitionEngine speechRecognitionEngine = new();
     private VoskRecognizer? recogniser;
     private bool readyToAccept;
-    private bool shouldAnalyse => readyToAccept && (!GetSetting<bool>(SpeechToTextSetting.FollowMute) || Player.IsMuted.GetValueOrDefault());
+    private bool listening;
+    private bool shouldAnalyse => readyToAccept && listening && (!GetSetting<bool>(SpeechToTextSetting.FollowMute) || Player.IsMuted.GetValueOrDefault());
     private readonly object processingLock = new();
     private byte[]? buffer;
 
@@ -40,6 +41,7 @@ public class SpeechToTextModule : ChatBoxModule
         CreateSetting(SpeechToTextSetting.FollowMute, "Follow Mute", "Only run recognition when you're muted", false);
 
         CreateParameter<bool>(SpeechToTextParameter.Reset, ParameterMode.Read, "VRCOSC/SpeechToText/Reset", "Reset", "Manually reset the state to idle to remove the generated text from the ChatBox");
+        CreateParameter<bool>(SpeechToTextParameter.Listen, ParameterMode.ReadWrite, "VRCOSC/SpeechToText/Listen", "Listen", "Whether Speech To Text is currently listening");
 
         CreateVariable(SpeechToTextVariable.Text, "Text", "text");
 
@@ -63,6 +65,7 @@ public class SpeechToTextModule : ChatBoxModule
 
         Log("Model loading...");
         readyToAccept = false;
+        listening = true;
 
         Task.Run(() =>
         {
@@ -82,6 +85,7 @@ public class SpeechToTextModule : ChatBoxModule
         SetChatBoxTyping(false);
         SetVariableValue(SpeechToTextVariable.Text, string.Empty);
         ChangeStateTo(SpeechToTextState.Idle);
+        SendParameter(SpeechToTextParameter.Listen, listening);
     }
 
     protected override void OnModuleStop()
@@ -106,6 +110,10 @@ public class SpeechToTextModule : ChatBoxModule
                 SetChatBoxTyping(false);
                 ChangeStateTo(SpeechToTextState.Idle);
                 SetVariableValue(SpeechToTextVariable.Text, string.Empty);
+                break;
+
+            case SpeechToTextParameter.Listen:
+                listening = value;
                 break;
         }
     }
@@ -186,7 +194,8 @@ public class SpeechToTextModule : ChatBoxModule
 
     private enum SpeechToTextParameter
     {
-        Reset
+        Reset,
+        Listen
     }
 
     private enum SpeechToTextState
