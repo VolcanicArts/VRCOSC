@@ -32,18 +32,17 @@ public class VRChatOscClient : OscClient
 
     private void sendData(OscData data)
     {
-        var blockSend = false;
+        data.PreValidate();
 
-        if (valuesCache.TryGetValue(data.Address, out var previousValue))
+        if (data.Address.StartsWith(VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX))
         {
-            if (data.Values.SequenceEqual(previousValue)) blockSend = true;
+            if (valuesCache.TryGetValue(data.Address, out var previousValue))
+            {
+                if (data.Values.SequenceEqual(previousValue)) return;
+            }
         }
 
         valuesCache[data.Address] = data.Values;
-
-        if (blockSend) return;
-
-        data.PreValidate();
         SendByteData(data.Encode());
         OnParameterSent?.Invoke(new VRChatOscData(data));
     }
