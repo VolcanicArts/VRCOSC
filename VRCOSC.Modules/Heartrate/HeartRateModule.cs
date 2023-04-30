@@ -92,7 +92,7 @@ public abstract class HeartRateModule : ChatBoxModule
 
     protected override void OnFrameUpdate()
     {
-        if (!isReceiving) SendParameter(HeartrateParameter.Enabled, false);
+        SendParameter(HeartrateParameter.Enabled, isReceiving);
 
         if (GetSetting<bool>(HeartrateSetting.Smoothed))
         {

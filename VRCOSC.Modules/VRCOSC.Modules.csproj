@@ -11,9 +11,4 @@
       <ProjectReference Include="..\VRCOSC.Game\VRCOSC.Game.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <PackageReference Include="System.Speech" Version="7.0.0" />
-      <PackageReference Include="Vosk" Version="0.3.38" />
-    </ItemGroup>
-
 </Project>

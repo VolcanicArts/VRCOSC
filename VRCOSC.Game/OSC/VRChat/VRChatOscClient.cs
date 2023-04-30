@@ -12,7 +12,6 @@ public class VRChatOscClient : OscClient
 {
     public Action<VRChatOscData>? OnParameterSent;
     public Action<VRChatOscData>? OnParameterReceived;
-    private readonly Dictionary<string, List<object>> valuesCache = new();
 
     public VRChatOscClient()
     {
@@ -33,16 +32,6 @@ public class VRChatOscClient : OscClient
     private void sendData(OscData data)
     {
         data.PreValidate();
-
-        if (data.Address.StartsWith(VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX))
-        {
-            if (valuesCache.TryGetValue(data.Address, out var previousValue))
-            {
-                if (data.Values.SequenceEqual(previousValue)) return;
-            }
-        }
-
-        valuesCache[data.Address] = data.Values;
         SendByteData(data.Encode());
         OnParameterSent?.Invoke(new VRChatOscData(data));
     }

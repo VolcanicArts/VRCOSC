@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Globalization;
-using System.Speech.Recognition;
 using Newtonsoft.Json;
 using Vosk;
 using VRCOSC.Game.Modules;
@@ -17,21 +16,18 @@ public class SpeechToTextModule : ChatBoxModule
     public override string Author => "VolcanicArts";
     public override ModuleType Type => ModuleType.General;
 
-    private readonly SpeechRecognitionEngine speechRecognitionEngine = new();
-    private VoskRecognizer? recogniser;
+    private readonly MicrophoneInterface micInterface = new();
+    private Model? model;
+    private VoskRecognizer recogniser = null!;
+
     private bool readyToAccept;
     private bool listening;
     private bool shouldAnalyse => readyToAccept && listening && (!GetSetting<bool>(SpeechToTextSetting.FollowMute) || Player.IsMuted.GetValueOrDefault());
-    private readonly object processingLock = new();
-    private byte[]? buffer;
+
+    private readonly Queue<(byte[], int)> bufferQueue = new();
 
     public SpeechToTextModule()
     {
-        speechRecognitionEngine.LoadGrammar(new DictationGrammar());
-        speechRecognitionEngine.MaxAlternates = 1;
-        speechRecognitionEngine.SpeechHypothesized += speechHypothesised;
-        speechRecognitionEngine.SpeechRecognized += speechRecognised;
-
         Vosk.Vosk.SetLogLevel(-1);
     }
 
@@ -46,6 +42,7 @@ public class SpeechToTextModule : ChatBoxModule
         CreateVariable(SpeechToTextVariable.Text, "Text", "text");
 
         CreateState(SpeechToTextState.Idle, "Idle", string.Empty);
+        CreateState(SpeechToTextState.TextGenerating, "Text Generating", $"{GetVariableFormat(SpeechToTextVariable.Text)}");
         CreateState(SpeechToTextState.TextGenerated, "Text Generated", $"{GetVariableFormat(SpeechToTextVariable.Text)}");
 
         CreateEvent(SpeechToTextEvent.TextGenerated, "Text Generated", $"{GetVariableFormat(SpeechToTextVariable.Text)}", 20);
@@ -59,24 +56,20 @@ public class SpeechToTextModule : ChatBoxModule
             return;
         }
 
-        speechRecognitionEngine.SetInputToDefaultAudioDevice();
-        speechRecognitionEngine.RecognizeAsync(RecognizeMode.Multiple);
-        buffer = new byte[1024 * 8];
-
         Log("Model loading...");
         readyToAccept = false;
         listening = true;
+        bufferQueue.Clear();
+
+        micInterface.BufferCallback = (buffer, bytesRecorded) => bufferQueue.Enqueue((buffer, bytesRecorded));
+        var captureDevice = micInterface.Hook();
+        Log($"Hooked into microphone {captureDevice.DeviceFriendlyName.Trim()}");
 
         Task.Run(() =>
         {
-            var model = new Model(GetSetting<string>(SpeechToTextSetting.ModelLocation));
-
-            lock (processingLock)
-            {
-                recogniser = new VoskRecognizer(model, 16000);
-                recogniser.SetMaxAlternatives(0);
-                recogniser.SetWords(true);
-            }
+            model = new Model(GetSetting<string>(SpeechToTextSetting.ModelLocation));
+            recogniser = new VoskRecognizer(model, micInterface.AudioCapture!.WaveFormat.SampleRate);
+            recogniser.SetMaxAlternatives(0);
 
             Log("Model loaded!");
             readyToAccept = true;
@@ -88,18 +81,60 @@ public class SpeechToTextModule : ChatBoxModule
         SendParameter(SpeechToTextParameter.Listen, listening);
     }
 
+    protected override void OnFrameUpdate()
+    {
+        if (!shouldAnalyse) return;
+
+        while (bufferQueue.Any())
+        {
+            var bufferPair = bufferQueue.Dequeue();
+
+            if (!recogniser.AcceptWaveform(bufferPair.Item1, bufferPair.Item2))
+            {
+                var partialResult = JsonConvert.DeserializeObject<PartialRecognition>(recogniser.PartialResult())?.Text;
+
+                if (!string.IsNullOrEmpty(partialResult))
+                {
+                    if (partialResult.Length > 1)
+                    {
+                        partialResult = partialResult[..1].ToUpper(CultureInfo.CurrentCulture) + partialResult[1..];
+                    }
+
+                    ChangeStateTo(SpeechToTextState.TextGenerating);
+                    SetVariableValue(SpeechToTextVariable.Text, partialResult);
+                    SetChatBoxTyping(true);
+                }
+            }
+            else
+            {
+                var result = JsonConvert.DeserializeObject<Recognition>(recogniser.Result())?.Text;
+
+                if (!string.IsNullOrEmpty(result) && result != "huh")
+                {
+                    result = result[..1].ToUpper(CultureInfo.CurrentCulture) + result[1..];
+                    Log($"Recognised: \"{result}\"");
+
+                    SetVariableValue(SpeechToTextVariable.Text, result);
+                    ChangeStateTo(SpeechToTextState.TextGenerated);
+                    TriggerEvent(SpeechToTextEvent.TextGenerated);
+                }
+                else
+                {
+                    SetVariableValue(SpeechToTextVariable.Text, string.Empty);
+                    ChangeStateTo(SpeechToTextState.Idle);
+                }
+
+                recogniser.Reset();
+                SetChatBoxTyping(false);
+            }
+        }
+    }
+
     protected override void OnModuleStop()
     {
         SetChatBoxTyping(false);
-
-        lock (processingLock)
-        {
-            speechRecognitionEngine.RecognizeAsyncStop();
-            recogniser?.Dispose();
-            recogniser = null;
-        }
-
-        buffer = null;
+        micInterface.UnHook();
+        recogniser.Dispose();
     }
 
     protected override void OnBoolParameterReceived(Enum key, bool value)
@@ -118,71 +153,15 @@ public class SpeechToTextModule : ChatBoxModule
         }
     }
 
-    private void speechHypothesised(object? sender, SpeechHypothesizedEventArgs e)
-    {
-        if (!shouldAnalyse) return;
-
-        SetChatBoxTyping(true);
-    }
-
-    private void speechRecognised(object? sender, SpeechRecognizedEventArgs e)
-    {
-        if (!shouldAnalyse) return;
-
-        if (buffer is null) return;
-
-        lock (processingLock)
-        {
-            if (e.Result.Audio is null || recogniser is null)
-            {
-                reset();
-                return;
-            }
-
-            var memoryStream = new MemoryStream();
-            e.Result.Audio.WriteToWaveStream(memoryStream);
-
-            // using a 2nd memory stream as GetBuffer() must be called
-            var wavStream = new MemoryStream(memoryStream.GetBuffer());
-            memoryStream.Dispose();
-
-            buffer.Initialize();
-            int bytesRead;
-
-            while ((bytesRead = wavStream.Read(buffer, 0, buffer.Length)) > 0)
-            {
-                recogniser.AcceptWaveform(buffer, bytesRead);
-            }
-
-            wavStream.Dispose();
-
-            var finalResult = JsonConvert.DeserializeObject<Recognition>(recogniser.FinalResult())?.Text ?? string.Empty;
-
-            if (string.IsNullOrEmpty(finalResult))
-            {
-                reset();
-                return;
-            }
-
-            finalResult = finalResult[..1].ToUpper(CultureInfo.CurrentCulture) + finalResult[1..];
-            Log($"Recognised: \"{finalResult}\"");
-
-            SetVariableValue(SpeechToTextVariable.Text, finalResult);
-            ChangeStateTo(SpeechToTextState.TextGenerated);
-            TriggerEvent(SpeechToTextEvent.TextGenerated);
-            reset();
-        }
-    }
-
-    private void reset()
-    {
-        SetChatBoxTyping(false);
-        recogniser?.Reset();
-    }
-
     private class Recognition
     {
         [JsonProperty("text")]
+        public string Text = null!;
+    }
+
+    private class PartialRecognition
+    {
+        [JsonProperty("partial")]
         public string Text = null!;
     }
 
@@ -201,6 +180,7 @@ public class SpeechToTextModule : ChatBoxModule
     private enum SpeechToTextState
     {
         Idle,
+        TextGenerating,
         TextGenerated
     }
 
