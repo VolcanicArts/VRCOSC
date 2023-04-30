@@ -45,3 +45,13 @@ public static class TimeSpanExtensions
 {
     public static string Format(this TimeSpan timeSpan) => string.Format(timeSpan.TotalHours >= 1 ? @"{0:hh\:mm\:ss}" : @"{0:mm\:ss}", timeSpan);
 }
+
+public static class ArrayExtensions
+{
+    public static T[] NewCopy<T>(this T[] source, int length)
+    {
+        var destination = new T[length];
+        Array.Copy(source, destination, length);
+        return destination;
+    }
+}
