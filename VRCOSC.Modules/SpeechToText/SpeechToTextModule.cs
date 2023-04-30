@@ -3,7 +3,6 @@
 
 using System.Globalization;
 using Newtonsoft.Json;
-using osu.Framework.Bindables;
 using Vosk;
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.Modules.ChatBox;
@@ -21,13 +20,11 @@ public class SpeechToTextModule : ChatBoxModule
     private Model? model;
     private VoskRecognizer recogniser = null!;
 
-    private readonly object dataWrite = new();
-
-    private readonly Bindable<bool> talking = new();
-
     private bool readyToAccept;
     private bool listening;
     private bool shouldAnalyse => readyToAccept && listening && (!GetSetting<bool>(SpeechToTextSetting.FollowMute) || Player.IsMuted.GetValueOrDefault());
+
+    private readonly Queue<(byte[], int)> bufferQueue = new();
 
     public SpeechToTextModule()
     {
@@ -62,26 +59,19 @@ public class SpeechToTextModule : ChatBoxModule
         Log("Model loading...");
         readyToAccept = false;
         listening = true;
-        talking.Value = false;
+        bufferQueue.Clear();
 
-        talking.BindValueChanged(onTalkingChanged);
-
-        micInterface.BufferCallback = onNewBuffer;
+        micInterface.BufferCallback = (buffer, bytesRecorded) => bufferQueue.Enqueue((buffer, bytesRecorded));
         var captureDevice = micInterface.Hook();
         Log($"Hooked into microphone {captureDevice.DeviceFriendlyName.Trim()}");
 
         Task.Run(() =>
         {
             model = new Model(GetSetting<string>(SpeechToTextSetting.ModelLocation));
+            recogniser = new VoskRecognizer(model, micInterface.AudioCapture!.WaveFormat.SampleRate);
+            recogniser.SetMaxAlternatives(0);
+
             Log("Model loaded!");
-
-            lock (dataWrite)
-            {
-                recogniser = new VoskRecognizer(model, micInterface.AudioCapture!.WaveFormat.SampleRate);
-                recogniser.SetMaxAlternatives(0);
-                recogniser.SetWords(true);
-            }
-
             readyToAccept = true;
         }).ConfigureAwait(false);
 
@@ -91,21 +81,60 @@ public class SpeechToTextModule : ChatBoxModule
         SendParameter(SpeechToTextParameter.Listen, listening);
     }
 
-    private void onTalkingChanged(ValueChangedEvent<bool> e)
+    protected override void OnFrameUpdate()
     {
-        if (!e.NewValue) handleFinalResult();
+        if (!shouldAnalyse) return;
+
+        while (bufferQueue.Any())
+        {
+            var bufferPair = bufferQueue.Dequeue();
+
+            if (!recogniser.AcceptWaveform(bufferPair.Item1, bufferPair.Item2))
+            {
+                var partialResult = JsonConvert.DeserializeObject<PartialRecognition>(recogniser.PartialResult())?.Text;
+
+                if (!string.IsNullOrEmpty(partialResult))
+                {
+                    if (partialResult.Length > 1)
+                    {
+                        partialResult = partialResult[..1].ToUpper(CultureInfo.CurrentCulture) + partialResult[1..];
+                    }
+
+                    ChangeStateTo(SpeechToTextState.TextGenerating);
+                    SetVariableValue(SpeechToTextVariable.Text, partialResult);
+                    SetChatBoxTyping(true);
+                }
+            }
+            else
+            {
+                var result = JsonConvert.DeserializeObject<Recognition>(recogniser.Result())?.Text;
+
+                if (!string.IsNullOrEmpty(result) && result != "huh")
+                {
+                    result = result[..1].ToUpper(CultureInfo.CurrentCulture) + result[1..];
+                    Log($"Recognised: \"{result}\"");
+
+                    SetVariableValue(SpeechToTextVariable.Text, result);
+                    ChangeStateTo(SpeechToTextState.TextGenerated);
+                    TriggerEvent(SpeechToTextEvent.TextGenerated);
+                }
+                else
+                {
+                    SetVariableValue(SpeechToTextVariable.Text, string.Empty);
+                    ChangeStateTo(SpeechToTextState.Idle);
+                }
+
+                recogniser.Reset();
+                SetChatBoxTyping(false);
+            }
+        }
     }
 
     protected override void OnModuleStop()
     {
         SetChatBoxTyping(false);
         micInterface.UnHook();
-        talking.UnbindAll();
-
-        lock (dataWrite)
-        {
-            recogniser.Dispose();
-        }
+        recogniser.Dispose();
     }
 
     protected override void OnBoolParameterReceived(Enum key, bool value)
@@ -121,56 +150,6 @@ public class SpeechToTextModule : ChatBoxModule
             case SpeechToTextParameter.Listen:
                 listening = value;
                 break;
-        }
-    }
-
-    private void handleFinalResult()
-    {
-        lock (dataWrite)
-        {
-            var finalResult = JsonConvert.DeserializeObject<Recognition>(recogniser.FinalResult())?.Text ?? string.Empty;
-
-            if (!string.IsNullOrEmpty(finalResult))
-            {
-                finalResult = finalResult[..1].ToUpper(CultureInfo.CurrentCulture) + finalResult[1..];
-                Log($"Recognised: \"{finalResult}\"");
-
-                SetVariableValue(SpeechToTextVariable.Text, finalResult);
-                ChangeStateTo(SpeechToTextState.TextGenerated);
-                TriggerEvent(SpeechToTextEvent.TextGenerated);
-            }
-
-            SetChatBoxTyping(false);
-        }
-    }
-
-    private void onNewBuffer(byte[] buffer, int bytesRecorded)
-    {
-        if (!shouldAnalyse) return;
-
-        lock (dataWrite)
-        {
-            if (!recogniser.AcceptWaveform(buffer, bytesRecorded))
-            {
-                var partialResult = JsonConvert.DeserializeObject<PartialRecognition>(recogniser.PartialResult())?.Text;
-
-                if (!string.IsNullOrEmpty(partialResult))
-                {
-                    if (partialResult.Length > 1)
-                    {
-                        partialResult = partialResult[..1].ToUpper(CultureInfo.CurrentCulture) + partialResult[1..];
-                    }
-
-                    ChangeStateTo(SpeechToTextState.TextGenerating);
-                    SetVariableValue(SpeechToTextVariable.Text, partialResult);
-                    SetChatBoxTyping(true);
-                    talking.Value = true;
-                }
-            }
-            else
-            {
-                talking.Value = false;
-            }
         }
     }
 
