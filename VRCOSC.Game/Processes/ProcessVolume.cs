@@ -62,42 +62,49 @@ internal static class ProcessVolume
 
     private static ISimpleAudioVolume? getVolumeObject(string processName)
     {
-        // get the speakers (1st render + multimedia) device
-        IMMDeviceEnumerator deviceEnumerator = (IMMDeviceEnumerator)new MMDeviceEnumerator();
-        deviceEnumerator.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia, out var speakers);
-
-        // activate the session manager. we need the enumerator
-        Guid IID_IAudioSessionManager2 = typeof(IAudioSessionManager2).GUID;
-        speakers.Activate(ref IID_IAudioSessionManager2, 0, IntPtr.Zero, out var o);
-        IAudioSessionManager2 mgr = (IAudioSessionManager2)o;
-
-        // enumerate sessions for on this device
-        mgr.GetSessionEnumerator(out var sessionEnumerator);
-        sessionEnumerator.GetCount(out var count);
-
-        // search for an audio session with the required name
-        // NOTE: we could also use the process id instead of the app name (with IAudioSessionControl2)
-        ISimpleAudioVolume? volumeControl = null;
-
-        for (int i = 0; i < count; i++)
+        try
         {
-            sessionEnumerator.GetSession(i, out var ctl);
-            ctl.GetSessionIdentifier(out var identifier);
+            // get the speakers (1st render + multimedia) device
+            IMMDeviceEnumerator deviceEnumerator = (IMMDeviceEnumerator)new MMDeviceEnumerator();
+            deviceEnumerator.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia, out var speakers);
 
-            if (identifier.Contains(processName, StringComparison.InvariantCultureIgnoreCase))
+            // activate the session manager. we need the enumerator
+            Guid IID_IAudioSessionManager2 = typeof(IAudioSessionManager2).GUID;
+            speakers.Activate(ref IID_IAudioSessionManager2, 0, IntPtr.Zero, out var o);
+            IAudioSessionManager2 mgr = (IAudioSessionManager2)o;
+
+            // enumerate sessions for on this device
+            mgr.GetSessionEnumerator(out var sessionEnumerator);
+            sessionEnumerator.GetCount(out var count);
+
+            // search for an audio session with the required name
+            // NOTE: we could also use the process id instead of the app name (with IAudioSessionControl2)
+            ISimpleAudioVolume? volumeControl = null;
+
+            for (int i = 0; i < count; i++)
             {
-                volumeControl = ctl as ISimpleAudioVolume;
-                break;
+                sessionEnumerator.GetSession(i, out var ctl);
+                ctl.GetSessionIdentifier(out var identifier);
+
+                if (identifier.Contains(processName, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    volumeControl = ctl as ISimpleAudioVolume;
+                    break;
+                }
+
+                Marshal.ReleaseComObject(ctl);
             }
 
-            Marshal.ReleaseComObject(ctl);
+            Marshal.ReleaseComObject(sessionEnumerator);
+            Marshal.ReleaseComObject(mgr);
+            Marshal.ReleaseComObject(speakers);
+            Marshal.ReleaseComObject(deviceEnumerator);
+            return volumeControl;
         }
-
-        Marshal.ReleaseComObject(sessionEnumerator);
-        Marshal.ReleaseComObject(mgr);
-        Marshal.ReleaseComObject(speakers);
-        Marshal.ReleaseComObject(deviceEnumerator);
-        return volumeControl;
+        catch
+        {
+            return null;
+        }
     }
 
     [ComImport]
