@@ -10,6 +10,7 @@ public abstract class HeartRateProvider
 {
     protected virtual string WebSocketUrl => throw new InvalidOperationException("Specify a WebSocket Url");
 
+    private readonly TerminalLogger terminal;
     private BaseWebSocket? webSocket;
 
     public Action? OnConnected;
@@ -18,22 +19,30 @@ public abstract class HeartRateProvider
 
     public bool IsConnected { get; private set; }
 
+    protected HeartRateProvider(TerminalLogger terminal)
+    {
+        this.terminal = terminal;
+    }
+
     public void Initialise()
     {
         IsConnected = false;
         webSocket = new BaseWebSocket(WebSocketUrl);
+
         webSocket.OnWsConnected += () =>
         {
             IsConnected = true;
             HandleWsConnected();
             OnConnected?.Invoke();
         };
+
         webSocket.OnWsDisconnected += () =>
         {
             IsConnected = false;
             HandleWsDisconnected();
             OnDisconnected?.Invoke();
         };
+
         webSocket.OnWsMessage += HandleWsMessage;
     }
 
@@ -61,4 +70,6 @@ public abstract class HeartRateProvider
     protected virtual void HandleWsConnected() { }
     protected virtual void HandleWsDisconnected() { }
     protected virtual void HandleWsMessage(string message) { }
+
+    protected void Log(string message) => terminal.Log(message);
 }

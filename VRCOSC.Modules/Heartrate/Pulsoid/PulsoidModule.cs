@@ -1,6 +1,8 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using VRCOSC.Game.Modules;
+
 namespace VRCOSC.Modules.Heartrate.Pulsoid;
 
 public sealed class PulsoidModule : HeartRateModule
@@ -10,7 +12,7 @@ public sealed class PulsoidModule : HeartRateModule
     public override string Title => @"Pulsoid";
     public override string Description => @"Connects to Pulsoid and sends your heartrate to VRChat";
 
-    protected override HeartRateProvider CreateHeartRateProvider() => new PulsoidProvider(GetSetting<string>(PulsoidSetting.AccessToken));
+    protected override HeartRateProvider CreateHeartRateProvider() => new PulsoidProvider(GetSetting<string>(PulsoidSetting.AccessToken), new TerminalLogger(Title));
 
     protected override void CreateAttributes()
     {

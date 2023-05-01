@@ -11,11 +11,11 @@ public sealed class HypeRateProvider : HeartRateProvider
 {
     private readonly string hypeRateId;
     private readonly string apiKey;
-    private readonly TerminalLogger terminal = new(new HypeRateModule().Title);
 
     protected override string WebSocketUrl => $"wss://app.hyperate.io/socket/websocket?token={apiKey}";
 
-    public HypeRateProvider(string hypeRateId, string apiKey)
+    public HypeRateProvider(string hypeRateId, string apiKey, TerminalLogger terminal)
+        : base(terminal)
     {
         this.hypeRateId = hypeRateId;
         this.apiKey = apiKey;
@@ -23,13 +23,13 @@ public sealed class HypeRateProvider : HeartRateProvider
 
     protected override void HandleWsConnected()
     {
-        terminal.Log("Successfully connected to the HypeRate websocket");
+        Log("Successfully connected to the HypeRate websocket");
         sendJoinChannel();
     }
 
     protected override void HandleWsDisconnected()
     {
-        terminal.Log("Disconnected from the HypeRate websocket");
+        Log("Disconnected from the HypeRate websocket");
     }
 
     protected override void HandleWsMessage(string message)
@@ -38,7 +38,7 @@ public sealed class HypeRateProvider : HeartRateProvider
 
         if (eventModel is null)
         {
-            terminal.Log($"Received an unrecognised message:\n{message}");
+            Log($"Received an unrecognised message:\n{message}");
             return;
         }
 
@@ -56,13 +56,14 @@ public sealed class HypeRateProvider : HeartRateProvider
 
     public void SendWsHeartBeat()
     {
-        terminal.Log("Sending HypeRate websocket heartbeat");
+        Log("Sending HypeRate websocket heartbeat");
         SendData(new HeartBeatModel());
     }
 
     private void sendJoinChannel()
     {
-        terminal.Log($"Requesting to hook into heartrate for Id {hypeRateId}");
+        Log($"Requesting to hook into heartrate for Id {hypeRateId}");
+
         var joinChannelModel = new JoinChannelModel
         {
             Id = hypeRateId
@@ -72,7 +73,7 @@ public sealed class HypeRateProvider : HeartRateProvider
 
     private void handlePhxReply(PhxReplyModel reply)
     {
-        terminal.Log($"Status of reply: {reply.Payload.Status}");
+        Log($"Status of reply: {reply.Payload.Status}");
     }
 
     private void handleHrUpdate(HeartRateUpdateModel update)
