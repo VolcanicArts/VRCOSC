@@ -13,14 +13,21 @@ public class MicrophoneInterface
 
     public Action<byte[], int>? BufferCallback;
 
-    public MMDevice Hook()
+    public MMDevice? Hook()
     {
-        var defaultCaptureDevice = WasapiCapture.GetDefaultCaptureDevice();
-        AudioCapture = new WasapiCapture(defaultCaptureDevice);
-        AudioCapture.WaveFormat = new WaveFormat(16000, 16, 1);
-        AudioCapture.DataAvailable += handleAudioCaptureBuffer;
-        AudioCapture.StartRecording();
-        return defaultCaptureDevice;
+        try
+        {
+            var defaultCaptureDevice = WasapiCapture.GetDefaultCaptureDevice();
+            AudioCapture = new WasapiCapture(defaultCaptureDevice);
+            AudioCapture.WaveFormat = new WaveFormat(16000, 16, 1);
+            AudioCapture.DataAvailable += handleAudioCaptureBuffer;
+            AudioCapture.StartRecording();
+            return defaultCaptureDevice;
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 
     public void UnHook()

@@ -63,6 +63,13 @@ public class SpeechToTextModule : ChatBoxModule
 
         micInterface.BufferCallback = (buffer, bytesRecorded) => bufferQueue.Enqueue((buffer, bytesRecorded));
         var captureDevice = micInterface.Hook();
+
+        if (captureDevice is null)
+        {
+            Log("Failed to hook into default microphone. Please restart the module");
+            return;
+        }
+
         Log($"Hooked into microphone {captureDevice.DeviceFriendlyName.Trim()}");
 
         Task.Run(() =>
