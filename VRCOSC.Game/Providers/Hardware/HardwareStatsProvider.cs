@@ -137,6 +137,19 @@ public sealed class HardwareStatsProvider
                 }
 
                 break;
+
+            case SensorType.Power:
+                switch (sensor.Name)
+                {
+                    // AMD
+                    case @"Package":
+                    // Intel
+                    case @"CPU Package":
+                        cpu.Power = (int?)sensor.Value ?? 0;
+                        break;
+                }
+
+                break;
         }
     }
 
@@ -177,6 +190,16 @@ public sealed class HardwareStatsProvider
 
                     case @"GPU Memory Total":
                         gpu.MemoryTotal = (int?)sensor.Value ?? 0;
+                        break;
+                }
+
+                break;
+
+            case SensorType.Power:
+                switch (sensor.Name)
+                {
+                    case @"GPU Package":
+                        gpu.Power = (int?)sensor.Value ?? 0;
                         break;
                 }
 

@@ -33,6 +33,8 @@ public sealed class HardwareStatsModule : ChatBoxModule
         CreateParameter<float>(HardwareStatsParameter.VRamFree, ParameterMode.Write, "VRCOSC/Hardware/VRamFree", @"VRAM Free", @"The amount of free VRAM in GB");
         CreateParameter<float>(HardwareStatsParameter.VRamUsed, ParameterMode.Write, "VRCOSC/Hardware/VRamUsed", @"VRAM Used", @"The amount of used VRAM in GB");
         CreateParameter<float>(HardwareStatsParameter.VRamTotal, ParameterMode.Write, "VRCOSC/Hardware/VRamTotal", @"VRAM Total", @"The amount of total VRAM in GB");
+        CreateParameter<float>(HardwareStatsParameter.CpuPower, ParameterMode.Write, "VRCOSC/Hardware/CPUPower", @"CPU Power", @"The power usage of your CPU in Watts");
+        CreateParameter<float>(HardwareStatsParameter.GpuPower, ParameterMode.Write, "VRCOSC/Hardware/GPUPower", @"GPU Power", @"The power usage of your GPU in Watts");
 
         CreateVariable(HardwareStatsParameter.CpuUsage, @"CPU Usage (%)", @"cpuusage");
         CreateVariable(HardwareStatsParameter.GpuUsage, @"GPU Usage (%)", @"gpuusage");
@@ -45,6 +47,8 @@ public sealed class HardwareStatsModule : ChatBoxModule
         CreateVariable(HardwareStatsParameter.VRamUsed, @"VRAM Used (GB)", @"vramused");
         CreateVariable(HardwareStatsParameter.VRamFree, @"VRAM Free (GB)", @"vramfree");
         CreateVariable(HardwareStatsParameter.VRamTotal, @"VRAM Total (GB)", @"vramtotal");
+        CreateVariable(HardwareStatsParameter.CpuPower, @"CPU Power (W)", @"cpupower");
+        CreateVariable(HardwareStatsParameter.GpuPower, @"GPU Power (W)", @"gpupower");
 
         CreateState(HardwareStatsState.Default, "Default", $"CPU: {GetVariableFormat(HardwareStatsParameter.CpuUsage)}% | GPU: {GetVariableFormat(HardwareStatsParameter.GpuUsage)}%                RAM: {GetVariableFormat(HardwareStatsParameter.RamUsed)}GB/{GetVariableFormat(HardwareStatsParameter.RamTotal)}GB");
     }
@@ -60,17 +64,7 @@ public sealed class HardwareStatsModule : ChatBoxModule
     {
         if (hardwareStatsProvider is null || !hardwareStatsProvider.CanAcceptQueries)
         {
-            SetVariableValue(HardwareStatsParameter.CpuUsage, "0");
-            SetVariableValue(HardwareStatsParameter.GpuUsage, "0");
-            SetVariableValue(HardwareStatsParameter.RamUsage, "0");
-            SetVariableValue(HardwareStatsParameter.CpuTemp, "0");
-            SetVariableValue(HardwareStatsParameter.GpuTemp, "0");
-            SetVariableValue(HardwareStatsParameter.RamTotal, "0");
-            SetVariableValue(HardwareStatsParameter.RamUsed, "0");
-            SetVariableValue(HardwareStatsParameter.RamAvailable, "0");
-            SetVariableValue(HardwareStatsParameter.VRamFree, "0");
-            SetVariableValue(HardwareStatsParameter.VRamUsed, "0");
-            SetVariableValue(HardwareStatsParameter.VRamTotal, "0");
+            SetAllVariableValues<HardwareStatsParameter>("0");
             return;
         }
 
@@ -95,6 +89,8 @@ public sealed class HardwareStatsModule : ChatBoxModule
                 SendParameter(HardwareStatsParameter.VRamFree, gpu.MemoryFree / 1000f);
                 SendParameter(HardwareStatsParameter.VRamUsed, gpu.MemoryUsed / 1000f);
                 SendParameter(HardwareStatsParameter.VRamTotal, gpu.MemoryTotal / 1000f);
+                SendParameter(HardwareStatsParameter.CpuPower, cpu.Power);
+                SendParameter(HardwareStatsParameter.GpuPower, gpu.Power);
 
                 SetVariableValue(HardwareStatsParameter.CpuUsage, cpu.Usage.ToString("0.00"));
                 SetVariableValue(HardwareStatsParameter.GpuUsage, gpu.Usage.ToString("0.00"));
@@ -107,6 +103,8 @@ public sealed class HardwareStatsModule : ChatBoxModule
                 SetVariableValue(HardwareStatsParameter.VRamFree, (gpu.MemoryFree / 1000f).ToString("0.0"));
                 SetVariableValue(HardwareStatsParameter.VRamUsed, (gpu.MemoryUsed / 1000f).ToString("0.0"));
                 SetVariableValue(HardwareStatsParameter.VRamTotal, (gpu.MemoryTotal / 1000f).ToString("0.0"));
+                SetVariableValue(HardwareStatsParameter.CpuPower, cpu.Power.ToString());
+                SetVariableValue(HardwareStatsParameter.GpuPower, gpu.Power.ToString());
             }
             catch { }
         }).ConfigureAwait(false);
@@ -135,7 +133,9 @@ public sealed class HardwareStatsModule : ChatBoxModule
         RamAvailable,
         VRamFree,
         VRamUsed,
-        VRamTotal
+        VRamTotal,
+        CpuPower,
+        GpuPower
     }
 
     private enum HardwareStatsState

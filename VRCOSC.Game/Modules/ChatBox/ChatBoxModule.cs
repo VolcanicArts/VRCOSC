@@ -14,6 +14,16 @@ public abstract class ChatBoxModule : Module
     protected void SetVariableValue(Enum lookup, string? value) => ChatBoxManager.SetVariable(SerialisedName, lookup.ToLookup(), value);
     protected string GetVariableFormat(Enum lookup) => ChatBoxManager.VariableMetadata[SerialisedName][lookup.ToLookup()].DisplayableFormat;
 
+    protected void SetAllVariableValues<T>(string? value) where T : Enum => setAllVariableValues(typeof(T), value);
+
+    private void setAllVariableValues(Type lookupType, string? value)
+    {
+        foreach (Enum lookup in Enum.GetValues(lookupType))
+        {
+            SetVariableValue(lookup, value);
+        }
+    }
+
     protected void ChangeStateTo(Enum lookup) => ChatBoxManager.ChangeStateTo(SerialisedName, lookup.ToLookup());
     protected void TriggerEvent(Enum lookup) => ChatBoxManager.TriggerEvent(SerialisedName, lookup.ToLookup());
 

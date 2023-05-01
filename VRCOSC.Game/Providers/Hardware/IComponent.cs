@@ -10,12 +10,14 @@ public interface IComponent
 public class CPU : IComponent
 {
     public float Usage { get; internal set; }
+    public int Power { get; internal set; }
     public int Temperature { get; internal set; }
 }
 
 public class GPU : IComponent
 {
     public float Usage { get; internal set; }
+    public int Power { get; internal set; }
     public int Temperature { get; internal set; }
     public int MemoryFree { get; internal set; }
     public int MemoryUsed { get; internal set; }
