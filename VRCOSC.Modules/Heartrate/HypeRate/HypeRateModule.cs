@@ -7,17 +7,15 @@ namespace VRCOSC.Modules.Heartrate.HypeRate;
 
 public sealed class HypeRateModule : HeartRateModule
 {
-    public override string Title => "HypeRate";
-    public override string Description => "Connects to HypeRate.io and sends your heartrate to VRChat";
+    public override string Title => @"HypeRate";
+    public override string Description => @"Connects to HypeRate.io and sends your heartrate to VRChat";
     protected override TimeSpan DeltaUpdate => TimeSpan.FromSeconds(10);
-
-    private bool receivedHeartRate;
 
     protected override HeartRateProvider CreateHeartRateProvider() => new HypeRateProvider(GetSetting<string>(HypeRateSetting.Id), Secrets.GetSecret(VRCOSCSecretsKeys.Hyperate));
 
     protected override void CreateAttributes()
     {
-        CreateSetting(HypeRateSetting.Id, "HypeRate ID", "Your HypeRate ID given on your device", string.Empty);
+        CreateSetting(HypeRateSetting.Id, @"HypeRate ID", @"Your HypeRate ID given on your device", string.Empty);
         base.CreateAttributes();
     }
 
@@ -27,28 +25,18 @@ public sealed class HypeRateModule : HeartRateModule
 
         if (string.IsNullOrEmpty(hypeRateId))
         {
-            Log("Cannot connect to HypeRate. Please enter an Id");
+            Log(@"Cannot connect to HypeRate. Please enter an Id");
             return;
         }
-
-        SendParameter(HeartrateParameter.Enabled, false);
 
         base.OnModuleStart();
     }
 
     protected override void OnModuleUpdate()
     {
-        if (!(HeartRateProvider?.IsConnected ?? false)) return;
+        if (HeartRateProvider is null || !HeartRateProvider.IsConnected) return;
 
         ((HypeRateProvider)HeartRateProvider).SendWsHeartBeat();
-        if (!receivedHeartRate) SendParameter(HeartrateParameter.Enabled, false);
-        receivedHeartRate = false;
-    }
-
-    protected override void HandleHeartRateUpdate(int heartrate)
-    {
-        base.HandleHeartRateUpdate(heartrate);
-        receivedHeartRate = true;
     }
 
     private enum HypeRateSetting

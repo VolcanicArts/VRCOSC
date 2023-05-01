@@ -10,8 +10,8 @@ public abstract class HeartRateModule : ChatBoxModule
 {
     private static readonly TimeSpan heartrate_timeout = TimeSpan.FromSeconds(10);
 
-    public override string Author => "VolcanicArts";
-    public override string Prefab => "VRCOSC-Heartrate";
+    public override string Author => @"VolcanicArts";
+    public override string Prefab => @"VRCOSC-Heartrate";
     public override ModuleType Type => ModuleType.Health;
 
     protected HeartRateProvider? HeartRateProvider;
@@ -33,11 +33,11 @@ public abstract class HeartRateModule : ChatBoxModule
         CreateSetting(HeartrateSetting.NormalisedLowerbound, @"Normalised Lowerbound", @"The lower bound BPM the normalised parameter should use", 0);
         CreateSetting(HeartrateSetting.NormalisedUpperbound, @"Normalised Upperbound", @"The upper bound BPM the normalised parameter should use", 240);
 
-        CreateParameter<bool>(HeartrateParameter.Enabled, ParameterMode.Write, "VRCOSC/Heartrate/Enabled", "Enabled", "Whether this module is attempting to emit values");
-        CreateParameter<float>(HeartrateParameter.Normalised, ParameterMode.Write, "VRCOSC/Heartrate/Normalised", "Normalised", "The heartrate value normalised to the set bounds");
-        CreateParameter<float>(HeartrateParameter.Units, ParameterMode.Write, "VRCOSC/Heartrate/Units", "Units", "The units digit 0-9 mapped to a float");
-        CreateParameter<float>(HeartrateParameter.Tens, ParameterMode.Write, "VRCOSC/Heartrate/Tens", "Tens", "The tens digit 0-9 mapped to a float");
-        CreateParameter<float>(HeartrateParameter.Hundreds, ParameterMode.Write, "VRCOSC/Heartrate/Hundreds", "Hundreds", "The hundreds digit 0-9 mapped to a float");
+        CreateParameter<bool>(HeartrateParameter.Enabled, ParameterMode.Write, @"VRCOSC/Heartrate/Enabled", @"Enabled", @"Whether this module is attempting to emit values");
+        CreateParameter<float>(HeartrateParameter.Normalised, ParameterMode.Write, @"VRCOSC/Heartrate/Normalised", @"Normalised", @"The heartrate value normalised to the set bounds");
+        CreateParameter<float>(HeartrateParameter.Units, ParameterMode.Write, @"VRCOSC/Heartrate/Units", @"Units", @"The units digit 0-9 mapped to a float");
+        CreateParameter<float>(HeartrateParameter.Tens, ParameterMode.Write, @"VRCOSC/Heartrate/Tens", @"Tens", @"The tens digit 0-9 mapped to a float");
+        CreateParameter<float>(HeartrateParameter.Hundreds, ParameterMode.Write, @"VRCOSC/Heartrate/Hundreds", @"Hundreds", @"The hundreds digit 0-9 mapped to a float");
 
         CreateVariable(HeartrateVariable.Heartrate, @"Heartrate", @"hr");
 
@@ -52,19 +52,20 @@ public abstract class HeartRateModule : ChatBoxModule
         currentHeartrate = 0;
         targetHeartrate = 0;
         ChangeStateTo(HeartrateState.Default);
+        SendParameter(HeartrateParameter.Enabled, false);
     }
 
     private void attemptConnection()
     {
         if (connectionCount >= 3)
         {
-            Log("Connection cannot be established");
+            Log(@"Connection cannot be established");
             return;
         }
 
         connectionCount++;
         HeartRateProvider = CreateHeartRateProvider();
-        HeartRateProvider.OnHeartRateUpdate += HandleHeartRateUpdate;
+        HeartRateProvider.OnHeartRateUpdate += handleHeartRateUpdate;
         HeartRateProvider.OnConnected += () => connectionCount = 0;
 
         HeartRateProvider.OnDisconnected += () =>
@@ -86,14 +87,12 @@ public abstract class HeartRateModule : ChatBoxModule
     {
         if (HeartRateProvider is null) return;
 
-        if (connectionCount < 3) HeartRateProvider.Disconnect();
+        if (HeartRateProvider.IsConnected) HeartRateProvider.Disconnect();
         SendParameter(HeartrateParameter.Enabled, false);
     }
 
     protected override void OnFrameUpdate()
     {
-        SendParameter(HeartrateParameter.Enabled, isReceiving);
-
         if (GetSetting<bool>(HeartrateSetting.Smoothed))
         {
             if (lastIntervalUpdate + targetInterval <= DateTimeOffset.Now)
@@ -107,11 +106,10 @@ public abstract class HeartRateModule : ChatBoxModule
             currentHeartrate = targetHeartrate;
         }
 
-        SetVariableValue(HeartrateVariable.Heartrate, currentHeartrate.ToString());
         sendParameters();
     }
 
-    protected virtual void HandleHeartRateUpdate(int heartrate)
+    private void handleHeartRateUpdate(int heartrate)
     {
         targetHeartrate = heartrate;
         lastHeartrateTime = DateTimeOffset.Now;
@@ -124,19 +122,31 @@ public abstract class HeartRateModule : ChatBoxModule
         {
             targetInterval = TimeSpan.Zero;
         }
-
-        SendParameter(HeartrateParameter.Enabled, true);
     }
 
     private void sendParameters()
     {
-        var normalisedHeartRate = Map(currentHeartrate, GetSetting<int>(HeartrateSetting.NormalisedLowerbound), GetSetting<int>(HeartrateSetting.NormalisedUpperbound), 0, 1);
-        var individualValues = toDigitArray(currentHeartrate, 3);
+        SendParameter(HeartrateParameter.Enabled, isReceiving);
 
-        SendParameter(HeartrateParameter.Normalised, normalisedHeartRate);
-        SendParameter(HeartrateParameter.Units, individualValues[2] / 10f);
-        SendParameter(HeartrateParameter.Tens, individualValues[1] / 10f);
-        SendParameter(HeartrateParameter.Hundreds, individualValues[0] / 10f);
+        if (isReceiving)
+        {
+            var normalisedHeartRate = Map(currentHeartrate, GetSetting<int>(HeartrateSetting.NormalisedLowerbound), GetSetting<int>(HeartrateSetting.NormalisedUpperbound), 0, 1);
+            var individualValues = toDigitArray(currentHeartrate, 3);
+
+            SendParameter(HeartrateParameter.Normalised, normalisedHeartRate);
+            SendParameter(HeartrateParameter.Units, individualValues[2] / 10f);
+            SendParameter(HeartrateParameter.Tens, individualValues[1] / 10f);
+            SendParameter(HeartrateParameter.Hundreds, individualValues[0] / 10f);
+            SetVariableValue(HeartrateVariable.Heartrate, currentHeartrate.ToString());
+        }
+        else
+        {
+            SendParameter(HeartrateParameter.Normalised, 0);
+            SendParameter(HeartrateParameter.Units, 0);
+            SendParameter(HeartrateParameter.Tens, 0);
+            SendParameter(HeartrateParameter.Hundreds, 0);
+            SetVariableValue(HeartrateVariable.Heartrate, @"0");
+        }
     }
 
     private static int[] toDigitArray(int num, int totalWidth)
