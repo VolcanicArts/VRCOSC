@@ -91,6 +91,7 @@ public static class DefaultTimeline
         clip.Start.Value = 0;
         clip.End.Value = 60;
         clip.AssociatedModules.Add(@"speechtotextmodule");
+        clip.GetStateFor(@"speechtotextmodule", @"textgenerating")!.Enabled.Value = true;
         clip.GetEventFor(@"speechtotextmodule", @"textgenerated")!.Enabled.Value = true;
 
         return clip;
