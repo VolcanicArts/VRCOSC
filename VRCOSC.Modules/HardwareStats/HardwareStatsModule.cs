@@ -74,9 +74,27 @@ public sealed class HardwareStatsModule : ChatBoxModule
 
             try
             {
-                var cpu = hardwareStatsProvider.Cpus[GetSetting<int>(HardwareStatsSetting.SelectedCPU)];
-                var gpu = hardwareStatsProvider.Gpus[GetSetting<int>(HardwareStatsSetting.SelectedGPU)];
-                var ram = hardwareStatsProvider.Ram;
+                var cpu = hardwareStatsProvider.GetCPU(GetSetting<int>(HardwareStatsSetting.SelectedCPU));
+                var gpu = hardwareStatsProvider.GetGPU(GetSetting<int>(HardwareStatsSetting.SelectedGPU));
+                var ram = hardwareStatsProvider.GetRam();
+
+                if (cpu is null)
+                {
+                    Log("Warning. Could not connect to CPU");
+                    return;
+                }
+
+                if (gpu is null)
+                {
+                    Log("Warning. Could not connect to GPU");
+                    return;
+                }
+
+                if (ram is null)
+                {
+                    Log("Warning. Could not connect to RAM");
+                    return;
+                }
 
                 SendParameter(HardwareStatsParameter.CpuUsage, cpu.Usage / 100f);
                 SendParameter(HardwareStatsParameter.GpuUsage, gpu.Usage / 100f);
