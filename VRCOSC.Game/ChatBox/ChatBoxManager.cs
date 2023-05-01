@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
@@ -280,7 +281,19 @@ public class ChatBoxManager
 
     private void sendText(string text)
     {
-        oscClient.SendValues(VRChatOscConstants.ADDRESS_CHATBOX_INPUT, new List<object> { text, true, false });
+        var finalText = convertNewLinesToSpaces(text);
+        oscClient.SendValues(VRChatOscConstants.ADDRESS_CHATBOX_INPUT, new List<object> { finalText, true, false });
+    }
+
+    private static string convertNewLinesToSpaces(string input)
+    {
+        const int required_width = 64;
+
+        return Regex.Replace(input, "/n", match =>
+        {
+            int spaces = match.Index == 0 ? 0 : match.Index - input.LastIndexOf("/n", match.Index - 1, StringComparison.Ordinal) - 1;
+            return new string(' ', required_width - spaces);
+        });
     }
 
     public void Clear()

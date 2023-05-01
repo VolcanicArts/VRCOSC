@@ -35,7 +35,7 @@ public sealed class ClockModule : ChatBoxModule
         CreateVariable(ClockVariable.Seconds, "Seconds", "s");
         CreateVariable(ClockVariable.Period, "AM/PM", "period");
 
-        CreateState(ClockState.Default, "Default", $"Local Time                                {GetVariableFormat(ClockVariable.Hours)}:{GetVariableFormat(ClockVariable.Minutes)}{GetVariableFormat(ClockVariable.Period)}");
+        CreateState(ClockState.Default, "Default", $"Local Time/n{GetVariableFormat(ClockVariable.Hours)}:{GetVariableFormat(ClockVariable.Minutes)}{GetVariableFormat(ClockVariable.Period)}");
     }
 
     protected override void OnModuleStart()

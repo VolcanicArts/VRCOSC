@@ -41,7 +41,7 @@ public abstract class HeartRateModule : ChatBoxModule
 
         CreateVariable(HeartrateVariable.Heartrate, @"Heartrate", @"hr");
 
-        CreateState(HeartrateState.Default, @"Default", $@"Heartrate                                        {GetVariableFormat(HeartrateVariable.Heartrate)} bpm");
+        CreateState(HeartrateState.Default, @"Default", $@"Heartrate/n{GetVariableFormat(HeartrateVariable.Heartrate)} bpm");
     }
 
     protected override void OnModuleStart()

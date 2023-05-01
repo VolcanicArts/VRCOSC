@@ -52,7 +52,7 @@ public sealed class HardwareStatsModule : ChatBoxModule
         CreateVariable(HardwareStatsParameter.VRamFree, @"VRAM Free (GB)", @"vramfree");
         CreateVariable(HardwareStatsParameter.VRamTotal, @"VRAM Total (GB)", @"vramtotal");
 
-        CreateState(HardwareStatsState.Default, "Default", $"CPU: {GetVariableFormat(HardwareStatsParameter.CpuUsage)}% | GPU: {GetVariableFormat(HardwareStatsParameter.GpuUsage)}%                RAM: {GetVariableFormat(HardwareStatsParameter.RamUsed)}GB/{GetVariableFormat(HardwareStatsParameter.RamTotal)}GB");
+        CreateState(HardwareStatsState.Default, "Default", $"CPU: {GetVariableFormat(HardwareStatsParameter.CpuUsage)}% | GPU: {GetVariableFormat(HardwareStatsParameter.GpuUsage)}%/nRAM: {GetVariableFormat(HardwareStatsParameter.RamUsed)}GB/{GetVariableFormat(HardwareStatsParameter.RamTotal)}GB");
     }
 
     protected override void OnModuleStart()
