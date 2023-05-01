@@ -60,7 +60,7 @@ public abstract class HardwareComponent
     {
         if (GetFloatValue(sensor, info, out var valueFloat))
         {
-            value = (int)valueFloat;
+            value = (int)Math.Round(valueFloat);
             return true;
         }
 
@@ -119,6 +119,7 @@ public class IntelCPU : CPU
     }
 }
 
+// ReSharper disable once InconsistentNaming
 public class AMDCPU : CPU
 {
     protected override SensorInfo PowerInfo => new(SensorType.Power, "Package");
@@ -141,9 +142,10 @@ public class GPU : HardwareComponent
 
     public int Power { get; private set; }
     public int Temperature { get; private set; }
-    public int MemoryFree { get; private set; }
-    public int MemoryUsed { get; private set; }
-    public int MemoryTotal { get; private set; }
+    public float MemoryFree { get; private set; }
+    public float MemoryUsed { get; private set; }
+    public float MemoryTotal { get; private set; }
+    public float MemoryUsage => MemoryUsed / MemoryTotal;
 
     public GPU(int id)
         : base(id)
@@ -155,9 +157,9 @@ public class GPU : HardwareComponent
         base.Update(sensor);
         if (GetIntValue(sensor, powerInfo, out var powerValue)) Power = powerValue;
         if (GetIntValue(sensor, temperatureInfo, out var temperatureValue)) Temperature = temperatureValue;
-        if (GetIntValue(sensor, memoryFreeInfo, out var memoryFreeValue)) MemoryFree = memoryFreeValue;
-        if (GetIntValue(sensor, memoryUsedINfo, out var memoryUsedValue)) MemoryUsed = memoryUsedValue;
-        if (GetIntValue(sensor, memoryTotalInfo, out var memoryTotalValue)) MemoryTotal = memoryTotalValue;
+        if (GetFloatValue(sensor, memoryFreeInfo, out var memoryFreeValue)) MemoryFree = memoryFreeValue;
+        if (GetFloatValue(sensor, memoryUsedINfo, out var memoryUsedValue)) MemoryUsed = memoryUsedValue;
+        if (GetFloatValue(sensor, memoryTotalInfo, out var memoryTotalValue)) MemoryTotal = memoryTotalValue;
     }
 }
 
@@ -167,9 +169,9 @@ public class RAM : HardwareComponent
     private readonly SensorInfo memoryUsedInfo = new(SensorType.Data, "Memory Used");
     private readonly SensorInfo memoryAvailableInfo = new(SensorType.Data, "Memory Available");
 
-    public int Used { get; private set; }
-    public int Available { get; private set; }
-    public int Total => Used + Available;
+    public float Used { get; private set; }
+    public float Available { get; private set; }
+    public float Total => Used + Available;
 
     public RAM()
         : base(0)
@@ -179,7 +181,7 @@ public class RAM : HardwareComponent
     public override void Update(ISensor sensor)
     {
         base.Update(sensor);
-        if (GetIntValue(sensor, memoryUsedInfo, out var memoryUsedValue)) Used = memoryUsedValue;
-        if (GetIntValue(sensor, memoryAvailableInfo, out var memoryAvailableValue)) Available = memoryAvailableValue;
+        if (GetFloatValue(sensor, memoryUsedInfo, out var memoryUsedValue)) Used = memoryUsedValue;
+        if (GetFloatValue(sensor, memoryAvailableInfo, out var memoryAvailableValue)) Available = memoryAvailableValue;
     }
 }
