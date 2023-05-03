@@ -88,7 +88,7 @@ public partial class SquirrelUpdateManager : VRCOSCUpdateManager
         }
         catch (Exception e)
         {
-            progressNotification.Hide();
+            progressNotification.Close();
 
             // Update may have failed due to the installed version being too outdated
             // Retry without trying for delta
