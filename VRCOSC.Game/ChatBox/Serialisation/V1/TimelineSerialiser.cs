@@ -24,7 +24,10 @@ public class TimelineSerialiser : ITimelineSerialiser
     {
         lock (saveLock)
         {
-            File.WriteAllBytes(storage.GetFullPath(file_name, true), Encoding.Unicode.GetBytes(JsonConvert.SerializeObject(new SerialisableTimeline(chatBoxManager))));
+            var data = Encoding.Unicode.GetBytes(JsonConvert.SerializeObject(new SerialisableTimeline(chatBoxManager)));
+
+            using var stream = storage.CreateFileSafely(file_name);
+            stream.Write(data);
         }
     }
 
