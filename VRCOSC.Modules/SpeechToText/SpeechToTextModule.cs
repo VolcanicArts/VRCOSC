@@ -18,7 +18,7 @@ public class SpeechToTextModule : ChatBoxModule
 
     private readonly MicrophoneInterface micInterface = new();
     private Model? model;
-    private VoskRecognizer recogniser = null!;
+    private VoskRecognizer? recogniser;
 
     private bool readyToAccept;
     private bool listening;
@@ -90,7 +90,7 @@ public class SpeechToTextModule : ChatBoxModule
 
     protected override void OnFrameUpdate()
     {
-        if (!shouldAnalyse) return;
+        if (!shouldAnalyse || recogniser is null) return;
 
         while (bufferQueue.Any())
         {
@@ -141,7 +141,7 @@ public class SpeechToTextModule : ChatBoxModule
     {
         SetChatBoxTyping(false);
         micInterface.UnHook();
-        recogniser.Dispose();
+        recogniser?.Dispose();
     }
 
     protected override void OnBoolParameterReceived(Enum key, bool value)
