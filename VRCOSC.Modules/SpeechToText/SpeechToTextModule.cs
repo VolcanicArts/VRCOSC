@@ -14,7 +14,7 @@ public class SpeechToTextModule : ChatBoxModule
     public override string Title => "Speech To Text";
     public override string Description => "Speech to text using VOSK's local processing for VRChat's ChatBox";
     public override string Author => "VolcanicArts";
-    public override ModuleType Type => ModuleType.General;
+    public override ModuleType Type => ModuleType.Accessibility;
 
     private readonly MicrophoneInterface micInterface = new();
     private Model? model;
