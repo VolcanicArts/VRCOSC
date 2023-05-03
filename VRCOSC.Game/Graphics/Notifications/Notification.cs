@@ -68,7 +68,9 @@ public abstract partial class Notification : VisibilityContainer
 
     protected override bool OnClick(ClickEvent e)
     {
-        Hide();
+        Close();
         return true;
     }
+
+    public void Close() => Scheduler.Add(Hide);
 }
