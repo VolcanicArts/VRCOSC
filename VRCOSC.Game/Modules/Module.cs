@@ -284,10 +284,11 @@ public abstract class Module : IComparable<Module>
 
     public enum ModuleType
     {
-        Health = 0,
-        OpenVR = 1,
-        Integrations = 2,
-        General = 3,
+        Health,
+        Accessibility,
+        OpenVR,
+        Integrations,
+        General
     }
 
     public int CompareTo(Module? other)

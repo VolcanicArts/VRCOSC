@@ -35,7 +35,7 @@ public sealed class ClockModule : ChatBoxModule
         CreateVariable(ClockVariable.Seconds, "Seconds", "s");
         CreateVariable(ClockVariable.Period, "AM/PM", "period");
 
-        CreateState(ClockState.Default, "Default", $"Local Time                                {GetVariableFormat(ClockVariable.Hours)}:{GetVariableFormat(ClockVariable.Minutes)}{GetVariableFormat(ClockVariable.Period)}");
+        CreateState(ClockState.Default, "Default", $"Local Time/n{GetVariableFormat(ClockVariable.Hours)}:{GetVariableFormat(ClockVariable.Minutes)}{GetVariableFormat(ClockVariable.Period)}");
     }
 
     protected override void OnModuleStart()
@@ -51,8 +51,7 @@ public sealed class ClockModule : ChatBoxModule
         var minutes = GetSetting<bool>(ClockSetting.SmoothMinute) ? getSmoothedMinutes(time) : time.Minute;
         var seconds = GetSetting<bool>(ClockSetting.SmoothSecond) ? getSmoothedSeconds(time) : time.Second;
 
-        var normalisationComponent = GetSetting<ClockMode>(ClockSetting.Mode) == ClockMode.Twelve ? 12f : 24f;
-        var hourNormalised = hours % normalisationComponent / normalisationComponent;
+        var hourNormalised = hours % 12f / 12f;
         var minuteNormalised = minutes / 60f;
         var secondNormalised = seconds / 60f;
 

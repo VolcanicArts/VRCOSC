@@ -10,23 +10,23 @@ namespace VRCOSC.Modules.Heartrate.Pulsoid;
 public sealed class PulsoidProvider : HeartRateProvider
 {
     private readonly string accessToken;
-    private readonly TerminalLogger terminal = new(new PulsoidModule().Title);
 
     protected override string WebSocketUrl => $"wss://dev.pulsoid.net/api/v1/data/real_time?access_token={accessToken}";
 
-    public PulsoidProvider(string accessToken)
+    public PulsoidProvider(string accessToken, TerminalLogger terminal)
+        : base(terminal)
     {
         this.accessToken = accessToken;
     }
 
     protected override void HandleWsConnected()
     {
-        terminal.Log("Successfully connected to the Pulsoid websocket");
+        Log(@"Successfully connected to the Pulsoid websocket");
     }
 
     protected override void HandleWsDisconnected()
     {
-        terminal.Log("Disconnected from the Pulsoid websocket");
+        Log(@"Disconnected from the Pulsoid websocket");
     }
 
     protected override void HandleWsMessage(string message)

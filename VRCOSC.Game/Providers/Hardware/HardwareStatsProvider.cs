@@ -21,9 +21,11 @@ public sealed class HardwareStatsProvider
 
     public bool CanAcceptQueries { get; private set; }
 
-    public readonly List<CPU> Cpus = new();
-    public readonly List<GPU> Gpus = new();
-    public readonly RAM Ram = new();
+    private readonly List<HardwareComponent> components = new();
+
+    public CPU? GetCPU(int id) => components.Where(component => component.GetType().IsSubclassOf(typeof(CPU))).Select(component => (CPU)component).SingleOrDefault(cpu => cpu.Id == id);
+    public GPU? GetGPU(int id) => components.Where(component => component.GetType() == typeof(GPU)).Select(component => (GPU)component).SingleOrDefault(gpu => gpu.Id == id);
+    public RAM? GetRam() => components.Where(component => component.GetType() == typeof(RAM)).Select(component => (RAM)component).SingleOrDefault();
 
     public void Init()
     {
@@ -39,41 +41,31 @@ public sealed class HardwareStatsProvider
         Task.Run(() =>
         {
             CanAcceptQueries = false;
+            components.Clear();
             computer.Close();
         }).ConfigureAwait(false);
     }
 
     public void Update()
     {
-        computer.Hardware.ForEach(updateHardware);
+        computer.Hardware.ForEach(hardware =>
+        {
+            updateHardware(hardware);
+            auditHardware(hardware);
+            hardware.Sensors.ForEach(sensor => components.ForEach(component => component.Update(sensor)));
+        });
     }
 
     private void updateHardware(IHardware hardware)
     {
         hardware.Update();
         hardware.SubHardware.ForEach(updateHardware);
-
-        var type = decypherComponent(hardware.Identifier.ToString());
-
-        switch (type)
-        {
-            case CPU cpu:
-                hardware.Sensors.ForEach(sensor => handleCPU(cpu, sensor));
-                break;
-
-            case GPU gpu:
-                hardware.Sensors.ForEach(sensor => handleGPU(gpu, sensor));
-                break;
-
-            case RAM ram:
-                hardware.Sensors.ForEach(sensor => handleRAM(ram, sensor));
-                break;
-        }
     }
 
-    private IComponent decypherComponent(string address)
+    private void auditHardware(IHardware hardware)
     {
-        int index = 0;
+        var address = hardware.Identifier.ToString();
+        var index = 0;
 
         try
         {
@@ -83,134 +75,40 @@ public sealed class HardwareStatsProvider
 
         if (address.Contains("cpu", StringComparison.InvariantCultureIgnoreCase))
         {
-            while (index >= Cpus.Count)
-            {
-                Cpus.Add(new CPU());
-            }
+            var cpu = GetCPU(index);
 
-            return Cpus[index];
+            if (cpu is null)
+            {
+                if (address.Contains("intel", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    components.Add(new IntelCPU(index));
+                }
+
+                if (address.Contains("amd", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    components.Add(new AMDCPU(index));
+                }
+            }
         }
 
         if (address.Contains("gpu", StringComparison.InvariantCultureIgnoreCase))
         {
-            while (index >= Gpus.Count)
-            {
-                Gpus.Add(new GPU());
-            }
+            var gpu = GetGPU(index);
 
-            return Gpus[index];
+            if (gpu is null)
+            {
+                components.Add(new GPU(index));
+            }
         }
 
         if (address.Contains("ram", StringComparison.InvariantCultureIgnoreCase))
         {
-            return Ram;
-        }
+            var ram = GetRam();
 
-        throw new InvalidOperationException("Could not find correct component to audit");
-    }
-
-    private static void handleCPU(CPU cpu, ISensor sensor)
-    {
-        switch (sensor.SensorType)
-        {
-            case SensorType.Load:
-                switch (sensor.Name)
-                {
-                    case @"CPU Total":
-                        cpu.Usage = sensor.Value ?? 0f;
-                        break;
-                }
-
-                break;
-
-            case SensorType.Temperature:
-                switch (sensor.Name)
-                {
-                    // AMD
-                    case @"Core (Tctl/Tdie)":
-                    case @"Core (Tctl)":
-                    case @"CPU Cores":
-                    // Intel
-                    case @"CPU Package":
-                        cpu.Temperature = (int?)sensor.Value ?? 0;
-                        break;
-                }
-
-                break;
-        }
-    }
-
-    private static void handleGPU(GPU gpu, ISensor sensor)
-    {
-        switch (sensor.SensorType)
-        {
-            case SensorType.Load:
-                switch (sensor.Name)
-                {
-                    case @"GPU Core":
-                        gpu.Usage = sensor.Value ?? 0f;
-                        break;
-                }
-
-                break;
-
-            case SensorType.Temperature:
-                switch (sensor.Name)
-                {
-                    case @"GPU Core":
-                        gpu.Temperature = (int?)sensor.Value ?? 0;
-                        break;
-                }
-
-                break;
-
-            case SensorType.SmallData:
-                switch (sensor.Name)
-                {
-                    case @"GPU Memory Free":
-                        gpu.MemoryFree = (int?)sensor.Value ?? 0;
-                        break;
-
-                    case @"GPU Memory Used":
-                        gpu.MemoryUsed = (int?)sensor.Value ?? 0;
-                        break;
-
-                    case @"GPU Memory Total":
-                        gpu.MemoryTotal = (int?)sensor.Value ?? 0;
-                        break;
-                }
-
-                break;
-        }
-    }
-
-    private static void handleRAM(RAM ram, ISensor sensor)
-    {
-        switch (sensor.SensorType)
-        {
-            case SensorType.Load:
-                switch (sensor.Name)
-                {
-                    case @"Memory":
-                        ram.Usage = sensor.Value ?? 0f;
-                        break;
-                }
-
-                break;
-
-            case SensorType.Data:
-                switch (sensor.Name)
-                {
-                    case @"Memory Used":
-                        ram.Used = sensor.Value ?? 0f;
-                        break;
-
-                    case @"Memory Available":
-                        ram.Available = sensor.Value ?? 0f;
-                        break;
-                }
-
-                break;
+            if (ram is null)
+            {
+                components.Add(new RAM());
+            }
         }
     }
 }

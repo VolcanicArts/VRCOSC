@@ -255,10 +255,17 @@ public partial class SelectedClipStateEditorContainer : Container
 
                 drawableState.Alpha = enabledModuleNames.SequenceEqual(sortedClipModuleNames) ? 1 : 0;
             });
+
+            eventFlow.ForEach(drawableEvent =>
+            {
+                var moduleName = drawableEvent.ClipEvent.Module;
+                drawableEvent.Alpha = enabledModuleNames.Contains(moduleName) ? 1 : 0;
+            });
         }
         else
         {
             stateFlow.ForEach(drawableState => drawableState.Alpha = 1);
+            eventFlow.ForEach(drawableState => drawableState.Alpha = 1);
         }
     }
 

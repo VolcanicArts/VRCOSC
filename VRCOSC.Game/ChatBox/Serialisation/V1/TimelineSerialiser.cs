@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.IO;
+using System.Text;
 using Newtonsoft.Json;
 using osu.Framework.Platform;
 using VRCOSC.Game.ChatBox.Serialisation.V1.Structures;
@@ -23,24 +24,27 @@ public class TimelineSerialiser : ITimelineSerialiser
     {
         lock (saveLock)
         {
+            var data = Encoding.Unicode.GetBytes(JsonConvert.SerializeObject(new SerialisableTimeline(chatBoxManager)));
+
             using var stream = storage.CreateFileSafely(file_name);
-            using var writer = new StreamWriter(stream);
-            writer.Write(JsonConvert.SerializeObject(new SerialisableTimeline(chatBoxManager)));
+            stream.Write(data);
         }
     }
 
     public SerialisableTimeline? Deserialise()
     {
-        using (var stream = storage.GetStream(file_name))
+        lock (saveLock)
         {
-            if (stream is not null)
-            {
-                using var reader = new StreamReader(stream);
+            if (!storage.Exists(file_name)) return null;
 
-                return JsonConvert.DeserializeObject<SerialisableTimeline>(reader.ReadToEnd());
+            try
+            {
+                return JsonConvert.DeserializeObject<SerialisableTimeline>(Encoding.Unicode.GetString(File.ReadAllBytes(storage.GetFullPath(file_name))));
+            }
+            catch // migration from UTF-8
+            {
+                return JsonConvert.DeserializeObject<SerialisableTimeline>(File.ReadAllText(storage.GetFullPath(file_name)));
             }
         }
-
-        return null;
     }
 }

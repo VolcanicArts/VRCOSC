@@ -21,11 +21,11 @@ public partial class DrawableEvent : Container
     [Resolved]
     private GameManager gameManager { get; set; } = null!;
 
-    private readonly ClipEvent clipEvent;
+    public readonly ClipEvent ClipEvent;
 
     public DrawableEvent(ClipEvent clipEvent)
     {
-        this.clipEvent = clipEvent;
+        ClipEvent = clipEvent;
     }
 
     [BackgroundDependencyLoader]
@@ -68,7 +68,7 @@ public partial class DrawableEvent : Container
                                     Anchor = Anchor.Centre,
                                     Origin = Anchor.Centre,
                                     RelativeSizeAxes = Axes.Both,
-                                    State = clipEvent.Enabled.GetBoundCopy()
+                                    State = ClipEvent.Enabled.GetBoundCopy()
                                 }
                             },
                             new Container
@@ -82,7 +82,7 @@ public partial class DrawableEvent : Container
                                     Anchor = Anchor.CentreLeft,
                                     Origin = Anchor.CentreLeft,
                                     Font = FrameworkFont.Regular.With(size: 20),
-                                    Text = gameManager.ModuleManager.GetModuleName(clipEvent.Module) + " - " + clipEvent.Name + ":",
+                                    Text = gameManager.ModuleManager.GetModuleName(ClipEvent.Module) + " - " + ClipEvent.Name + ":",
                                     Colour = ThemeManager.Current[ThemeAttribute.Text]
                                 }
                             }
@@ -110,7 +110,7 @@ public partial class DrawableEvent : Container
                                     Child = new VRCOSCTextBox
                                     {
                                         RelativeSizeAxes = Axes.Both,
-                                        Current = clipEvent.Format.GetBoundCopy(),
+                                        Current = ClipEvent.Format.GetBoundCopy(),
                                         Masking = true,
                                         CornerRadius = 5
                                     }
@@ -122,7 +122,7 @@ public partial class DrawableEvent : Container
                                     Child = lengthTextBox = new IntTextBox
                                     {
                                         RelativeSizeAxes = Axes.Both,
-                                        Text = clipEvent.Length.Value.ToString(),
+                                        Text = ClipEvent.Length.Value.ToString(),
                                         Masking = true,
                                         CornerRadius = 5,
                                         PlaceholderText = "Length"
@@ -135,6 +135,6 @@ public partial class DrawableEvent : Container
             }
         };
 
-        lengthTextBox.OnValidEntry = newLength => clipEvent.Length.Value = newLength;
+        lengthTextBox.OnValidEntry = newLength => ClipEvent.Length.Value = newLength;
     }
 }

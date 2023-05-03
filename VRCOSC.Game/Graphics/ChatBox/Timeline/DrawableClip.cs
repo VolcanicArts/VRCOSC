@@ -229,7 +229,7 @@ public partial class DrawableClip : Container
             var mousePosNormalised = e.MousePosition.X / timelineLayer.DrawWidth;
             var newStart = (int)Math.Floor(mousePosNormalised * chatBoxManager.TimelineLengthSeconds);
 
-            if (newStart != Clip.Start.Value)
+            if (newStart != Clip.Start.Value && newStart < Clip.End.Value)
             {
                 var (lowerBound, upperBound) = timelineLayer.GetBoundsNearestTo(newStart < Clip.Start.Value ? Clip.Start.Value : newStart, false);
 
@@ -267,7 +267,7 @@ public partial class DrawableClip : Container
             var mousePosNormalised = e.MousePosition.X / timelineLayer.DrawWidth;
             var newEnd = (int)Math.Ceiling(mousePosNormalised * chatBoxManager.TimelineLengthSeconds);
 
-            if (newEnd != Clip.Start.Value)
+            if (newEnd != Clip.End.Value && newEnd > Clip.Start.Value)
             {
                 var (lowerBound, upperBound) = timelineLayer.GetBoundsNearestTo(newEnd < Clip.End.Value ? newEnd : Clip.End.Value, true);
 

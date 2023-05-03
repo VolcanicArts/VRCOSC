@@ -14,11 +14,11 @@ public class SpeechToTextModule : ChatBoxModule
     public override string Title => "Speech To Text";
     public override string Description => "Speech to text using VOSK's local processing for VRChat's ChatBox";
     public override string Author => "VolcanicArts";
-    public override ModuleType Type => ModuleType.General;
+    public override ModuleType Type => ModuleType.Accessibility;
 
     private readonly MicrophoneInterface micInterface = new();
     private Model? model;
-    private VoskRecognizer recogniser = null!;
+    private VoskRecognizer? recogniser;
 
     private bool readyToAccept;
     private bool listening;
@@ -63,6 +63,13 @@ public class SpeechToTextModule : ChatBoxModule
 
         micInterface.BufferCallback = (buffer, bytesRecorded) => bufferQueue.Enqueue((buffer, bytesRecorded));
         var captureDevice = micInterface.Hook();
+
+        if (captureDevice is null)
+        {
+            Log("Failed to hook into default microphone. Please restart the module");
+            return;
+        }
+
         Log($"Hooked into microphone {captureDevice.DeviceFriendlyName.Trim()}");
 
         Task.Run(() =>
@@ -83,7 +90,7 @@ public class SpeechToTextModule : ChatBoxModule
 
     protected override void OnFrameUpdate()
     {
-        if (!shouldAnalyse) return;
+        if (!shouldAnalyse || recogniser is null) return;
 
         while (bufferQueue.Any())
         {
@@ -134,7 +141,7 @@ public class SpeechToTextModule : ChatBoxModule
     {
         SetChatBoxTyping(false);
         micInterface.UnHook();
-        recogniser.Dispose();
+        recogniser?.Dispose();
     }
 
     protected override void OnBoolParameterReceived(Enum key, bool value)
