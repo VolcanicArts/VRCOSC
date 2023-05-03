@@ -281,17 +281,19 @@ public class ChatBoxManager
 
     private void sendText(string text)
     {
-        var finalText = convertNewLinesToSpaces(text);
+        var finalText = convertSpecialCharacters(text);
         oscClient.SendValues(VRChatOscConstants.ADDRESS_CHATBOX_INPUT, new List<object> { finalText, true, false });
     }
 
-    private static string convertNewLinesToSpaces(string input)
+    private static string convertSpecialCharacters(string input)
     {
         const int required_width = 64;
 
-        return Regex.Replace(input, "/n", match =>
+        input = Regex.Replace(input, @"/v", "\v");
+
+        return Regex.Replace(input, @"/n", match =>
         {
-            var spaces = match.Index == 0 ? 0 : match.Index - input.LastIndexOf("/n", match.Index - 1, StringComparison.Ordinal) - 1;
+            var spaces = match.Index == 0 ? 0 : match.Index - input.LastIndexOf(@"/n", match.Index - 1, StringComparison.Ordinal) - 1;
             return spaces < 0 ? string.Empty : new string(' ', required_width - spaces);
         });
     }
