@@ -76,17 +76,20 @@ public partial class SquirrelUpdateManager : VRCOSCUpdateManager
         if (updateInfo is null)
             throw new InvalidOperationException("Cannot apply updates without checking");
 
+        var progressNotification = PostProgressNotification();
+
         try
         {
-            var notification = PostProgressNotification();
-            await updateManager.DownloadReleases(updateInfo.ReleasesToApply, p => notification.Progress = map(p / 100f, 0, 1, 0, 0.5f));
-            await updateManager.ApplyReleases(updateInfo, p => notification.Progress = map(p / 100f, 0, 1, 0.5f, 1));
+            await updateManager.DownloadReleases(updateInfo.ReleasesToApply, p => progressNotification.Progress = map(p / 100f, 0, 1, 0, 0.5f));
+            await updateManager.ApplyReleases(updateInfo, p => progressNotification.Progress = map(p / 100f, 0, 1, 0.5f, 1));
             PostSuccessNotification();
             Log("Update successfully applied");
             initialise();
         }
         catch (Exception e)
         {
+            progressNotification.Hide();
+
             // Update may have failed due to the installed version being too outdated
             // Retry without trying for delta
             if (useDelta)
