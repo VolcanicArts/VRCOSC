@@ -51,8 +51,7 @@ public sealed class ClockModule : ChatBoxModule
         var minutes = GetSetting<bool>(ClockSetting.SmoothMinute) ? getSmoothedMinutes(time) : time.Minute;
         var seconds = GetSetting<bool>(ClockSetting.SmoothSecond) ? getSmoothedSeconds(time) : time.Second;
 
-        var normalisationComponent = GetSetting<ClockMode>(ClockSetting.Mode) == ClockMode.Twelve ? 12f : 24f;
-        var hourNormalised = hours % normalisationComponent / normalisationComponent;
+        var hourNormalised = hours % 12f / 12f;
         var minuteNormalised = minutes / 60f;
         var secondNormalised = seconds / 60f;
 
