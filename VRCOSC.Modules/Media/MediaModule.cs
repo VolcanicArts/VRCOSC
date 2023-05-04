@@ -1,6 +1,7 @@
 // Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.ComponentModel;
 using System.Diagnostics;
 using Windows.Media;
 using osu.Framework.Bindables;
@@ -83,10 +84,17 @@ public class MediaModule : ChatBoxModule
     {
         GetSetting<List<string>>(MediaSetting.StartList).ForEach(processExeLocation =>
         {
-            if (File.Exists(processExeLocation))
+            try
             {
-                var processName = new FileInfo(processExeLocation).Name.ToLowerInvariant().Replace(@".exe", string.Empty);
-                if (!Process.GetProcessesByName(processName).Any()) Process.Start(processExeLocation);
+                if (File.Exists(processExeLocation))
+                {
+                    var processName = new FileInfo(processExeLocation).Name.ToLowerInvariant().Replace(@".exe", string.Empty);
+                    if (!Process.GetProcessesByName(processName).Any()) Process.Start(processExeLocation);
+                }
+            }
+            catch (Win32Exception)
+            {
+                Log($"Failed to start {processExeLocation}");
             }
         });
     }
