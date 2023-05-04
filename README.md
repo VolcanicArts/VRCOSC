@@ -51,7 +51,6 @@ Note: The VRCOSC-Controls.unitypackage prefab is global controls for VRCOSC. It 
 | :--- | :--- | :---: |
 | Media | Allows for media display in the ChatBox and full control over media from your action menu | VRCOSC-Media.unitypackage |
 | Hardware Stats | Gather's hardware stats to send to your avatar and display in the ChatBox | |
-| SRanipal | A hot-swappable replacement for VRCFaceTracking's Vive face and eye tracking | |
 | AFK Display | Displays how long you've been AFK for in the ChatBox | |
 | Speech To Text | Run Speech To Text using any language model and display the result in your ChatBox | |
 | HypeRate | Connects to [HypeRate.io](https://www.hyperate.io/) to display your live heartrate in-game - [Supported Devices](https://www.hyperate.io/supported-devices) | VRCOSC-Heartrate.unitypackage |
