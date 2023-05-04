@@ -95,8 +95,22 @@ public partial class DrawableClip : Container
         }, true);
 
         chatBoxManager.TimelineLength.BindValueChanged(_ => updateSizeAndPosition(), true);
-        Clip.Name.BindValueChanged(e => drawName.Text = e.NewValue, true);
+        Clip.Name.BindValueChanged(_ => updateDisplayName());
+        Clip.Start.BindValueChanged(_ => updateDisplayName());
+        Clip.End.BindValueChanged(_ => updateDisplayName());
         Clip.Enabled.BindValueChanged(e => Child.FadeTo(e.NewValue ? 1 : 0.5f), true);
+
+        updateDisplayName();
+    }
+
+    private void updateDisplayName()
+    {
+        drawName.Text = $"{Clip.Name.Value} - {Clip.Length}";
+    }
+
+    protected override void UpdateAfterChildren()
+    {
+        drawName.Alpha = DrawWidth < drawName.DrawWidth + 30 ? 0 : 1;
     }
 
     protected override bool OnMouseDown(MouseDownEvent e)
