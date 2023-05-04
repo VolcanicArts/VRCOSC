@@ -20,8 +20,6 @@ namespace VRCOSC.Game.ChatBox;
 
 public class ChatBoxManager
 {
-    private const int priority_count = 6;
-
     private bool sendEnabled;
 
     public bool SendEnabled
@@ -52,6 +50,7 @@ public class ChatBoxManager
     public readonly List<(string, string)> TriggeredEvents = new();
     private readonly object triggeredEventsLock = new();
 
+    public readonly Bindable<int> PriorityCount = new(8);
     public readonly Bindable<TimeSpan> TimelineLength = new();
     public int TimelineLengthSeconds => (int)TimelineLength.Value.TotalSeconds;
     public float TimelineResolution => 1f / (float)TimelineLength.Value.TotalSeconds;
@@ -254,7 +253,7 @@ public class ChatBoxManager
 
     private Clip? getValidClip()
     {
-        for (var i = priority_count - 1; i >= 0; i--)
+        for (var i = PriorityCount.Value - 1; i >= 0; i--)
         {
             foreach (var clip in Clips.Where(clip => clip.Priority.Value == i))
             {
@@ -314,7 +313,7 @@ public class ChatBoxManager
 
     private void setPriority(Clip clip, int priority)
     {
-        if (priority is > priority_count - 1 or < 0) return;
+        if (priority > PriorityCount.Value - 1 || priority < 0) return;
         if (Clips.Where(other => other.Priority.Value == priority).Any(clip.Intersects)) return;
 
         clip.Priority.Value = priority;
