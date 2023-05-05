@@ -8,7 +8,7 @@ namespace VRCOSC.Modules.Heartrate;
 
 public abstract class HeartRateModule : ChatBoxModule
 {
-    private static readonly TimeSpan heartrate_timeout = TimeSpan.FromSeconds(10);
+    private static readonly TimeSpan heartrate_timeout = TimeSpan.FromSeconds(15);
 
     public override string Author => @"VolcanicArts";
     public override string Prefab => @"VRCOSC-Heartrate";
