@@ -292,8 +292,10 @@ public class ChatBoxManager
 
         return Regex.Replace(input, @"/n", match =>
         {
-            var spaces = match.Index == 0 ? 0 : match.Index - input.LastIndexOf(@"/n", match.Index - 1, StringComparison.Ordinal) - 1;
-            return spaces < 0 ? string.Empty : new string(' ', required_width - spaces);
+            var checkIndex = Math.Max(match.Index - 1, 0);
+            var spaces = match.Index == 0 ? 0 : match.Index - input.LastIndexOf(@"/n", checkIndex, StringComparison.Ordinal) - 1;
+            var spaceCount = required_width - spaces;
+            return spaces < 0 || spaceCount < 0 ? string.Empty : new string(' ', spaceCount);
         });
     }
 
