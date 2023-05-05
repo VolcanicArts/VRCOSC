@@ -188,12 +188,9 @@ public class Clip
 
     public string GetFormattedText() => currentEvent is not null ? formatText(currentEvent.Value.Item1) : formatText(currentState!);
 
-    private string formatText(ClipState clipState) => formatText(clipState.Format.Value);
-    private string formatText(ClipEvent clipEvent) => formatText(clipEvent.Format.Value);
-
-    private string formatText(string text)
+    private string formatText(IProvidesFormat formatter)
     {
-        var returnText = text;
+        var returnText = formatter.GetFormat();
 
         AvailableVariables.ForEach(clipVariable =>
         {
