@@ -1,8 +1,6 @@
 // Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.ComponentModel;
-using System.Diagnostics;
 using Windows.Media;
 using osu.Framework.Bindables;
 using VRCOSC.Game;
@@ -39,9 +37,6 @@ public class MediaModule : ChatBoxModule
 
     protected override void CreateAttributes()
     {
-        // TODO - Remove into a separate screen that allows for start options
-        CreateSetting(MediaSetting.StartList, "Start List", "A list of exe locations to start with this module. This is handy for starting media apps on module start. For example, Spotify", new[] { @$"C:\Users\{Environment.UserName}\AppData\Roaming\Spotify\spotify.exe" }, true);
-
         CreateParameter<bool>(MediaParameter.Play, ParameterMode.ReadWrite, @"VRCOSC/Media/Play", "Play/Pause", @"True for playing. False for paused");
         CreateParameter<float>(MediaParameter.Volume, ParameterMode.ReadWrite, @"VRCOSC/Media/Volume", "Volume", @"The volume of the process that is controlling the media");
         CreateParameter<int>(MediaParameter.Repeat, ParameterMode.ReadWrite, @"VRCOSC/Media/Repeat", "Repeat", @"0 for disabled. 1 for single. 2 for list");
@@ -71,7 +66,6 @@ public class MediaModule : ChatBoxModule
     protected override void OnModuleStart()
     {
         hookIntoMedia();
-        startProcesses();
     }
 
     private void hookIntoMedia() => Task.Run(async () =>
@@ -86,25 +80,6 @@ public class MediaModule : ChatBoxModule
 
         ChangeStateTo(mediaProvider.State.IsPlaying ? MediaState.Playing : MediaState.Paused);
     });
-
-    private void startProcesses()
-    {
-        GetSetting<List<string>>(MediaSetting.StartList).ForEach(processExeLocation =>
-        {
-            try
-            {
-                if (File.Exists(processExeLocation))
-                {
-                    var processName = new FileInfo(processExeLocation).Name.ToLowerInvariant().Replace(@".exe", string.Empty);
-                    if (!Process.GetProcessesByName(processName).Any()) Process.Start(processExeLocation);
-                }
-            }
-            catch (Win32Exception)
-            {
-                Log($"Failed to start {processExeLocation}");
-            }
-        });
-    }
 
     protected override void OnModuleStop()
     {
@@ -249,11 +224,6 @@ public class MediaModule : ChatBoxModule
                 mediaProvider.Controller?.TryChangeAutoRepeatModeAsync((MediaPlaybackAutoRepeatMode)value);
                 break;
         }
-    }
-
-    private enum MediaSetting
-    {
-        StartList
     }
 
     private enum MediaState

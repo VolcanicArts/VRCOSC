@@ -19,6 +19,7 @@ using Valve.VR;
 using VRCOSC.Game.ChatBox;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics.Notifications;
+using VRCOSC.Game.Graphics.Startup;
 using VRCOSC.Game.Modules.Avatar;
 using VRCOSC.Game.Modules.Manager;
 using VRCOSC.Game.Modules.Serialisation;
@@ -63,6 +64,9 @@ public partial class GameManager : Component
 
     [Resolved]
     private ChatBoxManager chatBoxManager { get; set; } = null!;
+
+    [Resolved]
+    private StartupManager startupManager { get; set; } = null!;
 
     private Bindable<bool> autoStartStop = null!;
     private bool hasAutoStarted;
@@ -234,6 +238,8 @@ public partial class GameManager : Component
         {
             notifications.Notify(new PortInUseNotification("Cannot initialise a port from OSCRouter"));
         }
+
+        startupManager.Start();
 
         State.Value = GameManagerState.Started;
     }

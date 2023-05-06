@@ -10,6 +10,7 @@ using VRCOSC.Game.Graphics.ChatBox;
 using VRCOSC.Game.Graphics.ModuleListing;
 using VRCOSC.Game.Graphics.Router;
 using VRCOSC.Game.Graphics.Settings;
+using VRCOSC.Game.Graphics.Startup;
 using VRCOSC.Game.Graphics.TabBar;
 
 namespace VRCOSC.Game.Graphics;
@@ -54,6 +55,7 @@ public sealed partial class MainContent : Container
                                 new ModuleListingScreen(),
                                 new ChatBoxScreen(),
                                 new RouterScreen(),
+                                new StartupScreen(),
                                 new SettingsScreen(),
                                 new AboutScreen()
                             }

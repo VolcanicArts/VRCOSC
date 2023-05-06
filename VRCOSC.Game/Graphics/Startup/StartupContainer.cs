@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -9,28 +10,34 @@ using osu.Framework.Graphics.Sprites;
 using osuTK;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Button;
+using VRCOSC.Game.Graphics.UI.Text;
 
-namespace VRCOSC.Game.Graphics.Settings.Cards;
+namespace VRCOSC.Game.Graphics.Startup;
 
-public abstract partial class SettingCard<T> : Container
+public partial class StartupContainer : Container
 {
-    private readonly VRCOSCButton resetToDefault;
+    [Resolved]
+    private StartupManager startupManager { get; set; } = null!;
 
-    protected readonly Container ContentWrapper;
+    private readonly StringTextBox textBox;
+
     protected override FillFlowContainer Content { get; }
 
-    protected readonly Bindable<T> SettingBindable;
+    private readonly Bindable<string> filePath;
 
-    protected SettingCard(string title, string description, Bindable<T> settingBindable)
+    public StartupContainer(Bindable<string> filePath)
     {
-        SettingBindable = settingBindable;
+        this.filePath = filePath;
 
         Anchor = Anchor.TopCentre;
         Origin = Anchor.TopCentre;
         RelativeSizeAxes = Axes.X;
         AutoSizeAxes = Axes.Y;
 
-        TextFlowContainer textFlow;
+        Padding = new MarginPadding
+        {
+            Horizontal = 20
+        };
 
         InternalChildren = new Drawable[]
         {
@@ -40,22 +47,22 @@ public abstract partial class SettingCard<T> : Container
                 Origin = Anchor.CentreRight,
                 Size = new Vector2(30, 60),
                 Padding = new MarginPadding(5),
-                Child = resetToDefault = new IconButton
+                Child = new IconButton
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
                     RelativeSizeAxes = Axes.Both,
-                    Action = setDefault,
+                    Action = deleteSelf,
                     IconPadding = 4,
-                    CornerRadius = 10,
+                    Circular = true,
                     BorderThickness = 2,
                     BorderColour = ThemeManager.Current[ThemeAttribute.Border],
-                    BackgroundColour = ThemeManager.Current[ThemeAttribute.Action],
-                    Icon = FontAwesome.Solid.Undo,
+                    BackgroundColour = ThemeManager.Current[ThemeAttribute.Failure],
+                    Icon = FontAwesome.Solid.Get(0xf00d),
                     IconShadow = true
                 }
             },
-            ContentWrapper = new Container
+            new Container
             {
                 RelativeSizeAxes = Axes.X,
                 AutoSizeAxes = Axes.Y,
@@ -79,14 +86,6 @@ public abstract partial class SettingCard<T> : Container
                         Spacing = new Vector2(0, 10),
                         Children = new Drawable[]
                         {
-                            textFlow = new TextFlowContainer
-                            {
-                                Anchor = Anchor.TopCentre,
-                                Origin = Anchor.TopCentre,
-                                TextAnchor = Anchor.TopLeft,
-                                RelativeSizeAxes = Axes.X,
-                                AutoSizeAxes = Axes.Y
-                            },
                             Content = new FillFlowContainer
                             {
                                 Anchor = Anchor.TopCentre,
@@ -94,56 +93,35 @@ public abstract partial class SettingCard<T> : Container
                                 RelativeSizeAxes = Axes.X,
                                 AutoSizeAxes = Axes.Y,
                                 Direction = FillDirection.Vertical,
-                                Spacing = new Vector2(0, 10)
+                                Spacing = new Vector2(0, 10),
+                                Child = textBox = new StringTextBox
+                                {
+                                    Anchor = Anchor.TopCentre,
+                                    Origin = Anchor.TopCentre,
+                                    RelativeSizeAxes = Axes.X,
+                                    Height = 40,
+                                    Masking = true,
+                                    CornerRadius = 5,
+                                    BorderColour = ThemeManager.Current[ThemeAttribute.Border],
+                                    BorderThickness = 2,
+                                    Text = filePath.Value
+                                }
                             }
                         }
                     }
                 }
             }
         };
-
-        textFlow.AddText(title, t =>
-        {
-            t.Font = FrameworkFont.Regular.With(size: 25);
-            t.Colour = ThemeManager.Current[ThemeAttribute.Text];
-        });
-        textFlow.AddParagraph(description, t =>
-        {
-            t.Font = FrameworkFont.Regular.With(size: 20);
-            t.Colour = ThemeManager.Current[ThemeAttribute.SubText];
-        });
     }
 
     protected override void LoadComplete()
     {
-        SettingBindable.ValueChanged += e => Schedule(performAttributeUpdate, e);
-        resetToDefault.FadeTo(!SettingBindable.IsDefault ? 1 : 0);
+        textBox.OnValidEntry += text => filePath.Value = text;
     }
 
-    private void performAttributeUpdate(ValueChangedEvent<T> e)
+    private void deleteSelf()
     {
-        UpdateValues(e.NewValue);
-        updateResetToDefault(!SettingBindable.IsDefault);
-    }
-
-    protected virtual void UpdateValues(T value)
-    {
-        SettingBindable.Value = value;
-    }
-
-    protected override void Dispose(bool isDisposing)
-    {
-        base.Dispose(isDisposing);
-        SettingBindable.ValueChanged -= performAttributeUpdate;
-    }
-
-    private void setDefault()
-    {
-        SettingBindable.SetDefault();
-    }
-
-    private void updateResetToDefault(bool show)
-    {
-        resetToDefault.FadeTo(show ? 1 : 0, 200, Easing.OutQuart);
+        startupManager.FilePaths.Remove(filePath);
+        this.RemoveAndDisposeImmediately();
     }
 }

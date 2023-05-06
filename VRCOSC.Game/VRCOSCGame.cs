@@ -15,6 +15,7 @@ using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics;
 using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Graphics.Settings;
+using VRCOSC.Game.Graphics.Startup;
 using VRCOSC.Game.Graphics.TabBar;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.Updater;
@@ -52,6 +53,9 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
     [Cached]
     public ChatBoxManager ChatBoxManager = new();
+
+    [Cached]
+    public StartupManager StartupManager = new();
 
     private NotificationContainer notificationContainer = null!;
     private VRCOSCUpdateManager updateManager = null!;

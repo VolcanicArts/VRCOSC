@@ -8,6 +8,7 @@ public enum Tab
     Modules,
     ChatBox,
     Router,
+    Startup,
     Settings,
     About
 }
