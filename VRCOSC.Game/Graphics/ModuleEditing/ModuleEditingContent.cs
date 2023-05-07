@@ -11,6 +11,7 @@ using osu.Framework.Graphics.Sprites;
 using osuTK;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Modules;
+using VRCOSC.Game.Modules.ChatBox;
 
 namespace VRCOSC.Game.Graphics.ModuleEditing;
 
@@ -21,6 +22,7 @@ public sealed partial class ModuleEditingContent : Container
     private readonly SeparatedAttributeFlow parameters;
     private readonly BasicScrollContainer scrollContainer;
     private readonly FillFlowContainer<SeparatedAttributeFlow> separatedAttributeFlowFlow;
+    private readonly SpriteText chatBoxNotice;
 
     [Resolved(name: "EditingModule")]
     private Bindable<Module?> editingModule { get; set; } = null!;
@@ -58,7 +60,7 @@ public sealed partial class ModuleEditingContent : Container
                                 Vertical = 10
                             }
                         },
-                        new SpriteText
+                        chatBoxNotice = new SpriteText
                         {
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
@@ -101,6 +103,8 @@ public sealed partial class ModuleEditingContent : Container
         editingModule.BindValueChanged(_ =>
         {
             if (editingModule.Value is null) return;
+
+            chatBoxNotice.Alpha = editingModule.Value.GetType().IsSubclassOf(typeof(ChatBoxModule)) ? 1 : 0;
 
             separatedAttributeFlowFlow.ForEach(child => child.Clear());
             scrollContainer.ScrollToStart();
