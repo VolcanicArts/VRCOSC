@@ -45,7 +45,6 @@ public class OscReceiver
         socket?.Close();
 
         incomingTask = null;
-        tokenSource = null;
         socket = null;
     }
 
