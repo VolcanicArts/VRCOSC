@@ -32,6 +32,8 @@ public sealed class ModuleManager : IModuleManager
     private IVRCOSCSecrets secrets = null!;
     private Scheduler scheduler = null!;
 
+    private readonly List<Module> runningModulesCache = new();
+
     public void InjectModuleDependencies(GameHost host, GameManager gameManager, IVRCOSCSecrets secrets, Scheduler scheduler)
     {
         this.host = host;
@@ -85,9 +87,15 @@ public sealed class ModuleManager : IModuleManager
         if (modules.All(module => !module.Enabled.Value))
             terminal.Log("You have no modules selected!\nSelect some modules to begin using VRCOSC");
 
+        runningModulesCache.Clear();
+
         foreach (var module in modules)
         {
-            module.Start();
+            if (module.Enabled.Value)
+            {
+                module.Start();
+                runningModulesCache.Add(module);
+            }
         }
     }
 
@@ -105,7 +113,7 @@ public sealed class ModuleManager : IModuleManager
     {
         scheduler.CancelDelayedTasks();
 
-        foreach (var module in modules)
+        foreach (var module in runningModulesCache)
         {
             module.Stop();
         }

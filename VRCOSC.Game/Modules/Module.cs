@@ -129,8 +129,6 @@ public abstract class Module : IComparable<Module>
 
     internal void Start()
     {
-        if (!IsEnabled) return;
-
         State.Value = ModuleState.Starting;
 
         OnModuleStart();
@@ -146,8 +144,6 @@ public abstract class Module : IComparable<Module>
 
     internal void Stop()
     {
-        if (!IsEnabled) return;
-
         State.Value = ModuleState.Stopping;
 
         OnModuleStop();
