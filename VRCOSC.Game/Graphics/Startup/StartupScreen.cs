@@ -19,6 +19,7 @@ public partial class StartupScreen : Container
     private StartupManager startupManager { get; set; } = null!;
 
     private FillFlowContainer listFlow = null!;
+    private TextFlowContainer textFlow = null!;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -47,8 +48,17 @@ public partial class StartupScreen : Container
                     AutoSizeAxes = Axes.Y,
                     Spacing = new Vector2(0, 5),
                     Direction = FillDirection.Vertical,
+                    Padding = new MarginPadding(5),
                     Children = new Drawable[]
                     {
+                        textFlow = new TextFlowContainer
+                        {
+                            Anchor = Anchor.TopCentre,
+                            Origin = Anchor.TopCentre,
+                            TextAnchor = Anchor.TopCentre,
+                            RelativeSizeAxes = Axes.X,
+                            AutoSizeAxes = Axes.Y
+                        },
                         listFlow = new FillFlowContainer
                         {
                             Anchor = Anchor.TopCentre,
@@ -75,12 +85,36 @@ public partial class StartupScreen : Container
                 }
             }
         };
+
+        textFlow.AddText("Startup Screen", t =>
+        {
+            t.Font = FrameworkFont.Regular.With(size: 35);
+            t.Colour = ThemeManager.Current[ThemeAttribute.Text];
+        });
+
+        textFlow.AddParagraph("Here you can define exe paths for VRCOSC to automatically startup on module run. For example, Spotify", t =>
+        {
+            t.Font = FrameworkFont.Regular.With(size: 25);
+            t.Colour = ThemeManager.Current[ThemeAttribute.SubText];
+        });
+    }
+
+    protected override void LoadComplete()
+    {
+        startupManager.FilePaths.BindCollectionChanged((_, e) =>
+        {
+            if (e.NewItems is not null)
+            {
+                foreach (Bindable<string> newItem in e.NewItems)
+                {
+                    listFlow.Add(new StartupContainer(newItem));
+                }
+            }
+        }, true);
     }
 
     private void addComponent()
     {
-        var filePath = new Bindable<string>();
-        startupManager.FilePaths.Add(filePath);
-        listFlow.Add(new StartupContainer(filePath));
+        startupManager.FilePaths.Add(new Bindable<string>(string.Empty));
     }
 }

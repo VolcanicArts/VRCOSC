@@ -54,12 +54,10 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     [Cached]
     public ChatBoxManager ChatBoxManager = new();
 
-    [Cached]
-    public StartupManager StartupManager = new();
-
     private NotificationContainer notificationContainer = null!;
     private VRCOSCUpdateManager updateManager = null!;
     private RouterManager routerManager = null!;
+    private StartupManager startupManager = null!;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -69,10 +67,12 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         DependencyContainer.CacheAs(notificationContainer = new NotificationContainer());
         DependencyContainer.CacheAs(typeof(IVRCOSCSecrets), GetSecrets());
         DependencyContainer.CacheAs(routerManager = new RouterManager(storage));
+        DependencyContainer.CacheAs(startupManager = new StartupManager(storage));
 
         LoadComponent(notificationContainer);
 
         routerManager.LoadData();
+        startupManager.Load();
 
         Children = new Drawable[]
         {
