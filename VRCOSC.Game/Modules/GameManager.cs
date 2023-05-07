@@ -38,6 +38,8 @@ public partial class GameManager : Component
     private const double vrchat_process_check_interval = 5000;
     private const int startstop_delay = 250;
 
+    private readonly TerminalLogger logger = new("VRCOSC");
+
     [Resolved]
     private VRCOSCConfigManager configManager { get; set; } = null!;
 
@@ -69,6 +71,7 @@ public partial class GameManager : Component
     private StartupManager startupManager { get; set; } = null!;
 
     private Bindable<bool> autoStartStop = null!;
+    private bool previousVRChatState;
     private bool hasAutoStarted;
     private readonly List<VRChatOscData> oscDataCache = new();
     private readonly object oscDataCacheLock = new();
@@ -333,18 +336,23 @@ public partial class GameManager : Component
     {
         if (!configManager.Get<bool>(VRCOSCSetting.AutoStartStop)) return;
 
-        static bool isVRChatOpen() => Process.GetProcessesByName(@"vrchat").Any();
+        var vrChatCurrentState = Process.GetProcessesByName(@"vrchat").Any();
+        var vrChatStateChanged = vrChatCurrentState != previousVRChatState;
+        if (!vrChatStateChanged) return;
+
+        previousVRChatState = vrChatCurrentState;
 
         // hasAutoStarted is checked here to ensure that modules aren't started immediately
         // after a user has manually stopped the modules
-        if (isVRChatOpen() && State.Value == GameManagerState.Stopped && !hasAutoStarted)
+        if (vrChatCurrentState && State.Value == GameManagerState.Stopped && !hasAutoStarted)
         {
             Start();
             hasAutoStarted = true;
         }
 
-        if (!isVRChatOpen() && State.Value == GameManagerState.Started)
+        if (!vrChatCurrentState && State.Value == GameManagerState.Started)
         {
+            logger.Log("VRChat is no longer open. Stopping modules");
             Stop();
             hasAutoStarted = false;
         }
