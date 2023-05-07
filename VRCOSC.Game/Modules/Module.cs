@@ -225,9 +225,19 @@ public abstract class Module : IComparable<Module>
             return;
         }
 
-        if (!data.IsAvatarParameter || Parameters.Select(pair => pair.Value).All(parameter => parameter.Name != data.ParameterName)) return;
+        if (!data.IsAvatarParameter) return;
 
-        var lookup = Parameters.Single(pair => pair.Value.Name == data.ParameterName).Key;
+        Enum lookup;
+
+        try
+        {
+            lookup = Parameters.Single(pair => pair.Value.Name == data.ParameterName).Key;
+        }
+        catch (InvalidOperationException)
+        {
+            return;
+        }
+
         var parameterData = Parameters[lookup];
 
         if (!parameterData.Mode.HasFlagFast(ParameterMode.Read)) return;
