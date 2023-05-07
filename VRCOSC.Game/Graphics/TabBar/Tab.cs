@@ -6,6 +6,7 @@ namespace VRCOSC.Game.Graphics.TabBar;
 public enum Tab
 {
     Modules,
+    Run,
     ChatBox,
     Router,
     Startup,

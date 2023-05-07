@@ -9,6 +9,7 @@ using VRCOSC.Game.Graphics.About;
 using VRCOSC.Game.Graphics.ChatBox;
 using VRCOSC.Game.Graphics.ModuleListing;
 using VRCOSC.Game.Graphics.Router;
+using VRCOSC.Game.Graphics.Run;
 using VRCOSC.Game.Graphics.Settings;
 using VRCOSC.Game.Graphics.Startup;
 using VRCOSC.Game.Graphics.TabBar;
@@ -53,6 +54,7 @@ public sealed partial class MainContent : Container
                             Children = new Drawable[]
                             {
                                 new ModuleListingScreen(),
+                                new RunScreen(),
                                 new ChatBoxScreen(),
                                 new RouterScreen(),
                                 new StartupScreen(),

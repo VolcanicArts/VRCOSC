@@ -101,11 +101,6 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
             Delay = 5000d
         });
 
-        GameManager.State.BindValueChanged(e =>
-        {
-            if (e.NewValue == GameManagerState.Starting) selectedTab.Value = Tab.Modules;
-        }, true);
-
         GameManager.OVRClient.OnShutdown += () =>
         {
             if (ConfigManager.Get<bool>(VRCOSCSetting.AutoStopOpenVR)) prepareForExit();

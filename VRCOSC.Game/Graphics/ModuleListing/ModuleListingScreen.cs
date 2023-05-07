@@ -6,7 +6,6 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using VRCOSC.Game.Graphics.ModuleEditing;
-using VRCOSC.Game.Graphics.ModuleRun;
 using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.ModuleListing;
@@ -31,8 +30,7 @@ public sealed partial class ModuleListingScreen : Container
                 RowDimensions = new[]
                 {
                     new Dimension(GridSizeMode.Absolute, 50),
-                    new Dimension(),
-                    new Dimension(GridSizeMode.Absolute, 50)
+                    new Dimension()
                 },
                 Content = new[]
                 {
@@ -46,16 +44,11 @@ public sealed partial class ModuleListingScreen : Container
                     new Drawable[]
                     {
                         new Listing()
-                    },
-                    new Drawable[]
-                    {
-                        new Footer()
                     }
                 }
             },
             new ModuleEditingPopover(),
-            new ModuleInfoPopover(),
-            new ModuleRunPopover()
+            new ModuleInfoPopover()
         };
     }
 }

@@ -189,6 +189,15 @@ public partial class GameManager : Component
         }
     }
 
+    public void Restart() => Task.Run(() =>
+    {
+        Stop();
+
+        while (State.Value != GameManagerState.Stopped) { }
+
+        Start();
+    });
+
     public void Start() => Schedule(() => _ = startAsync());
 
     private async Task startAsync()

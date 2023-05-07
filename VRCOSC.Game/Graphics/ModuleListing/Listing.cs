@@ -25,11 +25,7 @@ public sealed partial class Listing : Container
     public Listing()
     {
         RelativeSizeAxes = Axes.Both;
-        Padding = new MarginPadding
-        {
-            Horizontal = 5,
-            Top = 2.5f
-        };
+        Padding = new MarginPadding(5);
 
         Children = new Drawable[]
         {

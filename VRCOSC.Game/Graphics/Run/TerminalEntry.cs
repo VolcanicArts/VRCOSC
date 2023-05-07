@@ -6,7 +6,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Pooling;
 using VRCOSC.Game.Graphics.Themes;
 
-namespace VRCOSC.Game.Graphics.ModuleRun;
+namespace VRCOSC.Game.Graphics.Run;
 
 public sealed partial class TerminalEntry : PoolableDrawable
 {

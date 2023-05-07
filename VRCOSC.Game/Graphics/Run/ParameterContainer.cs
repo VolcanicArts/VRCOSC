@@ -9,7 +9,7 @@ using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.OSC.VRChat;
 
-namespace VRCOSC.Game.Graphics.ModuleRun;
+namespace VRCOSC.Game.Graphics.Run;
 
 public sealed partial class ParameterContainer : Container
 {
@@ -27,7 +27,7 @@ public sealed partial class ParameterContainer : Container
             RowDimensions = new[]
             {
                 new Dimension(),
-                new Dimension(GridSizeMode.Absolute, 15),
+                new Dimension(GridSizeMode.Absolute, 5),
                 new Dimension()
             },
             Content = new[]
@@ -39,6 +39,7 @@ public sealed partial class ParameterContainer : Container
                         RelativeSizeAxes = Axes.Both,
                         BorderThickness = 3,
                         Masking = true,
+                        CornerRadius = 10,
                         Title = "Outgoing"
                     }
                 },
@@ -50,6 +51,7 @@ public sealed partial class ParameterContainer : Container
                         RelativeSizeAxes = Axes.Both,
                         BorderThickness = 3,
                         Masking = true,
+                        CornerRadius = 10,
                         Title = "Incoming"
                     }
                 }

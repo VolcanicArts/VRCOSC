@@ -9,7 +9,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Logging;
 using VRCOSC.Game.Graphics.Themes;
 
-namespace VRCOSC.Game.Graphics.ModuleRun;
+namespace VRCOSC.Game.Graphics.Run;
 
 public sealed partial class TerminalContainer : Container<TerminalEntry>
 {
