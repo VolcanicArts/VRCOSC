@@ -66,7 +66,7 @@ public sealed partial class ParameterContainer : Container
 
         gameManager.State.BindValueChanged(e =>
         {
-            if (e.NewValue == GameManagerState.Starting) ClearParameters();
+            if (e.NewValue == GameManagerState.Stopped) ClearParameters();
         });
     }
 
