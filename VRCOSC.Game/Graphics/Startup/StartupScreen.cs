@@ -78,7 +78,7 @@ public partial class StartupScreen : Container
                             Icon = FontAwesome.Solid.Plus,
                             Masking = true,
                             Circular = true,
-                            BackgroundColour = ThemeManager.Current[ThemeAttribute.Accent],
+                            BackgroundColour = ThemeManager.Current[ThemeAttribute.Action],
                             Action = addComponent
                         }
                     }

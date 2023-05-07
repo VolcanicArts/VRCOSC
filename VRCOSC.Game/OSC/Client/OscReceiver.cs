@@ -41,7 +41,6 @@ public class OscReceiver
         await (incomingTask ?? Task.CompletedTask);
 
         incomingTask?.Dispose();
-        tokenSource?.Dispose();
         socket?.Close();
 
         incomingTask = null;
