@@ -63,6 +63,11 @@ public sealed partial class ParameterContainer : Container
     {
         gameManager.VRChatOscClient.OnParameterSent += onParameterSent;
         gameManager.VRChatOscClient.OnParameterReceived += onParameterReceived;
+
+        gameManager.State.BindValueChanged(e =>
+        {
+            if (e.NewValue == GameManagerState.Starting) ClearParameters();
+        });
     }
 
     private void onParameterSent(VRChatOscData data)
@@ -75,11 +80,11 @@ public sealed partial class ParameterContainer : Container
         incomingParameterDisplay.AddEntry(data.Address, data.ParameterValue);
     }
 
-    public void ClearParameters()
+    public void ClearParameters() => Schedule(() =>
     {
         outgoingParameterDisplay.ClearContent();
         incomingParameterDisplay.ClearContent();
-    }
+    });
 
     private sealed partial class ParameterSubContainer : Container
     {
