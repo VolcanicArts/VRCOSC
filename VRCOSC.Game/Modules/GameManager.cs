@@ -189,12 +189,13 @@ public partial class GameManager : Component
         }
     }
 
-    public void Restart() => Task.Run(() =>
+    public void Restart() => Task.Run(async () =>
     {
         Stop();
 
         while (State.Value != GameManagerState.Stopped) { }
 
+        await Task.Delay(250);
         Start();
     });
 
