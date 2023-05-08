@@ -22,6 +22,7 @@ public sealed class ModuleManager : IEnumerable<Module>, ICanSerialise
 {
     private static TerminalLogger terminal => new("ModuleManager");
 
+    public IReadOnlyList<Module> Modules => modules;
     private readonly List<IModuleSource> sources = new();
     private readonly SortedList<Module> modules = new();
 
@@ -79,18 +80,19 @@ public sealed class ModuleManager : IEnumerable<Module>, ICanSerialise
             }
 
             storage.DeleteDirectory("modules");
+            Serialise();
         }
         else
         {
             Deserialise();
         }
-
-        Serialise();
     }
 
     public void Deserialise()
     {
         var data = serialiser.Deserialise();
+
+        if (data is null) return;
 
         data.ForEach(modulePair =>
         {
@@ -134,6 +136,8 @@ public sealed class ModuleManager : IEnumerable<Module>, ICanSerialise
                 serialiser.Serialise();
             });
         }
+
+        Serialise();
     }
 
     public void Serialise()

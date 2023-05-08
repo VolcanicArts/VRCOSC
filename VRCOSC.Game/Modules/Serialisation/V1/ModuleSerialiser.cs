@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Collections.Generic;
-using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Platform;
 using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Managers;
@@ -20,10 +19,5 @@ public class ModuleSerialiser : Serialiser<ModuleManager, Dictionary<string, Ser
     {
     }
 
-    protected override object GetSerialisableData(ModuleManager moduleManager)
-    {
-        var data = new Dictionary<string, SerialisableModule>();
-        moduleManager.ForEach(module => data.Add(module.SerialisedName, new SerialisableModule(module)));
-        return data;
-    }
+    protected override object GetSerialisableData(ModuleManager moduleManager) => new SerialisableModuleManager(moduleManager.Modules);
 }
