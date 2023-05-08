@@ -41,9 +41,8 @@ public class RouterManager : ICanSerialise
 
     public void Deserialise()
     {
-        if (!serialiser.Deserialise(out var data)) return;
+        if (!serialiser.Deserialise()) return;
 
-        Store = data;
         Serialise();
     }
 

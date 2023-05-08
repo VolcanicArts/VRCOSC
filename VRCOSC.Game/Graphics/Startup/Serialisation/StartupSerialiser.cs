@@ -2,6 +2,8 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Collections.Generic;
+using System.Linq;
+using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Platform;
 using VRCOSC.Game.Graphics.Notifications;
@@ -24,5 +26,10 @@ public class StartupSerialiser : Serialiser<StartupManager, List<StartupModel>>
         var data = new List<StartupModel>();
         startupManager.FilePaths.ForEach(path => data.Add(new StartupModel(path.Value)));
         return data;
+    }
+
+    protected override void ExecuteAfterDeserialisation(StartupManager startupManager, List<StartupModel> data)
+    {
+        startupManager.FilePaths.AddRange(data.Select(model => new Bindable<string>(model.Path)));
     }
 }

@@ -47,9 +47,7 @@ public class StartupManager : ICanSerialise
 
     public void Deserialise()
     {
-        if (!serialiser.Deserialise(out var data)) return;
-
-        FilePaths.AddRange(data.Select(model => new Bindable<string>(model.Path)));
+        serialiser.Deserialise();
     }
 
     public void Serialise()

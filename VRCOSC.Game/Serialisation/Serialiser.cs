@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 using Newtonsoft.Json;
@@ -12,7 +11,7 @@ using VRCOSC.Game.Graphics.Notifications;
 
 namespace VRCOSC.Game.Serialisation;
 
-public abstract class Serialiser<TReference, TReturn> : ISerialiser<TReturn> where TReturn : class
+public abstract class Serialiser<TReference, TReturn> : ISerialiser where TReturn : class
 {
     private readonly object serialisationLock = new();
     private readonly Storage storage;
@@ -28,7 +27,7 @@ public abstract class Serialiser<TReference, TReturn> : ISerialiser<TReturn> whe
         this.reference = reference;
     }
 
-    public bool Deserialise([NotNullWhen(true)] out TReturn? data)
+    public bool Deserialise()
     {
         Logger.Log($"Performing load for file {FileName}");
 
@@ -42,15 +41,17 @@ public abstract class Serialiser<TReference, TReturn> : ISerialiser<TReturn> whe
         {
             lock (serialisationLock)
             {
-                data = performDeserialisation();
-                return data is not null;
+                var data = performDeserialisation();
+                if (data is null) return false;
+
+                ExecuteAfterDeserialisation(reference, data);
+                return true;
             }
         }
         catch (Exception e)
         {
             Logger.Error(e, $"Load failed for file {FileName}");
             notification.Notify(new ExceptionNotification($"Could not load file {FileName}. Report on the Discord server"));
-            data = null;
             return false;
         }
     }
@@ -99,4 +100,5 @@ public abstract class Serialiser<TReference, TReturn> : ISerialiser<TReturn> whe
     }
 
     protected abstract object GetSerialisableData(TReference reference);
+    protected abstract void ExecuteAfterDeserialisation(TReference reference, TReturn data);
 }

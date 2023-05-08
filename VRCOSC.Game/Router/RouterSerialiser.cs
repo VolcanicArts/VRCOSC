@@ -19,4 +19,9 @@ public class RouterSerialiser : Serialiser<RouterManager, List<RouterData>>
     }
 
     protected override object GetSerialisableData(RouterManager routerManager) => routerManager.Store;
+
+    protected override void ExecuteAfterDeserialisation(RouterManager routerManager, List<RouterData> data)
+    {
+        routerManager.Store = data;
+    }
 }

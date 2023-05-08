@@ -4,7 +4,7 @@
 namespace VRCOSC.Game.Serialisation;
 
 /// <summary>
-/// Represents an object that can be serialised using an <see cref="ISerialiser{TReturn}"/>
+/// Represents an object that can be serialised using an <see cref="ISerialiser"/>
 /// </summary>
 public interface ICanSerialise
 {
