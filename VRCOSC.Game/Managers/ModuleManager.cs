@@ -65,6 +65,15 @@ public sealed class ModuleManager : IEnumerable<Module>, ICanSerialise
         });
 
         deserialiseProxy(storage);
+
+        foreach (var module in this)
+        {
+            module.Enabled.BindValueChanged(_ =>
+            {
+                OnModuleEnabledChanged?.Invoke();
+                Serialise();
+            });
+        }
     }
 
     // Handles migration from LegacyModuleSerialiser
@@ -91,15 +100,6 @@ public sealed class ModuleManager : IEnumerable<Module>, ICanSerialise
     public void Deserialise()
     {
         if (!serialisationManager.Deserialise()) return;
-
-        foreach (var module in this)
-        {
-            module.Enabled.BindValueChanged(_ =>
-            {
-                OnModuleEnabledChanged?.Invoke();
-                Serialise();
-            });
-        }
 
         Serialise();
     }
