@@ -90,7 +90,7 @@ public abstract class Serialiser<TReference, TReturn> : ISerialiser<TReturn> whe
     {
         var data = GetSerialisableData(reference);
 
-        var bytes = Encoding.Unicode.GetBytes(JsonConvert.SerializeObject(data));
+        var bytes = Encoding.Unicode.GetBytes(JsonConvert.SerializeObject(data, Formatting.Indented));
         using var stream = storage.CreateFileSafely(FileName);
         stream.Write(bytes);
     }

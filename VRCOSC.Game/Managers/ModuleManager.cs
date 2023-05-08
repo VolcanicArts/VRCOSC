@@ -79,12 +79,13 @@ public sealed class ModuleManager : IEnumerable<Module>, ICanSerialise
             }
 
             storage.DeleteDirectory("modules");
-            Serialise();
         }
         else
         {
             Deserialise();
         }
+
+        Serialise();
     }
 
     public void Deserialise()
