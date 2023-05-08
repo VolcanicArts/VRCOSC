@@ -220,6 +220,8 @@ public class ChatBoxManager
     {
         lock (triggeredEventsLock) { TriggeredEvents.Clear(); }
 
+        SetTyping(false);
+        Clear();
         VariableValues.Clear();
         StateValues.Clear();
     }
