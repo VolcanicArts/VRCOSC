@@ -2,14 +2,14 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using Newtonsoft.Json;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Platform;
+using VRCOSC.Game.Graphics.Notifications;
+using VRCOSC.Game.Graphics.Startup.Serialisation;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Startup;
@@ -17,27 +17,29 @@ namespace VRCOSC.Game.Graphics.Startup;
 public class StartupManager
 {
     private readonly TerminalLogger logger = new("VRCOSC");
-    private readonly Storage storage;
+    private readonly StartupSerialiser serialiser;
 
     public readonly BindableList<Bindable<string>> FilePaths = new();
 
-    public StartupManager(Storage storage)
+    public StartupManager(Storage storage, NotificationContainer notification)
     {
-        this.storage = storage;
+        serialiser = new StartupSerialiser(storage, notification, this);
     }
 
     public void Load()
     {
-        if (storage.Exists("startup.json"))
-        {
-            var data = JsonConvert.DeserializeObject<List<StartupModel>>(File.ReadAllText(storage.GetFullPath("startup.json")));
+        var data = serialiser.Load();
 
-            data?.ForEach(model =>
+        if (data is not null)
+        {
+            data.ForEach(model =>
             {
                 var bindable = new Bindable<string>(model.Path);
                 FilePaths.Add(bindable);
-                bindable.BindValueChanged(_ => Save());
+                bindable.BindValueChanged(_ => serialiser.Save());
             });
+
+            serialiser.Save();
         }
 
         FilePaths.BindCollectionChanged((_, e) =>
@@ -46,24 +48,12 @@ public class StartupManager
             {
                 foreach (Bindable<string> newItem in e.NewItems)
                 {
-                    newItem.BindValueChanged(_ => Save());
+                    newItem.BindValueChanged(_ => serialiser.Save());
                 }
             }
 
-            Save();
+            serialiser.Save();
         });
-
-        Save();
-    }
-
-    public void Save()
-    {
-        var data = new List<StartupModel>();
-        FilePaths.ForEach(path => data.Add(new StartupModel(path.Value)));
-
-        using var stream = storage.CreateFileSafely("startup.json");
-        using var writer = new StreamWriter(stream);
-        writer.Write(JsonConvert.SerializeObject(data));
     }
 
     public void Start()

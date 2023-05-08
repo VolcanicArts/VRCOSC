@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Newtonsoft.Json;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Platform;
@@ -42,7 +41,6 @@ public class ChatBoxManager
     public IReadOnlyDictionary<string, bool> ModuleEnabledCache = null!;
     private Bindable<int> sendDelay = null!;
     private VRChatOscClient oscClient = null!;
-    private NotificationContainer notification = null!;
     private TimelineSerialiser serialiser = null!;
 
     public readonly Dictionary<(string, string), string?> VariableValues = new();
@@ -69,8 +67,7 @@ public class ChatBoxManager
     public void Load(Storage storage, GameManager gameManager, NotificationContainer notification)
     {
         GameManager = gameManager;
-        serialiser = new TimelineSerialiser(storage);
-        this.notification = notification;
+        serialiser = new TimelineSerialiser(storage, notification, this);
 
         bool clipDataLoaded;
 
@@ -95,93 +92,81 @@ public class ChatBoxManager
 
     private bool loadClipData()
     {
-        try
+        var data = serialiser.Load();
+
+        if (data is null) return false;
+
+        TimelineLength.Value = TimeSpan.FromTicks(data.Ticks);
+
+        data.Clips.ForEach(clip =>
         {
-            var data = serialiser.Deserialise();
-
-            if (data is null)
+            clip.AssociatedModules.ToImmutableList().ForEach(moduleName =>
             {
-                notification.Notify(new ExceptionNotification("Could not parse ChatBox config. Report on the Discord server"));
-                return false;
-            }
-
-            TimelineLength.Value = TimeSpan.FromTicks(data.Ticks);
-
-            data.Clips.ForEach(clip =>
-            {
-                clip.AssociatedModules.ToImmutableList().ForEach(moduleName =>
+                if (!StateMetadata.ContainsKey(moduleName) && !EventMetadata.ContainsKey(moduleName))
                 {
-                    if (!StateMetadata.ContainsKey(moduleName) && !EventMetadata.ContainsKey(moduleName))
-                    {
-                        clip.AssociatedModules.Remove(moduleName);
-
-                        clip.States.ToImmutableList().ForEach(clipState =>
-                        {
-                            clipState.States.RemoveAll(pair => pair.Module == moduleName);
-                        });
-
-                        clip.Events.RemoveAll(clipEvent => clipEvent.Module == moduleName);
-
-                        return;
-                    }
+                    clip.AssociatedModules.Remove(moduleName);
 
                     clip.States.ToImmutableList().ForEach(clipState =>
                     {
-                        clipState.States.RemoveAll(pair => !StateMetadata[pair.Module].ContainsKey(pair.Lookup));
+                        clipState.States.RemoveAll(pair => pair.Module == moduleName);
                     });
 
-                    clip.Events.RemoveAll(clipEvent => !EventMetadata[clipEvent.Module].ContainsKey(clipEvent.Lookup));
-                });
-            });
+                    clip.Events.RemoveAll(clipEvent => clipEvent.Module == moduleName);
 
-            data.Clips.ForEach(clip =>
-            {
-                var newClip = CreateClip();
+                    return;
+                }
 
-                newClip.Enabled.Value = clip.Enabled;
-                newClip.Name.Value = clip.Name;
-                newClip.Priority.Value = clip.Priority;
-                newClip.Start.Value = clip.Start;
-                newClip.End.Value = clip.End;
-
-                newClip.AssociatedModules.AddRange(clip.AssociatedModules);
-
-                clip.States.ForEach(clipState =>
+                clip.States.ToImmutableList().ForEach(clipState =>
                 {
-                    var stateData = newClip.GetStateFor(clipState.States.Select(state => state.Module), clipState.States.Select(state => state.Lookup));
-                    if (stateData is null) return;
-
-                    stateData.Enabled.Value = clipState.Enabled;
-                    stateData.Format.Value = clipState.Format;
+                    clipState.States.RemoveAll(pair => !StateMetadata[pair.Module].ContainsKey(pair.Lookup));
                 });
 
-                clip.Events.ForEach(clipEvent =>
-                {
-                    var eventData = newClip.GetEventFor(clipEvent.Module, clipEvent.Lookup);
-                    if (eventData is null) return;
-
-                    eventData.Enabled.Value = clipEvent.Enabled;
-                    eventData.Format.Value = clipEvent.Format;
-                    eventData.Length.Value = clipEvent.Length;
-                });
-
-                Clips.Add(newClip);
+                clip.Events.RemoveAll(clipEvent => !EventMetadata[clipEvent.Module].ContainsKey(clipEvent.Lookup));
             });
+        });
 
-            return true;
-        }
-        catch (JsonReaderException)
+        data.Clips.ForEach(clip =>
         {
-            notification.Notify(new ExceptionNotification("Could not load ChatBox config. Report on the Discord server"));
-            return false;
-        }
+            var newClip = CreateClip();
+
+            newClip.Enabled.Value = clip.Enabled;
+            newClip.Name.Value = clip.Name;
+            newClip.Priority.Value = clip.Priority;
+            newClip.Start.Value = clip.Start;
+            newClip.End.Value = clip.End;
+
+            newClip.AssociatedModules.AddRange(clip.AssociatedModules);
+
+            clip.States.ForEach(clipState =>
+            {
+                var stateData = newClip.GetStateFor(clipState.States.Select(state => state.Module), clipState.States.Select(state => state.Lookup));
+                if (stateData is null) return;
+
+                stateData.Enabled.Value = clipState.Enabled;
+                stateData.Format.Value = clipState.Format;
+            });
+
+            clip.Events.ForEach(clipEvent =>
+            {
+                var eventData = newClip.GetEventFor(clipEvent.Module, clipEvent.Lookup);
+                if (eventData is null) return;
+
+                eventData.Enabled.Value = clipEvent.Enabled;
+                eventData.Format.Value = clipEvent.Format;
+                eventData.Length.Value = clipEvent.Length;
+            });
+
+            Clips.Add(newClip);
+        });
+
+        return true;
     }
 
     public void Save()
     {
         if (!isLoaded) return;
 
-        serialiser.Serialise(this);
+        serialiser.Save();
     }
 
     public void Initialise(VRChatOscClient oscClient, Bindable<int> sendDelay, Dictionary<string, bool> moduleEnabledCache)

@@ -10,6 +10,7 @@ using osuTK;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Button;
 using VRCOSC.Game.Graphics.UI.Text;
+using VRCOSC.Game.Router;
 
 namespace VRCOSC.Game.Graphics.Router;
 

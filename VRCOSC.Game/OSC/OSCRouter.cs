@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.OSC.Client;
 using VRCOSC.Game.OSC.VRChat;
+using VRCOSC.Game.Router;
 
 namespace VRCOSC.Game.OSC;
 

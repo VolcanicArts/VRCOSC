@@ -1,50 +1,21 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.IO;
-using System.Text;
-using Newtonsoft.Json;
 using osu.Framework.Platform;
 using VRCOSC.Game.ChatBox.Serialisation.V1.Structures;
+using VRCOSC.Game.Graphics.Notifications;
+using VRCOSC.Game.Serialisation;
 
 namespace VRCOSC.Game.ChatBox.Serialisation.V1;
 
-public class TimelineSerialiser : ITimelineSerialiser
+public class TimelineSerialiser : Serialiser<ChatBoxManager, SerialisableTimeline>
 {
-    private const string file_name = @"chatbox.json";
-    private readonly Storage storage;
-    private readonly object saveLock = new();
+    protected override string FileName => @"chatbox.json";
 
-    public TimelineSerialiser(Storage storage)
+    public TimelineSerialiser(Storage storage, NotificationContainer notification, ChatBoxManager chatBoxManager)
+        : base(storage, notification, chatBoxManager)
     {
-        this.storage = storage;
     }
 
-    public void Serialise(ChatBoxManager chatBoxManager)
-    {
-        lock (saveLock)
-        {
-            var data = Encoding.Unicode.GetBytes(JsonConvert.SerializeObject(new SerialisableTimeline(chatBoxManager)));
-
-            using var stream = storage.CreateFileSafely(file_name);
-            stream.Write(data);
-        }
-    }
-
-    public SerialisableTimeline? Deserialise()
-    {
-        lock (saveLock)
-        {
-            if (!storage.Exists(file_name)) return null;
-
-            try
-            {
-                return JsonConvert.DeserializeObject<SerialisableTimeline>(Encoding.Unicode.GetString(File.ReadAllBytes(storage.GetFullPath(file_name))));
-            }
-            catch // migration from UTF-8
-            {
-                return JsonConvert.DeserializeObject<SerialisableTimeline>(File.ReadAllText(storage.GetFullPath(file_name)));
-            }
-        }
-    }
+    protected override object GetSerialisableData(ChatBoxManager chatBoxManager) => new SerialisableTimeline(chatBoxManager);
 }

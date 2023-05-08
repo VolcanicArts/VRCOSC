@@ -29,6 +29,7 @@ using VRCOSC.Game.OpenVR.Metadata;
 using VRCOSC.Game.OSC;
 using VRCOSC.Game.OSC.Client;
 using VRCOSC.Game.OSC.VRChat;
+using VRCOSC.Game.Router;
 
 namespace VRCOSC.Game.Modules;
 

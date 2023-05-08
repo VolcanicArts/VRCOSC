@@ -21,6 +21,7 @@ using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.Updater;
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.OpenVR.Metadata;
+using VRCOSC.Game.Router;
 
 namespace VRCOSC.Game;
 
@@ -66,8 +67,8 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
         DependencyContainer.CacheAs(notificationContainer = new NotificationContainer());
         DependencyContainer.CacheAs(typeof(IVRCOSCSecrets), GetSecrets());
-        DependencyContainer.CacheAs(routerManager = new RouterManager(storage));
-        DependencyContainer.CacheAs(startupManager = new StartupManager(storage));
+        DependencyContainer.CacheAs(routerManager = new RouterManager(storage, notificationContainer));
+        DependencyContainer.CacheAs(startupManager = new StartupManager(storage, notificationContainer));
 
         LoadComponent(notificationContainer);
 
