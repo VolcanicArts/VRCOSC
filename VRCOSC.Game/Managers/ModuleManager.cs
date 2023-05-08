@@ -154,13 +154,10 @@ public sealed class ModuleManager : IEnumerable<Module>, ICanSerialise
 
         runningModulesCache.Clear();
 
-        foreach (var module in modules)
+        foreach (var module in modules.Where(module => module.Enabled.Value))
         {
-            if (module.Enabled.Value)
-            {
-                module.Start();
-                runningModulesCache.Add(module);
-            }
+            module.Start();
+            runningModulesCache.Add(module);
         }
     }
 
@@ -168,7 +165,7 @@ public sealed class ModuleManager : IEnumerable<Module>, ICanSerialise
     {
         scheduler.Update();
 
-        foreach (var module in modules)
+        foreach (var module in runningModulesCache)
         {
             module.FrameUpdate();
         }
