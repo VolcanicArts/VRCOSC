@@ -3,6 +3,7 @@
 
 using System;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -129,9 +130,14 @@ public abstract partial class AttributeCard : Container
         });
     }
 
+    protected override void LoadComplete()
+    {
+        AttributeData.Attribute.BindValueChanged(onAttributeUpdate, true);
+    }
+
     protected virtual void SetDefault()
     {
-        AttributeData.SetDefault();
+        AttributeData.Attribute.SetDefault();
     }
 
     protected void UpdateResetToDefault(bool show)
@@ -140,5 +146,24 @@ public abstract partial class AttributeCard : Container
         if (Math.Abs(resetToDefault.Alpha - newAlpha) < 0.01f) return;
 
         resetToDefault.FadeTo(newAlpha, 200, Easing.OutQuart);
+    }
+
+    protected void UpdateAttribute(object value)
+    {
+        //Specifically check for equal values here to stop memory allocations from setting the value
+        if (value == AttributeData.Attribute.Value) return;
+
+        AttributeData.Attribute.Value = value;
+    }
+
+    private void onAttributeUpdate(ValueChangedEvent<object> e)
+    {
+        UpdateResetToDefault(!AttributeData.Attribute.IsDefault);
+    }
+
+    protected override void Dispose(bool isDisposing)
+    {
+        base.Dispose(isDisposing);
+        AttributeData.Attribute.ValueChanged -= onAttributeUpdate;
     }
 }

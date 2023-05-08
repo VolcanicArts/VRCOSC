@@ -102,9 +102,6 @@ public abstract class Module : IComparable<Module>
     protected void CreateSetting(Enum lookup, string displayName, string description, float defaultValue, float minValue, float maxValue, Func<bool>? dependsOn = null)
         => addRangedSetting(lookup, displayName, description, defaultValue, minValue, maxValue, dependsOn);
 
-    protected void CreateSetting(Enum lookup, string displayName, string description, IEnumerable<string> defaultValues, bool canBeEmpty, Func<bool>? dependsOn = null)
-        => addEnumerableSetting(lookup, displayName, description, defaultValues, canBeEmpty, dependsOn);
-
     protected void CreateSetting(Enum lookup, string displayName, string description, string defaultValue, string buttonText, Action buttonAction, Func<bool>? dependsOn = null)
         => addTextAndButtonSetting(lookup, displayName, description, defaultValue, buttonText, buttonAction, dependsOn);
 
@@ -112,16 +109,13 @@ public abstract class Module : IComparable<Module>
         => Parameters.Add(lookup, new ParameterAttribute(mode, new ModuleAttributeMetadata(displayName, description), parameterName, typeof(T), null));
 
     private void addSingleSetting(Enum lookup, string displayName, string description, object defaultValue, Func<bool>? dependsOn)
-        => Settings.Add(lookup.ToLookup(), new ModuleAttributeSingle(new ModuleAttributeMetadata(displayName, description), defaultValue, dependsOn));
-
-    private void addEnumerableSetting<T>(Enum lookup, string displayName, string description, IEnumerable<T> defaultValues, bool canBeEmpty, Func<bool>? dependsOn)
-        => Settings.Add(lookup.ToLookup(), new ModuleAttributeList(new ModuleAttributeMetadata(displayName, description), defaultValues.Cast<object>(), typeof(T), canBeEmpty, dependsOn));
+        => Settings.Add(lookup.ToLookup(), new ModuleAttribute(new ModuleAttributeMetadata(displayName, description), defaultValue, dependsOn));
 
     private void addRangedSetting<T>(Enum lookup, string displayName, string description, T defaultValue, T minValue, T maxValue, Func<bool>? dependsOn) where T : struct
-        => Settings.Add(lookup.ToLookup(), new ModuleAttributeSingleWithBounds(new ModuleAttributeMetadata(displayName, description), defaultValue, minValue, maxValue, dependsOn));
+        => Settings.Add(lookup.ToLookup(), new ModuleAttributeWithBounds(new ModuleAttributeMetadata(displayName, description), defaultValue, minValue, maxValue, dependsOn));
 
     private void addTextAndButtonSetting(Enum lookup, string displayName, string description, string defaultValue, string buttonText, Action buttonAction, Func<bool>? dependsOn)
-        => Settings.Add(lookup.ToLookup(), new ModuleAttributeSingleWithButton(new ModuleAttributeMetadata(displayName, description), defaultValue, buttonText, buttonAction, dependsOn));
+        => Settings.Add(lookup.ToLookup(), new ModuleAttributeWithButton(new ModuleAttributeMetadata(displayName, description), defaultValue, buttonText, buttonAction, dependsOn));
 
     #endregion
 
@@ -163,28 +157,7 @@ public abstract class Module : IComparable<Module>
 
     protected T GetSetting<T>(Enum lookup)
     {
-        var setting = Settings[lookup.ToLookup()];
-
-        object? value;
-
-        switch (setting)
-        {
-            case ModuleAttributeSingle settingSingle:
-                value = settingSingle.Attribute.Value;
-                break;
-
-            case ModuleAttributeList settingList when settingList.Type == typeof(string):
-                value = settingList.GetValueList<string>();
-                break;
-
-            case ModuleAttributeList settingList when settingList.Type == typeof(int):
-                value = settingList.GetValueList<int>();
-                break;
-
-            default:
-                value = null;
-                break;
-        }
+        object? value = Settings[lookup.ToLookup()].Attribute.Value;
 
         if (value is not T valueCast)
             throw new InvalidCastException($"Setting with lookup '{lookup}' is not of type '{nameof(T)}'");
