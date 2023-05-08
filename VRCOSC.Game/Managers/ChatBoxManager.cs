@@ -62,6 +62,7 @@ public class ChatBoxManager : ICanSerialise
     private DateTimeOffset startTime;
     private DateTimeOffset nextValidTime;
     private bool isClear;
+    private bool deserialised;
     private bool isLoaded;
 
     public void Load(Storage storage, GameManager gameManager, NotificationContainer notification)
@@ -79,12 +80,12 @@ public class ChatBoxManager : ICanSerialise
         TimelineLength.BindValueChanged(_ => Serialise());
 
         isLoaded = true;
-        Serialise();
+        if (deserialised) Serialise();
     }
 
     public void Deserialise()
     {
-        serialisationManager.Deserialise();
+        deserialised = serialisationManager.Deserialise();
     }
 
     public void Serialise()
