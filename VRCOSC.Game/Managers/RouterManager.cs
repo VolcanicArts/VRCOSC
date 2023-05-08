@@ -5,7 +5,8 @@ using System.Collections.Generic;
 using osu.Framework.Platform;
 using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.OSC;
-using VRCOSC.Game.Router;
+using VRCOSC.Game.Router.Serialisation.Legacy;
+using VRCOSC.Game.Router.Serialisation.V1;
 using VRCOSC.Game.Serialisation;
 
 namespace VRCOSC.Game.Managers;
@@ -14,11 +15,13 @@ public class RouterManager : ICanSerialise
 {
     public List<RouterData> Store = new();
 
-    private readonly RouterSerialiser serialiser;
+    private readonly SerialisationManager serialisationManager;
 
     public RouterManager(Storage storage, NotificationContainer notification)
     {
-        serialiser = new RouterSerialiser(storage, notification, this);
+        serialisationManager = new SerialisationManager();
+        serialisationManager.RegisterSerialiser(0, new LegacyRouterSerialiser(storage, notification, this));
+        serialisationManager.RegisterSerialiser(1, new RouterSerialiser(storage, notification, this));
     }
 
     public RouterData Create()
@@ -41,14 +44,14 @@ public class RouterManager : ICanSerialise
 
     public void Deserialise()
     {
-        if (!serialiser.Deserialise()) return;
+        if (!serialisationManager.Deserialise()) return;
 
         Serialise();
     }
 
     public void Serialise()
     {
-        serialiser.Serialise();
+        serialisationManager.Serialise();
     }
 }
 

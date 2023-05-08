@@ -21,7 +21,7 @@ public class ModuleSerialiser : Serialiser<ModuleManager, SerialisableModuleMana
     {
     }
 
-    protected override object GetSerialisableData(ModuleManager moduleManager) => new SerialisableModuleManager(moduleManager.Modules);
+    protected override SerialisableModuleManager GetSerialisableData(ModuleManager moduleManager) => new(moduleManager.Modules);
 
     protected override void ExecuteAfterDeserialisation(ModuleManager moduleManager, SerialisableModuleManager data)
     {

@@ -34,7 +34,7 @@ public sealed class ModuleManager : IEnumerable<Module>, ICanSerialise
     private GameManager gameManager = null!;
     private IVRCOSCSecrets secrets = null!;
     private Scheduler scheduler = null!;
-    private ModuleSerialiser serialiser = null!;
+    private SerialisationManager serialisationManager = null!;
 
     private readonly List<Module> runningModulesCache = new();
 
@@ -48,7 +48,8 @@ public sealed class ModuleManager : IEnumerable<Module>, ICanSerialise
 
     public void Load(Storage storage, NotificationContainer notification)
     {
-        serialiser = new ModuleSerialiser(storage, notification, this);
+        serialisationManager = new SerialisationManager();
+        serialisationManager.RegisterSerialiser(1, new ModuleSerialiser(storage, notification, this));
 
         modules.Clear();
 
@@ -89,14 +90,14 @@ public sealed class ModuleManager : IEnumerable<Module>, ICanSerialise
 
     public void Deserialise()
     {
-        if (!serialiser.Deserialise()) return;
+        if (!serialisationManager.Deserialise()) return;
 
         foreach (var module in this)
         {
             module.Enabled.BindValueChanged(_ =>
             {
                 OnModuleEnabledChanged?.Invoke();
-                serialiser.Serialise();
+                Serialise();
             });
         }
 
@@ -105,7 +106,7 @@ public sealed class ModuleManager : IEnumerable<Module>, ICanSerialise
 
     public void Serialise()
     {
-        serialiser.Serialise();
+        serialisationManager.Serialise();
     }
 
     public void Start()

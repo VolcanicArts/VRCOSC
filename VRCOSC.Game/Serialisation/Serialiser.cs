@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 using Newtonsoft.Json;
@@ -11,14 +12,14 @@ using VRCOSC.Game.Graphics.Notifications;
 
 namespace VRCOSC.Game.Serialisation;
 
-public abstract class Serialiser<TReference, TReturn> : ISerialiser where TReturn : class
+public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where TSerialisable : class
 {
     private readonly object serialisationLock = new();
     private readonly Storage storage;
     private readonly NotificationContainer notification;
     private readonly TReference reference;
 
-    protected virtual string FileName => throw new NotImplementedException($"{typeof(Serialiser<TReference, TReturn>)} requires a file name");
+    protected virtual string FileName => throw new NotImplementedException($"{typeof(Serialiser<TReference, TSerialisable>)} requires a file name");
 
     protected Serialiser(Storage storage, NotificationContainer notification, TReference reference)
     {
@@ -27,11 +28,41 @@ public abstract class Serialiser<TReference, TReturn> : ISerialiser where TRetur
         this.reference = reference;
     }
 
+    public bool DoesFileExist() => storage.Exists(FileName);
+
+    public bool TryGetVersion([NotNullWhen(true)] out int? version)
+    {
+        if (!DoesFileExist())
+        {
+            version = null;
+            return false;
+        }
+
+        try
+        {
+            var data = performDeserialisation<SerialisableVersion>();
+
+            if (data is null)
+            {
+                version = null;
+                return false;
+            }
+
+            version = data.Version;
+            return true;
+        }
+        catch
+        {
+            version = null;
+            return false;
+        }
+    }
+
     public bool Deserialise()
     {
         Logger.Log($"Performing load for file {FileName}");
 
-        if (!storage.Exists(FileName))
+        if (!DoesFileExist())
         {
             Logger.Log($"File {FileName} does not exist. Creating...");
             Serialise();
@@ -41,7 +72,7 @@ public abstract class Serialiser<TReference, TReturn> : ISerialiser where TRetur
         {
             lock (serialisationLock)
             {
-                var data = performDeserialisation();
+                var data = performDeserialisation<TSerialisable>();
                 if (data is null) return false;
 
                 ExecuteAfterDeserialisation(reference, data);
@@ -77,16 +108,16 @@ public abstract class Serialiser<TReference, TReturn> : ISerialiser where TRetur
         }
     }
 
-    private TReturn? performDeserialisation()
+    private T? performDeserialisation<T>()
     {
         try
         {
-            return JsonConvert.DeserializeObject<TReturn>(Encoding.Unicode.GetString(File.ReadAllBytes(storage.GetFullPath(FileName))));
+            return JsonConvert.DeserializeObject<T>(Encoding.Unicode.GetString(File.ReadAllBytes(storage.GetFullPath(FileName))));
         }
         catch // migration from UTF-8
         {
             Logger.Log("UTF-8 possibly detected. Attempting conversion from UTF-8 to Unicode");
-            return JsonConvert.DeserializeObject<TReturn>(File.ReadAllText(storage.GetFullPath(FileName)));
+            return JsonConvert.DeserializeObject<T>(File.ReadAllText(storage.GetFullPath(FileName)));
         }
     }
 
@@ -99,6 +130,6 @@ public abstract class Serialiser<TReference, TReturn> : ISerialiser where TRetur
         stream.Write(bytes);
     }
 
-    protected abstract object GetSerialisableData(TReference reference);
-    protected abstract void ExecuteAfterDeserialisation(TReference reference, TReturn data);
+    protected abstract TSerialisable GetSerialisableData(TReference reference);
+    protected abstract void ExecuteAfterDeserialisation(TReference reference, TSerialisable data);
 }

@@ -7,18 +7,18 @@ using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Managers;
 using VRCOSC.Game.Serialisation;
 
-namespace VRCOSC.Game.Router;
+namespace VRCOSC.Game.Router.Serialisation.Legacy;
 
-public class RouterSerialiser : Serialiser<RouterManager, List<RouterData>>
+public class LegacyRouterSerialiser : Serialiser<RouterManager, List<RouterData>>
 {
     protected override string FileName => "router.json";
 
-    public RouterSerialiser(Storage storage, NotificationContainer notification, RouterManager routerManager)
+    public LegacyRouterSerialiser(Storage storage, NotificationContainer notification, RouterManager routerManager)
         : base(storage, notification, routerManager)
     {
     }
 
-    protected override object GetSerialisableData(RouterManager routerManager) => routerManager.Store;
+    protected override List<RouterData> GetSerialisableData(RouterManager routerManager) => routerManager.Store;
 
     protected override void ExecuteAfterDeserialisation(RouterManager routerManager, List<RouterData> data)
     {

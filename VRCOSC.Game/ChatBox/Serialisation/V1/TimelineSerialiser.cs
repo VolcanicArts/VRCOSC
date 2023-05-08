@@ -21,7 +21,7 @@ public class TimelineSerialiser : Serialiser<ChatBoxManager, SerialisableTimelin
     {
     }
 
-    protected override object GetSerialisableData(ChatBoxManager chatBoxManager) => new SerialisableTimeline(chatBoxManager);
+    protected override SerialisableTimeline GetSerialisableData(ChatBoxManager chatBoxManager) => new(chatBoxManager);
 
     protected override void ExecuteAfterDeserialisation(ChatBoxManager chatBoxManager, SerialisableTimeline data)
     {

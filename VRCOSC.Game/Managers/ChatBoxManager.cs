@@ -41,7 +41,7 @@ public class ChatBoxManager : ICanSerialise
     public IReadOnlyDictionary<string, bool> ModuleEnabledCache = null!;
     private Bindable<int> sendDelay = null!;
     private VRChatOscClient oscClient = null!;
-    private TimelineSerialiser serialiser = null!;
+    private SerialisationManager serialisationManager = null!;
 
     public readonly Dictionary<(string, string), string?> VariableValues = new();
     public readonly Dictionary<string, string> StateValues = new();
@@ -67,7 +67,8 @@ public class ChatBoxManager : ICanSerialise
     public void Load(Storage storage, GameManager gameManager, NotificationContainer notification)
     {
         GameManager = gameManager;
-        serialiser = new TimelineSerialiser(storage, notification, this);
+        serialisationManager = new SerialisationManager();
+        serialisationManager.RegisterSerialiser(1, new TimelineSerialiser(storage, notification, this));
 
         Clips.AddRange(DefaultTimeline.GenerateDefaultTimeline(this));
         TimelineLength.Value = TimeSpan.FromMinutes(1);
@@ -83,14 +84,14 @@ public class ChatBoxManager : ICanSerialise
 
     public void Deserialise()
     {
-        serialiser.Deserialise();
+        serialisationManager.Deserialise();
     }
 
     public void Serialise()
     {
         if (!isLoaded) return;
 
-        serialiser.Serialise();
+        serialisationManager.Serialise();
     }
 
     public void Initialise(VRChatOscClient oscClient, Bindable<int> sendDelay, Dictionary<string, bool> moduleEnabledCache)
