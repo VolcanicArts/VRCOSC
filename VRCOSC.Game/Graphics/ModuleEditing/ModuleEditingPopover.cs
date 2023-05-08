@@ -46,16 +46,9 @@ public sealed partial class ModuleEditingPopover : PopoverScreen
         editingModule.BindValueChanged(e =>
         {
             if (e.NewValue is null)
-            {
-                if (e.OldValue is not null)
-                    gameManager.ModuleManager.Save(e.OldValue);
-
                 Hide();
-            }
             else
-            {
                 Show();
-            }
         }, true);
     }
 

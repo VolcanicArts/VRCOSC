@@ -8,8 +8,10 @@ using System.Linq;
 using osu.Framework.Lists;
 using osu.Framework.Platform;
 using osu.Framework.Threading;
+using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Modules;
-using VRCOSC.Game.Modules.Serialisation;
+using VRCOSC.Game.Modules.Serialisation.Legacy;
+using VRCOSC.Game.Modules.Serialisation.V1;
 using VRCOSC.Game.Modules.Sources;
 using VRCOSC.Game.Serialisation;
 
@@ -19,20 +21,20 @@ public sealed class ModuleManager : IEnumerable<Module>, ICanSerialise
 {
     private static TerminalLogger terminal => new("ModuleManager");
 
+    public IReadOnlyList<Module> Modules => modules;
     private readonly List<IModuleSource> sources = new();
     private readonly SortedList<Module> modules = new();
-    private IModuleSerialiser? serialiser;
 
     public Action? OnModuleEnabledChanged;
 
     public void AddSource(IModuleSource source) => sources.Add(source);
     public bool RemoveSource(IModuleSource source) => sources.Remove(source);
-    public void SetSerialiser(IModuleSerialiser serialiser) => this.serialiser = serialiser;
 
     private GameHost host = null!;
     private GameManager gameManager = null!;
     private IVRCOSCSecrets secrets = null!;
     private Scheduler scheduler = null!;
+    private ModuleSerialiser serialiser = null!;
 
     private readonly List<Module> runningModulesCache = new();
 
@@ -44,8 +46,10 @@ public sealed class ModuleManager : IEnumerable<Module>, ICanSerialise
         this.scheduler = scheduler;
     }
 
-    public void Load()
+    public void Load(Storage storage, NotificationContainer notification)
     {
+        serialiser = new ModuleSerialiser(storage, notification, this);
+
         modules.Clear();
 
         sources.ForEach(source =>
@@ -59,19 +63,40 @@ public sealed class ModuleManager : IEnumerable<Module>, ICanSerialise
             }
         });
 
-        Deserialise();
+        deserialiseProxy(storage);
+    }
+
+    // Handles migration from LegacyModuleSerialiser
+    private void deserialiseProxy(Storage storage)
+    {
+        if (!storage.Exists("modules.json"))
+        {
+            var legacySerialisation = new LegacyModuleSerialiser(storage);
+
+            foreach (var module in this)
+            {
+                legacySerialisation.Deserialise(module);
+            }
+
+            //storage.DeleteDirectory("modules");
+            //Serialise();
+        }
+        else
+        {
+            Deserialise();
+        }
     }
 
     public void Deserialise()
     {
+        serialiser.Deserialise();
+
         foreach (var module in this)
         {
-            serialiser?.Deserialise(module);
-
             module.Enabled.BindValueChanged(_ =>
             {
                 OnModuleEnabledChanged?.Invoke();
-                serialiser?.Serialise(module);
+                serialiser.Serialise();
             });
 
             // bind other module attributes to serialise
@@ -81,15 +106,7 @@ public sealed class ModuleManager : IEnumerable<Module>, ICanSerialise
 
     public void Serialise()
     {
-        foreach (var module in this)
-        {
-            serialiser?.Serialise(module);
-        }
-    }
-
-    public void Save(Module module)
-    {
-        serialiser?.Serialise(module);
+        serialiser.Serialise();
     }
 
     public void Start()
