@@ -69,32 +69,24 @@ public class ChatBoxManager
         GameManager = gameManager;
         serialiser = new TimelineSerialiser(storage, notification, this);
 
-        bool clipDataLoaded;
+        Clips.AddRange(DefaultTimeline.GenerateDefaultTimeline(this));
+        TimelineLength.Value = TimeSpan.FromMinutes(1);
 
-        if (storage.Exists(@"chatbox.json"))
-        {
-            clipDataLoaded = loadClipData();
-        }
-        else
-        {
-            Clips.AddRange(DefaultTimeline.GenerateDefaultTimeline(this));
-            TimelineLength.Value = TimeSpan.FromMinutes(1);
-            clipDataLoaded = true;
-        }
+        loadClipData();
 
         Clips.BindCollectionChanged((_, _) => Save());
         TimelineLength.BindValueChanged(_ => Save());
 
         isLoaded = true;
-
-        if (clipDataLoaded) Save();
     }
 
-    private bool loadClipData()
+    private void loadClipData()
     {
         var data = serialiser.Load();
 
-        if (data is null) return false;
+        if (data is null) return;
+
+        Clips.Clear();
 
         TimelineLength.Value = TimeSpan.FromTicks(data.Ticks);
 
@@ -159,7 +151,7 @@ public class ChatBoxManager
             Clips.Add(newClip);
         });
 
-        return true;
+        serialiser.Save();
     }
 
     public void Save()
