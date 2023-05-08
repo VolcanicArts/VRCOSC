@@ -12,11 +12,11 @@ public class SerialisableModule
     [JsonProperty("enabled")]
     public bool Enabled;
 
-    [JsonProperty("settings_single")]
-    public Dictionary<string, SerialisableModuleAttributeSingle> SettingsSingle = new();
+    [JsonProperty("settings")]
+    public Dictionary<string, SerialisableModuleAttribute> Settings = new();
 
-    [JsonProperty("settings_list")]
-    public Dictionary<string, SerialisableModuleAttributeList> SettingsList = new();
+    [JsonProperty("parameters")]
+    public Dictionary<string, SerialisableModuleAttribute> Parameters = new();
 
     [JsonConstructor]
     public SerialisableModule()
@@ -29,14 +29,16 @@ public class SerialisableModule
 
         module.Settings.ForEach(pair =>
         {
-            if (pair.Value is ModuleAttributeSingle)
-            {
-            }
+            if (pair.Value.Attribute.IsDefault) return;
 
-            if (pair.Value is ModuleAttributeList)
-            {
+            Settings.Add(pair.Key, new SerialisableModuleAttribute(pair.Value));
+        });
 
-            }
+        module.Parameters.ForEach(pair =>
+        {
+            if (pair.Value.Attribute.IsDefault) return;
+
+            Parameters.Add(pair.Key.ToLookup(), new SerialisableModuleAttribute(pair.Value));
         });
     }
 }

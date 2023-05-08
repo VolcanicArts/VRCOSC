@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Lists;
 using osu.Framework.Platform;
 using osu.Framework.Threading;
@@ -21,7 +22,6 @@ public sealed class ModuleManager : IEnumerable<Module>, ICanSerialise
 {
     private static TerminalLogger terminal => new("ModuleManager");
 
-    public IReadOnlyList<Module> Modules => modules;
     private readonly List<IModuleSource> sources = new();
     private readonly SortedList<Module> modules = new();
 
@@ -79,7 +79,7 @@ public sealed class ModuleManager : IEnumerable<Module>, ICanSerialise
             }
 
             //storage.DeleteDirectory("modules");
-            //Serialise();
+            Serialise();
         }
         else
         {
@@ -89,7 +89,41 @@ public sealed class ModuleManager : IEnumerable<Module>, ICanSerialise
 
     public void Deserialise()
     {
-        serialiser.Deserialise();
+        var data = serialiser.Deserialise();
+
+        data.ForEach(modulePair =>
+        {
+            var (moduleName, moduleData) = modulePair;
+
+            var module = modules.SingleOrDefault(module => module.SerialisedName == moduleName);
+            if (module is null) return;
+
+            module.Enabled.Value = moduleData.Enabled;
+
+            moduleData.Settings.ForEach(settingPair =>
+            {
+                var (settingKey, settingData) = settingPair;
+
+                if (!module.DoesSettingExist(settingKey, out var setting)) return;
+
+                if (setting!.Type.IsEnum)
+                {
+                    setting.Attribute.Value = Enum.ToObject(setting.Type, settingData.Value);
+                    return;
+                }
+
+                setting.Attribute.Value = Convert.ChangeType(settingData.Value, setting.Type);
+            });
+
+            moduleData.Parameters.ForEach(parameterPair =>
+            {
+                var (parameterKey, parameterData) = parameterPair;
+
+                if (!module.DoesParameterExist(parameterKey, out var parameter)) return;
+
+                parameter!.Attribute.Value = Convert.ChangeType(parameterData.Value, parameter.Type);
+            });
+        });
 
         foreach (var module in this)
         {
@@ -98,9 +132,6 @@ public sealed class ModuleManager : IEnumerable<Module>, ICanSerialise
                 OnModuleEnabledChanged?.Invoke();
                 serialiser.Serialise();
             });
-
-            // bind other module attributes to serialise
-            //
         }
     }
 

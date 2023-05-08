@@ -23,12 +23,7 @@ public class ModuleSerialiser : Serialiser<ModuleManager, Dictionary<string, Ser
     protected override object GetSerialisableData(ModuleManager moduleManager)
     {
         var data = new Dictionary<string, SerialisableModule>();
-
-        moduleManager.ForEach(module =>
-        {
-            data.Add(module.SerialisedName, new SerialisableModule(module));
-        });
-
+        moduleManager.ForEach(module => data.Add(module.SerialisedName, new SerialisableModule(module)));
         return data;
     }
 }
