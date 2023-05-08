@@ -6,7 +6,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using VRCOSC.Game.Managers;
 
-namespace VRCOSC.Game.Graphics.Startup.Serialisation.V1.Models;
+namespace VRCOSC.Game.Startup.Serialisation.V1.Models;
 
 public class SerialisableStartupManager
 {

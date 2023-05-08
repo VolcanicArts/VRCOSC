@@ -9,9 +9,9 @@ using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Platform;
 using VRCOSC.Game.Graphics.Notifications;
-using VRCOSC.Game.Graphics.Startup.Serialisation.V1;
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.Serialisation;
+using VRCOSC.Game.Startup.Serialisation.V1;
 
 namespace VRCOSC.Game.Managers;
 

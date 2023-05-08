@@ -5,11 +5,11 @@ using System.Linq;
 using osu.Framework.Bindables;
 using osu.Framework.Platform;
 using VRCOSC.Game.Graphics.Notifications;
-using VRCOSC.Game.Graphics.Startup.Serialisation.V1.Models;
 using VRCOSC.Game.Managers;
 using VRCOSC.Game.Serialisation;
+using VRCOSC.Game.Startup.Serialisation.V1.Models;
 
-namespace VRCOSC.Game.Graphics.Startup.Serialisation.V1;
+namespace VRCOSC.Game.Startup.Serialisation.V1;
 
 public class StartupSerialiser : Serialiser<StartupManager, SerialisableStartupManager>
 {
