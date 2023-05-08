@@ -8,14 +8,14 @@ using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 
-namespace VRCOSC.Game.Modules.Serialisation;
+namespace VRCOSC.Game.Modules.Serialisation.Legacy;
 
-public class ModuleSerialiser : IModuleSerialiser
+public class LegacyModuleSerialiser
 {
     private const string directory_name = "modules";
     private readonly Storage storage;
 
-    public ModuleSerialiser(Storage storage)
+    public LegacyModuleSerialiser(Storage storage)
     {
         this.storage = storage.GetStorageForDirectory(directory_name);
     }

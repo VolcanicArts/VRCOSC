@@ -11,11 +11,13 @@ public class ModuleAttribute
 {
     public readonly ModuleAttributeMetadata Metadata;
     public readonly Bindable<object> Attribute;
+    public readonly Type Type;
     private readonly Func<bool>? dependsOn;
 
     public ModuleAttribute(ModuleAttributeMetadata metadata, object defaultValue, Func<bool>? dependsOn)
     {
         Metadata = metadata;
+        Type = defaultValue.GetType();
 
         Attribute = new Bindable<object>
         {

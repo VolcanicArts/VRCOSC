@@ -20,7 +20,6 @@ using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.Modules.Avatar;
-using VRCOSC.Game.Modules.Serialisation;
 using VRCOSC.Game.Modules.Sources;
 using VRCOSC.Game.OpenVR;
 using VRCOSC.Game.OpenVR.Metadata;
@@ -109,9 +108,8 @@ public partial class GameManager : Component
         ModuleManager = new ModuleManager();
         ModuleManager.AddSource(new InternalModuleSource());
         ModuleManager.AddSource(new ExternalModuleSource(storage));
-        ModuleManager.SetSerialiser(new ModuleSerialiser(storage));
         ModuleManager.InjectModuleDependencies(host, this, secrets, new Scheduler(() => ThreadSafety.IsUpdateThread, Clock));
-        ModuleManager.Load();
+        ModuleManager.Load(storage, notifications);
     }
 
     protected override void Update()
@@ -147,6 +145,11 @@ public partial class GameManager : Component
                 oscDataCache.Add(data);
             }
         };
+
+        editingModule.BindValueChanged(e =>
+        {
+            if (e.NewValue is null && e.OldValue is not null) ModuleManager.Serialise();
+        }, true);
     }
 
     private const string avatar_id_format = "avtr_XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";

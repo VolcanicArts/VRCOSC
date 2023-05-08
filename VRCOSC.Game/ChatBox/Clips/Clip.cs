@@ -7,8 +7,8 @@ using System.Collections.Immutable;
 using System.Collections.Specialized;
 using System.Linq;
 using osu.Framework.Bindables;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using VRCOSC.Game.Managers;
-using EnumerableExtensions = osu.Framework.Extensions.IEnumerableExtensions.EnumerableExtensions;
 
 namespace VRCOSC.Game.ChatBox.Clips;
 
