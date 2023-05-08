@@ -70,24 +70,6 @@ public sealed partial class AttributeFlow : FillFlowContainer<AttributeCard>
 
     private AttributeCard generateCard(ModuleAttribute attributeData)
     {
-        return attributeData switch
-        {
-            ModuleAttributeList attributeDataList => generateListCard(attributeDataList),
-            ModuleAttributeSingle attributeDataSingle => generateSingleCard(attributeDataSingle),
-            _ => throw new ArgumentOutOfRangeException(nameof(attributeData), "No suitable card type was found for the specified ModuleAttribute")
-        };
-    }
-
-    private AttributeCard generateListCard(ModuleAttributeList attributeData)
-    {
-        if (attributeData.Type == typeof(string))
-            return new TextAttributeCardList(attributeData);
-
-        throw new ArgumentOutOfRangeException(nameof(attributeData), "Cannot generate lists for non-text values");
-    }
-
-    private AttributeCard generateSingleCard(ModuleAttributeSingle attributeData)
-    {
         var value = attributeData.Attribute.Value;
 
         if (value.GetType().IsSubclassOf(typeof(Enum)))
@@ -99,7 +81,7 @@ public sealed partial class AttributeFlow : FillFlowContainer<AttributeCard>
 
         switch (attributeData)
         {
-            case ModuleAttributeSingleWithButton attributeSingleWithButton:
+            case ModuleAttributeWithButton attributeSingleWithButton:
                 switch (value)
                 {
                     case string:
@@ -109,7 +91,7 @@ public sealed partial class AttributeFlow : FillFlowContainer<AttributeCard>
                         throw new ArgumentOutOfRangeException(nameof(attributeSingleWithButton), "Cannot generate button with non-text counterpart");
                 }
 
-            case ModuleAttributeSingleWithBounds attributeDataWithBounds:
+            case ModuleAttributeWithBounds attributeDataWithBounds:
                 switch (value)
                 {
                     case int:

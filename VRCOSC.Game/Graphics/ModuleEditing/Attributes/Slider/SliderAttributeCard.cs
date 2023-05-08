@@ -11,13 +11,13 @@ using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes.Slider;
 
-public abstract partial class SliderAttributeCard<T> : AttributeCardSingle where T : struct, IComparable<T>, IConvertible, IEquatable<T>
+public abstract partial class SliderAttributeCard<T> : AttributeCard where T : struct, IComparable<T>, IConvertible, IEquatable<T>
 {
-    protected ModuleAttributeSingleWithBounds AttributeDataWithBounds;
+    protected ModuleAttributeWithBounds AttributeDataWithBounds;
 
     private VRCOSCSlider<T> slider = null!;
 
-    protected SliderAttributeCard(ModuleAttributeSingleWithBounds attributeData)
+    protected SliderAttributeCard(ModuleAttributeWithBounds attributeData)
         : base(attributeData)
     {
         AttributeDataWithBounds = attributeData;
