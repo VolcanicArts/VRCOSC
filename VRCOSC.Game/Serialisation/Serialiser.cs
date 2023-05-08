@@ -13,7 +13,7 @@ namespace VRCOSC.Game.Serialisation;
 
 public abstract class Serialiser<TReference, TReturn> : ISerialiser<TReturn> where TReturn : class
 {
-    private readonly object serialiseLock = new();
+    private readonly object serialisationLock = new();
     private readonly Storage storage;
     private readonly NotificationContainer notification;
     private readonly TReference reference;
@@ -27,21 +27,21 @@ public abstract class Serialiser<TReference, TReturn> : ISerialiser<TReturn> whe
         this.reference = reference;
     }
 
-    public TReturn? Load()
+    public TReturn? Deserialise()
     {
         Logger.Log($"Performing load for file {FileName}");
 
         if (!storage.Exists(FileName))
         {
             Logger.Log($"File {FileName} does not exist. Creating...");
-            Save();
+            Serialise();
         }
 
         try
         {
-            lock (serialiseLock)
+            lock (serialisationLock)
             {
-                return performLoad();
+                return performDeserialisation();
             }
         }
         catch (Exception e)
@@ -52,15 +52,15 @@ public abstract class Serialiser<TReference, TReturn> : ISerialiser<TReturn> whe
         }
     }
 
-    public bool Save()
+    public bool Serialise()
     {
         Logger.Log($"Performing save for file {FileName}");
 
         try
         {
-            lock (serialiseLock)
+            lock (serialisationLock)
             {
-                performSave();
+                performSerialisation();
             }
 
             return true;
@@ -73,7 +73,7 @@ public abstract class Serialiser<TReference, TReturn> : ISerialiser<TReturn> whe
         }
     }
 
-    private TReturn? performLoad()
+    private TReturn? performDeserialisation()
     {
         try
         {
@@ -86,7 +86,7 @@ public abstract class Serialiser<TReference, TReturn> : ISerialiser<TReturn> whe
         }
     }
 
-    private void performSave()
+    private void performSerialisation()
     {
         var data = GetSerialisableData(reference);
 

@@ -9,15 +9,16 @@ using System.Text.RegularExpressions;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Platform;
+using VRCOSC.Game.ChatBox;
 using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.ChatBox.Serialisation.V1;
 using VRCOSC.Game.Graphics.Notifications;
-using VRCOSC.Game.Modules;
 using VRCOSC.Game.OSC.VRChat;
+using VRCOSC.Game.Serialisation;
 
-namespace VRCOSC.Game.ChatBox;
+namespace VRCOSC.Game.Managers;
 
-public class ChatBoxManager
+public class ChatBoxManager : ICanSerialise
 {
     private bool sendEnabled;
 
@@ -72,17 +73,18 @@ public class ChatBoxManager
         Clips.AddRange(DefaultTimeline.GenerateDefaultTimeline(this));
         TimelineLength.Value = TimeSpan.FromMinutes(1);
 
-        loadClipData();
+        Deserialise();
 
-        Clips.BindCollectionChanged((_, _) => Save());
-        TimelineLength.BindValueChanged(_ => Save());
+        Clips.BindCollectionChanged((_, _) => Serialise());
+        TimelineLength.BindValueChanged(_ => Serialise());
 
         isLoaded = true;
+        Serialise();
     }
 
-    private void loadClipData()
+    public void Deserialise()
     {
-        var data = serialiser.Load();
+        var data = serialiser.Deserialise();
 
         if (data is null) return;
 
@@ -150,15 +152,13 @@ public class ChatBoxManager
 
             Clips.Add(newClip);
         });
-
-        serialiser.Save();
     }
 
-    public void Save()
+    public void Serialise()
     {
         if (!isLoaded) return;
 
-        serialiser.Save();
+        serialiser.Serialise();
     }
 
     public void Initialise(VRChatOscClient oscClient, Bindable<int> sendDelay, Dictionary<string, bool> moduleEnabledCache)

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Platform;
 using VRCOSC.Game.Graphics.Notifications;
+using VRCOSC.Game.Managers;
 using VRCOSC.Game.Serialisation;
 
 namespace VRCOSC.Game.Graphics.Startup.Serialisation;

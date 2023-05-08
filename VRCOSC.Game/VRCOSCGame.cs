@@ -10,18 +10,16 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Platform;
-using VRCOSC.Game.ChatBox;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics;
 using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Graphics.Settings;
-using VRCOSC.Game.Graphics.Startup;
 using VRCOSC.Game.Graphics.TabBar;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.Updater;
+using VRCOSC.Game.Managers;
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.OpenVR.Metadata;
-using VRCOSC.Game.Router;
 
 namespace VRCOSC.Game;
 
@@ -72,7 +70,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
         LoadComponent(notificationContainer);
 
-        routerManager.LoadData();
+        routerManager.Load();
         startupManager.Load();
 
         Children = new Drawable[]
@@ -114,7 +112,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
         selectedTab.BindValueChanged(tab =>
         {
-            if (tab.OldValue == Tab.Router) routerManager.SaveData();
+            if (tab.OldValue == Tab.Router) routerManager.Serialise();
         });
     }
 
@@ -194,7 +192,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     {
         editingModule.Value = null;
         infoModule.Value = null;
-        routerManager.SaveData();
+        routerManager.Serialise();
         Exit();
     }
 

@@ -115,11 +115,13 @@ public abstract partial class AttributeCard : Container
                 }
             }
         };
+
         textFlow.AddText(AttributeData.Metadata.DisplayName, t =>
         {
             t.Font = FrameworkFont.Regular.With(size: 30);
             t.Colour = ThemeManager.Current[ThemeAttribute.Text];
         });
+
         textFlow.AddParagraph(AttributeData.Metadata.Description, t =>
         {
             t.Font = FrameworkFont.Regular.With(size: 20);

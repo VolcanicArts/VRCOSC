@@ -11,10 +11,11 @@ using osu.Framework.Platform;
 using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Graphics.Startup.Serialisation;
 using VRCOSC.Game.Modules;
+using VRCOSC.Game.Serialisation;
 
-namespace VRCOSC.Game.Graphics.Startup;
+namespace VRCOSC.Game.Managers;
 
-public class StartupManager
+public class StartupManager : ICanSerialise
 {
     private readonly TerminalLogger logger = new("VRCOSC");
     private readonly StartupSerialiser serialiser;
@@ -28,32 +29,34 @@ public class StartupManager
 
     public void Load()
     {
-        var data = serialiser.Load();
-
-        if (data is not null)
-        {
-            data.ForEach(model =>
-            {
-                var bindable = new Bindable<string>(model.Path);
-                FilePaths.Add(bindable);
-                bindable.BindValueChanged(_ => serialiser.Save());
-            });
-
-            serialiser.Save();
-        }
-
         FilePaths.BindCollectionChanged((_, e) =>
         {
             if (e.NewItems is not null)
             {
                 foreach (Bindable<string> newItem in e.NewItems)
                 {
-                    newItem.BindValueChanged(_ => serialiser.Save());
+                    newItem.BindValueChanged(_ => Serialise());
                 }
             }
 
-            serialiser.Save();
+            Serialise();
         });
+
+        Deserialise();
+    }
+
+    public void Deserialise()
+    {
+        var data = serialiser.Deserialise();
+
+        if (data is null) return;
+
+        FilePaths.AddRange(data.Select(model => new Bindable<string>(model.Path)));
+    }
+
+    public void Serialise()
+    {
+        serialiser.Serialise();
     }
 
     public void Start()

@@ -9,9 +9,9 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
 using osuTK.Input;
-using VRCOSC.Game.ChatBox;
 using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.Graphics.Themes;
+using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.Graphics.ChatBox.Timeline;
 
@@ -131,7 +131,7 @@ public partial class DrawableClip : Container
 
     protected override bool OnDragStart(DragStartEvent e) => true;
 
-    protected override void OnDragEnd(DragEndEvent e) => chatBoxManager.Save();
+    protected override void OnDragEnd(DragEndEvent e) => chatBoxManager.Serialise();
 
     protected override void OnDrag(DragEvent e)
     {
@@ -204,7 +204,7 @@ public partial class DrawableClip : Container
 
         protected override bool OnDragStart(DragStartEvent e) => true;
 
-        protected override void OnDragEnd(DragEndEvent e) => chatBoxManager.Save();
+        protected override void OnDragEnd(DragEndEvent e) => chatBoxManager.Serialise();
 
         protected override bool OnHover(HoverEvent e)
         {

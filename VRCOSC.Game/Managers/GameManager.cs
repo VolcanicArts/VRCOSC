@@ -16,12 +16,10 @@ using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Framework.Threading;
 using Valve.VR;
-using VRCOSC.Game.ChatBox;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics.Notifications;
-using VRCOSC.Game.Graphics.Startup;
+using VRCOSC.Game.Modules;
 using VRCOSC.Game.Modules.Avatar;
-using VRCOSC.Game.Modules.Manager;
 using VRCOSC.Game.Modules.Serialisation;
 using VRCOSC.Game.Modules.Sources;
 using VRCOSC.Game.OpenVR;
@@ -29,9 +27,8 @@ using VRCOSC.Game.OpenVR.Metadata;
 using VRCOSC.Game.OSC;
 using VRCOSC.Game.OSC.Client;
 using VRCOSC.Game.OSC.VRChat;
-using VRCOSC.Game.Router;
 
-namespace VRCOSC.Game.Modules;
+namespace VRCOSC.Game.Managers;
 
 public partial class GameManager : Component
 {
@@ -79,7 +76,7 @@ public partial class GameManager : Component
 
     public readonly VRChatOscClient VRChatOscClient = new();
     public readonly Bindable<GameManagerState> State = new(GameManagerState.Stopped);
-    public IModuleManager ModuleManager = null!;
+    public ModuleManager ModuleManager = null!;
     public OSCRouter OSCRouter = null!;
     public Player Player = null!;
     public OVRClient OVRClient = null!;

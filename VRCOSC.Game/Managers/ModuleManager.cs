@@ -8,12 +8,14 @@ using System.Linq;
 using osu.Framework.Lists;
 using osu.Framework.Platform;
 using osu.Framework.Threading;
+using VRCOSC.Game.Modules;
 using VRCOSC.Game.Modules.Serialisation;
 using VRCOSC.Game.Modules.Sources;
+using VRCOSC.Game.Serialisation;
 
-namespace VRCOSC.Game.Modules.Manager;
+namespace VRCOSC.Game.Managers;
 
-public sealed class ModuleManager : IModuleManager
+public sealed class ModuleManager : IEnumerable<Module>, ICanSerialise
 {
     private static TerminalLogger terminal => new("ModuleManager");
 
@@ -52,13 +54,18 @@ public sealed class ModuleManager : IModuleManager
             {
                 var module = (Module)Activator.CreateInstance(type)!;
                 module.InjectDependencies(host, gameManager, secrets, scheduler);
+                module.Load();
                 modules.Add(module);
             }
         });
 
+        Deserialise();
+    }
+
+    public void Deserialise()
+    {
         foreach (var module in this)
         {
-            module.Load();
             serialiser?.Deserialise(module);
 
             module.Enabled.BindValueChanged(_ =>
@@ -66,10 +73,13 @@ public sealed class ModuleManager : IModuleManager
                 OnModuleEnabledChanged?.Invoke();
                 serialiser?.Serialise(module);
             });
+
+            // bind other module attributes to serialise
+            //
         }
     }
 
-    public void SaveAll()
+    public void Serialise()
     {
         foreach (var module in this)
         {

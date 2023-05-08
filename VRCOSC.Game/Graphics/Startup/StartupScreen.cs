@@ -10,6 +10,7 @@ using osu.Framework.Graphics.Sprites;
 using osuTK;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Button;
+using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.Graphics.Startup;
 

@@ -4,6 +4,7 @@
 using osu.Framework.Platform;
 using VRCOSC.Game.ChatBox.Serialisation.V1.Structures;
 using VRCOSC.Game.Graphics.Notifications;
+using VRCOSC.Game.Managers;
 using VRCOSC.Game.Serialisation;
 
 namespace VRCOSC.Game.ChatBox.Serialisation.V1;

@@ -5,10 +5,12 @@ using System.Collections.Generic;
 using osu.Framework.Platform;
 using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.OSC;
+using VRCOSC.Game.Router;
+using VRCOSC.Game.Serialisation;
 
-namespace VRCOSC.Game.Router;
+namespace VRCOSC.Game.Managers;
 
-public class RouterManager
+public class RouterManager : ICanSerialise
 {
     public List<RouterData> Store = new();
 
@@ -32,19 +34,24 @@ public class RouterManager
         return routerData;
     }
 
-    public void LoadData()
+    public void Load()
     {
-        var data = serialiser.Load();
+        Deserialise();
+    }
+
+    public void Deserialise()
+    {
+        var data = serialiser.Deserialise();
 
         if (data is null) return;
 
         Store = data;
-        SaveData();
+        Serialise();
     }
 
-    public void SaveData()
+    public void Serialise()
     {
-        serialiser.Save();
+        serialiser.Serialise();
     }
 }
 

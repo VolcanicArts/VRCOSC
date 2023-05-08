@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using VRCOSC.Game.ChatBox.Clips;
+using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.ChatBox;
 

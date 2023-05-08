@@ -107,6 +107,7 @@ public abstract partial class SettingCard<T> : Container
             t.Font = FrameworkFont.Regular.With(size: 25);
             t.Colour = ThemeManager.Current[ThemeAttribute.Text];
         });
+
         textFlow.AddParagraph(description, t =>
         {
             t.Font = FrameworkFont.Regular.With(size: 20);

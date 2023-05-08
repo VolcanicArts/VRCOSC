@@ -11,6 +11,7 @@ using osuTK;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Button;
 using VRCOSC.Game.Graphics.UI.Text;
+using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.Graphics.Startup;
 

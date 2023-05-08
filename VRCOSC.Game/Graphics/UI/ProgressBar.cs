@@ -16,6 +16,7 @@ public sealed partial class ProgressBar : BasicSliderBar<float>
     {
         BackgroundColour = ThemeManager.Current[ThemeAttribute.Dark];
         SelectionColour = ThemeManager.Current[ThemeAttribute.Light];
+
         Current = new BindableNumber<float>
         {
             MinValue = 0f,

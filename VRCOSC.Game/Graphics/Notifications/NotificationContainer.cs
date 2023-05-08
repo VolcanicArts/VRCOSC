@@ -31,6 +31,7 @@ public sealed partial class NotificationContainer : VisibilityContainer
         Width = 250;
         X = 1;
         Masking = true;
+
         EdgeEffect = new EdgeEffectParameters
         {
             Colour = Colour4.Black.Opacity(0.6f),

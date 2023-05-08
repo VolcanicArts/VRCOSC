@@ -9,7 +9,7 @@ using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Platform;
 using osu.Framework.Threading;
-using VRCOSC.Game.ChatBox;
+using VRCOSC.Game.Managers;
 using VRCOSC.Game.Modules.Avatar;
 using VRCOSC.Game.OpenVR;
 using VRCOSC.Game.OSC.VRChat;
