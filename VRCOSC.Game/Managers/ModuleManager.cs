@@ -78,7 +78,7 @@ public sealed class ModuleManager : IEnumerable<Module>, ICanSerialise
                 legacySerialisation.Deserialise(module);
             }
 
-            //storage.DeleteDirectory("modules");
+            storage.DeleteDirectory("modules");
             Serialise();
         }
         else
@@ -106,7 +106,7 @@ public sealed class ModuleManager : IEnumerable<Module>, ICanSerialise
 
                 if (!module.DoesSettingExist(settingKey, out var setting)) return;
 
-                if (setting!.Type.IsEnum)
+                if (setting.Type.IsEnum)
                 {
                     setting.Attribute.Value = Enum.ToObject(setting.Type, settingData.Value);
                     return;
@@ -121,7 +121,7 @@ public sealed class ModuleManager : IEnumerable<Module>, ICanSerialise
 
                 if (!module.DoesParameterExist(parameterKey, out var parameter)) return;
 
-                parameter!.Attribute.Value = Convert.ChangeType(parameterData.Value, parameter.Type);
+                parameter.Attribute.Value = Convert.ChangeType(parameterData.Value, parameter.Type);
             });
         });
 

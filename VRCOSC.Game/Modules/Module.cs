@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.EnumExtensions;
@@ -117,7 +118,7 @@ public abstract class Module : IComparable<Module>
     private void addTextAndButtonSetting(Enum lookup, string displayName, string description, string defaultValue, string buttonText, Action buttonAction, Func<bool>? dependsOn)
         => Settings.Add(lookup.ToLookup(), new ModuleAttributeWithButton(new ModuleAttributeMetadata(displayName, description), defaultValue, buttonText, buttonAction, dependsOn));
 
-    public bool DoesSettingExist(string lookup, out ModuleAttribute? attribute)
+    public bool DoesSettingExist(string lookup, [NotNullWhen(returnValue: true)] out ModuleAttribute? attribute)
     {
         if (Settings.TryGetValue(lookup, out var setting))
         {
@@ -129,7 +130,7 @@ public abstract class Module : IComparable<Module>
         return false;
     }
 
-    public bool DoesParameterExist(string lookup, out ModuleAttribute? key)
+    public bool DoesParameterExist(string lookup, [NotNullWhen(returnValue: true)] out ModuleAttribute? key)
     {
         foreach (var (lookupToCheck, _) in Parameters)
         {
