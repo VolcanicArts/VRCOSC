@@ -13,10 +13,15 @@ public class SerialisableModuleManager
     public int Version = 1;
 
     [JsonProperty("modules")]
-    public List<SerialisableModule> Modules = new();
+    public Dictionary<string, SerialisableModule> Modules = new();
+
+    [JsonConstructor]
+    public SerialisableModuleManager()
+    {
+    }
 
     public SerialisableModuleManager(IEnumerable<Module> modules)
     {
-        modules.ForEach(module => Modules.Add(new SerialisableModule(module)));
+        modules.ForEach(module => Modules.Add(module.SerialisedName, new SerialisableModule(module)));
     }
 }

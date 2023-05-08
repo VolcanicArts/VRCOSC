@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Collections.Generic;
 using osu.Framework.Platform;
 using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Managers;
@@ -10,7 +9,7 @@ using VRCOSC.Game.Serialisation;
 
 namespace VRCOSC.Game.Modules.Serialisation.V1;
 
-public class ModuleSerialiser : Serialiser<ModuleManager, Dictionary<string, SerialisableModule>>
+public class ModuleSerialiser : Serialiser<ModuleManager, SerialisableModuleManager>
 {
     protected override string FileName => "modules.json";
 

@@ -94,7 +94,9 @@ public sealed class ModuleManager : IEnumerable<Module>, ICanSerialise
 
         if (data is null) return;
 
-        data.ForEach(modulePair =>
+        var modulesData = data.Modules;
+
+        modulesData.ForEach(modulePair =>
         {
             var (moduleName, moduleData) = modulePair;
 
