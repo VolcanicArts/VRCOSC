@@ -13,10 +13,10 @@ public class SerialisableModule
     public bool Enabled;
 
     [JsonProperty("settings")]
-    public Dictionary<string, SerialisableModuleAttribute> Settings = new();
+    public Dictionary<string, object> Settings = new();
 
     [JsonProperty("parameters")]
-    public Dictionary<string, SerialisableModuleAttribute> Parameters = new();
+    public Dictionary<string, object> Parameters = new();
 
     [JsonConstructor]
     public SerialisableModule()
@@ -31,14 +31,14 @@ public class SerialisableModule
         {
             if (pair.Value.Attribute.IsDefault) return;
 
-            Settings.Add(pair.Key, new SerialisableModuleAttribute(pair.Value));
+            Settings.Add(pair.Key, pair.Value.Attribute.Value);
         });
 
         module.Parameters.ForEach(pair =>
         {
             if (pair.Value.Attribute.IsDefault) return;
 
-            Parameters.Add(pair.Key.ToLookup(), new SerialisableModuleAttribute(pair.Value));
+            Parameters.Add(pair.Key.ToLookup(), pair.Value.Attribute.Value);
         });
     }
 }
