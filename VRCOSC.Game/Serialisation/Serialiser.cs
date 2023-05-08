@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 using Newtonsoft.Json;
@@ -27,7 +28,7 @@ public abstract class Serialiser<TReference, TReturn> : ISerialiser<TReturn> whe
         this.reference = reference;
     }
 
-    public TReturn? Deserialise()
+    public bool Deserialise([NotNullWhen(true)] out TReturn? data)
     {
         Logger.Log($"Performing load for file {FileName}");
 
@@ -41,14 +42,16 @@ public abstract class Serialiser<TReference, TReturn> : ISerialiser<TReturn> whe
         {
             lock (serialisationLock)
             {
-                return performDeserialisation();
+                data = performDeserialisation();
+                return data is not null;
             }
         }
         catch (Exception e)
         {
             Logger.Error(e, $"Load failed for file {FileName}");
             notification.Notify(new ExceptionNotification($"Could not load file {FileName}. Report on the Discord server"));
-            return null;
+            data = null;
+            return false;
         }
     }
 

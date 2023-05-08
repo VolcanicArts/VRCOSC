@@ -3,8 +3,8 @@
 
 namespace VRCOSC.Game.Serialisation;
 
-public interface ISerialiser<out TReturn> where TReturn : class
+public interface ISerialiser<TReturn> where TReturn : class
 {
-    public TReturn? Deserialise();
+    public bool Deserialise(out TReturn? data);
     public bool Serialise();
 }
