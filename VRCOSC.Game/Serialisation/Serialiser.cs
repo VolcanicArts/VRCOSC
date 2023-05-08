@@ -62,12 +62,6 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
     {
         Logger.Log($"Performing load for file {FileName}");
 
-        if (!DoesFileExist())
-        {
-            Logger.Log($"File {FileName} does not exist. Creating...");
-            Serialise();
-        }
-
         try
         {
             lock (serialisationLock)
