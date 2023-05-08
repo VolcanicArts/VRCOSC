@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -9,7 +10,6 @@ using Newtonsoft.Json;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Platform;
-using PInvoke;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.Startup;
@@ -81,7 +81,7 @@ public class StartupManager
                 Process.Start(filePath.Value);
                 logger.Log($"Running file {filePath.Value}");
             }
-            catch (Win32Exception)
+            catch (Exception)
             {
                 logger.Log($"Failed to run {filePath.Value}");
             }
