@@ -42,10 +42,12 @@ public class HapticControlModule : Module
                 break;
 
             case HapticControlParameter.Frequency:
+                value = Math.Clamp(value, 0, 1);
                 frequency = value * 100f;
                 break;
 
             case HapticControlParameter.Amplitude:
+                value = Math.Clamp(value, 0, 1);
                 amplitude = value;
                 break;
         }
