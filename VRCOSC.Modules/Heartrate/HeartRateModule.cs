@@ -52,7 +52,6 @@ public abstract class HeartRateModule : ChatBoxModule
         lastHeartrateTime = DateTimeOffset.MinValue;
         lastIntervalUpdate = DateTimeOffset.MinValue;
         ChangeStateTo(HeartrateState.Default);
-        SendParameter(HeartrateParameter.Enabled, false);
     }
 
     private void attemptConnection()
@@ -72,10 +71,9 @@ public abstract class HeartRateModule : ChatBoxModule
         {
             Task.Run(async () =>
             {
+                await Task.Delay(2000);
                 if (IsStopping || HasStopped) return;
 
-                SendParameter(HeartrateParameter.Enabled, false);
-                await Task.Delay(2000);
                 attemptConnection();
             });
         };
