@@ -8,7 +8,7 @@ namespace VRCOSC.Modules.Heartrate;
 
 public abstract class HeartRateModule : ChatBoxModule
 {
-    private static readonly TimeSpan heartrate_timeout = TimeSpan.FromSeconds(15);
+    private static readonly TimeSpan heartrate_timeout = TimeSpan.FromSeconds(30);
 
     public override string Author => @"VolcanicArts";
     public override string Prefab => @"VRCOSC-Heartrate";
@@ -17,12 +17,10 @@ public abstract class HeartRateModule : ChatBoxModule
     protected HeartRateProvider? HeartRateProvider;
     private int currentHeartrate;
     private int targetHeartrate;
+    private int connectionCount;
     private TimeSpan targetInterval;
     private DateTimeOffset lastIntervalUpdate;
     private DateTimeOffset lastHeartrateTime;
-    private int connectionCount;
-
-    private bool isReceiving => lastHeartrateTime + heartrate_timeout >= DateTimeOffset.Now;
 
     protected abstract HeartRateProvider CreateHeartRateProvider();
 
@@ -47,10 +45,12 @@ public abstract class HeartRateModule : ChatBoxModule
     protected override void OnModuleStart()
     {
         attemptConnection();
-        lastHeartrateTime = DateTimeOffset.Now - heartrate_timeout;
-        lastIntervalUpdate = DateTimeOffset.Now;
         currentHeartrate = 0;
         targetHeartrate = 0;
+        connectionCount = 0;
+        targetInterval = TimeSpan.Zero;
+        lastHeartrateTime = DateTimeOffset.MinValue;
+        lastIntervalUpdate = DateTimeOffset.MinValue;
         ChangeStateTo(HeartrateState.Default);
         SendParameter(HeartrateParameter.Enabled, false);
     }
@@ -123,6 +123,8 @@ public abstract class HeartRateModule : ChatBoxModule
             targetInterval = TimeSpan.Zero;
         }
     }
+
+    private bool isReceiving => (HeartRateProvider?.IsConnected ?? false) && lastHeartrateTime + heartrate_timeout >= DateTimeOffset.Now;
 
     private void sendParameters()
     {
