@@ -23,7 +23,7 @@ public class SerialisationManager
     {
         var doesFileExist = false;
 
-        foreach (var (_, serialiser) in serialisers)
+        foreach (var (_, serialiser) in serialisers.OrderBy(pair => pair.Key))
         {
             if (serialiser.DoesFileExist()) doesFileExist = true;
         }
@@ -34,7 +34,7 @@ public class SerialisationManager
             return false;
         }
 
-        foreach (var (version, serialiser) in serialisers)
+        foreach (var (version, serialiser) in serialisers.OrderBy(pair => pair.Key))
         {
             if (!serialiser.TryGetVersion(out var foundVersion)) continue;
             if (version != foundVersion) continue;
