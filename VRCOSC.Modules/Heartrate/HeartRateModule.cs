@@ -114,7 +114,8 @@ public abstract class HeartRateModule : ChatBoxModule
 
         try
         {
-            targetInterval = TimeSpan.FromTicks(TimeSpan.FromMilliseconds(GetSetting<int>(HeartrateSetting.SmoothingLength)).Ticks / Math.Abs(currentHeartrate - targetHeartrate));
+            var absoluteDifference = Math.Abs(currentHeartrate - targetHeartrate);
+            targetInterval = absoluteDifference == 1 ? TimeSpan.Zero : TimeSpan.FromTicks(TimeSpan.FromMilliseconds(GetSetting<int>(HeartrateSetting.SmoothingLength)).Ticks / absoluteDifference);
         }
         catch (DivideByZeroException)
         {
