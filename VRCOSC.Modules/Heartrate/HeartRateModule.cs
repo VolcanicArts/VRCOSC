@@ -71,9 +71,9 @@ public abstract class HeartRateModule : ChatBoxModule
         {
             Task.Run(async () =>
             {
-                await Task.Delay(2000);
                 if (IsStopping || HasStopped) return;
 
+                await Task.Delay(2000);
                 attemptConnection();
             });
         };
