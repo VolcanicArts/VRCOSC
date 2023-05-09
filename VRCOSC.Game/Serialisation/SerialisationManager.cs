@@ -52,8 +52,8 @@ public class SerialisationManager
         return false;
     }
 
-    public void Serialise()
+    public bool Serialise()
     {
-        serialisers.MaxBy(pair => pair.Key).Value.Serialise();
+        return serialisers.MaxBy(pair => pair.Key).Value.Serialise();
     }
 }

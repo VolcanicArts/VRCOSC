@@ -88,8 +88,10 @@ public sealed class ModuleManager : IEnumerable<Module>, ICanSerialise
                 legacySerialisation.Deserialise(module);
             }
 
-            storage.DeleteDirectory("modules");
-            Serialise();
+            if (serialisationManager.Serialise())
+            {
+                storage.DeleteDirectory("modules");
+            }
         }
         else
         {
