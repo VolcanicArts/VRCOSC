@@ -55,6 +55,7 @@ Note: The VRCOSC-Controls.unitypackage prefab is global controls for VRCOSC. It 
 | Speech To Text | Run Speech To Text using any language model and display the result in your ChatBox | |
 | HypeRate | Connects to [HypeRate.io](https://www.hyperate.io/) to display your live heartrate in-game - [Supported Devices](https://www.hyperate.io/supported-devices) | VRCOSC-Heartrate.unitypackage |
 | Pulsoid | Connects to [Pulsoid](https://pulsoid.net/) to display your live heartrate in-game - [Supported Devices](https://www.blog.pulsoid.net/monitors) | VRCOSC-Heartrate.unitypackage |
+| Haptic Control | Allows for triggering controller haptics using variables from your avatar | |
 | OpenVR Statistics | Gets statistics from your OpenVR (SteamVR) session | VRCOSC-Trackers.unitypackage |
 | OpenVR Controller Statistics | Gets controller statistics from your OpenVR (SteamVR) session | |
 | Gesture Extensions | Allows for custom gestures to be sent to VRChat from your Index controllers | |
