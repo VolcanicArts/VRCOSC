@@ -1,6 +1,7 @@
 // Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Globalization;
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.Modules.ChatBox;
 using VRCOSC.Game.OSC.VRChat;
@@ -63,7 +64,7 @@ public sealed class ClockModule : ChatBoxModule
 
         if (GetSetting<ClockMode>(ClockSetting.Mode) == ClockMode.Twelve)
         {
-            var formattedTime = time.ToString("hh:mm:ss tt");
+            var formattedTime = time.ToString("hh:mm:ss tt", CultureInfo.InvariantCulture);
             var timeSplitPeriod = formattedTime.Split(new[] { ' ' }, 2);
             var timeText = timeSplitPeriod[0];
 
@@ -76,7 +77,7 @@ public sealed class ClockModule : ChatBoxModule
         }
         else
         {
-            var formattedTime = time.ToString("HH:mm:ss");
+            var formattedTime = time.ToString("HH:mm:ss", CultureInfo.InvariantCulture);
             var timeTextSplit = formattedTime.Split(new[] { ':' }, 3);
 
             hourText = timeTextSplit[0];
