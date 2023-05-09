@@ -1,0 +1,82 @@
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// See the LICENSE file in the repository root for full license text.
+
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using osu.Framework.Bindables;
+using osu.Framework.Extensions.IEnumerableExtensions;
+using osu.Framework.Platform;
+using VRCOSC.Game.Graphics.Notifications;
+using VRCOSC.Game.Modules;
+using VRCOSC.Game.Serialisation;
+using VRCOSC.Game.Startup.Serialisation.V1;
+
+namespace VRCOSC.Game.Managers;
+
+public class StartupManager : ICanSerialise
+{
+    private readonly TerminalLogger logger = new("VRCOSC");
+    private readonly SerialisationManager serialisationManager;
+
+    public readonly BindableList<Bindable<string>> FilePaths = new();
+
+    public StartupManager(Storage storage, NotificationContainer notification)
+    {
+        serialisationManager = new SerialisationManager();
+        serialisationManager.RegisterSerialiser(1, new StartupSerialiser(storage, notification, this));
+    }
+
+    public void Load()
+    {
+        FilePaths.BindCollectionChanged((_, e) =>
+        {
+            if (e.NewItems is not null)
+            {
+                foreach (Bindable<string> newItem in e.NewItems)
+                {
+                    newItem.BindValueChanged(_ => Serialise());
+                }
+            }
+
+            Serialise();
+        });
+
+        Deserialise();
+    }
+
+    public void Deserialise()
+    {
+        if (!serialisationManager.Deserialise()) return;
+
+        Serialise();
+    }
+
+    public void Serialise()
+    {
+        serialisationManager.Serialise();
+    }
+
+    public void Start()
+    {
+        FilePaths.ForEach(filePath =>
+        {
+            try
+            {
+                if (!File.Exists(filePath.Value)) return;
+
+                var processName = new FileInfo(filePath.Value).Name.ToLowerInvariant().Replace(@".exe", string.Empty);
+
+                if (Process.GetProcessesByName(processName).Any()) return;
+
+                Process.Start(filePath.Value);
+                logger.Log($"Running file {filePath.Value}");
+            }
+            catch (Exception)
+            {
+                logger.Log($"Failed to run {filePath.Value}");
+            }
+        });
+    }
+}

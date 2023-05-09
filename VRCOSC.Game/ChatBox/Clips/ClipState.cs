@@ -7,7 +7,7 @@ using osu.Framework.Bindables;
 
 namespace VRCOSC.Game.ChatBox.Clips;
 
-public class ClipState
+public class ClipState : IProvidesFormat
 {
     public List<(string, string)> States { get; private init; } = null!;
 
@@ -51,6 +51,8 @@ public class ClipState
         Format.Value = metadata.DefaultFormat;
         Format.Default = metadata.DefaultFormat;
     }
+
+    public string GetFormat() => Format.Value;
 }
 
 public class ClipStateMetadata

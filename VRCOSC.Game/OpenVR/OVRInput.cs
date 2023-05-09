@@ -1,4 +1,7 @@
-﻿using System.Runtime.CompilerServices;
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// See the LICENSE file in the repository root for full license text.
+
+using System.Runtime.CompilerServices;
 using Valve.VR;
 
 namespace VRCOSC.Game.OpenVR;
@@ -9,9 +12,14 @@ public class OVRInput
 
     private static readonly uint vractiveactonset_t_size = (uint)Unsafe.SizeOf<VRActiveActionSet_t>();
 
-    private ulong actionSetHandle;
+    private ulong mainActionSetHandle;
+    private ulong hapticActionSetHandle;
     private readonly ulong[] leftControllerActions = new ulong[8];
     private readonly ulong[] rightControllerActions = new ulong[8];
+    private readonly ulong[] hapticActions = new ulong[2];
+
+    public ulong LeftControllerHapticActionHandle => hapticActions[0];
+    public ulong RightControllerHapticActionHandle => hapticActions[1];
 
     public OVRInput(OVRClient client)
     {
@@ -44,7 +52,11 @@ public class OVRInput
         Valve.VR.OpenVR.Input.GetActionHandle(@"/actions/main/in/rightfingerring", ref rightControllerActions[6]);
         Valve.VR.OpenVR.Input.GetActionHandle(@"/actions/main/in/rightfingerpinky", ref rightControllerActions[7]);
 
-        Valve.VR.OpenVR.Input.GetActionSetHandle(@"/actions/main", ref actionSetHandle);
+        Valve.VR.OpenVR.Input.GetActionHandle(@"/actions/haptic/out/hapticsleft", ref hapticActions[0]);
+        Valve.VR.OpenVR.Input.GetActionHandle(@"/actions/haptic/out/hapticsright", ref hapticActions[1]);
+
+        Valve.VR.OpenVR.Input.GetActionSetHandle(@"/actions/main", ref mainActionSetHandle);
+        Valve.VR.OpenVR.Input.GetActionSetHandle(@"/actions/haptic", ref hapticActionSetHandle);
     }
 
     public void Update()
@@ -59,7 +71,13 @@ public class OVRInput
         {
             new()
             {
-                ulActionSet = actionSetHandle,
+                ulActionSet = mainActionSetHandle,
+                ulRestrictedToDevice = Valve.VR.OpenVR.k_ulInvalidInputValueHandle,
+                nPriority = 0
+            },
+            new()
+            {
+                ulActionSet = hapticActionSetHandle,
                 ulRestrictedToDevice = Valve.VR.OpenVR.k_ulInvalidInputValueHandle,
                 nPriority = 0
             }

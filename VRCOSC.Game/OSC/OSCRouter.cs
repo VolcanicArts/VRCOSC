@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using VRCOSC.Game.Managers;
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.OSC.Client;
 using VRCOSC.Game.OSC.VRChat;

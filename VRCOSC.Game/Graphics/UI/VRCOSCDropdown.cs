@@ -86,6 +86,7 @@ public sealed partial class VRCOSCDropdown<T> : Dropdown<T>
             set
             {
                 hoverColour = value;
+
                 foreach (var c in Children.OfType<DrawableVRCOSCDropdownMenuItem>())
                     c.BackgroundColourHover = value;
             }
@@ -99,6 +100,7 @@ public sealed partial class VRCOSCDropdown<T> : Dropdown<T>
             set
             {
                 selectionColour = value;
+
                 foreach (var c in Children.OfType<DrawableVRCOSCDropdownMenuItem>())
                     c.BackgroundColourSelected = value;
             }

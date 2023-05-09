@@ -3,25 +3,22 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Newtonsoft.Json;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Platform;
+using VRCOSC.Game.ChatBox;
 using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.ChatBox.Serialisation.V1;
 using VRCOSC.Game.Graphics.Notifications;
-using VRCOSC.Game.Modules;
 using VRCOSC.Game.OSC.VRChat;
+using VRCOSC.Game.Serialisation;
 
-namespace VRCOSC.Game.ChatBox;
+namespace VRCOSC.Game.Managers;
 
-public class ChatBoxManager
+public class ChatBoxManager : ICanSerialise
 {
-    private const int priority_count = 6;
-
     private bool sendEnabled;
 
     public bool SendEnabled
@@ -44,14 +41,14 @@ public class ChatBoxManager
     public IReadOnlyDictionary<string, bool> ModuleEnabledCache = null!;
     private Bindable<int> sendDelay = null!;
     private VRChatOscClient oscClient = null!;
-    private NotificationContainer notification = null!;
-    private TimelineSerialiser serialiser = null!;
+    private SerialisationManager serialisationManager = null!;
 
     public readonly Dictionary<(string, string), string?> VariableValues = new();
     public readonly Dictionary<string, string> StateValues = new();
     public readonly List<(string, string)> TriggeredEvents = new();
     private readonly object triggeredEventsLock = new();
 
+    public readonly Bindable<int> PriorityCount = new(8);
     public readonly Bindable<TimeSpan> TimelineLength = new();
     public int TimelineLengthSeconds => (int)TimelineLength.Value.TotalSeconds;
     public float TimelineResolution => 1f / (float)TimelineLength.Value.TotalSeconds;
@@ -65,124 +62,37 @@ public class ChatBoxManager
     private DateTimeOffset startTime;
     private DateTimeOffset nextValidTime;
     private bool isClear;
+    private bool deserialised;
     private bool isLoaded;
 
     public void Load(Storage storage, GameManager gameManager, NotificationContainer notification)
     {
         GameManager = gameManager;
-        serialiser = new TimelineSerialiser(storage);
-        this.notification = notification;
+        serialisationManager = new SerialisationManager();
+        serialisationManager.RegisterSerialiser(1, new TimelineSerialiser(storage, notification, this));
 
-        bool clipDataLoaded;
+        Clips.AddRange(DefaultTimeline.GenerateDefaultTimeline(this));
+        TimelineLength.Value = TimeSpan.FromMinutes(1);
 
-        if (storage.Exists(@"chatbox.json"))
-        {
-            clipDataLoaded = loadClipData();
-        }
-        else
-        {
-            Clips.AddRange(DefaultTimeline.GenerateDefaultTimeline(this));
-            TimelineLength.Value = TimeSpan.FromMinutes(1);
-            clipDataLoaded = true;
-        }
+        Deserialise();
 
-        Clips.BindCollectionChanged((_, _) => Save());
-        TimelineLength.BindValueChanged(_ => Save());
+        Clips.BindCollectionChanged((_, _) => Serialise());
+        TimelineLength.BindValueChanged(_ => Serialise());
 
         isLoaded = true;
-
-        if (clipDataLoaded) Save();
+        if (deserialised) Serialise();
     }
 
-    private bool loadClipData()
+    public void Deserialise()
     {
-        try
-        {
-            var data = serialiser.Deserialise();
-
-            if (data is null)
-            {
-                notification.Notify(new ExceptionNotification("Could not parse ChatBox config. Report on the Discord server"));
-                return false;
-            }
-
-            TimelineLength.Value = TimeSpan.FromTicks(data.Ticks);
-
-            data.Clips.ForEach(clip =>
-            {
-                clip.AssociatedModules.ToImmutableList().ForEach(moduleName =>
-                {
-                    if (!StateMetadata.ContainsKey(moduleName) && !EventMetadata.ContainsKey(moduleName))
-                    {
-                        clip.AssociatedModules.Remove(moduleName);
-
-                        clip.States.ToImmutableList().ForEach(clipState =>
-                        {
-                            clipState.States.RemoveAll(pair => pair.Module == moduleName);
-                        });
-
-                        clip.Events.RemoveAll(clipEvent => clipEvent.Module == moduleName);
-
-                        return;
-                    }
-
-                    clip.States.ToImmutableList().ForEach(clipState =>
-                    {
-                        clipState.States.RemoveAll(pair => !StateMetadata[pair.Module].ContainsKey(pair.Lookup));
-                    });
-
-                    clip.Events.RemoveAll(clipEvent => !EventMetadata[clipEvent.Module].ContainsKey(clipEvent.Lookup));
-                });
-            });
-
-            data.Clips.ForEach(clip =>
-            {
-                var newClip = CreateClip();
-
-                newClip.Enabled.Value = clip.Enabled;
-                newClip.Name.Value = clip.Name;
-                newClip.Priority.Value = clip.Priority;
-                newClip.Start.Value = clip.Start;
-                newClip.End.Value = clip.End;
-
-                newClip.AssociatedModules.AddRange(clip.AssociatedModules);
-
-                clip.States.ForEach(clipState =>
-                {
-                    var stateData = newClip.GetStateFor(clipState.States.Select(state => state.Module), clipState.States.Select(state => state.Lookup));
-                    if (stateData is null) return;
-
-                    stateData.Enabled.Value = clipState.Enabled;
-                    stateData.Format.Value = clipState.Format;
-                });
-
-                clip.Events.ForEach(clipEvent =>
-                {
-                    var eventData = newClip.GetEventFor(clipEvent.Module, clipEvent.Lookup);
-                    if (eventData is null) return;
-
-                    eventData.Enabled.Value = clipEvent.Enabled;
-                    eventData.Format.Value = clipEvent.Format;
-                    eventData.Length.Value = clipEvent.Length;
-                });
-
-                Clips.Add(newClip);
-            });
-
-            return true;
-        }
-        catch (JsonReaderException)
-        {
-            notification.Notify(new ExceptionNotification("Could not load ChatBox config. Report on the Discord server"));
-            return false;
-        }
+        deserialised = serialisationManager.Deserialise();
     }
 
-    public void Save()
+    public void Serialise()
     {
         if (!isLoaded) return;
 
-        serialiser.Serialise(this);
+        serialisationManager.Serialise();
     }
 
     public void Initialise(VRChatOscClient oscClient, Bindable<int> sendDelay, Dictionary<string, bool> moduleEnabledCache)
@@ -221,6 +131,8 @@ public class ChatBoxManager
     {
         lock (triggeredEventsLock) { TriggeredEvents.Clear(); }
 
+        SetTyping(false);
+        Clear();
         VariableValues.Clear();
         StateValues.Clear();
     }
@@ -254,7 +166,7 @@ public class ChatBoxManager
 
     private Clip? getValidClip()
     {
-        for (var i = priority_count - 1; i >= 0; i--)
+        for (var i = PriorityCount.Value - 1; i >= 0; i--)
         {
             foreach (var clip in Clips.Where(clip => clip.Priority.Value == i))
             {
@@ -293,8 +205,9 @@ public class ChatBoxManager
 
         return Regex.Replace(input, @"/n", match =>
         {
-            var spaces = match.Index == 0 ? 0 : match.Index - input.LastIndexOf(@"/n", match.Index - 1, StringComparison.Ordinal) - 1;
-            return spaces < 0 ? string.Empty : new string(' ', required_width - spaces);
+            var spaces = match.Index == 0 ? 0 : (match.Index - input.LastIndexOf(@"/n", match.Index, StringComparison.Ordinal)) % required_width;
+            var spaceCount = required_width - spaces;
+            return spaces < 0 || spaceCount < 0 ? string.Empty : new string(' ', spaceCount);
         });
     }
 
@@ -314,7 +227,7 @@ public class ChatBoxManager
 
     private void setPriority(Clip clip, int priority)
     {
-        if (priority is > priority_count - 1 or < 0) return;
+        if (priority > PriorityCount.Value - 1 || priority < 0) return;
         if (Clips.Where(other => other.Priority.Value == priority).Any(clip.Intersects)) return;
 
         clip.Priority.Value = priority;

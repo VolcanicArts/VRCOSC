@@ -141,6 +141,16 @@ public class MediaState
 
     public bool IsPlaying => Status == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing;
 
+    public float PositionPercentage
+    {
+        get
+        {
+            if (Position is null) return 0f;
+
+            return Position.Position.Ticks / (float)Position.EndTime.Ticks;
+        }
+    }
+
     public float Volume
     {
         set => ProcessExtensions.SetProcessVolume(ProcessId, value);

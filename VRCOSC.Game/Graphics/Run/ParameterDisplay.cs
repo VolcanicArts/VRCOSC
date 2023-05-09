@@ -13,7 +13,7 @@ using VRCOSC.Game.Graphics.TabBar;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.OSC.VRChat;
 
-namespace VRCOSC.Game.Graphics.ModuleRun;
+namespace VRCOSC.Game.Graphics.Run;
 
 public sealed partial class ParameterDisplay : Container
 {
@@ -28,7 +28,7 @@ public sealed partial class ParameterDisplay : Container
     public ParameterDisplay()
     {
         Masking = true;
-        BorderThickness = 2;
+        BorderThickness = 3;
         BorderColour = ThemeManager.Current[ThemeAttribute.Border];
     }
 
@@ -96,7 +96,7 @@ public sealed partial class ParameterDisplay : Container
 
     public void AddEntry(string key, object value)
     {
-        if (selectedTab.Value != Tab.Modules && key != VRChatOscConstants.ADDRESS_CHATBOX_INPUT && key != VRChatOscConstants.ADDRESS_CHATBOX_TYPING) return;
+        if (selectedTab.Value != Tab.Run && key != VRChatOscConstants.ADDRESS_CHATBOX_INPUT && key != VRChatOscConstants.ADDRESS_CHATBOX_TYPING) return;
 
         Schedule(() =>
         {

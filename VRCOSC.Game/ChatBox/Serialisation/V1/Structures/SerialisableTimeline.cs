@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using osu.Framework.Extensions.IEnumerableExtensions;
+using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.ChatBox.Serialisation.V1.Structures;
 

@@ -10,11 +10,11 @@ using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes.Dropdown;
 
-public sealed partial class DropdownAttributeCard<T> : AttributeCardSingle where T : Enum
+public sealed partial class DropdownAttributeCard<T> : AttributeCard where T : Enum
 {
     private VRCOSCDropdown<T> dropdown = null!;
 
-    public DropdownAttributeCard(ModuleAttributeSingle attributeData)
+    public DropdownAttributeCard(ModuleAttribute attributeData)
         : base(attributeData)
     {
     }

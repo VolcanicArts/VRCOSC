@@ -77,6 +77,9 @@ public class OVRClient
         }
     }
 
+    public void TriggerLeftControllerHaptic(float durationSeconds, float frequency, float amplitude) => OVRHelper.TriggerHaptic(Input.LeftControllerHapticActionHandle, System.LeftController.Id, durationSeconds, frequency, amplitude);
+    public void TriggerRightControllerHaptic(float durationSeconds, float frequency, float amplitude) => OVRHelper.TriggerHaptic(Input.RightControllerHapticActionHandle, System.RightController.Id, durationSeconds, frequency, amplitude);
+
     private void shutdown()
     {
         Valve.VR.OpenVR.Shutdown();

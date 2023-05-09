@@ -8,7 +8,7 @@ namespace VRCOSC.Modules.Heartrate;
 
 public abstract class HeartRateModule : ChatBoxModule
 {
-    private static readonly TimeSpan heartrate_timeout = TimeSpan.FromSeconds(10);
+    private static readonly TimeSpan heartrate_timeout = TimeSpan.FromSeconds(30);
 
     public override string Author => @"VolcanicArts";
     public override string Prefab => @"VRCOSC-Heartrate";
@@ -17,12 +17,10 @@ public abstract class HeartRateModule : ChatBoxModule
     protected HeartRateProvider? HeartRateProvider;
     private int currentHeartrate;
     private int targetHeartrate;
+    private int connectionCount;
     private TimeSpan targetInterval;
     private DateTimeOffset lastIntervalUpdate;
     private DateTimeOffset lastHeartrateTime;
-    private int connectionCount;
-
-    private bool isReceiving => lastHeartrateTime + heartrate_timeout >= DateTimeOffset.Now;
 
     protected abstract HeartRateProvider CreateHeartRateProvider();
 
@@ -46,13 +44,14 @@ public abstract class HeartRateModule : ChatBoxModule
 
     protected override void OnModuleStart()
     {
-        attemptConnection();
-        lastHeartrateTime = DateTimeOffset.Now - heartrate_timeout;
-        lastIntervalUpdate = DateTimeOffset.Now;
         currentHeartrate = 0;
         targetHeartrate = 0;
+        connectionCount = 0;
+        targetInterval = TimeSpan.Zero;
+        lastHeartrateTime = DateTimeOffset.MinValue;
+        lastIntervalUpdate = DateTimeOffset.MinValue;
         ChangeStateTo(HeartrateState.Default);
-        SendParameter(HeartrateParameter.Enabled, false);
+        attemptConnection();
     }
 
     private void attemptConnection()
@@ -74,7 +73,6 @@ public abstract class HeartRateModule : ChatBoxModule
             {
                 if (IsStopping || HasStopped) return;
 
-                SendParameter(HeartrateParameter.Enabled, false);
                 await Task.Delay(2000);
                 attemptConnection();
             });
@@ -116,13 +114,16 @@ public abstract class HeartRateModule : ChatBoxModule
 
         try
         {
-            targetInterval = TimeSpan.FromTicks(TimeSpan.FromMilliseconds(GetSetting<int>(HeartrateSetting.SmoothingLength)).Ticks / Math.Abs(currentHeartrate - targetHeartrate));
+            var absoluteDifference = Math.Abs(currentHeartrate - targetHeartrate);
+            targetInterval = absoluteDifference == 1 ? TimeSpan.Zero : TimeSpan.FromTicks(TimeSpan.FromMilliseconds(GetSetting<int>(HeartrateSetting.SmoothingLength)).Ticks / absoluteDifference);
         }
         catch (DivideByZeroException)
         {
             targetInterval = TimeSpan.Zero;
         }
     }
+
+    private bool isReceiving => (HeartRateProvider?.IsConnected ?? false) && lastHeartrateTime + heartrate_timeout >= DateTimeOffset.Now;
 
     private void sendParameters()
     {
@@ -154,7 +155,7 @@ public abstract class HeartRateModule : ChatBoxModule
         return num.ToString().PadLeft(totalWidth, '0').Select(digit => int.Parse(digit.ToString())).ToArray();
     }
 
-    protected enum HeartrateSetting
+    private enum HeartrateSetting
     {
         NormalisedLowerbound,
         NormalisedUpperbound,
@@ -162,7 +163,7 @@ public abstract class HeartRateModule : ChatBoxModule
         SmoothingLength
     }
 
-    protected enum HeartrateParameter
+    private enum HeartrateParameter
     {
         Enabled,
         Normalised,

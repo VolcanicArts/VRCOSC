@@ -1,32 +1,32 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net6.0-windows10.0.22621.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <LangVersion>11</LangVersion>
-    <PackageId>VolcanicArts.VRCOSC.SDK</PackageId>
-    <Version>2023.428.0</Version>
-    <Title>VRCOSC SDK</Title>
-    <Authors>VolcanicArts</Authors>
-    <Description>SDK for creating custom modules with VRCOSC</Description>
-    <PackageProjectUrl>https://github.com/VolcanicArts/VRCOSC</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/VolcanicArts/VRCOSC</RepositoryUrl>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\VRCOSC.Resources\VRCOSC.Resources.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.2" />
-    <PackageReference Include="ppy.osu.Framework" Version="2023.418.0" />
-    <PackageReference Include="PInvoke.User32" Version="0.7.124" />
-    <PackageReference Include="PolySharp" Version="1.13.1">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="WebSocket4Net" Version="0.15.2" />
-    <PackageReference Include="NAudio.Wasapi" Version="2.1.0" />
-    <PackageReference Include="Vosk" Version="0.3.38" />
-    <PackageReference Include="VolcanicArts.Libs.OpenVR" Version="1.23.7" />
-  </ItemGroup>
+    <PropertyGroup>
+        <TargetFramework>net6.0-windows10.0.22621.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <LangVersion>11</LangVersion>
+        <PackageId>VolcanicArts.VRCOSC.SDK</PackageId>
+        <Version>2023.509.0</Version>
+        <Title>VRCOSC SDK</Title>
+        <Authors>VolcanicArts</Authors>
+        <Description>SDK for creating custom modules with VRCOSC</Description>
+        <PackageProjectUrl>https://github.com/VolcanicArts/VRCOSC</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/VolcanicArts/VRCOSC</RepositoryUrl>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\VRCOSC.Resources\VRCOSC.Resources.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.2" />
+        <PackageReference Include="ppy.osu.Framework" Version="2023.506.0" />
+        <PackageReference Include="PInvoke.User32" Version="0.7.124" />
+        <PackageReference Include="PolySharp" Version="1.13.1">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="WebSocket4Net" Version="0.15.2" />
+        <PackageReference Include="NAudio.Wasapi" Version="2.1.0" />
+        <PackageReference Include="Vosk" Version="0.3.38" />
+        <PackageReference Include="VolcanicArts.Libs.OpenVR" Version="1.23.7" />
+    </ItemGroup>
 </Project>

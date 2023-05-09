@@ -3,6 +3,10 @@
       {
          "name" : "/actions/main",
          "usage" : "leftright"
+      },
+      {
+         "name": "/actions/haptic",
+         "usage": "hidden"
       }
    ],
    "actions" : [
@@ -85,6 +89,14 @@
          "name" : "/actions/main/in/rightfingerpinky",
          "requirement" : "mandatory",
          "type" : "vector1"
+      },
+      {
+         "name": "/actions/haptic/out/hapticsleft",
+         "type": "vibration"
+      },
+      {
+         "name": "/actions/haptic/out/hapticsright",
+         "type": "vibration"
       }
    ],
    "default_bindings" : [

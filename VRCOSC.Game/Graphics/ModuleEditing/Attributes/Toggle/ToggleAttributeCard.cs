@@ -10,11 +10,11 @@ using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes.Toggle;
 
-public sealed partial class ToggleAttributeCard : AttributeCardSingle
+public sealed partial class ToggleAttributeCard : AttributeCard
 {
     private ToggleButton toggleButton = null!;
 
-    public ToggleAttributeCard(ModuleAttributeSingle attributeData)
+    public ToggleAttributeCard(ModuleAttribute attributeData)
         : base(attributeData)
     {
     }

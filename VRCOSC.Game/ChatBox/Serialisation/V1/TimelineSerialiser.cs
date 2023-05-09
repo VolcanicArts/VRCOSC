@@ -1,50 +1,93 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.IO;
-using System.Text;
-using Newtonsoft.Json;
+using System;
+using System.Collections.Immutable;
+using System.Linq;
 using osu.Framework.Platform;
 using VRCOSC.Game.ChatBox.Serialisation.V1.Structures;
+using VRCOSC.Game.Graphics.Notifications;
+using VRCOSC.Game.Managers;
+using VRCOSC.Game.Serialisation;
 
 namespace VRCOSC.Game.ChatBox.Serialisation.V1;
 
-public class TimelineSerialiser : ITimelineSerialiser
+public class TimelineSerialiser : Serialiser<ChatBoxManager, SerialisableTimeline>
 {
-    private const string file_name = @"chatbox.json";
-    private readonly Storage storage;
-    private readonly object saveLock = new();
+    protected override string FileName => @"chatbox.json";
 
-    public TimelineSerialiser(Storage storage)
+    public TimelineSerialiser(Storage storage, NotificationContainer notification, ChatBoxManager chatBoxManager)
+        : base(storage, notification, chatBoxManager)
     {
-        this.storage = storage;
     }
 
-    public void Serialise(ChatBoxManager chatBoxManager)
+    protected override SerialisableTimeline GetSerialisableData(ChatBoxManager chatBoxManager) => new(chatBoxManager);
+
+    protected override void ExecuteAfterDeserialisation(ChatBoxManager chatBoxManager, SerialisableTimeline data)
     {
-        lock (saveLock)
+        chatBoxManager.Clips.Clear();
+
+        chatBoxManager.TimelineLength.Value = TimeSpan.FromTicks(data.Ticks);
+
+        data.Clips.ForEach(clip =>
         {
-            var data = Encoding.Unicode.GetBytes(JsonConvert.SerializeObject(new SerialisableTimeline(chatBoxManager)));
+            clip.AssociatedModules.ToImmutableList().ForEach(moduleName =>
+            {
+                if (!chatBoxManager.StateMetadata.ContainsKey(moduleName) && !chatBoxManager.EventMetadata.ContainsKey(moduleName))
+                {
+                    clip.AssociatedModules.Remove(moduleName);
 
-            using var stream = storage.CreateFileSafely(file_name);
-            stream.Write(data);
-        }
-    }
+                    clip.States.ToImmutableList().ForEach(clipState =>
+                    {
+                        clipState.States.RemoveAll(pair => pair.Module == moduleName);
+                    });
 
-    public SerialisableTimeline? Deserialise()
-    {
-        lock (saveLock)
+                    clip.Events.RemoveAll(clipEvent => clipEvent.Module == moduleName);
+
+                    return;
+                }
+
+                clip.States.ToImmutableList().ForEach(clipState =>
+                {
+                    clipState.States.RemoveAll(pair => !chatBoxManager.StateMetadata[pair.Module].ContainsKey(pair.Lookup));
+                });
+
+                clip.Events.RemoveAll(clipEvent => !chatBoxManager.EventMetadata[clipEvent.Module].ContainsKey(clipEvent.Lookup));
+            });
+        });
+
+        data.Clips.ForEach(clip =>
         {
-            if (!storage.Exists(file_name)) return null;
+            var newClip = chatBoxManager.CreateClip();
 
-            try
+            newClip.Enabled.Value = clip.Enabled;
+            newClip.Name.Value = clip.Name;
+            newClip.Priority.Value = clip.Priority;
+            newClip.Start.Value = clip.Start;
+            newClip.End.Value = clip.End;
+
+            newClip.AssociatedModules.AddRange(clip.AssociatedModules);
+
+            clip.States.ForEach(clipState =>
             {
-                return JsonConvert.DeserializeObject<SerialisableTimeline>(Encoding.Unicode.GetString(File.ReadAllBytes(storage.GetFullPath(file_name))));
-            }
-            catch // migration from UTF-8
+                var stateData = newClip.GetStateFor(clipState.States.Select(state => state.Module), clipState.States.Select(state => state.Lookup));
+                if (stateData is null) return;
+
+                stateData.Enabled.Value = clipState.Enabled;
+                stateData.Format.Value = clipState.Format;
+            });
+
+            clip.Events.ForEach(clipEvent =>
             {
-                return JsonConvert.DeserializeObject<SerialisableTimeline>(File.ReadAllText(storage.GetFullPath(file_name)));
-            }
-        }
+                var eventData = newClip.GetEventFor(clipEvent.Module, clipEvent.Lookup);
+                if (eventData is null) return;
+
+                eventData.Enabled.Value = clipEvent.Enabled;
+                eventData.Format.Value = clipEvent.Format;
+                eventData.Length.Value = clipEvent.Length;
+            });
+
+            chatBoxManager.Clips.Add(newClip);
+        });
     }
 }

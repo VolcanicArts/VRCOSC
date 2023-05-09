@@ -48,7 +48,7 @@ public static class ThemeManager
                 { ThemeAttribute.Text, Color4Extensions.FromHex(@"000000") },
                 { ThemeAttribute.SubText, Color4Extensions.FromHex(@"666666") },
                 { ThemeAttribute.Border, Color4Extensions.FromHex(@"FFFFFF") },
-                { ThemeAttribute.Accent, Color4Extensions.FromHex(@"000000") }
+                { ThemeAttribute.Accent, Color4Extensions.FromHex(@"44AADD") }
             }
         },
         {

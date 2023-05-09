@@ -4,19 +4,18 @@
 using System;
 using System.IO;
 using System.Linq;
-using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 
-namespace VRCOSC.Game.Modules.Serialisation;
+namespace VRCOSC.Game.Modules.Serialisation.Legacy;
 
-public class ModuleSerialiser : IModuleSerialiser
+public class LegacyModuleSerialiser
 {
     private const string directory_name = "modules";
     private readonly Storage storage;
 
-    public ModuleSerialiser(Storage storage)
+    public LegacyModuleSerialiser(Storage storage)
     {
         this.storage = storage.GetStorageForDirectory(directory_name);
     }
@@ -91,75 +90,37 @@ public class ModuleSerialiser : IModuleSerialiser
 
             var setting = module.Settings[lookup];
 
-            switch (setting)
+            var readableTypeName = setting.Attribute.Value.GetType().ToReadableName().ToLowerInvariant();
+            if (!readableTypeName.Equals(typeStr)) continue;
+
+            switch (typeStr)
             {
-                case ModuleAttributeSingle settingSingle:
-                {
-                    var readableTypeName = settingSingle.Attribute.Value.GetType().ToReadableName().ToLowerInvariant();
-                    if (!readableTypeName.Equals(typeStr)) continue;
-
-                    switch (typeStr)
-                    {
-                        case "enum":
-                            var typeAndValue = value.Split(new[] { '#' }, 2);
-                            var enumName = typeAndValue[0].Split('+')[1];
-                            var enumType = enumNameToType(enumName);
-                            if (enumType is not null) settingSingle.Attribute.Value = Enum.ToObject(enumType, int.Parse(typeAndValue[1]));
-                            break;
-
-                        case "string":
-                            settingSingle.Attribute.Value = value;
-                            break;
-
-                        case "int":
-                            settingSingle.Attribute.Value = int.Parse(value);
-                            break;
-
-                        case "float":
-                            settingSingle.Attribute.Value = float.Parse(value);
-                            break;
-
-                        case "bool":
-                            settingSingle.Attribute.Value = bool.Parse(value);
-                            break;
-
-                        default:
-                            Logger.Log($"Unknown type found in file: {typeStr}");
-                            break;
-                    }
-
+                case "enum":
+                    var typeAndValue = value.Split(new[] { '#' }, 2);
+                    var enumName = typeAndValue[0].Split('+')[1];
+                    var enumType = enumNameToType(enumName);
+                    if (enumType is not null) setting.Attribute.Value = Enum.ToObject(enumType, int.Parse(typeAndValue[1]));
                     break;
-                }
 
-                case ModuleAttributeList settingList:
-                {
-                    if (value == "EMPTY" && settingList.CanBeEmpty)
-                    {
-                        settingList.AttributeList.Clear();
-                        continue;
-                    }
-
-                    var readableTypeName = settingList.AttributeList.First().Value.GetType().ToReadableName().ToLowerInvariant();
-                    if (!readableTypeName.Equals(typeStr)) continue;
-
-                    var index = int.Parse(lookupStr.Split(new[] { '#' }, 2)[1]);
-
-                    switch (typeStr)
-                    {
-                        case "string":
-                            settingList.AddAt(index, new Bindable<object>(value));
-                            break;
-
-                        case "int":
-                            settingList.AddAt(index, new Bindable<object>(int.Parse(value)));
-                            break;
-
-                        default:
-                            throw new ArgumentOutOfRangeException(nameof(value), value, $"Unknown type found in file for {nameof(ModuleAttributeList)}: {value.GetType()}");
-                    }
-
+                case "string":
+                    setting.Attribute.Value = value;
                     break;
-                }
+
+                case "int":
+                    setting.Attribute.Value = int.Parse(value);
+                    break;
+
+                case "float":
+                    setting.Attribute.Value = float.Parse(value);
+                    break;
+
+                case "bool":
+                    setting.Attribute.Value = bool.Parse(value);
+                    break;
+
+                default:
+                    Logger.Log($"Unknown type found in file: {typeStr}");
+                    break;
             }
         }
     }
@@ -221,57 +182,27 @@ public class ModuleSerialiser : IModuleSerialiser
 
     private static void performSettingsSave(TextWriter writer, Module module)
     {
-        var areAllDefault = module.Settings.All(pair => pair.Value.IsDefault());
+        var areAllDefault = module.Settings.All(pair => pair.Value.Attribute.IsDefault);
         if (areAllDefault) return;
 
         writer.WriteLine(@"#Settings");
 
         foreach (var (lookup, moduleAttributeData) in module.Settings)
         {
-            if (moduleAttributeData.IsDefault()) continue;
+            if (moduleAttributeData.Attribute.IsDefault) continue;
 
-            switch (moduleAttributeData)
+            var value = moduleAttributeData.Attribute.Value;
+            var valueType = value.GetType();
+            var readableTypeName = valueType.ToReadableName().ToLowerInvariant();
+
+            if (valueType.IsSubclassOf(typeof(Enum)))
             {
-                case ModuleAttributeSingle moduleAttributeSingle:
-                {
-                    var value = moduleAttributeSingle.Attribute.Value;
-                    var valueType = value.GetType();
-                    var readableTypeName = valueType.ToReadableName().ToLowerInvariant();
-
-                    if (valueType.IsSubclassOf(typeof(Enum)))
-                    {
-                        var enumClass = valueType.FullName;
-                        writer.WriteLine(@"{0}:{1}={2}#{3}", lookup, readableTypeName, enumClass, (int)value);
-                    }
-                    else
-                    {
-                        writer.WriteLine(@"{0}:{1}={2}", lookup, readableTypeName, value);
-                    }
-
-                    break;
-                }
-
-                case ModuleAttributeList moduleAttributeList:
-                {
-                    var values = moduleAttributeList.AttributeList.ToList();
-
-                    if (!values.Any())
-                    {
-                        writer.WriteLine(@"{0}:EMPTY=EMPTY", lookup);
-                    }
-                    else
-                    {
-                        var valueType = values.First().Value.GetType();
-                        var readableTypeName = valueType.ToReadableName().ToLowerInvariant();
-
-                        for (int i = 0; i < values.Count; i++)
-                        {
-                            writer.WriteLine(@"{0}#{1}:{2}={3}", lookup, i, readableTypeName, values[i].Value);
-                        }
-                    }
-
-                    break;
-                }
+                var enumClass = valueType.FullName;
+                writer.WriteLine(@"{0}:{1}={2}#{3}", lookup, readableTypeName, enumClass, (int)value);
+            }
+            else
+            {
+                writer.WriteLine(@"{0}:{1}={2}", lookup, readableTypeName, value);
             }
         }
 
@@ -280,14 +211,14 @@ public class ModuleSerialiser : IModuleSerialiser
 
     private static void performParametersSave(TextWriter writer, Module module)
     {
-        var areAllDefault = module.Parameters.All(pair => pair.Value.IsDefault());
+        var areAllDefault = module.Parameters.All(pair => pair.Value.Attribute.IsDefault);
         if (areAllDefault) return;
 
         writer.WriteLine(@"#Parameters");
 
         foreach (var (lookup, parameterAttribute) in module.Parameters)
         {
-            if (parameterAttribute.IsDefault()) continue;
+            if (parameterAttribute.Attribute.IsDefault) continue;
 
             var value = parameterAttribute.Attribute.Value;
             writer.WriteLine(@"{0}={1}", lookup.ToLookup(), value);
