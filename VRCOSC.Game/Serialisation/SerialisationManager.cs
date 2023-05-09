@@ -43,11 +43,11 @@ public class SerialisationManager
         }
 
         // If there are no valid versions found there's either no file OR there is a file with no version
-        // Attempt to deserialise using the 0th and latest serialiser which is reserved for files from before the serialisation standardisation
+        // Attempt to deserialise using the 0th serialiser which is reserved for files from before the serialisation standardisation and latest serialiser
 
         // Note: 0th used for RouterManager migration
         if (serialisers.TryGetValue(0, out var zerothSerialiser)) return zerothSerialiser.Deserialise();
-        if (serialisers.TryGetValue(latestSerialiserVersion, out var latestSerlialiser)) return latestSerlialiser.Deserialise();
+        if (serialisers.TryGetValue(latestSerialiserVersion, out var latestSerialiser)) return latestSerialiser.Deserialise();
 
         return false;
     }
