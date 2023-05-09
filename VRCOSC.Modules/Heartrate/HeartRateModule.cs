@@ -44,7 +44,6 @@ public abstract class HeartRateModule : ChatBoxModule
 
     protected override void OnModuleStart()
     {
-        attemptConnection();
         currentHeartrate = 0;
         targetHeartrate = 0;
         connectionCount = 0;
@@ -52,6 +51,7 @@ public abstract class HeartRateModule : ChatBoxModule
         lastHeartrateTime = DateTimeOffset.MinValue;
         lastIntervalUpdate = DateTimeOffset.MinValue;
         ChangeStateTo(HeartrateState.Default);
+        attemptConnection();
     }
 
     private void attemptConnection()
@@ -154,7 +154,7 @@ public abstract class HeartRateModule : ChatBoxModule
         return num.ToString().PadLeft(totalWidth, '0').Select(digit => int.Parse(digit.ToString())).ToArray();
     }
 
-    protected enum HeartrateSetting
+    private enum HeartrateSetting
     {
         NormalisedLowerbound,
         NormalisedUpperbound,
@@ -162,7 +162,7 @@ public abstract class HeartRateModule : ChatBoxModule
         SmoothingLength
     }
 
-    protected enum HeartrateParameter
+    private enum HeartrateParameter
     {
         Enabled,
         Normalised,
