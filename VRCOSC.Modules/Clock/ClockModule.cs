@@ -64,25 +64,16 @@ public sealed class ClockModule : ChatBoxModule
 
         if (GetSetting<ClockMode>(ClockSetting.Mode) == ClockMode.Twelve)
         {
-            var formattedTime = time.ToString("hh:mm:ss tt", CultureInfo.InvariantCulture);
-            var timeSplitPeriod = formattedTime.Split(new[] { ' ' }, 2);
-            var timeText = timeSplitPeriod[0];
-
-            var timeTextSplit = timeText.Split(new[] { ':' }, 3);
-
-            hourText = timeTextSplit[0];
-            minuteText = timeTextSplit[1];
-            secondText = timeTextSplit[2];
-            periodText = timeSplitPeriod[1].ToLowerInvariant();
+            hourText = time.ToString("hh", CultureInfo.InvariantCulture);
+            minuteText = time.ToString("mm", CultureInfo.InvariantCulture);
+            secondText = time.ToString("ss", CultureInfo.InvariantCulture);
+            periodText = time.ToString("tt", CultureInfo.InvariantCulture).ToLowerInvariant();
         }
         else
         {
-            var formattedTime = time.ToString("HH:mm:ss", CultureInfo.InvariantCulture);
-            var timeTextSplit = formattedTime.Split(new[] { ':' }, 3);
-
-            hourText = timeTextSplit[0];
-            minuteText = timeTextSplit[1];
-            secondText = timeTextSplit[2];
+            hourText = time.ToString("HH", CultureInfo.InvariantCulture);
+            minuteText = time.ToString("mm", CultureInfo.InvariantCulture);
+            secondText = time.ToString("ss", CultureInfo.InvariantCulture);
             periodText = string.Empty;
         }
 
