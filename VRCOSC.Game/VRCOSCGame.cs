@@ -10,7 +10,6 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Platform;
-using VRCOSC.Game.ChatBox;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics;
 using VRCOSC.Game.Graphics.Notifications;
@@ -18,6 +17,7 @@ using VRCOSC.Game.Graphics.Settings;
 using VRCOSC.Game.Graphics.TabBar;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.Updater;
+using VRCOSC.Game.Managers;
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.OpenVR.Metadata;
 
@@ -56,6 +56,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     private NotificationContainer notificationContainer = null!;
     private VRCOSCUpdateManager updateManager = null!;
     private RouterManager routerManager = null!;
+    private StartupManager startupManager = null!;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -64,11 +65,13 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
         DependencyContainer.CacheAs(notificationContainer = new NotificationContainer());
         DependencyContainer.CacheAs(typeof(IVRCOSCSecrets), GetSecrets());
-        DependencyContainer.CacheAs(routerManager = new RouterManager(storage));
+        DependencyContainer.CacheAs(routerManager = new RouterManager(storage, notificationContainer));
+        DependencyContainer.CacheAs(startupManager = new StartupManager(storage, notificationContainer));
 
         LoadComponent(notificationContainer);
 
-        routerManager.LoadData();
+        routerManager.Load();
+        startupManager.Load();
 
         Children = new Drawable[]
         {
@@ -99,7 +102,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
         GameManager.State.BindValueChanged(e =>
         {
-            if (e.NewValue == GameManagerState.Starting) selectedTab.Value = Tab.Modules;
+            if (e.NewValue == GameManagerState.Starting) selectedTab.Value = Tab.Run;
         }, true);
 
         GameManager.OVRClient.OnShutdown += () =>
@@ -109,7 +112,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
         selectedTab.BindValueChanged(tab =>
         {
-            if (tab.OldValue == Tab.Router) routerManager.SaveData();
+            if (tab.OldValue == Tab.Router) routerManager.Serialise();
         });
     }
 
@@ -189,7 +192,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     {
         editingModule.Value = null;
         infoModule.Value = null;
-        routerManager.SaveData();
+        routerManager.Serialise();
         Exit();
     }
 

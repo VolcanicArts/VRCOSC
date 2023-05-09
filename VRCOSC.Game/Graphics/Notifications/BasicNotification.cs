@@ -95,6 +95,7 @@ public partial class BasicNotification : Notification
             s.Font = FrameworkFont.Regular.With(size: 20);
             s.Colour = ThemeManager.Current[ThemeAttribute.Text];
         });
+
         textFlow.AddParagraph(Description, s =>
         {
             s.Font = FrameworkFont.Regular.With(size: 13);

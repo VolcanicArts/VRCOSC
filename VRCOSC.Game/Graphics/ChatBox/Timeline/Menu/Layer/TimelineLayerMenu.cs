@@ -4,7 +4,7 @@
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using VRCOSC.Game.ChatBox;
+using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.Graphics.ChatBox.Timeline.Menu.Layer;
 

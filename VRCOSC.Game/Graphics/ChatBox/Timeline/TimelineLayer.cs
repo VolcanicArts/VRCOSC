@@ -10,8 +10,8 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Input.Events;
 using osuTK.Input;
-using VRCOSC.Game.ChatBox;
 using VRCOSC.Game.ChatBox.Clips;
+using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.Graphics.ChatBox.Timeline;
 

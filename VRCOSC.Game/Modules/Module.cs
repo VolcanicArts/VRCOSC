@@ -3,13 +3,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Platform;
 using osu.Framework.Threading;
-using VRCOSC.Game.ChatBox;
+using VRCOSC.Game.Managers;
 using VRCOSC.Game.Modules.Avatar;
 using VRCOSC.Game.OpenVR;
 using VRCOSC.Game.OSC.VRChat;
@@ -102,9 +103,6 @@ public abstract class Module : IComparable<Module>
     protected void CreateSetting(Enum lookup, string displayName, string description, float defaultValue, float minValue, float maxValue, Func<bool>? dependsOn = null)
         => addRangedSetting(lookup, displayName, description, defaultValue, minValue, maxValue, dependsOn);
 
-    protected void CreateSetting(Enum lookup, string displayName, string description, IEnumerable<string> defaultValues, bool canBeEmpty, Func<bool>? dependsOn = null)
-        => addEnumerableSetting(lookup, displayName, description, defaultValues, canBeEmpty, dependsOn);
-
     protected void CreateSetting(Enum lookup, string displayName, string description, string defaultValue, string buttonText, Action buttonAction, Func<bool>? dependsOn = null)
         => addTextAndButtonSetting(lookup, displayName, description, defaultValue, buttonText, buttonAction, dependsOn);
 
@@ -112,16 +110,39 @@ public abstract class Module : IComparable<Module>
         => Parameters.Add(lookup, new ParameterAttribute(mode, new ModuleAttributeMetadata(displayName, description), parameterName, typeof(T), null));
 
     private void addSingleSetting(Enum lookup, string displayName, string description, object defaultValue, Func<bool>? dependsOn)
-        => Settings.Add(lookup.ToLookup(), new ModuleAttributeSingle(new ModuleAttributeMetadata(displayName, description), defaultValue, dependsOn));
-
-    private void addEnumerableSetting<T>(Enum lookup, string displayName, string description, IEnumerable<T> defaultValues, bool canBeEmpty, Func<bool>? dependsOn)
-        => Settings.Add(lookup.ToLookup(), new ModuleAttributeList(new ModuleAttributeMetadata(displayName, description), defaultValues.Cast<object>(), typeof(T), canBeEmpty, dependsOn));
+        => Settings.Add(lookup.ToLookup(), new ModuleAttribute(new ModuleAttributeMetadata(displayName, description), defaultValue, dependsOn));
 
     private void addRangedSetting<T>(Enum lookup, string displayName, string description, T defaultValue, T minValue, T maxValue, Func<bool>? dependsOn) where T : struct
-        => Settings.Add(lookup.ToLookup(), new ModuleAttributeSingleWithBounds(new ModuleAttributeMetadata(displayName, description), defaultValue, minValue, maxValue, dependsOn));
+        => Settings.Add(lookup.ToLookup(), new ModuleAttributeWithBounds(new ModuleAttributeMetadata(displayName, description), defaultValue, minValue, maxValue, dependsOn));
 
     private void addTextAndButtonSetting(Enum lookup, string displayName, string description, string defaultValue, string buttonText, Action buttonAction, Func<bool>? dependsOn)
-        => Settings.Add(lookup.ToLookup(), new ModuleAttributeSingleWithButton(new ModuleAttributeMetadata(displayName, description), defaultValue, buttonText, buttonAction, dependsOn));
+        => Settings.Add(lookup.ToLookup(), new ModuleAttributeWithButton(new ModuleAttributeMetadata(displayName, description), defaultValue, buttonText, buttonAction, dependsOn));
+
+    public bool DoesSettingExist(string lookup, [NotNullWhen(returnValue: true)] out ModuleAttribute? attribute)
+    {
+        if (Settings.TryGetValue(lookup, out var setting))
+        {
+            attribute = setting;
+            return true;
+        }
+
+        attribute = null;
+        return false;
+    }
+
+    public bool DoesParameterExist(string lookup, [NotNullWhen(returnValue: true)] out ModuleAttribute? key)
+    {
+        foreach (var (lookupToCheck, _) in Parameters)
+        {
+            if (lookupToCheck.ToLookup() != lookup) continue;
+
+            key = Parameters[lookupToCheck];
+            return true;
+        }
+
+        key = null;
+        return false;
+    }
 
     #endregion
 
@@ -129,8 +150,6 @@ public abstract class Module : IComparable<Module>
 
     internal void Start()
     {
-        if (!IsEnabled) return;
-
         State.Value = ModuleState.Starting;
 
         OnModuleStart();
@@ -146,8 +165,6 @@ public abstract class Module : IComparable<Module>
 
     internal void Stop()
     {
-        if (!IsEnabled) return;
-
         State.Value = ModuleState.Stopping;
 
         OnModuleStop();
@@ -167,28 +184,7 @@ public abstract class Module : IComparable<Module>
 
     protected T GetSetting<T>(Enum lookup)
     {
-        var setting = Settings[lookup.ToLookup()];
-
-        object? value;
-
-        switch (setting)
-        {
-            case ModuleAttributeSingle settingSingle:
-                value = settingSingle.Attribute.Value;
-                break;
-
-            case ModuleAttributeList settingList when settingList.Type == typeof(string):
-                value = settingList.GetValueList<string>();
-                break;
-
-            case ModuleAttributeList settingList when settingList.Type == typeof(int):
-                value = settingList.GetValueList<int>();
-                break;
-
-            default:
-                value = null;
-                break;
-        }
+        object? value = Settings[lookup.ToLookup()].Attribute.Value;
 
         if (value is not T valueCast)
             throw new InvalidCastException($"Setting with lookup '{lookup}' is not of type '{nameof(T)}'");
@@ -229,9 +225,19 @@ public abstract class Module : IComparable<Module>
             return;
         }
 
-        if (!data.IsAvatarParameter || Parameters.Select(pair => pair.Value).All(parameter => parameter.Name != data.ParameterName)) return;
+        if (!data.IsAvatarParameter) return;
 
-        var lookup = Parameters.Single(pair => pair.Value.Name == data.ParameterName).Key;
+        Enum lookup;
+
+        try
+        {
+            lookup = Parameters.Single(pair => pair.Value.Name == data.ParameterName).Key;
+        }
+        catch (InvalidOperationException)
+        {
+            return;
+        }
+
         var parameterData = Parameters[lookup];
 
         if (!parameterData.Mode.HasFlagFast(ParameterMode.Read)) return;

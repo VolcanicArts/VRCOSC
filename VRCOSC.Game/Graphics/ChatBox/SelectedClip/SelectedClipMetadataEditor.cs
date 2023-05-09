@@ -7,10 +7,10 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
-using VRCOSC.Game.ChatBox;
 using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.Graphics.ChatBox.Metadata;
 using VRCOSC.Game.Graphics.Themes;
+using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.Graphics.ChatBox.SelectedClip;
 

@@ -10,12 +10,11 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Input.Events;
 using osuTK;
 using osuTK.Input;
-using VRCOSC.Game.ChatBox;
 using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.Graphics.ChatBox.Timeline.Menu.Clip;
 using VRCOSC.Game.Graphics.ChatBox.Timeline.Menu.Layer;
 using VRCOSC.Game.Graphics.Themes;
-using VRCOSC.Game.Modules;
+using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.Graphics.ChatBox.Timeline;
 
@@ -77,25 +76,7 @@ public partial class TimelineEditor : Container
                         RelativeSizeAxes = Axes.Both,
                         Child = layerContainer = new GridContainer
                         {
-                            RelativeSizeAxes = Axes.Both,
-                            RowDimensions = new[]
-                            {
-                                new Dimension(),
-                                new Dimension(),
-                                new Dimension(),
-                                new Dimension(),
-                                new Dimension(),
-                                new Dimension(),
-                            },
-                            Content = new[]
-                            {
-                                new Drawable[] { new TimelineLayer(5) },
-                                new Drawable[] { new TimelineLayer(4) },
-                                new Drawable[] { new TimelineLayer(3) },
-                                new Drawable[] { new TimelineLayer(2) },
-                                new Drawable[] { new TimelineLayer(1) },
-                                new Drawable[] { new TimelineLayer(0) }
-                            }
+                            RelativeSizeAxes = Axes.Both
                         }
                     }
                 }
@@ -118,11 +99,19 @@ public partial class TimelineEditor : Container
             }
         };
 
-        foreach (var array in layerContainer.Content)
+        var rowDimensions = new Dimension[chatBoxManager.PriorityCount.Value];
+        var gridContent = new Drawable[chatBoxManager.PriorityCount.Value][];
+
+        for (var i = 0; i < chatBoxManager.PriorityCount.Value; i++)
         {
-            var timelineLayer = (TimelineLayer)array[0];
+            var timelineLayer = new TimelineLayer(chatBoxManager.PriorityCount.Value - 1 - i);
+            rowDimensions[i] = new Dimension();
+            gridContent[i] = new Drawable[] { timelineLayer };
             layers.Add(timelineLayer.Priority, timelineLayer);
         }
+
+        layerContainer.RowDimensions = rowDimensions;
+        layerContainer.Content = gridContent;
 
         chatBoxManager.Clips.BindCollectionChanged((_, e) =>
         {
@@ -184,7 +173,7 @@ public partial class TimelineEditor : Container
             });
         }
 
-        for (var i = 0; i <= 6; i++)
+        for (var i = 0; i <= chatBoxManager.PriorityCount.Value; i++)
         {
             gridGenerator.Add(new Box
             {
@@ -192,7 +181,7 @@ public partial class TimelineEditor : Container
                 RelativeSizeAxes = Axes.X,
                 RelativePositionAxes = Axes.Y,
                 Height = grid_line_width,
-                Y = i / 6f
+                Y = i / (float)chatBoxManager.PriorityCount.Value
             });
         }
     }

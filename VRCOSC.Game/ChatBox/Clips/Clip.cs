@@ -8,6 +8,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
+using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.ChatBox.Clips;
 
@@ -36,12 +37,12 @@ public class Clip
     {
         this.chatBoxManager = chatBoxManager;
         AssociatedModules.BindCollectionChanged((_, e) => onAssociatedModulesChanged(e), true);
-        AssociatedModules.BindCollectionChanged((_, _) => chatBoxManager.Save());
-        Enabled.BindValueChanged(_ => chatBoxManager.Save());
-        Name.BindValueChanged(_ => chatBoxManager.Save());
-        Priority.BindValueChanged(_ => chatBoxManager.Save());
-        States.BindCollectionChanged((_, _) => chatBoxManager.Save());
-        Events.BindCollectionChanged((_, _) => chatBoxManager.Save());
+        AssociatedModules.BindCollectionChanged((_, _) => chatBoxManager.Serialise());
+        Enabled.BindValueChanged(_ => chatBoxManager.Serialise());
+        Name.BindValueChanged(_ => chatBoxManager.Serialise());
+        Priority.BindValueChanged(_ => chatBoxManager.Serialise());
+        States.BindCollectionChanged((_, _) => chatBoxManager.Serialise());
+        Events.BindCollectionChanged((_, _) => chatBoxManager.Serialise());
 
         chatBoxManager.TimelineLength.BindValueChanged(_ =>
         {
@@ -188,14 +189,11 @@ public class Clip
 
     public string GetFormattedText() => currentEvent is not null ? formatText(currentEvent.Value.Item1) : formatText(currentState!);
 
-    private string formatText(ClipState clipState) => formatText(clipState.Format.Value);
-    private string formatText(ClipEvent clipEvent) => formatText(clipEvent.Format.Value);
-
-    private string formatText(string text)
+    private string formatText(IProvidesFormat formatter)
     {
-        var returnText = text;
+        var returnText = formatter.GetFormat();
 
-        AvailableVariables.ForEach(clipVariable =>
+        EnumerableExtensions.ForEach(AvailableVariables, clipVariable =>
         {
             if (!chatBoxManager.ModuleEnabledCache[clipVariable.Module]) return;
 
@@ -255,14 +253,14 @@ public class Clip
             localCurrentStatesCopy.ForEach(newStateLocal =>
             {
                 newStateLocal.States.Add((moduleName, newStateName));
-                newStateLocal.Enabled.BindValueChanged(_ => chatBoxManager.Save());
-                newStateLocal.Format.BindValueChanged(_ => chatBoxManager.Save());
+                newStateLocal.Enabled.BindValueChanged(_ => chatBoxManager.Serialise());
+                newStateLocal.Format.BindValueChanged(_ => chatBoxManager.Serialise());
             });
 
             States.AddRange(localCurrentStatesCopy);
             var singleState = new ClipState(newStateMetadata);
-            singleState.Enabled.BindValueChanged(_ => chatBoxManager.Save());
-            singleState.Format.BindValueChanged(_ => chatBoxManager.Save());
+            singleState.Enabled.BindValueChanged(_ => chatBoxManager.Serialise());
+            singleState.Format.BindValueChanged(_ => chatBoxManager.Serialise());
             States.Add(singleState);
         }
     }
@@ -290,9 +288,9 @@ public class Clip
             foreach (var (_, metadata) in events)
             {
                 var newEvent = new ClipEvent(metadata);
-                newEvent.Enabled.BindValueChanged(_ => chatBoxManager.Save());
-                newEvent.Format.BindValueChanged(_ => chatBoxManager.Save());
-                newEvent.Length.BindValueChanged(_ => chatBoxManager.Save());
+                newEvent.Enabled.BindValueChanged(_ => chatBoxManager.Serialise());
+                newEvent.Format.BindValueChanged(_ => chatBoxManager.Serialise());
+                newEvent.Length.BindValueChanged(_ => chatBoxManager.Serialise());
                 Events.Add(newEvent);
             }
         }

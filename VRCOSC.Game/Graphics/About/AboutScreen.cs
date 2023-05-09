@@ -84,6 +84,7 @@ public sealed partial class AboutScreen : Container
         });
 
         versionBindable = configManager.GetBindable<string>(VRCOSCSetting.Version);
+
         versionBindable.BindValueChanged(version =>
         {
             text.Clear();

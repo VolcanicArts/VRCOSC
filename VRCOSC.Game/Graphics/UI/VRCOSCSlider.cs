@@ -26,6 +26,7 @@ public sealed partial class VRCOSCSlider<T> : BasicSliderBar<T> where T : struct
     private void load()
     {
         SpriteText valueText;
+
         Add(new Container
         {
             Anchor = Anchor.Centre,

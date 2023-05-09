@@ -1,7 +1,6 @@
 // Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Diagnostics;
 using Windows.Media;
 using osu.Framework.Bindables;
 using VRCOSC.Game;
@@ -13,6 +12,12 @@ namespace VRCOSC.Modules.Media;
 
 public class MediaModule : ChatBoxModule
 {
+    private const string progress_line = "\u2501";
+    private const string progress_dot = "\u25CF";
+    private const string progress_start = "\u2523";
+    private const string progress_end = "\u252B";
+    private const int progress_resolution = 10;
+
     public override string Title => "Media";
     public override string Description => "Integration with Windows Media";
     public override string Author => "VolcanicArts";
@@ -32,9 +37,6 @@ public class MediaModule : ChatBoxModule
 
     protected override void CreateAttributes()
     {
-        // TODO - Remove into a separate screen that allows for start options
-        CreateSetting(MediaSetting.StartList, "Start List", "A list of exe locations to start with this module. This is handy for starting media apps on module start. For example, Spotify", new[] { @$"C:\Users\{Environment.UserName}\AppData\Roaming\Spotify\spotify.exe" }, true);
-
         CreateParameter<bool>(MediaParameter.Play, ParameterMode.ReadWrite, @"VRCOSC/Media/Play", "Play/Pause", @"True for playing. False for paused");
         CreateParameter<float>(MediaParameter.Volume, ParameterMode.ReadWrite, @"VRCOSC/Media/Volume", "Volume", @"The volume of the process that is controlling the media");
         CreateParameter<int>(MediaParameter.Repeat, ParameterMode.ReadWrite, @"VRCOSC/Media/Repeat", "Repeat", @"0 for disabled. 1 for single. 2 for list");
@@ -52,9 +54,10 @@ public class MediaModule : ChatBoxModule
         CreateVariable(MediaVariable.AlbumTrackCount, @"Album Track Count", @"albumtrackcount");
         CreateVariable(MediaVariable.Time, @"Time", @"time");
         CreateVariable(MediaVariable.Duration, @"Duration", @"duration");
+        CreateVariable(MediaVariable.ProgressVisual, @"Progress Visual", @"progressvisual");
         CreateVariable(MediaVariable.Volume, @"Volume", @"volume");
 
-        CreateState(MediaState.Playing, "Playing", $@"[{GetVariableFormat(MediaVariable.Time)}/{GetVariableFormat(MediaVariable.Duration)}]/nNow Playing: {GetVariableFormat(MediaVariable.Artist)} - {GetVariableFormat(MediaVariable.Title)}");
+        CreateState(MediaState.Playing, "Playing", $@"[{GetVariableFormat(MediaVariable.Time)}/{GetVariableFormat(MediaVariable.Duration)}]/v{GetVariableFormat(MediaVariable.Artist)} - {GetVariableFormat(MediaVariable.Title)}/v{GetVariableFormat(MediaVariable.ProgressVisual)}");
         CreateState(MediaState.Paused, "Paused", @"[Paused]");
 
         CreateEvent(MediaEvent.NowPlaying, "Now Playing", $@"[Now Playing]/n{GetVariableFormat(MediaVariable.Artist)} - {GetVariableFormat(MediaVariable.Title)}", 5);
@@ -63,7 +66,6 @@ public class MediaModule : ChatBoxModule
     protected override void OnModuleStart()
     {
         hookIntoMedia();
-        startProcesses();
     }
 
     private void hookIntoMedia() => Task.Run(async () =>
@@ -78,18 +80,6 @@ public class MediaModule : ChatBoxModule
 
         ChangeStateTo(mediaProvider.State.IsPlaying ? MediaState.Playing : MediaState.Paused);
     });
-
-    private void startProcesses()
-    {
-        GetSetting<List<string>>(MediaSetting.StartList).ForEach(processExeLocation =>
-        {
-            if (File.Exists(processExeLocation))
-            {
-                var processName = new FileInfo(processExeLocation).Name.ToLowerInvariant().Replace(@".exe", string.Empty);
-                if (!Process.GetProcessesByName(processName).Any()) Process.Start(processExeLocation);
-            }
-        });
-    }
 
     protected override void OnModuleStop()
     {
@@ -122,10 +112,12 @@ public class MediaModule : ChatBoxModule
         SetVariableValue(MediaVariable.Time, mediaProvider.State.Position?.Position.Format());
         SetVariableValue(MediaVariable.Duration, mediaProvider.State.Position?.EndTime.Format());
         SetVariableValue(MediaVariable.Volume, (mediaProvider.State.Volume * 100).ToString("##0"));
+        SetVariableValue(MediaVariable.ProgressVisual, getProgressVisual());
     }
 
     private void onPlaybackStateUpdate()
     {
+        updateVariables();
         sendMediaParameters();
         ChangeStateTo(mediaProvider.State.IsPlaying ? MediaState.Playing : MediaState.Paused);
     }
@@ -154,6 +146,23 @@ public class MediaModule : ChatBoxModule
             var percentagePosition = position.Position.Ticks / (float)(position.EndTime.Ticks - position.StartTime.Ticks);
             SendParameter(MediaParameter.Position, percentagePosition);
         }
+    }
+
+    private string getProgressVisual()
+    {
+        var progressPercentage = progress_resolution * mediaProvider.State.PositionPercentage;
+        var dotPosition = (int)(MathF.Floor(progressPercentage * 10f) / 10f);
+
+        var visual = progress_start;
+
+        for (var i = 0; i < progress_resolution; i++)
+        {
+            visual += i == dotPosition ? progress_dot : progress_line;
+        }
+
+        visual += progress_end;
+
+        return visual;
     }
 
     protected override void OnFloatParameterReceived(Enum key, float value)
@@ -217,11 +226,6 @@ public class MediaModule : ChatBoxModule
         }
     }
 
-    private enum MediaSetting
-    {
-        StartList
-    }
-
     private enum MediaState
     {
         Playing,
@@ -243,7 +247,8 @@ public class MediaModule : ChatBoxModule
         TrackNumber,
         AlbumTitle,
         AlbumArtist,
-        AlbumTrackCount
+        AlbumTrackCount,
+        ProgressVisual
     }
 
     private enum MediaParameter

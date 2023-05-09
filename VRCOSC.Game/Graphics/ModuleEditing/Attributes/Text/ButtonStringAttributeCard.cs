@@ -12,12 +12,12 @@ namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes.Text;
 
 public sealed partial class ButtonStringAttributeCard : TextAttributeCard<StringTextBox, string>
 {
-    private readonly ModuleAttributeSingleWithButton attributeSingleWithButton;
+    private readonly ModuleAttributeWithButton attributeWithButton;
 
-    public ButtonStringAttributeCard(ModuleAttributeSingleWithButton attributeData)
+    public ButtonStringAttributeCard(ModuleAttributeWithButton attributeData)
         : base(attributeData)
     {
-        attributeSingleWithButton = attributeData;
+        attributeWithButton = attributeData;
     }
 
     protected override Drawable CreateContent()
@@ -51,10 +51,10 @@ public sealed partial class ButtonStringAttributeCard : TextAttributeCard<String
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
                             RelativeSizeAxes = Axes.Both,
-                            Text = attributeSingleWithButton.ButtonText,
+                            Text = attributeWithButton.ButtonText,
                             Masking = true,
                             CornerRadius = 5,
-                            Action = attributeSingleWithButton.ButtonAction,
+                            Action = attributeWithButton.ButtonAction,
                             BackgroundColour = ThemeManager.Current[ThemeAttribute.Action]
                         }
                     }

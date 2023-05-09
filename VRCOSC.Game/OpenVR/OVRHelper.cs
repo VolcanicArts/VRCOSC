@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// See the LICENSE file in the repository root for full license text.
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -136,5 +139,10 @@ public static class OVRHelper
 
         OVRHelper.error(nameof(GetStringTrackedDeviceProperty), property, error, index);
         return string.Empty;
+    }
+
+    public static void TriggerHaptic(ulong action, uint device, float durationSeconds, float frequency, float amplitude)
+    {
+        Valve.VR.OpenVR.Input.TriggerHapticVibrationAction(action, 0, durationSeconds, frequency, amplitude, device);
     }
 }

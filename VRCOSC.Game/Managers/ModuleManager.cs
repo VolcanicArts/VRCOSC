@@ -8,29 +8,35 @@ using System.Linq;
 using osu.Framework.Lists;
 using osu.Framework.Platform;
 using osu.Framework.Threading;
-using VRCOSC.Game.Modules.Serialisation;
+using VRCOSC.Game.Graphics.Notifications;
+using VRCOSC.Game.Modules;
+using VRCOSC.Game.Modules.Serialisation.Legacy;
+using VRCOSC.Game.Modules.Serialisation.V1;
 using VRCOSC.Game.Modules.Sources;
+using VRCOSC.Game.Serialisation;
 
-namespace VRCOSC.Game.Modules.Manager;
+namespace VRCOSC.Game.Managers;
 
-public sealed class ModuleManager : IModuleManager
+public sealed class ModuleManager : IEnumerable<Module>, ICanSerialise
 {
     private static TerminalLogger terminal => new("ModuleManager");
 
+    public IReadOnlyList<Module> Modules => modules;
     private readonly List<IModuleSource> sources = new();
     private readonly SortedList<Module> modules = new();
-    private IModuleSerialiser? serialiser;
 
     public Action? OnModuleEnabledChanged;
 
     public void AddSource(IModuleSource source) => sources.Add(source);
     public bool RemoveSource(IModuleSource source) => sources.Remove(source);
-    public void SetSerialiser(IModuleSerialiser serialiser) => this.serialiser = serialiser;
 
     private GameHost host = null!;
     private GameManager gameManager = null!;
     private IVRCOSCSecrets secrets = null!;
     private Scheduler scheduler = null!;
+    private SerialisationManager serialisationManager = null!;
+
+    private readonly List<Module> runningModulesCache = new();
 
     public void InjectModuleDependencies(GameHost host, GameManager gameManager, IVRCOSCSecrets secrets, Scheduler scheduler)
     {
@@ -40,8 +46,11 @@ public sealed class ModuleManager : IModuleManager
         this.scheduler = scheduler;
     }
 
-    public void Load()
+    public void Load(Storage storage, NotificationContainer notification)
     {
+        serialisationManager = new SerialisationManager();
+        serialisationManager.RegisterSerialiser(1, new ModuleSerialiser(storage, notification, this));
+
         modules.Clear();
 
         sources.ForEach(source =>
@@ -50,34 +59,56 @@ public sealed class ModuleManager : IModuleManager
             {
                 var module = (Module)Activator.CreateInstance(type)!;
                 module.InjectDependencies(host, gameManager, secrets, scheduler);
+                module.Load();
                 modules.Add(module);
             }
         });
 
+        deserialiseProxy(storage);
+
         foreach (var module in this)
         {
-            module.Load();
-            serialiser?.Deserialise(module);
-
             module.Enabled.BindValueChanged(_ =>
             {
                 OnModuleEnabledChanged?.Invoke();
-                serialiser?.Serialise(module);
+                Serialise();
             });
         }
     }
 
-    public void SaveAll()
+    // Handles migration from LegacyModuleSerialiser
+    private void deserialiseProxy(Storage storage)
     {
-        foreach (var module in this)
+        if (!storage.Exists("modules.json"))
         {
-            serialiser?.Serialise(module);
+            var legacySerialisation = new LegacyModuleSerialiser(storage);
+
+            foreach (var module in this)
+            {
+                legacySerialisation.Deserialise(module);
+            }
+
+            if (serialisationManager.Serialise())
+            {
+                storage.DeleteDirectory("modules");
+            }
+        }
+        else
+        {
+            Deserialise();
         }
     }
 
-    public void Save(Module module)
+    public void Deserialise()
     {
-        serialiser?.Serialise(module);
+        if (!serialisationManager.Deserialise()) return;
+
+        Serialise();
+    }
+
+    public void Serialise()
+    {
+        serialisationManager.Serialise();
     }
 
     public void Start()
@@ -85,9 +116,12 @@ public sealed class ModuleManager : IModuleManager
         if (modules.All(module => !module.Enabled.Value))
             terminal.Log("You have no modules selected!\nSelect some modules to begin using VRCOSC");
 
-        foreach (var module in modules)
+        runningModulesCache.Clear();
+
+        foreach (var module in modules.Where(module => module.Enabled.Value))
         {
             module.Start();
+            runningModulesCache.Add(module);
         }
     }
 
@@ -95,7 +129,7 @@ public sealed class ModuleManager : IModuleManager
     {
         scheduler.Update();
 
-        foreach (var module in modules)
+        foreach (var module in runningModulesCache)
         {
             module.FrameUpdate();
         }
@@ -105,7 +139,7 @@ public sealed class ModuleManager : IModuleManager
     {
         scheduler.CancelDelayedTasks();
 
-        foreach (var module in modules)
+        foreach (var module in runningModulesCache)
         {
             module.Stop();
         }

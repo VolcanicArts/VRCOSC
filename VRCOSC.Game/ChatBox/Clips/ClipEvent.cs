@@ -5,7 +5,7 @@ using osu.Framework.Bindables;
 
 namespace VRCOSC.Game.ChatBox.Clips;
 
-public class ClipEvent
+public class ClipEvent : IProvidesFormat
 {
     public readonly string Module;
     public readonly string Lookup;
@@ -32,6 +32,8 @@ public class ClipEvent
         Length.Value = metadata.DefaultLength;
         Length.Default = metadata.DefaultLength;
     }
+
+    public string GetFormat() => Format.Value;
 }
 
 public class ClipEventMetadata

@@ -8,7 +8,6 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
 using VRCOSC.Game.Graphics.Themes;
-using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Graphics.UI.Button;
 
 namespace VRCOSC.Game.Graphics.Settings.Cards;
@@ -108,6 +107,7 @@ public abstract partial class SettingCard<T> : Container
             t.Font = FrameworkFont.Regular.With(size: 25);
             t.Colour = ThemeManager.Current[ThemeAttribute.Text];
         });
+
         textFlow.AddParagraph(description, t =>
         {
             t.Font = FrameworkFont.Regular.With(size: 20);
@@ -147,23 +147,4 @@ public abstract partial class SettingCard<T> : Container
     {
         resetToDefault.FadeTo(show ? 1 : 0, 200, Easing.OutQuart);
     }
-
-    #region Graphics
-
-    protected static VRCOSCTextBox CreateTextBox()
-    {
-        return new VRCOSCTextBox
-        {
-            Anchor = Anchor.TopCentre,
-            Origin = Anchor.TopCentre,
-            RelativeSizeAxes = Axes.X,
-            Height = 40,
-            Masking = true,
-            CornerRadius = 5,
-            BorderColour = ThemeManager.Current[ThemeAttribute.Border],
-            BorderThickness = 2
-        };
-    }
-
-    #endregion
 }

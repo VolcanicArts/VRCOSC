@@ -16,12 +16,10 @@ using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Framework.Threading;
 using Valve.VR;
-using VRCOSC.Game.ChatBox;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics.Notifications;
+using VRCOSC.Game.Modules;
 using VRCOSC.Game.Modules.Avatar;
-using VRCOSC.Game.Modules.Manager;
-using VRCOSC.Game.Modules.Serialisation;
 using VRCOSC.Game.Modules.Sources;
 using VRCOSC.Game.OpenVR;
 using VRCOSC.Game.OpenVR.Metadata;
@@ -29,13 +27,15 @@ using VRCOSC.Game.OSC;
 using VRCOSC.Game.OSC.Client;
 using VRCOSC.Game.OSC.VRChat;
 
-namespace VRCOSC.Game.Modules;
+namespace VRCOSC.Game.Managers;
 
 public partial class GameManager : Component
 {
     private const double openvr_check_interval = 1000;
     private const double vrchat_process_check_interval = 5000;
     private const int startstop_delay = 250;
+
+    private readonly TerminalLogger logger = new("VRCOSC");
 
     [Resolved]
     private VRCOSCConfigManager configManager { get; set; } = null!;
@@ -64,14 +64,18 @@ public partial class GameManager : Component
     [Resolved]
     private ChatBoxManager chatBoxManager { get; set; } = null!;
 
+    [Resolved]
+    private StartupManager startupManager { get; set; } = null!;
+
     private Bindable<bool> autoStartStop = null!;
+    private bool previousVRChatState;
     private bool hasAutoStarted;
     private readonly List<VRChatOscData> oscDataCache = new();
     private readonly object oscDataCacheLock = new();
 
     public readonly VRChatOscClient VRChatOscClient = new();
     public readonly Bindable<GameManagerState> State = new(GameManagerState.Stopped);
-    public IModuleManager ModuleManager = null!;
+    public ModuleManager ModuleManager = null!;
     public OSCRouter OSCRouter = null!;
     public Player Player = null!;
     public OVRClient OVRClient = null!;
@@ -104,9 +108,8 @@ public partial class GameManager : Component
         ModuleManager = new ModuleManager();
         ModuleManager.AddSource(new InternalModuleSource());
         ModuleManager.AddSource(new ExternalModuleSource(storage));
-        ModuleManager.SetSerialiser(new ModuleSerialiser(storage));
         ModuleManager.InjectModuleDependencies(host, this, secrets, new Scheduler(() => ThreadSafety.IsUpdateThread, Clock));
-        ModuleManager.Load();
+        ModuleManager.Load(storage, notifications);
     }
 
     protected override void Update()
@@ -142,6 +145,11 @@ public partial class GameManager : Component
                 oscDataCache.Add(data);
             }
         };
+
+        editingModule.BindValueChanged(e =>
+        {
+            if (e.NewValue is null && e.OldValue is not null) ModuleManager.Serialise();
+        }, true);
     }
 
     private const string avatar_id_format = "avtr_XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
@@ -184,6 +192,16 @@ public partial class GameManager : Component
             oscDataCache.Clear();
         }
     }
+
+    public void Restart() => Task.Run(async () =>
+    {
+        Stop();
+
+        while (State.Value != GameManagerState.Stopped) { }
+
+        await Task.Delay(250);
+        Start();
+    });
 
     public void Start() => Schedule(() => _ = startAsync());
 
@@ -235,6 +253,8 @@ public partial class GameManager : Component
             notifications.Notify(new PortInUseNotification("Cannot initialise a port from OSCRouter"));
         }
 
+        startupManager.Start();
+
         State.Value = GameManagerState.Started;
     }
 
@@ -268,8 +288,6 @@ public partial class GameManager : Component
 
         await OSCRouter.Disable();
         ModuleManager.Stop();
-        ChatBoxManager.SetTyping(false);
-        ChatBoxManager.Clear();
         ChatBoxManager.Shutdown();
         Player.ResetAll();
         await VRChatOscClient.Disable(OscClientFlag.Send);
@@ -317,18 +335,23 @@ public partial class GameManager : Component
     {
         if (!configManager.Get<bool>(VRCOSCSetting.AutoStartStop)) return;
 
-        static bool isVRChatOpen() => Process.GetProcessesByName(@"vrchat").Any();
+        var vrChatCurrentState = Process.GetProcessesByName(@"vrchat").Any();
+        var vrChatStateChanged = vrChatCurrentState != previousVRChatState;
+        if (!vrChatStateChanged) return;
+
+        previousVRChatState = vrChatCurrentState;
 
         // hasAutoStarted is checked here to ensure that modules aren't started immediately
         // after a user has manually stopped the modules
-        if (isVRChatOpen() && State.Value == GameManagerState.Stopped && !hasAutoStarted)
+        if (vrChatCurrentState && State.Value == GameManagerState.Stopped && !hasAutoStarted)
         {
             Start();
             hasAutoStarted = true;
         }
 
-        if (!isVRChatOpen() && State.Value == GameManagerState.Started)
+        if (!vrChatCurrentState && State.Value == GameManagerState.Started)
         {
+            logger.Log("VRChat is no longer open. Stopping modules");
             Stop();
             hasAutoStarted = false;
         }

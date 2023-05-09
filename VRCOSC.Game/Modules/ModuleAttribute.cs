@@ -2,48 +2,36 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using osu.Framework.Bindables;
-using osu.Framework.Extensions.IEnumerableExtensions;
 using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Game.Modules;
 
-public abstract class ModuleAttribute
+public class ModuleAttribute
 {
     public readonly ModuleAttributeMetadata Metadata;
+    public readonly Bindable<object> Attribute;
+    public readonly Type Type;
     private readonly Func<bool>? dependsOn;
 
-    protected ModuleAttribute(ModuleAttributeMetadata metadata, Func<bool>? dependsOn)
+    public ModuleAttribute(ModuleAttributeMetadata metadata, object defaultValue, Func<bool>? dependsOn)
     {
         Metadata = metadata;
+        Type = defaultValue.GetType();
+
+        Attribute = new Bindable<object>
+        {
+            Value = defaultValue,
+            Default = defaultValue
+        };
+
         this.dependsOn = dependsOn;
     }
 
     public bool Enabled => dependsOn?.Invoke() ?? true;
-
-    public abstract void SetDefault();
-
-    public abstract bool IsDefault();
 }
 
-public class ModuleAttributeSingle : ModuleAttribute
-{
-    public readonly Bindable<object> Attribute;
-
-    public ModuleAttributeSingle(ModuleAttributeMetadata metadata, object defaultValue, Func<bool>? dependsOn)
-        : base(metadata, dependsOn)
-    {
-        Attribute = new Bindable<object>(defaultValue);
-    }
-
-    public override void SetDefault() => Attribute.SetDefault();
-
-    public override bool IsDefault() => Attribute.IsDefault;
-}
-
-public sealed class ParameterAttribute : ModuleAttributeSingle
+public sealed class ParameterAttribute : ModuleAttribute
 {
     public readonly ParameterMode Mode;
     public readonly Type ExpectedType;
@@ -59,12 +47,12 @@ public sealed class ParameterAttribute : ModuleAttributeSingle
     }
 }
 
-public sealed class ModuleAttributeSingleWithButton : ModuleAttributeSingle
+public sealed class ModuleAttributeWithButton : ModuleAttribute
 {
     public readonly Action ButtonAction;
     public readonly string ButtonText;
 
-    public ModuleAttributeSingleWithButton(ModuleAttributeMetadata metadata, object defaultValue, string buttonText, Action buttonAction, Func<bool>? dependsOn)
+    public ModuleAttributeWithButton(ModuleAttributeMetadata metadata, object defaultValue, string buttonText, Action buttonAction, Func<bool>? dependsOn)
         : base(metadata, defaultValue, dependsOn)
     {
         ButtonText = buttonText;
@@ -72,59 +60,16 @@ public sealed class ModuleAttributeSingleWithButton : ModuleAttributeSingle
     }
 }
 
-public sealed class ModuleAttributeSingleWithBounds : ModuleAttributeSingle
+public sealed class ModuleAttributeWithBounds : ModuleAttribute
 {
     public readonly object MinValue;
     public readonly object MaxValue;
 
-    public ModuleAttributeSingleWithBounds(ModuleAttributeMetadata metadata, object defaultValue, object minValue, object maxValue, Func<bool>? dependsOn)
+    public ModuleAttributeWithBounds(ModuleAttributeMetadata metadata, object defaultValue, object minValue, object maxValue, Func<bool>? dependsOn)
         : base(metadata, defaultValue, dependsOn)
     {
         MinValue = minValue;
         MaxValue = maxValue;
-    }
-}
-
-public sealed class ModuleAttributeList : ModuleAttribute
-{
-    public readonly BindableList<Bindable<object>> AttributeList;
-    private readonly IEnumerable<object> defaultValues;
-    public readonly Type Type;
-    public readonly bool CanBeEmpty;
-
-    public ModuleAttributeList(ModuleAttributeMetadata metadata, IEnumerable<object> defaultValues, Type type, bool canBeEmpty, Func<bool>? dependsOn)
-        : base(metadata, dependsOn)
-    {
-        AttributeList = new BindableList<Bindable<object>>();
-        this.defaultValues = defaultValues;
-        Type = type;
-        CanBeEmpty = canBeEmpty;
-
-        SetDefault();
-    }
-
-    public override void SetDefault()
-    {
-        AttributeList.Clear();
-        var newValues = new List<Bindable<object>>();
-        defaultValues.ForEach(value => newValues.Add(new Bindable<object>(value)));
-        AttributeList.AddRange(newValues);
-    }
-
-    public override bool IsDefault() => AttributeList.Count == defaultValues.Count() && !AttributeList.Where((t, i) => !t.Value.Equals(defaultValues.ElementAt(i))).Any();
-
-    public List<T> GetValueList<T>() => AttributeList.Select(attribute => (T)attribute.Value).ToList();
-
-    public void AddAt(int index, Bindable<object> value)
-    {
-        try
-        {
-            AttributeList[index] = value;
-        }
-        catch (ArgumentOutOfRangeException)
-        {
-            AttributeList.Insert(index, value);
-        }
     }
 }
 

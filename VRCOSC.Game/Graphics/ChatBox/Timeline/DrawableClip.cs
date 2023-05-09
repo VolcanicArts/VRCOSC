@@ -9,9 +9,9 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
 using osuTK.Input;
-using VRCOSC.Game.ChatBox;
 using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.Graphics.Themes;
+using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.Graphics.ChatBox.Timeline;
 
@@ -95,8 +95,22 @@ public partial class DrawableClip : Container
         }, true);
 
         chatBoxManager.TimelineLength.BindValueChanged(_ => updateSizeAndPosition(), true);
-        Clip.Name.BindValueChanged(e => drawName.Text = e.NewValue, true);
+        Clip.Name.BindValueChanged(_ => updateDisplayName());
+        Clip.Start.BindValueChanged(_ => updateDisplayName());
+        Clip.End.BindValueChanged(_ => updateDisplayName());
         Clip.Enabled.BindValueChanged(e => Child.FadeTo(e.NewValue ? 1 : 0.5f), true);
+
+        updateDisplayName();
+    }
+
+    private void updateDisplayName()
+    {
+        drawName.Text = $"{Clip.Name.Value} - {Clip.Length}";
+    }
+
+    protected override void UpdateAfterChildren()
+    {
+        drawName.Alpha = DrawWidth < drawName.DrawWidth + 30 ? 0 : 1;
     }
 
     protected override bool OnMouseDown(MouseDownEvent e)
@@ -117,7 +131,7 @@ public partial class DrawableClip : Container
 
     protected override bool OnDragStart(DragStartEvent e) => true;
 
-    protected override void OnDragEnd(DragEndEvent e) => chatBoxManager.Save();
+    protected override void OnDragEnd(DragEndEvent e) => chatBoxManager.Serialise();
 
     protected override void OnDrag(DragEvent e)
     {
@@ -190,7 +204,7 @@ public partial class DrawableClip : Container
 
         protected override bool OnDragStart(DragStartEvent e) => true;
 
-        protected override void OnDragEnd(DragEndEvent e) => chatBoxManager.Save();
+        protected override void OnDragEnd(DragEndEvent e) => chatBoxManager.Serialise();
 
         protected override bool OnHover(HoverEvent e)
         {

@@ -9,15 +9,17 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Logging;
 using VRCOSC.Game.Graphics.Themes;
 
-namespace VRCOSC.Game.Graphics.ModuleRun;
+namespace VRCOSC.Game.Graphics.Run;
 
 public sealed partial class TerminalContainer : Container<TerminalEntry>
 {
+    private const int terminal_entry_count = 100;
+
     private readonly BasicScrollContainer terminalScroll;
 
     protected override FillFlowContainer<TerminalEntry> Content { get; }
 
-    private readonly DrawablePool<TerminalEntry> terminalEntryPool = new(75);
+    private readonly DrawablePool<TerminalEntry> terminalEntryPool = new(terminal_entry_count);
 
     public TerminalContainer()
     {
@@ -74,7 +76,7 @@ public sealed partial class TerminalContainer : Container<TerminalEntry>
     {
         base.UpdateAfterChildren();
 
-        while (Count > 50)
+        while (Count > terminal_entry_count)
         {
             var entry = this[0];
             Remove(entry, false);
