@@ -20,6 +20,9 @@ public partial class VRCOSCGameBase : osu.Framework.Game
     private const string base_game_name = @"VRCOSC";
 #endif
 
+    [Resolved]
+    private GameHost host { get; set; } = null!;
+
     protected DependencyContainer DependencyContainer = null!;
     protected VRCOSCConfigManager ConfigManager = null!;
 
@@ -33,7 +36,7 @@ public partial class VRCOSCGameBase : osu.Framework.Game
         => DependencyContainer = new DependencyContainer(base.CreateChildDependencies(parent));
 
     [BackgroundDependencyLoader]
-    private void load(GameHost host, Storage storage)
+    private void load(Storage storage)
     {
         Resources.AddStore(new DllResourceStore(typeof(VRCOSCResources).Assembly));
 
@@ -43,6 +46,14 @@ public partial class VRCOSCGameBase : osu.Framework.Game
         versionBindable.BindValueChanged(version => host.Window.Title = $"{base_game_name} {version.NewValue}", true);
 
         Window.WindowState = ConfigManager.Get<WindowState>(VRCOSCSetting.WindowState);
+    }
+
+    protected override void LoadComplete()
+    {
+        base.LoadComplete();
+        host.MaximumDrawHz = 60;
+        host.MaximumUpdateHz = 60;
+        host.MaximumInactiveHz = 60;
     }
 
     protected override bool OnExiting()
