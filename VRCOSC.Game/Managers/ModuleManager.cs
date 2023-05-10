@@ -21,7 +21,6 @@ public sealed class ModuleManager : IEnumerable<Module>, ICanSerialise
 {
     private static TerminalLogger terminal => new("ModuleManager");
 
-    public IReadOnlyList<Module> Modules => modules;
     private readonly List<IModuleSource> sources = new();
     private readonly SortedList<Module> modules = new();
 

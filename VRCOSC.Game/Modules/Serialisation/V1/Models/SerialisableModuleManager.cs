@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using osu.Framework.Extensions.IEnumerableExtensions;
+using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.Modules.Serialisation.V1.Models;
 
@@ -20,8 +21,8 @@ public class SerialisableModuleManager
     {
     }
 
-    public SerialisableModuleManager(IEnumerable<Module> modules)
+    public SerialisableModuleManager(ModuleManager moduleManager)
     {
-        modules.ForEach(module => Modules.Add(module.SerialisedName, new SerialisableModule(module)));
+        moduleManager.ForEach(module => Modules.Add(module.SerialisedName, new SerialisableModule(module)));
     }
 }
