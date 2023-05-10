@@ -197,6 +197,7 @@ public partial class GameManager : Component
     public async Task RestartAsync()
     {
         await StopAsync();
+        await Task.Delay(250);
         Start();
     }
 
