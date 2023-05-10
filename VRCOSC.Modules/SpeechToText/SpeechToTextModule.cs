@@ -19,12 +19,11 @@ public class SpeechToTextModule : ChatBoxModule
     private readonly MicrophoneInterface micInterface = new();
     private Model? model;
     private VoskRecognizer? recogniser;
+    private readonly object analyseLock = new();
 
     private bool readyToAccept;
     private bool listening;
     private bool shouldAnalyse => readyToAccept && listening && (!GetSetting<bool>(SpeechToTextSetting.FollowMute) || Player.IsMuted.GetValueOrDefault());
-
-    private readonly Queue<(byte[], int)> bufferQueue = new();
 
     public SpeechToTextModule()
     {
@@ -56,12 +55,23 @@ public class SpeechToTextModule : ChatBoxModule
             return;
         }
 
-        Log("Model loading...");
         readyToAccept = false;
         listening = true;
-        bufferQueue.Clear();
 
-        micInterface.BufferCallback = (buffer, bytesRecorded) => bufferQueue.Enqueue((buffer, bytesRecorded));
+        initialiseMicrophone();
+        initialiseVosk();
+
+        SetChatBoxTyping(false);
+        SetVariableValue(SpeechToTextVariable.Text, string.Empty);
+        ChangeStateTo(SpeechToTextState.Idle);
+        SendParameter(SpeechToTextParameter.Listen, listening);
+    }
+
+    private void initialiseMicrophone() => Task.Run(() =>
+    {
+        Log("Hooking into default microphone...");
+
+        micInterface.BufferCallback = analyseAudio;
         var captureDevice = micInterface.Hook();
 
         if (captureDevice is null)
@@ -71,32 +81,33 @@ public class SpeechToTextModule : ChatBoxModule
         }
 
         Log($"Hooked into microphone {captureDevice.DeviceFriendlyName.Trim()}");
+    });
 
-        Task.Run(() =>
+    private void initialiseVosk() => Task.Run(() =>
+    {
+        Log("Model loading...");
+
+        model = new Model(GetSetting<string>(SpeechToTextSetting.ModelLocation));
+
+        lock (analyseLock)
         {
-            model = new Model(GetSetting<string>(SpeechToTextSetting.ModelLocation));
             recogniser = new VoskRecognizer(model, micInterface.AudioCapture!.WaveFormat.SampleRate);
             recogniser.SetMaxAlternatives(0);
+        }
 
-            Log("Model loaded!");
-            readyToAccept = true;
-        }).ConfigureAwait(false);
+        Log("Model loaded!");
+        readyToAccept = true;
+    });
 
-        SetChatBoxTyping(false);
-        SetVariableValue(SpeechToTextVariable.Text, string.Empty);
-        ChangeStateTo(SpeechToTextState.Idle);
-        SendParameter(SpeechToTextParameter.Listen, listening);
-    }
-
-    protected override void OnFrameUpdate()
+    private void analyseAudio(byte[] buffer, int bytesRecorded)
     {
-        if (!shouldAnalyse || recogniser is null) return;
+        if (!HasStarted || !shouldAnalyse) return;
 
-        while (bufferQueue.Any())
+        lock (analyseLock)
         {
-            var bufferPair = bufferQueue.Dequeue();
+            if (recogniser is null) return;
 
-            if (!recogniser.AcceptWaveform(bufferPair.Item1, bufferPair.Item2))
+            if (!recogniser.AcceptWaveform(buffer, bytesRecorded))
             {
                 var partialResult = JsonConvert.DeserializeObject<PartialRecognition>(recogniser.PartialResult())?.Text;
 
@@ -141,7 +152,12 @@ public class SpeechToTextModule : ChatBoxModule
     {
         SetChatBoxTyping(false);
         micInterface.UnHook();
-        recogniser?.Dispose();
+
+        lock (analyseLock)
+        {
+            model?.Dispose();
+            recogniser?.Dispose();
+        }
     }
 
     protected override void OnBoolParameterReceived(Enum key, bool value)
