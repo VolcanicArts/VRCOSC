@@ -24,7 +24,7 @@ public partial class RouterScreen : Container
     [Resolved]
     private RouterManager routerManager { get; set; } = null!;
 
-    private FillFlowContainer instanceFlow = null!;
+    private FillFlowContainer<RouterDataFlowEntry> routerDataFlow = null!;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -38,114 +38,118 @@ public partial class RouterScreen : Container
                 RelativeSizeAxes = Axes.Both,
                 Colour = ThemeManager.Current[ThemeAttribute.Light]
             },
-            new BasicScrollContainer
+            new Container
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
-                ClampExtension = 20,
-                ScrollbarVisible = false,
-                Child = new FillFlowContainer
-                {
-                    Anchor = Anchor.TopCentre,
-                    Origin = Anchor.TopCentre,
-                    RelativeSizeAxes = Axes.X,
-                    AutoSizeAxes = Axes.Y,
-                    Padding = new MarginPadding(10),
-                    Direction = FillDirection.Vertical,
-                    Spacing = new Vector2(0, 5f),
-                    Children = new Drawable[]
-                    {
-                        new SpriteText
-                        {
-                            Anchor = Anchor.TopCentre,
-                            Origin = Anchor.TopCentre,
-                            Font = FrameworkFont.Regular.With(size: 60),
-                            Text = "Router",
-                            Colour = ThemeManager.Current[ThemeAttribute.Text]
-                        },
-                        new TextFlowContainer(t => t.Font = FrameworkFont.Regular.With(size: 20))
-                        {
-                            Anchor = Anchor.TopCentre,
-                            Origin = Anchor.TopCentre,
-                            RelativeSizeAxes = Axes.X,
-                            AutoSizeAxes = Axes.Y,
-                            TextAnchor = Anchor.TopCentre,
-                            Text = "This screen allows you to route data from other applications through VRCOSC to fix the port binding issues\n"
-                                   + "This is functionally similar to OSCRouter, but has proper support for apps such as VRCFaceTracking\n"
-                                   + "Check the Router wiki page (top right) for common setups",
-                            Colour = ThemeManager.Current[ThemeAttribute.SubText]
-                        },
-                        instanceFlow = new FillFlowContainer
-                        {
-                            Anchor = Anchor.TopCentre,
-                            Origin = Anchor.TopCentre,
-                            RelativeSizeAxes = Axes.X,
-                            AutoSizeAxes = Axes.Y,
-                            Direction = FillDirection.Vertical,
-                            Spacing = new Vector2(0, 5)
-                        },
-                        new IconButton
-                        {
-                            Anchor = Anchor.TopCentre,
-                            Origin = Anchor.TopCentre,
-                            RelativeSizeAxes = Axes.X,
-                            Width = 0.3f,
-                            Height = 30,
-                            Icon = FontAwesome.Solid.Plus,
-                            BackgroundColour = ThemeManager.Current[ThemeAttribute.Darker],
-                            CornerRadius = 10,
-                            Action = addInstance
-                        }
-                    }
-                }
-            },
-            new Container
-            {
-                Anchor = Anchor.TopRight,
-                Origin = Anchor.TopRight,
-                Size = new Vector2(70),
                 Padding = new MarginPadding(10),
-                Child = new IconButton
+                Child = new Container
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
                     RelativeSizeAxes = Axes.Both,
-                    Icon = FontAwesome.Solid.Question,
-                    BackgroundColour = ThemeManager.Current[ThemeAttribute.Action],
-                    IconShadow = true,
                     Masking = true,
-                    Circular = true,
-                    IconPadding = 6,
-                    Action = () => host.OpenUrlExternally(vrcosc_router_wiki_url)
+                    CornerRadius = 10,
+                    Children = new Drawable[]
+                    {
+                        new Box
+                        {
+                            Colour = ThemeManager.Current[ThemeAttribute.Dark],
+                            RelativeSizeAxes = Axes.Both
+                        },
+                        new BasicScrollContainer
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativeSizeAxes = Axes.Both,
+                            ClampExtension = 0,
+                            ScrollbarVisible = false,
+                            Children = new Drawable[]
+                            {
+                                new Container
+                                {
+                                    Anchor = Anchor.TopRight,
+                                    Origin = Anchor.TopRight,
+                                    Size = new Vector2(75),
+                                    Padding = new MarginPadding(10),
+                                    Child = new IconButton
+                                    {
+                                        Anchor = Anchor.Centre,
+                                        Origin = Anchor.Centre,
+                                        RelativeSizeAxes = Axes.Both,
+                                        Circular = true,
+                                        Icon = FontAwesome.Solid.Question,
+                                        BackgroundColour = ThemeManager.Current[ThemeAttribute.Action],
+                                        Action = () => host.OpenUrlExternally(vrcosc_router_wiki_url)
+                                    }
+                                },
+                                new FillFlowContainer
+                                {
+                                    Anchor = Anchor.TopCentre,
+                                    Origin = Anchor.TopCentre,
+                                    RelativeSizeAxes = Axes.X,
+                                    AutoSizeAxes = Axes.Y,
+                                    Direction = FillDirection.Vertical,
+                                    Spacing = new Vector2(0, 5),
+                                    Padding = new MarginPadding(10),
+                                    Children = new Drawable[]
+                                    {
+                                        new RouterHeader
+                                        {
+                                            Anchor = Anchor.TopCentre,
+                                            Origin = Anchor.TopCentre
+                                        },
+                                        routerDataFlow = new FillFlowContainer<RouterDataFlowEntry>
+                                        {
+                                            Anchor = Anchor.TopCentre,
+                                            Origin = Anchor.TopCentre,
+                                            RelativeSizeAxes = Axes.X,
+                                            AutoSizeAxes = Axes.Y,
+                                            Direction = FillDirection.Full
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         };
-
-        routerManager.Store.ForEach(routerData =>
-        {
-            instanceFlow.Add(new RouterInstance(routerData)
-            {
-                Anchor = Anchor.TopCentre,
-                Origin = Anchor.TopCentre,
-                RelativeSizeAxes = Axes.X,
-                AutoSizeAxes = Axes.Y,
-                Width = 0.5f
-            });
-        });
     }
 
-    private void addInstance()
+    protected override void LoadComplete()
     {
-        var instance = routerManager.Create();
+        var drawableRouterDataSpawner = new DrawableRouterDataSpawner();
+        routerDataFlow.Add(drawableRouterDataSpawner);
+        routerDataFlow.SetLayoutPosition(drawableRouterDataSpawner, 1);
 
-        instanceFlow.Add(new RouterInstance(instance)
+        routerManager.Store.BindCollectionChanged((_, e) =>
         {
-            Anchor = Anchor.TopCentre,
-            Origin = Anchor.TopCentre,
-            RelativeSizeAxes = Axes.X,
-            AutoSizeAxes = Axes.Y,
-            Width = 0.5f
-        });
+            if (e.NewItems is not null)
+            {
+                foreach (RouterData newRouterData in e.NewItems)
+                {
+                    var drawableRouterData = new DrawableRouterData(newRouterData);
+
+                    if (routerDataFlow.Count > 1)
+                    {
+                        drawableRouterData.Position = routerDataFlow[^1].Position;
+                    }
+
+                    routerDataFlow.Add(drawableRouterData);
+                    routerDataFlow.SetLayoutPosition(drawableRouterData, 0);
+                }
+            }
+
+            routerDataFlow.LayoutEasing = Easing.OutQuad;
+            routerDataFlow.LayoutDuration = 150;
+
+            Scheduler.AddDelayed(() =>
+            {
+                routerDataFlow.LayoutEasing = Easing.None;
+                routerDataFlow.LayoutDuration = 0;
+            }, 150);
+        }, true);
     }
 }

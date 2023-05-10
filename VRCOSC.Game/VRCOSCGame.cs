@@ -180,7 +180,6 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     {
         editingModule.Value = null;
         infoModule.Value = null;
-        routerManager.Serialise();
         Exit();
     }
 

@@ -230,7 +230,7 @@ public partial class GameManager : Component
 
         try
         {
-            OSCRouter.Initialise(routerManager.Store);
+            OSCRouter.Initialise(routerManager.Store.ToList());
             OSCRouter.Enable();
         }
         catch

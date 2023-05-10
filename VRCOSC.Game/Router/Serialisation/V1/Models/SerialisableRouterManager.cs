@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.Router.Serialisation.V1.Models;

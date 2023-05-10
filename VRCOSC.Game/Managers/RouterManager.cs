@@ -1,7 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Collections.Generic;
+using osu.Framework.Bindables;
 using osu.Framework.Platform;
 using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.OSC;
@@ -13,7 +13,7 @@ namespace VRCOSC.Game.Managers;
 
 public class RouterManager : ICanSerialise
 {
-    public List<RouterData> Store = new();
+    public BindableList<RouterData> Store = new();
 
     private readonly SerialisationManager serialisationManager;
 
@@ -24,22 +24,11 @@ public class RouterManager : ICanSerialise
         serialisationManager.RegisterSerialiser(1, new RouterSerialiser(storage, notification, this));
     }
 
-    public RouterData Create()
-    {
-        var routerData = new RouterData
-        {
-            Label = string.Empty,
-            Endpoints = new OSCRouterEndpoints()
-        };
-
-        Store.Add(routerData);
-
-        return routerData;
-    }
-
     public void Load()
     {
         Deserialise();
+
+        Store.BindCollectionChanged((_, _) => Serialise());
     }
 
     public void Deserialise()
@@ -57,6 +46,6 @@ public class RouterManager : ICanSerialise
 
 public class RouterData
 {
-    public string Label = null!;
-    public OSCRouterEndpoints Endpoints = null!;
+    public string Label = string.Empty;
+    public OSCRouterEndpoints Endpoints = new();
 }

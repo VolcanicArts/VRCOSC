@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Collections.Generic;
+using System.Linq;
 using osu.Framework.Platform;
 using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Managers;
@@ -18,10 +19,11 @@ public class LegacyRouterSerialiser : Serialiser<RouterManager, List<RouterData>
     {
     }
 
-    protected override List<RouterData> GetSerialisableData(RouterManager routerManager) => routerManager.Store;
+    protected override List<RouterData> GetSerialisableData(RouterManager routerManager) => routerManager.Store.ToList();
 
     protected override void ExecuteAfterDeserialisation(RouterManager routerManager, List<RouterData> data)
     {
-        routerManager.Store = data;
+        routerManager.Store.Clear();
+        routerManager.Store.AddRange(data);
     }
 }
