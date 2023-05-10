@@ -43,9 +43,10 @@ public sealed partial class TypeFilter : Container
     {
         All = -1,
         Health = 0,
-        OpenVR = 1,
-        Integrations = 2,
-        General = 3,
+        Accessibility = 1,
+        OpenVR = 2,
+        Integrations = 3,
+        General = 4
     }
 
     private static Module.ModuleType? groupToType(Group group) => group == Group.All ? null : (Module.ModuleType)(int)group;
