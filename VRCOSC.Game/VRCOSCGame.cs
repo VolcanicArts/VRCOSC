@@ -172,20 +172,8 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         // ReSharper disable once RedundantExplicitParamsArrayCreation
         Task.WhenAll(new[]
         {
-            Task.Run(waitForGameManager)
+            GameManager.StopAsync()
         }).ContinueWith(_ => Schedule(performExit));
-    }
-
-    private Task waitForGameManager()
-    {
-        if (GameManager.State.Value == GameManagerState.Stopped) return Task.CompletedTask;
-
-        GameManager.Stop();
-
-        while (true)
-        {
-            if (GameManager.State.Value == GameManagerState.Stopped) return Task.CompletedTask;
-        }
     }
 
     private void performExit()

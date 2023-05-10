@@ -27,26 +27,20 @@ public sealed class HardwareStatsProvider
     public GPU? GetGPU(int id) => components.Where(component => component.GetType() == typeof(GPU)).Select(component => (GPU)component).SingleOrDefault(gpu => gpu.Id == id);
     public RAM? GetRam() => components.Where(component => component.GetType() == typeof(RAM)).Select(component => (RAM)component).SingleOrDefault();
 
-    public void Init()
+    public void Init() => Task.Run(() =>
     {
-        Task.Run(() =>
-        {
-            computer.Open();
-            CanAcceptQueries = true;
-        }).ConfigureAwait(false);
-    }
+        computer.Open();
+        CanAcceptQueries = true;
+    });
 
-    public void Shutdown()
+    public void Shutdown() => Task.Run(() =>
     {
-        Task.Run(() =>
-        {
-            CanAcceptQueries = false;
-            components.Clear();
-            computer.Close();
-        }).ConfigureAwait(false);
-    }
+        CanAcceptQueries = false;
+        components.Clear();
+        computer.Close();
+    });
 
-    public void Update()
+    public async Task Update() => await Task.Run(() =>
     {
         computer.Hardware.ForEach(hardware =>
         {
@@ -54,7 +48,7 @@ public sealed class HardwareStatsProvider
             auditHardware(hardware);
             hardware.Sensors.ForEach(sensor => components.ForEach(component => component.Update(sensor)));
         });
-    }
+    });
 
     private void updateHardware(IHardware hardware)
     {

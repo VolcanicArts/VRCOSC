@@ -66,7 +66,7 @@ public sealed partial class ParameterContainer : Container
 
         gameManager.State.BindValueChanged(e =>
         {
-            if (e.NewValue == GameManagerState.Stopped) ClearParameters();
+            if (e.NewValue == GameManagerState.Starting) clearParameters();
         });
     }
 
@@ -80,11 +80,11 @@ public sealed partial class ParameterContainer : Container
         incomingParameterDisplay.AddEntry(data.Address, data.ParameterValue);
     }
 
-    public void ClearParameters() => Schedule(() =>
+    private void clearParameters()
     {
         outgoingParameterDisplay.ClearContent();
         incomingParameterDisplay.ClearContent();
-    });
+    }
 
     private sealed partial class ParameterSubContainer : Container
     {

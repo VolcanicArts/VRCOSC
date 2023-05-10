@@ -132,11 +132,11 @@ public partial class RunScreenFooter : Container
 
     protected override void LoadComplete()
     {
-        gameManager.State.BindValueChanged(_ =>
+        gameManager.State.BindValueChanged(_ => Schedule(() =>
         {
             restartButton.Enabled.Value = gameManager.State.Value == GameManagerState.Started;
             stopButton.Enabled.Value = gameManager.State.Value == GameManagerState.Started;
             startButton.Enabled.Value = gameManager.State.Value == GameManagerState.Stopped;
-        }, true);
+        }), true);
     }
 }

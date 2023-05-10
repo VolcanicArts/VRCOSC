@@ -66,19 +66,18 @@ public abstract class HeartRateModule : ChatBoxModule
         HeartRateProvider = CreateHeartRateProvider();
         HeartRateProvider.OnHeartRateUpdate += handleHeartRateUpdate;
         HeartRateProvider.OnConnected += () => connectionCount = 0;
-
-        HeartRateProvider.OnDisconnected += () =>
-        {
-            Task.Run(async () =>
-            {
-                if (IsStopping || HasStopped) return;
-
-                await Task.Delay(2000);
-                attemptConnection();
-            });
-        };
+        HeartRateProvider.OnDisconnected += attemptReconnection;
         HeartRateProvider.Initialise();
         HeartRateProvider.Connect();
+    }
+
+    private void attemptReconnection()
+    {
+        if (IsStopping || HasStopped) return;
+
+        Log("Attempting reconnection...");
+        Thread.Sleep(2000);
+        attemptConnection();
     }
 
     protected override void OnModuleStop()

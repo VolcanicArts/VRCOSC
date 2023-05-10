@@ -2,12 +2,14 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Pooling;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Logging;
 using VRCOSC.Game.Graphics.Themes;
+using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.Graphics.Run;
 
@@ -20,6 +22,9 @@ public sealed partial class TerminalContainer : Container<TerminalEntry>
     protected override FillFlowContainer<TerminalEntry> Content { get; }
 
     private readonly DrawablePool<TerminalEntry> terminalEntryPool = new(terminal_entry_count);
+
+    [Resolved]
+    private GameManager gameManager { get; set; } = null!;
 
     public TerminalContainer()
     {
@@ -65,6 +70,11 @@ public sealed partial class TerminalContainer : Container<TerminalEntry>
             if (logEntry.LoggerName == "terminal")
                 log(logEntry.Message);
         };
+
+        gameManager.State.BindValueChanged(e =>
+        {
+            if (e.NewValue == GameManagerState.Starting) Reset();
+        });
     }
 
     public void Reset()
