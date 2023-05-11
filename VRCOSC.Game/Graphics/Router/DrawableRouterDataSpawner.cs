@@ -27,6 +27,7 @@ public partial class DrawableRouterDataSpawner : RouterDataFlowEntry
                 Origin = Anchor.Centre,
                 Size = new Vector2(40),
                 Circular = true,
+                IconShadow = true,
                 Icon = FontAwesome.Solid.Plus,
                 BackgroundColour = ThemeManager.Current[ThemeAttribute.Success],
                 Action = () => routerManager.Store.Add(new RouterData())

@@ -12,9 +12,10 @@ public partial class RouterDataFlowEntry : Container
     [BackgroundDependencyLoader]
     private void load()
     {
-        RelativeSizeAxes = Axes.X;
-        AutoSizeAxes = Axes.Y;
-        Width = 1 / 3f;
+        Anchor = Anchor.TopCentre;
+        Origin = Anchor.TopCentre;
+        Width = 400;
+        Height = 115;
         Padding = new MarginPadding(5);
     }
 }
