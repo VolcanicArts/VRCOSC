@@ -33,7 +33,7 @@ public class ChatBoxManager : ICanSerialise
 
     public readonly Bindable<Clip?> SelectedClip = new();
 
-    public readonly BindableList<Clip> Clips = new();
+    public BindableList<Clip> Clips = new();
 
     public readonly Dictionary<string, Dictionary<string, ClipVariableMetadata>> VariableMetadata = new();
     public readonly Dictionary<string, Dictionary<string, ClipStateMetadata>> StateMetadata = new();
@@ -62,8 +62,6 @@ public class ChatBoxManager : ICanSerialise
     private DateTimeOffset startTime;
     private DateTimeOffset nextValidTime;
     private bool isClear;
-    private bool deserialised;
-    private bool isLoaded;
 
     public void Load(Storage storage, GameManager gameManager, NotificationContainer notification)
     {
@@ -71,27 +69,25 @@ public class ChatBoxManager : ICanSerialise
         serialisationManager = new SerialisationManager();
         serialisationManager.RegisterSerialiser(1, new TimelineSerialiser(storage, notification, this));
 
-        Clips.AddRange(DefaultTimeline.GenerateDefaultTimeline(this));
         TimelineLength.Value = TimeSpan.FromMinutes(1);
+        Clips.AddRange(DefaultTimeline.GenerateDefaultTimeline(this));
 
         Deserialise();
 
-        Clips.BindCollectionChanged((_, _) => Serialise());
         TimelineLength.BindValueChanged(_ => Serialise());
-
-        isLoaded = true;
-        if (deserialised) Serialise();
+        Clips.BindCollectionChanged((_, _) => Serialise());
+        Clips.ForEach(clip => clip.Load());
     }
 
     public void Deserialise()
     {
-        deserialised = serialisationManager.Deserialise();
+        if (!serialisationManager.Deserialise()) return;
+
+        Serialise();
     }
 
     public void Serialise()
     {
-        if (!isLoaded) return;
-
         serialisationManager.Serialise();
     }
 
