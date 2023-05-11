@@ -27,14 +27,14 @@ public partial class RunScreenFooter : Container
     {
         Masking = true;
         CornerRadius = 10;
-        BorderThickness = 3;
+        BorderThickness = 2;
         BorderColour = ThemeManager.Current[ThemeAttribute.Border];
 
         Children = new Drawable[]
         {
             new Box
             {
-                Colour = ThemeManager.Current[ThemeAttribute.Darker],
+                Colour = ThemeManager.Current[ThemeAttribute.Dark],
                 RelativeSizeAxes = Axes.Both
             },
             new Container

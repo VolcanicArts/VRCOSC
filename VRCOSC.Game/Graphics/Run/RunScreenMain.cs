@@ -31,7 +31,7 @@ public partial class RunScreenMain : Container
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,
                         RelativeSizeAxes = Axes.Both,
-                        BorderThickness = 3,
+                        BorderThickness = 2,
                         Masking = true,
                         CornerRadius = 10,
                         BorderColour = ThemeManager.Current[ThemeAttribute.Border]
@@ -41,11 +41,7 @@ public partial class RunScreenMain : Container
                     {
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,
-                        RelativeSizeAxes = Axes.Both,
-                        BorderThickness = 3,
-                        Masking = true,
-                        CornerRadius = 10,
-                        BorderColour = ThemeManager.Current[ThemeAttribute.Border]
+                        RelativeSizeAxes = Axes.Both
                     }
                 }
             }

@@ -71,7 +71,7 @@ public sealed partial class ParameterEntry : Container
         Value.BindValueChanged(e =>
         {
             valueText.Text = e.NewValue;
-            background.FlashColour(Colour4.White.Darken(0.15f), 500, Easing.OutCubic);
+            background.FlashColour(ThemeManager.Current[ThemeAttribute.Lighter], 500, Easing.OutCubic);
         }, true);
     }
 }

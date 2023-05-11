@@ -25,13 +25,6 @@ public sealed partial class ParameterDisplay : Container
     private readonly SortedDictionary<string, ParameterEntry> parameterDict = new();
     private FillFlowContainer<ParameterEntry> parameterFlow = null!;
 
-    public ParameterDisplay()
-    {
-        Masking = true;
-        BorderThickness = 3;
-        BorderColour = ThemeManager.Current[ThemeAttribute.Border];
-    }
-
     [BackgroundDependencyLoader]
     private void load()
     {

@@ -33,7 +33,7 @@ public sealed partial class TerminalContainer : Container<TerminalEntry>
             new Box
             {
                 RelativeSizeAxes = Axes.Both,
-                Colour = ThemeManager.Current[ThemeAttribute.Darker]
+                Colour = ThemeManager.Current[ThemeAttribute.Dark]
             },
             new Container
             {

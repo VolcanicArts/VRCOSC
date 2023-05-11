@@ -36,10 +36,6 @@ public sealed partial class ParameterContainer : Container
                 {
                     outgoingParameterDisplay = new ParameterSubContainer
                     {
-                        RelativeSizeAxes = Axes.Both,
-                        BorderThickness = 3,
-                        Masking = true,
-                        CornerRadius = 10,
                         Title = "Outgoing"
                     }
                 },
@@ -48,10 +44,6 @@ public sealed partial class ParameterContainer : Container
                 {
                     incomingParameterDisplay = new ParameterSubContainer
                     {
-                        RelativeSizeAxes = Axes.Both,
-                        BorderThickness = 3,
-                        Masking = true,
-                        CornerRadius = 10,
                         Title = "Incoming"
                     }
                 }
@@ -95,12 +87,18 @@ public sealed partial class ParameterContainer : Container
         [BackgroundDependencyLoader]
         private void load()
         {
+            RelativeSizeAxes = Axes.Both;
+            Masking = true;
+            CornerRadius = 10;
+            BorderThickness = 2;
+            BorderColour = ThemeManager.Current[ThemeAttribute.Border];
+
             Children = new Drawable[]
             {
                 new Box
                 {
                     RelativeSizeAxes = Axes.Both,
-                    Colour = ThemeManager.Current[ThemeAttribute.Darker]
+                    Colour = ThemeManager.Current[ThemeAttribute.Dark]
                 },
                 parameterDisplay = new ParameterDisplay
                 {
