@@ -14,7 +14,7 @@ public sealed partial class TabPopover : Popover
 {
     public TabPopover()
     {
-        Background.Colour = ThemeManager.Current[ThemeAttribute.Dark];
+        Background.Colour = ThemeManager.Current[ThemeAttribute.Mid];
         Content.Padding = new MarginPadding(10);
         RelativePositionAxes = Axes.X;
     }
@@ -28,7 +28,7 @@ public sealed partial class TabPopover : Popover
 
     protected override Drawable CreateArrow() => new EquilateralTriangle
     {
-        Colour = ThemeManager.Current[ThemeAttribute.Dark],
+        Colour = ThemeManager.Current[ThemeAttribute.Mid],
         Origin = Anchor.TopCentre,
         Scale = new Vector2(1.05f)
     };

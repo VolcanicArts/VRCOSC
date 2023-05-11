@@ -17,7 +17,9 @@ public partial class VRCOSCButton : osu.Framework.Graphics.UserInterface.Button
     private const float alpha_disabled = 0.5f;
 
     public bool ShouldAnimate { get; init; } = true;
-    public bool Circular { get; init; } = false;
+    public bool Circular { get; init; }
+
+    public override bool HandlePositionalInput => Enabled.Value;
 
     protected VRCOSCButton()
     {
@@ -34,18 +36,18 @@ public partial class VRCOSCButton : osu.Framework.Graphics.UserInterface.Button
 
     protected override bool OnHover(HoverEvent e)
     {
-        if (Enabled.Value && ShouldAnimate) this.ScaleTo(scale_hovered, 100, Easing.OutCirc);
+        if (ShouldAnimate) this.ScaleTo(scale_hovered, 100, Easing.OutCirc);
         return true;
     }
 
     protected override void OnHoverLost(HoverLostEvent e)
     {
-        if (Enabled.Value && ShouldAnimate) this.ScaleTo(scale_default, 100, Easing.OutCirc);
+        if (ShouldAnimate) this.ScaleTo(scale_default, 100, Easing.OutCirc);
     }
 
     protected override bool OnClick(ClickEvent e)
     {
-        if (Enabled.Value && ShouldAnimate) this.ScaleTo(IsHovered ? scale_hovered : scale_default, 500, Easing.OutElastic);
+        if (ShouldAnimate) this.ScaleTo(IsHovered ? scale_hovered : scale_default, 500, Easing.OutElastic);
         return base.OnClick(e);
     }
 
@@ -53,7 +55,7 @@ public partial class VRCOSCButton : osu.Framework.Graphics.UserInterface.Button
     {
         if (e.Button != MouseButton.Left) return base.OnMouseDown(e);
 
-        if (Enabled.Value && ShouldAnimate) this.ScaleTo(scale_mousedown, 1000, Easing.OutSine);
+        if (ShouldAnimate) this.ScaleTo(scale_mousedown, 1000, Easing.OutSine);
         return true;
     }
 }
