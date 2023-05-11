@@ -30,10 +30,10 @@ public class SerialisableRouterData
 
     public SerialisableRouterData(RouterData data)
     {
-        Label = data.Label;
-        ReceiveAddress = data.Endpoints.ReceiveAddress;
-        ReceivePort = data.Endpoints.ReceivePort;
-        SendAddress = data.Endpoints.SendAddress;
-        SendPort = data.Endpoints.SendPort;
+        Label = data.Label.Value;
+        ReceiveAddress = data.Endpoints.ReceiveAddress.Value;
+        ReceivePort = data.Endpoints.ReceivePort.Value;
+        SendAddress = data.Endpoints.SendAddress.Value;
+        SendPort = data.Endpoints.SendPort.Value;
     }
 }

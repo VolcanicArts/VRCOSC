@@ -29,6 +29,21 @@ public class RouterManager : ICanSerialise
         Deserialise();
 
         Store.BindCollectionChanged((_, _) => Serialise());
+
+        Store.BindCollectionChanged((_, e) =>
+        {
+            if (e.NewItems is not null)
+            {
+                foreach (RouterData newRouterData in e.NewItems)
+                {
+                    newRouterData.Label.BindValueChanged(_ => Serialise());
+                    newRouterData.Endpoints.SendAddress.BindValueChanged(_ => Serialise());
+                    newRouterData.Endpoints.ReceiveAddress.BindValueChanged(_ => Serialise());
+                    newRouterData.Endpoints.SendPort.BindValueChanged(_ => Serialise());
+                    newRouterData.Endpoints.ReceivePort.BindValueChanged(_ => Serialise());
+                }
+            }
+        }, true);
     }
 
     public void Deserialise()
@@ -46,6 +61,6 @@ public class RouterManager : ICanSerialise
 
 public class RouterData
 {
-    public string Label = string.Empty;
+    public readonly Bindable<string> Label = new(string.Empty);
     public OSCRouterEndpoints Endpoints = new();
 }

@@ -29,13 +29,13 @@ public class RouterSerialiser : Serialiser<RouterManager, SerialisableRouterMana
         {
             routerManager.Store.Add(new RouterData
             {
-                Label = routerData.Label,
+                Label = { Value = routerData.Label },
                 Endpoints = new OSCRouterEndpoints
                 {
-                    ReceiveAddress = routerData.ReceiveAddress,
-                    ReceivePort = routerData.ReceivePort,
-                    SendAddress = routerData.SendAddress,
-                    SendPort = routerData.SendPort
+                    ReceiveAddress = { Value = routerData.ReceiveAddress },
+                    ReceivePort = { Value = routerData.ReceivePort },
+                    SendAddress = { Value = routerData.SendAddress },
+                    SendPort = { Value = routerData.SendPort }
                 }
             });
         });

@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using osu.Framework.Bindables;
 using VRCOSC.Game.Managers;
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.OSC.Client;
@@ -30,19 +31,19 @@ public class OSCRouter
         {
             var pair = routerData.Endpoints;
 
-            if (!string.IsNullOrEmpty(pair.SendAddress))
+            if (!string.IsNullOrEmpty(pair.SendAddress.Value))
             {
                 var sender = new OscSender();
-                sender.Initialise(new IPEndPoint(IPAddress.Parse(pair.SendAddress), pair.SendPort));
+                sender.Initialise(new IPEndPoint(IPAddress.Parse(pair.SendAddress.Value), pair.SendPort.Value));
                 Senders.Add(sender);
 
                 terminal.Log($"Initialising sender labelled {routerData.Label} on {pair.SendAddress}:{pair.SendPort}");
             }
 
-            if (!string.IsNullOrEmpty(pair.ReceiveAddress))
+            if (!string.IsNullOrEmpty(pair.ReceiveAddress.Value))
             {
                 var receiver = new OscReceiver();
-                receiver.Initialise(new IPEndPoint(IPAddress.Parse(pair.ReceiveAddress), pair.ReceivePort));
+                receiver.Initialise(new IPEndPoint(IPAddress.Parse(pair.ReceiveAddress.Value), pair.ReceivePort.Value));
                 Receivers.Add(receiver);
 
                 terminal.Log($"Initialising receiver labelled {routerData.Label} on {pair.ReceiveAddress}:{pair.ReceivePort}");
@@ -79,8 +80,8 @@ public class OSCRouter
 
 public class OSCRouterEndpoints
 {
-    public string SendAddress { get; set; } = string.Empty;
-    public int SendPort { get; set; }
-    public string ReceiveAddress { get; set; } = string.Empty;
-    public int ReceivePort { get; set; }
+    public readonly Bindable<string> SendAddress = new(string.Empty);
+    public readonly Bindable<int> SendPort = new();
+    public readonly Bindable<string> ReceiveAddress = new(string.Empty);
+    public readonly Bindable<int> ReceivePort = new();
 }
