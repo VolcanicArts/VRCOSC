@@ -14,6 +14,6 @@ public partial class GeneralSection : SectionContainer
     protected override void GenerateItems()
     {
         AddDropdown("Theme", "Select a theme and restart to see the effect", ConfigManager.GetBindable<ColourTheme>(VRCOSCSetting.Theme));
-        AddTextBox<IntTextBox, int>("ChatBox Time Span", "The delay between the ChatBox updating (milliseconds)\nIf you're experiencing ChatBox timeouts, increase this number by a few hundred milliseconds", ConfigManager.GetBindable<int>(VRCOSCSetting.ChatBoxTimeSpan));
+        AddTextBox<IntTextBox, int>("ChatBox Update Rate", "The ChatBox update rate (milliseconds)", ConfigManager.GetBindable<int>(VRCOSCSetting.ChatBoxTimeSpan));
     }
 }

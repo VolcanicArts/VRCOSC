@@ -157,7 +157,7 @@ public partial class DrawableRouterData : RouterDataFlowEntry
                                                         Text = string.IsNullOrEmpty(data.Endpoints.ReceiveAddress.Value) ? string.Empty : $"{data.Endpoints.ReceiveAddress.Value}:{data.Endpoints.ReceivePort.Value}",
                                                         OnValidEntry = entryData =>
                                                         {
-                                                            data.Endpoints.ReceiveAddress.Value = entryData.IP;
+                                                            data.Endpoints.ReceiveAddress.Value = entryData.Address.ToString();
                                                             data.Endpoints.ReceivePort.Value = entryData.Port;
                                                         }
                                                     },
@@ -199,7 +199,7 @@ public partial class DrawableRouterData : RouterDataFlowEntry
                                                         Text = string.IsNullOrEmpty(data.Endpoints.SendAddress.Value) ? string.Empty : $"{data.Endpoints.SendAddress.Value}:{data.Endpoints.SendPort.Value}",
                                                         OnValidEntry = entryData =>
                                                         {
-                                                            data.Endpoints.SendAddress.Value = entryData.IP;
+                                                            data.Endpoints.SendAddress.Value = entryData.Address.ToString();
                                                             data.Endpoints.SendPort.Value = entryData.Port;
                                                         }
                                                     }

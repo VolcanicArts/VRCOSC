@@ -4,7 +4,7 @@
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
-using osu.Framework.Graphics.Containers;
+using osuTK;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Button;
 
@@ -22,24 +22,16 @@ public partial class ToggleSettingCard : SettingCard<bool>
     [BackgroundDependencyLoader]
     private void load()
     {
-        ContentWrapper.Add(new Container
+        Add(toggleButton = new ToggleButton
         {
-            Anchor = Anchor.CentreRight,
-            Origin = Anchor.CentreRight,
-            RelativeSizeAxes = Axes.Both,
-            FillMode = FillMode.Fit,
-            Padding = new MarginPadding(10),
-            Child = toggleButton = new ToggleButton
-            {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                RelativeSizeAxes = Axes.Both,
-                CornerRadius = 10,
-                BorderColour = ThemeManager.Current[ThemeAttribute.Border],
-                BorderThickness = 2,
-                ShouldAnimate = false,
-                State = { Value = SettingBindable.Value }
-            }
+            Anchor = Anchor.TopCentre,
+            Origin = Anchor.TopCentre,
+            Size = new Vector2(25),
+            CornerRadius = 5,
+            BorderColour = ThemeManager.Current[ThemeAttribute.Border],
+            BorderThickness = 2,
+            ShouldAnimate = false,
+            State = { Value = SettingBindable.Value }
         });
     }
 

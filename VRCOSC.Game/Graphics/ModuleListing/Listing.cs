@@ -42,10 +42,7 @@ public sealed partial class Listing : Container
                     RelativeSizeAxes = Axes.X,
                     AutoSizeAxes = Axes.Y,
                     Direction = FillDirection.Vertical,
-                    Padding = new MarginPadding
-                    {
-                        Right = 12
-                    },
+                    Padding = new MarginPadding { Right = 12 },
                     Spacing = new Vector2(0, 5)
                 }
             }

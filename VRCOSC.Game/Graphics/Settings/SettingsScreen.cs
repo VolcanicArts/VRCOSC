@@ -1,17 +1,18 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
-using osuTK;
 using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.Settings;
 
 public sealed partial class SettingsScreen : Container
 {
-    public SettingsScreen()
+    [BackgroundDependencyLoader]
+    private void load()
     {
         RelativeSizeAxes = Axes.Both;
 
@@ -22,41 +23,80 @@ public sealed partial class SettingsScreen : Container
                 RelativeSizeAxes = Axes.Both,
                 Colour = ThemeManager.Current[ThemeAttribute.Light]
             },
-            new BasicScrollContainer
+            new Container
             {
                 RelativeSizeAxes = Axes.Both,
-                ScrollbarVisible = false,
-                ClampExtension = 0,
-                Child = new FillFlowContainer
+                Padding = new MarginPadding(10),
+                Children = new Drawable[]
                 {
-                    RelativeSizeAxes = Axes.X,
-                    AutoSizeAxes = Axes.Y,
-                    Children = new Drawable[]
+                    new GridContainer
                     {
-                        new TextFlowContainer(t =>
+                        RelativeSizeAxes = Axes.Both,
+                        RowDimensions = new[]
                         {
-                            t.Font = FrameworkFont.Regular.With(size: 80);
-                            t.Colour = ThemeManager.Current[ThemeAttribute.Text];
-                        })
-                        {
-                            RelativeSizeAxes = Axes.X,
-                            AutoSizeAxes = Axes.Y,
-                            TextAnchor = Anchor.TopCentre,
-                            Text = "Settings"
+                            new Dimension(GridSizeMode.AutoSize),
+                            new Dimension(GridSizeMode.Absolute, 5),
+                            new Dimension()
                         },
-                        new FillFlowContainer<SectionContainer>
+                        Content = new[]
                         {
-                            RelativeSizeAxes = Axes.X,
-                            AutoSizeAxes = Axes.Y,
-                            Direction = FillDirection.Vertical,
-                            Padding = new MarginPadding(10),
-                            Spacing = new Vector2(0, 20),
-                            Children = new SectionContainer[]
+                            new Drawable[]
                             {
-                                new GeneralSection(),
-                                new OscSection(),
-                                new AutomationSection(),
-                                new UpdateSection()
+                                new SettingsHeader()
+                            },
+                            null,
+                            new Drawable[]
+                            {
+                                new Container
+                                {
+                                    RelativeSizeAxes = Axes.Both,
+                                    Masking = true,
+                                    CornerRadius = 10,
+                                    BorderThickness = 2,
+                                    BorderColour = ThemeManager.Current[ThemeAttribute.Border],
+                                    Children = new Drawable[]
+                                    {
+                                        new Box
+                                        {
+                                            Colour = ThemeManager.Current[ThemeAttribute.Dark],
+                                            RelativeSizeAxes = Axes.Both
+                                        },
+                                        new Container
+                                        {
+                                            RelativeSizeAxes = Axes.Both,
+                                            Padding = new MarginPadding(10),
+                                            Child = new GridContainer
+                                            {
+                                                Anchor = Anchor.TopCentre,
+                                                Origin = Anchor.TopCentre,
+                                                RelativeSizeAxes = Axes.Both,
+                                                ColumnDimensions = new[]
+                                                {
+                                                    new Dimension(),
+                                                    new Dimension(GridSizeMode.Absolute, 5),
+                                                    new Dimension(),
+                                                    new Dimension(GridSizeMode.Absolute, 5),
+                                                    new Dimension(),
+                                                    new Dimension(GridSizeMode.Absolute, 5),
+                                                    new Dimension()
+                                                },
+                                                Content = new[]
+                                                {
+                                                    new Drawable?[]
+                                                    {
+                                                        new GeneralSection(),
+                                                        null,
+                                                        new OscSection(),
+                                                        null,
+                                                        new AutomationSection(),
+                                                        null,
+                                                        new UpdateSection()
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }

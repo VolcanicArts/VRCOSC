@@ -13,10 +13,10 @@ public abstract class OscClient
     protected readonly OscSender Sender = new();
     protected readonly OscReceiver Receiver = new();
 
-    public void Initialise(string ipAddress, int sendPort, int receivePort)
+    public void Initialise(IPEndPoint sendEndpoint, IPEndPoint receiveEndpoint)
     {
-        Sender.Initialise(new IPEndPoint(IPAddress.Parse(ipAddress), sendPort));
-        Receiver.Initialise(new IPEndPoint(IPAddress.Parse(ipAddress), receivePort));
+        Sender.Initialise(sendEndpoint);
+        Receiver.Initialise(receiveEndpoint);
     }
 
     public void Enable(OscClientFlag flag)

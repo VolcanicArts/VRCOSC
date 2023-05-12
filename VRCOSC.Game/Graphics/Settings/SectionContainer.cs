@@ -6,6 +6,7 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
 using VRCOSC.Game.Config;
@@ -20,43 +21,80 @@ public abstract partial class SectionContainer : Container
 {
     private const int setting_height = 40;
 
-    private readonly FillFlowContainer flow;
+    private FillFlowContainer flow = null!;
 
     protected virtual string Title => string.Empty;
 
     protected VRCOSCConfigManager ConfigManager = null!;
-
-    protected SectionContainer()
-    {
-        Anchor = Anchor.TopCentre;
-        Origin = Anchor.TopCentre;
-        RelativeSizeAxes = Axes.X;
-        AutoSizeAxes = Axes.Y;
-        Width = 0.5f;
-
-        Child = flow = new FillFlowContainer
-        {
-            RelativeSizeAxes = Axes.X,
-            AutoSizeAxes = Axes.Y,
-            Direction = FillDirection.Vertical,
-            Padding = new MarginPadding(5),
-            Spacing = new Vector2(0, 5)
-        };
-    }
 
     [BackgroundDependencyLoader]
     private void load(VRCOSCConfigManager configManager)
     {
         ConfigManager = configManager;
 
-        flow.Add(new SpriteText
+        RelativeSizeAxes = Axes.Both;
+
+        Children = new Drawable[]
         {
-            Anchor = Anchor.TopCentre,
-            Origin = Anchor.TopCentre,
-            Font = FrameworkFont.Regular.With(size: 35),
-            Colour = ThemeManager.Current[ThemeAttribute.Text],
-            Text = Title
-        });
+            new Container
+            {
+                RelativeSizeAxes = Axes.Both,
+                Masking = true,
+                BorderThickness = 2,
+                BorderColour = ThemeManager.Current[ThemeAttribute.Border],
+                CornerRadius = 10,
+                Children = new Drawable[]
+                {
+                    new Box
+                    {
+                        Colour = ThemeManager.Current[ThemeAttribute.Darker],
+                        RelativeSizeAxes = Axes.Both
+                    },
+                    new Container
+                    {
+                        RelativeSizeAxes = Axes.Both,
+                        Padding = new MarginPadding(5),
+                        Child = new GridContainer
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativeSizeAxes = Axes.Both,
+                            RowDimensions = new[]
+                            {
+                                new Dimension(GridSizeMode.AutoSize),
+                                new Dimension(GridSizeMode.Absolute, 5),
+                                new Dimension()
+                            },
+                            Content = new[]
+                            {
+                                new Drawable[]
+                                {
+                                    new SpriteText
+                                    {
+                                        Anchor = Anchor.TopCentre,
+                                        Origin = Anchor.TopCentre,
+                                        Font = FrameworkFont.Regular.With(size: 30),
+                                        Colour = ThemeManager.Current[ThemeAttribute.Text],
+                                        Text = Title
+                                    }
+                                },
+                                null,
+                                new Drawable[]
+                                {
+                                    flow = new FillFlowContainer
+                                    {
+                                        RelativeSizeAxes = Axes.X,
+                                        AutoSizeAxes = Axes.Y,
+                                        Direction = FillDirection.Vertical,
+                                        Spacing = new Vector2(0, 5)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        };
 
         GenerateItems();
     }

@@ -16,7 +16,7 @@ using VRCOSC.Game.Graphics.Themes;
 namespace VRCOSC.Game.Graphics.UI;
 
 // Taken and modified from https://github.com/ppy/osu/blob/4bc26dbb487241e2bbae73751dbe9e93a4e427da/osu.Game/Graphics/UserInterface/OsuDropdown.cs
-public sealed partial class VRCOSCDropdown<T> : Dropdown<T>
+public partial class VRCOSCDropdown<T> : Dropdown<T>
 {
     private const float corner_radius = 5;
 
@@ -26,7 +26,7 @@ public sealed partial class VRCOSCDropdown<T> : Dropdown<T>
 
     #region VRCOSCDropdownMenu
 
-    private partial class VRCOSCDropdownMenu : DropdownMenu
+    public partial class VRCOSCDropdownMenu : DropdownMenu
     {
         public override bool HandleNonPositionalInput => State == MenuState.Open;
 
@@ -43,9 +43,12 @@ public sealed partial class VRCOSCDropdown<T> : Dropdown<T>
         [BackgroundDependencyLoader(true)]
         private void load()
         {
-            BackgroundColour = ThemeManager.Current[ThemeAttribute.Darker];
+            BackgroundColour = ThemeManager.Current[ThemeAttribute.Dark];
             HoverColour = ThemeManager.Current[ThemeAttribute.Light];
             SelectionColour = ThemeManager.Current[ThemeAttribute.Light];
+            MaskingContainer.Masking = true;
+            MaskingContainer.BorderThickness = 2;
+            MaskingContainer.BorderColour = ThemeManager.Current[ThemeAttribute.Border];
         }
 
         private bool wasOpened;
@@ -54,6 +57,7 @@ public sealed partial class VRCOSCDropdown<T> : Dropdown<T>
         {
             wasOpened = true;
             this.FadeIn(300, Easing.OutQuint);
+            this.TransformTo(nameof(Margin), new MarginPadding { Top = 5 }, 300, Easing.OutQuint);
         }
 
         protected override void AnimateClose()
@@ -61,6 +65,7 @@ public sealed partial class VRCOSCDropdown<T> : Dropdown<T>
             if (wasOpened)
             {
                 this.FadeOut(300, Easing.OutQuint);
+                this.TransformTo(nameof(Margin), new MarginPadding { Top = 0 }, 300, Easing.OutQuint);
             }
         }
 
@@ -224,7 +229,7 @@ public sealed partial class VRCOSCDropdown<T> : Dropdown<T>
                 [BackgroundDependencyLoader]
                 private void load()
                 {
-                    Chevron.Colour = Color4.Black;
+                    Chevron.Colour = ThemeManager.Current[ThemeAttribute.Text];
                 }
 
                 private bool hovering;
@@ -261,22 +266,20 @@ public sealed partial class VRCOSCDropdown<T> : Dropdown<T>
 
     public partial class VRCOSCDropdownHeader : DropdownHeader
     {
-        protected readonly SpriteText Text;
-
         protected override LocalisableString Label
         {
             get => Text.Text;
             set => Text.Text = value;
         }
 
-        protected readonly SpriteIcon Icon;
+        protected readonly SpriteText Text;
+        public readonly SpriteIcon Icon;
 
         public VRCOSCDropdownHeader()
         {
             Foreground.Padding = new MarginPadding(10);
 
             AutoSizeAxes = Axes.None;
-            Margin = new MarginPadding { Bottom = 4 };
             CornerRadius = corner_radius;
             Masking = true;
             BorderColour = ThemeManager.Current[ThemeAttribute.Border];
@@ -325,7 +328,7 @@ public sealed partial class VRCOSCDropdown<T> : Dropdown<T>
         [BackgroundDependencyLoader]
         private void load()
         {
-            BackgroundColour = ThemeManager.Current[ThemeAttribute.Darker];
+            BackgroundColour = ThemeManager.Current[ThemeAttribute.Dark];
             BackgroundColourHover = ThemeManager.Current[ThemeAttribute.Mid];
         }
     }

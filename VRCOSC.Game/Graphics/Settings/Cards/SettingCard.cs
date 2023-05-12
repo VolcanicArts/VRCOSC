@@ -5,18 +5,12 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
-using osu.Framework.Graphics.Sprites;
-using osuTK;
 using VRCOSC.Game.Graphics.Themes;
-using VRCOSC.Game.Graphics.UI.Button;
 
 namespace VRCOSC.Game.Graphics.Settings.Cards;
 
 public abstract partial class SettingCard<T> : Container
 {
-    private readonly VRCOSCButton resetToDefault;
-
-    protected readonly Container ContentWrapper;
     protected override FillFlowContainer Content { get; }
 
     protected readonly Bindable<T> SettingBindable;
@@ -36,27 +30,6 @@ public abstract partial class SettingCard<T> : Container
         {
             new Container
             {
-                Anchor = Anchor.CentreLeft,
-                Origin = Anchor.CentreRight,
-                Size = new Vector2(30, 60),
-                Padding = new MarginPadding(5),
-                Child = resetToDefault = new IconButton
-                {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    RelativeSizeAxes = Axes.Both,
-                    Action = setDefault,
-                    IconPadding = 4,
-                    CornerRadius = 10,
-                    BorderThickness = 2,
-                    BorderColour = ThemeManager.Current[ThemeAttribute.Border],
-                    BackgroundColour = ThemeManager.Current[ThemeAttribute.Action],
-                    Icon = FontAwesome.Solid.Undo,
-                    IconShadow = true
-                }
-            },
-            ContentWrapper = new Container
-            {
                 RelativeSizeAxes = Axes.X,
                 AutoSizeAxes = Axes.Y,
                 Masking = true,
@@ -68,33 +41,32 @@ public abstract partial class SettingCard<T> : Container
                     new Box
                     {
                         RelativeSizeAxes = Axes.Both,
-                        Colour = ThemeManager.Current[ThemeAttribute.Darker]
+                        Colour = ThemeManager.Current[ThemeAttribute.Light]
                     },
-                    new FillFlowContainer
+                    Content = new FillFlowContainer
                     {
                         RelativeSizeAxes = Axes.X,
                         AutoSizeAxes = Axes.Y,
                         Direction = FillDirection.Vertical,
-                        Padding = new MarginPadding(10),
-                        Spacing = new Vector2(0, 10),
+                        Padding = new MarginPadding(5),
+                        AutoSizeEasing = Easing.OutQuint,
+                        AutoSizeDuration = 150,
                         Children = new Drawable[]
                         {
                             textFlow = new TextFlowContainer
                             {
                                 Anchor = Anchor.TopCentre,
                                 Origin = Anchor.TopCentre,
-                                TextAnchor = Anchor.TopLeft,
-                                RelativeSizeAxes = Axes.X,
-                                AutoSizeAxes = Axes.Y
-                            },
-                            Content = new FillFlowContainer
-                            {
-                                Anchor = Anchor.TopCentre,
-                                Origin = Anchor.TopCentre,
+                                TextAnchor = Anchor.TopCentre,
                                 RelativeSizeAxes = Axes.X,
                                 AutoSizeAxes = Axes.Y,
-                                Direction = FillDirection.Vertical,
-                                Spacing = new Vector2(0, 10)
+                                Padding = new MarginPadding
+                                {
+                                    Bottom = 5,
+                                    Horizontal = 5
+                                },
+                                AutoSizeEasing = Easing.OutQuint,
+                                AutoSizeDuration = 150
                             }
                         }
                     }
@@ -104,13 +76,13 @@ public abstract partial class SettingCard<T> : Container
 
         textFlow.AddText(title, t =>
         {
-            t.Font = FrameworkFont.Regular.With(size: 25);
+            t.Font = FrameworkFont.Regular.With(size: 20);
             t.Colour = ThemeManager.Current[ThemeAttribute.Text];
         });
 
         textFlow.AddParagraph(description, t =>
         {
-            t.Font = FrameworkFont.Regular.With(size: 20);
+            t.Font = FrameworkFont.Regular.With(size: 15);
             t.Colour = ThemeManager.Current[ThemeAttribute.SubText];
         });
     }
@@ -118,13 +90,11 @@ public abstract partial class SettingCard<T> : Container
     protected override void LoadComplete()
     {
         SettingBindable.ValueChanged += e => Schedule(performAttributeUpdate, e);
-        resetToDefault.FadeTo(!SettingBindable.IsDefault ? 1 : 0);
     }
 
     private void performAttributeUpdate(ValueChangedEvent<T> e)
     {
         UpdateValues(e.NewValue);
-        updateResetToDefault(!SettingBindable.IsDefault);
     }
 
     protected virtual void UpdateValues(T value)
@@ -136,15 +106,5 @@ public abstract partial class SettingCard<T> : Container
     {
         base.Dispose(isDisposing);
         SettingBindable.ValueChanged -= performAttributeUpdate;
-    }
-
-    private void setDefault()
-    {
-        SettingBindable.SetDefault();
-    }
-
-    private void updateResetToDefault(bool show)
-    {
-        resetToDefault.FadeTo(show ? 1 : 0, 200, Easing.OutQuart);
     }
 }

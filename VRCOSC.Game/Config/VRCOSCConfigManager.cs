@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Net;
 using osu.Framework.Configuration;
 using osu.Framework.Platform;
 using VRCOSC.Game.Graphics.Settings;
@@ -21,8 +22,9 @@ public sealed class VRCOSCConfigManager : IniConfigManager<VRCOSCSetting>
     {
         SetDefault(VRCOSCSetting.Version, string.Empty);
         SetDefault(VRCOSCSetting.AutoStartStop, false);
-        SetDefault(VRCOSCSetting.IPAddress, "127.0.0.1");
+        SetDefault(VRCOSCSetting.SendAddress, IPAddress.Loopback.ToString());
         SetDefault(VRCOSCSetting.SendPort, 9000);
+        SetDefault(VRCOSCSetting.ReceiveAddress, IPAddress.Loopback.ToString());
         SetDefault(VRCOSCSetting.ReceivePort, 9001);
         SetDefault(VRCOSCSetting.UpdateMode, UpdateMode.Auto);
         SetDefault(VRCOSCSetting.Theme, ColourTheme.Dark);
@@ -37,8 +39,9 @@ public enum VRCOSCSetting
 {
     Version,
     AutoStartStop,
-    IPAddress,
+    SendAddress,
     SendPort,
+    ReceiveAddress,
     ReceivePort,
     UpdateMode,
     Theme,

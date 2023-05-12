@@ -26,7 +26,7 @@ public partial class TextSettingCard<TTextBox, TType> : SettingCard<TType> where
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
             RelativeSizeAxes = Axes.X,
-            Height = 40,
+            Height = 25,
             Masking = true,
             CornerRadius = 5,
             BorderColour = ThemeManager.Current[ThemeAttribute.Border],

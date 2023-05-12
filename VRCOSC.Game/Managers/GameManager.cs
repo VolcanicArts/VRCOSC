@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using osu.Framework.Allocation;
@@ -275,11 +276,10 @@ public partial class GameManager : Component
     {
         try
         {
-            var ipAddress = configManager.Get<string>(VRCOSCSetting.IPAddress);
-            var sendPort = configManager.Get<int>(VRCOSCSetting.SendPort);
-            var receivePort = configManager.Get<int>(VRCOSCSetting.ReceivePort);
+            var sendEndpoint = new IPEndPoint(IPAddress.Parse(configManager.Get<string>(VRCOSCSetting.SendAddress)), configManager.Get<int>(VRCOSCSetting.SendPort));
+            var receiveEndpoint = new IPEndPoint(IPAddress.Parse(configManager.Get<string>(VRCOSCSetting.ReceiveAddress)), configManager.Get<int>(VRCOSCSetting.ReceivePort));
 
-            VRChatOscClient.Initialise(ipAddress, sendPort, receivePort);
+            VRChatOscClient.Initialise(sendEndpoint, receiveEndpoint);
             return true;
         }
         catch (SocketException)
