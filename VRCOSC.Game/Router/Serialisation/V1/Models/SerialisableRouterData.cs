@@ -9,16 +9,16 @@ namespace VRCOSC.Game.Router.Serialisation.V1.Models;
 public class SerialisableRouterData
 {
     [JsonProperty("label")]
-    public string Label = null!;
+    public string Label = string.Empty;
 
     [JsonProperty("receiveaddress")]
-    public string ReceiveAddress = null!;
+    public string ReceiveAddress = string.Empty;
 
     [JsonProperty("receiveport")]
     public int ReceivePort;
 
     [JsonProperty("sendaddress")]
-    public string SendAddress = null!;
+    public string SendAddress = string.Empty;
 
     [JsonProperty("sendport")]
     public int SendPort;

@@ -15,7 +15,7 @@ public class SerialisableClip
     public bool Enabled;
 
     [JsonProperty("name")]
-    public string Name = null!;
+    public string Name = string.Empty;
 
     [JsonProperty("priority")]
     public int Priority;

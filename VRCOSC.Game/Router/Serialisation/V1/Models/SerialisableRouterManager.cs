@@ -11,7 +11,7 @@ namespace VRCOSC.Game.Router.Serialisation.V1.Models;
 public class SerialisableRouterManager
 {
     [JsonProperty("version")]
-    public int Version = 1;
+    public int Version;
 
     [JsonProperty("data")]
     public List<SerialisableRouterData> Data = new();
@@ -23,6 +23,7 @@ public class SerialisableRouterManager
 
     public SerialisableRouterManager(RouterManager routerManager)
     {
+        Version = 1;
         routerManager.Store.ForEach(routerData => Data.Add(new SerialisableRouterData(routerData)));
     }
 }

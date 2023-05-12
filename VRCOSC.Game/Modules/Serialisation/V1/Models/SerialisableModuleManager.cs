@@ -11,7 +11,7 @@ namespace VRCOSC.Game.Modules.Serialisation.V1.Models;
 public class SerialisableModuleManager
 {
     [JsonProperty("version")]
-    public int Version = 1;
+    public int Version;
 
     [JsonProperty("modules")]
     public Dictionary<string, SerialisableModule> Modules = new();
@@ -23,6 +23,7 @@ public class SerialisableModuleManager
 
     public SerialisableModuleManager(ModuleManager moduleManager)
     {
+        Version = 1;
         moduleManager.ForEach(module => Modules.Add(module.SerialisedName, new SerialisableModule(module)));
     }
 }

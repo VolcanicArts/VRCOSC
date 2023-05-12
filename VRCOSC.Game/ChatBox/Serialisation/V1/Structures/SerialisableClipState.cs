@@ -13,7 +13,7 @@ public class SerialisableClipState
     public List<SerialisableClipStateStates> States = new();
 
     [JsonProperty("format")]
-    public string Format = null!;
+    public string Format = string.Empty;
 
     [JsonProperty("enabled")]
     public bool Enabled;
@@ -34,10 +34,10 @@ public class SerialisableClipState
 public class SerialisableClipStateStates
 {
     [JsonProperty("module")]
-    public string Module = null!;
+    public string Module = string.Empty;
 
     [JsonProperty("lookup")]
-    public string Lookup = null!;
+    public string Lookup = string.Empty;
 
     [JsonConstructor]
     public SerialisableClipStateStates()
