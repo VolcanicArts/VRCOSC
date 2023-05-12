@@ -39,17 +39,25 @@ public class SerialisationManager
             if (!serialiser.TryGetVersion(out var foundVersion)) continue;
             if (version != foundVersion) continue;
 
-            return serialiser.Deserialise();
+            return deserialise(serialiser);
         }
 
         // If there are no valid versions found there's either no file OR there is a file with no version
         // Attempt to deserialise using the 0th serialiser which is reserved for files from before the serialisation standardisation and latest serialiser
 
         // Note: 0th used for RouterManager migration
-        if (serialisers.TryGetValue(0, out var zerothSerialiser)) return zerothSerialiser.Deserialise();
-        if (serialisers.TryGetValue(latestSerialiserVersion, out var latestSerialiser)) return latestSerialiser.Deserialise();
+        if (serialisers.TryGetValue(0, out var zerothSerialiser)) return deserialise(zerothSerialiser);
+        if (serialisers.TryGetValue(latestSerialiserVersion, out var latestSerialiser)) return deserialise(latestSerialiser);
 
         return false;
+    }
+
+    private bool deserialise(ISerialiser serialiser)
+    {
+        if (!serialiser.Deserialise()) return false;
+
+        Serialise();
+        return true;
     }
 
     public bool Serialise() => serialisers[latestSerialiserVersion].Serialise();

@@ -81,9 +81,7 @@ public class ChatBoxManager : ICanSerialise
 
     public void Deserialise()
     {
-        if (!serialisationManager.Deserialise()) return;
-
-        Serialise();
+        serialisationManager.Deserialise();
     }
 
     public void Serialise()

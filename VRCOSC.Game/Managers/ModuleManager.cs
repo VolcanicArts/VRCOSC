@@ -100,9 +100,7 @@ public sealed class ModuleManager : IEnumerable<Module>, ICanSerialise
 
     public void Deserialise()
     {
-        if (!serialisationManager.Deserialise()) return;
-
-        Serialise();
+        serialisationManager.Deserialise();
     }
 
     public void Serialise()
