@@ -27,6 +27,8 @@ public partial class SelectedClipMetadataEditor : Container
         RelativeSizeAxes = Axes.Both;
         Masking = true;
         CornerRadius = 10;
+        BorderThickness = 2;
+        BorderColour = ThemeManager.Current[ThemeAttribute.Border];
 
         Children = new Drawable[]
         {

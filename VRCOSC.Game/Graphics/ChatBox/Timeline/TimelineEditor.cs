@@ -35,7 +35,7 @@ public partial class TimelineEditor : Container
 
     private const int grid_line_width = 3;
 
-    private Dictionary<int, TimelineLayer> layers = new();
+    private readonly Dictionary<int, TimelineLayer> layers = new();
     private Container gridGenerator = null!;
     private Container positionIndicator = null!;
     private GridContainer layerContainer = null!;

@@ -30,6 +30,8 @@ public partial class MetadataString : Container
         AutoSizeAxes = Axes.Y;
         Masking = true;
         CornerRadius = 5;
+        BorderThickness = 2;
+        BorderColour = ThemeManager.Current[ThemeAttribute.Border];
 
         Children = new Drawable[]
         {

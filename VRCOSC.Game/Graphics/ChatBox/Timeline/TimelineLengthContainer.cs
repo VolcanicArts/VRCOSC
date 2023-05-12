@@ -5,6 +5,7 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osuTK;
 using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.ChatBox.Timeline;
@@ -14,6 +15,12 @@ public partial class TimelineLengthContainer : Container
     [BackgroundDependencyLoader]
     private void load()
     {
+        Masking = true;
+        CornerRadius = 10;
+        BorderThickness = 2;
+        BorderColour = ThemeManager.Current[ThemeAttribute.Border];
+        Shear = new Vector2(0.5f, 0);
+
         Children = new Drawable[]
         {
             new Box
@@ -25,7 +32,8 @@ public partial class TimelineLengthContainer : Container
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
-                RelativeSizeAxes = Axes.Both
+                RelativeSizeAxes = Axes.Both,
+                Shear = new Vector2(-0.5f, 0)
             }
         };
     }

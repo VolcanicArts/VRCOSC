@@ -42,6 +42,8 @@ public partial class SelectedClipStateEditorContainer : Container
         RelativeSizeAxes = Axes.Both;
         Masking = true;
         CornerRadius = 10;
+        BorderThickness = 2;
+        BorderColour = ThemeManager.Current[ThemeAttribute.Border];
 
         Children = new Drawable[]
         {
@@ -287,6 +289,8 @@ public partial class SelectedClipStateEditorContainer : Container
                 AutoSizeAxes = Axes.Y,
                 Masking = true,
                 CornerRadius = 5,
+                BorderThickness = 2,
+                BorderColour = ThemeManager.Current[ThemeAttribute.Border],
             });
             stateFlow.SetLayoutPosition(drawableState, clipState.States.Count);
         });
@@ -300,7 +304,9 @@ public partial class SelectedClipStateEditorContainer : Container
                 RelativeSizeAxes = Axes.X,
                 AutoSizeAxes = Axes.Y,
                 Masking = true,
-                CornerRadius = 5
+                CornerRadius = 5,
+                BorderThickness = 2,
+                BorderColour = ThemeManager.Current[ThemeAttribute.Border],
             });
         });
 

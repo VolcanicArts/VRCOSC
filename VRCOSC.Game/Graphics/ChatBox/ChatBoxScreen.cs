@@ -68,9 +68,7 @@ public partial class ChatBoxScreen : Container
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
                                 RelativeSizeAxes = Axes.Both,
-                                Width = 0.2f,
-                                Masking = true,
-                                CornerRadius = 10
+                                Width = 0.2f
                             }
                         },
                         null,
