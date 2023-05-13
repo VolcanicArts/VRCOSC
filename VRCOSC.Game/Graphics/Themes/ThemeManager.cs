@@ -28,7 +28,7 @@ public static class ThemeManager
                 { ThemeAttribute.Failure, Color4Extensions.FromHex(@"ED1121") },
                 { ThemeAttribute.Action, Color4Extensions.FromHex(@"44AADD") },
                 { ThemeAttribute.Text, Color4Extensions.FromHex(@"FFFFFF") },
-                { ThemeAttribute.SubText, Color4Extensions.FromHex(@"999999") },
+                { ThemeAttribute.SubText, Color4Extensions.FromHex(@"BBBBBB") },
                 { ThemeAttribute.Border, Color4Extensions.FromHex(@"000000") },
                 { ThemeAttribute.Accent, Color4Extensions.FromHex(@"FFFFFF") }
             }
@@ -46,7 +46,7 @@ public static class ThemeManager
                 { ThemeAttribute.Failure, Color4Extensions.FromHex(@"ED1121") },
                 { ThemeAttribute.Action, Color4Extensions.FromHex(@"44AADD") },
                 { ThemeAttribute.Text, Color4Extensions.FromHex(@"000000") },
-                { ThemeAttribute.SubText, Color4Extensions.FromHex(@"666666") },
+                { ThemeAttribute.SubText, Color4Extensions.FromHex(@"444444") },
                 { ThemeAttribute.Border, Color4Extensions.FromHex(@"FFFFFF") },
                 { ThemeAttribute.Accent, Color4Extensions.FromHex(@"000000") }
             }
@@ -82,7 +82,7 @@ public static class ThemeManager
                 { ThemeAttribute.Failure, Color4Extensions.FromHex(@"ED1121") },
                 { ThemeAttribute.Action, Color4Extensions.FromHex(@"44AADD") },
                 { ThemeAttribute.Text, Color4Extensions.FromHex(@"FFFFFF") },
-                { ThemeAttribute.SubText, Color4Extensions.FromHex(@"999999") },
+                { ThemeAttribute.SubText, Color4Extensions.FromHex(@"BBBBBB") },
                 { ThemeAttribute.Border, Color4Extensions.FromHex(@"000000") },
                 { ThemeAttribute.Accent, Color4Extensions.FromHex(@"FFFFFF") }
             }
@@ -100,7 +100,7 @@ public static class ThemeManager
                 { ThemeAttribute.Failure, Color4Extensions.FromHex(@"ED1121") },
                 { ThemeAttribute.Action, Color4Extensions.FromHex(@"44AADD") },
                 { ThemeAttribute.Text, Color4Extensions.FromHex(@"FFFFFF") },
-                { ThemeAttribute.SubText, Color4Extensions.FromHex(@"999999") },
+                { ThemeAttribute.SubText, Color4Extensions.FromHex(@"BBBBBB") },
                 { ThemeAttribute.Border, Color4Extensions.FromHex(@"000000") },
                 { ThemeAttribute.Accent, Color4Extensions.FromHex(@"FFFFFF") }
             }
@@ -118,7 +118,7 @@ public static class ThemeManager
                 { ThemeAttribute.Failure, Color4Extensions.FromHex(@"ED1121") },
                 { ThemeAttribute.Action, Color4Extensions.FromHex(@"44AADD") },
                 { ThemeAttribute.Text, Color4Extensions.FromHex(@"FFFFFF") },
-                { ThemeAttribute.SubText, Color4Extensions.FromHex(@"999999") },
+                { ThemeAttribute.SubText, Color4Extensions.FromHex(@"BBBBBB") },
                 { ThemeAttribute.Border, Color4Extensions.FromHex(@"000000") },
                 { ThemeAttribute.Accent, Color4Extensions.FromHex(@"FFFFFF") }
             }
@@ -136,7 +136,7 @@ public static class ThemeManager
                 { ThemeAttribute.Failure, Color4Extensions.FromHex(@"ED1121") },
                 { ThemeAttribute.Action, Color4Extensions.FromHex(@"44AADD") },
                 { ThemeAttribute.Text, Color4Extensions.FromHex(@"FFFFFF") },
-                { ThemeAttribute.SubText, Color4Extensions.FromHex(@"999999") },
+                { ThemeAttribute.SubText, Color4Extensions.FromHex(@"BBBBBB") },
                 { ThemeAttribute.Border, Color4Extensions.FromHex(@"000000") },
                 { ThemeAttribute.Accent, Color4Extensions.FromHex(@"FFFFFF") }
             }
