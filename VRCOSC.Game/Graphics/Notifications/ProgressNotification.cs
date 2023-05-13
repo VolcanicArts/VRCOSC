@@ -29,11 +29,12 @@ public sealed partial class ProgressNotification : BasicNotification
     {
         var foreground = new GridContainer
         {
-            RelativeSizeAxes = Axes.Both,
+            RelativeSizeAxes = Axes.X,
+            AutoSizeAxes = Axes.Y,
             RowDimensions = new[]
             {
-                new Dimension(),
-                new Dimension(GridSizeMode.Absolute, 5)
+                new Dimension(GridSizeMode.AutoSize),
+                new Dimension(GridSizeMode.Absolute, 7)
             },
             Content = new[]
             {

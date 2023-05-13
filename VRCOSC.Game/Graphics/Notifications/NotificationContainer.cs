@@ -9,6 +9,7 @@ using osu.Framework.Graphics.Effects;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
+using osuTK;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Button;
 
@@ -65,6 +66,8 @@ public sealed partial class NotificationContainer : VisibilityContainer
                         Content = new FillFlowContainer
                         {
                             RelativeSizeAxes = Axes.Both,
+                            Padding = new MarginPadding(5),
+                            Spacing = new Vector2(0, 5),
                             Direction = FillDirection.Vertical
                         }
                     }

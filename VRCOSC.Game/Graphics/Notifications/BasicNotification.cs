@@ -31,11 +31,16 @@ public partial class BasicNotification : Notification
 
         var foreground = new GridContainer
         {
-            RelativeSizeAxes = Axes.Both,
+            RelativeSizeAxes = Axes.X,
+            AutoSizeAxes = Axes.Y,
             ColumnDimensions = new[]
             {
                 new Dimension(GridSizeMode.Absolute, 55),
                 new Dimension()
+            },
+            RowDimensions = new[]
+            {
+                new Dimension(GridSizeMode.AutoSize)
             },
             Content = new[]
             {
@@ -43,8 +48,8 @@ public partial class BasicNotification : Notification
                 {
                     new Container
                     {
-                        Anchor = Anchor.CentreLeft,
-                        Origin = Anchor.CentreLeft,
+                        Anchor = Anchor.TopLeft,
+                        Origin = Anchor.TopLeft,
                         RelativeSizeAxes = Axes.Both,
                         FillMode = FillMode.Fit,
                         Padding = new MarginPadding(5),
@@ -79,7 +84,8 @@ public partial class BasicNotification : Notification
                         Anchor = Anchor.CentreLeft,
                         Origin = Anchor.CentreLeft,
                         TextAnchor = Anchor.TopLeft,
-                        RelativeSizeAxes = Axes.Both,
+                        RelativeSizeAxes = Axes.X,
+                        AutoSizeAxes = Axes.Y,
                         Padding = new MarginPadding
                         {
                             Vertical = 5,
