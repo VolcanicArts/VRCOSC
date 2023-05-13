@@ -13,8 +13,8 @@ public partial class TextSettingCard<TTextBox, TType> : SettingCard<TType> where
 {
     private TTextBox textBox = null!;
 
-    public TextSettingCard(string title, string description, Bindable<TType> settingBindable)
-        : base(title, description, settingBindable)
+    public TextSettingCard(string title, string description, Bindable<TType> settingBindable, string linkedUrl)
+        : base(title, description, settingBindable, linkedUrl)
     {
     }
 

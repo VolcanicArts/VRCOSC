@@ -1,21 +1,29 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Graphics.Sprites;
+using osu.Framework.Platform;
+using osuTK;
 using VRCOSC.Game.Graphics.Themes;
+using VRCOSC.Game.Graphics.UI.Button;
 
 namespace VRCOSC.Game.Graphics.Settings.Cards;
 
 public abstract partial class SettingCard<T> : Container
 {
+    [Resolved]
+    private GameHost host { get; set; } = null!;
+
     protected override FillFlowContainer Content { get; }
 
     protected readonly Bindable<T> SettingBindable;
 
-    protected SettingCard(string title, string description, Bindable<T> settingBindable)
+    protected SettingCard(string title, string description, Bindable<T> settingBindable, string linkedUrl)
     {
         SettingBindable = settingBindable;
 
@@ -25,6 +33,8 @@ public abstract partial class SettingCard<T> : Container
         AutoSizeAxes = Axes.Y;
 
         TextFlowContainer textFlow;
+
+        Container helpButton;
 
         InternalChildren = new Drawable[]
         {
@@ -42,6 +52,26 @@ public abstract partial class SettingCard<T> : Container
                     {
                         RelativeSizeAxes = Axes.Both,
                         Colour = ThemeManager.Current[ThemeAttribute.Light]
+                    },
+                    helpButton = new Container
+                    {
+                        Anchor = Anchor.TopRight,
+                        Origin = Anchor.TopRight,
+                        Size = new Vector2(35),
+                        FillMode = FillMode.Fit,
+                        Padding = new MarginPadding(5),
+                        Child = new IconButton
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativeSizeAxes = Axes.Both,
+                            Circular = true,
+                            BackgroundColour = ThemeManager.Current[ThemeAttribute.Action],
+                            Icon = FontAwesome.Solid.Question,
+                            IconPadding = 4,
+                            IconShadow = true,
+                            Action = () => host.OpenUrlExternally(linkedUrl)
+                        }
                     },
                     Content = new FillFlowContainer
                     {
@@ -85,6 +115,8 @@ public abstract partial class SettingCard<T> : Container
             t.Font = FrameworkFont.Regular.With(size: 15);
             t.Colour = ThemeManager.Current[ThemeAttribute.SubText];
         });
+
+        helpButton.Alpha = string.IsNullOrEmpty(linkedUrl) ? 0 : 1;
     }
 
     protected override void LoadComplete()

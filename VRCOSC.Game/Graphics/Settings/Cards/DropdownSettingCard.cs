@@ -11,8 +11,8 @@ namespace VRCOSC.Game.Graphics.Settings.Cards;
 
 public partial class DropdownSettingCard<T> : SettingCard<T>
 {
-    public DropdownSettingCard(string title, string description, Bindable<T> settingBindable)
-        : base(title, description, settingBindable)
+    public DropdownSettingCard(string title, string description, Bindable<T> settingBindable, string linkedUrl)
+        : base(title, description, settingBindable, linkedUrl)
     {
     }
 

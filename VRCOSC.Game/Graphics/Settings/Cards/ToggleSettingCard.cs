@@ -14,8 +14,8 @@ public partial class ToggleSettingCard : SettingCard<bool>
 {
     private ToggleButton toggleButton = null!;
 
-    public ToggleSettingCard(string title, string description, Bindable<bool> settingBindable)
-        : base(title, description, settingBindable)
+    public ToggleSettingCard(string title, string description, Bindable<bool> settingBindable, string linkedUrl)
+        : base(title, description, settingBindable, linkedUrl)
     {
     }
 
