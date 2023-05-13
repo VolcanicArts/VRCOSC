@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using VRCOSC.Game.Graphics.Themes;
@@ -20,46 +21,28 @@ public sealed partial class ButtonStringAttributeCard : TextAttributeCard<String
         attributeWithButton = attributeData;
     }
 
-    protected override Drawable CreateContent()
+    [BackgroundDependencyLoader]
+    private void load()
     {
-        return new GridContainer
+        Add(new Container
         {
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
             RelativeSizeAxes = Axes.X,
             Height = 30,
-            ColumnDimensions = new[]
+            Width = 0.75f,
+            Child = new TextButton
             {
-                new Dimension(GridSizeMode.Relative, 0.75f),
-                new Dimension(GridSizeMode.Absolute, 5),
-                new Dimension()
-            },
-            Content = new[]
-            {
-                new[]
-                {
-                    base.CreateContent(),
-                    null,
-                    new Container
-                    {
-                        Anchor = Anchor.Centre,
-                        Origin = Anchor.Centre,
-                        RelativeSizeAxes = Axes.Both,
-                        Padding = new MarginPadding(5),
-                        Child = new TextButton
-                        {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
-                            RelativeSizeAxes = Axes.Both,
-                            Text = attributeWithButton.ButtonText,
-                            Masking = true,
-                            CornerRadius = 5,
-                            Action = attributeWithButton.ButtonAction,
-                            BackgroundColour = ThemeManager.Current[ThemeAttribute.Action]
-                        }
-                    }
-                }
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                RelativeSizeAxes = Axes.Both,
+                Text = attributeWithButton.ButtonText,
+                Masking = true,
+                CornerRadius = 5,
+                FontSize = 22,
+                Action = attributeWithButton.ButtonAction,
+                BackgroundColour = ThemeManager.Current[ThemeAttribute.Action]
             }
-        };
+        });
     }
 }

@@ -21,21 +21,19 @@ public partial class TextAttributeCard<TTextBox, TType> : AttributeCard where TT
     [BackgroundDependencyLoader]
     private void load()
     {
-        Add(CreateContent());
+        Add(textBox = new TTextBox
+        {
+            Anchor = Anchor.TopCentre,
+            Origin = Anchor.TopCentre,
+            RelativeSizeAxes = Axes.X,
+            Height = 30,
+            Masking = true,
+            CornerRadius = 5,
+            BorderColour = ThemeManager.Current[ThemeAttribute.Border],
+            BorderThickness = 2,
+            Text = AttributeData.Attribute.Value.ToString()
+        });
     }
-
-    protected virtual Drawable CreateContent() => textBox = new TTextBox
-    {
-        Anchor = Anchor.TopCentre,
-        Origin = Anchor.TopCentre,
-        RelativeSizeAxes = Axes.X,
-        Height = 30,
-        Masking = true,
-        CornerRadius = 5,
-        BorderColour = ThemeManager.Current[ThemeAttribute.Border],
-        BorderThickness = 2,
-        Text = AttributeData.Attribute.Value.ToString()
-    };
 
     protected override void LoadComplete()
     {
