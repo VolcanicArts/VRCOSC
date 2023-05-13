@@ -60,6 +60,7 @@ public abstract partial class SettingCard<T> : Container
                         Size = new Vector2(35),
                         FillMode = FillMode.Fit,
                         Padding = new MarginPadding(5),
+                        Depth = float.MinValue,
                         Child = new IconButton
                         {
                             Anchor = Anchor.Centre,
