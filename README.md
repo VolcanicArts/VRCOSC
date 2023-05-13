@@ -10,6 +10,8 @@ A modular OSC program creator and toolkit made for [VRChat](https://vrchat.com) 
 [![downloads@latest](https://img.shields.io/github/downloads/VolcanicArts/VRCOSC/latest/total?style=for-the-badge&label=Downloads%20For%20Latest)](https://github.com/VolcanicArts/VRCOSC/releases/latest)
 [![commits](https://img.shields.io/github/commit-activity/m/VolcanicArts/VRCOSC?style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/commits/main)
 <br>
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/O5O8FF9YO)
+<br>
 [![discord](https://discordapp.com/api/guilds/1000862183963496519/widget.png?style=shield)](https://discord.gg/vj4brHyvT5)
 
 </div>
@@ -55,6 +57,7 @@ Note: The VRCOSC-Controls.unitypackage prefab is global controls for VRCOSC. It 
 | Speech To Text | Run Speech To Text using any language model and display the result in your ChatBox | |
 | HypeRate | Connects to [HypeRate.io](https://www.hyperate.io/) to display your live heartrate in-game - [Supported Devices](https://www.hyperate.io/supported-devices) | VRCOSC-Heartrate.unitypackage |
 | Pulsoid | Connects to [Pulsoid](https://pulsoid.net/) to display your live heartrate in-game - [Supported Devices](https://www.blog.pulsoid.net/monitors) | VRCOSC-Heartrate.unitypackage |
+| Haptic Control | Allows for triggering controller haptics using variables from your avatar | |
 | OpenVR Statistics | Gets statistics from your OpenVR (SteamVR) session | VRCOSC-Trackers.unitypackage |
 | OpenVR Controller Statistics | Gets controller statistics from your OpenVR (SteamVR) session | |
 | Gesture Extensions | Allows for custom gestures to be sent to VRChat from your Index controllers | |
