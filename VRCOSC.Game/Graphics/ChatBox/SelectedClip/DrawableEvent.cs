@@ -99,7 +99,7 @@ public partial class DrawableEvent : Container
                         ColumnDimensions = new[]
                         {
                             new Dimension(),
-                            new Dimension(GridSizeMode.Absolute, 3),
+                            new Dimension(GridSizeMode.Absolute, 1),
                             new Dimension(GridSizeMode.Relative, 0.1f)
                         },
                         Content = new[]

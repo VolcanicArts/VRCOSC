@@ -38,7 +38,7 @@ public sealed partial class ModuleCard : Container
         BorderThickness = 2;
         BorderColour = ThemeManager.Current[ThemeAttribute.Border];
 
-        TextFlowContainer textFlow;
+        FillFlowContainer textFlow;
 
         Children = new Drawable[]
         {
@@ -105,12 +105,13 @@ public sealed partial class ModuleCard : Container
                                                 State = Module.Enabled.GetBoundCopy()
                                             }
                                         },
-                                        textFlow = new TextFlowContainer
+                                        textFlow = new FillFlowContainer
                                         {
                                             Anchor = Anchor.CentreLeft,
                                             Origin = Anchor.CentreLeft,
                                             RelativeSizeAxes = Axes.X,
-                                            AutoSizeAxes = Axes.Y
+                                            AutoSizeAxes = Axes.Y,
+                                            Direction = FillDirection.Vertical
                                         }
                                     }
                                 },
@@ -172,19 +173,21 @@ public sealed partial class ModuleCard : Container
             }
         };
 
-        textFlow.AddText(module.Title, t =>
+        textFlow.Add(new SpriteText
         {
-            t.Font = FrameworkFont.Regular.With(size: 20);
-            t.Colour = ThemeManager.Current[ThemeAttribute.Text];
+            Text = module.Title,
+            Font = FrameworkFont.Regular.With(size: 20),
+            Colour = ThemeManager.Current[ThemeAttribute.Text],
         });
 
         var descriptionText = Module.Description;
         if (!string.IsNullOrEmpty(Module.Prefab)) descriptionText += $". Pairs with {Module.Prefab}";
 
-        textFlow.AddParagraph(descriptionText, t =>
+        textFlow.Add(new SpriteText
         {
-            t.Font = FrameworkFont.Regular.With(size: 17);
-            t.Colour = ThemeManager.Current[ThemeAttribute.SubText];
+            Text = descriptionText,
+            Font = FrameworkFont.Regular.With(size: 17),
+            Colour = ThemeManager.Current[ThemeAttribute.Text],
         });
     }
 
