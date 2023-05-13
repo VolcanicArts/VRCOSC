@@ -7,7 +7,7 @@ using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Text;
 using VRCOSC.Game.Modules;
 
-namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes.Text;
+namespace VRCOSC.Game.Graphics.ModuleAttributes.Attributes.Text;
 
 public partial class TextAttributeCard<TTextBox, TType> : AttributeCard where TTextBox : ValidationTextBox<TType>, new()
 {
@@ -21,7 +21,7 @@ public partial class TextAttributeCard<TTextBox, TType> : AttributeCard where TT
     [BackgroundDependencyLoader]
     private void load()
     {
-        ContentFlow.Add(CreateContent());
+        Add(CreateContent());
     }
 
     protected virtual Drawable CreateContent() => textBox = new TTextBox
@@ -29,7 +29,7 @@ public partial class TextAttributeCard<TTextBox, TType> : AttributeCard where TT
         Anchor = Anchor.TopCentre,
         Origin = Anchor.TopCentre,
         RelativeSizeAxes = Axes.X,
-        Height = 40,
+        Height = 30,
         Masking = true,
         CornerRadius = 5,
         BorderColour = ThemeManager.Current[ThemeAttribute.Border],

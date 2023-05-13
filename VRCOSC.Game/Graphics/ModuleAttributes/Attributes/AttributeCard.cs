@@ -1,8 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
-using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -13,13 +11,13 @@ using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Button;
 using VRCOSC.Game.Modules;
 
-namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes;
+namespace VRCOSC.Game.Graphics.ModuleAttributes.Attributes;
 
 public abstract partial class AttributeCard : Container
 {
-    private VRCOSCButton resetToDefault = null!;
-    protected FillFlowContainer ContentFlow = null!;
-    protected FillFlowContainer LayoutFlow = null!;
+    private readonly VRCOSCButton resetToDefault;
+
+    protected override FillFlowContainer Content { get; }
 
     public readonly ModuleAttribute AttributeData;
     public bool Enable { get; set; } = true;
@@ -29,11 +27,7 @@ public abstract partial class AttributeCard : Container
     protected AttributeCard(ModuleAttribute attributeData)
     {
         AttributeData = attributeData;
-    }
 
-    [BackgroundDependencyLoader]
-    private void load()
-    {
         Anchor = Anchor.TopCentre;
         Origin = Anchor.TopCentre;
         RelativeSizeAxes = Axes.X;
@@ -45,23 +39,24 @@ public abstract partial class AttributeCard : Container
         {
             new Container
             {
-                Anchor = Anchor.CentreLeft,
-                Origin = Anchor.CentreRight,
-                Size = new Vector2(30, 60),
+                Anchor = Anchor.TopLeft,
+                Origin = Anchor.TopLeft,
+                Size = new Vector2(35),
                 Padding = new MarginPadding(5),
+                Depth = float.MinValue,
                 Child = resetToDefault = new IconButton
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
                     RelativeSizeAxes = Axes.Both,
                     Action = SetDefault,
-                    IconPadding = 4,
-                    CornerRadius = 10,
                     BorderThickness = 2,
                     BorderColour = ThemeManager.Current[ThemeAttribute.Border],
                     BackgroundColour = ThemeManager.Current[ThemeAttribute.Action],
                     Icon = FontAwesome.Solid.Undo,
-                    IconShadow = true
+                    IconPadding = 7,
+                    IconShadow = true,
+                    Circular = true
                 }
             },
             new Container
@@ -81,9 +76,9 @@ public abstract partial class AttributeCard : Container
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,
                         RelativeSizeAxes = Axes.Both,
-                        Colour = ThemeManager.Current[ThemeAttribute.Darker]
+                        Colour = ThemeManager.Current[ThemeAttribute.Light]
                     },
-                    LayoutFlow = new FillFlowContainer
+                    new FillFlowContainer
                     {
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
@@ -98,18 +93,22 @@ public abstract partial class AttributeCard : Container
                             {
                                 Anchor = Anchor.TopCentre,
                                 Origin = Anchor.TopCentre,
-                                TextAnchor = Anchor.TopLeft,
+                                TextAnchor = Anchor.TopCentre,
                                 RelativeSizeAxes = Axes.X,
-                                AutoSizeAxes = Axes.Y
+                                AutoSizeAxes = Axes.Y,
+                                AutoSizeDuration = 150,
+                                AutoSizeEasing = Easing.OutQuint
                             },
-                            ContentFlow = new FillFlowContainer
+                            Content = new FillFlowContainer
                             {
                                 Anchor = Anchor.TopCentre,
                                 Origin = Anchor.TopCentre,
                                 RelativeSizeAxes = Axes.X,
                                 AutoSizeAxes = Axes.Y,
                                 Direction = FillDirection.Vertical,
-                                Spacing = new Vector2(0, 10)
+                                Spacing = new Vector2(0, 10),
+                                AutoSizeDuration = 150,
+                                AutoSizeEasing = Easing.OutQuint
                             }
                         }
                     }
@@ -119,7 +118,7 @@ public abstract partial class AttributeCard : Container
 
         textFlow.AddText(AttributeData.Metadata.DisplayName, t =>
         {
-            t.Font = FrameworkFont.Regular.With(size: 30);
+            t.Font = FrameworkFont.Regular.With(size: 25);
             t.Colour = ThemeManager.Current[ThemeAttribute.Text];
         });
 
@@ -142,10 +141,7 @@ public abstract partial class AttributeCard : Container
 
     protected void UpdateResetToDefault(bool show)
     {
-        var newAlpha = show ? 1 : 0;
-        if (Math.Abs(resetToDefault.Alpha - newAlpha) < 0.01f) return;
-
-        resetToDefault.FadeTo(newAlpha, 200, Easing.OutQuart);
+        resetToDefault.FadeTo(show ? 1 : 0, 200, Easing.OutQuart);
     }
 
     protected void UpdateAttribute(object value)

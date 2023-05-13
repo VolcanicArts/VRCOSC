@@ -9,7 +9,7 @@ using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Modules;
 
-namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes.Slider;
+namespace VRCOSC.Game.Graphics.ModuleAttributes.Attributes.Slider;
 
 public abstract partial class SliderAttributeCard<T> : AttributeCard where T : struct, IComparable<T>, IConvertible, IEquatable<T>
 {
@@ -26,12 +26,12 @@ public abstract partial class SliderAttributeCard<T> : AttributeCard where T : s
     [BackgroundDependencyLoader]
     private void load()
     {
-        ContentFlow.Add(slider = new VRCOSCSlider<T>
+        Add(slider = new VRCOSCSlider<T>
         {
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
             RelativeSizeAxes = Axes.X,
-            Height = 40,
+            Height = 30,
             BorderColour = ThemeManager.Current[ThemeAttribute.Border],
             BorderThickness = 2,
             Current = CreateCurrent()

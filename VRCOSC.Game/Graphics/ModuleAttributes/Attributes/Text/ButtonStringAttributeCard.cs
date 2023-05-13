@@ -8,7 +8,7 @@ using VRCOSC.Game.Graphics.UI.Button;
 using VRCOSC.Game.Graphics.UI.Text;
 using VRCOSC.Game.Modules;
 
-namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes.Text;
+namespace VRCOSC.Game.Graphics.ModuleAttributes.Attributes.Text;
 
 public sealed partial class ButtonStringAttributeCard : TextAttributeCard<StringTextBox, string>
 {
@@ -27,7 +27,7 @@ public sealed partial class ButtonStringAttributeCard : TextAttributeCard<String
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
             RelativeSizeAxes = Axes.X,
-            Height = 40,
+            Height = 30,
             ColumnDimensions = new[]
             {
                 new Dimension(GridSizeMode.Relative, 0.75f),

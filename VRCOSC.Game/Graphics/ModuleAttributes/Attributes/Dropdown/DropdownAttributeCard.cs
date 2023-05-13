@@ -8,7 +8,7 @@ using osu.Framework.Graphics;
 using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Modules;
 
-namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes.Dropdown;
+namespace VRCOSC.Game.Graphics.ModuleAttributes.Attributes.Dropdown;
 
 public sealed partial class DropdownAttributeCard<T> : AttributeCard where T : Enum
 {
@@ -22,7 +22,7 @@ public sealed partial class DropdownAttributeCard<T> : AttributeCard where T : E
     [BackgroundDependencyLoader]
     private void load()
     {
-        ContentFlow.Add(dropdown = new VRCOSCDropdown<T>
+        Add(dropdown = new VRCOSCDropdown<T>
         {
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,

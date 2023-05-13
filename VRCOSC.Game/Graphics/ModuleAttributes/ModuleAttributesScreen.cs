@@ -2,25 +2,22 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
-using osu.Framework.Extensions.IEnumerableExtensions;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
-using osuTK;
-using VRCOSC.Game.Graphics.ModuleAttributes;
-using VRCOSC.Game.Graphics.ModuleInfo;
 using VRCOSC.Game.Graphics.Themes;
-using VRCOSC.Game.Managers;
+using VRCOSC.Game.Modules;
 
-namespace VRCOSC.Game.Graphics.ModuleListing;
+namespace VRCOSC.Game.Graphics.ModuleAttributes;
 
-[Cached]
-public sealed partial class ModulesScreen : Container
+public partial class ModuleAttributesScreen : Container
 {
-    [Resolved]
-    private GameManager gameManager { get; set; } = null!;
+    private ModuleAttributeFlowContainer settingFlow = null!;
+    private ModuleAttributeFlowContainer parameterFlow = null!;
 
-    private FillFlowContainer<ModuleCard> moduleCardFlow = null!;
+    [Resolved(name: "EditingModule")]
+    private Bindable<Module?> editingModule { get; set; } = null!;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -57,7 +54,7 @@ public sealed partial class ModulesScreen : Container
                         {
                             new Drawable[]
                             {
-                                new ModulesHeader
+                                new ModuleAttributesHeader
                                 {
                                     Anchor = Anchor.TopCentre,
                                     Origin = Anchor.TopCentre
@@ -84,30 +81,24 @@ public sealed partial class ModulesScreen : Container
                                         },
                                         new Container
                                         {
-                                            Anchor = Anchor.Centre,
-                                            Origin = Anchor.Centre,
                                             RelativeSizeAxes = Axes.Both,
-                                            Padding = new MarginPadding(2),
-                                            Child = new BasicScrollContainer
+                                            Padding = new MarginPadding(10),
+                                            Child = new GridContainer
                                             {
-                                                Anchor = Anchor.Centre,
-                                                Origin = Anchor.Centre,
                                                 RelativeSizeAxes = Axes.Both,
-                                                ClampExtension = 0,
-                                                ScrollbarVisible = false,
-                                                ScrollContent =
+                                                ColumnDimensions = new[]
                                                 {
-                                                    Child = moduleCardFlow = new FillFlowContainer<ModuleCard>
+                                                    new Dimension(),
+                                                    new Dimension(GridSizeMode.Absolute, 5),
+                                                    new Dimension()
+                                                },
+                                                Content = new[]
+                                                {
+                                                    new Drawable?[]
                                                     {
-                                                        Anchor = Anchor.TopCentre,
-                                                        Origin = Anchor.TopCentre,
-                                                        RelativeSizeAxes = Axes.X,
-                                                        AutoSizeAxes = Axes.Y,
-                                                        Padding = new MarginPadding(5),
-                                                        Direction = FillDirection.Full,
-                                                        Spacing = new Vector2(0, 5),
-                                                        LayoutEasing = Easing.OutQuad,
-                                                        LayoutDuration = 150
+                                                        settingFlow = new ModuleAttributeFlowContainer("Setting"),
+                                                        null,
+                                                        parameterFlow = new ModuleAttributeFlowContainer("Parameter")
                                                     }
                                                 }
                                             }
@@ -118,14 +109,21 @@ public sealed partial class ModulesScreen : Container
                         }
                     }
                 }
-            },
-            new ModuleAttributesPopover(),
-            new ModuleInfoPopover()
+            }
         };
     }
 
     protected override void LoadComplete()
     {
-        gameManager.ModuleManager.ForEach(module => moduleCardFlow.Add(new ModuleCard(module)));
+        editingModule.BindValueChanged(e =>
+        {
+            if (e.NewValue is null) return;
+
+            settingFlow.AttributeFlow.AttributeList.Clear();
+            settingFlow.AttributeFlow.AttributeList.AddRange(e.NewValue.Settings.Values);
+
+            parameterFlow.AttributeFlow.AttributeList.Clear();
+            parameterFlow.AttributeFlow.AttributeList.AddRange(e.NewValue.Parameters.Values);
+        }, true);
     }
 }

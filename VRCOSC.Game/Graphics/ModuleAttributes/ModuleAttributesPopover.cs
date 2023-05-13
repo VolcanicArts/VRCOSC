@@ -4,38 +4,20 @@
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
-using osu.Framework.Graphics.Shapes;
-using VRCOSC.Game.Graphics.Themes;
-using VRCOSC.Game.Managers;
 using VRCOSC.Game.Modules;
 
-namespace VRCOSC.Game.Graphics.ModuleEditing;
+namespace VRCOSC.Game.Graphics.ModuleAttributes;
 
-public sealed partial class ModuleEditingPopover : PopoverScreen
+public sealed partial class ModuleAttributesPopover : PopoverScreen
 {
     [Resolved(name: "EditingModule")]
     private Bindable<Module?> editingModule { get; set; } = null!;
 
-    [Resolved]
-    private GameManager gameManager { get; set; } = null!;
-
-    public ModuleEditingPopover()
+    public ModuleAttributesPopover()
     {
-        Children = new Drawable[]
+        Child = new ModuleAttributesScreen
         {
-            new Box
-            {
-                RelativeSizeAxes = Axes.Both,
-                Colour = ThemeManager.Current[ThemeAttribute.Mid]
-            },
-            new ModuleEditingContent
-            {
-                RelativeSizeAxes = Axes.Both,
-                Padding = new MarginPadding
-                {
-                    Vertical = 2.5f
-                }
-            }
+            RelativeSizeAxes = Axes.Both
         };
     }
 

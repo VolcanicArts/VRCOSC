@@ -51,7 +51,7 @@ public abstract partial class SettingCard<T> : Container
                     new Box
                     {
                         RelativeSizeAxes = Axes.Both,
-                        Colour = ThemeManager.Current[ThemeAttribute.Mid]
+                        Colour = ThemeManager.Current[ThemeAttribute.Light]
                     },
                     helpButton = new Container
                     {

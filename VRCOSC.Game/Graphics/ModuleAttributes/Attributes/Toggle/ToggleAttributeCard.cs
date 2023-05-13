@@ -3,12 +3,12 @@
 
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
-using osu.Framework.Graphics.Containers;
+using osuTK;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Button;
 using VRCOSC.Game.Modules;
 
-namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes.Toggle;
+namespace VRCOSC.Game.Graphics.ModuleAttributes.Attributes.Toggle;
 
 public sealed partial class ToggleAttributeCard : AttributeCard
 {
@@ -22,24 +22,16 @@ public sealed partial class ToggleAttributeCard : AttributeCard
     [BackgroundDependencyLoader]
     private void load()
     {
-        Add(new Container
+        Add(toggleButton = new ToggleButton
         {
-            Anchor = Anchor.CentreRight,
-            Origin = Anchor.CentreRight,
-            RelativeSizeAxes = Axes.Both,
-            FillMode = FillMode.Fit,
-            Padding = new MarginPadding(10),
-            Child = toggleButton = new ToggleButton
-            {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                RelativeSizeAxes = Axes.Both,
-                CornerRadius = 10,
-                BorderColour = ThemeManager.Current[ThemeAttribute.Border],
-                BorderThickness = 2,
-                ShouldAnimate = false,
-                State = { Value = (bool)AttributeData.Attribute.Value }
-            }
+            Anchor = Anchor.TopCentre,
+            Origin = Anchor.TopCentre,
+            Size = new Vector2(35),
+            CornerRadius = 10,
+            BorderColour = ThemeManager.Current[ThemeAttribute.Border],
+            BorderThickness = 2,
+            ShouldAnimate = false,
+            State = { Value = (bool)AttributeData.Attribute.Value }
         });
     }
 

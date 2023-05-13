@@ -4,7 +4,7 @@
 using osu.Framework.Bindables;
 using VRCOSC.Game.Modules;
 
-namespace VRCOSC.Game.Graphics.ModuleEditing.Attributes.Slider;
+namespace VRCOSC.Game.Graphics.ModuleAttributes.Attributes.Slider;
 
 public sealed partial class IntSliderAttributeCard : SliderAttributeCard<int>
 {
