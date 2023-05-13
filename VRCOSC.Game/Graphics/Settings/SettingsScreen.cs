@@ -34,7 +34,7 @@ public sealed partial class SettingsScreen : Container
                         RelativeSizeAxes = Axes.Both,
                         RowDimensions = new[]
                         {
-                            new Dimension(GridSizeMode.Absolute, 65),
+                            new Dimension(GridSizeMode.AutoSize),
                             new Dimension(GridSizeMode.Absolute, 5),
                             new Dimension()
                         },

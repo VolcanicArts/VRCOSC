@@ -45,7 +45,7 @@ public partial class StartupScreen : Container
                         RelativeSizeAxes = Axes.Both,
                         RowDimensions = new[]
                         {
-                            new Dimension(GridSizeMode.Absolute, 65),
+                            new Dimension(GridSizeMode.AutoSize),
                             new Dimension(GridSizeMode.Absolute, 5),
                             new Dimension()
                         },
@@ -57,7 +57,7 @@ public partial class StartupScreen : Container
                                 {
                                     Anchor = Anchor.TopCentre,
                                     Origin = Anchor.TopCentre
-                                },
+                                }
                             },
                             null,
                             new Drawable[]

@@ -39,7 +39,7 @@ public sealed partial class VRCOSCSlider<T> : BasicSliderBar<T> where T : struct
                 {
                     Anchor = Anchor.CentreLeft,
                     Origin = Anchor.CentreLeft,
-                    Font = FrameworkFont.Regular.With(size: 30),
+                    Font = FrameworkFont.Regular.With(size: 25),
                     Colour = ThemeManager.Current[ThemeAttribute.Text],
                     Text = CurrentNumber.MinValue.ToString()!
                 },
@@ -47,14 +47,14 @@ public sealed partial class VRCOSCSlider<T> : BasicSliderBar<T> where T : struct
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
-                    Font = FrameworkFont.Regular.With(size: 30),
+                    Font = FrameworkFont.Regular.With(size: 25),
                     Colour = ThemeManager.Current[ThemeAttribute.Text]
                 },
                 new SpriteText
                 {
                     Anchor = Anchor.CentreRight,
                     Origin = Anchor.CentreRight,
-                    Font = FrameworkFont.Regular.With(size: 30),
+                    Font = FrameworkFont.Regular.With(size: 25),
                     Colour = ThemeManager.Current[ThemeAttribute.Text],
                     Text = CurrentNumber.MaxValue.ToString()!
                 }

@@ -98,7 +98,7 @@ public partial class ModuleAttributesHeader : Container
                 t.Colour = ThemeManager.Current[ThemeAttribute.Text];
             });
 
-            textFlow.AddParagraph("Settings and parameter editing", t =>
+            textFlow.AddParagraph("Change this module's behaviour. Only edit the parameter names if you know what you're doing!", t =>
             {
                 t.Font = FrameworkFont.Regular.With(size: 20);
                 t.Colour = ThemeManager.Current[ThemeAttribute.SubText];
