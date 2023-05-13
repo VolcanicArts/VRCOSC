@@ -45,9 +45,6 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     private Bindable<Module?> infoModule = new();
 
     [Cached]
-    private Bindable<Module.ModuleType?> typeFilter = new();
-
-    [Cached]
     public GameManager GameManager = new();
 
     [Cached]

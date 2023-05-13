@@ -35,8 +35,10 @@ public sealed partial class ModuleCard : Container
         AutoSizeAxes = Axes.Y;
         Masking = true;
         CornerRadius = 5;
+        BorderThickness = 2;
+        BorderColour = ThemeManager.Current[ThemeAttribute.Border];
 
-        SpriteText description;
+        TextFlowContainer textFlow;
 
         Children = new Drawable[]
         {
@@ -47,132 +49,143 @@ public sealed partial class ModuleCard : Container
                 RelativeSizeAxes = Axes.Both,
                 Colour = ThemeManager.Current[ThemeAttribute.Darker]
             },
-            new Box
+            new GridContainer
             {
-                Anchor = Anchor.CentreLeft,
-                Origin = Anchor.CentreLeft,
-                RelativeSizeAxes = Axes.Y,
-                Width = 5,
-                Colour = calculateModuleColour()
-            },
-            new FillFlowContainer
-            {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.X,
                 AutoSizeAxes = Axes.Y,
-                Direction = FillDirection.Horizontal,
-                Padding = new MarginPadding
+                ColumnDimensions = new[]
                 {
-                    Left = 5
+                    new Dimension(GridSizeMode.Absolute, 5),
+                    new Dimension()
                 },
-                Children = new Drawable[]
+                RowDimensions = new[]
                 {
-                    new Container
+                    new Dimension(GridSizeMode.AutoSize)
+                },
+                Content = new[]
+                {
+                    new Drawable?[]
                     {
-                        Anchor = Anchor.CentreLeft,
-                        Origin = Anchor.CentreLeft,
-                        RelativeSizeAxes = Axes.Both,
-                        FillMode = FillMode.Fit,
-                        Padding = new MarginPadding(7),
-                        Child = new ToggleButton
+                        new Box
                         {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
+                            Anchor = Anchor.CentreLeft,
+                            Origin = Anchor.CentreLeft,
                             RelativeSizeAxes = Axes.Both,
-                            ShouldAnimate = false,
-                            State = Module.Enabled.GetBoundCopy()
-                        }
-                    },
-                    new FillFlowContainer
-                    {
-                        Anchor = Anchor.CentreLeft,
-                        Origin = Anchor.CentreLeft,
-                        RelativeSizeAxes = Axes.X,
-                        AutoSizeAxes = Axes.Y,
-                        Direction = FillDirection.Vertical,
-                        Padding = new MarginPadding
-                        {
-                            Vertical = 4
+                            Colour = calculateModuleColour()
                         },
-                        Children = new Drawable[]
+                        new Container
                         {
-                            new SpriteText
+                            RelativeSizeAxes = Axes.X,
+                            AutoSizeAxes = Axes.Y,
+                            Padding = new MarginPadding(5),
+                            Children = new Drawable[]
                             {
-                                Anchor = Anchor.TopLeft,
-                                Origin = Anchor.TopLeft,
-                                Font = FrameworkFont.Regular.With(size: 25),
-                                Colour = ThemeManager.Current[ThemeAttribute.Text],
-                                Text = module.Title
-                            },
-                            description = new SpriteText
-                            {
-                                Anchor = Anchor.TopLeft,
-                                Origin = Anchor.TopLeft,
-                                Font = FrameworkFont.Regular.With(size: 20),
-                                Colour = ThemeManager.Current[ThemeAttribute.Text]
+                                new FillFlowContainer
+                                {
+                                    Anchor = Anchor.CentreLeft,
+                                    Origin = Anchor.CentreLeft,
+                                    RelativeSizeAxes = Axes.X,
+                                    AutoSizeAxes = Axes.Y,
+                                    Spacing = new Vector2(5, 0),
+                                    Direction = FillDirection.Horizontal,
+                                    Children = new Drawable[]
+                                    {
+                                        new Container
+                                        {
+                                            Anchor = Anchor.CentreLeft,
+                                            Origin = Anchor.CentreLeft,
+                                            RelativeSizeAxes = Axes.Both,
+                                            FillMode = FillMode.Fit,
+                                            Child = new ToggleButton
+                                            {
+                                                Anchor = Anchor.Centre,
+                                                Origin = Anchor.Centre,
+                                                RelativeSizeAxes = Axes.Both,
+                                                ShouldAnimate = false,
+                                                State = Module.Enabled.GetBoundCopy()
+                                            }
+                                        },
+                                        textFlow = new TextFlowContainer
+                                        {
+                                            Anchor = Anchor.CentreLeft,
+                                            Origin = Anchor.CentreLeft,
+                                            RelativeSizeAxes = Axes.X,
+                                            AutoSizeAxes = Axes.Y
+                                        }
+                                    }
+                                },
+                                new FillFlowContainer
+                                {
+                                    Anchor = Anchor.CentreRight,
+                                    Origin = Anchor.CentreRight,
+                                    RelativeSizeAxes = Axes.Both,
+                                    Spacing = new Vector2(5, 0),
+                                    Direction = FillDirection.Horizontal,
+                                    Children = new Drawable[]
+                                    {
+                                        new Container
+                                        {
+                                            Anchor = Anchor.CentreRight,
+                                            Origin = Anchor.CentreRight,
+                                            RelativeSizeAxes = Axes.Both,
+                                            FillMode = FillMode.Fit,
+                                            Alpha = Module.HasParameters ? 1 : 0.5f,
+                                            Child = new IconButton
+                                            {
+                                                Anchor = Anchor.Centre,
+                                                Origin = Anchor.Centre,
+                                                RelativeSizeAxes = Axes.Both,
+                                                Icon = FontAwesome.Solid.Question,
+                                                IconPadding = 5,
+                                                CornerRadius = 5,
+                                                Action = () => infoModule.Value = Module,
+                                                BackgroundColour = ThemeManager.Current[ThemeAttribute.Light],
+                                                Enabled = { Value = Module.HasParameters }
+                                            }
+                                        },
+                                        new Container
+                                        {
+                                            Anchor = Anchor.CentreRight,
+                                            Origin = Anchor.CentreRight,
+                                            RelativeSizeAxes = Axes.Both,
+                                            FillMode = FillMode.Fit,
+                                            Alpha = Module.HasSettings || Module.HasParameters ? 1 : 0.5f,
+                                            Child = new IconButton
+                                            {
+                                                Anchor = Anchor.Centre,
+                                                Origin = Anchor.Centre,
+                                                RelativeSizeAxes = Axes.Both,
+                                                Icon = FontAwesome.Solid.Get(0xF013),
+                                                IconPadding = 5,
+                                                CornerRadius = 5,
+                                                Action = () => editingModule.Value = Module,
+                                                BackgroundColour = ThemeManager.Current[ThemeAttribute.Light],
+                                                Enabled = { Value = Module.HasSettings || Module.HasParameters }
+                                            }
+                                        }
+                                    }
+                                }
                             }
-                        }
-                    }
-                }
-            },
-            new FillFlowContainer
-            {
-                Anchor = Anchor.CentreRight,
-                Origin = Anchor.CentreRight,
-                RelativeSizeAxes = Axes.Both,
-                Width = 0.5f,
-                Padding = new MarginPadding(7),
-                Spacing = new Vector2(7, 0),
-                Children = new Drawable[]
-                {
-                    new Container
-                    {
-                        Anchor = Anchor.CentreRight,
-                        Origin = Anchor.CentreRight,
-                        RelativeSizeAxes = Axes.Both,
-                        FillMode = FillMode.Fit,
-                        Alpha = Module.HasParameters ? 1 : 0.5f,
-                        Child = new IconButton
-                        {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
-                            RelativeSizeAxes = Axes.Both,
-                            Icon = FontAwesome.Solid.Question,
-                            IconPadding = 5,
-                            CornerRadius = 5,
-                            Action = () => infoModule.Value = Module,
-                            BackgroundColour = ThemeManager.Current[ThemeAttribute.Light],
-                            Enabled = { Value = Module.HasParameters }
-                        }
-                    },
-                    new Container
-                    {
-                        Anchor = Anchor.CentreRight,
-                        Origin = Anchor.CentreRight,
-                        RelativeSizeAxes = Axes.Both,
-                        FillMode = FillMode.Fit,
-                        Alpha = Module.HasSettings || Module.HasParameters ? 1 : 0.5f,
-                        Child = new IconButton
-                        {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
-                            RelativeSizeAxes = Axes.Both,
-                            Icon = FontAwesome.Solid.Get(0xF013),
-                            IconPadding = 5,
-                            CornerRadius = 5,
-                            Action = () => editingModule.Value = Module,
-                            BackgroundColour = ThemeManager.Current[ThemeAttribute.Light],
-                            Enabled = { Value = Module.HasSettings || Module.HasParameters }
                         }
                     }
                 }
             }
         };
+
+        textFlow.AddText(module.Title, t =>
+        {
+            t.Font = FrameworkFont.Regular.With(size: 20);
+            t.Colour = ThemeManager.Current[ThemeAttribute.Text];
+        });
+
         var descriptionText = Module.Description;
         if (!string.IsNullOrEmpty(Module.Prefab)) descriptionText += $". Pairs with {Module.Prefab}";
 
-        description.Text = descriptionText;
+        textFlow.AddParagraph(descriptionText, t =>
+        {
+            t.Font = FrameworkFont.Regular.With(size: 17);
+            t.Colour = ThemeManager.Current[ThemeAttribute.SubText];
+        });
     }
 
     private Colour4 calculateModuleColour()
