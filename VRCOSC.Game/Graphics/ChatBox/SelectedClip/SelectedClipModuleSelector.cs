@@ -62,7 +62,7 @@ public partial class SelectedClipModuleSelector : Container
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
                                 Text = "Select Modules",
-                                Font = FrameworkFont.Regular.With(size: 30),
+                                Font = FrameworkFont.Regular.With(size: 25),
                                 Colour = ThemeManager.Current[ThemeAttribute.Text]
                             }
                         },

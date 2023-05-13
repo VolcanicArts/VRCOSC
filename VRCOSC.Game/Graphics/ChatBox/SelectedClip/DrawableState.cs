@@ -67,7 +67,7 @@ public partial class DrawableState : Container
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
                         RelativeSizeAxes = Axes.X,
-                        Height = 30,
+                        Height = 25,
                         Children = new Drawable[]
                         {
                             new Container
@@ -94,27 +94,22 @@ public partial class DrawableState : Container
                                 {
                                     Anchor = Anchor.CentreLeft,
                                     Origin = Anchor.CentreLeft,
-                                    Font = FrameworkFont.Regular.With(size: 20),
+                                    Font = FrameworkFont.Regular.With(size: 18),
                                     Text = stateNameList,
                                     Colour = ThemeManager.Current[ThemeAttribute.Text]
                                 }
                             }
                         }
                     },
-                    new Container
+                    new VRCOSCTextBox
                     {
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
                         RelativeSizeAxes = Axes.X,
-                        AutoSizeAxes = Axes.Y,
-                        Child = new VRCOSCTextBox
-                        {
-                            RelativeSizeAxes = Axes.X,
-                            Height = 30,
-                            Current = ClipState.Format.GetBoundCopy(),
-                            Masking = true,
-                            CornerRadius = 5
-                        }
+                        Height = 25,
+                        Current = ClipState.Format.GetBoundCopy(),
+                        Masking = true,
+                        CornerRadius = 5
                     }
                 }
             }

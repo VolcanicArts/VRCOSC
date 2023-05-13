@@ -51,7 +51,7 @@ public partial class DrawableAssociatedModule : Container
                         Padding = new MarginPadding(2),
                         Child = new SpriteText
                         {
-                            Font = FrameworkFont.Regular.With(size: 22),
+                            Font = FrameworkFont.Regular.With(size: 18),
                             Text = ModuleName,
                             Colour = ThemeManager.Current[ThemeAttribute.Text]
                         }

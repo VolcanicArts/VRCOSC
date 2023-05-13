@@ -35,7 +35,7 @@ public partial class BasicNotification : Notification
             AutoSizeAxes = Axes.Y,
             ColumnDimensions = new[]
             {
-                new Dimension(GridSizeMode.Absolute, 55),
+                new Dimension(GridSizeMode.Absolute, 40),
                 new Dimension()
             },
             RowDimensions = new[]
@@ -51,7 +51,6 @@ public partial class BasicNotification : Notification
                         Anchor = Anchor.TopLeft,
                         Origin = Anchor.TopLeft,
                         RelativeSizeAxes = Axes.Both,
-                        FillMode = FillMode.Fit,
                         Padding = new MarginPadding(5),
                         Children = new Drawable[]
                         {

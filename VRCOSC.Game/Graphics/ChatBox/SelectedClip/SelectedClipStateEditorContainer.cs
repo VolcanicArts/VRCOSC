@@ -59,7 +59,7 @@ public partial class SelectedClipStateEditorContainer : Container
                 {
                     Horizontal = 10,
                     Top = 10,
-                    Bottom = 50
+                    Bottom = 35
                 },
                 Child = new BasicScrollContainer
                 {
@@ -160,7 +160,7 @@ public partial class SelectedClipStateEditorContainer : Container
                 Anchor = Anchor.BottomCentre,
                 Origin = Anchor.BottomCentre,
                 RelativeSizeAxes = Axes.X,
-                Height = 50,
+                Height = 35,
                 Children = new Drawable[]
                 {
                     new FillFlowContainer

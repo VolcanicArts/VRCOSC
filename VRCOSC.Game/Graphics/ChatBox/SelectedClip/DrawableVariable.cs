@@ -63,7 +63,7 @@ public partial class DrawableVariable : Container
                         Padding = new MarginPadding(2),
                         Child = new SpriteText
                         {
-                            Font = FrameworkFont.Regular.With(size: 20),
+                            Font = FrameworkFont.Regular.With(size: 18),
                             Text = clipVariable.Name + ":",
                             Colour = ThemeManager.Current[ThemeAttribute.Text]
                         }

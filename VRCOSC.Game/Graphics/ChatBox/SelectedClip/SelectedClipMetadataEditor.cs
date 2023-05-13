@@ -59,7 +59,7 @@ public partial class SelectedClipMetadataEditor : Container
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
                                 Text = "Clip Settings",
-                                Font = FrameworkFont.Regular.With(size: 30),
+                                Font = FrameworkFont.Regular.With(size: 25),
                                 Colour = ThemeManager.Current[ThemeAttribute.Text]
                             }
                         },
@@ -114,7 +114,7 @@ public partial class SelectedClipMetadataEditor : Container
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
             Text = "Metadata",
-            Font = FrameworkFont.Regular.With(size: 25),
+            Font = FrameworkFont.Regular.With(size: 20),
             Colour = ThemeManager.Current[ThemeAttribute.Text]
         });
 

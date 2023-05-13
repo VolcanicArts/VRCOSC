@@ -54,7 +54,7 @@ public partial class DrawableEvent : Container
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
                         RelativeSizeAxes = Axes.X,
-                        Height = 30,
+                        Height = 25,
                         Children = new Drawable[]
                         {
                             new Container
@@ -81,7 +81,7 @@ public partial class DrawableEvent : Container
                                 {
                                     Anchor = Anchor.CentreLeft,
                                     Origin = Anchor.CentreLeft,
-                                    Font = FrameworkFont.Regular.With(size: 20),
+                                    Font = FrameworkFont.Regular.With(size: 18),
                                     Text = gameManager.ModuleManager.GetModuleName(ClipEvent.Module) + " - " + ClipEvent.Name + ":",
                                     Colour = ThemeManager.Current[ThemeAttribute.Text]
                                 }
@@ -93,7 +93,7 @@ public partial class DrawableEvent : Container
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
                         RelativeSizeAxes = Axes.X,
-                        Height = 30,
+                        Height = 25,
                         ColumnDimensions = new[]
                         {
                             new Dimension(),
