@@ -2,25 +2,23 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osuTK;
-using VRCOSC.Game.Graphics.ModuleEditing;
-using VRCOSC.Game.Graphics.ModuleInfo;
 using VRCOSC.Game.Graphics.Themes;
-using VRCOSC.Game.Managers;
+using VRCOSC.Game.Modules;
 
-namespace VRCOSC.Game.Graphics.ModuleListing;
+namespace VRCOSC.Game.Graphics.ModuleInfo;
 
-[Cached]
-public sealed partial class ModulesScreen : Container
+public partial class ModuleInfoScreen : Container
 {
-    [Resolved]
-    private GameManager gameManager { get; set; } = null!;
+    private FillFlowContainer<DrawableParameterAttribute> parameterAttributeFlow = null!;
 
-    private FillFlowContainer<ModuleCard> moduleCardFlow = null!;
+    [Resolved(name: "InfoModule")]
+    private Bindable<Module?> infoModule { get; set; } = null!;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -57,7 +55,7 @@ public sealed partial class ModulesScreen : Container
                         {
                             new Drawable[]
                             {
-                                new ModulesHeader
+                                new ModuleInfoHeader
                                 {
                                     Anchor = Anchor.TopCentre,
                                     Origin = Anchor.TopCentre
@@ -95,20 +93,17 @@ public sealed partial class ModulesScreen : Container
                                                 RelativeSizeAxes = Axes.Both,
                                                 ClampExtension = 0,
                                                 ScrollbarVisible = false,
-                                                ScrollContent =
+                                                Child = parameterAttributeFlow = new FillFlowContainer<DrawableParameterAttribute>
                                                 {
-                                                    Child = moduleCardFlow = new FillFlowContainer<ModuleCard>
-                                                    {
-                                                        Anchor = Anchor.TopCentre,
-                                                        Origin = Anchor.TopCentre,
-                                                        RelativeSizeAxes = Axes.X,
-                                                        AutoSizeAxes = Axes.Y,
-                                                        Padding = new MarginPadding(5),
-                                                        Direction = FillDirection.Full,
-                                                        Spacing = new Vector2(0, 5),
-                                                        LayoutEasing = Easing.OutQuad,
-                                                        LayoutDuration = 150
-                                                    }
+                                                    Anchor = Anchor.TopCentre,
+                                                    Origin = Anchor.TopCentre,
+                                                    RelativeSizeAxes = Axes.X,
+                                                    AutoSizeAxes = Axes.Y,
+                                                    Padding = new MarginPadding(5),
+                                                    Spacing = new Vector2(5, 5),
+                                                    Direction = FillDirection.Full,
+                                                    LayoutEasing = Easing.OutQuad,
+                                                    LayoutDuration = 150
                                                 }
                                             }
                                         }
@@ -118,14 +113,22 @@ public sealed partial class ModulesScreen : Container
                         }
                     }
                 }
-            },
-            new ModuleEditingPopover(),
-            new ModuleInfoPopover()
+            }
         };
     }
 
     protected override void LoadComplete()
     {
-        gameManager.ModuleManager.ForEach(module => moduleCardFlow.Add(new ModuleCard(module)));
+        infoModule.BindValueChanged(e =>
+        {
+            if (e.NewValue is null) return;
+
+            parameterAttributeFlow.Clear();
+
+            e.NewValue.Parameters.Values.ForEach(parameterAttribute =>
+            {
+                parameterAttributeFlow.Add(new DrawableParameterAttribute(parameterAttribute));
+            });
+        }, true);
     }
 }
