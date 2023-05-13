@@ -128,7 +128,7 @@ public sealed class ModuleManager : IEnumerable<Module>, ICanSerialise
 
         foreach (var module in runningModulesCache)
         {
-            module.FrameUpdate();
+            module.Update();
         }
     }
 

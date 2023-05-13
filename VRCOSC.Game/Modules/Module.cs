@@ -161,7 +161,7 @@ public abstract class Module : IComparable<Module>
         if (ShouldUpdateImmediately) OnModuleUpdate();
     }
 
-    internal void FrameUpdate() => OnFrameUpdate();
+    internal void Update() => OnFixedUpdate();
 
     internal void Stop()
     {
@@ -174,7 +174,7 @@ public abstract class Module : IComparable<Module>
 
     protected virtual void OnModuleStart() { }
     protected virtual void OnModuleUpdate() { }
-    protected virtual void OnFrameUpdate() { }
+    protected virtual void OnFixedUpdate() { }
     protected virtual void OnModuleStop() { }
     protected virtual void OnAvatarChange() { }
 
