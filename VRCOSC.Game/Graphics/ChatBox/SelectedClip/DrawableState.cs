@@ -81,7 +81,9 @@ public partial class DrawableState : Container
                                     Anchor = Anchor.Centre,
                                     Origin = Anchor.Centre,
                                     RelativeSizeAxes = Axes.Both,
-                                    State = ClipState.Enabled.GetBoundCopy()
+                                    State = ClipState.Enabled.GetBoundCopy(),
+                                    BorderThickness = 2,
+                                    BorderColour = ThemeManager.Current[ThemeAttribute.Border]
                                 }
                             },
                             new Container
@@ -109,7 +111,9 @@ public partial class DrawableState : Container
                         Height = 25,
                         Current = ClipState.Format.GetBoundCopy(),
                         Masking = true,
-                        CornerRadius = 5
+                        CornerRadius = 5,
+                        BorderThickness = 2,
+                        BorderColour = ThemeManager.Current[ThemeAttribute.Border]
                     }
                 }
             }

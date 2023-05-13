@@ -71,7 +71,9 @@ public partial class DrawableAssociatedModule : Container
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
                                 RelativeSizeAxes = Axes.Both,
-                                State = State.GetBoundCopy()
+                                State = State.GetBoundCopy(),
+                                BorderThickness = 2,
+                                BorderColour = ThemeManager.Current[ThemeAttribute.Border]
                             }
                         }
                     }

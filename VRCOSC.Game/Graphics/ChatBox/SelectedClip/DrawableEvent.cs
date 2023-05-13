@@ -68,7 +68,9 @@ public partial class DrawableEvent : Container
                                     Anchor = Anchor.Centre,
                                     Origin = Anchor.Centre,
                                     RelativeSizeAxes = Axes.Both,
-                                    State = ClipEvent.Enabled.GetBoundCopy()
+                                    State = ClipEvent.Enabled.GetBoundCopy(),
+                                    BorderThickness = 2,
+                                    BorderColour = ThemeManager.Current[ThemeAttribute.Border]
                                 }
                             },
                             new Container
@@ -112,7 +114,9 @@ public partial class DrawableEvent : Container
                                         RelativeSizeAxes = Axes.Both,
                                         Current = ClipEvent.Format.GetBoundCopy(),
                                         Masking = true,
-                                        CornerRadius = 5
+                                        CornerRadius = 5,
+                                        BorderThickness = 2,
+                                        BorderColour = ThemeManager.Current[ThemeAttribute.Border]
                                     }
                                 },
                                 null,
@@ -125,6 +129,8 @@ public partial class DrawableEvent : Container
                                         Text = ClipEvent.Length.Value.ToString(),
                                         Masking = true,
                                         CornerRadius = 5,
+                                        BorderThickness = 2,
+                                        BorderColour = ThemeManager.Current[ThemeAttribute.Border],
                                         PlaceholderText = "Length"
                                     }
                                 },

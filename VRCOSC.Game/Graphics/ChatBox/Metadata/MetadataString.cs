@@ -75,6 +75,8 @@ public partial class MetadataString : Container
                                 RelativeSizeAxes = Axes.Both,
                                 CornerRadius = 5,
                                 MinimumLength = 2,
+                                BorderThickness = 2,
+                                BorderColour = ThemeManager.Current[ThemeAttribute.Border],
                                 EmptyIsValid = false
                             }
                         }
