@@ -18,19 +18,19 @@ public static class ThemeManager
         {
             ColourTheme.Dark, new Dictionary<ThemeAttribute, Color4>
             {
-                { ThemeAttribute.Darker, Color4Extensions.FromHex(@"222222") },
-                { ThemeAttribute.Dark, Color4Extensions.FromHex(@"333333") },
-                { ThemeAttribute.Mid, Color4Extensions.FromHex(@"444444") },
-                { ThemeAttribute.Light, Color4Extensions.FromHex(@"555555") },
-                { ThemeAttribute.Lighter, Color4Extensions.FromHex(@"666666") },
+                { ThemeAttribute.Darker, Color4Extensions.FromHex(@"1e2124") },
+                { ThemeAttribute.Dark, Color4Extensions.FromHex(@"282b30") },
+                { ThemeAttribute.Mid, Color4Extensions.FromHex(@"36393e") },
+                { ThemeAttribute.Light, Color4Extensions.FromHex(@"424549") },
+                { ThemeAttribute.Lighter, Color4Extensions.FromHex(@"7289da") },
                 { ThemeAttribute.Success, Color4Extensions.FromHex(@"88B300") },
                 { ThemeAttribute.Pending, Color4Extensions.FromHex(@"FFCC22") },
                 { ThemeAttribute.Failure, Color4Extensions.FromHex(@"ED1121") },
-                { ThemeAttribute.Action, Color4Extensions.FromHex(@"44AADD") },
+                { ThemeAttribute.Action, Color4Extensions.FromHex(@"7289da") },
                 { ThemeAttribute.Text, Color4Extensions.FromHex(@"FFFFFF") },
-                { ThemeAttribute.SubText, Color4Extensions.FromHex(@"BBBBBB") },
+                { ThemeAttribute.SubText, Color4Extensions.FromHex(@"999999") },
                 { ThemeAttribute.Border, Color4Extensions.FromHex(@"000000") },
-                { ThemeAttribute.Accent, Color4Extensions.FromHex(@"FFFFFF") }
+                { ThemeAttribute.Accent, Color4Extensions.FromHex(@"7289da") }
             }
         },
         {
@@ -52,21 +52,21 @@ public static class ThemeManager
             }
         },
         {
-            ColourTheme.Discord, new Dictionary<ThemeAttribute, Color4>
+            ColourTheme.Grey, new Dictionary<ThemeAttribute, Color4>
             {
-                { ThemeAttribute.Darker, Color4Extensions.FromHex(@"1e2124") },
-                { ThemeAttribute.Dark, Color4Extensions.FromHex(@"282b30") },
-                { ThemeAttribute.Mid, Color4Extensions.FromHex(@"36393e") },
-                { ThemeAttribute.Light, Color4Extensions.FromHex(@"424549") },
-                { ThemeAttribute.Lighter, Color4Extensions.FromHex(@"7289da") },
+                { ThemeAttribute.Darker, Color4Extensions.FromHex(@"222222") },
+                { ThemeAttribute.Dark, Color4Extensions.FromHex(@"333333") },
+                { ThemeAttribute.Mid, Color4Extensions.FromHex(@"444444") },
+                { ThemeAttribute.Light, Color4Extensions.FromHex(@"555555") },
+                { ThemeAttribute.Lighter, Color4Extensions.FromHex(@"666666") },
                 { ThemeAttribute.Success, Color4Extensions.FromHex(@"88B300") },
                 { ThemeAttribute.Pending, Color4Extensions.FromHex(@"FFCC22") },
                 { ThemeAttribute.Failure, Color4Extensions.FromHex(@"ED1121") },
-                { ThemeAttribute.Action, Color4Extensions.FromHex(@"7289da") },
+                { ThemeAttribute.Action, Color4Extensions.FromHex(@"44AADD") },
                 { ThemeAttribute.Text, Color4Extensions.FromHex(@"FFFFFF") },
-                { ThemeAttribute.SubText, Color4Extensions.FromHex(@"999999") },
+                { ThemeAttribute.SubText, Color4Extensions.FromHex(@"BBBBBB") },
                 { ThemeAttribute.Border, Color4Extensions.FromHex(@"000000") },
-                { ThemeAttribute.Accent, Color4Extensions.FromHex(@"7289da") }
+                { ThemeAttribute.Accent, Color4Extensions.FromHex(@"FFFFFF") }
             }
         },
         {
@@ -148,7 +148,7 @@ public enum ColourTheme
 {
     Dark,
     Light,
-    Discord,
+    Grey,
     SpaceGrey,
     NightSky,
     Purple,
