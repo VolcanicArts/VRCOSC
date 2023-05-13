@@ -236,7 +236,7 @@ public partial class SelectedClipStateEditorContainer : Container
             }
         }, true);
 
-        ((ModuleManager)chatBoxManager.GameManager.ModuleManager).OnModuleEnabledChanged += filterFlows;
+        chatBoxManager.GameManager.ModuleManager.OnModuleEnabledChanged += filterFlows;
         showRelevantStates.BindValueChanged(_ => filterFlows(), true);
     }
 
@@ -268,6 +268,11 @@ public partial class SelectedClipStateEditorContainer : Container
             stateFlow.ForEach(drawableState => drawableState.Alpha = 1);
             eventFlow.ForEach(drawableState => drawableState.Alpha = 1);
         }
+
+        statesTitle.Alpha = stateFlow.All(drawableState => drawableState.Alpha == 0) ? 0 : 1;
+        eventsTitle.Alpha = eventFlow.All(drawableEvent => drawableEvent.Alpha == 0) ? 0 : 1;
+
+        separator.Alpha = eventsTitle.Alpha;
     }
 
     private void associatedModulesOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs? e)
