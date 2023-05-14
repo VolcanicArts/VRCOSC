@@ -51,8 +51,8 @@ public class DarkTheme : ColourTheme
         Colours[ThemeAttribute.Darker] = Color4Extensions.FromHex(@"222222");
         Colours[ThemeAttribute.Dark] = Color4Extensions.FromHex(@"333333");
         Colours[ThemeAttribute.Mid] = Color4Extensions.FromHex(@"444444");
-        Colours[ThemeAttribute.Light] = Color4Extensions.FromHex(@"a7adba").Darken(0.5f);
-        Colours[ThemeAttribute.Lighter] = Color4Extensions.FromHex(@"c0c5ce").Darken(0.5f);
+        Colours[ThemeAttribute.Light] = Color4Extensions.FromHex(@"555555");
+        Colours[ThemeAttribute.Lighter] = Color4Extensions.FromHex(@"AAAAAA");
     }
 }
 
@@ -99,8 +99,8 @@ public class SpaceGreyTheme : ColourTheme
         Colours[ThemeAttribute.Darker] = Color4Extensions.FromHex(@"343d46");
         Colours[ThemeAttribute.Dark] = Color4Extensions.FromHex(@"4f5b66");
         Colours[ThemeAttribute.Mid] = Color4Extensions.FromHex(@"65737e");
-        Colours[ThemeAttribute.Light] = Color4Extensions.FromHex(@"555555");
-        Colours[ThemeAttribute.Lighter] = Color4Extensions.FromHex(@"AAAAAA");
+        Colours[ThemeAttribute.Light] = Color4Extensions.FromHex(@"a7adba");
+        Colours[ThemeAttribute.Lighter] = Color4Extensions.FromHex(@"c0c5ce");
     }
 }
 
