@@ -62,17 +62,15 @@ public sealed partial class ParameterDisplay : Container
                             RelativeSizeAxes = Axes.Both,
                             ScrollbarVisible = false,
                             ClampExtension = 0,
-                            Padding = new MarginPadding
+                            ScrollContent =
                             {
-                                Vertical = 1.5f,
-                                Horizontal = 3
-                            },
-                            Child = parameterFlow = new FillFlowContainer<ParameterEntry>
-                            {
-                                Anchor = Anchor.TopCentre,
-                                Origin = Anchor.TopCentre,
-                                RelativeSizeAxes = Axes.X,
-                                AutoSizeAxes = Axes.Y
+                                Child = parameterFlow = new FillFlowContainer<ParameterEntry>
+                                {
+                                    Anchor = Anchor.TopCentre,
+                                    Origin = Anchor.TopCentre,
+                                    RelativeSizeAxes = Axes.X,
+                                    AutoSizeAxes = Axes.Y
+                                }
                             }
                         }
                     }

@@ -105,8 +105,8 @@ public sealed partial class ParameterContainer : Container
                     RelativeSizeAxes = Axes.Both,
                     Padding = new MarginPadding
                     {
-                        Vertical = 1.5f,
-                        Horizontal = 3
+                        Vertical = 2,
+                        Horizontal = 7
                     },
                     Title = Title
                 }

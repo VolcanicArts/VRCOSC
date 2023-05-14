@@ -38,7 +38,7 @@ public sealed partial class TerminalContainer : Container<TerminalEntry>
             new Container
             {
                 RelativeSizeAxes = Axes.Both,
-                Padding = new MarginPadding(3f),
+                Padding = new MarginPadding(2),
                 Child = terminalScroll = new BasicScrollContainer
                 {
                     RelativeSizeAxes = Axes.Both,
