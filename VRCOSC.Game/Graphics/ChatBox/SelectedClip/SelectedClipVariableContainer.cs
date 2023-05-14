@@ -73,12 +73,15 @@ public partial class SelectedClipVariableContainer : Container
                                 RelativeSizeAxes = Axes.Both,
                                 ScrollbarVisible = false,
                                 ClampExtension = 5,
-                                Child = moduleVariableFlow = new FillFlowContainer
+                                ScrollContent =
                                 {
-                                    RelativeSizeAxes = Axes.X,
-                                    AutoSizeAxes = Axes.Y,
-                                    Direction = FillDirection.Vertical,
-                                    Spacing = new Vector2(0, 10)
+                                    Child = moduleVariableFlow = new FillFlowContainer
+                                    {
+                                        RelativeSizeAxes = Axes.X,
+                                        AutoSizeAxes = Axes.Y,
+                                        Direction = FillDirection.Vertical,
+                                        Spacing = new Vector2(0, 10)
+                                    }
                                 }
                             }
                         }

@@ -74,12 +74,15 @@ public partial class SelectedClipModuleSelector : Container
                                 RelativeSizeAxes = Axes.Both,
                                 ClampExtension = 5,
                                 ScrollbarVisible = false,
-                                Child = moduleFlow = new FillFlowContainer<DrawableAssociatedModule>
+                                ScrollContent =
                                 {
-                                    RelativeSizeAxes = Axes.X,
-                                    AutoSizeAxes = Axes.Y,
-                                    Direction = FillDirection.Vertical,
-                                    Spacing = new Vector2(0, 2)
+                                    Child = moduleFlow = new FillFlowContainer<DrawableAssociatedModule>
+                                    {
+                                        RelativeSizeAxes = Axes.X,
+                                        AutoSizeAxes = Axes.Y,
+                                        Direction = FillDirection.Vertical,
+                                        Spacing = new Vector2(0, 2)
+                                    }
                                 }
                             }
                         }

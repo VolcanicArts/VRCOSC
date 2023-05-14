@@ -75,17 +75,20 @@ public partial class ModuleAttributeFlow : Container
                     RelativeSizeAxes = Axes.Both,
                     ClampExtension = 0,
                     ScrollbarVisible = false,
-                    Child = attributeFlow = new FillFlowContainer<AttributeCard>
+                    ScrollContent =
                     {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        RelativeSizeAxes = Axes.X,
-                        AutoSizeAxes = Axes.Y,
-                        Padding = new MarginPadding(10),
-                        Spacing = new Vector2(5, 5),
-                        Direction = FillDirection.Full,
-                        LayoutEasing = Easing.OutQuad,
-                        LayoutDuration = 150
+                        Child = attributeFlow = new FillFlowContainer<AttributeCard>
+                        {
+                            Anchor = Anchor.TopCentre,
+                            Origin = Anchor.TopCentre,
+                            RelativeSizeAxes = Axes.X,
+                            AutoSizeAxes = Axes.Y,
+                            Padding = new MarginPadding(10),
+                            Spacing = new Vector2(5, 5),
+                            Direction = FillDirection.Full,
+                            LayoutEasing = Easing.OutQuad,
+                            LayoutDuration = 150
+                        }
                     }
                 }
             }

@@ -67,88 +67,91 @@ public partial class SelectedClipStateEditorContainer : Container
                     RelativeSizeAxes = Axes.Both,
                     ClampExtension = 5,
                     ScrollbarVisible = false,
-                    Child = new FillFlowContainer
+                    ScrollContent =
                     {
-                        RelativeSizeAxes = Axes.X,
-                        AutoSizeAxes = Axes.Y,
-                        Spacing = new Vector2(0, 10),
-                        Children = new Drawable[]
+                        Child = new FillFlowContainer
                         {
-                            new FillFlowContainer
+                            RelativeSizeAxes = Axes.X,
+                            AutoSizeAxes = Axes.Y,
+                            Spacing = new Vector2(0, 10),
+                            Children = new Drawable[]
                             {
-                                Anchor = Anchor.TopCentre,
-                                Origin = Anchor.TopCentre,
-                                RelativeSizeAxes = Axes.X,
-                                AutoSizeAxes = Axes.Y,
-                                Direction = FillDirection.Vertical,
-                                Spacing = new Vector2(0, 5),
-                                Children = new Drawable[]
+                                new FillFlowContainer
                                 {
-                                    statesTitle = new Container
+                                    Anchor = Anchor.TopCentre,
+                                    Origin = Anchor.TopCentre,
+                                    RelativeSizeAxes = Axes.X,
+                                    AutoSizeAxes = Axes.Y,
+                                    Direction = FillDirection.Vertical,
+                                    Spacing = new Vector2(0, 5),
+                                    Children = new Drawable[]
                                     {
-                                        Anchor = Anchor.TopCentre,
-                                        Origin = Anchor.TopCentre,
-                                        RelativeSizeAxes = Axes.X,
-                                        AutoSizeAxes = Axes.Y,
-                                        Child = new SpriteText
+                                        statesTitle = new Container
                                         {
-                                            Anchor = Anchor.Centre,
-                                            Origin = Anchor.Centre,
-                                            Text = "States",
-                                            Font = FrameworkFont.Regular.With(size: 30),
-                                            Colour = ThemeManager.Current[ThemeAttribute.Text]
+                                            Anchor = Anchor.TopCentre,
+                                            Origin = Anchor.TopCentre,
+                                            RelativeSizeAxes = Axes.X,
+                                            AutoSizeAxes = Axes.Y,
+                                            Child = new SpriteText
+                                            {
+                                                Anchor = Anchor.Centre,
+                                                Origin = Anchor.Centre,
+                                                Text = "States",
+                                                Font = FrameworkFont.Regular.With(size: 30),
+                                                Colour = ThemeManager.Current[ThemeAttribute.Text]
+                                            }
+                                        },
+                                        stateFlow = new FillFlowContainer<DrawableState>
+                                        {
+                                            Anchor = Anchor.TopCentre,
+                                            Origin = Anchor.TopCentre,
+                                            RelativeSizeAxes = Axes.X,
+                                            AutoSizeAxes = Axes.Y,
+                                            Direction = FillDirection.Vertical,
+                                            Spacing = new Vector2(0, 5)
                                         }
-                                    },
-                                    stateFlow = new FillFlowContainer<DrawableState>
-                                    {
-                                        Anchor = Anchor.TopCentre,
-                                        Origin = Anchor.TopCentre,
-                                        RelativeSizeAxes = Axes.X,
-                                        AutoSizeAxes = Axes.Y,
-                                        Direction = FillDirection.Vertical,
-                                        Spacing = new Vector2(0, 5)
                                     }
-                                }
-                            },
-                            separator = new LineSeparator
-                            {
-                                Anchor = Anchor.TopCentre,
-                                Origin = Anchor.TopCentre,
-                                LineColour = ThemeManager.Current[ThemeAttribute.Mid]
-                            },
-                            new FillFlowContainer
-                            {
-                                Anchor = Anchor.TopCentre,
-                                Origin = Anchor.TopCentre,
-                                RelativeSizeAxes = Axes.X,
-                                AutoSizeAxes = Axes.Y,
-                                Direction = FillDirection.Vertical,
-                                Spacing = new Vector2(0, 5),
-                                Children = new Drawable[]
+                                },
+                                separator = new LineSeparator
                                 {
-                                    eventsTitle = new Container
+                                    Anchor = Anchor.TopCentre,
+                                    Origin = Anchor.TopCentre,
+                                    LineColour = ThemeManager.Current[ThemeAttribute.Mid]
+                                },
+                                new FillFlowContainer
+                                {
+                                    Anchor = Anchor.TopCentre,
+                                    Origin = Anchor.TopCentre,
+                                    RelativeSizeAxes = Axes.X,
+                                    AutoSizeAxes = Axes.Y,
+                                    Direction = FillDirection.Vertical,
+                                    Spacing = new Vector2(0, 5),
+                                    Children = new Drawable[]
                                     {
-                                        Anchor = Anchor.TopCentre,
-                                        Origin = Anchor.TopCentre,
-                                        RelativeSizeAxes = Axes.X,
-                                        AutoSizeAxes = Axes.Y,
-                                        Child = new SpriteText
+                                        eventsTitle = new Container
                                         {
-                                            Anchor = Anchor.Centre,
-                                            Origin = Anchor.Centre,
-                                            Text = "Events",
-                                            Font = FrameworkFont.Regular.With(size: 30),
-                                            Colour = ThemeManager.Current[ThemeAttribute.Text]
+                                            Anchor = Anchor.TopCentre,
+                                            Origin = Anchor.TopCentre,
+                                            RelativeSizeAxes = Axes.X,
+                                            AutoSizeAxes = Axes.Y,
+                                            Child = new SpriteText
+                                            {
+                                                Anchor = Anchor.Centre,
+                                                Origin = Anchor.Centre,
+                                                Text = "Events",
+                                                Font = FrameworkFont.Regular.With(size: 30),
+                                                Colour = ThemeManager.Current[ThemeAttribute.Text]
+                                            }
+                                        },
+                                        eventFlow = new FillFlowContainer<DrawableEvent>
+                                        {
+                                            Anchor = Anchor.TopCentre,
+                                            Origin = Anchor.TopCentre,
+                                            RelativeSizeAxes = Axes.X,
+                                            AutoSizeAxes = Axes.Y,
+                                            Direction = FillDirection.Vertical,
+                                            Spacing = new Vector2(0, 5)
                                         }
-                                    },
-                                    eventFlow = new FillFlowContainer<DrawableEvent>
-                                    {
-                                        Anchor = Anchor.TopCentre,
-                                        Origin = Anchor.TopCentre,
-                                        RelativeSizeAxes = Axes.X,
-                                        AutoSizeAxes = Axes.Y,
-                                        Direction = FillDirection.Vertical,
-                                        Spacing = new Vector2(0, 5)
                                     }
                                 }
                             }

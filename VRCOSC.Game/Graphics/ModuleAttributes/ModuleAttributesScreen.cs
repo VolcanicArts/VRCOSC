@@ -23,7 +23,12 @@ public partial class ModuleAttributesScreen : BaseScreen
     protected override Drawable CreateBody() => new Container
     {
         RelativeSizeAxes = Axes.Both,
-        Padding = new MarginPadding(10),
+        Padding = new MarginPadding
+        {
+            Horizontal = 10,
+            Bottom = 10,
+            Top = 5
+        },
         Child = new GridContainer
         {
             RelativeSizeAxes = Axes.Both,

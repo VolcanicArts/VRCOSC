@@ -31,16 +31,19 @@ public partial class RouterScreen : BaseScreen
         RelativeSizeAxes = Axes.Both,
         ClampExtension = 0,
         ScrollbarVisible = false,
-        Child = routerDataFlow = new FillFlowContainer<RouterDataFlowEntry>
+        ScrollContent =
         {
-            Anchor = Anchor.TopCentre,
-            Origin = Anchor.TopCentre,
-            RelativeSizeAxes = Axes.X,
-            AutoSizeAxes = Axes.Y,
-            Padding = new MarginPadding(5),
-            Direction = FillDirection.Full,
-            LayoutEasing = Easing.OutQuad,
-            LayoutDuration = 150
+            Child = routerDataFlow = new FillFlowContainer<RouterDataFlowEntry>
+            {
+                Anchor = Anchor.TopCentre,
+                Origin = Anchor.TopCentre,
+                RelativeSizeAxes = Axes.X,
+                AutoSizeAxes = Axes.Y,
+                Padding = new MarginPadding(5),
+                Direction = FillDirection.Full,
+                LayoutEasing = Easing.OutQuad,
+                LayoutDuration = 150
+            }
         }
     };
 

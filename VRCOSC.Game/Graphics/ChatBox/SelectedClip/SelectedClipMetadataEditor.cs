@@ -71,12 +71,15 @@ public partial class SelectedClipMetadataEditor : Container
                                 RelativeSizeAxes = Axes.Both,
                                 ScrollbarVisible = false,
                                 ClampExtension = 5,
-                                Child = metadataFlow = new FillFlowContainer
+                                ScrollContent =
                                 {
-                                    RelativeSizeAxes = Axes.X,
-                                    AutoSizeAxes = Axes.Y,
-                                    Direction = FillDirection.Vertical,
-                                    Spacing = new Vector2(0, 2)
+                                    Child = metadataFlow = new FillFlowContainer
+                                    {
+                                        RelativeSizeAxes = Axes.X,
+                                        AutoSizeAxes = Axes.Y,
+                                        Direction = FillDirection.Vertical,
+                                        Spacing = new Vector2(0, 2)
+                                    }
                                 }
                             }
                         }

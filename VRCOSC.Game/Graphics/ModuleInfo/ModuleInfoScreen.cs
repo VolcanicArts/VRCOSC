@@ -28,17 +28,20 @@ public partial class ModuleInfoScreen : BaseScreen
         RelativeSizeAxes = Axes.Both,
         ClampExtension = 0,
         ScrollbarVisible = false,
-        Child = parameterAttributeFlow = new FillFlowContainer<DrawableParameterAttribute>
+        ScrollContent =
         {
-            Anchor = Anchor.TopCentre,
-            Origin = Anchor.TopCentre,
-            RelativeSizeAxes = Axes.X,
-            AutoSizeAxes = Axes.Y,
-            Padding = new MarginPadding(5),
-            Spacing = new Vector2(5, 5),
-            Direction = FillDirection.Full,
-            LayoutEasing = Easing.OutQuad,
-            LayoutDuration = 150
+            Child = parameterAttributeFlow = new FillFlowContainer<DrawableParameterAttribute>
+            {
+                Anchor = Anchor.TopCentre,
+                Origin = Anchor.TopCentre,
+                RelativeSizeAxes = Axes.X,
+                AutoSizeAxes = Axes.Y,
+                Padding = new MarginPadding(5),
+                Spacing = new Vector2(5, 5),
+                Direction = FillDirection.Full,
+                LayoutEasing = Easing.OutQuad,
+                LayoutDuration = 150
+            }
         }
     };
 

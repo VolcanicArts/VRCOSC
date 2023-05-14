@@ -44,16 +44,19 @@ public sealed partial class TerminalContainer : Container<TerminalEntry>
                     RelativeSizeAxes = Axes.Both,
                     ScrollbarVisible = false,
                     ClampExtension = 0,
-                    Child = Content = new FillFlowContainer<TerminalEntry>
+                    ScrollContent =
                     {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        RelativeSizeAxes = Axes.X,
-                        AutoSizeAxes = Axes.Y,
-                        Direction = FillDirection.Vertical,
-                        Padding = new MarginPadding
+                        Child = Content = new FillFlowContainer<TerminalEntry>
                         {
-                            Horizontal = 3
+                            Anchor = Anchor.TopCentre,
+                            Origin = Anchor.TopCentre,
+                            RelativeSizeAxes = Axes.X,
+                            AutoSizeAxes = Axes.Y,
+                            Direction = FillDirection.Vertical,
+                            Padding = new MarginPadding
+                            {
+                                Horizontal = 3
+                            }
                         }
                     }
                 }

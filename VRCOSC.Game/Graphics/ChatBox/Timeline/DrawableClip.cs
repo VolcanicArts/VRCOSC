@@ -54,7 +54,7 @@ public partial class DrawableClip : Container
             {
                 background = new Box
                 {
-                    Colour = ThemeManager.Current[ThemeAttribute.Light],
+                    Colour = ThemeManager.Current[ThemeAttribute.Dark],
                     RelativeSizeAxes = Axes.Both
                 },
                 new StartResizeDetector(Clip)
@@ -91,7 +91,7 @@ public partial class DrawableClip : Container
         chatBoxManager.SelectedClip.BindValueChanged(e =>
         {
             ((Container)Child).BorderThickness = Clip == e.NewValue ? 4 : 2;
-            background.FadeColour(Clip == e.NewValue ? ThemeManager.Current[ThemeAttribute.Dark] : ThemeManager.Current[ThemeAttribute.Light], 300, Easing.OutQuart);
+            background.FadeColour(Clip == e.NewValue ? ThemeManager.Current[ThemeAttribute.Darker] : ThemeManager.Current[ThemeAttribute.Dark], 300, Easing.OutQuart);
         }, true);
 
         chatBoxManager.TimelineLength.BindValueChanged(_ => updateSizeAndPosition(), true);

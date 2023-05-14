@@ -32,16 +32,19 @@ public partial class StartupScreen : BaseScreen
         RelativeSizeAxes = Axes.Both,
         ClampExtension = 0,
         ScrollbarVisible = false,
-        Child = startupDataFlow = new FillFlowContainer<StartupDataFlowEntry>
+        ScrollContent =
         {
-            Anchor = Anchor.TopCentre,
-            Origin = Anchor.TopCentre,
-            RelativeSizeAxes = Axes.X,
-            AutoSizeAxes = Axes.Y,
-            Padding = new MarginPadding(5),
-            Direction = FillDirection.Vertical,
-            LayoutEasing = Easing.OutQuad,
-            LayoutDuration = 150
+            Child = startupDataFlow = new FillFlowContainer<StartupDataFlowEntry>
+            {
+                Anchor = Anchor.TopCentre,
+                Origin = Anchor.TopCentre,
+                RelativeSizeAxes = Axes.X,
+                AutoSizeAxes = Axes.Y,
+                Padding = new MarginPadding(5),
+                Direction = FillDirection.Vertical,
+                LayoutEasing = Easing.OutQuad,
+                LayoutDuration = 150
+            }
         }
     };
 
