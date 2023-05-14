@@ -88,6 +88,6 @@ public class TimelineSerialiser : Serialiser<ChatBoxManager, SerialisableTimelin
             chatBoxManager.Clips.Add(newClip);
         });
 
-        chatBoxManager.TimelineLength.Value = TimeSpan.FromTicks(data.Ticks);
+        chatBoxManager.SetTimelineLength(TimeSpan.FromTicks(data.Ticks));
     }
 }

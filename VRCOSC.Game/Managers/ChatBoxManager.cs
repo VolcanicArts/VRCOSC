@@ -134,16 +134,16 @@ public class ChatBoxManager : ICanSerialise
     public void IncreaseTime(int amount)
     {
         var newTime = TimelineLength.Value + TimeSpan.FromSeconds(amount);
-        setNewTime(newTime);
+        SetTimelineLength(newTime);
     }
 
     public void DecreaseTime(int amount)
     {
         var newTime = TimelineLength.Value - TimeSpan.FromSeconds(amount);
-        setNewTime(newTime);
+        SetTimelineLength(newTime);
     }
 
-    private void setNewTime(TimeSpan newTime)
+    public void SetTimelineLength(TimeSpan newTime)
     {
         if (newTime.TotalSeconds < 1) newTime = TimeSpan.FromSeconds(1);
         if (newTime.TotalSeconds > 4 * 60) newTime = TimeSpan.FromSeconds(4 * 60);
