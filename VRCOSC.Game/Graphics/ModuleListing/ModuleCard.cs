@@ -130,7 +130,6 @@ public sealed partial class ModuleCard : Container
                                             Origin = Anchor.CentreRight,
                                             RelativeSizeAxes = Axes.Both,
                                             FillMode = FillMode.Fit,
-                                            Alpha = Module.HasParameters ? 1 : 0.5f,
                                             Child = new IconButton
                                             {
                                                 Anchor = Anchor.Centre,
@@ -140,8 +139,7 @@ public sealed partial class ModuleCard : Container
                                                 IconPadding = 5,
                                                 CornerRadius = 5,
                                                 Action = () => infoModule.Value = Module,
-                                                BackgroundColour = ThemeManager.Current[ThemeAttribute.Light],
-                                                Enabled = { Value = Module.HasParameters }
+                                                BackgroundColour = ThemeManager.Current[ThemeAttribute.Light]
                                             }
                                         },
                                         new Container
@@ -150,7 +148,6 @@ public sealed partial class ModuleCard : Container
                                             Origin = Anchor.CentreRight,
                                             RelativeSizeAxes = Axes.Both,
                                             FillMode = FillMode.Fit,
-                                            Alpha = Module.HasSettings || Module.HasParameters ? 1 : 0.5f,
                                             Child = new IconButton
                                             {
                                                 Anchor = Anchor.Centre,
@@ -160,8 +157,7 @@ public sealed partial class ModuleCard : Container
                                                 IconPadding = 5,
                                                 CornerRadius = 5,
                                                 Action = () => editingModule.Value = Module,
-                                                BackgroundColour = ThemeManager.Current[ThemeAttribute.Light],
-                                                Enabled = { Value = Module.HasSettings || Module.HasParameters }
+                                                BackgroundColour = ThemeManager.Current[ThemeAttribute.Light]
                                             }
                                         }
                                     }
