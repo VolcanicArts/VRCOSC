@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using osu.Framework.Bindables;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using VRCOSC.Game.Managers;
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.OSC.Client;
@@ -25,7 +26,7 @@ public class OSCRouter
         this.vrChatOscClient = vrChatOscClient;
     }
 
-    public void Initialise(List<RouterData> data)
+    public void Initialise(IEnumerable<RouterData> data)
     {
         data.ForEach(routerData =>
         {
