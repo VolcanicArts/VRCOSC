@@ -268,25 +268,31 @@ public class Clip
 
     private void addStatesOfAddedModules(NotifyCollectionChangedEventArgs e)
     {
-        foreach (string moduleName in e.NewItems!) addStatesOfAddedModule(moduleName);
-    }
+        var checkDefaultState = !States.Any() && e.NewItems!.Count == 1;
 
-    private void addStatesOfAddedModule(string moduleName)
-    {
-        var currentStateCopy = States.Select(clipState => clipState.Copy()).ToList();
-        if (!chatBoxManager.StateMetadata.TryGetValue(moduleName, out var statesToAdd)) return;
-
-        foreach (var (newStateName, newStateMetadata) in statesToAdd)
+        foreach (string moduleName in e.NewItems!)
         {
-            var localCurrentStatesCopy = currentStateCopy.Select(clipState => clipState.Copy()).ToList();
+            var currentStateCopy = States.Select(clipState => clipState.Copy()).ToList();
+            if (!chatBoxManager.StateMetadata.TryGetValue(moduleName, out var statesToAdd)) return;
 
-            localCurrentStatesCopy.ForEach(newStateLocal =>
+            foreach (var (newStateName, newStateMetadata) in statesToAdd)
             {
-                newStateLocal.States.Add((moduleName, newStateName));
-            });
+                var localCurrentStatesCopy = currentStateCopy.Select(clipState => clipState.Copy()).ToList();
 
-            States.AddRange(localCurrentStatesCopy);
-            States.Add(new ClipState(newStateMetadata));
+                localCurrentStatesCopy.ForEach(newStateLocal =>
+                {
+                    newStateLocal.States.Add((moduleName, newStateName));
+                });
+
+                States.AddRange(localCurrentStatesCopy);
+                States.Add(new ClipState(newStateMetadata));
+            }
+
+            if (checkDefaultState)
+            {
+                var defaultState = GetStateFor(moduleName, @"default");
+                if (defaultState is not null) defaultState.Enabled.Value = true;
+            }
         }
     }
 
