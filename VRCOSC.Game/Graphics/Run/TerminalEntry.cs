@@ -22,7 +22,7 @@ public sealed partial class TerminalEntry : PoolableDrawable
 
         InternalChild = new TextFlowContainer(t =>
         {
-            t.Font = FrameworkFont.Regular.With(size: 20);
+            t.Font = FrameworkFont.Regular.With(size: 17);
             t.Colour = ThemeManager.Current[ThemeAttribute.SubText];
         })
         {
