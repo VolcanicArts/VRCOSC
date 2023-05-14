@@ -68,7 +68,7 @@ public class SpeechToTextModule : ChatBoxModule
         SendParameter(SpeechToTextParameter.Listen, listening);
     }
 
-    protected override void OnFixedUpdate()
+    protected override void OnPlayerUpdate()
     {
         var isPlayerMuted = Player.IsMuted.GetValueOrDefault();
         if (playerMuted == isPlayerMuted) return;
