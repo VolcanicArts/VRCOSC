@@ -49,7 +49,7 @@ public partial class DrawableClip : Container
             RelativeSizeAxes = Axes.Both,
             Masking = true,
             CornerRadius = 10,
-            BorderColour = ThemeManager.Current[ThemeAttribute.Accent],
+            BorderColour = ThemeManager.Current[ThemeAttribute.Lighter],
             Children = new Drawable[]
             {
                 background = new Box

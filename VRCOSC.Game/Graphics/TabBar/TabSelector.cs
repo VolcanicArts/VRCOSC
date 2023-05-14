@@ -30,6 +30,9 @@ public sealed partial class TabSelector : Container<DrawableTab>
     public TabSelector()
     {
         RelativeSizeAxes = Axes.Both;
+        Masking = true;
+        BorderThickness = 2;
+        BorderColour = ThemeManager.Current[ThemeAttribute.Border];
 
         InternalChildren = new Drawable[]
         {

@@ -127,7 +127,7 @@ public sealed partial class NotificationContainer : VisibilityContainer
         protected override bool OnHover(HoverEvent e)
         {
             base.OnHover(e);
-            background.FadeColour(ThemeManager.Current[ThemeAttribute.Lighter], 100, Easing.OutQuad);
+            background.FadeColour(ThemeManager.Current[ThemeAttribute.Action], 100, Easing.OutQuad);
             return true;
         }
 
