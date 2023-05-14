@@ -13,6 +13,7 @@ using VRCOSC.Game.Modules;
 using VRCOSC.Game.Modules.Serialisation.Legacy;
 using VRCOSC.Game.Modules.Serialisation.V1;
 using VRCOSC.Game.Modules.Sources;
+using VRCOSC.Game.OSC.VRChat;
 using VRCOSC.Game.Serialisation;
 
 namespace VRCOSC.Game.Managers;
@@ -139,6 +140,22 @@ public sealed class ModuleManager : IEnumerable<Module>, ICanSerialise
         foreach (var module in runningModulesCache)
         {
             module.Stop();
+        }
+    }
+
+    public void ParamaterReceived(VRChatOscData data)
+    {
+        foreach (var module in runningModulesCache)
+        {
+            module.OnParameterReceived(data);
+        }
+    }
+
+    public void PlayerUpdate()
+    {
+        foreach (var module in runningModulesCache)
+        {
+            module.PlayerUpdate();
         }
     }
 

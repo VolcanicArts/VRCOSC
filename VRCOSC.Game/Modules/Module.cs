@@ -172,11 +172,14 @@ public abstract class Module : IComparable<Module>
         State.Value = ModuleState.Stopped;
     }
 
+    internal void PlayerUpdate() => OnPlayerUpdate();
+
     protected virtual void OnModuleStart() { }
     protected virtual void OnModuleUpdate() { }
     protected virtual void OnFixedUpdate() { }
     protected virtual void OnModuleStop() { }
     protected virtual void OnAvatarChange() { }
+    protected virtual void OnPlayerUpdate() { }
 
     #endregion
 

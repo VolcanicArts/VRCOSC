@@ -176,6 +176,8 @@ public partial class GameManager : Component
                 {
                     Player.Update(data.ParameterName, data.ParameterValue);
 
+                    ModuleManager.PlayerUpdate();
+
                     switch (data.ParameterName)
                     {
                         case @"VRCOSC/Controls/ChatBox":
@@ -184,10 +186,7 @@ public partial class GameManager : Component
                     }
                 }
 
-                foreach (var module in ModuleManager)
-                {
-                    module.OnParameterReceived(data);
-                }
+                ModuleManager.ParamaterReceived(data);
             });
             oscDataCache.Clear();
         }
