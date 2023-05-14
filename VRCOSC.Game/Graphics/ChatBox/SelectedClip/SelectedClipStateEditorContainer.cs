@@ -13,6 +13,7 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Platform;
 using osuTK;
 using VRCOSC.Game.Graphics.Themes;
+using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Graphics.UI.Button;
 using VRCOSC.Game.Managers;
 
@@ -206,19 +207,11 @@ public partial class SelectedClipStateEditorContainer : Container
                 Origin = Anchor.TopRight,
                 Size = new Vector2(40),
                 Padding = new MarginPadding(3),
-                Child = new IconButton
+                Child = UIPrefabs.QuestionButton.With(d =>
                 {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    RelativeSizeAxes = Axes.Both,
-                    Icon = FontAwesome.Solid.Question,
-                    BackgroundColour = ThemeManager.Current[ThemeAttribute.Action],
-                    IconShadow = true,
-                    Masking = true,
-                    Circular = true,
-                    IconPadding = 6,
-                    Action = () => host.OpenUrlExternally(chatbox_v3_wiki_url)
-                }
+                    d.IconPadding = 6;
+                    d.Action = () => host.OpenUrlExternally(chatbox_v3_wiki_url);
+                })
             }
         };
     }

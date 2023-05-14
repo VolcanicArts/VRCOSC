@@ -5,12 +5,11 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
-using osu.Framework.Graphics.Sprites;
 using osu.Framework.Platform;
 using osuTK;
 using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.Graphics.Themes;
-using VRCOSC.Game.Graphics.UI.Button;
+using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.Graphics.ChatBox.SelectedClip;
@@ -74,18 +73,10 @@ public partial class SelectedClipEditorWrapper : Container
                                         Origin = Anchor.TopRight,
                                         Size = new Vector2(80),
                                         Padding = new MarginPadding(5),
-                                        Child = new IconButton
+                                        Child = UIPrefabs.QuestionButton.With(d =>
                                         {
-                                            Anchor = Anchor.Centre,
-                                            Origin = Anchor.Centre,
-                                            RelativeSizeAxes = Axes.Both,
-                                            Icon = FontAwesome.Solid.Question,
-                                            BackgroundColour = ThemeManager.Current[ThemeAttribute.Action],
-                                            IconShadow = true,
-                                            Masking = true,
-                                            Circular = true,
-                                            Action = () => host.OpenUrlExternally(chatbox_v3_wiki_url)
-                                        }
+                                            d.Action = () => host.OpenUrlExternally(chatbox_v3_wiki_url);
+                                        })
                                     }
                                 }
                             },

@@ -13,8 +13,10 @@ public partial class IconButton : BasicButton
 {
     private IconUsage iconStateOff = FontAwesome.Solid.PowerOff;
     private IconUsage iconStateOn = FontAwesome.Solid.PowerOff;
+    private int iconPadding = 8;
 
     private SpriteIcon spriteIcon = null!;
+    private Container? wrapper;
 
     public IconUsage Icon
     {
@@ -47,14 +49,24 @@ public partial class IconButton : BasicButton
         }
     }
 
-    public int IconPadding { get; init; } = 8;
+    public int IconPadding
+    {
+        get => iconPadding;
+        set
+        {
+            iconPadding = value;
+            if (wrapper is null) return;
+
+            wrapper.Padding = new MarginPadding(iconPadding);
+        }
+    }
 
     public bool IconShadow { get; init; }
 
     [BackgroundDependencyLoader]
     private void load()
     {
-        Add(new Container
+        Add(wrapper = new Container
         {
             Anchor = Anchor.Centre,
             Origin = Anchor.Centre,

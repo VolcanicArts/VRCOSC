@@ -6,11 +6,10 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
-using osu.Framework.Graphics.Sprites;
 using osu.Framework.Platform;
 using osuTK;
 using VRCOSC.Game.Graphics.Themes;
-using VRCOSC.Game.Graphics.UI.Button;
+using VRCOSC.Game.Graphics.UI;
 
 namespace VRCOSC.Game.Graphics.Settings.Cards;
 
@@ -61,18 +60,11 @@ public abstract partial class SettingCard<T> : Container
                         FillMode = FillMode.Fit,
                         Padding = new MarginPadding(5),
                         Depth = float.MinValue,
-                        Child = new IconButton
+                        Child = UIPrefabs.QuestionButton.With(d =>
                         {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
-                            RelativeSizeAxes = Axes.Both,
-                            Circular = true,
-                            BackgroundColour = ThemeManager.Current[ThemeAttribute.Action],
-                            Icon = FontAwesome.Solid.Question,
-                            IconPadding = 4,
-                            IconShadow = true,
-                            Action = () => host.OpenUrlExternally(linkedUrl)
-                        }
+                            d.IconPadding = 4;
+                            d.Action = () => host.OpenUrlExternally(linkedUrl);
+                        })
                     },
                     Content = new FillFlowContainer
                     {
