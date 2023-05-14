@@ -176,7 +176,6 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     private void performExit()
     {
         editingModule.Value = null;
-        infoModule.Value = null;
         Exit();
     }
 
