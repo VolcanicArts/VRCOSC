@@ -33,7 +33,7 @@ public partial class SquirrelUpdateManager : VRCOSCUpdateManager
 
     public override async Task PerformUpdateCheck() => await checkForUpdateAsync().ConfigureAwait(false);
 
-    private async Task checkForUpdateAsync()
+    private async Task checkForUpdateAsync(bool bypassApplyCheck = false)
     {
         Log("Checking for updates");
 
@@ -56,7 +56,7 @@ public partial class SquirrelUpdateManager : VRCOSCUpdateManager
 
             Log($"{updateInfo.ReleasesToApply.Count} updates found");
 
-            if (ApplyUpdatesImmediately)
+            if (ApplyUpdatesImmediately || bypassApplyCheck)
                 await ApplyUpdatesAsync();
             else
                 PostUpdateAvailableNotification();
@@ -95,7 +95,7 @@ public partial class SquirrelUpdateManager : VRCOSCUpdateManager
             if (useDelta)
             {
                 useDelta = false;
-                await checkForUpdateAsync();
+                await checkForUpdateAsync(true);
                 return;
             }
 
