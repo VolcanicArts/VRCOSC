@@ -174,9 +174,8 @@ public partial class GameManager : Component
                 }
                 else
                 {
-                    Player.Update(data.ParameterName, data.ParameterValue);
-
-                    ModuleManager.PlayerUpdate();
+                    var wasPlayerUpdate = Player.Update(data.ParameterName, data.ParameterValue);
+                    if (wasPlayerUpdate) ModuleManager.PlayerUpdate();
 
                     switch (data.ParameterName)
                     {
