@@ -27,7 +27,7 @@ public sealed class VRCOSCConfigManager : IniConfigManager<VRCOSCSetting>
         SetDefault(VRCOSCSetting.ReceiveAddress, IPAddress.Loopback.ToString());
         SetDefault(VRCOSCSetting.ReceivePort, 9001);
         SetDefault(VRCOSCSetting.UpdateMode, UpdateMode.Auto);
-        SetDefault(VRCOSCSetting.Theme, ColourTheme.Dark);
+        SetDefault(VRCOSCSetting.Theme, VRCOSCTheme.Dark);
         SetDefault(VRCOSCSetting.ChatBoxTimeSpan, 1500);
         SetDefault(VRCOSCSetting.AutoStopOpenVR, false);
         SetDefault(VRCOSCSetting.AutoStartOpenVR, false);

@@ -15,7 +15,7 @@ public partial class GeneralSection : SectionContainer
 
     protected override void GenerateItems()
     {
-        AddDropdown("Theme", "Select a theme and restart to see the effect", ConfigManager.GetBindable<ColourTheme>(VRCOSCSetting.Theme));
+        AddDropdown("Theme", "Select a theme and restart to see the effect", ConfigManager.GetBindable<VRCOSCTheme>(VRCOSCSetting.Theme));
         AddTextBox<IntTextBox, int>("ChatBox Update Rate", "The ChatBox update rate (milliseconds)", ConfigManager.GetBindable<int>(VRCOSCSetting.ChatBoxTimeSpan), chatbox_timespan_url);
     }
 }

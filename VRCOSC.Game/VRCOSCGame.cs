@@ -58,7 +58,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     [BackgroundDependencyLoader]
     private void load()
     {
-        ThemeManager.Theme = ConfigManager.Get<ColourTheme>(VRCOSCSetting.Theme);
+        ThemeManager.VRCOSCTheme = ConfigManager.Get<VRCOSCTheme>(VRCOSCSetting.Theme);
 
         DependencyContainer.CacheAs(notificationContainer = new NotificationContainer());
         DependencyContainer.CacheAs(typeof(IVRCOSCSecrets), GetSecrets());
