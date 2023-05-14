@@ -81,13 +81,9 @@ public class DiscordTheme : ColourTheme
         Colours[ThemeAttribute.Mid] = Color4Extensions.FromHex(@"36393e");
         Colours[ThemeAttribute.Light] = Color4Extensions.FromHex(@"424549");
         Colours[ThemeAttribute.Lighter] = Color4Extensions.FromHex(@"DDDDDD");
-        Colours[ThemeAttribute.Success] = Color4Extensions.FromHex(@"88B300");
-        Colours[ThemeAttribute.Pending] = Color4Extensions.FromHex(@"FFCC22");
-        Colours[ThemeAttribute.Failure] = Color4Extensions.FromHex(@"ED1121");
         Colours[ThemeAttribute.Action] = Color4Extensions.FromHex(@"7289da");
         Colours[ThemeAttribute.Text] = Color4Extensions.FromHex(@"FFFFFF");
         Colours[ThemeAttribute.SubText] = Color4Extensions.FromHex(@"999999");
-        Colours[ThemeAttribute.Border] = Color4Extensions.FromHex(@"000000");
         Colours[ThemeAttribute.Accent] = Color4Extensions.FromHex(@"7289da");
     }
 }
