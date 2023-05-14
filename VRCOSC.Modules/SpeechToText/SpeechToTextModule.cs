@@ -23,7 +23,8 @@ public class SpeechToTextModule : ChatBoxModule
 
     private bool readyToAccept;
     private bool listening;
-    private bool shouldAnalyse => readyToAccept && listening && (!GetSetting<bool>(SpeechToTextSetting.FollowMute) || Player.IsMuted.GetValueOrDefault());
+    private bool playerMuted;
+    private bool shouldAnalyse => readyToAccept && listening && (!GetSetting<bool>(SpeechToTextSetting.FollowMute) || playerMuted);
 
     public SpeechToTextModule()
     {
@@ -65,6 +66,15 @@ public class SpeechToTextModule : ChatBoxModule
         SetVariableValue(SpeechToTextVariable.Text, string.Empty);
         ChangeStateTo(SpeechToTextState.Idle);
         SendParameter(SpeechToTextParameter.Listen, listening);
+    }
+
+    protected override void OnFixedUpdate()
+    {
+        var isPlayerMuted = Player.IsMuted.GetValueOrDefault();
+        if (playerMuted == isPlayerMuted) return;
+
+        resetState();
+        playerMuted = isPlayerMuted;
     }
 
     private void initialiseMicrophone() => Task.Run(() =>
@@ -165,15 +175,20 @@ public class SpeechToTextModule : ChatBoxModule
         switch (key)
         {
             case SpeechToTextParameter.Reset when value:
-                SetChatBoxTyping(false);
-                ChangeStateTo(SpeechToTextState.Idle);
-                SetVariableValue(SpeechToTextVariable.Text, string.Empty);
+                resetState();
                 break;
 
             case SpeechToTextParameter.Listen:
                 listening = value;
                 break;
         }
+    }
+
+    private void resetState()
+    {
+        SetChatBoxTyping(false);
+        ChangeStateTo(SpeechToTextState.Idle);
+        SetVariableValue(SpeechToTextVariable.Text, string.Empty);
     }
 
     private class Recognition
