@@ -70,8 +70,6 @@ public sealed partial class MainContent : Container
 
     protected override void LoadComplete()
     {
-        base.LoadComplete();
-
         selectedTab.BindValueChanged(tab =>
         {
             var id = (int)tab.NewValue;

@@ -38,10 +38,12 @@ public partial class VRCOSCScrollContainer<T> : ScrollContainer<T>
             {
                 RelativeSizeAxes = Axes.Both,
                 Masking = true,
+                BorderThickness = 2,
+                BorderColour = ThemeManager.Current[ThemeAttribute.Border],
                 Child = new Box
                 {
                     RelativeSizeAxes = Axes.Both,
-                    Colour = ThemeManager.Current[ThemeAttribute.Darker]
+                    Colour = ThemeManager.Current[ThemeAttribute.Lighter]
                 }
             };
         }

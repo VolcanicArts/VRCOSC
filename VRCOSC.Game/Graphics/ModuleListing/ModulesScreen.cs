@@ -9,6 +9,7 @@ using osuTK;
 using VRCOSC.Game.Graphics.ModuleAttributes;
 using VRCOSC.Game.Graphics.ModuleInfo;
 using VRCOSC.Game.Graphics.Screen;
+using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.Graphics.ModuleListing;
@@ -35,13 +36,13 @@ public sealed partial class ModulesScreen : BaseScreen
 
     protected override BaseHeader CreateHeader() => new ModulesHeader();
 
-    protected override Drawable CreateBody() => new BasicScrollContainer
+    protected override Drawable CreateBody() => new VRCOSCScrollContainer
     {
         Anchor = Anchor.Centre,
         Origin = Anchor.Centre,
         RelativeSizeAxes = Axes.Both,
         ClampExtension = 0,
-        ScrollbarVisible = false,
+        ScrollbarOverlapsContent = false,
         ScrollContent =
         {
             Child = moduleCardFlow = new FillFlowContainer<ModuleCard>

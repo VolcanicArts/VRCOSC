@@ -4,104 +4,52 @@
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Shapes;
-using VRCOSC.Game.Graphics.Themes;
+using VRCOSC.Game.Graphics.Screen;
 
 namespace VRCOSC.Game.Graphics.Settings;
 
-public sealed partial class SettingsScreen : Container
+public sealed partial class SettingsScreen : BaseScreen
 {
     [BackgroundDependencyLoader]
     private void load()
     {
         RelativeSizeAxes = Axes.Both;
+    }
 
-        Children = new Drawable[]
+    protected override BaseHeader CreateHeader() => new SettingsHeader();
+
+    protected override Drawable CreateBody() => new Container
+    {
+        RelativeSizeAxes = Axes.Both,
+        Padding = new MarginPadding(10),
+        Child = new GridContainer
         {
-            new Box
+            Anchor = Anchor.TopCentre,
+            Origin = Anchor.TopCentre,
+            RelativeSizeAxes = Axes.Both,
+            ColumnDimensions = new[]
             {
-                RelativeSizeAxes = Axes.Both,
-                Colour = ThemeManager.Current[ThemeAttribute.Light]
+                new Dimension(),
+                new Dimension(GridSizeMode.Absolute, 5),
+                new Dimension(),
+                new Dimension(GridSizeMode.Absolute, 5),
+                new Dimension(),
+                new Dimension(GridSizeMode.Absolute, 5),
+                new Dimension()
             },
-            new Container
+            Content = new[]
             {
-                RelativeSizeAxes = Axes.Both,
-                Padding = new MarginPadding(10),
-                Children = new Drawable[]
+                new Drawable?[]
                 {
-                    new GridContainer
-                    {
-                        RelativeSizeAxes = Axes.Both,
-                        RowDimensions = new[]
-                        {
-                            new Dimension(GridSizeMode.AutoSize),
-                            new Dimension(GridSizeMode.Absolute, 5),
-                            new Dimension()
-                        },
-                        Content = new[]
-                        {
-                            new Drawable[]
-                            {
-                                new SettingsHeader()
-                            },
-                            null,
-                            new Drawable[]
-                            {
-                                new Container
-                                {
-                                    RelativeSizeAxes = Axes.Both,
-                                    Masking = true,
-                                    CornerRadius = 10,
-                                    BorderThickness = 2,
-                                    BorderColour = ThemeManager.Current[ThemeAttribute.Border],
-                                    Children = new Drawable[]
-                                    {
-                                        new Box
-                                        {
-                                            Colour = ThemeManager.Current[ThemeAttribute.Dark],
-                                            RelativeSizeAxes = Axes.Both
-                                        },
-                                        new Container
-                                        {
-                                            RelativeSizeAxes = Axes.Both,
-                                            Padding = new MarginPadding(10),
-                                            Child = new GridContainer
-                                            {
-                                                Anchor = Anchor.TopCentre,
-                                                Origin = Anchor.TopCentre,
-                                                RelativeSizeAxes = Axes.Both,
-                                                ColumnDimensions = new[]
-                                                {
-                                                    new Dimension(),
-                                                    new Dimension(GridSizeMode.Absolute, 5),
-                                                    new Dimension(),
-                                                    new Dimension(GridSizeMode.Absolute, 5),
-                                                    new Dimension(),
-                                                    new Dimension(GridSizeMode.Absolute, 5),
-                                                    new Dimension()
-                                                },
-                                                Content = new[]
-                                                {
-                                                    new Drawable?[]
-                                                    {
-                                                        new GeneralSection(),
-                                                        null,
-                                                        new OscSection(),
-                                                        null,
-                                                        new AutomationSection(),
-                                                        null,
-                                                        new UpdateSection()
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    new GeneralSection(),
+                    null,
+                    new OscSection(),
+                    null,
+                    new AutomationSection(),
+                    null,
+                    new UpdateSection()
                 }
             }
-        };
-    }
+        }
+    };
 }
