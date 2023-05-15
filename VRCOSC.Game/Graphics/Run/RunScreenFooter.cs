@@ -80,7 +80,7 @@ public partial class RunScreenFooter : Container
                         Origin = Anchor.CentreRight,
                         RelativeSizeAxes = Axes.Both,
                         Direction = FillDirection.Horizontal,
-                        Spacing = new Vector2(7, 0),
+                        Spacing = new Vector2(8, 0),
                         Children = new Drawable[]
                         {
                             new Container

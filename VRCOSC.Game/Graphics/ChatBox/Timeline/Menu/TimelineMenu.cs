@@ -9,6 +9,7 @@ using osu.Framework.Input.Events;
 using osu.Framework.Platform;
 using osuTK;
 using VRCOSC.Game.Graphics.Themes;
+using VRCOSC.Game.Graphics.UI;
 
 namespace VRCOSC.Game.Graphics.ChatBox.Timeline.Menu;
 

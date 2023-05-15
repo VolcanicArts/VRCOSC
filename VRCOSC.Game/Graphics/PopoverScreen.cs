@@ -7,6 +7,7 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
 using osuTK;
 using VRCOSC.Game.Graphics.Themes;
+using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Graphics.UI.Button;
 
 namespace VRCOSC.Game.Graphics;
