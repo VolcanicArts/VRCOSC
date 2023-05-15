@@ -155,13 +155,12 @@ public abstract class Module : IComparable<Module>
         OnModuleStart();
 
         if (ShouldUpdate) Scheduler.AddDelayed(OnModuleUpdate, DeltaUpdate.TotalMilliseconds, true);
+        Scheduler.AddDelayed(OnFixedUpdate, TimeSpan.FromSeconds(1f / 60f).TotalMilliseconds, true);
 
         State.Value = ModuleState.Started;
 
         if (ShouldUpdateImmediately) OnModuleUpdate();
     }
-
-    internal void Update() => OnFixedUpdate();
 
     internal void Stop()
     {

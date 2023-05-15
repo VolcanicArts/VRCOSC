@@ -2,9 +2,11 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
+using osu.Framework.Configuration;
 using osu.Framework.IO.Stores;
 using osu.Framework.Platform;
 using VRCOSC.Game.Config;
@@ -35,6 +37,11 @@ public partial class VRCOSCGameBase : osu.Framework.Game
     protected override IReadOnlyDependencyContainer CreateChildDependencies(IReadOnlyDependencyContainer parent)
         => DependencyContainer = new DependencyContainer(base.CreateChildDependencies(parent));
 
+    protected override IDictionary<FrameworkSetting, object> GetFrameworkConfigDefaults() => new Dictionary<FrameworkSetting, object>
+    {
+        { FrameworkSetting.FrameSync, FrameSync.VSync }
+    };
+
     [BackgroundDependencyLoader]
     private void load(Storage storage)
     {
@@ -46,14 +53,6 @@ public partial class VRCOSCGameBase : osu.Framework.Game
         versionBindable.BindValueChanged(version => host.Window.Title = $"{base_game_name} {version.NewValue}", true);
 
         Window.WindowState = ConfigManager.Get<WindowState>(VRCOSCSetting.WindowState);
-    }
-
-    protected override void LoadComplete()
-    {
-        base.LoadComplete();
-        host.MaximumDrawHz = 60;
-        host.MaximumUpdateHz = 60;
-        host.MaximumInactiveHz = 60;
     }
 
     protected override bool OnExiting()

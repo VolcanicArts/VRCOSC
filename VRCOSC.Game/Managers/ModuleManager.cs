@@ -126,11 +126,6 @@ public sealed class ModuleManager : IEnumerable<Module>, ICanSerialise
     public void Update()
     {
         scheduler.Update();
-
-        foreach (var module in runningModulesCache)
-        {
-            module.Update();
-        }
     }
 
     public void Stop()
