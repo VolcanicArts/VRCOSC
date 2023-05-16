@@ -7,7 +7,6 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.UserInterface;
-using osu.Framework.Input.Events;
 using VRCOSC.Game.Graphics.Themes;
 
 namespace VRCOSC.Game.Graphics.UI;
@@ -16,10 +15,12 @@ public sealed partial class VRCOSCSlider<T> : BasicSliderBar<T> where T : struct
 {
     public VRCOSCSlider()
     {
-        BackgroundColour = ThemeManager.Current[ThemeAttribute.Mid];
+        BackgroundColour = ThemeManager.Current[ThemeAttribute.Dark];
         SelectionColour = ThemeManager.Current[ThemeAttribute.Lighter];
         Masking = true;
-        CornerRadius = 10;
+        CornerRadius = 5;
+        BorderThickness = 2;
+        BorderColour = ThemeManager.Current[ThemeAttribute.Border];
     }
 
     [BackgroundDependencyLoader]
@@ -39,7 +40,7 @@ public sealed partial class VRCOSCSlider<T> : BasicSliderBar<T> where T : struct
                 {
                     Anchor = Anchor.CentreLeft,
                     Origin = Anchor.CentreLeft,
-                    Font = FrameworkFont.Regular.With(size: 30),
+                    Font = FrameworkFont.Regular.With(size: 25),
                     Colour = ThemeManager.Current[ThemeAttribute.Text],
                     Text = CurrentNumber.MinValue.ToString()!
                 },
@@ -47,14 +48,14 @@ public sealed partial class VRCOSCSlider<T> : BasicSliderBar<T> where T : struct
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
-                    Font = FrameworkFont.Regular.With(size: 30),
+                    Font = FrameworkFont.Regular.With(size: 25),
                     Colour = ThemeManager.Current[ThemeAttribute.Text]
                 },
                 new SpriteText
                 {
                     Anchor = Anchor.CentreRight,
                     Origin = Anchor.CentreRight,
-                    Font = FrameworkFont.Regular.With(size: 30),
+                    Font = FrameworkFont.Regular.With(size: 25),
                     Colour = ThemeManager.Current[ThemeAttribute.Text],
                     Text = CurrentNumber.MaxValue.ToString()!
                 }
@@ -62,12 +63,6 @@ public sealed partial class VRCOSCSlider<T> : BasicSliderBar<T> where T : struct
         });
 
         Current.BindValueChanged(_ => valueText.Text = getCurrentValue().ToString()!, true);
-    }
-
-    protected override bool OnClick(ClickEvent e)
-    {
-        var result = base.OnClick(e);
-        return result;
     }
 
     private T roundValue()

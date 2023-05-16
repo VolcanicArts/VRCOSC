@@ -60,7 +60,7 @@ public partial class TimelineNumberBar : Container
                                         Anchor = Anchor.TopCentre,
                                         Origin = Anchor.TopCentre,
                                         Colour = ThemeManager.Current[ThemeAttribute.Lighter],
-                                        Width = 3,
+                                        Width = 2,
                                         RelativeSizeAxes = Axes.Y
                                     }
                                 }

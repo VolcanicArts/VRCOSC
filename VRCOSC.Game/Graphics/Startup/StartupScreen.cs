@@ -5,117 +5,67 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Shapes;
-using osu.Framework.Graphics.Sprites;
-using osuTK;
-using VRCOSC.Game.Graphics.Themes;
-using VRCOSC.Game.Graphics.UI.Button;
+using VRCOSC.Game.Graphics.Screen;
 using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.Graphics.Startup;
 
-public partial class StartupScreen : Container
+public partial class StartupScreen : BaseScreen
 {
     [Resolved]
     private StartupManager startupManager { get; set; } = null!;
 
-    private FillFlowContainer listFlow = null!;
-    private TextFlowContainer textFlow = null!;
+    private FillFlowContainer<StartupDataFlowEntry> startupDataFlow = null!;
 
     [BackgroundDependencyLoader]
     private void load()
     {
         RelativeSizeAxes = Axes.Both;
-
-        Children = new Drawable[]
-        {
-            new Box
-            {
-                RelativeSizeAxes = Axes.Both,
-                Colour = ThemeManager.Current[ThemeAttribute.Light]
-            },
-            new BasicScrollContainer
-            {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                RelativeSizeAxes = Axes.Both,
-                ClampExtension = 20,
-                ScrollbarVisible = false,
-                Child = new FillFlowContainer
-                {
-                    Anchor = Anchor.TopCentre,
-                    Origin = Anchor.TopCentre,
-                    RelativeSizeAxes = Axes.X,
-                    AutoSizeAxes = Axes.Y,
-                    Spacing = new Vector2(0, 5),
-                    Direction = FillDirection.Vertical,
-                    Padding = new MarginPadding(5),
-                    Children = new Drawable[]
-                    {
-                        textFlow = new TextFlowContainer
-                        {
-                            Anchor = Anchor.TopCentre,
-                            Origin = Anchor.TopCentre,
-                            TextAnchor = Anchor.TopCentre,
-                            RelativeSizeAxes = Axes.X,
-                            AutoSizeAxes = Axes.Y
-                        },
-                        listFlow = new FillFlowContainer
-                        {
-                            Anchor = Anchor.TopCentre,
-                            Origin = Anchor.TopCentre,
-                            RelativeSizeAxes = Axes.X,
-                            AutoSizeAxes = Axes.Y,
-                            Padding = new MarginPadding(10),
-                            Direction = FillDirection.Vertical,
-                            Spacing = new Vector2(0, 5f)
-                        },
-                        new IconButton
-                        {
-                            Anchor = Anchor.TopCentre,
-                            Origin = Anchor.TopCentre,
-                            RelativeSizeAxes = Axes.X,
-                            Size = new Vector2(0.5f, 30),
-                            Icon = FontAwesome.Solid.Plus,
-                            Masking = true,
-                            Circular = true,
-                            BackgroundColour = ThemeManager.Current[ThemeAttribute.Action],
-                            Action = addComponent
-                        }
-                    }
-                }
-            }
-        };
-
-        textFlow.AddText("Startup Screen", t =>
-        {
-            t.Font = FrameworkFont.Regular.With(size: 35);
-            t.Colour = ThemeManager.Current[ThemeAttribute.Text];
-        });
-
-        textFlow.AddParagraph("Here you can define exe paths for VRCOSC to automatically startup on module run. For example, Spotify", t =>
-        {
-            t.Font = FrameworkFont.Regular.With(size: 25);
-            t.Colour = ThemeManager.Current[ThemeAttribute.SubText];
-        });
     }
+
+    protected override BaseHeader CreateHeader() => new StartupHeader();
+
+    protected override Drawable CreateBody() => new BasicScrollContainer
+    {
+        Anchor = Anchor.Centre,
+        Origin = Anchor.Centre,
+        RelativeSizeAxes = Axes.Both,
+        ClampExtension = 0,
+        ScrollbarVisible = false,
+        ScrollContent =
+        {
+            Child = startupDataFlow = new FillFlowContainer<StartupDataFlowEntry>
+            {
+                Anchor = Anchor.TopCentre,
+                Origin = Anchor.TopCentre,
+                RelativeSizeAxes = Axes.X,
+                AutoSizeAxes = Axes.Y,
+                Padding = new MarginPadding(5),
+                Direction = FillDirection.Vertical,
+                LayoutEasing = Easing.OutQuad,
+                LayoutDuration = 150
+            }
+        }
+    };
 
     protected override void LoadComplete()
     {
+        var drawableStartupDataSpawner = new DrawableStartupDataSpawner();
+        startupDataFlow.Add(drawableStartupDataSpawner);
+        startupDataFlow.SetLayoutPosition(drawableStartupDataSpawner, 1);
+        startupDataFlow.ChangeChildDepth(drawableStartupDataSpawner, float.MinValue);
+
         startupManager.FilePaths.BindCollectionChanged((_, e) =>
         {
             if (e.NewItems is not null)
             {
-                foreach (Bindable<string> newItem in e.NewItems)
+                foreach (Bindable<string> newFilePath in e.NewItems)
                 {
-                    listFlow.Add(new StartupContainer(newItem));
+                    var drawableStartupData = new DrawableStartupData(newFilePath);
+                    drawableStartupData.Position = startupDataFlow[^1].Position;
+                    startupDataFlow.Add(drawableStartupData);
                 }
             }
         }, true);
-    }
-
-    private void addComponent()
-    {
-        startupManager.FilePaths.Add(new Bindable<string>(string.Empty));
     }
 }

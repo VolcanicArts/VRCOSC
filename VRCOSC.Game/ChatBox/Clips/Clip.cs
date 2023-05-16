@@ -36,13 +36,8 @@ public class Clip
     public void InjectDependencies(ChatBoxManager chatBoxManager)
     {
         this.chatBoxManager = chatBoxManager;
-        AssociatedModules.BindCollectionChanged((_, e) => onAssociatedModulesChanged(e), true);
-        AssociatedModules.BindCollectionChanged((_, _) => chatBoxManager.Serialise());
-        Enabled.BindValueChanged(_ => chatBoxManager.Serialise());
-        Name.BindValueChanged(_ => chatBoxManager.Serialise());
-        Priority.BindValueChanged(_ => chatBoxManager.Serialise());
-        States.BindCollectionChanged((_, _) => chatBoxManager.Serialise());
-        Events.BindCollectionChanged((_, _) => chatBoxManager.Serialise());
+
+        AssociatedModules.BindCollectionChanged((_, e) => onAssociatedModulesChanged(e));
 
         chatBoxManager.TimelineLength.BindValueChanged(_ =>
         {
@@ -54,6 +49,41 @@ public class Clip
 
             if (chatBoxManager.TimelineLengthSeconds < End.Value) End.Value = chatBoxManager.TimelineLengthSeconds;
         });
+    }
+
+    public void Load()
+    {
+        AssociatedModules.BindCollectionChanged((_, _) => chatBoxManager.Serialise());
+        Enabled.BindValueChanged(_ => chatBoxManager.Serialise());
+        Name.BindValueChanged(_ => chatBoxManager.Serialise());
+        Priority.BindValueChanged(_ => chatBoxManager.Serialise());
+        States.BindCollectionChanged((_, _) => chatBoxManager.Serialise());
+        Events.BindCollectionChanged((_, _) => chatBoxManager.Serialise());
+
+        States.BindCollectionChanged((_, e) =>
+        {
+            if (e.NewItems is not null)
+            {
+                foreach (ClipState newState in e.NewItems)
+                {
+                    newState.Enabled.BindValueChanged(_ => chatBoxManager.Serialise());
+                    newState.Format.BindValueChanged(_ => chatBoxManager.Serialise());
+                }
+            }
+        }, true);
+
+        Events.BindCollectionChanged((_, e) =>
+        {
+            if (e.NewItems is not null)
+            {
+                foreach (ClipEvent newEvent in e.NewItems)
+                {
+                    newEvent.Enabled.BindValueChanged(_ => chatBoxManager.Serialise());
+                    newEvent.Format.BindValueChanged(_ => chatBoxManager.Serialise());
+                    newEvent.Length.BindValueChanged(_ => chatBoxManager.Serialise());
+                }
+            }
+        }, true);
     }
 
     public void Initialise()
@@ -193,7 +223,7 @@ public class Clip
     {
         var returnText = formatter.GetFormat();
 
-        EnumerableExtensions.ForEach(AvailableVariables, clipVariable =>
+        AvailableVariables.ForEach(clipVariable =>
         {
             if (!chatBoxManager.ModuleEnabledCache[clipVariable.Module]) return;
 
@@ -238,30 +268,31 @@ public class Clip
 
     private void addStatesOfAddedModules(NotifyCollectionChangedEventArgs e)
     {
-        foreach (string moduleName in e.NewItems!) addStatesOfAddedModule(moduleName);
-    }
+        var checkDefaultState = !States.Any() && e.NewItems!.Count == 1;
 
-    private void addStatesOfAddedModule(string moduleName)
-    {
-        var currentStateCopy = States.Select(clipState => clipState.Copy()).ToList();
-        if (!chatBoxManager.StateMetadata.TryGetValue(moduleName, out var statesToAdd)) return;
-
-        foreach (var (newStateName, newStateMetadata) in statesToAdd)
+        foreach (string moduleName in e.NewItems!)
         {
-            var localCurrentStatesCopy = currentStateCopy.Select(clipState => clipState.Copy()).ToList();
+            var currentStateCopy = States.Select(clipState => clipState.Copy()).ToList();
+            if (!chatBoxManager.StateMetadata.TryGetValue(moduleName, out var statesToAdd)) return;
 
-            localCurrentStatesCopy.ForEach(newStateLocal =>
+            foreach (var (newStateName, newStateMetadata) in statesToAdd)
             {
-                newStateLocal.States.Add((moduleName, newStateName));
-                newStateLocal.Enabled.BindValueChanged(_ => chatBoxManager.Serialise());
-                newStateLocal.Format.BindValueChanged(_ => chatBoxManager.Serialise());
-            });
+                var localCurrentStatesCopy = currentStateCopy.Select(clipState => clipState.Copy()).ToList();
 
-            States.AddRange(localCurrentStatesCopy);
-            var singleState = new ClipState(newStateMetadata);
-            singleState.Enabled.BindValueChanged(_ => chatBoxManager.Serialise());
-            singleState.Format.BindValueChanged(_ => chatBoxManager.Serialise());
-            States.Add(singleState);
+                localCurrentStatesCopy.ForEach(newStateLocal =>
+                {
+                    newStateLocal.States.Add((moduleName, newStateName));
+                });
+
+                States.AddRange(localCurrentStatesCopy);
+                States.Add(new ClipState(newStateMetadata));
+            }
+
+            if (checkDefaultState)
+            {
+                var defaultState = GetStateFor(moduleName, @"default");
+                if (defaultState is not null) defaultState.Enabled.Value = true;
+            }
         }
     }
 
@@ -287,11 +318,7 @@ public class Clip
 
             foreach (var (_, metadata) in events)
             {
-                var newEvent = new ClipEvent(metadata);
-                newEvent.Enabled.BindValueChanged(_ => chatBoxManager.Serialise());
-                newEvent.Format.BindValueChanged(_ => chatBoxManager.Serialise());
-                newEvent.Length.BindValueChanged(_ => chatBoxManager.Serialise());
-                Events.Add(newEvent);
+                Events.Add(new ClipEvent(metadata));
             }
         }
     }

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using osu.Framework.Allocation;
@@ -33,7 +34,6 @@ public partial class GameManager : Component
 {
     private const double openvr_check_interval = 1000;
     private const double vrchat_process_check_interval = 5000;
-    private const int startstop_delay = 250;
 
     private readonly TerminalLogger logger = new("VRCOSC");
 
@@ -174,7 +174,8 @@ public partial class GameManager : Component
                 }
                 else
                 {
-                    Player.Update(data.ParameterName, data.ParameterValue);
+                    var wasPlayerUpdate = Player.Update(data.ParameterName, data.ParameterValue);
+                    if (wasPlayerUpdate) ModuleManager.PlayerUpdate();
 
                     switch (data.ParameterName)
                     {
@@ -184,44 +185,26 @@ public partial class GameManager : Component
                     }
                 }
 
-                foreach (var module in ModuleManager)
-                {
-                    module.OnParameterReceived(data);
-                }
+                ModuleManager.ParamaterReceived(data);
             });
             oscDataCache.Clear();
         }
     }
 
-    public void Restart() => Task.Run(async () =>
+    public async void Restart() => await RestartAsync();
+
+    public async Task RestartAsync()
     {
-        Stop();
-
-        while (State.Value != GameManagerState.Stopped) { }
-
+        await StopAsync();
         await Task.Delay(250);
         Start();
-    });
+    }
 
-    public void Start() => Schedule(() => _ = startAsync());
-
-    private async Task startAsync()
+    public void Start()
     {
-        if (State.Value is GameManagerState.Starting or GameManagerState.Started)
-            throw new InvalidOperationException($"Cannot start {nameof(GameManager)} when state is {State.Value}");
+        if (State.Value is GameManagerState.Starting or GameManagerState.Started) return;
 
-        if (editingModule.Value is not null || infoModule.Value is not null)
-        {
-            hasAutoStarted = false;
-            return;
-        }
-
-        lock (oscDataCacheLock)
-        {
-            oscDataCache.Clear();
-        }
-
-        AvatarConfig = null;
+        lock (oscDataCacheLock) { oscDataCache.Clear(); }
 
         if (!initialiseOscClient())
         {
@@ -232,13 +215,14 @@ public partial class GameManager : Component
         var moduleEnabled = new Dictionary<string, bool>();
         ModuleManager.ForEach(module => moduleEnabled.Add(module.SerialisedName, module.Enabled.Value));
 
-        State.Value = GameManagerState.Starting;
+        AvatarConfig = null;
 
-        await Task.Delay(startstop_delay);
+        State.Value = GameManagerState.Starting;
 
         enableOscFlag(OscClientFlag.Send);
         Player.Initialise();
         ChatBoxManager.Initialise(VRChatOscClient, configManager.GetBindable<int>(VRCOSCSetting.ChatBoxTimeSpan), moduleEnabled);
+        startupManager.Start();
         sendControlValues();
         ModuleManager.Start();
         enableOscFlag(OscClientFlag.Receive);
@@ -252,8 +236,6 @@ public partial class GameManager : Component
         {
             notifications.Notify(new PortInUseNotification("Cannot initialise a port from OSCRouter"));
         }
-
-        startupManager.Start();
 
         State.Value = GameManagerState.Started;
     }
@@ -270,29 +252,20 @@ public partial class GameManager : Component
         }
     }
 
-    public void Stop() => Schedule(() => _ = stopAsync());
+    public async void Stop() => await StopAsync();
 
-    private async Task stopAsync()
+    public async Task StopAsync()
     {
-        if (State.Value is GameManagerState.Stopping or GameManagerState.Stopped)
-            throw new InvalidOperationException($"Cannot stop {nameof(GameManager)} when state is {State.Value}");
+        if (State.Value is GameManagerState.Stopping or GameManagerState.Stopped) return;
 
         State.Value = GameManagerState.Stopping;
 
         await VRChatOscClient.Disable(OscClientFlag.Receive);
-
-        lock (oscDataCacheLock)
-        {
-            oscDataCache.Clear();
-        }
-
         await OSCRouter.Disable();
         ModuleManager.Stop();
         ChatBoxManager.Shutdown();
         Player.ResetAll();
         await VRChatOscClient.Disable(OscClientFlag.Send);
-
-        await Task.Delay(startstop_delay);
 
         State.Value = GameManagerState.Stopped;
     }
@@ -301,11 +274,10 @@ public partial class GameManager : Component
     {
         try
         {
-            var ipAddress = configManager.Get<string>(VRCOSCSetting.IPAddress);
-            var sendPort = configManager.Get<int>(VRCOSCSetting.SendPort);
-            var receivePort = configManager.Get<int>(VRCOSCSetting.ReceivePort);
+            var sendEndpoint = new IPEndPoint(IPAddress.Parse(configManager.Get<string>(VRCOSCSetting.SendAddress)), configManager.Get<int>(VRCOSCSetting.SendPort));
+            var receiveEndpoint = new IPEndPoint(IPAddress.Parse(configManager.Get<string>(VRCOSCSetting.ReceiveAddress)), configManager.Get<int>(VRCOSCSetting.ReceivePort));
 
-            VRChatOscClient.Initialise(ipAddress, sendPort, receivePort);
+            VRChatOscClient.Initialise(sendEndpoint, receiveEndpoint);
             return true;
         }
         catch (SocketException)

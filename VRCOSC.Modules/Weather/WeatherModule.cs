@@ -13,14 +13,13 @@ public class WeatherModule : ChatBoxModule
     public override string Description => "Retrieves weather information for a specific area";
     public override string Author => "VolcanicArts";
     public override ModuleType Type => ModuleType.General;
-    protected override TimeSpan DeltaUpdate => TimeSpan.FromMinutes(10);
+    protected override TimeSpan DeltaUpdate => TimeSpan.FromSeconds(5);
 
     private WeatherProvider? weatherProvider;
-    private Weather? currentWeather;
 
     protected override void CreateAttributes()
     {
-        CreateSetting(WeatherSetting.Postcode, "Location", "The postcode/zip code or city name to retrieve weather data for", string.Empty);
+        CreateSetting(WeatherSetting.Postcode, "Location", "The post/zip code or city name to retrieve weather data for", string.Empty);
 
         CreateParameter<int>(WeatherParameter.Code, ParameterMode.Write, "VRCOSC/Weather/Code", "Weather Code", "The current weather's code");
 
@@ -29,15 +28,14 @@ public class WeatherModule : ChatBoxModule
         CreateVariable(WeatherVariable.Humidity, @"Humidity", @"humidity");
         CreateVariable(WeatherVariable.Condition, @"Condition", @"condition");
 
-        CreateState(WeatherState.Default, @"Default", $@"Local Weather/n{GetVariableFormat(WeatherVariable.Condition)}/n{GetVariableFormat(WeatherVariable.TempC)}C - {GetVariableFormat(WeatherVariable.TempF)}F");
+        CreateState(WeatherState.Default, @"Default", $@"Local Weather/v{GetVariableFormat(WeatherVariable.Condition)}/v{GetVariableFormat(WeatherVariable.TempC)}C - {GetVariableFormat(WeatherVariable.TempF)}F");
     }
 
     protected override void OnModuleStart()
     {
-        if (string.IsNullOrEmpty(GetSetting<string>(WeatherSetting.Postcode))) Log("Please provide a postcode/zip code or city name");
+        if (string.IsNullOrEmpty(GetSetting<string>(WeatherSetting.Postcode))) Log("Please provide a post/zip code or city name");
 
-        weatherProvider = new WeatherProvider(Secrets.GetSecret(VRCOSCSecretsKeys.Weather));
-        currentWeather = null;
+        weatherProvider ??= new WeatherProvider(Secrets.GetSecret(VRCOSCSecretsKeys.Weather));
         ChangeStateTo(WeatherState.Default);
     }
 
@@ -51,16 +49,7 @@ public class WeatherModule : ChatBoxModule
             return;
         }
 
-        Task.Run(async () =>
-        {
-            currentWeather = await weatherProvider.RetrieveFor(GetSetting<string>(WeatherSetting.Postcode));
-            updateParameters();
-        });
-    }
-
-    protected override void OnModuleStop()
-    {
-        weatherProvider = null;
+        updateParameters();
     }
 
     protected override void OnAvatarChange()
@@ -68,24 +57,32 @@ public class WeatherModule : ChatBoxModule
         updateParameters();
     }
 
-    private void updateParameters()
+    private async void updateParameters()
     {
-        if (currentWeather is null)
+        if (weatherProvider is null)
+        {
+            Log("Warning. Module not started correctly");
+            return;
+        }
+
+        var weather = await weatherProvider.RetrieveFor(GetSetting<string>(WeatherSetting.Postcode));
+
+        if (weather is null)
         {
             Log("Cannot retrieve weather for provided location");
             Log("If you've entered a post/zip code, try your closest city's name");
             return;
         }
 
-        SendParameter(WeatherParameter.Code, convertedWeatherCode);
+        SendParameter(WeatherParameter.Code, getConvertedWeatherCode(weather));
 
-        SetVariableValue(WeatherVariable.TempC, currentWeather.TempC.ToString("0.0"));
-        SetVariableValue(WeatherVariable.TempF, currentWeather.TempF.ToString("0.0"));
-        SetVariableValue(WeatherVariable.Humidity, currentWeather.Humidity.ToString());
-        SetVariableValue(WeatherVariable.Condition, currentWeather.ConditionString);
+        SetVariableValue(WeatherVariable.TempC, weather.TempC.ToString("0.0"));
+        SetVariableValue(WeatherVariable.TempF, weather.TempF.ToString("0.0"));
+        SetVariableValue(WeatherVariable.Humidity, weather.Humidity.ToString());
+        SetVariableValue(WeatherVariable.Condition, weather.ConditionString);
     }
 
-    private int convertedWeatherCode => currentWeather!.Condition.Code switch
+    private static int getConvertedWeatherCode(Weather weather) => weather.Condition.Code switch
     {
         1000 => 1,
         1003 => 2,

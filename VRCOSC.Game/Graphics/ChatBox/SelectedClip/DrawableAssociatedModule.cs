@@ -24,6 +24,8 @@ public partial class DrawableAssociatedModule : Container
         AutoSizeAxes = Axes.Y;
         Masking = true;
         CornerRadius = 5;
+        BorderThickness = 2;
+        BorderColour = ThemeManager.Current[ThemeAttribute.Border];
 
         Children = new Drawable[]
         {
@@ -49,7 +51,7 @@ public partial class DrawableAssociatedModule : Container
                         Padding = new MarginPadding(2),
                         Child = new SpriteText
                         {
-                            Font = FrameworkFont.Regular.With(size: 22),
+                            Font = FrameworkFont.Regular.With(size: 18),
                             Text = ModuleName,
                             Colour = ThemeManager.Current[ThemeAttribute.Text]
                         }
@@ -69,7 +71,10 @@ public partial class DrawableAssociatedModule : Container
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
                                 RelativeSizeAxes = Axes.Both,
-                                State = State.GetBoundCopy()
+                                State = State.GetBoundCopy(),
+                                BorderThickness = 2,
+                                ShouldAnimate = false,
+                                BorderColour = ThemeManager.Current[ThemeAttribute.Border]
                             }
                         }
                     }

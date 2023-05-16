@@ -53,7 +53,7 @@ public sealed partial class MainContent : Container
                             Depth = float.MaxValue,
                             Children = new Drawable[]
                             {
-                                new ModuleListingScreen(),
+                                new ModulesScreen(),
                                 new RunScreen(),
                                 new ChatBoxScreen(),
                                 new RouterScreen(),
@@ -70,8 +70,6 @@ public sealed partial class MainContent : Container
 
     protected override void LoadComplete()
     {
-        base.LoadComplete();
-
         selectedTab.BindValueChanged(tab =>
         {
             var id = (int)tab.NewValue;

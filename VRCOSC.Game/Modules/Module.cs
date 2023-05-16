@@ -155,13 +155,12 @@ public abstract class Module : IComparable<Module>
         OnModuleStart();
 
         if (ShouldUpdate) Scheduler.AddDelayed(OnModuleUpdate, DeltaUpdate.TotalMilliseconds, true);
+        Scheduler.AddDelayed(OnFixedUpdate, TimeSpan.FromSeconds(1f / 60f).TotalMilliseconds, true);
 
         State.Value = ModuleState.Started;
 
         if (ShouldUpdateImmediately) OnModuleUpdate();
     }
-
-    internal void FrameUpdate() => OnFrameUpdate();
 
     internal void Stop()
     {
@@ -172,11 +171,14 @@ public abstract class Module : IComparable<Module>
         State.Value = ModuleState.Stopped;
     }
 
+    internal void PlayerUpdate() => OnPlayerUpdate();
+
     protected virtual void OnModuleStart() { }
     protected virtual void OnModuleUpdate() { }
-    protected virtual void OnFrameUpdate() { }
+    protected virtual void OnFixedUpdate() { }
     protected virtual void OnModuleStop() { }
     protected virtual void OnAvatarChange() { }
+    protected virtual void OnPlayerUpdate() { }
 
     #endregion
 

@@ -30,6 +30,10 @@ public class StartupManager : ICanSerialise
 
     public void Load()
     {
+        Deserialise();
+
+        FilePaths.BindCollectionChanged((_, _) => Serialise());
+
         FilePaths.BindCollectionChanged((_, e) =>
         {
             if (e.NewItems is not null)
@@ -39,18 +43,12 @@ public class StartupManager : ICanSerialise
                     newItem.BindValueChanged(_ => Serialise());
                 }
             }
-
-            Serialise();
-        });
-
-        Deserialise();
+        }, true);
     }
 
     public void Deserialise()
     {
-        if (!serialisationManager.Deserialise()) return;
-
-        Serialise();
+        serialisationManager.Deserialise();
     }
 
     public void Serialise()

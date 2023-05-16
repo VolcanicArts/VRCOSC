@@ -27,6 +27,8 @@ public partial class SelectedClipMetadataEditor : Container
         RelativeSizeAxes = Axes.Both;
         Masking = true;
         CornerRadius = 10;
+        BorderThickness = 2;
+        BorderColour = ThemeManager.Current[ThemeAttribute.Border];
 
         Children = new Drawable[]
         {
@@ -57,7 +59,7 @@ public partial class SelectedClipMetadataEditor : Container
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
                                 Text = "Clip Settings",
-                                Font = FrameworkFont.Regular.With(size: 30),
+                                Font = FrameworkFont.Regular.With(size: 25),
                                 Colour = ThemeManager.Current[ThemeAttribute.Text]
                             }
                         },
@@ -69,12 +71,15 @@ public partial class SelectedClipMetadataEditor : Container
                                 RelativeSizeAxes = Axes.Both,
                                 ScrollbarVisible = false,
                                 ClampExtension = 5,
-                                Child = metadataFlow = new FillFlowContainer
+                                ScrollContent =
                                 {
-                                    RelativeSizeAxes = Axes.X,
-                                    AutoSizeAxes = Axes.Y,
-                                    Direction = FillDirection.Vertical,
-                                    Spacing = new Vector2(0, 5)
+                                    Child = metadataFlow = new FillFlowContainer
+                                    {
+                                        RelativeSizeAxes = Axes.X,
+                                        AutoSizeAxes = Axes.Y,
+                                        Direction = FillDirection.Vertical,
+                                        Spacing = new Vector2(0, 2)
+                                    }
                                 }
                             }
                         }
@@ -112,7 +117,7 @@ public partial class SelectedClipMetadataEditor : Container
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
             Text = "Metadata",
-            Font = FrameworkFont.Regular.With(size: 25),
+            Font = FrameworkFont.Regular.With(size: 20),
             Colour = ThemeManager.Current[ThemeAttribute.Text]
         });
 

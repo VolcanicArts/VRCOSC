@@ -59,9 +59,9 @@ public sealed class Player
         InStation = null;
     }
 
-    public void Update(string parameterName, object value)
+    public bool Update(string parameterName, object value)
     {
-        if (!Enum.TryParse(parameterName, out VRChatInputParameter vrChatInputParameter)) return;
+        if (!Enum.TryParse(parameterName, out VRChatInputParameter vrChatInputParameter)) return false;
 
         switch (vrChatInputParameter)
         {
@@ -144,6 +144,8 @@ public sealed class Player
             default:
                 throw new ArgumentOutOfRangeException(nameof(vrChatInputParameter), vrChatInputParameter, $"Unknown {nameof(VRChatInputParameter)}");
         }
+
+        return true;
     }
 
     private static string actionToAddress(VRChatInputAction action) => $"/input/{action}";

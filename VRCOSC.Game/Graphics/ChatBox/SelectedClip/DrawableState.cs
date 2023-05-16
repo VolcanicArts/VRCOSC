@@ -67,7 +67,7 @@ public partial class DrawableState : Container
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
                         RelativeSizeAxes = Axes.X,
-                        Height = 30,
+                        Height = 25,
                         Children = new Drawable[]
                         {
                             new Container
@@ -81,7 +81,10 @@ public partial class DrawableState : Container
                                     Anchor = Anchor.Centre,
                                     Origin = Anchor.Centre,
                                     RelativeSizeAxes = Axes.Both,
-                                    State = ClipState.Enabled.GetBoundCopy()
+                                    State = ClipState.Enabled.GetBoundCopy(),
+                                    BorderThickness = 2,
+                                    BorderColour = ThemeManager.Current[ThemeAttribute.Border],
+                                    ShouldAnimate = false
                                 }
                             },
                             new Container
@@ -94,27 +97,24 @@ public partial class DrawableState : Container
                                 {
                                     Anchor = Anchor.CentreLeft,
                                     Origin = Anchor.CentreLeft,
-                                    Font = FrameworkFont.Regular.With(size: 20),
+                                    Font = FrameworkFont.Regular.With(size: 18),
                                     Text = stateNameList,
                                     Colour = ThemeManager.Current[ThemeAttribute.Text]
                                 }
                             }
                         }
                     },
-                    new Container
+                    new VRCOSCTextBox
                     {
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
                         RelativeSizeAxes = Axes.X,
-                        AutoSizeAxes = Axes.Y,
-                        Child = new VRCOSCTextBox
-                        {
-                            RelativeSizeAxes = Axes.X,
-                            Height = 30,
-                            Current = ClipState.Format.GetBoundCopy(),
-                            Masking = true,
-                            CornerRadius = 5
-                        }
+                        Height = 25,
+                        Current = ClipState.Format.GetBoundCopy(),
+                        Masking = true,
+                        CornerRadius = 5,
+                        BorderThickness = 2,
+                        BorderColour = ThemeManager.Current[ThemeAttribute.Border]
                     }
                 }
             }

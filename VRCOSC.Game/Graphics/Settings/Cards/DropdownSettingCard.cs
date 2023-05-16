@@ -6,21 +6,20 @@ using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
-using VRCOSC.Game.Graphics.UI;
 
 namespace VRCOSC.Game.Graphics.Settings.Cards;
 
 public partial class DropdownSettingCard<T> : SettingCard<T>
 {
-    public DropdownSettingCard(string title, string description, Bindable<T> settingBindable)
-        : base(title, description, settingBindable)
+    public DropdownSettingCard(string title, string description, Bindable<T> settingBindable, string linkedUrl)
+        : base(title, description, settingBindable, linkedUrl)
     {
     }
 
     [BackgroundDependencyLoader]
     private void load()
     {
-        Add(new VRCOSCDropdown<T>
+        Add(new SettingsDropdown<T>
         {
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,

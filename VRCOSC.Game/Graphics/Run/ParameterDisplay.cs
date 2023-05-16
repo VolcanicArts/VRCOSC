@@ -25,13 +25,6 @@ public sealed partial class ParameterDisplay : Container
     private readonly SortedDictionary<string, ParameterEntry> parameterDict = new();
     private FillFlowContainer<ParameterEntry> parameterFlow = null!;
 
-    public ParameterDisplay()
-    {
-        Masking = true;
-        BorderThickness = 3;
-        BorderColour = ThemeManager.Current[ThemeAttribute.Border];
-    }
-
     [BackgroundDependencyLoader]
     private void load()
     {
@@ -69,17 +62,15 @@ public sealed partial class ParameterDisplay : Container
                             RelativeSizeAxes = Axes.Both,
                             ScrollbarVisible = false,
                             ClampExtension = 0,
-                            Padding = new MarginPadding
+                            ScrollContent =
                             {
-                                Vertical = 1.5f,
-                                Horizontal = 3
-                            },
-                            Child = parameterFlow = new FillFlowContainer<ParameterEntry>
-                            {
-                                Anchor = Anchor.TopCentre,
-                                Origin = Anchor.TopCentre,
-                                RelativeSizeAxes = Axes.X,
-                                AutoSizeAxes = Axes.Y
+                                Child = parameterFlow = new FillFlowContainer<ParameterEntry>
+                                {
+                                    Anchor = Anchor.TopCentre,
+                                    Origin = Anchor.TopCentre,
+                                    RelativeSizeAxes = Axes.X,
+                                    AutoSizeAxes = Axes.Y
+                                }
                             }
                         }
                     }

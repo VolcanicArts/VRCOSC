@@ -22,23 +22,22 @@ public abstract partial class Notification : VisibilityContainer
         Anchor = Anchor.TopCentre;
         Origin = Anchor.TopCentre;
         RelativeSizeAxes = Axes.X;
-        Height = 60;
+        AutoSizeAxes = Axes.Y;
 
         InternalChild = new Container
         {
-            RelativeSizeAxes = Axes.Both,
+            RelativeSizeAxes = Axes.X,
+            AutoSizeAxes = Axes.Y,
             RelativePositionAxes = Axes.X,
             X = 1,
-            Padding = new MarginPadding
-            {
-                Horizontal = 5,
-                Top = 5
-            },
             Child = new Container
             {
-                RelativeSizeAxes = Axes.Both,
+                RelativeSizeAxes = Axes.X,
+                AutoSizeAxes = Axes.Y,
                 Masking = true,
                 CornerRadius = 5,
+                BorderColour = ThemeManager.Current[ThemeAttribute.Border],
+                BorderThickness = 2,
                 Children = new Drawable[]
                 {
                     new Box
@@ -48,7 +47,8 @@ public abstract partial class Notification : VisibilityContainer
                     },
                     Content = new Container
                     {
-                        RelativeSizeAxes = Axes.Both
+                        RelativeSizeAxes = Axes.X,
+                        AutoSizeAxes = Axes.Y
                     }
                 }
             }

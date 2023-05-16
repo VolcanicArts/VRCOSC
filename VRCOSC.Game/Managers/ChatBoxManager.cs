@@ -33,7 +33,7 @@ public class ChatBoxManager : ICanSerialise
 
     public readonly Bindable<Clip?> SelectedClip = new();
 
-    public readonly BindableList<Clip> Clips = new();
+    public BindableList<Clip> Clips = new();
 
     public readonly Dictionary<string, Dictionary<string, ClipVariableMetadata>> VariableMetadata = new();
     public readonly Dictionary<string, Dictionary<string, ClipStateMetadata>> StateMetadata = new();
@@ -62,8 +62,6 @@ public class ChatBoxManager : ICanSerialise
     private DateTimeOffset startTime;
     private DateTimeOffset nextValidTime;
     private bool isClear;
-    private bool deserialised;
-    private bool isLoaded;
 
     public void Load(Storage storage, GameManager gameManager, NotificationContainer notification)
     {
@@ -71,27 +69,23 @@ public class ChatBoxManager : ICanSerialise
         serialisationManager = new SerialisationManager();
         serialisationManager.RegisterSerialiser(1, new TimelineSerialiser(storage, notification, this));
 
-        Clips.AddRange(DefaultTimeline.GenerateDefaultTimeline(this));
         TimelineLength.Value = TimeSpan.FromMinutes(1);
+        Clips.AddRange(DefaultTimeline.GenerateDefaultTimeline(this));
 
         Deserialise();
 
-        Clips.BindCollectionChanged((_, _) => Serialise());
         TimelineLength.BindValueChanged(_ => Serialise());
-
-        isLoaded = true;
-        if (deserialised) Serialise();
+        Clips.BindCollectionChanged((_, _) => Serialise());
+        Clips.ForEach(clip => clip.Load());
     }
 
     public void Deserialise()
     {
-        deserialised = serialisationManager.Deserialise();
+        serialisationManager.Deserialise();
     }
 
     public void Serialise()
     {
-        if (!isLoaded) return;
-
         serialisationManager.Serialise();
     }
 
@@ -140,16 +134,16 @@ public class ChatBoxManager : ICanSerialise
     public void IncreaseTime(int amount)
     {
         var newTime = TimelineLength.Value + TimeSpan.FromSeconds(amount);
-        setNewTime(newTime);
+        SetTimelineLength(newTime);
     }
 
     public void DecreaseTime(int amount)
     {
         var newTime = TimelineLength.Value - TimeSpan.FromSeconds(amount);
-        setNewTime(newTime);
+        SetTimelineLength(newTime);
     }
 
-    private void setNewTime(TimeSpan newTime)
+    public void SetTimelineLength(TimeSpan newTime)
     {
         if (newTime.TotalSeconds < 1) newTime = TimeSpan.FromSeconds(1);
         if (newTime.TotalSeconds > 4 * 60) newTime = TimeSpan.FromSeconds(4 * 60);

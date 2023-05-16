@@ -31,7 +31,7 @@ public abstract class HeartRateModule : ChatBoxModule
         CreateSetting(HeartrateSetting.NormalisedLowerbound, @"Normalised Lowerbound", @"The lower bound BPM the normalised parameter should use", 0);
         CreateSetting(HeartrateSetting.NormalisedUpperbound, @"Normalised Upperbound", @"The upper bound BPM the normalised parameter should use", 240);
 
-        CreateParameter<bool>(HeartrateParameter.Enabled, ParameterMode.Write, @"VRCOSC/Heartrate/Enabled", @"Enabled", @"Whether this module is attempting to emit values");
+        CreateParameter<bool>(HeartrateParameter.Enabled, ParameterMode.Write, @"VRCOSC/Heartrate/Enabled", @"Enabled", @"Whether this module is connected and receiving values");
         CreateParameter<float>(HeartrateParameter.Normalised, ParameterMode.Write, @"VRCOSC/Heartrate/Normalised", @"Normalised", @"The heartrate value normalised to the set bounds");
         CreateParameter<float>(HeartrateParameter.Units, ParameterMode.Write, @"VRCOSC/Heartrate/Units", @"Units", @"The units digit 0-9 mapped to a float");
         CreateParameter<float>(HeartrateParameter.Tens, ParameterMode.Write, @"VRCOSC/Heartrate/Tens", @"Tens", @"The tens digit 0-9 mapped to a float");
@@ -39,7 +39,7 @@ public abstract class HeartRateModule : ChatBoxModule
 
         CreateVariable(HeartrateVariable.Heartrate, @"Heartrate", @"hr");
 
-        CreateState(HeartrateState.Default, @"Default", $@"Heartrate/n{GetVariableFormat(HeartrateVariable.Heartrate)} bpm");
+        CreateState(HeartrateState.Default, @"Default", $@"Heartrate/v{GetVariableFormat(HeartrateVariable.Heartrate)} bpm");
     }
 
     protected override void OnModuleStart()
@@ -66,19 +66,18 @@ public abstract class HeartRateModule : ChatBoxModule
         HeartRateProvider = CreateHeartRateProvider();
         HeartRateProvider.OnHeartRateUpdate += handleHeartRateUpdate;
         HeartRateProvider.OnConnected += () => connectionCount = 0;
-
-        HeartRateProvider.OnDisconnected += () =>
-        {
-            Task.Run(async () =>
-            {
-                if (IsStopping || HasStopped) return;
-
-                await Task.Delay(2000);
-                attemptConnection();
-            });
-        };
+        HeartRateProvider.OnDisconnected += attemptReconnection;
         HeartRateProvider.Initialise();
         HeartRateProvider.Connect();
+    }
+
+    private void attemptReconnection()
+    {
+        if (IsStopping || HasStopped) return;
+
+        Log("Attempting reconnection...");
+        Thread.Sleep(2000);
+        attemptConnection();
     }
 
     protected override void OnModuleStop()
@@ -89,7 +88,7 @@ public abstract class HeartRateModule : ChatBoxModule
         SendParameter(HeartrateParameter.Enabled, false);
     }
 
-    protected override void OnFrameUpdate()
+    protected override void OnFixedUpdate()
     {
         if (GetSetting<bool>(HeartrateSetting.Smoothed))
         {

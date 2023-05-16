@@ -36,7 +36,7 @@ public sealed partial class ParameterEntry : Container
             {
                 Anchor = Anchor.CentreLeft,
                 Origin = Anchor.CentreLeft,
-                Font = FrameworkFont.Regular.With(size: 20),
+                Font = FrameworkFont.Regular.With(size: 17),
                 Colour = ThemeManager.Current[ThemeAttribute.SubText],
                 Text = Key
             },
@@ -56,7 +56,7 @@ public sealed partial class ParameterEntry : Container
                     {
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,
-                        Font = FrameworkFont.Regular.With(size: 20),
+                        Font = FrameworkFont.Regular.With(size: 17),
                         Colour = ThemeManager.Current[ThemeAttribute.SubText]
                     }
                 }
@@ -71,7 +71,7 @@ public sealed partial class ParameterEntry : Container
         Value.BindValueChanged(e =>
         {
             valueText.Text = e.NewValue;
-            background.FlashColour(Colour4.White.Darken(0.15f), 500, Easing.OutCubic);
+            background.FlashColour(ThemeManager.Current[ThemeAttribute.Lighter], 500, Easing.OutCubic);
         }, true);
     }
 }

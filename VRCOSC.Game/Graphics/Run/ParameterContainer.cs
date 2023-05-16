@@ -36,10 +36,6 @@ public sealed partial class ParameterContainer : Container
                 {
                     outgoingParameterDisplay = new ParameterSubContainer
                     {
-                        RelativeSizeAxes = Axes.Both,
-                        BorderThickness = 3,
-                        Masking = true,
-                        CornerRadius = 10,
                         Title = "Outgoing"
                     }
                 },
@@ -48,10 +44,6 @@ public sealed partial class ParameterContainer : Container
                 {
                     incomingParameterDisplay = new ParameterSubContainer
                     {
-                        RelativeSizeAxes = Axes.Both,
-                        BorderThickness = 3,
-                        Masking = true,
-                        CornerRadius = 10,
                         Title = "Incoming"
                     }
                 }
@@ -66,7 +58,7 @@ public sealed partial class ParameterContainer : Container
 
         gameManager.State.BindValueChanged(e =>
         {
-            if (e.NewValue == GameManagerState.Stopped) ClearParameters();
+            if (e.NewValue == GameManagerState.Starting) clearParameters();
         });
     }
 
@@ -80,11 +72,11 @@ public sealed partial class ParameterContainer : Container
         incomingParameterDisplay.AddEntry(data.Address, data.ParameterValue);
     }
 
-    public void ClearParameters() => Schedule(() =>
+    private void clearParameters()
     {
         outgoingParameterDisplay.ClearContent();
         incomingParameterDisplay.ClearContent();
-    });
+    }
 
     private sealed partial class ParameterSubContainer : Container
     {
@@ -95,20 +87,26 @@ public sealed partial class ParameterContainer : Container
         [BackgroundDependencyLoader]
         private void load()
         {
+            RelativeSizeAxes = Axes.Both;
+            Masking = true;
+            CornerRadius = 10;
+            BorderThickness = 2;
+            BorderColour = ThemeManager.Current[ThemeAttribute.Border];
+
             Children = new Drawable[]
             {
                 new Box
                 {
                     RelativeSizeAxes = Axes.Both,
-                    Colour = ThemeManager.Current[ThemeAttribute.Darker]
+                    Colour = ThemeManager.Current[ThemeAttribute.Dark]
                 },
                 parameterDisplay = new ParameterDisplay
                 {
                     RelativeSizeAxes = Axes.Both,
                     Padding = new MarginPadding
                     {
-                        Vertical = 1.5f,
-                        Horizontal = 3
+                        Vertical = 2,
+                        Horizontal = 7
                     },
                     Title = Title
                 }

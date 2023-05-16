@@ -30,6 +30,8 @@ public partial class MetadataString : Container
         AutoSizeAxes = Axes.Y;
         Masking = true;
         CornerRadius = 5;
+        BorderThickness = 2;
+        BorderColour = ThemeManager.Current[ThemeAttribute.Border];
 
         Children = new Drawable[]
         {
@@ -55,7 +57,7 @@ public partial class MetadataString : Container
                         Padding = new MarginPadding(2),
                         Child = new SpriteText
                         {
-                            Font = FrameworkFont.Regular.With(size: 22),
+                            Font = FrameworkFont.Regular.With(size: 18),
                             Text = Label,
                             Colour = ThemeManager.Current[ThemeAttribute.Text]
                         }
@@ -73,6 +75,8 @@ public partial class MetadataString : Container
                                 RelativeSizeAxes = Axes.Both,
                                 CornerRadius = 5,
                                 MinimumLength = 2,
+                                BorderThickness = 2,
+                                BorderColour = ThemeManager.Current[ThemeAttribute.Border],
                                 EmptyIsValid = false
                             }
                         }

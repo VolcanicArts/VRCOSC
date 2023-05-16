@@ -53,6 +53,7 @@ public class MediaModule : ChatBoxModule
         CreateVariable(MediaVariable.AlbumArtist, @"Album Artist", @"albumartist");
         CreateVariable(MediaVariable.AlbumTrackCount, @"Album Track Count", @"albumtrackcount");
         CreateVariable(MediaVariable.Time, @"Time", @"time");
+        CreateVariable(MediaVariable.TimeRemaining, @"Time Remaining", @"timeremaining");
         CreateVariable(MediaVariable.Duration, @"Duration", @"duration");
         CreateVariable(MediaVariable.ProgressVisual, @"Progress Visual", @"progressvisual");
         CreateVariable(MediaVariable.Volume, @"Volume", @"volume");
@@ -60,7 +61,7 @@ public class MediaModule : ChatBoxModule
         CreateState(MediaState.Playing, "Playing", $@"[{GetVariableFormat(MediaVariable.Time)}/{GetVariableFormat(MediaVariable.Duration)}]/v{GetVariableFormat(MediaVariable.Artist)} - {GetVariableFormat(MediaVariable.Title)}/v{GetVariableFormat(MediaVariable.ProgressVisual)}");
         CreateState(MediaState.Paused, "Paused", @"[Paused]");
 
-        CreateEvent(MediaEvent.NowPlaying, "Now Playing", $@"[Now Playing]/n{GetVariableFormat(MediaVariable.Artist)} - {GetVariableFormat(MediaVariable.Title)}", 5);
+        CreateEvent(MediaEvent.NowPlaying, "Now Playing", $@"[Now Playing]/v{GetVariableFormat(MediaVariable.Artist)} - {GetVariableFormat(MediaVariable.Title)}", 5);
     }
 
     protected override void OnModuleStart()
@@ -109,10 +110,21 @@ public class MediaModule : ChatBoxModule
         SetVariableValue(MediaVariable.AlbumTitle, mediaProvider.State.AlbumTitle);
         SetVariableValue(MediaVariable.AlbumArtist, mediaProvider.State.AlbumArtist);
         SetVariableValue(MediaVariable.AlbumTrackCount, mediaProvider.State.AlbumTrackCount.ToString());
-        SetVariableValue(MediaVariable.Time, mediaProvider.State.Position?.Position.Format());
-        SetVariableValue(MediaVariable.Duration, mediaProvider.State.Position?.EndTime.Format());
         SetVariableValue(MediaVariable.Volume, (mediaProvider.State.Volume * 100).ToString("##0"));
         SetVariableValue(MediaVariable.ProgressVisual, getProgressVisual());
+
+        if (mediaProvider.State.Position is null)
+        {
+            SetVariableValue(MediaVariable.Time, string.Empty);
+            SetVariableValue(MediaVariable.TimeRemaining, string.Empty);
+            SetVariableValue(MediaVariable.Duration, string.Empty);
+        }
+        else
+        {
+            SetVariableValue(MediaVariable.Time, mediaProvider.State.Position.Position.Format());
+            SetVariableValue(MediaVariable.TimeRemaining, (mediaProvider.State.Position.EndTime - mediaProvider.State.Position.Position).Format());
+            SetVariableValue(MediaVariable.Duration, mediaProvider.State.Position.EndTime.Format());
+        }
     }
 
     private void onPlaybackStateUpdate()
@@ -242,6 +254,7 @@ public class MediaModule : ChatBoxModule
         Title,
         Artist,
         Time,
+        TimeRemaining,
         Duration,
         Volume,
         TrackNumber,

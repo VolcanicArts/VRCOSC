@@ -13,6 +13,7 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Platform;
 using osuTK;
 using VRCOSC.Game.Graphics.Themes;
+using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Graphics.UI.Button;
 using VRCOSC.Game.Managers;
 
@@ -42,6 +43,8 @@ public partial class SelectedClipStateEditorContainer : Container
         RelativeSizeAxes = Axes.Both;
         Masking = true;
         CornerRadius = 10;
+        BorderThickness = 2;
+        BorderColour = ThemeManager.Current[ThemeAttribute.Border];
 
         Children = new Drawable[]
         {
@@ -57,95 +60,98 @@ public partial class SelectedClipStateEditorContainer : Container
                 {
                     Horizontal = 10,
                     Top = 10,
-                    Bottom = 50
+                    Bottom = 35
                 },
                 Child = new BasicScrollContainer
                 {
                     RelativeSizeAxes = Axes.Both,
                     ClampExtension = 5,
                     ScrollbarVisible = false,
-                    Child = new FillFlowContainer
+                    ScrollContent =
                     {
-                        RelativeSizeAxes = Axes.X,
-                        AutoSizeAxes = Axes.Y,
-                        Spacing = new Vector2(0, 10),
-                        Children = new Drawable[]
+                        Child = new FillFlowContainer
                         {
-                            new FillFlowContainer
+                            RelativeSizeAxes = Axes.X,
+                            AutoSizeAxes = Axes.Y,
+                            Spacing = new Vector2(0, 10),
+                            Children = new Drawable[]
                             {
-                                Anchor = Anchor.TopCentre,
-                                Origin = Anchor.TopCentre,
-                                RelativeSizeAxes = Axes.X,
-                                AutoSizeAxes = Axes.Y,
-                                Direction = FillDirection.Vertical,
-                                Spacing = new Vector2(0, 5),
-                                Children = new Drawable[]
+                                new FillFlowContainer
                                 {
-                                    statesTitle = new Container
+                                    Anchor = Anchor.TopCentre,
+                                    Origin = Anchor.TopCentre,
+                                    RelativeSizeAxes = Axes.X,
+                                    AutoSizeAxes = Axes.Y,
+                                    Direction = FillDirection.Vertical,
+                                    Spacing = new Vector2(0, 5),
+                                    Children = new Drawable[]
                                     {
-                                        Anchor = Anchor.TopCentre,
-                                        Origin = Anchor.TopCentre,
-                                        RelativeSizeAxes = Axes.X,
-                                        AutoSizeAxes = Axes.Y,
-                                        Child = new SpriteText
+                                        statesTitle = new Container
                                         {
-                                            Anchor = Anchor.Centre,
-                                            Origin = Anchor.Centre,
-                                            Text = "States",
-                                            Font = FrameworkFont.Regular.With(size: 30),
-                                            Colour = ThemeManager.Current[ThemeAttribute.Text]
+                                            Anchor = Anchor.TopCentre,
+                                            Origin = Anchor.TopCentre,
+                                            RelativeSizeAxes = Axes.X,
+                                            AutoSizeAxes = Axes.Y,
+                                            Child = new SpriteText
+                                            {
+                                                Anchor = Anchor.Centre,
+                                                Origin = Anchor.Centre,
+                                                Text = "States",
+                                                Font = FrameworkFont.Regular.With(size: 30),
+                                                Colour = ThemeManager.Current[ThemeAttribute.Text]
+                                            }
+                                        },
+                                        stateFlow = new FillFlowContainer<DrawableState>
+                                        {
+                                            Anchor = Anchor.TopCentre,
+                                            Origin = Anchor.TopCentre,
+                                            RelativeSizeAxes = Axes.X,
+                                            AutoSizeAxes = Axes.Y,
+                                            Direction = FillDirection.Vertical,
+                                            Spacing = new Vector2(0, 5)
                                         }
-                                    },
-                                    stateFlow = new FillFlowContainer<DrawableState>
-                                    {
-                                        Anchor = Anchor.TopCentre,
-                                        Origin = Anchor.TopCentre,
-                                        RelativeSizeAxes = Axes.X,
-                                        AutoSizeAxes = Axes.Y,
-                                        Direction = FillDirection.Vertical,
-                                        Spacing = new Vector2(0, 5)
                                     }
-                                }
-                            },
-                            separator = new LineSeparator
-                            {
-                                Anchor = Anchor.TopCentre,
-                                Origin = Anchor.TopCentre,
-                                LineColour = ThemeManager.Current[ThemeAttribute.Mid]
-                            },
-                            new FillFlowContainer
-                            {
-                                Anchor = Anchor.TopCentre,
-                                Origin = Anchor.TopCentre,
-                                RelativeSizeAxes = Axes.X,
-                                AutoSizeAxes = Axes.Y,
-                                Direction = FillDirection.Vertical,
-                                Spacing = new Vector2(0, 5),
-                                Children = new Drawable[]
+                                },
+                                separator = new LineSeparator
                                 {
-                                    eventsTitle = new Container
+                                    Anchor = Anchor.TopCentre,
+                                    Origin = Anchor.TopCentre,
+                                    LineColour = ThemeManager.Current[ThemeAttribute.Mid]
+                                },
+                                new FillFlowContainer
+                                {
+                                    Anchor = Anchor.TopCentre,
+                                    Origin = Anchor.TopCentre,
+                                    RelativeSizeAxes = Axes.X,
+                                    AutoSizeAxes = Axes.Y,
+                                    Direction = FillDirection.Vertical,
+                                    Spacing = new Vector2(0, 5),
+                                    Children = new Drawable[]
                                     {
-                                        Anchor = Anchor.TopCentre,
-                                        Origin = Anchor.TopCentre,
-                                        RelativeSizeAxes = Axes.X,
-                                        AutoSizeAxes = Axes.Y,
-                                        Child = new SpriteText
+                                        eventsTitle = new Container
                                         {
-                                            Anchor = Anchor.Centre,
-                                            Origin = Anchor.Centre,
-                                            Text = "Events",
-                                            Font = FrameworkFont.Regular.With(size: 30),
-                                            Colour = ThemeManager.Current[ThemeAttribute.Text]
+                                            Anchor = Anchor.TopCentre,
+                                            Origin = Anchor.TopCentre,
+                                            RelativeSizeAxes = Axes.X,
+                                            AutoSizeAxes = Axes.Y,
+                                            Child = new SpriteText
+                                            {
+                                                Anchor = Anchor.Centre,
+                                                Origin = Anchor.Centre,
+                                                Text = "Events",
+                                                Font = FrameworkFont.Regular.With(size: 30),
+                                                Colour = ThemeManager.Current[ThemeAttribute.Text]
+                                            }
+                                        },
+                                        eventFlow = new FillFlowContainer<DrawableEvent>
+                                        {
+                                            Anchor = Anchor.TopCentre,
+                                            Origin = Anchor.TopCentre,
+                                            RelativeSizeAxes = Axes.X,
+                                            AutoSizeAxes = Axes.Y,
+                                            Direction = FillDirection.Vertical,
+                                            Spacing = new Vector2(0, 5)
                                         }
-                                    },
-                                    eventFlow = new FillFlowContainer<DrawableEvent>
-                                    {
-                                        Anchor = Anchor.TopCentre,
-                                        Origin = Anchor.TopCentre,
-                                        RelativeSizeAxes = Axes.X,
-                                        AutoSizeAxes = Axes.Y,
-                                        Direction = FillDirection.Vertical,
-                                        Spacing = new Vector2(0, 5)
                                     }
                                 }
                             }
@@ -158,7 +164,7 @@ public partial class SelectedClipStateEditorContainer : Container
                 Anchor = Anchor.BottomCentre,
                 Origin = Anchor.BottomCentre,
                 RelativeSizeAxes = Axes.X,
-                Height = 50,
+                Height = 35,
                 Children = new Drawable[]
                 {
                     new FillFlowContainer
@@ -204,19 +210,11 @@ public partial class SelectedClipStateEditorContainer : Container
                 Origin = Anchor.TopRight,
                 Size = new Vector2(40),
                 Padding = new MarginPadding(3),
-                Child = new IconButton
+                Child = UIPrefabs.QuestionButton.With(d =>
                 {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    RelativeSizeAxes = Axes.Both,
-                    Icon = FontAwesome.Solid.Question,
-                    BackgroundColour = ThemeManager.Current[ThemeAttribute.Action],
-                    IconShadow = true,
-                    Masking = true,
-                    Circular = true,
-                    IconPadding = 6,
-                    Action = () => host.OpenUrlExternally(chatbox_v3_wiki_url)
-                }
+                    d.IconPadding = 6;
+                    d.Action = () => host.OpenUrlExternally(chatbox_v3_wiki_url);
+                })
             }
         };
     }
@@ -234,7 +232,7 @@ public partial class SelectedClipStateEditorContainer : Container
             }
         }, true);
 
-        ((ModuleManager)chatBoxManager.GameManager.ModuleManager).OnModuleEnabledChanged += filterFlows;
+        chatBoxManager.GameManager.ModuleManager.OnModuleEnabledChanged += filterFlows;
         showRelevantStates.BindValueChanged(_ => filterFlows(), true);
     }
 
@@ -266,6 +264,11 @@ public partial class SelectedClipStateEditorContainer : Container
             stateFlow.ForEach(drawableState => drawableState.Alpha = 1);
             eventFlow.ForEach(drawableState => drawableState.Alpha = 1);
         }
+
+        statesTitle.Alpha = stateFlow.All(drawableState => drawableState.Alpha == 0) ? 0 : 1;
+        eventsTitle.Alpha = eventFlow.All(drawableEvent => drawableEvent.Alpha == 0) ? 0 : 1;
+
+        separator.Alpha = eventsTitle.Alpha;
     }
 
     private void associatedModulesOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs? e)
@@ -287,6 +290,8 @@ public partial class SelectedClipStateEditorContainer : Container
                 AutoSizeAxes = Axes.Y,
                 Masking = true,
                 CornerRadius = 5,
+                BorderThickness = 2,
+                BorderColour = ThemeManager.Current[ThemeAttribute.Border],
             });
             stateFlow.SetLayoutPosition(drawableState, clipState.States.Count);
         });
@@ -300,7 +305,9 @@ public partial class SelectedClipStateEditorContainer : Container
                 RelativeSizeAxes = Axes.X,
                 AutoSizeAxes = Axes.Y,
                 Masking = true,
-                CornerRadius = 5
+                CornerRadius = 5,
+                BorderThickness = 2,
+                BorderColour = ThemeManager.Current[ThemeAttribute.Border],
             });
         });
 

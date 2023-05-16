@@ -1,67 +1,55 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Shapes;
-using osuTK;
-using VRCOSC.Game.Graphics.Themes;
+using VRCOSC.Game.Graphics.Screen;
 
 namespace VRCOSC.Game.Graphics.Settings;
 
-public sealed partial class SettingsScreen : Container
+public sealed partial class SettingsScreen : BaseScreen
 {
-    public SettingsScreen()
+    [BackgroundDependencyLoader]
+    private void load()
     {
         RelativeSizeAxes = Axes.Both;
+    }
 
-        Children = new Drawable[]
+    protected override BaseHeader CreateHeader() => new SettingsHeader();
+
+    protected override Drawable CreateBody() => new Container
+    {
+        RelativeSizeAxes = Axes.Both,
+        Padding = new MarginPadding(10),
+        Child = new GridContainer
         {
-            new Box
+            Anchor = Anchor.TopCentre,
+            Origin = Anchor.TopCentre,
+            RelativeSizeAxes = Axes.Both,
+            ColumnDimensions = new[]
             {
-                RelativeSizeAxes = Axes.Both,
-                Colour = ThemeManager.Current[ThemeAttribute.Light]
+                new Dimension(),
+                new Dimension(GridSizeMode.Absolute, 5),
+                new Dimension(),
+                new Dimension(GridSizeMode.Absolute, 5),
+                new Dimension(),
+                new Dimension(GridSizeMode.Absolute, 5),
+                new Dimension()
             },
-            new BasicScrollContainer
+            Content = new[]
             {
-                RelativeSizeAxes = Axes.Both,
-                ScrollbarVisible = false,
-                ClampExtension = 0,
-                Child = new FillFlowContainer
+                new Drawable?[]
                 {
-                    RelativeSizeAxes = Axes.X,
-                    AutoSizeAxes = Axes.Y,
-                    Children = new Drawable[]
-                    {
-                        new TextFlowContainer(t =>
-                        {
-                            t.Font = FrameworkFont.Regular.With(size: 80);
-                            t.Colour = ThemeManager.Current[ThemeAttribute.Text];
-                        })
-                        {
-                            RelativeSizeAxes = Axes.X,
-                            AutoSizeAxes = Axes.Y,
-                            TextAnchor = Anchor.TopCentre,
-                            Text = "Settings"
-                        },
-                        new FillFlowContainer<SectionContainer>
-                        {
-                            RelativeSizeAxes = Axes.X,
-                            AutoSizeAxes = Axes.Y,
-                            Direction = FillDirection.Vertical,
-                            Padding = new MarginPadding(10),
-                            Spacing = new Vector2(0, 20),
-                            Children = new SectionContainer[]
-                            {
-                                new GeneralSection(),
-                                new OscSection(),
-                                new AutomationSection(),
-                                new UpdateSection()
-                            }
-                        }
-                    }
+                    new GeneralSection(),
+                    null,
+                    new OscSection(),
+                    null,
+                    new AutomationSection(),
+                    null,
+                    new UpdateSection()
                 }
             }
-        };
-    }
+        }
+    };
 }

@@ -27,14 +27,14 @@ public partial class RunScreenFooter : Container
     {
         Masking = true;
         CornerRadius = 10;
-        BorderThickness = 3;
+        BorderThickness = 2;
         BorderColour = ThemeManager.Current[ThemeAttribute.Border];
 
         Children = new Drawable[]
         {
             new Box
             {
-                Colour = ThemeManager.Current[ThemeAttribute.Darker],
+                Colour = ThemeManager.Current[ThemeAttribute.Dark],
                 RelativeSizeAxes = Axes.Both
             },
             new Container
@@ -80,7 +80,7 @@ public partial class RunScreenFooter : Container
                         Origin = Anchor.CentreRight,
                         RelativeSizeAxes = Axes.Both,
                         Direction = FillDirection.Horizontal,
-                        Spacing = new Vector2(7, 0),
+                        Spacing = new Vector2(8, 0),
                         Children = new Drawable[]
                         {
                             new Container
@@ -132,11 +132,11 @@ public partial class RunScreenFooter : Container
 
     protected override void LoadComplete()
     {
-        gameManager.State.BindValueChanged(_ =>
+        gameManager.State.BindValueChanged(_ => Schedule(() =>
         {
             restartButton.Enabled.Value = gameManager.State.Value == GameManagerState.Started;
             stopButton.Enabled.Value = gameManager.State.Value == GameManagerState.Started;
             startButton.Enabled.Value = gameManager.State.Value == GameManagerState.Stopped;
-        }, true);
+        }), true);
     }
 }

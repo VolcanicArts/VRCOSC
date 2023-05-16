@@ -58,7 +58,7 @@ public partial class ChatBoxScreen : Container
                                 Anchor = Anchor.TopCentre,
                                 Origin = Anchor.TopCentre,
                                 RelativeSizeAxes = Axes.Both
-                            },
+                            }
                         },
                         null,
                         new Drawable[]
@@ -67,10 +67,8 @@ public partial class ChatBoxScreen : Container
                             {
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
-                                RelativeSizeAxes = Axes.Both,
-                                Width = 0.2f,
-                                Masking = true,
-                                CornerRadius = 10
+                                RelativeSizeAxes = Axes.Y,
+                                Width = 300,
                             }
                         },
                         null,

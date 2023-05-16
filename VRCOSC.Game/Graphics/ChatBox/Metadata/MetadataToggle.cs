@@ -24,6 +24,8 @@ public partial class MetadataToggle : Container
         AutoSizeAxes = Axes.Y;
         Masking = true;
         CornerRadius = 5;
+        BorderThickness = 2;
+        BorderColour = ThemeManager.Current[ThemeAttribute.Border];
 
         Children = new Drawable[]
         {
@@ -49,7 +51,7 @@ public partial class MetadataToggle : Container
                         Padding = new MarginPadding(2),
                         Child = new SpriteText
                         {
-                            Font = FrameworkFont.Regular.With(size: 22),
+                            Font = FrameworkFont.Regular.With(size: 18),
                             Text = Label,
                             Colour = ThemeManager.Current[ThemeAttribute.Text]
                         }
@@ -60,8 +62,6 @@ public partial class MetadataToggle : Container
                         Origin = Anchor.CentreRight,
                         RelativeSizeAxes = Axes.Both,
                         FillMode = FillMode.Fit,
-                        Masking = true,
-                        CornerRadius = 5,
                         Children = new Drawable[]
                         {
                             new ToggleButton
@@ -69,7 +69,12 @@ public partial class MetadataToggle : Container
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
                                 RelativeSizeAxes = Axes.Both,
-                                State = State
+                                State = State,
+                                Masking = true,
+                                CornerRadius = 5,
+                                BorderThickness = 2,
+                                BorderColour = ThemeManager.Current[ThemeAttribute.Border],
+                                ShouldAnimate = false
                             }
                         }
                     }

@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -9,6 +8,7 @@ using osu.Framework.Graphics.Effects;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
+using osuTK;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Button;
 
@@ -34,7 +34,7 @@ public sealed partial class NotificationContainer : VisibilityContainer
 
         EdgeEffect = new EdgeEffectParameters
         {
-            Colour = Colour4.Black.Opacity(0.6f),
+            Colour = ThemeManager.Current[ThemeAttribute.Darker],
             Radius = 5f,
             Type = EdgeEffectType.Shadow
         };
@@ -65,6 +65,8 @@ public sealed partial class NotificationContainer : VisibilityContainer
                         Content = new FillFlowContainer
                         {
                             RelativeSizeAxes = Axes.Both,
+                            Padding = new MarginPadding(5),
+                            Spacing = new Vector2(0, 5),
                             Direction = FillDirection.Vertical
                         }
                     }
@@ -124,7 +126,7 @@ public sealed partial class NotificationContainer : VisibilityContainer
         protected override bool OnHover(HoverEvent e)
         {
             base.OnHover(e);
-            background.FadeColour(ThemeManager.Current[ThemeAttribute.Lighter], 100, Easing.OutQuad);
+            background.FadeColour(ThemeManager.Current[ThemeAttribute.Action], 100, Easing.OutQuad);
             return true;
         }
 

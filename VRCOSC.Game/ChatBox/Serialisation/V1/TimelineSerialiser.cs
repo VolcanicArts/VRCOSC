@@ -27,8 +27,6 @@ public class TimelineSerialiser : Serialiser<ChatBoxManager, SerialisableTimelin
     {
         chatBoxManager.Clips.Clear();
 
-        chatBoxManager.TimelineLength.Value = TimeSpan.FromTicks(data.Ticks);
-
         data.Clips.ForEach(clip =>
         {
             clip.AssociatedModules.ToImmutableList().ForEach(moduleName =>
@@ -89,5 +87,7 @@ public class TimelineSerialiser : Serialiser<ChatBoxManager, SerialisableTimelin
 
             chatBoxManager.Clips.Add(newClip);
         });
+
+        chatBoxManager.SetTimelineLength(TimeSpan.FromTicks(data.Ticks));
     }
 }

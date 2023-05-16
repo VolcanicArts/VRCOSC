@@ -2,12 +2,14 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Pooling;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Logging;
 using VRCOSC.Game.Graphics.Themes;
+using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.Graphics.Run;
 
@@ -21,6 +23,9 @@ public sealed partial class TerminalContainer : Container<TerminalEntry>
 
     private readonly DrawablePool<TerminalEntry> terminalEntryPool = new(terminal_entry_count);
 
+    [Resolved]
+    private GameManager gameManager { get; set; } = null!;
+
     public TerminalContainer()
     {
         InternalChildren = new Drawable[]
@@ -28,27 +33,30 @@ public sealed partial class TerminalContainer : Container<TerminalEntry>
             new Box
             {
                 RelativeSizeAxes = Axes.Both,
-                Colour = ThemeManager.Current[ThemeAttribute.Darker]
+                Colour = ThemeManager.Current[ThemeAttribute.Dark]
             },
             new Container
             {
                 RelativeSizeAxes = Axes.Both,
-                Padding = new MarginPadding(3f),
+                Padding = new MarginPadding(2),
                 Child = terminalScroll = new BasicScrollContainer
                 {
                     RelativeSizeAxes = Axes.Both,
                     ScrollbarVisible = false,
                     ClampExtension = 0,
-                    Child = Content = new FillFlowContainer<TerminalEntry>
+                    ScrollContent =
                     {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        RelativeSizeAxes = Axes.X,
-                        AutoSizeAxes = Axes.Y,
-                        Direction = FillDirection.Vertical,
-                        Padding = new MarginPadding
+                        Child = Content = new FillFlowContainer<TerminalEntry>
                         {
-                            Horizontal = 3
+                            Anchor = Anchor.TopCentre,
+                            Origin = Anchor.TopCentre,
+                            RelativeSizeAxes = Axes.X,
+                            AutoSizeAxes = Axes.Y,
+                            Direction = FillDirection.Vertical,
+                            Padding = new MarginPadding
+                            {
+                                Horizontal = 3
+                            }
                         }
                     }
                 }
@@ -65,6 +73,11 @@ public sealed partial class TerminalContainer : Container<TerminalEntry>
             if (logEntry.LoggerName == "terminal")
                 log(logEntry.Message);
         };
+
+        gameManager.State.BindValueChanged(e =>
+        {
+            if (e.NewValue == GameManagerState.Starting) Reset();
+        });
     }
 
     public void Reset()

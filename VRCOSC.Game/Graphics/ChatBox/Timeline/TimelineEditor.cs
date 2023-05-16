@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using osu.Framework.Allocation;
-using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -14,6 +13,7 @@ using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.Graphics.ChatBox.Timeline.Menu.Clip;
 using VRCOSC.Game.Graphics.ChatBox.Timeline.Menu.Layer;
 using VRCOSC.Game.Graphics.Themes;
+using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.Graphics.ChatBox.Timeline;
@@ -33,9 +33,9 @@ public partial class TimelineEditor : Container
     [Resolved]
     private TimelineClipMenu clipMenu { get; set; } = null!;
 
-    private const int grid_line_width = 3;
+    private const int grid_line_width = 2;
 
-    private Dictionary<int, TimelineLayer> layers = new();
+    private readonly Dictionary<int, TimelineLayer> layers = new();
     private Container gridGenerator = null!;
     private Container positionIndicator = null!;
     private GridContainer layerContainer = null!;

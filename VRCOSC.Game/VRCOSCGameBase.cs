@@ -2,9 +2,11 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
+using osu.Framework.Configuration;
 using osu.Framework.IO.Stores;
 using osu.Framework.Platform;
 using VRCOSC.Game.Config;
@@ -20,6 +22,9 @@ public partial class VRCOSCGameBase : osu.Framework.Game
     private const string base_game_name = @"VRCOSC";
 #endif
 
+    [Resolved]
+    private GameHost host { get; set; } = null!;
+
     protected DependencyContainer DependencyContainer = null!;
     protected VRCOSCConfigManager ConfigManager = null!;
 
@@ -32,8 +37,13 @@ public partial class VRCOSCGameBase : osu.Framework.Game
     protected override IReadOnlyDependencyContainer CreateChildDependencies(IReadOnlyDependencyContainer parent)
         => DependencyContainer = new DependencyContainer(base.CreateChildDependencies(parent));
 
+    protected override IDictionary<FrameworkSetting, object> GetFrameworkConfigDefaults() => new Dictionary<FrameworkSetting, object>
+    {
+        { FrameworkSetting.FrameSync, FrameSync.VSync }
+    };
+
     [BackgroundDependencyLoader]
-    private void load(GameHost host, Storage storage)
+    private void load(Storage storage)
     {
         Resources.AddStore(new DllResourceStore(typeof(VRCOSCResources).Assembly));
 

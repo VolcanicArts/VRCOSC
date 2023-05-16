@@ -54,7 +54,7 @@ public partial class DrawableEvent : Container
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
                         RelativeSizeAxes = Axes.X,
-                        Height = 30,
+                        Height = 25,
                         Children = new Drawable[]
                         {
                             new Container
@@ -68,7 +68,10 @@ public partial class DrawableEvent : Container
                                     Anchor = Anchor.Centre,
                                     Origin = Anchor.Centre,
                                     RelativeSizeAxes = Axes.Both,
-                                    State = ClipEvent.Enabled.GetBoundCopy()
+                                    State = ClipEvent.Enabled.GetBoundCopy(),
+                                    BorderThickness = 2,
+                                    BorderColour = ThemeManager.Current[ThemeAttribute.Border],
+                                    ShouldAnimate = false
                                 }
                             },
                             new Container
@@ -81,7 +84,7 @@ public partial class DrawableEvent : Container
                                 {
                                     Anchor = Anchor.CentreLeft,
                                     Origin = Anchor.CentreLeft,
-                                    Font = FrameworkFont.Regular.With(size: 20),
+                                    Font = FrameworkFont.Regular.With(size: 18),
                                     Text = gameManager.ModuleManager.GetModuleName(ClipEvent.Module) + " - " + ClipEvent.Name + ":",
                                     Colour = ThemeManager.Current[ThemeAttribute.Text]
                                 }
@@ -93,11 +96,11 @@ public partial class DrawableEvent : Container
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
                         RelativeSizeAxes = Axes.X,
-                        Height = 30,
+                        Height = 25,
                         ColumnDimensions = new[]
                         {
                             new Dimension(),
-                            new Dimension(GridSizeMode.Absolute, 3),
+                            new Dimension(GridSizeMode.Absolute, 1),
                             new Dimension(GridSizeMode.Relative, 0.1f)
                         },
                         Content = new[]
@@ -112,7 +115,9 @@ public partial class DrawableEvent : Container
                                         RelativeSizeAxes = Axes.Both,
                                         Current = ClipEvent.Format.GetBoundCopy(),
                                         Masking = true,
-                                        CornerRadius = 5
+                                        CornerRadius = 5,
+                                        BorderThickness = 2,
+                                        BorderColour = ThemeManager.Current[ThemeAttribute.Border]
                                     }
                                 },
                                 null,
@@ -125,6 +130,8 @@ public partial class DrawableEvent : Container
                                         Text = ClipEvent.Length.Value.ToString(),
                                         Masking = true,
                                         CornerRadius = 5,
+                                        BorderThickness = 2,
+                                        BorderColour = ThemeManager.Current[ThemeAttribute.Border],
                                         PlaceholderText = "Length"
                                     }
                                 },

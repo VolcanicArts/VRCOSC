@@ -47,7 +47,7 @@ public partial class IntegerValueContainer : Container
                             FillMode = FillMode.Fit,
                             Icon = FontAwesome.Solid.AngleDoubleLeft,
                             Circular = true,
-                            BackgroundColour = ThemeManager.Current[ThemeAttribute.Darker],
+                            BackgroundColour = ThemeManager.Current[ThemeAttribute.Light],
                             Action = () => chatBoxManager.DecreaseTime(5)
                         },
                         new IconButton
@@ -58,7 +58,7 @@ public partial class IntegerValueContainer : Container
                             FillMode = FillMode.Fit,
                             Icon = FontAwesome.Solid.AngleLeft,
                             Circular = true,
-                            BackgroundColour = ThemeManager.Current[ThemeAttribute.Darker],
+                            BackgroundColour = ThemeManager.Current[ThemeAttribute.Light],
                             Action = () => chatBoxManager.DecreaseTime(1)
                         },
                         new IntegerDisplay(),
@@ -70,7 +70,7 @@ public partial class IntegerValueContainer : Container
                             FillMode = FillMode.Fit,
                             Icon = FontAwesome.Solid.AngleRight,
                             Circular = true,
-                            BackgroundColour = ThemeManager.Current[ThemeAttribute.Darker],
+                            BackgroundColour = ThemeManager.Current[ThemeAttribute.Light],
                             Action = () => chatBoxManager.IncreaseTime(1)
                         },
                         new IconButton
@@ -81,7 +81,7 @@ public partial class IntegerValueContainer : Container
                             FillMode = FillMode.Fit,
                             Icon = FontAwesome.Solid.AngleDoubleRight,
                             Circular = true,
-                            BackgroundColour = ThemeManager.Current[ThemeAttribute.Darker],
+                            BackgroundColour = ThemeManager.Current[ThemeAttribute.Light],
                             Action = () => chatBoxManager.IncreaseTime(5)
                         }
                     }

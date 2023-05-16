@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using osu.Framework.Graphics;
 
 namespace VRCOSC.Game;
 
@@ -54,4 +55,14 @@ public static class ArrayExtensions
         Array.Copy(source, destination, length);
         return destination;
     }
+}
+
+public static class Colour4Extensions
+{
+    public static Colour4 Invert(this Colour4 colour) => new(
+        1f - colour.R,
+        1f - colour.G,
+        1f - colour.B,
+        colour.A
+    );
 }

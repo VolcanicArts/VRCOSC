@@ -30,6 +30,8 @@ public partial class SelectedClipModuleSelector : Container
         RelativeSizeAxes = Axes.Both;
         Masking = true;
         CornerRadius = 10;
+        BorderThickness = 2;
+        BorderColour = ThemeManager.Current[ThemeAttribute.Border];
 
         Children = new Drawable[]
         {
@@ -60,7 +62,7 @@ public partial class SelectedClipModuleSelector : Container
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
                                 Text = "Select Modules",
-                                Font = FrameworkFont.Regular.With(size: 30),
+                                Font = FrameworkFont.Regular.With(size: 25),
                                 Colour = ThemeManager.Current[ThemeAttribute.Text]
                             }
                         },
@@ -72,12 +74,15 @@ public partial class SelectedClipModuleSelector : Container
                                 RelativeSizeAxes = Axes.Both,
                                 ClampExtension = 5,
                                 ScrollbarVisible = false,
-                                Child = moduleFlow = new FillFlowContainer<DrawableAssociatedModule>
+                                ScrollContent =
                                 {
-                                    RelativeSizeAxes = Axes.X,
-                                    AutoSizeAxes = Axes.Y,
-                                    Direction = FillDirection.Vertical,
-                                    Spacing = new Vector2(0, 5)
+                                    Child = moduleFlow = new FillFlowContainer<DrawableAssociatedModule>
+                                    {
+                                        RelativeSizeAxes = Axes.X,
+                                        AutoSizeAxes = Axes.Y,
+                                        Direction = FillDirection.Vertical,
+                                        Spacing = new Vector2(0, 2)
+                                    }
                                 }
                             }
                         }
