@@ -3,7 +3,7 @@
 # VRCOSC
 A modular OSC program creator and toolkit made for [VRChat](https://vrchat.com) built on top of the [osu!framework](https://github.com/ppy/osu-framework)
 
-<img src="https://github.com/VolcanicArts/VRCOSC/assets/29819296/fee865ce-2e0b-4128-9ab0-b3fc0e61f121" width=70% height=70%>
+<img src="https://github.com/VolcanicArts/VRCOSC/assets/29819296/7183cea4-5623-435e-b41c-d55c44c21ea4" width=70% height=70%>
 
 [![release version](https://img.shields.io/github/v/release/VolcanicArts/VRCOSC?style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/releases/latest)
 [![downloads](https://img.shields.io/github/downloads/VolcanicArts/VRCOSC/total?style=for-the-badge&label=Downloads%20Total)](https://github.com/VolcanicArts/VRCOSC/releases/latest)
@@ -15,6 +15,7 @@ A modular OSC program creator and toolkit made for [VRChat](https://vrchat.com) 
 [![discord](https://discordapp.com/api/guilds/1000862183963496519/widget.png?style=shield)](https://discord.gg/vj4brHyvT5)
 
 </div>
+
 
 VRCOSC is intended to act as a wrapper around VRChat's OSC system to make creating OSC programs easier, provide interfaces for other APIs and frameworks that might be useful to an OSC project, and act as a centralised source for useful OSC programs so that a user will only need to download a single application. Our framework supports developing your own modules to save you the trouble of having to setup everything yourself, as well as allowing other people to seamlessly use your module on their PC. Check out how to create a module [here](https://github.com/VolcanicArts/VRCOSC/wiki/Module-Creation).
 
