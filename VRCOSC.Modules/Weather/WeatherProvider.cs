@@ -16,6 +16,10 @@ public class WeatherProvider
     private readonly HttpClient httpClient = new();
     private readonly string apiKey;
 
+    private DateTimeOffset lastUpdate = DateTimeOffset.MinValue;
+    private string? lastLocation;
+    private Weather? weather;
+
     public WeatherProvider(string apiKey)
     {
         this.apiKey = apiKey;
@@ -23,6 +27,11 @@ public class WeatherProvider
 
     public async Task<Weather?> RetrieveFor(string location)
     {
+        if (lastUpdate + TimeSpan.FromMinutes(10) > DateTimeOffset.Now && location == lastLocation) return weather;
+
+        lastUpdate = DateTimeOffset.Now;
+        lastLocation = location;
+
         var currentUrl = string.Format(current_url_format, apiKey, location);
         var currentResponseData = await httpClient.GetAsync(new Uri(currentUrl));
         var currentResponseString = await currentResponseData.Content.ReadAsStringAsync();
@@ -50,6 +59,7 @@ public class WeatherProvider
         else
             currentResponse.ConditionString = conditionResponse?.Night ?? string.Empty;
 
-        return currentResponse;
+        weather = currentResponse;
+        return weather;
     }
 }
