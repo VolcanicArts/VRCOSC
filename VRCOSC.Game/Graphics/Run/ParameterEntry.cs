@@ -56,7 +56,7 @@ public sealed partial class ParameterEntry : Container
                     {
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,
-                        Font = FrameworkFont.Regular.With(size: 17),
+                        Font = new FontUsage("ArialUnicode", size: 18),
                         Colour = ThemeManager.Current[ThemeAttribute.SubText]
                     }
                 }

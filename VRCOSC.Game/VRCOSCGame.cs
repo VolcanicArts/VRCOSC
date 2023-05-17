@@ -58,6 +58,10 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     [BackgroundDependencyLoader]
     private void load()
     {
+        AddFont(Resources, @"Fonts/ArialUnicode/ArialUnicode");
+        // Forcibly load
+        new FontUsage("ArialUnicode");
+
         ThemeManager.VRCOSCTheme = ConfigManager.Get<VRCOSCTheme>(VRCOSCSetting.Theme);
 
         DependencyContainer.CacheAs(notificationContainer = new NotificationContainer());

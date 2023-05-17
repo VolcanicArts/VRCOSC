@@ -197,6 +197,7 @@ public partial class SelectedClipStateEditorContainer : Container
                             {
                                 Anchor = Anchor.CentreLeft,
                                 Origin = Anchor.CentreLeft,
+                                Font = FrameworkFont.Regular.With(size: 20),
                                 Text = "Show relevant states only (Based on enabled modules)",
                                 Colour = ThemeManager.Current[ThemeAttribute.SubText]
                             }
