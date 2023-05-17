@@ -19,19 +19,12 @@ public class SerialisationManager
         serialisers.Add(version, serialiser);
     }
 
-    public bool Deserialise()
+    public void Deserialise()
     {
-        var doesFileExist = false;
-
-        foreach (var (_, serialiser) in serialisers.OrderBy(pair => pair.Key))
-        {
-            if (serialiser.DoesFileExist()) doesFileExist = true;
-        }
-
-        if (!doesFileExist)
+        if (!serialisers.Values.Any(serialiser => serialiser.DoesFileExist()))
         {
             Serialise();
-            return false;
+            return;
         }
 
         foreach (var (version, serialiser) in serialisers.OrderBy(pair => pair.Key))
@@ -39,25 +32,30 @@ public class SerialisationManager
             if (!serialiser.TryGetVersion(out var foundVersion)) continue;
             if (version != foundVersion) continue;
 
-            return deserialise(serialiser);
+            deserialise(serialiser);
+            return;
         }
 
-        // If there are no valid versions found there's either no file OR there is a file with no version
-        // Attempt to deserialise using the 0th serialiser which is reserved for files from before the serialisation standardisation and latest serialiser
-
+        // Attempt to deserialise using the 0th serialiser which is reserved for files from before the serialisation standardisation
         // Note: 0th used for RouterManager migration
-        if (serialisers.TryGetValue(0, out var zerothSerialiser)) return deserialise(zerothSerialiser);
-        if (serialisers.TryGetValue(latestSerialiserVersion, out var latestSerialiser)) return deserialise(latestSerialiser);
+        if (serialisers.TryGetValue(0, out var zerothSerialiser))
+        {
+            deserialise(zerothSerialiser);
+            return;
+        }
 
-        return false;
+        // Since we've got to this point that means a file exists that has no version, or the file is corrupt
+        // As a last resort, attempt to deserialise with the latest serialiser. This also triggers the error notification
+        if (!serialisers.TryGetValue(latestSerialiserVersion, out var latestSerialiser)) return;
+
+        deserialise(latestSerialiser);
     }
 
-    private bool deserialise(ISerialiser serialiser)
+    private void deserialise(ISerialiser serialiser)
     {
-        if (!serialiser.Deserialise()) return false;
+        if (!serialiser.Deserialise()) return;
 
         Serialise();
-        return true;
     }
 
     public bool Serialise() => serialisers[latestSerialiserVersion].Serialise();

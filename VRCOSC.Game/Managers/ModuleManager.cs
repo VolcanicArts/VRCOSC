@@ -18,7 +18,7 @@ using VRCOSC.Game.Serialisation;
 
 namespace VRCOSC.Game.Managers;
 
-public sealed class ModuleManager : IEnumerable<Module>, ICanSerialise
+public sealed class ModuleManager : IEnumerable<Module>
 {
     private static TerminalLogger terminal => new("ModuleManager");
 

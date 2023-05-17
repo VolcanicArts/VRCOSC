@@ -17,7 +17,7 @@ using VRCOSC.Game.Serialisation;
 
 namespace VRCOSC.Game.Managers;
 
-public class ChatBoxManager : ICanSerialise
+public class ChatBoxManager
 {
     private bool sendEnabled;
 

@@ -11,7 +11,7 @@ using VRCOSC.Game.Serialisation;
 
 namespace VRCOSC.Game.Managers;
 
-public class RouterManager : ICanSerialise
+public class RouterManager
 {
     public BindableList<RouterData> Store = new();
 

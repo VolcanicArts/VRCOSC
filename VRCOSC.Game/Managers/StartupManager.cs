@@ -15,7 +15,7 @@ using VRCOSC.Game.Startup.Serialisation.V1;
 
 namespace VRCOSC.Game.Managers;
 
-public class StartupManager : ICanSerialise
+public class StartupManager
 {
     private readonly TerminalLogger logger = new("VRCOSC");
     private readonly SerialisationManager serialisationManager;
