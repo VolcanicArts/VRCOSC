@@ -228,8 +228,12 @@ public class Clip
             if (!chatBoxManager.ModuleEnabledCache[clipVariable.Module]) return;
 
             chatBoxManager.VariableValues.TryGetValue((clipVariable.Module, clipVariable.Lookup), out var variableValue);
-
             returnText = returnText.Replace(clipVariable.DisplayableFormat, variableValue ?? string.Empty);
+
+            chatBoxManager.VariableValues.Where(pair => pair.Key.Item2.StartsWith($"{clipVariable.Lookup}_")).ForEach(pair =>
+            {
+                returnText = returnText.Replace(clipVariable.DisplayableFormatWithSuffix(pair.Key.Item2.Split('_').Last()), pair.Value);
+            });
         });
 
         return returnText;

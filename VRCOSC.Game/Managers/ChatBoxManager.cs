@@ -247,9 +247,10 @@ public class ChatBoxManager
         VariableMetadata[module][lookup] = variableMetadata;
     }
 
-    public void SetVariable(string module, string lookup, string? value)
+    public void SetVariable(string module, string lookup, string? value, string suffix)
     {
-        VariableValues[(module, lookup)] = value;
+        var finalLookup = string.IsNullOrEmpty(suffix) ? lookup : $"{lookup}_{suffix}";
+        VariableValues[(module, finalLookup)] = value;
     }
 
     public void RegisterState(string module, string lookup, string name, string defaultFormat)
