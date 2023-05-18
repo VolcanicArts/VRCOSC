@@ -313,7 +313,7 @@ public abstract class Module : IComparable<Module>
 
         try
         {
-            lookup = Parameters.Single(pair => pair.Value.Name == data.ParameterName).Key;
+            lookup = Parameters.Single(pair => pair.Value.ParameterName == data.ParameterName).Key;
         }
         catch (InvalidOperationException)
         {
