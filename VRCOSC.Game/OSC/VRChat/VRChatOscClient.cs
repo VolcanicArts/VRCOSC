@@ -22,7 +22,7 @@ public class VRChatOscClient : OscClient
 
             if (!data.Values.Any()) return;
 
-            OnParameterReceived?.Invoke(new VRChatOscData(data));
+            OnParameterReceived?.Invoke(data);
         };
     }
 
