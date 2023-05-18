@@ -16,7 +16,8 @@ public sealed class PulsoidModule : HeartRateModule
 
     protected override void CreateAttributes()
     {
-        CreateSetting(PulsoidSetting.AccessToken, @"Access Token", @"Your Pulsoid access token", string.Empty, @"Obtain Access Token", () => OpenUrlExternally(pulsoid_access_token_url));
+        //CreateSetting(PulsoidSetting.AccessToken, @"Access Token", @"Your Pulsoid access token", string.Empty, @"Obtain Access Token", () => OpenUrlExternally(pulsoid_access_token_url));
+        CreateSetting(PulsoidSetting.AccessToken, @"Access Token", @"Your Pulsoid access token", string.Empty);
         base.CreateAttributes();
     }
 

@@ -40,13 +40,13 @@ public class ModuleSerialiser : Serialiser<ModuleManager, SerialisableModuleMana
 
                 if (!module.DoesSettingExist(settingKey, out var setting)) return;
 
-                if (setting.Type.IsEnum)
+                if (setting.IsValueType<Enum>())
                 {
-                    setting.Attribute.Value = Enum.ToObject(setting.Type, settingValue);
+                    setting.SetValue(Enum.ToObject(setting.GetValueType(), settingValue));
                     return;
                 }
 
-                setting.Attribute.Value = Convert.ChangeType(settingValue, setting.Type);
+                setting.SetValue(settingValue);
             });
 
             moduleData.Parameters.ForEach(parameterPair =>
@@ -55,7 +55,7 @@ public class ModuleSerialiser : Serialiser<ModuleManager, SerialisableModuleMana
 
                 if (!module.DoesParameterExist(parameterKey, out var parameter)) return;
 
-                parameter.Attribute.Value = Convert.ChangeType(parameterValue, parameter.Type);
+                parameter.SetValue(parameterValue);
             });
         });
     }

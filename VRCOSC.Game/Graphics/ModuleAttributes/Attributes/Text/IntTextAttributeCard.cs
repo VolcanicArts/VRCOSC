@@ -5,15 +5,13 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Text;
-using VRCOSC.Game.Modules;
+using VRCOSC.Game.Modules.Attributes;
 
 namespace VRCOSC.Game.Graphics.ModuleAttributes.Attributes.Text;
 
-public partial class TextAttributeCard<TTextBox, TType> : AttributeCard where TTextBox : ValidationTextBox<TType>, new()
+public partial class IntTextAttributeCard : AttributeCard<ModuleIntAttribute>
 {
-    private TTextBox textBox = null!;
-
-    public TextAttributeCard(ModuleAttribute attributeData)
+    public IntTextAttributeCard(ModuleIntAttribute attributeData)
         : base(attributeData)
     {
     }
@@ -21,7 +19,7 @@ public partial class TextAttributeCard<TTextBox, TType> : AttributeCard where TT
     [BackgroundDependencyLoader]
     private void load()
     {
-        Add(textBox = new TTextBox
+        Add(new IntTextBox
         {
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
@@ -31,19 +29,8 @@ public partial class TextAttributeCard<TTextBox, TType> : AttributeCard where TT
             CornerRadius = 5,
             BorderColour = ThemeManager.Current[ThemeAttribute.Border],
             BorderThickness = 2,
-            Text = AttributeData.Attribute.Value.ToString()
+            Text = AttributeData.Attribute.Value.ToString(),
+            ValidCurrent = AttributeData.Attribute.GetBoundCopy()
         });
-    }
-
-    protected override void LoadComplete()
-    {
-        base.LoadComplete();
-        textBox.OnValidEntry += entry => UpdateAttribute(entry!);
-    }
-
-    protected override void SetDefault()
-    {
-        base.SetDefault();
-        textBox.Current.Value = AttributeData.Attribute.Value.ToString();
     }
 }

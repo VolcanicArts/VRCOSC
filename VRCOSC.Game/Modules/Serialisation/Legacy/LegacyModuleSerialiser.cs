@@ -90,7 +90,7 @@ public class LegacyModuleSerialiser
 
             var setting = module.Settings[lookup];
 
-            var readableTypeName = setting.Attribute.Value.GetType().ToReadableName().ToLowerInvariant();
+            var readableTypeName = setting.GetValueType().ToReadableName().ToLowerInvariant();
             if (!readableTypeName.Equals(typeStr)) continue;
 
             switch (typeStr)
@@ -99,23 +99,23 @@ public class LegacyModuleSerialiser
                     var typeAndValue = value.Split(new[] { '#' }, 2);
                     var enumName = typeAndValue[0].Split('+')[1];
                     var enumType = enumNameToType(enumName);
-                    if (enumType is not null) setting.Attribute.Value = Enum.ToObject(enumType, int.Parse(typeAndValue[1]));
+                    if (enumType is not null) setting.SetValue(Enum.ToObject(enumType, int.Parse(typeAndValue[1])));
                     break;
 
                 case "string":
-                    setting.Attribute.Value = value;
+                    setting.SetValue(value);
                     break;
 
                 case "int":
-                    setting.Attribute.Value = int.Parse(value);
+                    setting.SetValue(int.Parse(value));
                     break;
 
                 case "float":
-                    setting.Attribute.Value = float.Parse(value);
+                    setting.SetValue(float.Parse(value));
                     break;
 
                 case "bool":
-                    setting.Attribute.Value = bool.Parse(value);
+                    setting.SetValue(bool.Parse(value));
                     break;
 
                 default:
@@ -138,7 +138,7 @@ public class LegacyModuleSerialiser
             if (!module.ParametersLookup.ContainsKey(lookup)) continue;
 
             var parameter = module.Parameters[module.ParametersLookup[lookup]];
-            parameter.Attribute.Value = value;
+            parameter.SetValue(value);
         }
     }
 
@@ -182,16 +182,16 @@ public class LegacyModuleSerialiser
 
     private static void performSettingsSave(TextWriter writer, Module module)
     {
-        var areAllDefault = module.Settings.All(pair => pair.Value.Attribute.IsDefault);
+        var areAllDefault = module.Settings.All(pair => pair.Value.IsDefault());
         if (areAllDefault) return;
 
         writer.WriteLine(@"#Settings");
 
         foreach (var (lookup, moduleAttributeData) in module.Settings)
         {
-            if (moduleAttributeData.Attribute.IsDefault) continue;
+            if (moduleAttributeData.IsDefault()) continue;
 
-            var value = moduleAttributeData.Attribute.Value;
+            var value = moduleAttributeData.GetSerialisableValue();
             var valueType = value.GetType();
             var readableTypeName = valueType.ToReadableName().ToLowerInvariant();
 
@@ -211,16 +211,16 @@ public class LegacyModuleSerialiser
 
     private static void performParametersSave(TextWriter writer, Module module)
     {
-        var areAllDefault = module.Parameters.All(pair => pair.Value.Attribute.IsDefault);
+        var areAllDefault = module.Parameters.All(pair => pair.Value.IsDefault());
         if (areAllDefault) return;
 
         writer.WriteLine(@"#Parameters");
 
         foreach (var (lookup, parameterAttribute) in module.Parameters)
         {
-            if (parameterAttribute.Attribute.IsDefault) continue;
+            if (parameterAttribute.IsDefault()) continue;
 
-            var value = parameterAttribute.Attribute.Value;
+            var value = parameterAttribute.GetSerialisableValue();
             writer.WriteLine(@"{0}={1}", lookup.ToLookup(), value);
         }
 

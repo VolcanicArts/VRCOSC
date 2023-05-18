@@ -1,18 +1,18 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Globalization;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
-using osuTK;
 using VRCOSC.Game.Graphics.Themes;
-using VRCOSC.Game.Graphics.UI.Button;
+using VRCOSC.Game.Graphics.UI.Text;
 using VRCOSC.Game.Modules.Attributes;
 
-namespace VRCOSC.Game.Graphics.ModuleAttributes.Attributes.Toggle;
+namespace VRCOSC.Game.Graphics.ModuleAttributes.Attributes.Text;
 
-public sealed partial class ToggleAttributeCard : AttributeCard<ModuleToggleAttribute>
+public partial class FloatTextAttributeCard : AttributeCard<ModuleFloatAttribute>
 {
-    public ToggleAttributeCard(ModuleToggleAttribute attributeData)
+    public FloatTextAttributeCard(ModuleFloatAttribute attributeData)
         : base(attributeData)
     {
     }
@@ -20,16 +20,18 @@ public sealed partial class ToggleAttributeCard : AttributeCard<ModuleToggleAttr
     [BackgroundDependencyLoader]
     private void load()
     {
-        Add(new ToggleButton
+        Add(new FloatTextBox
         {
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
-            Size = new Vector2(35),
-            CornerRadius = 10,
+            RelativeSizeAxes = Axes.X,
+            Height = 30,
+            Masking = true,
+            CornerRadius = 5,
             BorderColour = ThemeManager.Current[ThemeAttribute.Border],
             BorderThickness = 2,
-            ShouldAnimate = false,
-            State = AttributeData.Attribute.GetBoundCopy()
+            Text = AttributeData.Attribute.Value.ToString(CultureInfo.CurrentCulture),
+            ValidCurrent = AttributeData.Attribute.GetBoundCopy()
         });
     }
 }

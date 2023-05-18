@@ -6,15 +6,13 @@ using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using VRCOSC.Game.Graphics.UI;
-using VRCOSC.Game.Modules;
+using VRCOSC.Game.Modules.Attributes;
 
 namespace VRCOSC.Game.Graphics.ModuleAttributes.Attributes.Dropdown;
 
-public sealed partial class DropdownAttributeCard<T> : AttributeCard where T : Enum
+public sealed partial class DropdownAttributeCard<T> : AttributeCard<ModuleEnumAttribute<T>> where T : Enum
 {
-    private VRCOSCDropdown<T> dropdown = null!;
-
-    public DropdownAttributeCard(ModuleAttribute attributeData)
+    public DropdownAttributeCard(ModuleEnumAttribute<T> attributeData)
         : base(attributeData)
     {
     }
@@ -22,25 +20,13 @@ public sealed partial class DropdownAttributeCard<T> : AttributeCard where T : E
     [BackgroundDependencyLoader]
     private void load()
     {
-        Add(dropdown = new VRCOSCDropdown<T>
+        Add(new VRCOSCDropdown<T>
         {
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
             RelativeSizeAxes = Axes.X,
             Items = Enum.GetValues(typeof(T)).Cast<T>(),
-            Current = { Value = (T)AttributeData.Attribute.Value }
+            Current = AttributeData.Attribute.GetBoundCopy()
         });
-    }
-
-    protected override void LoadComplete()
-    {
-        base.LoadComplete();
-        dropdown.Current.ValueChanged += e => UpdateAttribute(e.NewValue);
-    }
-
-    protected override void SetDefault()
-    {
-        base.SetDefault();
-        dropdown.Current.Value = (T)AttributeData.Attribute.Value;
     }
 }

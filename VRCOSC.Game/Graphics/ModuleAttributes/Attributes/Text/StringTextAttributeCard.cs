@@ -3,16 +3,15 @@
 
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
-using osuTK;
 using VRCOSC.Game.Graphics.Themes;
-using VRCOSC.Game.Graphics.UI.Button;
+using VRCOSC.Game.Graphics.UI.Text;
 using VRCOSC.Game.Modules.Attributes;
 
-namespace VRCOSC.Game.Graphics.ModuleAttributes.Attributes.Toggle;
+namespace VRCOSC.Game.Graphics.ModuleAttributes.Attributes.Text;
 
-public sealed partial class ToggleAttributeCard : AttributeCard<ModuleToggleAttribute>
+public partial class StringTextAttributeCard : AttributeCard<ModuleStringAttribute>
 {
-    public ToggleAttributeCard(ModuleToggleAttribute attributeData)
+    public StringTextAttributeCard(ModuleStringAttribute attributeData)
         : base(attributeData)
     {
     }
@@ -20,16 +19,18 @@ public sealed partial class ToggleAttributeCard : AttributeCard<ModuleToggleAttr
     [BackgroundDependencyLoader]
     private void load()
     {
-        Add(new ToggleButton
+        Add(new StringTextBox
         {
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
-            Size = new Vector2(35),
-            CornerRadius = 10,
+            RelativeSizeAxes = Axes.X,
+            Height = 30,
+            Masking = true,
+            CornerRadius = 5,
             BorderColour = ThemeManager.Current[ThemeAttribute.Border],
             BorderThickness = 2,
-            ShouldAnimate = false,
-            State = AttributeData.Attribute.GetBoundCopy()
+            Text = AttributeData.Attribute.Value,
+            ValidCurrent = AttributeData.Attribute.GetBoundCopy()
         });
     }
 }
