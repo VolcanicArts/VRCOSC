@@ -272,8 +272,6 @@ public class Clip
 
     private void addStatesOfAddedModules(NotifyCollectionChangedEventArgs e)
     {
-        var checkDefaultState = !States.Any() && e.NewItems!.Count == 1;
-
         foreach (string moduleName in e.NewItems!)
         {
             var currentStateCopy = States.Select(clipState => clipState.Copy()).ToList();
@@ -290,12 +288,6 @@ public class Clip
 
                 States.AddRange(localCurrentStatesCopy);
                 States.Add(new ClipState(newStateMetadata));
-            }
-
-            if (checkDefaultState)
-            {
-                var defaultState = GetStateFor(moduleName, @"default");
-                if (defaultState is not null) defaultState.Enabled.Value = true;
             }
         }
     }
