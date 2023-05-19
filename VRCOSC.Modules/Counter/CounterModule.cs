@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using VRCOSC.Game.Modules.Attributes;
 using VRCOSC.Game.Modules.ChatBox;
 using VRCOSC.Game.OSC.VRChat;
 
@@ -30,13 +31,7 @@ public class CounterModule : ChatBoxModule
     protected override void CreateAttributes()
     {
         CreateSetting(CounterSetting.ResetOnAvatarChange, "Reset On Avatar Change", "Should the counter reset on avatar change?", false);
-
-        CreateSetting(CounterSetting.ParameterList, new ModuleNameParameterPairAttribute
-        {
-            Name = "Parameter List",
-            Description = "What parameters should be monitored for them becoming true?\nCounts can be accessed in the ChatBox using: {counter.value_Key}",
-            Default = new List<NameParameterPair>()
-        });
+        CreateSetting(CounterSetting.ParameterList, "Parameter List", "What parameters should be monitored for them becoming true?\nCounts can be accessed in the ChatBox using: {counter.value_Key}", new List<MutableKeyValuePair>(), "Key", "Parameter Name");
 
         CreateVariable(CounterVariable.Value, "Value", "value");
 
@@ -59,11 +54,11 @@ public class CounterModule : ChatBoxModule
     {
         counts.Clear();
 
-        GetSettingList<NameParameterPair>(CounterSetting.ParameterList).ForEach(pair =>
+        GetSettingList<MutableKeyValuePair>(CounterSetting.ParameterList).ForEach(pair =>
         {
-            if (string.IsNullOrEmpty(pair.Key.Value) || string.IsNullOrEmpty(pair.Parameter.Value)) return;
+            if (string.IsNullOrEmpty(pair.Key.Value) || string.IsNullOrEmpty(pair.Value.Value)) return;
 
-            counts.Add(pair.Parameter.Value, new CountInstance(pair.Key.Value, 0));
+            counts.Add(pair.Value.Value, new CountInstance(pair.Key.Value, 0));
             SetVariableValue(CounterVariable.Value, "0", pair.Key.Value);
         });
     }

@@ -173,6 +173,19 @@ public class ModuleStringListAttribute : ModuleAttributePrimitiveList<string>
     protected override IEnumerable<Bindable<string>> GetClonedDefaults() => Default.Select(defaultValue => defaultValue.GetUnboundCopy()).ToList();
 }
 
+public class MutableKeyValuePairListAttribute : ModuleAttributeList<MutableKeyValuePair>
+{
+    public required string KeyPlaceholder { internal get; init; }
+    public required string ValuePlaceholder { internal get; init; }
+
+    public override Drawable GetAssociatedCard() => new MutableKeyValuePairListAttributeCard(this);
+    public override bool IsDefault() => Attribute.Count == Default.Count && !Attribute.Where((t, i) => !t.Equals(Default.ElementAt(i))).Any();
+
+    protected override BindableList<MutableKeyValuePair> CreateBindableList() => new(Default);
+    protected override IEnumerable<MutableKeyValuePair> JArrayToType(JArray array) => array.Select(value => new MutableKeyValuePair(value.ToObject<MutableKeyValuePair>()!)).ToList();
+    protected override IEnumerable<MutableKeyValuePair> GetClonedDefaults() => Default.Select(defaultValue => new MutableKeyValuePair(defaultValue)).ToList();
+}
+
 public class ModuleParameter : ModuleStringAttribute
 {
     public required ParameterMode Mode { internal get; init; }

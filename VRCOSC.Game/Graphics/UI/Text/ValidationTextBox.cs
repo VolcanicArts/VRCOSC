@@ -31,7 +31,7 @@ public abstract partial class ValidationTextBox<T> : VRCOSCTextBox
             FillMode = FillMode.Fit
         });
 
-        ValidCurrent?.BindValueChanged(e => Current.Value = e.NewValue?.ToString());
+        ValidCurrent?.BindValueChanged(e => Current.Value = e.NewValue?.ToString(), true);
 
         Current.BindValueChanged(e =>
         {

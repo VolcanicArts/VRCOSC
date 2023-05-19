@@ -152,6 +152,17 @@ public abstract class Module : IComparable<Module>
             DependsOn = dependsOn
         });
 
+    protected void CreateSetting(Enum lookup, string displayName, string description, List<MutableKeyValuePair> defaultValue, string keyPlaceholder, string valuePlaceholder, Func<bool>? dependsOn = null)
+        => Settings.Add(lookup.ToLookup(), new MutableKeyValuePairListAttribute
+        {
+            Name = displayName,
+            Description = description,
+            Default = defaultValue,
+            DependsOn = dependsOn,
+            KeyPlaceholder = keyPlaceholder,
+            ValuePlaceholder = valuePlaceholder
+        });
+
     protected void CreateSetting(Enum lookup, string displayName, string description, int defaultValue, int minValue, int maxValue, Func<bool>? dependsOn = null)
         => Settings.Add(lookup.ToLookup(), new ModuleIntRangeAttribute
         {
