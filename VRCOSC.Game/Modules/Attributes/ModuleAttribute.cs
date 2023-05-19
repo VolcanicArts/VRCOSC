@@ -83,6 +83,13 @@ public class ModuleStringAttribute : ModuleAttribute<string>
     public override Drawable GetAssociatedCard() => new StringTextAttributeCard(this);
 }
 
+public class ModuleStringWithButtonAttribute : ModuleStringAttribute
+{
+    public required string ButtonText { internal get; init; }
+    public required Action ButtonCallback { internal get; init; }
+    public override Drawable GetAssociatedCard() => new StringTextWithButtonAttributeCard(this);
+}
+
 public class ModuleEnumAttribute<T> : ModuleAttribute<T> where T : Enum
 {
     public override T Value => Attribute.Value;

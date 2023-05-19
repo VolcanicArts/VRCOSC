@@ -123,6 +123,17 @@ public abstract class Module : IComparable<Module>
             DependsOn = dependsOn
         });
 
+    protected void CreateSetting(Enum lookup, string displayName, string description, string defaultValue, string buttonText, Action buttonCallback, Func<bool>? dependsOn = null)
+        => Settings.Add(lookup.ToLookup(), new ModuleStringWithButtonAttribute
+        {
+            Name = displayName,
+            Description = description,
+            Default = defaultValue,
+            DependsOn = dependsOn,
+            ButtonText = buttonText,
+            ButtonCallback = buttonCallback
+        });
+
     protected void CreateSetting<T>(Enum lookup, string displayName, string description, T defaultValue, Func<bool>? dependsOn = null) where T : Enum
         => Settings.Add(lookup.ToLookup(), new ModuleEnumAttribute<T>
         {
