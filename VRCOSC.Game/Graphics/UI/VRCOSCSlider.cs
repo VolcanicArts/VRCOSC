@@ -16,7 +16,7 @@ public sealed partial class VRCOSCSlider<T> : BasicSliderBar<T> where T : struct
     public VRCOSCSlider()
     {
         BackgroundColour = ThemeManager.Current[ThemeAttribute.Dark];
-        SelectionColour = ThemeManager.Current[ThemeAttribute.Lighter];
+        SelectionColour = ThemeManager.Current[ThemeAttribute.Light];
         Masking = true;
         CornerRadius = 5;
         BorderThickness = 2;

@@ -76,7 +76,7 @@ public class CounterModule : ChatBoxModule
         if (counts.TryGetValue(parameterName, out var value))
         {
             value.Count++;
-            SetVariableValue(CounterVariable.Value, value.Count.ToString(), value.Key);
+            SetVariableValue(CounterVariable.Value, value.Count.ToString("N0"), value.Key);
             TriggerEvent(CounterEvent.Changed);
         }
     }
