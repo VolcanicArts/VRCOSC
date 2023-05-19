@@ -14,11 +14,11 @@ using VRCOSC.Game.Modules.Attributes;
 
 namespace VRCOSC.Game.Graphics.ModuleAttributes.Attributes;
 
-public abstract partial class AttributeCardList<T> : AttributeCard<ModuleAttributeList<T>>
+public abstract partial class AttributeCardList<TAttribute, TInstance> : AttributeCard<TAttribute> where TAttribute : ModuleAttributeList<TInstance>
 {
     private FillFlowContainer listFlow = null!;
 
-    protected AttributeCardList(ModuleAttributeList<T> attributeData)
+    protected AttributeCardList(TAttribute attributeData)
         : base(attributeData)
     {
     }
@@ -51,7 +51,7 @@ public abstract partial class AttributeCardList<T> : AttributeCard<ModuleAttribu
     {
         if (e.NewItems is not null)
         {
-            foreach (T newInstance in e.NewItems)
+            foreach (TInstance newInstance in e.NewItems)
             {
                 OnInstanceAdd(newInstance);
             }
@@ -156,6 +156,6 @@ public abstract partial class AttributeCardList<T> : AttributeCard<ModuleAttribu
         AttributeData.Attribute.CollectionChanged -= attributeOnCollectionChanged;
     }
 
-    protected abstract void OnInstanceAdd(T instance);
-    protected abstract T CreateInstance();
+    protected abstract void OnInstanceAdd(TInstance instance);
+    protected abstract TInstance CreateInstance();
 }

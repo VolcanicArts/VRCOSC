@@ -9,9 +9,9 @@ using VRCOSC.Game.Modules.Attributes;
 
 namespace VRCOSC.Game.Graphics.ModuleAttributes.Attributes.Text;
 
-public partial class ListStringTextAttributeCard : AttributeCardList<Bindable<string>>
+public partial class StringTextAttributeCardList : AttributeCardList<ModuleStringListAttribute, Bindable<string>>
 {
-    public ListStringTextAttributeCard(ModuleAttributeList<Bindable<string>> attributeData)
+    public StringTextAttributeCardList(ModuleStringListAttribute attributeData)
         : base(attributeData)
     {
     }

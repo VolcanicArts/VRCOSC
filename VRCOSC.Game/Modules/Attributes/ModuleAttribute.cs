@@ -166,7 +166,7 @@ public abstract class ModuleAttributePrimitiveList<T> : ModuleAttributeList<Bind
 
 public class ModuleStringListAttribute : ModuleAttributePrimitiveList<string>
 {
-    public override Drawable GetAssociatedCard() => new ListStringTextAttributeCard(this);
+    public override Drawable GetAssociatedCard() => new StringTextAttributeCardList(this);
     public override bool IsDefault() => Attribute.Count == Default.Count && !Attribute.Where((t, i) => !t.Value.Equals(Default.ElementAt(i).Value)).Any();
 
     protected override BindableList<Bindable<string>> CreateBindableList() => new(Default);
@@ -178,7 +178,7 @@ public class MutableKeyValuePairListAttribute : ModuleAttributeList<MutableKeyVa
     public required string KeyPlaceholder { internal get; init; }
     public required string ValuePlaceholder { internal get; init; }
 
-    public override Drawable GetAssociatedCard() => new MutableKeyValuePairListAttributeCard(this);
+    public override Drawable GetAssociatedCard() => new MutableKeyValuePairAttributeCardList(this);
     public override bool IsDefault() => Attribute.Count == Default.Count && !Attribute.Where((t, i) => !t.Equals(Default.ElementAt(i))).Any();
 
     protected override BindableList<MutableKeyValuePair> CreateBindableList() => new(Default);

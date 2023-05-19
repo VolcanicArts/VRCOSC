@@ -9,14 +9,11 @@ using VRCOSC.Game.Modules.Attributes;
 
 namespace VRCOSC.Game.Graphics.ModuleAttributes.Attributes.Text;
 
-public partial class MutableKeyValuePairListAttributeCard : AttributeCardList<MutableKeyValuePair>
+public partial class MutableKeyValuePairAttributeCardList : AttributeCardList<MutableKeyValuePairListAttribute, MutableKeyValuePair>
 {
-    private MutableKeyValuePairListAttribute localAttributeData;
-
-    public MutableKeyValuePairListAttributeCard(MutableKeyValuePairListAttribute attributeData)
+    public MutableKeyValuePairAttributeCardList(MutableKeyValuePairListAttribute attributeData)
         : base(attributeData)
     {
-        localAttributeData = attributeData;
     }
 
     protected override void OnInstanceAdd(MutableKeyValuePair instance)
@@ -52,7 +49,7 @@ public partial class MutableKeyValuePairListAttributeCard : AttributeCardList<Mu
                         BorderColour = ThemeManager.Current[ThemeAttribute.Border],
                         BorderThickness = 2,
                         ValidCurrent = instance.Key.GetBoundCopy(),
-                        PlaceholderText = localAttributeData.KeyPlaceholder
+                        PlaceholderText = AttributeData.KeyPlaceholder
                     },
                     null,
                     new StringTextBox
@@ -66,7 +63,7 @@ public partial class MutableKeyValuePairListAttributeCard : AttributeCardList<Mu
                         BorderColour = ThemeManager.Current[ThemeAttribute.Border],
                         BorderThickness = 2,
                         ValidCurrent = instance.Value.GetBoundCopy(),
-                        PlaceholderText = localAttributeData.ValuePlaceholder
+                        PlaceholderText = AttributeData.ValuePlaceholder
                     }
                 }
             }
