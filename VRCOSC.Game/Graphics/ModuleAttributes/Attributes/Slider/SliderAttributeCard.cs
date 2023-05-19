@@ -26,7 +26,7 @@ public abstract partial class SliderAttributeCard<TValue, TAttribute> : Attribut
             Origin = Anchor.TopCentre,
             RelativeSizeAxes = Axes.X,
             Height = 30,
-            Current = CreateCurrent().GetBoundCopy()
+            RoudedCurrent = CreateCurrent().GetBoundCopy()
         });
     }
 
