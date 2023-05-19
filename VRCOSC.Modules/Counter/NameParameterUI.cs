@@ -49,7 +49,7 @@ public class ModuleNameParameterPairAttribute : ModuleAttributeList<NameParamete
     public override bool IsDefault() => Attribute.Count == Default.Count && !Attribute.Where((t, i) => !t.Equals(Default.ElementAt(i))).Any();
 
     protected override BindableList<NameParameterPair> GetBindable() => new(Default);
-    protected override IEnumerable<NameParameterPair> JArrayToValue(JArray array) => array.Select(value => new NameParameterPair(value.ToObject<NameParameterPair>()!)).ToList();
+    protected override IEnumerable<NameParameterPair> JArrayToType(JArray array) => array.Select(value => new NameParameterPair(value.ToObject<NameParameterPair>()!)).ToList();
     protected override IEnumerable<NameParameterPair> GetClonedDefaults() => Default.Select(defaultValue => new NameParameterPair(defaultValue)).ToList();
 }
 

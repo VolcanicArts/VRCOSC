@@ -99,23 +99,23 @@ public class LegacyModuleSerialiser
                     var typeAndValue = value.Split(new[] { '#' }, 2);
                     var enumName = typeAndValue[0].Split('+')[1];
                     var enumType = enumNameToType(enumName);
-                    if (enumType is not null) setting.SetValue(Enum.ToObject(enumType, int.Parse(typeAndValue[1])));
+                    if (enumType is not null) setting.DeserialiseValue(Enum.ToObject(enumType, int.Parse(typeAndValue[1])));
                     break;
 
                 case "string":
-                    setting.SetValue(value);
+                    setting.DeserialiseValue(value);
                     break;
 
                 case "int":
-                    setting.SetValue(int.Parse(value));
+                    setting.DeserialiseValue(int.Parse(value));
                     break;
 
                 case "float":
-                    setting.SetValue(float.Parse(value));
+                    setting.DeserialiseValue(float.Parse(value));
                     break;
 
                 case "bool":
-                    setting.SetValue(bool.Parse(value));
+                    setting.DeserialiseValue(bool.Parse(value));
                     break;
 
                 default:
@@ -138,7 +138,7 @@ public class LegacyModuleSerialiser
             if (!module.ParametersLookup.ContainsKey(lookup)) continue;
 
             var parameter = module.Parameters[module.ParametersLookup[lookup]];
-            parameter.SetValue(value);
+            parameter.DeserialiseValue(value);
         }
     }
 

@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
 using System.Linq;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Platform;
@@ -40,13 +39,7 @@ public class ModuleSerialiser : Serialiser<ModuleManager, SerialisableModuleMana
 
                 if (!module.DoesSettingExist(settingKey, out var setting)) return;
 
-                if (setting.IsValueType<Enum>())
-                {
-                    setting.SetValue(Enum.ToObject(setting.GetValueType(), settingValue));
-                    return;
-                }
-
-                setting.SetValue(settingValue);
+                setting.DeserialiseValue(settingValue);
             });
 
             moduleData.Parameters.ForEach(parameterPair =>
@@ -55,7 +48,7 @@ public class ModuleSerialiser : Serialiser<ModuleManager, SerialisableModuleMana
 
                 if (!module.DoesParameterExist(parameterKey, out var parameter)) return;
 
-                parameter.SetValue(parameterValue);
+                parameter.DeserialiseValue(parameterValue);
             });
         });
     }

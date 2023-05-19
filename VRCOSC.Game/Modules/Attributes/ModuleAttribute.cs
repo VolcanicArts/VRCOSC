@@ -27,7 +27,7 @@ public abstract class ModuleAttribute
     public abstract object GetSerialisableValue();
     public abstract void Setup();
     public abstract void SetDefault();
-    public abstract void SetValue(object value);
+    public abstract void DeserialiseValue(object value);
     public abstract bool IsDefault();
     public abstract Drawable GetAssociatedCard();
 
@@ -49,15 +49,15 @@ public abstract class ModuleAttribute<T> : ModuleAttribute
     public override object GetSerialisableValue() => Attribute.Value!;
     public override void Setup() => Attribute = GetBindable();
     public override void SetDefault() => Attribute.SetDefault();
-    public override void SetValue(object value) => Attribute.Value = (T)value;
+    public override void DeserialiseValue(object value) => Attribute.Value = (T)value;
     public override bool IsDefault() => Attribute.IsDefault;
 }
 
-public class ModuleToggleAttribute : ModuleAttribute<bool>
+public class ModuleBoolAttribute : ModuleAttribute<bool>
 {
     public override bool Value => Attribute.Value;
     protected override Bindable<bool> GetBindable() => new(Default);
-    public override Drawable GetAssociatedCard() => new ToggleAttributeCard(this);
+    public override Drawable GetAssociatedCard() => new BoolAttributeCard(this);
 }
 
 public class ModuleIntAttribute : ModuleAttribute<int>
@@ -65,6 +65,7 @@ public class ModuleIntAttribute : ModuleAttribute<int>
     public override int Value => Attribute.Value;
     protected override BindableNumber<int> GetBindable() => new(Default);
     public override Drawable GetAssociatedCard() => new IntTextAttributeCard(this);
+    public override void DeserialiseValue(object value) => Attribute.Value = Convert.ToInt32(value);
 }
 
 public class ModuleFloatAttribute : ModuleAttribute<float>
@@ -72,6 +73,7 @@ public class ModuleFloatAttribute : ModuleAttribute<float>
     public override float Value => Attribute.Value;
     protected override BindableNumber<float> GetBindable() => new(Default);
     public override Drawable GetAssociatedCard() => new FloatTextAttributeCard(this);
+    public override void DeserialiseValue(object value) => Attribute.Value = Convert.ToSingle(value);
 }
 
 public class ModuleStringAttribute : ModuleAttribute<string>
@@ -86,6 +88,7 @@ public class ModuleEnumAttribute<T> : ModuleAttribute<T> where T : Enum
     public override T Value => Attribute.Value;
     protected override Bindable<T> GetBindable() => new(Default);
     public override Drawable GetAssociatedCard() => new DropdownAttributeCard<T>(this);
+    public override void DeserialiseValue(object value) => Attribute.Value = (T)Enum.ToObject(typeof(T), Convert.ToInt32(value));
 }
 
 public class ModuleIntRangeAttribute : ModuleIntAttribute
@@ -131,7 +134,7 @@ public abstract class ModuleAttributeList<T> : ModuleAttribute
 
     protected abstract BindableList<T> GetBindable();
     protected abstract IEnumerable<T> GetClonedDefaults();
-    protected abstract IEnumerable<T> JArrayToValue(JArray array);
+    protected abstract IEnumerable<T> JArrayToType(JArray array);
 
     public override void SetDefault()
     {
@@ -139,10 +142,10 @@ public abstract class ModuleAttributeList<T> : ModuleAttribute
         Attribute.AddRange(GetClonedDefaults());
     }
 
-    public override void SetValue(object value)
+    public override void DeserialiseValue(object value)
     {
         Attribute.Clear();
-        Attribute.AddRange(JArrayToValue((JArray)value));
+        Attribute.AddRange(JArrayToType((JArray)value));
     }
 }
 
@@ -151,6 +154,7 @@ public abstract class ModuleAttributePrimitiveList<T> : ModuleAttributeList<Bind
     public override Type GetValueType() => typeof(T);
     public override object GetSerialisableValue() => Attribute.ToList();
     public override void Setup() => Attribute = GetBindable();
+    protected override IEnumerable<Bindable<T>> JArrayToType(JArray array) => array.Select(value => new Bindable<T>(value.Value<T>()!)).ToList();
 }
 
 public class ModuleStringListAttribute : ModuleAttributePrimitiveList<string>
@@ -159,8 +163,7 @@ public class ModuleStringListAttribute : ModuleAttributePrimitiveList<string>
     public override bool IsDefault() => Attribute.Count == Default.Count && !Attribute.Where((t, i) => !t.Value.Equals(Default.ElementAt(i).Value)).Any();
 
     protected override BindableList<Bindable<string>> GetBindable() => new(Default);
-    protected override IEnumerable<Bindable<string>> JArrayToValue(JArray array) => array.Select(value => new Bindable<string>(value.Value<string>()!)).ToList();
-    protected override IEnumerable<Bindable<string>> GetClonedDefaults() => Default.Select(defaultValue => new Bindable<string>(defaultValue.Value)).ToList();
+    protected override IEnumerable<Bindable<string>> GetClonedDefaults() => Default.Select(defaultValue => defaultValue.GetUnboundCopy()).ToList();
 }
 
 public class ModuleParameter : ModuleStringAttribute

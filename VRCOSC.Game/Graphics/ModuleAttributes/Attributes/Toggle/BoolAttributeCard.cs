@@ -10,9 +10,9 @@ using VRCOSC.Game.Modules.Attributes;
 
 namespace VRCOSC.Game.Graphics.ModuleAttributes.Attributes.Toggle;
 
-public sealed partial class ToggleAttributeCard : AttributeCard<ModuleToggleAttribute>
+public sealed partial class BoolAttributeCard : AttributeCard<ModuleBoolAttribute>
 {
-    public ToggleAttributeCard(ModuleToggleAttribute attributeData)
+    public BoolAttributeCard(ModuleBoolAttribute attributeData)
         : base(attributeData)
     {
     }

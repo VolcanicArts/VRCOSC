@@ -88,7 +88,7 @@ public abstract class Module : IComparable<Module>
     protected void CreateSetting(Enum lookup, ModuleAttribute attribute) => Settings.Add(lookup.ToLookup(), attribute);
 
     protected void CreateSetting(Enum lookup, string displayName, string description, bool defaultValue, Func<bool>? dependsOn = null)
-        => Settings.Add(lookup.ToLookup(), new ModuleToggleAttribute
+        => Settings.Add(lookup.ToLookup(), new ModuleBoolAttribute
         {
             Name = displayName,
             Description = description,
