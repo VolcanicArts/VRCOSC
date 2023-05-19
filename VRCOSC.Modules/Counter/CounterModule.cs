@@ -61,6 +61,8 @@ public class CounterModule : ChatBoxModule
 
         GetSettingList<NameParameterPair>(CounterSetting.ParameterList).ForEach(pair =>
         {
+            if (string.IsNullOrEmpty(pair.Key.Value) || string.IsNullOrEmpty(pair.Parameter.Value)) return;
+
             counts.Add(pair.Parameter.Value, new CountInstance(pair.Key.Value, 0));
             SetVariableValue(CounterVariable.Value, "0", pair.Key.Value);
         });

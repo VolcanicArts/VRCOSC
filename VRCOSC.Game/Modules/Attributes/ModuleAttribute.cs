@@ -42,12 +42,12 @@ public abstract class ModuleAttribute<T> : ModuleAttribute
 
     public virtual T Value => throw new NotImplementedException();
 
-    protected abstract Bindable<T> GetBindable();
+    protected abstract Bindable<T> CreateBindable();
 
     public override Type GetValueType() => typeof(T);
 
     public override object GetSerialisableValue() => Attribute.Value!;
-    public override void Setup() => Attribute = GetBindable();
+    public override void Setup() => Attribute = CreateBindable();
     public override void SetDefault() => Attribute.SetDefault();
     public override void DeserialiseValue(object value) => Attribute.Value = (T)value;
     public override bool IsDefault() => Attribute.IsDefault;
@@ -56,14 +56,14 @@ public abstract class ModuleAttribute<T> : ModuleAttribute
 public class ModuleBoolAttribute : ModuleAttribute<bool>
 {
     public override bool Value => Attribute.Value;
-    protected override Bindable<bool> GetBindable() => new(Default);
+    protected override Bindable<bool> CreateBindable() => new(Default);
     public override Drawable GetAssociatedCard() => new BoolAttributeCard(this);
 }
 
 public class ModuleIntAttribute : ModuleAttribute<int>
 {
     public override int Value => Attribute.Value;
-    protected override BindableNumber<int> GetBindable() => new(Default);
+    protected override BindableNumber<int> CreateBindable() => new(Default);
     public override Drawable GetAssociatedCard() => new IntTextAttributeCard(this);
     public override void DeserialiseValue(object value) => Attribute.Value = Convert.ToInt32(value);
 }
@@ -71,7 +71,7 @@ public class ModuleIntAttribute : ModuleAttribute<int>
 public class ModuleFloatAttribute : ModuleAttribute<float>
 {
     public override float Value => Attribute.Value;
-    protected override BindableNumber<float> GetBindable() => new(Default);
+    protected override BindableNumber<float> CreateBindable() => new(Default);
     public override Drawable GetAssociatedCard() => new FloatTextAttributeCard(this);
     public override void DeserialiseValue(object value) => Attribute.Value = Convert.ToSingle(value);
 }
@@ -79,7 +79,7 @@ public class ModuleFloatAttribute : ModuleAttribute<float>
 public class ModuleStringAttribute : ModuleAttribute<string>
 {
     public override string Value => Attribute.Value;
-    protected override Bindable<string> GetBindable() => new(Default);
+    protected override Bindable<string> CreateBindable() => new(Default);
     public override Drawable GetAssociatedCard() => new StringTextAttributeCard(this);
 }
 
@@ -93,7 +93,7 @@ public class ModuleStringWithButtonAttribute : ModuleStringAttribute
 public class ModuleEnumAttribute<T> : ModuleAttribute<T> where T : Enum
 {
     public override T Value => Attribute.Value;
-    protected override Bindable<T> GetBindable() => new(Default);
+    protected override Bindable<T> CreateBindable() => new(Default);
     public override Drawable GetAssociatedCard() => new DropdownAttributeCard<T>(this);
     public override void DeserialiseValue(object value) => Attribute.Value = (T)Enum.ToObject(typeof(T), Convert.ToInt32(value));
 }
@@ -103,9 +103,9 @@ public class ModuleIntRangeAttribute : ModuleIntAttribute
     public required int Min { internal get; init; }
     public required int Max { internal get; init; }
 
-    protected override BindableNumber<int> GetBindable()
+    protected override BindableNumber<int> CreateBindable()
     {
-        var baseBindable = base.GetBindable();
+        var baseBindable = base.CreateBindable();
         baseBindable.MinValue = Min;
         baseBindable.MaxValue = Max;
         return baseBindable;
@@ -119,9 +119,9 @@ public class ModuleFloatRangeAttribute : ModuleFloatAttribute
     public required float Min { internal get; init; }
     public required float Max { internal get; init; }
 
-    protected override BindableNumber<float> GetBindable()
+    protected override BindableNumber<float> CreateBindable()
     {
-        var baseBindable = base.GetBindable();
+        var baseBindable = base.CreateBindable();
         baseBindable.MinValue = Min;
         baseBindable.MaxValue = Max;
         return baseBindable;
@@ -137,9 +137,9 @@ public abstract class ModuleAttributeList<T> : ModuleAttribute
 
     public override Type GetValueType() => typeof(T);
     public override object GetSerialisableValue() => Attribute.ToList();
-    public override void Setup() => Attribute = GetBindable();
+    public override void Setup() => Attribute = CreateBindableList();
 
-    protected abstract BindableList<T> GetBindable();
+    protected abstract BindableList<T> CreateBindableList();
     protected abstract IEnumerable<T> GetClonedDefaults();
     protected abstract IEnumerable<T> JArrayToType(JArray array);
 
@@ -160,7 +160,7 @@ public abstract class ModuleAttributePrimitiveList<T> : ModuleAttributeList<Bind
 {
     public override Type GetValueType() => typeof(T);
     public override object GetSerialisableValue() => Attribute.ToList();
-    public override void Setup() => Attribute = GetBindable();
+    public override void Setup() => Attribute = CreateBindableList();
     protected override IEnumerable<Bindable<T>> JArrayToType(JArray array) => array.Select(value => new Bindable<T>(value.Value<T>()!)).ToList();
 }
 
@@ -169,7 +169,7 @@ public class ModuleStringListAttribute : ModuleAttributePrimitiveList<string>
     public override Drawable GetAssociatedCard() => new ListStringTextAttributeCard(this);
     public override bool IsDefault() => Attribute.Count == Default.Count && !Attribute.Where((t, i) => !t.Value.Equals(Default.ElementAt(i).Value)).Any();
 
-    protected override BindableList<Bindable<string>> GetBindable() => new(Default);
+    protected override BindableList<Bindable<string>> CreateBindableList() => new(Default);
     protected override IEnumerable<Bindable<string>> GetClonedDefaults() => Default.Select(defaultValue => defaultValue.GetUnboundCopy()).ToList();
 }
 

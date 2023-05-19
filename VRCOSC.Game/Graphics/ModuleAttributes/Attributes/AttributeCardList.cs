@@ -32,7 +32,11 @@ public abstract partial class AttributeCardList<T> : AttributeCard<ModuleAttribu
             Origin = Anchor.TopCentre,
             RelativeSizeAxes = Axes.X,
             AutoSizeAxes = Axes.Y,
-            Spacing = new Vector2(0, 5)
+            Spacing = new Vector2(0, 5),
+            AutoSizeEasing = Easing.OutQuint,
+            AutoSizeDuration = 150,
+            LayoutEasing = Easing.OutQuint,
+            LayoutDuration = 150
         });
     }
 
@@ -69,12 +73,15 @@ public abstract partial class AttributeCardList<T> : AttributeCard<ModuleAttribu
     {
         GridContainer gridInstance;
 
+        var position = listFlow[^1].Position;
+
         listFlow.Add(gridInstance = new GridContainer
         {
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
             RelativeSizeAxes = Axes.X,
             AutoSizeAxes = Axes.Y,
+            Position = position,
             ColumnDimensions = new[]
             {
                 new Dimension(),
@@ -133,6 +140,8 @@ public abstract partial class AttributeCardList<T> : AttributeCard<ModuleAttribu
                 Icon = FontAwesome.Solid.Plus,
                 BackgroundColour = ThemeManager.Current[ThemeAttribute.Success],
                 Circular = true,
+                IconShadow = true,
+                IconPadding = 6,
                 Action = addInstance
             }
         };

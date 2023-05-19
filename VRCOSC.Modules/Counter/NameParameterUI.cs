@@ -38,8 +38,8 @@ public class NameParameterPair : IEquatable<NameParameterPair>
         if (ReferenceEquals(null, other)) return false;
         if (ReferenceEquals(this, other)) return true;
 
-        return Key.Equals(other.Key)
-               && Parameter.Equals(other.Parameter);
+        return Key.Value.Equals(other.Key.Value)
+               && Parameter.Value.Equals(other.Parameter.Value);
     }
 }
 
@@ -48,7 +48,7 @@ public class ModuleNameParameterPairAttribute : ModuleAttributeList<NameParamete
     public override Drawable GetAssociatedCard() => new NameParameterPairListCard(this);
     public override bool IsDefault() => Attribute.Count == Default.Count && !Attribute.Where((t, i) => !t.Equals(Default.ElementAt(i))).Any();
 
-    protected override BindableList<NameParameterPair> GetBindable() => new(Default);
+    protected override BindableList<NameParameterPair> CreateBindableList() => new(Default);
     protected override IEnumerable<NameParameterPair> JArrayToType(JArray array) => array.Select(value => new NameParameterPair(value.ToObject<NameParameterPair>()!)).ToList();
     protected override IEnumerable<NameParameterPair> GetClonedDefaults() => Default.Select(defaultValue => new NameParameterPair(defaultValue)).ToList();
 }
