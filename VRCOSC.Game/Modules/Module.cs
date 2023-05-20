@@ -47,6 +47,7 @@ public abstract class Module : IComparable<Module>
     public virtual string Author => string.Empty;
     public virtual string Prefab => string.Empty;
     public virtual ModuleType Type => ModuleType.General;
+    public virtual IEnumerable<string> Info => new List<string>();
     protected virtual TimeSpan DeltaUpdate => TimeSpan.MaxValue;
     protected virtual bool ShouldUpdateImmediately => true;
 

@@ -14,6 +14,7 @@ namespace VRCOSC.Game.Graphics.ModuleInfo;
 
 public partial class ModuleInfoScreen : BaseScreen
 {
+    private FillFlowContainer<DrawableInfoCard> infoFlow = null!;
     private FillFlowContainer<DrawableParameterAttribute> parameterAttributeFlow = null!;
 
     [Resolved(name: "InfoModule")]
@@ -30,17 +31,42 @@ public partial class ModuleInfoScreen : BaseScreen
         ScrollbarVisible = false,
         ScrollContent =
         {
-            Child = parameterAttributeFlow = new FillFlowContainer<DrawableParameterAttribute>
+            Child = new FillFlowContainer
             {
                 Anchor = Anchor.TopCentre,
                 Origin = Anchor.TopCentre,
                 RelativeSizeAxes = Axes.X,
                 AutoSizeAxes = Axes.Y,
                 Padding = new MarginPadding(5),
-                Spacing = new Vector2(5, 5),
-                Direction = FillDirection.Full,
+                Spacing = new Vector2(0, 10),
+                Direction = FillDirection.Vertical,
                 LayoutEasing = Easing.OutQuad,
-                LayoutDuration = 150
+                LayoutDuration = 150,
+                Children = new Drawable[]
+                {
+                    infoFlow = new FillFlowContainer<DrawableInfoCard>
+                    {
+                        Anchor = Anchor.TopCentre,
+                        Origin = Anchor.TopCentre,
+                        RelativeSizeAxes = Axes.X,
+                        AutoSizeAxes = Axes.Y,
+                        Spacing = new Vector2(0, 5),
+                        Direction = FillDirection.Vertical,
+                        LayoutEasing = Easing.OutQuad,
+                        LayoutDuration = 150
+                    },
+                    parameterAttributeFlow = new FillFlowContainer<DrawableParameterAttribute>
+                    {
+                        Anchor = Anchor.TopCentre,
+                        Origin = Anchor.TopCentre,
+                        RelativeSizeAxes = Axes.X,
+                        AutoSizeAxes = Axes.Y,
+                        Spacing = new Vector2(0, 5),
+                        Direction = FillDirection.Vertical,
+                        LayoutEasing = Easing.OutQuad,
+                        LayoutDuration = 150
+                    }
+                }
             }
         }
     };
@@ -51,7 +77,13 @@ public partial class ModuleInfoScreen : BaseScreen
         {
             if (e.NewValue is null) return;
 
+            infoFlow.Clear();
             parameterAttributeFlow.Clear();
+
+            e.NewValue.Info.ForEach(info =>
+            {
+                infoFlow.Add(new DrawableInfoCard(info));
+            });
 
             e.NewValue.Parameters.Values.ForEach(parameterAttribute =>
             {
