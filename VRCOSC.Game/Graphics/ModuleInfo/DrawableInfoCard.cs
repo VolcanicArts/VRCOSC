@@ -112,7 +112,8 @@ public partial class DrawableInfoCard : Container
                                     AutoSizeAxes = Axes.Y,
                                     AutoSizeEasing = Easing.OutQuint,
                                     AutoSizeDuration = 150,
-                                    Text = infoString
+                                    Text = infoString,
+                                    Masking = true
                                 }
                             }
                         }
