@@ -346,7 +346,7 @@ public abstract class Module : IComparable<Module>
 
         if (!parameterData.Mode.HasFlagFast(ParameterMode.Read)) return;
 
-        if (data.ParameterValue.GetType() != parameterData.ExpectedType)
+        if (!data.IsValueType(parameterData.ExpectedType))
         {
             Log($@"Cannot accept input parameter. `{lookup}` expects type `{parameterData.ExpectedType}` but received type `{data.ParameterValue.GetType()}`");
             return;

@@ -65,17 +65,12 @@ public class CounterModule : ChatBoxModule
 
     protected override void OnAnyParameterReceived(VRChatOscData data)
     {
-        var parameterName = data.ParameterName;
+        if (!data.IsValueType<bool>()) return;
+        if (!data.ValueAs<bool>() || !counts.TryGetValue(data.ParameterName, out var value)) return;
 
-        if (data.ParameterValue.GetType() != typeof(bool)) return;
-        if (!(bool)data.ParameterValue) return;
-
-        if (counts.TryGetValue(parameterName, out var value))
-        {
-            value.Count++;
-            SetVariableValue(CounterVariable.Value, value.Count.ToString("N0"), value.Key);
-            TriggerEvent(CounterEvent.Changed);
-        }
+        value.Count++;
+        SetVariableValue(CounterVariable.Value, value.Count.ToString("N0"), value.Key);
+        TriggerEvent(CounterEvent.Changed);
     }
 
     private enum CounterSetting
