@@ -141,7 +141,7 @@ public partial class TimelineEditor : Container
 
     protected override void LoadComplete()
     {
-        chatBoxManager.TimelineLength.BindValueChanged(_ => generateGrid(), true);
+        chatBoxManager.TimelineLength.BindValueChanged(_ => Schedule(generateGrid), true);
     }
 
     protected override void Update()

@@ -12,6 +12,7 @@
         <RepositoryUrl>https://github.com/VolcanicArts/VRCOSC</RepositoryUrl>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <UseWindowsForms>true</UseWindowsForms>
     </PropertyGroup>
     <ItemGroup>
         <ProjectReference Include="..\VRCOSC.Resources\VRCOSC.Resources.csproj" />

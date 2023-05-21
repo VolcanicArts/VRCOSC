@@ -7,6 +7,6 @@ public interface ISerialiser
 {
     public bool DoesFileExist();
     public bool TryGetVersion(out int? version);
-    public bool Deserialise();
+    public bool Deserialise(string filePathOverride);
     public bool Serialise();
 }

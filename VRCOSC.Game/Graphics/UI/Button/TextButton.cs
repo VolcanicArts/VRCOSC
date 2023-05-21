@@ -23,7 +23,8 @@ public partial class TextButton : BasicButton
             Font = FrameworkFont.Regular.With(size: FontSize),
             Colour = ThemeManager.Current[ThemeAttribute.Text],
             Text = Text,
-            Shadow = true
+            Shadow = true,
+            ShadowColour = ThemeManager.Current[ThemeAttribute.Darker]
         });
     }
 }

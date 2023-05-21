@@ -39,18 +39,18 @@ public partial class TimelineLayer : Container<DrawableClip>
         CornerRadius = 10;
     }
 
-    public void Add(Clip clip)
+    public void Add(Clip clip) => Schedule(() =>
     {
         Add(new DrawableClip(clip));
-    }
+    });
 
-    public void Remove(Clip clip)
+    public void Remove(Clip clip) => Schedule(() =>
     {
         Children.ForEach(child =>
         {
             if (child.Clip == clip) Schedule(child.RemoveAndDisposeImmediately);
         });
-    }
+    });
 
     public (int, int) GetBoundsNearestTo(int value, bool end, bool isCreating = false)
     {

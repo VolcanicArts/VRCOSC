@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace VRCOSC.Game.Serialisation;
@@ -19,12 +20,19 @@ public class SerialisationManager
         serialisers.Add(version, serialiser);
     }
 
-    public void Deserialise()
+    public void Deserialise(string filePathOverride = "")
     {
-        if (!serialisers.Values.Any(serialiser => serialiser.DoesFileExist()))
+        if (string.IsNullOrEmpty(filePathOverride))
         {
-            Serialise();
-            return;
+            if (!serialisers.Values.Any(serialiser => serialiser.DoesFileExist()))
+            {
+                Serialise();
+                return;
+            }
+        }
+        else
+        {
+            if (!File.Exists(filePathOverride)) return;
         }
 
         foreach (var (version, serialiser) in serialisers.OrderBy(pair => pair.Key))
@@ -32,7 +40,7 @@ public class SerialisationManager
             if (!serialiser.TryGetVersion(out var foundVersion)) continue;
             if (version != foundVersion) continue;
 
-            deserialise(serialiser);
+            deserialise(serialiser, filePathOverride);
             return;
         }
 
@@ -40,7 +48,7 @@ public class SerialisationManager
         // Note: 0th used for RouterManager migration
         if (serialisers.TryGetValue(0, out var zerothSerialiser))
         {
-            deserialise(zerothSerialiser);
+            deserialise(zerothSerialiser, filePathOverride);
             return;
         }
 
@@ -48,12 +56,12 @@ public class SerialisationManager
         // As a last resort, attempt to deserialise with the latest serialiser. This also triggers the error notification
         if (!serialisers.TryGetValue(latestSerialiserVersion, out var latestSerialiser)) return;
 
-        deserialise(latestSerialiser);
+        deserialise(latestSerialiser, filePathOverride);
     }
 
-    private void deserialise(ISerialiser serialiser)
+    private void deserialise(ISerialiser serialiser, string filePathOverride)
     {
-        if (!serialiser.Deserialise()) return;
+        if (!serialiser.Deserialise(filePathOverride)) return;
 
         Serialise();
     }

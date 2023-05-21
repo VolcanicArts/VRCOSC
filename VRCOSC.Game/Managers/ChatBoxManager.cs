@@ -69,14 +69,30 @@ public class ChatBoxManager
         serialisationManager = new SerialisationManager();
         serialisationManager.RegisterSerialiser(1, new TimelineSerialiser(storage, notification, this));
 
+        setDefaults();
+        Deserialise();
+        bindAttributes();
+    }
+
+    private void setDefaults()
+    {
+        Clips.Clear();
+
         TimelineLength.Value = TimeSpan.FromMinutes(1);
         Clips.AddRange(DefaultTimeline.GenerateDefaultTimeline(this));
+    }
 
-        Deserialise();
-
+    private void bindAttributes()
+    {
         TimelineLength.BindValueChanged(_ => Serialise());
         Clips.BindCollectionChanged((_, _) => Serialise());
         Clips.ForEach(clip => clip.Load());
+    }
+
+    public void Import(string filePath)
+    {
+        serialisationManager.Deserialise(filePath);
+        bindAttributes();
     }
 
     public void Deserialise()

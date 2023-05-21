@@ -86,7 +86,7 @@ public partial class ReadonlyTimeDisplay : Container
 
     protected override void LoadComplete()
     {
-        chatBoxManager.TimelineLength.BindValueChanged(_ => updateText());
+        chatBoxManager.TimelineLength.BindValueChanged(_ => Schedule(updateText));
         Current.BindValueChanged(_ => updateText());
         updateText();
     }

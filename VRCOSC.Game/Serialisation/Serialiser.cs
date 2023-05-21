@@ -40,7 +40,7 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
 
         try
         {
-            var data = performDeserialisation<SerialisableVersion>();
+            var data = performDeserialisation<SerialisableVersion>(storage.GetFullPath(FileName));
 
             if (data is null)
             {
@@ -58,15 +58,17 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
         }
     }
 
-    public bool Deserialise()
+    public bool Deserialise(string filePathOverride = "")
     {
+        var filePath = string.IsNullOrEmpty(filePathOverride) ? storage.GetFullPath(FileName) : filePathOverride;
+
         Logger.Log($"Performing load for file {FileName}");
 
         try
         {
             lock (serialisationLock)
             {
-                var data = performDeserialisation<TSerialisable>();
+                var data = performDeserialisation<TSerialisable>(filePath);
                 if (data is null) return false;
 
                 ExecuteAfterDeserialisation(reference, data);
@@ -102,16 +104,16 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
         }
     }
 
-    private T? performDeserialisation<T>()
+    private T? performDeserialisation<T>(string filePath)
     {
         try
         {
-            return JsonConvert.DeserializeObject<T>(Encoding.Unicode.GetString(File.ReadAllBytes(storage.GetFullPath(FileName))));
+            return JsonConvert.DeserializeObject<T>(Encoding.Unicode.GetString(File.ReadAllBytes(filePath)));
         }
         catch // migration from UTF-8
         {
             Logger.Log("UTF-8 possibly detected. Attempting conversion from UTF-8 to Unicode");
-            return JsonConvert.DeserializeObject<T>(File.ReadAllText(storage.GetFullPath(FileName)));
+            return JsonConvert.DeserializeObject<T>(File.ReadAllText(filePath));
         }
     }
 

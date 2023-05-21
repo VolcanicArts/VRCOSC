@@ -1,15 +1,21 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
+using System.Threading;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osuTK;
 using VRCOSC.Game.Graphics.ChatBox.SelectedClip;
 using VRCOSC.Game.Graphics.ChatBox.Timeline;
 using VRCOSC.Game.Graphics.ChatBox.Timeline.Menu.Clip;
 using VRCOSC.Game.Graphics.ChatBox.Timeline.Menu.Layer;
 using VRCOSC.Game.Graphics.Themes;
+using VRCOSC.Game.Graphics.UI.Button;
+using System.Windows.Forms;
+using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.Graphics.ChatBox;
 
@@ -63,12 +69,20 @@ public partial class ChatBoxScreen : Container
                         null,
                         new Drawable[]
                         {
-                            new TimelineLengthContainer
+                            new Container
                             {
-                                Anchor = Anchor.Centre,
-                                Origin = Anchor.Centre,
-                                RelativeSizeAxes = Axes.Y,
-                                Width = 300,
+                                RelativeSizeAxes = Axes.Both,
+                                Children = new Drawable[]
+                                {
+                                    new ImportButton(),
+                                    new TimelineLengthContainer
+                                    {
+                                        Anchor = Anchor.Centre,
+                                        Origin = Anchor.Centre,
+                                        RelativeSizeAxes = Axes.Y,
+                                        Width = 300,
+                                    }
+                                }
                             }
                         },
                         null,
@@ -87,5 +101,48 @@ public partial class ChatBoxScreen : Container
             layerMenu,
             clipMenu
         };
+    }
+
+    private partial class ImportButton : TextButton
+    {
+        [Resolved]
+        private ChatBoxManager chatBoxManager { get; set; } = null!;
+
+        public ImportButton()
+        {
+            Anchor = Anchor.CentreLeft;
+            Origin = Anchor.CentreLeft;
+            Size = new Vector2(110, 30);
+            Text = "Import Config";
+            FontSize = 18;
+            CornerRadius = 5;
+            BackgroundColour = ThemeManager.Current[ThemeAttribute.Action];
+            BorderThickness = 2;
+        }
+
+        protected override void LoadComplete()
+        {
+            Action += executeOpenFileDiaglog;
+        }
+
+        [STAThread]
+        private void executeOpenFileDiaglog()
+        {
+            var t = new Thread(() =>
+            {
+                var dlg = new OpenFileDialog
+                {
+                    Multiselect = false,
+                    Filter = @"chatbox.json|*.json"
+                };
+
+                if (dlg.ShowDialog() != DialogResult.OK) return;
+
+                chatBoxManager.Import(dlg.FileName);
+            });
+
+            t.SetApartmentState(ApartmentState.STA);
+            t.Start();
+        }
     }
 }
