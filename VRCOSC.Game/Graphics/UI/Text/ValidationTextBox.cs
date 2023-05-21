@@ -82,7 +82,7 @@ public abstract partial class ValidationTextBox<T> : VRCOSCTextBox
                         RelativeSizeAxes = Axes.Both,
                         Icon = FontAwesome.Solid.ExclamationCircle,
                         Colour = Colour4.Red
-                    },
+                    }
                 }
             };
         }
