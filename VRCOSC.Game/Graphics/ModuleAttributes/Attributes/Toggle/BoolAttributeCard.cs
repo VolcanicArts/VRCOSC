@@ -4,7 +4,6 @@
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osuTK;
-using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Button;
 using VRCOSC.Game.Modules.Attributes;
 
@@ -26,7 +25,6 @@ public sealed partial class BoolAttributeCard : AttributeCard<ModuleBoolAttribut
             Origin = Anchor.TopCentre,
             Size = new Vector2(35),
             CornerRadius = 10,
-            BorderColour = ThemeManager.Current[ThemeAttribute.Border],
             BorderThickness = 2,
             ShouldAnimate = false,
             State = AttributeData.Attribute.GetBoundCopy()

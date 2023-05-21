@@ -83,7 +83,6 @@ public partial class DrawableState : Container
                                     RelativeSizeAxes = Axes.Both,
                                     State = ClipState.Enabled.GetBoundCopy(),
                                     BorderThickness = 2,
-                                    BorderColour = ThemeManager.Current[ThemeAttribute.Border],
                                     ShouldAnimate = false
                                 }
                             },

@@ -49,7 +49,6 @@ public abstract partial class AttributeCard<T> : Container where T : ModuleAttri
                     RelativeSizeAxes = Axes.Both,
                     Action = setDefault,
                     BorderThickness = 2,
-                    BorderColour = ThemeManager.Current[ThemeAttribute.Border],
                     BackgroundColour = ThemeManager.Current[ThemeAttribute.Action],
                     Icon = FontAwesome.Solid.Undo,
                     IconPadding = 7,

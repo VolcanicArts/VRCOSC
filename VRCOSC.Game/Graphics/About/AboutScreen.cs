@@ -81,7 +81,6 @@ public sealed partial class AboutScreen : BaseScreen
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 Size = new Vector2(0.9f),
-                Masking = true,
                 CornerRadius = 10,
                 Icon = Icon,
                 BackgroundColour = BackgroundColour,
