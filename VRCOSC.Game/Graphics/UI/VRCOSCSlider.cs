@@ -14,7 +14,7 @@ namespace VRCOSC.Game.Graphics.UI;
 
 public sealed partial class VRCOSCSlider<T> : BasicSliderBar<T> where T : struct, IComparable<T>, IConvertible, IEquatable<T>
 {
-    public BindableNumber<T> RoudedCurrent { get; set; }
+    public required BindableNumber<T> RoudedCurrent { get; init; }
 
     public VRCOSCSlider()
     {

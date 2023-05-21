@@ -4,7 +4,6 @@
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
-using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osuTK;
@@ -81,15 +80,8 @@ public partial class ModuleInfoScreen : BaseScreen
             infoFlow.Clear();
             parameterAttributeFlow.Clear();
 
-            e.NewValue.Info.ForEach(info =>
-            {
-                infoFlow.Add(new DrawableInfoCard(info));
-            });
-
-            e.NewValue.Parameters.Values.ForEach(parameterAttribute =>
-            {
-                parameterAttributeFlow.Add(new DrawableParameterAttribute(parameterAttribute));
-            });
+            infoFlow.AddRange(e.NewValue.Info.Select(infoString => new DrawableInfoCard(infoString)));
+            parameterAttributeFlow.AddRange(e.NewValue.Parameters.Values.Select(parameterAttribute => new DrawableParameterAttribute(parameterAttribute)));
 
             infoFlow.Alpha = infoFlow.Any() ? 1 : 0;
             parameterAttributeFlow.Alpha = parameterAttributeFlow.Any() ? 1 : 0;

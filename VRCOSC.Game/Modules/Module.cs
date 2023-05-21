@@ -144,7 +144,7 @@ public abstract class Module : IComparable<Module>
             DependsOn = dependsOn
         });
 
-    protected void CreateSetting(Enum lookup, string displayName, string description, List<string> defaultValue, Func<bool>? dependsOn = null)
+    protected void CreateSetting(Enum lookup, string displayName, string description, IEnumerable<string> defaultValue, Func<bool>? dependsOn = null)
         => Settings.Add(lookup.ToLookup(), new ModuleStringListAttribute
         {
             Name = displayName,

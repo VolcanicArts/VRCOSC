@@ -68,33 +68,24 @@ public partial class DrawableInfoCard : Container
                             {
                                 new Container
                                 {
-                                    Anchor = Anchor.TopLeft,
-                                    Origin = Anchor.TopLeft,
                                     RelativeSizeAxes = Axes.Both,
+                                    Masking = true,
+                                    CornerRadius = 5,
                                     Children = new Drawable[]
                                     {
-                                        new Container
+                                        new Box
                                         {
                                             RelativeSizeAxes = Axes.Both,
-                                            Masking = true,
-                                            CornerRadius = 5,
-                                            Children = new Drawable[]
-                                            {
-                                                new Box
-                                                {
-                                                    RelativeSizeAxes = Axes.Both,
-                                                    Colour = ColourInfo.GradientVertical(ThemeManager.Current[ThemeAttribute.Pending].Darken(0.25f), ThemeManager.Current[ThemeAttribute.Pending])
-                                                },
-                                                new SpriteIcon
-                                                {
-                                                    Anchor = Anchor.Centre,
-                                                    Origin = Anchor.Centre,
-                                                    RelativeSizeAxes = Axes.Both,
-                                                    Size = new Vector2(VRCOSCGraphicsContants.ONE_OVER_GOLDEN_RATIO),
-                                                    Icon = FontAwesome.Solid.ExclamationTriangle,
-                                                    Shadow = true
-                                                }
-                                            }
+                                            Colour = ColourInfo.GradientVertical(ThemeManager.Current[ThemeAttribute.Pending].Darken(0.25f), ThemeManager.Current[ThemeAttribute.Pending])
+                                        },
+                                        new SpriteIcon
+                                        {
+                                            Anchor = Anchor.Centre,
+                                            Origin = Anchor.Centre,
+                                            RelativeSizeAxes = Axes.Both,
+                                            Size = new Vector2(VRCOSCGraphicsContants.ONE_OVER_GOLDEN_RATIO),
+                                            Icon = FontAwesome.Solid.ExclamationTriangle,
+                                            Shadow = true
                                         }
                                     }
                                 },
