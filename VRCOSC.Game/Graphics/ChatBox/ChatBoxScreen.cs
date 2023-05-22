@@ -15,6 +15,7 @@ using VRCOSC.Game.Graphics.ChatBox.Timeline.Menu.Layer;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Button;
 using System.Windows.Forms;
+using osu.Framework.Platform;
 using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.Graphics.ChatBox;
@@ -74,7 +75,20 @@ public partial class ChatBoxScreen : Container
                                 RelativeSizeAxes = Axes.Both,
                                 Children = new Drawable[]
                                 {
-                                    new ImportButton(),
+                                    new FillFlowContainer
+                                    {
+                                        Anchor = Anchor.CentreLeft,
+                                        Origin = Anchor.CentreLeft,
+                                        RelativeSizeAxes = Axes.Y,
+                                        AutoSizeAxes = Axes.X,
+                                        Spacing = new Vector2(5, 0),
+                                        Direction = FillDirection.Horizontal,
+                                        Children = new Drawable[]
+                                        {
+                                            new ImportButton(),
+                                            new ExportButton()
+                                        }
+                                    },
                                     new TimelineLengthContainer
                                     {
                                         Anchor = Anchor.Centre,
@@ -143,6 +157,32 @@ public partial class ChatBoxScreen : Container
 
             t.SetApartmentState(ApartmentState.STA);
             t.Start();
+        }
+    }
+
+    private partial class ExportButton : TextButton
+    {
+        [Resolved]
+        private GameHost host { get; set; } = null!;
+
+        [Resolved]
+        private Storage storage { get; set; } = null!;
+
+        public ExportButton()
+        {
+            Anchor = Anchor.CentreLeft;
+            Origin = Anchor.CentreLeft;
+            Size = new Vector2(110, 30);
+            Text = "Export Config";
+            FontSize = 18;
+            CornerRadius = 5;
+            BackgroundColour = ThemeManager.Current[ThemeAttribute.Action];
+            BorderThickness = 2;
+        }
+
+        protected override void LoadComplete()
+        {
+            Action += () => host.PresentFileExternally(storage.GetFullPath(@"chatbox.json"));
         }
     }
 }
