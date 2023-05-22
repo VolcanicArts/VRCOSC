@@ -143,17 +143,8 @@ public abstract class ModuleAttributeList<T> : ModuleAttribute
     protected abstract IEnumerable<T> GetClonedDefaults();
     protected abstract IEnumerable<T> JArrayToType(JArray array);
 
-    public override void SetDefault()
-    {
-        Attribute.Clear();
-        Attribute.AddRange(GetClonedDefaults());
-    }
-
-    public override void DeserialiseValue(object value)
-    {
-        Attribute.Clear();
-        Attribute.AddRange(JArrayToType((JArray)value));
-    }
+    public override void SetDefault() => Attribute.ReplaceItems(GetClonedDefaults());
+    public override void DeserialiseValue(object value) => Attribute.ReplaceItems(JArrayToType((JArray)value));
 }
 
 public abstract class ModuleAttributePrimitiveList<T> : ModuleAttributeList<Bindable<T>>

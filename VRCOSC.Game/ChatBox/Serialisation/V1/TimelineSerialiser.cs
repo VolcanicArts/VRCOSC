@@ -2,9 +2,11 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using osu.Framework.Platform;
+using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.ChatBox.Serialisation.V1.Structures;
 using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Managers;
@@ -25,8 +27,6 @@ public class TimelineSerialiser : Serialiser<ChatBoxManager, SerialisableTimelin
 
     protected override void ExecuteAfterDeserialisation(ChatBoxManager chatBoxManager, SerialisableTimeline data)
     {
-        chatBoxManager.Clips.Clear();
-
         data.Clips.ForEach(clip =>
         {
             clip.AssociatedModules.ToImmutableList().ForEach(moduleName =>
@@ -53,6 +53,8 @@ public class TimelineSerialiser : Serialiser<ChatBoxManager, SerialisableTimelin
                 clip.Events.RemoveAll(clipEvent => !chatBoxManager.EventMetadata[clipEvent.Module].ContainsKey(clipEvent.Lookup));
             });
         });
+
+        var createdClips = new List<Clip>();
 
         data.Clips.ForEach(clip =>
         {
@@ -85,9 +87,10 @@ public class TimelineSerialiser : Serialiser<ChatBoxManager, SerialisableTimelin
                 eventData.Length.Value = clipEvent.Length;
             });
 
-            chatBoxManager.Clips.Add(newClip);
+            createdClips.Add(newClip);
         });
 
+        chatBoxManager.Clips.ReplaceItems(createdClips);
         chatBoxManager.SetTimelineLength(TimeSpan.FromTicks(data.Ticks));
     }
 }

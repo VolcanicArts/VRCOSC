@@ -57,28 +57,36 @@ public partial class DrawableClip : Container
                     Colour = ThemeManager.Current[ThemeAttribute.Dark],
                     RelativeSizeAxes = Axes.Both
                 },
-                new StartResizeDetector(Clip)
-                {
-                    RelativeSizeAxes = Axes.Y,
-                    Width = 15
-                },
-                new EndResizeDetector(Clip)
-                {
-                    RelativeSizeAxes = Axes.Y,
-                    Width = 15
-                },
                 new Container
                 {
                     RelativeSizeAxes = Axes.Both,
-                    Padding = new MarginPadding(10),
+                    Padding = new MarginPadding(2),
                     Children = new Drawable[]
                     {
-                        drawName = new SpriteText
+                        new StartResizeDetector(Clip)
                         {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
-                            Font = FrameworkFont.Regular.With(size: 20),
-                            Colour = ThemeManager.Current[ThemeAttribute.Text]
+                            RelativeSizeAxes = Axes.Y,
+                            Width = 12
+                        },
+                        new EndResizeDetector(Clip)
+                        {
+                            RelativeSizeAxes = Axes.Y,
+                            Width = 12
+                        },
+                        new Container
+                        {
+                            RelativeSizeAxes = Axes.Both,
+                            Padding = new MarginPadding(10),
+                            Children = new Drawable[]
+                            {
+                                drawName = new SpriteText
+                                {
+                                    Anchor = Anchor.Centre,
+                                    Origin = Anchor.Centre,
+                                    Font = FrameworkFont.Regular.With(size: 20),
+                                    Colour = ThemeManager.Current[ThemeAttribute.Text]
+                                }
+                            }
                         }
                     }
                 }
@@ -88,13 +96,13 @@ public partial class DrawableClip : Container
 
     protected override void LoadComplete()
     {
-        chatBoxManager.SelectedClip.BindValueChanged(e =>
+        chatBoxManager.SelectedClip.BindValueChanged(e => Schedule(() =>
         {
             ((Container)Child).BorderThickness = Clip == e.NewValue ? 4 : 2;
             background.FadeColour(Clip == e.NewValue ? ThemeManager.Current[ThemeAttribute.Darker] : ThemeManager.Current[ThemeAttribute.Dark], 300, Easing.OutQuart);
-        }, true);
+        }), true);
 
-        chatBoxManager.TimelineLength.BindValueChanged(_ => updateSizeAndPosition(), true);
+        chatBoxManager.TimelineLength.BindValueChanged(_ => Schedule(updateSizeAndPosition), true);
         Clip.Name.BindValueChanged(_ => updateDisplayName());
         Clip.Start.BindValueChanged(_ => updateDisplayName());
         Clip.End.BindValueChanged(_ => updateDisplayName());

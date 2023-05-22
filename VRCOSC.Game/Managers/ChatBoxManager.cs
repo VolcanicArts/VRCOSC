@@ -76,10 +76,8 @@ public class ChatBoxManager
 
     private void setDefaults()
     {
-        Clips.Clear();
-
         TimelineLength.Value = TimeSpan.FromMinutes(1);
-        Clips.AddRange(DefaultTimeline.GenerateDefaultTimeline(this));
+        Clips.ReplaceItems(DefaultTimeline.GenerateDefaultTimeline(this));
     }
 
     private void bindAttributes()
@@ -91,6 +89,7 @@ public class ChatBoxManager
 
     public void Import(string filePath)
     {
+        SelectedClip.Value = null;
         serialisationManager.Deserialise(filePath);
         bindAttributes();
     }

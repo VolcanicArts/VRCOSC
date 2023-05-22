@@ -117,7 +117,7 @@ public partial class SelectedClipEditorWrapper : Container
         chatBoxManager.SelectedClip.BindValueChanged(e => selectBestVisual(e.NewValue), true);
     }
 
-    private void selectBestVisual(Clip? clip)
+    private void selectBestVisual(Clip? clip) => Schedule(() =>
     {
         if (clip is null)
         {
@@ -129,5 +129,5 @@ public partial class SelectedClipEditorWrapper : Container
             noClipContent.FadeOut(250, Easing.OutQuad);
             gridContent.FadeIn(250, Easing.InQuad);
         }
-    }
+    });
 }

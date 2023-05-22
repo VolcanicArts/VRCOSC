@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Linq;
 using osu.Framework.Platform;
 using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Managers;
@@ -23,21 +24,16 @@ public class RouterSerialiser : Serialiser<RouterManager, SerialisableRouterMana
 
     protected override void ExecuteAfterDeserialisation(RouterManager routerManager, SerialisableRouterManager data)
     {
-        routerManager.Store.Clear();
-
-        data.Data.ForEach(routerData =>
+        routerManager.Store.ReplaceItems(data.Data.Select(routerData => new RouterData
         {
-            routerManager.Store.Add(new RouterData
+            Label = { Value = routerData.Label },
+            Endpoints = new OSCRouterEndpoints
             {
-                Label = { Value = routerData.Label },
-                Endpoints = new OSCRouterEndpoints
-                {
-                    ReceiveAddress = { Value = routerData.ReceiveAddress },
-                    ReceivePort = { Value = routerData.ReceivePort },
-                    SendAddress = { Value = routerData.SendAddress },
-                    SendPort = { Value = routerData.SendPort }
-                }
-            });
-        });
+                ReceiveAddress = { Value = routerData.ReceiveAddress },
+                ReceivePort = { Value = routerData.ReceivePort },
+                SendAddress = { Value = routerData.SendAddress },
+                SendPort = { Value = routerData.SendPort }
+            }
+        }));
     }
 }
