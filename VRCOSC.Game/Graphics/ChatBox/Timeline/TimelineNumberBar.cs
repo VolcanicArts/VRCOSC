@@ -20,7 +20,7 @@ public partial class TimelineNumberBar : Container
     [BackgroundDependencyLoader]
     private void load()
     {
-        chatBoxManager.TimelineLength.BindValueChanged(_ => Schedule(() =>
+        chatBoxManager.TimelineLength.BindValueChanged(_ =>
         {
             Clear();
 
@@ -69,6 +69,6 @@ public partial class TimelineNumberBar : Container
                     });
                 }
             }
-        }), true);
+        }, true);
     }
 }

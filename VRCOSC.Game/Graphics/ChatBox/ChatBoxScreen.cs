@@ -1,8 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
-using System.Threading;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -14,9 +12,9 @@ using VRCOSC.Game.Graphics.ChatBox.Timeline.Menu.Clip;
 using VRCOSC.Game.Graphics.ChatBox.Timeline.Menu.Layer;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Button;
-using System.Windows.Forms;
 using osu.Framework.Platform;
 using VRCOSC.Game.Managers;
+using VRCOSC.Game.Processes;
 
 namespace VRCOSC.Game.Graphics.ChatBox;
 
@@ -136,27 +134,7 @@ public partial class ChatBoxScreen : Container
 
         protected override void LoadComplete()
         {
-            Action += executeOpenFileDiaglog;
-        }
-
-        [STAThread]
-        private void executeOpenFileDiaglog()
-        {
-            var t = new Thread(() =>
-            {
-                var dlg = new OpenFileDialog
-                {
-                    Multiselect = false,
-                    Filter = @"chatbox.json|*.json"
-                };
-
-                if (dlg.ShowDialog() != DialogResult.OK) return;
-
-                chatBoxManager.Import(dlg.FileName);
-            });
-
-            t.SetApartmentState(ApartmentState.STA);
-            t.Start();
+            Action += () => WinForms.OpenFileDialog(@"chatbox.json|*.json", fileName => Schedule(() => chatBoxManager.Import(fileName)));
         }
     }
 

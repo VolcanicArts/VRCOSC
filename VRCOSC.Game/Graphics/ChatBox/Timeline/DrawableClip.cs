@@ -96,13 +96,13 @@ public partial class DrawableClip : Container
 
     protected override void LoadComplete()
     {
-        chatBoxManager.SelectedClip.BindValueChanged(e => Schedule(() =>
+        chatBoxManager.SelectedClip.BindValueChanged(e =>
         {
             ((Container)Child).BorderThickness = Clip == e.NewValue ? 4 : 2;
             background.FadeColour(Clip == e.NewValue ? ThemeManager.Current[ThemeAttribute.Darker] : ThemeManager.Current[ThemeAttribute.Dark], 300, Easing.OutQuart);
-        }), true);
+        }, true);
 
-        chatBoxManager.TimelineLength.BindValueChanged(_ => Schedule(updateSizeAndPosition), true);
+        chatBoxManager.TimelineLength.BindValueChanged(_ => updateSizeAndPosition(), true);
         Clip.Name.BindValueChanged(_ => updateDisplayName());
         Clip.Start.BindValueChanged(_ => updateDisplayName());
         Clip.End.BindValueChanged(_ => updateDisplayName());

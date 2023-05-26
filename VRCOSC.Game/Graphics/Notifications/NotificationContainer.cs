@@ -80,12 +80,12 @@ public sealed partial class NotificationContainer : VisibilityContainer
         if (Count == 0) Hide();
     }
 
-    public void Notify(Notification notification) => Schedule(() =>
+    public void Notify(Notification notification)
     {
         Show();
         notification.Show();
         Add(notification);
-    });
+    }
 
     protected override void PopIn() => this.MoveToX(0, transition_time, Easing.OutQuad);
     protected override void PopOut() => this.MoveToX(1, transition_time, Easing.InQuad);
