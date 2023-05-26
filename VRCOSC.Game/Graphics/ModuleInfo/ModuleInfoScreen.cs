@@ -8,6 +8,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osuTK;
 using VRCOSC.Game.Graphics.Screen;
+using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleInfo;
@@ -22,13 +23,12 @@ public partial class ModuleInfoScreen : BaseScreen
 
     protected override BaseHeader CreateHeader() => new ModuleInfoHeader();
 
-    protected override Drawable CreateBody() => new BasicScrollContainer
+    protected override Drawable CreateBody() => new VRCOSCScrollContainer
     {
         Anchor = Anchor.Centre,
         Origin = Anchor.Centre,
         RelativeSizeAxes = Axes.Both,
         ClampExtension = 0,
-        ScrollbarVisible = false,
         ScrollContent =
         {
             Child = new FillFlowContainer

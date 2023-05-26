@@ -42,7 +42,6 @@ public sealed partial class ModulesScreen : BaseScreen
         Origin = Anchor.Centre,
         RelativeSizeAxes = Axes.Both,
         ClampExtension = 0,
-        ScrollbarOverlapsContent = false,
         ScrollContent =
         {
             Child = moduleCardFlow = new FillFlowContainer<ModuleCard>

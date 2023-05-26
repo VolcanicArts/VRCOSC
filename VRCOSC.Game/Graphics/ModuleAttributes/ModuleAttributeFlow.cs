@@ -9,6 +9,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osuTK;
 using VRCOSC.Game.Graphics.Themes;
+using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Modules.Attributes;
 
 namespace VRCOSC.Game.Graphics.ModuleAttributes;
@@ -60,13 +61,12 @@ public partial class ModuleAttributeFlow : Container
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 Padding = new MarginPadding(2),
-                Child = new BasicScrollContainer
+                Child = new VRCOSCScrollContainer
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
                     RelativeSizeAxes = Axes.Both,
                     ClampExtension = 0,
-                    ScrollbarVisible = false,
                     ScrollContent =
                     {
                         Child = attributeFlow = new FillFlowContainer

@@ -56,7 +56,9 @@ public partial class DrawableParameterAttribute : Container
             t.Colour = ThemeManager.Current[ThemeAttribute.Text];
         });
 
-        textFlow.AddParagraph($"\nName: {parameterAttribute.ParameterName}", t =>
+        textFlow.NewParagraph();
+
+        textFlow.AddParagraph($"Name: {parameterAttribute.ParameterName}", t =>
         {
             t.Font = FrameworkFont.Regular.With(size: 17);
             t.Colour = ThemeManager.Current[ThemeAttribute.SubText];
