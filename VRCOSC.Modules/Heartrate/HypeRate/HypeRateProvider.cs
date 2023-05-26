@@ -34,46 +34,41 @@ public sealed class HypeRateProvider : HeartRateProvider
 
     protected override void HandleWsMessage(string message)
     {
-        var eventModel = JsonConvert.DeserializeObject<EventModel>(message);
-
-        if (eventModel is null)
+        try
         {
-            Log($"Received an unrecognised message:\n{message}");
-            return;
+            var eventModel = JsonConvert.DeserializeObject<EventModel>(message);
+
+            if (eventModel is null)
+            {
+                Log($"Received an unrecognised message:\n{message}");
+                return;
+            }
+
+            switch (eventModel.Event)
+            {
+                case "hr_update":
+                    handleHrUpdate(JsonConvert.DeserializeObject<HeartRateUpdateModel>(message)!);
+                    break;
+            }
         }
-
-        switch (eventModel.Event)
+        catch (JsonReaderException)
         {
-            case "hr_update":
-                handleHrUpdate(JsonConvert.DeserializeObject<HeartRateUpdateModel>(message)!);
-                break;
-
-            case "phx_reply":
-                handlePhxReply(JsonConvert.DeserializeObject<PhxReplyModel>(message)!);
-                break;
+            Log("Error receiving heartrate result");
         }
     }
 
     public void SendWsHeartBeat()
     {
-        Log("Sending HypeRate websocket heartbeat");
         SendData(new HeartBeatModel());
     }
 
     private void sendJoinChannel()
     {
-        Log($"Requesting to hook into heartrate for Id {hypeRateId}");
-
         var joinChannelModel = new JoinChannelModel
         {
             Id = hypeRateId
         };
         SendData(joinChannelModel);
-    }
-
-    private void handlePhxReply(PhxReplyModel reply)
-    {
-        Log($"Status of reply: {reply.Payload.Status}");
     }
 
     private void handleHrUpdate(HeartRateUpdateModel update)
