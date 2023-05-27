@@ -8,5 +8,5 @@ namespace VRCOSC.Game.Graphics.ModuleListing;
 public sealed partial class ModulesHeader : BaseHeader
 {
     protected override string Title => "Modules";
-    protected override string SubTitle => "Select and edit modules settings/parameters";
+    protected override string SubTitle => "Select modules and edit settings/parameters";
 }
