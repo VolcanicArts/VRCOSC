@@ -43,11 +43,14 @@ public partial class IconButton : BasicButton
 
     public bool IconShadow { get; init; }
 
+    public IconButton()
+    {
+        CornerRadius = 5;
+    }
+
     [BackgroundDependencyLoader]
     private void load()
     {
-        CornerRadius = 5;
-
         Add(wrapper = new Container
         {
             RelativeSizeAxes = Axes.Both,
