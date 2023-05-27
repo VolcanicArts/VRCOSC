@@ -68,7 +68,7 @@ public class MediaModule : ChatBoxModule
         hookIntoMedia();
     }
 
-    private async void hookIntoMedia()
+    private void hookIntoMedia() => Task.Run(async () =>
     {
         var result = await mediaProvider.InitialiseAsync();
 
@@ -79,7 +79,7 @@ public class MediaModule : ChatBoxModule
         }
 
         ChangeStateTo(mediaProvider.State.IsPlaying ? MediaState.Playing : MediaState.Paused);
-    }
+    });
 
     protected override void OnModuleStop()
     {
