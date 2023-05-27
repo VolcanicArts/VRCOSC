@@ -48,7 +48,6 @@ public partial class StringTextWithButtonAttributeCard : AttributeCard<ModuleStr
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 Text = AttributeData.ButtonText,
-                Masking = true,
                 CornerRadius = 5,
                 FontSize = 22,
                 Action = AttributeData.ButtonCallback,
