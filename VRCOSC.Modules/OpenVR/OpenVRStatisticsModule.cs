@@ -15,6 +15,11 @@ public class OpenVRStatisticsModule : ChatBoxModule
     public override ModuleType Type => ModuleType.OpenVR;
     protected override TimeSpan DeltaUpdate => TimeSpan.FromSeconds(5);
 
+    public override IEnumerable<string> Info => new List<string>
+    {
+        "The tracker order in Unity is the order you must turn your trackers on IRL"
+    };
+
     protected override void CreateAttributes()
     {
         CreateParameter<float>(OpenVrParameter.FPS, ParameterMode.Write, "VRCOSC/OpenVR/FPS", "FPS", "The current FPS normalised to 240 FPS");
