@@ -65,11 +65,17 @@ public class CounterModule : ChatBoxModule
 
     protected override void OnAnyParameterReceived(VRChatOscData data)
     {
-        if (!data.IsValueType<bool>()) return;
-        if (!data.ValueAs<bool>() || !counts.TryGetValue(data.ParameterName, out var value)) return;
+        if (!counts.TryGetValue(data.ParameterName, out var value)) return;
 
-        value.Count++;
-        SetVariableValue(CounterVariable.Value, value.Count.ToString("N0"), value.Key);
+        if (data.IsValueType<float>() && data.ValueAs<float>() > 0.9f) counterChanged(value);
+        if (data.IsValueType<int>() && data.ValueAs<int>() != 0) counterChanged(value);
+        if (data.IsValueType<bool>() && data.ValueAs<bool>()) counterChanged(value);
+    }
+
+    private void counterChanged(CountInstance instance)
+    {
+        instance.Count++;
+        SetVariableValue(CounterVariable.Value, instance.Count.ToString("N0"), instance.Key);
         TriggerEvent(CounterEvent.Changed);
     }
 
