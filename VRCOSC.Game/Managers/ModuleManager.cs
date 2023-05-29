@@ -5,6 +5,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Lists;
 using osu.Framework.Platform;
 using osu.Framework.Threading;
@@ -15,6 +17,7 @@ using VRCOSC.Game.Modules.Serialisation.V1;
 using VRCOSC.Game.Modules.Sources;
 using VRCOSC.Game.OSC.VRChat;
 using VRCOSC.Game.Serialisation;
+using Module = VRCOSC.Game.Modules.Module;
 
 namespace VRCOSC.Game.Managers;
 
@@ -44,6 +47,32 @@ public sealed class ModuleManager : IEnumerable<Module>
         this.gameManager = gameManager;
         this.secrets = secrets;
         this.scheduler = scheduler;
+    }
+
+    public Dictionary<Assembly, List<Module>> GroupedModules()
+    {
+        var dict = new Dictionary<string, (Assembly, List<Module>)>();
+
+        modules.ForEach(module =>
+        {
+            var assemblyKey = module.ContainingAssembly.GetName().FullName.ToLowerInvariant();
+
+            if (!dict.ContainsKey(assemblyKey))
+            {
+                dict.Add(assemblyKey, (module.ContainingAssembly, new List<Module>()));
+            }
+
+            dict[assemblyKey].Item2.Add(module);
+        });
+
+        var finalDict = new Dictionary<Assembly, List<Module>>();
+
+        dict.ForEach(pair =>
+        {
+            finalDict.Add(pair.Value.Item1, pair.Value.Item2);
+        });
+
+        return finalDict;
     }
 
     public void Load(Storage storage, NotificationContainer notification)

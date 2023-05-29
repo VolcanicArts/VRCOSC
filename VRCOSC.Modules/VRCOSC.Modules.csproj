@@ -6,6 +6,7 @@
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <LangVersion>11</LangVersion>
+        <Product>Official Modules</Product>
     </PropertyGroup>
 
     <ItemGroup>

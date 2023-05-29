@@ -11,7 +11,7 @@ namespace VRCOSC.Game.Modules.Sources;
 
 public class ExternalModuleSource : DLLModuleSource
 {
-    private const string custom_directory = "custom";
+    private const string custom_directory = "modules";
 
     private readonly Storage storage;
 

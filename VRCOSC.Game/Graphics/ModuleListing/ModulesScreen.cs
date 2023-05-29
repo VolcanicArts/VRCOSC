@@ -1,8 +1,8 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Linq;
 using osu.Framework.Allocation;
-using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osuTK;
@@ -20,7 +20,7 @@ public sealed partial class ModulesScreen : BaseScreen
     [Resolved]
     private GameManager gameManager { get; set; } = null!;
 
-    private FillFlowContainer<ModuleCard> moduleCardFlow = null!;
+    private FillFlowContainer moduleFlow = null!;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -44,15 +44,15 @@ public sealed partial class ModulesScreen : BaseScreen
         ClampExtension = 0,
         ScrollContent =
         {
-            Child = moduleCardFlow = new FillFlowContainer<ModuleCard>
+            Child = moduleFlow = new FillFlowContainer
             {
                 Anchor = Anchor.TopCentre,
                 Origin = Anchor.TopCentre,
                 RelativeSizeAxes = Axes.X,
                 AutoSizeAxes = Axes.Y,
                 Padding = new MarginPadding(5),
-                Direction = FillDirection.Full,
-                Spacing = new Vector2(0, 5),
+                Direction = FillDirection.Vertical,
+                Spacing = new Vector2(0, 10),
                 LayoutEasing = Easing.OutQuad,
                 LayoutDuration = 150
             }
@@ -61,6 +61,6 @@ public sealed partial class ModulesScreen : BaseScreen
 
     protected override void LoadComplete()
     {
-        gameManager.ModuleManager.ForEach(module => moduleCardFlow.Add(new ModuleCard(module)));
+        moduleFlow.AddRange(gameManager.ModuleManager.GroupedModules().Select(pair => new DrawableModuleAssembly(pair.Key, pair.Value)));
     }
 }

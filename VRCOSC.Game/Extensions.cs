@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 
@@ -72,4 +73,13 @@ public static class Colour4Extensions
 public static class BindableListExtensions
 {
     public static void ReplaceItems<T>(this BindableList<T> source, IEnumerable<T> items) => source.ReplaceRange(0, source.Count, items);
+}
+
+public static class AssemblyExtensions
+{
+    public static T? GetAssemblyAttribute<T>(this System.Reflection.Assembly ass) where T : Attribute
+    {
+        var attributes = ass.GetCustomAttributes(typeof(T), false);
+        return attributes.Length == 0 ? null : attributes.OfType<T>().SingleOrDefault();
+    }
 }
