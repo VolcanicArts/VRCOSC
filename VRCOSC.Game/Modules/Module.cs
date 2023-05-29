@@ -89,6 +89,8 @@ public abstract class Module : IComparable<Module>
         Parameters.Values.ForEach(parameter => parameter.Setup());
 
         State.ValueChanged += _ => Log(State.Value.ToString());
+
+        Deserialise();
     }
 
     #region Serialisation

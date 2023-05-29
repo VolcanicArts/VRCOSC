@@ -3,6 +3,7 @@
 
 using System.Linq;
 using osu.Framework.Allocation;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osuTK;
@@ -61,6 +62,17 @@ public sealed partial class ModulesScreen : BaseScreen
 
     protected override void LoadComplete()
     {
-        moduleFlow.AddRange(gameManager.ModuleManager.ModuleCollections.Values.Select(collection => new DrawableModuleAssembly(collection)));
+        gameManager.ModuleManager.ModuleCollections.Values.Select(collection => new DrawableModuleAssembly(collection)).ForEach(drawableModuleAssembly =>
+        {
+            moduleFlow.Add(drawableModuleAssembly);
+
+            moduleFlow.Add(new LineSeparator
+            {
+                Anchor = Anchor.TopCentre,
+                Origin = Anchor.TopCentre
+            });
+        });
+
+        moduleFlow.Remove(moduleFlow.Last(), true);
     }
 }
