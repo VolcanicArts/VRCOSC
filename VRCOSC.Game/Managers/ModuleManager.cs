@@ -106,14 +106,21 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
 
     private void registerModule(Type type)
     {
-        var module = (Module)Activator.CreateInstance(type)!;
-        module.InjectDependencies(host, gameManager, secrets, scheduler, storage, notification);
-        module.Load();
+        try
+        {
+            var module = (Module)Activator.CreateInstance(type)!;
+            module.InjectDependencies(host, gameManager, secrets, scheduler, storage, notification);
+            module.Load();
 
-        var assemblyLookup = module.ContainingAssembly.GetName().Name!.ToLowerInvariant();
+            var assemblyLookup = module.ContainingAssembly.GetName().Name!.ToLowerInvariant();
 
-        ModuleCollections.TryAdd(assemblyLookup, new ModuleCollection(module.ContainingAssembly));
-        ModuleCollections[assemblyLookup].Modules.Add(module);
+            ModuleCollections.TryAdd(assemblyLookup, new ModuleCollection(module.ContainingAssembly));
+            ModuleCollections[assemblyLookup].Modules.Add(module);
+        }
+        catch (Exception)
+        {
+            notification.Notify(new ExceptionNotification($"{type.Name} could not be loaded. It may require an update"));
+        }
     }
 
     public void Start()
