@@ -24,6 +24,6 @@ public class LegacySerialisableModuleManager
     public LegacySerialisableModuleManager(ModuleManager moduleManager)
     {
         Version = 1;
-        moduleManager.ForEach(module => Modules.Add(module.SerialisedName, new LegacySerialisableModule(module)));
+        moduleManager.Modules.ForEach(module => Modules.Add(module.SerialisedName, new LegacySerialisableModule(module)));
     }
 }

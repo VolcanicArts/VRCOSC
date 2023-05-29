@@ -61,6 +61,6 @@ public sealed partial class ModulesScreen : BaseScreen
 
     protected override void LoadComplete()
     {
-        moduleFlow.AddRange(gameManager.ModuleManager.GroupedModules().Select(pair => new DrawableModuleAssembly(pair.Key, pair.Value)));
+        moduleFlow.AddRange(gameManager.ModuleManager.ModuleCollections.Values.Select(collection => new DrawableModuleAssembly(collection)));
     }
 }

@@ -5,9 +5,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using osu.Framework.Extensions.IEnumerableExtensions;
-using osu.Framework.Lists;
 using osu.Framework.Platform;
 using osu.Framework.Threading;
 using VRCOSC.Game.Graphics.Notifications;
@@ -20,17 +17,18 @@ using Module = VRCOSC.Game.Modules.Module;
 
 namespace VRCOSC.Game.Managers;
 
-public sealed class ModuleManager : IEnumerable<Module>
+public sealed class ModuleManager : IEnumerable<ModuleCollection>
 {
-    private static TerminalLogger terminal => new("ModuleManager");
+    private static TerminalLogger terminal => new("VRCOSC");
 
     private readonly List<IModuleSource> sources = new();
-    private readonly SortedList<Module> modules = new();
+    public readonly Dictionary<string, ModuleCollection> ModuleCollections = new();
+
+    // TODO - Can be made private when migration is complete
+    public IReadOnlyList<Module> Modules => ModuleCollections.Values.SelectMany(collection => collection.Modules).ToList();
 
     public Action? OnModuleEnabledChanged;
-
-    public void AddSource(IModuleSource source) => sources.Add(source);
-    public bool RemoveSource(IModuleSource source) => sources.Remove(source);
+    public Action? OnImportFinished;
 
     private GameHost host = null!;
     private GameManager gameManager = null!;
@@ -48,38 +46,15 @@ public sealed class ModuleManager : IEnumerable<Module>
         this.scheduler = scheduler;
     }
 
-    public Dictionary<Assembly, List<Module>> GroupedModules()
-    {
-        var dict = new Dictionary<string, (Assembly, List<Module>)>();
-
-        modules.ForEach(module =>
-        {
-            var assemblyKey = module.ContainingAssembly.GetName().FullName.ToLowerInvariant();
-
-            if (!dict.ContainsKey(assemblyKey))
-            {
-                dict.Add(assemblyKey, (module.ContainingAssembly, new List<Module>()));
-            }
-
-            dict[assemblyKey].Item2.Add(module);
-        });
-
-        var finalDict = new Dictionary<Assembly, List<Module>>();
-
-        dict.ForEach(pair =>
-        {
-            finalDict.Add(pair.Value.Item1, pair.Value.Item2);
-        });
-
-        return finalDict;
-    }
-
     public void Load(Storage storage, NotificationContainer notification)
     {
+        sources.Add(new InternalModuleSource());
+        sources.Add(new ExternalModuleSource(storage));
+
         serialisationManager = new SerialisationManager();
         serialisationManager.RegisterSerialiser(1, new LegacyModuleManagerSerialiser(storage, notification, this));
 
-        modules.Clear();
+        ModuleCollections.Clear();
 
         sources.ForEach(source =>
         {
@@ -88,11 +63,15 @@ public sealed class ModuleManager : IEnumerable<Module>
                 var module = (Module)Activator.CreateInstance(type)!;
                 module.InjectDependencies(host, gameManager, secrets, scheduler, storage, notification);
                 module.Load();
-                modules.Add(module);
+
+                var assemblyLookup = module.ContainingAssembly.GetName().FullName.ToLowerInvariant();
+
+                ModuleCollections.TryAdd(assemblyLookup, new ModuleCollection(module.ContainingAssembly));
+                ModuleCollections[assemblyLookup].Modules.Add(module);
             }
         });
 
-        foreach (var module in this)
+        foreach (var module in Modules)
         {
             module.Enabled.BindValueChanged(_ =>
             {
@@ -108,7 +87,7 @@ public sealed class ModuleManager : IEnumerable<Module>
         }
 
         // TODO - Move into module.Load() when migration is complete
-        foreach (var module in this)
+        foreach (var module in Modules)
         {
             module.Deserialise();
         }
@@ -116,12 +95,12 @@ public sealed class ModuleManager : IEnumerable<Module>
 
     public void Start()
     {
-        if (modules.All(module => !module.Enabled.Value))
+        if (ModuleCollections.All(pair => pair.Value.All(module => !module.Enabled.Value)))
             terminal.Log("You have no modules selected!\nSelect some modules to begin using VRCOSC");
 
         runningModulesCache.Clear();
 
-        foreach (var module in modules.Where(module => module.Enabled.Value))
+        foreach (var module in Modules.Where(module => module.Enabled.Value))
         {
             module.Start();
             runningModulesCache.Add(module);
@@ -159,10 +138,12 @@ public sealed class ModuleManager : IEnumerable<Module>
         }
     }
 
-    public IEnumerable<string> GetEnabledModuleNames() => modules.Where(module => module.Enabled.Value).Select(module => module.SerialisedName);
+    public Module? GetModule(string serialisedName) => Modules.SingleOrDefault(module => module.SerialisedName == serialisedName);
 
-    public string GetModuleName(string serialisedName) => modules.Single(module => module.SerialisedName == serialisedName).Title;
+    public IEnumerable<string> GetEnabledModuleNames() => Modules.Where(module => module.Enabled.Value).Select(module => module.SerialisedName);
 
-    public IEnumerator<Module> GetEnumerator() => modules.GetEnumerator();
+    public string GetModuleName(string serialisedName) => Modules.Single(module => module.SerialisedName == serialisedName).Title;
+
+    public IEnumerator<ModuleCollection> GetEnumerator() => ModuleCollections.Values.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

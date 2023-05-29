@@ -1,28 +1,24 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
-using Module = VRCOSC.Game.Modules.Module;
+using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleListing;
 
 public partial class DrawableModuleAssembly : Container
 {
-    private readonly Assembly moduleAssembly;
-    private readonly List<Module> modules;
+    private readonly ModuleCollection moduleCollection;
     private FillFlowContainer moduleFlow = null!;
 
-    public DrawableModuleAssembly(Assembly moduleAssembly, List<Module> modules)
+    public DrawableModuleAssembly(ModuleCollection moduleCollection)
     {
-        this.moduleAssembly = moduleAssembly;
-        this.modules = modules;
+        this.moduleCollection = moduleCollection;
     }
 
     [BackgroundDependencyLoader]
@@ -51,7 +47,7 @@ public partial class DrawableModuleAssembly : Container
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
                         Font = FrameworkFont.Regular.With(size: 30),
-                        Text = moduleAssembly.GetCustomAttribute<AssemblyProductAttribute>()?.Product ?? "UNKNOWN"
+                        Text = moduleCollection.Title
                     }
                 }
             }
@@ -60,6 +56,6 @@ public partial class DrawableModuleAssembly : Container
 
     protected override void LoadComplete()
     {
-        moduleFlow.AddRange(modules.Select(module => new ModuleCard(module)));
+        moduleFlow.AddRange(moduleCollection.Modules.Select(module => new ModuleCard(module)));
     }
 }

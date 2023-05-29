@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Linq;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Platform;
 using VRCOSC.Game.Graphics.Notifications;
@@ -28,7 +27,7 @@ public class LegacyModuleManagerSerialiser : Serialiser<ModuleManager, LegacySer
         {
             var (moduleName, moduleData) = modulePair;
 
-            var module = moduleManager.SingleOrDefault(module => module.SerialisedName == moduleName);
+            var module = moduleManager.GetModule(moduleName);
             if (module is null) return;
 
             module.Enabled.Value = moduleData.Enabled;

@@ -21,7 +21,6 @@ using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.Modules.Avatar;
-using VRCOSC.Game.Modules.Sources;
 using VRCOSC.Game.OpenVR;
 using VRCOSC.Game.OpenVR.Metadata;
 using VRCOSC.Game.OSC;
@@ -106,8 +105,6 @@ public partial class GameManager : Component
     private void setupModules()
     {
         ModuleManager = new ModuleManager();
-        ModuleManager.AddSource(new InternalModuleSource());
-        ModuleManager.AddSource(new ExternalModuleSource(storage));
         ModuleManager.InjectModuleDependencies(host, this, secrets, new Scheduler(() => ThreadSafety.IsUpdateThread, Clock));
         ModuleManager.Load(storage, notifications);
     }
@@ -213,7 +210,7 @@ public partial class GameManager : Component
         }
 
         var moduleEnabled = new Dictionary<string, bool>();
-        ModuleManager.ForEach(module => moduleEnabled.Add(module.SerialisedName, module.Enabled.Value));
+        ModuleManager.Modules.ForEach(module => moduleEnabled.Add(module.SerialisedName, module.Enabled.Value));
 
         AvatarConfig = null;
 
