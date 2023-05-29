@@ -6,24 +6,24 @@ using Newtonsoft.Json;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using VRCOSC.Game.Managers;
 
-namespace VRCOSC.Game.Modules.Serialisation.V1.Models;
+namespace VRCOSC.Game.Modules.Serialisation.Legacy.Models;
 
-public class SerialisableModuleManager
+public class LegacySerialisableModuleManager
 {
     [JsonProperty("version")]
     public int Version;
 
     [JsonProperty("modules")]
-    public Dictionary<string, SerialisableModule> Modules = new();
+    public Dictionary<string, LegacySerialisableModule> Modules = new();
 
     [JsonConstructor]
-    public SerialisableModuleManager()
+    public LegacySerialisableModuleManager()
     {
     }
 
-    public SerialisableModuleManager(ModuleManager moduleManager)
+    public LegacySerialisableModuleManager(ModuleManager moduleManager)
     {
         Version = 1;
-        moduleManager.ForEach(module => Modules.Add(module.SerialisedName, new SerialisableModule(module)));
+        moduleManager.ForEach(module => Modules.Add(module.SerialisedName, new LegacySerialisableModule(module)));
     }
 }

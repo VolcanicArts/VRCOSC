@@ -13,7 +13,6 @@ using osu.Framework.Threading;
 using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.Modules.Serialisation.Legacy;
-using VRCOSC.Game.Modules.Serialisation.V1;
 using VRCOSC.Game.Modules.Sources;
 using VRCOSC.Game.OSC.VRChat;
 using VRCOSC.Game.Serialisation;
@@ -78,7 +77,7 @@ public sealed class ModuleManager : IEnumerable<Module>
     public void Load(Storage storage, NotificationContainer notification)
     {
         serialisationManager = new SerialisationManager();
-        serialisationManager.RegisterSerialiser(1, new ModuleSerialiser(storage, notification, this));
+        serialisationManager.RegisterSerialiser(1, new LegacyModuleManagerSerialiser(storage, notification, this));
 
         modules.Clear();
 
@@ -87,55 +86,32 @@ public sealed class ModuleManager : IEnumerable<Module>
             foreach (var type in source.Load())
             {
                 var module = (Module)Activator.CreateInstance(type)!;
-                module.InjectDependencies(host, gameManager, secrets, scheduler);
+                module.InjectDependencies(host, gameManager, secrets, scheduler, storage, notification);
                 module.Load();
                 modules.Add(module);
             }
         });
-
-        deserialiseProxy(storage);
 
         foreach (var module in this)
         {
             module.Enabled.BindValueChanged(_ =>
             {
                 OnModuleEnabledChanged?.Invoke();
-                Serialise();
+                module.Serialise();
             });
         }
-    }
 
-    // Handles migration from LegacyModuleSerialiser
-    private void deserialiseProxy(Storage storage)
-    {
-        if (!storage.Exists("modules.json"))
+        if (storage.Exists("modules.json"))
         {
-            var legacySerialisation = new LegacyModuleSerialiser(storage);
-
-            foreach (var module in this)
-            {
-                legacySerialisation.Deserialise(module);
-            }
-
-            if (serialisationManager.Serialise())
-            {
-                storage.DeleteDirectory("modules");
-            }
+            serialisationManager.Deserialise();
+            storage.Delete("modules.json");
         }
-        else
+
+        // TODO - Move into module.Load() when migration is complete
+        foreach (var module in this)
         {
-            Deserialise();
+            module.Deserialise();
         }
-    }
-
-    public void Deserialise()
-    {
-        serialisationManager.Deserialise();
-    }
-
-    public void Serialise()
-    {
-        serialisationManager.Serialise();
     }
 
     public void Start()

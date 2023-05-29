@@ -5,13 +5,10 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using osu.Framework.Extensions.IEnumerableExtensions;
 
-namespace VRCOSC.Game.Modules.Serialisation.V1.Models;
+namespace VRCOSC.Game.Modules.Serialisation.Legacy.Models;
 
-public class SerialisableModule
+public class LegacySerialisableModule
 {
-    [JsonProperty("version")]
-    public int Version;
-
     [JsonProperty("enabled")]
     public bool Enabled;
 
@@ -22,14 +19,12 @@ public class SerialisableModule
     public Dictionary<string, object> Parameters = new();
 
     [JsonConstructor]
-    public SerialisableModule()
+    public LegacySerialisableModule()
     {
     }
 
-    public SerialisableModule(Module module)
+    public LegacySerialisableModule(Module module)
     {
-        Version = 1;
-
         Enabled = module.Enabled.Value;
 
         module.Settings.ForEach(pair =>

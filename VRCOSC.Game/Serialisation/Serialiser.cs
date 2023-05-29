@@ -15,10 +15,11 @@ namespace VRCOSC.Game.Serialisation;
 public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where TSerialisable : class
 {
     private readonly object serialisationLock = new();
-    private readonly Storage storage;
     private readonly NotificationContainer notification;
     private readonly TReference reference;
+    private Storage storage;
 
+    protected virtual string Directory => string.Empty;
     protected virtual string FileName => throw new NotImplementedException($"{typeof(Serialiser<TReference, TSerialisable>)} requires a file name");
 
     protected Serialiser(Storage storage, NotificationContainer notification, TReference reference)
@@ -26,6 +27,11 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
         this.storage = storage;
         this.notification = notification;
         this.reference = reference;
+    }
+
+    public void Initialise()
+    {
+        if (!string.IsNullOrEmpty(Directory)) storage = storage.GetStorageForDirectory(Directory);
     }
 
     public bool DoesFileExist() => storage.Exists(FileName);

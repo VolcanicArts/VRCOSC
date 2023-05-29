@@ -11,11 +11,14 @@ using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Platform;
 using osu.Framework.Threading;
+using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Managers;
 using VRCOSC.Game.Modules.Attributes;
 using VRCOSC.Game.Modules.Avatar;
+using VRCOSC.Game.Modules.Serialisation.V1;
 using VRCOSC.Game.OpenVR;
 using VRCOSC.Game.OSC.VRChat;
+using VRCOSC.Game.Serialisation;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable InconsistentNaming
@@ -41,7 +44,6 @@ public abstract class Module : IComparable<Module>
     internal readonly BindableBool Enabled = new();
     internal readonly Dictionary<string, ModuleAttribute> Settings = new();
     internal readonly Dictionary<Enum, ModuleParameter> Parameters = new();
-    internal readonly Dictionary<string, Enum> ParametersLookup = new();
 
     public virtual string Title => string.Empty;
     public virtual string Description => string.Empty;
@@ -65,12 +67,17 @@ public abstract class Module : IComparable<Module>
 
     internal Assembly ContainingAssembly => GetType().Assembly;
 
-    public void InjectDependencies(GameHost host, GameManager gameManager, IVRCOSCSecrets secrets, Scheduler scheduler)
+    private SerialisationManager serialisationManager = null!;
+
+    public void InjectDependencies(GameHost host, GameManager gameManager, IVRCOSCSecrets secrets, Scheduler scheduler, Storage storage, NotificationContainer notifications)
     {
         Host = host;
         GameManager = gameManager;
         Secrets = secrets;
         Scheduler = scheduler;
+
+        serialisationManager = new SerialisationManager();
+        serialisationManager.RegisterSerialiser(1, new ModuleSerialiser(storage, notifications, this));
     }
 
     public void Load()
@@ -81,9 +88,22 @@ public abstract class Module : IComparable<Module>
         Settings.Values.ForEach(setting => setting.Setup());
         Parameters.Values.ForEach(parameter => parameter.Setup());
 
-        Parameters.ForEach(pair => ParametersLookup.Add(pair.Key.ToLookup(), pair.Key));
         State.ValueChanged += _ => Log(State.Value.ToString());
     }
+
+    #region Serialisation
+
+    public void Serialise()
+    {
+        serialisationManager.Serialise();
+    }
+
+    public void Deserialise()
+    {
+        serialisationManager.Deserialise();
+    }
+
+    #endregion
 
     #region Attributes
 

@@ -148,7 +148,7 @@ public partial class GameManager : Component
 
         editingModule.BindValueChanged(e =>
         {
-            if (e.NewValue is null && e.OldValue is not null) ModuleManager.Serialise();
+            if (e.NewValue is null && e.OldValue is not null) e.OldValue.Serialise();
         }, true);
     }
 
