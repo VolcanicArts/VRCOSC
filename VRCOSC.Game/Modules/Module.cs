@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Reflection;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
@@ -64,8 +63,6 @@ public abstract class Module : IComparable<Module>
     protected bool HasStarted => State.Value == ModuleState.Started;
     protected bool IsStopping => State.Value == ModuleState.Stopping;
     protected bool HasStopped => State.Value == ModuleState.Stopped;
-
-    internal Assembly ContainingAssembly => GetType().Assembly;
 
     private SerialisationManager serialisationManager = null!;
 

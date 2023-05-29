@@ -101,10 +101,10 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
 
     private void loadModulesFromAssembly(Assembly assembly)
     {
-        assembly.GetTypes().Where(type => type.IsSubclassOf(typeof(Module)) && !type.IsAbstract).ForEach(registerModule);
+        assembly.GetTypes().Where(type => type.IsSubclassOf(typeof(Module)) && !type.IsAbstract).ForEach(type => registerModule(assembly, type));
     }
 
-    private void registerModule(Type type)
+    private void registerModule(Assembly assembly, Type type)
     {
         try
         {
@@ -112,9 +112,9 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
             module.InjectDependencies(host, gameManager, secrets, scheduler, storage, notification);
             module.Load();
 
-            var assemblyLookup = module.ContainingAssembly.GetName().Name!.ToLowerInvariant();
+            var assemblyLookup = assembly.GetName().Name!.ToLowerInvariant();
 
-            ModuleCollections.TryAdd(assemblyLookup, new ModuleCollection(module.ContainingAssembly));
+            ModuleCollections.TryAdd(assemblyLookup, new ModuleCollection(assembly));
             ModuleCollections[assemblyLookup].Modules.Add(module);
         }
         catch (Exception)
