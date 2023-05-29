@@ -9,6 +9,7 @@ using osu.Framework.Graphics.Containers;
 using osuTK;
 using VRCOSC.Game.Graphics.ModuleAttributes;
 using VRCOSC.Game.Graphics.ModuleInfo;
+using VRCOSC.Game.Graphics.RepoListing;
 using VRCOSC.Game.Graphics.Screen;
 using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Managers;
@@ -22,6 +23,7 @@ public sealed partial class ModulesScreen : BaseScreen
     private GameManager gameManager { get; set; } = null!;
 
     private FillFlowContainer moduleFlow = null!;
+    private RepoListingPopover repoListing = null!;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -31,8 +33,14 @@ public sealed partial class ModulesScreen : BaseScreen
         AddRange(new Drawable[]
         {
             new ModuleAttributesPopover(),
-            new ModuleInfoPopover()
+            new ModuleInfoPopover(),
+            repoListing = new RepoListingPopover()
         });
+    }
+
+    public void ShowRepoListing()
+    {
+        repoListing.Show();
     }
 
     protected override BaseHeader CreateHeader() => new ModulesHeader();
