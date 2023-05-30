@@ -12,7 +12,7 @@ internal static class OfficialModuleSecrets
     internal static string GetSecret(OfficialModuleSecretsKeys key) => secrets.TryGetValue(key, out var secret) ? secret : string.Empty;
 }
 
-public enum OfficialModuleSecretsKeys
+internal enum OfficialModuleSecretsKeys
 {
     Hyperate,
     Weather
