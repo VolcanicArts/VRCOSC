@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using VRCOSC.Game;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Modules.Heartrate.HypeRate;
@@ -12,7 +11,7 @@ public sealed class HypeRateModule : HeartRateModule
     public override string Description => @"Connects to HypeRate.io and sends your heartrate to VRChat";
     protected override TimeSpan DeltaUpdate => TimeSpan.FromSeconds(10);
 
-    protected override HeartRateProvider CreateHeartRateProvider() => new HypeRateProvider(GetSetting<string>(HypeRateSetting.Id), Secrets.GetSecret(VRCOSCSecretsKeys.Hyperate), new TerminalLogger(Title));
+    protected override HeartRateProvider CreateHeartRateProvider() => new HypeRateProvider(GetSetting<string>(HypeRateSetting.Id), OfficialModuleSecrets.GetSecret(OfficialModuleSecretsKeys.Hyperate), new TerminalLogger(Title));
 
     protected override void CreateAttributes()
     {

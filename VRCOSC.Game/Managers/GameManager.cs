@@ -58,9 +58,6 @@ public partial class GameManager : Component
     private GameHost host { get; set; } = null!;
 
     [Resolved]
-    private IVRCOSCSecrets secrets { get; set; } = null!;
-
-    [Resolved]
     private ChatBoxManager chatBoxManager { get; set; } = null!;
 
     [Resolved]
@@ -105,7 +102,7 @@ public partial class GameManager : Component
     private void setupModules()
     {
         ModuleManager = new ModuleManager();
-        ModuleManager.InjectModuleDependencies(host, this, secrets, new Scheduler(() => ThreadSafety.IsUpdateThread, Clock), storage, notifications);
+        ModuleManager.InjectModuleDependencies(host, this, new Scheduler(() => ThreadSafety.IsUpdateThread, Clock), storage, notifications);
         ModuleManager.Load();
     }
 

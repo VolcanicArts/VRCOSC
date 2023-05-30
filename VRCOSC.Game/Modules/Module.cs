@@ -28,7 +28,6 @@ public abstract class Module : IComparable<Module>
 {
     private GameHost Host = null!;
     private GameManager GameManager = null!;
-    protected IVRCOSCSecrets Secrets { get; private set; } = null!;
     private Scheduler Scheduler = null!;
 
     private TerminalLogger Terminal = null!;
@@ -66,11 +65,10 @@ public abstract class Module : IComparable<Module>
 
     private SerialisationManager serialisationManager = null!;
 
-    public void InjectDependencies(GameHost host, GameManager gameManager, IVRCOSCSecrets secrets, Scheduler scheduler, Storage storage, NotificationContainer notifications)
+    public void InjectDependencies(GameHost host, GameManager gameManager, Scheduler scheduler, Storage storage, NotificationContainer notifications)
     {
         Host = host;
         GameManager = gameManager;
-        Secrets = secrets;
         Scheduler = scheduler;
 
         serialisationManager = new SerialisationManager();

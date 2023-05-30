@@ -32,7 +32,6 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
 
     private GameHost host = null!;
     private GameManager gameManager = null!;
-    private IVRCOSCSecrets secrets = null!;
     private Scheduler scheduler = null!;
     private Storage storage = null!;
     private NotificationContainer notification = null!;
@@ -40,11 +39,10 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
 
     private readonly List<Module> runningModulesCache = new();
 
-    public void InjectModuleDependencies(GameHost host, GameManager gameManager, IVRCOSCSecrets secrets, Scheduler scheduler, Storage storage, NotificationContainer notification)
+    public void InjectModuleDependencies(GameHost host, GameManager gameManager, Scheduler scheduler, Storage storage, NotificationContainer notification)
     {
         this.host = host;
         this.gameManager = gameManager;
-        this.secrets = secrets;
         this.scheduler = scheduler;
         this.storage = storage;
         this.notification = notification;
@@ -109,7 +107,7 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
         try
         {
             var module = (Module)Activator.CreateInstance(type)!;
-            module.InjectDependencies(host, gameManager, secrets, scheduler, storage, notification);
+            module.InjectDependencies(host, gameManager, scheduler, storage, notification);
             module.Load();
 
             var assemblyLookup = assembly.GetName().Name!.ToLowerInvariant();

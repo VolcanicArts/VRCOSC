@@ -65,7 +65,6 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         ThemeManager.VRCOSCTheme = ConfigManager.Get<VRCOSCTheme>(VRCOSCSetting.Theme);
 
         DependencyContainer.CacheAs(notificationContainer = new NotificationContainer());
-        DependencyContainer.CacheAs(typeof(IVRCOSCSecrets), GetSecrets());
         DependencyContainer.CacheAs(routerManager = new RouterManager(storage, notificationContainer));
         DependencyContainer.CacheAs(startupManager = new StartupManager(storage, notificationContainer));
 
@@ -183,6 +182,5 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         Exit();
     }
 
-    protected abstract IVRCOSCSecrets GetSecrets();
     protected abstract VRCOSCUpdateManager CreateUpdateManager();
 }
