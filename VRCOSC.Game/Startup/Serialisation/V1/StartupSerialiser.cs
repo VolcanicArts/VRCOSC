@@ -24,7 +24,6 @@ public class StartupSerialiser : Serialiser<StartupManager, SerialisableStartupM
 
     protected override void ExecuteAfterDeserialisation(StartupManager startupManager, SerialisableStartupManager data)
     {
-        startupManager.FilePaths.Clear();
-        startupManager.FilePaths.AddRange(data.FilePaths.Select(path => new Bindable<string>(path)));
+        startupManager.FilePaths.ReplaceItems(data.FilePaths.Select(path => new Bindable<string>(path)));
     }
 }

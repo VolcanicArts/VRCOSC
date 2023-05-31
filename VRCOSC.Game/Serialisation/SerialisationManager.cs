@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace VRCOSC.Game.Serialisation;
@@ -15,23 +16,24 @@ public class SerialisationManager
 
     public void RegisterSerialiser(int version, ISerialiser serialiser)
     {
+        serialiser.Initialise();
         latestSerialiserVersion = Math.Max(version, latestSerialiserVersion);
         serialisers.Add(version, serialiser);
     }
 
-    public bool Deserialise()
+    public void Deserialise(string filePathOverride = "")
     {
-        var doesFileExist = false;
-
-        foreach (var (_, serialiser) in serialisers.OrderBy(pair => pair.Key))
+        if (string.IsNullOrEmpty(filePathOverride))
         {
-            if (serialiser.DoesFileExist()) doesFileExist = true;
+            if (!serialisers.Values.Any(serialiser => serialiser.DoesFileExist()))
+            {
+                Serialise();
+                return;
+            }
         }
-
-        if (!doesFileExist)
+        else
         {
-            Serialise();
-            return false;
+            if (!File.Exists(filePathOverride)) return;
         }
 
         foreach (var (version, serialiser) in serialisers.OrderBy(pair => pair.Key))
@@ -39,25 +41,30 @@ public class SerialisationManager
             if (!serialiser.TryGetVersion(out var foundVersion)) continue;
             if (version != foundVersion) continue;
 
-            return deserialise(serialiser);
+            deserialise(serialiser, filePathOverride);
+            return;
         }
 
-        // If there are no valid versions found there's either no file OR there is a file with no version
-        // Attempt to deserialise using the 0th serialiser which is reserved for files from before the serialisation standardisation and latest serialiser
-
+        // Attempt to deserialise using the 0th serialiser which is reserved for files from before the serialisation standardisation
         // Note: 0th used for RouterManager migration
-        if (serialisers.TryGetValue(0, out var zerothSerialiser)) return deserialise(zerothSerialiser);
-        if (serialisers.TryGetValue(latestSerialiserVersion, out var latestSerialiser)) return deserialise(latestSerialiser);
+        if (serialisers.TryGetValue(0, out var zerothSerialiser))
+        {
+            deserialise(zerothSerialiser, filePathOverride);
+            return;
+        }
 
-        return false;
+        // Since we've got to this point that means a file exists that has no version, or the file is corrupt
+        // As a last resort, attempt to deserialise with the latest serialiser. This also triggers the error notification
+        if (!serialisers.TryGetValue(latestSerialiserVersion, out var latestSerialiser)) return;
+
+        deserialise(latestSerialiser, filePathOverride);
     }
 
-    private bool deserialise(ISerialiser serialiser)
+    private void deserialise(ISerialiser serialiser, string filePathOverride)
     {
-        if (!serialiser.Deserialise()) return false;
+        if (!serialiser.Deserialise(filePathOverride)) return;
 
         Serialise();
-        return true;
     }
 
     public bool Serialise() => serialisers[latestSerialiserVersion].Serialise();

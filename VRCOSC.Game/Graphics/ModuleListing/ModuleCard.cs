@@ -137,7 +137,6 @@ public sealed partial class ModuleCard : Container
                                                 RelativeSizeAxes = Axes.Both,
                                                 Icon = FontAwesome.Solid.Question,
                                                 IconPadding = 5,
-                                                CornerRadius = 5,
                                                 Action = () => infoModule.Value = Module,
                                                 BackgroundColour = ThemeManager.Current[ThemeAttribute.Light]
                                             }
@@ -155,7 +154,6 @@ public sealed partial class ModuleCard : Container
                                                 RelativeSizeAxes = Axes.Both,
                                                 Icon = FontAwesome.Solid.Get(0xF013),
                                                 IconPadding = 5,
-                                                CornerRadius = 5,
                                                 Action = () => editingModule.Value = Module,
                                                 BackgroundColour = ThemeManager.Current[ThemeAttribute.Light]
                                             }

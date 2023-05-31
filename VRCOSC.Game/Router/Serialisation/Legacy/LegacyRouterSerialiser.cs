@@ -23,7 +23,6 @@ public class LegacyRouterSerialiser : Serialiser<RouterManager, List<RouterData>
 
     protected override void ExecuteAfterDeserialisation(RouterManager routerManager, List<RouterData> data)
     {
-        routerManager.Store.Clear();
-        routerManager.Store.AddRange(data);
+        routerManager.Store.ReplaceItems(data);
     }
 }

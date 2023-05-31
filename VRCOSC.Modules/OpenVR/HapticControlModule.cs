@@ -12,6 +12,13 @@ public class HapticControlModule : Module
     public override string Author => "VolcanicArts";
     public override ModuleType Type => ModuleType.OpenVR;
 
+    public override IEnumerable<string> Info => new List<string>
+    {
+        "The duration, frequency, and amplitude parameters can be set from your animator",
+        "If you're designing a prefab, ensure these parameters are set each time before you attempt a trigger in the case that the user has restarted this module",
+        "Trigger parameters must be set back to false before attempting another trigger"
+    };
+
     private float duration;
     private float frequency;
     private float amplitude;

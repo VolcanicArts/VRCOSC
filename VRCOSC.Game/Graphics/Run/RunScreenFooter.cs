@@ -66,7 +66,6 @@ public partial class RunScreenFooter : Container
                                     RelativeSizeAxes = Axes.Both,
                                     Icon = FontAwesome.Solid.Play,
                                     IconShadow = true,
-                                    Masking = true,
                                     CornerRadius = 10,
                                     BackgroundColour = ThemeManager.Current[ThemeAttribute.Success],
                                     Action = gameManager.Start
@@ -97,7 +96,6 @@ public partial class RunScreenFooter : Container
                                     RelativeSizeAxes = Axes.Both,
                                     Icon = FontAwesome.Solid.Stop,
                                     IconShadow = true,
-                                    Masking = true,
                                     CornerRadius = 10,
                                     BackgroundColour = ThemeManager.Current[ThemeAttribute.Failure],
                                     Action = gameManager.Stop
@@ -117,7 +115,6 @@ public partial class RunScreenFooter : Container
                                     RelativeSizeAxes = Axes.Both,
                                     Icon = FontAwesome.Solid.Redo,
                                     IconShadow = true,
-                                    Masking = true,
                                     CornerRadius = 10,
                                     BackgroundColour = ThemeManager.Current[ThemeAttribute.Action],
                                     Action = gameManager.Restart

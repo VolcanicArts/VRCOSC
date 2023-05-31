@@ -36,7 +36,7 @@ public partial class ModuleAttributesScreen : BaseScreen
             {
                 new Dimension(),
                 new Dimension(GridSizeMode.Absolute, 5),
-                new Dimension()
+                new Dimension(GridSizeMode.Relative, 0.35f)
             },
             Content = new[]
             {

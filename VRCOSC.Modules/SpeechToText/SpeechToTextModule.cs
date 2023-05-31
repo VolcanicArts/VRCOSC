@@ -135,21 +135,24 @@ public class SpeechToTextModule : ChatBoxModule
             }
             else
             {
-                var result = JsonConvert.DeserializeObject<Recognition>(recogniser.Result())?.Text;
+                var result = JsonConvert.DeserializeObject<Recognition>(recogniser.Result());
 
-                if (!string.IsNullOrEmpty(result) && result != "huh")
+                if (result is not null && result.Confidence > 0.5f)
                 {
-                    result = result[..1].ToUpper(CultureInfo.CurrentCulture) + result[1..];
-                    Log($"Recognised: \"{result}\"");
+                    if (!string.IsNullOrEmpty(result.Text) && result.Text != "huh")
+                    {
+                        var finalText = result.Text[..1].ToUpper(CultureInfo.CurrentCulture) + result.Text[1..];
+                        Log($"Recognised: \"{result.Text}\"");
 
-                    SetVariableValue(SpeechToTextVariable.Text, result);
-                    ChangeStateTo(SpeechToTextState.TextGenerated);
-                    TriggerEvent(SpeechToTextEvent.TextGenerated);
-                }
-                else
-                {
-                    SetVariableValue(SpeechToTextVariable.Text, string.Empty);
-                    ChangeStateTo(SpeechToTextState.Idle);
+                        SetVariableValue(SpeechToTextVariable.Text, finalText);
+                        ChangeStateTo(SpeechToTextState.TextGenerated);
+                        TriggerEvent(SpeechToTextEvent.TextGenerated);
+                    }
+                    else
+                    {
+                        SetVariableValue(SpeechToTextVariable.Text, string.Empty);
+                        ChangeStateTo(SpeechToTextState.Idle);
+                    }
                 }
 
                 recogniser.Reset();
@@ -195,6 +198,9 @@ public class SpeechToTextModule : ChatBoxModule
     {
         [JsonProperty("text")]
         public string Text = null!;
+
+        [JsonProperty("confidence")]
+        public float Confidence;
     }
 
     private class PartialRecognition

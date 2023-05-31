@@ -3,6 +3,7 @@
 
 using System;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -13,6 +14,7 @@ namespace VRCOSC.Game.Graphics.UI.Text;
 public abstract partial class ValidationTextBox<T> : VRCOSCTextBox
 {
     public bool EmptyIsValid { get; init; } = true;
+    public Bindable<T>? ValidCurrent { get; init; }
 
     private InvalidIcon invalidIcon = null!;
 
@@ -29,12 +31,16 @@ public abstract partial class ValidationTextBox<T> : VRCOSCTextBox
             FillMode = FillMode.Fit
         });
 
+        ValidCurrent?.BindValueChanged(e => Current.Value = e.NewValue?.ToString(), true);
+
         Current.BindValueChanged(e =>
         {
             if (validate(e.NewValue))
             {
                 invalidIcon.Hide();
-                OnValidEntry?.Invoke(GetConvertedText());
+                var value = GetConvertedText();
+                OnValidEntry?.Invoke(value);
+                if (ValidCurrent is not null) ValidCurrent.Value = value;
             }
             else
             {
@@ -76,7 +82,7 @@ public abstract partial class ValidationTextBox<T> : VRCOSCTextBox
                         RelativeSizeAxes = Axes.Both,
                         Icon = FontAwesome.Solid.ExclamationCircle,
                         Colour = Colour4.Red
-                    },
+                    }
                 }
             };
         }

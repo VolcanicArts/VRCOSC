@@ -5,10 +5,19 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <LangVersion>11</LangVersion>
+        <Product>Official Modules</Product>
     </PropertyGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\VRCOSC.Game\VRCOSC.Game.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="PolySharp" Version="1.13.2">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
     </ItemGroup>
 
 </Project>

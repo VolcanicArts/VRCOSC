@@ -15,6 +15,8 @@ public partial class VRCOSCTextBox : BasicTextBox
     [Resolved]
     private GameHost host { get; set; } = null!;
 
+    public bool UnicodeSupport { get; init; }
+
     public VRCOSCTextBox()
     {
         BackgroundFocused = ThemeManager.Current[ThemeAttribute.Dark];
@@ -42,16 +44,21 @@ public partial class VRCOSCTextBox : BasicTextBox
         return base.CreatePlaceholder().With(t => t.Colour = ThemeManager.Current[ThemeAttribute.Text].Opacity(0.5f));
     }
 
-    protected override Drawable GetDrawableCharacter(char c) => new FallingDownContainer
+    protected override Drawable GetDrawableCharacter(char c)
     {
-        AutoSizeAxes = Axes.Both,
-        Child = new SpriteText
+        var font = UnicodeSupport ? new FontUsage(@"ArialUnicode", size: CalculatedTextSize) : FrameworkFont.Condensed.With(size: CalculatedTextSize);
+
+        return new FallingDownContainer
         {
-            Text = c.ToString(),
-            Font = FrameworkFont.Condensed.With(size: CalculatedTextSize),
-            Colour = ThemeManager.Current[ThemeAttribute.Text]
-        }
-    };
+            AutoSizeAxes = Axes.Both,
+            Child = new SpriteText
+            {
+                Text = c.ToString(),
+                Font = font,
+                Colour = ThemeManager.Current[ThemeAttribute.Text]
+            }
+        };
+    }
 
     protected override void Dispose(bool isDisposing)
     {

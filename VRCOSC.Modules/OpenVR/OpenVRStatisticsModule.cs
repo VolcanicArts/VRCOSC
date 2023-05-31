@@ -15,6 +15,11 @@ public class OpenVRStatisticsModule : ChatBoxModule
     public override ModuleType Type => ModuleType.OpenVR;
     protected override TimeSpan DeltaUpdate => TimeSpan.FromSeconds(5);
 
+    public override IEnumerable<string> Info => new List<string>
+    {
+        "The tracker order in Unity is the order you must turn your trackers on IRL"
+    };
+
     protected override void CreateAttributes()
     {
         CreateParameter<float>(OpenVrParameter.FPS, ParameterMode.Write, "VRCOSC/OpenVR/FPS", "FPS", "The current FPS normalised to 240 FPS");
@@ -43,7 +48,7 @@ public class OpenVRStatisticsModule : ChatBoxModule
         CreateVariable(OpenVrVariable.RightControllerBattery, @"Right Controller Battery (%)", @"rightcontrollerbattery");
         CreateVariable(OpenVrVariable.AverageTrackerBattery, @"Average Tracker Battery (%)", @"averagetrackerbattery");
 
-        CreateState(OpenVrState.Default, "Default", $@"FPS: {GetVariableFormat(OpenVrVariable.FPS)} | HMD: {GetVariableFormat(OpenVrVariable.HMDBattery)} | LC: {GetVariableFormat(OpenVrVariable.LeftControllerBattery)} | RC: {GetVariableFormat(OpenVrVariable.RightControllerBattery)}");
+        CreateState(OpenVrState.Default, "Default", $@"HMD: {GetVariableFormat(OpenVrVariable.HMDBattery)}/vLC: {GetVariableFormat(OpenVrVariable.LeftControllerBattery)}/vRC: {GetVariableFormat(OpenVrVariable.RightControllerBattery)}/vTrackers: {GetVariableFormat(OpenVrVariable.AverageTrackerBattery)}");
     }
 
     protected override void OnModuleStart()
@@ -56,9 +61,10 @@ public class OpenVRStatisticsModule : ChatBoxModule
         if (OVRClient.HasInitialised)
         {
             SendParameter(OpenVrParameter.FPS, OVRClient.System.FPS / 240.0f);
-            handleHmd();
-            handleControllers();
-            handleTrackers();
+            updateHmd();
+            updateLeftController();
+            updateRightController();
+            updateTrackers();
 
             var activeTrackers = OVRClient.Trackers.Where(tracker => tracker.IsConnected).ToList();
             var trackerBatteryAverage = activeTrackers.Sum(tracker => tracker.BatteryPercentage) / activeTrackers.Count;
@@ -76,10 +82,29 @@ public class OpenVRStatisticsModule : ChatBoxModule
             SetVariableValue(OpenVrVariable.LeftControllerBattery, "0");
             SetVariableValue(OpenVrVariable.RightControllerBattery, "0");
             SetVariableValue(OpenVrVariable.AverageTrackerBattery, "0");
+
+            SendParameter(OpenVrParameter.HMD_Connected, false);
+            SendParameter(OpenVrParameter.HMD_Battery, 0);
+            SendParameter(OpenVrParameter.HMD_Charging, false);
+
+            SendParameter(OpenVrParameter.LeftController_Connected, false);
+            SendParameter(OpenVrParameter.LeftController_Battery, 0);
+            SendParameter(OpenVrParameter.LeftController_Charging, false);
+
+            SendParameter(OpenVrParameter.RightController_Connected, false);
+            SendParameter(OpenVrParameter.RightController_Battery, 0);
+            SendParameter(OpenVrParameter.RightController_Charging, false);
+
+            for (int i = 0; i < OVRSystem.MAX_TRACKER_COUNT; i++)
+            {
+                SendParameter(OpenVrParameter.Tracker1_Connected + i, false);
+                SendParameter(OpenVrParameter.Tracker1_Battery + i, 0);
+                SendParameter(OpenVrParameter.Tracker1_Charging + i, false);
+            }
         }
     }
 
-    private void handleHmd()
+    private void updateHmd()
     {
         SendParameter(OpenVrParameter.HMD_Connected, OVRClient.HMD.IsConnected);
 
@@ -90,7 +115,7 @@ public class OpenVRStatisticsModule : ChatBoxModule
         }
     }
 
-    private void handleControllers()
+    private void updateLeftController()
     {
         SendParameter(OpenVrParameter.LeftController_Connected, OVRClient.LeftController.IsConnected);
 
@@ -99,7 +124,15 @@ public class OpenVRStatisticsModule : ChatBoxModule
             SendParameter(OpenVrParameter.LeftController_Battery, OVRClient.LeftController.BatteryPercentage);
             SendParameter(OpenVrParameter.LeftController_Charging, OVRClient.LeftController.IsCharging);
         }
+        else
+        {
+            SendParameter(OpenVrParameter.LeftController_Battery, 0);
+            SendParameter(OpenVrParameter.LeftController_Charging, false);
+        }
+    }
 
+    private void updateRightController()
+    {
         SendParameter(OpenVrParameter.RightController_Connected, OVRClient.RightController.IsConnected);
 
         if (OVRClient.RightController.IsConnected && OVRClient.RightController.ProvidesBatteryStatus)
@@ -107,9 +140,14 @@ public class OpenVRStatisticsModule : ChatBoxModule
             SendParameter(OpenVrParameter.RightController_Battery, OVRClient.RightController.BatteryPercentage);
             SendParameter(OpenVrParameter.RightController_Charging, OVRClient.RightController.IsCharging);
         }
+        else
+        {
+            SendParameter(OpenVrParameter.RightController_Battery, 0);
+            SendParameter(OpenVrParameter.RightController_Charging, false);
+        }
     }
 
-    private void handleTrackers()
+    private void updateTrackers()
     {
         var trackers = OVRClient.Trackers.ToList();
 
@@ -123,6 +161,11 @@ public class OpenVRStatisticsModule : ChatBoxModule
             {
                 SendParameter(OpenVrParameter.Tracker1_Battery + i, tracker.BatteryPercentage);
                 SendParameter(OpenVrParameter.Tracker1_Charging + i, tracker.IsCharging);
+            }
+            else
+            {
+                SendParameter(OpenVrParameter.Tracker1_Battery + i, 0);
+                SendParameter(OpenVrParameter.Tracker1_Charging + i, false);
             }
         }
     }

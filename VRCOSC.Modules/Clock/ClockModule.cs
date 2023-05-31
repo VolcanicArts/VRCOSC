@@ -87,20 +87,17 @@ public sealed class ClockModule : ChatBoxModule
     private static float getSmoothedMinutes(DateTime time) => time.Minute + getSmoothedSeconds(time) / 60f;
     private static float getSmoothedHours(DateTime time) => time.Hour + getSmoothedMinutes(time) / 60f;
 
-    private static DateTime timezoneToTime(ClockTimeZone timeZone)
+    private static DateTime timezoneToTime(ClockTimeZone timeZone) => timeZone switch
     {
-        return timeZone switch
-        {
-            ClockTimeZone.Local => DateTime.Now,
-            ClockTimeZone.UTC => DateTime.UtcNow,
-            ClockTimeZone.GMT => TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("GMT Standard Time")),
-            ClockTimeZone.EST => TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time")),
-            ClockTimeZone.CST => TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time")),
-            ClockTimeZone.MNT => TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Mountain Standard Time")),
-            ClockTimeZone.PST => TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time")),
-            _ => throw new ArgumentOutOfRangeException(nameof(timeZone), timeZone, null)
-        };
-    }
+        ClockTimeZone.Local => DateTime.Now,
+        ClockTimeZone.UTC => DateTime.UtcNow,
+        ClockTimeZone.GMT => TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("GMT Standard Time")),
+        ClockTimeZone.EST => TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time")),
+        ClockTimeZone.CST => TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time")),
+        ClockTimeZone.MNT => TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Mountain Standard Time")),
+        ClockTimeZone.PST => TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time")),
+        _ => throw new ArgumentOutOfRangeException(nameof(timeZone), timeZone, null)
+    };
 
     private enum ClockParameter
     {

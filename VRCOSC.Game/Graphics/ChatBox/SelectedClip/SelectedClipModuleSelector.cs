@@ -99,7 +99,7 @@ public partial class SelectedClipModuleSelector : Container
 
             moduleFlow.Clear();
 
-            foreach (var module in gameManager.ModuleManager.Where(module => module.GetType().IsSubclassOf(typeof(ChatBoxModule))))
+            foreach (var module in gameManager.ModuleManager.Modules.Where(module => module.GetType().IsSubclassOf(typeof(ChatBoxModule))))
             {
                 DrawableAssociatedModule drawableAssociatedModule;
 

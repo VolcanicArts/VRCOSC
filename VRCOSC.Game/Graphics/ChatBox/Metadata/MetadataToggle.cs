@@ -70,10 +70,7 @@ public partial class MetadataToggle : Container
                                 Origin = Anchor.Centre,
                                 RelativeSizeAxes = Axes.Both,
                                 State = State,
-                                Masking = true,
-                                CornerRadius = 5,
                                 BorderThickness = 2,
-                                BorderColour = ThemeManager.Current[ThemeAttribute.Border],
                                 ShouldAnimate = false
                             }
                         }

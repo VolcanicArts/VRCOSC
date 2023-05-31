@@ -17,7 +17,7 @@ using VRCOSC.Game.Serialisation;
 
 namespace VRCOSC.Game.Managers;
 
-public class ChatBoxManager : ICanSerialise
+public class ChatBoxManager
 {
     private bool sendEnabled;
 
@@ -69,14 +69,29 @@ public class ChatBoxManager : ICanSerialise
         serialisationManager = new SerialisationManager();
         serialisationManager.RegisterSerialiser(1, new TimelineSerialiser(storage, notification, this));
 
-        TimelineLength.Value = TimeSpan.FromMinutes(1);
-        Clips.AddRange(DefaultTimeline.GenerateDefaultTimeline(this));
-
+        setDefaults();
         Deserialise();
+        bindAttributes();
+    }
 
+    private void setDefaults()
+    {
+        TimelineLength.Value = TimeSpan.FromMinutes(1);
+        Clips.ReplaceItems(DefaultTimeline.GenerateDefaultTimeline(this));
+    }
+
+    private void bindAttributes()
+    {
         TimelineLength.BindValueChanged(_ => Serialise());
         Clips.BindCollectionChanged((_, _) => Serialise());
         Clips.ForEach(clip => clip.Load());
+    }
+
+    public void Import(string filePath)
+    {
+        SelectedClip.Value = null;
+        serialisationManager.Deserialise(filePath);
+        bindAttributes();
     }
 
     public void Deserialise()
@@ -247,9 +262,10 @@ public class ChatBoxManager : ICanSerialise
         VariableMetadata[module][lookup] = variableMetadata;
     }
 
-    public void SetVariable(string module, string lookup, string? value)
+    public void SetVariable(string module, string lookup, string? value, string suffix)
     {
-        VariableValues[(module, lookup)] = value;
+        var finalLookup = string.IsNullOrEmpty(suffix) ? lookup : $"{lookup}_{suffix}";
+        VariableValues[(module, finalLookup)] = value;
     }
 
     public void RegisterState(string module, string lookup, string name, string defaultFormat)

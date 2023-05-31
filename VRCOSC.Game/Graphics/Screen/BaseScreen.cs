@@ -84,5 +84,5 @@ public abstract partial class BaseScreen : Container
     }
 
     protected abstract BaseHeader? CreateHeader();
-    protected abstract Drawable? CreateBody();
+    protected abstract Drawable CreateBody();
 }

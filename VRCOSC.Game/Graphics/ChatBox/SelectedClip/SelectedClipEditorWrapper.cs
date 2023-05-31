@@ -86,13 +86,13 @@ public partial class SelectedClipEditorWrapper : Container
                                 RelativeSizeAxes = Axes.Both,
                                 ColumnDimensions = new[]
                                 {
-                                    new Dimension(GridSizeMode.Relative, 0.15f),
+                                    new Dimension(GridSizeMode.Relative, 0.15f, 0, 200),
                                     new Dimension(GridSizeMode.Absolute, 5),
-                                    new Dimension(GridSizeMode.Relative, 0.15f),
+                                    new Dimension(GridSizeMode.Relative, 0.15f, 0, 200),
                                     new Dimension(GridSizeMode.Absolute, 5),
                                     new Dimension(),
                                     new Dimension(GridSizeMode.Absolute, 5),
-                                    new Dimension(GridSizeMode.Relative, 0.2f),
+                                    new Dimension(GridSizeMode.Relative, 0.2f, 0, 300),
                                 },
                                 Content = new[]
                                 {

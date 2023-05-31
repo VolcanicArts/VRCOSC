@@ -8,14 +8,15 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Modules;
+using VRCOSC.Game.Modules.Attributes;
 
 namespace VRCOSC.Game.Graphics.ModuleInfo;
 
 public partial class DrawableParameterAttribute : Container
 {
-    private readonly ParameterAttribute parameterAttribute;
+    private readonly ModuleParameter parameterAttribute;
 
-    public DrawableParameterAttribute(ParameterAttribute parameterAttribute)
+    public DrawableParameterAttribute(ModuleParameter parameterAttribute)
     {
         this.parameterAttribute = parameterAttribute;
     }
@@ -49,13 +50,15 @@ public partial class DrawableParameterAttribute : Container
             }
         };
 
-        textFlow.AddText($"{parameterAttribute.Metadata.DisplayName} - {parameterAttribute.Metadata.Description}", t =>
+        textFlow.AddText($"{parameterAttribute.Name} - {parameterAttribute.Description}", t =>
         {
             t.Font = FrameworkFont.Regular.With(size: 20);
             t.Colour = ThemeManager.Current[ThemeAttribute.Text];
         });
 
-        textFlow.AddParagraph($"\nName: {parameterAttribute.Name}", t =>
+        textFlow.NewParagraph();
+
+        textFlow.AddParagraph($"Name: {parameterAttribute.ParameterName}", t =>
         {
             t.Font = FrameworkFont.Regular.With(size: 17);
             t.Colour = ThemeManager.Current[ThemeAttribute.SubText];

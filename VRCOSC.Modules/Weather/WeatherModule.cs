@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using VRCOSC.Game;
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.Modules.ChatBox;
 
@@ -35,7 +34,7 @@ public class WeatherModule : ChatBoxModule
     {
         if (string.IsNullOrEmpty(GetSetting<string>(WeatherSetting.Postcode))) Log("Please provide a post/zip code or city name");
 
-        weatherProvider ??= new WeatherProvider(Secrets.GetSecret(VRCOSCSecretsKeys.Weather));
+        weatherProvider ??= new WeatherProvider(OfficialModuleSecrets.GetSecret(OfficialModuleSecretsKeys.Weather));
         ChangeStateTo(WeatherState.Default);
     }
 
