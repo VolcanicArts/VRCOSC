@@ -20,23 +20,23 @@ public sealed partial class ModulesHeader : BaseHeader
     protected override string Title => "Modules";
     protected override string SubTitle => "Select modules and edit settings/parameters";
 
-    // protected override Drawable CreateRightShoulder() => new Container
-    // {
-    //     Anchor = Anchor.Centre,
-    //     Origin = Anchor.Centre,
-    //     RelativeSizeAxes = Axes.Both,
-    //     Child = new IconButton
-    //     {
-    //         Anchor = Anchor.Centre,
-    //         Origin = Anchor.Centre,
-    //         RelativeSizeAxes = Axes.Both,
-    //         FillMode = FillMode.Fit,
-    //         Size = new Vector2(0.8f),
-    //         Icon = FontAwesome.Solid.Download,
-    //         IconShadow = true,
-    //         CornerRadius = 10,
-    //         BackgroundColour = ThemeManager.Current[ThemeAttribute.Action],
-    //         Action = () => modulesScreen.ShowRepoListing()
-    //     }
-    // };
+    protected override Drawable CreateRightShoulder() => new Container
+    {
+        Anchor = Anchor.Centre,
+        Origin = Anchor.Centre,
+        RelativeSizeAxes = Axes.Both,
+        Child = new IconButton
+        {
+            Anchor = Anchor.Centre,
+            Origin = Anchor.Centre,
+            RelativeSizeAxes = Axes.Both,
+            FillMode = FillMode.Fit,
+            Size = new Vector2(0.8f),
+            Icon = FontAwesome.Solid.Download,
+            IconShadow = true,
+            CornerRadius = 10,
+            BackgroundColour = ThemeManager.Current[ThemeAttribute.Action],
+            Action = () => modulesScreen.ShowRepoListing()
+        }
+    };
 }
