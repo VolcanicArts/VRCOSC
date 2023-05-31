@@ -5,7 +5,6 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osuTK;
-using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Button;
 
 namespace VRCOSC.Game.Graphics.Settings.Cards;
@@ -27,8 +26,6 @@ public partial class ToggleSettingCard : SettingCard<bool>
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
             Size = new Vector2(25),
-            CornerRadius = 5,
-            BorderColour = ThemeManager.Current[ThemeAttribute.Border],
             BorderThickness = 2,
             ShouldAnimate = false,
             State = { Value = SettingBindable.Value }

@@ -74,7 +74,6 @@ public partial class DrawableAssociatedModule : Container
                                 State = State.GetBoundCopy(),
                                 BorderThickness = 2,
                                 ShouldAnimate = false,
-                                BorderColour = ThemeManager.Current[ThemeAttribute.Border]
                             }
                         }
                     }

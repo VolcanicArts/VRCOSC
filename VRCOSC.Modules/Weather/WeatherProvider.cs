@@ -20,6 +20,8 @@ public class WeatherProvider
     private string? lastLocation;
     private Weather? weather;
 
+    private Dictionary<int, WeatherCondition>? conditions;
+
     public WeatherProvider(string apiKey)
     {
         this.apiKey = apiKey;
@@ -48,10 +50,9 @@ public class WeatherProvider
         if (!DateTime.TryParse(astronomyResponse.Sunrise, out var sunriseParsed)) return null;
         if (!DateTime.TryParse(astronomyResponse.Sunset, out var sunsetParsed)) return null;
 
-        var conditionResponseData = await httpClient.GetAsync(condition_url);
-        var conditionResponseString = await conditionResponseData.Content.ReadAsStringAsync();
-        var conditionResponse = JsonConvert.DeserializeObject<List<WeatherCondition>>(conditionResponseString)?.Single(condition => condition.Code == currentResponse.Condition.Code);
+        if (conditions is null) await retrieveConditions();
 
+        var conditionResponse = conditions?[currentResponse.Condition.Code];
         var dateTimeNow = DateTime.Now;
 
         if (dateTimeNow >= sunriseParsed && dateTimeNow < sunsetParsed)
@@ -61,5 +62,17 @@ public class WeatherProvider
 
         weather = currentResponse;
         return weather;
+    }
+
+    private async Task retrieveConditions()
+    {
+        var conditionResponseData = await httpClient.GetAsync(condition_url);
+        var conditionResponseString = await conditionResponseData.Content.ReadAsStringAsync();
+        var conditionData = JsonConvert.DeserializeObject<List<WeatherCondition>>(conditionResponseString);
+
+        if (conditionData is null) return;
+
+        conditions = new Dictionary<int, WeatherCondition>();
+        conditionData.ForEach(condition => conditions.Add(condition.Code, condition));
     }
 }

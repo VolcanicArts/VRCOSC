@@ -10,10 +10,14 @@ using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Platform;
 using osu.Framework.Threading;
+using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Managers;
+using VRCOSC.Game.Modules.Attributes;
 using VRCOSC.Game.Modules.Avatar;
+using VRCOSC.Game.Modules.Serialisation.V1;
 using VRCOSC.Game.OpenVR;
 using VRCOSC.Game.OSC.VRChat;
+using VRCOSC.Game.Serialisation;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable InconsistentNaming
@@ -24,7 +28,6 @@ public abstract class Module : IComparable<Module>
 {
     private GameHost Host = null!;
     private GameManager GameManager = null!;
-    protected IVRCOSCSecrets Secrets { get; private set; } = null!;
     private Scheduler Scheduler = null!;
 
     private TerminalLogger Terminal = null!;
@@ -38,14 +41,14 @@ public abstract class Module : IComparable<Module>
 
     internal readonly BindableBool Enabled = new();
     internal readonly Dictionary<string, ModuleAttribute> Settings = new();
-    internal readonly Dictionary<Enum, ParameterAttribute> Parameters = new();
-    internal readonly Dictionary<string, Enum> ParametersLookup = new();
+    internal readonly Dictionary<Enum, ModuleParameter> Parameters = new();
 
     public virtual string Title => string.Empty;
     public virtual string Description => string.Empty;
     public virtual string Author => string.Empty;
     public virtual string Prefab => string.Empty;
     public virtual ModuleType Type => ModuleType.General;
+    public virtual IEnumerable<string> Info => new List<string>();
     protected virtual TimeSpan DeltaUpdate => TimeSpan.MaxValue;
     protected virtual bool ShouldUpdateImmediately => true;
 
@@ -60,15 +63,16 @@ public abstract class Module : IComparable<Module>
     protected bool IsStopping => State.Value == ModuleState.Stopping;
     protected bool HasStopped => State.Value == ModuleState.Stopped;
 
-    internal bool HasSettings => Settings.Any();
-    internal bool HasParameters => Parameters.Any();
+    private SerialisationManager serialisationManager = null!;
 
-    public void InjectDependencies(GameHost host, GameManager gameManager, IVRCOSCSecrets secrets, Scheduler scheduler)
+    public void InjectDependencies(GameHost host, GameManager gameManager, Scheduler scheduler, Storage storage, NotificationContainer notifications)
     {
         Host = host;
         GameManager = gameManager;
-        Secrets = secrets;
         Scheduler = scheduler;
+
+        serialisationManager = new SerialisationManager();
+        serialisationManager.RegisterSerialiser(1, new ModuleSerialiser(storage, notifications, this));
     }
 
     public void Load()
@@ -76,47 +80,142 @@ public abstract class Module : IComparable<Module>
         Terminal = new TerminalLogger(Title);
 
         CreateAttributes();
+        Settings.Values.ForEach(setting => setting.Setup());
+        Parameters.Values.ForEach(parameter => parameter.Setup());
 
-        Parameters.ForEach(pair => ParametersLookup.Add(pair.Key.ToLookup(), pair.Key));
         State.ValueChanged += _ => Log(State.Value.ToString());
+
+        Deserialise();
     }
+
+    #region Serialisation
+
+    public void Serialise()
+    {
+        serialisationManager.Serialise();
+    }
+
+    public void Deserialise()
+    {
+        serialisationManager.Deserialise();
+    }
+
+    #endregion
 
     #region Attributes
 
     protected virtual void CreateAttributes() { }
 
+    protected void CreateSetting(Enum lookup, ModuleAttribute attribute) => Settings.Add(lookup.ToLookup(), attribute);
+
     protected void CreateSetting(Enum lookup, string displayName, string description, bool defaultValue, Func<bool>? dependsOn = null)
-        => addSingleSetting(lookup, displayName, description, defaultValue, dependsOn);
+        => Settings.Add(lookup.ToLookup(), new ModuleBoolAttribute
+        {
+            Name = displayName,
+            Description = description,
+            Default = defaultValue,
+            DependsOn = dependsOn
+        });
 
     protected void CreateSetting(Enum lookup, string displayName, string description, int defaultValue, Func<bool>? dependsOn = null)
-        => addSingleSetting(lookup, displayName, description, defaultValue, dependsOn);
+        => Settings.Add(lookup.ToLookup(), new ModuleIntAttribute
+        {
+            Name = displayName,
+            Description = description,
+            Default = defaultValue,
+            DependsOn = dependsOn
+        });
+
+    protected void CreateSetting(Enum lookup, string displayName, string description, float defaultValue, Func<bool>? dependsOn = null)
+        => Settings.Add(lookup.ToLookup(), new ModuleFloatAttribute
+        {
+            Name = displayName,
+            Description = description,
+            Default = defaultValue,
+            DependsOn = dependsOn
+        });
 
     protected void CreateSetting(Enum lookup, string displayName, string description, string defaultValue, Func<bool>? dependsOn = null)
-        => addSingleSetting(lookup, displayName, description, defaultValue, dependsOn);
+        => Settings.Add(lookup.ToLookup(), new ModuleStringAttribute
+        {
+            Name = displayName,
+            Description = description,
+            Default = defaultValue,
+            DependsOn = dependsOn
+        });
 
-    protected void CreateSetting(Enum lookup, string displayName, string description, Enum defaultValue, Func<bool>? dependsOn = null)
-        => addSingleSetting(lookup, displayName, description, defaultValue, dependsOn);
+    protected void CreateSetting(Enum lookup, string displayName, string description, string defaultValue, string buttonText, Action buttonCallback, Func<bool>? dependsOn = null)
+        => Settings.Add(lookup.ToLookup(), new ModuleStringWithButtonAttribute
+        {
+            Name = displayName,
+            Description = description,
+            Default = defaultValue,
+            DependsOn = dependsOn,
+            ButtonText = buttonText,
+            ButtonCallback = buttonCallback
+        });
+
+    protected void CreateSetting<T>(Enum lookup, string displayName, string description, T defaultValue, Func<bool>? dependsOn = null) where T : Enum
+        => Settings.Add(lookup.ToLookup(), new ModuleEnumAttribute<T>
+        {
+            Name = displayName,
+            Description = description,
+            Default = defaultValue,
+            DependsOn = dependsOn
+        });
+
+    protected void CreateSetting(Enum lookup, string displayName, string description, IEnumerable<string> defaultValue, Func<bool>? dependsOn = null)
+        => Settings.Add(lookup.ToLookup(), new ModuleStringListAttribute
+        {
+            Name = displayName,
+            Description = description,
+            Default = defaultValue.Select(v => new Bindable<string>(v)).ToList(),
+            DependsOn = dependsOn
+        });
+
+    protected void CreateSetting(Enum lookup, string displayName, string description, List<MutableKeyValuePair> defaultValue, string keyPlaceholder, string valuePlaceholder, Func<bool>? dependsOn = null)
+        => Settings.Add(lookup.ToLookup(), new MutableKeyValuePairListAttribute
+        {
+            Name = displayName,
+            Description = description,
+            Default = defaultValue,
+            DependsOn = dependsOn,
+            KeyPlaceholder = keyPlaceholder,
+            ValuePlaceholder = valuePlaceholder
+        });
 
     protected void CreateSetting(Enum lookup, string displayName, string description, int defaultValue, int minValue, int maxValue, Func<bool>? dependsOn = null)
-        => addRangedSetting(lookup, displayName, description, defaultValue, minValue, maxValue, dependsOn);
+        => Settings.Add(lookup.ToLookup(), new ModuleIntRangeAttribute
+        {
+            Name = displayName,
+            Description = description,
+            Default = defaultValue,
+            DependsOn = dependsOn,
+            Min = minValue,
+            Max = maxValue
+        });
 
     protected void CreateSetting(Enum lookup, string displayName, string description, float defaultValue, float minValue, float maxValue, Func<bool>? dependsOn = null)
-        => addRangedSetting(lookup, displayName, description, defaultValue, minValue, maxValue, dependsOn);
-
-    protected void CreateSetting(Enum lookup, string displayName, string description, string defaultValue, string buttonText, Action buttonAction, Func<bool>? dependsOn = null)
-        => addTextAndButtonSetting(lookup, displayName, description, defaultValue, buttonText, buttonAction, dependsOn);
+        => Settings.Add(lookup.ToLookup(), new ModuleFloatRangeAttribute
+        {
+            Name = displayName,
+            Description = description,
+            Default = defaultValue,
+            DependsOn = dependsOn,
+            Min = minValue,
+            Max = maxValue
+        });
 
     protected void CreateParameter<T>(Enum lookup, ParameterMode mode, string parameterName, string displayName, string description)
-        => Parameters.Add(lookup, new ParameterAttribute(mode, new ModuleAttributeMetadata(displayName, description), parameterName, typeof(T), null));
-
-    private void addSingleSetting(Enum lookup, string displayName, string description, object defaultValue, Func<bool>? dependsOn)
-        => Settings.Add(lookup.ToLookup(), new ModuleAttribute(new ModuleAttributeMetadata(displayName, description), defaultValue, dependsOn));
-
-    private void addRangedSetting<T>(Enum lookup, string displayName, string description, T defaultValue, T minValue, T maxValue, Func<bool>? dependsOn) where T : struct
-        => Settings.Add(lookup.ToLookup(), new ModuleAttributeWithBounds(new ModuleAttributeMetadata(displayName, description), defaultValue, minValue, maxValue, dependsOn));
-
-    private void addTextAndButtonSetting(Enum lookup, string displayName, string description, string defaultValue, string buttonText, Action buttonAction, Func<bool>? dependsOn)
-        => Settings.Add(lookup.ToLookup(), new ModuleAttributeWithButton(new ModuleAttributeMetadata(displayName, description), defaultValue, buttonText, buttonAction, dependsOn));
+        => Parameters.Add(lookup, new ModuleParameter
+        {
+            Name = displayName,
+            Description = description,
+            Default = parameterName,
+            DependsOn = null,
+            Mode = mode,
+            ExpectedType = typeof(T)
+        });
 
     public bool DoesSettingExist(string lookup, [NotNullWhen(returnValue: true)] out ModuleAttribute? attribute)
     {
@@ -130,17 +229,17 @@ public abstract class Module : IComparable<Module>
         return false;
     }
 
-    public bool DoesParameterExist(string lookup, [NotNullWhen(returnValue: true)] out ModuleAttribute? key)
+    public bool DoesParameterExist(string lookup, [NotNullWhen(returnValue: true)] out ModuleAttribute? attribute)
     {
         foreach (var (lookupToCheck, _) in Parameters)
         {
             if (lookupToCheck.ToLookup() != lookup) continue;
 
-            key = Parameters[lookupToCheck];
+            attribute = Parameters[lookupToCheck];
             return true;
         }
 
-        key = null;
+        attribute = null;
         return false;
     }
 
@@ -184,14 +283,36 @@ public abstract class Module : IComparable<Module>
 
     #region Settings
 
+    protected List<T> GetSettingList<T>(Enum lookup)
+    {
+        var setting = Settings[lookup.ToLookup()];
+
+        if (setting.GetType().IsSubclassOf(typeof(ModuleAttributePrimitiveList<>)))
+        {
+            if (setting is ModuleAttributeList<Bindable<T>> settingList)
+            {
+                return settingList.Attribute.Select(bindable => bindable.Value).ToList();
+            }
+        }
+        else
+        {
+            if (setting is ModuleAttributeList<T> settingList)
+            {
+                return settingList.Attribute.ToList();
+            }
+        }
+
+        throw new InvalidCastException($"Setting with lookup '{lookup}' is not of type '{nameof(List<T>)}'");
+    }
+
     protected T GetSetting<T>(Enum lookup)
     {
-        object? value = Settings[lookup.ToLookup()].Attribute.Value;
+        var setting = Settings[lookup.ToLookup()];
 
-        if (value is not T valueCast)
+        if (!setting.IsValueType<T>())
             throw new InvalidCastException($"Setting with lookup '{lookup}' is not of type '{nameof(T)}'");
 
-        return valueCast;
+        return ((ModuleAttribute<T>)setting).Value;
     }
 
     #endregion
@@ -229,11 +350,13 @@ public abstract class Module : IComparable<Module>
 
         if (!data.IsAvatarParameter) return;
 
+        OnAnyParameterReceived(data);
+
         Enum lookup;
 
         try
         {
-            lookup = Parameters.Single(pair => pair.Value.Name == data.ParameterName).Key;
+            lookup = Parameters.Single(pair => pair.Value.ParameterName == data.ParameterName).Key;
         }
         catch (InvalidOperationException)
         {
@@ -244,7 +367,7 @@ public abstract class Module : IComparable<Module>
 
         if (!parameterData.Mode.HasFlagFast(ParameterMode.Read)) return;
 
-        if (data.ParameterValue.GetType() != parameterData.ExpectedType)
+        if (!data.IsValueType(parameterData.ExpectedType))
         {
             Log($@"Cannot accept input parameter. `{lookup}` expects type `{parameterData.ExpectedType}` but received type `{data.ParameterValue.GetType()}`");
             return;
@@ -266,6 +389,7 @@ public abstract class Module : IComparable<Module>
         }
     }
 
+    protected virtual void OnAnyParameterReceived(VRChatOscData data) { }
     protected virtual void OnBoolParameterReceived(Enum key, bool value) { }
     protected virtual void OnIntParameterReceived(Enum key, int value) { }
     protected virtual void OnFloatParameterReceived(Enum key, float value) { }

@@ -6,46 +6,29 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using VRCOSC.Game.Graphics.UI;
-using VRCOSC.Game.Modules;
+using VRCOSC.Game.Modules.Attributes;
 
 namespace VRCOSC.Game.Graphics.ModuleAttributes.Attributes.Slider;
 
-public abstract partial class SliderAttributeCard<T> : AttributeCard where T : struct, IComparable<T>, IConvertible, IEquatable<T>
+public abstract partial class SliderAttributeCard<TValue, TAttribute> : AttributeCard<TAttribute> where TValue : struct, IComparable<TValue>, IConvertible, IEquatable<TValue> where TAttribute : ModuleAttribute
 {
-    protected ModuleAttributeWithBounds AttributeDataWithBounds;
-
-    private VRCOSCSlider<T> slider = null!;
-
-    protected SliderAttributeCard(ModuleAttributeWithBounds attributeData)
+    protected SliderAttributeCard(TAttribute attributeData)
         : base(attributeData)
     {
-        AttributeDataWithBounds = attributeData;
     }
 
     [BackgroundDependencyLoader]
     private void load()
     {
-        Add(slider = new VRCOSCSlider<T>
+        Add(new VRCOSCSlider<TValue>
         {
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
             RelativeSizeAxes = Axes.X,
             Height = 30,
-            Current = CreateCurrent()
+            RoudedCurrent = CreateCurrent().GetBoundCopy()
         });
     }
 
-    protected override void LoadComplete()
-    {
-        base.LoadComplete();
-        slider.Current.ValueChanged += e => UpdateAttribute(e.NewValue);
-    }
-
-    protected override void SetDefault()
-    {
-        base.SetDefault();
-        slider.Current.Value = (T)AttributeData.Attribute.Value;
-    }
-
-    protected abstract Bindable<T> CreateCurrent();
+    protected abstract BindableNumber<TValue> CreateCurrent();
 }

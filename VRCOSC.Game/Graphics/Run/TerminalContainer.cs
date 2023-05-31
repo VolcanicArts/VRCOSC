@@ -7,8 +7,12 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Pooling;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Graphics.Sprites;
 using osu.Framework.Logging;
+using osu.Framework.Platform;
+using osuTK;
 using VRCOSC.Game.Graphics.Themes;
+using VRCOSC.Game.Graphics.UI.Button;
 using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.Graphics.Run;
@@ -22,6 +26,12 @@ public sealed partial class TerminalContainer : Container<TerminalEntry>
     protected override FillFlowContainer<TerminalEntry> Content { get; }
 
     private readonly DrawablePool<TerminalEntry> terminalEntryPool = new(terminal_entry_count);
+
+    [Resolved]
+    private GameHost host { get; set; } = null!;
+
+    [Resolved]
+    private Storage storage { get; set; } = null!;
 
     [Resolved]
     private GameManager gameManager { get; set; } = null!;
@@ -39,24 +49,44 @@ public sealed partial class TerminalContainer : Container<TerminalEntry>
             {
                 RelativeSizeAxes = Axes.Both,
                 Padding = new MarginPadding(2),
-                Child = terminalScroll = new BasicScrollContainer
-                {
-                    RelativeSizeAxes = Axes.Both,
-                    ScrollbarVisible = false,
-                    ClampExtension = 0,
-                    ScrollContent =
+                Children = new Drawable[]{
+                    terminalScroll = new BasicScrollContainer
                     {
-                        Child = Content = new FillFlowContainer<TerminalEntry>
+                        RelativeSizeAxes = Axes.Both,
+                        ScrollbarVisible = false,
+                        ClampExtension = 0,
+                        ScrollContent =
                         {
-                            Anchor = Anchor.TopCentre,
-                            Origin = Anchor.TopCentre,
-                            RelativeSizeAxes = Axes.X,
-                            AutoSizeAxes = Axes.Y,
-                            Direction = FillDirection.Vertical,
-                            Padding = new MarginPadding
+                            Child = Content = new FillFlowContainer<TerminalEntry>
                             {
-                                Horizontal = 3
+                                Anchor = Anchor.TopCentre,
+                                Origin = Anchor.TopCentre,
+                                RelativeSizeAxes = Axes.X,
+                                AutoSizeAxes = Axes.Y,
+                                Direction = FillDirection.Vertical,
+                                Padding = new MarginPadding
+                                {
+                                    Horizontal = 3
+                                }
                             }
+                        }
+                    },
+                    new Container
+                    {
+                        Anchor = Anchor.TopRight,
+                        Origin = Anchor.TopRight,
+                        Size = new Vector2(40),
+                        Padding = new MarginPadding(3),
+                        Child = new IconButton
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativeSizeAxes = Axes.Both,
+                            Icon = FontAwesome.Solid.ExternalLinkAlt,
+                            IconShadow = true,
+                            IconPadding = 6,
+                            BackgroundColour = ThemeManager.Current[ThemeAttribute.Action],
+                            Action = () => host.OpenFileExternally(storage.GetStorageForDirectory("logs").GetFullPath("terminal.log"))
                         }
                     }
                 }

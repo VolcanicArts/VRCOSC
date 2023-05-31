@@ -57,28 +57,36 @@ public partial class DrawableClip : Container
                     Colour = ThemeManager.Current[ThemeAttribute.Dark],
                     RelativeSizeAxes = Axes.Both
                 },
-                new StartResizeDetector(Clip)
-                {
-                    RelativeSizeAxes = Axes.Y,
-                    Width = 15
-                },
-                new EndResizeDetector(Clip)
-                {
-                    RelativeSizeAxes = Axes.Y,
-                    Width = 15
-                },
                 new Container
                 {
                     RelativeSizeAxes = Axes.Both,
-                    Padding = new MarginPadding(10),
+                    Padding = new MarginPadding(2),
                     Children = new Drawable[]
                     {
-                        drawName = new SpriteText
+                        new StartResizeDetector(Clip)
                         {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
-                            Font = FrameworkFont.Regular.With(size: 20),
-                            Colour = ThemeManager.Current[ThemeAttribute.Text]
+                            RelativeSizeAxes = Axes.Y,
+                            Width = 12
+                        },
+                        new EndResizeDetector(Clip)
+                        {
+                            RelativeSizeAxes = Axes.Y,
+                            Width = 12
+                        },
+                        new Container
+                        {
+                            RelativeSizeAxes = Axes.Both,
+                            Padding = new MarginPadding(10),
+                            Children = new Drawable[]
+                            {
+                                drawName = new SpriteText
+                                {
+                                    Anchor = Anchor.Centre,
+                                    Origin = Anchor.Centre,
+                                    Font = FrameworkFont.Regular.With(size: 20),
+                                    Colour = ThemeManager.Current[ThemeAttribute.Text]
+                                }
+                            }
                         }
                     }
                 }

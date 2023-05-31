@@ -21,7 +21,6 @@ using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.Modules.Avatar;
-using VRCOSC.Game.Modules.Sources;
 using VRCOSC.Game.OpenVR;
 using VRCOSC.Game.OpenVR.Metadata;
 using VRCOSC.Game.OSC;
@@ -57,9 +56,6 @@ public partial class GameManager : Component
 
     [Resolved]
     private GameHost host { get; set; } = null!;
-
-    [Resolved]
-    private IVRCOSCSecrets secrets { get; set; } = null!;
 
     [Resolved]
     private ChatBoxManager chatBoxManager { get; set; } = null!;
@@ -106,10 +102,8 @@ public partial class GameManager : Component
     private void setupModules()
     {
         ModuleManager = new ModuleManager();
-        ModuleManager.AddSource(new InternalModuleSource());
-        ModuleManager.AddSource(new ExternalModuleSource(storage));
-        ModuleManager.InjectModuleDependencies(host, this, secrets, new Scheduler(() => ThreadSafety.IsUpdateThread, Clock));
-        ModuleManager.Load(storage, notifications);
+        ModuleManager.InjectModuleDependencies(host, this, new Scheduler(() => ThreadSafety.IsUpdateThread, Clock), storage, notifications);
+        ModuleManager.Load();
     }
 
     protected override void Update()
@@ -148,7 +142,7 @@ public partial class GameManager : Component
 
         editingModule.BindValueChanged(e =>
         {
-            if (e.NewValue is null && e.OldValue is not null) ModuleManager.Serialise();
+            if (e.NewValue is null && e.OldValue is not null) e.OldValue.Serialise();
         }, true);
     }
 
@@ -213,7 +207,7 @@ public partial class GameManager : Component
         }
 
         var moduleEnabled = new Dictionary<string, bool>();
-        ModuleManager.ForEach(module => moduleEnabled.Add(module.SerialisedName, module.Enabled.Value));
+        ModuleManager.Modules.ForEach(module => moduleEnabled.Add(module.SerialisedName, module.Enabled.Value));
 
         AvatarConfig = null;
 

@@ -10,33 +10,21 @@ namespace VRCOSC.Game.Graphics.UI.Button;
 
 public partial class TextButton : BasicButton
 {
-    private string text = string.Empty;
-
-    private SpriteText? spriteText;
-
-    public string Text
-    {
-        get => text;
-        set
-        {
-            text = value;
-            if (spriteText is not null) spriteText.Text = text;
-        }
-    }
-
+    public string Text { get; init; } = string.Empty;
     public float FontSize { get; init; } = 30;
 
     [BackgroundDependencyLoader]
     private void load()
     {
-        Add(spriteText = new SpriteText
+        Add(new SpriteText
         {
             Anchor = Anchor.Centre,
             Origin = Anchor.Centre,
             Font = FrameworkFont.Regular.With(size: FontSize),
             Colour = ThemeManager.Current[ThemeAttribute.Text],
             Text = Text,
-            Shadow = true
+            Shadow = true,
+            ShadowColour = ThemeManager.Current[ThemeAttribute.Darker]
         });
     }
 }

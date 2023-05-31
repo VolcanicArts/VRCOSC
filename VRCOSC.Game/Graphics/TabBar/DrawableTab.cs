@@ -10,7 +10,6 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
 using osuTK;
 using VRCOSC.Game.Graphics.Themes;
-using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.Graphics.TabBar;
 
@@ -24,28 +23,20 @@ public sealed partial class DrawableTab : ClickableContainer
 
     private Box background = null!;
     private SelectedIndicator indicator = null!;
-    private TabPopover popover = null!;
     private SpriteIcon spriteIcon = null!;
 
     public Tab Tab { get; init; }
-
     public IconUsage Icon { get; init; }
 
     [Resolved]
     private Bindable<Tab> selectedTab { get; set; } = null!;
 
-    [Resolved]
-    private GameManager gameManager { get; set; } = null!;
-
-    public DrawableTab()
-    {
-        RelativeSizeAxes = Axes.Both;
-        FillMode = FillMode.Fit;
-    }
-
     [BackgroundDependencyLoader]
     private void load()
     {
+        RelativeSizeAxes = Axes.Both;
+        FillMode = FillMode.Fit;
+
         Children = new Drawable[]
         {
             background = new Box
@@ -66,18 +57,6 @@ public sealed partial class DrawableTab : ClickableContainer
             indicator = new SelectedIndicator
             {
                 RelativeSizeAxes = Axes.Both
-            },
-            popover = new TabPopover
-            {
-                Anchor = Anchor.CentreRight,
-                Origin = Anchor.CentreLeft,
-                PopoverAnchor = Anchor.CentreLeft,
-                Child = new SpriteText
-                {
-                    Text = Tab.ToString(),
-                    Colour = ThemeManager.Current[ThemeAttribute.Text],
-                    Font = FrameworkFont.Regular.With(size: 20)
-                }
             }
         };
     }
@@ -107,7 +86,6 @@ public sealed partial class DrawableTab : ClickableContainer
     protected override bool OnHover(HoverEvent e)
     {
         background.FadeColour(hover_colour, onhover_duration, Easing.InOutSine);
-        popover.Show();
 
         if (selectedTab.Value == Tab) return base.OnHover(e);
 
@@ -120,7 +98,6 @@ public sealed partial class DrawableTab : ClickableContainer
         base.OnHoverLost(e);
 
         background.FadeColour(default_colour, onhoverlost_duration, Easing.InOutSine);
-        popover.Hide();
 
         if (selectedTab.Value == Tab) return;
 

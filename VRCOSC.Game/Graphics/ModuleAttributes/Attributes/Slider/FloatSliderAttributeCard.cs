@@ -2,22 +2,16 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Bindables;
-using VRCOSC.Game.Modules;
+using VRCOSC.Game.Modules.Attributes;
 
 namespace VRCOSC.Game.Graphics.ModuleAttributes.Attributes.Slider;
 
-public sealed partial class FloatSliderAttributeCard : SliderAttributeCard<float>
+public sealed partial class FloatSliderAttributeCard : SliderAttributeCard<float, ModuleFloatRangeAttribute>
 {
-    public FloatSliderAttributeCard(ModuleAttributeWithBounds attributeData)
+    public FloatSliderAttributeCard(ModuleFloatRangeAttribute attributeData)
         : base(attributeData)
     {
     }
 
-    protected override Bindable<float> CreateCurrent() => new BindableNumber<float>
-    {
-        MinValue = (float)AttributeDataWithBounds.MinValue,
-        MaxValue = (float)AttributeDataWithBounds.MaxValue,
-        Precision = 0.01f,
-        Value = (float)AttributeData.Attribute.Value
-    };
+    protected override BindableNumber<float> CreateCurrent() => (BindableNumber<float>)AttributeData.Attribute;
 }

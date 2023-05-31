@@ -5,8 +5,9 @@ namespace VRCOSC.Game.Serialisation;
 
 public interface ISerialiser
 {
+    public void Initialise();
     public bool DoesFileExist();
     public bool TryGetVersion(out int? version);
-    public bool Deserialise();
+    public bool Deserialise(string filePathOverride);
     public bool Serialise();
 }

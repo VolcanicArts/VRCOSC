@@ -70,7 +70,6 @@ public partial class DrawableEvent : Container
                                     RelativeSizeAxes = Axes.Both,
                                     State = ClipEvent.Enabled.GetBoundCopy(),
                                     BorderThickness = 2,
-                                    BorderColour = ThemeManager.Current[ThemeAttribute.Border],
                                     ShouldAnimate = false
                                 }
                             },
@@ -117,7 +116,8 @@ public partial class DrawableEvent : Container
                                         Masking = true,
                                         CornerRadius = 5,
                                         BorderThickness = 2,
-                                        BorderColour = ThemeManager.Current[ThemeAttribute.Border]
+                                        BorderColour = ThemeManager.Current[ThemeAttribute.Border],
+                                        UnicodeSupport = true
                                     }
                                 },
                                 null,

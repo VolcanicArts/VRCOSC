@@ -9,6 +9,9 @@ namespace VRCOSC.Game.Modules.Serialisation.V1.Models;
 
 public class SerialisableModule
 {
+    [JsonProperty("version")]
+    public int Version;
+
     [JsonProperty("enabled")]
     public bool Enabled;
 
@@ -25,20 +28,22 @@ public class SerialisableModule
 
     public SerialisableModule(Module module)
     {
+        Version = 1;
+
         Enabled = module.Enabled.Value;
 
         module.Settings.ForEach(pair =>
         {
-            if (pair.Value.Attribute.IsDefault) return;
+            if (pair.Value.IsDefault()) return;
 
-            Settings.Add(pair.Key, pair.Value.Attribute.Value);
+            Settings.Add(pair.Key, pair.Value.GetSerialisableValue());
         });
 
         module.Parameters.ForEach(pair =>
         {
-            if (pair.Value.Attribute.IsDefault) return;
+            if (pair.Value.IsDefault()) return;
 
-            Parameters.Add(pair.Key.ToLookup(), pair.Value.Attribute.Value);
+            Parameters.Add(pair.Key.ToLookup(), pair.Value.GetSerialisableValue());
         });
     }
 }

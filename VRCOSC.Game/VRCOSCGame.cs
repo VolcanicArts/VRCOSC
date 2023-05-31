@@ -11,6 +11,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Platform;
 using VRCOSC.Game.Config;
+using VRCOSC.Game.Github;
 using VRCOSC.Game.Graphics;
 using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Graphics.Settings;
@@ -58,12 +59,16 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     [BackgroundDependencyLoader]
     private void load()
     {
+        AddFont(Resources, @"Fonts/ArialUnicode/ArialUnicode");
+        // Forcibly load
+        new FontUsage("ArialUnicode");
+
         ThemeManager.VRCOSCTheme = ConfigManager.Get<VRCOSCTheme>(VRCOSCSetting.Theme);
 
         DependencyContainer.CacheAs(notificationContainer = new NotificationContainer());
-        DependencyContainer.CacheAs(typeof(IVRCOSCSecrets), GetSecrets());
         DependencyContainer.CacheAs(routerManager = new RouterManager(storage, notificationContainer));
         DependencyContainer.CacheAs(startupManager = new StartupManager(storage, notificationContainer));
+        DependencyContainer.CacheAs(new GitHubProvider(host.Name));
 
         LoadComponent(notificationContainer);
 
@@ -179,6 +184,5 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         Exit();
     }
 
-    protected abstract IVRCOSCSecrets GetSecrets();
     protected abstract VRCOSCUpdateManager CreateUpdateManager();
 }

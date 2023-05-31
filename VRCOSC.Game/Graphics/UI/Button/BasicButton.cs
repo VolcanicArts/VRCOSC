@@ -12,82 +12,46 @@ namespace VRCOSC.Game.Graphics.UI.Button;
 
 public partial class BasicButton : VRCOSCButton
 {
-    private Colour4 backgroundColourStateOff = ThemeManager.Current[ThemeAttribute.Failure];
-    private Colour4 backgroundColourStateOn = ThemeManager.Current[ThemeAttribute.Success];
+    private Drawable backgroundBox = null!;
 
-    protected Drawable BackgroundBox = null!;
-
-    public BindableBool State = new();
-    public bool Stateful { get; init; }
+    public Bindable<bool> State = new();
+    public bool Stateful { get; set; }
 
     public Colour4 BackgroundColour
     {
-        get => backgroundColourStateOff;
+        get => BackgroundColourStateOff;
         set
         {
-            backgroundColourStateOn = value;
-            backgroundColourStateOff = value;
-            updateBackgroundColour();
+            BackgroundColourStateOn = value;
+            BackgroundColourStateOff = value;
         }
     }
 
-    public Colour4 BackgroundColourStateOn
-    {
-        get => backgroundColourStateOn;
-        set
-        {
-            backgroundColourStateOn = value;
-            updateBackgroundColour();
-        }
-    }
-
-    public Colour4 BackgroundColourStateOff
-    {
-        get => backgroundColourStateOff;
-        set
-        {
-            backgroundColourStateOff = value;
-            updateBackgroundColour();
-        }
-    }
+    public Colour4 BackgroundColourStateOn { get; set; } = ThemeManager.Current[ThemeAttribute.Success];
+    public Colour4 BackgroundColourStateOff { get; set; } = ThemeManager.Current[ThemeAttribute.Failure];
 
     [BackgroundDependencyLoader]
     private void load()
     {
-        Child = BackgroundBox = CreateBackground();
-
-        State.BindValueChanged(_ => updateBackgroundColour(), true);
+        Add(backgroundBox = new Box
+        {
+            RelativeSizeAxes = Axes.Both
+        });
     }
 
-    protected override void LoadComplete()
+    protected override void Update()
     {
-        base.LoadComplete();
-        updateBackgroundColour();
-    }
-
-    private void updateBackgroundColour()
-    {
-        if (!IsLoaded) return;
+        base.Update();
 
         if (Stateful)
-            BackgroundBox.Colour = State.Value ? backgroundColourStateOn : backgroundColourStateOff;
+            backgroundBox.Colour = State.Value ? BackgroundColourStateOn : BackgroundColourStateOff;
         else
-            BackgroundBox.Colour = backgroundColourStateOff;
+            backgroundBox.Colour = BackgroundColourStateOff;
     }
 
     protected override bool OnClick(ClickEvent e)
     {
-        if (Enabled.Value) State.Toggle();
+        if (Enabled.Value) State.Value = !State.Value;
         return base.OnClick(e);
-    }
-
-    public virtual Drawable CreateBackground()
-    {
-        return new Box
-        {
-            Anchor = Anchor.Centre,
-            Origin = Anchor.Centre,
-            RelativeSizeAxes = Axes.Both
-        };
     }
 }

@@ -71,7 +71,9 @@ public partial class BaseHeader : Container
                                         Bottom = 5,
                                         Horizontal = 10
                                     },
-                                    TextAnchor = Anchor.TopCentre
+                                    TextAnchor = Anchor.TopCentre,
+                                    AutoSizeEasing = Easing.OutQuint,
+                                    AutoSizeDuration = 150
                                 }
                             }
                         },

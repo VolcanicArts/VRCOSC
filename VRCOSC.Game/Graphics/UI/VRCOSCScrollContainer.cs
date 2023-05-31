@@ -23,6 +23,7 @@ public partial class VRCOSCScrollContainer<T> : ScrollContainer<T>
     protected VRCOSCScrollContainer(Direction scrollDirection = Direction.Vertical)
         : base(scrollDirection)
     {
+        ScrollbarOverlapsContent = false;
     }
 
     protected override ScrollbarContainer CreateScrollbar(Direction direction) => new VRCOSCScrollbar(direction);

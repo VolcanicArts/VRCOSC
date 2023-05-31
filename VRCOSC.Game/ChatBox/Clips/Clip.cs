@@ -228,8 +228,12 @@ public class Clip
             if (!chatBoxManager.ModuleEnabledCache[clipVariable.Module]) return;
 
             chatBoxManager.VariableValues.TryGetValue((clipVariable.Module, clipVariable.Lookup), out var variableValue);
-
             returnText = returnText.Replace(clipVariable.DisplayableFormat, variableValue ?? string.Empty);
+
+            chatBoxManager.VariableValues.Where(pair => pair.Key.Item2.StartsWith($"{clipVariable.Lookup}_")).ForEach(pair =>
+            {
+                returnText = returnText.Replace(clipVariable.DisplayableFormatWithSuffix(pair.Key.Item2.Split('_').Last()), pair.Value);
+            });
         });
 
         return returnText;
@@ -268,8 +272,6 @@ public class Clip
 
     private void addStatesOfAddedModules(NotifyCollectionChangedEventArgs e)
     {
-        var checkDefaultState = !States.Any() && e.NewItems!.Count == 1;
-
         foreach (string moduleName in e.NewItems!)
         {
             var currentStateCopy = States.Select(clipState => clipState.Copy()).ToList();
@@ -286,12 +288,6 @@ public class Clip
 
                 States.AddRange(localCurrentStatesCopy);
                 States.Add(new ClipState(newStateMetadata));
-            }
-
-            if (checkDefaultState)
-            {
-                var defaultState = GetStateFor(moduleName, @"default");
-                if (defaultState is not null) defaultState.Enabled.Value = true;
             }
         }
     }

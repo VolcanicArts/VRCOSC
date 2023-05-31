@@ -4,119 +4,131 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using osu.Framework.Lists;
+using System.Reflection;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Platform;
 using osu.Framework.Threading;
 using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.Modules.Serialisation.Legacy;
-using VRCOSC.Game.Modules.Serialisation.V1;
-using VRCOSC.Game.Modules.Sources;
 using VRCOSC.Game.OSC.VRChat;
 using VRCOSC.Game.Serialisation;
+using Module = VRCOSC.Game.Modules.Module;
 
 namespace VRCOSC.Game.Managers;
 
-public sealed class ModuleManager : IEnumerable<Module>, ICanSerialise
+public sealed class ModuleManager : IEnumerable<ModuleCollection>
 {
-    private static TerminalLogger terminal => new("ModuleManager");
+    private static TerminalLogger terminal => new("VRCOSC");
 
-    private readonly List<IModuleSource> sources = new();
-    private readonly SortedList<Module> modules = new();
+    public readonly Dictionary<string, ModuleCollection> ModuleCollections = new();
+
+    // TODO - Can be made private when migration is complete
+    public IReadOnlyList<Module> Modules => ModuleCollections.Values.SelectMany(collection => collection.Modules).ToList();
 
     public Action? OnModuleEnabledChanged;
 
-    public void AddSource(IModuleSource source) => sources.Add(source);
-    public bool RemoveSource(IModuleSource source) => sources.Remove(source);
-
     private GameHost host = null!;
     private GameManager gameManager = null!;
-    private IVRCOSCSecrets secrets = null!;
     private Scheduler scheduler = null!;
+    private Storage storage = null!;
+    private NotificationContainer notification = null!;
     private SerialisationManager serialisationManager = null!;
 
     private readonly List<Module> runningModulesCache = new();
 
-    public void InjectModuleDependencies(GameHost host, GameManager gameManager, IVRCOSCSecrets secrets, Scheduler scheduler)
+    public void InjectModuleDependencies(GameHost host, GameManager gameManager, Scheduler scheduler, Storage storage, NotificationContainer notification)
     {
         this.host = host;
         this.gameManager = gameManager;
-        this.secrets = secrets;
         this.scheduler = scheduler;
+        this.storage = storage;
+        this.notification = notification;
     }
 
-    public void Load(Storage storage, NotificationContainer notification)
+    public void Load()
     {
         serialisationManager = new SerialisationManager();
-        serialisationManager.RegisterSerialiser(1, new ModuleSerialiser(storage, notification, this));
+        serialisationManager.RegisterSerialiser(1, new LegacyModuleManagerSerialiser(storage, notification, this));
 
-        modules.Clear();
+        loadModules();
 
-        sources.ForEach(source =>
+        // TODO - Remove when migration has completed
+        if (storage.Exists("modules.json"))
         {
-            foreach (var type in source.Load())
+            serialisationManager.Deserialise();
+            storage.Delete("modules.json");
+
+            foreach (var module in Modules)
             {
-                var module = (Module)Activator.CreateInstance(type)!;
-                module.InjectDependencies(host, gameManager, secrets, scheduler);
-                module.Load();
-                modules.Add(module);
+                module.Serialise();
             }
-        });
+        }
+    }
 
-        deserialiseProxy(storage);
+    private void loadModules()
+    {
+        ModuleCollections.Clear();
 
-        foreach (var module in this)
+        loadInternalModules();
+        loadExternalModules();
+
+        foreach (var module in Modules)
         {
             module.Enabled.BindValueChanged(_ =>
             {
                 OnModuleEnabledChanged?.Invoke();
-                Serialise();
+                module.Serialise();
             });
         }
     }
 
-    // Handles migration from LegacyModuleSerialiser
-    private void deserialiseProxy(Storage storage)
+    private void loadInternalModules()
     {
-        if (!storage.Exists("modules.json"))
-        {
-            var legacySerialisation = new LegacyModuleSerialiser(storage);
-
-            foreach (var module in this)
-            {
-                legacySerialisation.Deserialise(module);
-            }
-
-            if (serialisationManager.Serialise())
-            {
-                storage.DeleteDirectory("modules");
-            }
-        }
-        else
-        {
-            Deserialise();
-        }
+        var dllPath = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll", SearchOption.AllDirectories).FirstOrDefault(fileName => fileName.Contains("VRCOSC.Modules"))!;
+        loadModulesFromAssembly(Assembly.Load(File.ReadAllBytes(dllPath)));
     }
 
-    public void Deserialise()
+    private void loadExternalModules()
     {
-        serialisationManager.Deserialise();
+        var moduleDirectoryPath = storage.GetStorageForDirectory("assemblies").GetFullPath(string.Empty, true);
+        Directory.GetFiles(moduleDirectoryPath, "*.dll", SearchOption.AllDirectories).ForEach(dllPath => loadModulesFromAssembly(Assembly.Load(File.ReadAllBytes(dllPath))));
     }
 
-    public void Serialise()
+    private void loadModulesFromAssembly(Assembly assembly)
     {
-        serialisationManager.Serialise();
+        assembly.GetTypes().Where(type => type.IsSubclassOf(typeof(Module)) && !type.IsAbstract).ForEach(type => registerModule(assembly, type));
+    }
+
+    private void registerModule(Assembly assembly, Type type)
+    {
+        try
+        {
+            var module = (Module)Activator.CreateInstance(type)!;
+            module.InjectDependencies(host, gameManager, scheduler, storage, notification);
+            module.Load();
+
+            var assemblyLookup = assembly.GetName().Name!.ToLowerInvariant();
+
+            ModuleCollections.TryAdd(assemblyLookup, new ModuleCollection(assembly));
+            ModuleCollections[assemblyLookup].Modules.Add(module);
+        }
+        catch (Exception)
+        {
+            notification.Notify(new ExceptionNotification($"{type.Name} could not be loaded. It may require an update"));
+        }
     }
 
     public void Start()
     {
-        if (modules.All(module => !module.Enabled.Value))
+        if (Modules.All(module => !module.Enabled.Value))
             terminal.Log("You have no modules selected!\nSelect some modules to begin using VRCOSC");
 
         runningModulesCache.Clear();
 
-        foreach (var module in modules.Where(module => module.Enabled.Value))
+        foreach (var module in Modules.Where(module => module.Enabled.Value))
         {
             module.Start();
             runningModulesCache.Add(module);
@@ -154,10 +166,12 @@ public sealed class ModuleManager : IEnumerable<Module>, ICanSerialise
         }
     }
 
-    public IEnumerable<string> GetEnabledModuleNames() => modules.Where(module => module.Enabled.Value).Select(module => module.SerialisedName);
+    public Module? GetModule(string serialisedName) => Modules.SingleOrDefault(module => module.SerialisedName == serialisedName);
 
-    public string GetModuleName(string serialisedName) => modules.Single(module => module.SerialisedName == serialisedName).Title;
+    public IEnumerable<string> GetEnabledModuleNames() => Modules.Where(module => module.Enabled.Value).Select(module => module.SerialisedName);
 
-    public IEnumerator<Module> GetEnumerator() => modules.GetEnumerator();
+    public string GetModuleName(string serialisedName) => Modules.Single(module => module.SerialisedName == serialisedName).Title;
+
+    public IEnumerator<ModuleCollection> GetEnumerator() => ModuleCollections.Values.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
