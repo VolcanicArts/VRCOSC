@@ -9,6 +9,7 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Platform;
 using osuTK;
 using VRCOSC.Game.Graphics.Screen;
+using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Button;
 
 namespace VRCOSC.Game.Graphics.About;
@@ -34,7 +35,7 @@ public sealed partial class AboutScreen : BaseScreen
                 Origin = Anchor.TopCentre,
                 RelativeSizeAxes = Axes.Both,
                 Size = new Vector2(0.5f, 0.9f),
-                Direction = FillDirection.Full,
+                Direction = FillDirection.Vertical,
                 Spacing = new Vector2(5)
             }
         }
@@ -45,19 +46,40 @@ public sealed partial class AboutScreen : BaseScreen
     {
         RelativeSizeAxes = Axes.Both;
 
-        buttonFlow.AddRange(new[]
+        buttonFlow.AddRange(new Drawable[]
         {
-            new AboutButton
+            new FillFlowContainer
             {
-                Icon = FontAwesome.Brands.Github,
-                BackgroundColour = Colour4.FromHex("272b33"),
-                Action = () => host.OpenUrlExternally("https://github.com/VolcanicArts/VRCOSC")
+                Anchor = Anchor.TopCentre,
+                Origin = Anchor.TopCentre,
+                AutoSizeAxes = Axes.Both,
+                Direction = FillDirection.Horizontal,
+                Spacing = new Vector2(5, 0),
+                Children = new Drawable[]
+                {
+                    new AboutButton
+                    {
+                        Icon = FontAwesome.Brands.Github,
+                        BackgroundColour = Colour4.FromHex("272b33"),
+                        Action = () => host.OpenUrlExternally("https://github.com/VolcanicArts/VRCOSC")
+                    },
+                    new AboutButton
+                    {
+                        Icon = FontAwesome.Brands.Discord,
+                        BackgroundColour = Colour4.FromHex("7289DA"),
+                        Action = () => host.OpenUrlExternally("https://discord.gg/vj4brHyvT5")
+                    }
+                }
             },
-            new AboutButton
+            new TextButton
             {
-                Icon = FontAwesome.Brands.Discord,
-                BackgroundColour = Colour4.FromHex("7289DA"),
-                Action = () => host.OpenUrlExternally("https://discord.gg/vj4brHyvT5")
+                Anchor = Anchor.TopCentre,
+                Origin = Anchor.TopCentre,
+                Size = new Vector2(150, 50),
+                BackgroundColour = ThemeManager.Current[ThemeAttribute.Action],
+                CornerRadius = 5,
+                Text = "Donate",
+                Action = () => host.OpenUrlExternally("https://ko-fi.com/volcanicarts")
             }
         });
     }
