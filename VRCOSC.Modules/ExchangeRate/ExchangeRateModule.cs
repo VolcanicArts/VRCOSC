@@ -21,7 +21,7 @@ public class ExchangeRateModule : ChatBoxModule
 
     protected override void CreateAttributes()
     {
-        CreateSetting(ExchangeRateSetting.BaseCurrency, "Base Currency", "The base currency to convert from. All rates are displayed as a multiplier from this currency", "USD");
+        CreateSetting(ExchangeRateSetting.BaseCurrency, "Base Currency", "The base currency to convert from. All rates are displayed as a multiplier from this currency", "USD", "Supported Currency Codes", () => OpenUrlExternally("https://www.exchangerate-api.com/docs/supported-currencies"));
 
         CreateVariable(ExchangeRateVariable.BaseCurrency, "Base Currency", "base");
         CreateVariable(ExchangeRateVariable.Rate, "Rate", "rate");
