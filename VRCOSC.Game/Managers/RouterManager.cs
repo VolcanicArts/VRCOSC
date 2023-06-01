@@ -5,7 +5,6 @@ using osu.Framework.Bindables;
 using osu.Framework.Platform;
 using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.OSC;
-using VRCOSC.Game.Router.Serialisation.Legacy;
 using VRCOSC.Game.Router.Serialisation.V1;
 using VRCOSC.Game.Serialisation;
 
@@ -20,7 +19,6 @@ public class RouterManager
     public RouterManager(Storage storage, NotificationContainer notification)
     {
         serialisationManager = new SerialisationManager();
-        serialisationManager.RegisterSerialiser(0, new LegacyRouterSerialiser(storage, notification, this));
         serialisationManager.RegisterSerialiser(1, new RouterSerialiser(storage, notification, this));
     }
 
