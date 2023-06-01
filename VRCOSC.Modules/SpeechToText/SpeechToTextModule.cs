@@ -137,7 +137,7 @@ public class SpeechToTextModule : ChatBoxModule
             {
                 var result = JsonConvert.DeserializeObject<Recognition>(recogniser.Result());
 
-                if (result is not null && result.TotalConfidence > 0.5f)
+                if (result is not null && result.TotalConfidence > 0.75f)
                 {
                     if (!string.IsNullOrEmpty(result.Text) && result.Text != "huh")
                     {
