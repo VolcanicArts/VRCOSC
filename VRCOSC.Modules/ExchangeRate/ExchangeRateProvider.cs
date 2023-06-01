@@ -15,6 +15,7 @@ public class ExchangeRateProvider
     private readonly HttpClient httpClient = new();
 
     private DateTimeOffset lastUpdate = DateTimeOffset.MinValue;
+    private string lastCurrency = string.Empty;
     private ExchangeRate? exchangeRate;
 
     public ExchangeRateProvider(string apiKey)
@@ -24,9 +25,10 @@ public class ExchangeRateProvider
 
     public async Task<ExchangeRate?> GetExchangeRate(string baseCurrency)
     {
-        if (lastUpdate + TimeSpan.FromMinutes(10) >= DateTimeOffset.Now) return exchangeRate;
+        if (lastUpdate + TimeSpan.FromMinutes(10) >= DateTimeOffset.Now && baseCurrency == lastCurrency) return exchangeRate;
 
         lastUpdate = DateTimeOffset.Now;
+        lastCurrency = baseCurrency;
 
         var exchangeRateUrl = string.Format(exchange_rate_url, apiKey, baseCurrency);
         var exchangeRateData = await httpClient.GetAsync(new Uri(exchangeRateUrl));
