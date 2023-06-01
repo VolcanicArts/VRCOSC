@@ -6,11 +6,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using WebSocket4Net;
 
-// ReSharper disable MemberCanBeProtected.Global
-
 namespace VRCOSC.Game.Modules;
 
-public class BaseWebSocket : IDisposable
+public class WebSocketClient : IDisposable
 {
     private readonly CancellationTokenSource tokenSource = new();
     private readonly WebSocket webSocket;
@@ -18,8 +16,9 @@ public class BaseWebSocket : IDisposable
     public Action? OnWsConnected;
     public Action? OnWsDisconnected;
     public Action<string>? OnWsMessage;
+    public bool IsConnected => webSocket.Handshaked;
 
-    public BaseWebSocket(string uri)
+    public WebSocketClient(string uri)
     {
         webSocket = new WebSocket(uri);
         webSocket.Opened += wsConnected;
@@ -36,9 +35,9 @@ public class BaseWebSocket : IDisposable
         });
     }
 
-    public void Disconnect()
+    public Task<bool> Disconnect()
     {
-        webSocket.Close();
+        return webSocket.CloseAsync();
     }
 
     public void Send(string data)

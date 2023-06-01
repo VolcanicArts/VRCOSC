@@ -1,28 +1,26 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using VRCOSC.Game.Modules;
+using System;
+using System.Linq;
+using System.Threading;
 using VRCOSC.Game.Modules.ChatBox;
 
-namespace VRCOSC.Modules.Heartrate;
+namespace VRCOSC.Game.Modules.Bases.Heartrate;
 
-public abstract class HeartRateModule : ChatBoxModule
+public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProvider
 {
-    private static readonly TimeSpan heartrate_timeout = TimeSpan.FromSeconds(30);
-
-    public override string Author => @"VolcanicArts";
     public override string Prefab => @"VRCOSC-Heartrate";
     public override ModuleType Type => ModuleType.Health;
 
-    protected HeartRateProvider? HeartRateProvider;
+    protected T? HeartrateProvider;
     private int currentHeartrate;
     private int targetHeartrate;
     private int connectionCount;
     private TimeSpan targetInterval;
     private DateTimeOffset lastIntervalUpdate;
-    private DateTimeOffset lastHeartrateTime;
 
-    protected abstract HeartRateProvider CreateHeartRateProvider();
+    protected abstract T CreateProvider();
 
     protected override void CreateAttributes()
     {
@@ -48,7 +46,6 @@ public abstract class HeartRateModule : ChatBoxModule
         targetHeartrate = 0;
         connectionCount = 0;
         targetInterval = TimeSpan.Zero;
-        lastHeartrateTime = DateTimeOffset.MinValue;
         lastIntervalUpdate = DateTimeOffset.MinValue;
         ChangeStateTo(HeartrateState.Default);
         attemptConnection();
@@ -63,12 +60,12 @@ public abstract class HeartRateModule : ChatBoxModule
         }
 
         connectionCount++;
-        HeartRateProvider = CreateHeartRateProvider();
-        HeartRateProvider.OnHeartRateUpdate += handleHeartRateUpdate;
-        HeartRateProvider.OnConnected += () => connectionCount = 0;
-        HeartRateProvider.OnDisconnected += attemptReconnection;
-        HeartRateProvider.Initialise();
-        HeartRateProvider.Connect();
+        HeartrateProvider = CreateProvider();
+        HeartrateProvider.OnHeartrateUpdate += handleHeartRateUpdate;
+        HeartrateProvider.OnConnected += () => connectionCount = 0;
+        HeartrateProvider.OnDisconnected += attemptReconnection;
+        HeartrateProvider.OnLog += Log;
+        HeartrateProvider.Initialise();
     }
 
     private void attemptReconnection()
@@ -82,9 +79,9 @@ public abstract class HeartRateModule : ChatBoxModule
 
     protected override void OnModuleStop()
     {
-        if (HeartRateProvider is null) return;
+        HeartrateProvider?.Teardown();
+        HeartrateProvider = null;
 
-        if (HeartRateProvider.IsConnected) HeartRateProvider.Disconnect();
         SendParameter(HeartrateParameter.Enabled, false);
     }
 
@@ -109,7 +106,6 @@ public abstract class HeartRateModule : ChatBoxModule
     private void handleHeartRateUpdate(int heartrate)
     {
         targetHeartrate = heartrate;
-        lastHeartrateTime = DateTimeOffset.Now;
 
         try
         {
@@ -121,10 +117,10 @@ public abstract class HeartRateModule : ChatBoxModule
         }
     }
 
-    private bool isReceiving => (HeartRateProvider?.IsConnected ?? false) && lastHeartrateTime + heartrate_timeout >= DateTimeOffset.Now;
-
     private void sendParameters()
     {
+        var isReceiving = HeartrateProvider?.IsReceiving ?? false;
+
         SendParameter(HeartrateParameter.Enabled, isReceiving);
 
         if (isReceiving)

@@ -2,37 +2,36 @@
 // See the LICENSE file in the repository root for full license text.
 
 using Newtonsoft.Json;
-using VRCOSC.Game.Modules;
+using VRCOSC.Game.Modules.Bases.Heartrate;
 using VRCOSC.Modules.Heartrate.HypeRate.Models;
 
 namespace VRCOSC.Modules.Heartrate.HypeRate;
 
-public sealed class HypeRateProvider : HeartRateProvider
+public sealed class HypeRateProvider : WebSocketHeartrateProvider
 {
     private readonly string hypeRateId;
     private readonly string apiKey;
 
-    protected override string WebSocketUrl => $"wss://app.hyperate.io/socket/websocket?token={apiKey}";
+    protected override Uri WebsocketUri => new($"wss://app.hyperate.io/socket/websocket?token={apiKey}");
 
-    public HypeRateProvider(string hypeRateId, string apiKey, TerminalLogger terminal)
-        : base(terminal)
+    public HypeRateProvider(string hypeRateId, string apiKey)
     {
         this.hypeRateId = hypeRateId;
         this.apiKey = apiKey;
     }
 
-    protected override void HandleWsConnected()
+    protected override void OnWebSocketConnected()
     {
-        Log("Successfully connected to the HypeRate websocket");
+        Log("Connected to the HypeRate websocket");
         sendJoinChannel();
     }
 
-    protected override void HandleWsDisconnected()
+    protected override void OnWebSocketDisconnected()
     {
         Log("Disconnected from the HypeRate websocket");
     }
 
-    protected override void HandleWsMessage(string message)
+    protected override void OnWebSocketMessage(string message)
     {
         try
         {
@@ -59,7 +58,7 @@ public sealed class HypeRateProvider : HeartRateProvider
 
     public void SendWsHeartBeat()
     {
-        SendData(new HeartBeatModel());
+        SendDataAsJson(new HeartBeatModel());
     }
 
     private void sendJoinChannel()
@@ -68,11 +67,11 @@ public sealed class HypeRateProvider : HeartRateProvider
         {
             Id = hypeRateId
         };
-        SendData(joinChannelModel);
+        SendDataAsJson(joinChannelModel);
     }
 
     private void handleHrUpdate(HeartRateUpdateModel update)
     {
-        OnHeartRateUpdate?.Invoke(update.Payload.HeartRate);
+        OnHeartrateUpdate?.Invoke(update.Payload.HeartRate);
     }
 }

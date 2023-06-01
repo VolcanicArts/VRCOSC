@@ -1,17 +1,18 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using VRCOSC.Game.Modules;
+using VRCOSC.Game.Modules.Bases.Heartrate;
 
 namespace VRCOSC.Modules.Heartrate.HypeRate;
 
-public sealed class HypeRateModule : HeartRateModule
+public sealed class HypeRateModule : HeartrateModule<HypeRateProvider>
 {
     public override string Title => @"HypeRate";
+    public override string Author => @"VolcanicArts";
     public override string Description => @"Connects to HypeRate.io and sends your heartrate to VRChat";
     protected override TimeSpan DeltaUpdate => TimeSpan.FromSeconds(10);
 
-    protected override HeartRateProvider CreateHeartRateProvider() => new HypeRateProvider(GetSetting<string>(HypeRateSetting.Id), OfficialModuleSecrets.GetSecret(OfficialModuleSecretsKeys.Hyperate), new TerminalLogger(Title));
+    protected override HypeRateProvider CreateProvider() => new(GetSetting<string>(HypeRateSetting.Id), OfficialModuleSecrets.GetSecret(OfficialModuleSecretsKeys.Hyperate));
 
     protected override void CreateAttributes()
     {
@@ -21,9 +22,7 @@ public sealed class HypeRateModule : HeartRateModule
 
     protected override void OnModuleStart()
     {
-        var hypeRateId = GetSetting<string>(HypeRateSetting.Id);
-
-        if (string.IsNullOrEmpty(hypeRateId))
+        if (string.IsNullOrEmpty(GetSetting<string>(HypeRateSetting.Id)))
         {
             Log(@"Cannot connect to HypeRate. Please enter an Id");
             return;
@@ -34,9 +33,7 @@ public sealed class HypeRateModule : HeartRateModule
 
     protected override void OnModuleUpdate()
     {
-        if (HeartRateProvider is null || !HeartRateProvider.IsConnected) return;
-
-        ((HypeRateProvider)HeartRateProvider).SendWsHeartBeat();
+        HeartrateProvider?.SendWsHeartBeat();
     }
 
     private enum HypeRateSetting
