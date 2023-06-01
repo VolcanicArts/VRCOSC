@@ -15,5 +15,6 @@ internal static class OfficialModuleSecrets
 internal enum OfficialModuleSecretsKeys
 {
     Hyperate,
-    Weather
+    Weather,
+    ExchangeRate
 }
