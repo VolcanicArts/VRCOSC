@@ -102,7 +102,7 @@ public class SpeechToTextModule : ChatBoxModule
         lock (analyseLock)
         {
             recogniser = new VoskRecognizer(model, micInterface.AudioCapture!.WaveFormat.SampleRate);
-            recogniser.SetMaxAlternatives(0);
+            recogniser.SetWords(true);
         }
 
         Log("Model loaded!");
@@ -137,7 +137,7 @@ public class SpeechToTextModule : ChatBoxModule
             {
                 var result = JsonConvert.DeserializeObject<Recognition>(recogniser.Result());
 
-                if (result is not null && result.Confidence > 0.5f)
+                if (result is not null && result.TotalConfidence > 0.75f)
                 {
                     if (!string.IsNullOrEmpty(result.Text) && result.Text != "huh")
                     {
@@ -199,7 +199,15 @@ public class SpeechToTextModule : ChatBoxModule
         [JsonProperty("text")]
         public string Text = null!;
 
-        [JsonProperty("confidence")]
+        [JsonProperty("result")]
+        public List<WordResult> Result = null!;
+
+        public float TotalConfidence => Result.Sum(wordResult => wordResult.Confidence) / Result.Count;
+    }
+
+    private class WordResult
+    {
+        [JsonProperty("conf")]
         public float Confidence;
     }
 

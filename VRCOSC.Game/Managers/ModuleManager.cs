@@ -99,7 +99,14 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
 
     private void loadModulesFromAssembly(Assembly assembly)
     {
-        assembly.GetTypes().Where(type => type.IsSubclassOf(typeof(Module)) && !type.IsAbstract).ForEach(type => registerModule(assembly, type));
+        try
+        {
+            assembly.GetTypes().Where(type => type.IsSubclassOf(typeof(Module)) && !type.IsAbstract).ForEach(type => registerModule(assembly, type));
+        }
+        catch (Exception)
+        {
+            notification.Notify(new ExceptionNotification($"{assembly.GetAssemblyAttribute<AssemblyProductAttribute>()?.Product} could not be loaded. It may require an update"));
+        }
     }
 
     private void registerModule(Assembly assembly, Type type)

@@ -11,7 +11,7 @@
     <NoDefaultExcludes>true</NoDefaultExcludes>
     <!-- No lib content for target framework. The warning is meaningless for template packages. -->
     <NoWarn>NU5128</NoWarn>
-    <Version>2023.531.0</Version>
+    <Version>2023.601.0</Version>
     <Authors>VolcanicArts</Authors>
     <PackageProjectUrl>https://github.com/VolcanicArts/VRCOSC</PackageProjectUrl>
     <RepositoryUrl>https://github.com/VolcanicArts/VRCOSC</RepositoryUrl>

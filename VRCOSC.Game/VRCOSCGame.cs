@@ -60,8 +60,6 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     private void load()
     {
         AddFont(Resources, @"Fonts/ArialUnicode/ArialUnicode");
-        // Forcibly load
-        new FontUsage("ArialUnicode");
 
         ThemeManager.VRCOSCTheme = ConfigManager.Get<VRCOSCTheme>(VRCOSCSetting.Theme);
 

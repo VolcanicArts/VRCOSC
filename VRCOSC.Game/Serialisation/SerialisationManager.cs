@@ -45,14 +45,6 @@ public class SerialisationManager
             return;
         }
 
-        // Attempt to deserialise using the 0th serialiser which is reserved for files from before the serialisation standardisation
-        // Note: 0th used for RouterManager migration
-        if (serialisers.TryGetValue(0, out var zerothSerialiser))
-        {
-            deserialise(zerothSerialiser, filePathOverride);
-            return;
-        }
-
         // Since we've got to this point that means a file exists that has no version, or the file is corrupt
         // As a last resort, attempt to deserialise with the latest serialiser. This also triggers the error notification
         if (!serialisers.TryGetValue(latestSerialiserVersion, out var latestSerialiser)) return;

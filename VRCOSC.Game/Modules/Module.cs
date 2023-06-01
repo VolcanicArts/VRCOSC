@@ -29,7 +29,6 @@ public abstract class Module : IComparable<Module>
     private GameHost Host = null!;
     private GameManager GameManager = null!;
     private Scheduler Scheduler = null!;
-
     private TerminalLogger Terminal = null!;
 
     protected Player Player => GameManager.Player;
@@ -56,7 +55,6 @@ public abstract class Module : IComparable<Module>
     private bool ShouldUpdate => DeltaUpdate != TimeSpan.MaxValue;
     internal string Name => GetType().Name;
     internal string SerialisedName => Name.ToLowerInvariant();
-    internal string FileName => @$"{Name}.ini";
 
     protected bool IsStarting => State.Value == ModuleState.Starting;
     protected bool HasStarted => State.Value == ModuleState.Started;
@@ -64,12 +62,14 @@ public abstract class Module : IComparable<Module>
     protected bool HasStopped => State.Value == ModuleState.Stopped;
 
     private SerialisationManager serialisationManager = null!;
+    private NotificationContainer notifications = null!;
 
     public void InjectDependencies(GameHost host, GameManager gameManager, Scheduler scheduler, Storage storage, NotificationContainer notifications)
     {
         Host = host;
         GameManager = gameManager;
         Scheduler = scheduler;
+        this.notifications = notifications;
 
         serialisationManager = new SerialisationManager();
         serialisationManager.RegisterSerialiser(1, new ModuleSerialiser(storage, notifications, this));
@@ -251,26 +251,86 @@ public abstract class Module : IComparable<Module>
     {
         State.Value = ModuleState.Starting;
 
-        OnModuleStart();
-
-        if (ShouldUpdate) Scheduler.AddDelayed(OnModuleUpdate, DeltaUpdate.TotalMilliseconds, true);
-        Scheduler.AddDelayed(OnFixedUpdate, TimeSpan.FromSeconds(1f / 60f).TotalMilliseconds, true);
+        try
+        {
+            OnModuleStart();
+        }
+        catch (Exception)
+        {
+            notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
+        }
 
         State.Value = ModuleState.Started;
 
-        if (ShouldUpdateImmediately) OnModuleUpdate();
+        Scheduler.AddDelayed(FixedUpdate, TimeSpan.FromSeconds(1f / 60f).TotalMilliseconds, true);
+
+        if (ShouldUpdate) Scheduler.AddDelayed(Update, DeltaUpdate.TotalMilliseconds, true);
+        if (ShouldUpdateImmediately) Update();
     }
 
     internal void Stop()
     {
         State.Value = ModuleState.Stopping;
 
-        OnModuleStop();
+        try
+        {
+            OnModuleStop();
+        }
+        catch (Exception)
+        {
+            notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
+        }
 
         State.Value = ModuleState.Stopped;
     }
 
-    internal void PlayerUpdate() => OnPlayerUpdate();
+    internal void Update()
+    {
+        try
+        {
+            OnModuleUpdate();
+        }
+        catch (Exception)
+        {
+            notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
+        }
+    }
+
+    internal void FixedUpdate()
+    {
+        try
+        {
+            OnFixedUpdate();
+        }
+        catch (Exception)
+        {
+            notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
+        }
+    }
+
+    internal void PlayerUpdate()
+    {
+        try
+        {
+            OnPlayerUpdate();
+        }
+        catch (Exception)
+        {
+            notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
+        }
+    }
+
+    internal void AvatarChange()
+    {
+        try
+        {
+            OnAvatarChange();
+        }
+        catch (Exception)
+        {
+            notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
+        }
+    }
 
     protected virtual void OnModuleStart() { }
     protected virtual void OnModuleUpdate() { }
@@ -344,7 +404,7 @@ public abstract class Module : IComparable<Module>
 
         if (data.IsAvatarChangeEvent)
         {
-            OnAvatarChange();
+            AvatarChange();
             return;
         }
 

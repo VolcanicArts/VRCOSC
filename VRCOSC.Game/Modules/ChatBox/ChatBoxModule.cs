@@ -13,6 +13,7 @@ public abstract class ChatBoxModule : Module
 
     protected void SetVariableValue(Enum lookup, string? value, string suffix = "") => ChatBoxManager.SetVariable(SerialisedName, lookup.ToLookup(), value, suffix);
     protected string GetVariableFormat(Enum lookup) => ChatBoxManager.VariableMetadata[SerialisedName][lookup.ToLookup()].DisplayableFormat;
+    protected string GetVariableFormat(Enum lookup, string suffix) => ChatBoxManager.VariableMetadata[SerialisedName][lookup.ToLookup()].DisplayableFormatWithSuffix(suffix);
 
     protected void SetAllVariableValues<T>(string? value) where T : Enum => setAllVariableValues(typeof(T), value);
 

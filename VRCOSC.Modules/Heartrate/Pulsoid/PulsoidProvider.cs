@@ -2,36 +2,42 @@
 // See the LICENSE file in the repository root for full license text.
 
 using Newtonsoft.Json;
-using VRCOSC.Game.Modules;
+using VRCOSC.Game.Modules.Bases.Heartrate;
 using VRCOSC.Modules.Heartrate.Pulsoid.Models;
 
 namespace VRCOSC.Modules.Heartrate.Pulsoid;
 
-public sealed class PulsoidProvider : HeartRateProvider
+public sealed class PulsoidProvider : WebSocketHeartrateProvider
 {
     private readonly string accessToken;
 
-    protected override string WebSocketUrl => $"wss://dev.pulsoid.net/api/v1/data/real_time?access_token={accessToken}";
+    protected override Uri WebsocketUri => new($"wss://dev.pulsoid.net/api/v1/data/real_time?access_token={accessToken}");
 
-    public PulsoidProvider(string accessToken, TerminalLogger terminal)
-        : base(terminal)
+    public PulsoidProvider(string accessToken)
     {
         this.accessToken = accessToken;
     }
 
-    protected override void HandleWsConnected()
+    protected override void OnWebSocketConnected()
     {
-        Log(@"Successfully connected to the Pulsoid websocket");
+        Log(@"Connected to the Pulsoid websocket");
     }
 
-    protected override void HandleWsDisconnected()
+    protected override void OnWebSocketDisconnected()
     {
         Log(@"Disconnected from the Pulsoid websocket");
     }
 
-    protected override void HandleWsMessage(string message)
+    protected override void OnWebSocketMessage(string message)
     {
-        var data = JsonConvert.DeserializeObject<PulsoidResponse>(message)!;
-        OnHeartRateUpdate?.Invoke(data.Data.HeartRate);
+        try
+        {
+            var data = JsonConvert.DeserializeObject<PulsoidResponse>(message);
+            OnHeartrateUpdate?.Invoke(data!.Data.HeartRate);
+        }
+        catch (JsonReaderException)
+        {
+            Log(@"Error deserialising Pulsoid message");
+        }
     }
 }
