@@ -64,12 +64,14 @@ public abstract class Module : IComparable<Module>
     protected bool HasStopped => State.Value == ModuleState.Stopped;
 
     private SerialisationManager serialisationManager = null!;
+    private NotificationContainer notifications = null!;
 
     public void InjectDependencies(GameHost host, GameManager gameManager, Scheduler scheduler, Storage storage, NotificationContainer notifications)
     {
         Host = host;
         GameManager = gameManager;
         Scheduler = scheduler;
+        this.notifications = notifications;
 
         serialisationManager = new SerialisationManager();
         serialisationManager.RegisterSerialiser(1, new ModuleSerialiser(storage, notifications, this));
@@ -251,9 +253,16 @@ public abstract class Module : IComparable<Module>
     {
         State.Value = ModuleState.Starting;
 
-        OnModuleStart();
+        try
+        {
+            OnModuleStart();
+        }
+        catch (Exception)
+        {
+            notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
+        }
 
-        if (ShouldUpdate) Scheduler.AddDelayed(OnModuleUpdate, DeltaUpdate.TotalMilliseconds, true);
+        if (ShouldUpdate) Scheduler.AddDelayed(Update, DeltaUpdate.TotalMilliseconds, true);
         Scheduler.AddDelayed(OnFixedUpdate, TimeSpan.FromSeconds(1f / 60f).TotalMilliseconds, true);
 
         State.Value = ModuleState.Started;
@@ -265,9 +274,28 @@ public abstract class Module : IComparable<Module>
     {
         State.Value = ModuleState.Stopping;
 
-        OnModuleStop();
+        try
+        {
+            OnModuleStop();
+        }
+        catch (Exception)
+        {
+            notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
+        }
 
         State.Value = ModuleState.Stopped;
+    }
+
+    internal void Update()
+    {
+        try
+        {
+            OnModuleUpdate();
+        }
+        catch (Exception)
+        {
+            notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
+        }
     }
 
     internal void PlayerUpdate() => OnPlayerUpdate();
