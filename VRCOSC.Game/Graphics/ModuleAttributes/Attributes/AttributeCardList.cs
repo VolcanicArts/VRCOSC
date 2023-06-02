@@ -75,7 +75,7 @@ public abstract partial class AttributeCardList<TAttribute, TInstance> : Attribu
 
     protected override void OnSetDefault()
     {
-        listFlow.RemoveAll(d => d.GetType() == typeof(GridContainer), true);
+        listFlow.Clear();
         AttributeData.Attribute.ForEach(OnInstanceAdd);
     }
 
@@ -94,7 +94,7 @@ public abstract partial class AttributeCardList<TAttribute, TInstance> : Attribu
     {
         GridContainer gridInstance;
 
-        var position = listFlow[^1].Position;
+        var position = listFlow.Count > 0 ? listFlow[^1].Position : Vector2.Zero;
 
         listFlow.Add(gridInstance = new GridContainer
         {
@@ -135,7 +135,7 @@ public abstract partial class AttributeCardList<TAttribute, TInstance> : Attribu
                     IconShadow = true,
                     Action = () =>
                     {
-                        AttributeData.Attribute.RemoveAt(listFlow.IndexOf(gridInstance) - 1);
+                        AttributeData.Attribute.RemoveAt(listFlow.IndexOf(gridInstance));
                         gridInstance.RemoveAndDisposeImmediately();
                     }
                 }
@@ -167,8 +167,8 @@ public abstract partial class AttributeCardList<TAttribute, TInstance> : Attribu
             }
         };
 
-        listFlow.Add(iconWrapper);
-        listFlow.SetLayoutPosition(iconWrapper, float.MaxValue);
+        contentFlow.Add(iconWrapper);
+        contentFlow.SetLayoutPosition(iconWrapper, float.MaxValue);
     }
 
     protected override void Dispose(bool isDisposing)
