@@ -165,6 +165,7 @@ public class Clip
         if (currentEvent is not null) return true;
 
         var localStates = States.Select(state => state.Copy(true)).ToList();
+        removeAbsentModules(localStates);
         removeDisabledModules(localStates);
         removeLessCompoundedStates(localStates);
         removeInvalidStates(localStates);
@@ -176,6 +177,15 @@ public class Clip
 
         currentState = chosenState;
         return true;
+    }
+
+    private void removeAbsentModules(List<ClipState> localStates)
+    {
+        foreach (var clipState in localStates.ToImmutableList())
+        {
+            var stateValid = clipState.ModuleNames.All(moduleName => chatBoxManager.GameManager.ModuleManager.GetModule(moduleName) is not null);
+            if (!stateValid) localStates.Remove(clipState);
+        }
     }
 
     private void removeDisabledModules(List<ClipState> localStates)
@@ -250,7 +260,7 @@ public class Clip
     {
         AvailableVariables.Clear();
 
-        foreach (var module in AssociatedModules)
+        foreach (var module in AssociatedModules.Where(moduleName => chatBoxManager.GameManager.ModuleManager.GetModule(moduleName) is not null))
         {
             AvailableVariables.AddRange(chatBoxManager.VariableMetadata[module].Values);
         }

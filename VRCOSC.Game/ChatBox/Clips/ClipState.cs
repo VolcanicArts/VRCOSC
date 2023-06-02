@@ -9,7 +9,7 @@ namespace VRCOSC.Game.ChatBox.Clips;
 
 public class ClipState : IProvidesFormat
 {
-    public List<(string, string)> States { get; private init; } = null!;
+    public List<(string, string)> States { get; init; } = null!;
 
     public Bindable<string> Format = new()
     {
@@ -43,7 +43,7 @@ public class ClipState : IProvidesFormat
         return copy;
     }
 
-    private ClipState() { }
+    public ClipState() { }
 
     public ClipState(ClipStateMetadata metadata)
     {
