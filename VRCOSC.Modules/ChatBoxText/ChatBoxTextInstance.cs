@@ -38,8 +38,7 @@ public class ChatBoxTextInstance : IEquatable<ChatBoxTextInstance>
 
     public bool Equals(ChatBoxTextInstance? other)
     {
-        if (ReferenceEquals(null, other)) return false;
-        if (ReferenceEquals(this, other)) return true;
+        if (other is null) return false;
 
         return Key.Value == other.Key.Value && Text.Value == other.Text.Value && Direction.Value == other.Direction.Value && ScrollSpeed.Value == other.ScrollSpeed.Value && MaxLength.Value == other.MaxLength.Value;
     }
