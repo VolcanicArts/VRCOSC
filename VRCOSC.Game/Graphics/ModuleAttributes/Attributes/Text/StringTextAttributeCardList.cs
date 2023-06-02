@@ -18,7 +18,7 @@ public partial class StringTextAttributeCardList : AttributeCardList<ModuleStrin
 
     protected override void OnInstanceAdd(Bindable<string> instance)
     {
-        AddToFlow(new StringTextBox
+        AddToList(new StringTextBox
         {
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,

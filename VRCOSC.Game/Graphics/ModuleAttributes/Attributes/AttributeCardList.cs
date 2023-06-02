@@ -16,6 +16,7 @@ namespace VRCOSC.Game.Graphics.ModuleAttributes.Attributes;
 
 public abstract partial class AttributeCardList<TAttribute, TInstance> : AttributeCard<TAttribute> where TAttribute : ModuleAttributeList<TInstance>
 {
+    private FillFlowContainer contentFlow = null!;
     private FillFlowContainer listFlow = null!;
 
     protected AttributeCardList(TAttribute attributeData)
@@ -26,7 +27,7 @@ public abstract partial class AttributeCardList<TAttribute, TInstance> : Attribu
     [BackgroundDependencyLoader]
     private void load()
     {
-        Content.Add(listFlow = new FillFlowContainer
+        Content.Add(contentFlow = new FillFlowContainer
         {
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
@@ -36,8 +37,22 @@ public abstract partial class AttributeCardList<TAttribute, TInstance> : Attribu
             AutoSizeEasing = Easing.OutQuint,
             AutoSizeDuration = 150,
             LayoutEasing = Easing.OutQuint,
-            LayoutDuration = 150
+            LayoutDuration = 150,
+            Child = listFlow = new FillFlowContainer
+            {
+                Anchor = Anchor.TopCentre,
+                Origin = Anchor.TopCentre,
+                RelativeSizeAxes = Axes.X,
+                AutoSizeAxes = Axes.Y,
+                Spacing = new Vector2(0, 5),
+                AutoSizeEasing = Easing.OutQuint,
+                AutoSizeDuration = 150,
+                LayoutEasing = Easing.OutQuint,
+                LayoutDuration = 150
+            }
         });
+
+        contentFlow.SetLayoutPosition(listFlow, float.MaxValue);
     }
 
     protected override void LoadComplete()
@@ -69,7 +84,13 @@ public abstract partial class AttributeCardList<TAttribute, TInstance> : Attribu
         AttributeData.Attribute.Add(CreateInstance());
     }
 
-    protected void AddToFlow(Drawable drawable)
+    protected void AddToContent(Drawable drawable, float depth)
+    {
+        contentFlow.Add(drawable);
+        contentFlow.SetLayoutPosition(drawable, depth);
+    }
+
+    protected void AddToList(Drawable drawable)
     {
         GridContainer gridInstance;
 
