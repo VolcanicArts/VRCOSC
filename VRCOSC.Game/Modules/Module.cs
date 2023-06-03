@@ -8,6 +8,7 @@ using System.Linq;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
+using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Framework.Threading;
 using VRCOSC.Game.Graphics.Notifications;
@@ -255,9 +256,10 @@ public abstract class Module : IComparable<Module>
         {
             OnModuleStart();
         }
-        catch (Exception)
+        catch (Exception e)
         {
             notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
+            Logger.Error(e, $"{Name} experienced an exception");
         }
 
         State.Value = ModuleState.Started;
@@ -276,9 +278,10 @@ public abstract class Module : IComparable<Module>
         {
             OnModuleStop();
         }
-        catch (Exception)
+        catch (Exception e)
         {
             notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
+            Logger.Error(e, $"{Name} experienced an exception");
         }
 
         State.Value = ModuleState.Stopped;
@@ -290,9 +293,10 @@ public abstract class Module : IComparable<Module>
         {
             OnModuleUpdate();
         }
-        catch (Exception)
+        catch (Exception e)
         {
             notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
+            Logger.Error(e, $"{Name} experienced an exception");
         }
     }
 
@@ -302,9 +306,10 @@ public abstract class Module : IComparable<Module>
         {
             OnFixedUpdate();
         }
-        catch (Exception)
+        catch (Exception e)
         {
             notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
+            Logger.Error(e, $"{Name} experienced an exception");
         }
     }
 
@@ -314,9 +319,10 @@ public abstract class Module : IComparable<Module>
         {
             OnPlayerUpdate();
         }
-        catch (Exception)
+        catch (Exception e)
         {
             notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
+            Logger.Error(e, $"{Name} experienced an exception");
         }
     }
 
@@ -326,9 +332,10 @@ public abstract class Module : IComparable<Module>
         {
             OnAvatarChange();
         }
-        catch (Exception)
+        catch (Exception e)
         {
             notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
+            Logger.Error(e, $"{Name} experienced an exception");
         }
     }
 
