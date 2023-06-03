@@ -61,9 +61,7 @@ public class ChatBoxTextInstance : IEquatable<ChatBoxTextInstance>
 public class ChatBoxTextInstanceListAttribute : ModuleAttributeList<ChatBoxTextInstance>
 {
     public override Drawable GetAssociatedCard() => new ChatBoxTextInstanceAttributeCardList(this);
-    public override bool IsDefault() => Attribute.Count == Default.Count && !Attribute.Where((t, i) => !t.Equals(Default.ElementAt(i))).Any();
 
-    protected override BindableList<ChatBoxTextInstance> CreateBindableList() => new(Default);
     protected override IEnumerable<ChatBoxTextInstance> JArrayToType(JArray array) => array.Select(value => new ChatBoxTextInstance(value.ToObject<ChatBoxTextInstance>()!)).ToList();
     protected override IEnumerable<ChatBoxTextInstance> GetClonedDefaults() => Default.Select(defaultValue => new ChatBoxTextInstance(defaultValue)).ToList();
 }
