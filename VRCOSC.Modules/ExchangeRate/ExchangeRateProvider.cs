@@ -25,7 +25,7 @@ public class ExchangeRateProvider
 
     public async Task<ExchangeRate?> GetExchangeRate(string baseCurrency)
     {
-        if (lastUpdate + TimeSpan.FromMinutes(10) >= DateTimeOffset.Now && baseCurrency == lastCurrency) return exchangeRate;
+        if (lastUpdate + TimeSpan.FromHours(2) >= DateTimeOffset.Now && baseCurrency == lastCurrency) return exchangeRate;
 
         lastUpdate = DateTimeOffset.Now;
         lastCurrency = baseCurrency;
