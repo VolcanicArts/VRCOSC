@@ -194,7 +194,7 @@ public partial class GameManager : Component
         Start();
     }
 
-    public void Start()
+    public async void Start()
     {
         if (State.Value is GameManagerState.Starting or GameManagerState.Started) return;
 
@@ -212,6 +212,8 @@ public partial class GameManager : Component
         AvatarConfig = null;
 
         State.Value = GameManagerState.Starting;
+
+        await Task.Delay(50);
 
         enableOscFlag(OscClientFlag.Send);
         Player.Initialise();
