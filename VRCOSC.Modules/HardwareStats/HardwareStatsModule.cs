@@ -19,15 +19,17 @@ public sealed class HardwareStatsModule : ChatBoxModule
 
     protected override void CreateAttributes()
     {
-        CreateSetting(HardwareStatsSetting.SelectedCPU, "Selected CPU", "If you have multiple CPUs, enter the (0th based) index of the one you want to track", 0);
-        CreateSetting(HardwareStatsSetting.SelectedGPU, "Selected GPU", "If you have multiple GPUs, enter the (0th based) index of the one you want to track", 0);
+        CreateSetting(HardwareStatsSetting.SelectedCPU, "Selected CPU", "Enter the (0th based) index of the CPU you want to track", 0);
+        CreateSetting(HardwareStatsSetting.SelectedGPU, "Selected GPU", "Enter the (0th based) index of the GPU you want to track", 0);
 
         CreateParameter<float>(HardwareStatsParameter.CpuUsage, ParameterMode.Write, "VRCOSC/Hardware/CPUUsage", "CPU Usage", "The CPU usage normalised");
         CreateParameter<float>(HardwareStatsParameter.CpuPower, ParameterMode.Write, "VRCOSC/Hardware/CPUPower", @"CPU Power", @"The power usage of your CPU in Watts");
         CreateParameter<int>(HardwareStatsParameter.CpuTemp, ParameterMode.Write, "VRCOSC/Hardware/CPUTemp", "CPU Temp", "The CPU temp in C");
+        CreateParameter<float>(HardwareStatsParameter.CpuTempNormalised, ParameterMode.Write, "VRCOSC/Hardware/CPUTempNormalised", "CPU Temp Normalised", "The CPU temp mapping 0-100c as 0-1");
         CreateParameter<float>(HardwareStatsParameter.GpuUsage, ParameterMode.Write, "VRCOSC/Hardware/GPUUsage", "GPU Usage", "The GPU usage normalised");
         CreateParameter<float>(HardwareStatsParameter.GpuPower, ParameterMode.Write, "VRCOSC/Hardware/GPUPower", @"GPU Power", @"The power usage of your GPU in Watts");
         CreateParameter<int>(HardwareStatsParameter.GpuTemp, ParameterMode.Write, "VRCOSC/Hardware/GPUTemp", "GPU Temp", "The GPU temp in C ");
+        CreateParameter<float>(HardwareStatsParameter.GpuTempNormalised, ParameterMode.Write, "VRCOSC/Hardware/GPUTempNormalised", "GPU Temp Normalised", "The GPU temp mapping 0-100c as 0-1");
         CreateParameter<float>(HardwareStatsParameter.RamUsage, ParameterMode.Write, "VRCOSC/Hardware/RAMUsage", "RAM Usage", "The RAM usage normalised");
         CreateParameter<int>(HardwareStatsParameter.RamTotal, ParameterMode.Write, "VRCOSC/Hardware/RAMTotal", "RAM Total", "The total amount of RAM in GB");
         CreateParameter<int>(HardwareStatsParameter.RamUsed, ParameterMode.Write, "VRCOSC/Hardware/RAMUsed", "RAM Used", "The used RAM in GB");
@@ -97,9 +99,11 @@ public sealed class HardwareStatsModule : ChatBoxModule
         SendParameter(HardwareStatsParameter.CpuUsage, cpu.Usage / 100f);
         SendParameter(HardwareStatsParameter.CpuPower, cpu.Power);
         SendParameter(HardwareStatsParameter.CpuTemp, cpu.Temperature);
+        SendParameter(HardwareStatsParameter.CpuTemp, cpu.Temperature / 100f);
         SendParameter(HardwareStatsParameter.GpuUsage, gpu.Usage / 100f);
         SendParameter(HardwareStatsParameter.GpuPower, gpu.Power);
         SendParameter(HardwareStatsParameter.GpuTemp, gpu.Temperature);
+        SendParameter(HardwareStatsParameter.GpuTemp, gpu.Temperature / 100f);
         SendParameter(HardwareStatsParameter.RamUsage, ram.Usage / 100f);
         SendParameter(HardwareStatsParameter.RamTotal, ram.Total);
         SendParameter(HardwareStatsParameter.RamUsed, ram.Used);
@@ -141,9 +145,11 @@ public sealed class HardwareStatsModule : ChatBoxModule
         CpuUsage,
         CpuPower,
         CpuTemp,
+        CpuTempNormalised,
         GpuUsage,
         GpuPower,
         GpuTemp,
+        GpuTempNormalised,
         RamUsage,
         RamTotal,
         RamUsed,
