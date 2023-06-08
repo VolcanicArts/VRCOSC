@@ -4,7 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
+using Newtonsoft.Json;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
@@ -31,6 +33,7 @@ public abstract class Module : IComparable<Module>
     private GameManager GameManager = null!;
     private Scheduler Scheduler = null!;
     private TerminalLogger Terminal = null!;
+    private Storage Storage = null!;
 
     protected Player Player => GameManager.Player;
     protected OVRClient OVRClient => GameManager.OVRClient;
@@ -71,6 +74,7 @@ public abstract class Module : IComparable<Module>
         GameManager = gameManager;
         Scheduler = scheduler;
         this.notifications = notifications;
+        Storage = storage;
 
         serialisationManager = new SerialisationManager();
         serialisationManager.RegisterSerialiser(1, new ModuleSerialiser(storage, notifications, this));
@@ -99,6 +103,37 @@ public abstract class Module : IComparable<Module>
     public void Deserialise()
     {
         serialisationManager.Deserialise();
+    }
+
+    #endregion
+
+    #region Persistent State
+
+    private readonly object saveLock = new();
+
+    /// <summary>
+    /// Data passed into this will be automatically serialised using JsonConvert and saved as a persistent state for the module
+    /// </summary>
+    protected void SaveState(object data)
+    {
+        lock (saveLock)
+        {
+            var serialisedData = JsonConvert.SerializeObject(data, Formatting.Indented);
+            File.WriteAllText(Storage.GetFullPath($"module-states/{SerialisedName}.json"), serialisedData);
+        }
+    }
+
+    protected T? LoadState<T>()
+    {
+        lock (saveLock)
+        {
+            if (Storage.Exists($"module-states/{SerialisedName}.json"))
+            {
+                return JsonConvert.DeserializeObject<T>(File.ReadAllText(Storage.GetStorageForDirectory("module-states").GetFullPath($"{SerialisedName}.json")));
+            }
+
+            return default;
+        }
     }
 
     #endregion

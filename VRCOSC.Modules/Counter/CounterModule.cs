@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using Newtonsoft.Json;
 using VRCOSC.Game.Modules.Attributes;
 using VRCOSC.Game.Modules.ChatBox;
 using VRCOSC.Game.OSC.VRChat;
@@ -31,6 +32,7 @@ public class CounterModule : ChatBoxModule
     protected override void CreateAttributes()
     {
         CreateSetting(CounterSetting.ResetOnAvatarChange, "Reset On Avatar Change", "Should the counter reset on avatar change?", false);
+        CreateSetting(CounterSetting.SaveCounters, "Save Counters", "Should the counters be saved between VRCOSC restarts?", true);
         CreateSetting(CounterSetting.ParameterList, "Parameter List", "What parameters should be monitored for them becoming true?\nCounts can be accessed in the ChatBox using: {counter.value_Key}", new List<MutableKeyValuePair>(), "Key", "Parameter Name");
 
         CreateVariable(CounterVariable.Value, "Value", "value");
@@ -43,11 +45,21 @@ public class CounterModule : ChatBoxModule
     protected override void OnModuleStart()
     {
         auditParameters();
+        loadState();
     }
 
     protected override void OnAvatarChange()
     {
-        if (GetSetting<bool>(CounterSetting.ResetOnAvatarChange)) auditParameters();
+        if (GetSetting<bool>(CounterSetting.ResetOnAvatarChange))
+        {
+            auditParameters();
+            saveState();
+        }
+    }
+
+    protected override void OnModuleStop()
+    {
+        saveState();
     }
 
     private void auditParameters()
@@ -77,11 +89,37 @@ public class CounterModule : ChatBoxModule
         instance.Count++;
         SetVariableValue(CounterVariable.Value, instance.Count.ToString("N0"), instance.Key);
         TriggerEvent(CounterEvent.Changed);
+        saveState();
+    }
+
+    private void saveState()
+    {
+        if (!GetSetting<bool>(CounterSetting.SaveCounters)) return;
+
+        var saveState = new CounterSaveState();
+        saveState.Instances.AddRange(counts.Values.Select(instance => new CounterInstanceSaveState(instance)));
+        SaveState(saveState);
+    }
+
+    private void loadState()
+    {
+        if (!GetSetting<bool>(CounterSetting.SaveCounters)) return;
+
+        LoadState<CounterSaveState>()?.Instances.ForEach(loadedInstance =>
+        {
+            var instance = counts.SingleOrDefault(instance => instance.Value.Key == loadedInstance.Key).Value;
+
+            if (instance is not null)
+            {
+                instance.Count = loadedInstance.Count;
+            }
+        });
     }
 
     private enum CounterSetting
     {
         ResetOnAvatarChange,
+        SaveCounters,
         ParameterList
     }
 
@@ -98,5 +136,31 @@ public class CounterModule : ChatBoxModule
     private enum CounterEvent
     {
         Changed
+    }
+
+    private class CounterSaveState
+    {
+        [JsonProperty("instances")]
+        public List<CounterInstanceSaveState> Instances = new();
+    }
+
+    private class CounterInstanceSaveState
+    {
+        [JsonProperty("key")]
+        public string Key = null!;
+
+        [JsonProperty("count")]
+        public int Count;
+
+        [JsonConstructor]
+        public CounterInstanceSaveState()
+        {
+        }
+
+        public CounterInstanceSaveState(CountInstance instance)
+        {
+            Key = instance.Key;
+            Count = instance.Count;
+        }
     }
 }
