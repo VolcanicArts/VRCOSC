@@ -11,7 +11,7 @@ namespace VRCOSC.Modules.Counter;
 public class CounterModule : ChatBoxModule
 {
     public override string Title => "Counter";
-    public override string Description => "Counts how many times parameters are triggered based on boolean events";
+    public override string Description => "Counts how many times parameters are triggered based on parameter changes events";
     public override string Author => "VolcanicArts";
     public override ModuleType Type => ModuleType.General;
 
@@ -20,12 +20,12 @@ public class CounterModule : ChatBoxModule
     private class CountInstance
     {
         public readonly string Key;
+        public readonly List<string> ParameterNames = new();
         public int Count;
 
-        public CountInstance(string key, int count)
+        public CountInstance(string key)
         {
             Key = key;
-            Count = count;
         }
     }
 
@@ -33,7 +33,7 @@ public class CounterModule : ChatBoxModule
     {
         CreateSetting(CounterSetting.ResetOnAvatarChange, "Reset On Avatar Change", "Should the counter reset on avatar change?", false);
         CreateSetting(CounterSetting.SaveCounters, "Save Counters", "Should the counters be saved between VRCOSC restarts?", true);
-        CreateSetting(CounterSetting.ParameterList, "Parameter List", "What parameters should be monitored for them becoming true?\nCounts can be accessed in the ChatBox using: {counter.value_Key}", new List<MutableKeyValuePair>(), "Key", "Parameter Name");
+        CreateSetting(CounterSetting.ParameterList, "Parameter List", "What parameters should be monitored for them becoming true?\nKeys can be reused to allow multiple parameters to add to the same counter\nCounts can be accessed in the ChatBox using: {counter.value_Key}", new List<MutableKeyValuePair>(), "Key", "Parameter Name");
 
         CreateVariable(CounterVariable.Value, "Value", "value");
 
@@ -70,18 +70,20 @@ public class CounterModule : ChatBoxModule
         {
             if (string.IsNullOrEmpty(pair.Key.Value) || string.IsNullOrEmpty(pair.Value.Value)) return;
 
-            counts.Add(pair.Value.Value, new CountInstance(pair.Key.Value, 0));
+            counts.TryAdd(pair.Key.Value, new CountInstance(pair.Key.Value));
+            counts[pair.Key.Value].ParameterNames.Add(pair.Value.Value);
             SetVariableValue(CounterVariable.Value, "0", pair.Key.Value);
         });
     }
 
     protected override void OnAnyParameterReceived(VRChatOscData data)
     {
-        if (!counts.TryGetValue(data.ParameterName, out var value)) return;
+        var instance = counts.Values.SingleOrDefault(instance => instance.ParameterNames.Contains(data.ParameterName));
+        if (instance is null) return;
 
-        if (data.IsValueType<float>() && data.ValueAs<float>() > 0.9f) counterChanged(value);
-        if (data.IsValueType<int>() && data.ValueAs<int>() != 0) counterChanged(value);
-        if (data.IsValueType<bool>() && data.ValueAs<bool>()) counterChanged(value);
+        if (data.IsValueType<float>() && data.ValueAs<float>() > 0.9f) counterChanged(instance);
+        if (data.IsValueType<int>() && data.ValueAs<int>() != 0) counterChanged(instance);
+        if (data.IsValueType<bool>() && data.ValueAs<bool>()) counterChanged(instance);
     }
 
     private void counterChanged(CountInstance instance)
