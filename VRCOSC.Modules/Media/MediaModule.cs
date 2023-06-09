@@ -61,6 +61,7 @@ public class MediaModule : ChatBoxModule
         CreateState(MediaState.Paused, "Paused", @"[Paused]");
 
         CreateEvent(MediaEvent.NowPlaying, "Now Playing", $@"[Now Playing]/v{GetVariableFormat(MediaVariable.Artist)} - {GetVariableFormat(MediaVariable.Title)}", 5);
+        CreateEvent(MediaEvent.Paused, "Paused", $@"[Paused]/v{GetVariableFormat(MediaVariable.Artist)} - {GetVariableFormat(MediaVariable.Title)}", 5);
     }
 
     protected override void OnModuleStart()
@@ -118,6 +119,8 @@ public class MediaModule : ChatBoxModule
         updateVariables();
         sendMediaParameters();
         ChangeStateTo(mediaProvider.State.IsPlaying ? MediaState.Playing : MediaState.Paused);
+
+        if (mediaProvider.State.IsPaused) TriggerEvent(MediaEvent.Paused);
     }
 
     private void onTrackChange()
@@ -227,7 +230,8 @@ public class MediaModule : ChatBoxModule
 
     private enum MediaEvent
     {
-        NowPlaying
+        NowPlaying,
+        Paused
     }
 
     private enum MediaVariable
