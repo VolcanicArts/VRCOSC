@@ -4,12 +4,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using osu.Framework.Logging;
 
 namespace VRCOSC.Game.OSC.Client;
 
 internal static class OscDecoder
 {
-    internal static OscMessage Decode(byte[] msg)
+    internal static OscMessage? Decode(byte[] msg)
     {
         var index = 0;
         var values = new List<object>();
@@ -17,7 +18,11 @@ internal static class OscDecoder
         var address = getAddress(msg, index);
         index += msg.FirstIndexAfter(address.Length, x => x == ',');
 
-        if (index.IsMisaligned()) throw new InvalidOperationException("Misaligned packet");
+        if (index.IsMisaligned())
+        {
+            Logger.Error(new InvalidOperationException("Misaligned packet. Ignoring data"), "OSCDecoder experienced an issue");
+            return null;
+        }
 
         var types = getTypes(msg, index);
         index += types.Length;

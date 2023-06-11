@@ -18,6 +18,8 @@ public class VRChatOscClient : OscClient
         Receiver.OnRawDataReceived += byteData =>
         {
             var message = OscDecoder.Decode(byteData);
+            if (message is null) return;
+
             var data = new VRChatOscData(new OscData(message.Address, message.Values));
 
             if (!data.Values.Any()) return;
