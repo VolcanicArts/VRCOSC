@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Loader;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
@@ -89,52 +88,25 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
 
     private void loadInternalModules()
     {
-        var context = new AssemblyLoadContext("VRCOSC.Modules");
-
         var dllPath = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll", SearchOption.AllDirectories).FirstOrDefault(fileName => fileName.Contains("VRCOSC.Modules"))!;
-        context.LoadFromAssemblyPath(dllPath);
-
-        loadModulesFromContext(context);
+        loadModulesFromAssembly(Assembly.Load(File.ReadAllBytes(dllPath)));
     }
 
     private void loadExternalModules()
     {
-        try
-        {
-            var moduleDirectory = storage.GetStorageForDirectory("assemblies");
-
-            foreach (var directory in moduleDirectory.GetDirectories(string.Empty))
-            {
-                var context = new AssemblyLoadContext(directory);
-
-                Directory.GetFiles(Path.Join(moduleDirectory.GetFullPath(string.Empty), directory), "*.dll", SearchOption.TopDirectoryOnly).ForEach(dllPath =>
-                {
-                    using var assemblyStream = moduleDirectory.GetStream(dllPath, FileAccess.Read, FileMode.Open);
-                    context.LoadFromStream(assemblyStream);
-                });
-
-                loadModulesFromContext(context);
-            }
-        }
-        catch (Exception e)
-        {
-            notification.Notify(new ExceptionNotification("Could not load external modules"));
-            Logger.Error(e, "ModuleManager experienced an exception");
-        }
+        var moduleDirectoryPath = storage.GetStorageForDirectory("assemblies").GetFullPath(string.Empty, true);
+        Directory.GetFiles(moduleDirectoryPath, "*.dll", SearchOption.AllDirectories).ForEach(dllPath => loadModulesFromAssembly(Assembly.Load(File.ReadAllBytes(dllPath))));
     }
 
-    private void loadModulesFromContext(AssemblyLoadContext context)
+    private void loadModulesFromAssembly(Assembly assembly)
     {
         try
         {
-            foreach (var assembly in context.Assemblies)
-            {
-                assembly.GetTypes().Where(type => type.IsSubclassOf(typeof(Module)) && !type.IsAbstract).ForEach(type => registerModule(assembly, type));
-            }
+            assembly.GetTypes().Where(type => type.IsSubclassOf(typeof(Module)) && !type.IsAbstract).ForEach(type => registerModule(assembly, type));
         }
         catch (Exception e)
         {
-            notification.Notify(new ExceptionNotification($"{context.Name} could not be loaded. It may require an update"));
+            notification.Notify(new ExceptionNotification($"{assembly.GetAssemblyAttribute<AssemblyProductAttribute>()?.Product} could not be loaded. It may require an update"));
             Logger.Error(e, "ModuleManager experienced an exception");
         }
     }
