@@ -421,6 +421,12 @@ public abstract class Module : IComparable<Module>
 
     #region Parameters
 
+    [Obsolete("Use SendParameter<T>(lookup, value) instead")]
+    protected void SendParameter<T>(Enum lookup, T value, string suffix) where T : struct
+    {
+        SendParameter(lookup, value);
+    }
+
     /// <summary>
     /// Sends a parameter value to a specified parameter name (that may have been modified), with an optional parameter name suffix
     /// </summary>
