@@ -94,8 +94,16 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
 
     private void loadExternalModules()
     {
-        var moduleDirectoryPath = storage.GetStorageForDirectory("assemblies").GetFullPath(string.Empty, true);
-        Directory.GetFiles(moduleDirectoryPath, "*.dll", SearchOption.AllDirectories).ForEach(dllPath => loadModulesFromAssembly(Assembly.Load(File.ReadAllBytes(dllPath))));
+        try
+        {
+            var moduleDirectoryPath = storage.GetStorageForDirectory("assemblies").GetFullPath(string.Empty, true);
+            Directory.GetFiles(moduleDirectoryPath, "*.dll", SearchOption.AllDirectories).ForEach(dllPath => loadModulesFromAssembly(Assembly.Load(File.ReadAllBytes(dllPath))));
+        }
+        catch (Exception e)
+        {
+            notification.Notify(new ExceptionNotification("Error when loading external modules"));
+            Logger.Error(e, "ModuleManager experienced an exception");
+        }
     }
 
     private void loadModulesFromAssembly(Assembly assembly)
