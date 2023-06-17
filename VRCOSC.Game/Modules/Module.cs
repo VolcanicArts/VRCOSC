@@ -253,7 +253,7 @@ public abstract class Module : IComparable<Module>
             ExpectedType = typeof(T)
         });
 
-    public bool DoesSettingExist(string lookup, [NotNullWhen(returnValue: true)] out ModuleAttribute? attribute)
+    public bool DoesSettingExist(string lookup, [NotNullWhen(true)] out ModuleAttribute? attribute)
     {
         if (Settings.TryGetValue(lookup, out var setting))
         {
@@ -265,7 +265,7 @@ public abstract class Module : IComparable<Module>
         return false;
     }
 
-    public bool DoesParameterExist(string lookup, [NotNullWhen(returnValue: true)] out ModuleAttribute? attribute)
+    public bool DoesParameterExist(string lookup, [NotNullWhen(true)] out ModuleAttribute? attribute)
     {
         foreach (var (lookupToCheck, _) in Parameters)
         {
@@ -426,8 +426,7 @@ public abstract class Module : IComparable<Module>
     /// </summary>
     /// <param name="lookup">The lookup key of the parameter</param>
     /// <param name="value">The value to send</param>
-    /// <param name="suffix">The optional suffix to add to the parameter name</param>
-    protected void SendParameter<T>(Enum lookup, T value, string suffix = "") where T : struct
+    protected void SendParameter<T>(Enum lookup, T value) where T : struct
     {
         if (HasStopped) return;
 
@@ -436,12 +435,11 @@ public abstract class Module : IComparable<Module>
         var data = Parameters[lookup];
         if (!data.Mode.HasFlagFast(ParameterMode.Write)) throw new InvalidOperationException($"Parameter {lookup.GetType().Name}.{lookup} is a read-parameter and therefore can't be sent!");
 
-        OscClient.SendValue(data.FormattedAddress + suffix, value);
+        OscClient.SendValue(data.FormattedAddress, value);
     }
 
     internal void OnParameterReceived(VRChatOscData data)
     {
-        if (!IsEnabled) return;
         if (!HasStarted) return;
 
         if (data.IsAvatarChangeEvent)
