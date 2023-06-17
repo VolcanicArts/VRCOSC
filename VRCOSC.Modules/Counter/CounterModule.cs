@@ -11,7 +11,7 @@ namespace VRCOSC.Modules.Counter;
 public class CounterModule : ChatBoxModule
 {
     public override string Title => "Counter";
-    public override string Description => "Counts how many times parameters are triggered based on parameter changes events";
+    public override string Description => "Counts how many times parameters are triggered based on parameter change events";
     public override string Author => "VolcanicArts";
     public override ModuleType Type => ModuleType.General;
 
