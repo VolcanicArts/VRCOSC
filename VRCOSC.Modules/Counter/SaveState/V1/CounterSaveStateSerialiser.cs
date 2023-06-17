@@ -18,6 +18,12 @@ public class CounterSaveStateSerialiser : SaveStateSerialiser<CounterModule, Ser
 
     protected override void ExecuteAfterDeserialisation(CounterModule reference, SerialisableCounterSaveState data)
     {
-        data.Instances.ForEach(instance => reference.Counts[instance.Key].Count = instance.Count);
+        data.Instances.ForEach(instance =>
+        {
+            if (reference.Counts.TryGetValue(instance.Key, out var countInstance))
+            {
+                countInstance.Count = instance.Count;
+            }
+        });
     }
 }
