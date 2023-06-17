@@ -1,10 +1,10 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using Newtonsoft.Json;
 using VRCOSC.Game.Modules.Attributes;
 using VRCOSC.Game.Modules.ChatBox;
 using VRCOSC.Game.OSC.VRChat;
+using VRCOSC.Modules.Counter.SaveState.V1;
 
 namespace VRCOSC.Modules.Counter;
 
@@ -15,19 +15,7 @@ public class CounterModule : ChatBoxModule
     public override string Author => "VolcanicArts";
     public override ModuleType Type => ModuleType.General;
 
-    private readonly Dictionary<string, CountInstance> counts = new();
-
-    private class CountInstance
-    {
-        public readonly string Key;
-        public readonly List<string> ParameterNames = new();
-        public int Count;
-
-        public CountInstance(string key)
-        {
-            Key = key;
-        }
-    }
+    internal readonly Dictionary<string, CountInstance> Counts = new();
 
     protected override void CreateAttributes()
     {
@@ -40,6 +28,9 @@ public class CounterModule : ChatBoxModule
         CreateState(CounterState.Default, "Default", GetVariableFormat(CounterVariable.Value));
 
         CreateEvent(CounterEvent.Changed, "Changed", GetVariableFormat(CounterVariable.Value), 5);
+
+        RegisterSaveStateSerialiser<CounterSaveStateSerialiser>(0); // legacy migration
+        RegisterSaveStateSerialiser<CounterSaveStateSerialiser>(1);
     }
 
     protected override void OnModuleStart()
@@ -64,21 +55,21 @@ public class CounterModule : ChatBoxModule
 
     private void auditParameters()
     {
-        counts.Clear();
+        Counts.Clear();
 
         GetSettingList<MutableKeyValuePair>(CounterSetting.ParameterList).ForEach(pair =>
         {
             if (string.IsNullOrEmpty(pair.Key.Value) || string.IsNullOrEmpty(pair.Value.Value)) return;
 
-            counts.TryAdd(pair.Key.Value, new CountInstance(pair.Key.Value));
-            counts[pair.Key.Value].ParameterNames.Add(pair.Value.Value);
-            SetVariableValue(CounterVariable.Value, "0", pair.Key.Value);
+            Counts.TryAdd(pair.Key.Value, new CountInstance(pair.Key.Value));
+            Counts[pair.Key.Value].ParameterNames.Add(pair.Value.Value);
+            SetVariableValue(CounterVariable.Value, Counts[pair.Key.Value].Count.ToString(), pair.Key.Value);
         });
     }
 
     protected override void OnAnyParameterReceived(VRChatOscData data)
     {
-        var instance = counts.Values.SingleOrDefault(instance => instance.ParameterNames.Contains(data.ParameterName));
+        var instance = Counts.Values.SingleOrDefault(instance => instance.ParameterNames.Contains(data.ParameterName));
         if (instance is null) return;
 
         if (data.IsValueType<float>() && data.ValueAs<float>() > 0.9f) counterChanged(instance);
@@ -98,24 +89,14 @@ public class CounterModule : ChatBoxModule
     {
         if (!GetSetting<bool>(CounterSetting.SaveCounters)) return;
 
-        var saveState = new CounterSaveState();
-        saveState.Instances.AddRange(counts.Values.Select(instance => new CounterInstanceSaveState(instance)));
-        SaveState(saveState);
+        SaveState();
     }
 
     private void loadState()
     {
         if (!GetSetting<bool>(CounterSetting.SaveCounters)) return;
 
-        LoadState<CounterSaveState>()?.Instances.ForEach(loadedInstance =>
-        {
-            var instance = counts.SingleOrDefault(instance => instance.Value.Key == loadedInstance.Key).Value;
-
-            if (instance is not null)
-            {
-                instance.Count = loadedInstance.Count;
-            }
-        });
+        LoadState();
     }
 
     private enum CounterSetting
@@ -139,30 +120,16 @@ public class CounterModule : ChatBoxModule
     {
         Changed
     }
+}
 
-    private class CounterSaveState
+public class CountInstance
+{
+    public readonly string Key;
+    public readonly List<string> ParameterNames = new();
+    public int Count;
+
+    public CountInstance(string key)
     {
-        [JsonProperty("instances")]
-        public List<CounterInstanceSaveState> Instances = new();
-    }
-
-    private class CounterInstanceSaveState
-    {
-        [JsonProperty("key")]
-        public string Key = null!;
-
-        [JsonProperty("count")]
-        public int Count;
-
-        [JsonConstructor]
-        public CounterInstanceSaveState()
-        {
-        }
-
-        public CounterInstanceSaveState(CountInstance instance)
-        {
-            Key = instance.Key;
-            Count = instance.Count;
-        }
+        Key = key;
     }
 }

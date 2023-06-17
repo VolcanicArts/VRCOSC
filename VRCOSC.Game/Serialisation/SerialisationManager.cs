@@ -45,7 +45,14 @@ public class SerialisationManager
             return;
         }
 
-        // Since we've got to this point that means a file exists that has no version, or the file is corrupt
+        // If a version 0 exists then use this to deserialise as it's for legacy migration
+        if (serialisers.TryGetValue(0, out var legacySerialiser))
+        {
+            deserialise(legacySerialiser, filePathOverride);
+            return;
+        }
+
+        // Since we've got to this point that means the file is corrupt
         // As a last resort, attempt to deserialise with the latest serialiser. This also triggers the error notification
         if (!serialisers.TryGetValue(latestSerialiserVersion, out var latestSerialiser)) return;
 

@@ -16,8 +16,9 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
 {
     private readonly object serialisationLock = new();
     private readonly NotificationContainer notification;
-    private readonly TReference reference;
     private Storage storage;
+
+    protected readonly TReference Reference;
 
     protected virtual string Directory => string.Empty;
     protected virtual string FileName => throw new NotImplementedException($"{typeof(Serialiser<TReference, TSerialisable>)} requires a file name");
@@ -26,7 +27,7 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
     {
         this.storage = storage;
         this.notification = notification;
-        this.reference = reference;
+        Reference = reference;
     }
 
     public void Initialise()
@@ -77,7 +78,7 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
                 var data = performDeserialisation<TSerialisable>(filePath);
                 if (data is null) return false;
 
-                ExecuteAfterDeserialisation(reference, data);
+                ExecuteAfterDeserialisation(Reference, data);
                 return true;
             }
         }
@@ -125,7 +126,7 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
 
     private void performSerialisation()
     {
-        var data = GetSerialisableData(reference);
+        var data = GetSerialisableData(Reference);
 
         var bytes = Encoding.Unicode.GetBytes(JsonConvert.SerializeObject(data, Formatting.Indented));
         using var stream = storage.CreateFileSafely(FileName);

@@ -4,9 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Linq;
-using Newtonsoft.Json;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
@@ -65,7 +63,8 @@ public abstract class Module : IComparable<Module>
     protected bool IsStopping => State.Value == ModuleState.Stopping;
     protected bool HasStopped => State.Value == ModuleState.Stopped;
 
-    private SerialisationManager serialisationManager = null!;
+    private readonly SerialisationManager saveStateSerialisationManager = new();
+    private readonly SerialisationManager moduleSerialisationManager = new();
     private NotificationContainer notifications = null!;
 
     public void InjectDependencies(GameHost host, GameManager gameManager, Scheduler scheduler, Storage storage, NotificationContainer notifications)
@@ -76,8 +75,7 @@ public abstract class Module : IComparable<Module>
         this.notifications = notifications;
         Storage = storage;
 
-        serialisationManager = new SerialisationManager();
-        serialisationManager.RegisterSerialiser(1, new ModuleSerialiser(storage, notifications, this));
+        moduleSerialisationManager.RegisterSerialiser(1, new ModuleSerialiser(storage, notifications, this));
     }
 
     public void Load()
@@ -97,43 +95,32 @@ public abstract class Module : IComparable<Module>
 
     public void Serialise()
     {
-        serialisationManager.Serialise();
+        moduleSerialisationManager.Serialise();
     }
 
     public void Deserialise()
     {
-        serialisationManager.Deserialise();
+        moduleSerialisationManager.Deserialise();
     }
 
     #endregion
 
-    #region Persistent State
+    #region Save State
 
-    private readonly object saveLock = new();
-
-    /// <summary>
-    /// Data passed into this will be automatically serialised using JsonConvert and saved as a persistent state for the module
-    /// </summary>
-    protected void SaveState(object data)
+    protected void RegisterSaveStateSerialiser<T>(int version) where T : ISaveStateSerialiser
     {
-        lock (saveLock)
-        {
-            var serialisedData = JsonConvert.SerializeObject(data, Formatting.Indented);
-            File.WriteAllText(Storage.GetFullPath($"module-states/{SerialisedName}.json"), serialisedData);
-        }
+        var serialiser = (ISaveStateSerialiser)Activator.CreateInstance(typeof(T), Storage, notifications, this)!;
+        saveStateSerialisationManager.RegisterSerialiser(version, serialiser);
     }
 
-    protected T? LoadState<T>()
+    protected void SaveState()
     {
-        lock (saveLock)
-        {
-            if (Storage.Exists($"module-states/{SerialisedName}.json"))
-            {
-                return JsonConvert.DeserializeObject<T>(File.ReadAllText(Storage.GetStorageForDirectory("module-states").GetFullPath($"{SerialisedName}.json")));
-            }
+        saveStateSerialisationManager.Serialise();
+    }
 
-            return default;
-        }
+    protected void LoadState()
+    {
+        saveStateSerialisationManager.Deserialise();
     }
 
     #endregion
