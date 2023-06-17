@@ -99,11 +99,11 @@ public sealed class HardwareStatsModule : ChatBoxModule
         SendParameter(HardwareStatsParameter.CpuUsage, cpu.Usage / 100f);
         SendParameter(HardwareStatsParameter.CpuPower, cpu.Power);
         SendParameter(HardwareStatsParameter.CpuTemp, cpu.Temperature);
-        SendParameter(HardwareStatsParameter.CpuTemp, cpu.Temperature / 100f);
+        SendParameter(HardwareStatsParameter.CpuTempNormalised, cpu.Temperature / 100f);
         SendParameter(HardwareStatsParameter.GpuUsage, gpu.Usage / 100f);
         SendParameter(HardwareStatsParameter.GpuPower, gpu.Power);
         SendParameter(HardwareStatsParameter.GpuTemp, gpu.Temperature);
-        SendParameter(HardwareStatsParameter.GpuTemp, gpu.Temperature / 100f);
+        SendParameter(HardwareStatsParameter.GpuTempNormalised, gpu.Temperature / 100f);
         SendParameter(HardwareStatsParameter.RamUsage, ram.Usage / 100f);
         SendParameter(HardwareStatsParameter.RamTotal, ram.Total);
         SendParameter(HardwareStatsParameter.RamUsed, ram.Used);
