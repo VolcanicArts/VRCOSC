@@ -452,7 +452,15 @@ public abstract class Module : IComparable<Module>
 
         if (!data.IsAvatarParameter) return;
 
-        OnAnyParameterReceived(data);
+        try
+        {
+            OnAnyParameterReceived(data);
+        }
+        catch (Exception e)
+        {
+            notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
+            Logger.Error(e, $"{Name} experienced an exception");
+        }
 
         Enum lookup;
 
@@ -475,19 +483,27 @@ public abstract class Module : IComparable<Module>
             return;
         }
 
-        switch (data.ParameterValue)
+        try
         {
-            case bool boolValue:
-                OnBoolParameterReceived(lookup, boolValue);
-                break;
+            switch (data.ParameterValue)
+            {
+                case bool boolValue:
+                    OnBoolParameterReceived(lookup, boolValue);
+                    break;
 
-            case int intValue:
-                OnIntParameterReceived(lookup, intValue);
-                break;
+                case int intValue:
+                    OnIntParameterReceived(lookup, intValue);
+                    break;
 
-            case float floatValue:
-                OnFloatParameterReceived(lookup, floatValue);
-                break;
+                case float floatValue:
+                    OnFloatParameterReceived(lookup, floatValue);
+                    break;
+            }
+        }
+        catch (Exception e)
+        {
+            notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
+            Logger.Error(e, $"{Name} experienced an exception");
         }
     }
 
