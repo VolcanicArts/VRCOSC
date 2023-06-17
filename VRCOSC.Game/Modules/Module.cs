@@ -4,10 +4,13 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
+using Newtonsoft.Json;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
+using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Framework.Threading;
 using VRCOSC.Game.Graphics.Notifications;
@@ -30,6 +33,7 @@ public abstract class Module : IComparable<Module>
     private GameManager GameManager = null!;
     private Scheduler Scheduler = null!;
     private TerminalLogger Terminal = null!;
+    private Storage Storage = null!;
 
     protected Player Player => GameManager.Player;
     protected OVRClient OVRClient => GameManager.OVRClient;
@@ -70,6 +74,7 @@ public abstract class Module : IComparable<Module>
         GameManager = gameManager;
         Scheduler = scheduler;
         this.notifications = notifications;
+        Storage = storage;
 
         serialisationManager = new SerialisationManager();
         serialisationManager.RegisterSerialiser(1, new ModuleSerialiser(storage, notifications, this));
@@ -98,6 +103,37 @@ public abstract class Module : IComparable<Module>
     public void Deserialise()
     {
         serialisationManager.Deserialise();
+    }
+
+    #endregion
+
+    #region Persistent State
+
+    private readonly object saveLock = new();
+
+    /// <summary>
+    /// Data passed into this will be automatically serialised using JsonConvert and saved as a persistent state for the module
+    /// </summary>
+    protected void SaveState(object data)
+    {
+        lock (saveLock)
+        {
+            var serialisedData = JsonConvert.SerializeObject(data, Formatting.Indented);
+            File.WriteAllText(Storage.GetFullPath($"module-states/{SerialisedName}.json"), serialisedData);
+        }
+    }
+
+    protected T? LoadState<T>()
+    {
+        lock (saveLock)
+        {
+            if (Storage.Exists($"module-states/{SerialisedName}.json"))
+            {
+                return JsonConvert.DeserializeObject<T>(File.ReadAllText(Storage.GetStorageForDirectory("module-states").GetFullPath($"{SerialisedName}.json")));
+            }
+
+            return default;
+        }
     }
 
     #endregion
@@ -217,7 +253,7 @@ public abstract class Module : IComparable<Module>
             ExpectedType = typeof(T)
         });
 
-    public bool DoesSettingExist(string lookup, [NotNullWhen(returnValue: true)] out ModuleAttribute? attribute)
+    public bool DoesSettingExist(string lookup, [NotNullWhen(true)] out ModuleAttribute? attribute)
     {
         if (Settings.TryGetValue(lookup, out var setting))
         {
@@ -229,7 +265,7 @@ public abstract class Module : IComparable<Module>
         return false;
     }
 
-    public bool DoesParameterExist(string lookup, [NotNullWhen(returnValue: true)] out ModuleAttribute? attribute)
+    public bool DoesParameterExist(string lookup, [NotNullWhen(true)] out ModuleAttribute? attribute)
     {
         foreach (var (lookupToCheck, _) in Parameters)
         {
@@ -255,9 +291,10 @@ public abstract class Module : IComparable<Module>
         {
             OnModuleStart();
         }
-        catch (Exception)
+        catch (Exception e)
         {
             notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
+            Logger.Error(e, $"{Name} experienced an exception");
         }
 
         State.Value = ModuleState.Started;
@@ -276,9 +313,10 @@ public abstract class Module : IComparable<Module>
         {
             OnModuleStop();
         }
-        catch (Exception)
+        catch (Exception e)
         {
             notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
+            Logger.Error(e, $"{Name} experienced an exception");
         }
 
         State.Value = ModuleState.Stopped;
@@ -290,9 +328,10 @@ public abstract class Module : IComparable<Module>
         {
             OnModuleUpdate();
         }
-        catch (Exception)
+        catch (Exception e)
         {
             notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
+            Logger.Error(e, $"{Name} experienced an exception");
         }
     }
 
@@ -302,9 +341,10 @@ public abstract class Module : IComparable<Module>
         {
             OnFixedUpdate();
         }
-        catch (Exception)
+        catch (Exception e)
         {
             notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
+            Logger.Error(e, $"{Name} experienced an exception");
         }
     }
 
@@ -314,9 +354,10 @@ public abstract class Module : IComparable<Module>
         {
             OnPlayerUpdate();
         }
-        catch (Exception)
+        catch (Exception e)
         {
             notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
+            Logger.Error(e, $"{Name} experienced an exception");
         }
     }
 
@@ -326,9 +367,10 @@ public abstract class Module : IComparable<Module>
         {
             OnAvatarChange();
         }
-        catch (Exception)
+        catch (Exception e)
         {
             notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
+            Logger.Error(e, $"{Name} experienced an exception");
         }
     }
 
@@ -379,27 +421,31 @@ public abstract class Module : IComparable<Module>
 
     #region Parameters
 
+    [Obsolete("Use SendParameter<T>(lookup, value) instead")]
+    protected void SendParameter<T>(Enum lookup, T value, string suffix) where T : struct
+    {
+        SendParameter(lookup, value);
+    }
+
     /// <summary>
     /// Sends a parameter value to a specified parameter name (that may have been modified), with an optional parameter name suffix
     /// </summary>
     /// <param name="lookup">The lookup key of the parameter</param>
     /// <param name="value">The value to send</param>
-    /// <param name="suffix">The optional suffix to add to the parameter name</param>
-    protected void SendParameter<T>(Enum lookup, T value, string suffix = "") where T : struct
+    protected void SendParameter<T>(Enum lookup, T value) where T : struct
     {
         if (HasStopped) return;
 
-        if (!Parameters.ContainsKey(lookup)) throw new InvalidOperationException($"Parameter {lookup} has not been defined");
+        if (!Parameters.ContainsKey(lookup)) throw new InvalidOperationException($"Parameter {lookup.GetType().Name}.{lookup} has not been defined");
 
         var data = Parameters[lookup];
-        if (!data.Mode.HasFlagFast(ParameterMode.Write)) throw new InvalidOperationException("Cannot send a value to a read-only parameter");
+        if (!data.Mode.HasFlagFast(ParameterMode.Write)) throw new InvalidOperationException($"Parameter {lookup.GetType().Name}.{lookup} is a read-parameter and therefore can't be sent!");
 
-        OscClient.SendValue(data.FormattedAddress + suffix, value);
+        OscClient.SendValue(data.FormattedAddress, value);
     }
 
     internal void OnParameterReceived(VRChatOscData data)
     {
-        if (!IsEnabled) return;
         if (!HasStarted) return;
 
         if (data.IsAvatarChangeEvent)
@@ -410,7 +456,15 @@ public abstract class Module : IComparable<Module>
 
         if (!data.IsAvatarParameter) return;
 
-        OnAnyParameterReceived(data);
+        try
+        {
+            OnAnyParameterReceived(data);
+        }
+        catch (Exception e)
+        {
+            notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
+            Logger.Error(e, $"{Name} experienced an exception");
+        }
 
         Enum lookup;
 
@@ -433,19 +487,27 @@ public abstract class Module : IComparable<Module>
             return;
         }
 
-        switch (data.ParameterValue)
+        try
         {
-            case bool boolValue:
-                OnBoolParameterReceived(lookup, boolValue);
-                break;
+            switch (data.ParameterValue)
+            {
+                case bool boolValue:
+                    OnBoolParameterReceived(lookup, boolValue);
+                    break;
 
-            case int intValue:
-                OnIntParameterReceived(lookup, intValue);
-                break;
+                case int intValue:
+                    OnIntParameterReceived(lookup, intValue);
+                    break;
 
-            case float floatValue:
-                OnFloatParameterReceived(lookup, floatValue);
-                break;
+                case float floatValue:
+                    OnFloatParameterReceived(lookup, floatValue);
+                    break;
+            }
+        }
+        catch (Exception e)
+        {
+            notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
+            Logger.Error(e, $"{Name} experienced an exception");
         }
     }
 

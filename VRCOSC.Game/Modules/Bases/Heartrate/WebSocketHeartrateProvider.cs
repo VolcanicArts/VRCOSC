@@ -26,6 +26,8 @@ public abstract class WebSocketHeartrateProvider : HeartrateProvider
     /// </summary>
     public override void Initialise()
     {
+        base.Initialise();
+
         if (client is not null) throw new InvalidOperationException("Call Teardown before re-initialising");
         if (WebsocketUri is null) throw new InvalidOperationException("WebsocketUri is null");
 

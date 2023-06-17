@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using osu.Framework.Platform;
 using VRCOSC.Game.ChatBox.Clips;
@@ -27,33 +26,6 @@ public class TimelineSerialiser : Serialiser<ChatBoxManager, SerialisableTimelin
 
     protected override void ExecuteAfterDeserialisation(ChatBoxManager chatBoxManager, SerialisableTimeline data)
     {
-        data.Clips.ForEach(clip =>
-        {
-            clip.AssociatedModules.ToImmutableList().ForEach(moduleName =>
-            {
-                if (!chatBoxManager.StateMetadata.ContainsKey(moduleName) && !chatBoxManager.EventMetadata.ContainsKey(moduleName))
-                {
-                    clip.AssociatedModules.Remove(moduleName);
-
-                    clip.States.ToImmutableList().ForEach(clipState =>
-                    {
-                        clipState.States.RemoveAll(pair => pair.Module == moduleName);
-                    });
-
-                    clip.Events.RemoveAll(clipEvent => clipEvent.Module == moduleName);
-
-                    return;
-                }
-
-                clip.States.ToImmutableList().ForEach(clipState =>
-                {
-                    clipState.States.RemoveAll(pair => !chatBoxManager.StateMetadata[pair.Module].ContainsKey(pair.Lookup));
-                });
-
-                clip.Events.RemoveAll(clipEvent => !chatBoxManager.EventMetadata[clipEvent.Module].ContainsKey(clipEvent.Lookup));
-            });
-        });
-
         var createdClips = new List<Clip>();
 
         data.Clips.ForEach(clip =>
@@ -71,20 +43,46 @@ public class TimelineSerialiser : Serialiser<ChatBoxManager, SerialisableTimelin
             clip.States.ForEach(clipState =>
             {
                 var stateData = newClip.GetStateFor(clipState.States.Select(state => state.Module), clipState.States.Select(state => state.Lookup));
-                if (stateData is null) return;
 
-                stateData.Enabled.Value = clipState.Enabled;
-                stateData.Format.Value = clipState.Format;
+                if (stateData is not null)
+                {
+                    stateData.Enabled.Value = clipState.Enabled;
+                    stateData.Format.Value = clipState.Format;
+                }
+                else
+                {
+                    // In the case that a module no longer exists (I.E, a custom module has loaded incorrectly), still load the data so it doesn't get lost
+                    newClip.States.Add(new ClipState
+                    {
+                        States = clipState.States.Select(state => (state.Lookup, state.Module)).ToList(),
+                        Enabled = { Value = clipState.Enabled },
+                        Format = { Value = clipState.Format }
+                    });
+                }
             });
 
             clip.Events.ForEach(clipEvent =>
             {
                 var eventData = newClip.GetEventFor(clipEvent.Module, clipEvent.Lookup);
-                if (eventData is null) return;
 
-                eventData.Enabled.Value = clipEvent.Enabled;
-                eventData.Format.Value = clipEvent.Format;
-                eventData.Length.Value = clipEvent.Length;
+                if (eventData is not null)
+                {
+                    eventData.Enabled.Value = clipEvent.Enabled;
+                    eventData.Format.Value = clipEvent.Format;
+                    eventData.Length.Value = clipEvent.Length;
+                }
+                else
+                {
+                    // In the case that a module no longer exists (I.E, a custom module has loaded incorrectly), still load the data so it doesn't get lost
+                    newClip.Events.Add(new ClipEvent
+                    {
+                        Lookup = clipEvent.Lookup,
+                        Module = clipEvent.Module,
+                        Enabled = { Value = clipEvent.Enabled },
+                        Format = { Value = clipEvent.Format },
+                        Length = { Value = clipEvent.Length }
+                    });
+                }
             });
 
             createdClips.Add(newClip);

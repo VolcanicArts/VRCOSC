@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using osu.Framework.Extensions.IEnumerableExtensions;
+using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Framework.Threading;
 using VRCOSC.Game.Graphics.Notifications;
@@ -93,8 +94,16 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
 
     private void loadExternalModules()
     {
-        var moduleDirectoryPath = storage.GetStorageForDirectory("assemblies").GetFullPath(string.Empty, true);
-        Directory.GetFiles(moduleDirectoryPath, "*.dll", SearchOption.AllDirectories).ForEach(dllPath => loadModulesFromAssembly(Assembly.Load(File.ReadAllBytes(dllPath))));
+        try
+        {
+            var moduleDirectoryPath = storage.GetStorageForDirectory("assemblies").GetFullPath(string.Empty, true);
+            Directory.GetFiles(moduleDirectoryPath, "*.dll", SearchOption.AllDirectories).ForEach(dllPath => loadModulesFromAssembly(Assembly.Load(File.ReadAllBytes(dllPath))));
+        }
+        catch (Exception e)
+        {
+            notification.Notify(new ExceptionNotification("Error when loading external modules"));
+            Logger.Error(e, "ModuleManager experienced an exception");
+        }
     }
 
     private void loadModulesFromAssembly(Assembly assembly)
@@ -103,9 +112,10 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
         {
             assembly.GetTypes().Where(type => type.IsSubclassOf(typeof(Module)) && !type.IsAbstract).ForEach(type => registerModule(assembly, type));
         }
-        catch (Exception)
+        catch (Exception e)
         {
             notification.Notify(new ExceptionNotification($"{assembly.GetAssemblyAttribute<AssemblyProductAttribute>()?.Product} could not be loaded. It may require an update"));
+            Logger.Error(e, "ModuleManager experienced an exception");
         }
     }
 
@@ -122,9 +132,10 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
             ModuleCollections.TryAdd(assemblyLookup, new ModuleCollection(assembly));
             ModuleCollections[assemblyLookup].Modules.Add(module);
         }
-        catch (Exception)
+        catch (Exception e)
         {
             notification.Notify(new ExceptionNotification($"{type.Name} could not be loaded. It may require an update"));
+            Logger.Error(e, "ModuleManager experienced an exception");
         }
     }
 

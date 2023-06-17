@@ -7,7 +7,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="VolcanicArts.VRCOSC.SDK" Version="2023.601.0" />
+        <PackageReference Include="VolcanicArts.VRCOSC.SDK" Version="2023.617.0" />
     </ItemGroup>
+
+    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+        <Exec Command="copy /Y &quot;$(TargetDir)$(TargetName).dll&quot; &quot;%25appdata%25\VRCOSC\assemblies\$(TargetName).dll&quot;" />
+    </Target>
 
 </Project>

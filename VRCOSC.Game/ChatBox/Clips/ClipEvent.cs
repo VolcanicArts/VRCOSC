@@ -7,9 +7,10 @@ namespace VRCOSC.Game.ChatBox.Clips;
 
 public class ClipEvent : IProvidesFormat
 {
-    public readonly string Module;
-    public readonly string Lookup;
     public readonly string Name;
+
+    public string Module { get; init; } = null!;
+    public string Lookup { get; init; } = null!;
 
     public Bindable<string> Format = new()
     {
@@ -21,6 +22,10 @@ public class ClipEvent : IProvidesFormat
     public Bindable<int> Length = new();
 
     public bool IsDefault => Format.IsDefault && Enabled.IsDefault && Length.IsDefault;
+
+    public ClipEvent()
+    {
+    }
 
     public ClipEvent(ClipEventMetadata metadata)
     {

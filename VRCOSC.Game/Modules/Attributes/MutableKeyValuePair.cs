@@ -29,9 +29,7 @@ public class MutableKeyValuePair : IEquatable<MutableKeyValuePair>
     public bool Equals(MutableKeyValuePair? other)
     {
         if (ReferenceEquals(null, other)) return false;
-        if (ReferenceEquals(this, other)) return true;
 
-        return Key.Value.Equals(other.Key.Value)
-               && Value.Value.Equals(other.Value.Value);
+        return Key.Value.Equals(other.Key.Value) && Value.Value.Equals(other.Value.Value);
     }
 }

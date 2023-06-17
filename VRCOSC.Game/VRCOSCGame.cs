@@ -29,6 +29,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 {
     private const string latest_release_url = "https://github.com/volcanicarts/vrcosc/releases/latest";
     private const string discord_invite_url = "https://discord.gg/vj4brHyvT5";
+    private const string kofi_url = "https://ko-fi.com/volcanicarts";
 
     [Resolved]
     private GameHost host { get; set; } = null!;
@@ -97,6 +98,16 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
             Icon = FontAwesome.Brands.Discord,
             Colour = Colour4.FromHex(@"7289DA"),
             ClickCallback = () => host.OpenUrlExternally(discord_invite_url),
+            Delay = 5000d
+        });
+
+        notificationContainer.Notify(new TimedNotification
+        {
+            Title = "Enjoying the app?",
+            Description = "Click to buy me a coffee",
+            Icon = FontAwesome.Solid.Coffee,
+            Colour = Colour4.FromHex(@"ff5f5f"),
+            ClickCallback = () => host.OpenUrlExternally(kofi_url),
             Delay = 5000d
         });
 

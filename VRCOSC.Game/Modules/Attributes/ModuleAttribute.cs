@@ -137,12 +137,12 @@ public abstract class ModuleAttributeList<T> : ModuleAttribute
 
     public override Type GetValueType() => typeof(T);
     public override object GetSerialisableValue() => Attribute.ToList();
-    public override void Setup() => Attribute = CreateBindableList();
+    public override void Setup() => Attribute = new BindableList<T>(GetClonedDefaults());
 
-    protected abstract BindableList<T> CreateBindableList();
     protected abstract IEnumerable<T> GetClonedDefaults();
     protected abstract IEnumerable<T> JArrayToType(JArray array);
 
+    public override bool IsDefault() => Attribute.Count == Default.Count && Attribute.SequenceEqual(Default);
     public override void SetDefault() => Attribute.ReplaceItems(GetClonedDefaults());
     public override void DeserialiseValue(object value) => Attribute.ReplaceItems(JArrayToType((JArray)value));
 }
@@ -151,16 +151,13 @@ public abstract class ModuleAttributePrimitiveList<T> : ModuleAttributeList<Bind
 {
     public override Type GetValueType() => typeof(T);
     public override object GetSerialisableValue() => Attribute.ToList();
-    public override void Setup() => Attribute = CreateBindableList();
     protected override IEnumerable<Bindable<T>> JArrayToType(JArray array) => array.Select(value => new Bindable<T>(value.Value<T>()!)).ToList();
 }
 
 public class ModuleStringListAttribute : ModuleAttributePrimitiveList<string>
 {
     public override Drawable GetAssociatedCard() => new StringTextAttributeCardList(this);
-    public override bool IsDefault() => Attribute.Count == Default.Count && !Attribute.Where((t, i) => !t.Value.Equals(Default.ElementAt(i).Value)).Any();
 
-    protected override BindableList<Bindable<string>> CreateBindableList() => new(Default);
     protected override IEnumerable<Bindable<string>> GetClonedDefaults() => Default.Select(defaultValue => defaultValue.GetUnboundCopy()).ToList();
 }
 
@@ -170,9 +167,7 @@ public class MutableKeyValuePairListAttribute : ModuleAttributeList<MutableKeyVa
     public required string ValuePlaceholder { internal get; init; }
 
     public override Drawable GetAssociatedCard() => new MutableKeyValuePairAttributeCardList(this);
-    public override bool IsDefault() => Attribute.Count == Default.Count && !Attribute.Where((t, i) => !t.Equals(Default.ElementAt(i))).Any();
 
-    protected override BindableList<MutableKeyValuePair> CreateBindableList() => new(Default);
     protected override IEnumerable<MutableKeyValuePair> JArrayToType(JArray array) => array.Select(value => new MutableKeyValuePair(value.ToObject<MutableKeyValuePair>()!)).ToList();
     protected override IEnumerable<MutableKeyValuePair> GetClonedDefaults() => Default.Select(defaultValue => new MutableKeyValuePair(defaultValue)).ToList();
 }

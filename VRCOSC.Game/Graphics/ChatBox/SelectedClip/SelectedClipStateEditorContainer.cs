@@ -279,7 +279,7 @@ public partial class SelectedClipStateEditorContainer : Container
 
         // TODO - Don't regenerate whole
 
-        chatBoxManager.SelectedClip.Value?.States.ForEach(clipState =>
+        chatBoxManager.SelectedClip.Value?.States.Where(clipState => clipState.ModuleNames.All(moduleName => chatBoxManager.GameManager.ModuleManager.GetModule(moduleName) is not null)).ForEach(clipState =>
         {
             DrawableState drawableState;
 
@@ -297,7 +297,7 @@ public partial class SelectedClipStateEditorContainer : Container
             stateFlow.SetLayoutPosition(drawableState, clipState.States.Count);
         });
 
-        chatBoxManager.SelectedClip.Value?.Events.ForEach(clipEvent =>
+        chatBoxManager.SelectedClip.Value?.Events.Where(clipEvent => chatBoxManager.GameManager.ModuleManager.GetModule(clipEvent.Module) is not null).ForEach(clipEvent =>
         {
             eventFlow.Add(new DrawableEvent(clipEvent)
             {

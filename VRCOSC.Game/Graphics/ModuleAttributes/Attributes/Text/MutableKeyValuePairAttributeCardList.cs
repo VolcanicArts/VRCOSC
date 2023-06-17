@@ -18,7 +18,7 @@ public partial class MutableKeyValuePairAttributeCardList : AttributeCardList<Mu
 
     protected override void OnInstanceAdd(MutableKeyValuePair instance)
     {
-        AddToFlow(new GridContainer
+        AddToList(new GridContainer
         {
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
