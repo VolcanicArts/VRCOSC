@@ -415,9 +415,9 @@ public abstract class Module : IComparable<Module>
     }
 
     /// <summary>
-    /// Sends a parameter value to a specified parameter name (that may have been modified), with an optional parameter name suffix
+    /// Sends a <paramref name="value"/> to an address denoted by <paramref name="lookup"/>
     /// </summary>
-    /// <param name="lookup">The lookup key of the parameter</param>
+    /// <param name="lookup">The lookup of the parameter</param>
     /// <param name="value">The value to send</param>
     protected void SendParameter<T>(Enum lookup, T value) where T : struct
     {
@@ -426,7 +426,7 @@ public abstract class Module : IComparable<Module>
         if (!Parameters.ContainsKey(lookup)) throw new InvalidOperationException($"Parameter {lookup.GetType().Name}.{lookup} has not been defined");
 
         var data = Parameters[lookup];
-        if (!data.Mode.HasFlagFast(ParameterMode.Write)) throw new InvalidOperationException($"Parameter {lookup.GetType().Name}.{lookup} is a read-parameter and therefore can't be sent!");
+        if (!data.Mode.HasFlagFast(ParameterMode.Write)) throw new InvalidOperationException($"Parameter {lookup.GetType().Name}.{lookup} is a read-only parameter and therefore can't be sent!");
 
         OscClient.SendValue(data.FormattedAddress, value);
     }
