@@ -94,15 +94,15 @@ public partial class ChatBoxTextInstanceAttributeCardList : AttributeCardList<Ch
                 AutoSizeAxes = Axes.Y,
                 ColumnDimensions = new[]
                 {
-                    new Dimension(),
+                    new Dimension(maxSize: 150),
                     new Dimension(GridSizeMode.Absolute, 5),
                     new Dimension(),
                     new Dimension(GridSizeMode.Absolute, 5),
-                    new Dimension(),
+                    new Dimension(maxSize: 100),
                     new Dimension(GridSizeMode.Absolute, 5),
-                    new Dimension(),
+                    new Dimension(maxSize: 100),
                     new Dimension(GridSizeMode.Absolute, 5),
-                    new Dimension()
+                    new Dimension(maxSize: 100)
                 },
                 RowDimensions = new[]
                 {
@@ -121,7 +121,7 @@ public partial class ChatBoxTextInstanceAttributeCardList : AttributeCardList<Ch
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
                                 Text = "Key",
-                                Font = FrameworkFont.Regular.With(size: 25)
+                                Font = FrameworkFont.Regular.With(size: 20)
                             }
                         },
                         null,
@@ -134,7 +134,7 @@ public partial class ChatBoxTextInstanceAttributeCardList : AttributeCardList<Ch
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
                                 Text = "Text",
-                                Font = FrameworkFont.Regular.With(size: 25)
+                                Font = FrameworkFont.Regular.With(size: 20)
                             }
                         },
                         null,
@@ -147,7 +147,7 @@ public partial class ChatBoxTextInstanceAttributeCardList : AttributeCardList<Ch
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
                                 Text = "Direction",
-                                Font = FrameworkFont.Regular.With(size: 25)
+                                Font = FrameworkFont.Regular.With(size: 20)
                             }
                         },
                         null,
@@ -160,7 +160,7 @@ public partial class ChatBoxTextInstanceAttributeCardList : AttributeCardList<Ch
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
                                 Text = "Scroll Speed",
-                                Font = FrameworkFont.Regular.With(size: 25)
+                                Font = FrameworkFont.Regular.With(size: 20)
                             }
                         },
                         null,
@@ -173,7 +173,7 @@ public partial class ChatBoxTextInstanceAttributeCardList : AttributeCardList<Ch
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
                                 Text = "Max Length",
-                                Font = FrameworkFont.Regular.With(size: 25)
+                                Font = FrameworkFont.Regular.With(size: 20)
                             }
                         }
                     }
@@ -192,15 +192,15 @@ public partial class ChatBoxTextInstanceAttributeCardList : AttributeCardList<Ch
             AutoSizeAxes = Axes.Y,
             ColumnDimensions = new[]
             {
-                new Dimension(),
+                new Dimension(maxSize: 150),
                 new Dimension(GridSizeMode.Absolute, 5),
                 new Dimension(),
                 new Dimension(GridSizeMode.Absolute, 5),
-                new Dimension(),
+                new Dimension(maxSize: 100),
                 new Dimension(GridSizeMode.Absolute, 5),
-                new Dimension(),
+                new Dimension(maxSize: 100),
                 new Dimension(GridSizeMode.Absolute, 5),
-                new Dimension()
+                new Dimension(maxSize: 100)
             },
             RowDimensions = new[]
             {
