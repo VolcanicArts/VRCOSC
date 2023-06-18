@@ -29,7 +29,6 @@ public class CounterModule : ChatBoxModule
 
         CreateEvent(CounterEvent.Changed, "Changed", GetVariableFormat(CounterVariable.Value), 5);
 
-        RegisterSaveStateSerialiser<CounterSaveStateSerialiser>(0); // legacy migration
         RegisterSaveStateSerialiser<CounterSaveStateSerialiser>(1);
     }
 
