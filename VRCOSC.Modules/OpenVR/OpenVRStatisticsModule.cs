@@ -67,7 +67,13 @@ public class OpenVRStatisticsModule : ChatBoxModule
             updateTrackers();
 
             var activeTrackers = OVRClient.Trackers.Where(tracker => tracker.IsConnected).ToList();
-            var trackerBatteryAverage = activeTrackers.Sum(tracker => tracker.BatteryPercentage) / activeTrackers.Count;
+
+            var trackerBatteryAverage = 0f;
+
+            if (activeTrackers.Any())
+            {
+                trackerBatteryAverage = activeTrackers.Sum(tracker => tracker.BatteryPercentage) / activeTrackers.Count;
+            }
 
             SetVariableValue(OpenVrVariable.FPS, OVRClient.System.FPS.ToString("00"));
             SetVariableValue(OpenVrVariable.HMDBattery, ((int)(OVRClient.HMD.BatteryPercentage * 100)).ToString());
