@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace VRCOSC.Game.OSC.Client;
 
@@ -20,8 +19,13 @@ public class OscData
 
     internal void PreValidate()
     {
-        if (!Values.All(value => value is (bool or int or float or string)))
-            throw new InvalidOperationException($"Cannot send values that are not of type bool, int, float, or string to address {Address}");
+        Values.ForEach(value =>
+        {
+            if (value is not (bool or int or float or string))
+            {
+                throw new InvalidOperationException($"Cannot send value that is of type {value.GetType().Name} to address {Address}");
+            }
+        });
     }
 
     internal byte[] Encode() => new OscMessage(Address, Values).Encode();
