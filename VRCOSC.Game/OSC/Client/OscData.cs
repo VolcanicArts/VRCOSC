@@ -21,7 +21,7 @@ public class OscData
     internal void PreValidate()
     {
         if (!Values.All(value => value is (bool or int or float or string)))
-            throw new ArgumentOutOfRangeException(nameof(Values), "Cannot send values that are not of type bool, int, float, or string");
+            throw new InvalidOperationException($"Cannot send values that are not of type bool, int, float, or string to address {Address}");
     }
 
     internal byte[] Encode() => new OscMessage(Address, Values).Encode();
