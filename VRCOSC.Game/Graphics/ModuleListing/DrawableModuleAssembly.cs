@@ -7,6 +7,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
+using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Graphics.ModuleListing;
@@ -47,7 +48,8 @@ public partial class DrawableModuleAssembly : Container
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
                         Font = FrameworkFont.Regular.With(size: 30),
-                        Text = moduleCollection.Title
+                        Text = moduleCollection.Title,
+                        Colour = ThemeManager.Current[ThemeAttribute.Text]
                     }
                 }
             }
