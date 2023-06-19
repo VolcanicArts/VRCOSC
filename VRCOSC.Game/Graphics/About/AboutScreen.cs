@@ -9,7 +9,6 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Platform;
 using osuTK;
 using VRCOSC.Game.Graphics.Screen;
-using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Button;
 
 namespace VRCOSC.Game.Graphics.About;
@@ -68,18 +67,14 @@ public sealed partial class AboutScreen : BaseScreen
                         Icon = FontAwesome.Brands.Discord,
                         BackgroundColour = Colour4.FromHex("7289DA"),
                         Action = () => host.OpenUrlExternally("https://discord.gg/vj4brHyvT5")
+                    },
+                    new AboutButton
+                    {
+                        Icon = FontAwesome.Solid.Coffee,
+                        BackgroundColour = Colour4.FromHex(@"ff5f5f"),
+                        Action = () => host.OpenUrlExternally("https://ko-fi.com/volcanicarts")
                     }
                 }
-            },
-            new TextButton
-            {
-                Anchor = Anchor.TopCentre,
-                Origin = Anchor.TopCentre,
-                Size = new Vector2(150, 50),
-                BackgroundColour = ThemeManager.Current[ThemeAttribute.Action],
-                CornerRadius = 5,
-                Text = "Donate",
-                Action = () => host.OpenUrlExternally("https://ko-fi.com/volcanicarts")
             }
         });
     }
