@@ -9,6 +9,7 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Sprites;
+using osu.Framework.Logging;
 using osu.Framework.Platform;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Github;
@@ -56,6 +57,13 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     private VRCOSCUpdateManager updateManager = null!;
     private RouterManager routerManager = null!;
     private StartupManager startupManager = null!;
+
+    protected VRCOSCGame(bool enableModuleDebugMode)
+    {
+        ModuleDebugLogger.Enabled = enableModuleDebugMode;
+
+        Logger.Log($"Module debug mode: {enableModuleDebugMode}");
+    }
 
     [BackgroundDependencyLoader]
     private void load()
