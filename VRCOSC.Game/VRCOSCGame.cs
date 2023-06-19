@@ -11,6 +11,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
+using osuTK;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Github;
 using VRCOSC.Game.Graphics;
@@ -57,6 +58,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     private VRCOSCUpdateManager updateManager = null!;
     private RouterManager routerManager = null!;
     private StartupManager startupManager = null!;
+    private Bindable<float> uiScaleBindable = null!;
 
     protected VRCOSCGame(bool enableModuleDebugMode)
     {
@@ -89,6 +91,10 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
             updateManager = CreateUpdateManager(),
             notificationContainer
         };
+
+        uiScaleBindable = ConfigManager.GetBindable<float>(VRCOSCSetting.UIScale);
+        uiScaleBindable.BindValueChanged(e => updateUiScale(e.NewValue), true);
+        host.Window.Resized += () => updateUiScale(uiScaleBindable.Value);
     }
 
     protected override void LoadComplete()
@@ -133,6 +139,12 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         {
             if (tab.OldValue == Tab.Router) routerManager.Serialise();
         });
+    }
+
+    private void updateUiScale(float scaler = 1f)
+    {
+        var windowSize = host.Window.ClientSize;
+        DrawSizePreservingFillContainer.TargetDrawSize = new Vector2(windowSize.Width * scaler, windowSize.Height * scaler);
     }
 
     private void checkUpdates()

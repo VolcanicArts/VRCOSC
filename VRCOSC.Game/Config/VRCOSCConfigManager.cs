@@ -32,6 +32,7 @@ public sealed class VRCOSCConfigManager : IniConfigManager<VRCOSCSetting>
         SetDefault(VRCOSCSetting.AutoStopOpenVR, false);
         SetDefault(VRCOSCSetting.AutoStartOpenVR, false);
         SetDefault(VRCOSCSetting.WindowState, WindowState.Maximised);
+        SetDefault(VRCOSCSetting.UIScale, 1f);
     }
 }
 
@@ -48,5 +49,6 @@ public enum VRCOSCSetting
     ChatBoxTimeSpan,
     AutoStopOpenVR,
     AutoStartOpenVR,
-    WindowState
+    WindowState,
+    UIScale
 }

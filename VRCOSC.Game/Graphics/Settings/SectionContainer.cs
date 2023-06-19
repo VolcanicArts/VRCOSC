@@ -111,4 +111,14 @@ public abstract partial class SectionContainer : Container
     {
         flow.Add(new DropdownSettingCard<T>(title, description, settingBindable, linkedUrl));
     }
+
+    protected void AddIntSlider(string title, string description, BindableNumber<int> settingBindable, string linkedUrl = "")
+    {
+        flow.Add(new SliderSettingCard<int>(title, description, settingBindable, linkedUrl));
+    }
+
+    protected void AddFloatSlider(string title, string description, BindableNumber<float> settingBindable, string linkedUrl = "")
+    {
+        flow.Add(new SliderSettingCard<float>(title, description, settingBindable, linkedUrl));
+    }
 }
