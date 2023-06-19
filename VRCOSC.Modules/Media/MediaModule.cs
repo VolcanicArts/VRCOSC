@@ -36,6 +36,8 @@ public class MediaModule : ChatBoxModule
 
     protected override void CreateAttributes()
     {
+        CreateSetting(MediaSetting.TruncateTitle, "Truncate Title", "Truncates the title if longer than the set value", 100);
+
         CreateParameter<bool>(MediaParameter.Play, ParameterMode.ReadWrite, @"VRCOSC/Media/Play", "Play/Pause", @"True for playing. False for paused");
         CreateParameter<float>(MediaParameter.Volume, ParameterMode.ReadWrite, @"VRCOSC/Media/Volume", "Volume", @"The volume of the process that is controlling the media");
         CreateParameter<int>(MediaParameter.Repeat, ParameterMode.ReadWrite, @"VRCOSC/Media/Repeat", "Repeat", @"0 for disabled. 1 for single. 2 for list");
@@ -101,7 +103,7 @@ public class MediaModule : ChatBoxModule
 
     private void updateVariables()
     {
-        SetVariableValue(MediaVariable.Title, mediaProvider.State.Title);
+        SetVariableValue(MediaVariable.Title, mediaProvider.State.Title.Truncate(GetSetting<int>(MediaSetting.TruncateTitle)));
         SetVariableValue(MediaVariable.Artist, mediaProvider.State.Artist);
         SetVariableValue(MediaVariable.TrackNumber, mediaProvider.State.TrackNumber.ToString());
         SetVariableValue(MediaVariable.AlbumTitle, mediaProvider.State.AlbumTitle);
@@ -247,6 +249,11 @@ public class MediaModule : ChatBoxModule
         AlbumArtist,
         AlbumTrackCount,
         ProgressVisual
+    }
+
+    private enum MediaSetting
+    {
+        TruncateTitle
     }
 
     private enum MediaParameter

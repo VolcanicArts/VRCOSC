@@ -31,6 +31,7 @@ public abstract class Module : IComparable<Module>
     private GameManager GameManager = null!;
     private Scheduler Scheduler = null!;
     private TerminalLogger Terminal = null!;
+    private ModuleDebugLogger moduleDebugLogger = null!;
     private Storage Storage = null!;
 
     protected Player Player => GameManager.Player;
@@ -81,6 +82,7 @@ public abstract class Module : IComparable<Module>
     public void Load()
     {
         Terminal = new TerminalLogger(Title);
+        moduleDebugLogger = new ModuleDebugLogger(Title);
 
         CreateAttributes();
         Settings.Values.ForEach(setting => setting.Setup());
@@ -508,6 +510,11 @@ public abstract class Module : IComparable<Module>
     #region Extensions
 
     protected void Log(string message) => Terminal.Log(message);
+
+    /// <summary>
+    /// Logs to a special module-debug file when the --module-debug flag is passed on startup
+    /// </summary>
+    protected void LogDebug(string message) => moduleDebugLogger.Log(message);
 
     protected void OpenUrlExternally(string Url) => Host.OpenUrlExternally(Url);
 

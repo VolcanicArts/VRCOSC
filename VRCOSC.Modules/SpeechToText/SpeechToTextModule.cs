@@ -35,6 +35,7 @@ public class SpeechToTextModule : ChatBoxModule
     {
         CreateSetting(SpeechToTextSetting.ModelLocation, "Model Location", "The folder location of the speech model you'd like to use\nRecommended default: vosk-model-small-en-us-0.15", string.Empty, "Download a model", () => OpenUrlExternally("https://alphacephei.com/vosk/models"));
         CreateSetting(SpeechToTextSetting.FollowMute, "Follow Mute", "Only run recognition when you're muted", false);
+        CreateSetting(SpeechToTextSetting.Confidence, "Confidence", "How confident should VOSK be to push a result to the ChatBox? (%)", 75, 0, 100);
 
         CreateParameter<bool>(SpeechToTextParameter.Reset, ParameterMode.Read, "VRCOSC/SpeechToText/Reset", "Reset", "Manually reset the state to idle to remove the generated text from the ChatBox");
         CreateParameter<bool>(SpeechToTextParameter.Listen, ParameterMode.ReadWrite, "VRCOSC/SpeechToText/Listen", "Listen", "Whether Speech To Text is currently listening");
@@ -61,10 +62,8 @@ public class SpeechToTextModule : ChatBoxModule
 
         initialiseMicrophone();
         initialiseVosk();
+        resetState();
 
-        SetChatBoxTyping(false);
-        SetVariableValue(SpeechToTextVariable.Text, string.Empty);
-        ChangeStateTo(SpeechToTextState.Idle);
         SendParameter(SpeechToTextParameter.Listen, listening);
     }
 
@@ -73,15 +72,15 @@ public class SpeechToTextModule : ChatBoxModule
         var isPlayerMuted = Player.IsMuted.GetValueOrDefault();
         if (playerMuted == isPlayerMuted) return;
 
-        resetState();
         playerMuted = isPlayerMuted;
+        if (GetSetting<bool>(SpeechToTextSetting.FollowMute)) resetState();
     }
 
     private void initialiseMicrophone() => Task.Run(() =>
     {
         Log("Hooking into default microphone...");
 
-        micInterface.BufferCallback = analyseAudio;
+        micInterface.BufferCallback += analyseAudio;
         var captureDevice = micInterface.Hook();
 
         if (captureDevice is null)
@@ -89,6 +88,8 @@ public class SpeechToTextModule : ChatBoxModule
             Log("Failed to hook into default microphone. Please restart the module");
             return;
         }
+
+        LogDebug($"Microphone format:\n{micInterface.AudioCapture!.WaveFormat}");
 
         Log($"Hooked into microphone {captureDevice.DeviceFriendlyName.Trim()}");
     });
@@ -113,57 +114,90 @@ public class SpeechToTextModule : ChatBoxModule
     {
         if (!HasStarted || !shouldAnalyse) return;
 
+        LogDebug($"Analysing audio. Total bytes: {bytesRecorded}");
+
         lock (analyseLock)
         {
             if (recogniser is null) return;
 
-            if (!recogniser.AcceptWaveform(buffer, bytesRecorded))
+            var isFinalResult = recogniser.AcceptWaveform(buffer, bytesRecorded);
+
+            if (isFinalResult)
+                handleFinalRecognition();
+            else
+                handlePartialRecognition();
+        }
+    }
+
+    private void handlePartialRecognition()
+    {
+        LogDebug("Partial recognition has occurred");
+
+        var partialResult = JsonConvert.DeserializeObject<PartialRecognition>(recogniser!.PartialResult())?.Text;
+        if (string.IsNullOrEmpty(partialResult)) return;
+
+        LogDebug("Partial result is valid");
+
+        var partialText = formatTextForChatBox(partialResult);
+
+        ChangeStateTo(SpeechToTextState.TextGenerating);
+        SetVariableValue(SpeechToTextVariable.Text, partialText);
+        SetChatBoxTyping(true);
+    }
+
+    private void handleFinalRecognition()
+    {
+        LogDebug("Final recognition has occurred");
+
+        var result = JsonConvert.DeserializeObject<Recognition>(recogniser!.Result());
+
+        if (result is not null)
+        {
+            LogDebug($"Final recognition deserialised successfully\nText: {result.Text}\nConfidence: {result.AverageConfidence}");
+
+            if (result.IsValid)
             {
-                var partialResult = JsonConvert.DeserializeObject<PartialRecognition>(recogniser.PartialResult())?.Text;
+                LogDebug("Result is valid");
 
-                if (!string.IsNullOrEmpty(partialResult))
+                if (result.AverageConfidence >= GetSetting<int>(SpeechToTextSetting.Confidence) / 100f)
                 {
-                    if (partialResult.Length > 1)
-                    {
-                        partialResult = partialResult[..1].ToUpper(CultureInfo.CurrentCulture) + partialResult[1..];
-                    }
+                    LogDebug("Confidence confirmed. Pushing result");
 
-                    ChangeStateTo(SpeechToTextState.TextGenerating);
-                    SetVariableValue(SpeechToTextVariable.Text, partialResult);
-                    SetChatBoxTyping(true);
+                    var finalText = formatTextForChatBox(result.Text);
+                    Log($"Recognised: \"{finalText}\"");
+
+                    SetVariableValue(SpeechToTextVariable.Text, finalText);
+                    ChangeStateTo(SpeechToTextState.TextGenerated);
+                    TriggerEvent(SpeechToTextEvent.TextGenerated);
+                }
+                else
+                {
+                    LogDebug("Confidence too low. Clearing partial result");
+                    resetState();
                 }
             }
             else
             {
-                var result = JsonConvert.DeserializeObject<Recognition>(recogniser.Result());
-
-                if (result is not null && result.TotalConfidence > 0.75f)
-                {
-                    if (!string.IsNullOrEmpty(result.Text) && result.Text != "huh")
-                    {
-                        var finalText = result.Text[..1].ToUpper(CultureInfo.CurrentCulture) + result.Text[1..];
-                        Log($"Recognised: \"{result.Text}\"");
-
-                        SetVariableValue(SpeechToTextVariable.Text, finalText);
-                        ChangeStateTo(SpeechToTextState.TextGenerated);
-                        TriggerEvent(SpeechToTextEvent.TextGenerated);
-                    }
-                    else
-                    {
-                        SetVariableValue(SpeechToTextVariable.Text, string.Empty);
-                        ChangeStateTo(SpeechToTextState.Idle);
-                    }
-                }
-
-                recogniser.Reset();
-                SetChatBoxTyping(false);
+                LogDebug("Result is invalid. Skipping");
             }
         }
+        else
+        {
+            LogDebug("Final recognition deserialised incorrectly");
+            resetState();
+        }
+
+        LogDebug("Resetting recogniser");
+
+        recogniser.Reset();
+        SetChatBoxTyping(false);
     }
+
+    private static string formatTextForChatBox(string text) => text.Length > 1 ? text[..1].ToUpper(CultureInfo.CurrentCulture) + text[1..] : text.ToUpper(CultureInfo.CurrentCulture);
 
     protected override void OnModuleStop()
     {
-        SetChatBoxTyping(false);
+        micInterface.BufferCallback -= analyseAudio;
         micInterface.UnHook();
 
         lock (analyseLock)
@@ -189,6 +223,7 @@ public class SpeechToTextModule : ChatBoxModule
 
     private void resetState()
     {
+        LogDebug("Resetting module state");
         SetChatBoxTyping(false);
         ChangeStateTo(SpeechToTextState.Idle);
         SetVariableValue(SpeechToTextVariable.Text, string.Empty);
@@ -197,12 +232,13 @@ public class SpeechToTextModule : ChatBoxModule
     private class Recognition
     {
         [JsonProperty("text")]
-        public string Text = null!;
+        public string Text = string.Empty;
 
         [JsonProperty("result")]
-        public List<WordResult> Result = null!;
+        public List<WordResult>? Result;
 
-        public float TotalConfidence => Result.Sum(wordResult => wordResult.Confidence) / Result.Count;
+        public float AverageConfidence => Result is null || !Result.Any() ? 0f : Result.Average(wordResult => wordResult.Confidence);
+        public bool IsValid => (AverageConfidence != 0f || !string.IsNullOrEmpty(Text)) && Text != "huh";
     }
 
     private class WordResult
@@ -214,13 +250,14 @@ public class SpeechToTextModule : ChatBoxModule
     private class PartialRecognition
     {
         [JsonProperty("partial")]
-        public string Text = null!;
+        public string Text = string.Empty;
     }
 
     private enum SpeechToTextSetting
     {
         ModelLocation,
-        FollowMute
+        FollowMute,
+        Confidence
     }
 
     private enum SpeechToTextParameter

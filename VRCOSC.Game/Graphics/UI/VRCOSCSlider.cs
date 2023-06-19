@@ -19,7 +19,7 @@ public sealed partial class VRCOSCSlider<T> : BasicSliderBar<T> where T : struct
     public VRCOSCSlider()
     {
         BackgroundColour = ThemeManager.Current[ThemeAttribute.Dark];
-        SelectionColour = ThemeManager.Current[ThemeAttribute.Light];
+        SelectionColour = ThemeManager.Current[ThemeAttribute.Mid];
         Masking = true;
         CornerRadius = 5;
         BorderThickness = 2;
@@ -72,6 +72,11 @@ public sealed partial class VRCOSCSlider<T> : BasicSliderBar<T> where T : struct
             valueText.Text = getCurrentValue().ToString()!;
             RoudedCurrent.Value = getCurrentValue();
         }, true);
+
+        RoudedCurrent.BindValueChanged(e =>
+        {
+            Current.Value = e.NewValue;
+        });
     }
 
     private T getCurrentValue() => typeof(T) == typeof(float) ? roundValue() : Current.Value;

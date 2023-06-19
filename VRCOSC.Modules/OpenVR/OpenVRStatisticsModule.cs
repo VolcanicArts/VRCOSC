@@ -67,13 +67,19 @@ public class OpenVRStatisticsModule : ChatBoxModule
             updateTrackers();
 
             var activeTrackers = OVRClient.Trackers.Where(tracker => tracker.IsConnected).ToList();
-            var trackerBatteryAverage = activeTrackers.Sum(tracker => tracker.BatteryPercentage) / activeTrackers.Count;
 
-            SetVariableValue(OpenVrVariable.FPS, OVRClient.System.FPS.ToString("00"));
-            SetVariableValue(OpenVrVariable.HMDBattery, ((int)(OVRClient.HMD.BatteryPercentage * 100)).ToString());
-            SetVariableValue(OpenVrVariable.LeftControllerBattery, ((int)(OVRClient.LeftController.BatteryPercentage * 100)).ToString());
-            SetVariableValue(OpenVrVariable.RightControllerBattery, ((int)(OVRClient.RightController.BatteryPercentage * 100)).ToString());
-            SetVariableValue(OpenVrVariable.AverageTrackerBattery, ((int)(trackerBatteryAverage * 100)).ToString());
+            var trackerBatteryAverage = 0f;
+
+            if (activeTrackers.Any())
+            {
+                trackerBatteryAverage = activeTrackers.Sum(tracker => tracker.BatteryPercentage) / activeTrackers.Count;
+            }
+
+            SetVariableValue(OpenVrVariable.FPS, OVRClient.System.FPS.ToString("##0"));
+            SetVariableValue(OpenVrVariable.HMDBattery, ((int)(OVRClient.HMD.BatteryPercentage * 100)).ToString("##0"));
+            SetVariableValue(OpenVrVariable.LeftControllerBattery, ((int)(OVRClient.LeftController.BatteryPercentage * 100)).ToString("##0"));
+            SetVariableValue(OpenVrVariable.RightControllerBattery, ((int)(OVRClient.RightController.BatteryPercentage * 100)).ToString("##0"));
+            SetVariableValue(OpenVrVariable.AverageTrackerBattery, ((int)(trackerBatteryAverage * 100)).ToString("##0"));
         }
         else
         {

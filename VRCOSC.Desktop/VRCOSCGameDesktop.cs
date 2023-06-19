@@ -10,4 +10,9 @@ namespace VRCOSC.Desktop;
 public partial class VRCOSCGameDesktop : VRCOSCGame
 {
     protected override VRCOSCUpdateManager CreateUpdateManager() => new SquirrelUpdateManager();
+
+    public VRCOSCGameDesktop(bool enableModuleDebugMode)
+        : base(enableModuleDebugMode)
+    {
+    }
 }

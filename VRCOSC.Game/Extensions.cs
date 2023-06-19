@@ -83,3 +83,8 @@ public static class AssemblyExtensions
         return attributes.Length == 0 ? null : attributes.OfType<T>().SingleOrDefault();
     }
 }
+
+public static class StringExtensions
+{
+    public static string Truncate(this string value, int maxChars) => value.Length <= maxChars ? value : value[..maxChars] + "...";
+}

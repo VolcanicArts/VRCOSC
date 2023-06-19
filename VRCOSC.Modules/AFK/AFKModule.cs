@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.Game.Modules.ChatBox;
+using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Modules.AFK;
 
@@ -11,7 +12,7 @@ public class AFKModule : ChatBoxModule
     public override string Description => "Display text and time since going AFK";
     public override string Author => "VolcanicArts";
     public override ModuleType Type => ModuleType.General;
-    protected override TimeSpan DeltaUpdate => TimeSpan.FromSeconds(1);
+    protected override TimeSpan DeltaUpdate => VRChatOscConstants.UPDATE_TIME_SPAN;
 
     private DateTime? afkBegan;
 

@@ -1,6 +1,8 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
+using System.Linq;
 using System.Runtime.Versioning;
 using osu.Framework;
 using osu.Framework.Platform;
@@ -16,12 +18,13 @@ public static class Program
     private const string base_game_name = @"VRCOSC";
 #endif
 
-    public static void Main()
+    [STAThread]
+    public static void Main(string[] args)
     {
         initSquirrel();
 
         using GameHost host = Host.GetSuitableDesktopHost(base_game_name);
-        using osu.Framework.Game game = new VRCOSCGameDesktop();
+        using osu.Framework.Game game = new VRCOSCGameDesktop(args.Contains("--module-debug"));
         host.Run(game);
     }
 

@@ -54,9 +54,7 @@ public class SerialisationManager
 
         // Since we've got to this point that means the file is corrupt
         // As a last resort, attempt to deserialise with the latest serialiser. This also triggers the error notification
-        if (!serialisers.TryGetValue(latestSerialiserVersion, out var latestSerialiser)) return;
-
-        deserialise(latestSerialiser, filePathOverride);
+        deserialise(serialisers[latestSerialiserVersion], filePathOverride);
     }
 
     private void deserialise(ISerialiser serialiser, string filePathOverride)
