@@ -95,8 +95,9 @@ public class SpaceGreyTheme : ColourTheme
         Colours[ThemeAttribute.Darker] = Color4Extensions.FromHex(@"343d46");
         Colours[ThemeAttribute.Dark] = Color4Extensions.FromHex(@"4f5b66");
         Colours[ThemeAttribute.Mid] = Color4Extensions.FromHex(@"65737e");
-        Colours[ThemeAttribute.Light] = Color4Extensions.FromHex(@"a7adba");
+        Colours[ThemeAttribute.Light] = Color4Extensions.FromHex(@"a7adba").Darken(0.25f);
         Colours[ThemeAttribute.Lighter] = Color4Extensions.FromHex(@"c0c5ce");
+        Colours[ThemeAttribute.SubText] = Color4Extensions.FromHex(@"CCCCCC");
     }
 }
 
