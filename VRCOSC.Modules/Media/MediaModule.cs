@@ -37,6 +37,7 @@ public class MediaModule : ChatBoxModule
     protected override void CreateAttributes()
     {
         CreateSetting(MediaSetting.TruncateTitle, "Truncate Title", "Truncates the title if longer than the set value", 100);
+        CreateSetting(MediaSetting.TruncateArtist, "Truncate Artist", "Truncates the artist if longer than the set value", 100);
 
         CreateParameter<bool>(MediaParameter.Play, ParameterMode.ReadWrite, @"VRCOSC/Media/Play", "Play/Pause", @"True for playing. False for paused");
         CreateParameter<float>(MediaParameter.Volume, ParameterMode.ReadWrite, @"VRCOSC/Media/Volume", "Volume", @"The volume of the process that is controlling the media");
@@ -105,7 +106,7 @@ public class MediaModule : ChatBoxModule
     private void updateVariables()
     {
         SetVariableValue(MediaVariable.Title, mediaProvider.State.Title.Truncate(GetSetting<int>(MediaSetting.TruncateTitle)));
-        SetVariableValue(MediaVariable.Artist, mediaProvider.State.Artist);
+        SetVariableValue(MediaVariable.Artist, mediaProvider.State.Artist.Truncate(GetSetting<int>(MediaSetting.TruncateArtist)));
         SetVariableValue(MediaVariable.TrackNumber, mediaProvider.State.TrackNumber.ToString());
         SetVariableValue(MediaVariable.AlbumTitle, mediaProvider.State.AlbumTitle);
         SetVariableValue(MediaVariable.AlbumArtist, mediaProvider.State.AlbumArtist);
@@ -264,7 +265,8 @@ public class MediaModule : ChatBoxModule
 
     private enum MediaSetting
     {
-        TruncateTitle
+        TruncateTitle,
+        TruncateArtist
     }
 
     private enum MediaParameter
