@@ -62,7 +62,8 @@ public class MediaModule : ChatBoxModule
         CreateState(MediaState.Playing, "Playing", $@"[{GetVariableFormat(MediaVariable.Time)}/{GetVariableFormat(MediaVariable.Duration)}]/v{GetVariableFormat(MediaVariable.Artist)} - {GetVariableFormat(MediaVariable.Title)}/v{GetVariableFormat(MediaVariable.ProgressVisual)}");
         CreateState(MediaState.Paused, "Paused", @"[Paused]");
 
-        CreateEvent(MediaEvent.NowPlaying, "Now Playing", $@"[Now Playing]/v{GetVariableFormat(MediaVariable.Artist)} - {GetVariableFormat(MediaVariable.Title)}", 5);
+        CreateEvent(MediaEvent.NowPlaying, "Track Change", $@"[Now Playing]/v{GetVariableFormat(MediaVariable.Artist)} - {GetVariableFormat(MediaVariable.Title)}", 5);
+        CreateEvent(MediaEvent.Playing, "Playing", $@"[Playing]/v{GetVariableFormat(MediaVariable.Artist)} - {GetVariableFormat(MediaVariable.Title)}", 5);
         CreateEvent(MediaEvent.Paused, "Paused", $@"[Paused]/v{GetVariableFormat(MediaVariable.Artist)} - {GetVariableFormat(MediaVariable.Title)}", 5);
     }
 
@@ -120,9 +121,18 @@ public class MediaModule : ChatBoxModule
     {
         updateVariables();
         sendMediaParameters();
-        ChangeStateTo(mediaProvider.State.IsPlaying ? MediaState.Playing : MediaState.Paused);
 
-        if (mediaProvider.State.IsPaused) TriggerEvent(MediaEvent.Paused);
+        if (mediaProvider.State.IsPaused)
+        {
+            ChangeStateTo(MediaState.Paused);
+            TriggerEvent(MediaEvent.Paused);
+        }
+
+        if (mediaProvider.State.IsPlaying)
+        {
+            ChangeStateTo(MediaState.Playing);
+            TriggerEvent(MediaEvent.Playing);
+        }
     }
 
     private void onTrackChange()
@@ -233,6 +243,7 @@ public class MediaModule : ChatBoxModule
     private enum MediaEvent
     {
         NowPlaying,
+        Playing,
         Paused
     }
 
