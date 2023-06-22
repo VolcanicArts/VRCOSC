@@ -141,11 +141,11 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         });
     }
 
-    private void updateUiScale(float scaler = 1f)
+    private void updateUiScale(float scaler = 1f) => Scheduler.AddOnce(() =>
     {
         var windowSize = host.Window.ClientSize;
         DrawSizePreservingFillContainer.TargetDrawSize = new Vector2(windowSize.Width * scaler, windowSize.Height * scaler);
-    }
+    });
 
     private void checkUpdates()
     {
