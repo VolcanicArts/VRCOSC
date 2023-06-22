@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using System.Threading;
+using osu.Framework.Utils;
 using VRCOSC.Game.Modules.ChatBox;
 
 namespace VRCOSC.Game.Modules.Bases.Heartrate;
@@ -14,18 +15,17 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
     public override ModuleType Type => ModuleType.Health;
 
     protected T? HeartrateProvider;
-    private int currentHeartrate;
+
+    private float currentHeartrate;
     private int targetHeartrate;
     private int connectionCount;
-    private TimeSpan targetInterval;
-    private DateTimeOffset lastIntervalUpdate;
 
     protected abstract T CreateProvider();
 
     protected override void CreateAttributes()
     {
-        CreateSetting(HeartrateSetting.Smoothed, @"Smoothed", @"Whether the heartrate value should jump to the correct value, or smoothly climb over a set period", false);
-        CreateSetting(HeartrateSetting.SmoothingLength, @"Smoothing Length", @"The length of time (in milliseconds) the heartrate value should take to reach the correct value", 1000, () => GetSetting<bool>(HeartrateSetting.Smoothed));
+        CreateSetting(HeartrateSetting.Smoothed, @"Smoothed", @"Whether the current heartrate should jump or smoothly converge to the target heartrate", false);
+        CreateSetting(HeartrateSetting.SmoothingLength, @"Smoothing Length", @"The length of time (in milliseconds) the current heartrate should take to converge to the target heartrate", 1000, () => GetSetting<bool>(HeartrateSetting.Smoothed));
         CreateSetting(HeartrateSetting.NormalisedLowerbound, @"Normalised Lowerbound", @"The lower bound BPM the normalised parameter should use", 0);
         CreateSetting(HeartrateSetting.NormalisedUpperbound, @"Normalised Upperbound", @"The upper bound BPM the normalised parameter should use", 240);
 
@@ -45,8 +45,6 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
         currentHeartrate = 0;
         targetHeartrate = 0;
         connectionCount = 0;
-        targetInterval = TimeSpan.Zero;
-        lastIntervalUpdate = DateTimeOffset.MinValue;
         ChangeStateTo(HeartrateState.Default);
         attemptConnection();
     }
@@ -61,7 +59,7 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
 
         connectionCount++;
         HeartrateProvider = CreateProvider();
-        HeartrateProvider.OnHeartrateUpdate += handleHeartRateUpdate;
+        HeartrateProvider.OnHeartrateUpdate += newHeartrate => targetHeartrate = newHeartrate;
         HeartrateProvider.OnConnected += () => connectionCount = 0;
         HeartrateProvider.OnDisconnected += attemptReconnection;
         HeartrateProvider.OnLog += Log;
@@ -89,11 +87,7 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
     {
         if (GetSetting<bool>(HeartrateSetting.Smoothed))
         {
-            if (lastIntervalUpdate + targetInterval <= DateTimeOffset.Now)
-            {
-                lastIntervalUpdate = DateTimeOffset.Now;
-                currentHeartrate += Math.Sign(targetHeartrate - currentHeartrate);
-            }
+            currentHeartrate = (float)Interpolation.DampContinuously(currentHeartrate, targetHeartrate, GetSetting<int>(HeartrateSetting.SmoothingLength) / 2d, TimeSpan.FromSeconds(1d / 60d).TotalMilliseconds);
         }
         else
         {
@@ -101,20 +95,6 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
         }
 
         sendParameters();
-    }
-
-    private void handleHeartRateUpdate(int heartrate)
-    {
-        targetHeartrate = heartrate;
-
-        try
-        {
-            targetInterval = TimeSpan.FromTicks(TimeSpan.FromMilliseconds(GetSetting<int>(HeartrateSetting.SmoothingLength)).Ticks / Math.Abs(currentHeartrate - targetHeartrate));
-        }
-        catch (DivideByZeroException)
-        {
-            targetInterval = TimeSpan.Zero;
-        }
     }
 
     private void sendParameters()
@@ -126,13 +106,15 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
         if (isReceiving)
         {
             var normalisedHeartRate = Map(currentHeartrate, GetSetting<int>(HeartrateSetting.NormalisedLowerbound), GetSetting<int>(HeartrateSetting.NormalisedUpperbound), 0, 1);
-            var individualValues = toDigitArray(currentHeartrate, 3);
+
+            var intHeartrate = (int)Math.Round(currentHeartrate);
+            var individualValues = toDigitArray(intHeartrate, 3);
 
             SendParameter(HeartrateParameter.Normalised, normalisedHeartRate);
             SendParameter(HeartrateParameter.Units, individualValues[2] / 10f);
             SendParameter(HeartrateParameter.Tens, individualValues[1] / 10f);
             SendParameter(HeartrateParameter.Hundreds, individualValues[0] / 10f);
-            SetVariableValue(HeartrateVariable.Heartrate, currentHeartrate.ToString());
+            SetVariableValue(HeartrateVariable.Heartrate, intHeartrate.ToString());
         }
         else
         {
@@ -151,10 +133,10 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
 
     private enum HeartrateSetting
     {
-        NormalisedLowerbound,
-        NormalisedUpperbound,
         Smoothed,
-        SmoothingLength
+        SmoothingLength,
+        NormalisedLowerbound,
+        NormalisedUpperbound
     }
 
     private enum HeartrateParameter
