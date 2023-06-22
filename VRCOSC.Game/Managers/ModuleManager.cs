@@ -13,9 +13,7 @@ using osu.Framework.Platform;
 using osu.Framework.Threading;
 using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Modules;
-using VRCOSC.Game.Modules.Serialisation.Legacy;
 using VRCOSC.Game.OSC.VRChat;
-using VRCOSC.Game.Serialisation;
 using Module = VRCOSC.Game.Modules.Module;
 
 namespace VRCOSC.Game.Managers;
@@ -26,7 +24,6 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
 
     public readonly Dictionary<string, ModuleCollection> ModuleCollections = new();
 
-    // TODO - Can be made private when migration is complete
     public IReadOnlyList<Module> Modules => ModuleCollections.Values.SelectMany(collection => collection.Modules).ToList();
 
     public Action? OnModuleEnabledChanged;
@@ -36,7 +33,6 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
     private Scheduler scheduler = null!;
     private Storage storage = null!;
     private NotificationContainer notification = null!;
-    private SerialisationManager serialisationManager = null!;
 
     private readonly List<Module> runningModulesCache = new();
 
@@ -51,22 +47,7 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
 
     public void Load()
     {
-        serialisationManager = new SerialisationManager();
-        serialisationManager.RegisterSerialiser(1, new LegacyModuleManagerSerialiser(storage, notification, this));
-
         loadModules();
-
-        // TODO - Remove when migration has completed
-        if (storage.Exists("modules.json"))
-        {
-            serialisationManager.Deserialise();
-            storage.Delete("modules.json");
-
-            foreach (var module in Modules)
-            {
-                module.Serialise();
-            }
-        }
     }
 
     private void loadModules()
