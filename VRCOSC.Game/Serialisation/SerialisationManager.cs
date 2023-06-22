@@ -61,6 +61,8 @@ public class SerialisationManager
     {
         if (!serialiser.Deserialise(filePathOverride)) return;
 
+        if (string.IsNullOrEmpty(filePathOverride) && serialisers[latestSerialiserVersion] == serialiser) return;
+
         Serialise();
     }
 
