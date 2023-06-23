@@ -260,7 +260,7 @@ public class Clip
     {
         AvailableVariables.Clear();
 
-        foreach (var module in AssociatedModules.Where(moduleName => chatBoxManager.GameManager.ModuleManager.GetModule(moduleName) is not null))
+        foreach (var module in AssociatedModules.Where(moduleName => chatBoxManager.GameManager.ModuleManager.IsModuleLoaded(moduleName) && chatBoxManager.VariableMetadata.TryGetValue(moduleName, out _)))
         {
             AvailableVariables.AddRange(chatBoxManager.VariableMetadata[module].Values);
         }

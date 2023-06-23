@@ -96,7 +96,9 @@ public class ChatBoxManager
 
     public void Deserialise()
     {
-        serialisationManager.Deserialise();
+        if (!serialisationManager.Deserialise()) return;
+
+        Serialise();
     }
 
     public void Serialise()

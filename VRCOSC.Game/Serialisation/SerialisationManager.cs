@@ -21,19 +21,19 @@ public class SerialisationManager
         serialisers.Add(version, serialiser);
     }
 
-    public void Deserialise(string filePathOverride = "")
+    public bool Deserialise(string filePathOverride = "")
     {
         if (string.IsNullOrEmpty(filePathOverride))
         {
             if (!serialisers.Values.Any(serialiser => serialiser.DoesFileExist()))
             {
                 Serialise();
-                return;
+                return false;
             }
         }
         else
         {
-            if (!File.Exists(filePathOverride)) return;
+            if (!File.Exists(filePathOverride)) return false;
         }
 
         foreach (var (version, serialiser) in serialisers.OrderBy(pair => pair.Key))
@@ -41,29 +41,28 @@ public class SerialisationManager
             if (!serialiser.TryGetVersion(out var foundVersion)) continue;
             if (version != foundVersion) continue;
 
-            deserialise(serialiser, filePathOverride);
-            return;
+            return deserialise(serialiser, filePathOverride);
         }
 
         // If a version 0 exists then use this to deserialise as it's for legacy migration
         if (serialisers.TryGetValue(0, out var legacySerialiser))
         {
-            deserialise(legacySerialiser, filePathOverride);
-            return;
+            return deserialise(legacySerialiser, filePathOverride);
         }
 
         // Since we've got to this point that means the file is corrupt
         // As a last resort, attempt to deserialise with the latest serialiser. This also triggers the error notification
-        deserialise(serialisers[latestSerialiserVersion], filePathOverride);
+        return deserialise(serialisers[latestSerialiserVersion], filePathOverride);
     }
 
-    private void deserialise(ISerialiser serialiser, string filePathOverride)
+    private bool deserialise(ISerialiser serialiser, string filePathOverride)
     {
-        if (!serialiser.Deserialise(filePathOverride)) return;
+        if (!serialiser.Deserialise(filePathOverride)) return false;
 
-        if (string.IsNullOrEmpty(filePathOverride) && serialisers[latestSerialiserVersion] == serialiser) return;
+        if (string.IsNullOrEmpty(filePathOverride) && serialisers[latestSerialiserVersion] == serialiser) return true;
 
         Serialise();
+        return true;
     }
 
     public bool Serialise() => serialisers[latestSerialiserVersion].Serialise();

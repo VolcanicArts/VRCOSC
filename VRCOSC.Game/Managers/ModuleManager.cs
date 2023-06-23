@@ -22,6 +22,7 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
 {
     private static TerminalLogger terminal => new("VRCOSC");
 
+    private readonly List<Assembly> assemblies = new();
     public readonly Dictionary<string, ModuleCollection> ModuleCollections = new();
 
     public IReadOnlyList<Module> Modules => ModuleCollections.Values.SelectMany(collection => collection.Modules).ToList();
@@ -50,8 +51,12 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
         loadModules();
     }
 
+    public bool DoesModuleExist(string serialisedName) => assemblies.Any(assembly => assembly.ExportedTypes.Where(type => type.IsSubclassOf(typeof(Module)) && !type.IsAbstract).Any(type => type.Name.ToLowerInvariant() == serialisedName));
+    public bool IsModuleLoaded(string serialisedName) => GetModule(serialisedName) is not null;
+
     private void loadModules()
     {
+        assemblies.Clear();
         ModuleCollections.Clear();
 
         loadInternalModules();
@@ -89,9 +94,11 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
 
     private void loadModulesFromAssembly(Assembly assembly)
     {
+        assemblies.Add(assembly);
+
         try
         {
-            assembly.GetTypes().Where(type => type.IsSubclassOf(typeof(Module)) && !type.IsAbstract).ForEach(type => registerModule(assembly, type));
+            assembly.ExportedTypes.Where(type => type.IsSubclassOf(typeof(Module)) && !type.IsAbstract).ForEach(type => registerModule(assembly, type));
         }
         catch (Exception e)
         {
