@@ -103,16 +103,28 @@ public class PiShockModule : Module
     {
         if (piShockProvider is null) return;
 
-        var profileData = GetSettingList<MutableKeyValuePair>(PiShockSetting.Profiles).ElementAtOrDefault(profile);
-
-        if (profileData is null)
+        if (profile == 255)
         {
-            Log($"No profile with ID {profile}");
-            return;
+            GetSettingList<MutableKeyValuePair>(PiShockSetting.Profiles).ForEach(profileData => sendPiShockData(mode, profileData.Key.Value, profileData.Value.Value));
         }
+        else
+        {
+            var profileData = GetSettingList<MutableKeyValuePair>(PiShockSetting.Profiles).ElementAtOrDefault(profile);
 
-        piShockProvider.Username = profileData.Key.Value;
-        piShockProvider.ShareCode = profileData.Value.Value;
+            if (profileData is null)
+            {
+                Log($"No profile with ID {profile}");
+                return;
+            }
+
+            sendPiShockData(mode, profileData.Key.Value, profileData.Value.Value);
+        }
+    }
+
+    private void sendPiShockData(PiShockMode mode, string username, string sharecode)
+    {
+        piShockProvider!.Username = username;
+        piShockProvider.ShareCode = sharecode;
         piShockProvider.Execute(mode, convertedDuration, convertedIntensity);
     }
 
