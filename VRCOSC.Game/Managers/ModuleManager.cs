@@ -156,7 +156,7 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
         }
     }
 
-    public void ParamaterReceived(VRChatOscData data)
+    public void ParameterReceived(VRChatOscData data)
     {
         foreach (var module in runningModulesCache)
         {
