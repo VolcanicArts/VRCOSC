@@ -3,6 +3,7 @@
 
 using System;
 using System.Net.Http;
+using System.Text;
 using Newtonsoft.Json;
 
 namespace VRCOSC.Game.Providers.PiShock;
@@ -22,10 +23,7 @@ public class PiShockProvider
     {
         this.apiKey = apiKey;
 
-        client = new HttpClient
-        {
-            DefaultRequestHeaders = { { "Content-Type", "application/json" } }
-        };
+        client = new HttpClient();
     }
 
     public async void Execute(PiShockMode mode, int duration, int intensity)
@@ -36,7 +34,7 @@ public class PiShockProvider
         var request = getRequestForMode(mode, duration, intensity);
         fillRequestData(request);
 
-        await client.PostAsync(api_url, new StringContent(JsonConvert.SerializeObject(request)));
+        await client.PostAsync(api_url, new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"));
     }
 
     private static BasePiShockRequest getRequestForMode(PiShockMode mode, int duration, int intensity) => mode switch
