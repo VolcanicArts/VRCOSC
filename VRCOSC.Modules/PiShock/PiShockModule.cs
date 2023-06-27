@@ -1,8 +1,8 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using osu.Framework.Extensions.IEnumerableExtensions;
 using VRCOSC.Game.Modules;
-using VRCOSC.Game.Modules.Attributes;
 using VRCOSC.Game.Providers.PiShock;
 
 namespace VRCOSC.Modules.PiShock;
@@ -14,7 +14,7 @@ public class PiShockModule : Module
     public override string Author => "VolcanicArts";
     public override ModuleType Type => ModuleType.NSFW;
 
-    private int profile;
+    private int group;
     private float duration;
     private float intensity;
     private PiShockProvider? piShockProvider;
@@ -24,9 +24,21 @@ public class PiShockModule : Module
 
     protected override void CreateAttributes()
     {
-        CreateSetting(PiShockSetting.Profiles, "Profiles", "A list of profiles that allows for selection using the Profile parameter\nProfile is 0 by default (1st profile entry) for people that only want local control", new List<MutableKeyValuePair>(), "Username", "ShareCode");
+        CreateSetting(PiShockSetting.Shockers, new PiShockShockerInstanceListAttribute
+        {
+            Name = "Shockers",
+            Description = "Each instance represents a single shocker using a username and a sharecode\nThe key is used as a reference to create groups of shockers",
+            Default = new List<PiShockShockerInstance>()
+        });
 
-        CreateParameter<int>(PiShockParameter.Profile, ParameterMode.ReadWrite, "VRCOSC/PiShock/Profile", "Profile", "The profile to select for the actions");
+        CreateSetting(PiShockSetting.Groups, new PiShockGroupInstanceListAttribute
+        {
+            Name = "Groups",
+            Description = "A list of groups, where each value should be a comma separated list of shocker keys\nGroups can be referenced by setting the Group parameter to the number on the left",
+            Default = new List<PiShockGroupInstance>()
+        });
+
+        CreateParameter<int>(PiShockParameter.Group, ParameterMode.ReadWrite, "VRCOSC/PiShock/Group", "Group", "The group to select for the actions");
         CreateParameter<float>(PiShockParameter.Duration, ParameterMode.ReadWrite, "VRCOSC/PiShock/Duration", "Duration", "The duration of the action as a percentage mapped between 1-15");
         CreateParameter<float>(PiShockParameter.Intensity, ParameterMode.ReadWrite, "VRCOSC/PiShock/Intensity", "Intensity", "The intensity of the action as a percentage mapped between 1-100");
         CreateParameter<bool>(PiShockParameter.Shock, ParameterMode.Read, "VRCOSC/PiShock/Shock", "Shock", "Executes a shock using the defined parameters");
@@ -38,7 +50,7 @@ public class PiShockModule : Module
     {
         piShockProvider ??= new PiShockProvider(OfficialModuleSecrets.GetSecret(OfficialModuleSecretsKeys.PiShock));
 
-        profile = 0;
+        group = 0;
         duration = 0f;
         intensity = 0f;
 
@@ -52,7 +64,7 @@ public class PiShockModule : Module
 
     private void sendParameters()
     {
-        SendParameter(PiShockParameter.Profile, profile);
+        SendParameter(PiShockParameter.Group, group);
         SendParameter(PiShockParameter.Duration, duration);
         SendParameter(PiShockParameter.Intensity, intensity);
     }
@@ -79,8 +91,8 @@ public class PiShockModule : Module
     {
         switch (key)
         {
-            case PiShockParameter.Profile:
-                profile = value;
+            case PiShockParameter.Group:
+                group = value;
                 break;
         }
     }
@@ -103,22 +115,28 @@ public class PiShockModule : Module
     {
         if (piShockProvider is null) return;
 
-        if (profile == 255)
-        {
-            GetSettingList<MutableKeyValuePair>(PiShockSetting.Profiles).ForEach(profileData => sendPiShockData(mode, profileData.Key.Value, profileData.Value.Value));
-        }
-        else
-        {
-            var profileData = GetSettingList<MutableKeyValuePair>(PiShockSetting.Profiles).ElementAtOrDefault(profile);
+        var groupData = GetSettingList<string>(PiShockSetting.Groups).ElementAtOrDefault(group);
 
-            if (profileData is null)
+        if (groupData is null)
+        {
+            Log($"No group with ID {group}");
+            return;
+        }
+
+        var shockerKeys = groupData.Split(',').Select(key => key.Trim());
+
+        shockerKeys.ForEach(shockerKey =>
+        {
+            var shockerInstance = GetSettingList<PiShockShockerInstance>(PiShockSetting.Shockers).SingleOrDefault(instance => instance.Key.Value == shockerKey);
+
+            if (shockerInstance is null)
             {
-                Log($"No profile with ID {profile}");
+                Log($"No shocker with key {shockerKey}");
                 return;
             }
 
-            sendPiShockData(mode, profileData.Key.Value, profileData.Value.Value);
-        }
+            sendPiShockData(mode, shockerInstance.Username.Value, shockerInstance.Sharecode.Value);
+        });
     }
 
     private void sendPiShockData(PiShockMode mode, string username, string sharecode)
@@ -130,12 +148,13 @@ public class PiShockModule : Module
 
     private enum PiShockSetting
     {
-        Profiles
+        Shockers,
+        Groups
     }
 
     private enum PiShockParameter
     {
-        Profile,
+        Group,
         Duration,
         Intensity,
         Shock,
