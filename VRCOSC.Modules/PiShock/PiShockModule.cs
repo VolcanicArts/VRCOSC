@@ -115,7 +115,7 @@ public class PiShockModule : Module
     {
         if (piShockProvider is null) return;
 
-        var groupData = GetSettingList<string>(PiShockSetting.Groups).ElementAtOrDefault(group);
+        var groupData = GetSettingList<PiShockGroupInstance>(PiShockSetting.Groups).ElementAtOrDefault(group);
 
         if (groupData is null)
         {
@@ -123,7 +123,7 @@ public class PiShockModule : Module
             return;
         }
 
-        var shockerKeys = groupData.Split(',').Select(key => key.Trim());
+        var shockerKeys = groupData.Keys.Value.Split(',').Select(key => key.Trim());
 
         shockerKeys.ForEach(shockerKey =>
         {
@@ -141,6 +141,7 @@ public class PiShockModule : Module
 
     private void sendPiShockData(PiShockMode mode, string username, string sharecode)
     {
+        Log($"Executing {mode} on {username} with duration {convertedDuration}s and intensity {convertedIntensity}%");
         piShockProvider!.Username = username;
         piShockProvider.ShareCode = sharecode;
         piShockProvider.Execute(mode, convertedDuration, convertedIntensity);
