@@ -34,7 +34,7 @@ public class PiShockModule : Module
         CreateSetting(PiShockSetting.Groups, new PiShockGroupInstanceListAttribute
         {
             Name = "Groups",
-            Description = "A list of groups, where each value should be a comma separated list of shocker keys\nGroups can be referenced by setting the Group parameter to the number on the left",
+            Description = "A list of groups, where each value should be a comma separated list of shocker keys\nA group can be chosen by setting the Group parameter to the left number",
             Default = new List<PiShockGroupInstance>()
         });
 
@@ -113,8 +113,6 @@ public class PiShockModule : Module
 
     private void executePiShockMode(PiShockMode mode)
     {
-        if (piShockProvider is null) return;
-
         var groupData = GetSettingList<PiShockGroupInstance>(PiShockSetting.Groups).ElementAtOrDefault(group);
 
         if (groupData is null)
@@ -141,8 +139,14 @@ public class PiShockModule : Module
 
     private void sendPiShockData(PiShockMode mode, string username, string sharecode)
     {
+        if (piShockProvider is null)
+        {
+            Log("PiShock failed to initialise. Cannot execute parameters. Please restart the module");
+            return;
+        }
+
         Log($"Executing {mode} on {username} with duration {convertedDuration}s and intensity {convertedIntensity}%");
-        piShockProvider!.Username = username;
+        piShockProvider.Username = username;
         piShockProvider.ShareCode = sharecode;
         piShockProvider.Execute(mode, convertedDuration, convertedIntensity);
     }
