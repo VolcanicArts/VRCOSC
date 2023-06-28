@@ -32,7 +32,7 @@ public class ChatBoxTextModule : ChatBoxModule
                 }
             },
             Name = "Texts",
-            Description = "Each text instance to register for the ChatBox\nText instances can be accessed with the '_Key' suffix"
+            Description = "Each text instance to register for the ChatBox\nText instances can be accessed with the '_Key' suffix\nScroll speed is the number of characters to scroll each update (every 1.5 seconds)"
         });
 
         CreateVariable(ChatBoxTextVariable.Text, "Text", "text");
@@ -46,7 +46,9 @@ public class ChatBoxTextModule : ChatBoxModule
 
         GetSettingList<ChatBoxTextInstance>(ChatBoxTextSetting.TextList).ForEach(instance =>
         {
-            indexes.Add(instance.Key.Value, 0);
+            if (string.IsNullOrEmpty(instance.Key.Value)) return;
+
+            if (!indexes.TryAdd(instance.Key.Value, 0)) indexes[instance.Key.Value] = 0;
             SetVariableValue(ChatBoxTextVariable.Text, instance.Text.Value, instance.Key.Value);
         });
 
@@ -57,6 +59,8 @@ public class ChatBoxTextModule : ChatBoxModule
     {
         GetSettingList<ChatBoxTextInstance>(ChatBoxTextSetting.TextList).ForEach(instance =>
         {
+            if (string.IsNullOrEmpty(instance.Key.Value)) return;
+
             var text = instance.Text.Value;
 
             switch (instance.Direction.Value)
@@ -72,6 +76,7 @@ public class ChatBoxTextModule : ChatBoxModule
                     break;
             }
 
+            indexes.TryAdd(instance.Key.Value, 0);
             var index = indexes[instance.Key.Value];
 
             if (instance.ScrollSpeed.Value > 0)
