@@ -11,11 +11,11 @@ namespace VRCOSC.Modules.Clock;
 public sealed class ClockModule : ChatBoxModule
 {
     public override string Title => "Clock";
-    public override string Description => "Sends your local time as hours, minutes, and seconds";
+    public override string Description => "Sends a chosen time as hours, minutes, and seconds";
     public override string Author => "VolcanicArts";
     public override string Prefab => "VRCOSC-Watch";
     public override ModuleType Type => ModuleType.General;
-    protected override TimeSpan DeltaUpdate => GetSetting<bool>(ClockSetting.SmoothSecond) ? VRChatOscConstants.UPDATE_TIME_SPAN : TimeSpan.FromSeconds(1);
+    protected override TimeSpan DeltaUpdate => VRChatOscConstants.UPDATE_TIME_SPAN;
 
     private DateTime time;
 
@@ -24,12 +24,13 @@ public sealed class ClockModule : ChatBoxModule
         CreateSetting(ClockSetting.SmoothSecond, "Smooth Second", "If the seconds value should be smoothed", false);
         CreateSetting(ClockSetting.SmoothMinute, "Smooth Minute", "If the minutes value should be smoothed", true);
         CreateSetting(ClockSetting.SmoothHour, "Smooth Hour", "If the hours value should be smoothed", true);
-        CreateSetting(ClockSetting.Mode, "Mode", "If the clock should be in 12 hour or 24 hour", ClockMode.Twelve);
+        CreateSetting(ClockSetting.Mode, "Mode", "If the clock should be in 12 hour or 24 hour\nNote that this only affects the ChatBox", ClockMode.Twelve);
         CreateSetting(ClockSetting.Timezone, "Timezone", "The timezone the clock should follow", ClockTimeZone.Local);
 
         CreateParameter<float>(ClockParameter.Hours, ParameterMode.Write, "VRCOSC/Clock/Hours", "Hours", "The current hour normalised");
         CreateParameter<float>(ClockParameter.Minutes, ParameterMode.Write, "VRCOSC/Clock/Minutes", "Minutes", "The current minute normalised");
         CreateParameter<float>(ClockParameter.Seconds, ParameterMode.Write, "VRCOSC/Clock/Seconds", "Seconds", "The current second normalised");
+        CreateParameter<bool>(ClockParameter.Period, ParameterMode.Write, "VRCOSC/Clock/Period", "Period", "False for AM, true for PM");
 
         CreateVariable(ClockVariable.Hours, "Hours", "h");
         CreateVariable(ClockVariable.Minutes, "Minutes", "m");
@@ -59,6 +60,7 @@ public sealed class ClockModule : ChatBoxModule
         SendParameter(ClockParameter.Hours, hourNormalised);
         SendParameter(ClockParameter.Minutes, minuteNormalised);
         SendParameter(ClockParameter.Seconds, secondNormalised);
+        SendParameter(ClockParameter.Period, string.Equals(time.ToString("tt", CultureInfo.InvariantCulture), "PM", StringComparison.InvariantCultureIgnoreCase));
 
         string hourText, minuteText, secondText, periodText;
 
@@ -103,7 +105,8 @@ public sealed class ClockModule : ChatBoxModule
     {
         Hours,
         Minutes,
-        Seconds
+        Seconds,
+        Period
     }
 
     private enum ClockSetting

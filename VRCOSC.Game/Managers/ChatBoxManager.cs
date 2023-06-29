@@ -44,7 +44,7 @@ public class ChatBoxManager
     private SerialisationManager serialisationManager = null!;
 
     public readonly Dictionary<(string, string), string?> VariableValues = new();
-    public readonly Dictionary<string, string> StateValues = new();
+    public readonly Dictionary<string, string?> StateValues = new();
     public readonly List<(string, string)> TriggeredEvents = new();
     private readonly object triggeredEventsLock = new();
 
@@ -96,7 +96,9 @@ public class ChatBoxManager
 
     public void Deserialise()
     {
-        serialisationManager.Deserialise();
+        if (!serialisationManager.Deserialise()) return;
+
+        Serialise();
     }
 
     public void Serialise()
@@ -115,6 +117,21 @@ public class ChatBoxManager
         ModuleEnabledCache = moduleEnabledCache;
 
         Clips.ForEach(clip => clip.Initialise());
+
+        foreach (var pair in VariableValues)
+        {
+            VariableValues[pair.Key] = null;
+        }
+
+        foreach (var pair in StateValues)
+        {
+            StateValues[pair.Key] = null;
+        }
+
+        lock (triggeredEventsLock)
+        {
+            TriggeredEvents.Clear();
+        }
     }
 
     public Clip CreateClip()
@@ -285,10 +302,7 @@ public class ChatBoxManager
 
         StateMetadata[module][lookup] = stateMetadata;
 
-        if (!StateValues.TryAdd(module, lookup))
-        {
-            StateValues[module] = lookup;
-        }
+        StateValues.TryAdd(module, lookup);
     }
 
     public void ChangeStateTo(string module, string lookup)

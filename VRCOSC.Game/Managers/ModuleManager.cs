@@ -7,15 +7,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Loader;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Framework.Threading;
 using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Modules;
-using VRCOSC.Game.Modules.Serialisation.Legacy;
 using VRCOSC.Game.OSC.VRChat;
-using VRCOSC.Game.Serialisation;
 using Module = VRCOSC.Game.Modules.Module;
 
 namespace VRCOSC.Game.Managers;
@@ -24,9 +23,9 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
 {
     private static TerminalLogger terminal => new("VRCOSC");
 
+    private readonly List<AssemblyLoadContext> assemblyContexts = new();
     public readonly Dictionary<string, ModuleCollection> ModuleCollections = new();
 
-    // TODO - Can be made private when migration is complete
     public IReadOnlyList<Module> Modules => ModuleCollections.Values.SelectMany(collection => collection.Modules).ToList();
 
     public Action? OnModuleEnabledChanged;
@@ -36,7 +35,6 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
     private Scheduler scheduler = null!;
     private Storage storage = null!;
     private NotificationContainer notification = null!;
-    private SerialisationManager serialisationManager = null!;
 
     private readonly List<Module> runningModulesCache = new();
 
@@ -51,26 +49,15 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
 
     public void Load()
     {
-        serialisationManager = new SerialisationManager();
-        serialisationManager.RegisterSerialiser(1, new LegacyModuleManagerSerialiser(storage, notification, this));
-
         loadModules();
-
-        // TODO - Remove when migration has completed
-        if (storage.Exists("modules.json"))
-        {
-            serialisationManager.Deserialise();
-            storage.Delete("modules.json");
-
-            foreach (var module in Modules)
-            {
-                module.Serialise();
-            }
-        }
     }
+
+    public bool DoesModuleExist(string serialisedName) => assemblyContexts.Any(context => context.Assemblies.Any(assembly => assembly.ExportedTypes.Where(type => type.IsSubclassOf(typeof(Module)) && !type.IsAbstract).Any(type => type.Name.ToLowerInvariant() == serialisedName)));
+    public bool IsModuleLoaded(string serialisedName) => GetModule(serialisedName) is not null;
 
     private void loadModules()
     {
+        assemblyContexts.Clear();
         ModuleCollections.Clear();
 
         loadInternalModules();
@@ -89,7 +76,10 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
     private void loadInternalModules()
     {
         var dllPath = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll", SearchOption.AllDirectories).FirstOrDefault(fileName => fileName.Contains("VRCOSC.Modules"))!;
-        loadModulesFromAssembly(Assembly.Load(File.ReadAllBytes(dllPath)));
+
+        var context = new AssemblyLoadContext(Guid.NewGuid().ToString());
+        assemblyContexts.Add(context);
+        loadAssemblyFromPath(context, dllPath);
     }
 
     private void loadExternalModules()
@@ -97,7 +87,13 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
         try
         {
             var moduleDirectoryPath = storage.GetStorageForDirectory("assemblies").GetFullPath(string.Empty, true);
-            Directory.GetFiles(moduleDirectoryPath, "*.dll", SearchOption.AllDirectories).ForEach(dllPath => loadModulesFromAssembly(Assembly.Load(File.ReadAllBytes(dllPath))));
+
+            // This is just for backwards compatibility for modules that don't require dependencies
+            // This may need to kept so that users can test their modules without having to put it in a folder if
+            //  a folder is required to contain vrcosc.json
+            loadContextFromPath(moduleDirectoryPath);
+
+            Directory.GetDirectories(moduleDirectoryPath).ForEach(loadContextFromPath);
         }
         catch (Exception e)
         {
@@ -106,15 +102,30 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
         }
     }
 
-    private void loadModulesFromAssembly(Assembly assembly)
+    private void loadContextFromPath(string path)
     {
+        var context = new AssemblyLoadContext(Guid.NewGuid().ToString());
+        assemblyContexts.Add(context);
+
+        foreach (var dllPath in Directory.GetFiles(path, "*.dll"))
+        {
+            loadAssemblyFromPath(context, dllPath);
+        }
+    }
+
+    private void loadAssemblyFromPath(AssemblyLoadContext context, string path)
+    {
+        Assembly? assembly = null;
+
         try
         {
-            assembly.GetTypes().Where(type => type.IsSubclassOf(typeof(Module)) && !type.IsAbstract).ForEach(type => registerModule(assembly, type));
+            using var assemblyStream = new FileStream(path, FileMode.Open);
+            assembly = context.LoadFromStream(assemblyStream);
+            assembly.ExportedTypes.Where(type => type.IsSubclassOf(typeof(Module)) && !type.IsAbstract).ForEach(type => registerModule(assembly, type));
         }
         catch (Exception e)
         {
-            notification.Notify(new ExceptionNotification($"{assembly.GetAssemblyAttribute<AssemblyProductAttribute>()?.Product} could not be loaded. It may require an update"));
+            notification.Notify(new ExceptionNotification($"{assembly?.GetAssemblyAttribute<AssemblyProductAttribute>()?.Product} could not be loaded. It may require an update"));
             Logger.Error(e, "ModuleManager experienced an exception");
         }
     }
@@ -168,7 +179,7 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
         }
     }
 
-    public void ParamaterReceived(VRChatOscData data)
+    public void ParameterReceived(VRChatOscData data)
     {
         foreach (var module in runningModulesCache)
         {

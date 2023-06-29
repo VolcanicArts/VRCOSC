@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Platform;
 using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.ChatBox.Serialisation.V1.Structures;
@@ -38,20 +39,21 @@ public class TimelineSerialiser : Serialiser<ChatBoxManager, SerialisableTimelin
             newClip.Start.Value = clip.Start;
             newClip.End.Value = clip.End;
 
-            newClip.AssociatedModules.AddRange(clip.AssociatedModules);
+            newClip.AssociatedModules.AddRange(clip.AssociatedModules.Where(serialisedModuleName => chatBoxManager.GameManager.ModuleManager.DoesModuleExist(serialisedModuleName)));
 
-            clip.States.ForEach(clipState =>
+            clip.States.Where(clipState => clipState.States.All(pair => chatBoxManager.GameManager.ModuleManager.DoesModuleExist(pair.Module))).ForEach(clipState =>
             {
-                var stateData = newClip.GetStateFor(clipState.States.Select(state => state.Module), clipState.States.Select(state => state.Lookup));
-
-                if (stateData is not null)
+                if (clipState.States.All(pair => chatBoxManager.GameManager.ModuleManager.IsModuleLoaded(pair.Module)))
                 {
+                    var stateData = newClip.GetStateFor(clipState.States.Select(state => state.Module), clipState.States.Select(state => state.Lookup));
+                    if (stateData is null) return;
+
                     stateData.Enabled.Value = clipState.Enabled;
                     stateData.Format.Value = clipState.Format;
                 }
                 else
                 {
-                    // In the case that a module no longer exists (I.E, a custom module has loaded incorrectly), still load the data so it doesn't get lost
+                    // In the case that a custom module has loaded incorrectly still load the data so it doesn't get lost
                     newClip.States.Add(new ClipState
                     {
                         States = clipState.States.Select(state => (state.Lookup, state.Module)).ToList(),
@@ -61,19 +63,20 @@ public class TimelineSerialiser : Serialiser<ChatBoxManager, SerialisableTimelin
                 }
             });
 
-            clip.Events.ForEach(clipEvent =>
+            clip.Events.Where(clipEvent => chatBoxManager.GameManager.ModuleManager.DoesModuleExist(clipEvent.Module)).ForEach(clipEvent =>
             {
-                var eventData = newClip.GetEventFor(clipEvent.Module, clipEvent.Lookup);
-
-                if (eventData is not null)
+                if (chatBoxManager.GameManager.ModuleManager.IsModuleLoaded(clipEvent.Module))
                 {
+                    var eventData = newClip.GetEventFor(clipEvent.Module, clipEvent.Lookup);
+                    if (eventData is null) return;
+
                     eventData.Enabled.Value = clipEvent.Enabled;
                     eventData.Format.Value = clipEvent.Format;
                     eventData.Length.Value = clipEvent.Length;
                 }
                 else
                 {
-                    // In the case that a module no longer exists (I.E, a custom module has loaded incorrectly), still load the data so it doesn't get lost
+                    // In the case that a custom module has loaded incorrectly still load the data so it doesn't get lost
                     newClip.Events.Add(new ClipEvent
                     {
                         Lookup = clipEvent.Lookup,

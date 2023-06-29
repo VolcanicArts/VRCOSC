@@ -114,7 +114,7 @@ public abstract partial class SettingCard<T> : Container
 
     protected override void LoadComplete()
     {
-        SettingBindable.ValueChanged += e => Schedule(performAttributeUpdate, e);
+        SettingBindable.ValueChanged += performAttributeUpdate;
     }
 
     private void performAttributeUpdate(ValueChangedEvent<T> e)

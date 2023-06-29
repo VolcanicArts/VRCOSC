@@ -536,7 +536,8 @@ public abstract class Module : IComparable<Module>
         Accessibility,
         OpenVR,
         Integrations,
-        General
+        General,
+        NSFW
     }
 
     public int CompareTo(Module? other)

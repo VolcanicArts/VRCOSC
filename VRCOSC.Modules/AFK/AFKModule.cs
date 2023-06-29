@@ -18,52 +18,63 @@ public class AFKModule : ChatBoxModule
 
     protected override void CreateAttributes()
     {
-        CreateVariable(AFKModuleVariable.Duration, "Duration", "duration");
-        CreateVariable(AFKModuleVariable.Since, "Since", "since");
+        CreateVariable(AFKVariable.Duration, "Duration", "duration");
+        CreateVariable(AFKVariable.Since, "Since", "since");
 
-        CreateState(AFKModuleState.AFK, "AFK", $"AFK for {GetVariableFormat(AFKModuleVariable.Duration)}");
-        CreateState(AFKModuleState.NotAFK, "Not AFK", string.Empty);
+        CreateState(AFKState.AFK, "AFK", $"AFK for {GetVariableFormat(AFKVariable.Duration)}");
+        CreateState(AFKState.NotAFK, "Not AFK", string.Empty);
+
+        CreateEvent(AFKEvent.AFKStarted, "AFK Started", "AFK has begun", 5);
+        CreateEvent(AFKEvent.AFKStopped, "AFK Stopped", "AFK has ended", 5);
     }
 
     protected override void OnModuleStart()
     {
         afkBegan = null;
 
-        ChangeStateTo(AFKModuleState.NotAFK);
+        ChangeStateTo(AFKState.NotAFK);
     }
 
     protected override void OnModuleUpdate()
     {
         if (Player.AFK is null)
         {
-            ChangeStateTo(AFKModuleState.NotAFK);
+            ChangeStateTo(AFKState.NotAFK);
             return;
         }
 
         if (Player.AFK.Value && afkBegan is null)
         {
             afkBegan = DateTime.Now;
+            TriggerEvent(AFKEvent.AFKStarted);
         }
 
         if (!Player.AFK.Value && afkBegan is not null)
         {
             afkBegan = null;
+            TriggerEvent(AFKEvent.AFKStopped);
         }
 
-        SetVariableValue(AFKModuleVariable.Duration, afkBegan is null ? null : (DateTime.Now - afkBegan.Value).ToString(@"hh\:mm\:ss"));
-        SetVariableValue(AFKModuleVariable.Since, afkBegan?.ToString(@"hh\:mm"));
-        ChangeStateTo(afkBegan is null ? AFKModuleState.NotAFK : AFKModuleState.AFK);
+        SetVariableValue(AFKVariable.Duration, afkBegan is null ? null : (DateTime.Now - afkBegan.Value).ToString(@"hh\:mm\:ss"));
+        SetVariableValue(AFKVariable.Since, afkBegan?.ToString(@"hh\:mm"));
+        ChangeStateTo(afkBegan is null ? AFKState.NotAFK : AFKState.AFK);
     }
 
-    private enum AFKModuleVariable
+    private enum AFKVariable
     {
         Duration,
         Since
     }
 
-    private enum AFKModuleState
+    private enum AFKState
     {
         AFK,
         NotAFK
+    }
+
+    private enum AFKEvent
+    {
+        AFKStarted,
+        AFKStopped
     }
 }

@@ -37,6 +37,7 @@ public class MediaModule : ChatBoxModule
     protected override void CreateAttributes()
     {
         CreateSetting(MediaSetting.TruncateTitle, "Truncate Title", "Truncates the title if longer than the set value", 100);
+        CreateSetting(MediaSetting.TruncateArtist, "Truncate Artist", "Truncates the artist if longer than the set value", 100);
 
         CreateParameter<bool>(MediaParameter.Play, ParameterMode.ReadWrite, @"VRCOSC/Media/Play", "Play/Pause", @"True for playing. False for paused");
         CreateParameter<float>(MediaParameter.Volume, ParameterMode.ReadWrite, @"VRCOSC/Media/Volume", "Volume", @"The volume of the process that is controlling the media");
@@ -62,7 +63,8 @@ public class MediaModule : ChatBoxModule
         CreateState(MediaState.Playing, "Playing", $@"[{GetVariableFormat(MediaVariable.Time)}/{GetVariableFormat(MediaVariable.Duration)}]/v{GetVariableFormat(MediaVariable.Artist)} - {GetVariableFormat(MediaVariable.Title)}/v{GetVariableFormat(MediaVariable.ProgressVisual)}");
         CreateState(MediaState.Paused, "Paused", @"[Paused]");
 
-        CreateEvent(MediaEvent.NowPlaying, "Now Playing", $@"[Now Playing]/v{GetVariableFormat(MediaVariable.Artist)} - {GetVariableFormat(MediaVariable.Title)}", 5);
+        CreateEvent(MediaEvent.NowPlaying, "Track Change", $@"[Now Playing]/v{GetVariableFormat(MediaVariable.Artist)} - {GetVariableFormat(MediaVariable.Title)}", 5);
+        CreateEvent(MediaEvent.Playing, "Playing", $@"[Playing]/v{GetVariableFormat(MediaVariable.Artist)} - {GetVariableFormat(MediaVariable.Title)}", 5);
         CreateEvent(MediaEvent.Paused, "Paused", $@"[Paused]/v{GetVariableFormat(MediaVariable.Artist)} - {GetVariableFormat(MediaVariable.Title)}", 5);
     }
 
@@ -104,7 +106,7 @@ public class MediaModule : ChatBoxModule
     private void updateVariables()
     {
         SetVariableValue(MediaVariable.Title, mediaProvider.State.Title.Truncate(GetSetting<int>(MediaSetting.TruncateTitle)));
-        SetVariableValue(MediaVariable.Artist, mediaProvider.State.Artist);
+        SetVariableValue(MediaVariable.Artist, mediaProvider.State.Artist.Truncate(GetSetting<int>(MediaSetting.TruncateArtist)));
         SetVariableValue(MediaVariable.TrackNumber, mediaProvider.State.TrackNumber.ToString());
         SetVariableValue(MediaVariable.AlbumTitle, mediaProvider.State.AlbumTitle);
         SetVariableValue(MediaVariable.AlbumArtist, mediaProvider.State.AlbumArtist);
@@ -120,9 +122,18 @@ public class MediaModule : ChatBoxModule
     {
         updateVariables();
         sendMediaParameters();
-        ChangeStateTo(mediaProvider.State.IsPlaying ? MediaState.Playing : MediaState.Paused);
 
-        if (mediaProvider.State.IsPaused) TriggerEvent(MediaEvent.Paused);
+        if (mediaProvider.State.IsPaused)
+        {
+            ChangeStateTo(MediaState.Paused);
+            TriggerEvent(MediaEvent.Paused);
+        }
+
+        if (mediaProvider.State.IsPlaying)
+        {
+            ChangeStateTo(MediaState.Playing);
+            TriggerEvent(MediaEvent.Playing);
+        }
     }
 
     private void onTrackChange()
@@ -233,6 +244,7 @@ public class MediaModule : ChatBoxModule
     private enum MediaEvent
     {
         NowPlaying,
+        Playing,
         Paused
     }
 
@@ -253,7 +265,8 @@ public class MediaModule : ChatBoxModule
 
     private enum MediaSetting
     {
-        TruncateTitle
+        TruncateTitle,
+        TruncateArtist
     }
 
     private enum MediaParameter

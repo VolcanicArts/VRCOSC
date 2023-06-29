@@ -213,7 +213,7 @@ public class Clip
 
     private void removeInvalidStates(List<ClipState> localStates)
     {
-        var currentStates = AssociatedModules.Where(moduleName => chatBoxManager.ModuleEnabledCache[moduleName] && chatBoxManager.StateValues.TryGetValue(moduleName, out _)).Select(moduleName => chatBoxManager.StateValues[moduleName]).ToList();
+        var currentStates = AssociatedModules.Where(moduleName => chatBoxManager.ModuleEnabledCache[moduleName] && chatBoxManager.StateValues.ContainsKey(moduleName) && chatBoxManager.StateValues[moduleName] is not null).Select(moduleName => chatBoxManager.StateValues[moduleName]).ToList();
         currentStates.Sort();
 
         if (!currentStates.Any()) return;
@@ -260,7 +260,7 @@ public class Clip
     {
         AvailableVariables.Clear();
 
-        foreach (var module in AssociatedModules.Where(moduleName => chatBoxManager.GameManager.ModuleManager.GetModule(moduleName) is not null))
+        foreach (var module in AssociatedModules.Where(moduleName => chatBoxManager.GameManager.ModuleManager.IsModuleLoaded(moduleName) && chatBoxManager.VariableMetadata.ContainsKey(moduleName)))
         {
             AvailableVariables.AddRange(chatBoxManager.VariableMetadata[module].Values);
         }

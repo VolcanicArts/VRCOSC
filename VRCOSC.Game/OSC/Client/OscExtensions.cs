@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace VRCOSC.Game.OSC.Client;
 
@@ -11,13 +10,9 @@ internal static class OscExtensions
 {
     public static int FirstIndexAfter<T>(this IEnumerable<T> items, int start, Func<T, bool> predicate)
     {
-        var itemsList = items.ToList();
-
-        if (start >= itemsList.Count) throw new ArgumentOutOfRangeException(nameof(start));
-
         var retVal = 0;
 
-        foreach (var item in itemsList)
+        foreach (var item in items)
         {
             if (retVal >= start && predicate(item)) return retVal;
 

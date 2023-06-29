@@ -179,7 +179,7 @@ public partial class GameManager : Component
                     }
                 }
 
-                ModuleManager.ParamaterReceived(data);
+                ModuleManager.ParameterReceived(data);
             });
             oscDataCache.Clear();
         }

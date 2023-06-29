@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using osu.Framework.Extensions.IEnumerableExtensions;
 using VRCOSC.Game.Modules.Attributes;
 using VRCOSC.Game.Modules.ChatBox;
 using VRCOSC.Game.OSC.VRChat;
@@ -96,6 +97,8 @@ public class CounterModule : ChatBoxModule
         if (!GetSetting<bool>(CounterSetting.SaveCounters)) return;
 
         LoadState();
+
+        Counts.Values.ForEach(instance => SetVariableValue(CounterVariable.Value, instance.Count.ToString("N0"), instance.Key));
     }
 
     private enum CounterSetting

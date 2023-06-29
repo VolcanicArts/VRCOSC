@@ -71,7 +71,11 @@ public abstract partial class AttributeCardList<TAttribute, TInstance> : Attribu
                 OnInstanceAdd(newInstance);
             }
         }
+
+        OnCollectionChanged(e);
     }
+
+    protected virtual void OnCollectionChanged(NotifyCollectionChangedEventArgs e) { }
 
     protected override void OnSetDefault()
     {
