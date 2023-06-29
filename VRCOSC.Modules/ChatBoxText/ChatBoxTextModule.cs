@@ -59,7 +59,7 @@ public class ChatBoxTextModule : ChatBoxModule
     {
         GetSettingList<ChatBoxTextInstance>(ChatBoxTextSetting.TextList).ForEach(instance =>
         {
-            if (string.IsNullOrEmpty(instance.Key.Value)) return;
+            if (string.IsNullOrEmpty(instance.Key.Value) || !indexes.ContainsKey(instance.Key.Value)) return;
 
             var text = instance.Text.Value;
 
@@ -76,7 +76,6 @@ public class ChatBoxTextModule : ChatBoxModule
                     break;
             }
 
-            indexes.TryAdd(instance.Key.Value, 0);
             var index = indexes[instance.Key.Value];
 
             if (instance.ScrollSpeed.Value > 0)
