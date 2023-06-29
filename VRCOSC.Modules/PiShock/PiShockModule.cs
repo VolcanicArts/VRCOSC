@@ -34,7 +34,7 @@ public class PiShockModule : Module
         CreateSetting(PiShockSetting.Groups, new PiShockGroupInstanceListAttribute
         {
             Name = "Groups",
-            Description = "A list of groups, where each value should be a comma separated list of shocker keys\nA group can be chosen by setting the Group parameter to the left number",
+            Description = "Each instance should contain one or more shocker keys separated by a comma\nA group can be chosen by setting the Group parameter to the left number",
             Default = new List<PiShockGroupInstance>()
         });
 
@@ -121,7 +121,7 @@ public class PiShockModule : Module
             return;
         }
 
-        var shockerKeys = groupData.Keys.Value.Split(',').Select(key => key.Trim());
+        var shockerKeys = groupData.Keys.Value.Split(',').Where(key => !string.IsNullOrEmpty(key)).Select(key => key.Trim());
 
         shockerKeys.ForEach(shockerKey =>
         {
@@ -146,9 +146,7 @@ public class PiShockModule : Module
         }
 
         Log($"Executing {mode} on {username} with duration {convertedDuration}s and intensity {convertedIntensity}%");
-        piShockProvider.Username = username;
-        piShockProvider.ShareCode = sharecode;
-        piShockProvider.Execute(mode, convertedDuration, convertedIntensity);
+        piShockProvider.Execute(username, sharecode, mode, convertedDuration, convertedIntensity);
     }
 
     private enum PiShockSetting

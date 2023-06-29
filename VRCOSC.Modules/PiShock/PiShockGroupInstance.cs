@@ -126,7 +126,8 @@ public partial class PiShockGroupInstanceAttributeCardList : AttributeCardList<P
                         BorderColour = ThemeManager.Current[ThemeAttribute.Border],
                         BorderThickness = 2,
                         ValidCurrent = instance.Keys.GetBoundCopy(),
-                        PlaceholderText = "Key,Key2,Key3"
+                        PlaceholderText = "Key,Key2,Key3",
+                        EmptyIsValid = false
                     }
                 }
             };
