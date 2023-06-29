@@ -19,11 +19,14 @@ public class PiShockModule : Module
     private float intensity;
     private PiShockProvider? piShockProvider;
 
-    private int convertedDuration => (int)Math.Round(Map(duration, 0, 1, 1, 15));
-    private int convertedIntensity => (int)Math.Round(Map(intensity, 0, 1, 1, 100));
+    private int convertedDuration => (int)Math.Round(Map(duration, 0, 1, 1, GetSetting<int>(PiShockSetting.MaxDuration)));
+    private int convertedIntensity => (int)Math.Round(Map(intensity, 0, 1, 1, GetSetting<int>(PiShockSetting.MaxIntensity)));
 
     protected override void CreateAttributes()
     {
+        CreateSetting(PiShockSetting.MaxDuration, "Max Duration", "The maximum value the duration can be in seconds", 15, 1, 15);
+        CreateSetting(PiShockSetting.MaxIntensity, "Max Intensity", "The maximum value the intensity can be in percent", 100, 1, 100);
+
         CreateSetting(PiShockSetting.Shockers, new PiShockShockerInstanceListAttribute
         {
             Name = "Shockers",
@@ -137,7 +140,7 @@ public class PiShockModule : Module
         });
     }
 
-    private void sendPiShockData(PiShockMode mode, string username, string sharecode)
+    private async void sendPiShockData(PiShockMode mode, string username, string sharecode)
     {
         if (piShockProvider is null)
         {
@@ -146,11 +149,14 @@ public class PiShockModule : Module
         }
 
         Log($"Executing {mode} on {username} with duration {convertedDuration}s and intensity {convertedIntensity}%");
-        piShockProvider.Execute(username, sharecode, mode, convertedDuration, convertedIntensity);
+        var responseString = await piShockProvider.Execute(username, sharecode, mode, convertedDuration, convertedIntensity);
+        Log(responseString);
     }
 
     private enum PiShockSetting
     {
+        MaxDuration,
+        MaxIntensity,
         Shockers,
         Groups
     }

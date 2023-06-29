@@ -4,6 +4,7 @@
 using System;
 using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 namespace VRCOSC.Game.Providers.PiShock;
@@ -21,7 +22,7 @@ public class PiShockProvider
         this.apiKey = apiKey;
     }
 
-    public async void Execute(string username, string sharecode, PiShockMode mode, int duration, int intensity)
+    public async Task<string> Execute(string username, string sharecode, PiShockMode mode, int duration, int intensity)
     {
         if (duration is < 1 or > 15) throw new InvalidOperationException($"{nameof(duration)} must be between 1 and 15");
         if (intensity is < 1 or > 100) throw new InvalidOperationException($"{nameof(intensity)} must be between 1 and 100");
@@ -32,7 +33,8 @@ public class PiShockProvider
         request.Username = username;
         request.ShareCode = sharecode;
 
-        await client.PostAsync(api_url, new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"));
+        var response = await client.PostAsync(api_url, new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"));
+        return await response.Content.ReadAsStringAsync();
     }
 
     private static BasePiShockRequest getRequestForMode(PiShockMode mode, int duration, int intensity) => mode switch
