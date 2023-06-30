@@ -23,8 +23,8 @@ public class PiShockModule : Module
 
     protected override void CreateAttributes()
     {
-        CreateSetting(PiShockSetting.MaxDuration, "Max Duration", "The maximum value the duration can be in seconds\nThis is local only", 15, 1, 15);
-        CreateSetting(PiShockSetting.MaxIntensity, "Max Intensity", "The maximum value the intensity can be in percent\nThis is local only", 100, 1, 100);
+        CreateSetting(PiShockSetting.MaxDuration, "Max Duration", "The maximum value the duration can be in seconds\nThis is the upper limit of 100% duration and is local only", 15, 1, 15);
+        CreateSetting(PiShockSetting.MaxIntensity, "Max Intensity", "The maximum value the intensity can be in percent\nThis is the upper limit of 100% intensity and is local only", 100, 1, 100);
 
         CreateSetting(PiShockSetting.Shockers, new PiShockShockerInstanceListAttribute
         {

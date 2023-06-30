@@ -32,8 +32,6 @@ public class PiShockProvider
         var shocker = await RetrieveShockerInfo(username, sharecode);
         if (shocker is null) return new PiShockResponse(false, "Shocker does not exist");
 
-        if (!shocker.Available) return new PiShockResponse(false, "Shocker is currently unavailable");
-
         duration = Math.Min(duration, shocker.MaxDuration);
         intensity = Math.Min(intensity, shocker.MaxIntensity);
 
@@ -106,8 +104,6 @@ public class PiShockShocker
 
     [JsonProperty("online")]
     public bool Online;
-
-    public bool Available => Online && !Paused;
 }
 
 public enum PiShockMode
