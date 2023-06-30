@@ -65,7 +65,6 @@ public partial class GameManager : Component
 
     private Bindable<bool> autoStartStop = null!;
     private bool previousVRChatState;
-    private bool hasAutoStarted;
     private readonly List<VRChatOscData> oscDataCache = new();
     private readonly object oscDataCacheLock = new();
 
@@ -125,12 +124,6 @@ public partial class GameManager : Component
         Scheduler.AddDelayed(checkForVRChat, vrchat_process_check_interval, true);
 
         State.BindValueChanged(e => Logger.Log($"{nameof(GameManager)} state changed to {e.NewValue}"));
-
-        // We reset hasAutoStarted here so that turning auto start off and on again will cause it to work normally
-        autoStartStop.BindValueChanged(e =>
-        {
-            if (!e.NewValue) hasAutoStarted = false;
-        });
 
         VRChatOscClient.OnParameterReceived += data =>
         {
@@ -200,11 +193,7 @@ public partial class GameManager : Component
 
         lock (oscDataCacheLock) { oscDataCache.Clear(); }
 
-        if (!initialiseOscClient())
-        {
-            hasAutoStarted = false;
-            return;
-        }
+        if (!initialiseOscClient()) return;
 
         var moduleEnabled = new Dictionary<string, bool>();
         ModuleManager.Modules.ForEach(module => moduleEnabled.Add(module.SerialisedName, module.Enabled.Value));
@@ -309,20 +298,8 @@ public partial class GameManager : Component
 
         previousVRChatState = vrChatCurrentState;
 
-        // hasAutoStarted is checked here to ensure that modules aren't started immediately
-        // after a user has manually stopped the modules
-        if (vrChatCurrentState && State.Value == GameManagerState.Stopped && !hasAutoStarted)
-        {
-            Start();
-            hasAutoStarted = true;
-        }
-
-        if (!vrChatCurrentState && State.Value == GameManagerState.Started)
-        {
-            logger.Log("VRChat is no longer open. Stopping modules");
-            Stop();
-            hasAutoStarted = false;
-        }
+        if (vrChatCurrentState && State.Value == GameManagerState.Stopped) Start();
+        if (!vrChatCurrentState && State.Value == GameManagerState.Started) Stop();
     }
 
     private void sendControlValues()
