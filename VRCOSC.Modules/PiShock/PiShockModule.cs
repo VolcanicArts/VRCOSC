@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using osu.Framework.Extensions.IEnumerableExtensions;
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.Providers.PiShock;
 
@@ -24,8 +23,8 @@ public class PiShockModule : Module
 
     protected override void CreateAttributes()
     {
-        CreateSetting(PiShockSetting.MaxDuration, "Max Duration", "The maximum value the duration can be in seconds", 15, 1, 15);
-        CreateSetting(PiShockSetting.MaxIntensity, "Max Intensity", "The maximum value the intensity can be in percent", 100, 1, 100);
+        CreateSetting(PiShockSetting.MaxDuration, "Max Duration", "The maximum value the duration can be in seconds\nThis is local only", 15, 1, 15);
+        CreateSetting(PiShockSetting.MaxIntensity, "Max Intensity", "The maximum value the intensity can be in percent\nThis is local only", 100, 1, 100);
 
         CreateSetting(PiShockSetting.Shockers, new PiShockShockerInstanceListAttribute
         {
@@ -47,6 +46,7 @@ public class PiShockModule : Module
         CreateParameter<bool>(PiShockParameter.Shock, ParameterMode.Read, "VRCOSC/PiShock/Shock", "Shock", "Executes a shock using the defined parameters");
         CreateParameter<bool>(PiShockParameter.Vibrate, ParameterMode.Read, "VRCOSC/PiShock/Vibrate", "Vibrate", "Executes a vibration using the defined parameters");
         CreateParameter<bool>(PiShockParameter.Beep, ParameterMode.Read, "VRCOSC/PiShock/Beep", "Beep", "Executes a beep using the defined parameters");
+        CreateParameter<bool>(PiShockParameter.Success, ParameterMode.Write, "VRCOSC/PiShock/Success", "Success", "If the execution was successful, this will become true for 1 second to act as a notification");
     }
 
     protected override void OnModuleStart()
@@ -114,7 +114,7 @@ public class PiShockModule : Module
         }
     }
 
-    private void executePiShockMode(PiShockMode mode)
+    private async void executePiShockMode(PiShockMode mode)
     {
         var groupData = GetSettingList<PiShockGroupInstance>(PiShockSetting.Groups).ElementAtOrDefault(group);
 
@@ -126,21 +126,21 @@ public class PiShockModule : Module
 
         var shockerKeys = groupData.Keys.Value.Split(',').Where(key => !string.IsNullOrEmpty(key)).Select(key => key.Trim());
 
-        shockerKeys.ForEach(shockerKey =>
+        foreach (var shockerKey in shockerKeys)
         {
             var shockerInstance = GetSettingList<PiShockShockerInstance>(PiShockSetting.Shockers).SingleOrDefault(instance => instance.Key.Value == shockerKey);
 
             if (shockerInstance is null)
             {
                 Log($"No shocker with key {shockerKey}");
-                return;
+                continue;
             }
 
-            sendPiShockData(mode, shockerInstance.Username.Value, shockerInstance.Sharecode.Value);
-        });
+            await sendPiShockData(mode, shockerInstance.Username.Value, shockerInstance.Sharecode.Value);
+        }
     }
 
-    private async void sendPiShockData(PiShockMode mode, string username, string sharecode)
+    private async Task sendPiShockData(PiShockMode mode, string username, string sharecode)
     {
         if (piShockProvider is null)
         {
@@ -149,8 +149,15 @@ public class PiShockModule : Module
         }
 
         Log($"Executing {mode} on {username} with duration {convertedDuration}s and intensity {convertedIntensity}%");
-        var responseString = await piShockProvider.Execute(username, sharecode, mode, convertedDuration, convertedIntensity);
-        Log(responseString);
+        var response = await piShockProvider.Execute(username, sharecode, mode, convertedDuration, convertedIntensity);
+        Log(response.Message);
+
+        if (response.Success)
+        {
+            SendParameter(PiShockParameter.Success, true);
+            await Task.Delay(1000);
+            SendParameter(PiShockParameter.Success, false);
+        }
     }
 
     private enum PiShockSetting
@@ -168,6 +175,7 @@ public class PiShockModule : Module
         Intensity,
         Shock,
         Vibrate,
-        Beep
+        Beep,
+        Success
     }
 }
