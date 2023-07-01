@@ -154,9 +154,12 @@ public class PiShockModule : Module
 
         if (response.Success)
         {
-            SendParameter(PiShockParameter.Success, true);
-            await Task.Delay(1000);
-            SendParameter(PiShockParameter.Success, false);
+            _ = Task.Run(async () =>
+            {
+                SendParameter(PiShockParameter.Success, true);
+                await Task.Delay(1000);
+                SendParameter(PiShockParameter.Success, false);
+            });
         }
     }
 
