@@ -57,17 +57,22 @@ public class ChatBoxManager
     public int CurrentSecond => (int)Math.Floor((DateTimeOffset.Now - startTime).TotalSeconds) % (int)TimelineLength.Value.TotalSeconds;
     private bool sendAllowed => nextValidTime <= DateTimeOffset.Now;
 
-    private AppManager appManager;
+    private AppManager appManager = null!;
     private DateTimeOffset startTime;
     private DateTimeOffset nextValidTime;
     private bool isClear;
 
-    public void Load(Storage storage, AppManager appManager, NotificationContainer notification)
+    public void Initialise(Storage storage, AppManager appManager, VRChatOscClient oscClient, NotificationContainer notification, Bindable<int> sendDelay)
     {
         this.appManager = appManager;
+        this.oscClient = oscClient;
+        this.sendDelay = sendDelay;
         serialisationManager = new SerialisationManager();
         serialisationManager.RegisterSerialiser(1, new TimelineSerialiser(storage, notification, appManager));
+    }
 
+    public void Load()
+    {
         setDefaults();
         Deserialise();
         bindAttributes();
@@ -105,10 +110,8 @@ public class ChatBoxManager
         serialisationManager.Serialise();
     }
 
-    public void Initialise(VRChatOscClient oscClient, Bindable<int> sendDelay)
+    public void Start()
     {
-        this.oscClient = oscClient;
-        this.sendDelay = sendDelay;
         sendEnabled = true;
         startTime = DateTimeOffset.Now;
         nextValidTime = startTime;

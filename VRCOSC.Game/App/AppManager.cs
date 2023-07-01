@@ -21,7 +21,6 @@ using VRCOSC.Game.OpenVR.Metadata;
 using VRCOSC.Game.OSC;
 using VRCOSC.Game.OSC.Client;
 using VRCOSC.Game.OSC.VRChat;
-using WinRT;
 
 namespace VRCOSC.Game.App;
 
@@ -78,6 +77,7 @@ public partial class AppManager : Component
         initialiseChatBoxManager();
         initialiseStartupManager();
         initialiseRouterManager();
+        initialiseVRChat();
         initialiseDelayedTasks();
 
         OSCClient.OnParameterReceived += data => Schedule(() => oscDataQueue.Enqueue(data));
@@ -120,7 +120,8 @@ public partial class AppManager : Component
 
     private void initialiseChatBoxManager()
     {
-        ChatBoxManager.Load(storage, this, notifications);
+        ChatBoxManager.Initialise(storage, this, OSCClient, notifications, configManager.GetBindable<int>(VRCOSCSetting.ChatBoxTimeSpan));
+        ChatBoxManager.Load();
     }
 
     private void initialiseStartupManager()
@@ -133,6 +134,11 @@ public partial class AppManager : Component
     {
         RouterManager.Initialise(storage, notifications);
         RouterManager.Load();
+    }
+
+    private void initialiseVRChat()
+    {
+        VRChat.Initialise(OSCClient);
     }
 
     private void initialiseDelayedTasks()
@@ -177,7 +183,7 @@ public partial class AppManager : Component
         switch (data.ParameterName)
         {
             case "VRCOSC/Controls/ChatBox":
-                ChatBoxManager.SendEnabled = data.ParameterValue.As<bool>();
+                ChatBoxManager.SendEnabled = (bool)data.ParameterValue;
                 break;
         }
     }
@@ -186,34 +192,26 @@ public partial class AppManager : Component
 
     #region Start
 
-    public async void Start()
+    public void Start()
     {
-        if (State.Value is AppManagerState.Starting or AppManagerState.Started) return;
+        if (!initialiseOSCClient()) return;
 
         State.Value = AppManagerState.Starting;
 
-        oscDataQueue.Clear();
-
-        if (!initialiseOSCClient())
+        // Continue with start 1 update loop later to allow the UI to switch to the running screen if auto-starting so the terminal logs all start events
+        Scheduler.Add(() =>
         {
-            State.Value = AppManagerState.Stopped;
-            return;
-        }
+            VRChat.Start();
+            ChatBoxManager.Start();
+            StartupManager.Start();
+            enableOSCFlag(OscClientFlag.Send);
+            ModuleManager.Start();
+            sendControlParameters();
+            startOSCRouter();
+            enableOSCFlag(OscClientFlag.Receive);
 
-        // Allow the UI to switch to the running screen if auto-starting so the terminal logs all start events
-        await Task.Delay(50);
-
-        enableOSCFlag(OscClientFlag.Send);
-        VRChat.Initialise(OSCClient);
-        ChatBoxManager.Initialise(OSCClient, configManager.GetBindable<int>(VRCOSCSetting.ChatBoxTimeSpan));
-        StartupManager.Start();
-        sendControlParameters();
-        ModuleManager.Start();
-        enableOSCFlag(OscClientFlag.Receive);
-
-        initialiseOSCRouter();
-
-        State.Value = AppManagerState.Started;
+            State.Value = AppManagerState.Started;
+        });
     }
 
     private bool initialiseOSCClient()
@@ -247,12 +245,11 @@ public partial class AppManager : Component
         }
     }
 
-    private void initialiseOSCRouter()
+    private void startOSCRouter()
     {
         try
         {
-            OSCRouter.Initialise(RouterManager.Store);
-            OSCRouter.Enable();
+            OSCRouter.Start(RouterManager.Store);
         }
         catch (Exception e)
         {
@@ -282,16 +279,15 @@ public partial class AppManager : Component
 
     public async Task StopAsync()
     {
-        if (State.Value is AppManagerState.Stopping or AppManagerState.Stopped) return;
-
         State.Value = AppManagerState.Stopping;
 
         await OSCClient.Disable(OscClientFlag.Receive);
         await OSCRouter.Disable();
         ModuleManager.Stop();
+        await OSCClient.Disable(OscClientFlag.Send);
         ChatBoxManager.Teardown();
         VRChat.Teardown();
-        await OSCClient.Disable(OscClientFlag.Send);
+        oscDataQueue.Clear();
 
         State.Value = AppManagerState.Stopped;
     }

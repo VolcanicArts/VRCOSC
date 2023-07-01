@@ -22,6 +22,10 @@ public class VRChat
     public void Initialise(VRChatOscClient oscClient)
     {
         Player = new Player(oscClient);
+    }
+
+    public void Start()
+    {
         IsClientOpen = false;
         AvatarConfig = null;
     }
