@@ -14,9 +14,9 @@ public class RouterManager
 {
     public BindableList<RouterData> Store = new();
 
-    private readonly SerialisationManager serialisationManager;
+    private SerialisationManager serialisationManager = null!;
 
-    public RouterManager(Storage storage, NotificationContainer notification)
+    public void Initialise(Storage storage, NotificationContainer notification)
     {
         serialisationManager = new SerialisationManager();
         serialisationManager.RegisterSerialiser(1, new RouterSerialiser(storage, notification, this));

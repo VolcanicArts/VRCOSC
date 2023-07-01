@@ -8,8 +8,8 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
+using VRCOSC.Game.App;
 using VRCOSC.Game.Graphics.Themes;
-using VRCOSC.Game.Managers;
 using VRCOSC.Game.Modules.ChatBox;
 
 namespace VRCOSC.Game.Graphics.ChatBox.SelectedClip;
@@ -17,10 +17,7 @@ namespace VRCOSC.Game.Graphics.ChatBox.SelectedClip;
 public partial class SelectedClipModuleSelector : Container
 {
     [Resolved]
-    private ChatBoxManager chatBoxManager { get; set; } = null!;
-
-    [Resolved]
-    private GameManager gameManager { get; set; } = null!;
+    private AppManager appManager { get; set; } = null!;
 
     private FillFlowContainer<DrawableAssociatedModule> moduleFlow = null!;
 
@@ -91,7 +88,7 @@ public partial class SelectedClipModuleSelector : Container
             }
         };
 
-        chatBoxManager.SelectedClip.BindValueChanged(e =>
+        appManager.ChatBoxManager.SelectedClip.BindValueChanged(e =>
         {
             if (e.NewValue is null) return;
 
@@ -99,7 +96,7 @@ public partial class SelectedClipModuleSelector : Container
 
             moduleFlow.Clear();
 
-            foreach (var module in gameManager.ModuleManager.Modules.Where(module => module.GetType().IsSubclassOf(typeof(ChatBoxModule))))
+            foreach (var module in appManager.ModuleManager.Modules.Where(module => module.GetType().IsSubclassOf(typeof(ChatBoxModule))))
             {
                 DrawableAssociatedModule drawableAssociatedModule;
 

@@ -4,14 +4,14 @@
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using VRCOSC.Game.Managers;
+using VRCOSC.Game.App;
 
 namespace VRCOSC.Game.Graphics.ChatBox.Timeline.Menu.Layer;
 
 public partial class TimelineLayerMenu : TimelineMenu
 {
     [Resolved]
-    private ChatBoxManager chatBoxManager { get; set; } = null!;
+    private AppManager appManager { get; set; } = null!;
 
     public int XPos;
     public TimelineLayer Layer { get; set; } = null!;
@@ -38,7 +38,7 @@ public partial class TimelineLayerMenu : TimelineMenu
 
     private void createClip()
     {
-        var clip = chatBoxManager.CreateClip();
+        var clip = appManager.ChatBoxManager.CreateClip();
 
         var (lowerBound, upperBound) = Layer.GetBoundsNearestTo(XPos, false, true);
 
@@ -46,7 +46,7 @@ public partial class TimelineLayerMenu : TimelineMenu
         clip.End.Value = upperBound;
         clip.Priority.Value = Layer.Priority;
 
-        chatBoxManager.Clips.Add(clip);
+        appManager.ChatBoxManager.Clips.Add(clip);
 
         Hide();
     }

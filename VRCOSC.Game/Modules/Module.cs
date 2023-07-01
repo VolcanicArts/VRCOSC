@@ -11,6 +11,7 @@ using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Framework.Threading;
+using VRCOSC.Game.App;
 using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Managers;
 using VRCOSC.Game.Modules.Attributes;
@@ -28,18 +29,18 @@ namespace VRCOSC.Game.Modules;
 public abstract class Module : IComparable<Module>
 {
     private GameHost Host = null!;
-    private GameManager GameManager = null!;
+    private AppManager AppManager = null!;
     private Scheduler Scheduler = null!;
     private TerminalLogger Terminal = null!;
     private ModuleDebugLogger moduleDebugLogger = null!;
     private Storage Storage = null!;
 
-    protected Player Player => GameManager.Player;
-    protected OVRClient OVRClient => GameManager.OVRClient;
-    protected VRChatOscClient OscClient => GameManager.VRChatOscClient;
-    protected ChatBoxManager ChatBoxManager => GameManager.ChatBoxManager;
+    protected Player Player => AppManager.VRChat.Player;
+    protected OVRClient OVRClient => AppManager.OVRClient;
+    protected VRChatOscClient OscClient => AppManager.OSCClient;
+    protected ChatBoxManager ChatBoxManager => AppManager.ChatBoxManager;
     protected Bindable<ModuleState> State = new(ModuleState.Stopped);
-    protected AvatarConfig? AvatarConfig => GameManager.AvatarConfig;
+    protected AvatarConfig? AvatarConfig => AppManager.VRChat.AvatarConfig;
 
     internal readonly BindableBool Enabled = new();
     internal readonly Dictionary<string, ModuleAttribute> Settings = new();
@@ -68,10 +69,10 @@ public abstract class Module : IComparable<Module>
     private readonly SerialisationManager moduleSerialisationManager = new();
     private NotificationContainer notifications = null!;
 
-    public void InjectDependencies(GameHost host, GameManager gameManager, Scheduler scheduler, Storage storage, NotificationContainer notifications)
+    public void InjectDependencies(GameHost host, AppManager appManager, Scheduler scheduler, Storage storage, NotificationContainer notifications)
     {
         Host = host;
-        GameManager = gameManager;
+        AppManager = appManager;
         Scheduler = scheduler;
         this.notifications = notifications;
         Storage = storage;

@@ -12,10 +12,10 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Platform;
 using osuTK;
+using VRCOSC.Game.App;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Graphics.UI.Button;
-using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.Graphics.ChatBox.SelectedClip;
 
@@ -27,7 +27,7 @@ public partial class SelectedClipStateEditorContainer : Container
     private GameHost host { get; set; } = null!;
 
     [Resolved]
-    private ChatBoxManager chatBoxManager { get; set; } = null!;
+    private AppManager appManager { get; set; } = null!;
 
     private Container statesTitle = null!;
     private FillFlowContainer<DrawableState> stateFlow = null!;
@@ -222,7 +222,7 @@ public partial class SelectedClipStateEditorContainer : Container
 
     protected override void LoadComplete()
     {
-        chatBoxManager.SelectedClip.BindValueChanged(e =>
+        appManager.ChatBoxManager.SelectedClip.BindValueChanged(e =>
         {
             if (e.OldValue is not null) e.OldValue.AssociatedModules.CollectionChanged -= associatedModulesOnCollectionChanged;
 
@@ -233,17 +233,17 @@ public partial class SelectedClipStateEditorContainer : Container
             }
         }, true);
 
-        chatBoxManager.GameManager.ModuleManager.OnModuleEnabledChanged += filterFlows;
+        appManager.ModuleManager.OnModuleEnabledChanged += filterFlows;
         showRelevantStates.BindValueChanged(_ => filterFlows(), true);
     }
 
     private void filterFlows()
     {
-        if (chatBoxManager.SelectedClip.Value is null) return;
+        if (appManager.ChatBoxManager.SelectedClip.Value is null) return;
 
         if (showRelevantStates.Value)
         {
-            var enabledModuleNames = chatBoxManager.GameManager.ModuleManager.GetEnabledModuleNames().Where(moduleName => chatBoxManager.SelectedClip.Value!.AssociatedModules.Contains(moduleName)).ToList();
+            var enabledModuleNames = appManager.ModuleManager.GetEnabledModuleNames().Where(moduleName => appManager.ChatBoxManager.SelectedClip.Value!.AssociatedModules.Contains(moduleName)).ToList();
             enabledModuleNames.Sort();
 
             stateFlow.ForEach(drawableState =>
@@ -279,7 +279,7 @@ public partial class SelectedClipStateEditorContainer : Container
 
         // TODO - Don't regenerate whole
 
-        chatBoxManager.SelectedClip.Value?.States.Where(clipState => clipState.ModuleNames.All(moduleName => chatBoxManager.GameManager.ModuleManager.IsModuleLoaded(moduleName))).ForEach(clipState =>
+        appManager.ChatBoxManager.SelectedClip.Value?.States.Where(clipState => clipState.ModuleNames.All(moduleName => appManager.ModuleManager.IsModuleLoaded(moduleName))).ForEach(clipState =>
         {
             DrawableState drawableState;
 
@@ -297,7 +297,7 @@ public partial class SelectedClipStateEditorContainer : Container
             stateFlow.SetLayoutPosition(drawableState, clipState.States.Count);
         });
 
-        chatBoxManager.SelectedClip.Value?.Events.Where(clipEvent => chatBoxManager.GameManager.ModuleManager.IsModuleLoaded(clipEvent.Module)).ForEach(clipEvent =>
+        appManager.ChatBoxManager.SelectedClip.Value?.Events.Where(clipEvent => appManager.ModuleManager.IsModuleLoaded(clipEvent.Module)).ForEach(clipEvent =>
         {
             eventFlow.Add(new DrawableEvent(clipEvent)
             {

@@ -7,9 +7,9 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
+using VRCOSC.Game.App;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Button;
-using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.Graphics.Run;
 
@@ -20,7 +20,7 @@ public partial class RunScreenFooter : Container
     private IconButton restartButton = null!;
 
     [Resolved]
-    private GameManager gameManager { get; set; } = null!;
+    private AppManager appManager { get; set; } = null!;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -68,7 +68,7 @@ public partial class RunScreenFooter : Container
                                     IconShadow = true,
                                     CornerRadius = 10,
                                     BackgroundColour = ThemeManager.Current[ThemeAttribute.Success],
-                                    Action = gameManager.Start
+                                    Action = appManager.Start
                                 }
                             }
                         }
@@ -98,7 +98,7 @@ public partial class RunScreenFooter : Container
                                     IconShadow = true,
                                     CornerRadius = 10,
                                     BackgroundColour = ThemeManager.Current[ThemeAttribute.Failure],
-                                    Action = gameManager.Stop
+                                    Action = appManager.Stop
                                 }
                             },
                             new Container
@@ -117,7 +117,7 @@ public partial class RunScreenFooter : Container
                                     IconShadow = true,
                                     CornerRadius = 10,
                                     BackgroundColour = ThemeManager.Current[ThemeAttribute.Action],
-                                    Action = gameManager.Restart
+                                    Action = appManager.Restart
                                 }
                             }
                         }
@@ -129,11 +129,11 @@ public partial class RunScreenFooter : Container
 
     protected override void LoadComplete()
     {
-        gameManager.State.BindValueChanged(_ => Schedule(() =>
+        appManager.State.BindValueChanged(_ => Schedule(() =>
         {
-            restartButton.Enabled.Value = gameManager.State.Value == GameManagerState.Started;
-            stopButton.Enabled.Value = gameManager.State.Value == GameManagerState.Started;
-            startButton.Enabled.Value = gameManager.State.Value == GameManagerState.Stopped;
+            restartButton.Enabled.Value = appManager.State.Value == AppManagerState.Started;
+            stopButton.Enabled.Value = appManager.State.Value == AppManagerState.Started;
+            startButton.Enabled.Value = appManager.State.Value == AppManagerState.Stopped;
         }), true);
     }
 }

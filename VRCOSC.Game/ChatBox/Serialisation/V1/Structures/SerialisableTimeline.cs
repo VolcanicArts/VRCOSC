@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using osu.Framework.Extensions.IEnumerableExtensions;
-using VRCOSC.Game.Managers;
+using VRCOSC.Game.App;
 
 namespace VRCOSC.Game.ChatBox.Serialisation.V1.Structures;
 
@@ -24,10 +24,10 @@ public class SerialisableTimeline
     {
     }
 
-    public SerialisableTimeline(ChatBoxManager chatBoxManager)
+    public SerialisableTimeline(AppManager appManager)
     {
         Version = 1;
-        Ticks = chatBoxManager.TimelineLength.Value.Ticks;
-        chatBoxManager.Clips.ForEach(clip => Clips.Add(new SerialisableClip(clip)));
+        Ticks = appManager.ChatBoxManager.TimelineLength.Value.Ticks;
+        appManager.ChatBoxManager.Clips.ForEach(clip => Clips.Add(new SerialisableClip(clip)));
     }
 }

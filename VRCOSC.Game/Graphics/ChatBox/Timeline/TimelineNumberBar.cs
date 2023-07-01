@@ -7,26 +7,26 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
+using VRCOSC.Game.App;
 using VRCOSC.Game.Graphics.Themes;
-using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.Graphics.ChatBox.Timeline;
 
 public partial class TimelineNumberBar : Container
 {
     [Resolved]
-    private ChatBoxManager chatBoxManager { get; set; } = null!;
+    private AppManager appManager { get; set; } = null!;
 
     [BackgroundDependencyLoader]
     private void load()
     {
-        chatBoxManager.TimelineLength.BindValueChanged(_ =>
+        appManager.ChatBoxManager.TimelineLength.BindValueChanged(_ =>
         {
             Clear();
 
-            for (var i = 0; i <= chatBoxManager.TimelineLengthSeconds; i++)
+            for (var i = 0; i <= appManager.ChatBoxManager.TimelineLengthSeconds; i++)
             {
-                if (i != 0 && i != chatBoxManager.TimelineLengthSeconds && i % 5 == 0)
+                if (i != 0 && i != appManager.ChatBoxManager.TimelineLengthSeconds && i % 5 == 0)
                 {
                     Add(new Container
                     {
@@ -34,7 +34,7 @@ public partial class TimelineNumberBar : Container
                         Origin = Anchor.TopCentre,
                         RelativePositionAxes = Axes.X,
                         RelativeSizeAxes = Axes.Y,
-                        X = chatBoxManager.TimelineResolution * i,
+                        X = appManager.ChatBoxManager.TimelineResolution * i,
                         Children = new Drawable[]
                         {
                             new FillFlowContainer

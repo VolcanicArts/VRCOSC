@@ -5,6 +5,7 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
+using VRCOSC.Game.App;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Button;
 using VRCOSC.Game.Managers;
@@ -14,7 +15,7 @@ namespace VRCOSC.Game.Graphics.Router;
 public partial class DrawableRouterDataSpawner : RouterDataFlowEntry
 {
     [Resolved]
-    private RouterManager routerManager { get; set; } = null!;
+    private AppManager appManager { get; set; } = null!;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -30,7 +31,7 @@ public partial class DrawableRouterDataSpawner : RouterDataFlowEntry
                 IconShadow = true,
                 Icon = FontAwesome.Solid.Plus,
                 BackgroundColour = ThemeManager.Current[ThemeAttribute.Success],
-                Action = () => routerManager.Store.Add(new RouterData())
+                Action = () => appManager.RouterManager.Store.Add(new RouterData())
             }
         };
     }

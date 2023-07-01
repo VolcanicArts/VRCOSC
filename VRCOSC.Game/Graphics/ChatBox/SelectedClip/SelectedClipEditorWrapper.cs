@@ -7,10 +7,10 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Platform;
 using osuTK;
+using VRCOSC.Game.App;
 using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI;
-using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.Graphics.ChatBox.SelectedClip;
 
@@ -22,7 +22,7 @@ public partial class SelectedClipEditorWrapper : Container
     private GameHost host { get; set; } = null!;
 
     [Resolved]
-    private ChatBoxManager chatBoxManager { get; set; } = null!;
+    private AppManager appManager { get; set; } = null!;
 
     private Container noClipContent = null!;
     private GridContainer gridContent = null!;
@@ -114,7 +114,7 @@ public partial class SelectedClipEditorWrapper : Container
             }
         };
 
-        chatBoxManager.SelectedClip.BindValueChanged(e => selectBestVisual(e.NewValue), true);
+        appManager.ChatBoxManager.SelectedClip.BindValueChanged(e => selectBestVisual(e.NewValue), true);
     }
 
     private void selectBestVisual(Clip? clip)

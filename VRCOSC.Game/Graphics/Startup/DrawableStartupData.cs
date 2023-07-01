@@ -7,17 +7,17 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using VRCOSC.Game.App;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Button;
 using VRCOSC.Game.Graphics.UI.Text;
-using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.Graphics.Startup;
 
 public partial class DrawableStartupData : StartupDataFlowEntry
 {
     [Resolved]
-    private StartupManager startupManager { get; set; } = null!;
+    private AppManager appManager { get; set; } = null!;
 
     private readonly Bindable<string> filePath;
 
@@ -116,7 +116,7 @@ public partial class DrawableStartupData : StartupDataFlowEntry
                                             IconShadow = true,
                                             Action = () =>
                                             {
-                                                startupManager.FilePaths.Remove(filePath);
+                                                appManager.StartupManager.FilePaths.Remove(filePath);
                                                 this.RemoveAndDisposeImmediately();
                                             }
                                         }

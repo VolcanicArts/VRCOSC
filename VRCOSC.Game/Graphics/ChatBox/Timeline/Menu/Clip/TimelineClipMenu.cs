@@ -4,14 +4,14 @@
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using VRCOSC.Game.Managers;
+using VRCOSC.Game.App;
 
 namespace VRCOSC.Game.Graphics.ChatBox.Timeline.Menu.Clip;
 
 public partial class TimelineClipMenu : TimelineMenu
 {
     [Resolved]
-    private ChatBoxManager chatBoxManager { get; set; } = null!;
+    private AppManager appManager { get; set; } = null!;
 
     private Game.ChatBox.Clips.Clip clip { get; set; } = null!;
 
@@ -30,7 +30,7 @@ public partial class TimelineClipMenu : TimelineMenu
                 FontSize = 20,
                 RelativeSizeAxes = Axes.Both,
                 CornerRadius = 5,
-                Action = () => chatBoxManager.IncreasePriority(clip)
+                Action = () => appManager.ChatBoxManager.IncreasePriority(clip)
             }
         });
 
@@ -46,7 +46,7 @@ public partial class TimelineClipMenu : TimelineMenu
                 FontSize = 20,
                 RelativeSizeAxes = Axes.Both,
                 CornerRadius = 5,
-                Action = () => chatBoxManager.DecreasePriority(clip)
+                Action = () => appManager.ChatBoxManager.DecreasePriority(clip)
             }
         });
 
@@ -64,8 +64,7 @@ public partial class TimelineClipMenu : TimelineMenu
                 CornerRadius = 5,
                 Action = () =>
                 {
-                    chatBoxManager.DeleteClip(clip);
-                    if (chatBoxManager.SelectedClip.Value == clip) chatBoxManager.SelectedClip.Value = null;
+                    appManager.ChatBoxManager.DeleteClip(clip);
                     Hide();
                 }
             }

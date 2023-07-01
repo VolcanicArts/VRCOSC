@@ -18,25 +18,29 @@ public class OVRClient
 
     public bool HasInitialised { get; private set; }
 
-    public readonly OVRMetadata Metadata;
     public readonly OVRSystem System;
     public readonly OVRInput Input;
+    public OVRMetadata? Metadata;
 
     public HMD HMD => System.HMD;
     public Controller LeftController => System.LeftController;
     public Controller RightController => System.RightController;
     public IEnumerable<Tracker> Trackers => System.Trackers;
 
-    public OVRClient(OVRMetadata metadata)
+    public OVRClient()
     {
-        Metadata = metadata;
         System = new OVRSystem();
         Input = new OVRInput(this);
     }
 
+    public void SetMetadata(OVRMetadata metadata)
+    {
+        Metadata = metadata;
+    }
+
     public void Init()
     {
-        if (HasInitialised) return;
+        if (HasInitialised || Metadata is null) return;
 
         if (!OVRHelper.InitialiseOpenVR(Metadata.ApplicationType)) return;
 

@@ -9,6 +9,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Input.Events;
 using osuTK;
 using osuTK.Input;
+using VRCOSC.Game.App;
 using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.Graphics.ChatBox.Timeline.Menu.Clip;
 using VRCOSC.Game.Graphics.ChatBox.Timeline.Menu.Layer;
@@ -22,10 +23,7 @@ namespace VRCOSC.Game.Graphics.ChatBox.Timeline;
 public partial class TimelineEditor : Container
 {
     [Resolved]
-    private ChatBoxManager chatBoxManager { get; set; } = null!;
-
-    [Resolved]
-    private GameManager gameManager { get; set; } = null!;
+    private AppManager appManager { get; set; } = null!;
 
     [Resolved]
     private TimelineLayerMenu layerMenu { get; set; } = null!;
@@ -39,6 +37,7 @@ public partial class TimelineEditor : Container
     private Container gridGenerator = null!;
     private Container positionIndicator = null!;
     private GridContainer layerContainer = null!;
+    private ChatBoxManager chatBoxManager => appManager.ChatBoxManager;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -146,7 +145,7 @@ public partial class TimelineEditor : Container
 
     protected override void Update()
     {
-        if (gameManager.State.Value == GameManagerState.Started)
+        if (appManager.State.Value == AppManagerState.Started)
         {
             positionIndicator.Alpha = 1;
             positionIndicator.X = chatBoxManager.CurrentPercentage;

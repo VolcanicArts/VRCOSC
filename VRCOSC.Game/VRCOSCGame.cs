@@ -12,6 +12,7 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osuTK;
+using VRCOSC.Game.App;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Github;
 using VRCOSC.Game.Graphics;
@@ -20,7 +21,6 @@ using VRCOSC.Game.Graphics.Settings;
 using VRCOSC.Game.Graphics.TabBar;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.Updater;
-using VRCOSC.Game.Managers;
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.OpenVR.Metadata;
 
@@ -49,15 +49,10 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     private Bindable<Module?> infoModule = new();
 
     [Cached]
-    public GameManager GameManager = new();
-
-    [Cached]
-    public ChatBoxManager ChatBoxManager = new();
+    public AppManager AppManager = new();
 
     private NotificationContainer notificationContainer = null!;
     private VRCOSCUpdateManager updateManager = null!;
-    private RouterManager routerManager = null!;
-    private StartupManager startupManager = null!;
     private Bindable<float> uiScaleBindable = null!;
 
     protected VRCOSCGame(bool enableModuleDebugMode)
@@ -75,18 +70,13 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         ThemeManager.VRCOSCTheme = ConfigManager.Get<VRCOSCTheme>(VRCOSCSetting.Theme);
 
         DependencyContainer.CacheAs(notificationContainer = new NotificationContainer());
-        DependencyContainer.CacheAs(routerManager = new RouterManager(storage, notificationContainer));
-        DependencyContainer.CacheAs(startupManager = new StartupManager(storage, notificationContainer));
         DependencyContainer.CacheAs(new GitHubProvider(host.Name));
 
         LoadComponent(notificationContainer);
 
-        routerManager.Load();
-        startupManager.Load();
-
         Children = new Drawable[]
         {
-            GameManager,
+            AppManager,
             new MainContent(),
             updateManager = CreateUpdateManager(),
             notificationContainer
@@ -125,20 +115,25 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
             Delay = 5000d
         });
 
-        GameManager.State.BindValueChanged(e =>
+        AppManager.State.BindValueChanged(e =>
         {
-            if (e.NewValue == GameManagerState.Starting) selectedTab.Value = Tab.Run;
+            if (e.NewValue == AppManagerState.Starting) selectedTab.Value = Tab.Run;
         }, true);
 
-        GameManager.OVRClient.OnShutdown += () =>
+        AppManager.OVRClient.OnShutdown += () =>
         {
             if (ConfigManager.Get<bool>(VRCOSCSetting.AutoStopOpenVR)) prepareForExit();
         };
 
         selectedTab.BindValueChanged(tab =>
         {
-            if (tab.OldValue == Tab.Router) routerManager.Serialise();
+            if (tab.OldValue == Tab.Router) AppManager.RouterManager.Serialise();
         });
+
+        editingModule.BindValueChanged(e =>
+        {
+            if (e.NewValue is null && e.OldValue is not null) e.OldValue.Serialise();
+        }, true);
     }
 
     private void updateUiScale(float scaler = 1f) => Scheduler.AddOnce(() =>
@@ -203,12 +198,14 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         // ReSharper disable once RedundantExplicitParamsArrayCreation
         Task.WhenAll(new[]
         {
-            GameManager.StopAsync()
+            AppManager.StopAsync()
         }).ContinueWith(_ => Schedule(performExit));
     }
 
     private void performExit()
     {
+        // Force RouterManager to serialise by changing tabs
+        selectedTab.Value = Tab.Modules;
         editingModule.Value = null;
         Exit();
     }

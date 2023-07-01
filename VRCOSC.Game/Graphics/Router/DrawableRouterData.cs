@@ -7,6 +7,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
+using VRCOSC.Game.App;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Button;
 using VRCOSC.Game.Graphics.UI.Text;
@@ -17,7 +18,7 @@ namespace VRCOSC.Game.Graphics.Router;
 public partial class DrawableRouterData : RouterDataFlowEntry
 {
     [Resolved]
-    private RouterManager routerManager { get; set; } = null!;
+    private AppManager appManager { get; set; } = null!;
 
     private readonly RouterData data;
 
@@ -66,7 +67,7 @@ public partial class DrawableRouterData : RouterDataFlowEntry
                             IconShadow = true,
                             Action = () =>
                             {
-                                routerManager.Store.Remove(data);
+                                appManager.RouterManager.Store.Remove(data);
                                 this.RemoveAndDisposeImmediately();
                             }
                         }

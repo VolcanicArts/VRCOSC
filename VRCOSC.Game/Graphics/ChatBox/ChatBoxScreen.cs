@@ -13,7 +13,7 @@ using VRCOSC.Game.Graphics.ChatBox.Timeline.Menu.Layer;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Button;
 using osu.Framework.Platform;
-using VRCOSC.Game.Managers;
+using VRCOSC.Game.App;
 using VRCOSC.Game.Processes;
 
 namespace VRCOSC.Game.Graphics.ChatBox;
@@ -118,7 +118,7 @@ public partial class ChatBoxScreen : Container
     private partial class ImportButton : TextButton
     {
         [Resolved]
-        private ChatBoxManager chatBoxManager { get; set; } = null!;
+        private AppManager appManager { get; set; } = null!;
 
         public ImportButton()
         {
@@ -134,7 +134,7 @@ public partial class ChatBoxScreen : Container
 
         protected override void LoadComplete()
         {
-            Action += () => WinForms.OpenFileDialog(@"chatbox.json|*.json", fileName => Schedule(() => chatBoxManager.Import(fileName)));
+            Action += () => WinForms.OpenFileDialog(@"chatbox.json|*.json", fileName => Schedule(() => appManager.ChatBoxManager.Import(fileName)));
         }
     }
 

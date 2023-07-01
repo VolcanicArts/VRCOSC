@@ -7,12 +7,12 @@ using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osuTK;
+using VRCOSC.Game.App;
 using VRCOSC.Game.Graphics.ModuleAttributes;
 using VRCOSC.Game.Graphics.ModuleInfo;
 using VRCOSC.Game.Graphics.RepoListing;
 using VRCOSC.Game.Graphics.Screen;
 using VRCOSC.Game.Graphics.UI;
-using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.Graphics.ModuleListing;
 
@@ -20,7 +20,7 @@ namespace VRCOSC.Game.Graphics.ModuleListing;
 public sealed partial class ModulesScreen : BaseScreen
 {
     [Resolved]
-    private GameManager gameManager { get; set; } = null!;
+    private AppManager appManager { get; set; } = null!;
 
     private FillFlowContainer moduleFlow = null!;
     private RepoListingPopover repoListing = null!;
@@ -70,7 +70,7 @@ public sealed partial class ModulesScreen : BaseScreen
 
     protected override void LoadComplete()
     {
-        gameManager.ModuleManager.ModuleCollections.Values.Select(collection => new DrawableModuleAssembly(collection)).ForEach(drawableModuleAssembly =>
+        appManager.ModuleManager.ModuleCollections.Values.Select(collection => new DrawableModuleAssembly(collection)).ForEach(drawableModuleAssembly =>
         {
             moduleFlow.Add(drawableModuleAssembly);
 
