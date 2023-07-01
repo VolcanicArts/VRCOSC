@@ -45,6 +45,7 @@ public abstract class Module : IComparable<Module>
     internal readonly BindableBool Enabled = new();
     internal readonly Dictionary<string, ModuleAttribute> Settings = new();
     internal readonly Dictionary<Enum, ModuleParameter> Parameters = new();
+    internal readonly Dictionary<string, Enum> ParameterNameEnum = new();
 
     public virtual string Title => string.Empty;
     public virtual string Description => string.Empty;
@@ -277,6 +278,9 @@ public abstract class Module : IComparable<Module>
     {
         State.Value = ModuleState.Starting;
 
+        ParameterNameEnum.Clear();
+        Parameters.ForEach(pair => ParameterNameEnum.Add(pair.Value.ParameterName, pair.Key));
+
         try
         {
             OnModuleStart();
@@ -456,16 +460,7 @@ public abstract class Module : IComparable<Module>
             Logger.Error(e, $"{Name} experienced an exception");
         }
 
-        Enum lookup;
-
-        try
-        {
-            lookup = Parameters.Single(pair => pair.Value.ParameterName == data.ParameterName).Key;
-        }
-        catch (InvalidOperationException)
-        {
-            return;
-        }
+        if (!ParameterNameEnum.TryGetValue(data.ParameterName, out var lookup)) return;
 
         var parameterData = Parameters[lookup];
 
