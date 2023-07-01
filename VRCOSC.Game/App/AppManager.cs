@@ -39,7 +39,7 @@ public partial class AppManager : Component
     private VRCOSCConfigManager configManager { get; set; } = null!;
 
     private static readonly TimeSpan openvr_check_interval = TimeSpan.FromSeconds(1);
-    private static readonly TimeSpan vrchat_check_internal = TimeSpan.FromSeconds(5);
+    private static readonly TimeSpan vrchat_check_interval = TimeSpan.FromSeconds(5);
 
     private readonly Queue<VRChatOscData> oscDataQueue = new();
 
@@ -144,7 +144,7 @@ public partial class AppManager : Component
     private void initialiseDelayedTasks()
     {
         Scheduler.AddDelayed(checkForOpenVR, openvr_check_interval.TotalMilliseconds, true);
-        Scheduler.AddDelayed(checkForVRChat, vrchat_check_internal.TotalMilliseconds, true);
+        Scheduler.AddDelayed(checkForVRChat, vrchat_check_interval.TotalMilliseconds, true);
     }
 
     #endregion
