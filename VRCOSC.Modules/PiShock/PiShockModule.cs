@@ -23,13 +23,16 @@ public class PiShockModule : Module
 
     protected override void CreateAttributes()
     {
+        CreateSetting(PiShockSetting.Username, "Username", "Your PiShock username", string.Empty);
+        CreateSetting(PiShockSetting.APIKey, "API Key", "Your PiShock API key", string.Empty, "Generate API Key", () => OpenUrlExternally("https://pishock.com/#/account"));
+
         CreateSetting(PiShockSetting.MaxDuration, "Max Duration", "The maximum value the duration can be in seconds\nThis is the upper limit of 100% duration and is local only", 15, 1, 15);
         CreateSetting(PiShockSetting.MaxIntensity, "Max Intensity", "The maximum value the intensity can be in percent\nThis is the upper limit of 100% intensity and is local only", 100, 1, 100);
 
         CreateSetting(PiShockSetting.Shockers, new PiShockShockerInstanceListAttribute
         {
             Name = "Shockers",
-            Description = "Each instance represents a single shocker using a username and a sharecode\nThe key is used as a reference to create groups of shockers",
+            Description = "Each instance represents a single shocker using a sharecode\nThe key is used as a reference to create groups of shockers",
             Default = new List<PiShockShockerInstance>()
         });
 
@@ -51,7 +54,7 @@ public class PiShockModule : Module
 
     protected override void OnModuleStart()
     {
-        piShockProvider ??= new PiShockProvider(OfficialModuleSecrets.GetSecret(OfficialModuleSecretsKeys.PiShock));
+        piShockProvider ??= new PiShockProvider(GetSetting<string>(PiShockSetting.Username), GetSetting<string>(PiShockSetting.APIKey));
 
         group = 0;
         duration = 0f;
@@ -136,11 +139,11 @@ public class PiShockModule : Module
                 continue;
             }
 
-            await sendPiShockData(mode, shockerInstance.Username.Value, shockerInstance.Sharecode.Value);
+            await sendPiShockData(mode, shockerInstance);
         }
     }
 
-    private async Task sendPiShockData(PiShockMode mode, string username, string sharecode)
+    private async Task sendPiShockData(PiShockMode mode, PiShockShockerInstance instance)
     {
         if (piShockProvider is null)
         {
@@ -148,8 +151,8 @@ public class PiShockModule : Module
             return;
         }
 
-        Log($"Executing {mode} on {username} with duration {convertedDuration}s and intensity {convertedIntensity}%");
-        var response = await piShockProvider.Execute(username, sharecode, mode, convertedDuration, convertedIntensity);
+        Log($"Executing {mode} on {instance.Key.Value} with duration {convertedDuration}s and intensity {convertedIntensity}%");
+        var response = await piShockProvider.Execute(instance.Sharecode.Value, mode, convertedDuration, convertedIntensity);
         Log(response.Message);
 
         if (response.Success)
@@ -165,6 +168,8 @@ public class PiShockModule : Module
 
     private enum PiShockSetting
     {
+        Username,
+        APIKey,
         MaxDuration,
         MaxIntensity,
         Shockers,

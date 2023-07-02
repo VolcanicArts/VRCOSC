@@ -17,19 +17,21 @@ public class PiShockProvider
     private const string info_api_url = base_api_url + "/GetShockerInfo";
 
     private readonly HttpClient client = new();
+    private readonly string username;
     private readonly string apiKey;
 
-    public PiShockProvider(string apiKey)
+    public PiShockProvider(string username, string apiKey)
     {
+        this.username = username;
         this.apiKey = apiKey;
     }
 
-    public async Task<PiShockResponse> Execute(string username, string sharecode, PiShockMode mode, int duration, int intensity)
+    public async Task<PiShockResponse> Execute(string sharecode, PiShockMode mode, int duration, int intensity)
     {
         if (duration is < 1 or > 15) throw new InvalidOperationException($"{nameof(duration)} must be between 1 and 15");
         if (intensity is < 1 or > 100) throw new InvalidOperationException($"{nameof(intensity)} must be between 1 and 100");
 
-        var shocker = await RetrieveShockerInfo(username, sharecode);
+        var shocker = await RetrieveShockerInfo(sharecode);
         if (shocker is null) return new PiShockResponse(false, "Shocker does not exist");
 
         duration = Math.Min(duration, shocker.MaxDuration);
@@ -46,7 +48,7 @@ public class PiShockProvider
         return new PiShockResponse(responseString == "Operation Succeeded.", responseString);
     }
 
-    public async Task<PiShockShocker?> RetrieveShockerInfo(string username, string sharecode)
+    public async Task<PiShockShocker?> RetrieveShockerInfo(string sharecode)
     {
         var request = new ShockerInfoPiShockRequest
         {

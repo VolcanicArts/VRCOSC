@@ -20,9 +20,6 @@ public class PiShockShockerInstance : IEquatable<PiShockShockerInstance>
     [JsonProperty("key")]
     public Bindable<string> Key = new(string.Empty);
 
-    [JsonProperty("username")]
-    public Bindable<string> Username = new(string.Empty);
-
     [JsonProperty("sharecode")]
     public Bindable<string> Sharecode = new(string.Empty);
 
@@ -34,7 +31,6 @@ public class PiShockShockerInstance : IEquatable<PiShockShockerInstance>
     public PiShockShockerInstance(PiShockShockerInstance other)
     {
         Key.Value = other.Key.Value;
-        Username.Value = other.Username.Value;
         Sharecode.Value = other.Sharecode.Value;
     }
 
@@ -42,7 +38,7 @@ public class PiShockShockerInstance : IEquatable<PiShockShockerInstance>
     {
         if (ReferenceEquals(null, other)) return false;
 
-        return Key.Value.Equals(other.Key.Value) && Username.Value.Equals(other.Username.Value) && Sharecode.Value.Equals(other.Sharecode.Value);
+        return Key.Value.Equals(other.Key.Value) && Sharecode.Value.Equals(other.Sharecode.Value);
     }
 }
 
@@ -117,19 +113,6 @@ public partial class PiShockShockerInstanceAttributeCardList : AttributeCardList
                             {
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
-                                Text = "Username",
-                                Font = FrameworkFont.Regular.With(size: 20)
-                            }
-                        },
-                        null,
-                        new Container
-                        {
-                            RelativeSizeAxes = Axes.X,
-                            AutoSizeAxes = Axes.Y,
-                            Child = new SpriteText
-                            {
-                                Anchor = Anchor.Centre,
-                                Origin = Anchor.Centre,
                                 Text = "Sharecode",
                                 Font = FrameworkFont.Regular.With(size: 20)
                             }
@@ -176,21 +159,6 @@ public partial class PiShockShockerInstanceAttributeCardList : AttributeCardList
                         BorderThickness = 2,
                         ValidCurrent = instance.Key.GetBoundCopy(),
                         PlaceholderText = "Key",
-                        EmptyIsValid = false
-                    },
-                    null,
-                    new StringTextBox
-                    {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        RelativeSizeAxes = Axes.X,
-                        Height = 30,
-                        Masking = true,
-                        CornerRadius = 5,
-                        BorderColour = ThemeManager.Current[ThemeAttribute.Border],
-                        BorderThickness = 2,
-                        ValidCurrent = instance.Username.GetBoundCopy(),
-                        PlaceholderText = "Username",
                         EmptyIsValid = false
                     },
                     null,

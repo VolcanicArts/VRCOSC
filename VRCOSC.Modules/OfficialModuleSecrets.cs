@@ -16,6 +16,5 @@ internal enum OfficialModuleSecretsKeys
 {
     Hyperate,
     Weather,
-    ExchangeRate,
-    PiShock
+    ExchangeRate
 }
