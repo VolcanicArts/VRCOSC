@@ -46,7 +46,10 @@ public abstract class Module : IComparable<Module>
     internal readonly BindableBool Enabled = new();
     internal readonly Dictionary<string, ModuleAttribute> Settings = new();
     internal readonly Dictionary<Enum, ModuleParameter> Parameters = new();
+
+    // Cached pre-computed lookups
     internal readonly Dictionary<string, Enum> ParameterNameEnum = new();
+    internal readonly Dictionary<string, string> ParameterNameRegex = new();
 
     public virtual string Title => string.Empty;
     public virtual string Description => string.Empty;
@@ -275,12 +278,22 @@ public abstract class Module : IComparable<Module>
 
     #region Events
 
+    private static string parameterToRegex(string parameterName)
+    {
+        parameterName = parameterName.Replace(@"/", @"\/");
+        parameterName = parameterName.Replace(@"*", @"(\S*)");
+        return parameterName;
+    }
+
     internal void Start()
     {
         State.Value = ModuleState.Starting;
 
         ParameterNameEnum.Clear();
         Parameters.ForEach(pair => ParameterNameEnum.Add(pair.Value.ParameterName, pair.Key));
+
+        ParameterNameRegex.Clear();
+        Parameters.ForEach(pair => ParameterNameRegex.Add(pair.Value.ParameterName, parameterToRegex(pair.Value.ParameterName)));
 
         try
         {
@@ -439,13 +452,6 @@ public abstract class Module : IComparable<Module>
         OscClient.SendValue(data.FormattedAddress, value);
     }
 
-    private string parameterToRegex(string parameterName)
-    {
-        parameterName = parameterName.Replace(@"/", @"\/");
-        parameterName = parameterName.Replace(@"*", @"(\S*)");
-        return parameterName;
-    }
-
     internal void OnParameterReceived(VRChatOscData data)
     {
         if (!HasStarted) return;
@@ -470,10 +476,10 @@ public abstract class Module : IComparable<Module>
 
         var wildcards = new List<string>();
 
-        var parameterName = Parameters.Values.FirstOrDefault(moduleParameter => Regex.IsMatch(data.ParameterName, parameterToRegex(moduleParameter.ParameterName)))?.ParameterName;
+        var parameterName = Parameters.Values.FirstOrDefault(moduleParameter => Regex.IsMatch(data.ParameterName, ParameterNameRegex[moduleParameter.ParameterName]))?.ParameterName;
         if (parameterName is null) return;
 
-        var match = Regex.Match(data.ParameterName, parameterToRegex(parameterName));
+        var match = Regex.Match(data.ParameterName, ParameterNameRegex[parameterName]);
         if (match.Groups.Count > 1) wildcards.AddRange(match.Groups.Values.Skip(1).Select(group => group.Value));
 
         if (!ParameterNameEnum.TryGetValue(parameterName, out var lookup)) return;
