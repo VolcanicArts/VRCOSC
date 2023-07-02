@@ -49,7 +49,7 @@ public abstract class Module : IComparable<Module>
 
     // Cached pre-computed lookups
     internal readonly Dictionary<string, Enum> ParameterNameEnum = new();
-    internal readonly Dictionary<string, string> ParameterNameRegex = new();
+    internal readonly Dictionary<string, Regex> ParameterNameRegex = new();
 
     public virtual string Title => string.Empty;
     public virtual string Description => string.Empty;
@@ -278,11 +278,10 @@ public abstract class Module : IComparable<Module>
 
     #region Events
 
-    private static string parameterToRegex(string parameterName)
+    private static Regex parameterToRegex(string parameterName)
     {
-        parameterName = parameterName.Replace(@"/", @"\/");
-        parameterName = parameterName.Replace(@"*", @"(\S*)");
-        return parameterName;
+        var pattern = parameterName.Replace(@"/", @"\/").Replace(@"*", @"(\S*)");
+        return new Regex(pattern);
     }
 
     internal void Start()
@@ -449,7 +448,7 @@ public abstract class Module : IComparable<Module>
         var data = Parameters[lookup];
         if (!data.Mode.HasFlagFast(ParameterMode.Write)) throw new InvalidOperationException($"Parameter {lookup.GetType().Name}.{lookup} is a read-only parameter and therefore can't be sent!");
 
-        OscClient.SendValue(data.FormattedAddress, value);
+        Scheduler.Add(() => OscClient.SendValue(data.FormattedAddress, value));
     }
 
     internal void OnParameterReceived(VRChatOscData data)
@@ -474,12 +473,12 @@ public abstract class Module : IComparable<Module>
             Logger.Error(e, $"{Name} experienced an exception");
         }
 
-        var wildcards = new List<string>();
-
-        var parameterName = Parameters.Values.FirstOrDefault(moduleParameter => Regex.IsMatch(data.ParameterName, ParameterNameRegex[moduleParameter.ParameterName]))?.ParameterName;
+        var parameterName = Parameters.Values.FirstOrDefault(moduleParameter => ParameterNameRegex[moduleParameter.ParameterName].IsMatch(data.ParameterName))?.ParameterName;
         if (parameterName is null) return;
 
-        var match = Regex.Match(data.ParameterName, ParameterNameRegex[parameterName]);
+        var wildcards = new List<string>();
+
+        var match = ParameterNameRegex[parameterName].Match(data.ParameterName);
         if (match.Groups.Count > 1) wildcards.AddRange(match.Groups.Values.Skip(1).Select(group => group.Value));
 
         if (!ParameterNameEnum.TryGetValue(parameterName, out var lookup)) return;
