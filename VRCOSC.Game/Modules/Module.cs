@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text.RegularExpressions;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
@@ -244,7 +245,7 @@ public abstract class Module : IComparable<Module>
             ExpectedType = typeof(T)
         });
 
-    public bool DoesSettingExist(string lookup, [NotNullWhen(true)] out ModuleAttribute? attribute)
+    internal bool DoesSettingExist(string lookup, [NotNullWhen(true)] out ModuleAttribute? attribute)
     {
         if (Settings.TryGetValue(lookup, out var setting))
         {
@@ -256,7 +257,7 @@ public abstract class Module : IComparable<Module>
         return false;
     }
 
-    public bool DoesParameterExist(string lookup, [NotNullWhen(true)] out ModuleAttribute? attribute)
+    internal bool DoesParameterExist(string lookup, [NotNullWhen(true)] out ModuleAttribute? attribute)
     {
         foreach (var (lookupToCheck, _) in Parameters)
         {
@@ -438,6 +439,13 @@ public abstract class Module : IComparable<Module>
         OscClient.SendValue(data.FormattedAddress, value);
     }
 
+    private string parameterToRegex(string parameterName)
+    {
+        parameterName = parameterName.Replace(@"/", @"\/");
+        parameterName = parameterName.Replace(@"*", @"(\S*)");
+        return parameterName;
+    }
+
     internal void OnParameterReceived(VRChatOscData data)
     {
         if (!HasStarted) return;
@@ -460,7 +468,15 @@ public abstract class Module : IComparable<Module>
             Logger.Error(e, $"{Name} experienced an exception");
         }
 
-        if (!ParameterNameEnum.TryGetValue(data.ParameterName, out var lookup)) return;
+        var wildcards = new List<string>();
+
+        var parameterName = Parameters.Values.FirstOrDefault(moduleParameter => Regex.IsMatch(data.ParameterName, parameterToRegex(moduleParameter.ParameterName)))?.ParameterName;
+        if (parameterName is null) return;
+
+        var match = Regex.Match(data.ParameterName, parameterToRegex(parameterName));
+        if (match.Groups.Count > 1) wildcards.AddRange(match.Groups.Values.Skip(1).Select(group => group.Value));
+
+        if (!ParameterNameEnum.TryGetValue(parameterName, out var lookup)) return;
 
         var parameterData = Parameters[lookup];
 
@@ -477,15 +493,25 @@ public abstract class Module : IComparable<Module>
             switch (data.ParameterValue)
             {
                 case bool boolValue:
-                    OnBoolParameterReceived(lookup, boolValue);
+                    if (wildcards.Any())
+                        OnBoolParameterReceived(lookup, boolValue, wildcards.ToArray());
+                    else
+                        OnBoolParameterReceived(lookup, boolValue);
+
                     break;
 
                 case int intValue:
-                    OnIntParameterReceived(lookup, intValue);
+                    if (wildcards.Any())
+                        OnIntParameterReceived(lookup, intValue, wildcards.ToArray());
+                    else
+                        OnIntParameterReceived(lookup, intValue);
                     break;
 
                 case float floatValue:
-                    OnFloatParameterReceived(lookup, floatValue);
+                    if (wildcards.Any())
+                        OnFloatParameterReceived(lookup, floatValue, wildcards.ToArray());
+                    else
+                        OnFloatParameterReceived(lookup, floatValue);
                     break;
             }
         }
@@ -500,6 +526,9 @@ public abstract class Module : IComparable<Module>
     protected virtual void OnBoolParameterReceived(Enum key, bool value) { }
     protected virtual void OnIntParameterReceived(Enum key, int value) { }
     protected virtual void OnFloatParameterReceived(Enum key, float value) { }
+    protected virtual void OnBoolParameterReceived(Enum key, bool value, string[] wildcards) { }
+    protected virtual void OnIntParameterReceived(Enum key, int value, string[] wildcards) { }
+    protected virtual void OnFloatParameterReceived(Enum key, float value, string[] wildcards) { }
 
     #endregion
 
