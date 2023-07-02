@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace VRCOSC.Game.OSC.Client;
 
@@ -10,38 +11,18 @@ internal static class OscTypeConverter
 {
     public static int CalculateAlignedLength(IReadOnlyCollection<byte> bytes) => (bytes.Count / 4 + 1) * 4;
 
-    public static int IntToBytes(int value, byte[] buffer, int index)
-    {
-        var bytes = BitConverter.GetBytes(value);
+    public static byte[] IntToBytes(int value) => BitConverter.GetBytes(value).Reverse().ToArray();
 
-        buffer[index + 3] = bytes[0];
-        buffer[index + 2] = bytes[1];
-        buffer[index + 1] = bytes[2];
-        buffer[index + 0] = bytes[3];
+    public static byte[] FloatToBytes(float value) => BitConverter.GetBytes(value).Reverse().ToArray();
 
-        return 4;
-    }
-
-    public static int FloatToBytes(float value, byte[] buffer, int index)
-    {
-        var bytes = BitConverter.GetBytes(value);
-
-        buffer[index + 3] = bytes[0];
-        buffer[index + 2] = bytes[1];
-        buffer[index + 1] = bytes[2];
-        buffer[index + 0] = bytes[3];
-
-        return 4;
-    }
-
-    public static int StringToBytes(string value, byte[] buffer, int index)
+    public static byte[] StringToBytes(string value)
     {
         var bytes = OscConstants.OSC_ENCODING.GetBytes(value);
-        var length = CalculateAlignedLength(bytes);
 
-        bytes.CopyTo(buffer, index);
+        var msg = new byte[CalculateAlignedLength(bytes)];
+        bytes.CopyTo(msg, 0);
 
-        return length;
+        return msg;
     }
 
     public static int BytesToInt(IReadOnlyList<byte> msg, int index) => (msg[index] << 24) + (msg[index + 1] << 16) + (msg[index + 2] << 8) + (msg[index + 3] << 0);

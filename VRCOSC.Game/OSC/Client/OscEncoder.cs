@@ -2,47 +2,44 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace VRCOSC.Game.OSC.Client;
 
 internal static class OscEncoder
 {
-    private static readonly byte[] data_buffer = new byte[4096];
-    private static readonly StringBuilder type_buffer = new();
-
     internal static byte[] Encode(OscMessage message)
     {
-        data_buffer.Initialize();
-        type_buffer.Clear().Append(',');
-
-        var index = 0;
+        var parts = new List<byte[]>();
+        var typeStringBuilder = new StringBuilder(",");
 
         foreach (var value in message.Values)
         {
             switch (value)
             {
                 case int intArg:
-                    type_buffer.Append('i');
-                    index += OscTypeConverter.IntToBytes(intArg, data_buffer, index);
+                    typeStringBuilder.Append('i');
+                    parts.Add(OscTypeConverter.IntToBytes(intArg));
                     break;
 
                 case float floatArg:
-                    type_buffer.Append('f');
-                    index += OscTypeConverter.FloatToBytes(floatArg, data_buffer, index);
+                    typeStringBuilder.Append('f');
+                    parts.Add(OscTypeConverter.FloatToBytes(floatArg));
                     break;
 
                 case string stringArg:
-                    type_buffer.Append('s');
-                    index += OscTypeConverter.StringToBytes(stringArg, data_buffer, index);
+                    typeStringBuilder.Append('s');
+                    parts.Add(OscTypeConverter.StringToBytes(stringArg));
                     break;
 
                 case true:
-                    type_buffer.Append('T');
+                    typeStringBuilder.Append('T');
                     break;
 
                 case false:
-                    type_buffer.Append('F');
+                    typeStringBuilder.Append('F');
                     break;
 
                 default:
@@ -51,16 +48,15 @@ internal static class OscEncoder
         }
 
         var addressBytes = OscConstants.OSC_ENCODING.GetBytes(message.Address);
-        var typeStringBytes = OscConstants.OSC_ENCODING.GetBytes(type_buffer.ToString());
+        var typeStringBytes = OscConstants.OSC_ENCODING.GetBytes(typeStringBuilder.ToString());
 
         var addressLen = OscTypeConverter.CalculateAlignedLength(addressBytes);
         var typeLen = OscTypeConverter.CalculateAlignedLength(typeStringBytes);
 
-        var truncatedBuffer = data_buffer.SubArray(0, index);
-        var total = addressLen + typeLen + truncatedBuffer.Length;
+        var total = addressLen + typeLen + parts.Sum(x => x.Length);
 
         var output = new byte[total];
-        index = 0;
+        var index = 0;
 
         addressBytes.CopyTo(output, index);
         index += addressLen;
@@ -68,7 +64,11 @@ internal static class OscEncoder
         typeStringBytes.CopyTo(output, index);
         index += typeLen;
 
-        truncatedBuffer.CopyTo(output, index);
+        foreach (var part in parts)
+        {
+            part.CopyTo(output, index);
+            index += part.Length;
+        }
 
         return output;
     }
