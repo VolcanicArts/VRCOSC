@@ -201,7 +201,6 @@ public partial class AppManager : Component
         // Continue with start 1 update loop later to allow the UI to switch to the running screen if auto-starting so the terminal logs all start events
         Scheduler.Add(() =>
         {
-            VRChat.Start();
             ChatBoxManager.Start();
             StartupManager.Start();
             enableOSCFlag(OscClientFlag.Send);
