@@ -7,20 +7,23 @@ namespace VRCOSC.Game.Providers.PiShock;
 
 public abstract class BasePiShockRequest
 {
-    [JsonProperty("Name")]
-    public string AppName = null!;
-
     [JsonProperty("Username")]
     public string Username = null!;
-
-    [JsonProperty("Op")]
-    public string Op => ((int)Mode).ToString();
 
     [JsonProperty("Code")]
     public string ShareCode = null!;
 
     [JsonProperty("Apikey")]
     public string APIKey = null!;
+}
+
+public abstract class ActionPiShocKRequest : BasePiShockRequest
+{
+    [JsonProperty("Name")]
+    public string AppName = null!;
+
+    [JsonProperty("Op")]
+    public string Op => ((int)Mode).ToString();
 
     [JsonProperty("Duration")]
     public string Duration = null!;
@@ -29,7 +32,11 @@ public abstract class BasePiShockRequest
     protected virtual PiShockMode Mode => default;
 }
 
-public class ShockPiShockRequest : BasePiShockRequest
+public class ShockerInfoPiShockRequest : BasePiShockRequest
+{
+}
+
+public class ShockPiShockRequest : ActionPiShocKRequest
 {
     protected override PiShockMode Mode => PiShockMode.Shock;
 
@@ -37,7 +44,7 @@ public class ShockPiShockRequest : BasePiShockRequest
     public string Intensity = null!;
 }
 
-public class VibratePiShockRequest : BasePiShockRequest
+public class VibratePiShockRequest : ActionPiShocKRequest
 {
     protected override PiShockMode Mode => PiShockMode.Vibrate;
 
@@ -45,7 +52,7 @@ public class VibratePiShockRequest : BasePiShockRequest
     public string Intensity = null!;
 }
 
-public class BeepPiShockRequest : BasePiShockRequest
+public class BeepPiShockRequest : ActionPiShocKRequest
 {
     protected override PiShockMode Mode => PiShockMode.Beep;
 }

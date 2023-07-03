@@ -26,7 +26,7 @@ public partial class SliderSettingCard<TType> : SettingCard<TType> where TType :
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
             RelativeSizeAxes = Axes.X,
-            Height = 30,
+            Height = 25,
             RoudedCurrent = (BindableNumber<TType>)SettingBindable.GetBoundCopy()
         });
     }

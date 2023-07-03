@@ -11,9 +11,9 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osuTK;
+using VRCOSC.Game.App;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Button;
-using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.Graphics.Run;
 
@@ -34,7 +34,7 @@ public sealed partial class TerminalContainer : Container<TerminalEntry>
     private Storage storage { get; set; } = null!;
 
     [Resolved]
-    private GameManager gameManager { get; set; } = null!;
+    private AppManager appManager { get; set; } = null!;
 
     public TerminalContainer()
     {
@@ -104,9 +104,9 @@ public sealed partial class TerminalContainer : Container<TerminalEntry>
                 log(logEntry.Message);
         };
 
-        gameManager.State.BindValueChanged(e =>
+        appManager.State.BindValueChanged(e =>
         {
-            if (e.NewValue == GameManagerState.Starting) Reset();
+            if (e.NewValue == AppManagerState.Starting) Reset();
         });
     }
 
@@ -117,8 +117,6 @@ public sealed partial class TerminalContainer : Container<TerminalEntry>
 
     protected override void UpdateAfterChildren()
     {
-        base.UpdateAfterChildren();
-
         while (Count > terminal_entry_count)
         {
             var entry = this[0];

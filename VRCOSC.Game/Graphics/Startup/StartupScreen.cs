@@ -5,15 +5,15 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using VRCOSC.Game.App;
 using VRCOSC.Game.Graphics.Screen;
-using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.Graphics.Startup;
 
 public partial class StartupScreen : BaseScreen
 {
     [Resolved]
-    private StartupManager startupManager { get; set; } = null!;
+    private AppManager appManager { get; set; } = null!;
 
     private FillFlowContainer<StartupDataFlowEntry> startupDataFlow = null!;
 
@@ -55,7 +55,7 @@ public partial class StartupScreen : BaseScreen
         startupDataFlow.SetLayoutPosition(drawableStartupDataSpawner, 1);
         startupDataFlow.ChangeChildDepth(drawableStartupDataSpawner, float.MinValue);
 
-        startupManager.FilePaths.BindCollectionChanged((_, e) =>
+        appManager.StartupManager.FilePaths.BindCollectionChanged((_, e) =>
         {
             if (e.NewItems is not null)
             {

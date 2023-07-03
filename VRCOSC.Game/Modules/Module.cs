@@ -5,12 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text.RegularExpressions;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Framework.Threading;
+using VRCOSC.Game.App;
 using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Managers;
 using VRCOSC.Game.Modules.Attributes;
@@ -28,22 +30,26 @@ namespace VRCOSC.Game.Modules;
 public abstract class Module : IComparable<Module>
 {
     private GameHost Host = null!;
-    private GameManager GameManager = null!;
+    private AppManager AppManager = null!;
     private Scheduler Scheduler = null!;
     private TerminalLogger Terminal = null!;
     private ModuleDebugLogger moduleDebugLogger = null!;
     private Storage Storage = null!;
 
-    protected Player Player => GameManager.Player;
-    protected OVRClient OVRClient => GameManager.OVRClient;
-    protected VRChatOscClient OscClient => GameManager.VRChatOscClient;
-    protected ChatBoxManager ChatBoxManager => GameManager.ChatBoxManager;
+    protected Player Player => AppManager.VRChat.Player;
+    protected OVRClient OVRClient => AppManager.OVRClient;
+    protected VRChatOscClient OscClient => AppManager.OSCClient;
+    protected ChatBoxManager ChatBoxManager => AppManager.ChatBoxManager;
     protected Bindable<ModuleState> State = new(ModuleState.Stopped);
-    protected AvatarConfig? AvatarConfig => GameManager.AvatarConfig;
+    protected AvatarConfig? AvatarConfig => AppManager.VRChat.AvatarConfig;
 
     internal readonly BindableBool Enabled = new();
     internal readonly Dictionary<string, ModuleAttribute> Settings = new();
     internal readonly Dictionary<Enum, ModuleParameter> Parameters = new();
+
+    // Cached pre-computed lookups
+    internal readonly Dictionary<string, Enum> ParameterNameEnum = new();
+    internal readonly Dictionary<string, Regex> ParameterNameRegex = new();
 
     public virtual string Title => string.Empty;
     public virtual string Description => string.Empty;
@@ -68,10 +74,10 @@ public abstract class Module : IComparable<Module>
     private readonly SerialisationManager moduleSerialisationManager = new();
     private NotificationContainer notifications = null!;
 
-    public void InjectDependencies(GameHost host, GameManager gameManager, Scheduler scheduler, Storage storage, NotificationContainer notifications)
+    public void InjectDependencies(GameHost host, AppManager appManager, Scheduler scheduler, Storage storage, NotificationContainer notifications)
     {
         Host = host;
-        GameManager = gameManager;
+        AppManager = appManager;
         Scheduler = scheduler;
         this.notifications = notifications;
         Storage = storage;
@@ -242,7 +248,7 @@ public abstract class Module : IComparable<Module>
             ExpectedType = typeof(T)
         });
 
-    public bool DoesSettingExist(string lookup, [NotNullWhen(true)] out ModuleAttribute? attribute)
+    internal bool DoesSettingExist(string lookup, [NotNullWhen(true)] out ModuleAttribute? attribute)
     {
         if (Settings.TryGetValue(lookup, out var setting))
         {
@@ -254,7 +260,7 @@ public abstract class Module : IComparable<Module>
         return false;
     }
 
-    public bool DoesParameterExist(string lookup, [NotNullWhen(true)] out ModuleAttribute? attribute)
+    internal bool DoesParameterExist(string lookup, [NotNullWhen(true)] out ModuleAttribute? attribute)
     {
         foreach (var (lookupToCheck, _) in Parameters)
         {
@@ -272,9 +278,21 @@ public abstract class Module : IComparable<Module>
 
     #region Events
 
+    private static Regex parameterToRegex(string parameterName)
+    {
+        var pattern = parameterName.Replace(@"/", @"\/").Replace(@"*", @"(\S*)");
+        return new Regex(pattern);
+    }
+
     internal void Start()
     {
         State.Value = ModuleState.Starting;
+
+        ParameterNameEnum.Clear();
+        Parameters.ForEach(pair => ParameterNameEnum.Add(pair.Value.ParameterName, pair.Key));
+
+        ParameterNameRegex.Clear();
+        Parameters.ForEach(pair => ParameterNameRegex.Add(pair.Value.ParameterName, parameterToRegex(pair.Value.ParameterName)));
 
         try
         {
@@ -430,7 +448,7 @@ public abstract class Module : IComparable<Module>
         var data = Parameters[lookup];
         if (!data.Mode.HasFlagFast(ParameterMode.Write)) throw new InvalidOperationException($"Parameter {lookup.GetType().Name}.{lookup} is a read-only parameter and therefore can't be sent!");
 
-        OscClient.SendValue(data.FormattedAddress, value);
+        Scheduler.Add(() => OscClient.SendValue(data.FormattedAddress, value));
     }
 
     internal void OnParameterReceived(VRChatOscData data)
@@ -455,16 +473,15 @@ public abstract class Module : IComparable<Module>
             Logger.Error(e, $"{Name} experienced an exception");
         }
 
-        Enum lookup;
+        var parameterName = Parameters.Values.FirstOrDefault(moduleParameter => ParameterNameRegex[moduleParameter.ParameterName].IsMatch(data.ParameterName))?.ParameterName;
+        if (parameterName is null) return;
 
-        try
-        {
-            lookup = Parameters.Single(pair => pair.Value.ParameterName == data.ParameterName).Key;
-        }
-        catch (InvalidOperationException)
-        {
-            return;
-        }
+        var wildcards = new List<string>();
+
+        var match = ParameterNameRegex[parameterName].Match(data.ParameterName);
+        if (match.Groups.Count > 1) wildcards.AddRange(match.Groups.Values.Skip(1).Select(group => group.Value));
+
+        if (!ParameterNameEnum.TryGetValue(parameterName, out var lookup)) return;
 
         var parameterData = Parameters[lookup];
 
@@ -481,15 +498,25 @@ public abstract class Module : IComparable<Module>
             switch (data.ParameterValue)
             {
                 case bool boolValue:
-                    OnBoolParameterReceived(lookup, boolValue);
+                    if (wildcards.Any())
+                        OnBoolParameterReceived(lookup, boolValue, wildcards.ToArray());
+                    else
+                        OnBoolParameterReceived(lookup, boolValue);
+
                     break;
 
                 case int intValue:
-                    OnIntParameterReceived(lookup, intValue);
+                    if (wildcards.Any())
+                        OnIntParameterReceived(lookup, intValue, wildcards.ToArray());
+                    else
+                        OnIntParameterReceived(lookup, intValue);
                     break;
 
                 case float floatValue:
-                    OnFloatParameterReceived(lookup, floatValue);
+                    if (wildcards.Any())
+                        OnFloatParameterReceived(lookup, floatValue, wildcards.ToArray());
+                    else
+                        OnFloatParameterReceived(lookup, floatValue);
                     break;
             }
         }
@@ -504,6 +531,9 @@ public abstract class Module : IComparable<Module>
     protected virtual void OnBoolParameterReceived(Enum key, bool value) { }
     protected virtual void OnIntParameterReceived(Enum key, int value) { }
     protected virtual void OnFloatParameterReceived(Enum key, float value) { }
+    protected virtual void OnBoolParameterReceived(Enum key, bool value, string[] wildcards) { }
+    protected virtual void OnIntParameterReceived(Enum key, int value, string[] wildcards) { }
+    protected virtual void OnFloatParameterReceived(Enum key, float value, string[] wildcards) { }
 
     #endregion
 

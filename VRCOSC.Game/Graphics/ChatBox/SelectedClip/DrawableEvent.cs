@@ -7,19 +7,19 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
+using VRCOSC.Game.App;
 using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Graphics.UI.Button;
 using VRCOSC.Game.Graphics.UI.Text;
-using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.Graphics.ChatBox.SelectedClip;
 
 public partial class DrawableEvent : Container
 {
     [Resolved]
-    private GameManager gameManager { get; set; } = null!;
+    private AppManager appManager { get; set; } = null!;
 
     public readonly ClipEvent ClipEvent;
 
@@ -84,7 +84,7 @@ public partial class DrawableEvent : Container
                                     Anchor = Anchor.CentreLeft,
                                     Origin = Anchor.CentreLeft,
                                     Font = FrameworkFont.Regular.With(size: 18),
-                                    Text = gameManager.ModuleManager.GetModuleName(ClipEvent.Module) + " - " + ClipEvent.Name + ":",
+                                    Text = appManager.ModuleManager.GetModuleName(ClipEvent.Module) + " - " + ClipEvent.Name + ":",
                                     Colour = ThemeManager.Current[ThemeAttribute.Text]
                                 }
                             }

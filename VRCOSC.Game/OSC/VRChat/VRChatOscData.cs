@@ -11,7 +11,9 @@ public class VRChatOscData : OscData
     public bool IsAvatarChangeEvent => Address == VRChatOscConstants.ADDRESS_AVATAR_CHANGE;
     public bool IsAvatarParameter => Address.StartsWith(VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX);
 
-    public string ParameterName => Address.Remove(0, VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX.Length + 1);
+    private string? parameterName;
+    public string ParameterName => parameterName ??= Address[(VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX.Length + 1)..];
+
     public object ParameterValue => Values[0];
 
     public bool IsValueType(Type type) => ParameterValue.GetType() == type;

@@ -26,7 +26,7 @@ public class OSCRouter
         this.vrChatOscClient = vrChatOscClient;
     }
 
-    public void Initialise(IEnumerable<RouterData> data)
+    public void Start(IEnumerable<RouterData> data)
     {
         data.ForEach(routerData =>
         {
@@ -50,6 +50,8 @@ public class OSCRouter
                 terminal.Log($"Initialising receiver labelled {routerData.Label} on {pair.ReceiveAddress}:{pair.ReceivePort}");
             }
         });
+
+        Enable();
     }
 
     // Anything coming from VRC has to be parsed first, hence listening for parameters and not the raw data

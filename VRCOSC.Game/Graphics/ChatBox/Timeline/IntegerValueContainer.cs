@@ -6,16 +6,16 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using VRCOSC.Game.App;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Button;
-using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.Graphics.ChatBox.Timeline;
 
 public partial class IntegerValueContainer : Container
 {
     [Resolved]
-    private ChatBoxManager chatBoxManager { get; set; } = null!;
+    private AppManager appManager { get; set; } = null!;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -48,7 +48,7 @@ public partial class IntegerValueContainer : Container
                             Icon = FontAwesome.Solid.AngleDoubleLeft,
                             Circular = true,
                             BackgroundColour = ThemeManager.Current[ThemeAttribute.Light],
-                            Action = () => chatBoxManager.DecreaseTime(5)
+                            Action = () => appManager.ChatBoxManager.DecreaseTime(5)
                         },
                         new IconButton
                         {
@@ -59,7 +59,7 @@ public partial class IntegerValueContainer : Container
                             Icon = FontAwesome.Solid.AngleLeft,
                             Circular = true,
                             BackgroundColour = ThemeManager.Current[ThemeAttribute.Light],
-                            Action = () => chatBoxManager.DecreaseTime(1)
+                            Action = () => appManager.ChatBoxManager.DecreaseTime(1)
                         },
                         new IntegerDisplay(),
                         new IconButton
@@ -71,7 +71,7 @@ public partial class IntegerValueContainer : Container
                             Icon = FontAwesome.Solid.AngleRight,
                             Circular = true,
                             BackgroundColour = ThemeManager.Current[ThemeAttribute.Light],
-                            Action = () => chatBoxManager.IncreaseTime(1)
+                            Action = () => appManager.ChatBoxManager.IncreaseTime(1)
                         },
                         new IconButton
                         {
@@ -82,7 +82,7 @@ public partial class IntegerValueContainer : Container
                             Icon = FontAwesome.Solid.AngleDoubleRight,
                             Circular = true,
                             BackgroundColour = ThemeManager.Current[ThemeAttribute.Light],
-                            Action = () => chatBoxManager.IncreaseTime(5)
+                            Action = () => appManager.ChatBoxManager.IncreaseTime(5)
                         }
                     }
                 }
@@ -93,7 +93,7 @@ public partial class IntegerValueContainer : Container
     private partial class IntegerDisplay : Container
     {
         [Resolved]
-        private ChatBoxManager chatBoxManager { get; set; } = null!;
+        private AppManager appManager { get; set; } = null!;
 
         private SpriteText text = null!;
 
@@ -136,7 +136,7 @@ public partial class IntegerValueContainer : Container
 
         protected override void LoadComplete()
         {
-            chatBoxManager.TimelineLength.BindValueChanged(_ => text.Text = chatBoxManager.TimelineLengthSeconds.ToString(), true);
+            appManager.ChatBoxManager.TimelineLength.BindValueChanged(_ => text.Text = appManager.ChatBoxManager.TimelineLengthSeconds.ToString(), true);
         }
     }
 }

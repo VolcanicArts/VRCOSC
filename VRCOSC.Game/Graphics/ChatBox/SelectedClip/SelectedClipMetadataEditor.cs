@@ -7,17 +7,17 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
+using VRCOSC.Game.App;
 using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.Graphics.ChatBox.Metadata;
 using VRCOSC.Game.Graphics.Themes;
-using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.Graphics.ChatBox.SelectedClip;
 
 public partial class SelectedClipMetadataEditor : Container
 {
     [Resolved]
-    private ChatBoxManager chatBoxManager { get; set; } = null!;
+    private AppManager appManager { get; set; } = null!;
 
     private FillFlowContainer metadataFlow = null!;
 
@@ -91,7 +91,7 @@ public partial class SelectedClipMetadataEditor : Container
 
     protected override void LoadComplete()
     {
-        chatBoxManager.SelectedClip.BindValueChanged(e => onSelectedClipChange(e.NewValue), true);
+        appManager.ChatBoxManager.SelectedClip.BindValueChanged(e => onSelectedClipChange(e.NewValue), true);
     }
 
     private void onSelectedClipChange(Clip? clip)

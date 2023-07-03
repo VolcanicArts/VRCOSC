@@ -5,8 +5,8 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using VRCOSC.Game.App;
 using VRCOSC.Game.Graphics.Themes;
-using VRCOSC.Game.Managers;
 using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Game.Graphics.Run;
@@ -14,7 +14,7 @@ namespace VRCOSC.Game.Graphics.Run;
 public sealed partial class ParameterContainer : Container
 {
     [Resolved]
-    private GameManager gameManager { get; set; } = null!;
+    private AppManager appManager { get; set; } = null!;
 
     private readonly ParameterSubContainer outgoingParameterDisplay;
     private readonly ParameterSubContainer incomingParameterDisplay;
@@ -53,12 +53,12 @@ public sealed partial class ParameterContainer : Container
 
     protected override void LoadComplete()
     {
-        gameManager.VRChatOscClient.OnParameterSent += onParameterSent;
-        gameManager.VRChatOscClient.OnParameterReceived += onParameterReceived;
+        appManager.OSCClient.OnParameterSent += onParameterSent;
+        appManager.OSCClient.OnParameterReceived += onParameterReceived;
 
-        gameManager.State.BindValueChanged(e =>
+        appManager.State.BindValueChanged(e =>
         {
-            if (e.NewValue == GameManagerState.Starting) clearParameters();
+            if (e.NewValue == AppManagerState.Starting) clearParameters();
         });
     }
 
@@ -123,7 +123,7 @@ public sealed partial class ParameterContainer : Container
     protected override void Dispose(bool isDisposing)
     {
         base.Dispose(isDisposing);
-        gameManager.VRChatOscClient.OnParameterSent -= onParameterSent;
-        gameManager.VRChatOscClient.OnParameterReceived -= onParameterReceived;
+        appManager.OSCClient.OnParameterSent -= onParameterSent;
+        appManager.OSCClient.OnParameterReceived -= onParameterReceived;
     }
 }

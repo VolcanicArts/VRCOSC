@@ -10,16 +10,16 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
+using VRCOSC.Game.App;
 using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.Graphics.Themes;
-using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.Graphics.ChatBox.SelectedClip;
 
 public partial class SelectedClipVariableContainer : Container
 {
     [Resolved]
-    private ChatBoxManager chatBoxManager { get; set; } = null!;
+    private AppManager appManager { get; set; } = null!;
 
     private FillFlowContainer moduleVariableFlow = null!;
 
@@ -93,7 +93,7 @@ public partial class SelectedClipVariableContainer : Container
 
     protected override void LoadComplete()
     {
-        chatBoxManager.SelectedClip.BindValueChanged(e =>
+        appManager.ChatBoxManager.SelectedClip.BindValueChanged(e =>
         {
             if (e.OldValue is not null) e.OldValue.AvailableVariables.CollectionChanged -= availableVariablesOnCollectionChanged;
 
@@ -113,7 +113,7 @@ public partial class SelectedClipVariableContainer : Container
 
         var groupedVariables = new Dictionary<string, List<ClipVariableMetadata>>();
 
-        chatBoxManager.SelectedClip.Value?.AvailableVariables.ForEach(clipVariable =>
+        appManager.ChatBoxManager.SelectedClip.Value?.AvailableVariables.ForEach(clipVariable =>
         {
             if (!groupedVariables.ContainsKey(clipVariable.Module)) groupedVariables.Add(clipVariable.Module, new List<ClipVariableMetadata>());
             groupedVariables[clipVariable.Module].Add(clipVariable);

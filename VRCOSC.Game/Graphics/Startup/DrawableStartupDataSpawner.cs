@@ -6,16 +6,16 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
+using VRCOSC.Game.App;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Button;
-using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.Graphics.Startup;
 
 public partial class DrawableStartupDataSpawner : StartupDataFlowEntry
 {
     [Resolved]
-    private StartupManager startupManager { get; set; } = null!;
+    private AppManager appManager { get; set; } = null!;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -31,7 +31,7 @@ public partial class DrawableStartupDataSpawner : StartupDataFlowEntry
                 IconShadow = true,
                 Icon = FontAwesome.Solid.Plus,
                 BackgroundColour = ThemeManager.Current[ThemeAttribute.Success],
-                Action = () => startupManager.FilePaths.Add(new Bindable<string>(string.Empty))
+                Action = () => appManager.StartupManager.FilePaths.Add(new Bindable<string>(string.Empty))
             }
         };
     }

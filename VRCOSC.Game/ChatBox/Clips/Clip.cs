@@ -8,6 +8,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
+using VRCOSC.Game.App;
 using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.ChatBox.Clips;
@@ -28,15 +29,15 @@ public class Clip
 
     public readonly BindableList<ClipVariableMetadata> AvailableVariables = new();
     public int Length => End.Value - Start.Value;
-    private ChatBoxManager chatBoxManager = null!;
+    private AppManager appManager = null!;
+    private ChatBoxManager chatBoxManager => appManager.ChatBoxManager;
     private readonly Queue<ClipEvent> eventQueue = new();
     private (ClipEvent, DateTimeOffset)? currentEvent;
     private ClipState? currentState;
 
-    public void InjectDependencies(ChatBoxManager chatBoxManager)
+    public void InjectDependencies(AppManager appManager)
     {
-        this.chatBoxManager = chatBoxManager;
-
+        this.appManager = appManager;
         AssociatedModules.BindCollectionChanged((_, e) => onAssociatedModulesChanged(e));
 
         chatBoxManager.TimelineLength.BindValueChanged(_ =>
@@ -183,7 +184,7 @@ public class Clip
     {
         foreach (var clipState in localStates.ToImmutableList())
         {
-            var stateValid = clipState.ModuleNames.All(moduleName => chatBoxManager.GameManager.ModuleManager.GetModule(moduleName) is not null);
+            var stateValid = clipState.ModuleNames.All(moduleName => appManager.ModuleManager.GetModule(moduleName) is not null);
             if (!stateValid) localStates.Remove(clipState);
         }
     }
@@ -192,14 +193,14 @@ public class Clip
     {
         foreach (var clipState in localStates.ToImmutableList())
         {
-            var stateValid = clipState.ModuleNames.All(moduleName => chatBoxManager.ModuleEnabledCache[moduleName]);
+            var stateValid = clipState.ModuleNames.All(moduleName => appManager.ModuleManager.IsModuleEnabled(moduleName));
             if (!stateValid) localStates.Remove(clipState);
         }
     }
 
     private void removeLessCompoundedStates(List<ClipState> localStates)
     {
-        var enabledAndAssociatedModules = AssociatedModules.Where(moduleName => chatBoxManager.ModuleEnabledCache[moduleName]).ToList();
+        var enabledAndAssociatedModules = AssociatedModules.Where(moduleName => appManager.ModuleManager.IsModuleEnabled(moduleName)).ToList();
         enabledAndAssociatedModules.Sort();
 
         foreach (var clipState in localStates.ToImmutableList())
@@ -213,7 +214,7 @@ public class Clip
 
     private void removeInvalidStates(List<ClipState> localStates)
     {
-        var currentStates = AssociatedModules.Where(moduleName => chatBoxManager.ModuleEnabledCache[moduleName] && chatBoxManager.StateValues.ContainsKey(moduleName) && chatBoxManager.StateValues[moduleName] is not null).Select(moduleName => chatBoxManager.StateValues[moduleName]).ToList();
+        var currentStates = AssociatedModules.Where(moduleName => appManager.ModuleManager.IsModuleEnabled(moduleName) && chatBoxManager.StateValues.ContainsKey(moduleName) && chatBoxManager.StateValues[moduleName] is not null).Select(moduleName => chatBoxManager.StateValues[moduleName]).ToList();
         currentStates.Sort();
 
         if (!currentStates.Any()) return;
@@ -235,7 +236,7 @@ public class Clip
 
         AvailableVariables.ForEach(clipVariable =>
         {
-            if (!chatBoxManager.ModuleEnabledCache[clipVariable.Module]) return;
+            if (!appManager.ModuleManager.IsModuleEnabled(clipVariable.Module)) return;
 
             chatBoxManager.VariableValues.TryGetValue((clipVariable.Module, clipVariable.Lookup), out var variableValue);
             returnText = returnText.Replace(clipVariable.DisplayableFormat, variableValue ?? string.Empty);
@@ -260,7 +261,7 @@ public class Clip
     {
         AvailableVariables.Clear();
 
-        foreach (var module in AssociatedModules.Where(moduleName => chatBoxManager.GameManager.ModuleManager.IsModuleLoaded(moduleName) && chatBoxManager.VariableMetadata.ContainsKey(moduleName)))
+        foreach (var module in AssociatedModules.Where(moduleName => appManager.ModuleManager.IsModuleLoaded(moduleName) && chatBoxManager.VariableMetadata.ContainsKey(moduleName)))
         {
             AvailableVariables.AddRange(chatBoxManager.VariableMetadata[module].Values);
         }

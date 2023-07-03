@@ -7,21 +7,18 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
+using VRCOSC.Game.App;
 using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Graphics.UI.Button;
-using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.Graphics.ChatBox.SelectedClip;
 
 public partial class DrawableState : Container
 {
     [Resolved]
-    private ChatBoxManager chatBoxManager { get; set; } = null!;
-
-    [Resolved]
-    private GameManager gameManager { get; set; } = null!;
+    private AppManager appManager { get; set; } = null!;
 
     public readonly ClipState ClipState;
 
@@ -37,8 +34,8 @@ public partial class DrawableState : Container
 
         ClipState.States.ForEach(pair =>
         {
-            var stateMetadata = chatBoxManager.StateMetadata[pair.Item1][pair.Item2];
-            stateNameList += gameManager.ModuleManager.GetModuleName(pair.Item1);
+            var stateMetadata = appManager.ChatBoxManager.StateMetadata[pair.Item1][pair.Item2];
+            stateNameList += appManager.ModuleManager.GetModuleName(pair.Item1);
             if (stateMetadata.Name != "Default") stateNameList += " - " + stateMetadata.Name;
             stateNameList += " & ";
         });

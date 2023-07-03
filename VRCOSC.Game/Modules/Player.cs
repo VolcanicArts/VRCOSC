@@ -37,28 +37,6 @@ public sealed class Player
         this.oscClient = oscClient;
     }
 
-    public void Initialise()
-    {
-        Viseme = null;
-        Voice = null;
-        GestureLeft = null;
-        GestureRight = null;
-        GestureLeftWeight = null;
-        GestureRightWeight = null;
-        AngularY = null;
-        VelocityX = null;
-        VelocityY = null;
-        VelocityZ = null;
-        Upright = null;
-        Grounded = null;
-        Seated = null;
-        AFK = null;
-        TrackingType = null;
-        IsVR = null;
-        IsMuted = null;
-        InStation = null;
-    }
-
     public bool Update(string parameterName, object value)
     {
         if (!Enum.TryParse(parameterName, out VRChatInputParameter vrChatInputParameter)) return false;
@@ -159,6 +137,26 @@ public sealed class Player
 
     public void ResetAll()
     {
+        Viseme = null;
+        Voice = null;
+        GestureLeft = null;
+        GestureRight = null;
+        GestureLeftWeight = null;
+        GestureRightWeight = null;
+        AngularY = null;
+        VelocityX = null;
+        VelocityY = null;
+        VelocityZ = null;
+        Upright = null;
+        Grounded = null;
+        Seated = null;
+        AFK = null;
+        TrackingType = null;
+        IsVR = null;
+        IsMuted = null;
+        InStation = null;
+        Earmuffs = null;
+
         if (!hasChanged) return;
 
         StopMoveForward();

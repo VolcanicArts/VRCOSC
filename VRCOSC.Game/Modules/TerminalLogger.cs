@@ -8,15 +8,15 @@ namespace VRCOSC.Game.Modules;
 
 public sealed class TerminalLogger
 {
-    private readonly string moduleName;
+    private readonly string name;
 
-    public TerminalLogger(string moduleName)
+    public TerminalLogger(string name)
     {
-        this.moduleName = moduleName;
+        this.name = name;
     }
 
     public void Log(string message)
     {
-        message.Split('\n').ForEach(msg => Logger.Log($"[{moduleName}]: {msg}", "terminal"));
+        message.Split('\n').ForEach(msg => Logger.Log($"[{name}]: {msg}", "terminal"));
     }
 }

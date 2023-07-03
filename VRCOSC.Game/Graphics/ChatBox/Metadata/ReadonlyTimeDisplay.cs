@@ -8,16 +8,16 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using VRCOSC.Game.App;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI;
-using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.Graphics.ChatBox.Metadata;
 
 public partial class ReadonlyTimeDisplay : Container
 {
     [Resolved]
-    private ChatBoxManager chatBoxManager { get; set; } = null!;
+    private AppManager appManager { get; set; } = null!;
 
     public required string Label { get; init; }
     public required Bindable<int> Current { get; init; }
@@ -86,7 +86,7 @@ public partial class ReadonlyTimeDisplay : Container
 
     protected override void LoadComplete()
     {
-        chatBoxManager.TimelineLength.BindValueChanged(_ => updateText());
+        appManager.ChatBoxManager.TimelineLength.BindValueChanged(_ => updateText());
         Current.BindValueChanged(_ => updateText());
         updateText();
     }

@@ -4,6 +4,7 @@
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using VRCOSC.Game.App;
 using VRCOSC.Game.Graphics.Screen;
 using VRCOSC.Game.Managers;
 
@@ -12,7 +13,7 @@ namespace VRCOSC.Game.Graphics.Router;
 public partial class RouterScreen : BaseScreen
 {
     [Resolved]
-    private RouterManager routerManager { get; set; } = null!;
+    private AppManager appManager { get; set; } = null!;
 
     private FillFlowContainer<RouterDataFlowEntry> routerDataFlow = null!;
 
@@ -54,7 +55,7 @@ public partial class RouterScreen : BaseScreen
         routerDataFlow.SetLayoutPosition(drawableRouterDataSpawner, 1);
         routerDataFlow.ChangeChildDepth(drawableRouterDataSpawner, float.MinValue);
 
-        routerManager.Store.BindCollectionChanged((_, e) =>
+        appManager.RouterManager.Store.BindCollectionChanged((_, e) =>
         {
             if (e.NewItems is not null)
             {

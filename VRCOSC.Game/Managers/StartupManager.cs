@@ -18,11 +18,11 @@ namespace VRCOSC.Game.Managers;
 public class StartupManager
 {
     private readonly TerminalLogger logger = new("VRCOSC");
-    private readonly SerialisationManager serialisationManager;
+    private SerialisationManager serialisationManager;
 
     public readonly BindableList<Bindable<string>> FilePaths = new();
 
-    public StartupManager(Storage storage, NotificationContainer notification)
+    public void Initialise(Storage storage, NotificationContainer notification)
     {
         serialisationManager = new SerialisationManager();
         serialisationManager.RegisterSerialiser(1, new StartupSerialiser(storage, notification, this));

@@ -9,6 +9,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
 using osuTK.Input;
+using VRCOSC.Game.App;
 using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Managers;
@@ -25,13 +26,14 @@ public partial class DrawableClip : Container
     private TimelineLayer timelineLayer { get; set; } = null!;
 
     [Resolved]
-    private ChatBoxManager chatBoxManager { get; set; } = null!;
+    private AppManager appManager { get; set; } = null!;
 
     public readonly Clip Clip;
 
     private float cumulativeDrag;
     private SpriteText drawName = null!;
     private Box background = null!;
+    private ChatBoxManager chatBoxManager => appManager.ChatBoxManager;
 
     public DrawableClip(Clip clip)
     {
@@ -177,7 +179,7 @@ public partial class DrawableClip : Container
     private partial class ResizeDetector : Container
     {
         [Resolved]
-        private ChatBoxManager chatBoxManager { get; set; } = null!;
+        private AppManager appManager { get; set; } = null!;
 
         protected readonly Clip Clip;
 
@@ -212,7 +214,7 @@ public partial class DrawableClip : Container
 
         protected override bool OnDragStart(DragStartEvent e) => true;
 
-        protected override void OnDragEnd(DragEndEvent e) => chatBoxManager.Serialise();
+        protected override void OnDragEnd(DragEndEvent e) => appManager.ChatBoxManager.Serialise();
 
         protected override bool OnHover(HoverEvent e)
         {
@@ -229,7 +231,7 @@ public partial class DrawableClip : Container
     private partial class StartResizeDetector : ResizeDetector
     {
         [Resolved]
-        private ChatBoxManager chatBoxManager { get; set; } = null!;
+        private AppManager appManager { get; set; } = null!;
 
         [Resolved]
         private DrawableClip parentDrawableClip { get; set; } = null!;
@@ -249,7 +251,7 @@ public partial class DrawableClip : Container
             e.Target = timelineLayer;
 
             var mousePosNormalised = e.MousePosition.X / timelineLayer.DrawWidth;
-            var newStart = (int)Math.Floor(mousePosNormalised * chatBoxManager.TimelineLengthSeconds);
+            var newStart = (int)Math.Floor(mousePosNormalised * appManager.ChatBoxManager.TimelineLengthSeconds);
 
             if (newStart != Clip.Start.Value && newStart < Clip.End.Value)
             {
@@ -268,7 +270,7 @@ public partial class DrawableClip : Container
     private partial class EndResizeDetector : ResizeDetector
     {
         [Resolved]
-        private ChatBoxManager chatBoxManager { get; set; } = null!;
+        private AppManager appManager { get; set; } = null!;
 
         [Resolved]
         private DrawableClip parentDrawableClip { get; set; } = null!;
@@ -287,7 +289,7 @@ public partial class DrawableClip : Container
         {
             e.Target = timelineLayer;
             var mousePosNormalised = e.MousePosition.X / timelineLayer.DrawWidth;
-            var newEnd = (int)Math.Ceiling(mousePosNormalised * chatBoxManager.TimelineLengthSeconds);
+            var newEnd = (int)Math.Ceiling(mousePosNormalised * appManager.ChatBoxManager.TimelineLengthSeconds);
 
             if (newEnd != Clip.End.Value && newEnd > Clip.Start.Value)
             {
