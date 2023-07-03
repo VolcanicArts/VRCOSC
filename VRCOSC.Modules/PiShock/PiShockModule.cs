@@ -16,7 +16,7 @@ public class PiShockModule : Module
     private int group;
     private float duration;
     private float intensity;
-    private PiShockProvider? piShockProvider;
+    private PiShockProvider piShockProvider = null!;
 
     private int convertedDuration => (int)Math.Round(Map(duration, 0, 1, 1, GetSetting<int>(PiShockSetting.MaxDuration)));
     private int convertedIntensity => (int)Math.Round(Map(intensity, 0, 1, 1, GetSetting<int>(PiShockSetting.MaxIntensity)));
@@ -54,7 +54,7 @@ public class PiShockModule : Module
 
     protected override void OnModuleStart()
     {
-        piShockProvider ??= new PiShockProvider(GetSetting<string>(PiShockSetting.Username), GetSetting<string>(PiShockSetting.APIKey));
+        piShockProvider = new PiShockProvider(GetSetting<string>(PiShockSetting.Username), GetSetting<string>(PiShockSetting.APIKey));
 
         group = 0;
         duration = 0f;
@@ -145,12 +145,6 @@ public class PiShockModule : Module
 
     private async Task sendPiShockData(PiShockMode mode, PiShockShockerInstance instance)
     {
-        if (piShockProvider is null)
-        {
-            Log("PiShock failed to initialise. Cannot execute parameters. Please restart the module");
-            return;
-        }
-
         Log($"Executing {mode} on {instance.Key.Value} with duration {convertedDuration}s and intensity {convertedIntensity}%");
         var response = await piShockProvider.Execute(instance.Sharecode.Value, mode, convertedDuration, convertedIntensity);
         Log(response.Message);
