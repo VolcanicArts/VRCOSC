@@ -2,10 +2,9 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Globalization;
-using Newtonsoft.Json;
-using Vosk;
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.Modules.ChatBox;
+using VRCOSC.Game.Providers.SpeechToText;
 
 namespace VRCOSC.Modules.SpeechToText;
 
@@ -16,19 +15,18 @@ public class SpeechToTextModule : ChatBoxModule
     public override string Author => "VolcanicArts";
     public override ModuleType Type => ModuleType.Accessibility;
 
-    private readonly MicrophoneInterface micInterface = new();
-    private Model? model;
-    private VoskRecognizer? recogniser;
-    private readonly object analyseLock = new();
+    private readonly SpeechToTextProvider speechToTextProvider;
 
-    private bool readyToAccept;
     private bool listening;
     private bool playerMuted;
-    private bool shouldAnalyse => readyToAccept && listening && (!GetSetting<bool>(SpeechToTextSetting.FollowMute) || playerMuted);
 
     public SpeechToTextModule()
     {
-        Vosk.Vosk.SetLogLevel(-1);
+        speechToTextProvider = new SpeechToTextProvider();
+        speechToTextProvider.OnLog += Log;
+        speechToTextProvider.OnBeforeAnalysis += onBeforeAnalysis;
+        speechToTextProvider.OnPartialResult += onPartialResult;
+        speechToTextProvider.OnFinalResult += onFinalResult;
     }
 
     protected override void CreateAttributes()
@@ -51,19 +49,9 @@ public class SpeechToTextModule : ChatBoxModule
 
     protected override void OnModuleStart()
     {
-        if (!Directory.Exists(GetSetting<string>(SpeechToTextSetting.ModelLocation)))
-        {
-            Log("Please enter a valid model folder path");
-            return;
-        }
-
-        readyToAccept = false;
+        speechToTextProvider.Initialise(GetSetting<string>(SpeechToTextSetting.ModelLocation));
         listening = true;
-
-        initialiseMicrophone();
-        initialiseVosk();
         resetState();
-
         SendParameter(SpeechToTextParameter.Listen, listening);
     }
 
@@ -76,135 +64,9 @@ public class SpeechToTextModule : ChatBoxModule
         if (GetSetting<bool>(SpeechToTextSetting.FollowMute)) resetState();
     }
 
-    private void initialiseMicrophone() => Task.Run(() =>
-    {
-        Log("Hooking into default microphone...");
-
-        micInterface.BufferCallback += analyseAudio;
-        var captureDevice = micInterface.Hook();
-
-        if (captureDevice is null)
-        {
-            Log("Failed to hook into default microphone. Please restart the module");
-            return;
-        }
-
-        LogDebug($"Microphone format:\n{micInterface.AudioCapture!.WaveFormat}");
-
-        Log($"Hooked into microphone {captureDevice.DeviceFriendlyName.Trim()}");
-    });
-
-    private void initialiseVosk() => Task.Run(() =>
-    {
-        Log("Model loading...");
-
-        model = new Model(GetSetting<string>(SpeechToTextSetting.ModelLocation));
-
-        lock (analyseLock)
-        {
-            recogniser = new VoskRecognizer(model, micInterface.AudioCapture!.WaveFormat.SampleRate);
-            recogniser.SetWords(true);
-        }
-
-        Log("Model loaded!");
-        readyToAccept = true;
-    });
-
-    private void analyseAudio(byte[] buffer, int bytesRecorded)
-    {
-        if (!HasStarted || !shouldAnalyse) return;
-
-        LogDebug($"Analysing audio. Total bytes: {bytesRecorded}");
-
-        lock (analyseLock)
-        {
-            if (recogniser is null) return;
-
-            var isFinalResult = recogniser.AcceptWaveform(buffer, bytesRecorded);
-
-            if (isFinalResult)
-                handleFinalRecognition();
-            else
-                handlePartialRecognition();
-        }
-    }
-
-    private void handlePartialRecognition()
-    {
-        LogDebug("Partial recognition has occurred");
-
-        var partialResult = JsonConvert.DeserializeObject<PartialRecognition>(recogniser!.PartialResult())?.Text;
-        if (string.IsNullOrEmpty(partialResult)) return;
-
-        LogDebug("Partial result is valid");
-
-        var partialText = formatTextForChatBox(partialResult);
-
-        ChangeStateTo(SpeechToTextState.TextGenerating);
-        SetVariableValue(SpeechToTextVariable.Text, partialText);
-        SetChatBoxTyping(true);
-    }
-
-    private void handleFinalRecognition()
-    {
-        LogDebug("Final recognition has occurred");
-
-        var result = JsonConvert.DeserializeObject<Recognition>(recogniser!.Result());
-
-        if (result is not null)
-        {
-            LogDebug($"Final recognition deserialised successfully\nText: {result.Text}\nConfidence: {result.AverageConfidence}");
-
-            if (result.IsValid)
-            {
-                LogDebug("Result is valid");
-
-                if (result.AverageConfidence >= GetSetting<int>(SpeechToTextSetting.Confidence) / 100f)
-                {
-                    LogDebug("Confidence confirmed. Pushing result");
-
-                    var finalText = formatTextForChatBox(result.Text);
-                    Log($"Recognised: \"{finalText}\"");
-
-                    SetVariableValue(SpeechToTextVariable.Text, finalText);
-                    ChangeStateTo(SpeechToTextState.TextGenerated);
-                    TriggerEvent(SpeechToTextEvent.TextGenerated);
-                }
-                else
-                {
-                    LogDebug("Confidence too low. Clearing partial result");
-                    resetState();
-                }
-            }
-            else
-            {
-                LogDebug("Result is invalid. Skipping");
-            }
-        }
-        else
-        {
-            LogDebug("Final recognition deserialised incorrectly");
-            resetState();
-        }
-
-        LogDebug("Resetting recogniser");
-
-        recogniser.Reset();
-        SetChatBoxTyping(false);
-    }
-
-    private static string formatTextForChatBox(string text) => text.Length > 1 ? text[..1].ToUpper(CultureInfo.CurrentCulture) + text[1..] : text.ToUpper(CultureInfo.CurrentCulture);
-
     protected override void OnModuleStop()
     {
-        micInterface.BufferCallback -= analyseAudio;
-        micInterface.UnHook();
-
-        lock (analyseLock)
-        {
-            model?.Dispose();
-            recogniser?.Dispose();
-        }
+        speechToTextProvider.Teardown();
     }
 
     protected override void OnBoolParameterReceived(Enum key, bool value)
@@ -221,37 +83,41 @@ public class SpeechToTextModule : ChatBoxModule
         }
     }
 
+    private void onBeforeAnalysis()
+    {
+        speechToTextProvider.AnalysisEnabled = listening && (!GetSetting<bool>(SpeechToTextSetting.FollowMute) || playerMuted);
+        speechToTextProvider.RequiredConfidence = GetSetting<int>(SpeechToTextSetting.Confidence) / 100f;
+    }
+
+    private void onPartialResult(string text)
+    {
+        ChangeStateTo(SpeechToTextState.TextGenerating);
+        SetVariableValue(SpeechToTextVariable.Text, formatTextForChatBox(text));
+        SetChatBoxTyping(true);
+    }
+
+    private void onFinalResult(bool success, string text)
+    {
+        if (success)
+        {
+            SetVariableValue(SpeechToTextVariable.Text, formatTextForChatBox(text));
+            ChangeStateTo(SpeechToTextState.TextGenerated);
+            TriggerEvent(SpeechToTextEvent.TextGenerated);
+        }
+        else
+        {
+            resetState();
+        }
+    }
+
     private void resetState()
     {
-        LogDebug("Resetting module state");
         SetChatBoxTyping(false);
         ChangeStateTo(SpeechToTextState.Idle);
         SetVariableValue(SpeechToTextVariable.Text, string.Empty);
     }
 
-    private class Recognition
-    {
-        [JsonProperty("text")]
-        public string Text = string.Empty;
-
-        [JsonProperty("result")]
-        public List<WordResult>? Result;
-
-        public float AverageConfidence => Result is null || !Result.Any() ? 0f : Result.Average(wordResult => wordResult.Confidence);
-        public bool IsValid => (AverageConfidence != 0f || !string.IsNullOrEmpty(Text)) && Text != "huh";
-    }
-
-    private class WordResult
-    {
-        [JsonProperty("conf")]
-        public float Confidence;
-    }
-
-    private class PartialRecognition
-    {
-        [JsonProperty("partial")]
-        public string Text = string.Empty;
-    }
+    private static string formatTextForChatBox(string text) => text.Length > 1 ? text[..1].ToUpper(CultureInfo.CurrentCulture) + text[1..] : text.ToUpper(CultureInfo.CurrentCulture);
 
     private enum SpeechToTextSetting
     {
