@@ -11,6 +11,7 @@ public class PiShockModule : Module
     public override string Title => "PiShock";
     public override string Description => "Allows for controlling PiShock from avatar parameters";
     public override string Author => "VolcanicArts";
+    public override string Prefab => "VRCOSC-PiShock";
     public override ModuleType Type => ModuleType.NSFW;
 
     private int group;
