@@ -18,6 +18,7 @@ using Valve.VR;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Managers;
+using VRCOSC.Game.Modules;
 using VRCOSC.Game.OpenVR;
 using VRCOSC.Game.OpenVR.Metadata;
 using VRCOSC.Game.OSC;
@@ -195,16 +196,20 @@ public partial class AppManager : Component
     {
         runningModulesDelegate = Scheduler.AddDelayed(() =>
         {
-            ModuleManager.Modules.Where(module => ModuleManager.GetRunningModules().Contains(module)).ForEach(module =>
-            {
-                OSCClient.SendValue($"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}/VRCOSC/Modules/{module.GetType().Name.Replace("Module", string.Empty)}", true);
-            });
-
-            ModuleManager.Modules.Where(module => !ModuleManager.GetRunningModules().Contains(module)).ForEach(module =>
-            {
-                OSCClient.SendValue($"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}/VRCOSC/Modules/{module.GetType().Name.Replace("Module", string.Empty)}", false);
-            });
+            ModuleManager.Modules.ForEach(module => sendModuleRunningState(module, ModuleManager.GetRunningModules().Contains(module)));
         }, TimeSpan.FromSeconds(1).TotalMilliseconds, true);
+    }
+
+    private void cancelRunningModulesDelegate()
+    {
+        runningModulesDelegate?.Cancel();
+        runningModulesDelegate = null;
+        ModuleManager.Modules.ForEach(module => sendModuleRunningState(module, false));
+    }
+
+    private void sendModuleRunningState(Module module, bool running)
+    {
+        OSCClient.SendValue($"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}/VRCOSC/Modules/{module.GetType().Name.Replace("Module", string.Empty)}", running);
     }
 
     #endregion
@@ -302,8 +307,7 @@ public partial class AppManager : Component
 
         await OSCClient.Disable(OscClientFlag.Receive);
         await OSCRouter.Disable();
-        runningModulesDelegate?.Cancel();
-        runningModulesDelegate = null;
+        cancelRunningModulesDelegate();
         ModuleManager.Stop();
         await OSCClient.Disable(OscClientFlag.Send);
         ChatBoxManager.Teardown();
