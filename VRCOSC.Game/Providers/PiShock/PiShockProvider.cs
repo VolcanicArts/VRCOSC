@@ -17,21 +17,16 @@ public class PiShockProvider
     private const string info_api_url = base_api_url + "/GetShockerInfo";
 
     private readonly HttpClient client = new();
-    private readonly string username;
-    private readonly string apiKey;
 
-    public PiShockProvider(string username, string apiKey)
+    public async Task<PiShockResponse> Execute(string username, string apiKey, string sharecode, PiShockMode mode, int duration, int intensity)
     {
-        this.username = username;
-        this.apiKey = apiKey;
-    }
+        if (string.IsNullOrEmpty(username)) return new PiShockResponse(false, "Invalid username");
+        if (string.IsNullOrEmpty(apiKey)) return new PiShockResponse(false, "Invalid API key");
 
-    public async Task<PiShockResponse> Execute(string sharecode, PiShockMode mode, int duration, int intensity)
-    {
         if (duration is < 1 or > 15) throw new InvalidOperationException($"{nameof(duration)} must be between 1 and 15");
         if (intensity is < 1 or > 100) throw new InvalidOperationException($"{nameof(intensity)} must be between 1 and 100");
 
-        var shocker = await RetrieveShockerInfo(sharecode);
+        var shocker = await retrieveShockerInfo(username, apiKey, sharecode);
         if (shocker is null) return new PiShockResponse(false, "Shocker does not exist");
 
         duration = Math.Min(duration, shocker.MaxDuration);
@@ -39,8 +34,8 @@ public class PiShockProvider
 
         var request = getRequestForMode(mode, duration, intensity);
         request.AppName = app_name;
-        request.APIKey = apiKey;
         request.Username = username;
+        request.APIKey = apiKey;
         request.ShareCode = sharecode;
 
         var response = await client.PostAsync(action_api_url, new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"));
@@ -48,12 +43,12 @@ public class PiShockProvider
         return new PiShockResponse(responseString == "Operation Succeeded.", responseString);
     }
 
-    public async Task<PiShockShocker?> RetrieveShockerInfo(string sharecode)
+    private async Task<PiShockShocker?> retrieveShockerInfo(string username, string apiKey, string sharecode)
     {
         var request = new ShockerInfoPiShockRequest
         {
-            APIKey = apiKey,
             Username = username,
+            APIKey = apiKey,
             ShareCode = sharecode
         };
 
