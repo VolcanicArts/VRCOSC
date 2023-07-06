@@ -80,9 +80,7 @@ public partial class PiShockShockerInstanceAttributeCardList : AttributeCardList
                 {
                     new Dimension(),
                     new Dimension(GridSizeMode.Absolute, 5),
-                    new Dimension(),
-                    new Dimension(GridSizeMode.Absolute, 5),
-                    new Dimension(),
+                    new Dimension()
                 },
                 RowDimensions = new[]
                 {
@@ -135,9 +133,7 @@ public partial class PiShockShockerInstanceAttributeCardList : AttributeCardList
             {
                 new Dimension(),
                 new Dimension(GridSizeMode.Absolute, 5),
-                new Dimension(),
-                new Dimension(GridSizeMode.Absolute, 5),
-                new Dimension(),
+                new Dimension()
             },
             RowDimensions = new[]
             {

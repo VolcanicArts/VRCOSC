@@ -199,6 +199,8 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
 
     public Module? GetModule(string serialisedName) => Modules.SingleOrDefault(module => module.SerialisedName == serialisedName);
 
+    public IEnumerable<Module> GetRunningModules() => runningModulesCache;
+
     public IEnumerable<string> GetEnabledModuleNames() => Modules.Where(module => module.Enabled.Value).Select(module => module.SerialisedName);
 
     public string GetModuleName(string serialisedName) => Modules.Single(module => module.SerialisedName == serialisedName).Title;

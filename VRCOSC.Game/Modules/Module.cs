@@ -396,7 +396,7 @@ public abstract class Module : IComparable<Module>
     {
         var setting = Settings[lookup.ToLookup()];
 
-        if (setting.GetType().IsSubclassOf(typeof(ModuleAttributePrimitiveList<>)))
+        if (setting.GetType().IsSubclassOf(typeof(ModuleAttributePrimitiveList<T>)))
         {
             if (setting is ModuleAttributeList<Bindable<T>> settingList)
             {
@@ -411,7 +411,7 @@ public abstract class Module : IComparable<Module>
             }
         }
 
-        throw new InvalidCastException($"Setting with lookup '{lookup}' is not of type '{nameof(List<T>)}'");
+        throw new InvalidCastException($"Setting with lookup '{lookup}' is not of type List<'{typeof(T)}>'");
     }
 
     protected T GetSetting<T>(Enum lookup)

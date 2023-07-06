@@ -9,14 +9,23 @@ namespace VRCOSC.Modules.PiShock;
 public class PiShockModule : Module
 {
     public override string Title => "PiShock";
-    public override string Description => "Allows for controlling PiShock from avatar parameters";
+    public override string Description => "Allows for controlling PiShock shockers from avatar parameters";
     public override string Author => "VolcanicArts";
+    public override string Prefab => "VRCOSC-PiShock";
     public override ModuleType Type => ModuleType.NSFW;
+
+    private readonly PiShockProvider piShockProvider = new();
 
     private int group;
     private float duration;
     private float intensity;
-    private PiShockProvider? piShockProvider;
+
+    private DateTimeOffset? shock;
+    private DateTimeOffset? vibrate;
+    private DateTimeOffset? beep;
+    private bool shockExecuted;
+    private bool vibrateExecuted;
+    private bool beepExecuted;
 
     private int convertedDuration => (int)Math.Round(Map(duration, 0, 1, 1, GetSetting<int>(PiShockSetting.MaxDuration)));
     private int convertedIntensity => (int)Math.Round(Map(intensity, 0, 1, 1, GetSetting<int>(PiShockSetting.MaxIntensity)));
@@ -26,6 +35,7 @@ public class PiShockModule : Module
         CreateSetting(PiShockSetting.Username, "Username", "Your PiShock username", string.Empty);
         CreateSetting(PiShockSetting.APIKey, "API Key", "Your PiShock API key", string.Empty, "Generate API Key", () => OpenUrlExternally("https://pishock.com/#/account"));
 
+        CreateSetting(PiShockSetting.Delay, "Button Delay", "The amount of time in milliseconds the shock, vibrate, and beep parameters need to be true to execute the action\nThis is helpful for if you accidentally press buttons on your action menu", 0);
         CreateSetting(PiShockSetting.MaxDuration, "Max Duration", "The maximum value the duration can be in seconds\nThis is the upper limit of 100% duration and is local only", 15, 1, 15);
         CreateSetting(PiShockSetting.MaxIntensity, "Max Intensity", "The maximum value the intensity can be in percent\nThis is the upper limit of 100% intensity and is local only", 100, 1, 100);
 
@@ -54,11 +64,15 @@ public class PiShockModule : Module
 
     protected override void OnModuleStart()
     {
-        piShockProvider ??= new PiShockProvider(GetSetting<string>(PiShockSetting.Username), GetSetting<string>(PiShockSetting.APIKey));
-
         group = 0;
         duration = 0f;
         intensity = 0f;
+        shock = null;
+        vibrate = null;
+        beep = null;
+        shockExecuted = false;
+        vibrateExecuted = false;
+        beepExecuted = false;
 
         sendParameters();
     }
@@ -66,6 +80,35 @@ public class PiShockModule : Module
     protected override void OnAvatarChange()
     {
         sendParameters();
+    }
+
+    protected override void OnFixedUpdate()
+    {
+        var delay = TimeSpan.FromMilliseconds(GetSetting<int>(PiShockSetting.Delay));
+
+        if (shock is not null && shock + delay <= DateTimeOffset.Now && !shockExecuted)
+        {
+            executePiShockMode(PiShockMode.Shock);
+            shockExecuted = true;
+        }
+
+        if (shock is null) shockExecuted = false;
+
+        if (vibrate is not null && vibrate + delay <= DateTimeOffset.Now && !vibrateExecuted)
+        {
+            executePiShockMode(PiShockMode.Vibrate);
+            vibrateExecuted = true;
+        }
+
+        if (vibrate is null) vibrateExecuted = false;
+
+        if (beep is not null && beep + delay <= DateTimeOffset.Now && !beepExecuted)
+        {
+            executePiShockMode(PiShockMode.Beep);
+            beepExecuted = true;
+        }
+
+        if (beep is null) beepExecuted = false;
     }
 
     private void sendParameters()
@@ -79,16 +122,16 @@ public class PiShockModule : Module
     {
         switch (key)
         {
-            case PiShockParameter.Shock when value:
-                executePiShockMode(PiShockMode.Shock);
+            case PiShockParameter.Shock:
+                shock = value ? DateTimeOffset.Now : null;
                 break;
 
-            case PiShockParameter.Vibrate when value:
-                executePiShockMode(PiShockMode.Vibrate);
+            case PiShockParameter.Vibrate:
+                vibrate = value ? DateTimeOffset.Now : null;
                 break;
 
-            case PiShockParameter.Beep when value:
-                executePiShockMode(PiShockMode.Beep);
+            case PiShockParameter.Beep:
+                beep = value ? DateTimeOffset.Now : null;
                 break;
         }
     }
@@ -145,14 +188,8 @@ public class PiShockModule : Module
 
     private async Task sendPiShockData(PiShockMode mode, PiShockShockerInstance instance)
     {
-        if (piShockProvider is null)
-        {
-            Log("PiShock failed to initialise. Cannot execute parameters. Please restart the module");
-            return;
-        }
-
         Log($"Executing {mode} on {instance.Key.Value} with duration {convertedDuration}s and intensity {convertedIntensity}%");
-        var response = await piShockProvider.Execute(instance.Sharecode.Value, mode, convertedDuration, convertedIntensity);
+        var response = await piShockProvider.Execute(GetSetting<string>(PiShockSetting.Username), GetSetting<string>(PiShockSetting.APIKey), instance.Sharecode.Value, mode, convertedDuration, convertedIntensity);
         Log(response.Message);
 
         if (response.Success)
@@ -173,7 +210,8 @@ public class PiShockModule : Module
         MaxDuration,
         MaxIntensity,
         Shockers,
-        Groups
+        Groups,
+        Delay
     }
 
     private enum PiShockParameter

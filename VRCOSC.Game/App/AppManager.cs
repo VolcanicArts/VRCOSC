@@ -3,11 +3,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Development;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
@@ -16,6 +18,7 @@ using Valve.VR;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Managers;
+using VRCOSC.Game.Modules;
 using VRCOSC.Game.OpenVR;
 using VRCOSC.Game.OpenVR.Metadata;
 using VRCOSC.Game.OSC;
@@ -42,6 +45,7 @@ public partial class AppManager : Component
     private static readonly TimeSpan vrchat_check_interval = TimeSpan.FromSeconds(5);
 
     private readonly Queue<VRChatOscData> oscDataQueue = new();
+    private ScheduledDelegate? runningModulesDelegate;
 
     public readonly Bindable<AppManagerState> State = new(AppManagerState.Stopped);
     public readonly ModuleManager ModuleManager;
@@ -188,6 +192,26 @@ public partial class AppManager : Component
         }
     }
 
+    private void scheduleModuleEnabledParameters()
+    {
+        runningModulesDelegate = Scheduler.AddDelayed(() =>
+        {
+            ModuleManager.Modules.ForEach(module => sendModuleRunningState(module, ModuleManager.GetRunningModules().Contains(module)));
+        }, TimeSpan.FromSeconds(1).TotalMilliseconds, true);
+    }
+
+    private void cancelRunningModulesDelegate()
+    {
+        runningModulesDelegate?.Cancel();
+        runningModulesDelegate = null;
+        ModuleManager.Modules.ForEach(module => sendModuleRunningState(module, false));
+    }
+
+    private void sendModuleRunningState(Module module, bool running)
+    {
+        OSCClient.SendValue($"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}/VRCOSC/Modules/{module.GetType().Name.Replace("Module", string.Empty)}", running);
+    }
+
     #endregion
 
     #region Start
@@ -205,6 +229,7 @@ public partial class AppManager : Component
             StartupManager.Start();
             enableOSCFlag(OscClientFlag.Send);
             ModuleManager.Start();
+            scheduleModuleEnabledParameters();
             sendControlParameters();
             startOSCRouter();
             enableOSCFlag(OscClientFlag.Receive);
@@ -282,6 +307,7 @@ public partial class AppManager : Component
 
         await OSCClient.Disable(OscClientFlag.Receive);
         await OSCRouter.Disable();
+        cancelRunningModulesDelegate();
         ModuleManager.Stop();
         await OSCClient.Disable(OscClientFlag.Send);
         ChatBoxManager.Teardown();

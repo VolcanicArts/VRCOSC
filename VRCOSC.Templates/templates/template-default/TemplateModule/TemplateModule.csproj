@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="VolcanicArts.VRCOSC.SDK" Version="2023.703.0" />
+        <PackageReference Include="VolcanicArts.VRCOSC.SDK" Version="2023.706.0" />
     </ItemGroup>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">

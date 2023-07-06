@@ -1,13 +1,13 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
-using VRCOSC.Game;
 
-namespace VRCOSC.Modules.SpeechToText;
+namespace VRCOSC.Game.Providers.SpeechToText;
 
-public class MicrophoneInterface
+public class MicrophoneHook
 {
     public WasapiCapture? AudioCapture;
 
@@ -33,6 +33,7 @@ public class MicrophoneInterface
     public void UnHook()
     {
         AudioCapture?.StopRecording();
+        AudioCapture = null;
     }
 
     private void handleAudioCaptureBuffer(object? sender, WaveInEventArgs e)
