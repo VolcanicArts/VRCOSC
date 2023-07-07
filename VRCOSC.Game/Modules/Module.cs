@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.EnumExtensions;
@@ -17,6 +18,7 @@ using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Managers;
 using VRCOSC.Game.Modules.Attributes;
 using VRCOSC.Game.Modules.Avatar;
+using VRCOSC.Game.Modules.Persistence;
 using VRCOSC.Game.Modules.Serialisation.V1;
 using VRCOSC.Game.OpenVR;
 using VRCOSC.Game.OSC.VRChat;
@@ -46,6 +48,7 @@ public abstract class Module : IComparable<Module>
     internal readonly BindableBool Enabled = new();
     internal readonly Dictionary<string, ModuleAttribute> Settings = new();
     internal readonly Dictionary<Enum, ModuleParameter> Parameters = new();
+    internal readonly Dictionary<ModulePersistentAttribute, PropertyInfo> PersistentProperies = new();
 
     // Cached pre-computed lookups
     internal readonly Dictionary<string, Enum> ParameterNameEnum = new();
@@ -70,7 +73,7 @@ public abstract class Module : IComparable<Module>
     protected bool IsStopping => State.Value == ModuleState.Stopping;
     protected bool HasStopped => State.Value == ModuleState.Stopped;
 
-    private readonly SerialisationManager saveStateSerialisationManager = new();
+    private readonly SerialisationManager persistenceSerialisationManager = new();
     private readonly SerialisationManager moduleSerialisationManager = new();
     private NotificationContainer notifications = null!;
 
@@ -83,6 +86,7 @@ public abstract class Module : IComparable<Module>
         Storage = storage;
 
         moduleSerialisationManager.RegisterSerialiser(1, new ModuleSerialiser(storage, notifications, this));
+        persistenceSerialisationManager.RegisterSerialiser(1, new ModulePersistenceSerialiser(storage, notifications, this));
     }
 
     public void Load()
@@ -97,6 +101,7 @@ public abstract class Module : IComparable<Module>
         State.ValueChanged += _ => Log(State.Value.ToString());
 
         Deserialise();
+        cachePersistentProperties();
     }
 
     #region Serialisation
@@ -113,22 +118,39 @@ public abstract class Module : IComparable<Module>
 
     #endregion
 
-    #region Save State
+    #region Persistence
 
-    protected void RegisterSaveStateSerialiser<T>(int version) where T : ISaveStateSerialiser
+    internal bool TryGetPersistentProperty(string key, [NotNullWhen(true)] out PropertyInfo? property)
     {
-        var serialiser = (ISaveStateSerialiser)Activator.CreateInstance(typeof(T), Storage, notifications, this)!;
-        saveStateSerialisationManager.RegisterSerialiser(version, serialiser);
+        property = PersistentProperies.SingleOrDefault(property => property.Key.LegacySerialisedName == key || property.Key.SerialisedName == key).Value;
+        return property is not null;
     }
 
-    protected void SaveState()
+    private void cachePersistentProperties()
     {
-        saveStateSerialisationManager.Serialise();
+        GetType().GetProperties().ForEach(info =>
+        {
+            var isDefined = info.IsDefined(typeof(ModulePersistentAttribute));
+            if (!isDefined) return;
+
+            if (!info.CanRead || !info.CanWrite) throw new InvalidOperationException($"Property '{info.Name}' must be declared with get/set to have persistence");
+
+            PersistentProperies.Add(info.GetCustomAttribute<ModulePersistentAttribute>()!, info);
+        });
     }
 
-    protected void LoadState()
+    private void loadPersistentProperties()
     {
-        saveStateSerialisationManager.Deserialise();
+        if (!PersistentProperies.Any()) return;
+
+        persistenceSerialisationManager.Deserialise();
+    }
+
+    private void savePersistentProperties()
+    {
+        if (!PersistentProperies.Any()) return;
+
+        persistenceSerialisationManager.Serialise();
     }
 
     #endregion
@@ -296,6 +318,7 @@ public abstract class Module : IComparable<Module>
 
         try
         {
+            loadPersistentProperties();
             OnModuleStart();
         }
         catch (Exception e)
@@ -319,6 +342,7 @@ public abstract class Module : IComparable<Module>
         try
         {
             OnModuleStop();
+            savePersistentProperties();
         }
         catch (Exception e)
         {
@@ -577,5 +601,24 @@ public abstract class Module : IComparable<Module>
         if (Type < other.Type) return -1;
 
         return string.CompareOrdinal(Title, other.Title);
+    }
+}
+
+[AttributeUsage(AttributeTargets.Property)]
+public class ModulePersistentAttribute : Attribute
+{
+    public string SerialisedName { get; }
+    public string? LegacySerialisedName { get; }
+
+    /// <inheritdoc />
+    /// <summary>
+    /// Used to mark a field for being automatically loaded and saved when the module starts and stops
+    /// </summary>
+    /// <param name="serialisedName">The name to serialise this property as</param>
+    /// <param name="legacySerialisedName">Support for migration from a legacy name to the <paramref name="serialisedName" /></param>
+    public ModulePersistentAttribute(string serialisedName, string? legacySerialisedName = null)
+    {
+        SerialisedName = serialisedName;
+        LegacySerialisedName = legacySerialisedName;
     }
 }
