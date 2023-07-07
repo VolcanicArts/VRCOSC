@@ -23,7 +23,7 @@ public class SerialisableModulePersistence
 
     public SerialisableModulePersistence(Module reference)
     {
-        Version = 1;
+        Version = 2;
 
         reference.PersistentProperies.ForEach(pair =>
         {

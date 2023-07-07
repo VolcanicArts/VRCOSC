@@ -86,7 +86,7 @@ public abstract class Module : IComparable<Module>
         Storage = storage;
 
         moduleSerialisationManager.RegisterSerialiser(1, new ModuleSerialiser(storage, notifications, this));
-        persistenceSerialisationManager.RegisterSerialiser(1, new ModulePersistenceSerialiser(storage, notifications, this));
+        persistenceSerialisationManager.RegisterSerialiser(2, new ModulePersistenceSerialiser(storage, notifications, this));
     }
 
     public void Load()
@@ -151,6 +151,12 @@ public abstract class Module : IComparable<Module>
         if (!PersistentProperies.Any()) return;
 
         persistenceSerialisationManager.Serialise();
+    }
+
+    protected void RegisterLegacyPersistanceSerialiser<T>()
+    {
+        var serialiser = (ISaveStateSerialiser)Activator.CreateInstance(typeof(T), Storage, notifications, this)!;
+        persistenceSerialisationManager.RegisterSerialiser(1, serialiser);
     }
 
     #endregion

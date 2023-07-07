@@ -20,10 +20,12 @@ public class CounterSaveStateSerialiser : SaveStateSerialiser<CounterModule, Ser
     {
         data.Instances.ForEach(instance =>
         {
-            if (reference.Counts.TryGetValue(instance.Key, out var countInstance))
+            var countInstance = new CountInstance(instance.Key)
             {
-                countInstance.Count = instance.Count;
-            }
+                Count = instance.Count
+            };
+
+            reference.Counts[instance.Key] = countInstance;
         });
     }
 }
