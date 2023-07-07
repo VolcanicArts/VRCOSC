@@ -277,30 +277,16 @@ public abstract class Module : IComparable<Module>
             ExpectedType = typeof(T)
         });
 
-    internal bool DoesSettingExist(string lookup, [NotNullWhen(true)] out ModuleAttribute? attribute)
+    internal bool TryGetSetting(string lookup, [NotNullWhen(true)] out ModuleAttribute? attribute)
     {
-        if (Settings.TryGetValue(lookup, out var setting))
-        {
-            attribute = setting;
-            return true;
-        }
-
-        attribute = null;
-        return false;
+        attribute = Settings.SingleOrDefault(pair => pair.Key == lookup).Value;
+        return attribute is not null;
     }
 
-    internal bool DoesParameterExist(string lookup, [NotNullWhen(true)] out ModuleAttribute? attribute)
+    internal bool TryGetParameter(string lookup, [NotNullWhen(true)] out ModuleAttribute? attribute)
     {
-        foreach (var (lookupToCheck, _) in Parameters)
-        {
-            if (lookupToCheck.ToLookup() != lookup) continue;
-
-            attribute = Parameters[lookupToCheck];
-            return true;
-        }
-
-        attribute = null;
-        return false;
+        attribute = Parameters.SingleOrDefault(pair => pair.Key.ToLookup() == lookup).Value;
+        return attribute is not null;
     }
 
     #endregion
