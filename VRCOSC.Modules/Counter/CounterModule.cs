@@ -67,8 +67,8 @@ public class CounterModule : ChatBoxModule
             Counts.TryAdd(pair.Key.Value, new CountInstance(pair.Key.Value));
             Counts[pair.Key.Value].ParameterNames.Add(pair.Value.Value);
 
-            SetVariableValue(CounterVariable.Value, Counts[pair.Key.Value].Count.ToString(), pair.Key.Value);
-            SetVariableValue(CounterVariable.ValueToday, Counts[pair.Key.Value].CountToday.ToString(), pair.Key.Value);
+            SetVariableValue(CounterVariable.Value, Counts[pair.Key.Value].Count.ToString("N0"), pair.Key.Value);
+            SetVariableValue(CounterVariable.ValueToday, Counts[pair.Key.Value].CountToday.ToString("N0"), pair.Key.Value);
         });
 
         Counts.ForEach(pair =>
