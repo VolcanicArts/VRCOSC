@@ -62,6 +62,7 @@ public abstract class Module : IComparable<Module>
     public virtual IEnumerable<string> Info => new List<string>();
     protected virtual TimeSpan DeltaUpdate => TimeSpan.MaxValue;
     protected virtual bool ShouldUpdateImmediately => true;
+    protected virtual bool EnablePersistence => true;
 
     private bool IsEnabled => Enabled.Value;
     private bool ShouldUpdate => DeltaUpdate != TimeSpan.MaxValue;
@@ -141,14 +142,14 @@ public abstract class Module : IComparable<Module>
 
     private void loadPersistentProperties()
     {
-        if (!PersistentProperies.Any()) return;
+        if (!PersistentProperies.Any() || !EnablePersistence) return;
 
         persistenceSerialisationManager.Deserialise();
     }
 
     private void savePersistentProperties()
     {
-        if (!PersistentProperies.Any()) return;
+        if (!PersistentProperies.Any() || !EnablePersistence) return;
 
         persistenceSerialisationManager.Serialise();
     }
