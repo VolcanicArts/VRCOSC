@@ -11,8 +11,6 @@ namespace VRCOSC.Modules.Heartrate.HypeRate;
 [ModuleAuthor("VolcanicArts", "https://github.com/VolcanicArts", "https://avatars.githubusercontent.com/u/29819296?v=4")]
 public sealed class HypeRateModule : HeartrateModule<HypeRateProvider>
 {
-    protected override TimeSpan DeltaUpdate => TimeSpan.FromSeconds(10);
-
     protected override HypeRateProvider CreateProvider() => new(GetSetting<string>(HypeRateSetting.Id), OfficialModuleSecrets.GetSecret(OfficialModuleSecretsKeys.Hyperate));
 
     protected override void CreateAttributes()
@@ -32,7 +30,8 @@ public sealed class HypeRateModule : HeartrateModule<HypeRateProvider>
         base.OnModuleStart();
     }
 
-    protected override void OnModuleUpdate()
+    [ModuleUpdate(ModuleUpdateMode.Custom, true, 10000)]
+    private void sendWsHeartbeat()
     {
         HeartrateProvider?.SendWsHeartBeat();
     }

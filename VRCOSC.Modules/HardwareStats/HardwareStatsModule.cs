@@ -13,8 +13,6 @@ namespace VRCOSC.Modules.HardwareStats;
 [ModuleGroup(ModuleType.General)]
 public sealed class HardwareStatsModule : ChatBoxModule
 {
-    protected override TimeSpan DeltaUpdate => TimeSpan.FromSeconds(0.5);
-
     private HardwareStatsProvider? hardwareStatsProvider;
 
     protected override void CreateAttributes()
@@ -64,7 +62,8 @@ public sealed class HardwareStatsModule : ChatBoxModule
         ChangeStateTo(HardwareStatsState.Default);
     }
 
-    protected override async void OnModuleUpdate()
+    [ModuleUpdate(ModuleUpdateMode.Custom, true, 500)]
+    private async void updateParameters()
     {
         if (hardwareStatsProvider is null || !hardwareStatsProvider.CanAcceptQueries)
         {

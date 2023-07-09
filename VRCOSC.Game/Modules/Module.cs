@@ -65,12 +65,9 @@ public abstract class Module : IComparable<Module>
     internal readonly Dictionary<string, Enum> ParameterNameEnum = new();
     internal readonly Dictionary<string, Regex> ParameterNameRegex = new();
 
-    protected virtual TimeSpan DeltaUpdate => TimeSpan.MaxValue;
-    protected virtual bool ShouldUpdateImmediately => true;
     protected virtual bool EnablePersistence => true;
 
     private bool IsEnabled => Enabled.Value;
-    private bool ShouldUpdate => DeltaUpdate != TimeSpan.MaxValue;
     internal string Name => GetType().Name;
     internal string SerialisedName => Name.ToLowerInvariant();
 
@@ -329,8 +326,15 @@ public abstract class Module : IComparable<Module>
 
         Scheduler.AddDelayed(FixedUpdate, TimeSpan.FromSeconds(1f / 60f).TotalMilliseconds, true);
 
-        if (ShouldUpdate) Scheduler.AddDelayed(Update, DeltaUpdate.TotalMilliseconds, true);
-        if (ShouldUpdateImmediately) Update();
+        GetType()
+            .GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            .Where(method => method.GetCustomAttribute<ModuleUpdateAttribute>() is not null)
+            .Where(method => method.GetCustomAttribute<ModuleUpdateAttribute>()!.Mode == ModuleUpdateMode.Custom)
+            .ForEach(method =>
+            {
+                Scheduler.AddDelayed(() => Update(method), method.GetCustomAttribute<ModuleUpdateAttribute>()!.DeltaMilliseconds, true);
+                if (method.GetCustomAttribute<ModuleUpdateAttribute>()!.UpdateImmediately) Update(method);
+            });
     }
 
     internal void Stop()
@@ -351,16 +355,16 @@ public abstract class Module : IComparable<Module>
         State.Value = ModuleState.Stopped;
     }
 
-    internal void Update()
+    internal void Update(MethodInfo method)
     {
         try
         {
-            OnModuleUpdate();
+            method.Invoke(this, null);
         }
         catch (Exception e)
         {
             notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
-            Logger.Error(e, $"{Name} experienced an exception");
+            Logger.Error(e, $"{Name} experienced an exception calling method {method.Name}");
         }
     }
 
@@ -368,7 +372,11 @@ public abstract class Module : IComparable<Module>
     {
         try
         {
-            OnFixedUpdate();
+            GetType()
+                .GetMethods()
+                .Where(method => method.GetCustomAttribute<ModuleUpdateAttribute>() is not null)
+                .Where(method => method.GetCustomAttribute<ModuleUpdateAttribute>()!.Mode == ModuleUpdateMode.Fixed)
+                .ForEach(method => method.Invoke(this, null));
         }
         catch (Exception e)
         {
@@ -404,8 +412,6 @@ public abstract class Module : IComparable<Module>
     }
 
     protected virtual void OnModuleStart() { }
-    protected virtual void OnModuleUpdate() { }
-    protected virtual void OnFixedUpdate() { }
     protected virtual void OnModuleStop() { }
     protected virtual void OnAvatarChange() { }
     protected virtual void OnPlayerUpdate() { }

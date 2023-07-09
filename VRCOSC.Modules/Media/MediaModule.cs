@@ -22,8 +22,6 @@ public class MediaModule : ChatBoxModule
     private const string progress_end = "\u252B";
     private const int progress_resolution = 10;
 
-    protected override TimeSpan DeltaUpdate => TimeSpan.FromSeconds(1);
-
     private readonly MediaProvider mediaProvider = new WindowsMediaProvider();
     private readonly Bindable<bool> currentlySeeking = new();
     private TimeSpan targetPosition;

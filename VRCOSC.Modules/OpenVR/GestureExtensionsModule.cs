@@ -3,7 +3,6 @@
 
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.OpenVR.Input;
-using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Modules.OpenVR;
 
@@ -13,8 +12,6 @@ namespace VRCOSC.Modules.OpenVR;
 [ModuleGroup(ModuleType.OpenVR)]
 public class GestureExtensionsModule : Module
 {
-    protected override TimeSpan DeltaUpdate => VRChatOscConstants.UPDATE_TIME_SPAN;
-
     private float lowerThreshold;
     private float upperThreshold;
 
@@ -33,7 +30,8 @@ public class GestureExtensionsModule : Module
         upperThreshold = GetSetting<float>(GestureExtensionsSetting.UpperThreshold);
     }
 
-    protected override void OnModuleUpdate()
+    [ModuleUpdate(ModuleUpdateMode.Custom)]
+    private void sendParameters()
     {
         if (!OVRClient.HasInitialised) return;
 

@@ -12,8 +12,6 @@ namespace VRCOSC.Modules.ChatBoxText;
 [ModuleGroup(ModuleType.General)]
 public class ChatBoxTextModule : ChatBoxModule
 {
-    protected override bool ShouldUpdateImmediately => false;
-
     private readonly Dictionary<string, int> indexes = new();
 
     protected override void CreateAttributes()
@@ -55,7 +53,7 @@ public class ChatBoxTextModule : ChatBoxModule
         ChangeStateTo(ChatBoxTextState.Default);
     }
 
-    [ModuleUpdate(ModuleUpdateMode.Custom, true, 1000)]
+    [ModuleUpdate(ModuleUpdateMode.Custom, false, 1500)]
     private void updateVariables()
     {
         GetSettingList<ChatBoxTextInstance>(ChatBoxTextSetting.TextList).ForEach(instance =>

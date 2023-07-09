@@ -4,7 +4,6 @@
 using System.Globalization;
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.Modules.ChatBox;
-using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Modules.Clock;
 
@@ -15,8 +14,6 @@ namespace VRCOSC.Modules.Clock;
 [ModulePrefab("VRCOSC-Watch", "https://github.com/VolcanicArts/VRCOSC/releases/download/latest/VRCOSC-Watch.unitypackage")]
 public sealed class ClockModule : ChatBoxModule
 {
-    protected override TimeSpan DeltaUpdate => VRChatOscConstants.UPDATE_TIME_SPAN;
-
     private DateTime time;
 
     protected override void CreateAttributes()
@@ -45,7 +42,8 @@ public sealed class ClockModule : ChatBoxModule
         ChangeStateTo(ClockState.Default);
     }
 
-    protected override void OnModuleUpdate()
+    [ModuleUpdate(ModuleUpdateMode.Custom)]
+    private void updateVariables()
     {
         time = timezoneToTime(GetSetting<ClockTimeZone>(ClockSetting.Timezone));
 

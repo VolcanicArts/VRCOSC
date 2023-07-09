@@ -15,8 +15,6 @@ namespace VRCOSC.Modules.ExchangeRate;
 [ModuleInfo(@"Exchange rate can be accessed using {exchangerate.rate_CURRENCYCODE}")]
 public class ExchangeRateModule : ChatBoxModule
 {
-    protected override TimeSpan DeltaUpdate => TimeSpan.FromSeconds(5);
-
     private ExchangeRateProvider? provider;
 
     protected override void CreateAttributes()
@@ -36,7 +34,8 @@ public class ExchangeRateModule : ChatBoxModule
         ChangeStateTo(ExchangeRateState.Default);
     }
 
-    protected override async void OnModuleUpdate()
+    [ModuleUpdate(ModuleUpdateMode.Custom, true, 5000)]
+    private async void updateVariables()
     {
         SetVariableValue(ExchangeRateVariable.BaseCurrency, GetSetting<string>(ExchangeRateSetting.BaseCurrency));
 

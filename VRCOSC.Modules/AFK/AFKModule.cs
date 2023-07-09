@@ -3,7 +3,6 @@
 
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.Modules.ChatBox;
-using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Modules.AFK;
 
@@ -13,8 +12,6 @@ namespace VRCOSC.Modules.AFK;
 [ModuleGroup(ModuleType.General)]
 public class AFKModule : ChatBoxModule
 {
-    protected override TimeSpan DeltaUpdate => VRChatOscConstants.UPDATE_TIME_SPAN;
-
     private DateTime? afkBegan;
 
     protected override void CreateAttributes()
@@ -36,7 +33,8 @@ public class AFKModule : ChatBoxModule
         ChangeStateTo(AFKState.NotAFK);
     }
 
-    protected override void OnModuleUpdate()
+    [ModuleUpdate(ModuleUpdateMode.Custom)]
+    private void updateVariables()
     {
         if (Player.AFK is null)
         {
