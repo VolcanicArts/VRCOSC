@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using NAudio.CoreAudioApi;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using PInvoke;
 
@@ -28,27 +29,41 @@ public static class ProcessExtensions
     {
         if (processName is null) return 1f;
 
-        return ProcessVolume.GetApplicationVolume(processName) ?? 1f;
-    }
+        MMDeviceEnumerator deviceiterator = new MMDeviceEnumerator();
+        var speakers = deviceiterator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
 
-    public static bool IsProcessMuted(string? processName)
-    {
-        if (processName is null) return false;
+        var count = speakers.AudioSessionManager.Sessions.Count;
 
-        return ProcessVolume.GetApplicationMute(processName) ?? false;
+        for (var i = 0; i < count; i++)
+        {
+            var session = speakers.AudioSessionManager.Sessions[i];
+
+            if (session.GetSessionIdentifier.Contains(processName, StringComparison.InvariantCultureIgnoreCase))
+            {
+                return session.SimpleAudioVolume.Volume;
+            }
+        }
+
+        return 1f;
     }
 
     public static void SetProcessVolume(string? processName, float percentage)
     {
         if (processName is null) return;
 
-        ProcessVolume.SetApplicationVolume(processName, percentage);
-    }
+        MMDeviceEnumerator deviceiterator = new MMDeviceEnumerator();
+        var speakers = deviceiterator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
 
-    public static void SetProcessMuted(string? processName, bool muted)
-    {
-        if (processName is null) return;
+        var count = speakers.AudioSessionManager.Sessions.Count;
 
-        ProcessVolume.SetApplicationMute(processName, muted);
+        for (var i = 0; i < count; i++)
+        {
+            var session = speakers.AudioSessionManager.Sessions[i];
+
+            if (session.GetSessionIdentifier.Contains(processName, StringComparison.InvariantCultureIgnoreCase))
+            {
+                session.SimpleAudioVolume.Volume = percentage;
+            }
+        }
     }
 }
