@@ -6,6 +6,7 @@ using JetBrains.Annotations;
 
 namespace VRCOSC.Game.Modules;
 
+[MeansImplicitUse(ImplicitUseKindFlags.InstantiatedNoFixedConstructorSignature)]
 [AttributeUsage(AttributeTargets.Class)]
 public class ModuleTitleAttribute : Attribute
 {
@@ -19,6 +20,7 @@ public class ModuleTitleAttribute : Attribute
     }
 }
 
+[MeansImplicitUse(ImplicitUseKindFlags.InstantiatedNoFixedConstructorSignature)]
 [AttributeUsage(AttributeTargets.Class)]
 public class ModuleDescriptionAttribute : Attribute
 {
@@ -36,6 +38,7 @@ public class ModuleDescriptionAttribute : Attribute
     }
 }
 
+[MeansImplicitUse(ImplicitUseKindFlags.InstantiatedNoFixedConstructorSignature)]
 [AttributeUsage(AttributeTargets.Class)]
 public class ModuleAuthorAttribute : Attribute
 {
@@ -55,6 +58,7 @@ public class ModuleAuthorAttribute : Attribute
     }
 }
 
+[MeansImplicitUse(ImplicitUseKindFlags.InstantiatedNoFixedConstructorSignature)]
 [AttributeUsage(AttributeTargets.Class)]
 public class ModuleGroupAttribute : Attribute
 {
@@ -68,6 +72,7 @@ public class ModuleGroupAttribute : Attribute
     }
 }
 
+[MeansImplicitUse(ImplicitUseKindFlags.InstantiatedNoFixedConstructorSignature)]
 [AttributeUsage(AttributeTargets.Class)]
 public class ModulePrefabAttribute : Attribute
 {
@@ -84,6 +89,7 @@ public class ModulePrefabAttribute : Attribute
     }
 }
 
+[MeansImplicitUse(ImplicitUseKindFlags.InstantiatedNoFixedConstructorSignature)]
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 public class ModuleInfoAttribute : Attribute
 {
