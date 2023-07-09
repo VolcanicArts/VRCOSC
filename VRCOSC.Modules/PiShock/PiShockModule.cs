@@ -3,18 +3,20 @@
 
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.Providers.PiShock;
+using VRCOSC.Game.Providers.SpeechToText;
 
 namespace VRCOSC.Modules.PiShock;
 
 public class PiShockModule : Module
 {
     public override string Title => "PiShock";
-    public override string Description => "Allows for controlling PiShock shockers from avatar parameters";
+    public override string Description => "Allows for controlling PiShock shockers from avatar parameters and voice control using speech to text";
     public override string Author => "VolcanicArts";
     public override string Prefab => "VRCOSC-PiShock";
     public override ModuleType Type => ModuleType.NSFW;
 
     private readonly PiShockProvider piShockProvider = new();
+    private readonly SpeechToTextProvider speechToTextProvider = new();
 
     private int group;
     private float duration;
@@ -29,6 +31,12 @@ public class PiShockModule : Module
 
     private int convertedDuration => (int)Math.Round(Map(duration, 0, 1, 1, GetSetting<int>(PiShockSetting.MaxDuration)));
     private int convertedIntensity => (int)Math.Round(Map(intensity, 0, 1, 1, GetSetting<int>(PiShockSetting.MaxIntensity)));
+
+    public PiShockModule()
+    {
+        speechToTextProvider.OnLog += Log;
+        speechToTextProvider.OnFinalResult += onNewSentenceSpoken;
+    }
 
     protected override void CreateAttributes()
     {
@@ -53,6 +61,19 @@ public class PiShockModule : Module
             Default = new List<PiShockGroupInstance>()
         });
 
+        CreateSetting(PiShockSetting.EnableVoiceControl, "Enable Voice Control", "Enables voice control using speech to text and a phrase list", false);
+
+        CreateSetting(PiShockSetting.SpeechModelLocation, "Speech Model Location", "The folder location of the speech model you'd like to use\nRecommended default: vosk-model-small-en-us-0.15", string.Empty, "Download a model", () => OpenUrlExternally("https://alphacephei.com/vosk/models"), () => GetSetting<bool>(PiShockSetting.EnableVoiceControl));
+        CreateSetting(PiShockSetting.SpeechConfidence, "Speech Confidence", "How confident should VOSK be that it's recognised a phrase to execute the action? (%)", 75, 0, 100, () => GetSetting<bool>(PiShockSetting.EnableVoiceControl));
+
+        CreateSetting(PiShockSetting.PhraseList, new PiShockPhraseInstanceListAttribute
+        {
+            Name = "Phrase List",
+            Description = "The list of words or phrases and what to do when they're said\nUse the shocker keys from Shockers to reference sharecodes",
+            Default = new List<PiShockPhraseInstance>(),
+            DependsOn = () => GetSetting<bool>(PiShockSetting.EnableVoiceControl)
+        });
+
         CreateParameter<int>(PiShockParameter.Group, ParameterMode.ReadWrite, "VRCOSC/PiShock/Group", "Group", "The group to select for the actions");
         CreateParameter<float>(PiShockParameter.Duration, ParameterMode.ReadWrite, "VRCOSC/PiShock/Duration", "Duration", "The duration of the action as a percentage mapped between 1-15");
         CreateParameter<float>(PiShockParameter.Intensity, ParameterMode.ReadWrite, "VRCOSC/PiShock/Intensity", "Intensity", "The intensity of the action as a percentage mapped between 1-100");
@@ -74,7 +95,14 @@ public class PiShockModule : Module
         vibrateExecuted = false;
         beepExecuted = false;
 
+        if (GetSetting<bool>(PiShockSetting.EnableVoiceControl)) speechToTextProvider.Initialise(GetSetting<string>(PiShockSetting.SpeechModelLocation));
+
         sendParameters();
+    }
+
+    protected override void OnModuleStop()
+    {
+        speechToTextProvider.Teardown();
     }
 
     protected override void OnAvatarChange()
@@ -84,6 +112,8 @@ public class PiShockModule : Module
 
     protected override void OnFixedUpdate()
     {
+        speechToTextProvider.RequiredConfidence = GetSetting<int>(PiShockSetting.SpeechConfidence) / 100f;
+
         var delay = TimeSpan.FromMilliseconds(GetSetting<int>(PiShockSetting.Delay));
 
         if (shock is not null && shock + delay <= DateTimeOffset.Now && !shockExecuted)
@@ -109,6 +139,27 @@ public class PiShockModule : Module
         }
 
         if (beep is null) beepExecuted = false;
+    }
+
+    private async void onNewSentenceSpoken(bool success, string sentence)
+    {
+        if (!success) return;
+
+        foreach (var wordInstance in GetSettingList<PiShockPhraseInstance>(PiShockSetting.PhraseList).Where(wordInstance => sentence.Contains(wordInstance.Phrase.Value, StringComparison.InvariantCultureIgnoreCase)))
+        {
+            Log($"Found word: {wordInstance.Phrase.Value}");
+
+            var shockerInstance = GetSettingList<PiShockShockerInstance>(PiShockSetting.Shockers).SingleOrDefault(shockerInstance => shockerInstance.Key.Value == wordInstance.ShockerKey.Value);
+
+            if (shockerInstance is null)
+            {
+                Log($"No shocker with key {wordInstance.ShockerKey.Value}");
+                continue;
+            }
+
+            Log($"Executing {wordInstance.Mode.Value} on {shockerInstance.Key.Value} with duration {wordInstance.Duration.Value}s and intensity {wordInstance.Intensity.Value}%");
+            await piShockProvider.Execute(GetSetting<string>(PiShockSetting.Username), GetSetting<string>(PiShockSetting.APIKey), shockerInstance.Sharecode.Value, wordInstance.Mode.Value, wordInstance.Duration.Value, wordInstance.Intensity.Value);
+        }
     }
 
     private void sendParameters()
@@ -211,7 +262,11 @@ public class PiShockModule : Module
         MaxIntensity,
         Shockers,
         Groups,
-        Delay
+        Delay,
+        EnableVoiceControl,
+        SpeechModelLocation,
+        SpeechConfidence,
+        PhraseList
     }
 
     private enum PiShockParameter
