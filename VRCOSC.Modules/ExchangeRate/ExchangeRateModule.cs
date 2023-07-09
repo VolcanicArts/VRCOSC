@@ -3,19 +3,19 @@
 
 using System.Globalization;
 using osu.Framework.Extensions.IEnumerableExtensions;
+using VRCOSC.Game.Modules;
 using VRCOSC.Game.Modules.ChatBox;
 
 namespace VRCOSC.Modules.ExchangeRate;
 
+[ModuleTitle("Exchange Rate")]
+[ModuleDescription("Calculates the exchange rate from a base currency into others")]
+[ModuleAuthor("VolcanicArts", "https://github.com/VolcanicArts", "https://avatars.githubusercontent.com/u/29819296?v=4")]
+[ModuleGroup(ModuleType.General)]
+[ModuleInfo(@"Exchange rate can be accessed using {exchangerate.rate_CURRENCYCODE}")]
 public class ExchangeRateModule : ChatBoxModule
 {
-    public override string Title => "Exchange Rate";
-    public override string Description => "Calculates the exchange rate from a base currency into others";
-    public override string Author => "VolcanicArts";
-    public override ModuleType Type => ModuleType.General;
     protected override TimeSpan DeltaUpdate => TimeSpan.FromSeconds(5);
-
-    public override IEnumerable<string> Info => new[] { @"Exchange rate can be accessed using {exchangerate.rate_CURRENCYCODE}" };
 
     private ExchangeRateProvider? provider;
 

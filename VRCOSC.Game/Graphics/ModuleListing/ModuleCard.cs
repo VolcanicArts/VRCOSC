@@ -174,8 +174,8 @@ public sealed partial class ModuleCard : Container
             Colour = ThemeManager.Current[ThemeAttribute.Text],
         });
 
-        var descriptionText = Module.Description;
-        if (!string.IsNullOrEmpty(Module.Prefab)) descriptionText += $". Pairs with {Module.Prefab}";
+        var descriptionText = Module.ShortDescription;
+        if (!string.IsNullOrEmpty(Module.PrefabName)) descriptionText += $". Pairs with {Module.PrefabName}";
 
         textFlow.Add(new SpriteText
         {
@@ -187,7 +187,7 @@ public sealed partial class ModuleCard : Container
 
     private Colour4 calculateModuleColour()
     {
-        return Module.Type switch
+        return Module.Group switch
         {
             Module.ModuleType.General => Colour4.White.Darken(0.15f),
             Module.ModuleType.Health => Colour4.Red,

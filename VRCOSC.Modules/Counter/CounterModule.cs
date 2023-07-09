@@ -11,12 +11,12 @@ using VRCOSC.Modules.Counter.SaveState.V1;
 
 namespace VRCOSC.Modules.Counter;
 
+[ModuleTitle("Counter")]
+[ModuleDescription("Counts how many times parameters are triggered based on parameter change events")]
+[ModuleAuthor("VolcanicArts", "https://github.com/VolcanicArts", "https://avatars.githubusercontent.com/u/29819296?v=4")]
+[ModuleGroup(ModuleType.General)]
 public class CounterModule : ChatBoxModule
 {
-    public override string Title => "Counter";
-    public override string Description => "Counts how many times parameters are triggered based on parameter change events";
-    public override string Author => "VolcanicArts";
-    public override ModuleType Type => ModuleType.General;
     protected override bool EnablePersistence => GetSetting<bool>(CounterSetting.SaveCounters);
 
     [ModulePersistent("counts")]

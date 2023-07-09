@@ -8,13 +8,12 @@ using VRCOSC.Game.Providers.SpeechToText;
 
 namespace VRCOSC.Modules.SpeechToText;
 
+[ModuleTitle("Speech To Text")]
+[ModuleDescription("Speech to text using VOSK's local processing for VRChat's ChatBox")]
+[ModuleAuthor("VolcanicArts", "https://github.com/VolcanicArts", "https://avatars.githubusercontent.com/u/29819296?v=4")]
+[ModuleGroup(ModuleType.Accessibility)]
 public class SpeechToTextModule : ChatBoxModule
 {
-    public override string Title => "Speech To Text";
-    public override string Description => "Speech to text using VOSK's local processing for VRChat's ChatBox";
-    public override string Author => "VolcanicArts";
-    public override ModuleType Type => ModuleType.Accessibility;
-
     private readonly SpeechToTextProvider speechToTextProvider;
 
     private bool listening;

@@ -1,17 +1,18 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using VRCOSC.Game.Modules;
 using VRCOSC.Game.Modules.ChatBox;
 using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Modules.AFK;
 
+[ModuleTitle("AFK Display")]
+[ModuleDescription("Displays text and time since going AFK")]
+[ModuleAuthor("VolcanicArts", "https://github.com/VolcanicArts", "https://avatars.githubusercontent.com/u/29819296?v=4")]
+[ModuleGroup(ModuleType.General)]
 public class AFKModule : ChatBoxModule
 {
-    public override string Title => "AFK Display";
-    public override string Description => "Display text and time since going AFK";
-    public override string Author => "VolcanicArts";
-    public override ModuleType Type => ModuleType.General;
     protected override TimeSpan DeltaUpdate => VRChatOscConstants.UPDATE_TIME_SPAN;
 
     private DateTime? afkBegan;

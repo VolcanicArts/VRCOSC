@@ -7,12 +7,12 @@ using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Modules.OpenVR;
 
+[ModuleTitle("Gesture Extensions")]
+[ModuleDescription("Detect a range of custom gestures from Index controllers")]
+[ModuleAuthor("VolcanicArts", "https://github.com/VolcanicArts", "https://avatars.githubusercontent.com/u/29819296?v=4")]
+[ModuleGroup(ModuleType.OpenVR)]
 public class GestureExtensionsModule : Module
 {
-    public override string Title => "Gesture Extensions";
-    public override string Description => "Detect a range of custom gestures from Index controllers";
-    public override string Author => "VolcanicArts";
-    public override ModuleType Type => ModuleType.OpenVR;
     protected override TimeSpan DeltaUpdate => VRChatOscConstants.UPDATE_TIME_SPAN;
 
     private float lowerThreshold;

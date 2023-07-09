@@ -50,16 +50,21 @@ public abstract class Module : IComparable<Module>
     internal readonly Dictionary<Enum, ModuleParameter> Parameters = new();
     internal readonly Dictionary<ModulePersistentAttribute, PropertyInfo> PersistentProperies = new();
 
+    internal string Title => GetType().GetCustomAttribute<ModuleTitleAttribute>()?.Title ?? "PLACEHOLDER";
+    internal string ShortDescription => GetType().GetCustomAttribute<ModuleDescriptionAttribute>()?.ShortDescription ?? "PLACEHOLDER";
+    internal string LongDescription => GetType().GetCustomAttribute<ModuleDescriptionAttribute>()?.LongDescription ?? "PLACEHOLDER";
+    internal string AuthorName => GetType().GetCustomAttribute<ModuleAuthorAttribute>()?.Name ?? "PLACEHOLDER";
+    internal string? AuthorUrl => GetType().GetCustomAttribute<ModuleAuthorAttribute>()?.Url;
+    internal string? AuthorIconUrl => GetType().GetCustomAttribute<ModuleAuthorAttribute>()?.IconUrl;
+    internal ModuleType Group => GetType().GetCustomAttribute<ModuleGroupAttribute>()?.Type ?? ModuleType.General;
+    internal string? PrefabName => GetType().GetCustomAttribute<ModulePrefabAttribute>()?.Name;
+    internal string? PrefabUrl => GetType().GetCustomAttribute<ModulePrefabAttribute>()?.Url;
+    internal List<string> InfoList => GetType().GetCustomAttributes<ModuleInfoAttribute>().Select(attribute => attribute.Description).ToList();
+
     // Cached pre-computed lookups
     internal readonly Dictionary<string, Enum> ParameterNameEnum = new();
     internal readonly Dictionary<string, Regex> ParameterNameRegex = new();
 
-    public virtual string Title => string.Empty;
-    public virtual string Description => string.Empty;
-    public virtual string Author => string.Empty;
-    public virtual string Prefab => string.Empty;
-    public virtual ModuleType Type => ModuleType.General;
-    public virtual IEnumerable<string> Info => new List<string>();
     protected virtual TimeSpan DeltaUpdate => TimeSpan.MaxValue;
     protected virtual bool ShouldUpdateImmediately => true;
     protected virtual bool EnablePersistence => true;
@@ -590,8 +595,8 @@ public abstract class Module : IComparable<Module>
     public int CompareTo(Module? other)
     {
         if (other is null) return 1;
-        if (Type > other.Type) return 1;
-        if (Type < other.Type) return -1;
+        if (Group > other.Group) return 1;
+        if (Group < other.Group) return -1;
 
         return string.CompareOrdinal(Title, other.Title);
     }

@@ -6,13 +6,12 @@ using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Modules.ProcessManager;
 
+[ModuleTitle("Process Manager")]
+[ModuleDescription("Allows for starting and stopping processes from avatar parameters")]
+[ModuleAuthor("VolcanicArts", "https://github.com/VolcanicArts", "https://avatars.githubusercontent.com/u/29819296?v=4")]
+[ModuleGroup(ModuleType.Integrations)]
 public class ProcessManagerModule : Module
 {
-    public override string Title => "Process Manager";
-    public override string Description => "Allows for starting and stopping processes from avatar parameters";
-    public override string Author => "VolcanicArts";
-    public override ModuleType Type => ModuleType.Integrations;
-
     protected override void CreateAttributes()
     {
         CreateParameter<bool>(ProcessManagerParameter.Start, ParameterMode.Read, "VRCOSC/ProcessManager/Start/*", "Start", "Becoming true will start the process named in the '*' (the wildcard)\nFor example: VRCOSC/ProcessManager/Start/vrchat");

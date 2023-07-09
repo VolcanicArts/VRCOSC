@@ -9,11 +9,10 @@ using VRCOSC.Game.Modules.ChatBox;
 
 namespace VRCOSC.Game.Modules.Bases.Heartrate;
 
+[ModuleGroup(ModuleType.Health)]
+[ModulePrefab("VRCOSC-Heartrate", "https://github.com/VolcanicArts/VRCOSC/releases/download/latest/VRCOSC-Heartrate.unitypackage")]
 public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProvider
 {
-    public override string Prefab => @"VRCOSC-Heartrate";
-    public override ModuleType Type => ModuleType.Health;
-
     protected T? HeartrateProvider;
 
     private float currentHeartrate;

@@ -7,14 +7,13 @@ using VRCOSC.Game.Providers.SpeechToText;
 
 namespace VRCOSC.Modules.PiShock;
 
+[ModuleTitle("PiShock")]
+[ModuleDescription("Allows for controlling PiShock shockers from avatar parameters and voice control using speech to text")]
+[ModuleAuthor("VolcanicArts", "https://github.com/VolcanicArts", "https://avatars.githubusercontent.com/u/29819296?v=4")]
+[ModuleGroup(ModuleType.NSFW)]
+[ModulePrefab("VRCOSC-PiShock", "https://github.com/VolcanicArts/VRCOSC/releases/download/latest/VRCOSC-PiShock.unitypackage")]
 public class PiShockModule : Module
 {
-    public override string Title => "PiShock";
-    public override string Description => "Allows for controlling PiShock shockers from avatar parameters and voice control using speech to text";
-    public override string Author => "VolcanicArts";
-    public override string Prefab => "VRCOSC-PiShock";
-    public override ModuleType Type => ModuleType.NSFW;
-
     private readonly PiShockProvider piShockProvider = new();
     private readonly SpeechToTextProvider speechToTextProvider = new();
 
@@ -110,10 +109,15 @@ public class PiShockModule : Module
         sendParameters();
     }
 
-    protected override void OnFixedUpdate()
+    [ModuleUpdate(ModuleUpdateMode.Fixed)]
+    private void setSpeechToTextParameters()
     {
         speechToTextProvider.RequiredConfidence = GetSetting<int>(PiShockSetting.SpeechConfidence) / 100f;
+    }
 
+    [ModuleUpdate(ModuleUpdateMode.Fixed)]
+    private void checkForExecutions()
+    {
         var delay = TimeSpan.FromMilliseconds(GetSetting<int>(PiShockSetting.Delay));
 
         if (shock is not null && shock + delay <= DateTimeOffset.Now && !shockExecuted)

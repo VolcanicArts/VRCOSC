@@ -1,17 +1,17 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using VRCOSC.Game.Modules;
 using VRCOSC.Game.Modules.ChatBox;
 
 namespace VRCOSC.Modules.ChatBoxText;
 
+[ModuleTitle("ChatBox Text")]
+[ModuleDescription("Display custom text and animate it for the ChatBox")]
+[ModuleAuthor("VolcanicArts", "https://github.com/VolcanicArts", "https://avatars.githubusercontent.com/u/29819296?v=4")]
+[ModuleGroup(ModuleType.General)]
 public class ChatBoxTextModule : ChatBoxModule
 {
-    public override string Title => "ChatBox Text";
-    public override string Description => "Display custom text and animate it for the ChatBox";
-    public override string Author => "VolcanicArts";
-    public override ModuleType Type => ModuleType.General;
-    protected override TimeSpan DeltaUpdate => TimeSpan.FromSeconds(1.5f);
     protected override bool ShouldUpdateImmediately => false;
 
     private readonly Dictionary<string, int> indexes = new();
@@ -55,7 +55,8 @@ public class ChatBoxTextModule : ChatBoxModule
         ChangeStateTo(ChatBoxTextState.Default);
     }
 
-    protected override void OnModuleUpdate()
+    [ModuleUpdate(ModuleUpdateMode.Custom, true, 1000)]
+    private void updateVariables()
     {
         GetSettingList<ChatBoxTextInstance>(ChatBoxTextSetting.TextList).ForEach(instance =>
         {
