@@ -373,7 +373,7 @@ public abstract class Module : IComparable<Module>
         try
         {
             GetType()
-                .GetMethods()
+                .GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                 .Where(method => method.GetCustomAttribute<ModuleUpdateAttribute>() is not null)
                 .Where(method => method.GetCustomAttribute<ModuleUpdateAttribute>()!.Mode == ModuleUpdateMode.Fixed)
                 .ForEach(method => method.Invoke(this, null));
