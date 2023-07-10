@@ -106,7 +106,7 @@ public class MediaModule : ChatBoxModule
         }
     }
 
-    [ModuleUpdate(ModuleUpdateMode.Custom, true, 1000)]
+    [ModuleUpdate(ModuleUpdateMode.ChatBox)]
     private void updateVariables()
     {
         SetVariableValue(MediaVariable.Title, mediaProvider.State.Title.Truncate(GetSetting<int>(MediaSetting.TruncateTitle)));

@@ -328,8 +328,16 @@ public abstract class Module : IComparable<Module>
 
         GetType()
             .GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-            .Where(method => method.GetCustomAttribute<ModuleUpdateAttribute>() is not null)
-            .Where(method => method.GetCustomAttribute<ModuleUpdateAttribute>()!.Mode == ModuleUpdateMode.Custom)
+            .Where(method => method.GetCustomAttribute<ModuleUpdateAttribute>()?.Mode == ModuleUpdateMode.ChatBox)
+            .ForEach(method =>
+            {
+                Scheduler.AddDelayed(() => Update(method), AppManager.ChatBoxManager.SendDelay.Value, true);
+                if (method.GetCustomAttribute<ModuleUpdateAttribute>()!.UpdateImmediately) Update(method);
+            });
+
+        GetType()
+            .GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            .Where(method => method.GetCustomAttribute<ModuleUpdateAttribute>()?.Mode == ModuleUpdateMode.Custom)
             .ForEach(method =>
             {
                 Scheduler.AddDelayed(() => Update(method), method.GetCustomAttribute<ModuleUpdateAttribute>()!.DeltaMilliseconds, true);
@@ -374,8 +382,7 @@ public abstract class Module : IComparable<Module>
         {
             GetType()
                 .GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                .Where(method => method.GetCustomAttribute<ModuleUpdateAttribute>() is not null)
-                .Where(method => method.GetCustomAttribute<ModuleUpdateAttribute>()!.Mode == ModuleUpdateMode.Fixed)
+                .Where(method => method.GetCustomAttribute<ModuleUpdateAttribute>()?.Mode == ModuleUpdateMode.Fixed)
                 .ForEach(method => method.Invoke(this, null));
         }
         catch (Exception e)

@@ -39,7 +39,7 @@ public class ChatBoxManager
     public readonly Dictionary<string, Dictionary<string, ClipVariableMetadata>> VariableMetadata = new();
     public readonly Dictionary<string, Dictionary<string, ClipStateMetadata>> StateMetadata = new();
     public readonly Dictionary<string, Dictionary<string, ClipEventMetadata>> EventMetadata = new();
-    private Bindable<int> sendDelay = null!;
+    public Bindable<int> SendDelay { get; private set; } = null!;
     private VRChatOscClient oscClient = null!;
     private SerialisationManager serialisationManager = null!;
 
@@ -66,7 +66,7 @@ public class ChatBoxManager
     {
         this.appManager = appManager;
         this.oscClient = oscClient;
-        this.sendDelay = sendDelay;
+        SendDelay = sendDelay;
         serialisationManager = new SerialisationManager();
         serialisationManager.RegisterSerialiser(1, new TimelineSerialiser(storage, notification, appManager));
     }
@@ -188,7 +188,7 @@ public class ChatBoxManager
     {
         var validClip = getValidClip();
         handleClip(validClip);
-        nextValidTime += TimeSpan.FromMilliseconds(sendDelay.Value);
+        nextValidTime += TimeSpan.FromMilliseconds(SendDelay.Value);
     }
 
     private Clip? getValidClip()

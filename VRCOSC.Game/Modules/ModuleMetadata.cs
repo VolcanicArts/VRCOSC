@@ -12,7 +12,6 @@ public class ModuleTitleAttribute : Attribute
 {
     public readonly string Title;
 
-    /// <inheritdoc />
     /// <param name="title">The human-readable name of your module</param>
     public ModuleTitleAttribute(string title)
     {
@@ -27,7 +26,6 @@ public class ModuleDescriptionAttribute : Attribute
     public readonly string ShortDescription;
     public readonly string LongDescription;
 
-    /// <inheritdoc />
     /// <param name="shortDescription">Used in places where there isn't as much space</param>
     /// <param name="longDescription">Used in places where there is room for a detailed description</param>
     /// <remarks>If <paramref name="longDescription" /> is left blank, <paramref name="shortDescription" /> is used in its place</remarks>
@@ -46,7 +44,6 @@ public class ModuleAuthorAttribute : Attribute
     public readonly string? Url;
     public readonly string? IconUrl;
 
-    /// <inheritdoc />
     /// <param name="name">Your name</param>
     /// <param name="url">A link to any page you'd like to promote</param>
     /// <param name="iconUrl">A link to a PNG or JPG of your icon</param>
@@ -64,7 +61,6 @@ public class ModuleGroupAttribute : Attribute
 {
     public readonly Module.ModuleType Type;
 
-    /// <inheritdoc />
     /// <param name="type">The group this module belongs to</param>
     public ModuleGroupAttribute(Module.ModuleType type)
     {
@@ -79,7 +75,6 @@ public class ModulePrefabAttribute : Attribute
     public readonly string Name;
     public readonly string Url;
 
-    /// <inheritdoc />
     /// <param name="name">The name of the prefab</param>
     /// <param name="url">A download URL for the latest version</param>
     public ModulePrefabAttribute(string name, string url)
@@ -110,9 +105,9 @@ public class ModuleUpdateAttribute : Attribute
     public readonly double DeltaMilliseconds;
 
     /// <param name="mode">The mode this update is defined as</param>
-    /// <param name="updateImmediately">Whether this method should be called immediately after <see cref="Module.OnModuleStart"/></param>
-    /// <param name="deltaMilliseconds">The time between this method being called in milliseconds. This is only used when <paramref name="mode"/> is <see cref="ModuleUpdateMode.Custom"/></param>
-    /// <remarks><paramref name="deltaMilliseconds"/> defaults to the fastest update rate you should need for sending parameters</remarks>
+    /// <param name="updateImmediately">Whether this method should be called immediately after <see cref="M:VRCOSC.Game.Modules.Module.OnModuleStart" /></param>
+    /// <param name="deltaMilliseconds">The time between this method being called in milliseconds. This is only used when <paramref name="mode" /> is <see cref="F:VRCOSC.Game.Modules.ModuleUpdateMode.Custom" /></param>
+    /// <remarks><paramref name="deltaMilliseconds" /> defaults to the fastest update rate you should need for sending parameters</remarks>
     public ModuleUpdateAttribute(ModuleUpdateMode mode, bool updateImmediately = true, int deltaMilliseconds = 50)
     {
         Mode = mode;
@@ -124,12 +119,12 @@ public class ModuleUpdateAttribute : Attribute
 public enum ModuleUpdateMode
 {
     /// <summary>
-    /// A fixed update that is called every 60th of a second
+    /// A fixed update that is called 60 times per second
     /// </summary>
     Fixed,
 
     /// <summary>
-    /// Updates with the speed of the ChatBox's update settings
+    /// Updates before the ChatBox is evaluated and text is sent. This is useful for setting ChatBox variables and updating states/events
     /// </summary>
     ChatBox,
 
