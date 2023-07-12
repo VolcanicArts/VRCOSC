@@ -149,17 +149,60 @@ public class PiShockModule : Module
         {
             Log($"Found word: {wordInstance.Phrase.Value}");
 
-            var shockerInstance = GetSettingList<PiShockShockerInstance>(PiShockSetting.Shockers).SingleOrDefault(shockerInstance => shockerInstance.Key.Value == wordInstance.ShockerKey.Value);
+            var shockerInstance = getShockerInstanceFromKey(wordInstance.ShockerKey.Value);
+            if (shockerInstance is null) continue;
 
-            if (shockerInstance is null)
-            {
-                Log($"No shocker with key {wordInstance.ShockerKey.Value}");
-                continue;
-            }
-
-            Log($"Executing {wordInstance.Mode.Value} on {shockerInstance.Key.Value} with duration {wordInstance.Duration.Value}s and intensity {wordInstance.Intensity.Value}%");
+            Log($"Executing {wordInstance.Mode.Value} on {wordInstance.ShockerKey.Value} with duration {wordInstance.Duration.Value}s and intensity {wordInstance.Intensity.Value}%");
             await piShockProvider.Execute(GetSetting<string>(PiShockSetting.Username), GetSetting<string>(PiShockSetting.APIKey), shockerInstance.Sharecode.Value, wordInstance.Mode.Value, wordInstance.Duration.Value, wordInstance.Intensity.Value);
         }
+    }
+
+    private async void executePiShockMode(PiShockMode mode)
+    {
+        var groupData = GetSettingList<PiShockGroupInstance>(PiShockSetting.Groups).ElementAtOrDefault(group);
+
+        if (groupData is null)
+        {
+            Log($"No group with ID {group}");
+            return;
+        }
+
+        var shockerKeys = groupData.Keys.Value.Split(',').Where(key => !string.IsNullOrEmpty(key)).Select(key => key.Trim());
+
+        foreach (var shockerKey in shockerKeys)
+        {
+            var shockerInstance = getShockerInstanceFromKey(shockerKey);
+            if (shockerInstance is null) continue;
+
+            await sendPiShockData(mode, shockerInstance);
+        }
+    }
+
+    private async Task sendPiShockData(PiShockMode mode, PiShockShockerInstance instance)
+    {
+        Log($"Executing {mode} on {instance.Key.Value} with duration {convertedDuration}s and intensity {convertedIntensity}%");
+        var response = await piShockProvider.Execute(GetSetting<string>(PiShockSetting.Username), GetSetting<string>(PiShockSetting.APIKey), instance.Sharecode.Value, mode, convertedDuration, convertedIntensity);
+        Log(response.Message);
+
+        if (response.Success)
+        {
+            _ = Task.Run(async () =>
+            {
+                SendParameter(PiShockParameter.Success, true);
+                await Task.Delay(1000);
+                SendParameter(PiShockParameter.Success, false);
+            });
+        }
+    }
+
+    private PiShockShockerInstance? getShockerInstanceFromKey(string key)
+    {
+        var instance = GetSettingList<PiShockShockerInstance>(PiShockSetting.Shockers).SingleOrDefault(shockerInstance => shockerInstance.Key.Value == key);
+
+        if (instance is not null) return instance;
+
+        Log($"No shocker with key {key}");
+        return null;
     }
 
     private void sendParameters()
@@ -208,49 +251,6 @@ public class PiShockModule : Module
             case PiShockParameter.Intensity:
                 intensity = Math.Clamp(value, 0f, 1f);
                 break;
-        }
-    }
-
-    private async void executePiShockMode(PiShockMode mode)
-    {
-        var groupData = GetSettingList<PiShockGroupInstance>(PiShockSetting.Groups).ElementAtOrDefault(group);
-
-        if (groupData is null)
-        {
-            Log($"No group with ID {group}");
-            return;
-        }
-
-        var shockerKeys = groupData.Keys.Value.Split(',').Where(key => !string.IsNullOrEmpty(key)).Select(key => key.Trim());
-
-        foreach (var shockerKey in shockerKeys)
-        {
-            var shockerInstance = GetSettingList<PiShockShockerInstance>(PiShockSetting.Shockers).SingleOrDefault(instance => instance.Key.Value == shockerKey);
-
-            if (shockerInstance is null)
-            {
-                Log($"No shocker with key {shockerKey}");
-                continue;
-            }
-
-            await sendPiShockData(mode, shockerInstance);
-        }
-    }
-
-    private async Task sendPiShockData(PiShockMode mode, PiShockShockerInstance instance)
-    {
-        Log($"Executing {mode} on {instance.Key.Value} with duration {convertedDuration}s and intensity {convertedIntensity}%");
-        var response = await piShockProvider.Execute(GetSetting<string>(PiShockSetting.Username), GetSetting<string>(PiShockSetting.APIKey), instance.Sharecode.Value, mode, convertedDuration, convertedIntensity);
-        Log(response.Message);
-
-        if (response.Success)
-        {
-            _ = Task.Run(async () =>
-            {
-                SendParameter(PiShockParameter.Success, true);
-                await Task.Delay(1000);
-                SendParameter(PiShockParameter.Success, false);
-            });
         }
     }
 
