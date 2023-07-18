@@ -156,12 +156,6 @@ public abstract class Module : IComparable<Module>
         persistenceSerialisationManager.Serialise();
     }
 
-    protected void RegisterLegacyPersistanceSerialiser<T>()
-    {
-        var serialiser = (ISaveStateSerialiser)Activator.CreateInstance(typeof(T), Storage, notifications, this)!;
-        persistenceSerialisationManager.RegisterSerialiser(1, serialiser);
-    }
-
     #endregion
 
     #region Attributes

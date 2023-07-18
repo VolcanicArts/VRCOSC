@@ -7,7 +7,6 @@ using VRCOSC.Game.Modules;
 using VRCOSC.Game.Modules.Attributes;
 using VRCOSC.Game.Modules.ChatBox;
 using VRCOSC.Game.OSC.VRChat;
-using VRCOSC.Modules.Counter.SaveState.V1;
 
 namespace VRCOSC.Modules.Counter;
 
@@ -36,8 +35,6 @@ public class CounterModule : ChatBoxModule
         CreateState(CounterState.Default, "Default", $"Today: {GetVariableFormat(CounterVariable.ValueToday, "Example")}/vTotal: {GetVariableFormat(CounterVariable.Value, "Example")}");
 
         CreateEvent(CounterEvent.Changed, "Changed", $"Today: {GetVariableFormat(CounterVariable.ValueToday, "Example")}/vTotal: {GetVariableFormat(CounterVariable.Value, "Example")}", 5);
-
-        RegisterLegacyPersistanceSerialiser<CounterSaveStateSerialiser>();
     }
 
     protected override void OnModuleStart()
