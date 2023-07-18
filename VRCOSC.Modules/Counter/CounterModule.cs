@@ -19,7 +19,7 @@ public class CounterModule : ChatBoxModule
     protected override bool EnablePersistence => GetSetting<bool>(CounterSetting.SaveCounters);
 
     [ModulePersistent("counts")]
-    public Dictionary<string, CountInstance> Counts { get; set; } = new();
+    private Dictionary<string, CountInstance> counts { get; set; } = new();
 
     protected override void CreateAttributes()
     {
@@ -40,14 +40,14 @@ public class CounterModule : ChatBoxModule
     protected override void OnModuleStart()
     {
         auditParameters();
-        Counts.Values.ForEach(instance => SetVariableValue(CounterVariable.Value, instance.Count.ToString("N0"), instance.Key));
+        counts.Values.ForEach(instance => SetVariableValue(CounterVariable.Value, instance.Count.ToString("N0"), instance.Key));
     }
 
     protected override void OnAvatarChange()
     {
         if (GetSetting<bool>(CounterSetting.ResetOnAvatarChange))
         {
-            Counts.ForEach(pair =>
+            counts.ForEach(pair =>
             {
                 pair.Value.Count = 0;
                 pair.Value.CountToday = 0;
@@ -61,25 +61,25 @@ public class CounterModule : ChatBoxModule
         {
             if (string.IsNullOrEmpty(pair.Key.Value) || string.IsNullOrEmpty(pair.Value.Value)) return;
 
-            Counts.TryAdd(pair.Key.Value, new CountInstance(pair.Key.Value));
-            Counts[pair.Key.Value].ParameterNames.Add(pair.Value.Value);
+            counts.TryAdd(pair.Key.Value, new CountInstance(pair.Key.Value));
+            counts[pair.Key.Value].ParameterNames.Add(pair.Value.Value);
 
-            SetVariableValue(CounterVariable.Value, Counts[pair.Key.Value].Count.ToString("N0"), pair.Key.Value);
-            SetVariableValue(CounterVariable.ValueToday, Counts[pair.Key.Value].CountToday.ToString("N0"), pair.Key.Value);
+            SetVariableValue(CounterVariable.Value, counts[pair.Key.Value].Count.ToString("N0"), pair.Key.Value);
+            SetVariableValue(CounterVariable.ValueToday, counts[pair.Key.Value].CountToday.ToString("N0"), pair.Key.Value);
         });
 
-        Counts.ForEach(pair =>
+        counts.ForEach(pair =>
         {
             if (GetSettingList<MutableKeyValuePair>(CounterSetting.ParameterList).All(instance => instance.Key.Value != pair.Key))
             {
-                Counts.Remove(pair.Key);
+                counts.Remove(pair.Key);
             }
         });
     }
 
     protected override void OnAnyParameterReceived(VRChatOscData data)
     {
-        var instance = Counts.Values.SingleOrDefault(instance => instance.ParameterNames.Contains(data.ParameterName));
+        var instance = counts.Values.SingleOrDefault(instance => instance.ParameterNames.Contains(data.ParameterName));
         if (instance is null) return;
 
         if (data.IsValueType<float>() && data.ValueAs<float>() > 0.9f) counterChanged(instance);

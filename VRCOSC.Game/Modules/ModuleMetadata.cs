@@ -116,6 +116,24 @@ public class ModuleUpdateAttribute : Attribute
     }
 }
 
+[AttributeUsage(AttributeTargets.Property)]
+public class ModulePersistentAttribute : Attribute
+{
+    public string SerialisedName { get; }
+    public string? LegacySerialisedName { get; }
+
+    /// <summary>
+    /// Used to mark a field for being automatically loaded and saved when the module starts and stops
+    /// </summary>
+    /// <param name="serialisedName">The name to serialise this property as</param>
+    /// <param name="legacySerialisedName">Support for migration from a legacy name to the <paramref name="serialisedName" /></param>
+    public ModulePersistentAttribute(string serialisedName, string? legacySerialisedName = null)
+    {
+        SerialisedName = serialisedName;
+        LegacySerialisedName = legacySerialisedName;
+    }
+}
+
 public enum ModuleUpdateMode
 {
     /// <summary>
