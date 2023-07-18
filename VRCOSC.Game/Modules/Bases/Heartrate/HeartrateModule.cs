@@ -67,8 +67,6 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
 
     private void attemptReconnection()
     {
-        if (IsStopping || HasStopped) return;
-
         Log("Attempting reconnection...");
         Thread.Sleep(2000);
         attemptConnection();

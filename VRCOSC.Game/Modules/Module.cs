@@ -24,26 +24,23 @@ using VRCOSC.Game.OpenVR;
 using VRCOSC.Game.OSC.VRChat;
 using VRCOSC.Game.Serialisation;
 
-// ReSharper disable MemberCanBePrivate.Global
-// ReSharper disable InconsistentNaming
-
 namespace VRCOSC.Game.Modules;
 
 public abstract class Module : IComparable<Module>
 {
-    private GameHost Host = null!;
-    private AppManager AppManager = null!;
-    private Scheduler Scheduler = null!;
-    private TerminalLogger Terminal = null!;
+    private GameHost host = null!;
+    private AppManager appManager = null!;
+    private Scheduler scheduler = null!;
+    private TerminalLogger terminal = null!;
     private ModuleDebugLogger moduleDebugLogger = null!;
-    private Storage Storage = null!;
+    private NotificationContainer notifications = null!;
+    private VRChatOscClient oscClient => appManager.OSCClient;
+    private readonly Bindable<ModuleState> state = new(ModuleState.Stopped);
 
-    protected Player Player => AppManager.VRChat.Player;
-    protected OVRClient OVRClient => AppManager.OVRClient;
-    protected VRChatOscClient OscClient => AppManager.OSCClient;
-    protected ChatBoxManager ChatBoxManager => AppManager.ChatBoxManager;
-    protected Bindable<ModuleState> State = new(ModuleState.Stopped);
-    protected AvatarConfig? AvatarConfig => AppManager.VRChat.AvatarConfig;
+    protected Player Player => appManager.VRChat.Player;
+    protected OVRClient OVRClient => appManager.OVRClient;
+    protected ChatBoxManager ChatBoxManager => appManager.ChatBoxManager;
+    protected AvatarConfig? AvatarConfig => appManager.VRChat.AvatarConfig;
 
     internal readonly BindableBool Enabled = new();
     internal readonly Dictionary<string, ModuleAttribute> Settings = new();
@@ -59,49 +56,41 @@ public abstract class Module : IComparable<Module>
     internal ModuleType Group => GetType().GetCustomAttribute<ModuleGroupAttribute>()?.Type ?? ModuleType.General;
     internal string? PrefabName => GetType().GetCustomAttribute<ModulePrefabAttribute>()?.Name;
     internal string? PrefabUrl => GetType().GetCustomAttribute<ModulePrefabAttribute>()?.Url;
-    internal List<string> InfoList => GetType().GetCustomAttributes<ModuleInfoAttribute>().Select(attribute => attribute.Description).ToList();
+    internal IEnumerable<string> InfoList => GetType().GetCustomAttributes<ModuleInfoAttribute>().Select(attribute => attribute.Description).ToList();
 
     // Cached pre-computed lookups
-    internal readonly Dictionary<string, Enum> ParameterNameEnum = new();
-    internal readonly Dictionary<string, Regex> ParameterNameRegex = new();
+    private readonly Dictionary<string, Enum> parameterNameEnum = new();
+    private readonly Dictionary<string, Regex> parameterNameRegex = new();
 
     protected virtual bool EnablePersistence => true;
 
-    private bool IsEnabled => Enabled.Value;
-    internal string Name => GetType().Name;
-    internal string SerialisedName => Name.ToLowerInvariant();
-
-    protected bool IsStarting => State.Value == ModuleState.Starting;
-    protected bool HasStarted => State.Value == ModuleState.Started;
-    protected bool IsStopping => State.Value == ModuleState.Stopping;
-    protected bool HasStopped => State.Value == ModuleState.Stopped;
+    private string className => GetType().Name;
+    internal string SerialisedName => className.ToLowerInvariant();
 
     private readonly SerialisationManager persistenceSerialisationManager = new();
     private readonly SerialisationManager moduleSerialisationManager = new();
-    private NotificationContainer notifications = null!;
 
-    public void InjectDependencies(GameHost host, AppManager appManager, Scheduler scheduler, Storage storage, NotificationContainer notifications)
+    internal void InjectDependencies(GameHost host, AppManager appManager, Scheduler scheduler, Storage storage, NotificationContainer notifications)
     {
-        Host = host;
-        AppManager = appManager;
-        Scheduler = scheduler;
+        this.host = host;
+        this.appManager = appManager;
+        this.scheduler = scheduler;
         this.notifications = notifications;
-        Storage = storage;
 
         moduleSerialisationManager.RegisterSerialiser(1, new ModuleSerialiser(storage, notifications, this));
         persistenceSerialisationManager.RegisterSerialiser(2, new ModulePersistenceSerialiser(storage, notifications, this));
     }
 
-    public void Load()
+    internal void Load()
     {
-        Terminal = new TerminalLogger(Title);
+        terminal = new TerminalLogger(Title);
         moduleDebugLogger = new ModuleDebugLogger(Title);
 
         CreateAttributes();
         Settings.Values.ForEach(setting => setting.Setup());
         Parameters.Values.ForEach(parameter => parameter.Setup());
 
-        State.ValueChanged += _ => Log(State.Value.ToString());
+        state.ValueChanged += _ => Log(state.Value.ToString());
 
         Deserialise();
         cachePersistentProperties();
@@ -297,13 +286,13 @@ public abstract class Module : IComparable<Module>
 
     internal void Start()
     {
-        State.Value = ModuleState.Starting;
+        state.Value = ModuleState.Starting;
 
-        ParameterNameEnum.Clear();
-        Parameters.ForEach(pair => ParameterNameEnum.Add(pair.Value.ParameterName, pair.Key));
+        parameterNameEnum.Clear();
+        Parameters.ForEach(pair => parameterNameEnum.Add(pair.Value.ParameterName, pair.Key));
 
-        ParameterNameRegex.Clear();
-        Parameters.ForEach(pair => ParameterNameRegex.Add(pair.Value.ParameterName, parameterToRegex(pair.Value.ParameterName)));
+        parameterNameRegex.Clear();
+        Parameters.ForEach(pair => parameterNameRegex.Add(pair.Value.ParameterName, parameterToRegex(pair.Value.ParameterName)));
 
         try
         {
@@ -312,20 +301,19 @@ public abstract class Module : IComparable<Module>
         }
         catch (Exception e)
         {
-            notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
-            Logger.Error(e, $"{Name} experienced an exception");
+            pushException(e);
         }
 
-        State.Value = ModuleState.Started;
+        state.Value = ModuleState.Started;
 
-        Scheduler.AddDelayed(FixedUpdate, TimeSpan.FromSeconds(1f / 60f).TotalMilliseconds, true);
+        scheduler.AddDelayed(FixedUpdate, TimeSpan.FromSeconds(1f / 60f).TotalMilliseconds, true);
 
         GetType()
             .GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
             .Where(method => method.GetCustomAttribute<ModuleUpdateAttribute>()?.Mode == ModuleUpdateMode.ChatBox)
             .ForEach(method =>
             {
-                Scheduler.AddDelayed(() => Update(method), AppManager.ChatBoxManager.SendDelay.Value, true);
+                scheduler.AddDelayed(() => Update(method), appManager.ChatBoxManager.SendDelay.Value, true);
                 if (method.GetCustomAttribute<ModuleUpdateAttribute>()!.UpdateImmediately) Update(method);
             });
 
@@ -334,14 +322,14 @@ public abstract class Module : IComparable<Module>
             .Where(method => method.GetCustomAttribute<ModuleUpdateAttribute>()?.Mode == ModuleUpdateMode.Custom)
             .ForEach(method =>
             {
-                Scheduler.AddDelayed(() => Update(method), method.GetCustomAttribute<ModuleUpdateAttribute>()!.DeltaMilliseconds, true);
+                scheduler.AddDelayed(() => Update(method), method.GetCustomAttribute<ModuleUpdateAttribute>()!.DeltaMilliseconds, true);
                 if (method.GetCustomAttribute<ModuleUpdateAttribute>()!.UpdateImmediately) Update(method);
             });
     }
 
     internal void Stop()
     {
-        State.Value = ModuleState.Stopping;
+        state.Value = ModuleState.Stopping;
 
         try
         {
@@ -350,11 +338,10 @@ public abstract class Module : IComparable<Module>
         }
         catch (Exception e)
         {
-            notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
-            Logger.Error(e, $"{Name} experienced an exception");
+            pushException(e);
         }
 
-        State.Value = ModuleState.Stopped;
+        state.Value = ModuleState.Stopped;
     }
 
     internal void Update(MethodInfo method)
@@ -365,8 +352,7 @@ public abstract class Module : IComparable<Module>
         }
         catch (Exception e)
         {
-            notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
-            Logger.Error(e, $"{Name} experienced an exception calling method {method.Name}");
+            pushException(new Exception($"{className} experienced an exception calling method {method.Name}", e));
         }
     }
 
@@ -381,8 +367,7 @@ public abstract class Module : IComparable<Module>
         }
         catch (Exception e)
         {
-            notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
-            Logger.Error(e, $"{Name} experienced an exception");
+            pushException(e);
         }
     }
 
@@ -394,8 +379,7 @@ public abstract class Module : IComparable<Module>
         }
         catch (Exception e)
         {
-            notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
-            Logger.Error(e, $"{Name} experienced an exception");
+            pushException(e);
         }
     }
 
@@ -407,8 +391,7 @@ public abstract class Module : IComparable<Module>
         }
         catch (Exception e)
         {
-            notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
-            Logger.Error(e, $"{Name} experienced an exception");
+            pushException(e);
         }
     }
 
@@ -457,12 +440,6 @@ public abstract class Module : IComparable<Module>
 
     #region Parameters
 
-    [Obsolete("Use SendParameter<T>(lookup, value) instead")]
-    protected void SendParameter<T>(Enum lookup, T value, string suffix) where T : struct
-    {
-        SendParameter(lookup, value);
-    }
-
     /// <summary>
     /// Sends a <paramref name="value"/> to an address denoted by <paramref name="lookup"/>
     /// </summary>
@@ -470,20 +447,16 @@ public abstract class Module : IComparable<Module>
     /// <param name="value">The value to send</param>
     protected void SendParameter<T>(Enum lookup, T value) where T : struct
     {
-        if (HasStopped) return;
-
         if (!Parameters.ContainsKey(lookup)) throw new InvalidOperationException($"Parameter {lookup.GetType().Name}.{lookup} has not been defined");
 
         var data = Parameters[lookup];
         if (!data.Mode.HasFlagFast(ParameterMode.Write)) throw new InvalidOperationException($"Parameter {lookup.GetType().Name}.{lookup} is a read-only parameter and therefore can't be sent!");
 
-        Scheduler.Add(() => OscClient.SendValue(data.FormattedAddress, value));
+        scheduler.Add(() => oscClient.SendValue(data.FormattedAddress, value));
     }
 
     internal void OnParameterReceived(VRChatOscData data)
     {
-        if (!HasStarted) return;
-
         if (data.IsAvatarChangeEvent)
         {
             AvatarChange();
@@ -499,18 +472,18 @@ public abstract class Module : IComparable<Module>
         catch (Exception e)
         {
             notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
-            Logger.Error(e, $"{Name} experienced an exception");
+            Logger.Error(e, $"{className} experienced an exception");
         }
 
-        var parameterName = Parameters.Values.FirstOrDefault(moduleParameter => ParameterNameRegex[moduleParameter.ParameterName].IsMatch(data.ParameterName))?.ParameterName;
+        var parameterName = Parameters.Values.FirstOrDefault(moduleParameter => parameterNameRegex[moduleParameter.ParameterName].IsMatch(data.ParameterName))?.ParameterName;
         if (parameterName is null) return;
 
         var wildcards = new List<string>();
 
-        var match = ParameterNameRegex[parameterName].Match(data.ParameterName);
+        var match = parameterNameRegex[parameterName].Match(data.ParameterName);
         if (match.Groups.Count > 1) wildcards.AddRange(match.Groups.Values.Skip(1).Select(group => group.Value));
 
-        if (!ParameterNameEnum.TryGetValue(parameterName, out var lookup)) return;
+        if (!parameterNameEnum.TryGetValue(parameterName, out var lookup)) return;
 
         var parameterData = Parameters[lookup];
 
@@ -551,8 +524,7 @@ public abstract class Module : IComparable<Module>
         }
         catch (Exception e)
         {
-            notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
-            Logger.Error(e, $"{Name} experienced an exception");
+            pushException(e);
         }
     }
 
@@ -568,20 +540,35 @@ public abstract class Module : IComparable<Module>
 
     #region Extensions
 
-    protected void Log(string message) => Terminal.Log(message);
+    /// <summary>
+    /// Logs to the terminal in the run screen
+    /// </summary>
+    protected void Log(string message) => terminal.Log(message);
 
     /// <summary>
     /// Logs to a special module-debug file when the --module-debug flag is passed on startup
     /// </summary>
     protected void LogDebug(string message) => moduleDebugLogger.Log(message);
 
-    protected void OpenUrlExternally(string Url) => Host.OpenUrlExternally(Url);
+    /// <summary>
+    /// Opens a given <paramref name="url"/> in the user's chosen browser
+    /// </summary>
+    protected void OpenUrlExternally(string url) => host.OpenUrlExternally(url);
 
+    /// <summary>
+    /// Maps a value <paramref name="source"/> from a source range to a destination range
+    /// </summary>
     protected static float Map(float source, float sMin, float sMax, float dMin, float dMax) => dMin + (dMax - dMin) * ((source - sMin) / (sMax - sMin));
 
     #endregion
 
-    public enum ModuleState
+    private void pushException(Exception e)
+    {
+        notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
+        Logger.Error(e, $"{className} experienced an exception");
+    }
+
+    internal enum ModuleState
     {
         Starting,
         Started,
