@@ -53,7 +53,7 @@ public class OSCRouter
 
         senders.ForEach(sender =>
         {
-            vrChatOscClient.OnDataReceived += sender.Send;
+            vrChatOscClient.OnMessageReceived += message => sender.Send(OscEncoder.Encode(message));
             sender.Enable();
         });
 
