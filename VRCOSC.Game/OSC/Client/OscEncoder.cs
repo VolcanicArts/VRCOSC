@@ -2,9 +2,10 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+
+// ReSharper disable SuggestBaseTypeForParameter
 
 namespace VRCOSC.Game.OSC.Client;
 
@@ -12,64 +13,118 @@ internal static class OscEncoder
 {
     internal static byte[] Encode(OscMessage message)
     {
-        var parts = new List<byte[]>();
-        var typeStringBuilder = new StringBuilder(",");
+        validateValueTypes(message);
 
+        var index = 0;
+        var data = new byte[calculateMessageLength(message)];
+
+        insertAddress(message, data, ref index);
+        insertTypeTags(message, data, ref index);
+        insertValues(message, data, ref index);
+
+        return data;
+    }
+
+    private static void validateValueTypes(OscMessage message)
+    {
+        message.Values.ForEach(value =>
+        {
+            if (value is not (string or int or float or bool))
+            {
+                throw new InvalidOperationException($"Cannot send value that is of type {value.GetType().ToReadableName()} to address {message.Address}");
+            }
+        });
+    }
+
+    private static int calculateMessageLength(OscMessage message)
+    {
+        var addressLength = OscUtils.AlignIndex(Encoding.UTF8.GetByteCount(message.Address));
+        var typeTagsLength = OscUtils.AlignIndex(1 + message.Values.Count);
+
+        var valuesLength = message.Values.Sum(value => value switch
+        {
+            string valueStr => OscUtils.AlignIndex(Encoding.UTF8.GetByteCount(valueStr)),
+            int => 4,
+            float => 4,
+            bool => 0,
+            _ => 0
+        });
+
+        return addressLength + typeTagsLength + valuesLength;
+    }
+
+    private static void insertAddress(OscMessage message, byte[] data, ref int index)
+    {
+        var addressBytes = Encoding.UTF8.GetBytes(message.Address);
+        addressBytes.CopyTo(data, index);
+        index = OscUtils.AlignIndex(addressBytes.Length);
+    }
+
+    private static void insertTypeTags(OscMessage message, byte[] data, ref int index)
+    {
+        data[index++] = OscChars.CHAR_COMMA;
+
+        foreach (var value in message.Values)
+        {
+#pragma warning disable CS8509
+            data[index++] = value switch
+#pragma warning restore CS8509
+            {
+                string => OscChars.CHAR_STRING,
+                int => OscChars.CHAR_INT,
+                float => OscChars.CHAR_FLOAT,
+                true => OscChars.CHAR_TRUE,
+                false => OscChars.CHAR_FALSE
+            };
+        }
+
+        index = OscUtils.AlignIndex(index);
+    }
+
+    private static void insertValues(OscMessage message, byte[] data, ref int index)
+    {
         foreach (var value in message.Values)
         {
             switch (value)
             {
-                case int intArg:
-                    typeStringBuilder.Append('i');
-                    parts.Add(OscTypeConverter.IntToBytes(intArg));
+                case int intValue:
+                    intToBytes(data, ref index, intValue);
                     break;
 
-                case float floatArg:
-                    typeStringBuilder.Append('f');
-                    parts.Add(OscTypeConverter.FloatToBytes(floatArg));
+                case float floatValue:
+                    floatToBytes(data, ref index, floatValue);
                     break;
 
-                case string stringArg:
-                    typeStringBuilder.Append('s');
-                    parts.Add(OscTypeConverter.StringToBytes(stringArg));
+                case string stringValue:
+                    stringToBytes(data, ref index, stringValue);
                     break;
-
-                case true:
-                    typeStringBuilder.Append('T');
-                    break;
-
-                case false:
-                    typeStringBuilder.Append('F');
-                    break;
-
-                default:
-                    throw new InvalidOperationException($"Cannot parse type {value.GetType()}");
             }
         }
+    }
 
-        var addressBytes = OscConstants.OSC_ENCODING.GetBytes(message.Address);
-        var typeStringBytes = OscConstants.OSC_ENCODING.GetBytes(typeStringBuilder.ToString());
+    private static void intToBytes(byte[] data, ref int index, int value)
+    {
+        var bytes = BitConverter.GetBytes(value);
+        data[index++] = bytes[3];
+        data[index++] = bytes[2];
+        data[index++] = bytes[1];
+        data[index++] = bytes[0];
+    }
 
-        var addressLen = OscTypeConverter.CalculateAlignedLength(addressBytes);
-        var typeLen = OscTypeConverter.CalculateAlignedLength(typeStringBytes);
+    private static void floatToBytes(byte[] data, ref int index, float value)
+    {
+        var bytes = BitConverter.GetBytes(value);
+        data[index++] = bytes[3];
+        data[index++] = bytes[2];
+        data[index++] = bytes[1];
+        data[index++] = bytes[0];
+    }
 
-        var total = addressLen + typeLen + parts.Sum(x => x.Length);
+    private static void stringToBytes(byte[] data, ref int index, string value)
+    {
+        var bytes = Encoding.UTF8.GetBytes(value);
 
-        var output = new byte[total];
-        var index = 0;
-
-        addressBytes.CopyTo(output, index);
-        index += addressLen;
-
-        typeStringBytes.CopyTo(output, index);
-        index += typeLen;
-
-        foreach (var part in parts)
-        {
-            part.CopyTo(output, index);
-            index += part.Length;
-        }
-
-        return output;
+        bytes.CopyTo(data, index);
+        index = OscUtils.AlignIndex(bytes.Length);
     }
 }

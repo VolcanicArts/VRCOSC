@@ -19,6 +19,4 @@ public class OscMessage
         Address = address;
         Values = values;
     }
-
-    public byte[] Encode() => OscEncoder.Encode(this);
 }

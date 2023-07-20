@@ -322,7 +322,7 @@ public abstract class Module : IComparable<Module>
 
         State.Value = ModuleState.Started;
 
-        Scheduler.AddDelayed(FixedUpdate, TimeSpan.FromSeconds(1f / 60f).TotalMilliseconds, true);
+        Scheduler.AddDelayed(FixedUpdate, VRChatOscConstants.UPDATE_DELTA_MILLISECONDS, true);
 
         if (ShouldUpdate) Scheduler.AddDelayed(Update, DeltaUpdate.TotalMilliseconds, true);
         if (ShouldUpdateImmediately) Update();
@@ -468,21 +468,21 @@ public abstract class Module : IComparable<Module>
         Scheduler.Add(() => OscClient.SendValue(data.FormattedAddress, value));
     }
 
-    internal void OnParameterReceived(VRChatOscData data)
+    internal void OnParameterReceived(VRChatOscMessage message)
     {
         if (!HasStarted) return;
 
-        if (data.IsAvatarChangeEvent)
+        if (message.IsAvatarChangeEvent)
         {
             AvatarChange();
             return;
         }
 
-        if (!data.IsAvatarParameter) return;
+        if (!message.IsAvatarParameter) return;
 
         try
         {
-            OnAnyParameterReceived(data);
+            OnAnyParameterReceived(message);
         }
         catch (Exception e)
         {
@@ -490,12 +490,12 @@ public abstract class Module : IComparable<Module>
             Logger.Error(e, $"{Name} experienced an exception");
         }
 
-        var parameterName = Parameters.Values.FirstOrDefault(moduleParameter => ParameterNameRegex[moduleParameter.ParameterName].IsMatch(data.ParameterName))?.ParameterName;
+        var parameterName = Parameters.Values.FirstOrDefault(moduleParameter => ParameterNameRegex[moduleParameter.ParameterName].IsMatch(message.ParameterName))?.ParameterName;
         if (parameterName is null) return;
 
         var wildcards = new List<string>();
 
-        var match = ParameterNameRegex[parameterName].Match(data.ParameterName);
+        var match = ParameterNameRegex[parameterName].Match(message.ParameterName);
         if (match.Groups.Count > 1) wildcards.AddRange(match.Groups.Values.Skip(1).Select(group => group.Value));
 
         if (!ParameterNameEnum.TryGetValue(parameterName, out var lookup)) return;
@@ -504,15 +504,15 @@ public abstract class Module : IComparable<Module>
 
         if (!parameterData.Mode.HasFlagFast(ParameterMode.Read)) return;
 
-        if (!data.IsValueType(parameterData.ExpectedType))
+        if (!message.IsValueType(parameterData.ExpectedType))
         {
-            Log($@"Cannot accept input parameter. `{lookup}` expects type `{parameterData.ExpectedType}` but received type `{data.ParameterValue.GetType()}`");
+            Log($@"Cannot accept input parameter. `{lookup}` expects type `{parameterData.ExpectedType}` but received type `{message.ParameterValue.GetType()}`");
             return;
         }
 
         try
         {
-            switch (data.ParameterValue)
+            switch (message.ParameterValue)
             {
                 case bool boolValue:
                     if (wildcards.Any())
@@ -544,7 +544,7 @@ public abstract class Module : IComparable<Module>
         }
     }
 
-    protected virtual void OnAnyParameterReceived(VRChatOscData data) { }
+    protected virtual void OnAnyParameterReceived(VRChatOscMessage message) { }
     protected virtual void OnBoolParameterReceived(Enum key, bool value) { }
     protected virtual void OnIntParameterReceived(Enum key, int value) { }
     protected virtual void OnFloatParameterReceived(Enum key, float value) { }

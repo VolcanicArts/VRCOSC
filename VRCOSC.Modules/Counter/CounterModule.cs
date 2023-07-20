@@ -80,14 +80,14 @@ public class CounterModule : ChatBoxModule
         });
     }
 
-    protected override void OnAnyParameterReceived(VRChatOscData data)
+    protected override void OnAnyParameterReceived(VRChatOscMessage message)
     {
-        var instance = Counts.Values.SingleOrDefault(instance => instance.ParameterNames.Contains(data.ParameterName));
+        var instance = Counts.Values.SingleOrDefault(instance => instance.ParameterNames.Contains(message.ParameterName));
         if (instance is null) return;
 
-        if (data.IsValueType<float>() && data.ValueAs<float>() > 0.9f) counterChanged(instance);
-        if (data.IsValueType<int>() && data.ValueAs<int>() != 0) counterChanged(instance);
-        if (data.IsValueType<bool>() && data.ValueAs<bool>()) counterChanged(instance);
+        if (message.IsValueType<float>() && message.ValueAs<float>() > 0.9f) counterChanged(instance);
+        if (message.IsValueType<int>() && message.ValueAs<int>() != 0) counterChanged(instance);
+        if (message.IsValueType<bool>() && message.ValueAs<bool>()) counterChanged(instance);
     }
 
     private void counterChanged(CountInstance instance)
