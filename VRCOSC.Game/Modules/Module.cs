@@ -322,7 +322,7 @@ public abstract class Module : IComparable<Module>
 
         State.Value = ModuleState.Started;
 
-        Scheduler.AddDelayed(FixedUpdate, TimeSpan.FromSeconds(1f / 60f).TotalMilliseconds, true);
+        Scheduler.AddDelayed(FixedUpdate, VRChatOscConstants.UPDATE_DELTA_MILLISECONDS, true);
 
         if (ShouldUpdate) Scheduler.AddDelayed(Update, DeltaUpdate.TotalMilliseconds, true);
         if (ShouldUpdateImmediately) Update();
