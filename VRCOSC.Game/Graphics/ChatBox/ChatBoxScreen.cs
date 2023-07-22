@@ -93,7 +93,20 @@ public partial class ChatBoxScreen : Container
                                         Origin = Anchor.Centre,
                                         RelativeSizeAxes = Axes.Y,
                                         Width = 300,
-                                    }
+                                    },
+                                    new FillFlowContainer
+                                    {
+                                        Anchor = Anchor.CentreRight,
+                                        Origin = Anchor.CentreRight,
+                                        RelativeSizeAxes = Axes.Y,
+                                        AutoSizeAxes = Axes.X,
+                                        Spacing = new Vector2(5, 0),
+                                        Direction = FillDirection.Horizontal,
+                                        Children = new Drawable[]
+                                        {
+                                            new ResetTimelineButton()
+                                        }
+                                    },
                                 }
                             }
                         },
@@ -161,6 +174,35 @@ public partial class ChatBoxScreen : Container
         protected override void LoadComplete()
         {
             Action += () => host.PresentFileExternally(storage.GetFullPath(@"chatbox.json"));
+        }
+    }
+
+    private partial class ResetTimelineButton : TextButton
+    {
+        [Resolved]
+        private GameHost host { get; set; } = null!;
+
+        [Resolved]
+        private Storage storage { get; set; } = null!;
+
+        [Resolved]
+        private AppManager appManager { get; set; } = null!;
+
+        public ResetTimelineButton()
+        {
+            Anchor = Anchor.CentreRight;
+            Origin = Anchor.CentreRight;
+            Size = new Vector2(110, 30);
+            Text = "Reset Timeline";
+            FontSize = 18;
+            CornerRadius = 5;
+            BackgroundColour = ThemeManager.Current[ThemeAttribute.Action];
+            BorderThickness = 2;
+        }
+
+        protected override void LoadComplete()
+        {
+            Action += () => appManager.ChatBoxManager.ResetTimeline();
         }
     }
 }
