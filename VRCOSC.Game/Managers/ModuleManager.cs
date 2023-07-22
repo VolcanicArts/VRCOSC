@@ -181,11 +181,11 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
         }
     }
 
-    public void ParameterReceived(VRChatOscData data)
+    public void ParameterReceived(VRChatOscMessage message)
     {
         foreach (var module in runningModulesCache)
         {
-            module.OnParameterReceived(data);
+            module.OnParameterReceived(message);
         }
     }
 

@@ -3,90 +3,134 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Text;
 using osu.Framework.Logging;
+
+// ReSharper disable ParameterTypeCanBeEnumerable.Local
+// ReSharper disable SuggestBaseTypeForParameter
 
 namespace VRCOSC.Game.OSC.Client;
 
 internal static class OscDecoder
 {
-    internal static OscMessage? Decode(byte[] msg)
+    internal static OscMessage? Decode(byte[] data)
     {
         var index = 0;
-        var values = new List<object>();
 
-        var address = getAddress(msg, index);
-        index += msg.FirstIndexAfter(address.Length, x => x == ',');
+        var address = getAddress(data, ref index);
 
-        if (index.IsMisaligned())
+        if (address is null)
         {
-            Logger.Error(new InvalidOperationException("Misaligned packet. Ignoring data"), "OSCDecoder experienced an issue");
+            Logger.Log($"Could not parse address for message {Encoding.UTF8.GetString(data)}");
             return null;
         }
 
-        var types = getTypes(msg, index);
-        index += types.Length;
+        index = OscUtils.AlignIndex(index);
 
-        while (index.IsMisaligned()) index++;
+        var typeTags = getTypeTags(data, ref index);
 
-        var commaParsed = false;
-
-        foreach (var type in types)
+        if (typeTags is null)
         {
-            if (!commaParsed && type == ',')
-            {
-                commaParsed = true;
-                continue;
-            }
+            Logger.Log($"Could not parse type tags for message {Encoding.UTF8.GetString(data)}");
+            return null;
+        }
 
-            switch (type)
-            {
-                case '\0':
-                    break;
+        index = OscUtils.AlignIndex(index);
 
-                case 'i':
-                    var intVal = OscTypeConverter.BytesToInt(msg, index);
-                    values.Add(intVal);
-                    index += 4;
-                    break;
+        var values = getValues(typeTags, data, ref index);
 
-                case 'f':
-                    var floatVal = OscTypeConverter.BytesToFloat(msg, index);
-                    values.Add(floatVal);
-                    index += 4;
-                    break;
-
-                case 's':
-                    var stringVal = OscTypeConverter.BytesToString(msg, index);
-                    values.Add(stringVal);
-                    index += OscConstants.OSC_ENCODING.GetBytes(stringVal).Length;
-                    break;
-
-                case 'T':
-                    values.Add(true);
-                    break;
-
-                case 'F':
-                    values.Add(false);
-                    break;
-
-                default:
-                    throw new InvalidOperationException("Unknown tag");
-            }
-
-            while (index.IsMisaligned()) index++;
+        if (values is null)
+        {
+            Logger.Log($"Could not parse values for message {Encoding.UTF8.GetString(data)}");
+            return null;
         }
 
         return new OscMessage(address, values);
     }
 
-    private static string getAddress(byte[] msg, int index)
+    private static string? getAddress(byte[] data, ref int index)
     {
-        var addressEnd = msg.FirstIndexAfter(index, x => x == ',');
-        if (addressEnd == -1) throw new InvalidOperationException("No comma found when retrieving address");
+        var start = index;
+        if (data[start] != OscChars.CHAR_SLASH) return null;
 
-        return OscConstants.OSC_ENCODING.GetString(msg.SubArray(index, addressEnd - 1)).Replace("\0", string.Empty);
+        while (data[index] != 0) index++;
+
+        return Encoding.UTF8.GetString(data[start..index]);
     }
 
-    private static char[] getTypes(byte[] msg, int index) => OscTypeConverter.BytesToString(msg, index).ToArray();
+    private static byte[]? getTypeTags(byte[] data, ref int index)
+    {
+        var start = index;
+        if (data[start] != OscChars.CHAR_COMMA) return null;
+
+        while (data[index] != 0) index++;
+
+        return data[(start + 1)..index];
+    }
+
+    private static List<object>? getValues(byte[] typeTags, byte[] msg, ref int index)
+    {
+        var values = new List<object>();
+
+        foreach (var type in typeTags)
+        {
+            switch (type)
+            {
+                case OscChars.CHAR_INT:
+                    values.Add(bytesToInt(msg, ref index));
+                    break;
+
+                case OscChars.CHAR_FLOAT:
+                    values.Add(bytesToFloat(msg, ref index));
+                    break;
+
+                case OscChars.CHAR_STRING:
+                    values.Add(bytesToString(msg, ref index));
+                    break;
+
+                case OscChars.CHAR_TRUE:
+                    values.Add(true);
+                    break;
+
+                case OscChars.CHAR_FALSE:
+                    values.Add(false);
+                    break;
+
+                default:
+                    return null;
+            }
+        }
+
+        return values;
+    }
+
+    private static int bytesToInt(byte[] data, ref int index)
+    {
+        var reversed = new byte[4];
+        reversed[3] = data[index++];
+        reversed[2] = data[index++];
+        reversed[1] = data[index++];
+        reversed[0] = data[index++];
+        return BitConverter.ToInt32(reversed, 0);
+    }
+
+    private static float bytesToFloat(byte[] data, ref int index)
+    {
+        var reversed = new byte[4];
+        reversed[3] = data[index++];
+        reversed[2] = data[index++];
+        reversed[1] = data[index++];
+        reversed[0] = data[index++];
+        return BitConverter.ToSingle(reversed, 0);
+    }
+
+    private static string bytesToString(byte[] data, ref int index)
+    {
+        var start = index;
+        while (data[index] != 0) index++;
+
+        var stringData = Encoding.UTF8.GetString(data[start..index]);
+        index = OscUtils.AlignIndex(index);
+        return stringData;
+    }
 }

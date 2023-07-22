@@ -12,8 +12,6 @@ namespace VRCOSC.Game.App;
 
 public class VRChat
 {
-    private const string avatar_id_format = "avtr_XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
-
     public bool IsClientOpen;
 
     public Player Player = null!;
@@ -30,14 +28,12 @@ public class VRChat
         Player.ResetAll();
     }
 
-    public void HandleAvatarChange(VRChatOscData data)
+    public void HandleAvatarChange(VRChatOscMessage message)
     {
-        var avatarIdRaw = data.ParameterValue.As<string>();
+        var avatarId = message.ParameterValue.As<string>();
 
-        if (!avatarIdRaw.StartsWith("local"))
+        if (!avatarId.StartsWith("local"))
         {
-            // truncation required as custom OSC library seems to be receiving 3 extra bytes?
-            var avatarId = avatarIdRaw[..avatar_id_format.Length];
             AvatarConfig = AvatarConfigLoader.LoadConfigFor(avatarId);
         }
     }

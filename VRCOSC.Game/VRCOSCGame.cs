@@ -49,7 +49,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     private Bindable<Module?> infoModule = new();
 
     [Cached]
-    public AppManager AppManager = new();
+    private AppManager appManager = new();
 
     private NotificationContainer notificationContainer = null!;
     private VRCOSCUpdateManager updateManager = null!;
@@ -76,7 +76,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
         Children = new Drawable[]
         {
-            AppManager,
+            appManager,
             new MainContent(),
             updateManager = CreateUpdateManager(),
             notificationContainer
@@ -115,19 +115,19 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
             Delay = 5000d
         });
 
-        AppManager.State.BindValueChanged(e =>
+        appManager.State.BindValueChanged(e =>
         {
             if (e.NewValue == AppManagerState.Starting) selectedTab.Value = Tab.Run;
         }, true);
 
-        AppManager.OVRClient.OnShutdown += () =>
+        appManager.OVRClient.OnShutdown += () =>
         {
             if (ConfigManager.Get<bool>(VRCOSCSetting.AutoStopOpenVR)) prepareForExit();
         };
 
         selectedTab.BindValueChanged(tab =>
         {
-            if (tab.OldValue == Tab.Router) AppManager.RouterManager.Serialise();
+            if (tab.OldValue == Tab.Router) appManager.RouterManager.Serialise();
         });
 
         editingModule.BindValueChanged(e =>
@@ -198,7 +198,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         // ReSharper disable once RedundantExplicitParamsArrayCreation
         Task.WhenAll(new[]
         {
-            AppManager.StopAsync()
+            appManager.StopAsync()
         }).ContinueWith(_ => Schedule(performExit));
     }
 

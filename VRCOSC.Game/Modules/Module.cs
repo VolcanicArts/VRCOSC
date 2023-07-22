@@ -462,7 +462,7 @@ public abstract class Module : IComparable<Module>
         scheduler.Add(() => oscClient.SendValue(data.ParameterAddress, value));
     }
 
-    internal void OnParameterReceived(VRChatOscData data)
+    internal void OnParameterReceived(VRChatOscMessage message)
     {
         if (data.IsAvatarChangeEvent)
         {
@@ -470,7 +470,7 @@ public abstract class Module : IComparable<Module>
             return;
         }
 
-        if (!data.IsAvatarParameter) return;
+        if (!message.IsAvatarParameter) return;
 
         try
         {
@@ -490,9 +490,9 @@ public abstract class Module : IComparable<Module>
 
         if (!parameterData.Mode.HasFlagFast(ParameterMode.Read)) return;
 
-        if (!data.IsValueType(parameterData.ExpectedType))
+        if (!message.IsValueType(parameterData.ExpectedType))
         {
-            Log($@"Cannot accept input parameter. `{lookup}` expects type `{parameterData.ExpectedType}` but received type `{data.ParameterValue.GetType()}`");
+            Log($@"Cannot accept input parameter. `{lookup}` expects type `{parameterData.ExpectedType}` but received type `{message.ParameterValue.GetType()}`");
             return;
         }
 

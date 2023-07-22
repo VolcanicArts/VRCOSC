@@ -14,8 +14,8 @@ public class ProcessManagerModule : Module
 {
     protected override void CreateAttributes()
     {
-        CreateParameter<bool>(ProcessManagerParameter.Start, ParameterMode.Read, "VRCOSC/ProcessManager/Start/*", "Start", "Becoming true will start the process named in the '*' (the wildcard)\nFor example: VRCOSC/ProcessManager/Start/vrchat");
-        CreateParameter<bool>(ProcessManagerParameter.Stop, ParameterMode.Read, "VRCOSC/ProcessManager/Stop/*", "Stop", "Becoming true will stop the process named in the '*' (the wildcard)\nFor example: VRCOSC/ProcessManager/Stop/vrchat");
+        CreateParameter<bool>(ProcessManagerParameter.Start, ParameterMode.Read, "VRCOSC/ProcessManager/Start/*", "Start", "Becoming true will start the process named in the '*' that you set on your avatar\nFor example, on your avatar you put: VRCOSC/ProcessManager/Start/vrchat");
+        CreateParameter<bool>(ProcessManagerParameter.Stop, ParameterMode.Read, "VRCOSC/ProcessManager/Stop/*", "Stop", "Becoming true will stop the process named in the '*' that you set on your avatar\nFor example, on your avatar you put: VRCOSC/ProcessManager/Stop/vrchat");
     }
 
     protected override void OnModuleParameterReceived(AvatarParameter parameter)

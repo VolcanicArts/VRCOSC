@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using osu.Framework.Utils;
 using VRCOSC.Game.Modules.ChatBox;
+using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Game.Modules.Bases.Heartrate;
 
