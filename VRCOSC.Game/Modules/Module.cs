@@ -100,12 +100,12 @@ public abstract class Module : IComparable<Module>
 
     #region Serialisation
 
-    public void Serialise()
+    internal void Serialise()
     {
         moduleSerialisationManager.Serialise();
     }
 
-    public void Deserialise()
+    internal void Deserialise()
     {
         moduleSerialisationManager.Deserialise();
     }
