@@ -464,7 +464,7 @@ public abstract class Module : IComparable<Module>
 
     internal void OnParameterReceived(VRChatOscMessage message)
     {
-        if (data.IsAvatarChangeEvent)
+        if (message.IsAvatarChangeEvent)
         {
             avatarChange();
             return;
@@ -474,14 +474,14 @@ public abstract class Module : IComparable<Module>
 
         try
         {
-            OnAnyParameterReceived(new AvatarParameter(null, data.ParameterName, data.ParameterValue));
+            OnAnyParameterReceived(new AvatarParameter(null, message.ParameterName, message.ParameterValue));
         }
         catch (Exception e)
         {
             pushException(e);
         }
 
-        var parameterName = Parameters.Values.FirstOrDefault(moduleParameter => parameterNameRegex[moduleParameter.ParameterName].IsMatch(data.ParameterName))?.ParameterName;
+        var parameterName = Parameters.Values.FirstOrDefault(moduleParameter => parameterNameRegex[moduleParameter.ParameterName].IsMatch(message.ParameterName))?.ParameterName;
         if (parameterName is null) return;
 
         if (!parameterNameEnum.TryGetValue(parameterName, out var lookup)) return;
@@ -498,7 +498,7 @@ public abstract class Module : IComparable<Module>
 
         try
         {
-            OnModuleParameterReceived(new AvatarParameter(parameterData, lookup, data.ParameterName, data.ParameterValue));
+            OnModuleParameterReceived(new AvatarParameter(parameterData, lookup, message.ParameterName, message.ParameterValue));
         }
         catch (Exception e)
         {
