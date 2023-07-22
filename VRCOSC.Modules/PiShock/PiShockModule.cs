@@ -173,44 +173,32 @@ public class PiShockModule : Module
         SendParameter(PiShockParameter.Intensity, intensity);
     }
 
-    protected override void OnBoolParameterReceived(Enum key, bool value)
+    protected override void OnModuleParameterReceived(AvatarParameter parameter)
     {
-        switch (key)
+        switch (parameter.Lookup)
         {
             case PiShockParameter.Shock:
-                shock = value ? DateTimeOffset.Now : null;
+                shock = parameter.ValueAs<bool>() ? DateTimeOffset.Now : null;
                 break;
 
             case PiShockParameter.Vibrate:
-                vibrate = value ? DateTimeOffset.Now : null;
+                vibrate = parameter.ValueAs<bool>() ? DateTimeOffset.Now : null;
                 break;
 
             case PiShockParameter.Beep:
-                beep = value ? DateTimeOffset.Now : null;
+                beep = parameter.ValueAs<bool>() ? DateTimeOffset.Now : null;
                 break;
-        }
-    }
 
-    protected override void OnIntParameterReceived(Enum key, int value)
-    {
-        switch (key)
-        {
             case PiShockParameter.Group:
-                group = value;
+                group = parameter.ValueAs<int>();
                 break;
-        }
-    }
 
-    protected override void OnFloatParameterReceived(Enum key, float value)
-    {
-        switch (key)
-        {
             case PiShockParameter.Duration:
-                duration = Math.Clamp(value, 0f, 1f);
+                duration = Math.Clamp(parameter.ValueAs<float>(), 0f, 1f);
                 break;
 
             case PiShockParameter.Intensity:
-                intensity = Math.Clamp(value, 0f, 1f);
+                intensity = Math.Clamp(parameter.ValueAs<float>(), 0f, 1f);
                 break;
         }
     }

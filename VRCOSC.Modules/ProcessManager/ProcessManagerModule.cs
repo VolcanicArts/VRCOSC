@@ -18,17 +18,17 @@ public class ProcessManagerModule : Module
         CreateParameter<bool>(ProcessManagerParameter.Stop, ParameterMode.Read, "VRCOSC/ProcessManager/Stop/*", "Stop", "Becoming true will stop the process named in the '*' (the wildcard)\nFor example: VRCOSC/ProcessManager/Stop/vrchat");
     }
 
-    protected override void OnBoolParameterReceived(Enum key, bool value, string[] wildcards)
+    protected override void OnModuleParameterReceived(AvatarParameter parameter)
     {
-        var processName = wildcards[0];
+        var processName = parameter.WildcardAs<string>(0);
 
-        switch (key)
+        switch (parameter.Lookup)
         {
-            case ProcessManagerParameter.Start when value:
+            case ProcessManagerParameter.Start when parameter.ValueAs<bool>():
                 startProcess(processName);
                 break;
 
-            case ProcessManagerParameter.Stop when value:
+            case ProcessManagerParameter.Stop when parameter.ValueAs<bool>():
                 stopProcess(processName);
                 break;
         }

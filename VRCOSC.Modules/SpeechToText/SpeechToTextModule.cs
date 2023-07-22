@@ -68,16 +68,16 @@ public class SpeechToTextModule : ChatBoxModule
         speechToTextProvider.Teardown();
     }
 
-    protected override void OnBoolParameterReceived(Enum key, bool value)
+    protected override void OnModuleParameterReceived(AvatarParameter parameter)
     {
-        switch (key)
+        switch (parameter.Lookup)
         {
-            case SpeechToTextParameter.Reset when value:
+            case SpeechToTextParameter.Reset when parameter.ValueAs<bool>():
                 resetState();
                 break;
 
             case SpeechToTextParameter.Listen:
-                listening = value;
+                listening = parameter.ValueAs<bool>();
                 break;
         }
     }

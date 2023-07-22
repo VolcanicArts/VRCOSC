@@ -70,6 +70,8 @@ public abstract class Module : IComparable<Module>
     private readonly SerialisationManager persistenceSerialisationManager = new();
     private readonly SerialisationManager moduleSerialisationManager = new();
 
+    protected const double FIXED_UPDATE_DELTA = VRChatOscConstants.UPDATE_DELTA_MILLISECONDS;
+
     internal void InjectDependencies(GameHost host, AppManager appManager, Scheduler scheduler, Storage storage, NotificationContainer notifications)
     {
         this.host = host;
@@ -294,9 +296,10 @@ public abstract class Module : IComparable<Module>
         parameterNameRegex.Clear();
         Parameters.ForEach(pair => parameterNameRegex.Add(pair.Value.ParameterName, parameterToRegex(pair.Value.ParameterName)));
 
+        loadPersistentProperties();
+
         try
         {
-            loadPersistentProperties();
             OnModuleStart();
         }
         catch (Exception e)
@@ -306,15 +309,15 @@ public abstract class Module : IComparable<Module>
 
         state.Value = ModuleState.Started;
 
-        scheduler.AddDelayed(FixedUpdate, TimeSpan.FromSeconds(1f / 60f).TotalMilliseconds, true);
+        scheduler.AddDelayed(fixedUpdate, FIXED_UPDATE_DELTA, true);
 
         GetType()
             .GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
             .Where(method => method.GetCustomAttribute<ModuleUpdateAttribute>()?.Mode == ModuleUpdateMode.ChatBox)
             .ForEach(method =>
             {
-                scheduler.AddDelayed(() => Update(method), appManager.ChatBoxManager.SendDelay.Value, true);
-                if (method.GetCustomAttribute<ModuleUpdateAttribute>()!.UpdateImmediately) Update(method);
+                scheduler.AddDelayed(() => update(method), appManager.ChatBoxManager.SendDelay.Value, true);
+                if (method.GetCustomAttribute<ModuleUpdateAttribute>()!.UpdateImmediately) update(method);
             });
 
         GetType()
@@ -322,8 +325,8 @@ public abstract class Module : IComparable<Module>
             .Where(method => method.GetCustomAttribute<ModuleUpdateAttribute>()?.Mode == ModuleUpdateMode.Custom)
             .ForEach(method =>
             {
-                scheduler.AddDelayed(() => Update(method), method.GetCustomAttribute<ModuleUpdateAttribute>()!.DeltaMilliseconds, true);
-                if (method.GetCustomAttribute<ModuleUpdateAttribute>()!.UpdateImmediately) Update(method);
+                scheduler.AddDelayed(() => update(method), method.GetCustomAttribute<ModuleUpdateAttribute>()!.DeltaMilliseconds, true);
+                if (method.GetCustomAttribute<ModuleUpdateAttribute>()!.UpdateImmediately) update(method);
             });
     }
 
@@ -334,41 +337,15 @@ public abstract class Module : IComparable<Module>
         try
         {
             OnModuleStop();
-            savePersistentProperties();
         }
         catch (Exception e)
         {
             pushException(e);
         }
+
+        savePersistentProperties();
 
         state.Value = ModuleState.Stopped;
-    }
-
-    internal void Update(MethodInfo method)
-    {
-        try
-        {
-            method.Invoke(this, null);
-        }
-        catch (Exception e)
-        {
-            pushException(new Exception($"{className} experienced an exception calling method {method.Name}", e));
-        }
-    }
-
-    internal void FixedUpdate()
-    {
-        try
-        {
-            GetType()
-                .GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                .Where(method => method.GetCustomAttribute<ModuleUpdateAttribute>()?.Mode == ModuleUpdateMode.Fixed)
-                .ForEach(method => method.Invoke(this, null));
-        }
-        catch (Exception e)
-        {
-            pushException(e);
-        }
     }
 
     internal void PlayerUpdate()
@@ -383,7 +360,34 @@ public abstract class Module : IComparable<Module>
         }
     }
 
-    internal void AvatarChange()
+    private void update(MethodBase method)
+    {
+        try
+        {
+            method.Invoke(this, null);
+        }
+        catch (Exception e)
+        {
+            pushException(new Exception($"{className} experienced an exception calling method {method.Name}", e));
+        }
+    }
+
+    private void fixedUpdate()
+    {
+        try
+        {
+            GetType()
+                .GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                .Where(method => method.GetCustomAttribute<ModuleUpdateAttribute>()?.Mode == ModuleUpdateMode.Fixed)
+                .ForEach(method => method.Invoke(this, null));
+        }
+        catch (Exception e)
+        {
+            pushException(e);
+        }
+    }
+
+    private void avatarChange()
     {
         try
         {
@@ -399,6 +403,9 @@ public abstract class Module : IComparable<Module>
     protected virtual void OnModuleStop() { }
     protected virtual void OnAvatarChange() { }
     protected virtual void OnPlayerUpdate() { }
+
+    protected virtual void OnAnyParameterReceived(AvatarParameter parameter) { }
+    protected virtual void OnModuleParameterReceived(AvatarParameter parameter) { }
 
     #endregion
 
@@ -452,14 +459,14 @@ public abstract class Module : IComparable<Module>
         var data = Parameters[lookup];
         if (!data.Mode.HasFlagFast(ParameterMode.Write)) throw new InvalidOperationException($"Parameter {lookup.GetType().Name}.{lookup} is a read-only parameter and therefore can't be sent!");
 
-        scheduler.Add(() => oscClient.SendValue(data.FormattedAddress, value));
+        scheduler.Add(() => oscClient.SendValue(data.ParameterAddress, value));
     }
 
     internal void OnParameterReceived(VRChatOscData data)
     {
         if (data.IsAvatarChangeEvent)
         {
-            AvatarChange();
+            avatarChange();
             return;
         }
 
@@ -467,21 +474,15 @@ public abstract class Module : IComparable<Module>
 
         try
         {
-            OnAnyParameterReceived(data);
+            OnAnyParameterReceived(new AvatarParameter(null, data.ParameterName, data.ParameterValue));
         }
         catch (Exception e)
         {
-            notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
-            Logger.Error(e, $"{className} experienced an exception");
+            pushException(e);
         }
 
         var parameterName = Parameters.Values.FirstOrDefault(moduleParameter => parameterNameRegex[moduleParameter.ParameterName].IsMatch(data.ParameterName))?.ParameterName;
         if (parameterName is null) return;
-
-        var wildcards = new List<string>();
-
-        var match = parameterNameRegex[parameterName].Match(data.ParameterName);
-        if (match.Groups.Count > 1) wildcards.AddRange(match.Groups.Values.Skip(1).Select(group => group.Value));
 
         if (!parameterNameEnum.TryGetValue(parameterName, out var lookup)) return;
 
@@ -497,44 +498,13 @@ public abstract class Module : IComparable<Module>
 
         try
         {
-            switch (data.ParameterValue)
-            {
-                case bool boolValue:
-                    if (wildcards.Any())
-                        OnBoolParameterReceived(lookup, boolValue, wildcards.ToArray());
-                    else
-                        OnBoolParameterReceived(lookup, boolValue);
-
-                    break;
-
-                case int intValue:
-                    if (wildcards.Any())
-                        OnIntParameterReceived(lookup, intValue, wildcards.ToArray());
-                    else
-                        OnIntParameterReceived(lookup, intValue);
-                    break;
-
-                case float floatValue:
-                    if (wildcards.Any())
-                        OnFloatParameterReceived(lookup, floatValue, wildcards.ToArray());
-                    else
-                        OnFloatParameterReceived(lookup, floatValue);
-                    break;
-            }
+            OnModuleParameterReceived(new AvatarParameter(parameterData, lookup, data.ParameterName, data.ParameterValue));
         }
         catch (Exception e)
         {
             pushException(e);
         }
     }
-
-    protected virtual void OnAnyParameterReceived(VRChatOscData data) { }
-    protected virtual void OnBoolParameterReceived(Enum key, bool value) { }
-    protected virtual void OnIntParameterReceived(Enum key, int value) { }
-    protected virtual void OnFloatParameterReceived(Enum key, float value) { }
-    protected virtual void OnBoolParameterReceived(Enum key, bool value, string[] wildcards) { }
-    protected virtual void OnIntParameterReceived(Enum key, int value, string[] wildcards) { }
-    protected virtual void OnFloatParameterReceived(Enum key, float value, string[] wildcards) { }
 
     #endregion
 

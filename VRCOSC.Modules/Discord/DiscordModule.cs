@@ -24,9 +24,9 @@ public sealed class DiscordModule : IntegrationModule
         RegisterKeyCombination(DiscordParameter.Deafen, User32.VirtualKey.VK_LCONTROL, User32.VirtualKey.VK_LSHIFT, User32.VirtualKey.VK_D);
     }
 
-    protected override void OnBoolParameterReceived(Enum key, bool value)
+    protected override void OnModuleParameterReceived(AvatarParameter parameter)
     {
-        if (value) ExecuteKeyCombination(key);
+        if (parameter.ValueAs<bool>()) ExecuteKeyCombination(parameter.Lookup!);
     }
 
     private enum DiscordParameter

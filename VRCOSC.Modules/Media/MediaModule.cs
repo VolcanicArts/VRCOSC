@@ -170,12 +170,12 @@ public class MediaModule : ChatBoxModule
         return visual;
     }
 
-    protected override void OnFloatParameterReceived(Enum key, float value)
+    protected override void OnModuleParameterReceived(AvatarParameter parameter)
     {
-        switch (key)
+        switch (parameter.Lookup)
         {
             case MediaParameter.Volume:
-                mediaProvider.TryChangeVolume(value);
+                mediaProvider.TryChangeVolume(parameter.ValueAs<float>());
                 break;
 
             case MediaParameter.Position:
@@ -183,48 +183,35 @@ public class MediaModule : ChatBoxModule
                 if (!currentlySeeking.Value) return;
 
                 var position = mediaProvider.State.Timeline;
-                targetPosition = (position.End - position.Start) * value;
-                break;
-        }
-    }
-
-    protected override void OnBoolParameterReceived(Enum key, bool value)
-    {
-        switch (key)
-        {
-            case MediaParameter.Play when value:
-                mediaProvider.Play();
+                targetPosition = (position.End - position.Start) * parameter.ValueAs<float>();
                 break;
 
-            case MediaParameter.Play when !value:
-                mediaProvider.Pause();
+            case MediaParameter.Repeat:
+                mediaProvider.ChangeRepeatMode((MediaRepeatMode)parameter.ValueAs<int>());
+                break;
+
+            case MediaParameter.Play:
+                if (parameter.ValueAs<bool>())
+                    mediaProvider.Play();
+                else
+                    mediaProvider.Pause();
                 break;
 
             case MediaParameter.Shuffle:
-                mediaProvider.ChangeShuffle(value);
+                mediaProvider.ChangeShuffle(parameter.ValueAs<bool>());
                 break;
 
-            case MediaParameter.Next when value:
+            case MediaParameter.Next when parameter.ValueAs<bool>():
                 mediaProvider.SkipNext();
                 break;
 
-            case MediaParameter.Previous when value:
+            case MediaParameter.Previous when parameter.ValueAs<bool>():
                 mediaProvider.SkipPrevious();
                 break;
 
             case MediaParameter.Seeking:
-                currentlySeeking.Value = value;
+                currentlySeeking.Value = parameter.ValueAs<bool>();
                 if (!currentlySeeking.Value) mediaProvider.ChangePlaybackPosition(targetPosition);
-                break;
-        }
-    }
-
-    protected override void OnIntParameterReceived(Enum key, int value)
-    {
-        switch (key)
-        {
-            case MediaParameter.Repeat:
-                mediaProvider.ChangeRepeatMode((MediaRepeatMode)value);
                 break;
         }
     }

@@ -85,7 +85,7 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
     {
         if (GetSetting<bool>(HeartrateSetting.Smoothed))
         {
-            currentHeartrate = (float)Interpolation.DampContinuously(currentHeartrate, targetHeartrate, GetSetting<int>(HeartrateSetting.SmoothingLength) / 2d, TimeSpan.FromSeconds(1d / 60d).TotalMilliseconds);
+            currentHeartrate = (float)Interpolation.DampContinuously(currentHeartrate, targetHeartrate, GetSetting<int>(HeartrateSetting.SmoothingLength) / 2d, FIXED_UPDATE_DELTA);
         }
         else
         {

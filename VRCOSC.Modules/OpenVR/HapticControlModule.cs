@@ -35,39 +35,31 @@ public class HapticControlModule : Module
         amplitude = 0;
     }
 
-    protected override void OnFloatParameterReceived(Enum key, float value)
+    protected override void OnModuleParameterReceived(AvatarParameter parameter)
     {
-        switch (key)
+        switch (parameter.Lookup)
         {
             case HapticControlParameter.Duration:
-                duration = value;
+                duration = parameter.ValueAs<float>();
                 break;
 
             case HapticControlParameter.Frequency:
-                value = Math.Clamp(value, 0, 1);
-                frequency = value * 100f;
+                frequency = Math.Clamp(parameter.ValueAs<float>(), 0, 1) * 100f;
                 break;
 
             case HapticControlParameter.Amplitude:
-                value = Math.Clamp(value, 0, 1);
-                amplitude = value;
+                amplitude = Math.Clamp(parameter.ValueAs<float>(), 0, 1);
                 break;
-        }
-    }
 
-    protected override void OnBoolParameterReceived(Enum key, bool value)
-    {
-        switch (key)
-        {
-            case HapticControlParameter.Trigger when value:
+            case HapticControlParameter.Trigger when parameter.ValueAs<bool>():
                 triggerHaptic(true, true);
                 break;
 
-            case HapticControlParameter.TriggerLeft when value:
+            case HapticControlParameter.TriggerLeft when parameter.ValueAs<bool>():
                 triggerHaptic(true, false);
                 break;
 
-            case HapticControlParameter.TriggerRight when value:
+            case HapticControlParameter.TriggerRight when parameter.ValueAs<bool>():
                 triggerHaptic(false, true);
                 break;
         }

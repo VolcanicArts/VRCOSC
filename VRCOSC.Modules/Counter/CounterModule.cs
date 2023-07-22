@@ -6,7 +6,6 @@ using osu.Framework.Extensions.IEnumerableExtensions;
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.Modules.Attributes;
 using VRCOSC.Game.Modules.ChatBox;
-using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Modules.Counter;
 
@@ -77,14 +76,14 @@ public class CounterModule : ChatBoxModule
         });
     }
 
-    protected override void OnAnyParameterReceived(VRChatOscData data)
+    protected override void OnAnyParameterReceived(AvatarParameter parameter)
     {
-        var instance = counts.Values.SingleOrDefault(instance => instance.ParameterNames.Contains(data.ParameterName));
+        var instance = counts.Values.SingleOrDefault(instance => instance.ParameterNames.Contains(parameter.Name));
         if (instance is null) return;
 
-        if (data.IsValueType<float>() && data.ValueAs<float>() > 0.9f) counterChanged(instance);
-        if (data.IsValueType<int>() && data.ValueAs<int>() != 0) counterChanged(instance);
-        if (data.IsValueType<bool>() && data.ValueAs<bool>()) counterChanged(instance);
+        if (parameter.IsValueType<float>() && parameter.ValueAs<float>() > 0.9f) counterChanged(instance);
+        if (parameter.IsValueType<int>() && parameter.ValueAs<int>() != 0) counterChanged(instance);
+        if (parameter.IsValueType<bool>() && parameter.ValueAs<bool>()) counterChanged(instance);
     }
 
     private void counterChanged(CountInstance instance)
