@@ -309,24 +309,39 @@ public abstract class Module : IComparable<Module>
 
         state.Value = ModuleState.Started;
 
-        scheduler.AddDelayed(fixedUpdate, FIXED_UPDATE_DELTA, true);
+        initialiseUpdateAttributes(GetType());
+    }
 
-        GetType()
-            .GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-            .Where(method => method.GetCustomAttribute<ModuleUpdateAttribute>()?.Mode == ModuleUpdateMode.ChatBox)
+    private void initialiseUpdateAttributes(Type? type)
+    {
+        if (type is null) return;
+
+        initialiseUpdateAttributes(type.BaseType);
+
+        type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
             .ForEach(method =>
             {
-                scheduler.AddDelayed(() => update(method), appManager.ChatBoxManager.SendDelay.Value, true);
-                if (method.GetCustomAttribute<ModuleUpdateAttribute>()!.UpdateImmediately) update(method);
-            });
+                var updateAttribute = method.GetCustomAttribute<ModuleUpdateAttribute>();
+                if (updateAttribute is null) return;
 
-        GetType()
-            .GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-            .Where(method => method.GetCustomAttribute<ModuleUpdateAttribute>()?.Mode == ModuleUpdateMode.Custom)
-            .ForEach(method =>
-            {
-                scheduler.AddDelayed(() => update(method), method.GetCustomAttribute<ModuleUpdateAttribute>()!.DeltaMilliseconds, true);
-                if (method.GetCustomAttribute<ModuleUpdateAttribute>()!.UpdateImmediately) update(method);
+                switch (updateAttribute.Mode)
+                {
+                    case ModuleUpdateMode.Fixed:
+                        scheduler.AddDelayed(() => update(method), FIXED_UPDATE_DELTA, true);
+                        break;
+
+                    case ModuleUpdateMode.ChatBox:
+                        scheduler.AddDelayed(() => update(method), appManager.ChatBoxManager.SendDelay.Value, true);
+                        break;
+
+                    case ModuleUpdateMode.Custom:
+                        scheduler.AddDelayed(() => update(method), updateAttribute.DeltaMilliseconds, true);
+                        if (updateAttribute.UpdateImmediately) update(method);
+                        break;
+
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             });
     }
 
@@ -369,21 +384,6 @@ public abstract class Module : IComparable<Module>
         catch (Exception e)
         {
             pushException(new Exception($"{className} experienced an exception calling method {method.Name}", e));
-        }
-    }
-
-    private void fixedUpdate()
-    {
-        try
-        {
-            GetType()
-                .GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                .Where(method => method.GetCustomAttribute<ModuleUpdateAttribute>()?.Mode == ModuleUpdateMode.Fixed)
-                .ForEach(method => method.Invoke(this, null));
-        }
-        catch (Exception e)
-        {
-            pushException(e);
         }
     }
 
