@@ -19,7 +19,7 @@ public class ClipEvent : IProvidesFormat
     };
 
     public Bindable<bool> Enabled = new();
-    public Bindable<int> Length = new();
+    public Bindable<float> Length = new();
 
     public bool IsDefault => Format.IsDefault && Enabled.IsDefault && Length.IsDefault;
 
