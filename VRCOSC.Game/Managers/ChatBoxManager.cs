@@ -144,14 +144,18 @@ public class ChatBoxManager
 
     public void Update()
     {
-        lock (triggeredEventsLock)
+        if (sendAllowed)
         {
-            Clips.ForEach(clip => clip.Update());
-            // Events get handled by clips in the same update cycle they're triggered
-            TriggeredEvents.Clear();
-        }
+            appManager.ModuleManager.ChatBoxUpdate();
 
-        if (sendAllowed) evaluateClips();
+            lock (triggeredEventsLock)
+            {
+                Clips.ForEach(clip => clip.Update());
+                TriggeredEvents.Clear();
+            }
+
+            evaluateClips();
+        }
     }
 
     public void Teardown()

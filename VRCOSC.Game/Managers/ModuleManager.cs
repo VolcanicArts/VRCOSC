@@ -167,6 +167,14 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
         }
     }
 
+    public void ChatBoxUpdate()
+    {
+        foreach (var module in runningModulesCache)
+        {
+            module.ChatBoxUpdate();
+        }
+    }
+
     public void Update()
     {
         scheduler.Update();

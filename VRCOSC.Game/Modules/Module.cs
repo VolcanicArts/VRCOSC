@@ -46,6 +46,7 @@ public abstract class Module : IComparable<Module>
     internal readonly Dictionary<string, ModuleAttribute> Settings = new();
     internal readonly Dictionary<Enum, ModuleParameter> Parameters = new();
     internal readonly Dictionary<ModulePersistentAttribute, PropertyInfo> PersistentProperies = new();
+    internal readonly List<MethodInfo> ChatBoxUpdateMethods = new();
 
     internal string Title => GetType().GetCustomAttribute<ModuleTitleAttribute>()?.Title ?? "PLACEHOLDER";
     internal string ShortDescription => GetType().GetCustomAttribute<ModuleDescriptionAttribute>()?.ShortDescription ?? "PLACEHOLDER";
@@ -331,13 +332,13 @@ public abstract class Module : IComparable<Module>
                         scheduler.AddDelayed(() => update(method), FIXED_UPDATE_DELTA, true);
                         break;
 
-                    case ModuleUpdateMode.ChatBox:
-                        scheduler.AddDelayed(() => update(method), appManager.ChatBoxManager.SendDelay.Value, true);
-                        break;
-
                     case ModuleUpdateMode.Custom:
                         scheduler.AddDelayed(() => update(method), updateAttribute.DeltaMilliseconds, true);
                         if (updateAttribute.UpdateImmediately) update(method);
+                        break;
+
+                    case ModuleUpdateMode.ChatBox:
+                        ChatBoxUpdateMethods.Add(method);
                         break;
 
                     default:
@@ -374,6 +375,11 @@ public abstract class Module : IComparable<Module>
         {
             pushException(e);
         }
+    }
+
+    internal void ChatBoxUpdate()
+    {
+        ChatBoxUpdateMethods.ForEach(update);
     }
 
     private void update(MethodBase method)
