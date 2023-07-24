@@ -38,6 +38,7 @@ public class CounterModule : ChatBoxModule
 
     protected override void OnModuleStart()
     {
+        ChangeStateTo(CounterState.Default);
         auditParameters();
         counts.Values.ForEach(instance => SetVariableValue(CounterVariable.Value, instance.Count.ToString("N0"), instance.Key));
     }

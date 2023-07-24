@@ -98,6 +98,12 @@ public class ChatBoxManager
         bindAttributes();
     }
 
+    public void ResetTimeline()
+    {
+        setDefaults();
+        Serialise();
+    }
+
     public void Deserialise()
     {
         if (!serialisationManager.Deserialise()) return;

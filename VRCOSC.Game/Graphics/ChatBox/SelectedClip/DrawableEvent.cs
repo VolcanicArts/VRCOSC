@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Globalization;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -31,7 +32,7 @@ public partial class DrawableEvent : Container
     [BackgroundDependencyLoader]
     private void load()
     {
-        IntTextBox lengthTextBox;
+        FloatTextBox lengthTextBox;
 
         Children = new Drawable[]
         {
@@ -124,10 +125,10 @@ public partial class DrawableEvent : Container
                                 new Container
                                 {
                                     RelativeSizeAxes = Axes.Both,
-                                    Child = lengthTextBox = new IntTextBox
+                                    Child = lengthTextBox = new FloatTextBox
                                     {
                                         RelativeSizeAxes = Axes.Both,
-                                        Text = ClipEvent.Length.Value.ToString(),
+                                        Text = ClipEvent.Length.Value.ToString(CultureInfo.CurrentCulture),
                                         Masking = true,
                                         CornerRadius = 5,
                                         BorderThickness = 2,

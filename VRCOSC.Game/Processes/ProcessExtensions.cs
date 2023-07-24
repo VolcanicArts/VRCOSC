@@ -22,6 +22,13 @@ public static class ProcessExtensions
         windowsVKeys.ForEach(key => User32.keybd_event((byte)(int)key, (byte)(int)key, User32.KEYEVENTF.KEYEVENTF_KEYUP, IntPtr.Zero));
     }
 
+    public static string? GetActiveWindowTitle()
+    {
+        var buff = new char[256];
+        var handle = User32.GetForegroundWindow();
+        return User32.GetWindowText(handle, buff, 256) > 0 ? buff.ToString() : null;
+    }
+
     public static void ShowMainWindow(this Process process, User32.WindowShowStyle style) => User32.ShowWindow(process.MainWindowHandle, style);
     public static void SetMainWindowForeground(this Process process) => User32.SetForegroundWindow(process.MainWindowHandle);
 
