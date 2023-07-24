@@ -60,8 +60,8 @@ public class TimelineSerialiser : Serialiser<AppManager, SerialisableTimeline>
                     if (index == -1) return;
 
                     clipState.States[index].Module = migration.Item2;
+                    migrationOccurred = true;
                 });
-                migrationOccurred = true;
             });
 
             migrationList.ForEach(migration =>
