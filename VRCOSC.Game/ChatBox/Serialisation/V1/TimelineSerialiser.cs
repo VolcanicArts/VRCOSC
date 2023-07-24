@@ -25,9 +25,11 @@ public class TimelineSerialiser : Serialiser<AppManager, SerialisableTimeline>
 
     protected override SerialisableTimeline GetSerialisableData(AppManager appManager) => new(appManager);
 
-    protected override void ExecuteAfterDeserialisation(AppManager appManager, SerialisableTimeline data)
+    protected override bool ExecuteAfterDeserialisation(AppManager appManager, SerialisableTimeline data)
     {
         var createdClips = new List<Clip>();
+
+        var migrationOccurred = false;
 
         data.Clips.ForEach(clip =>
         {
@@ -38,6 +40,38 @@ public class TimelineSerialiser : Serialiser<AppManager, SerialisableTimeline>
             newClip.Priority.Value = clip.Priority;
             newClip.Start.Value = clip.Start;
             newClip.End.Value = clip.End;
+
+            var migrationList = appManager.ModuleManager.GetMigrations();
+
+            migrationList.ForEach(migration =>
+            {
+                var index = clip.AssociatedModules.FindIndex(module => module == migration.Item1);
+                if (index == -1) return;
+
+                clip.AssociatedModules[index] = migration.Item2;
+                migrationOccurred = true;
+            });
+
+            migrationList.ForEach(migration =>
+            {
+                clip.States.ForEach(clipState =>
+                {
+                    var index = clipState.States.FindIndex(state => state.Module == migration.Item1);
+                    if (index == -1) return;
+
+                    clipState.States[index].Module = migration.Item2;
+                });
+                migrationOccurred = true;
+            });
+
+            migrationList.ForEach(migration =>
+            {
+                var index = clip.Events.FindIndex(state => state.Module == migration.Item1);
+                if (index == -1) return;
+
+                clip.Events[index].Module = migration.Item2;
+                migrationOccurred = true;
+            });
 
             newClip.AssociatedModules.AddRange(clip.AssociatedModules.Where(serialisedModuleName => appManager.ModuleManager.DoesModuleExist(serialisedModuleName)));
 
@@ -93,5 +127,7 @@ public class TimelineSerialiser : Serialiser<AppManager, SerialisableTimeline>
 
         appManager.ChatBoxManager.Clips.ReplaceItems(createdClips);
         appManager.ChatBoxManager.SetTimelineLength(TimeSpan.FromTicks(data.Ticks));
+
+        return migrationOccurred;
     }
 }

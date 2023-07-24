@@ -4,13 +4,14 @@
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.Modules.ChatBox;
 
-namespace VRCOSC.Modules.AFK;
+namespace VRCOSC.Modules.AFKTracker;
 
-[ModuleTitle("AFK Display")]
+[ModuleTitle("AFK Tracker")]
 [ModuleDescription("Displays text and time since going AFK")]
 [ModuleAuthor("VolcanicArts", "https://github.com/VolcanicArts", "https://avatars.githubusercontent.com/u/29819296?v=4")]
 [ModuleGroup(ModuleType.General)]
-public class AFKModule : ChatBoxModule
+[ModuleLegacy("afkmodule")]
+public class AFKTrackerModule : ChatBoxModule
 {
     private DateTime? afkBegan;
 

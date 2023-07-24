@@ -134,6 +134,22 @@ public class ModulePersistentAttribute : Attribute
     }
 }
 
+[MeansImplicitUse(ImplicitUseKindFlags.InstantiatedNoFixedConstructorSignature)]
+[AttributeUsage(AttributeTargets.Class)]
+public class ModuleLegacyAttribute : Attribute
+{
+    public string? LegacySerialisedName { get; }
+
+    /// <summary>
+    /// Marks a module with legacy fields to allow for migration
+    /// </summary>
+    /// <param name="legacySerialisedName">Allows migration from a legacy serialised name to the current serialised name in the case that the class is renamed</param>
+    public ModuleLegacyAttribute(string? legacySerialisedName = null)
+    {
+        LegacySerialisedName = legacySerialisedName;
+    }
+}
+
 public enum ModuleUpdateMode
 {
     /// <summary>

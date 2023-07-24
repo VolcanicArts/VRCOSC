@@ -66,6 +66,7 @@ public abstract class Module : IComparable<Module>
 
     private string className => GetType().Name;
     internal string SerialisedName => className.ToLowerInvariant();
+    internal string? LegacySerialisedName => GetType().GetCustomAttribute<ModuleLegacyAttribute>()?.LegacySerialisedName?.ToLowerInvariant();
 
     private readonly SerialisationManager persistenceSerialisationManager = new();
     private readonly SerialisationManager moduleSerialisationManager = new();

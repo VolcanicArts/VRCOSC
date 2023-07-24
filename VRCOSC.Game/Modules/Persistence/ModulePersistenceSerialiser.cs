@@ -20,7 +20,7 @@ public class ModulePersistenceSerialiser : Serialiser<Module, SerialisableModule
 
     protected override SerialisableModulePersistence GetSerialisableData(Module reference) => new(reference);
 
-    protected override void ExecuteAfterDeserialisation(Module reference, SerialisableModulePersistence data)
+    protected override bool ExecuteAfterDeserialisation(Module reference, SerialisableModulePersistence data)
     {
         data.Properties.ForEach(propertyData =>
         {
@@ -30,5 +30,7 @@ public class ModulePersistenceSerialiser : Serialiser<Module, SerialisableModule
             var propertyValue = JsonConvert.DeserializeObject(propertyData.Value.ToString(), targetType);
             propertyInfo.SetValue(reference, propertyValue);
         });
+
+        return false;
     }
 }

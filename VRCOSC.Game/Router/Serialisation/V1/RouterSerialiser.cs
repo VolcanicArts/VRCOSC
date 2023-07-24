@@ -22,7 +22,7 @@ public class RouterSerialiser : Serialiser<RouterManager, SerialisableRouterMana
 
     protected override SerialisableRouterManager GetSerialisableData(RouterManager routerManager) => new(routerManager);
 
-    protected override void ExecuteAfterDeserialisation(RouterManager routerManager, SerialisableRouterManager data)
+    protected override bool ExecuteAfterDeserialisation(RouterManager routerManager, SerialisableRouterManager data)
     {
         routerManager.Store.ReplaceItems(data.Data.Select(routerData => new RouterData
         {
@@ -35,5 +35,7 @@ public class RouterSerialiser : Serialiser<RouterManager, SerialisableRouterMana
                 SendPort = { Value = routerData.SendPort }
             }
         }));
+
+        return false;
     }
 }

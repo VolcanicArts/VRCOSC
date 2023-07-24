@@ -15,6 +15,7 @@ public class ModuleSerialiser : Serialiser<Module, SerialisableModule>
 
     protected override string Directory => "modules";
     protected override string FileName => $"{moduleReference.SerialisedName}.json";
+    protected override string? LegacyFileName => moduleReference.LegacySerialisedName is null ? null : $"{moduleReference.LegacySerialisedName}.json";
 
     public ModuleSerialiser(Storage storage, NotificationContainer notification, Module reference)
         : base(storage, notification, reference)
@@ -24,7 +25,7 @@ public class ModuleSerialiser : Serialiser<Module, SerialisableModule>
 
     protected override SerialisableModule GetSerialisableData(Module reference) => new(reference);
 
-    protected override void ExecuteAfterDeserialisation(Module module, SerialisableModule data)
+    protected override bool ExecuteAfterDeserialisation(Module module, SerialisableModule data)
     {
         module.Enabled.Value = data.Enabled;
 
@@ -41,5 +42,7 @@ public class ModuleSerialiser : Serialiser<Module, SerialisableModule>
 
             if (module.TryGetParameter(parameterKey, out var parameter)) parameter.DeserialiseValue(parameterValue);
         });
+
+        return false;
     }
 }
