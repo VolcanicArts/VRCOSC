@@ -321,7 +321,7 @@ public class ChatBoxManager
         StateValues[module] = lookup;
     }
 
-    public void RegisterEvent(string module, string lookup, string name, string defaultFormat, int defaultLength)
+    public void RegisterEvent(string module, string lookup, string name, string defaultFormat, float defaultLength)
     {
         var eventMetadata = new ClipEventMetadata
         {
