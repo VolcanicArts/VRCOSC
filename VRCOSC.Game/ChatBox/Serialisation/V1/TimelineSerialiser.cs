@@ -23,8 +23,6 @@ public class TimelineSerialiser : Serialiser<AppManager, SerialisableTimeline>
     {
     }
 
-    protected override SerialisableTimeline GetSerialisableData(AppManager appManager) => new(appManager);
-
     protected override bool ExecuteAfterDeserialisation(AppManager appManager, SerialisableTimeline data)
     {
         var createdClips = new List<Clip>();

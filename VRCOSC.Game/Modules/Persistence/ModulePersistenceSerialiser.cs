@@ -19,8 +19,6 @@ public class ModulePersistenceSerialiser : Serialiser<Module, SerialisableModule
     {
     }
 
-    protected override SerialisableModulePersistence GetSerialisableData(Module reference) => new(reference);
-
     protected override bool ExecuteAfterDeserialisation(Module reference, SerialisableModulePersistence data)
     {
         data.Properties.ForEach(propertyData =>

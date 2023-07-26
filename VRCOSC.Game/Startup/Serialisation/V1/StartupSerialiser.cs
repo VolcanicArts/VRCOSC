@@ -20,8 +20,6 @@ public class StartupSerialiser : Serialiser<StartupManager, SerialisableStartupM
     {
     }
 
-    protected override SerialisableStartupManager GetSerialisableData(StartupManager startupManager) => new(startupManager);
-
     protected override bool ExecuteAfterDeserialisation(StartupManager startupManager, SerialisableStartupManager data)
     {
         startupManager.FilePaths.ReplaceItems(data.FilePaths.Select(path => new Bindable<string>(path)));

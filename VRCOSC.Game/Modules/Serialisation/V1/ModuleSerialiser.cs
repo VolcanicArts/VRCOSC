@@ -20,8 +20,6 @@ public class ModuleSerialiser : Serialiser<Module, SerialisableModule>
     {
     }
 
-    protected override SerialisableModule GetSerialisableData(Module reference) => new(reference);
-
     protected override bool ExecuteAfterDeserialisation(Module module, SerialisableModule data)
     {
         module.Enabled.Value = data.Enabled;

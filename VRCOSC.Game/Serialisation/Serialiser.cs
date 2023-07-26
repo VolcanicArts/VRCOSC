@@ -140,13 +140,12 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
 
     private void performSerialisation()
     {
-        var data = GetSerialisableData(Reference);
+        var data = (TSerialisable)Activator.CreateInstance(typeof(TSerialisable), Reference)!;
 
         var bytes = Encoding.Unicode.GetBytes(JsonConvert.SerializeObject(data, Formatting.Indented));
         using var stream = storage.CreateFileSafely(FileName);
         stream.Write(bytes);
     }
 
-    protected abstract TSerialisable GetSerialisableData(TReference reference);
     protected abstract bool ExecuteAfterDeserialisation(TReference reference, TSerialisable data);
 }

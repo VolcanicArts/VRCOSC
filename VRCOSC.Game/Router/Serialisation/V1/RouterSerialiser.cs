@@ -20,8 +20,6 @@ public class RouterSerialiser : Serialiser<RouterManager, SerialisableRouterMana
     {
     }
 
-    protected override SerialisableRouterManager GetSerialisableData(RouterManager routerManager) => new(routerManager);
-
     protected override bool ExecuteAfterDeserialisation(RouterManager routerManager, SerialisableRouterManager data)
     {
         routerManager.Store.ReplaceItems(data.Data.Select(routerData => new RouterData
