@@ -11,6 +11,7 @@ namespace VRCOSC.Game.Modules.Persistence;
 public class ModulePersistenceSerialiser : Serialiser<Module, SerialisableModulePersistence>
 {
     protected override string FileName => $"{Reference.SerialisedName}.json";
+    protected override string? LegacyFileName => Reference.LegacySerialisedName is null ? null : $"{Reference.LegacySerialisedName}.json";
     protected override string Directory => "module-states";
 
     public ModulePersistenceSerialiser(Storage storage, NotificationContainer notification, Module reference)

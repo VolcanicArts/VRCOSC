@@ -11,16 +11,13 @@ namespace VRCOSC.Game.Modules.Serialisation.V1;
 
 public class ModuleSerialiser : Serialiser<Module, SerialisableModule>
 {
-    private readonly Module moduleReference;
-
     protected override string Directory => "modules";
-    protected override string FileName => $"{moduleReference.SerialisedName}.json";
-    protected override string? LegacyFileName => moduleReference.LegacySerialisedName is null ? null : $"{moduleReference.LegacySerialisedName}.json";
+    protected override string FileName => $"{Reference.SerialisedName}.json";
+    protected override string? LegacyFileName => Reference.LegacySerialisedName is null ? null : $"{Reference.LegacySerialisedName}.json";
 
     public ModuleSerialiser(Storage storage, NotificationContainer notification, Module reference)
         : base(storage, notification, reference)
     {
-        moduleReference = reference;
     }
 
     protected override SerialisableModule GetSerialisableData(Module reference) => new(reference);
