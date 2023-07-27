@@ -40,7 +40,7 @@ public class CounterModule : ChatBoxModule
     {
         ChangeStateTo(CounterState.Default);
         auditParameters();
-        Counts.ForEach(pair => SetVariableValue(CounterVariable.Value, pair.Value.Count.ToString("N0"), pair.Key));
+        counts.ForEach(pair => SetVariableValue(CounterVariable.Value, pair.Value.Count.ToString("N0"), pair.Key));
     }
 
     protected override void OnAvatarChange()
@@ -61,8 +61,8 @@ public class CounterModule : ChatBoxModule
         {
             if (string.IsNullOrEmpty(pair.Key.Value) || string.IsNullOrEmpty(pair.Value.Value)) return;
 
-            Counts.TryAdd(pair.Key.Value, new CountInstance());
-            Counts[pair.Key.Value].ParameterNames.Add(pair.Value.Value);
+            counts.TryAdd(pair.Key.Value, new CountInstance());
+            counts[pair.Key.Value].ParameterNames.Add(pair.Value.Value);
 
             SetVariableValue(CounterVariable.Value, counts[pair.Key.Value].Count.ToString("N0"), pair.Key.Value);
             SetVariableValue(CounterVariable.ValueToday, counts[pair.Key.Value].CountToday.ToString("N0"), pair.Key.Value);
@@ -79,14 +79,14 @@ public class CounterModule : ChatBoxModule
 
     protected override void OnAnyParameterReceived(AvatarParameter parameter)
     {
-        var candidates = Counts.Where(pair => pair.Value.ParameterNames.Contains(message.ParameterName)).ToList();
+        var candidates = counts.Where(pair => pair.Value.ParameterNames.Contains(parameter.Name)).ToList();
         if (!candidates.Any()) return;
 
         var pair = candidates[0];
 
-        if (message.IsValueType<float>() && message.ValueAs<float>() > 0.9f) counterChanged(pair);
-        if (message.IsValueType<int>() && message.ValueAs<int>() != 0) counterChanged(pair);
-        if (message.IsValueType<bool>() && message.ValueAs<bool>()) counterChanged(pair);
+        if (parameter.IsValueType<float>() && parameter.ValueAs<float>() > 0.9f) counterChanged(pair);
+        if (parameter.IsValueType<int>() && parameter.ValueAs<int>() != 0) counterChanged(pair);
+        if (parameter.IsValueType<bool>() && parameter.ValueAs<bool>()) counterChanged(pair);
     }
 
     private void counterChanged(KeyValuePair<string, CountInstance> pair)
