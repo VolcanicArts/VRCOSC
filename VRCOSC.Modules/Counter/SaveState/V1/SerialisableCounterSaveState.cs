@@ -22,7 +22,7 @@ public class SerialisableCounterSaveState
     {
         Version = 1;
 
-        Instances.AddRange(module.Counts.Values.Select(instance => new CounterInstanceSaveState(instance)));
+        Instances.AddRange(module.Counts.Select(pair => new CounterInstanceSaveState(pair)));
     }
 }
 
@@ -39,9 +39,9 @@ public class CounterInstanceSaveState
     {
     }
 
-    public CounterInstanceSaveState(CountInstance instance)
+    public CounterInstanceSaveState(KeyValuePair<string, CountInstance> pair)
     {
-        Key = instance.Key;
-        Count = instance.Count;
+        Key = pair.Key;
+        Count = pair.Value.Count;
     }
 }
