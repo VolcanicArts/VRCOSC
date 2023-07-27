@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using NAudio.CoreAudioApi;
 using osu.Framework.Extensions.IEnumerableExtensions;
@@ -24,9 +25,9 @@ public static class ProcessExtensions
 
     public static string? GetActiveWindowTitle()
     {
-        var buff = new char[256];
+        var buffer = new char[256];
         var handle = User32.GetForegroundWindow();
-        return User32.GetWindowText(handle, buff, 256) > 0 ? buff.ToString() : null;
+        return User32.GetWindowText(handle, buffer, 256) > 0 ? Encoding.UTF8.GetString(Encoding.UTF8.GetBytes(buffer)) : null;
     }
 
     public static void ShowMainWindow(this Process process, User32.WindowShowStyle style) => User32.ShowWindow(process.MainWindowHandle, style);
