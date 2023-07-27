@@ -3,6 +3,7 @@
 
 using VRCOSC.Game.Modules.ChatBox;
 using VRCOSC.Game.OSC.VRChat;
+using VRCOSC.Game.Processes;
 
 namespace VRCOSC.Modules.AFK;
 
@@ -20,6 +21,7 @@ public class AFKModule : ChatBoxModule
     {
         CreateVariable(AFKVariable.Duration, "Duration", "duration");
         CreateVariable(AFKVariable.Since, "Since", "since");
+        CreateVariable(AFKVariable.FocusedWindow, "Focused Window", "focusedwindow");
 
         CreateState(AFKState.AFK, "AFK", $"AFK for {GetVariableFormat(AFKVariable.Duration)}");
         CreateState(AFKState.NotAFK, "Not AFK", string.Empty);
@@ -46,6 +48,7 @@ public class AFKModule : ChatBoxModule
         if (Player.AFK.Value && afkBegan is null)
         {
             afkBegan = DateTime.Now;
+            SetVariableValue(AFKVariable.FocusedWindow, ProcessExtensions.GetActiveWindowTitle() ?? "None");
             TriggerEvent(AFKEvent.AFKStarted);
         }
 
@@ -63,7 +66,8 @@ public class AFKModule : ChatBoxModule
     private enum AFKVariable
     {
         Duration,
-        Since
+        Since,
+        FocusedWindow
     }
 
     private enum AFKState

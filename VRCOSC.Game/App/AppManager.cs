@@ -44,7 +44,7 @@ public partial class AppManager : Component
     private static readonly TimeSpan openvr_check_interval = TimeSpan.FromSeconds(1);
     private static readonly TimeSpan vrchat_check_interval = TimeSpan.FromSeconds(5);
 
-    private readonly Queue<VRChatOscData> oscDataQueue = new();
+    private readonly Queue<VRChatOscMessage> oscMessageQueue = new();
     private ScheduledDelegate? runningModulesDelegate;
 
     public readonly Bindable<AppManagerState> State = new(AppManagerState.Stopped);
@@ -84,7 +84,7 @@ public partial class AppManager : Component
         initialiseVRChat();
         initialiseDelayedTasks();
 
-        OSCClient.OnParameterReceived += data => Schedule(() => oscDataQueue.Enqueue(data));
+        OSCClient.OnParameterReceived += data => Schedule(() => oscMessageQueue.Enqueue(data));
         State.BindValueChanged(e => Logger.Log($"{nameof(AppManager)} state changed to {e.NewValue}"));
     }
 
@@ -94,7 +94,7 @@ public partial class AppManager : Component
 
         OVRClient.Update();
 
-        processOSCDataQueue();
+        processOscMessageQueue();
 
         ModuleManager.Update();
         ChatBoxManager.Update();
@@ -155,25 +155,25 @@ public partial class AppManager : Component
 
     #region OSC
 
-    private void processOSCDataQueue()
+    private void processOscMessageQueue()
     {
-        while (oscDataQueue.TryDequeue(out var data))
+        while (oscMessageQueue.TryDequeue(out var message))
         {
-            if (data.IsAvatarChangeEvent)
+            if (message.IsAvatarChangeEvent)
             {
-                VRChat.HandleAvatarChange(data);
+                VRChat.HandleAvatarChange(message);
                 sendControlParameters();
             }
 
-            if (data.IsAvatarParameter)
+            if (message.IsAvatarParameter)
             {
-                var wasPlayerUpdated = VRChat.Player.Update(data.ParameterName, data.ParameterValue);
+                var wasPlayerUpdated = VRChat.Player.Update(message.ParameterName, message.ParameterValue);
                 if (wasPlayerUpdated) ModuleManager.PlayerUpdate();
 
-                if (data.ParameterName.StartsWith("VRCOSC/Controls")) processControlParameters(data);
+                if (message.ParameterName.StartsWith("VRCOSC/Controls")) processControlParameters(message);
             }
 
-            ModuleManager.ParameterReceived(data);
+            ModuleManager.ParameterReceived(message);
         }
     }
 
@@ -182,12 +182,12 @@ public partial class AppManager : Component
         OSCClient.SendValue($"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}/VRCOSC/Controls/ChatBox", ChatBoxManager.SendEnabled);
     }
 
-    private void processControlParameters(VRChatOscData data)
+    private void processControlParameters(VRChatOscMessage message)
     {
-        switch (data.ParameterName)
+        switch (message.ParameterName)
         {
             case "VRCOSC/Controls/ChatBox":
-                ChatBoxManager.SendEnabled = (bool)data.ParameterValue;
+                ChatBoxManager.SendEnabled = (bool)message.ParameterValue;
                 break;
         }
     }
@@ -309,10 +309,10 @@ public partial class AppManager : Component
         await OSCRouter.Disable();
         cancelRunningModulesDelegate();
         ModuleManager.Stop();
-        await OSCClient.Disable(OscClientFlag.Send);
         ChatBoxManager.Teardown();
         VRChat.Teardown();
-        oscDataQueue.Clear();
+        await OSCClient.Disable(OscClientFlag.Send);
+        oscMessageQueue.Clear();
 
         State.Value = AppManagerState.Stopped;
     }

@@ -33,6 +33,7 @@ public sealed class VRCOSCConfigManager : IniConfigManager<VRCOSCSetting>
         SetDefault(VRCOSCSetting.AutoStartOpenVR, false);
         SetDefault(VRCOSCSetting.WindowState, WindowState.Maximised);
         SetDefault(VRCOSCSetting.UIScale, 1f);
+        SetDefault(VRCOSCSetting.StartInTray, false);
     }
 }
 
@@ -50,5 +51,6 @@ public enum VRCOSCSetting
     AutoStopOpenVR,
     AutoStartOpenVR,
     WindowState,
-    UIScale
+    UIScale,
+    StartInTray
 }

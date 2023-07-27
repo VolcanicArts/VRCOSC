@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using osu.Framework.Utils;
 using VRCOSC.Game.Modules.ChatBox;
+using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Game.Modules.Bases.Heartrate;
 
@@ -87,7 +88,7 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
     {
         if (GetSetting<bool>(HeartrateSetting.Smoothed))
         {
-            currentHeartrate = (float)Interpolation.DampContinuously(currentHeartrate, targetHeartrate, GetSetting<int>(HeartrateSetting.SmoothingLength) / 2d, TimeSpan.FromSeconds(1d / 60d).TotalMilliseconds);
+            currentHeartrate = (float)Interpolation.DampContinuously(currentHeartrate, targetHeartrate, GetSetting<int>(HeartrateSetting.SmoothingLength) / 2d, VRChatOscConstants.UPDATE_DELTA_MILLISECONDS);
         }
         else
         {

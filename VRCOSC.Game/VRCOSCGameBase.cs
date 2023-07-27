@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
@@ -44,7 +45,7 @@ public partial class VRCOSCGameBase : osu.Framework.Game
         { FrameworkSetting.FrameSync, FrameSync.VSync }
     };
 
-    private readonly BindableBool isInTray = new();
+    private readonly Bindable<bool> inTray = new();
     private readonly NotifyIcon trayIcon = new();
     private IntPtr? windowHandle;
 
@@ -71,12 +72,24 @@ public partial class VRCOSCGameBase : osu.Framework.Game
 
         Window.WindowState = ConfigManager.Get<WindowState>(VRCOSCSetting.WindowState);
 
+        inTray.Value = ConfigManager.Get<bool>(VRCOSCSetting.StartInTray);
         setupTrayIcon();
+    }
+
+    protected override void LoadComplete()
+    {
+        base.LoadComplete();
+
+        Task.Run(async () =>
+        {
+            await Task.Delay(500);
+            handleTrayTransition(false);
+        });
     }
 
     protected override void Update()
     {
-        if (host.Window.WindowState == WindowState.Minimised || isInTray.Value)
+        if (host.Window.WindowState == WindowState.Minimised || inTray.Value)
             host.DrawThread.InactiveHz = 1;
         else
             host.DrawThread.InactiveHz = 60;
@@ -93,7 +106,7 @@ public partial class VRCOSCGameBase : osu.Framework.Game
 
     private void setupTrayIcon()
     {
-        trayIcon.DoubleClick += (_, _) => handleTrayTransition();
+        trayIcon.DoubleClick += (_, _) => handleTrayTransition(true);
 
         trayIcon.Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
         trayIcon.Visible = true;
@@ -107,7 +120,7 @@ public partial class VRCOSCGameBase : osu.Framework.Game
         trayIcon.ContextMenuStrip = contextMenu;
     }
 
-    private void handleTrayTransition()
+    private void handleTrayTransition(bool toggle)
     {
         var localWindowHandle = Process.GetCurrentProcess().MainWindowHandle;
 
@@ -118,8 +131,8 @@ public partial class VRCOSCGameBase : osu.Framework.Game
 
         if (windowHandle is not null)
         {
-            isInTray.Toggle();
-            User32.ShowWindow(windowHandle.Value, isInTray.Value ? User32.WindowShowStyle.SW_HIDE : User32.WindowShowStyle.SW_SHOWDEFAULT);
+            if (toggle) inTray.Value = !inTray.Value;
+            User32.ShowWindow(windowHandle.Value, inTray.Value ? User32.WindowShowStyle.SW_HIDE : User32.WindowShowStyle.SW_SHOWDEFAULT);
         }
     }
 }

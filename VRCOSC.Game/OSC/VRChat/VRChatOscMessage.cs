@@ -6,7 +6,7 @@ using VRCOSC.Game.OSC.Client;
 
 namespace VRCOSC.Game.OSC.VRChat;
 
-public class VRChatOscData : OscData
+public class VRChatOscMessage : OscMessage
 {
     public bool IsAvatarChangeEvent => Address == VRChatOscConstants.ADDRESS_AVATAR_CHANGE;
     public bool IsAvatarParameter => Address.StartsWith(VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX);
@@ -20,7 +20,7 @@ public class VRChatOscData : OscData
     public bool IsValueType<T>() => IsValueType(typeof(T));
     public T ValueAs<T>() => (T)ParameterValue;
 
-    public VRChatOscData(OscData data)
+    public VRChatOscMessage(OscMessage data)
         : base(data.Address, data.Values)
     {
     }

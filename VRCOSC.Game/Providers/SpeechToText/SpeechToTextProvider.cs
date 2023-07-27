@@ -46,21 +46,26 @@ public class SpeechToTextProvider
 
         Task.Run(() =>
         {
-            initialiseMicrophoneCapture();
-            initialiseVosk();
+            lock (analyseLock)
+            {
+                initialiseMicrophoneCapture();
+                initialiseVosk();
 
-            readyToAccept = true;
+                readyToAccept = true;
+            }
         });
     }
 
     public void Teardown()
     {
-        readyToAccept = false;
-        microphoneHook?.UnHook();
-        microphoneHook = null;
+        if (!readyToAccept) return;
 
         lock (analyseLock)
         {
+            readyToAccept = false;
+            microphoneHook?.UnHook();
+            microphoneHook = null;
+
             model?.Dispose();
             recogniser?.Dispose();
         }
@@ -85,12 +90,11 @@ public class SpeechToTextProvider
 
     private void initialiseVosk()
     {
-        lock (analyseLock)
-        {
-            model = new Model(modelDirectoryPath);
-            recogniser = new VoskRecognizer(model, microphoneHook!.AudioCapture!.WaveFormat.SampleRate);
-            recogniser.SetWords(true);
-        }
+        if (microphoneHook!.AudioCapture is null) return;
+
+        model = new Model(modelDirectoryPath);
+        recogniser = new VoskRecognizer(model, microphoneHook.AudioCapture.WaveFormat.SampleRate);
+        recogniser.SetWords(true);
     }
 
     private void analyseAudio(byte[] buffer, int bytesRecorded)

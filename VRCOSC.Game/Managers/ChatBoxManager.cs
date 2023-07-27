@@ -98,6 +98,12 @@ public class ChatBoxManager
         bindAttributes();
     }
 
+    public void ResetTimeline()
+    {
+        setDefaults();
+        Serialise();
+    }
+
     public void Deserialise()
     {
         if (!serialisationManager.Deserialise()) return;
@@ -315,7 +321,7 @@ public class ChatBoxManager
         StateValues[module] = lookup;
     }
 
-    public void RegisterEvent(string module, string lookup, string name, string defaultFormat, int defaultLength)
+    public void RegisterEvent(string module, string lookup, string name, string defaultFormat, float defaultLength)
     {
         var eventMetadata = new ClipEventMetadata
         {

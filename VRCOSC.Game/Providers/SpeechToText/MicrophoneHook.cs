@@ -15,19 +15,12 @@ public class MicrophoneHook
 
     public MMDevice? Hook()
     {
-        try
-        {
-            var defaultCaptureDevice = WasapiCapture.GetDefaultCaptureDevice();
-            AudioCapture = new WasapiCapture(defaultCaptureDevice);
-            AudioCapture.WaveFormat = new WaveFormat(AudioCapture.WaveFormat.SampleRate, 16, 1);
-            AudioCapture.DataAvailable += handleAudioCaptureBuffer;
-            AudioCapture.StartRecording();
-            return defaultCaptureDevice;
-        }
-        catch (Exception)
-        {
-            return null;
-        }
+        var defaultCaptureDevice = WasapiCapture.GetDefaultCaptureDevice();
+        AudioCapture = new WasapiCapture(defaultCaptureDevice);
+        AudioCapture.WaveFormat = new WaveFormat(AudioCapture.WaveFormat.SampleRate, 16, 1);
+        AudioCapture.DataAvailable += handleAudioCaptureBuffer;
+        AudioCapture.StartRecording();
+        return defaultCaptureDevice;
     }
 
     public void UnHook()

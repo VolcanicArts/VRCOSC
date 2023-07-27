@@ -1,7 +1,9 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using Newtonsoft.Json;
 using osu.Framework.Extensions.IEnumerableExtensions;
+using VRCOSC.Game.Modules;
 using VRCOSC.Game.Modules.Attributes;
 using VRCOSC.Game.Modules.ChatBox;
 using VRCOSC.Game.OSC.VRChat;
@@ -15,90 +17,89 @@ public class CounterModule : ChatBoxModule
     public override string Description => "Counts how many times parameters are triggered based on parameter change events";
     public override string Author => "VolcanicArts";
     public override ModuleType Type => ModuleType.General;
+    protected override bool EnablePersistence => GetSetting<bool>(CounterSetting.SaveCounters);
 
-    internal readonly Dictionary<string, CountInstance> Counts = new();
+    [ModulePersistent("counts")]
+    public Dictionary<string, CountInstance> Counts { get; set; } = new();
 
     protected override void CreateAttributes()
     {
         CreateSetting(CounterSetting.ResetOnAvatarChange, "Reset On Avatar Change", "Should the counter reset on avatar change?", false);
-        CreateSetting(CounterSetting.SaveCounters, "Save Counters", "Should the counters be saved between VRCOSC restarts?", true);
-        CreateSetting(CounterSetting.ParameterList, "Parameter List", "What parameters should be monitored for changes?\nKeys can be reused to allow multiple parameters to add to the same counter\nCounts can be accessed in the ChatBox using: {counter.value_Key}", new List<MutableKeyValuePair>(), "Key", "Parameter Name");
+        CreateSetting(CounterSetting.SaveCounters, "Save Counters", "Should the counters be saved between module restarts?", true);
+
+        CreateSetting(CounterSetting.ParameterList, "Parameter List", "What parameters should be monitored for changes?\nKeys can be reused to allow multiple parameters to add to the same counter\nCounts can be accessed in the ChatBox using: {counter.value_Key}", new List<MutableKeyValuePair> { new() { Key = { Value = "Example" }, Value = { Value = "ExampleParameterName" } } }, "Key",
+            "Parameter Name");
 
         CreateVariable(CounterVariable.Value, "Value", "value");
+        CreateVariable(CounterVariable.ValueToday, "Value Today", "valuetoday");
 
-        CreateState(CounterState.Default, "Default", GetVariableFormat(CounterVariable.Value));
+        CreateState(CounterState.Default, "Default", $"Today: {GetVariableFormat(CounterVariable.ValueToday, "Example")}/vTotal: {GetVariableFormat(CounterVariable.Value, "Example")}");
 
-        CreateEvent(CounterEvent.Changed, "Changed", GetVariableFormat(CounterVariable.Value), 5);
+        CreateEvent(CounterEvent.Changed, "Changed", $"Today: {GetVariableFormat(CounterVariable.ValueToday, "Example")}/vTotal: {GetVariableFormat(CounterVariable.Value, "Example")}", 5);
 
-        RegisterSaveStateSerialiser<CounterSaveStateSerialiser>(1);
+        RegisterLegacyPersistanceSerialiser<CounterSaveStateSerialiser>();
     }
 
     protected override void OnModuleStart()
     {
+        ChangeStateTo(CounterState.Default);
         auditParameters();
-        loadState();
+        Counts.ForEach(pair => SetVariableValue(CounterVariable.Value, pair.Value.Count.ToString("N0"), pair.Key));
     }
 
     protected override void OnAvatarChange()
     {
         if (GetSetting<bool>(CounterSetting.ResetOnAvatarChange))
         {
-            auditParameters();
-            saveState();
+            Counts.ForEach(pair =>
+            {
+                pair.Value.Count = 0;
+                pair.Value.CountToday = 0;
+            });
         }
-    }
-
-    protected override void OnModuleStop()
-    {
-        saveState();
     }
 
     private void auditParameters()
     {
-        Counts.Clear();
-
         GetSettingList<MutableKeyValuePair>(CounterSetting.ParameterList).ForEach(pair =>
         {
             if (string.IsNullOrEmpty(pair.Key.Value) || string.IsNullOrEmpty(pair.Value.Value)) return;
 
-            Counts.TryAdd(pair.Key.Value, new CountInstance(pair.Key.Value));
+            Counts.TryAdd(pair.Key.Value, new CountInstance());
             Counts[pair.Key.Value].ParameterNames.Add(pair.Value.Value);
-            SetVariableValue(CounterVariable.Value, Counts[pair.Key.Value].Count.ToString(), pair.Key.Value);
+
+            SetVariableValue(CounterVariable.Value, Counts[pair.Key.Value].Count.ToString("N0"), pair.Key.Value);
+            SetVariableValue(CounterVariable.ValueToday, Counts[pair.Key.Value].CountToday.ToString("N0"), pair.Key.Value);
+        });
+
+        Counts.ForEach(pair =>
+        {
+            if (GetSettingList<MutableKeyValuePair>(CounterSetting.ParameterList).All(instance => instance.Key.Value != pair.Key))
+            {
+                Counts.Remove(pair.Key);
+            }
         });
     }
 
-    protected override void OnAnyParameterReceived(VRChatOscData data)
+    protected override void OnAnyParameterReceived(VRChatOscMessage message)
     {
-        var instance = Counts.Values.SingleOrDefault(instance => instance.ParameterNames.Contains(data.ParameterName));
-        if (instance is null) return;
+        var candidates = Counts.Where(pair => pair.Value.ParameterNames.Contains(message.ParameterName)).ToList();
+        if (!candidates.Any()) return;
 
-        if (data.IsValueType<float>() && data.ValueAs<float>() > 0.9f) counterChanged(instance);
-        if (data.IsValueType<int>() && data.ValueAs<int>() != 0) counterChanged(instance);
-        if (data.IsValueType<bool>() && data.ValueAs<bool>()) counterChanged(instance);
+        var pair = candidates[0];
+
+        if (message.IsValueType<float>() && message.ValueAs<float>() > 0.9f) counterChanged(pair);
+        if (message.IsValueType<int>() && message.ValueAs<int>() != 0) counterChanged(pair);
+        if (message.IsValueType<bool>() && message.ValueAs<bool>()) counterChanged(pair);
     }
 
-    private void counterChanged(CountInstance instance)
+    private void counterChanged(KeyValuePair<string, CountInstance> pair)
     {
-        instance.Count++;
-        SetVariableValue(CounterVariable.Value, instance.Count.ToString("N0"), instance.Key);
+        pair.Value.Count++;
+        pair.Value.CountToday++;
+        SetVariableValue(CounterVariable.Value, pair.Value.Count.ToString("N0"), pair.Key);
+        SetVariableValue(CounterVariable.ValueToday, pair.Value.CountToday.ToString("N0"), pair.Key);
         TriggerEvent(CounterEvent.Changed);
-        saveState();
-    }
-
-    private void saveState()
-    {
-        if (!GetSetting<bool>(CounterSetting.SaveCounters)) return;
-
-        SaveState();
-    }
-
-    private void loadState()
-    {
-        if (!GetSetting<bool>(CounterSetting.SaveCounters)) return;
-
-        LoadState();
-
-        Counts.Values.ForEach(instance => SetVariableValue(CounterVariable.Value, instance.Count.ToString("N0"), instance.Key));
     }
 
     private enum CounterSetting
@@ -110,7 +111,8 @@ public class CounterModule : ChatBoxModule
 
     private enum CounterVariable
     {
-        Value
+        Value,
+        ValueToday
     }
 
     private enum CounterState
@@ -126,12 +128,17 @@ public class CounterModule : ChatBoxModule
 
 public class CountInstance
 {
-    public readonly string Key;
-    public readonly List<string> ParameterNames = new();
+    [JsonProperty("count")]
     public int Count;
 
-    public CountInstance(string key)
+    [JsonIgnore]
+    public readonly List<string> ParameterNames = new();
+
+    [JsonIgnore]
+    public int CountToday;
+
+    [JsonConstructor]
+    public CountInstance()
     {
-        Key = key;
     }
 }

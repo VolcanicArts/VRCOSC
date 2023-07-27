@@ -62,14 +62,14 @@ public sealed partial class ParameterContainer : Container
         });
     }
 
-    private void onParameterSent(VRChatOscData data)
+    private void onParameterSent(VRChatOscMessage message)
     {
-        outgoingParameterDisplay.AddEntry(data.Address, data.ParameterValue);
+        outgoingParameterDisplay.AddEntry(message.Address, message.ParameterValue);
     }
 
-    private void onParameterReceived(VRChatOscData data)
+    private void onParameterReceived(VRChatOscMessage message)
     {
-        incomingParameterDisplay.AddEntry(data.Address, data.ParameterValue);
+        incomingParameterDisplay.AddEntry(message.Address, message.ParameterValue);
     }
 
     private void clearParameters()

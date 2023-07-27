@@ -32,14 +32,14 @@ public class ModuleSerialiser : Serialiser<Module, SerialisableModule>
         {
             var (settingKey, settingValue) = settingPair;
 
-            if (module.DoesSettingExist(settingKey, out var setting)) setting.DeserialiseValue(settingValue);
+            if (module.TryGetSetting(settingKey, out var setting)) setting.DeserialiseValue(settingValue);
         });
 
         data.Parameters.ForEach(parameterPair =>
         {
             var (parameterKey, parameterValue) = parameterPair;
 
-            if (module.DoesParameterExist(parameterKey, out var parameter)) parameter.DeserialiseValue(parameterValue);
+            if (module.TryGetParameter(parameterKey, out var parameter)) parameter.DeserialiseValue(parameterValue);
         });
     }
 }

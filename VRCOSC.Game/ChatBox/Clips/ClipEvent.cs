@@ -19,7 +19,7 @@ public class ClipEvent : IProvidesFormat
     };
 
     public Bindable<bool> Enabled = new();
-    public Bindable<int> Length = new();
+    public Bindable<float> Length = new();
 
     public bool IsDefault => Format.IsDefault && Enabled.IsDefault && Length.IsDefault;
 
@@ -47,5 +47,5 @@ public class ClipEventMetadata
     public required string Lookup { get; init; }
     public required string Name { get; init; }
     public required string DefaultFormat { get; init; }
-    public required int DefaultLength { get; init; }
+    public required float DefaultLength { get; init; }
 }

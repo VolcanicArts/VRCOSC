@@ -53,7 +53,7 @@ public class OscReceiver
         {
             try
             {
-                buffer.Initialize();
+                Array.Clear(buffer, 0, buffer.Length);
                 await socket!.ReceiveAsync(buffer, SocketFlags.None, tokenSource.Token);
                 OnRawDataReceived?.Invoke(buffer);
             }

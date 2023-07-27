@@ -18,8 +18,8 @@ public class OSCRouter
     private readonly VRChatOscClient vrChatOscClient;
     private readonly TerminalLogger terminal = new("OSCRouter");
 
-    public readonly List<OscSender> Senders = new();
-    public readonly List<OscReceiver> Receivers = new();
+    private readonly List<OscSender> senders = new();
+    private readonly List<OscReceiver> receivers = new();
 
     public OSCRouter(VRChatOscClient vrChatOscClient)
     {
@@ -36,7 +36,7 @@ public class OSCRouter
             {
                 var sender = new OscSender();
                 sender.Initialise(new IPEndPoint(IPAddress.Parse(pair.SendAddress.Value), pair.SendPort.Value));
-                Senders.Add(sender);
+                senders.Add(sender);
 
                 terminal.Log($"Initialising sender labelled {routerData.Label} on {pair.SendAddress}:{pair.SendPort}");
             }
@@ -45,39 +45,32 @@ public class OSCRouter
             {
                 var receiver = new OscReceiver();
                 receiver.Initialise(new IPEndPoint(IPAddress.Parse(pair.ReceiveAddress.Value), pair.ReceivePort.Value));
-                Receivers.Add(receiver);
+                receivers.Add(receiver);
 
                 terminal.Log($"Initialising receiver labelled {routerData.Label} on {pair.ReceiveAddress}:{pair.ReceivePort}");
             }
         });
 
-        Enable();
-    }
-
-    // Anything coming from VRC has to be parsed first, hence listening for parameters and not the raw data
-    // I have no idea why, it should just work forwarding the raw bytes
-    public void Enable()
-    {
-        Senders.ForEach(sender =>
+        senders.ForEach(sender =>
         {
-            vrChatOscClient.OnParameterReceived += parameter => sender.Send(parameter.Encode());
+            vrChatOscClient.OnMessageReceived += message => sender.Send(OscEncoder.Encode(message));
             sender.Enable();
         });
 
-        Receivers.ForEach(receiver =>
+        receivers.ForEach(receiver =>
         {
-            receiver.OnRawDataReceived += vrChatOscClient.SendByteData;
+            receiver.OnRawDataReceived += vrChatOscClient.Send;
             receiver.Enable();
         });
     }
 
     public async Task Disable()
     {
-        foreach (var sender in Senders) sender.Disable();
-        foreach (var receiver in Receivers) await receiver.Disable();
+        foreach (var sender in senders) sender.Disable();
+        foreach (var receiver in receivers) await receiver.Disable();
 
-        Senders.Clear();
-        Receivers.Clear();
+        senders.Clear();
+        receivers.Clear();
     }
 }
 

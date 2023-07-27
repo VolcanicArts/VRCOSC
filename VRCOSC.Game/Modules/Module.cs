@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.EnumExtensions;
@@ -17,6 +18,7 @@ using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Managers;
 using VRCOSC.Game.Modules.Attributes;
 using VRCOSC.Game.Modules.Avatar;
+using VRCOSC.Game.Modules.Persistence;
 using VRCOSC.Game.Modules.Serialisation.V1;
 using VRCOSC.Game.OpenVR;
 using VRCOSC.Game.OSC.VRChat;
@@ -46,6 +48,7 @@ public abstract class Module : IComparable<Module>
     internal readonly BindableBool Enabled = new();
     internal readonly Dictionary<string, ModuleAttribute> Settings = new();
     internal readonly Dictionary<Enum, ModuleParameter> Parameters = new();
+    internal readonly Dictionary<ModulePersistentAttribute, PropertyInfo> PersistentProperies = new();
 
     // Cached pre-computed lookups
     internal readonly Dictionary<string, Enum> ParameterNameEnum = new();
@@ -59,6 +62,7 @@ public abstract class Module : IComparable<Module>
     public virtual IEnumerable<string> Info => new List<string>();
     protected virtual TimeSpan DeltaUpdate => TimeSpan.MaxValue;
     protected virtual bool ShouldUpdateImmediately => true;
+    protected virtual bool EnablePersistence => true;
 
     private bool IsEnabled => Enabled.Value;
     private bool ShouldUpdate => DeltaUpdate != TimeSpan.MaxValue;
@@ -70,7 +74,7 @@ public abstract class Module : IComparable<Module>
     protected bool IsStopping => State.Value == ModuleState.Stopping;
     protected bool HasStopped => State.Value == ModuleState.Stopped;
 
-    private readonly SerialisationManager saveStateSerialisationManager = new();
+    private readonly SerialisationManager persistenceSerialisationManager = new();
     private readonly SerialisationManager moduleSerialisationManager = new();
     private NotificationContainer notifications = null!;
 
@@ -83,6 +87,7 @@ public abstract class Module : IComparable<Module>
         Storage = storage;
 
         moduleSerialisationManager.RegisterSerialiser(1, new ModuleSerialiser(storage, notifications, this));
+        persistenceSerialisationManager.RegisterSerialiser(2, new ModulePersistenceSerialiser(storage, notifications, this));
     }
 
     public void Load()
@@ -97,6 +102,7 @@ public abstract class Module : IComparable<Module>
         State.ValueChanged += _ => Log(State.Value.ToString());
 
         Deserialise();
+        cachePersistentProperties();
     }
 
     #region Serialisation
@@ -113,22 +119,45 @@ public abstract class Module : IComparable<Module>
 
     #endregion
 
-    #region Save State
+    #region Persistence
 
-    protected void RegisterSaveStateSerialiser<T>(int version) where T : ISaveStateSerialiser
+    internal bool TryGetPersistentProperty(string key, [NotNullWhen(true)] out PropertyInfo? property)
+    {
+        property = PersistentProperies.SingleOrDefault(property => property.Key.LegacySerialisedName == key || property.Key.SerialisedName == key).Value;
+        return property is not null;
+    }
+
+    private void cachePersistentProperties()
+    {
+        GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).ForEach(info =>
+        {
+            var isDefined = info.IsDefined(typeof(ModulePersistentAttribute));
+            if (!isDefined) return;
+
+            if (!info.CanRead || !info.CanWrite) throw new InvalidOperationException($"Property '{info.Name}' must be declared with get/set to have persistence");
+
+            PersistentProperies.Add(info.GetCustomAttribute<ModulePersistentAttribute>()!, info);
+        });
+    }
+
+    private void loadPersistentProperties()
+    {
+        if (!PersistentProperies.Any() || !EnablePersistence) return;
+
+        persistenceSerialisationManager.Deserialise();
+    }
+
+    private void savePersistentProperties()
+    {
+        if (!PersistentProperies.Any() || !EnablePersistence) return;
+
+        persistenceSerialisationManager.Serialise();
+    }
+
+    protected void RegisterLegacyPersistanceSerialiser<T>()
     {
         var serialiser = (ISaveStateSerialiser)Activator.CreateInstance(typeof(T), Storage, notifications, this)!;
-        saveStateSerialisationManager.RegisterSerialiser(version, serialiser);
-    }
-
-    protected void SaveState()
-    {
-        saveStateSerialisationManager.Serialise();
-    }
-
-    protected void LoadState()
-    {
-        saveStateSerialisationManager.Deserialise();
+        persistenceSerialisationManager.RegisterSerialiser(1, serialiser);
     }
 
     #endregion
@@ -248,30 +277,16 @@ public abstract class Module : IComparable<Module>
             ExpectedType = typeof(T)
         });
 
-    internal bool DoesSettingExist(string lookup, [NotNullWhen(true)] out ModuleAttribute? attribute)
+    internal bool TryGetSetting(string lookup, [NotNullWhen(true)] out ModuleAttribute? attribute)
     {
-        if (Settings.TryGetValue(lookup, out var setting))
-        {
-            attribute = setting;
-            return true;
-        }
-
-        attribute = null;
-        return false;
+        attribute = Settings.SingleOrDefault(pair => pair.Key == lookup).Value;
+        return attribute is not null;
     }
 
-    internal bool DoesParameterExist(string lookup, [NotNullWhen(true)] out ModuleAttribute? attribute)
+    internal bool TryGetParameter(string lookup, [NotNullWhen(true)] out ModuleAttribute? attribute)
     {
-        foreach (var (lookupToCheck, _) in Parameters)
-        {
-            if (lookupToCheck.ToLookup() != lookup) continue;
-
-            attribute = Parameters[lookupToCheck];
-            return true;
-        }
-
-        attribute = null;
-        return false;
+        attribute = Parameters.SingleOrDefault(pair => pair.Key.ToLookup() == lookup).Value;
+        return attribute is not null;
     }
 
     #endregion
@@ -296,6 +311,7 @@ public abstract class Module : IComparable<Module>
 
         try
         {
+            loadPersistentProperties();
             OnModuleStart();
         }
         catch (Exception e)
@@ -306,7 +322,7 @@ public abstract class Module : IComparable<Module>
 
         State.Value = ModuleState.Started;
 
-        Scheduler.AddDelayed(FixedUpdate, TimeSpan.FromSeconds(1f / 60f).TotalMilliseconds, true);
+        Scheduler.AddDelayed(FixedUpdate, VRChatOscConstants.UPDATE_DELTA_MILLISECONDS, true);
 
         if (ShouldUpdate) Scheduler.AddDelayed(Update, DeltaUpdate.TotalMilliseconds, true);
         if (ShouldUpdateImmediately) Update();
@@ -319,6 +335,7 @@ public abstract class Module : IComparable<Module>
         try
         {
             OnModuleStop();
+            savePersistentProperties();
         }
         catch (Exception e)
         {
@@ -451,21 +468,21 @@ public abstract class Module : IComparable<Module>
         Scheduler.Add(() => OscClient.SendValue(data.FormattedAddress, value));
     }
 
-    internal void OnParameterReceived(VRChatOscData data)
+    internal void OnParameterReceived(VRChatOscMessage message)
     {
         if (!HasStarted) return;
 
-        if (data.IsAvatarChangeEvent)
+        if (message.IsAvatarChangeEvent)
         {
             AvatarChange();
             return;
         }
 
-        if (!data.IsAvatarParameter) return;
+        if (!message.IsAvatarParameter) return;
 
         try
         {
-            OnAnyParameterReceived(data);
+            OnAnyParameterReceived(message);
         }
         catch (Exception e)
         {
@@ -473,12 +490,12 @@ public abstract class Module : IComparable<Module>
             Logger.Error(e, $"{Name} experienced an exception");
         }
 
-        var parameterName = Parameters.Values.FirstOrDefault(moduleParameter => ParameterNameRegex[moduleParameter.ParameterName].IsMatch(data.ParameterName))?.ParameterName;
+        var parameterName = Parameters.Values.FirstOrDefault(moduleParameter => ParameterNameRegex[moduleParameter.ParameterName].IsMatch(message.ParameterName))?.ParameterName;
         if (parameterName is null) return;
 
         var wildcards = new List<string>();
 
-        var match = ParameterNameRegex[parameterName].Match(data.ParameterName);
+        var match = ParameterNameRegex[parameterName].Match(message.ParameterName);
         if (match.Groups.Count > 1) wildcards.AddRange(match.Groups.Values.Skip(1).Select(group => group.Value));
 
         if (!ParameterNameEnum.TryGetValue(parameterName, out var lookup)) return;
@@ -487,15 +504,15 @@ public abstract class Module : IComparable<Module>
 
         if (!parameterData.Mode.HasFlagFast(ParameterMode.Read)) return;
 
-        if (!data.IsValueType(parameterData.ExpectedType))
+        if (!message.IsValueType(parameterData.ExpectedType))
         {
-            Log($@"Cannot accept input parameter. `{lookup}` expects type `{parameterData.ExpectedType}` but received type `{data.ParameterValue.GetType()}`");
+            Log($@"Cannot accept input parameter. `{lookup}` expects type `{parameterData.ExpectedType}` but received type `{message.ParameterValue.GetType()}`");
             return;
         }
 
         try
         {
-            switch (data.ParameterValue)
+            switch (message.ParameterValue)
             {
                 case bool boolValue:
                     if (wildcards.Any())
@@ -527,7 +544,7 @@ public abstract class Module : IComparable<Module>
         }
     }
 
-    protected virtual void OnAnyParameterReceived(VRChatOscData data) { }
+    protected virtual void OnAnyParameterReceived(VRChatOscMessage message) { }
     protected virtual void OnBoolParameterReceived(Enum key, bool value) { }
     protected virtual void OnIntParameterReceived(Enum key, int value) { }
     protected virtual void OnFloatParameterReceived(Enum key, float value) { }
@@ -577,5 +594,24 @@ public abstract class Module : IComparable<Module>
         if (Type < other.Type) return -1;
 
         return string.CompareOrdinal(Title, other.Title);
+    }
+}
+
+[AttributeUsage(AttributeTargets.Property)]
+public class ModulePersistentAttribute : Attribute
+{
+    public string SerialisedName { get; }
+    public string? LegacySerialisedName { get; }
+
+    /// <inheritdoc />
+    /// <summary>
+    /// Used to mark a field for being automatically loaded and saved when the module starts and stops
+    /// </summary>
+    /// <param name="serialisedName">The name to serialise this property as</param>
+    /// <param name="legacySerialisedName">Support for migration from a legacy name to the <paramref name="serialisedName" /></param>
+    public ModulePersistentAttribute(string serialisedName, string? legacySerialisedName = null)
+    {
+        SerialisedName = serialisedName;
+        LegacySerialisedName = legacySerialisedName;
     }
 }

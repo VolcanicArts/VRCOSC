@@ -21,7 +21,7 @@ public class SerialisableClipEvent
     public bool Enabled;
 
     [JsonProperty("length")]
-    public int Length;
+    public float Length;
 
     [JsonConstructor]
     public SerialisableClipEvent()
