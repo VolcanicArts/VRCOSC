@@ -27,7 +27,7 @@ public static class ProcessExtensions
     {
         var buffer = new char[256];
         var handle = User32.GetForegroundWindow();
-        return User32.GetWindowText(handle, buffer, 256) > 0 ? Encoding.UTF8.GetString(Encoding.UTF8.GetBytes(buffer)) : null;
+        return User32.GetWindowText(handle, buffer, 256) > 0 ? Encoding.UTF8.GetString(Encoding.UTF8.GetBytes(buffer)).TrimEnd('\u0000') : null;
     }
 
     public static void ShowMainWindow(this Process process, User32.WindowShowStyle style) => User32.ShowWindow(process.MainWindowHandle, style);
