@@ -129,7 +129,7 @@ public abstract class Module : IComparable<Module>
 
     private void cachePersistentProperties()
     {
-        GetType().GetProperties().ForEach(info =>
+        GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).ForEach(info =>
         {
             var isDefined = info.IsDefined(typeof(ModulePersistentAttribute));
             if (!isDefined) return;
