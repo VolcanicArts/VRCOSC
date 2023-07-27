@@ -47,5 +47,5 @@ public class ClipEventMetadata
     public required string Lookup { get; init; }
     public required string Name { get; init; }
     public required string DefaultFormat { get; init; }
-    public required int DefaultLength { get; init; }
+    public required float DefaultLength { get; init; }
 }

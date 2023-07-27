@@ -40,7 +40,7 @@ public class CounterModule : ChatBoxModule
     {
         ChangeStateTo(CounterState.Default);
         auditParameters();
-        counts.Values.ForEach(instance => SetVariableValue(CounterVariable.Value, instance.Count.ToString("N0"), instance.Key));
+        Counts.ForEach(pair => SetVariableValue(CounterVariable.Value, pair.Value.Count.ToString("N0"), pair.Key));
     }
 
     protected override void OnAvatarChange()
@@ -61,8 +61,8 @@ public class CounterModule : ChatBoxModule
         {
             if (string.IsNullOrEmpty(pair.Key.Value) || string.IsNullOrEmpty(pair.Value.Value)) return;
 
-            counts.TryAdd(pair.Key.Value, new CountInstance(pair.Key.Value));
-            counts[pair.Key.Value].ParameterNames.Add(pair.Value.Value);
+            Counts.TryAdd(pair.Key.Value, new CountInstance());
+            Counts[pair.Key.Value].ParameterNames.Add(pair.Value.Value);
 
             SetVariableValue(CounterVariable.Value, counts[pair.Key.Value].Count.ToString("N0"), pair.Key.Value);
             SetVariableValue(CounterVariable.ValueToday, counts[pair.Key.Value].CountToday.ToString("N0"), pair.Key.Value);
@@ -79,20 +79,22 @@ public class CounterModule : ChatBoxModule
 
     protected override void OnAnyParameterReceived(AvatarParameter parameter)
     {
-        var instance = counts.Values.SingleOrDefault(instance => instance.ParameterNames.Contains(parameter.Name));
-        if (instance is null) return;
+        var candidates = Counts.Where(pair => pair.Value.ParameterNames.Contains(message.ParameterName)).ToList();
+        if (!candidates.Any()) return;
 
-        if (parameter.IsValueType<float>() && parameter.ValueAs<float>() > 0.9f) counterChanged(instance);
-        if (parameter.IsValueType<int>() && parameter.ValueAs<int>() != 0) counterChanged(instance);
-        if (parameter.IsValueType<bool>() && parameter.ValueAs<bool>()) counterChanged(instance);
+        var pair = candidates[0];
+
+        if (message.IsValueType<float>() && message.ValueAs<float>() > 0.9f) counterChanged(pair);
+        if (message.IsValueType<int>() && message.ValueAs<int>() != 0) counterChanged(pair);
+        if (message.IsValueType<bool>() && message.ValueAs<bool>()) counterChanged(pair);
     }
 
-    private void counterChanged(CountInstance instance)
+    private void counterChanged(KeyValuePair<string, CountInstance> pair)
     {
-        instance.Count++;
-        instance.CountToday++;
-        SetVariableValue(CounterVariable.Value, instance.Count.ToString("N0"), instance.Key);
-        SetVariableValue(CounterVariable.ValueToday, instance.CountToday.ToString("N0"), instance.Key);
+        pair.Value.Count++;
+        pair.Value.CountToday++;
+        SetVariableValue(CounterVariable.Value, pair.Value.Count.ToString("N0"), pair.Key);
+        SetVariableValue(CounterVariable.ValueToday, pair.Value.CountToday.ToString("N0"), pair.Key);
         TriggerEvent(CounterEvent.Changed);
     }
 
@@ -122,9 +124,6 @@ public class CounterModule : ChatBoxModule
 
 public class CountInstance
 {
-    [JsonProperty("key")]
-    public readonly string Key = null!;
-
     [JsonProperty("count")]
     public int Count;
 
@@ -137,10 +136,5 @@ public class CountInstance
     [JsonConstructor]
     public CountInstance()
     {
-    }
-
-    public CountInstance(string key)
-    {
-        Key = key;
     }
 }
