@@ -46,7 +46,6 @@ public class ChatBoxManager
     public readonly Dictionary<(string, string), string?> VariableValues = new();
     public readonly Dictionary<string, string?> StateValues = new();
     public readonly List<(string, string)> TriggeredEvents = new();
-    private readonly object triggeredEventsLock = new();
 
     public readonly Bindable<int> PriorityCount = new(8);
     public readonly Bindable<TimeSpan> TimelineLength = new();
@@ -135,10 +134,7 @@ public class ChatBoxManager
             StateValues[pair.Key] = null;
         }
 
-        lock (triggeredEventsLock)
-        {
-            TriggeredEvents.Clear();
-        }
+        TriggeredEvents.Clear();
     }
 
     public Clip CreateClip()
@@ -154,11 +150,8 @@ public class ChatBoxManager
         {
             appManager.ModuleManager.ChatBoxUpdate();
 
-            lock (triggeredEventsLock)
-            {
-                Clips.ForEach(clip => clip.Update());
-                TriggeredEvents.Clear();
-            }
+            Clips.ForEach(clip => clip.Update());
+            TriggeredEvents.Clear();
 
             evaluateClips();
         }
@@ -166,7 +159,7 @@ public class ChatBoxManager
 
     public void Teardown()
     {
-        lock (triggeredEventsLock) { TriggeredEvents.Clear(); }
+        TriggeredEvents.Clear();
 
         SetTyping(false);
         Clear();
@@ -346,6 +339,6 @@ public class ChatBoxManager
 
     public void TriggerEvent(string module, string lookup)
     {
-        lock (triggeredEventsLock) { TriggeredEvents.Add((module, lookup)); }
+        TriggeredEvents.Add((module, lookup));
     }
 }
