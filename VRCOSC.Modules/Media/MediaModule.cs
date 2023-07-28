@@ -4,7 +4,7 @@
 using osu.Framework.Bindables;
 using VRCOSC.Game;
 using VRCOSC.Game.Modules;
-using VRCOSC.Game.Modules.ChatBox;
+using VRCOSC.Game.Modules.Avatar;
 using VRCOSC.Game.Providers.Media;
 
 namespace VRCOSC.Modules.Media;
@@ -170,7 +170,7 @@ public class MediaModule : ChatBoxModule
         return visual;
     }
 
-    protected override void OnModuleParameterReceived(AvatarParameter parameter)
+    protected override void OnRegisteredParameterReceived(AvatarParameter parameter)
     {
         switch (parameter.Lookup)
         {

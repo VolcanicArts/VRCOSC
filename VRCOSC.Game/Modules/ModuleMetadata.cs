@@ -59,10 +59,10 @@ public class ModuleAuthorAttribute : Attribute
 [AttributeUsage(AttributeTargets.Class)]
 public class ModuleGroupAttribute : Attribute
 {
-    public readonly Module.ModuleType Type;
+    public readonly ModuleType Type;
 
     /// <param name="type">The group this module belongs to</param>
-    public ModuleGroupAttribute(Module.ModuleType type)
+    public ModuleGroupAttribute(ModuleType type)
     {
         Type = type;
     }

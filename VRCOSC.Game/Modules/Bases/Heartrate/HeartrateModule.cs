@@ -5,7 +5,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using osu.Framework.Utils;
-using VRCOSC.Game.Modules.ChatBox;
+using VRCOSC.Game.Modules.Avatar;
 
 namespace VRCOSC.Game.Modules.Bases.Heartrate;
 

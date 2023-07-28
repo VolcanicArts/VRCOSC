@@ -15,7 +15,9 @@ using osu.Framework.Threading;
 using VRCOSC.Game.App;
 using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Modules;
+using VRCOSC.Game.Modules.Avatar;
 using VRCOSC.Game.OSC.VRChat;
+using VRCOSC.Game.Util;
 using Module = VRCOSC.Game.Modules.Module;
 
 namespace VRCOSC.Game.Managers;
@@ -169,7 +171,7 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
 
     public void ChatBoxUpdate()
     {
-        foreach (var module in runningModulesCache)
+        foreach (var module in runningModulesCache.Where(module => module.GetType().IsSubclassOf(typeof(AvatarModule))).Select(module => (AvatarModule)module))
         {
             module.ChatBoxUpdate();
         }
@@ -200,7 +202,7 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
 
     public void PlayerUpdate()
     {
-        foreach (var module in runningModulesCache)
+        foreach (var module in runningModulesCache.Where(module => module.GetType().IsSubclassOf(typeof(AvatarModule))).Select(module => (AvatarModule)module))
         {
             module.PlayerUpdate();
         }

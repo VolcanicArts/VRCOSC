@@ -4,7 +4,7 @@
 using System.Globalization;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using VRCOSC.Game.Modules;
-using VRCOSC.Game.Modules.ChatBox;
+using VRCOSC.Game.Modules.Avatar;
 
 namespace VRCOSC.Modules.ExchangeRate;
 

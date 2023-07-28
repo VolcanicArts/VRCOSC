@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.Game.Modules;
+using VRCOSC.Game.Modules.Avatar;
 using VRCOSC.Game.Providers.PiShock;
 using VRCOSC.Game.Providers.SpeechToText;
 
@@ -12,7 +13,7 @@ namespace VRCOSC.Modules.PiShock;
 [ModuleAuthor("VolcanicArts", "https://github.com/VolcanicArts", "https://avatars.githubusercontent.com/u/29819296?v=4")]
 [ModuleGroup(ModuleType.NSFW)]
 [ModulePrefab("VRCOSC-PiShock", "https://github.com/VolcanicArts/VRCOSC/releases/download/latest/VRCOSC-PiShock.unitypackage")]
-public class PiShockModule : Module
+public class PiShockModule : AvatarModule
 {
     private readonly PiShockProvider piShockProvider = new();
     private readonly SpeechToTextProvider speechToTextProvider = new();
@@ -216,7 +217,7 @@ public class PiShockModule : Module
         SendParameter(PiShockParameter.Intensity, intensity);
     }
 
-    protected override void OnModuleParameterReceived(AvatarParameter parameter)
+    protected override void OnRegisteredParameterReceived(AvatarParameter parameter)
     {
         switch (parameter.Lookup)
         {

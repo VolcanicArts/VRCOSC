@@ -3,7 +3,7 @@
 
 using System.Globalization;
 using VRCOSC.Game.Modules;
-using VRCOSC.Game.Modules.ChatBox;
+using VRCOSC.Game.Modules.Avatar;
 
 namespace VRCOSC.Modules.Clock;
 

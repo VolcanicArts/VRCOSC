@@ -2,7 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.Game.Modules;
-using VRCOSC.Game.Modules.ChatBox;
+using VRCOSC.Game.Modules.Avatar;
 using VRCOSC.Game.OpenVR;
 
 namespace VRCOSC.Modules.OpenVR;

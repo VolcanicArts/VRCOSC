@@ -3,6 +3,7 @@
 
 using System.Diagnostics;
 using VRCOSC.Game.Modules;
+using VRCOSC.Game.Modules.Avatar;
 
 namespace VRCOSC.Modules.ProcessManager;
 
@@ -10,7 +11,7 @@ namespace VRCOSC.Modules.ProcessManager;
 [ModuleDescription("Allows for starting and stopping processes from avatar parameters")]
 [ModuleAuthor("VolcanicArts", "https://github.com/VolcanicArts", "https://avatars.githubusercontent.com/u/29819296?v=4")]
 [ModuleGroup(ModuleType.Integrations)]
-public class ProcessManagerModule : Module
+public class ProcessManagerModule : AvatarModule
 {
     protected override void CreateAttributes()
     {
@@ -18,7 +19,7 @@ public class ProcessManagerModule : Module
         CreateParameter<bool>(ProcessManagerParameter.Stop, ParameterMode.Read, "VRCOSC/ProcessManager/Stop/*", "Stop", "Becoming true will stop the process named in the '*' that you set on your avatar\nFor example, on your avatar you put: VRCOSC/ProcessManager/Stop/vrchat");
     }
 
-    protected override void OnModuleParameterReceived(AvatarParameter parameter)
+    protected override void OnRegisteredParameterReceived(AvatarParameter parameter)
     {
         var processName = parameter.WildcardAs<string>(0);
 

@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.Game.Modules;
+using VRCOSC.Game.Modules.Avatar;
 using VRCOSC.Game.OpenVR.Input;
 
 namespace VRCOSC.Modules.OpenVR;
@@ -10,7 +11,7 @@ namespace VRCOSC.Modules.OpenVR;
 [ModuleDescription("Detect a range of custom gestures from Index controllers")]
 [ModuleAuthor("VolcanicArts", "https://github.com/VolcanicArts", "https://avatars.githubusercontent.com/u/29819296?v=4")]
 [ModuleGroup(ModuleType.OpenVR)]
-public class GestureExtensionsModule : Module
+public class GestureExtensionsModule : AvatarModule
 {
     private float lowerThreshold;
     private float upperThreshold;

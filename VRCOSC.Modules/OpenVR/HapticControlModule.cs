@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.Game.Modules;
+using VRCOSC.Game.Modules.Avatar;
 
 namespace VRCOSC.Modules.OpenVR;
 
@@ -12,7 +13,7 @@ namespace VRCOSC.Modules.OpenVR;
 [ModuleInfo("The duration, frequency, and amplitude parameters can be set from your animator")]
 [ModuleInfo("If you're designing a prefab, ensure these parameters are set each time before you attempt a trigger in the case that the user has restarted this module")]
 [ModuleInfo("Trigger parameters must be set back to false before attempting another trigger")]
-public class HapticControlModule : Module
+public class HapticControlModule : AvatarModule
 {
     private float duration;
     private float frequency;
@@ -35,7 +36,7 @@ public class HapticControlModule : Module
         amplitude = 0;
     }
 
-    protected override void OnModuleParameterReceived(AvatarParameter parameter)
+    protected override void OnRegisteredParameterReceived(AvatarParameter parameter)
     {
         switch (parameter.Lookup)
         {

@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.Modules.Attributes;
-using VRCOSC.Game.Modules.ChatBox;
+using VRCOSC.Game.Modules.Avatar;
 
 namespace VRCOSC.Modules.Counter;
 
@@ -77,7 +77,7 @@ public class CounterModule : ChatBoxModule
         });
     }
 
-    protected override void OnAnyParameterReceived(AvatarParameter parameter)
+    protected override void OnAnyParameterReceived(ReceivedParameter parameter)
     {
         var candidates = counts.Where(pair => pair.Value.ParameterNames.Contains(parameter.Name)).ToList();
         if (!candidates.Any()) return;

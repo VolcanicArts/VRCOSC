@@ -10,7 +10,7 @@ using osu.Framework.Graphics.Sprites;
 using osuTK;
 using VRCOSC.Game.App;
 using VRCOSC.Game.Graphics.Themes;
-using VRCOSC.Game.Modules.ChatBox;
+using VRCOSC.Game.Modules.Avatar;
 
 namespace VRCOSC.Game.Graphics.ChatBox.SelectedClip;
 

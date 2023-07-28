@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.Game.Modules;
+using VRCOSC.Game.Modules.Avatar;
 
 namespace VRCOSC.Modules.OpenVR;
 
@@ -9,7 +10,7 @@ namespace VRCOSC.Modules.OpenVR;
 [ModuleDescription("Gets controller statistics from your OpenVR (SteamVR) session")]
 [ModuleAuthor("VolcanicArts", "https://github.com/VolcanicArts", "https://avatars.githubusercontent.com/u/29819296?v=4")]
 [ModuleGroup(ModuleType.OpenVR)]
-public class OpenVRControllerStatisticsModule : Module
+public class OpenVRControllerStatisticsModule : AvatarModule
 {
     protected override void CreateAttributes()
     {

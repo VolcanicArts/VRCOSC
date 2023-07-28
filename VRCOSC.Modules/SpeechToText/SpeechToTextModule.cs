@@ -3,7 +3,7 @@
 
 using System.Globalization;
 using VRCOSC.Game.Modules;
-using VRCOSC.Game.Modules.ChatBox;
+using VRCOSC.Game.Modules.Avatar;
 using VRCOSC.Game.Providers.SpeechToText;
 
 namespace VRCOSC.Modules.SpeechToText;
@@ -68,7 +68,7 @@ public class SpeechToTextModule : ChatBoxModule
         speechToTextProvider.Teardown();
     }
 
-    protected override void OnModuleParameterReceived(AvatarParameter parameter)
+    protected override void OnRegisteredParameterReceived(AvatarParameter parameter)
     {
         switch (parameter.Lookup)
         {

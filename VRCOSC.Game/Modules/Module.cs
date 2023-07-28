@@ -20,9 +20,11 @@ using VRCOSC.Game.Modules.Attributes;
 using VRCOSC.Game.Modules.Avatar;
 using VRCOSC.Game.Modules.Persistence;
 using VRCOSC.Game.Modules.Serialisation.V1;
+using VRCOSC.Game.Modules.World;
 using VRCOSC.Game.OpenVR;
 using VRCOSC.Game.OSC.VRChat;
 using VRCOSC.Game.Serialisation;
+using VRCOSC.Game.Util;
 
 namespace VRCOSC.Game.Modules;
 
@@ -255,17 +257,6 @@ public abstract class Module : IComparable<Module>
             Max = maxValue
         });
 
-    protected void CreateParameter<T>(Enum lookup, ParameterMode mode, string parameterName, string displayName, string description)
-        => Parameters.Add(lookup, new ModuleParameter
-        {
-            Name = displayName,
-            Description = description,
-            Default = parameterName,
-            DependsOn = null,
-            Mode = mode,
-            ExpectedType = typeof(T)
-        });
-
     internal bool TryGetSetting(string lookup, [NotNullWhen(true)] out ModuleAttribute? attribute)
     {
         attribute = Settings.SingleOrDefault(pair => pair.Key == lookup).Value;
@@ -306,7 +297,7 @@ public abstract class Module : IComparable<Module>
         }
         catch (Exception e)
         {
-            pushException(e);
+            PushException(e);
         }
 
         state.Value = ModuleState.Started;
@@ -326,15 +317,18 @@ public abstract class Module : IComparable<Module>
                 var updateAttribute = method.GetCustomAttribute<ModuleUpdateAttribute>();
                 if (updateAttribute is null) return;
 
+                if (updateAttribute.Mode == ModuleUpdateMode.ChatBox && GetType().IsSubclassOf(typeof(WorldModule)))
+                    throw new InvalidOperationException($"Cannot have update mode {ModuleUpdateMode.ChatBox} on a world module");
+
                 switch (updateAttribute.Mode)
                 {
                     case ModuleUpdateMode.Fixed:
-                        scheduler.AddDelayed(() => update(method), FIXED_UPDATE_DELTA, true);
+                        scheduler.AddDelayed(() => UpdateMethod(method), FIXED_UPDATE_DELTA, true);
                         break;
 
                     case ModuleUpdateMode.Custom:
-                        scheduler.AddDelayed(() => update(method), updateAttribute.DeltaMilliseconds, true);
-                        if (updateAttribute.UpdateImmediately) update(method);
+                        scheduler.AddDelayed(() => UpdateMethod(method), updateAttribute.DeltaMilliseconds, true);
+                        if (updateAttribute.UpdateImmediately) UpdateMethod(method);
                         break;
 
                     case ModuleUpdateMode.ChatBox:
@@ -357,7 +351,7 @@ public abstract class Module : IComparable<Module>
         }
         catch (Exception e)
         {
-            pushException(e);
+            PushException(e);
         }
 
         savePersistentProperties();
@@ -365,24 +359,7 @@ public abstract class Module : IComparable<Module>
         state.Value = ModuleState.Stopped;
     }
 
-    internal void PlayerUpdate()
-    {
-        try
-        {
-            OnPlayerUpdate();
-        }
-        catch (Exception e)
-        {
-            pushException(e);
-        }
-    }
-
-    internal void ChatBoxUpdate()
-    {
-        ChatBoxUpdateMethods.ForEach(update);
-    }
-
-    private void update(MethodBase method)
+    protected void UpdateMethod(MethodBase method)
     {
         try
         {
@@ -390,29 +367,12 @@ public abstract class Module : IComparable<Module>
         }
         catch (Exception e)
         {
-            pushException(new Exception($"{className} experienced an exception calling method {method.Name}", e));
-        }
-    }
-
-    private void avatarChange()
-    {
-        try
-        {
-            OnAvatarChange();
-        }
-        catch (Exception e)
-        {
-            pushException(e);
+            PushException(new Exception($"{className} experienced an exception calling method {method.Name}", e));
         }
     }
 
     protected virtual void OnModuleStart() { }
     protected virtual void OnModuleStop() { }
-    protected virtual void OnAvatarChange() { }
-    protected virtual void OnPlayerUpdate() { }
-
-    protected virtual void OnAnyParameterReceived(AvatarParameter parameter) { }
-    protected virtual void OnModuleParameterReceived(AvatarParameter parameter) { }
 
     #endregion
 
@@ -469,23 +429,15 @@ public abstract class Module : IComparable<Module>
         scheduler.Add(() => oscClient.SendValue(data.ParameterAddress, value));
     }
 
-    internal void OnParameterReceived(VRChatOscMessage message)
+    internal virtual void OnParameterReceived(VRChatOscMessage message)
     {
-        if (message.IsAvatarChangeEvent)
-        {
-            avatarChange();
-            return;
-        }
-
-        if (!message.IsAvatarParameter) return;
-
         try
         {
-            OnAnyParameterReceived(new AvatarParameter(null, message.ParameterName, message.ParameterValue));
+            OnAnyParameterReceived(new ReceivedParameter(message.ParameterName, message.ParameterValue));
         }
         catch (Exception e)
         {
-            pushException(e);
+            PushException(e);
         }
 
         var parameterName = Parameters.Values.FirstOrDefault(moduleParameter => parameterNameRegex[moduleParameter.ParameterName].IsMatch(message.ParameterName))?.ParameterName;
@@ -505,13 +457,16 @@ public abstract class Module : IComparable<Module>
 
         try
         {
-            OnModuleParameterReceived(new AvatarParameter(parameterData, lookup, message.ParameterName, message.ParameterValue));
+            ModuleParameterReceived(message.ParameterName, message.ParameterName, lookup, parameterData);
         }
         catch (Exception e)
         {
-            pushException(e);
+            PushException(e);
         }
     }
+
+    protected virtual void OnAnyParameterReceived(ReceivedParameter parameter) { }
+    protected internal abstract void ModuleParameterReceived(string name, object value, Enum lookup, ModuleParameter moduleParameter);
 
     #endregion
 
@@ -539,28 +494,12 @@ public abstract class Module : IComparable<Module>
 
     #endregion
 
-    private void pushException(Exception e)
+    #region Internal
+
+    protected internal void PushException(Exception e)
     {
         notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
         Logger.Error(e, $"{className} experienced an exception");
-    }
-
-    internal enum ModuleState
-    {
-        Starting,
-        Started,
-        Stopping,
-        Stopped
-    }
-
-    public enum ModuleType
-    {
-        Health,
-        Accessibility,
-        OpenVR,
-        Integrations,
-        General,
-        NSFW
     }
 
     public int CompareTo(Module? other)
@@ -571,4 +510,6 @@ public abstract class Module : IComparable<Module>
 
         return string.CompareOrdinal(Title, other.Title);
     }
+
+    #endregion
 }
