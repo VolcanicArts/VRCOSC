@@ -82,7 +82,7 @@ public partial class VRCOSCGameBase : osu.Framework.Game
 
         Task.Run(async () =>
         {
-            await Task.Delay(500);
+            await Task.Delay(1000);
             handleTrayTransition(false);
         });
     }

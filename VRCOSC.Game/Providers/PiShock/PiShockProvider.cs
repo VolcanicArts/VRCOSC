@@ -45,16 +45,23 @@ public class PiShockProvider
 
     private async Task<PiShockShocker?> retrieveShockerInfo(string username, string apiKey, string sharecode)
     {
-        var request = new ShockerInfoPiShockRequest
+        try
         {
-            Username = username,
-            APIKey = apiKey,
-            ShareCode = sharecode
-        };
+            var request = new ShockerInfoPiShockRequest
+            {
+                Username = username,
+                APIKey = apiKey,
+                ShareCode = sharecode
+            };
 
-        var response = await client.PostAsync(info_api_url, new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"));
-        var responseString = await response.Content.ReadAsStringAsync();
-        return JsonConvert.DeserializeObject<PiShockShocker>(responseString);
+            var response = await client.PostAsync(info_api_url, new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"));
+            var responseString = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<PiShockShocker>(responseString);
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     private static ActionPiShocKRequest getRequestForMode(PiShockMode mode, int duration, int intensity) => mode switch
