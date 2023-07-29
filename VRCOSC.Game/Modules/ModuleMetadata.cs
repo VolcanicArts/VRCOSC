@@ -12,7 +12,10 @@ public class ModuleTitleAttribute : Attribute
 {
     public readonly string Title;
 
-    /// <param name="title">The human-readable name of your module</param>
+    /// <summary>
+    /// Defines a title for the <see cref="Module"/>
+    /// </summary>
+    /// <param name="title">The name of your <see cref="Module"/></param>
     public ModuleTitleAttribute(string title)
     {
         Title = title;
@@ -24,12 +27,15 @@ public class ModuleTitleAttribute : Attribute
 public class ModuleDescriptionAttribute : Attribute
 {
     public readonly string ShortDescription;
-    public readonly string LongDescription;
+    public readonly string? LongDescription;
 
+    /// <summary>
+    /// Allows for providing descriptions of the <see cref="Module"/>
+    /// </summary>
     /// <param name="shortDescription">Used in places where there isn't as much space</param>
     /// <param name="longDescription">Used in places where there is room for a detailed description</param>
     /// <remarks>If <paramref name="longDescription" /> is left blank, <paramref name="shortDescription" /> is used in its place</remarks>
-    public ModuleDescriptionAttribute(string shortDescription, string longDescription = "")
+    public ModuleDescriptionAttribute(string shortDescription, string? longDescription = null)
     {
         ShortDescription = shortDescription;
         LongDescription = string.IsNullOrEmpty(longDescription) ? shortDescription : longDescription;
@@ -44,10 +50,13 @@ public class ModuleAuthorAttribute : Attribute
     public readonly string? Url;
     public readonly string? IconUrl;
 
+    /// <summary>
+    /// Defines metadata for the author of the <see cref="Module"/>
+    /// </summary>
     /// <param name="name">Your name</param>
     /// <param name="url">A link to any page you'd like to promote</param>
     /// <param name="iconUrl">A link to a PNG or JPG of your icon</param>
-    public ModuleAuthorAttribute(string name, string? url, string? iconUrl)
+    public ModuleAuthorAttribute(string name, string? url = null, string? iconUrl = null)
     {
         Name = name;
         Url = url;
@@ -61,6 +70,9 @@ public class ModuleGroupAttribute : Attribute
 {
     public readonly ModuleType Type;
 
+    /// <summary>
+    /// Puts a <see cref="Module"/> into a specific group
+    /// </summary>
     /// <param name="type">The group this module belongs to</param>
     public ModuleGroupAttribute(ModuleType type)
     {
@@ -73,11 +85,14 @@ public class ModuleGroupAttribute : Attribute
 public class ModulePrefabAttribute : Attribute
 {
     public readonly string Name;
-    public readonly string Url;
+    public readonly string? Url;
 
+    /// <summary>
+    /// Adds a reference to a prefab for this <see cref="Module"/>
+    /// </summary>
     /// <param name="name">The name of the prefab</param>
     /// <param name="url">A download URL for the latest version</param>
-    public ModulePrefabAttribute(string name, string url)
+    public ModulePrefabAttribute(string name, string? url = null)
     {
         Name = name;
         Url = url;
@@ -89,10 +104,17 @@ public class ModulePrefabAttribute : Attribute
 public class ModuleInfoAttribute : Attribute
 {
     public readonly string Description;
+    public readonly string? Url;
 
-    public ModuleInfoAttribute(string description)
+    /// <summary>
+    /// Adds a line of info to appear in the info menu for a <see cref="Module"/>
+    /// </summary>
+    /// <param name="description">The description of the info</param>
+    /// <param name="url">An optional URL to link to a website</param>
+    public ModuleInfoAttribute(string description, string? url = null)
     {
         Description = description;
+        Url = url;
     }
 }
 
@@ -123,7 +145,7 @@ public class ModulePersistentAttribute : Attribute
     public string? LegacySerialisedName { get; }
 
     /// <summary>
-    /// Used to mark a field for being automatically loaded and saved when the module starts and stops
+    /// Used to mark a field for being automatically loaded and saved when the <see cref="Module"/> starts and stops
     /// </summary>
     /// <param name="serialisedName">The name to serialise this property as</param>
     /// <param name="legacySerialisedName">Support for migration from a legacy name to the <paramref name="serialisedName" /></param>
@@ -141,7 +163,7 @@ public class ModuleLegacyAttribute : Attribute
     public string? LegacySerialisedName { get; }
 
     /// <summary>
-    /// Marks a module with legacy fields to allow for migration
+    /// Marks a <see cref="Module"/> with legacy fields to allow for migration
     /// </summary>
     /// <param name="legacySerialisedName">Allows migration from a legacy serialised name to the current serialised name in the case that the class is renamed</param>
     public ModuleLegacyAttribute(string? legacySerialisedName = null)
