@@ -19,12 +19,18 @@ public class ReceivedParameter
     /// </summary>
     public readonly string Name;
 
-    private readonly object value;
+    internal readonly object Value;
 
     internal ReceivedParameter(string name, object value)
     {
         Name = name;
-        this.value = value;
+        Value = value;
+    }
+
+    internal ReceivedParameter(ReceivedParameter other)
+    {
+        Name = other.Name;
+        Value = other.Value;
     }
 
     /// <summary>
@@ -32,14 +38,20 @@ public class ReceivedParameter
     /// </summary>
     /// <typeparam name="T">The type to get the value as</typeparam>
     /// <returns>The value as type <typeparamref name="T"/></returns>
-    public virtual T ValueAs<T>() => (T)Convert.ChangeType(value, typeof(T));
+    public virtual T ValueAs<T>() => (T)Convert.ChangeType(Value, typeof(T));
 
     /// <summary>
     /// Checks if the received value is of type <typeparamref name="T"/>
     /// </summary>
     /// <typeparam name="T">The type to check against the value</typeparam>
     /// <returns>True if the value is exactly the type passed, otherwise false</returns>
-    public bool IsValueType<T>() => value.GetType() == typeof(T);
+    public bool IsValueType<T>() => IsValueType(typeof(T));
+
+    /// <summary>
+    /// Checks if the received value is of type <paramref name="type"/>
+    /// </summary>
+    /// <returns>True if the value is exactly the type passed, otherwise false</returns>
+    public bool IsValueType(Type type) => Value.GetType() == type;
 }
 
 /// <summary>
@@ -55,11 +67,20 @@ public class RegisteredParameter : ReceivedParameter
     private readonly ModuleParameter moduleParameter;
     private readonly List<Wildcard> wildcards = new();
 
-    internal RegisteredParameter(string name, object value, Enum lookup, ModuleParameter moduleParameter)
-        : base(name, value)
+    internal RegisteredParameter(ReceivedParameter other, Enum lookup, ModuleParameter moduleParameter)
+        : base(other)
     {
         Lookup = lookup;
         this.moduleParameter = moduleParameter;
+
+        decodeWildcards();
+    }
+
+    internal RegisteredParameter(RegisteredParameter other)
+        : base(other)
+    {
+        Lookup = other.Lookup;
+        moduleParameter = other.moduleParameter;
 
         decodeWildcards();
     }
@@ -123,7 +144,13 @@ public class Wildcard
     /// </summary>
     /// <typeparam name="T">The type to check against the value</typeparam>
     /// <returns>True if the value is exactly the type passed, otherwise false</returns>
-    public bool IsValueType<T>() => value.GetType() == typeof(T);
+    public bool IsValueType<T>() => IsValueType(typeof(T));
+
+    /// <summary>
+    /// Checks if the received value is of type <paramref name="type"/>
+    /// </summary>
+    /// <returns>True if the value is exactly the type passed, otherwise false</returns>
+    public bool IsValueType(Type type) => value.GetType() == type;
 }
 
 /// <summary>
@@ -131,8 +158,8 @@ public class Wildcard
 /// </summary>
 public class AvatarParameter : RegisteredParameter
 {
-    internal AvatarParameter(string name, object value, Enum lookup, ModuleParameter moduleParameter)
-        : base(name, value, lookup, moduleParameter)
+    internal AvatarParameter(RegisteredParameter other)
+        : base(other)
     {
     }
 }
@@ -142,8 +169,8 @@ public class AvatarParameter : RegisteredParameter
 /// </summary>
 public class WorldParameter : RegisteredParameter
 {
-    internal WorldParameter(string name, object value, Enum lookup, ModuleParameter moduleParameter)
-        : base(name, value, lookup, moduleParameter)
+    internal WorldParameter(RegisteredParameter other)
+        : base(other)
     {
     }
 }

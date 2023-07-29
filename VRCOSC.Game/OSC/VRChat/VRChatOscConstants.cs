@@ -3,8 +3,6 @@
 
 // ReSharper disable MemberCanBePrivate.Global
 
-using System;
-
 namespace VRCOSC.Game.OSC.VRChat;
 
 public static class VRChatOscConstants
@@ -16,5 +14,4 @@ public static class VRChatOscConstants
 
     public const double UPDATE_FREQUENCY_SECONDS = 20;
     public const double UPDATE_DELTA_MILLISECONDS = 1000d / UPDATE_FREQUENCY_SECONDS;
-    public static readonly TimeSpan UPDATE_TIME_SPAN = TimeSpan.FromMilliseconds(UPDATE_DELTA_MILLISECONDS);
 }

@@ -425,16 +425,18 @@ public abstract class Module : IComparable<Module>
 
     internal virtual void OnParameterReceived(VRChatOscMessage message)
     {
+        var receivedParameter = new ReceivedParameter(message.ParameterName, message.ParameterValue);
+
         try
         {
-            OnAnyParameterReceived(new ReceivedParameter(message.ParameterName, message.ParameterValue));
+            OnAnyParameterReceived(receivedParameter);
         }
         catch (Exception e)
         {
             PushException(e);
         }
 
-        var parameterName = Parameters.Values.FirstOrDefault(moduleParameter => parameterNameRegex[moduleParameter.ParameterName].IsMatch(message.ParameterName))?.ParameterName;
+        var parameterName = Parameters.Values.FirstOrDefault(moduleParameter => parameterNameRegex[moduleParameter.ParameterName].IsMatch(receivedParameter.Name))?.ParameterName;
         if (parameterName is null) return;
 
         if (!parameterNameEnum.TryGetValue(parameterName, out var lookup)) return;
@@ -443,15 +445,17 @@ public abstract class Module : IComparable<Module>
 
         if (!parameterData.Mode.HasFlagFast(ParameterMode.Read)) return;
 
-        if (!message.IsValueType(parameterData.ExpectedType))
+        if (!receivedParameter.IsValueType(parameterData.ExpectedType))
         {
-            Log($@"Cannot accept input parameter. `{lookup}` expects type `{parameterData.ExpectedType}` but received type `{message.ParameterValue.GetType()}`");
+            Log($@"Cannot accept input parameter. `{lookup}` expects type `{parameterData.ExpectedType}` but received type `{receivedParameter.Value.GetType()}`");
             return;
         }
 
+        var registeredParameter = new RegisteredParameter(receivedParameter, lookup, parameterData);
+
         try
         {
-            ModuleParameterReceived(message.ParameterName, message.ParameterName, lookup, parameterData);
+            ModuleParameterReceived(registeredParameter);
         }
         catch (Exception e)
         {
@@ -460,7 +464,7 @@ public abstract class Module : IComparable<Module>
     }
 
     protected virtual void OnAnyParameterReceived(ReceivedParameter parameter) { }
-    protected internal abstract void ModuleParameterReceived(string name, object value, Enum lookup, ModuleParameter moduleParameter);
+    protected internal abstract void ModuleParameterReceived(RegisteredParameter parameter);
 
     #endregion
 
