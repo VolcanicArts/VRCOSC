@@ -3,6 +3,7 @@
 
 using System;
 using JetBrains.Annotations;
+using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Game.Modules;
 
@@ -130,7 +131,7 @@ public class ModuleUpdateAttribute : Attribute
     /// <param name="updateImmediately">Whether this method should be called immediately after <see cref="M:VRCOSC.Game.Modules.Module.OnModuleStart" />. This is only used when <paramref name="mode" /> is <see cref="F:VRCOSC.Game.Modules.ModuleUpdateMode.Custom" /></param>
     /// <param name="deltaMilliseconds">The time between this method being called in milliseconds. This is only used when <paramref name="mode" /> is <see cref="F:VRCOSC.Game.Modules.ModuleUpdateMode.Custom" /></param>
     /// <remarks><paramref name="deltaMilliseconds" /> defaults to the fastest update rate you should need for sending parameters</remarks>
-    public ModuleUpdateAttribute(ModuleUpdateMode mode, bool updateImmediately = true, int deltaMilliseconds = 50)
+    public ModuleUpdateAttribute(ModuleUpdateMode mode, bool updateImmediately = true, double deltaMilliseconds = VRChatOscConstants.UPDATE_DELTA_MILLISECONDS)
     {
         Mode = mode;
         UpdateImmediately = updateImmediately;
@@ -174,11 +175,6 @@ public class ModuleLegacyAttribute : Attribute
 
 public enum ModuleUpdateMode
 {
-    /// <summary>
-    /// A fixed update that is called 60 times per second
-    /// </summary>
-    Fixed,
-
     /// <summary>
     /// Updates before the ChatBox is evaluated and text is sent. This is useful for setting ChatBox variables and updating states/events
     /// </summary>

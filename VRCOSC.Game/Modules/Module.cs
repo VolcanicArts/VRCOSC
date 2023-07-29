@@ -322,10 +322,6 @@ public abstract class Module : IComparable<Module>
 
                 switch (updateAttribute.Mode)
                 {
-                    case ModuleUpdateMode.Fixed:
-                        scheduler.AddDelayed(() => UpdateMethod(method), FIXED_UPDATE_DELTA, true);
-                        break;
-
                     case ModuleUpdateMode.Custom:
                         scheduler.AddDelayed(() => UpdateMethod(method), updateAttribute.DeltaMilliseconds, true);
                         if (updateAttribute.UpdateImmediately) UpdateMethod(method);

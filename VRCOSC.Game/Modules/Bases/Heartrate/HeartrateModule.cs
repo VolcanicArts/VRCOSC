@@ -81,12 +81,12 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
         SendParameter(HeartrateParameter.Enabled, false);
     }
 
-    [ModuleUpdate(ModuleUpdateMode.Fixed)]
+    [ModuleUpdate(ModuleUpdateMode.Custom)]
     private void updateParameters()
     {
         if (GetSetting<bool>(HeartrateSetting.Smoothed))
         {
-            currentHeartrate = (float)Interpolation.DampContinuously(currentHeartrate, targetHeartrate, GetSetting<int>(HeartrateSetting.SmoothingLength) / 2d, FIXED_UPDATE_DELTA);
+            currentHeartrate = (float)Interpolation.DampContinuously(currentHeartrate, targetHeartrate, GetSetting<int>(HeartrateSetting.SmoothingLength) / 2d, 50d);
         }
         else
         {

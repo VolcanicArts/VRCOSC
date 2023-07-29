@@ -110,13 +110,13 @@ public class PiShockModule : AvatarModule
         sendParameters();
     }
 
-    [ModuleUpdate(ModuleUpdateMode.Fixed)]
+    [ModuleUpdate(ModuleUpdateMode.Custom)]
     private void setSpeechToTextParameters()
     {
         speechToTextProvider.RequiredConfidence = GetSetting<int>(PiShockSetting.SpeechConfidence) / 100f;
     }
 
-    [ModuleUpdate(ModuleUpdateMode.Fixed)]
+    [ModuleUpdate(ModuleUpdateMode.Custom)]
     private void checkForExecutions()
     {
         var delay = TimeSpan.FromMilliseconds(GetSetting<int>(PiShockSetting.Delay));
