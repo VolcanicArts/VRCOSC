@@ -59,7 +59,7 @@ public abstract class Module : IComparable<Module>
     internal ModuleType Group => GetType().GetCustomAttribute<ModuleGroupAttribute>()?.Type ?? ModuleType.General;
     internal string? PrefabName => GetType().GetCustomAttribute<ModulePrefabAttribute>()?.Name;
     internal string? PrefabUrl => GetType().GetCustomAttribute<ModulePrefabAttribute>()?.Url;
-    internal IEnumerable<string> InfoList => GetType().GetCustomAttributes<ModuleInfoAttribute>().Select(attribute => attribute.Description).ToList();
+    internal IEnumerable<(string, string?)> InfoList => GetType().GetCustomAttributes<ModuleInfoAttribute>().Select(attribute => (attribute.Description, attribute.Url)).ToList();
 
     // Cached pre-computed lookups
     private readonly Dictionary<string, Enum> parameterNameEnum = new();
@@ -73,8 +73,6 @@ public abstract class Module : IComparable<Module>
 
     private readonly SerialisationManager persistenceSerialisationManager = new();
     private readonly SerialisationManager moduleSerialisationManager = new();
-
-    protected const double FIXED_UPDATE_DELTA = VRChatOscConstants.UPDATE_DELTA_MILLISECONDS;
 
     internal void InjectDependencies(GameHost host, AppManager appManager, Scheduler scheduler, Storage storage, NotificationContainer notifications)
     {
