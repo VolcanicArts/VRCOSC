@@ -3,6 +3,7 @@
 
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.Modules.Avatar;
+using VRCOSC.Game.Processes;
 
 namespace VRCOSC.Modules.AFKTracker;
 
@@ -34,8 +35,16 @@ public class AFKTrackerModule : ChatBoxModule
         ChangeStateTo(AFKState.NotAFK);
     }
 
-    [ModuleUpdate(ModuleUpdateMode.Custom)]
-    private void updateVariables()
+    [ModuleUpdate(ModuleUpdateMode.Custom, true, 1000)]
+    private void moduleUpdate()
+    {
+        SetVariableValue(AFKVariable.FocusedWindow, ProcessExtensions.GetActiveWindowTitle() ?? "None");
+        SetVariableValue(AFKVariable.Duration, afkBegan is null ? null : (DateTime.Now - afkBegan.Value).ToString(@"hh\:mm\:ss"));
+        SetVariableValue(AFKVariable.Since, afkBegan?.ToString(@"hh\:mm"));
+        ChangeStateTo(afkBegan is null ? AFKState.NotAFK : AFKState.AFK);
+    }
+
+    protected override void OnPlayerUpdate()
     {
         if (Player.AFK is null)
         {
@@ -54,16 +63,13 @@ public class AFKTrackerModule : ChatBoxModule
             afkBegan = null;
             TriggerEvent(AFKEvent.AFKStopped);
         }
-
-        SetVariableValue(AFKVariable.Duration, afkBegan is null ? null : (DateTime.Now - afkBegan.Value).ToString(@"hh\:mm\:ss"));
-        SetVariableValue(AFKVariable.Since, afkBegan?.ToString(@"hh\:mm"));
-        ChangeStateTo(afkBegan is null ? AFKState.NotAFK : AFKState.AFK);
     }
 
     private enum AFKVariable
     {
         Duration,
-        Since
+        Since,
+        FocusedWindow
     }
 
     private enum AFKState
