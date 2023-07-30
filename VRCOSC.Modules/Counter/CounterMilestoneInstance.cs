@@ -176,7 +176,7 @@ public partial class CounterInstanceAttributeCardList : AttributeCardList<Counte
                         BorderThickness = 2,
                         ValidCurrent = instance.ParameterName.GetBoundCopy(),
                         PlaceholderText = "Parameter Name",
-                        EmptyIsValid = false
+                        EmptyIsValid = true
                     },
                     null,
                     new StringTextBox

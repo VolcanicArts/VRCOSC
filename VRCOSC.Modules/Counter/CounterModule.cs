@@ -13,6 +13,12 @@ namespace VRCOSC.Modules.Counter;
 
 public class CounterModule : ChatBoxModule
 {
+    private const string progress_line = "\u2501";
+    private const string progress_dot = "\u25CF";
+    private const string progress_start = "\u2523";
+    private const string progress_end = "\u252B";
+    private const int progress_resolution = 10;
+
     public override string Title => "Counter";
     public override string Description => "Counts how many times parameters are triggered based on parameter change events";
     public override string Author => "VolcanicArts";
@@ -33,12 +39,14 @@ public class CounterModule : ChatBoxModule
         CreateSetting(CounterSetting.Milestones, new CounterMilestoneInstanceListAttribute
         {
             Name = "Milestones",
-            Description = "Set `parameter name` to true when `counter key` reaches `required count`\nThese will be set when the module starts if a counter has already reached the milestone",
+            Description = "Set `parameter name` to true when `counter key` reaches `required count`\nThese will be set when the module starts if a counter has already reached the milestone\nParameter names aren't required if you just want to use the ChatBox milestone variables",
             Default = new List<CounterMilestoneInstance>()
         });
 
         CreateVariable(CounterVariable.Value, "Value", "value");
         CreateVariable(CounterVariable.ValueToday, "Value Today", "valuetoday");
+        CreateVariable(CounterVariable.Milestone, "Milestone", "milestone");
+        CreateVariable(CounterVariable.MilestoneProgress, "Milestone Progress", "milestoneprogress");
 
         CreateState(CounterState.Default, "Default", $"Today: {GetVariableFormat(CounterVariable.ValueToday, "Example")}/vTotal: {GetVariableFormat(CounterVariable.Value, "Example")}");
 
@@ -118,8 +126,73 @@ public class CounterModule : ChatBoxModule
 
     private void checkMilestones(KeyValuePair<string, CountInstance> pair)
     {
-        var instances = GetSettingList<CounterMilestoneInstance>(CounterSetting.Milestones).Where(instance => instance.CounterKey.Value == pair.Key && pair.Value.Count >= instance.RequiredCount.Value);
+        var milestones = GetSettingList<CounterMilestoneInstance>(CounterSetting.Milestones).Where(instance => instance.CounterKey.Value == pair.Key).ToList();
+
+        if (!milestones.Any())
+        {
+            SetVariableValue(CounterVariable.Milestone, string.Empty, pair.Key);
+            SetVariableValue(CounterVariable.MilestoneProgress, string.Empty, pair.Key);
+            return;
+        }
+
+        var instances = milestones.Where(instance => pair.Value.Count >= instance.RequiredCount.Value && !string.IsNullOrEmpty(instance.ParameterName.Value));
         instances.ForEach(instance => SendParameter(instance.ParameterName.Value, true));
+
+        var milestone = milestones.LastOrDefault(instance => pair.Value.Count < instance.RequiredCount.Value);
+
+        SetVariableValue(CounterVariable.Milestone, milestone is not null ? milestone.RequiredCount.Value.ToString() : string.Empty, pair.Key);
+
+        var lowerboundIndex = milestones.FindLastIndex(instance => pair.Value.Count >= instance.RequiredCount.Value);
+
+        var progressLowerbound = 0f;
+        var progressUpperbound = 0f;
+
+        if (lowerboundIndex == -1)
+        {
+            progressUpperbound = milestones[0].RequiredCount.Value;
+        }
+        else
+        {
+            progressLowerbound = milestones[lowerboundIndex].RequiredCount.Value;
+
+            if (milestones.Count - 1 < lowerboundIndex + 1)
+            {
+                SetVariableValue(CounterVariable.MilestoneProgress, string.Empty, pair.Key);
+                return;
+            }
+
+            progressUpperbound = milestones[lowerboundIndex + 1].RequiredCount.Value;
+
+            if (pair.Value.Count >= progressUpperbound)
+            {
+                SetVariableValue(CounterVariable.MilestoneProgress, string.Empty, pair.Key);
+                return;
+            }
+        }
+
+        Console.WriteLine(progressLowerbound);
+        Console.WriteLine(progressUpperbound);
+
+        var progress = (pair.Value.Count - progressLowerbound) / (progressUpperbound - progressLowerbound);
+
+        SetVariableValue(CounterVariable.MilestoneProgress, getProgressVisual(progress), pair.Key);
+    }
+
+    private string getProgressVisual(float percentage)
+    {
+        var progressPercentage = progress_resolution * percentage;
+        var dotPosition = (int)(MathF.Floor(progressPercentage * 10f) / 10f);
+
+        var visual = progress_start;
+
+        for (var i = 0; i < progress_resolution; i++)
+        {
+            visual += i == dotPosition ? progress_dot : progress_line;
+        }
+
+        visual += progress_end;
+
+        return visual;
     }
 
     private enum CounterSetting
@@ -133,7 +206,9 @@ public class CounterModule : ChatBoxModule
     private enum CounterVariable
     {
         Value,
-        ValueToday
+        ValueToday,
+        Milestone,
+        MilestoneProgress
     }
 
     private enum CounterState
