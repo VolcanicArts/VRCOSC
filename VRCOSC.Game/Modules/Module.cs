@@ -445,6 +445,14 @@ public abstract class Module : IComparable<Module>
 
     #region Parameters
 
+    /// <summary>
+    /// Allows for sending a parameter that hasn't been registed. Only use this when absolutely necessary
+    /// </summary>
+    protected void SendParameter<T>(string parameterName, T value) where T : struct
+    {
+        Scheduler.Add(() => OscClient.SendValue($"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}/{parameterName}", value));
+    }
+
     [Obsolete("Use SendParameter<T>(lookup, value) instead")]
     protected void SendParameter<T>(Enum lookup, T value, string suffix) where T : struct
     {

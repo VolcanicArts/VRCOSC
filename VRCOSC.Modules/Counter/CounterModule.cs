@@ -30,6 +30,13 @@ public class CounterModule : ChatBoxModule
         CreateSetting(CounterSetting.ParameterList, "Parameter List", "What parameters should be monitored for changes?\nKeys can be reused to allow multiple parameters to add to the same counter\nCounts can be accessed in the ChatBox using: {counter.value_Key}", new List<MutableKeyValuePair> { new() { Key = { Value = "Example" }, Value = { Value = "ExampleParameterName" } } }, "Key",
             "Parameter Name");
 
+        CreateSetting(CounterSetting.Milestones, new CounterMilestoneInstanceListAttribute
+        {
+            Name = "Milestones",
+            Description = "Set `parameter name` to true when `counter key` reaches `required count`\nThese will be set when the module starts if a counter has already reached the milestone",
+            Default = new List<CounterMilestoneInstance>()
+        });
+
         CreateVariable(CounterVariable.Value, "Value", "value");
         CreateVariable(CounterVariable.ValueToday, "Value Today", "valuetoday");
 
@@ -44,7 +51,12 @@ public class CounterModule : ChatBoxModule
     {
         ChangeStateTo(CounterState.Default);
         auditParameters();
-        Counts.ForEach(pair => SetVariableValue(CounterVariable.Value, pair.Value.Count.ToString("N0"), pair.Key));
+
+        Counts.ForEach(pair =>
+        {
+            SetVariableValue(CounterVariable.Value, pair.Value.Count.ToString("N0"), pair.Key);
+            checkMilestones(pair);
+        });
     }
 
     protected override void OnAvatarChange()
@@ -100,13 +112,22 @@ public class CounterModule : ChatBoxModule
         SetVariableValue(CounterVariable.Value, pair.Value.Count.ToString("N0"), pair.Key);
         SetVariableValue(CounterVariable.ValueToday, pair.Value.CountToday.ToString("N0"), pair.Key);
         TriggerEvent(CounterEvent.Changed);
+
+        checkMilestones(pair);
+    }
+
+    private void checkMilestones(KeyValuePair<string, CountInstance> pair)
+    {
+        var instances = GetSettingList<CounterMilestoneInstance>(CounterSetting.Milestones).Where(instance => instance.CounterKey.Value == pair.Key && pair.Value.Count >= instance.RequiredCount.Value);
+        instances.ForEach(instance => SendParameter(instance.ParameterName.Value, true));
     }
 
     private enum CounterSetting
     {
         ResetOnAvatarChange,
         SaveCounters,
-        ParameterList
+        ParameterList,
+        Milestones
     }
 
     private enum CounterVariable
