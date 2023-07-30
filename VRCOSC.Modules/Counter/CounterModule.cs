@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Globalization;
 using Newtonsoft.Json;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using VRCOSC.Game.Modules;
@@ -45,7 +46,8 @@ public class CounterModule : ChatBoxModule
 
         CreateVariable(CounterVariable.Value, "Value", "value");
         CreateVariable(CounterVariable.ValueToday, "Value Today", "valuetoday");
-        CreateVariable(CounterVariable.Milestone, "Milestone", "milestone");
+        CreateVariable(CounterVariable.MilestonePrevious, "Milestone Previous", "milestoneprevious");
+        CreateVariable(CounterVariable.MilestoneCurrent, "Milestone Current", "milestonecurrent");
         CreateVariable(CounterVariable.MilestoneProgress, "Milestone Progress", "milestoneprogress");
 
         CreateState(CounterState.Default, "Default", $"Today: {GetVariableFormat(CounterVariable.ValueToday, "Example")}/vTotal: {GetVariableFormat(CounterVariable.Value, "Example")}");
@@ -130,7 +132,8 @@ public class CounterModule : ChatBoxModule
 
         if (!milestones.Any())
         {
-            SetVariableValue(CounterVariable.Milestone, string.Empty, pair.Key);
+            SetVariableValue(CounterVariable.MilestonePrevious, string.Empty, pair.Key);
+            SetVariableValue(CounterVariable.MilestoneCurrent, string.Empty, pair.Key);
             SetVariableValue(CounterVariable.MilestoneProgress, string.Empty, pair.Key);
             return;
         }
@@ -138,9 +141,11 @@ public class CounterModule : ChatBoxModule
         var instances = milestones.Where(instance => pair.Value.Count >= instance.RequiredCount.Value && !string.IsNullOrEmpty(instance.ParameterName.Value));
         instances.ForEach(instance => SendParameter(instance.ParameterName.Value, true));
 
-        var milestone = milestones.LastOrDefault(instance => pair.Value.Count < instance.RequiredCount.Value);
+        var milestoneCurrent = milestones.LastOrDefault(instance => pair.Value.Count < instance.RequiredCount.Value);
+        var milestonePrevious = milestones.FirstOrDefault(instance => pair.Value.Count >= instance.RequiredCount.Value);
 
-        SetVariableValue(CounterVariable.Milestone, milestone is not null ? milestone.RequiredCount.Value.ToString() : string.Empty, pair.Key);
+        SetVariableValue(CounterVariable.MilestoneCurrent, milestoneCurrent is not null ? milestoneCurrent.RequiredCount.Value.ToString() : float.PositiveInfinity.ToString(CultureInfo.InvariantCulture), pair.Key);
+        SetVariableValue(CounterVariable.MilestonePrevious, milestonePrevious is not null ? milestonePrevious.RequiredCount.Value.ToString() : "0", pair.Key);
 
         var lowerboundIndex = milestones.FindLastIndex(instance => pair.Value.Count >= instance.RequiredCount.Value);
 
@@ -169,9 +174,6 @@ public class CounterModule : ChatBoxModule
                 return;
             }
         }
-
-        Console.WriteLine(progressLowerbound);
-        Console.WriteLine(progressUpperbound);
 
         var progress = (pair.Value.Count - progressLowerbound) / (progressUpperbound - progressLowerbound);
 
@@ -207,8 +209,9 @@ public class CounterModule : ChatBoxModule
     {
         Value,
         ValueToday,
-        Milestone,
-        MilestoneProgress
+        MilestoneProgress,
+        MilestonePrevious,
+        MilestoneCurrent
     }
 
     private enum CounterState
