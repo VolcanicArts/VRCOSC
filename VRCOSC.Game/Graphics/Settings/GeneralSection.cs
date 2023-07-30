@@ -33,6 +33,6 @@ public partial class GeneralSection : SectionContainer
         AddDropdown("Theme", "Select a theme and restart to see the effect", ConfigManager.GetBindable<VRCOSCTheme>(VRCOSCSetting.Theme));
         AddFloatSlider("UI Scaling", "Change the UI scale multiplier", uiScaleBindableNumber);
         AddTextBox<IntTextBox, int>("ChatBox Update Rate", "The ChatBox update rate (milliseconds)", ConfigManager.GetBindable<int>(VRCOSCSetting.ChatBoxTimeSpan), chatbox_timespan_url);
-        AddToggle("Start In Tray", "Whether VRCOSC should start in the tray", ConfigManager.GetBindable<bool>(VRCOSCSetting.StartInTray));
+        AddToggle("Tray on close", "Tells VRCOSC to minimise to the tray when the X is pressed", ConfigManager.GetBindable<bool>(VRCOSCSetting.TrayOnClose));
     }
 }
