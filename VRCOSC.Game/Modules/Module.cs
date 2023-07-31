@@ -472,7 +472,7 @@ public abstract class Module : IComparable<Module>
     }
 
     protected virtual void OnAnyParameterReceived(ReceivedParameter parameter) { }
-    protected internal abstract void ModuleParameterReceived(RegisteredParameter parameter);
+    private protected abstract void ModuleParameterReceived(RegisteredParameter parameter);
 
     #endregion
 

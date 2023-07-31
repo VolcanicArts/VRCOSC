@@ -63,7 +63,7 @@ public abstract class AvatarModule : Module
         }
     }
 
-    protected internal override void ModuleParameterReceived(RegisteredParameter parameter) => OnRegisteredParameterReceived(new AvatarParameter(parameter));
+    private protected override void ModuleParameterReceived(RegisteredParameter parameter) => OnRegisteredParameterReceived(new AvatarParameter(parameter));
 
     protected virtual void OnRegisteredParameterReceived(AvatarParameter avatarParameter) { }
 }
