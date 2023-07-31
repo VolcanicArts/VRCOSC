@@ -74,15 +74,15 @@ public abstract class Module : IComparable<Module>
     private readonly SerialisationManager persistenceSerialisationManager = new();
     private readonly SerialisationManager moduleSerialisationManager = new();
 
-    internal void InjectDependencies(GameHost host, AppManager appManager, Scheduler scheduler, Storage storage, NotificationContainer notifications)
+    internal void InjectDependencies(GameHost host, AppManager appManager, Scheduler scheduler, Storage storage)
     {
         this.host = host;
         this.appManager = appManager;
         this.scheduler = scheduler;
         this.notifications = notifications;
 
-        moduleSerialisationManager.RegisterSerialiser(1, new ModuleSerialiser(storage, notifications, this));
-        persistenceSerialisationManager.RegisterSerialiser(2, new ModulePersistenceSerialiser(storage, notifications, this));
+        moduleSerialisationManager.RegisterSerialiser(1, new ModuleSerialiser(storage, this));
+        persistenceSerialisationManager.RegisterSerialiser(2, new ModulePersistenceSerialiser(storage, this));
     }
 
     internal void Load()

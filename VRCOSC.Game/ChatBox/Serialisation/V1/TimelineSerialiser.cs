@@ -9,7 +9,6 @@ using osu.Framework.Platform;
 using VRCOSC.Game.App;
 using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.ChatBox.Serialisation.V1.Structures;
-using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Serialisation;
 
 namespace VRCOSC.Game.ChatBox.Serialisation.V1;
@@ -18,8 +17,8 @@ public class TimelineSerialiser : Serialiser<AppManager, SerialisableTimeline>
 {
     protected override string FileName => @"chatbox.json";
 
-    public TimelineSerialiser(Storage storage, NotificationContainer notification, AppManager appManager)
-        : base(storage, notification, appManager)
+    public TimelineSerialiser(Storage storage, AppManager appManager)
+        : base(storage, appManager)
     {
     }
 

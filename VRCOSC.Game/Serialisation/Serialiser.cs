@@ -15,7 +15,6 @@ namespace VRCOSC.Game.Serialisation;
 public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where TSerialisable : class
 {
     private readonly object serialisationLock = new();
-    private readonly NotificationContainer notification;
     private Storage storage;
 
     protected readonly TReference Reference;
@@ -24,10 +23,9 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
     protected virtual string FileName => throw new NotImplementedException($"{typeof(Serialiser<TReference, TSerialisable>)} requires a file name");
     protected virtual string? LegacyFileName => null;
 
-    protected Serialiser(Storage storage, NotificationContainer notification, TReference reference)
+    protected Serialiser(Storage storage, TReference reference)
     {
         this.storage = storage;
-        this.notification = notification;
         Reference = reference;
     }
 
@@ -99,7 +97,7 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
         catch (Exception e)
         {
             Logger.Error(e, $"Load failed for file {FileName}");
-            notification.Notify(new ExceptionNotification($"Could not load file {FileName}. Report on the Discord server"));
+            Notifications.Notify(new ExceptionNotification($"Could not load file {FileName}. Report on the Discord server"));
             return false;
         }
     }
@@ -120,7 +118,7 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
         catch (Exception e)
         {
             Logger.Error(e, $"Save failed for file {FileName}");
-            notification.Notify(new ExceptionNotification($"Could not save file {FileName}. Report on the Discord server"));
+            Notifications.Notify(new ExceptionNotification($"Could not save file {FileName}. Report on the Discord server"));
             return false;
         }
     }

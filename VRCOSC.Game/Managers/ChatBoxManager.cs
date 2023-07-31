@@ -12,7 +12,6 @@ using VRCOSC.Game.App;
 using VRCOSC.Game.ChatBox;
 using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.ChatBox.Serialisation.V1;
-using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.OSC.VRChat;
 using VRCOSC.Game.Serialisation;
 
@@ -61,13 +60,13 @@ public class ChatBoxManager
     private DateTimeOffset nextValidTime;
     private bool isClear;
 
-    public void Initialise(Storage storage, AppManager appManager, VRChatOscClient oscClient, NotificationContainer notification, Bindable<int> sendDelay)
+    public void Initialise(Storage storage, AppManager appManager, VRChatOscClient oscClient, Bindable<int> sendDelay)
     {
         this.appManager = appManager;
         this.oscClient = oscClient;
         SendDelay = sendDelay;
         serialisationManager = new SerialisationManager();
-        serialisationManager.RegisterSerialiser(1, new TimelineSerialiser(storage, notification, appManager));
+        serialisationManager.RegisterSerialiser(1, new TimelineSerialiser(storage, appManager));
     }
 
     public void Load()

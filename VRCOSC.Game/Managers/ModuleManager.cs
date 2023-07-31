@@ -37,17 +37,15 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
     private AppManager appManager = null!;
     private Scheduler scheduler = null!;
     private Storage storage = null!;
-    private NotificationContainer notification = null!;
 
     private readonly List<Module> runningModulesCache = new();
 
-    public void Initialise(GameHost host, AppManager appManager, Scheduler scheduler, Storage storage, NotificationContainer notification)
+    public void Initialise(GameHost host, AppManager appManager, Scheduler scheduler, Storage storage)
     {
         this.host = host;
         this.appManager = appManager;
         this.scheduler = scheduler;
         this.storage = storage;
-        this.notification = notification;
     }
 
     public void Load()
@@ -102,7 +100,7 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
         }
         catch (Exception e)
         {
-            notification.Notify(new ExceptionNotification("Error when loading external modules"));
+            Notifications.Notify(new ExceptionNotification("Error when loading external modules"));
             Logger.Error(e, "ModuleManager experienced an exception");
         }
     }
@@ -130,7 +128,7 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
         }
         catch (Exception e)
         {
-            notification.Notify(new ExceptionNotification($"{assembly?.GetAssemblyAttribute<AssemblyProductAttribute>()?.Product} could not be loaded. It may require an update"));
+            Notifications.Notify(new ExceptionNotification($"{assembly?.GetAssemblyAttribute<AssemblyProductAttribute>()?.Product} could not be loaded. It may require an update"));
             Logger.Error(e, "ModuleManager experienced an exception");
         }
     }
@@ -140,7 +138,7 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
         try
         {
             var module = (Module)Activator.CreateInstance(type)!;
-            module.InjectDependencies(host, appManager, scheduler, storage, notification);
+            module.InjectDependencies(host, appManager, scheduler, storage);
             module.Load();
 
             var assemblyLookup = assembly.GetName().Name!.ToLowerInvariant();
@@ -150,7 +148,7 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
         }
         catch (Exception e)
         {
-            notification.Notify(new ExceptionNotification($"{type.Name} could not be loaded. It may require an update"));
+            Notifications.Notify(new ExceptionNotification($"{type.Name} could not be loaded. It may require an update"));
             Logger.Error(e, "ModuleManager experienced an exception");
         }
     }

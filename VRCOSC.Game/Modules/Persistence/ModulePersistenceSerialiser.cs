@@ -3,7 +3,6 @@
 
 using Newtonsoft.Json;
 using osu.Framework.Platform;
-using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Serialisation;
 
 namespace VRCOSC.Game.Modules.Persistence;
@@ -14,8 +13,8 @@ public class ModulePersistenceSerialiser : Serialiser<Module, SerialisableModule
     protected override string? LegacyFileName => Reference.LegacySerialisedName is null ? null : $"{Reference.LegacySerialisedName}.json";
     protected override string Directory => "module-states";
 
-    public ModulePersistenceSerialiser(Storage storage, NotificationContainer notification, Module reference)
-        : base(storage, notification, reference)
+    public ModulePersistenceSerialiser(Storage storage, Module reference)
+        : base(storage, reference)
     {
     }
 

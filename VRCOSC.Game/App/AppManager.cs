@@ -36,9 +36,6 @@ public partial class AppManager : Component
     private Storage storage { get; set; } = null!;
 
     [Resolved]
-    private NotificationContainer notifications { get; set; } = null!;
-
-    [Resolved]
     private VRCOSCConfigManager configManager { get; set; } = null!;
 
     private static readonly TimeSpan openvr_check_interval = TimeSpan.FromSeconds(1);
@@ -118,25 +115,25 @@ public partial class AppManager : Component
 
     private void initialiseModuleManager()
     {
-        ModuleManager.Initialise(host, this, new Scheduler(() => ThreadSafety.IsUpdateThread, Clock), storage, notifications);
+        ModuleManager.Initialise(host, this, new Scheduler(() => ThreadSafety.IsUpdateThread, Clock), storage);
         ModuleManager.Load();
     }
 
     private void initialiseChatBoxManager()
     {
-        ChatBoxManager.Initialise(storage, this, OSCClient, notifications, configManager.GetBindable<int>(VRCOSCSetting.ChatBoxTimeSpan));
+        ChatBoxManager.Initialise(storage, this, OSCClient, configManager.GetBindable<int>(VRCOSCSetting.ChatBoxTimeSpan));
         ChatBoxManager.Load();
     }
 
     private void initialiseStartupManager()
     {
-        StartupManager.Initialise(storage, notifications);
+        StartupManager.Initialise(storage);
         StartupManager.Load();
     }
 
     private void initialiseRouterManager()
     {
-        RouterManager.Initialise(storage, notifications);
+        RouterManager.Initialise(storage);
         RouterManager.Load();
     }
 
@@ -250,7 +247,7 @@ public partial class AppManager : Component
         }
         catch (Exception e)
         {
-            notifications.Notify(new ExceptionNotification(e.Message));
+            Notifications.Notify(new ExceptionNotification(e.Message));
             Logger.Error(e, $"{nameof(AppManager)} experienced an exception");
             return false;
         }
@@ -264,7 +261,7 @@ public partial class AppManager : Component
         }
         catch (Exception e)
         {
-            notifications.Notify(new PortInUseNotification(flag == OscClientFlag.Send ? configManager.Get<int>(VRCOSCSetting.SendPort) : configManager.Get<int>(VRCOSCSetting.ReceivePort)));
+            Notifications.Notify(new PortInUseNotification(flag == OscClientFlag.Send ? configManager.Get<int>(VRCOSCSetting.SendPort) : configManager.Get<int>(VRCOSCSetting.ReceivePort)));
             Logger.Error(e, $"{nameof(AppManager)} experienced an exception");
         }
     }
@@ -277,7 +274,7 @@ public partial class AppManager : Component
         }
         catch (Exception e)
         {
-            notifications.Notify(new PortInUseNotification("Cannot initialise a port from OSCRouter"));
+            Notifications.Notify(new PortInUseNotification("Cannot initialise a port from OSCRouter"));
             Logger.Error(e, $"{nameof(AppManager)} experienced an exception");
         }
     }

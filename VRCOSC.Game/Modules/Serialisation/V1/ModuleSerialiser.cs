@@ -3,7 +3,6 @@
 
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Platform;
-using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Modules.Serialisation.V1.Models;
 using VRCOSC.Game.Serialisation;
 
@@ -15,8 +14,8 @@ public class ModuleSerialiser : Serialiser<Module, SerialisableModule>
     protected override string FileName => $"{Reference.SerialisedName}.json";
     protected override string? LegacyFileName => Reference.LegacySerialisedName is null ? null : $"{Reference.LegacySerialisedName}.json";
 
-    public ModuleSerialiser(Storage storage, NotificationContainer notification, Module reference)
-        : base(storage, notification, reference)
+    public ModuleSerialiser(Storage storage, Module reference)
+        : base(storage, reference)
     {
     }
 

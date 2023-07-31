@@ -4,7 +4,6 @@
 using System.Linq;
 using osu.Framework.Bindables;
 using osu.Framework.Platform;
-using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Managers;
 using VRCOSC.Game.Serialisation;
 using VRCOSC.Game.Startup.Serialisation.V1.Models;
@@ -15,8 +14,8 @@ public class StartupSerialiser : Serialiser<StartupManager, SerialisableStartupM
 {
     protected override string FileName => @"startup.json";
 
-    public StartupSerialiser(Storage storage, NotificationContainer notification, StartupManager startupManager)
-        : base(storage, notification, startupManager)
+    public StartupSerialiser(Storage storage, StartupManager startupManager)
+        : base(storage, startupManager)
     {
     }
 

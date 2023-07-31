@@ -3,7 +3,6 @@
 
 using System.Linq;
 using osu.Framework.Platform;
-using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Managers;
 using VRCOSC.Game.OSC;
 using VRCOSC.Game.Router.Serialisation.V1.Models;
@@ -15,8 +14,8 @@ public class RouterSerialiser : Serialiser<RouterManager, SerialisableRouterMana
 {
     protected override string FileName => "router.json";
 
-    public RouterSerialiser(Storage storage, NotificationContainer notification, RouterManager routerManager)
-        : base(storage, notification, routerManager)
+    public RouterSerialiser(Storage storage, RouterManager routerManager)
+        : base(storage, routerManager)
     {
     }
 
