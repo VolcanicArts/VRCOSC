@@ -13,6 +13,8 @@ public class WeatherProvider
 
     private const string condition_url = @"https://www.weatherapi.com/docs/weather_conditions.json";
 
+    private static readonly TimeSpan api_call_delta = TimeSpan.FromMinutes(20);
+
     private readonly HttpClient httpClient = new();
     private readonly string apiKey;
 
@@ -29,7 +31,7 @@ public class WeatherProvider
 
     public async Task<Weather?> RetrieveFor(string location)
     {
-        if (lastUpdate + TimeSpan.FromMinutes(10) > DateTimeOffset.Now && location == lastLocation) return weather;
+        if (lastUpdate + api_call_delta > DateTimeOffset.Now && location == lastLocation) return weather;
 
         lastUpdate = DateTimeOffset.Now;
         lastLocation = location;

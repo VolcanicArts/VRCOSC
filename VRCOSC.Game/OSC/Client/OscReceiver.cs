@@ -28,7 +28,15 @@ public class OscReceiver
     public void Enable()
     {
         socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-        socket.Bind(endPoint);
+
+        try
+        {
+            socket.Bind(endPoint);
+        }
+        catch (Exception e)
+        {
+            Notifications.Notify(e);
+        }
 
         tokenSource = new CancellationTokenSource();
         incomingTask = Task.Run(runReceiveLoop);
@@ -49,6 +57,8 @@ public class OscReceiver
 
     private async void runReceiveLoop()
     {
+        if (!(socket?.IsBound ?? false)) return;
+
         while (!tokenSource!.Token.IsCancellationRequested)
         {
             try

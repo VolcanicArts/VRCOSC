@@ -14,5 +14,6 @@ public sealed partial class AutomationSection : SectionContainer
         AddToggle("Start/Stop with VRChat", "Auto start/stop modules on VRChat open/close", ConfigManager.GetBindable<bool>(VRCOSCSetting.AutoStartStop));
         AddToggle("Open with SteamVR", "Should VRCOSC open when SteamVR launches?", ConfigManager.GetBindable<bool>(VRCOSCSetting.AutoStartOpenVR));
         AddToggle("Close with SteamVR", "Should VRCOSC close when SteamVR closes?", ConfigManager.GetBindable<bool>(VRCOSCSetting.AutoStopOpenVR));
+        AddToggle("Start In Tray", "Whether VRCOSC should start in the tray", ConfigManager.GetBindable<bool>(VRCOSCSetting.StartInTray));
     }
 }

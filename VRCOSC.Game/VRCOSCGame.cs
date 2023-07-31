@@ -1,9 +1,12 @@
 // Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using Newtonsoft.Json;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
@@ -12,6 +15,7 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osuTK;
+using PInvoke;
 using VRCOSC.Game.App;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Github;
@@ -23,6 +27,8 @@ using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.Updater;
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.OpenVR.Metadata;
+using Icon = System.Drawing.Icon;
+using WindowState = osu.Framework.Platform.WindowState;
 
 namespace VRCOSC.Game;
 
@@ -73,6 +79,8 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         DependencyContainer.CacheAs(new GitHubProvider(host.Name));
 
         LoadComponent(notificationContainer);
+        Notifications.Scheduler = Scheduler;
+        Notifications.NotificationContainer = notificationContainer;
 
         Children = new Drawable[]
         {
@@ -85,6 +93,9 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         uiScaleBindable = ConfigManager.GetBindable<float>(VRCOSCSetting.UIScale);
         uiScaleBindable.BindValueChanged(e => updateUiScale(e.NewValue), true);
         host.Window.Resized += () => updateUiScale(uiScaleBindable.Value);
+
+        inTray.Value = ConfigManager.Get<bool>(VRCOSCSetting.StartInTray);
+        setupTrayIcon();
     }
 
     protected override void LoadComplete()
@@ -134,6 +145,20 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         {
             if (e.NewValue is null && e.OldValue is not null) e.OldValue.Serialise();
         }, true);
+
+        Task.Run(async () =>
+        {
+            await Task.Delay(1000);
+            handleTrayTransition(false);
+        });
+    }
+
+    protected override void Update()
+    {
+        if (host.Window.WindowState == WindowState.Minimised || inTray.Value)
+            host.DrawThread.InactiveHz = 1;
+        else
+            host.DrawThread.InactiveHz = 60;
     }
 
     private void updateUiScale(float scaler = 1f) => Scheduler.AddOnce(() =>
@@ -186,15 +211,89 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         File.WriteAllText(Path.Combine(tempStoragePath, @"app.vrmanifest"), JsonConvert.SerializeObject(manifest));
     }
 
+    #region Tray
+
+    private readonly Bindable<bool> inTray = new();
+    private readonly NotifyIcon trayIcon = new();
+    private IntPtr? windowHandle;
+
+    private void setupTrayIcon()
+    {
+        trayIcon.DoubleClick += (_, _) => handleTrayTransition(true);
+
+        trayIcon.Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
+        trayIcon.Visible = true;
+        trayIcon.Text = host.Name;
+
+        var contextMenu = new ContextMenuStrip
+        {
+            Items =
+            {
+                {
+                    "VRCOSC", null, (_, _) =>
+                    {
+                        inTray.Value = false;
+                        handleTrayTransition(false);
+                    }
+                },
+                new ToolStripSeparator(),
+                {
+                    "Check For Updates", null, (_, _) =>
+                    {
+                        Schedule(checkUpdates);
+                    }
+                },
+                new ToolStripSeparator(),
+                {
+                    "Exit", null, (_, _) =>
+                    {
+                        Schedule(prepareForExit);
+                    }
+                }
+            }
+        };
+
+        trayIcon.ContextMenuStrip = contextMenu;
+    }
+
+    private void handleTrayTransition(bool toggle)
+    {
+        var localWindowHandle = Process.GetCurrentProcess().MainWindowHandle;
+
+        if (localWindowHandle != IntPtr.Zero)
+        {
+            windowHandle ??= localWindowHandle;
+        }
+
+        if (windowHandle is not null)
+        {
+            if (toggle) inTray.Value = !inTray.Value;
+            User32.ShowWindow(windowHandle.Value, inTray.Value ? User32.WindowShowStyle.SW_HIDE : User32.WindowShowStyle.SW_SHOWDEFAULT);
+        }
+    }
+
+    #endregion
+
     protected override bool OnExiting()
     {
         base.OnExiting();
+
+        if (ConfigManager.Get<bool>(VRCOSCSetting.TrayOnClose))
+        {
+            inTray.Value = true;
+            handleTrayTransition(false);
+            return true;
+        }
+
         prepareForExit();
+
         return true;
     }
 
     private void prepareForExit()
     {
+        trayIcon.Dispose();
+
         // ReSharper disable once RedundantExplicitParamsArrayCreation
         Task.WhenAll(new[]
         {

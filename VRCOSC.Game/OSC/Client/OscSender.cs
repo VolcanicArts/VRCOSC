@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Net;
 using System.Net.Sockets;
 
@@ -19,7 +20,15 @@ public class OscSender
     public void Enable()
     {
         socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-        socket.Connect(endPoint);
+
+        try
+        {
+            socket.Connect(endPoint);
+        }
+        catch (Exception e)
+        {
+            Notifications.Notify(e);
+        }
     }
 
     public void Disable()
@@ -29,6 +38,7 @@ public class OscSender
 
     public void Send(byte[] data)
     {
-        socket?.Send(data);
+        if (socket?.Connected ?? false)
+            socket?.Send(data);
     }
 }
