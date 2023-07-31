@@ -79,6 +79,8 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         DependencyContainer.CacheAs(new GitHubProvider(host.Name));
 
         LoadComponent(notificationContainer);
+        Notifications.Scheduler = Scheduler;
+        Notifications.NotificationContainer = notificationContainer;
 
         Children = new Drawable[]
         {
