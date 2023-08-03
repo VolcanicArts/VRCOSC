@@ -34,7 +34,7 @@ public class MicrophoneHook
         {
             UnHook();
             var newMic = Hook();
-            OnLog?.Invoke($"Default mic updated. New mic: {newMic}");
+            OnLog?.Invoke($"Default mic updated. New mic: {newMic?.FriendlyName ?? "No mic"}");
         }
     }
 
