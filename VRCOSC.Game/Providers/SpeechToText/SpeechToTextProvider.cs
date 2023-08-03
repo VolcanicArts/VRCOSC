@@ -56,6 +56,11 @@ public class SpeechToTextProvider
         });
     }
 
+    public void Update()
+    {
+        microphoneHook?.Update();
+    }
+
     public void Teardown()
     {
         if (!readyToAccept) return;
@@ -77,6 +82,7 @@ public class SpeechToTextProvider
 
         microphoneHook = new MicrophoneHook();
         microphoneHook.BufferCallback += analyseAudio;
+        microphoneHook.OnLog += OnLog;
         var captureDevice = microphoneHook.Hook();
 
         if (captureDevice is null)

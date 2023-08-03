@@ -110,6 +110,12 @@ public class PiShockModule : AvatarModule
         sendParameters();
     }
 
+    [ModuleUpdate(ModuleUpdateMode.Custom, true, 5000)]
+    private void onModuleUpdate()
+    {
+        speechToTextProvider.Update();
+    }
+
     [ModuleUpdate(ModuleUpdateMode.Custom)]
     private void setSpeechToTextParameters()
     {
