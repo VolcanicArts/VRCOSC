@@ -1,7 +1,6 @@
 // Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using osu.Framework.Bindables;
 using VRCOSC.Game;
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.Modules.Avatar;
@@ -16,14 +15,14 @@ namespace VRCOSC.Modules.Media;
 [ModulePrefab("VRCOSC-Media", "https://github.com/VolcanicArts/VRCOSC/releases/download/latest/VRCOSC-Media.unitypackage")]
 public class MediaModule : ChatBoxModule
 {
-    private const string progress_line = "\u2501";
-    private const string progress_dot = "\u25CF";
-    private const string progress_start = "\u2523";
-    private const string progress_end = "\u252B";
+    private const char progress_line = '\u2501';
+    private const char progress_dot = '\u25CF';
+    private const char progress_start = '\u2523';
+    private const char progress_end = '\u252B';
     private const int progress_resolution = 10;
 
     private readonly MediaProvider mediaProvider = new WindowsMediaProvider();
-    private readonly Bindable<bool> currentlySeeking = new();
+    private bool currentlySeeking;
     private TimeSpan targetPosition;
 
     public MediaModule()
@@ -100,7 +99,7 @@ public class MediaModule : ChatBoxModule
     {
         SendParameter(MediaParameter.Volume, mediaProvider.TryGetVolume());
 
-        if (!currentlySeeking.Value)
+        if (!currentlySeeking)
         {
             SendParameter(MediaParameter.Position, mediaProvider.State.Timeline.PositionPercentage);
         }
@@ -158,7 +157,8 @@ public class MediaModule : ChatBoxModule
         var progressPercentage = progress_resolution * mediaProvider.State.Timeline.PositionPercentage;
         var dotPosition = (int)(MathF.Floor(progressPercentage * 10f) / 10f);
 
-        var visual = progress_start;
+        var visual = string.Empty;
+        visual += progress_start;
 
         for (var i = 0; i < progress_resolution; i++)
         {
@@ -179,8 +179,7 @@ public class MediaModule : ChatBoxModule
                 break;
 
             case MediaParameter.Position:
-
-                if (!currentlySeeking.Value) return;
+                if (!currentlySeeking) return;
 
                 var position = mediaProvider.State.Timeline;
                 targetPosition = (position.End - position.Start) * parameter.ValueAs<float>();
@@ -210,8 +209,8 @@ public class MediaModule : ChatBoxModule
                 break;
 
             case MediaParameter.Seeking:
-                currentlySeeking.Value = parameter.ValueAs<bool>();
-                if (!currentlySeeking.Value) mediaProvider.ChangePlaybackPosition(targetPosition);
+                currentlySeeking = parameter.ValueAs<bool>();
+                if (!currentlySeeking) mediaProvider.ChangePlaybackPosition(targetPosition);
                 break;
         }
     }
