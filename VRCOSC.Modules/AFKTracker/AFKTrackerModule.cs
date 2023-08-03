@@ -39,7 +39,7 @@ public class AFKTrackerModule : ChatBoxModule
         ChangeStateTo(AFKState.NotAFK);
     }
 
-    [ModuleUpdate(ModuleUpdateMode.Custom, true, 1000)]
+    [ModuleUpdate(ModuleUpdateMode.ChatBox)]
     private void moduleUpdate()
     {
         SetVariableValue(AFKVariable.FocusedWindow, ProcessExtensions.GetActiveWindowTitle()?.Truncate(GetSetting<int>(AFKSetting.TruncateFocusedWindow)) ?? "None");
