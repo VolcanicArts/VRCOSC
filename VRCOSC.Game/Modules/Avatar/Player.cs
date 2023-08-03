@@ -5,7 +5,7 @@ using System;
 using System.Threading.Tasks;
 using VRCOSC.Game.OSC.VRChat;
 
-namespace VRCOSC.Game.Modules;
+namespace VRCOSC.Game.Modules.Avatar;
 
 public sealed class Player
 {

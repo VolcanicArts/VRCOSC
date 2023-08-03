@@ -3,9 +3,9 @@
 
 using System;
 
-namespace VRCOSC.Game.Modules.ChatBox;
+namespace VRCOSC.Game.Modules.Avatar;
 
-public abstract class ChatBoxModule : Module
+public abstract class ChatBoxModule : AvatarModule
 {
     protected void CreateVariable(Enum lookup, string name, string format) => ChatBoxManager.RegisterVariable(SerialisedName, lookup.ToLookup(), name, format);
     protected void CreateState(Enum lookup, string name, string defaultFormat) => ChatBoxManager.RegisterState(SerialisedName, lookup.ToLookup(), name, defaultFormat);

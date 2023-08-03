@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System.Globalization;
@@ -6,12 +6,14 @@ using Newtonsoft.Json;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.Modules.Attributes;
-using VRCOSC.Game.Modules.ChatBox;
-using VRCOSC.Game.OSC.VRChat;
-using VRCOSC.Modules.Counter.SaveState.V1;
+using VRCOSC.Game.Modules.Avatar;
 
 namespace VRCOSC.Modules.Counter;
 
+[ModuleTitle("Counter")]
+[ModuleDescription("Counts how many times parameters are triggered based on parameter change events")]
+[ModuleAuthor("VolcanicArts", "https://github.com/VolcanicArts", "https://avatars.githubusercontent.com/u/29819296?v=4")]
+[ModuleGroup(ModuleType.General)]
 public class CounterModule : ChatBoxModule
 {
     private const string progress_line = "\u2501";
@@ -20,14 +22,10 @@ public class CounterModule : ChatBoxModule
     private const string progress_end = "\u252B";
     private const int progress_resolution = 10;
 
-    public override string Title => "Counter";
-    public override string Description => "Counts how many times parameters are triggered based on parameter change events";
-    public override string Author => "VolcanicArts";
-    public override ModuleType Type => ModuleType.General;
     protected override bool EnablePersistence => GetSetting<bool>(CounterSetting.SaveCounters);
 
     [ModulePersistent("counts")]
-    public Dictionary<string, CountInstance> Counts { get; set; } = new();
+    private Dictionary<string, CountInstance> counts { get; set; } = new();
 
     protected override void CreateAttributes()
     {
@@ -53,8 +51,6 @@ public class CounterModule : ChatBoxModule
         CreateState(CounterState.Default, "Default", $"Today: {GetVariableFormat(CounterVariable.ValueToday, "Example")}/vTotal: {GetVariableFormat(CounterVariable.Value, "Example")}");
 
         CreateEvent(CounterEvent.Changed, "Changed", $"Today: {GetVariableFormat(CounterVariable.ValueToday, "Example")}/vTotal: {GetVariableFormat(CounterVariable.Value, "Example")}", 5);
-
-        RegisterLegacyPersistanceSerialiser<CounterSaveStateSerialiser>();
     }
 
     protected override void OnModuleStart()
@@ -62,7 +58,7 @@ public class CounterModule : ChatBoxModule
         ChangeStateTo(CounterState.Default);
         auditParameters();
 
-        Counts.ForEach(pair =>
+        counts.ForEach(pair =>
         {
             SetVariableValue(CounterVariable.Value, pair.Value.Count.ToString("N0"), pair.Key);
             checkMilestones(pair);
@@ -73,7 +69,7 @@ public class CounterModule : ChatBoxModule
     {
         if (GetSetting<bool>(CounterSetting.ResetOnAvatarChange))
         {
-            Counts.ForEach(pair =>
+            counts.ForEach(pair =>
             {
                 pair.Value.Count = 0;
                 pair.Value.CountToday = 0;
@@ -87,32 +83,32 @@ public class CounterModule : ChatBoxModule
         {
             if (string.IsNullOrEmpty(pair.Key.Value) || string.IsNullOrEmpty(pair.Value.Value)) return;
 
-            Counts.TryAdd(pair.Key.Value, new CountInstance());
-            Counts[pair.Key.Value].ParameterNames.Add(pair.Value.Value);
+            counts.TryAdd(pair.Key.Value, new CountInstance());
+            counts[pair.Key.Value].ParameterNames.Add(pair.Value.Value);
 
-            SetVariableValue(CounterVariable.Value, Counts[pair.Key.Value].Count.ToString("N0"), pair.Key.Value);
-            SetVariableValue(CounterVariable.ValueToday, Counts[pair.Key.Value].CountToday.ToString("N0"), pair.Key.Value);
+            SetVariableValue(CounterVariable.Value, counts[pair.Key.Value].Count.ToString("N0"), pair.Key.Value);
+            SetVariableValue(CounterVariable.ValueToday, counts[pair.Key.Value].CountToday.ToString("N0"), pair.Key.Value);
         });
 
-        Counts.ForEach(pair =>
+        counts.ForEach(pair =>
         {
             if (GetSettingList<MutableKeyValuePair>(CounterSetting.ParameterList).All(instance => instance.Key.Value != pair.Key))
             {
-                Counts.Remove(pair.Key);
+                counts.Remove(pair.Key);
             }
         });
     }
 
-    protected override void OnAnyParameterReceived(VRChatOscMessage message)
+    protected override void OnAnyParameterReceived(ReceivedParameter parameter)
     {
-        var candidates = Counts.Where(pair => pair.Value.ParameterNames.Contains(message.ParameterName)).ToList();
+        var candidates = counts.Where(pair => pair.Value.ParameterNames.Contains(parameter.Name)).ToList();
         if (!candidates.Any()) return;
 
         var pair = candidates[0];
 
-        if (message.IsValueType<float>() && message.ValueAs<float>() > 0.9f) counterChanged(pair);
-        if (message.IsValueType<int>() && message.ValueAs<int>() != 0) counterChanged(pair);
-        if (message.IsValueType<bool>() && message.ValueAs<bool>()) counterChanged(pair);
+        if (parameter.IsValueType<float>() && parameter.ValueAs<float>() > 0.9f) counterChanged(pair);
+        if (parameter.IsValueType<int>() && parameter.ValueAs<int>() != 0) counterChanged(pair);
+        if (parameter.IsValueType<bool>() && parameter.ValueAs<bool>()) counterChanged(pair);
     }
 
     private void counterChanged(KeyValuePair<string, CountInstance> pair)

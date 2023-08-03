@@ -1,26 +1,25 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using VRCOSC.Game.Modules.ChatBox;
+using VRCOSC.Game.Modules;
+using VRCOSC.Game.Modules.Avatar;
 using VRCOSC.Game.Processes;
 
-namespace VRCOSC.Modules.AFK;
+namespace VRCOSC.Modules.AFKTracker;
 
-public class AFKModule : ChatBoxModule
+[ModuleTitle("AFK Tracker")]
+[ModuleDescription("Displays text and time since going AFK")]
+[ModuleAuthor("VolcanicArts", "https://github.com/VolcanicArts", "https://avatars.githubusercontent.com/u/29819296?v=4")]
+[ModuleGroup(ModuleType.General)]
+[ModuleLegacy("afkmodule")]
+public class AFKTrackerModule : ChatBoxModule
 {
-    public override string Title => "AFK Display";
-    public override string Description => "Display text and time since going AFK";
-    public override string Author => "VolcanicArts";
-    public override ModuleType Type => ModuleType.General;
-    protected override TimeSpan DeltaUpdate => TimeSpan.FromSeconds(1);
-
     private DateTime? afkBegan;
 
     protected override void CreateAttributes()
     {
         CreateVariable(AFKVariable.Duration, "Duration", "duration");
         CreateVariable(AFKVariable.Since, "Since", "since");
-        CreateVariable(AFKVariable.FocusedWindow, "Focused Window", "focusedwindow");
 
         CreateState(AFKState.AFK, "AFK", $"AFK for {GetVariableFormat(AFKVariable.Duration)}");
         CreateState(AFKState.NotAFK, "Not AFK", string.Empty);
@@ -36,7 +35,8 @@ public class AFKModule : ChatBoxModule
         ChangeStateTo(AFKState.NotAFK);
     }
 
-    protected override void OnModuleUpdate()
+    [ModuleUpdate(ModuleUpdateMode.Custom, true, 1000)]
+    private void moduleUpdate()
     {
         SetVariableValue(AFKVariable.FocusedWindow, ProcessExtensions.GetActiveWindowTitle() ?? "None");
         SetVariableValue(AFKVariable.Duration, afkBegan is null ? null : (DateTime.Now - afkBegan.Value).ToString(@"hh\:mm\:ss"));

@@ -2,19 +2,17 @@
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.Game.Modules;
-using VRCOSC.Game.Modules.ChatBox;
+using VRCOSC.Game.Modules.Avatar;
 using VRCOSC.Game.Providers.Hardware;
 
 namespace VRCOSC.Modules.HardwareStats;
 
+[ModuleTitle("Hardware Stats")]
+[ModuleDescription("Sends hardware stats as avatar parameters and allows for displaying them in the ChatBox")]
+[ModuleAuthor("VolcanicArts", "https://github.com/VolcanicArts", "https://avatars.githubusercontent.com/u/29819296?v=4")]
+[ModuleGroup(ModuleType.General)]
 public sealed class HardwareStatsModule : ChatBoxModule
 {
-    public override string Title => "Hardware Stats";
-    public override string Description => "Sends hardware stats and displays them in the ChatBox";
-    public override string Author => "VolcanicArts";
-    public override ModuleType Type => ModuleType.General;
-    protected override TimeSpan DeltaUpdate => TimeSpan.FromSeconds(0.5);
-
     private HardwareStatsProvider? hardwareStatsProvider;
 
     protected override void CreateAttributes()
@@ -64,7 +62,8 @@ public sealed class HardwareStatsModule : ChatBoxModule
         ChangeStateTo(HardwareStatsState.Default);
     }
 
-    protected override async void OnModuleUpdate()
+    [ModuleUpdate(ModuleUpdateMode.Custom, true, 500)]
+    private async void updateParameters()
     {
         if (hardwareStatsProvider is null || !hardwareStatsProvider.CanAcceptQueries)
         {

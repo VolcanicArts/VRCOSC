@@ -178,5 +178,16 @@ public class ModuleParameter : ModuleStringAttribute
     public required Type ExpectedType = null!;
 
     public string ParameterName => Attribute.Value;
-    public string FormattedAddress => $"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}/{ParameterName}";
+    public virtual string ParameterAddress => string.Empty;
+}
+
+public class AvatarModuleParameter : ModuleParameter
+{
+    public override string ParameterAddress => $"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}/{ParameterName}";
+}
+
+public class WorldModuleParameter : ModuleParameter
+{
+    // TODO: Replace when world OSC comes out
+    public override string ParameterAddress => string.Empty;
 }

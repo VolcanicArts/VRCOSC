@@ -14,7 +14,7 @@ public partial class ModuleInfoHeader : BaseHeader
     private Bindable<Module?>? infoModule { get; set; }
 
     protected override string Title => infoModule?.Value?.Title ?? string.Empty;
-    protected override string SubTitle => infoModule is not null ? $"{infoModule.Value?.Description}. Created by {infoModule.Value?.Author}" : string.Empty;
+    protected override string SubTitle => infoModule is not null ? $"{infoModule.Value?.LongDescription}. Created by {infoModule.Value?.AuthorName}" : string.Empty;
 
     protected override void LoadComplete()
     {

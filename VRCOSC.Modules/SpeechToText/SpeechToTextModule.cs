@@ -3,18 +3,17 @@
 
 using System.Globalization;
 using VRCOSC.Game.Modules;
-using VRCOSC.Game.Modules.ChatBox;
+using VRCOSC.Game.Modules.Avatar;
 using VRCOSC.Game.Providers.SpeechToText;
 
 namespace VRCOSC.Modules.SpeechToText;
 
+[ModuleTitle("Speech To Text")]
+[ModuleDescription("Speech to text using VOSK's local processing for VRChat's ChatBox")]
+[ModuleAuthor("VolcanicArts", "https://github.com/VolcanicArts", "https://avatars.githubusercontent.com/u/29819296?v=4")]
+[ModuleGroup(ModuleType.Accessibility)]
 public class SpeechToTextModule : ChatBoxModule
 {
-    public override string Title => "Speech To Text";
-    public override string Description => "Speech to text using VOSK's local processing for VRChat's ChatBox";
-    public override string Author => "VolcanicArts";
-    public override ModuleType Type => ModuleType.Accessibility;
-
     private readonly SpeechToTextProvider speechToTextProvider;
 
     private bool listening;
@@ -69,16 +68,16 @@ public class SpeechToTextModule : ChatBoxModule
         speechToTextProvider.Teardown();
     }
 
-    protected override void OnBoolParameterReceived(Enum key, bool value)
+    protected override void OnRegisteredParameterReceived(AvatarParameter parameter)
     {
-        switch (key)
+        switch (parameter.Lookup)
         {
-            case SpeechToTextParameter.Reset when value:
+            case SpeechToTextParameter.Reset when parameter.ValueAs<bool>():
                 resetState();
                 break;
 
             case SpeechToTextParameter.Listen:
-                listening = value;
+                listening = parameter.ValueAs<bool>();
                 break;
         }
     }

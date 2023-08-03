@@ -4,7 +4,7 @@
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Logging;
 
-namespace VRCOSC.Game.Modules;
+namespace VRCOSC.Game.Util;
 
 public sealed class TerminalLogger
 {

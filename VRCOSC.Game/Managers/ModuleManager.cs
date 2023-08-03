@@ -15,7 +15,9 @@ using osu.Framework.Threading;
 using VRCOSC.Game.App;
 using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Modules;
+using VRCOSC.Game.Modules.Avatar;
 using VRCOSC.Game.OSC.VRChat;
+using VRCOSC.Game.Util;
 using Module = VRCOSC.Game.Modules.Module;
 
 namespace VRCOSC.Game.Managers;
@@ -35,17 +37,15 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
     private AppManager appManager = null!;
     private Scheduler scheduler = null!;
     private Storage storage = null!;
-    private NotificationContainer notification = null!;
 
     private readonly List<Module> runningModulesCache = new();
 
-    public void Initialise(GameHost host, AppManager appManager, Scheduler scheduler, Storage storage, NotificationContainer notification)
+    public void Initialise(GameHost host, AppManager appManager, Scheduler scheduler, Storage storage)
     {
         this.host = host;
         this.appManager = appManager;
         this.scheduler = scheduler;
         this.storage = storage;
-        this.notification = notification;
     }
 
     public void Load()
@@ -56,6 +56,7 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
     public bool DoesModuleExist(string serialisedName) => assemblyContexts.Any(context => context.Assemblies.Any(assembly => assembly.ExportedTypes.Where(type => type.IsSubclassOf(typeof(Module)) && !type.IsAbstract).Any(type => type.Name.ToLowerInvariant() == serialisedName)));
     public bool IsModuleLoaded(string serialisedName) => GetModule(serialisedName) is not null;
     public bool IsModuleEnabled(string serialisedName) => GetModule(serialisedName)?.Enabled.Value ?? false;
+    public List<(string, string)> GetMigrations() => (from module in Modules where module.LegacySerialisedName is not null select (module.LegacySerialisedName, module.SerialisedName)).ToList();
 
     private void loadModules()
     {
@@ -99,7 +100,7 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
         }
         catch (Exception e)
         {
-            notification.Notify(new ExceptionNotification("Error when loading external modules"));
+            Notifications.Notify(new ExceptionNotification("Error when loading external modules"));
             Logger.Error(e, "ModuleManager experienced an exception");
         }
     }
@@ -127,7 +128,7 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
         }
         catch (Exception e)
         {
-            notification.Notify(new ExceptionNotification($"{assembly?.GetAssemblyAttribute<AssemblyProductAttribute>()?.Product} could not be loaded. It may require an update"));
+            Notifications.Notify(new ExceptionNotification($"{assembly?.GetAssemblyAttribute<AssemblyProductAttribute>()?.Product} could not be loaded. It may require an update"));
             Logger.Error(e, "ModuleManager experienced an exception");
         }
     }
@@ -137,7 +138,7 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
         try
         {
             var module = (Module)Activator.CreateInstance(type)!;
-            module.InjectDependencies(host, appManager, scheduler, storage, notification);
+            module.InjectDependencies(host, appManager, scheduler, storage);
             module.Load();
 
             var assemblyLookup = assembly.GetName().Name!.ToLowerInvariant();
@@ -147,7 +148,7 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
         }
         catch (Exception e)
         {
-            notification.Notify(new ExceptionNotification($"{type.Name} could not be loaded. It may require an update"));
+            Notifications.Notify(new ExceptionNotification($"{type.Name} could not be loaded. It may require an update"));
             Logger.Error(e, "ModuleManager experienced an exception");
         }
     }
@@ -163,6 +164,14 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
         {
             module.Start();
             runningModulesCache.Add(module);
+        }
+    }
+
+    public void ChatBoxUpdate()
+    {
+        foreach (var module in runningModulesCache.Where(module => module.GetType().IsSubclassOf(typeof(AvatarModule))).Select(module => (AvatarModule)module))
+        {
+            module.ChatBoxUpdate();
         }
     }
 
@@ -191,7 +200,7 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
 
     public void PlayerUpdate()
     {
-        foreach (var module in runningModulesCache)
+        foreach (var module in runningModulesCache.Where(module => module.GetType().IsSubclassOf(typeof(AvatarModule))).Select(module => (AvatarModule)module))
         {
             module.PlayerUpdate();
         }

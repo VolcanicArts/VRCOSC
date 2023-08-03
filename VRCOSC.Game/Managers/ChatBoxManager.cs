@@ -12,7 +12,6 @@ using VRCOSC.Game.App;
 using VRCOSC.Game.ChatBox;
 using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.ChatBox.Serialisation.V1;
-using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.OSC.VRChat;
 using VRCOSC.Game.Serialisation;
 
@@ -39,14 +38,13 @@ public class ChatBoxManager
     public readonly Dictionary<string, Dictionary<string, ClipVariableMetadata>> VariableMetadata = new();
     public readonly Dictionary<string, Dictionary<string, ClipStateMetadata>> StateMetadata = new();
     public readonly Dictionary<string, Dictionary<string, ClipEventMetadata>> EventMetadata = new();
-    private Bindable<int> sendDelay = null!;
+    public Bindable<int> SendDelay { get; private set; } = null!;
     private VRChatOscClient oscClient = null!;
     private SerialisationManager serialisationManager = null!;
 
     public readonly Dictionary<(string, string), string?> VariableValues = new();
     public readonly Dictionary<string, string?> StateValues = new();
     public readonly List<(string, string)> TriggeredEvents = new();
-    private readonly object triggeredEventsLock = new();
 
     public readonly Bindable<int> PriorityCount = new(8);
     public readonly Bindable<TimeSpan> TimelineLength = new();
@@ -62,13 +60,13 @@ public class ChatBoxManager
     private DateTimeOffset nextValidTime;
     private bool isClear;
 
-    public void Initialise(Storage storage, AppManager appManager, VRChatOscClient oscClient, NotificationContainer notification, Bindable<int> sendDelay)
+    public void Initialise(Storage storage, AppManager appManager, VRChatOscClient oscClient, Bindable<int> sendDelay)
     {
         this.appManager = appManager;
         this.oscClient = oscClient;
-        this.sendDelay = sendDelay;
+        SendDelay = sendDelay;
         serialisationManager = new SerialisationManager();
-        serialisationManager.RegisterSerialiser(1, new TimelineSerialiser(storage, notification, appManager));
+        serialisationManager.RegisterSerialiser(1, new TimelineSerialiser(storage, appManager));
     }
 
     public void Load()
@@ -135,10 +133,7 @@ public class ChatBoxManager
             StateValues[pair.Key] = null;
         }
 
-        lock (triggeredEventsLock)
-        {
-            TriggeredEvents.Clear();
-        }
+        TriggeredEvents.Clear();
     }
 
     public Clip CreateClip()
@@ -150,19 +145,20 @@ public class ChatBoxManager
 
     public void Update()
     {
-        lock (triggeredEventsLock)
+        if (sendAllowed)
         {
-            Clips.ForEach(clip => clip.Update());
-            // Events get handled by clips in the same update cycle they're triggered
-            TriggeredEvents.Clear();
-        }
+            appManager.ModuleManager.ChatBoxUpdate();
 
-        if (sendAllowed) evaluateClips();
+            Clips.ForEach(clip => clip.Update());
+            TriggeredEvents.Clear();
+
+            evaluateClips();
+        }
     }
 
     public void Teardown()
     {
-        lock (triggeredEventsLock) { TriggeredEvents.Clear(); }
+        TriggeredEvents.Clear();
 
         SetTyping(false);
         Clear();
@@ -194,7 +190,7 @@ public class ChatBoxManager
     {
         var validClip = getValidClip();
         handleClip(validClip);
-        nextValidTime += TimeSpan.FromMilliseconds(sendDelay.Value);
+        nextValidTime += TimeSpan.FromMilliseconds(SendDelay.Value);
     }
 
     private Clip? getValidClip()
@@ -342,6 +338,6 @@ public class ChatBoxManager
 
     public void TriggerEvent(string module, string lookup)
     {
-        lock (triggeredEventsLock) { TriggeredEvents.Add((module, lookup)); }
+        TriggeredEvents.Add((module, lookup));
     }
 }

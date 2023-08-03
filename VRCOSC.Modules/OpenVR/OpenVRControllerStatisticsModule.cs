@@ -2,18 +2,16 @@
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.Game.Modules;
-using VRCOSC.Game.OSC.VRChat;
+using VRCOSC.Game.Modules.Avatar;
 
 namespace VRCOSC.Modules.OpenVR;
 
-public class OpenVRControllerStatisticsModule : Module
+[ModuleTitle("OpenVR Controller Statistics")]
+[ModuleDescription("Gets controller statistics from your OpenVR (SteamVR) session")]
+[ModuleAuthor("VolcanicArts", "https://github.com/VolcanicArts", "https://avatars.githubusercontent.com/u/29819296?v=4")]
+[ModuleGroup(ModuleType.OpenVR)]
+public class OpenVRControllerStatisticsModule : AvatarModule
 {
-    public override string Title => "OpenVR Controller Statistics";
-    public override string Description => "Gets controller statistics from your OpenVR (SteamVR) session";
-    public override string Author => "VolcanicArts";
-    public override ModuleType Type => ModuleType.OpenVR;
-    protected override TimeSpan DeltaUpdate => VRChatOscConstants.UPDATE_TIME_SPAN;
-
     protected override void CreateAttributes()
     {
         CreateParameter<bool>(OpenVRControllerStatisticsParameter.LeftATouch, ParameterMode.Write, "VRCOSC/OpenVR/LeftController/Input/A/Touch", "Left Controller A Touch", "Whether the left a button is currently touched");
@@ -35,7 +33,8 @@ public class OpenVRControllerStatisticsModule : Module
         CreateParameter<float>(OpenVRControllerStatisticsParameter.RightPinky, ParameterMode.Write, "VRCOSC/OpenVR/RightController/Input/Finger/Pinky", "Right Pinky", "The touch value of your right pinky finger");
     }
 
-    protected override void OnModuleUpdate()
+    [ModuleUpdate(ModuleUpdateMode.Custom)]
+    private void updateParameters()
     {
         if (!OVRClient.HasInitialised) return;
 

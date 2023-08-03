@@ -8,24 +8,23 @@ using System.Linq;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Platform;
-using VRCOSC.Game.Graphics.Notifications;
-using VRCOSC.Game.Modules;
 using VRCOSC.Game.Serialisation;
 using VRCOSC.Game.Startup.Serialisation.V1;
+using VRCOSC.Game.Util;
 
 namespace VRCOSC.Game.Managers;
 
 public class StartupManager
 {
     private readonly TerminalLogger logger = new("VRCOSC");
-    private SerialisationManager serialisationManager;
+    private SerialisationManager serialisationManager = null!;
 
     public readonly BindableList<Bindable<string>> FilePaths = new();
 
-    public void Initialise(Storage storage, NotificationContainer notification)
+    public void Initialise(Storage storage)
     {
         serialisationManager = new SerialisationManager();
-        serialisationManager.RegisterSerialiser(1, new StartupSerialiser(storage, notification, this));
+        serialisationManager.RegisterSerialiser(1, new StartupSerialiser(storage, this));
     }
 
     public void Load()

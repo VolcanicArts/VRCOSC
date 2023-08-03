@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
 using VRCOSC.Game.OSC.Client;
 
 namespace VRCOSC.Game.OSC.VRChat;
@@ -15,10 +14,6 @@ public class VRChatOscMessage : OscMessage
     public string ParameterName => parameterName ??= Address[(VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX.Length + 1)..];
 
     public object ParameterValue => Values[0];
-
-    public bool IsValueType(Type type) => ParameterValue.GetType() == type;
-    public bool IsValueType<T>() => IsValueType(typeof(T));
-    public T ValueAs<T>() => (T)ParameterValue;
 
     public VRChatOscMessage(OscMessage data)
         : base(data.Address, data.Values)

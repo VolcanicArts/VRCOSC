@@ -1,20 +1,18 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
 using System.Linq;
 using System.Threading;
 using osu.Framework.Utils;
-using VRCOSC.Game.Modules.ChatBox;
-using VRCOSC.Game.OSC.VRChat;
+using VRCOSC.Game.Modules.Avatar;
 
 namespace VRCOSC.Game.Modules.Bases.Heartrate;
 
+[ModuleGroup(ModuleType.Health)]
+[ModulePrefab("VRCOSC-Heartrate", "https://github.com/VolcanicArts/VRCOSC/releases/download/latest/VRCOSC-Heartrate.unitypackage")]
 public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProvider
 {
-    public override string Prefab => @"VRCOSC-Heartrate";
-    public override ModuleType Type => ModuleType.Health;
-
     protected T? HeartrateProvider;
 
     private float currentHeartrate;
@@ -31,6 +29,7 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
         CreateSetting(HeartrateSetting.NormalisedUpperbound, @"Normalised Upperbound", @"The upper bound BPM the normalised parameter should use", 240);
 
         CreateParameter<bool>(HeartrateParameter.Enabled, ParameterMode.Write, @"VRCOSC/Heartrate/Enabled", @"Enabled", @"Whether this module is connected and receiving values");
+        CreateParameter<int>(HeartrateParameter.Value, ParameterMode.Write, @"VRCOSC/Heartrate/Value", @"Value", @"The raw value of your heartrate");
         CreateParameter<float>(HeartrateParameter.Normalised, ParameterMode.Write, @"VRCOSC/Heartrate/Normalised", @"Normalised", @"The heartrate value normalised to the set bounds");
         CreateParameter<float>(HeartrateParameter.Units, ParameterMode.Write, @"VRCOSC/Heartrate/Units", @"Units", @"The units digit 0-9 mapped to a float");
         CreateParameter<float>(HeartrateParameter.Tens, ParameterMode.Write, @"VRCOSC/Heartrate/Tens", @"Tens", @"The tens digit 0-9 mapped to a float");
@@ -69,8 +68,6 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
 
     private void attemptReconnection()
     {
-        if (IsStopping || HasStopped) return;
-
         Log("Attempting reconnection...");
         Thread.Sleep(2000);
         attemptConnection();
@@ -84,11 +81,12 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
         SendParameter(HeartrateParameter.Enabled, false);
     }
 
-    protected override void OnFixedUpdate()
+    [ModuleUpdate(ModuleUpdateMode.Custom)]
+    private void updateParameters()
     {
         if (GetSetting<bool>(HeartrateSetting.Smoothed))
         {
-            currentHeartrate = (float)Interpolation.DampContinuously(currentHeartrate, targetHeartrate, GetSetting<int>(HeartrateSetting.SmoothingLength) / 2d, VRChatOscConstants.UPDATE_DELTA_MILLISECONDS);
+            currentHeartrate = (float)Interpolation.DampContinuously(currentHeartrate, targetHeartrate, GetSetting<int>(HeartrateSetting.SmoothingLength) / 2d, 50d);
         }
         else
         {
@@ -112,6 +110,7 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
             var individualValues = toDigitArray(intHeartrate, 3);
 
             SendParameter(HeartrateParameter.Normalised, normalisedHeartRate);
+            SendParameter(HeartrateParameter.Value, intHeartrate);
             SendParameter(HeartrateParameter.Units, individualValues[2] / 10f);
             SendParameter(HeartrateParameter.Tens, individualValues[1] / 10f);
             SendParameter(HeartrateParameter.Hundreds, individualValues[0] / 10f);
@@ -120,6 +119,7 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
         else
         {
             SendParameter(HeartrateParameter.Normalised, 0);
+            SendParameter(HeartrateParameter.Value, 0);
             SendParameter(HeartrateParameter.Units, 0);
             SendParameter(HeartrateParameter.Tens, 0);
             SendParameter(HeartrateParameter.Hundreds, 0);
@@ -146,7 +146,8 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
         Normalised,
         Units,
         Tens,
-        Hundreds
+        Hundreds,
+        Value
     }
 
     private enum HeartrateState

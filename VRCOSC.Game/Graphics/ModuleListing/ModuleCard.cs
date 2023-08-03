@@ -174,8 +174,8 @@ public sealed partial class ModuleCard : Container
             Colour = ThemeManager.Current[ThemeAttribute.Text],
         });
 
-        var descriptionText = Module.Description;
-        if (!string.IsNullOrEmpty(Module.Prefab)) descriptionText += $". Pairs with {Module.Prefab}";
+        var descriptionText = Module.ShortDescription;
+        if (!string.IsNullOrEmpty(Module.PrefabName)) descriptionText += $". Pairs with {Module.PrefabName}";
 
         textFlow.Add(new SpriteText
         {
@@ -187,14 +187,14 @@ public sealed partial class ModuleCard : Container
 
     private Colour4 calculateModuleColour()
     {
-        return Module.Type switch
+        return Module.Group switch
         {
-            Module.ModuleType.General => Colour4.White.Darken(0.15f),
-            Module.ModuleType.Health => Colour4.Red,
-            Module.ModuleType.Integrations => Colour4.Yellow.Darken(0.25f),
-            Module.ModuleType.OpenVR => Colour4.FromHex(@"04144d"),
-            Module.ModuleType.Accessibility => Colour4.FromHex(@"0278D8"),
-            Module.ModuleType.NSFW => Colour4.Black.Lighten(0.1f),
+            ModuleType.General => Colour4.White.Darken(0.15f),
+            ModuleType.Health => Colour4.Red,
+            ModuleType.Integrations => Colour4.Yellow.Darken(0.25f),
+            ModuleType.OpenVR => Colour4.FromHex(@"04144d"),
+            ModuleType.Accessibility => Colour4.FromHex(@"0278D8"),
+            ModuleType.NSFW => Colour4.Black.Lighten(0.1f),
             _ => throw new ArgumentOutOfRangeException()
         };
     }

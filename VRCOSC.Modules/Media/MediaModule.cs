@@ -4,11 +4,16 @@
 using osu.Framework.Bindables;
 using VRCOSC.Game;
 using VRCOSC.Game.Modules;
-using VRCOSC.Game.Modules.ChatBox;
+using VRCOSC.Game.Modules.Avatar;
 using VRCOSC.Game.Providers.Media;
 
 namespace VRCOSC.Modules.Media;
 
+[ModuleTitle("Media")]
+[ModuleDescription("Integration with Windows Media")]
+[ModuleAuthor("VolcanicArts", "https://github.com/VolcanicArts", "https://avatars.githubusercontent.com/u/29819296?v=4")]
+[ModuleGroup(ModuleType.Integrations)]
+[ModulePrefab("VRCOSC-Media", "https://github.com/VolcanicArts/VRCOSC/releases/download/latest/VRCOSC-Media.unitypackage")]
 public class MediaModule : ChatBoxModule
 {
     private const string progress_line = "\u2501";
@@ -16,13 +21,6 @@ public class MediaModule : ChatBoxModule
     private const string progress_start = "\u2523";
     private const string progress_end = "\u252B";
     private const int progress_resolution = 10;
-
-    public override string Title => "Media";
-    public override string Description => "Integration with Windows Media";
-    public override string Author => "VolcanicArts";
-    public override string Prefab => "VRCOSC-Media";
-    protected override TimeSpan DeltaUpdate => TimeSpan.FromSeconds(1);
-    public override ModuleType Type => ModuleType.Integrations;
 
     private readonly MediaProvider mediaProvider = new WindowsMediaProvider();
     private readonly Bindable<bool> currentlySeeking = new();
@@ -97,12 +95,18 @@ public class MediaModule : ChatBoxModule
         sendMediaParameters();
     }
 
-    protected override void OnModuleUpdate()
+    [ModuleUpdate(ModuleUpdateMode.Custom, true, 1000)]
+    private void sendUpdatableParameters()
     {
-        updateVariables();
-        sendUpdatableParameters();
+        SendParameter(MediaParameter.Volume, mediaProvider.TryGetVolume());
+
+        if (!currentlySeeking.Value)
+        {
+            SendParameter(MediaParameter.Position, mediaProvider.State.Timeline.PositionPercentage);
+        }
     }
 
+    [ModuleUpdate(ModuleUpdateMode.ChatBox)]
     private void updateVariables()
     {
         SetVariableValue(MediaVariable.Title, mediaProvider.State.Title.Truncate(GetSetting<int>(MediaSetting.TruncateTitle)));
@@ -149,16 +153,6 @@ public class MediaModule : ChatBoxModule
         SendParameter(MediaParameter.Repeat, (int)mediaProvider.State.RepeatMode);
     }
 
-    private void sendUpdatableParameters()
-    {
-        SendParameter(MediaParameter.Volume, mediaProvider.TryGetVolume());
-
-        if (!currentlySeeking.Value)
-        {
-            SendParameter(MediaParameter.Position, mediaProvider.State.Timeline.PositionPercentage);
-        }
-    }
-
     private string getProgressVisual()
     {
         var progressPercentage = progress_resolution * mediaProvider.State.Timeline.PositionPercentage;
@@ -176,12 +170,12 @@ public class MediaModule : ChatBoxModule
         return visual;
     }
 
-    protected override void OnFloatParameterReceived(Enum key, float value)
+    protected override void OnRegisteredParameterReceived(AvatarParameter parameter)
     {
-        switch (key)
+        switch (parameter.Lookup)
         {
             case MediaParameter.Volume:
-                mediaProvider.TryChangeVolume(value);
+                mediaProvider.TryChangeVolume(parameter.ValueAs<float>());
                 break;
 
             case MediaParameter.Position:
@@ -189,48 +183,35 @@ public class MediaModule : ChatBoxModule
                 if (!currentlySeeking.Value) return;
 
                 var position = mediaProvider.State.Timeline;
-                targetPosition = (position.End - position.Start) * value;
-                break;
-        }
-    }
-
-    protected override void OnBoolParameterReceived(Enum key, bool value)
-    {
-        switch (key)
-        {
-            case MediaParameter.Play when value:
-                mediaProvider.Play();
+                targetPosition = (position.End - position.Start) * parameter.ValueAs<float>();
                 break;
 
-            case MediaParameter.Play when !value:
-                mediaProvider.Pause();
+            case MediaParameter.Repeat:
+                mediaProvider.ChangeRepeatMode((MediaRepeatMode)parameter.ValueAs<int>());
+                break;
+
+            case MediaParameter.Play:
+                if (parameter.ValueAs<bool>())
+                    mediaProvider.Play();
+                else
+                    mediaProvider.Pause();
                 break;
 
             case MediaParameter.Shuffle:
-                mediaProvider.ChangeShuffle(value);
+                mediaProvider.ChangeShuffle(parameter.ValueAs<bool>());
                 break;
 
-            case MediaParameter.Next when value:
+            case MediaParameter.Next when parameter.ValueAs<bool>():
                 mediaProvider.SkipNext();
                 break;
 
-            case MediaParameter.Previous when value:
+            case MediaParameter.Previous when parameter.ValueAs<bool>():
                 mediaProvider.SkipPrevious();
                 break;
 
             case MediaParameter.Seeking:
-                currentlySeeking.Value = value;
+                currentlySeeking.Value = parameter.ValueAs<bool>();
                 if (!currentlySeeking.Value) mediaProvider.ChangePlaybackPosition(targetPosition);
-                break;
-        }
-    }
-
-    protected override void OnIntParameterReceived(Enum key, int value)
-    {
-        switch (key)
-        {
-            case MediaParameter.Repeat:
-                mediaProvider.ChangeRepeatMode((MediaRepeatMode)value);
                 break;
         }
     }

@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using VRCOSC.Game.Managers;
-using VRCOSC.Game.Modules;
 using VRCOSC.Game.OSC.Client;
 using VRCOSC.Game.OSC.VRChat;
+using VRCOSC.Game.Util;
 
 namespace VRCOSC.Game.OSC;
 
