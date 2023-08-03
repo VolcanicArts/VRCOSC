@@ -48,20 +48,15 @@ public static class ProcessExtensions
     {
         if (processName is null) return null;
 
-        MMDeviceEnumerator deviceiterator = new MMDeviceEnumerator();
-        var speakers = deviceiterator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
+        var speakers = new MMDeviceEnumerator().GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
 
-        var count = speakers.AudioSessionManager.Sessions.Count;
-
-        for (var i = 0; i < count; i++)
+        for (var i = 0; i < speakers.AudioSessionManager.Sessions.Count; i++)
         {
             var session = speakers.AudioSessionManager.Sessions[i];
-
-            if (session.GetSessionIdentifier.Contains(processName, StringComparison.InvariantCultureIgnoreCase))
-            {
-                return session.SimpleAudioVolume;
-            }
+            if (session.GetSessionIdentifier.Contains(processName, StringComparison.InvariantCultureIgnoreCase)) return session.SimpleAudioVolume;
         }
+
+        return null;
     }
 
     public static float RetrieveProcessVolume(string? processName) => getProcessAudioVolume(processName)?.Volume ?? 1f;

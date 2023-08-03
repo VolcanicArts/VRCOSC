@@ -35,7 +35,6 @@ public abstract class Module : IComparable<Module>
     private Scheduler scheduler = null!;
     private TerminalLogger terminal = null!;
     private ModuleDebugLogger moduleDebugLogger = null!;
-    private NotificationContainer notifications = null!;
     private VRChatOscClient oscClient => appManager.OSCClient;
     private readonly Bindable<ModuleState> state = new(ModuleState.Stopped);
 
@@ -79,7 +78,6 @@ public abstract class Module : IComparable<Module>
         this.host = host;
         this.appManager = appManager;
         this.scheduler = scheduler;
-        this.notifications = notifications;
 
         moduleSerialisationManager.RegisterSerialiser(1, new ModuleSerialiser(storage, this));
         persistenceSerialisationManager.RegisterSerialiser(2, new ModulePersistenceSerialiser(storage, this));
@@ -504,7 +502,7 @@ public abstract class Module : IComparable<Module>
 
     protected internal void PushException(Exception e)
     {
-        notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
+        Notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
         Logger.Error(e, $"{className} experienced an exception");
     }
 
