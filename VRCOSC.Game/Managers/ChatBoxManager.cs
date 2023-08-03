@@ -223,6 +223,7 @@ public class ChatBoxManager
     private void sendText(string text)
     {
         var finalText = convertSpecialCharacters(text);
+        finalText = applyTimeConversion(finalText);
         oscClient.SendValues(VRChatOscConstants.ADDRESS_CHATBOX_INPUT, new List<object> { finalText, true, false });
     }
 
@@ -238,6 +239,49 @@ public class ChatBoxManager
             var spaceCount = required_width - spaces;
             return spaces < 0 || spaceCount < 0 ? string.Empty : new string(' ', spaceCount);
         });
+    }
+
+    private static string applyTimeConversion(string input)
+    {
+        return Regex.Replace(input, @"<(\S):([0-9]+):(\S)>", match =>
+        {
+            if (match.Groups.Count != 4) return string.Empty;
+            if (match.Groups[1].Value != "t") return string.Empty;
+            if (match.Groups[3].Value != "R") return string.Empty;
+
+            var timestamp = int.Parse(match.Groups[2].Value);
+            var dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(timestamp);
+            return formatRelativeTime(dateTimeOffset.LocalDateTime);
+        });
+    }
+
+    private static string formatRelativeTime(DateTime targetTime)
+    {
+        var timeDifference = targetTime - DateTime.Now;
+        var isFuture = timeDifference.TotalSeconds >= 0;
+
+        timeDifference = isFuture ? timeDifference : DateTime.Now - targetTime;
+
+        if (timeDifference.TotalSeconds < 60)
+        {
+            int seconds = (int)timeDifference.TotalSeconds;
+            return isFuture ? $"In {seconds} second{(seconds == 1 ? "" : "s")}" : $"{seconds} second{(seconds == 1 ? "" : "s")} ago";
+        }
+
+        if (timeDifference.TotalMinutes < 60)
+        {
+            int minutes = (int)timeDifference.TotalMinutes;
+            return isFuture ? $"In {minutes} minute{(minutes == 1 ? "" : "s")}" : $"{minutes} minute{(minutes == 1 ? "" : "s")} ago";
+        }
+
+        if (timeDifference.TotalHours < 24)
+        {
+            int hours = (int)timeDifference.TotalHours;
+            return isFuture ? $"In {hours} hour{(hours == 1 ? "" : "s")}" : $"{hours} hour{(hours == 1 ? "" : "s")} ago";
+        }
+
+        int days = (int)timeDifference.TotalDays;
+        return isFuture ? $"In {days} day{(days == 1 ? "" : "s")}" : $"{days} day{(days == 1 ? "" : "s")} ago";
     }
 
     public void Clear()
