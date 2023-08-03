@@ -34,6 +34,8 @@ public partial class TextSettingCard<TTextBox, TType> : SettingCard<TType> where
             Text = SettingBindable.Value?.ToString(),
             EmptyIsValid = false
         });
+
+        SettingBindable.ValueChanged += _ => textBox.Text = SettingBindable.Value?.ToString();
     }
 
     protected override void LoadComplete()

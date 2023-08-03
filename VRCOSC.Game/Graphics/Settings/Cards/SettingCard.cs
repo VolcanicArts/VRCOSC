@@ -6,10 +6,12 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Graphics.Sprites;
 using osu.Framework.Platform;
 using osuTK;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI;
+using VRCOSC.Game.Graphics.UI.Button;
 
 namespace VRCOSC.Game.Graphics.Settings.Cards;
 
@@ -21,6 +23,8 @@ public abstract partial class SettingCard<T> : Container
     protected override FillFlowContainer Content { get; }
 
     protected readonly Bindable<T> SettingBindable;
+
+    private readonly IconButton resetToDefault;
 
     protected SettingCard(string title, string description, Bindable<T> settingBindable, string linkedUrl)
     {
@@ -37,6 +41,27 @@ public abstract partial class SettingCard<T> : Container
 
         InternalChildren = new Drawable[]
         {
+            new Container
+            {
+                Anchor = Anchor.TopLeft,
+                Origin = Anchor.TopLeft,
+                Size = new Vector2(32),
+                Padding = new MarginPadding(5),
+                Depth = float.MinValue,
+                Child = resetToDefault = new IconButton
+                {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    RelativeSizeAxes = Axes.Both,
+                    Action = settingBindable.SetDefault,
+                    BorderThickness = 2,
+                    BackgroundColour = ThemeManager.Current[ThemeAttribute.Action],
+                    Icon = FontAwesome.Solid.Undo,
+                    IconPadding = 6,
+                    IconShadow = true,
+                    Circular = true
+                }
+            },
             new Container
             {
                 RelativeSizeAxes = Axes.X,
@@ -110,6 +135,11 @@ public abstract partial class SettingCard<T> : Container
         });
 
         helpButton.Alpha = string.IsNullOrEmpty(linkedUrl) ? 0 : 1;
+    }
+
+    protected override void Update()
+    {
+        resetToDefault.FadeTo(SettingBindable.IsDefault ? 0 : 1, 200, Easing.OutQuart);
     }
 
     protected override void LoadComplete()
