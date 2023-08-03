@@ -44,9 +44,9 @@ public static class ProcessExtensions
     public static void ShowMainWindow(this Process process, User32.WindowShowStyle style) => User32.ShowWindow(process.MainWindowHandle, style);
     public static void SetMainWindowForeground(this Process process) => User32.SetForegroundWindow(process.MainWindowHandle);
 
-    public static float RetrieveProcessVolume(string? processName)
+    private static SimpleAudioVolume? getProcessAudioVolume(string? processName)
     {
-        if (processName is null) return 1f;
+        if (processName is null) return null;
 
         MMDeviceEnumerator deviceiterator = new MMDeviceEnumerator();
         var speakers = deviceiterator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
@@ -59,30 +59,18 @@ public static class ProcessExtensions
 
             if (session.GetSessionIdentifier.Contains(processName, StringComparison.InvariantCultureIgnoreCase))
             {
-                return session.SimpleAudioVolume.Volume;
+                return session.SimpleAudioVolume;
             }
         }
-
-        return 1f;
     }
+
+    public static float RetrieveProcessVolume(string? processName) => getProcessAudioVolume(processName)?.Volume ?? 1f;
 
     public static void SetProcessVolume(string? processName, float percentage)
     {
-        if (processName is null) return;
+        var processAudioVolume = getProcessAudioVolume(processName);
+        if (processAudioVolume is null) return;
 
-        MMDeviceEnumerator deviceiterator = new MMDeviceEnumerator();
-        var speakers = deviceiterator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
-
-        var count = speakers.AudioSessionManager.Sessions.Count;
-
-        for (var i = 0; i < count; i++)
-        {
-            var session = speakers.AudioSessionManager.Sessions[i];
-
-            if (session.GetSessionIdentifier.Contains(processName, StringComparison.InvariantCultureIgnoreCase))
-            {
-                session.SimpleAudioVolume.Volume = percentage;
-            }
-        }
+        processAudioVolume.Volume = percentage;
     }
 }
