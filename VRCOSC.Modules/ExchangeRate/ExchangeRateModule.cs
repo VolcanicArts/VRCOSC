@@ -12,7 +12,7 @@ namespace VRCOSC.Modules.ExchangeRate;
 [ModuleDescription("Calculates the exchange rate from a base currency into others")]
 [ModuleAuthor("VolcanicArts", "https://github.com/VolcanicArts", "https://avatars.githubusercontent.com/u/29819296?v=4")]
 [ModuleGroup(ModuleType.General)]
-[ModuleInfo(@"Exchange rate can be accessed using {exchangerate.rate_CURRENCYCODE}")]
+[ModuleInfo("Exchange rate can be accessed using {exchangerate.rate_CURRENCYCODE}")]
 public class ExchangeRateModule : ChatBoxModule
 {
     private ExchangeRateProvider? provider;

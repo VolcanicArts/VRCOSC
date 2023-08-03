@@ -37,7 +37,7 @@ public class Weather
 
 public class Astronomy
 {
-    [JsonProperty(@"astro")]
+    [JsonProperty("astro")]
     public Astro Astro = null!;
 }
 

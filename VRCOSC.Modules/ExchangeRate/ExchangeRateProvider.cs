@@ -9,7 +9,7 @@ public class ExchangeRateProvider
 {
     private readonly string apiKey;
 
-    private const string api_base_url = @"https://v6.exchangerate-api.com/v6/";
+    private const string api_base_url = "https://v6.exchangerate-api.com/v6/";
     private const string exchange_rate_url = api_base_url + "{0}/latest/{1}";
 
     private readonly HttpClient httpClient = new();

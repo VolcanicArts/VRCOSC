@@ -37,33 +37,33 @@ public class MediaModule : ChatBoxModule
         CreateSetting(MediaSetting.TruncateTitle, "Truncate Title", "Truncates the title if longer than the set value", 100);
         CreateSetting(MediaSetting.TruncateArtist, "Truncate Artist", "Truncates the artist if longer than the set value", 100);
 
-        CreateParameter<bool>(MediaParameter.Play, ParameterMode.ReadWrite, @"VRCOSC/Media/Play", "Play/Pause", @"True for playing. False for paused");
-        CreateParameter<float>(MediaParameter.Volume, ParameterMode.ReadWrite, @"VRCOSC/Media/Volume", "Volume", @"The volume of the process that is controlling the media");
-        CreateParameter<int>(MediaParameter.Repeat, ParameterMode.ReadWrite, @"VRCOSC/Media/Repeat", "Repeat", @"0 for disabled. 1 for single. 2 for list");
-        CreateParameter<bool>(MediaParameter.Shuffle, ParameterMode.ReadWrite, @"VRCOSC/Media/Shuffle", "Shuffle", @"True for enabled. False for disabled");
-        CreateParameter<bool>(MediaParameter.Next, ParameterMode.Read, @"VRCOSC/Media/Next", "Next", @"Becoming true causes the next track to play");
-        CreateParameter<bool>(MediaParameter.Previous, ParameterMode.Read, @"VRCOSC/Media/Previous", "Previous", @"Becoming true causes the previous track to play");
-        CreateParameter<bool>(MediaParameter.Seeking, ParameterMode.Read, @"VRCOSC/Media/Seeking", "Seeking", "Whether the user is currently seeking");
-        CreateParameter<float>(MediaParameter.Position, ParameterMode.ReadWrite, @"VRCOSC/Media/Position", "Position", "The position of the song as a percentage");
+        CreateParameter<bool>(MediaParameter.Play, ParameterMode.ReadWrite, "VRCOSC/Media/Play", "Play/Pause", "True for playing. False for paused");
+        CreateParameter<float>(MediaParameter.Volume, ParameterMode.ReadWrite, "VRCOSC/Media/Volume", "Volume", "The volume of the process that is controlling the media");
+        CreateParameter<int>(MediaParameter.Repeat, ParameterMode.ReadWrite, "VRCOSC/Media/Repeat", "Repeat", "0 for disabled. 1 for single. 2 for list");
+        CreateParameter<bool>(MediaParameter.Shuffle, ParameterMode.ReadWrite, "VRCOSC/Media/Shuffle", "Shuffle", "True for enabled. False for disabled");
+        CreateParameter<bool>(MediaParameter.Next, ParameterMode.Read, "VRCOSC/Media/Next", "Next", "Becoming true causes the next track to play");
+        CreateParameter<bool>(MediaParameter.Previous, ParameterMode.Read, "VRCOSC/Media/Previous", "Previous", "Becoming true causes the previous track to play");
+        CreateParameter<bool>(MediaParameter.Seeking, ParameterMode.Read, "VRCOSC/Media/Seeking", "Seeking", "Whether the user is currently seeking");
+        CreateParameter<float>(MediaParameter.Position, ParameterMode.ReadWrite, "VRCOSC/Media/Position", "Position", "The position of the song as a percentage");
 
-        CreateVariable(MediaVariable.Title, @"Title", @"title");
-        CreateVariable(MediaVariable.Artist, @"Artist", @"artist");
-        CreateVariable(MediaVariable.TrackNumber, @"Track Number", @"tracknumber");
-        CreateVariable(MediaVariable.AlbumTitle, @"Album Title", @"albumtitle");
-        CreateVariable(MediaVariable.AlbumArtist, @"Album Artist", @"albumartist");
-        CreateVariable(MediaVariable.AlbumTrackCount, @"Album Track Count", @"albumtrackcount");
-        CreateVariable(MediaVariable.Time, @"Time", @"time");
-        CreateVariable(MediaVariable.TimeRemaining, @"Time Remaining", @"timeremaining");
-        CreateVariable(MediaVariable.Duration, @"Duration", @"duration");
-        CreateVariable(MediaVariable.ProgressVisual, @"Progress Visual", @"progressvisual");
-        CreateVariable(MediaVariable.Volume, @"Volume", @"volume");
+        CreateVariable(MediaVariable.Title, "Title", "title");
+        CreateVariable(MediaVariable.Artist, "Artist", "artist");
+        CreateVariable(MediaVariable.TrackNumber, "Track Number", "tracknumber");
+        CreateVariable(MediaVariable.AlbumTitle, "Album Title", "albumtitle");
+        CreateVariable(MediaVariable.AlbumArtist, "Album Artist", "albumartist");
+        CreateVariable(MediaVariable.AlbumTrackCount, "Album Track Count", "albumtrackcount");
+        CreateVariable(MediaVariable.Time, "Time", "time");
+        CreateVariable(MediaVariable.TimeRemaining, "Time Remaining", "timeremaining");
+        CreateVariable(MediaVariable.Duration, "Duration", "duration");
+        CreateVariable(MediaVariable.ProgressVisual, "Progress Visual", "progressvisual");
+        CreateVariable(MediaVariable.Volume, "Volume", "volume");
 
-        CreateState(MediaState.Playing, "Playing", $@"[{GetVariableFormat(MediaVariable.Time)}/{GetVariableFormat(MediaVariable.Duration)}]/v{GetVariableFormat(MediaVariable.Artist)} - {GetVariableFormat(MediaVariable.Title)}/v{GetVariableFormat(MediaVariable.ProgressVisual)}");
-        CreateState(MediaState.Paused, "Paused", @"[Paused]");
+        CreateState(MediaState.Playing, "Playing", $"[{GetVariableFormat(MediaVariable.Time)}/{GetVariableFormat(MediaVariable.Duration)}]/v{GetVariableFormat(MediaVariable.Artist)} - {GetVariableFormat(MediaVariable.Title)}/v{GetVariableFormat(MediaVariable.ProgressVisual)}");
+        CreateState(MediaState.Paused, "Paused", "[Paused]");
 
-        CreateEvent(MediaEvent.NowPlaying, "Track Change", $@"[Now Playing]/v{GetVariableFormat(MediaVariable.Artist)} - {GetVariableFormat(MediaVariable.Title)}", 5);
-        CreateEvent(MediaEvent.Playing, "Playing", $@"[Playing]/v{GetVariableFormat(MediaVariable.Artist)} - {GetVariableFormat(MediaVariable.Title)}", 5);
-        CreateEvent(MediaEvent.Paused, "Paused", $@"[Paused]/v{GetVariableFormat(MediaVariable.Artist)} - {GetVariableFormat(MediaVariable.Title)}", 5);
+        CreateEvent(MediaEvent.NowPlaying, "Track Change", $"[Now Playing]/v{GetVariableFormat(MediaVariable.Artist)} - {GetVariableFormat(MediaVariable.Title)}", 5);
+        CreateEvent(MediaEvent.Playing, "Playing", $"[Playing]/v{GetVariableFormat(MediaVariable.Artist)} - {GetVariableFormat(MediaVariable.Title)}", 5);
+        CreateEvent(MediaEvent.Paused, "Paused", $"[Paused]/v{GetVariableFormat(MediaVariable.Artist)} - {GetVariableFormat(MediaVariable.Title)}", 5);
     }
 
     protected override void OnModuleStart()

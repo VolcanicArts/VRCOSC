@@ -15,7 +15,7 @@ public sealed class HypeRateModule : HeartrateModule<HypeRateProvider>
 
     protected override void CreateAttributes()
     {
-        CreateSetting(HypeRateSetting.Id, @"HypeRate ID", @"Your HypeRate ID given on your device", string.Empty);
+        CreateSetting(HypeRateSetting.Id, "HypeRate ID", "Your HypeRate ID given on your device", string.Empty);
         base.CreateAttributes();
     }
 
@@ -23,7 +23,7 @@ public sealed class HypeRateModule : HeartrateModule<HypeRateProvider>
     {
         if (string.IsNullOrEmpty(GetSetting<string>(HypeRateSetting.Id)))
         {
-            Log(@"Cannot connect to HypeRate. Please enter an Id");
+            Log("Cannot connect to HypeRate. Please enter an Id");
             return;
         }
 
