@@ -17,7 +17,7 @@ public abstract class BasePiShockRequest
     public string APIKey = null!;
 }
 
-public abstract class ActionPiShocKRequest : BasePiShockRequest
+public abstract class ActionPiShockRequest : BasePiShockRequest
 {
     [JsonProperty("Name")]
     public string AppName = null!;
@@ -36,7 +36,7 @@ public class ShockerInfoPiShockRequest : BasePiShockRequest
 {
 }
 
-public class ShockPiShockRequest : ActionPiShocKRequest
+public class ShockPiShockRequest : ActionPiShockRequest
 {
     protected override PiShockMode Mode => PiShockMode.Shock;
 
@@ -44,7 +44,7 @@ public class ShockPiShockRequest : ActionPiShocKRequest
     public string Intensity = null!;
 }
 
-public class VibratePiShockRequest : ActionPiShocKRequest
+public class VibratePiShockRequest : ActionPiShockRequest
 {
     protected override PiShockMode Mode => PiShockMode.Vibrate;
 
@@ -52,7 +52,7 @@ public class VibratePiShockRequest : ActionPiShocKRequest
     public string Intensity = null!;
 }
 
-public class BeepPiShockRequest : ActionPiShocKRequest
+public class BeepPiShockRequest : ActionPiShockRequest
 {
     protected override PiShockMode Mode => PiShockMode.Beep;
 }

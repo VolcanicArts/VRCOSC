@@ -38,9 +38,16 @@ public class PiShockProvider
         request.APIKey = apiKey;
         request.ShareCode = sharecode;
 
-        var response = await client.PostAsync(action_api_url, new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"));
-        var responseString = await response.Content.ReadAsStringAsync();
-        return new PiShockResponse(responseString == "Operation Succeeded.", responseString);
+        try
+        {
+            var response = await client.PostAsync(action_api_url, new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"));
+            var responseString = await response.Content.ReadAsStringAsync();
+            return new PiShockResponse(responseString == "Operation Succeeded.", responseString);
+        }
+        catch (Exception e)
+        {
+            return new PiShockResponse(false, e.Message);
+        }
     }
 
     private async Task<PiShockShocker?> retrieveShockerInfo(string username, string apiKey, string sharecode)
@@ -64,7 +71,7 @@ public class PiShockProvider
         }
     }
 
-    private static ActionPiShocKRequest getRequestForMode(PiShockMode mode, int duration, int intensity) => mode switch
+    private static ActionPiShockRequest getRequestForMode(PiShockMode mode, int duration, int intensity) => mode switch
     {
         PiShockMode.Shock => new ShockPiShockRequest
         {
