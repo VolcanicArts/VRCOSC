@@ -53,7 +53,7 @@ public class ChatBoxTextModule : ChatBoxModule
         ChangeStateTo(ChatBoxTextState.Default);
     }
 
-    [ModuleUpdate(ModuleUpdateMode.Custom, false, 1500)]
+    [ModuleUpdate(ModuleUpdateMode.ChatBox)]
     private void updateVariables()
     {
         GetSettingList<ChatBoxTextInstance>(ChatBoxTextSetting.TextList).ForEach(instance =>

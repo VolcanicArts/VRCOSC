@@ -41,7 +41,7 @@ public class WeatherModule : ChatBoxModule
         updateParameters();
     }
 
-    [ModuleUpdate(ModuleUpdateMode.Custom, true, 5000)]
+    [ModuleUpdate(ModuleUpdateMode.ChatBox)]
     private async void updateParameters()
     {
         if (weatherProvider is null)

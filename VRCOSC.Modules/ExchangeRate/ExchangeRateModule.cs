@@ -34,7 +34,7 @@ public class ExchangeRateModule : ChatBoxModule
         ChangeStateTo(ExchangeRateState.Default);
     }
 
-    [ModuleUpdate(ModuleUpdateMode.Custom, true, 5000)]
+    [ModuleUpdate(ModuleUpdateMode.ChatBox)]
     private async void updateVariables()
     {
         SetVariableValue(ExchangeRateVariable.BaseCurrency, GetSetting<string>(ExchangeRateSetting.BaseCurrency));
