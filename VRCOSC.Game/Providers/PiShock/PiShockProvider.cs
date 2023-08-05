@@ -38,26 +38,40 @@ public class PiShockProvider
         request.APIKey = apiKey;
         request.ShareCode = sharecode;
 
-        var response = await client.PostAsync(action_api_url, new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"));
-        var responseString = await response.Content.ReadAsStringAsync();
-        return new PiShockResponse(responseString == "Operation Succeeded.", responseString);
+        try
+        {
+            var response = await client.PostAsync(action_api_url, new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"));
+            var responseString = await response.Content.ReadAsStringAsync();
+            return new PiShockResponse(responseString == "Operation Succeeded.", responseString);
+        }
+        catch (Exception e)
+        {
+            return new PiShockResponse(false, e.Message);
+        }
     }
 
     private async Task<PiShockShocker?> retrieveShockerInfo(string username, string apiKey, string sharecode)
     {
-        var request = new ShockerInfoPiShockRequest
+        try
         {
-            Username = username,
-            APIKey = apiKey,
-            ShareCode = sharecode
-        };
+            var request = new ShockerInfoPiShockRequest
+            {
+                Username = username,
+                APIKey = apiKey,
+                ShareCode = sharecode
+            };
 
-        var response = await client.PostAsync(info_api_url, new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"));
-        var responseString = await response.Content.ReadAsStringAsync();
-        return JsonConvert.DeserializeObject<PiShockShocker>(responseString);
+            var response = await client.PostAsync(info_api_url, new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"));
+            var responseString = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<PiShockShocker>(responseString);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 
-    private static ActionPiShocKRequest getRequestForMode(PiShockMode mode, int duration, int intensity) => mode switch
+    private static ActionPiShockRequest getRequestForMode(PiShockMode mode, int duration, int intensity) => mode switch
     {
         PiShockMode.Shock => new ShockPiShockRequest
         {

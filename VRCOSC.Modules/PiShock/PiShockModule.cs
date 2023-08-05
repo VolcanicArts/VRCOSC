@@ -2,19 +2,19 @@
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.Game.Modules;
+using VRCOSC.Game.Modules.Avatar;
 using VRCOSC.Game.Providers.PiShock;
 using VRCOSC.Game.Providers.SpeechToText;
 
 namespace VRCOSC.Modules.PiShock;
 
-public class PiShockModule : Module
+[ModuleTitle("PiShock")]
+[ModuleDescription("Allows for controlling PiShock shockers from avatar parameters and voice control using speech to text")]
+[ModuleAuthor("VolcanicArts", "https://github.com/VolcanicArts", "https://avatars.githubusercontent.com/u/29819296?v=4")]
+[ModuleGroup(ModuleType.NSFW)]
+[ModulePrefab("VRCOSC-PiShock", "https://github.com/VolcanicArts/VRCOSC/releases/download/latest/VRCOSC-PiShock.unitypackage")]
+public class PiShockModule : AvatarModule
 {
-    public override string Title => "PiShock";
-    public override string Description => "Allows for controlling PiShock shockers from avatar parameters and voice control using speech to text";
-    public override string Author => "VolcanicArts";
-    public override string Prefab => "VRCOSC-PiShock";
-    public override ModuleType Type => ModuleType.NSFW;
-
     private readonly PiShockProvider piShockProvider = new();
     private readonly SpeechToTextProvider speechToTextProvider = new();
 
@@ -110,10 +110,21 @@ public class PiShockModule : Module
         sendParameters();
     }
 
-    protected override void OnFixedUpdate()
+    [ModuleUpdate(ModuleUpdateMode.Custom, true, 5000)]
+    private void onModuleUpdate()
+    {
+        speechToTextProvider.Update();
+    }
+
+    [ModuleUpdate(ModuleUpdateMode.Custom)]
+    private void setSpeechToTextParameters()
     {
         speechToTextProvider.RequiredConfidence = GetSetting<int>(PiShockSetting.SpeechConfidence) / 100f;
+    }
 
+    [ModuleUpdate(ModuleUpdateMode.Custom)]
+    private void checkForExecutions()
+    {
         var delay = TimeSpan.FromMilliseconds(GetSetting<int>(PiShockSetting.Delay));
 
         if (shock is not null && shock + delay <= DateTimeOffset.Now && !shockExecuted)
@@ -212,44 +223,32 @@ public class PiShockModule : Module
         SendParameter(PiShockParameter.Intensity, intensity);
     }
 
-    protected override void OnBoolParameterReceived(Enum key, bool value)
+    protected override void OnRegisteredParameterReceived(AvatarParameter parameter)
     {
-        switch (key)
+        switch (parameter.Lookup)
         {
             case PiShockParameter.Shock:
-                shock = value ? DateTimeOffset.Now : null;
+                shock = parameter.ValueAs<bool>() ? DateTimeOffset.Now : null;
                 break;
 
             case PiShockParameter.Vibrate:
-                vibrate = value ? DateTimeOffset.Now : null;
+                vibrate = parameter.ValueAs<bool>() ? DateTimeOffset.Now : null;
                 break;
 
             case PiShockParameter.Beep:
-                beep = value ? DateTimeOffset.Now : null;
+                beep = parameter.ValueAs<bool>() ? DateTimeOffset.Now : null;
                 break;
-        }
-    }
 
-    protected override void OnIntParameterReceived(Enum key, int value)
-    {
-        switch (key)
-        {
             case PiShockParameter.Group:
-                group = value;
+                group = parameter.ValueAs<int>();
                 break;
-        }
-    }
 
-    protected override void OnFloatParameterReceived(Enum key, float value)
-    {
-        switch (key)
-        {
             case PiShockParameter.Duration:
-                duration = Math.Clamp(value, 0f, 1f);
+                duration = Math.Clamp(parameter.ValueAs<float>(), 0f, 1f);
                 break;
 
             case PiShockParameter.Intensity:
-                intensity = Math.Clamp(value, 0f, 1f);
+                intensity = Math.Clamp(parameter.ValueAs<float>(), 0f, 1f);
                 break;
         }
     }

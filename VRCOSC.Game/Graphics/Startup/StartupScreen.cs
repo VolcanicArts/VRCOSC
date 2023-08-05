@@ -2,11 +2,11 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
-using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using VRCOSC.Game.App;
 using VRCOSC.Game.Graphics.Screen;
+using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.Graphics.Startup;
 
@@ -55,11 +55,11 @@ public partial class StartupScreen : BaseScreen
         startupDataFlow.SetLayoutPosition(drawableStartupDataSpawner, 1);
         startupDataFlow.ChangeChildDepth(drawableStartupDataSpawner, float.MinValue);
 
-        appManager.StartupManager.FilePaths.BindCollectionChanged((_, e) =>
+        appManager.StartupManager.Instances.BindCollectionChanged((_, e) =>
         {
             if (e.NewItems is not null)
             {
-                foreach (Bindable<string> newFilePath in e.NewItems)
+                foreach (StartupInstance newFilePath in e.NewItems)
                 {
                     var drawableStartupData = new DrawableStartupData(newFilePath);
                     drawableStartupData.Position = startupDataFlow[^1].Position;

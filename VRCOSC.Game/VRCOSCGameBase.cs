@@ -3,10 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Reflection;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Configuration;
@@ -15,10 +12,8 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.IO.Stores;
 using osu.Framework.Platform;
 using osuTK;
-using PInvoke;
 using VRCOSC.Game.Config;
 using VRCOSC.Resources;
-using Icon = System.Drawing.Icon;
 using WindowState = osu.Framework.Platform.WindowState;
 
 namespace VRCOSC.Game;
@@ -45,10 +40,6 @@ public partial class VRCOSCGameBase : osu.Framework.Game
         { FrameworkSetting.FrameSync, FrameSync.VSync }
     };
 
-    private readonly Bindable<bool> inTray = new();
-    private readonly NotifyIcon trayIcon = new();
-    private IntPtr? windowHandle;
-
     protected override Container<Drawable> Content { get; }
     protected readonly DrawSizePreservingFillContainer DrawSizePreservingFillContainer;
 
@@ -71,68 +62,11 @@ public partial class VRCOSCGameBase : osu.Framework.Game
         versionBindable.BindValueChanged(version => host.Window.Title = $"{host.Name} {version.NewValue}", true);
 
         Window.WindowState = ConfigManager.Get<WindowState>(VRCOSCSetting.WindowState);
-
-        inTray.Value = ConfigManager.Get<bool>(VRCOSCSetting.StartInTray);
-        setupTrayIcon();
-    }
-
-    protected override void LoadComplete()
-    {
-        base.LoadComplete();
-
-        Task.Run(async () =>
-        {
-            await Task.Delay(500);
-            handleTrayTransition(false);
-        });
-    }
-
-    protected override void Update()
-    {
-        if (host.Window.WindowState == WindowState.Minimised || inTray.Value)
-            host.DrawThread.InactiveHz = 1;
-        else
-            host.DrawThread.InactiveHz = 60;
     }
 
     protected override bool OnExiting()
     {
         ConfigManager.SetValue(VRCOSCSetting.WindowState, Window.WindowState);
-
-        trayIcon.Dispose();
-
         return false;
-    }
-
-    private void setupTrayIcon()
-    {
-        trayIcon.DoubleClick += (_, _) => handleTrayTransition(true);
-
-        trayIcon.Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
-        trayIcon.Visible = true;
-        trayIcon.Text = host.Name;
-
-        var contextMenu = new ContextMenuStrip
-        {
-            Items = { { "Exit", null, (_, _) => host.Exit() } }
-        };
-
-        trayIcon.ContextMenuStrip = contextMenu;
-    }
-
-    private void handleTrayTransition(bool toggle)
-    {
-        var localWindowHandle = Process.GetCurrentProcess().MainWindowHandle;
-
-        if (localWindowHandle != IntPtr.Zero)
-        {
-            windowHandle ??= localWindowHandle;
-        }
-
-        if (windowHandle is not null)
-        {
-            if (toggle) inTray.Value = !inTray.Value;
-            User32.ShowWindow(windowHandle.Value, inTray.Value ? User32.WindowShowStyle.SW_HIDE : User32.WindowShowStyle.SW_SHOWDEFAULT);
-        }
     }
 }

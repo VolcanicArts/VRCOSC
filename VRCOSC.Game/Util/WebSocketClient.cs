@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using WebSocket4Net;
 
-namespace VRCOSC.Game.Modules;
+namespace VRCOSC.Game.Util;
 
 public class WebSocketClient : IDisposable
 {

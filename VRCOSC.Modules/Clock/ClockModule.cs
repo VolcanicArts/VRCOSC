@@ -3,20 +3,17 @@
 
 using System.Globalization;
 using VRCOSC.Game.Modules;
-using VRCOSC.Game.Modules.ChatBox;
-using VRCOSC.Game.OSC.VRChat;
+using VRCOSC.Game.Modules.Avatar;
 
 namespace VRCOSC.Modules.Clock;
 
+[ModuleTitle("Clock")]
+[ModuleDescription("Sends a chosen time as hours, minutes, and seconds")]
+[ModuleAuthor("VolcanicArts", "https://github.com/VolcanicArts", "https://avatars.githubusercontent.com/u/29819296?v=4")]
+[ModuleGroup(ModuleType.General)]
+[ModulePrefab("VRCOSC-Watch", "https://github.com/VolcanicArts/VRCOSC/releases/download/latest/VRCOSC-Watch.unitypackage")]
 public sealed class ClockModule : ChatBoxModule
 {
-    public override string Title => "Clock";
-    public override string Description => "Sends a chosen time as hours, minutes, and seconds";
-    public override string Author => "VolcanicArts";
-    public override string Prefab => "VRCOSC-Watch";
-    public override ModuleType Type => ModuleType.General;
-    protected override TimeSpan DeltaUpdate => VRChatOscConstants.UPDATE_TIME_SPAN;
-
     private DateTime time;
 
     protected override void CreateAttributes()
@@ -45,7 +42,8 @@ public sealed class ClockModule : ChatBoxModule
         ChangeStateTo(ClockState.Default);
     }
 
-    protected override void OnModuleUpdate()
+    [ModuleUpdate(ModuleUpdateMode.Custom)]
+    private void updateVariables()
     {
         time = timezoneToTime(GetSetting<ClockTimeZone>(ClockSetting.Timezone));
 

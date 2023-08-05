@@ -3,7 +3,6 @@
 
 using System.Diagnostics;
 using System.Linq;
-using VRCOSC.Game.Modules;
 using VRCOSC.Game.Modules.Avatar;
 using VRCOSC.Game.OSC.VRChat;
 using WinRT;

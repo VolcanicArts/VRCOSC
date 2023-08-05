@@ -7,11 +7,13 @@ namespace VRCOSC.Modules.Weather;
 
 public class WeatherProvider
 {
-    private const string api_base_url = @"https://api.weatherapi.com/v1/";
+    private const string api_base_url = "https://api.weatherapi.com/v1/";
     private const string current_url_format = api_base_url + "current.json?key={0}&q={1}";
     private const string astronomy_url_format = api_base_url + "astronomy.json?key={0}&q={1}&dt={2}";
 
-    private const string condition_url = @"https://www.weatherapi.com/docs/weather_conditions.json";
+    private const string condition_url = "https://www.weatherapi.com/docs/weather_conditions.json";
+
+    private static readonly TimeSpan api_call_delta = TimeSpan.FromMinutes(20);
 
     private readonly HttpClient httpClient = new();
     private readonly string apiKey;
@@ -29,7 +31,7 @@ public class WeatherProvider
 
     public async Task<Weather?> RetrieveFor(string location)
     {
-        if (lastUpdate + TimeSpan.FromMinutes(10) > DateTimeOffset.Now && location == lastLocation) return weather;
+        if (lastUpdate + api_call_delta > DateTimeOffset.Now && location == lastLocation) return weather;
 
         lastUpdate = DateTimeOffset.Now;
         lastLocation = location;

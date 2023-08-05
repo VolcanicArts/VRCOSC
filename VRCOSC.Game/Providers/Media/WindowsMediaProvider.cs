@@ -140,13 +140,112 @@ public class WindowsMediaProvider : MediaProvider
         sessions.Add(controlSession);
     }
 
-    public override async void Play() => await controller?.TryPlayAsync();
-    public override async void Pause() => await controller?.TryPauseAsync();
-    public override async void SkipNext() => await controller?.TrySkipNextAsync();
-    public override async void SkipPrevious() => await controller?.TrySkipPreviousAsync();
-    public override async void ChangeShuffle(bool active) => await controller?.TryChangeShuffleActiveAsync(active);
-    public override async void ChangePlaybackPosition(TimeSpan playbackPosition) => await controller?.TryChangePlaybackPositionAsync(playbackPosition.Ticks);
-    public override async void ChangeRepeatMode(MediaRepeatMode mode) => await controller?.TryChangeAutoRepeatModeAsync((MediaPlaybackAutoRepeatMode)(int)mode);
-    public override void TryChangeVolume(float percentage) => ProcessExtensions.SetProcessVolume(State.Identifier, percentage);
-    public override float TryGetVolume() => ProcessExtensions.RetrieveProcessVolume(State.Identifier);
+    public override async void Play()
+    {
+        try
+        {
+            await controller?.TryPlayAsync();
+        }
+        catch (Exception)
+        {
+            OnLog?.Invoke("'Play' failed to execute");
+        }
+    }
+
+    public override async void Pause()
+    {
+        try
+        {
+            await controller?.TryPauseAsync();
+        }
+        catch (Exception)
+        {
+            OnLog?.Invoke("'Pause' failed to execute");
+        }
+    }
+
+    public override async void SkipNext()
+    {
+        try
+        {
+            await controller?.TrySkipNextAsync();
+        }
+        catch (Exception)
+        {
+            OnLog?.Invoke("'Next Track' failed to execute");
+        }
+    }
+
+    public override async void SkipPrevious()
+    {
+        try
+        {
+            await controller?.TrySkipPreviousAsync();
+        }
+        catch (Exception)
+        {
+            OnLog?.Invoke("'Previous Track' failed to execute");
+        }
+    }
+
+    public override async void ChangeShuffle(bool active)
+    {
+        try
+        {
+            await controller?.TryChangeShuffleActiveAsync(active);
+        }
+        catch (Exception)
+        {
+            OnLog?.Invoke("'Change Shuffle' failed to execute");
+        }
+    }
+
+    public override async void ChangePlaybackPosition(TimeSpan playbackPosition)
+    {
+        try
+        {
+            await controller?.TryChangePlaybackPositionAsync(playbackPosition.Ticks);
+        }
+        catch (Exception)
+        {
+            OnLog?.Invoke("'Change Position' failed to execute");
+        }
+    }
+
+    public override async void ChangeRepeatMode(MediaRepeatMode mode)
+    {
+        try
+        {
+            await controller?.TryChangeAutoRepeatModeAsync((MediaPlaybackAutoRepeatMode)(int)mode);
+        }
+        catch (Exception)
+        {
+            OnLog?.Invoke("'Change Repeat' failed to execute");
+        }
+    }
+
+    public override void TryChangeVolume(float percentage)
+    {
+        try
+        {
+            ProcessExtensions.SetProcessVolume(State.Identifier, percentage);
+        }
+        catch (Exception)
+        {
+            OnLog?.Invoke("'Change Volume' failed to execute");
+        }
+    }
+
+    public override float TryGetVolume()
+    {
+        try
+        {
+            return ProcessExtensions.RetrieveProcessVolume(State.Identifier);
+        }
+        catch (Exception)
+        {
+            OnLog?.Invoke($"Could not retrieve volume for process: {State.Identifier}");
+            return 1f;
+        }
+    }
 }

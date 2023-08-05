@@ -15,18 +15,17 @@ namespace VRCOSC.Game.Serialisation;
 public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where TSerialisable : class
 {
     private readonly object serialisationLock = new();
-    private readonly NotificationContainer notification;
     private Storage storage;
 
     protected readonly TReference Reference;
 
     protected virtual string Directory => string.Empty;
     protected virtual string FileName => throw new NotImplementedException($"{typeof(Serialiser<TReference, TSerialisable>)} requires a file name");
+    protected virtual string? LegacyFileName => null;
 
-    protected Serialiser(Storage storage, NotificationContainer notification, TReference reference)
+    protected Serialiser(Storage storage, TReference reference)
     {
         this.storage = storage;
-        this.notification = notification;
         Reference = reference;
     }
 
@@ -35,7 +34,9 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
         if (!string.IsNullOrEmpty(Directory)) storage = storage.GetStorageForDirectory(Directory);
     }
 
-    public bool DoesFileExist() => storage.Exists(FileName);
+    public bool DoesFileExist() => storage.Exists(FileName) || (LegacyFileName is not null && storage.Exists(LegacyFileName));
+
+    private string getFileName() => storage.Exists(FileName) ? FileName : LegacyFileName!;
 
     public bool TryGetVersion([NotNullWhen(true)] out int? version)
     {
@@ -47,7 +48,7 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
 
         try
         {
-            var data = performDeserialisation<SerialisableVersion>(storage.GetFullPath(FileName));
+            var data = performDeserialisation<SerialisableVersion>(storage.GetFullPath(getFileName()));
 
             if (data is null)
             {
@@ -67,7 +68,7 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
 
     public bool Deserialise(string filePathOverride = "")
     {
-        var filePath = string.IsNullOrEmpty(filePathOverride) ? storage.GetFullPath(FileName) : filePathOverride;
+        var filePath = string.IsNullOrEmpty(filePathOverride) ? storage.GetFullPath(getFileName()) : filePathOverride;
 
         Logger.Log($"Performing load for file {FileName}");
 
@@ -78,14 +79,25 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
                 var data = performDeserialisation<TSerialisable>(filePath);
                 if (data is null) return false;
 
-                ExecuteAfterDeserialisation(Reference, data);
+                var legacyMigrationOccurred = false;
+
+                if (string.IsNullOrEmpty(filePathOverride) && LegacyFileName is not null && storage.Exists(LegacyFileName!))
+                {
+                    storage.Delete(LegacyFileName!);
+                    legacyMigrationOccurred = true;
+                }
+
+                var reserialise = ExecuteAfterDeserialisation(Reference, data);
+
+                if (legacyMigrationOccurred || reserialise) Serialise();
+
                 return true;
             }
         }
         catch (Exception e)
         {
             Logger.Error(e, $"Load failed for file {FileName}");
-            notification.Notify(new ExceptionNotification($"Could not load file {FileName}. Report on the Discord server"));
+            Notifications.Notify(new ExceptionNotification($"Could not load file {FileName}. Report on the Discord server"));
             return false;
         }
     }
@@ -106,7 +118,7 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
         catch (Exception e)
         {
             Logger.Error(e, $"Save failed for file {FileName}");
-            notification.Notify(new ExceptionNotification($"Could not save file {FileName}. Report on the Discord server"));
+            Notifications.Notify(new ExceptionNotification($"Could not save file {FileName}. Report on the Discord server"));
             return false;
         }
     }
@@ -126,13 +138,12 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
 
     private void performSerialisation()
     {
-        var data = GetSerialisableData(Reference);
+        var data = (TSerialisable)Activator.CreateInstance(typeof(TSerialisable), Reference)!;
 
         var bytes = Encoding.Unicode.GetBytes(JsonConvert.SerializeObject(data, Formatting.Indented));
         using var stream = storage.CreateFileSafely(FileName);
         stream.Write(bytes);
     }
 
-    protected abstract TSerialisable GetSerialisableData(TReference reference);
-    protected abstract void ExecuteAfterDeserialisation(TReference reference, TSerialisable data);
+    protected abstract bool ExecuteAfterDeserialisation(TReference reference, TSerialisable data);
 }

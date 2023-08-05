@@ -80,7 +80,7 @@ public partial class ModuleInfoScreen : BaseScreen
             infoFlow.Clear();
             parameterAttributeFlow.Clear();
 
-            infoFlow.AddRange(e.NewValue.Info.Select(infoString => new DrawableInfoCard(infoString)));
+            infoFlow.AddRange(e.NewValue.InfoList.Select(info => new DrawableInfoCard(info)));
             parameterAttributeFlow.AddRange(e.NewValue.Parameters.Values.Select(parameterAttribute => new DrawableParameterAttribute(parameterAttribute)));
 
             infoFlow.Alpha = infoFlow.Any() ? 1 : 0;

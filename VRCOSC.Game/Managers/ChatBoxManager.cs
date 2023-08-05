@@ -12,7 +12,6 @@ using VRCOSC.Game.App;
 using VRCOSC.Game.ChatBox;
 using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.ChatBox.Serialisation.V1;
-using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.OSC.VRChat;
 using VRCOSC.Game.Serialisation;
 
@@ -39,14 +38,13 @@ public class ChatBoxManager
     public readonly Dictionary<string, Dictionary<string, ClipVariableMetadata>> VariableMetadata = new();
     public readonly Dictionary<string, Dictionary<string, ClipStateMetadata>> StateMetadata = new();
     public readonly Dictionary<string, Dictionary<string, ClipEventMetadata>> EventMetadata = new();
-    private Bindable<int> sendDelay = null!;
+    public Bindable<int> SendDelay { get; private set; } = null!;
     private VRChatOscClient oscClient = null!;
     private SerialisationManager serialisationManager = null!;
 
     public readonly Dictionary<(string, string), string?> VariableValues = new();
     public readonly Dictionary<string, string?> StateValues = new();
     public readonly List<(string, string)> TriggeredEvents = new();
-    private readonly object triggeredEventsLock = new();
 
     public readonly Bindable<int> PriorityCount = new(8);
     public readonly Bindable<TimeSpan> TimelineLength = new();
@@ -62,13 +60,13 @@ public class ChatBoxManager
     private DateTimeOffset nextValidTime;
     private bool isClear;
 
-    public void Initialise(Storage storage, AppManager appManager, VRChatOscClient oscClient, NotificationContainer notification, Bindable<int> sendDelay)
+    public void Initialise(Storage storage, AppManager appManager, VRChatOscClient oscClient, Bindable<int> sendDelay)
     {
         this.appManager = appManager;
         this.oscClient = oscClient;
-        this.sendDelay = sendDelay;
+        SendDelay = sendDelay;
         serialisationManager = new SerialisationManager();
-        serialisationManager.RegisterSerialiser(1, new TimelineSerialiser(storage, notification, appManager));
+        serialisationManager.RegisterSerialiser(1, new TimelineSerialiser(storage, appManager));
     }
 
     public void Load()
@@ -135,10 +133,7 @@ public class ChatBoxManager
             StateValues[pair.Key] = null;
         }
 
-        lock (triggeredEventsLock)
-        {
-            TriggeredEvents.Clear();
-        }
+        TriggeredEvents.Clear();
     }
 
     public Clip CreateClip()
@@ -150,19 +145,20 @@ public class ChatBoxManager
 
     public void Update()
     {
-        lock (triggeredEventsLock)
+        if (sendAllowed)
         {
-            Clips.ForEach(clip => clip.Update());
-            // Events get handled by clips in the same update cycle they're triggered
-            TriggeredEvents.Clear();
-        }
+            appManager.ModuleManager.ChatBoxUpdate();
 
-        if (sendAllowed) evaluateClips();
+            Clips.ForEach(clip => clip.Update());
+            TriggeredEvents.Clear();
+
+            evaluateClips();
+        }
     }
 
     public void Teardown()
     {
-        lock (triggeredEventsLock) { TriggeredEvents.Clear(); }
+        TriggeredEvents.Clear();
 
         SetTyping(false);
         Clear();
@@ -194,7 +190,7 @@ public class ChatBoxManager
     {
         var validClip = getValidClip();
         handleClip(validClip);
-        nextValidTime += TimeSpan.FromMilliseconds(sendDelay.Value);
+        nextValidTime += TimeSpan.FromMilliseconds(SendDelay.Value);
     }
 
     private Clip? getValidClip()
@@ -227,6 +223,7 @@ public class ChatBoxManager
     private void sendText(string text)
     {
         var finalText = convertSpecialCharacters(text);
+        finalText = applyTimeConversion(finalText);
         oscClient.SendValues(VRChatOscConstants.ADDRESS_CHATBOX_INPUT, new List<object> { finalText, true, false });
     }
 
@@ -242,6 +239,49 @@ public class ChatBoxManager
             var spaceCount = required_width - spaces;
             return spaces < 0 || spaceCount < 0 ? string.Empty : new string(' ', spaceCount);
         });
+    }
+
+    private static string applyTimeConversion(string input)
+    {
+        return Regex.Replace(input, @"<(\S):([0-9]+):(\S)>", match =>
+        {
+            if (match.Groups.Count != 4) return string.Empty;
+            if (match.Groups[1].Value != "t") return string.Empty;
+            if (match.Groups[3].Value != "R") return string.Empty;
+
+            var timestamp = int.Parse(match.Groups[2].Value);
+            var dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(timestamp);
+            return formatRelativeTime(dateTimeOffset.LocalDateTime);
+        });
+    }
+
+    private static string formatRelativeTime(DateTime targetTime)
+    {
+        var timeDifference = targetTime - DateTime.Now;
+        var isFuture = timeDifference.TotalSeconds >= 0;
+
+        timeDifference = isFuture ? timeDifference : DateTime.Now - targetTime;
+
+        if (timeDifference.TotalSeconds < 60)
+        {
+            int seconds = (int)timeDifference.TotalSeconds;
+            return isFuture ? $"In {seconds} second{(seconds == 1 ? "" : "s")}" : $"{seconds} second{(seconds == 1 ? "" : "s")} ago";
+        }
+
+        if (timeDifference.TotalMinutes < 60)
+        {
+            int minutes = (int)timeDifference.TotalMinutes;
+            return isFuture ? $"In {minutes} minute{(minutes == 1 ? "" : "s")}" : $"{minutes} minute{(minutes == 1 ? "" : "s")} ago";
+        }
+
+        if (timeDifference.TotalHours < 24)
+        {
+            int hours = (int)timeDifference.TotalHours;
+            return isFuture ? $"In {hours} hour{(hours == 1 ? "" : "s")}" : $"{hours} hour{(hours == 1 ? "" : "s")} ago";
+        }
+
+        int days = (int)timeDifference.TotalDays;
+        return isFuture ? $"In {days} day{(days == 1 ? "" : "s")}" : $"{days} day{(days == 1 ? "" : "s")} ago";
     }
 
     public void Clear()
@@ -342,6 +382,8 @@ public class ChatBoxManager
 
     public void TriggerEvent(string module, string lookup)
     {
-        lock (triggeredEventsLock) { TriggeredEvents.Add((module, lookup)); }
+        if (TriggeredEvents.Contains((module, lookup))) return;
+
+        TriggeredEvents.Add((module, lookup));
     }
 }

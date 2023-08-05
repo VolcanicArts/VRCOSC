@@ -8,11 +8,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using osu.Framework.Logging;
 using PInvoke;
+using VRCOSC.Game.Modules.Avatar;
 using VRCOSC.Game.Processes;
 
 namespace VRCOSC.Game.Modules;
 
-public abstract partial class IntegrationModule : Module
+public abstract partial class IntegrationModule : AvatarModule
 {
     private const int delay = 10;
 

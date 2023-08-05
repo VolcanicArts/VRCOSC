@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using NAudio.CoreAudioApi;
 using osu.Framework.Extensions.IEnumerableExtensions;
@@ -25,53 +24,48 @@ public static class ProcessExtensions
 
     public static string? GetActiveWindowTitle()
     {
-        var buffer = new char[256];
-        var handle = User32.GetForegroundWindow();
-        return User32.GetWindowText(handle, buffer, 256) > 0 ? Encoding.UTF8.GetString(Encoding.UTF8.GetBytes(buffer)).TrimEnd('\u0000') : null;
+        var foregroundWindowHandle = User32.GetForegroundWindow();
+        if (foregroundWindowHandle == IntPtr.Zero) return null;
+
+        User32.GetWindowThreadProcessId(foregroundWindowHandle, out int processId);
+
+        if (processId <= 0) return null;
+
+        try
+        {
+            return Process.GetProcessById(processId).ProcessName;
+        }
+        catch (ArgumentException)
+        {
+            return null;
+        }
     }
 
     public static void ShowMainWindow(this Process process, User32.WindowShowStyle style) => User32.ShowWindow(process.MainWindowHandle, style);
     public static void SetMainWindowForeground(this Process process) => User32.SetForegroundWindow(process.MainWindowHandle);
 
-    public static float RetrieveProcessVolume(string? processName)
+    private static SimpleAudioVolume? getProcessAudioVolume(string? processName)
     {
-        if (processName is null) return 1f;
+        if (processName is null) return null;
 
-        MMDeviceEnumerator deviceiterator = new MMDeviceEnumerator();
-        var speakers = deviceiterator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
+        var speakers = new MMDeviceEnumerator().GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
 
-        var count = speakers.AudioSessionManager.Sessions.Count;
-
-        for (var i = 0; i < count; i++)
+        for (var i = 0; i < speakers.AudioSessionManager.Sessions.Count; i++)
         {
             var session = speakers.AudioSessionManager.Sessions[i];
-
-            if (session.GetSessionIdentifier.Contains(processName, StringComparison.InvariantCultureIgnoreCase))
-            {
-                return session.SimpleAudioVolume.Volume;
-            }
+            if (session.GetSessionIdentifier.Contains(processName, StringComparison.InvariantCultureIgnoreCase)) return session.SimpleAudioVolume;
         }
 
-        return 1f;
+        return null;
     }
+
+    public static float RetrieveProcessVolume(string? processName) => getProcessAudioVolume(processName)?.Volume ?? 1f;
 
     public static void SetProcessVolume(string? processName, float percentage)
     {
-        if (processName is null) return;
+        var processAudioVolume = getProcessAudioVolume(processName);
+        if (processAudioVolume is null) return;
 
-        MMDeviceEnumerator deviceiterator = new MMDeviceEnumerator();
-        var speakers = deviceiterator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
-
-        var count = speakers.AudioSessionManager.Sessions.Count;
-
-        for (var i = 0; i < count; i++)
-        {
-            var session = speakers.AudioSessionManager.Sessions[i];
-
-            if (session.GetSessionIdentifier.Contains(processName, StringComparison.InvariantCultureIgnoreCase))
-            {
-                session.SimpleAudioVolume.Volume = percentage;
-            }
-        }
+        processAudioVolume.Volume = percentage;
     }
 }

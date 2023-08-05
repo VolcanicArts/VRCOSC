@@ -14,11 +14,11 @@ namespace VRCOSC.Game.Graphics.ModuleInfo;
 
 public partial class DrawableInfoCard : Container
 {
-    private readonly string infoString;
+    private readonly (string, string?) info;
 
-    public DrawableInfoCard(string infoString)
+    public DrawableInfoCard((string, string?) info)
     {
-        this.infoString = infoString;
+        this.info = info;
     }
 
     [BackgroundDependencyLoader]
@@ -103,7 +103,7 @@ public partial class DrawableInfoCard : Container
                                     AutoSizeAxes = Axes.Y,
                                     AutoSizeEasing = Easing.OutQuint,
                                     AutoSizeDuration = 150,
-                                    Text = infoString,
+                                    Text = info.Item1,
                                     Masking = true
                                 }
                             }

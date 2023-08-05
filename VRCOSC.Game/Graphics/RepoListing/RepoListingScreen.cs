@@ -31,7 +31,7 @@ public partial class RepoListingScreen : BaseScreen
             {
                 new Drawable[]
                 {
-                    new DrawableInfoCard("VRCOSC is not responsible for any files downloaded unless specified otherwise. Exercise caution"),
+                    new DrawableInfoCard(("VRCOSC is not responsible for any files downloaded unless specified otherwise. Exercise caution", null)),
                 },
                 null,
                 new Drawable[]

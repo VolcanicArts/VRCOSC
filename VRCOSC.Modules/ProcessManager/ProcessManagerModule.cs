@@ -3,33 +3,33 @@
 
 using System.Diagnostics;
 using VRCOSC.Game.Modules;
+using VRCOSC.Game.Modules.Avatar;
 
 namespace VRCOSC.Modules.ProcessManager;
 
-public class ProcessManagerModule : Module
+[ModuleTitle("Process Manager")]
+[ModuleDescription("Allows for starting and stopping processes from avatar parameters")]
+[ModuleAuthor("VolcanicArts", "https://github.com/VolcanicArts", "https://avatars.githubusercontent.com/u/29819296?v=4")]
+[ModuleGroup(ModuleType.Integrations)]
+public class ProcessManagerModule : AvatarModule
 {
-    public override string Title => "Process Manager";
-    public override string Description => "Allows for starting and stopping processes from avatar parameters";
-    public override string Author => "VolcanicArts";
-    public override ModuleType Type => ModuleType.Integrations;
-
     protected override void CreateAttributes()
     {
         CreateParameter<bool>(ProcessManagerParameter.Start, ParameterMode.Read, "VRCOSC/ProcessManager/Start/*", "Start", "Becoming true will start the process named in the '*' that you set on your avatar\nFor example, on your avatar you put: VRCOSC/ProcessManager/Start/vrchat");
         CreateParameter<bool>(ProcessManagerParameter.Stop, ParameterMode.Read, "VRCOSC/ProcessManager/Stop/*", "Stop", "Becoming true will stop the process named in the '*' that you set on your avatar\nFor example, on your avatar you put: VRCOSC/ProcessManager/Stop/vrchat");
     }
 
-    protected override void OnBoolParameterReceived(Enum key, bool value, string[] wildcards)
+    protected override void OnRegisteredParameterReceived(AvatarParameter parameter)
     {
-        var processName = wildcards[0];
+        var processName = parameter.WildcardAs<string>(0);
 
-        switch (key)
+        switch (parameter.Lookup)
         {
-            case ProcessManagerParameter.Start when value:
+            case ProcessManagerParameter.Start when parameter.ValueAs<bool>():
                 startProcess(processName);
                 break;
 
-            case ProcessManagerParameter.Stop when value:
+            case ProcessManagerParameter.Stop when parameter.ValueAs<bool>():
                 stopProcess(processName);
                 break;
         }

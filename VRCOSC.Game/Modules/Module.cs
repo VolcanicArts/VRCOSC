@@ -20,86 +20,79 @@ using VRCOSC.Game.Modules.Attributes;
 using VRCOSC.Game.Modules.Avatar;
 using VRCOSC.Game.Modules.Persistence;
 using VRCOSC.Game.Modules.Serialisation.V1;
+using VRCOSC.Game.Modules.World;
 using VRCOSC.Game.OpenVR;
 using VRCOSC.Game.OSC.VRChat;
 using VRCOSC.Game.Serialisation;
-
-// ReSharper disable MemberCanBePrivate.Global
-// ReSharper disable InconsistentNaming
+using VRCOSC.Game.Util;
 
 namespace VRCOSC.Game.Modules;
 
 public abstract class Module : IComparable<Module>
 {
-    private GameHost Host = null!;
-    private AppManager AppManager = null!;
-    private Scheduler Scheduler = null!;
-    private TerminalLogger Terminal = null!;
+    private GameHost host = null!;
+    private AppManager appManager = null!;
+    private Scheduler scheduler = null!;
+    private TerminalLogger terminal = null!;
     private ModuleDebugLogger moduleDebugLogger = null!;
-    private Storage Storage = null!;
+    private VRChatOscClient oscClient => appManager.OSCClient;
+    private readonly Bindable<ModuleState> state = new(ModuleState.Stopped);
 
-    protected Player Player => AppManager.VRChat.Player;
-    protected OVRClient OVRClient => AppManager.OVRClient;
-    protected VRChatOscClient OscClient => AppManager.OSCClient;
-    protected ChatBoxManager ChatBoxManager => AppManager.ChatBoxManager;
-    protected Bindable<ModuleState> State = new(ModuleState.Stopped);
-    protected AvatarConfig? AvatarConfig => AppManager.VRChat.AvatarConfig;
+    protected Player Player => appManager.VRChat.Player;
+    protected OVRClient OVRClient => appManager.OVRClient;
+    protected ChatBoxManager ChatBoxManager => appManager.ChatBoxManager;
+    protected AvatarConfig? AvatarConfig => appManager.VRChat.AvatarConfig;
 
     internal readonly BindableBool Enabled = new();
     internal readonly Dictionary<string, ModuleAttribute> Settings = new();
     internal readonly Dictionary<Enum, ModuleParameter> Parameters = new();
     internal readonly Dictionary<ModulePersistentAttribute, PropertyInfo> PersistentProperies = new();
+    internal readonly List<MethodInfo> ChatBoxUpdateMethods = new();
+
+    internal string Title => GetType().GetCustomAttribute<ModuleTitleAttribute>()?.Title ?? "PLACEHOLDER";
+    internal string ShortDescription => GetType().GetCustomAttribute<ModuleDescriptionAttribute>()?.ShortDescription ?? "PLACEHOLDER";
+    internal string LongDescription => GetType().GetCustomAttribute<ModuleDescriptionAttribute>()?.LongDescription ?? "PLACEHOLDER";
+    internal string AuthorName => GetType().GetCustomAttribute<ModuleAuthorAttribute>()?.Name ?? "PLACEHOLDER";
+    internal string? AuthorUrl => GetType().GetCustomAttribute<ModuleAuthorAttribute>()?.Url;
+    internal string? AuthorIconUrl => GetType().GetCustomAttribute<ModuleAuthorAttribute>()?.IconUrl;
+    internal ModuleType Group => GetType().GetCustomAttribute<ModuleGroupAttribute>()?.Type ?? ModuleType.General;
+    internal string? PrefabName => GetType().GetCustomAttribute<ModulePrefabAttribute>()?.Name;
+    internal string? PrefabUrl => GetType().GetCustomAttribute<ModulePrefabAttribute>()?.Url;
+    internal IEnumerable<(string, string?)> InfoList => GetType().GetCustomAttributes<ModuleInfoAttribute>().Select(attribute => (attribute.Description, attribute.Url)).ToList();
 
     // Cached pre-computed lookups
-    internal readonly Dictionary<string, Enum> ParameterNameEnum = new();
-    internal readonly Dictionary<string, Regex> ParameterNameRegex = new();
+    private readonly Dictionary<string, Enum> parameterNameEnum = new();
+    private readonly Dictionary<string, Regex> parameterNameRegex = new();
 
-    public virtual string Title => string.Empty;
-    public virtual string Description => string.Empty;
-    public virtual string Author => string.Empty;
-    public virtual string Prefab => string.Empty;
-    public virtual ModuleType Type => ModuleType.General;
-    public virtual IEnumerable<string> Info => new List<string>();
-    protected virtual TimeSpan DeltaUpdate => TimeSpan.MaxValue;
-    protected virtual bool ShouldUpdateImmediately => true;
     protected virtual bool EnablePersistence => true;
 
-    private bool IsEnabled => Enabled.Value;
-    private bool ShouldUpdate => DeltaUpdate != TimeSpan.MaxValue;
-    internal string Name => GetType().Name;
-    internal string SerialisedName => Name.ToLowerInvariant();
-
-    protected bool IsStarting => State.Value == ModuleState.Starting;
-    protected bool HasStarted => State.Value == ModuleState.Started;
-    protected bool IsStopping => State.Value == ModuleState.Stopping;
-    protected bool HasStopped => State.Value == ModuleState.Stopped;
+    private string className => GetType().Name;
+    internal string SerialisedName => className.ToLowerInvariant();
+    internal string? LegacySerialisedName => GetType().GetCustomAttribute<ModuleLegacyAttribute>()?.LegacySerialisedName?.ToLowerInvariant();
 
     private readonly SerialisationManager persistenceSerialisationManager = new();
     private readonly SerialisationManager moduleSerialisationManager = new();
-    private NotificationContainer notifications = null!;
 
-    public void InjectDependencies(GameHost host, AppManager appManager, Scheduler scheduler, Storage storage, NotificationContainer notifications)
+    internal void InjectDependencies(GameHost host, AppManager appManager, Scheduler scheduler, Storage storage)
     {
-        Host = host;
-        AppManager = appManager;
-        Scheduler = scheduler;
-        this.notifications = notifications;
-        Storage = storage;
+        this.host = host;
+        this.appManager = appManager;
+        this.scheduler = scheduler;
 
-        moduleSerialisationManager.RegisterSerialiser(1, new ModuleSerialiser(storage, notifications, this));
-        persistenceSerialisationManager.RegisterSerialiser(2, new ModulePersistenceSerialiser(storage, notifications, this));
+        moduleSerialisationManager.RegisterSerialiser(1, new ModuleSerialiser(storage, this));
+        persistenceSerialisationManager.RegisterSerialiser(2, new ModulePersistenceSerialiser(storage, this));
     }
 
-    public void Load()
+    internal void Load()
     {
-        Terminal = new TerminalLogger(Title);
+        terminal = new TerminalLogger(Title);
         moduleDebugLogger = new ModuleDebugLogger(Title);
 
         CreateAttributes();
         Settings.Values.ForEach(setting => setting.Setup());
         Parameters.Values.ForEach(parameter => parameter.Setup());
 
-        State.ValueChanged += _ => Log(State.Value.ToString());
+        state.ValueChanged += _ => Log(state.Value.ToString());
 
         Deserialise();
         cachePersistentProperties();
@@ -107,12 +100,12 @@ public abstract class Module : IComparable<Module>
 
     #region Serialisation
 
-    public void Serialise()
+    internal void Serialise()
     {
         moduleSerialisationManager.Serialise();
     }
 
-    public void Deserialise()
+    internal void Deserialise()
     {
         moduleSerialisationManager.Deserialise();
     }
@@ -152,12 +145,6 @@ public abstract class Module : IComparable<Module>
         if (!PersistentProperies.Any() || !EnablePersistence) return;
 
         persistenceSerialisationManager.Serialise();
-    }
-
-    protected void RegisterLegacyPersistanceSerialiser<T>()
-    {
-        var serialiser = (ISaveStateSerialiser)Activator.CreateInstance(typeof(T), Storage, notifications, this)!;
-        persistenceSerialisationManager.RegisterSerialiser(1, serialiser);
     }
 
     #endregion
@@ -266,17 +253,6 @@ public abstract class Module : IComparable<Module>
             Max = maxValue
         });
 
-    protected void CreateParameter<T>(Enum lookup, ParameterMode mode, string parameterName, string displayName, string description)
-        => Parameters.Add(lookup, new ModuleParameter
-        {
-            Name = displayName,
-            Description = description,
-            Default = parameterName,
-            DependsOn = null,
-            Mode = mode,
-            ExpectedType = typeof(T)
-        });
-
     internal bool TryGetSetting(string lookup, [NotNullWhen(true)] out ModuleAttribute? attribute)
     {
         attribute = Settings.SingleOrDefault(pair => pair.Key == lookup).Value;
@@ -301,109 +277,94 @@ public abstract class Module : IComparable<Module>
 
     internal void Start()
     {
-        State.Value = ModuleState.Starting;
+        state.Value = ModuleState.Starting;
 
-        ParameterNameEnum.Clear();
-        Parameters.ForEach(pair => ParameterNameEnum.Add(pair.Value.ParameterName, pair.Key));
+        parameterNameEnum.Clear();
+        Parameters.ForEach(pair => parameterNameEnum.Add(pair.Value.ParameterName, pair.Key));
 
-        ParameterNameRegex.Clear();
-        Parameters.ForEach(pair => ParameterNameRegex.Add(pair.Value.ParameterName, parameterToRegex(pair.Value.ParameterName)));
+        parameterNameRegex.Clear();
+        Parameters.ForEach(pair => parameterNameRegex.Add(pair.Value.ParameterName, parameterToRegex(pair.Value.ParameterName)));
+
+        loadPersistentProperties();
 
         try
         {
-            loadPersistentProperties();
             OnModuleStart();
         }
         catch (Exception e)
         {
-            notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
-            Logger.Error(e, $"{Name} experienced an exception");
+            PushException(e);
         }
 
-        State.Value = ModuleState.Started;
+        state.Value = ModuleState.Started;
 
-        Scheduler.AddDelayed(FixedUpdate, VRChatOscConstants.UPDATE_DELTA_MILLISECONDS, true);
+        initialiseUpdateAttributes(GetType());
+    }
 
-        if (ShouldUpdate) Scheduler.AddDelayed(Update, DeltaUpdate.TotalMilliseconds, true);
-        if (ShouldUpdateImmediately) Update();
+    private void initialiseUpdateAttributes(Type? type)
+    {
+        if (type is null) return;
+
+        initialiseUpdateAttributes(type.BaseType);
+
+        type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            .ForEach(method =>
+            {
+                var updateAttribute = method.GetCustomAttribute<ModuleUpdateAttribute>();
+                if (updateAttribute is null) return;
+
+                if (updateAttribute.Mode == ModuleUpdateMode.ChatBox && GetType().IsSubclassOf(typeof(WorldModule)))
+                    throw new InvalidOperationException($"Cannot have update mode {ModuleUpdateMode.ChatBox} on a world module");
+
+                switch (updateAttribute.Mode)
+                {
+                    case ModuleUpdateMode.Custom:
+                        scheduler.AddDelayed(() => UpdateMethod(method), updateAttribute.DeltaMilliseconds, true);
+                        if (updateAttribute.UpdateImmediately) UpdateMethod(method);
+                        break;
+
+                    case ModuleUpdateMode.ChatBox:
+                        ChatBoxUpdateMethods.Add(method);
+                        break;
+
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            });
     }
 
     internal void Stop()
     {
-        State.Value = ModuleState.Stopping;
+        state.Value = ModuleState.Stopping;
 
         try
         {
             OnModuleStop();
-            savePersistentProperties();
         }
         catch (Exception e)
         {
-            notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
-            Logger.Error(e, $"{Name} experienced an exception");
+            PushException(e);
         }
 
-        State.Value = ModuleState.Stopped;
+        savePersistentProperties();
+
+        state.Value = ModuleState.Stopped;
     }
 
-    internal void Update()
+    protected void UpdateMethod(MethodBase method)
     {
         try
         {
-            OnModuleUpdate();
+            method.Invoke(this, null);
         }
         catch (Exception e)
         {
-            notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
-            Logger.Error(e, $"{Name} experienced an exception");
-        }
-    }
-
-    internal void FixedUpdate()
-    {
-        try
-        {
-            OnFixedUpdate();
-        }
-        catch (Exception e)
-        {
-            notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
-            Logger.Error(e, $"{Name} experienced an exception");
-        }
-    }
-
-    internal void PlayerUpdate()
-    {
-        try
-        {
-            OnPlayerUpdate();
-        }
-        catch (Exception e)
-        {
-            notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
-            Logger.Error(e, $"{Name} experienced an exception");
-        }
-    }
-
-    internal void AvatarChange()
-    {
-        try
-        {
-            OnAvatarChange();
-        }
-        catch (Exception e)
-        {
-            notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
-            Logger.Error(e, $"{Name} experienced an exception");
+            PushException(new Exception($"{className} experienced an exception calling method {method.Name}", e));
         }
     }
 
     protected virtual void OnModuleStart() { }
-    protected virtual void OnModuleUpdate() { }
-    protected virtual void OnFixedUpdate() { }
     protected virtual void OnModuleStop() { }
-    protected virtual void OnAvatarChange() { }
-    protected virtual void OnPlayerUpdate() { }
 
     #endregion
 
@@ -445,10 +406,12 @@ public abstract class Module : IComparable<Module>
 
     #region Parameters
 
-    [Obsolete("Use SendParameter<T>(lookup, value) instead")]
-    protected void SendParameter<T>(Enum lookup, T value, string suffix) where T : struct
+    /// <summary>
+    /// Allows for sending a parameter that hasn't been registed. Only use this when absolutely necessary
+    /// </summary>
+    protected void SendParameter<T>(string parameterName, T value) where T : struct
     {
-        SendParameter(lookup, value);
+        scheduler.Add(() => oscClient.SendValue($"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}/{parameterName}", value));
     }
 
     /// <summary>
@@ -458,160 +421,99 @@ public abstract class Module : IComparable<Module>
     /// <param name="value">The value to send</param>
     protected void SendParameter<T>(Enum lookup, T value) where T : struct
     {
-        if (HasStopped) return;
-
         if (!Parameters.ContainsKey(lookup)) throw new InvalidOperationException($"Parameter {lookup.GetType().Name}.{lookup} has not been defined");
 
         var data = Parameters[lookup];
         if (!data.Mode.HasFlagFast(ParameterMode.Write)) throw new InvalidOperationException($"Parameter {lookup.GetType().Name}.{lookup} is a read-only parameter and therefore can't be sent!");
 
-        Scheduler.Add(() => OscClient.SendValue(data.FormattedAddress, value));
+        scheduler.Add(() => oscClient.SendValue(data.ParameterAddress, value));
     }
 
-    internal void OnParameterReceived(VRChatOscMessage message)
+    internal virtual void OnParameterReceived(VRChatOscMessage message)
     {
-        if (!HasStarted) return;
-
-        if (message.IsAvatarChangeEvent)
-        {
-            AvatarChange();
-            return;
-        }
-
-        if (!message.IsAvatarParameter) return;
+        var receivedParameter = new ReceivedParameter(message.ParameterName, message.ParameterValue);
 
         try
         {
-            OnAnyParameterReceived(message);
+            OnAnyParameterReceived(receivedParameter);
         }
         catch (Exception e)
         {
-            notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
-            Logger.Error(e, $"{Name} experienced an exception");
+            PushException(e);
         }
 
-        var parameterName = Parameters.Values.FirstOrDefault(moduleParameter => ParameterNameRegex[moduleParameter.ParameterName].IsMatch(message.ParameterName))?.ParameterName;
+        var parameterName = Parameters.Values.FirstOrDefault(moduleParameter => parameterNameRegex[moduleParameter.ParameterName].IsMatch(receivedParameter.Name))?.ParameterName;
         if (parameterName is null) return;
 
-        var wildcards = new List<string>();
-
-        var match = ParameterNameRegex[parameterName].Match(message.ParameterName);
-        if (match.Groups.Count > 1) wildcards.AddRange(match.Groups.Values.Skip(1).Select(group => group.Value));
-
-        if (!ParameterNameEnum.TryGetValue(parameterName, out var lookup)) return;
+        if (!parameterNameEnum.TryGetValue(parameterName, out var lookup)) return;
 
         var parameterData = Parameters[lookup];
 
         if (!parameterData.Mode.HasFlagFast(ParameterMode.Read)) return;
 
-        if (!message.IsValueType(parameterData.ExpectedType))
+        if (!receivedParameter.IsValueType(parameterData.ExpectedType))
         {
-            Log($@"Cannot accept input parameter. `{lookup}` expects type `{parameterData.ExpectedType}` but received type `{message.ParameterValue.GetType()}`");
+            Log($@"Cannot accept input parameter. `{lookup}` expects type `{parameterData.ExpectedType}` but received type `{receivedParameter.Value.GetType()}`");
             return;
         }
 
+        var registeredParameter = new RegisteredParameter(receivedParameter, lookup, parameterData);
+
         try
         {
-            switch (message.ParameterValue)
-            {
-                case bool boolValue:
-                    if (wildcards.Any())
-                        OnBoolParameterReceived(lookup, boolValue, wildcards.ToArray());
-                    else
-                        OnBoolParameterReceived(lookup, boolValue);
-
-                    break;
-
-                case int intValue:
-                    if (wildcards.Any())
-                        OnIntParameterReceived(lookup, intValue, wildcards.ToArray());
-                    else
-                        OnIntParameterReceived(lookup, intValue);
-                    break;
-
-                case float floatValue:
-                    if (wildcards.Any())
-                        OnFloatParameterReceived(lookup, floatValue, wildcards.ToArray());
-                    else
-                        OnFloatParameterReceived(lookup, floatValue);
-                    break;
-            }
+            ModuleParameterReceived(registeredParameter);
         }
         catch (Exception e)
         {
-            notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
-            Logger.Error(e, $"{Name} experienced an exception");
+            PushException(e);
         }
     }
 
-    protected virtual void OnAnyParameterReceived(VRChatOscMessage message) { }
-    protected virtual void OnBoolParameterReceived(Enum key, bool value) { }
-    protected virtual void OnIntParameterReceived(Enum key, int value) { }
-    protected virtual void OnFloatParameterReceived(Enum key, float value) { }
-    protected virtual void OnBoolParameterReceived(Enum key, bool value, string[] wildcards) { }
-    protected virtual void OnIntParameterReceived(Enum key, int value, string[] wildcards) { }
-    protected virtual void OnFloatParameterReceived(Enum key, float value, string[] wildcards) { }
+    protected virtual void OnAnyParameterReceived(ReceivedParameter parameter) { }
+    private protected abstract void ModuleParameterReceived(RegisteredParameter parameter);
 
     #endregion
 
     #region Extensions
 
-    protected void Log(string message) => Terminal.Log(message);
+    /// <summary>
+    /// Logs to the terminal in the run screen
+    /// </summary>
+    protected void Log(string message) => terminal.Log(message);
 
     /// <summary>
     /// Logs to a special module-debug file when the --module-debug flag is passed on startup
     /// </summary>
     protected void LogDebug(string message) => moduleDebugLogger.Log(message);
 
-    protected void OpenUrlExternally(string Url) => Host.OpenUrlExternally(Url);
+    /// <summary>
+    /// Opens a given <paramref name="url"/> in the user's chosen browser
+    /// </summary>
+    protected void OpenUrlExternally(string url) => host.OpenUrlExternally(url);
 
+    /// <summary>
+    /// Maps a value <paramref name="source"/> from a source range to a destination range
+    /// </summary>
     protected static float Map(float source, float sMin, float sMax, float dMin, float dMax) => dMin + (dMax - dMin) * ((source - sMin) / (sMax - sMin));
 
     #endregion
 
-    public enum ModuleState
-    {
-        Starting,
-        Started,
-        Stopping,
-        Stopped
-    }
+    #region Internal
 
-    public enum ModuleType
+    protected internal void PushException(Exception e)
     {
-        Health,
-        Accessibility,
-        OpenVR,
-        Integrations,
-        General,
-        NSFW
+        Notifications.Notify(new ExceptionNotification($"{Title} experienced an exception. Report on the Discord"));
+        Logger.Error(e, $"{className} experienced an exception");
     }
 
     public int CompareTo(Module? other)
     {
         if (other is null) return 1;
-        if (Type > other.Type) return 1;
-        if (Type < other.Type) return -1;
+        if (Group > other.Group) return 1;
+        if (Group < other.Group) return -1;
 
         return string.CompareOrdinal(Title, other.Title);
     }
-}
 
-[AttributeUsage(AttributeTargets.Property)]
-public class ModulePersistentAttribute : Attribute
-{
-    public string SerialisedName { get; }
-    public string? LegacySerialisedName { get; }
-
-    /// <inheritdoc />
-    /// <summary>
-    /// Used to mark a field for being automatically loaded and saved when the module starts and stops
-    /// </summary>
-    /// <param name="serialisedName">The name to serialise this property as</param>
-    /// <param name="legacySerialisedName">Support for migration from a legacy name to the <paramref name="serialisedName" /></param>
-    public ModulePersistentAttribute(string serialisedName, string? legacySerialisedName = null)
-    {
-        SerialisedName = serialisedName;
-        LegacySerialisedName = legacySerialisedName;
-    }
+    #endregion
 }

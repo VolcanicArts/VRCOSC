@@ -20,12 +20,12 @@ public sealed class PulsoidProvider : WebSocketHeartrateProvider
 
     protected override void OnWebSocketConnected()
     {
-        Log(@"Connected to the Pulsoid websocket");
+        Log("Connected to the Pulsoid websocket");
     }
 
     protected override void OnWebSocketDisconnected()
     {
-        Log(@"Disconnected from the Pulsoid websocket");
+        Log("Disconnected from the Pulsoid websocket");
     }
 
     protected override void OnWebSocketMessage(string message)
@@ -37,7 +37,7 @@ public sealed class PulsoidProvider : WebSocketHeartrateProvider
         }
         catch (JsonReaderException)
         {
-            Log(@"Error deserialising Pulsoid message");
+            Log("Error deserialising Pulsoid message");
         }
     }
 }

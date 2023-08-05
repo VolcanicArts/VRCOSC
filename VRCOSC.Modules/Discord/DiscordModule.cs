@@ -6,13 +6,13 @@ using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Modules.Discord;
 
+[ModuleTitle("Discord")]
+[ModuleDescription("Basic integration with the Discord desktop app")]
+[ModuleAuthor("VolcanicArts", "https://github.com/VolcanicArts", "https://avatars.githubusercontent.com/u/29819296?v=4")]
+[ModuleGroup(ModuleType.Integrations)]
+[ModulePrefab("VRCOSC-Discord", "https://github.com/VolcanicArts/VRCOSC/releases/download/latest/VRCOSC-Discord.unitypackage")]
 public sealed class DiscordModule : IntegrationModule
 {
-    public override string Title => "Discord";
-    public override string Description => "Integration with the Discord desktop app";
-    public override string Author => "VolcanicArts";
-    public override string Prefab => "VRCOSC-Discord";
-    public override ModuleType Type => ModuleType.Integrations;
     protected override string TargetProcess => "discord";
 
     protected override void CreateAttributes()
@@ -24,9 +24,9 @@ public sealed class DiscordModule : IntegrationModule
         RegisterKeyCombination(DiscordParameter.Deafen, User32.VirtualKey.VK_LCONTROL, User32.VirtualKey.VK_LSHIFT, User32.VirtualKey.VK_D);
     }
 
-    protected override void OnBoolParameterReceived(Enum key, bool value)
+    protected override void OnRegisteredParameterReceived(AvatarParameter parameter)
     {
-        if (value) ExecuteKeyCombination(key);
+        if (parameter.ValueAs<bool>()) ExecuteKeyCombination(parameter.Lookup!);
     }
 
     private enum DiscordParameter

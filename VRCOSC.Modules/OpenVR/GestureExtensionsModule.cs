@@ -2,19 +2,17 @@
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.Game.Modules;
+using VRCOSC.Game.Modules.Avatar;
 using VRCOSC.Game.OpenVR.Input;
-using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Modules.OpenVR;
 
-public class GestureExtensionsModule : Module
+[ModuleTitle("Gesture Extensions")]
+[ModuleDescription("Detect a range of custom gestures from Index controllers")]
+[ModuleAuthor("VolcanicArts", "https://github.com/VolcanicArts", "https://avatars.githubusercontent.com/u/29819296?v=4")]
+[ModuleGroup(ModuleType.OpenVR)]
+public class GestureExtensionsModule : AvatarModule
 {
-    public override string Title => "Gesture Extensions";
-    public override string Description => "Detect a range of custom gestures from Index controllers";
-    public override string Author => "VolcanicArts";
-    public override ModuleType Type => ModuleType.OpenVR;
-    protected override TimeSpan DeltaUpdate => VRChatOscConstants.UPDATE_TIME_SPAN;
-
     private float lowerThreshold;
     private float upperThreshold;
 
@@ -33,7 +31,8 @@ public class GestureExtensionsModule : Module
         upperThreshold = GetSetting<float>(GestureExtensionsSetting.UpperThreshold);
     }
 
-    protected override void OnModuleUpdate()
+    [ModuleUpdate(ModuleUpdateMode.Custom)]
+    private void sendParameters()
     {
         if (!OVRClient.HasInitialised) return;
 

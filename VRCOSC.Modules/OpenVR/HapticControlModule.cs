@@ -2,23 +2,19 @@
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.Game.Modules;
+using VRCOSC.Game.Modules.Avatar;
 
 namespace VRCOSC.Modules.OpenVR;
 
-public class HapticControlModule : Module
+[ModuleTitle("Haptic Control")]
+[ModuleDescription("Lets you set haptic parameters and trigger them for OpenVR controllers")]
+[ModuleAuthor("VolcanicArts", "https://github.com/VolcanicArts", "https://avatars.githubusercontent.com/u/29819296?v=4")]
+[ModuleGroup(ModuleType.OpenVR)]
+[ModuleInfo("The duration, frequency, and amplitude parameters can be set from your animator")]
+[ModuleInfo("If you're designing a prefab, ensure these parameters are set each time before you attempt a trigger in the case that the user has restarted this module")]
+[ModuleInfo("Trigger parameters must be set back to false before attempting another trigger")]
+public class HapticControlModule : AvatarModule
 {
-    public override string Title => "Haptic Control";
-    public override string Description => "Lets you set haptic parameters and trigger them for OpenVR controllers";
-    public override string Author => "VolcanicArts";
-    public override ModuleType Type => ModuleType.OpenVR;
-
-    public override IEnumerable<string> Info => new List<string>
-    {
-        "The duration, frequency, and amplitude parameters can be set from your animator",
-        "If you're designing a prefab, ensure these parameters are set each time before you attempt a trigger in the case that the user has restarted this module",
-        "Trigger parameters must be set back to false before attempting another trigger"
-    };
-
     private float duration;
     private float frequency;
     private float amplitude;
@@ -40,39 +36,31 @@ public class HapticControlModule : Module
         amplitude = 0;
     }
 
-    protected override void OnFloatParameterReceived(Enum key, float value)
+    protected override void OnRegisteredParameterReceived(AvatarParameter parameter)
     {
-        switch (key)
+        switch (parameter.Lookup)
         {
             case HapticControlParameter.Duration:
-                duration = value;
+                duration = parameter.ValueAs<float>();
                 break;
 
             case HapticControlParameter.Frequency:
-                value = Math.Clamp(value, 0, 1);
-                frequency = value * 100f;
+                frequency = Math.Clamp(parameter.ValueAs<float>(), 0, 1) * 100f;
                 break;
 
             case HapticControlParameter.Amplitude:
-                value = Math.Clamp(value, 0, 1);
-                amplitude = value;
+                amplitude = Math.Clamp(parameter.ValueAs<float>(), 0, 1);
                 break;
-        }
-    }
 
-    protected override void OnBoolParameterReceived(Enum key, bool value)
-    {
-        switch (key)
-        {
-            case HapticControlParameter.Trigger when value:
+            case HapticControlParameter.Trigger when parameter.ValueAs<bool>():
                 triggerHaptic(true, true);
                 break;
 
-            case HapticControlParameter.TriggerLeft when value:
+            case HapticControlParameter.TriggerLeft when parameter.ValueAs<bool>():
                 triggerHaptic(true, false);
                 break;
 
-            case HapticControlParameter.TriggerRight when value:
+            case HapticControlParameter.TriggerRight when parameter.ValueAs<bool>():
                 triggerHaptic(false, true);
                 break;
         }

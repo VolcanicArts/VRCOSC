@@ -1,37 +1,35 @@
 // Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using osu.Framework.Bindables;
 using VRCOSC.Game;
 using VRCOSC.Game.Modules;
-using VRCOSC.Game.Modules.ChatBox;
+using VRCOSC.Game.Modules.Avatar;
 using VRCOSC.Game.Providers.Media;
 
 namespace VRCOSC.Modules.Media;
 
+[ModuleTitle("Media")]
+[ModuleDescription("Integration with Windows Media")]
+[ModuleAuthor("VolcanicArts", "https://github.com/VolcanicArts", "https://avatars.githubusercontent.com/u/29819296?v=4")]
+[ModuleGroup(ModuleType.Integrations)]
+[ModulePrefab("VRCOSC-Media", "https://github.com/VolcanicArts/VRCOSC/releases/download/latest/VRCOSC-Media.unitypackage")]
 public class MediaModule : ChatBoxModule
 {
-    private const string progress_line = "\u2501";
-    private const string progress_dot = "\u25CF";
-    private const string progress_start = "\u2523";
-    private const string progress_end = "\u252B";
+    private const char progress_line = '\u2501';
+    private const char progress_dot = '\u25CF';
+    private const char progress_start = '\u2523';
+    private const char progress_end = '\u252B';
     private const int progress_resolution = 10;
 
-    public override string Title => "Media";
-    public override string Description => "Integration with Windows Media";
-    public override string Author => "VolcanicArts";
-    public override string Prefab => "VRCOSC-Media";
-    protected override TimeSpan DeltaUpdate => TimeSpan.FromSeconds(1);
-    public override ModuleType Type => ModuleType.Integrations;
-
     private readonly MediaProvider mediaProvider = new WindowsMediaProvider();
-    private readonly Bindable<bool> currentlySeeking = new();
+    private bool currentlySeeking;
     private TimeSpan targetPosition;
 
     public MediaModule()
     {
         mediaProvider.OnPlaybackStateChange += onPlaybackStateChange;
         mediaProvider.OnTrackChange += onTrackChange;
+        mediaProvider.OnLog += Log;
     }
 
     protected override void CreateAttributes()
@@ -39,33 +37,33 @@ public class MediaModule : ChatBoxModule
         CreateSetting(MediaSetting.TruncateTitle, "Truncate Title", "Truncates the title if longer than the set value", 100);
         CreateSetting(MediaSetting.TruncateArtist, "Truncate Artist", "Truncates the artist if longer than the set value", 100);
 
-        CreateParameter<bool>(MediaParameter.Play, ParameterMode.ReadWrite, @"VRCOSC/Media/Play", "Play/Pause", @"True for playing. False for paused");
-        CreateParameter<float>(MediaParameter.Volume, ParameterMode.ReadWrite, @"VRCOSC/Media/Volume", "Volume", @"The volume of the process that is controlling the media");
-        CreateParameter<int>(MediaParameter.Repeat, ParameterMode.ReadWrite, @"VRCOSC/Media/Repeat", "Repeat", @"0 for disabled. 1 for single. 2 for list");
-        CreateParameter<bool>(MediaParameter.Shuffle, ParameterMode.ReadWrite, @"VRCOSC/Media/Shuffle", "Shuffle", @"True for enabled. False for disabled");
-        CreateParameter<bool>(MediaParameter.Next, ParameterMode.Read, @"VRCOSC/Media/Next", "Next", @"Becoming true causes the next track to play");
-        CreateParameter<bool>(MediaParameter.Previous, ParameterMode.Read, @"VRCOSC/Media/Previous", "Previous", @"Becoming true causes the previous track to play");
-        CreateParameter<bool>(MediaParameter.Seeking, ParameterMode.Read, @"VRCOSC/Media/Seeking", "Seeking", "Whether the user is currently seeking");
-        CreateParameter<float>(MediaParameter.Position, ParameterMode.ReadWrite, @"VRCOSC/Media/Position", "Position", "The position of the song as a percentage");
+        CreateParameter<bool>(MediaParameter.Play, ParameterMode.ReadWrite, "VRCOSC/Media/Play", "Play/Pause", "True for playing. False for paused");
+        CreateParameter<float>(MediaParameter.Volume, ParameterMode.ReadWrite, "VRCOSC/Media/Volume", "Volume", "The volume of the process that is controlling the media");
+        CreateParameter<int>(MediaParameter.Repeat, ParameterMode.ReadWrite, "VRCOSC/Media/Repeat", "Repeat", "0 for disabled. 1 for single. 2 for list");
+        CreateParameter<bool>(MediaParameter.Shuffle, ParameterMode.ReadWrite, "VRCOSC/Media/Shuffle", "Shuffle", "True for enabled. False for disabled");
+        CreateParameter<bool>(MediaParameter.Next, ParameterMode.Read, "VRCOSC/Media/Next", "Next", "Becoming true causes the next track to play");
+        CreateParameter<bool>(MediaParameter.Previous, ParameterMode.Read, "VRCOSC/Media/Previous", "Previous", "Becoming true causes the previous track to play");
+        CreateParameter<bool>(MediaParameter.Seeking, ParameterMode.Read, "VRCOSC/Media/Seeking", "Seeking", "Whether the user is currently seeking");
+        CreateParameter<float>(MediaParameter.Position, ParameterMode.ReadWrite, "VRCOSC/Media/Position", "Position", "The position of the song as a percentage");
 
-        CreateVariable(MediaVariable.Title, @"Title", @"title");
-        CreateVariable(MediaVariable.Artist, @"Artist", @"artist");
-        CreateVariable(MediaVariable.TrackNumber, @"Track Number", @"tracknumber");
-        CreateVariable(MediaVariable.AlbumTitle, @"Album Title", @"albumtitle");
-        CreateVariable(MediaVariable.AlbumArtist, @"Album Artist", @"albumartist");
-        CreateVariable(MediaVariable.AlbumTrackCount, @"Album Track Count", @"albumtrackcount");
-        CreateVariable(MediaVariable.Time, @"Time", @"time");
-        CreateVariable(MediaVariable.TimeRemaining, @"Time Remaining", @"timeremaining");
-        CreateVariable(MediaVariable.Duration, @"Duration", @"duration");
-        CreateVariable(MediaVariable.ProgressVisual, @"Progress Visual", @"progressvisual");
-        CreateVariable(MediaVariable.Volume, @"Volume", @"volume");
+        CreateVariable(MediaVariable.Title, "Title", "title");
+        CreateVariable(MediaVariable.Artist, "Artist", "artist");
+        CreateVariable(MediaVariable.TrackNumber, "Track Number", "tracknumber");
+        CreateVariable(MediaVariable.AlbumTitle, "Album Title", "albumtitle");
+        CreateVariable(MediaVariable.AlbumArtist, "Album Artist", "albumartist");
+        CreateVariable(MediaVariable.AlbumTrackCount, "Album Track Count", "albumtrackcount");
+        CreateVariable(MediaVariable.Time, "Time", "time");
+        CreateVariable(MediaVariable.TimeRemaining, "Time Remaining", "timeremaining");
+        CreateVariable(MediaVariable.Duration, "Duration", "duration");
+        CreateVariable(MediaVariable.ProgressVisual, "Progress Visual", "progressvisual");
+        CreateVariable(MediaVariable.Volume, "Volume", "volume");
 
-        CreateState(MediaState.Playing, "Playing", $@"[{GetVariableFormat(MediaVariable.Time)}/{GetVariableFormat(MediaVariable.Duration)}]/v{GetVariableFormat(MediaVariable.Artist)} - {GetVariableFormat(MediaVariable.Title)}/v{GetVariableFormat(MediaVariable.ProgressVisual)}");
-        CreateState(MediaState.Paused, "Paused", @"[Paused]");
+        CreateState(MediaState.Playing, "Playing", $"[{GetVariableFormat(MediaVariable.Time)}/{GetVariableFormat(MediaVariable.Duration)}]/v{GetVariableFormat(MediaVariable.Artist)} - {GetVariableFormat(MediaVariable.Title)}/v{GetVariableFormat(MediaVariable.ProgressVisual)}");
+        CreateState(MediaState.Paused, "Paused", "[Paused]");
 
-        CreateEvent(MediaEvent.NowPlaying, "Track Change", $@"[Now Playing]/v{GetVariableFormat(MediaVariable.Artist)} - {GetVariableFormat(MediaVariable.Title)}", 5);
-        CreateEvent(MediaEvent.Playing, "Playing", $@"[Playing]/v{GetVariableFormat(MediaVariable.Artist)} - {GetVariableFormat(MediaVariable.Title)}", 5);
-        CreateEvent(MediaEvent.Paused, "Paused", $@"[Paused]/v{GetVariableFormat(MediaVariable.Artist)} - {GetVariableFormat(MediaVariable.Title)}", 5);
+        CreateEvent(MediaEvent.NowPlaying, "Track Change", $"[Now Playing]/v{GetVariableFormat(MediaVariable.Artist)} - {GetVariableFormat(MediaVariable.Title)}", 5);
+        CreateEvent(MediaEvent.Playing, "Playing", $"[Playing]/v{GetVariableFormat(MediaVariable.Artist)} - {GetVariableFormat(MediaVariable.Title)}", 5);
+        CreateEvent(MediaEvent.Paused, "Paused", $"[Paused]/v{GetVariableFormat(MediaVariable.Artist)} - {GetVariableFormat(MediaVariable.Title)}", 5);
     }
 
     protected override void OnModuleStart()
@@ -97,12 +95,18 @@ public class MediaModule : ChatBoxModule
         sendMediaParameters();
     }
 
-    protected override void OnModuleUpdate()
+    [ModuleUpdate(ModuleUpdateMode.Custom, true, 1000)]
+    private void sendUpdatableParameters()
     {
-        updateVariables();
-        sendUpdatableParameters();
+        SendParameter(MediaParameter.Volume, mediaProvider.TryGetVolume());
+
+        if (!currentlySeeking)
+        {
+            SendParameter(MediaParameter.Position, mediaProvider.State.Timeline.PositionPercentage);
+        }
     }
 
+    [ModuleUpdate(ModuleUpdateMode.ChatBox)]
     private void updateVariables()
     {
         SetVariableValue(MediaVariable.Title, mediaProvider.State.Title.Truncate(GetSetting<int>(MediaSetting.TruncateTitle)));
@@ -149,22 +153,13 @@ public class MediaModule : ChatBoxModule
         SendParameter(MediaParameter.Repeat, (int)mediaProvider.State.RepeatMode);
     }
 
-    private void sendUpdatableParameters()
-    {
-        SendParameter(MediaParameter.Volume, mediaProvider.TryGetVolume());
-
-        if (!currentlySeeking.Value)
-        {
-            SendParameter(MediaParameter.Position, mediaProvider.State.Timeline.PositionPercentage);
-        }
-    }
-
     private string getProgressVisual()
     {
         var progressPercentage = progress_resolution * mediaProvider.State.Timeline.PositionPercentage;
         var dotPosition = (int)(MathF.Floor(progressPercentage * 10f) / 10f);
 
-        var visual = progress_start;
+        var visual = string.Empty;
+        visual += progress_start;
 
         for (var i = 0; i < progress_resolution; i++)
         {
@@ -176,61 +171,47 @@ public class MediaModule : ChatBoxModule
         return visual;
     }
 
-    protected override void OnFloatParameterReceived(Enum key, float value)
+    protected override void OnRegisteredParameterReceived(AvatarParameter parameter)
     {
-        switch (key)
+        switch (parameter.Lookup)
         {
             case MediaParameter.Volume:
-                mediaProvider.TryChangeVolume(value);
+                mediaProvider.TryChangeVolume(parameter.ValueAs<float>());
                 break;
 
             case MediaParameter.Position:
-
-                if (!currentlySeeking.Value) return;
+                if (!currentlySeeking) return;
 
                 var position = mediaProvider.State.Timeline;
-                targetPosition = (position.End - position.Start) * value;
-                break;
-        }
-    }
-
-    protected override void OnBoolParameterReceived(Enum key, bool value)
-    {
-        switch (key)
-        {
-            case MediaParameter.Play when value:
-                mediaProvider.Play();
+                targetPosition = (position.End - position.Start) * parameter.ValueAs<float>();
                 break;
 
-            case MediaParameter.Play when !value:
-                mediaProvider.Pause();
+            case MediaParameter.Repeat:
+                mediaProvider.ChangeRepeatMode((MediaRepeatMode)parameter.ValueAs<int>());
+                break;
+
+            case MediaParameter.Play:
+                if (parameter.ValueAs<bool>())
+                    mediaProvider.Play();
+                else
+                    mediaProvider.Pause();
                 break;
 
             case MediaParameter.Shuffle:
-                mediaProvider.ChangeShuffle(value);
+                mediaProvider.ChangeShuffle(parameter.ValueAs<bool>());
                 break;
 
-            case MediaParameter.Next when value:
+            case MediaParameter.Next when parameter.ValueAs<bool>():
                 mediaProvider.SkipNext();
                 break;
 
-            case MediaParameter.Previous when value:
+            case MediaParameter.Previous when parameter.ValueAs<bool>():
                 mediaProvider.SkipPrevious();
                 break;
 
             case MediaParameter.Seeking:
-                currentlySeeking.Value = value;
-                if (!currentlySeeking.Value) mediaProvider.ChangePlaybackPosition(targetPosition);
-                break;
-        }
-    }
-
-    protected override void OnIntParameterReceived(Enum key, int value)
-    {
-        switch (key)
-        {
-            case MediaParameter.Repeat:
-                mediaProvider.ChangeRepeatMode((MediaRepeatMode)value);
+                currentlySeeking = parameter.ValueAs<bool>();
+                if (!currentlySeeking) mediaProvider.ChangePlaybackPosition(targetPosition);
                 break;
         }
     }
