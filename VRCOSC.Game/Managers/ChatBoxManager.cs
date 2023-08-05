@@ -382,6 +382,8 @@ public class ChatBoxManager
 
     public void TriggerEvent(string module, string lookup)
     {
+        if (TriggeredEvents.Contains((module, lookup))) return;
+
         TriggeredEvents.Add((module, lookup));
     }
 }
