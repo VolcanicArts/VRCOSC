@@ -58,7 +58,7 @@ public class PiShockProvider
             var responseString = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<PiShockShocker>(responseString);
         }
-        catch
+        catch (Exception)
         {
             return null;
         }
