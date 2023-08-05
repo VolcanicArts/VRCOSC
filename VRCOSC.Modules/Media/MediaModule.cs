@@ -29,6 +29,7 @@ public class MediaModule : ChatBoxModule
     {
         mediaProvider.OnPlaybackStateChange += onPlaybackStateChange;
         mediaProvider.OnTrackChange += onTrackChange;
+        mediaProvider.OnLog += Log;
     }
 
     protected override void CreateAttributes()

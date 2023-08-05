@@ -8,6 +8,8 @@ namespace VRCOSC.Game.Providers.Media;
 
 public abstract class MediaProvider
 {
+    public Action<string>? OnLog;
+
     public MediaState State = new();
 
     public abstract Task<bool> InitialiseAsync();
