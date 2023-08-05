@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
-using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -11,6 +10,7 @@ using VRCOSC.Game.App;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Button;
 using VRCOSC.Game.Graphics.UI.Text;
+using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.Graphics.Startup;
 
@@ -19,11 +19,11 @@ public partial class DrawableStartupData : StartupDataFlowEntry
     [Resolved]
     private AppManager appManager { get; set; } = null!;
 
-    private readonly Bindable<string> filePath;
+    private readonly StartupInstance instance;
 
-    public DrawableStartupData(Bindable<string> filePath)
+    public DrawableStartupData(StartupInstance instance)
     {
-        this.filePath = filePath;
+        this.instance = instance;
     }
 
     [BackgroundDependencyLoader]
@@ -65,6 +65,8 @@ public partial class DrawableStartupData : StartupDataFlowEntry
                             {
                                 new Dimension(),
                                 new Dimension(GridSizeMode.Absolute, 5),
+                                new Dimension(),
+                                new Dimension(GridSizeMode.Absolute, 5),
                                 new Dimension(GridSizeMode.Absolute, 40)
                             },
                             RowDimensions = new[]
@@ -91,9 +93,31 @@ public partial class DrawableStartupData : StartupDataFlowEntry
                                             CornerRadius = 5,
                                             BorderThickness = 2,
                                             BorderColour = ThemeManager.Current[ThemeAttribute.Border],
-                                            Text = filePath.Value,
-                                            OnValidEntry = entryData => filePath.Value = entryData,
+                                            Text = instance.FilePath.Value,
+                                            OnValidEntry = entryData => instance.FilePath.Value = entryData,
                                             PlaceholderText = @"C:\some\file\path.exe"
+                                        }
+                                    },
+                                    null,
+                                    new Container
+                                    {
+                                        Anchor = Anchor.Centre,
+                                        Origin = Anchor.Centre,
+                                        RelativeSizeAxes = Axes.X,
+                                        AutoSizeAxes = Axes.Y,
+                                        Child = new StringTextBox
+                                        {
+                                            Anchor = Anchor.TopCentre,
+                                            Origin = Anchor.TopCentre,
+                                            RelativeSizeAxes = Axes.X,
+                                            Height = 35,
+                                            Masking = true,
+                                            CornerRadius = 5,
+                                            BorderThickness = 2,
+                                            BorderColour = ThemeManager.Current[ThemeAttribute.Border],
+                                            Text = instance.LaunchArguments.Value,
+                                            OnValidEntry = entryData => instance.LaunchArguments.Value = entryData,
+                                            PlaceholderText = "--some-launch --arguments"
                                         }
                                     },
                                     null,
@@ -116,7 +140,7 @@ public partial class DrawableStartupData : StartupDataFlowEntry
                                             IconShadow = true,
                                             Action = () =>
                                             {
-                                                appManager.StartupManager.FilePaths.Remove(filePath);
+                                                appManager.StartupManager.Instances.Remove(instance);
                                                 this.RemoveAndDisposeImmediately();
                                             }
                                         }

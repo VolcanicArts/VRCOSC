@@ -8,7 +8,7 @@ using VRCOSC.Game.Managers;
 
 namespace VRCOSC.Game.Startup.Serialisation.V1.Models;
 
-public class SerialisableStartupManager
+public class SerialisableStartupManagerV1
 {
     [JsonProperty("version")]
     public int Verison;
@@ -17,13 +17,13 @@ public class SerialisableStartupManager
     public List<string> FilePaths = new();
 
     [JsonConstructor]
-    public SerialisableStartupManager()
+    public SerialisableStartupManagerV1()
     {
     }
 
-    public SerialisableStartupManager(StartupManager startupManager)
+    public SerialisableStartupManagerV1(StartupManager startupManager)
     {
         Verison = 1;
-        FilePaths = startupManager.FilePaths.Select(path => path.Value).ToList();
+        FilePaths = startupManager.Instances.Select(instance => instance.FilePath.Value).ToList();
     }
 }

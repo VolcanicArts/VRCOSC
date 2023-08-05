@@ -10,6 +10,7 @@ using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Platform;
 using VRCOSC.Game.Serialisation;
 using VRCOSC.Game.Startup.Serialisation.V1;
+using VRCOSC.Game.Startup.Serialisation.V2;
 using VRCOSC.Game.Util;
 
 namespace VRCOSC.Game.Managers;
@@ -19,27 +20,29 @@ public class StartupManager
     private readonly TerminalLogger logger = new("VRCOSC");
     private SerialisationManager serialisationManager = null!;
 
-    public readonly BindableList<Bindable<string>> FilePaths = new();
+    public readonly BindableList<StartupInstance> Instances = new();
 
     public void Initialise(Storage storage)
     {
         serialisationManager = new SerialisationManager();
-        serialisationManager.RegisterSerialiser(1, new StartupSerialiser(storage, this));
+        serialisationManager.RegisterSerialiser(1, new StartupSerialiserV1(storage, this));
+        serialisationManager.RegisterSerialiser(2, new StartupSerialiserV2(storage, this));
     }
 
     public void Load()
     {
         Deserialise();
 
-        FilePaths.BindCollectionChanged((_, _) => Serialise());
+        Instances.BindCollectionChanged((_, _) => Serialise());
 
-        FilePaths.BindCollectionChanged((_, e) =>
+        Instances.BindCollectionChanged((_, e) =>
         {
             if (e.NewItems is not null)
             {
-                foreach (Bindable<string> newItem in e.NewItems)
+                foreach (StartupInstance newItem in e.NewItems)
                 {
-                    newItem.BindValueChanged(_ => Serialise());
+                    newItem.FilePath.BindValueChanged(_ => Serialise());
+                    newItem.LaunchArguments.BindValueChanged(_ => Serialise());
                 }
             }
         }, true);
@@ -57,23 +60,29 @@ public class StartupManager
 
     public void Start()
     {
-        FilePaths.ForEach(filePath =>
+        Instances.ForEach(instance =>
         {
             try
             {
-                if (!File.Exists(filePath.Value)) return;
+                if (!File.Exists(instance.FilePath.Value)) return;
 
-                var processName = new FileInfo(filePath.Value).Name.ToLowerInvariant().Replace(@".exe", string.Empty);
+                var processName = new FileInfo(instance.FilePath.Value).Name.ToLowerInvariant().Replace(".exe", string.Empty);
 
                 if (Process.GetProcessesByName(processName).Any()) return;
 
-                Process.Start(filePath.Value);
-                logger.Log($"Running file {filePath.Value}");
+                Process.Start(new ProcessStartInfo(instance.FilePath.Value, instance.LaunchArguments.Value));
+                logger.Log($"Running file {instance.FilePath.Value}" + (string.IsNullOrEmpty(instance.LaunchArguments.Value) ? string.Empty : $" with launch arguments {instance.LaunchArguments.Value}"));
             }
             catch (Exception)
             {
-                logger.Log($"Failed to run {filePath.Value}");
+                logger.Log($"Failed to run {instance.FilePath.Value}");
             }
         });
     }
+}
+
+public class StartupInstance
+{
+    public Bindable<string> FilePath = new(string.Empty);
+    public Bindable<string> LaunchArguments = new(string.Empty);
 }
