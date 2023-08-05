@@ -38,7 +38,7 @@ public class CounterModule : ChatBoxModule
         CreateSetting(CounterSetting.Milestones, new CounterMilestoneInstanceListAttribute
         {
             Name = "Milestones",
-            Description = "Set `parameter name` to true when `counter key` reaches `required count`\nThese will be set when the module starts if a counter has already reached the milestone\nParameter names aren't required if you just want to use the ChatBox milestone variables",
+            Description = "Set `parameter name` to true when `counter key` reaches `required count`\nThese will be set when the module starts if a counter has already reached the milestone\nParameter names aren't required if you just want to use the ChatBox milestone variables\nYou can access milestones using `_Key` after the variable name",
             Default = new List<CounterMilestoneInstance>()
         });
 
