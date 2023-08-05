@@ -8,6 +8,7 @@ using System.Linq;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Platform;
+using VRCOSC.Game.Graphics.Notifications;
 using VRCOSC.Game.Serialisation;
 using VRCOSC.Game.Startup.Serialisation.V1;
 using VRCOSC.Game.Startup.Serialisation.V2;
@@ -73,8 +74,9 @@ public class StartupManager
                 Process.Start(new ProcessStartInfo(instance.FilePath.Value, instance.LaunchArguments.Value));
                 logger.Log($"Running file {instance.FilePath.Value}" + (string.IsNullOrEmpty(instance.LaunchArguments.Value) ? string.Empty : $" with launch arguments {instance.LaunchArguments.Value}"));
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Notifications.Notify(new ExceptionNotification(e.Message));
                 logger.Log($"Failed to run {instance.FilePath.Value}");
             }
         });
