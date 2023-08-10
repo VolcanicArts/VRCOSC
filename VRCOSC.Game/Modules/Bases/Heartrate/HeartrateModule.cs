@@ -70,13 +70,21 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
     {
         Log("Attempting reconnection...");
         Thread.Sleep(2000);
-        attemptConnection();
+        HeartrateProvider?.Initialise();
     }
 
     protected override void OnModuleStop()
     {
-        HeartrateProvider?.Teardown();
-        HeartrateProvider = null;
+        if (HeartrateProvider is not null)
+        {
+            HeartrateProvider.OnHeartrateUpdate = null;
+            HeartrateProvider.OnConnected = null;
+            HeartrateProvider.OnDisconnected = null;
+            HeartrateProvider.OnLog = null;
+
+            HeartrateProvider.Teardown();
+            HeartrateProvider = null;
+        }
 
         SendParameter(HeartrateParameter.Enabled, false);
     }
