@@ -41,6 +41,7 @@ public class MicrophoneHook
     public void UnHook()
     {
         AudioCapture?.StopRecording();
+        AudioCapture?.Dispose();
         AudioCapture = null;
     }
 

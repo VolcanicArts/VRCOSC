@@ -14,19 +14,10 @@ namespace VRCOSC.Modules.SpeechToText;
 [ModuleGroup(ModuleType.Accessibility)]
 public class SpeechToTextModule : ChatBoxModule
 {
-    private readonly SpeechToTextProvider speechToTextProvider;
+    private SpeechToTextProvider? speechToTextProvider;
 
     private bool listening;
     private bool playerMuted;
-
-    public SpeechToTextModule()
-    {
-        speechToTextProvider = new SpeechToTextProvider();
-        speechToTextProvider.OnLog += Log;
-        speechToTextProvider.OnBeforeAnalysis += onBeforeAnalysis;
-        speechToTextProvider.OnPartialResult += onPartialResult;
-        speechToTextProvider.OnFinalResult += onFinalResult;
-    }
 
     protected override void CreateAttributes()
     {
@@ -48,6 +39,12 @@ public class SpeechToTextModule : ChatBoxModule
 
     protected override void OnModuleStart()
     {
+        speechToTextProvider = new SpeechToTextProvider();
+        speechToTextProvider.OnLog += Log;
+        speechToTextProvider.OnBeforeAnalysis += onBeforeAnalysis;
+        speechToTextProvider.OnPartialResult += onPartialResult;
+        speechToTextProvider.OnFinalResult += onFinalResult;
+
         speechToTextProvider.Initialise(GetSetting<string>(SpeechToTextSetting.ModelLocation));
         listening = true;
         resetState();
@@ -57,7 +54,7 @@ public class SpeechToTextModule : ChatBoxModule
     [ModuleUpdate(ModuleUpdateMode.Custom, true, 5000)]
     private void onModuleUpdate()
     {
-        speechToTextProvider.Update();
+        speechToTextProvider!.Update();
     }
 
     protected override void OnPlayerUpdate()
@@ -71,7 +68,8 @@ public class SpeechToTextModule : ChatBoxModule
 
     protected override void OnModuleStop()
     {
-        speechToTextProvider.Teardown();
+        speechToTextProvider?.Teardown();
+        speechToTextProvider = null;
     }
 
     protected override void OnRegisteredParameterReceived(AvatarParameter parameter)
@@ -90,7 +88,7 @@ public class SpeechToTextModule : ChatBoxModule
 
     private void onBeforeAnalysis()
     {
-        speechToTextProvider.AnalysisEnabled = listening && (!GetSetting<bool>(SpeechToTextSetting.FollowMute) || playerMuted);
+        speechToTextProvider!.AnalysisEnabled = listening && (!GetSetting<bool>(SpeechToTextSetting.FollowMute) || playerMuted);
         speechToTextProvider.RequiredConfidence = GetSetting<int>(SpeechToTextSetting.Confidence) / 100f;
     }
 
