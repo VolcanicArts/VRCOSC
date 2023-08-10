@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
-using osu.Framework.Extensions.EnumExtensions;
 
 namespace VRCOSC.Game.OSC.Client;
 
@@ -39,17 +38,11 @@ public abstract class OscClient
         receiver.Initialise(receiveEndpoint);
     }
 
-    public void Enable(OscClientFlag flag)
-    {
-        if (flag.HasFlagFast(OscClientFlag.Send)) sender.Enable();
-        if (flag.HasFlagFast(OscClientFlag.Receive)) receiver.Enable();
-    }
+    public bool EnableSend() => sender.Enable();
+    public bool EnableReceive() => receiver.Enable();
 
-    public async Task Disable(OscClientFlag flag)
-    {
-        if (flag.HasFlagFast(OscClientFlag.Send)) sender.Disable();
-        if (flag.HasFlagFast(OscClientFlag.Receive)) await receiver.Disable();
-    }
+    public void DisableSend() => sender.Disable();
+    public Task DisableReceive() => receiver.Disable();
 
     public void SendValue(string address, object value) => SendValues(address, new List<object> { value });
     public void SendValues(string address, List<object> values) => SendMessage(new OscMessage(address, values));
@@ -65,11 +58,4 @@ public abstract class OscClient
         sender.Send(data);
         OnDataSent?.Invoke(data);
     }
-}
-
-[Flags]
-public enum OscClientFlag
-{
-    Send = 1 << 0,
-    Receive = 1 << 1
 }

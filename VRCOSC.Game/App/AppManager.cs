@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -22,7 +22,6 @@ using VRCOSC.Game.Modules;
 using VRCOSC.Game.OpenVR;
 using VRCOSC.Game.OpenVR.Metadata;
 using VRCOSC.Game.OSC;
-using VRCOSC.Game.OSC.Client;
 using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Game.App;
@@ -216,6 +215,7 @@ public partial class AppManager : Component
     public void Start()
     {
         if (!initialiseOSCClient()) return;
+        if (!OSCClient.EnableSend() || !OSCClient.EnableReceive()) return;
 
         State.Value = AppManagerState.Starting;
 
@@ -224,12 +224,10 @@ public partial class AppManager : Component
         {
             ChatBoxManager.Start();
             StartupManager.Start();
-            enableOSCFlag(OscClientFlag.Send);
             ModuleManager.Start();
             scheduleModuleEnabledParameters();
             sendControlParameters();
             startOSCRouter();
-            enableOSCFlag(OscClientFlag.Receive);
 
             State.Value = AppManagerState.Started;
         });
@@ -250,19 +248,6 @@ public partial class AppManager : Component
             Notifications.Notify(new ExceptionNotification(e.Message));
             Logger.Error(e, $"{nameof(AppManager)} experienced an exception");
             return false;
-        }
-    }
-
-    private void enableOSCFlag(OscClientFlag flag)
-    {
-        try
-        {
-            OSCClient.Enable(flag);
-        }
-        catch (Exception e)
-        {
-            Notifications.Notify(new PortInUseNotification(flag == OscClientFlag.Send ? configManager.Get<int>(VRCOSCSetting.SendPort) : configManager.Get<int>(VRCOSCSetting.ReceivePort)));
-            Logger.Error(e, $"{nameof(AppManager)} experienced an exception");
         }
     }
 
@@ -302,13 +287,13 @@ public partial class AppManager : Component
     {
         State.Value = AppManagerState.Stopping;
 
-        await OSCClient.Disable(OscClientFlag.Receive);
+        await OSCClient.DisableReceive();
         await OSCRouter.Disable();
         cancelRunningModulesDelegate();
         ModuleManager.Stop();
         ChatBoxManager.Teardown();
         VRChat.Teardown();
-        await OSCClient.Disable(OscClientFlag.Send);
+        OSCClient.DisableSend();
         oscMessageQueue.Clear();
 
         State.Value = AppManagerState.Stopped;
