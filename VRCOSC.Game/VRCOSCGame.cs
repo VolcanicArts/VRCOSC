@@ -253,7 +253,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
                 },
                 new ToolStripSeparator(),
                 {
-                    "Check For Updates", null, (_, _) => Schedule(checkUpdates)
+                    "Check For Updates", null, (_, _) => Schedule(() => updateManager.PerformUpdateCheck())
                 },
                 new ToolStripSeparator(),
                 {
