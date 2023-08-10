@@ -299,7 +299,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         Task.WhenAll(new[]
         {
             appManager.StopAsync()
-        }).ContinueWith(_ => Schedule(performExit));
+        }).ContinueWith(_ => Scheduler.AddDelayed(performExit, 500));
     }
 
     private void performExit()

@@ -214,6 +214,8 @@ public partial class AppManager : Component
 
     public void Start()
     {
+        if (State.Value is AppManagerState.Starting or AppManagerState.Started) return;
+
         if (!initialiseOSCClient()) return;
         if (!OSCClient.EnableSend() || !OSCClient.EnableReceive()) return;
 
@@ -273,7 +275,7 @@ public partial class AppManager : Component
     public async Task RestartAsync()
     {
         await StopAsync();
-        await Task.Delay(250);
+        await Task.Delay(500);
         Start();
     }
 
@@ -285,6 +287,8 @@ public partial class AppManager : Component
 
     public async Task StopAsync()
     {
+        if (State.Value is AppManagerState.Stopping or AppManagerState.Stopped) return;
+
         State.Value = AppManagerState.Stopping;
 
         await OSCClient.DisableReceive();
