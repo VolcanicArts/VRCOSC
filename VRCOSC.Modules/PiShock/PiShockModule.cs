@@ -167,8 +167,9 @@ public class PiShockModule : AvatarModule
             var shockerInstance = getShockerInstanceFromKey(wordInstance.ShockerKey.Value);
             if (shockerInstance is null) continue;
 
-            Log($"Executing {wordInstance.Mode.Value} on {wordInstance.ShockerKey.Value} with duration {wordInstance.Duration.Value}s and intensity {wordInstance.Intensity.Value}%");
-            await piShockProvider!.Execute(GetSetting<string>(PiShockSetting.Username), GetSetting<string>(PiShockSetting.APIKey), shockerInstance.Sharecode.Value, wordInstance.Mode.Value, wordInstance.Duration.Value, wordInstance.Intensity.Value);
+            var response = await piShockProvider!.Execute(GetSetting<string>(PiShockSetting.Username), GetSetting<string>(PiShockSetting.APIKey), shockerInstance.Sharecode.Value, wordInstance.Mode.Value, wordInstance.Duration.Value, wordInstance.Intensity.Value);
+
+            Log(response.Success ? $"Executing {wordInstance.Mode.Value} on {wordInstance.ShockerKey.Value} with duration {response.FinalDuration}s and intensity {response.FinalIntensity}%" : response.Message);
         }
     }
 
@@ -195,9 +196,9 @@ public class PiShockModule : AvatarModule
 
     private async Task sendPiShockData(PiShockMode mode, PiShockShockerInstance instance)
     {
-        Log($"Executing {mode} on {instance.Key.Value} with duration {convertedDuration}s and intensity {convertedIntensity}%");
         var response = await piShockProvider!.Execute(GetSetting<string>(PiShockSetting.Username), GetSetting<string>(PiShockSetting.APIKey), instance.Sharecode.Value, mode, convertedDuration, convertedIntensity);
-        Log(response.Message);
+
+        Log(response.Success ? $"Executing {mode} on {instance.Sharecode.Value} with duration {response.FinalDuration}s and intensity {response.FinalIntensity}%" : response.Message);
 
         if (response.Success)
         {
