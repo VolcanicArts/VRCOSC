@@ -56,7 +56,7 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
     public bool DoesModuleExist(string serialisedName) => assemblyContexts.Any(context => context.Assemblies.Any(assembly => assembly.ExportedTypes.Where(type => type.IsSubclassOf(typeof(Module)) && !type.IsAbstract).Any(type => type.Name.ToLowerInvariant() == serialisedName)));
     public bool IsModuleLoaded(string serialisedName) => GetModule(serialisedName) is not null;
     public bool IsModuleEnabled(string serialisedName) => GetModule(serialisedName)?.Enabled.Value ?? false;
-    public List<(string, string)> GetMigrations() => (from module in Modules where module.LegacySerialisedName is not null select (module.LegacySerialisedName, module.SerialisedName)).ToList();
+    public List<(string, string)> GetMigrations() => Modules.Where(module => module.LegacySerialisedName is not null && IsModuleLoaded(module.SerialisedName)).Select(module => (module.LegacySerialisedName!, module.SerialisedName)).ToList();
 
     private void loadModules()
     {
