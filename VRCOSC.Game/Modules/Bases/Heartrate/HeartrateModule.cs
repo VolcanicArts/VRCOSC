@@ -13,6 +13,9 @@ namespace VRCOSC.Game.Modules.Bases.Heartrate;
 [ModulePrefab("VRCOSC-Heartrate", "https://github.com/VolcanicArts/VRCOSC/releases/download/latest/VRCOSC-Heartrate.unitypackage")]
 public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProvider
 {
+    private const int reconnection_delay = 500;
+    private const int reconnection_limit = 3;
+
     protected T? HeartrateProvider;
 
     private float currentHeartrate;
@@ -23,54 +26,52 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
 
     protected override void CreateAttributes()
     {
-        CreateSetting(HeartrateSetting.Smoothed, @"Smoothed", @"Whether the current heartrate should jump or smoothly converge to the target heartrate", false);
-        CreateSetting(HeartrateSetting.SmoothingLength, @"Smoothing Length", @"The length of time (in milliseconds) the current heartrate should take to converge to the target heartrate", 1000, () => GetSetting<bool>(HeartrateSetting.Smoothed));
-        CreateSetting(HeartrateSetting.NormalisedLowerbound, @"Normalised Lowerbound", @"The lower bound BPM the normalised parameter should use", 0);
-        CreateSetting(HeartrateSetting.NormalisedUpperbound, @"Normalised Upperbound", @"The upper bound BPM the normalised parameter should use", 240);
+        CreateSetting(HeartrateSetting.Smoothed, "Smoothed", "Whether the current heartrate should jump or smoothly converge to the target heartrate", false);
+        CreateSetting(HeartrateSetting.SmoothingLength, "Smoothing Length", "The length of time (in milliseconds) the current heartrate should take to converge to the target heartrate", 1000, () => GetSetting<bool>(HeartrateSetting.Smoothed));
+        CreateSetting(HeartrateSetting.NormalisedLowerbound, "Normalised Lowerbound", "The lower bound BPM the normalised parameter should use", 0);
+        CreateSetting(HeartrateSetting.NormalisedUpperbound, "Normalised Upperbound", "The upper bound BPM the normalised parameter should use", 240);
 
-        CreateParameter<bool>(HeartrateParameter.Enabled, ParameterMode.Write, @"VRCOSC/Heartrate/Enabled", @"Enabled", @"Whether this module is connected and receiving values");
-        CreateParameter<int>(HeartrateParameter.Value, ParameterMode.Write, @"VRCOSC/Heartrate/Value", @"Value", @"The raw value of your heartrate");
-        CreateParameter<float>(HeartrateParameter.Normalised, ParameterMode.Write, @"VRCOSC/Heartrate/Normalised", @"Normalised", @"The heartrate value normalised to the set bounds");
-        CreateParameter<float>(HeartrateParameter.Units, ParameterMode.Write, @"VRCOSC/Heartrate/Units", @"Units", @"The units digit 0-9 mapped to a float");
-        CreateParameter<float>(HeartrateParameter.Tens, ParameterMode.Write, @"VRCOSC/Heartrate/Tens", @"Tens", @"The tens digit 0-9 mapped to a float");
-        CreateParameter<float>(HeartrateParameter.Hundreds, ParameterMode.Write, @"VRCOSC/Heartrate/Hundreds", @"Hundreds", @"The hundreds digit 0-9 mapped to a float");
+        CreateParameter<bool>(HeartrateParameter.Enabled, ParameterMode.Write, "VRCOSC/Heartrate/Enabled", "Enabled", "Whether this module is connected and receiving values");
+        CreateParameter<int>(HeartrateParameter.Value, ParameterMode.Write, "VRCOSC/Heartrate/Value", "Value", "The raw value of your heartrate");
+        CreateParameter<float>(HeartrateParameter.Normalised, ParameterMode.Write, "VRCOSC/Heartrate/Normalised", "Normalised", "The heartrate value normalised to the set bounds");
+        CreateParameter<float>(HeartrateParameter.Units, ParameterMode.Write, "VRCOSC/Heartrate/Units", "Units", "The units digit 0-9 mapped to a float");
+        CreateParameter<float>(HeartrateParameter.Tens, ParameterMode.Write, "VRCOSC/Heartrate/Tens", "Tens", "The tens digit 0-9 mapped to a float");
+        CreateParameter<float>(HeartrateParameter.Hundreds, ParameterMode.Write, "VRCOSC/Heartrate/Hundreds", "Hundreds", "The hundreds digit 0-9 mapped to a float");
 
-        CreateVariable(HeartrateVariable.Heartrate, @"Heartrate", @"hr");
+        CreateVariable(HeartrateVariable.Heartrate, "Heartrate", "hr");
 
-        CreateState(HeartrateState.Default, @"Default", $@"Heartrate/v{GetVariableFormat(HeartrateVariable.Heartrate)} bpm");
+        CreateState(HeartrateState.Default, "Default", $"Heartrate/v{GetVariableFormat(HeartrateVariable.Heartrate)} bpm");
     }
 
     protected override void OnModuleStart()
     {
         currentHeartrate = 0;
         targetHeartrate = 0;
-        connectionCount = 0;
-        ChangeStateTo(HeartrateState.Default);
-        attemptConnection();
-    }
+        connectionCount = 1;
 
-    private void attemptConnection()
-    {
-        if (connectionCount >= 3)
-        {
-            Log(@"Connection cannot be established");
-            return;
-        }
-
-        connectionCount++;
         HeartrateProvider = CreateProvider();
         HeartrateProvider.OnHeartrateUpdate += newHeartrate => targetHeartrate = newHeartrate;
         HeartrateProvider.OnConnected += () => connectionCount = 0;
         HeartrateProvider.OnDisconnected += attemptReconnection;
         HeartrateProvider.OnLog += Log;
         HeartrateProvider.Initialise();
+
+        ChangeStateTo(HeartrateState.Default);
     }
 
     private void attemptReconnection()
     {
+        if (connectionCount >= reconnection_limit)
+        {
+            Log("Connection cannot be established");
+            return;
+        }
+
         Log("Attempting reconnection...");
-        Thread.Sleep(2000);
+        Thread.Sleep(reconnection_delay);
+
         HeartrateProvider?.Initialise();
+        connectionCount++;
     }
 
     protected override void OnModuleStop()
@@ -90,7 +91,7 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
     }
 
     [ModuleUpdate(ModuleUpdateMode.Custom)]
-    private void updateParameters()
+    private void updateCurrentHeartrate()
     {
         if (GetSetting<bool>(HeartrateSetting.Smoothed))
         {
@@ -100,11 +101,10 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
         {
             currentHeartrate = targetHeartrate;
         }
-
-        sendParameters();
     }
 
-    private void sendParameters()
+    [ModuleUpdate(ModuleUpdateMode.Custom)]
+    private void updateParameters()
     {
         var isReceiving = HeartrateProvider?.IsReceiving ?? false;
 
@@ -122,23 +122,25 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
             SendParameter(HeartrateParameter.Units, individualValues[2] / 10f);
             SendParameter(HeartrateParameter.Tens, individualValues[1] / 10f);
             SendParameter(HeartrateParameter.Hundreds, individualValues[0] / 10f);
-            SetVariableValue(HeartrateVariable.Heartrate, intHeartrate.ToString());
         }
         else
         {
-            SendParameter(HeartrateParameter.Normalised, 0);
+            SendParameter(HeartrateParameter.Normalised, 0f);
             SendParameter(HeartrateParameter.Value, 0);
-            SendParameter(HeartrateParameter.Units, 0);
-            SendParameter(HeartrateParameter.Tens, 0);
-            SendParameter(HeartrateParameter.Hundreds, 0);
-            SetVariableValue(HeartrateVariable.Heartrate, @"0");
+            SendParameter(HeartrateParameter.Units, 0f);
+            SendParameter(HeartrateParameter.Tens, 0f);
+            SendParameter(HeartrateParameter.Hundreds, 0f);
         }
     }
 
-    private static int[] toDigitArray(int num, int totalWidth)
+    [ModuleUpdate(ModuleUpdateMode.ChatBox)]
+    private void updateVariables()
     {
-        return num.ToString().PadLeft(totalWidth, '0').Select(digit => int.Parse(digit.ToString())).ToArray();
+        var isReceiving = HeartrateProvider?.IsReceiving ?? false;
+        SetVariableValue(HeartrateVariable.Heartrate, isReceiving ? currentHeartrate.ToString("##0") : "0");
     }
+
+    private static int[] toDigitArray(int num, int totalWidth) => num.ToString().PadLeft(totalWidth, '0').Select(digit => int.Parse(digit.ToString())).ToArray();
 
     private enum HeartrateSetting
     {
