@@ -425,6 +425,7 @@ public abstract class Module : IComparable<Module>
 
         var data = Parameters[lookup];
         if (!data.Mode.HasFlagFast(ParameterMode.Write)) throw new InvalidOperationException($"Parameter {lookup.GetType().Name}.{lookup} is a read-only parameter and therefore can't be sent!");
+        if (data.ExpectedType != typeof(T)) throw new InvalidOperationException($"Parameter {lookup.GetType().Name}.{lookup} expects type {data.ExpectedType.ToReadableName()} but you tried to send {typeof(T).ToReadableName()}");
 
         scheduler.Add(() => oscClient.SendValue(data.ParameterAddress, value));
     }
