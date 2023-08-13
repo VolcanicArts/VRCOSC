@@ -13,7 +13,7 @@ namespace VRCOSC.Game.Modules.Bases.Heartrate;
 [ModulePrefab("VRCOSC-Heartrate", "https://github.com/VolcanicArts/VRCOSC/releases/download/latest/VRCOSC-Heartrate.unitypackage")]
 public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProvider
 {
-    private const int reconnection_delay = 500;
+    private const int reconnection_delay = 2000;
     private const int reconnection_limit = 3;
 
     protected T? HeartrateProvider;
@@ -70,6 +70,7 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
         Log("Attempting reconnection...");
         Thread.Sleep(reconnection_delay);
 
+        HeartrateProvider?.Teardown();
         HeartrateProvider?.Initialise();
         connectionCount++;
     }
