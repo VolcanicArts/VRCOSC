@@ -130,7 +130,7 @@ public class ModuleUpdateAttribute : Attribute
     /// <param name="mode">The mode this update is defined as</param>
     /// <param name="updateImmediately">Whether this method should be called immediately after <see cref="M:VRCOSC.Game.Modules.Module.OnModuleStart" />. This is only used when <paramref name="mode" /> is <see cref="F:VRCOSC.Game.Modules.ModuleUpdateMode.Custom" /></param>
     /// <param name="deltaMilliseconds">The time between this method being called in milliseconds. This is only used when <paramref name="mode" /> is <see cref="F:VRCOSC.Game.Modules.ModuleUpdateMode.Custom" /></param>
-    /// <remarks><paramref name="deltaMilliseconds" /> defaults to the fastest update rate you should need for sending parameters</remarks>
+    /// <remarks><paramref name="deltaMilliseconds" /> defaults to the fastest update rate you should need for sending parameters. If multiple of this attribute that have the same <see cref="ModuleUpdateMode"/> are defined in a class they will execute top to bottom</remarks>
     public ModuleUpdateAttribute(ModuleUpdateMode mode, bool updateImmediately = true, double deltaMilliseconds = VRChatOscConstants.UPDATE_DELTA_MILLISECONDS)
     {
         Mode = mode;
