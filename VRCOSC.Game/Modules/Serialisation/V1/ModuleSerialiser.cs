@@ -19,22 +19,22 @@ public class ModuleSerialiser : Serialiser<Module, SerialisableModule>
     {
     }
 
-    protected override bool ExecuteAfterDeserialisation(Module module, SerialisableModule data)
+    protected override bool ExecuteAfterDeserialisation(SerialisableModule data)
     {
-        module.Enabled.Value = data.Enabled;
+        Reference.Enabled.Value = data.Enabled;
 
         data.Settings.ForEach(settingPair =>
         {
             var (settingKey, settingValue) = settingPair;
 
-            if (module.TryGetSetting(settingKey, out var setting)) setting.DeserialiseValue(settingValue);
+            if (Reference.TryGetSetting(settingKey, out var setting)) setting.DeserialiseValue(settingValue);
         });
 
         data.Parameters.ForEach(parameterPair =>
         {
             var (parameterKey, parameterValue) = parameterPair;
 
-            if (module.TryGetParameter(parameterKey, out var parameter)) parameter.DeserialiseValue(parameterValue);
+            if (Reference.TryGetParameter(parameterKey, out var parameter)) parameter.DeserialiseValue(parameterValue);
         });
 
         return false;

@@ -17,6 +17,9 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
     private readonly object serialisationLock = new();
     private Storage storage;
 
+    /// <summary>
+    /// The instance of <see cref="TReference"/> passed in the constructor
+    /// </summary>
     protected readonly TReference Reference;
 
     protected virtual string Directory => string.Empty;
@@ -87,7 +90,7 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
                     legacyMigrationOccurred = true;
                 }
 
-                var reserialise = ExecuteAfterDeserialisation(Reference, data);
+                var reserialise = ExecuteAfterDeserialisation(data);
 
                 if (legacyMigrationOccurred || reserialise) Serialise();
 
@@ -145,5 +148,5 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
         stream.Write(bytes);
     }
 
-    protected abstract bool ExecuteAfterDeserialisation(TReference reference, TSerialisable data);
+    protected abstract bool ExecuteAfterDeserialisation(TSerialisable data);
 }

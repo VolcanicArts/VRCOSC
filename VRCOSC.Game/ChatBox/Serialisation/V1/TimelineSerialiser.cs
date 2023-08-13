@@ -22,7 +22,7 @@ public class TimelineSerialiser : Serialiser<AppManager, SerialisableTimeline>
     {
     }
 
-    protected override bool ExecuteAfterDeserialisation(AppManager appManager, SerialisableTimeline data)
+    protected override bool ExecuteAfterDeserialisation(SerialisableTimeline data)
     {
         var createdClips = new List<Clip>();
 
@@ -30,7 +30,7 @@ public class TimelineSerialiser : Serialiser<AppManager, SerialisableTimeline>
 
         data.Clips.ForEach(clip =>
         {
-            var newClip = appManager.ChatBoxManager.CreateClip();
+            var newClip = Reference.ChatBoxManager.CreateClip();
 
             newClip.Enabled.Value = clip.Enabled;
             newClip.Name.Value = clip.Name;
@@ -38,7 +38,7 @@ public class TimelineSerialiser : Serialiser<AppManager, SerialisableTimeline>
             newClip.Start.Value = clip.Start;
             newClip.End.Value = clip.End;
 
-            var migrationList = appManager.ModuleManager.GetMigrations();
+            var migrationList = Reference.ModuleManager.GetMigrations();
 
             migrationList.ForEach(migration =>
             {
@@ -70,11 +70,11 @@ public class TimelineSerialiser : Serialiser<AppManager, SerialisableTimeline>
                 migrationOccurred = true;
             });
 
-            newClip.AssociatedModules.AddRange(clip.AssociatedModules.Where(serialisedModuleName => appManager.ModuleManager.DoesModuleExist(serialisedModuleName)));
+            newClip.AssociatedModules.AddRange(clip.AssociatedModules.Where(serialisedModuleName => Reference.ModuleManager.DoesModuleExist(serialisedModuleName)));
 
-            clip.States.Where(clipState => clipState.States.All(pair => appManager.ModuleManager.DoesModuleExist(pair.Module))).ForEach(clipState =>
+            clip.States.Where(clipState => clipState.States.All(pair => Reference.ModuleManager.DoesModuleExist(pair.Module))).ForEach(clipState =>
             {
-                if (clipState.States.All(pair => appManager.ModuleManager.IsModuleLoaded(pair.Module)))
+                if (clipState.States.All(pair => Reference.ModuleManager.IsModuleLoaded(pair.Module)))
                 {
                     var stateData = newClip.GetStateFor(clipState.States.Select(state => state.Module), clipState.States.Select(state => state.Lookup));
                     if (stateData is null) return;
@@ -94,9 +94,9 @@ public class TimelineSerialiser : Serialiser<AppManager, SerialisableTimeline>
                 }
             });
 
-            clip.Events.Where(clipEvent => appManager.ModuleManager.DoesModuleExist(clipEvent.Module)).ForEach(clipEvent =>
+            clip.Events.Where(clipEvent => Reference.ModuleManager.DoesModuleExist(clipEvent.Module)).ForEach(clipEvent =>
             {
-                if (appManager.ModuleManager.IsModuleLoaded(clipEvent.Module))
+                if (Reference.ModuleManager.IsModuleLoaded(clipEvent.Module))
                 {
                     var eventData = newClip.GetEventFor(clipEvent.Module, clipEvent.Lookup);
                     if (eventData is null) return;
@@ -122,8 +122,8 @@ public class TimelineSerialiser : Serialiser<AppManager, SerialisableTimeline>
             createdClips.Add(newClip);
         });
 
-        appManager.ChatBoxManager.Clips.ReplaceItems(createdClips);
-        appManager.ChatBoxManager.SetTimelineLength(TimeSpan.FromTicks(data.Ticks));
+        Reference.ChatBoxManager.Clips.ReplaceItems(createdClips);
+        Reference.ChatBoxManager.SetTimelineLength(TimeSpan.FromTicks(data.Ticks));
 
         return migrationOccurred;
     }

@@ -19,9 +19,9 @@ public class RouterSerialiser : Serialiser<RouterManager, SerialisableRouterMana
     {
     }
 
-    protected override bool ExecuteAfterDeserialisation(RouterManager routerManager, SerialisableRouterManager data)
+    protected override bool ExecuteAfterDeserialisation(SerialisableRouterManager data)
     {
-        routerManager.Store.ReplaceItems(data.Data.Select(routerData => new RouterData
+        Reference.Store.ReplaceItems(data.Data.Select(routerData => new RouterData
         {
             Label = { Value = routerData.Label },
             Endpoints = new OSCRouterEndpoints

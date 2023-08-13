@@ -18,9 +18,9 @@ public class StartupSerialiserV2 : Serialiser<StartupManager, SerialisableStartu
     {
     }
 
-    protected override bool ExecuteAfterDeserialisation(StartupManager startupManager, SerialisableStartupManagerV2 data)
+    protected override bool ExecuteAfterDeserialisation(SerialisableStartupManagerV2 data)
     {
-        startupManager.Instances.ReplaceItems(data.Instances.Select(instance => new StartupInstance
+        Reference.Instances.ReplaceItems(data.Instances.Select(instance => new StartupInstance
         {
             FilePath = { Value = instance.FilePath },
             LaunchArguments = { Value = instance.LaunchArguments }

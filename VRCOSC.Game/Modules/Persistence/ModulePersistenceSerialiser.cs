@@ -18,15 +18,15 @@ public class ModulePersistenceSerialiser : Serialiser<Module, SerialisableModule
     {
     }
 
-    protected override bool ExecuteAfterDeserialisation(Module reference, SerialisableModulePersistence data)
+    protected override bool ExecuteAfterDeserialisation(SerialisableModulePersistence data)
     {
         data.Properties.ForEach(propertyData =>
         {
-            if (!reference.TryGetPersistentProperty(propertyData.Key, out var propertyInfo)) return;
+            if (!Reference.TryGetPersistentProperty(propertyData.Key, out var propertyInfo)) return;
 
             var targetType = propertyInfo.PropertyType;
             var propertyValue = JsonConvert.DeserializeObject(propertyData.Value.ToString(), targetType);
-            propertyInfo.SetValue(reference, propertyValue);
+            propertyInfo.SetValue(Reference, propertyValue);
         });
 
         return false;
