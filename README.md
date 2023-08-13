@@ -69,7 +69,6 @@ Note: The VRCOSC-Controls.unitypackage prefab is global controls for VRCOSC. It 
 | Clock | Sends your local time as hours, minutes, and seconds to be displayed on a wrist watch | VRCOSC-Watch.unitypackage |
 | Discord | Allows for toggling of mute and deafen from the action menu | VRCOSC-Discord.unitypackage |
 | Exchange Rate | Retrieves exchange rate information for IRL currencies and displays them in the ChatBox | |
-| Random (Bool/Float/Int) | Sends a random value with adjustable update rate | |
 
 ## License
 This program is licensed under the [GNU General Public License V3](https://www.gnu.org/licenses/gpl-3.0.en.html). Please see [the license file](LICENSE) for more information.
