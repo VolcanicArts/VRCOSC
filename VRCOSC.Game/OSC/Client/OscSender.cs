@@ -4,6 +4,7 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
+using osu.Framework.Logging;
 
 namespace VRCOSC.Game.OSC.Client;
 
@@ -17,17 +18,20 @@ public class OscSender
         this.endPoint = endPoint;
     }
 
-    public void Enable()
+    public bool Enable()
     {
         socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
         try
         {
             socket.Connect(endPoint);
+            return true;
         }
         catch (Exception e)
         {
             Notifications.Notify(e);
+            Logger.Error(e, $"{nameof(OscSender)} experienced an exception");
+            return false;
         }
     }
 

@@ -6,16 +6,16 @@ using osu.Framework.Logging;
 
 namespace VRCOSC.Game.Util;
 
-public sealed class TerminalLogger
+internal sealed class TerminalLogger
 {
     private readonly string name;
 
-    public TerminalLogger(string name)
+    internal TerminalLogger(string name)
     {
         this.name = name;
     }
 
-    public void Log(string message)
+    internal void Log(string message)
     {
         message.Split('\n').ForEach(msg => Logger.Log($"[{name}]: {msg}", "terminal"));
     }

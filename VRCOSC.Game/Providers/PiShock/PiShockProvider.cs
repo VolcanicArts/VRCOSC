@@ -42,7 +42,7 @@ public class PiShockProvider
         {
             var response = await client.PostAsync(action_api_url, new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"));
             var responseString = await response.Content.ReadAsStringAsync();
-            return new PiShockResponse(responseString == "Operation Succeeded.", responseString);
+            return new PiShockResponse(responseString == "Operation Succeeded.", responseString, duration, intensity);
         }
         catch (Exception e)
         {
@@ -91,7 +91,7 @@ public class PiShockProvider
     };
 }
 
-public record PiShockResponse(bool Success, string Message);
+public record PiShockResponse(bool Success, string Message, int FinalDuration = -1, int FinalIntensity = -1);
 
 public class PiShockShocker
 {

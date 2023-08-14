@@ -142,7 +142,7 @@ public abstract class ModuleAttributeList<T> : ModuleAttribute
     protected abstract IEnumerable<T> GetClonedDefaults();
     protected abstract IEnumerable<T> JArrayToType(JArray array);
 
-    public override bool IsDefault() => Attribute.Count == Default.Count && Attribute.SequenceEqual(Default);
+    public override bool IsDefault() => Attribute.SequenceEqual(Default);
     public override void SetDefault() => Attribute.ReplaceItems(GetClonedDefaults());
     public override void DeserialiseValue(object value) => Attribute.ReplaceItems(JArrayToType((JArray)value));
 }

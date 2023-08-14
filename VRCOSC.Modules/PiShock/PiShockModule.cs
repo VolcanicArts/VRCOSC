@@ -15,8 +15,8 @@ namespace VRCOSC.Modules.PiShock;
 [ModulePrefab("VRCOSC-PiShock", "https://github.com/VolcanicArts/VRCOSC/releases/download/latest/VRCOSC-PiShock.unitypackage")]
 public class PiShockModule : AvatarModule
 {
-    private readonly PiShockProvider piShockProvider = new();
-    private readonly SpeechToTextProvider speechToTextProvider = new();
+    private PiShockProvider? piShockProvider;
+    private SpeechToTextProvider? speechToTextProvider;
 
     private int group;
     private float duration;
@@ -31,12 +31,6 @@ public class PiShockModule : AvatarModule
 
     private int convertedDuration => (int)Math.Round(Map(duration, 0, 1, 1, GetSetting<int>(PiShockSetting.MaxDuration)));
     private int convertedIntensity => (int)Math.Round(Map(intensity, 0, 1, 1, GetSetting<int>(PiShockSetting.MaxIntensity)));
-
-    public PiShockModule()
-    {
-        speechToTextProvider.OnLog += Log;
-        speechToTextProvider.OnFinalResult += onNewSentenceSpoken;
-    }
 
     protected override void CreateAttributes()
     {
@@ -95,14 +89,23 @@ public class PiShockModule : AvatarModule
         vibrateExecuted = false;
         beepExecuted = false;
 
-        if (GetSetting<bool>(PiShockSetting.EnableVoiceControl)) speechToTextProvider.Initialise(GetSetting<string>(PiShockSetting.SpeechModelLocation));
+        piShockProvider = new PiShockProvider();
+
+        if (GetSetting<bool>(PiShockSetting.EnableVoiceControl))
+        {
+            speechToTextProvider = new SpeechToTextProvider();
+            speechToTextProvider.OnLog += Log;
+            speechToTextProvider.OnFinalResult += onNewSentenceSpoken;
+            speechToTextProvider.Initialise(GetSetting<string>(PiShockSetting.SpeechModelLocation));
+        }
 
         sendParameters();
     }
 
     protected override void OnModuleStop()
     {
-        speechToTextProvider.Teardown();
+        speechToTextProvider?.Teardown();
+        speechToTextProvider = null;
     }
 
     protected override void OnAvatarChange()
@@ -113,13 +116,14 @@ public class PiShockModule : AvatarModule
     [ModuleUpdate(ModuleUpdateMode.Custom, true, 5000)]
     private void onModuleUpdate()
     {
-        speechToTextProvider.Update();
+        speechToTextProvider?.Update();
     }
 
     [ModuleUpdate(ModuleUpdateMode.Custom)]
     private void setSpeechToTextParameters()
     {
-        speechToTextProvider.RequiredConfidence = GetSetting<int>(PiShockSetting.SpeechConfidence) / 100f;
+        if (speechToTextProvider is not null)
+            speechToTextProvider.RequiredConfidence = GetSetting<int>(PiShockSetting.SpeechConfidence) / 100f;
     }
 
     [ModuleUpdate(ModuleUpdateMode.Custom)]
@@ -163,8 +167,9 @@ public class PiShockModule : AvatarModule
             var shockerInstance = getShockerInstanceFromKey(wordInstance.ShockerKey.Value);
             if (shockerInstance is null) continue;
 
-            Log($"Executing {wordInstance.Mode.Value} on {wordInstance.ShockerKey.Value} with duration {wordInstance.Duration.Value}s and intensity {wordInstance.Intensity.Value}%");
-            await piShockProvider.Execute(GetSetting<string>(PiShockSetting.Username), GetSetting<string>(PiShockSetting.APIKey), shockerInstance.Sharecode.Value, wordInstance.Mode.Value, wordInstance.Duration.Value, wordInstance.Intensity.Value);
+            var response = await piShockProvider!.Execute(GetSetting<string>(PiShockSetting.Username), GetSetting<string>(PiShockSetting.APIKey), shockerInstance.Sharecode.Value, wordInstance.Mode.Value, wordInstance.Duration.Value, wordInstance.Intensity.Value);
+
+            Log(response.Success ? $"Executing {wordInstance.Mode.Value} on {wordInstance.ShockerKey.Value} with duration {response.FinalDuration}s and intensity {response.FinalIntensity}%" : response.Message);
         }
     }
 
@@ -191,9 +196,9 @@ public class PiShockModule : AvatarModule
 
     private async Task sendPiShockData(PiShockMode mode, PiShockShockerInstance instance)
     {
-        Log($"Executing {mode} on {instance.Key.Value} with duration {convertedDuration}s and intensity {convertedIntensity}%");
-        var response = await piShockProvider.Execute(GetSetting<string>(PiShockSetting.Username), GetSetting<string>(PiShockSetting.APIKey), instance.Sharecode.Value, mode, convertedDuration, convertedIntensity);
-        Log(response.Message);
+        var response = await piShockProvider!.Execute(GetSetting<string>(PiShockSetting.Username), GetSetting<string>(PiShockSetting.APIKey), instance.Sharecode.Value, mode, convertedDuration, convertedIntensity);
+
+        Log(response.Success ? $"Executing {mode} on {instance.Sharecode.Value} with duration {response.FinalDuration}s and intensity {response.FinalIntensity}%" : response.Message);
 
         if (response.Success)
         {

@@ -85,21 +85,21 @@ public class OpenVRStatisticsModule : ChatBoxModule
             SetVariableValue(OpenVrVariable.AverageTrackerBattery, "0");
 
             SendParameter(OpenVrParameter.HMD_Connected, false);
-            SendParameter(OpenVrParameter.HMD_Battery, 0);
+            SendParameter(OpenVrParameter.HMD_Battery, 0f);
             SendParameter(OpenVrParameter.HMD_Charging, false);
 
             SendParameter(OpenVrParameter.LeftController_Connected, false);
-            SendParameter(OpenVrParameter.LeftController_Battery, 0);
+            SendParameter(OpenVrParameter.LeftController_Battery, 0f);
             SendParameter(OpenVrParameter.LeftController_Charging, false);
 
             SendParameter(OpenVrParameter.RightController_Connected, false);
-            SendParameter(OpenVrParameter.RightController_Battery, 0);
+            SendParameter(OpenVrParameter.RightController_Battery, 0f);
             SendParameter(OpenVrParameter.RightController_Charging, false);
 
             for (int i = 0; i < OVRSystem.MAX_TRACKER_COUNT; i++)
             {
                 SendParameter(OpenVrParameter.Tracker1_Connected + i, false);
-                SendParameter(OpenVrParameter.Tracker1_Battery + i, 0);
+                SendParameter(OpenVrParameter.Tracker1_Battery + i, 0f);
                 SendParameter(OpenVrParameter.Tracker1_Charging + i, false);
             }
         }
@@ -127,7 +127,7 @@ public class OpenVRStatisticsModule : ChatBoxModule
         }
         else
         {
-            SendParameter(OpenVrParameter.LeftController_Battery, 0);
+            SendParameter(OpenVrParameter.LeftController_Battery, 0f);
             SendParameter(OpenVrParameter.LeftController_Charging, false);
         }
     }
@@ -143,7 +143,7 @@ public class OpenVRStatisticsModule : ChatBoxModule
         }
         else
         {
-            SendParameter(OpenVrParameter.RightController_Battery, 0);
+            SendParameter(OpenVrParameter.RightController_Battery, 0f);
             SendParameter(OpenVrParameter.RightController_Charging, false);
         }
     }
@@ -165,7 +165,7 @@ public class OpenVRStatisticsModule : ChatBoxModule
             }
             else
             {
-                SendParameter(OpenVrParameter.Tracker1_Battery + i, 0);
+                SendParameter(OpenVrParameter.Tracker1_Battery + i, 0f);
                 SendParameter(OpenVrParameter.Tracker1_Charging + i, false);
             }
         }

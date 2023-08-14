@@ -1,17 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup Label="Project">
     <TargetFramework>net6.0-windows10.0.22621.0</TargetFramework>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <AssemblyName>VRCOSC</AssemblyName>
     <ApplicationIcon>game.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <Version>0.0.0</Version>
-    <FileVersion>2023.805.0</FileVersion>
+    <FileVersion>2023.814.0</FileVersion>
     <Title>VRCOSC</Title>
     <Authors>VolcanicArts</Authors>
     <Company>VolcanicArts</Company>
     <Nullable>enable</Nullable>
-    <AssemblyVersion>2023.805.0</AssemblyVersion>
+    <AssemblyVersion>2023.814.0</AssemblyVersion>
   </PropertyGroup>
   <ItemGroup Label="Project References">
     <ProjectReference Include="..\VRCOSC.Game\VRCOSC.Game.csproj" />
