@@ -59,9 +59,21 @@ public static class OVRHelper
         return data;
     }
 
+    internal static uint GetLeftControllerId()
+    {
+        var id = getControllerIdFromHint("left");
+        return id != Valve.VR.OpenVR.k_unTrackedDeviceIndexInvalid ? id : Valve.VR.OpenVR.System.GetTrackedDeviceIndexForControllerRole(ETrackedControllerRole.LeftHand);
+    }
+
+    internal static uint GetRightControllerId()
+    {
+        var id = getControllerIdFromHint("right");
+        return id != Valve.VR.OpenVR.k_unTrackedDeviceIndexInvalid ? id : Valve.VR.OpenVR.System.GetTrackedDeviceIndexForControllerRole(ETrackedControllerRole.RightHand);
+    }
+
     // GetTrackedDeviceIndexForControllerRole doesn't work when a tracker thinks it's a controller and assumes that role
     // We can forcibly find the correct indexes by using the model name
-    internal static uint GetControllerIdFromHint(string controllerHint)
+    private static uint getControllerIdFromHint(string controllerHint)
     {
         var controllerIds = getAllControllersFromHint(controllerHint).ToList();
 
