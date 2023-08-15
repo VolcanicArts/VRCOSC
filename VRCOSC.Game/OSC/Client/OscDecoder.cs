@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using osu.Framework.Logging;
 
@@ -39,7 +40,7 @@ internal static class OscDecoder
 
         var values = getValues(typeTags, data, ref index);
 
-        if (values is null)
+        if (values is null || !values.Any())
         {
             Logger.Log($"Could not parse values for message {Encoding.UTF8.GetString(data)}");
             return null;
