@@ -2,14 +2,12 @@
 
 namespace TemplateModule
 {
-    public partial class TemplateModule : Module
+    [ModuleTitle("Template")]
+    [ModuleDescription("Template description")]
+    [ModuleAuthor("Template Author")]
+    [ModuleGroup(ModuleType.General)]
+    public partial class TemplateModule : AvatarModule
     {
-        public override string Title => "Template";
-        public override string Description => "Template description";
-        public override string Author => "Author";
-        public override ModuleType Type => ModuleType.General;
-        protected override TimeSpan DeltaUpdate => TimeSpan.MaxValue;
-
         protected override void CreateAttributes()
         {
             CreateSetting(TemplateSetting.ExampleSetting, "Example Setting", "An example setting", string.Empty);
@@ -20,7 +18,8 @@ namespace TemplateModule
         {
         }
 
-        protected override void OnModuleUpdate()
+        [ModuleUpdate(ModuleUpdateMode.Custom)]
+        private void moduleUpdate()
         {
         }
 
