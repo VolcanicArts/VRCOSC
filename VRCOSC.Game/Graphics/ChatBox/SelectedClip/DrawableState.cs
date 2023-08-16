@@ -35,7 +35,7 @@ public partial class DrawableState : Container
         ClipState.States.ForEach(pair =>
         {
             var stateMetadata = appManager.ChatBoxManager.StateMetadata[pair.Item1][pair.Item2];
-            stateNameList += appManager.ModuleManager.GetModuleName(pair.Item1);
+            stateNameList += appManager.ModuleManager.GetModule(pair.Item1)!.Title;
             if (stateMetadata.Name != "Default") stateNameList += " - " + stateMetadata.Name;
             stateNameList += " & ";
         });

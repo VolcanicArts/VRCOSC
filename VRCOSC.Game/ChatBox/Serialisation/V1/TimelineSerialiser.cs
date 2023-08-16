@@ -42,10 +42,10 @@ public class TimelineSerialiser : Serialiser<AppManager, SerialisableTimeline>
 
             migrationList.ForEach(migration =>
             {
-                var index = clip.AssociatedModules.FindIndex(module => module == migration.Item1);
+                var index = clip.AssociatedModules.FindIndex(module => module == migration.LegacySerialisedName);
                 if (index == -1) return;
 
-                clip.AssociatedModules[index] = migration.Item2;
+                clip.AssociatedModules[index] = migration.SerialisedName;
                 migrationOccurred = true;
             });
 
@@ -53,20 +53,20 @@ public class TimelineSerialiser : Serialiser<AppManager, SerialisableTimeline>
             {
                 clip.States.ForEach(clipState =>
                 {
-                    var index = clipState.States.FindIndex(state => state.Module == migration.Item1);
+                    var index = clipState.States.FindIndex(state => state.Module == migration.LegacySerialisedName);
                     if (index == -1) return;
 
-                    clipState.States[index].Module = migration.Item2;
+                    clipState.States[index].Module = migration.SerialisedName;
                     migrationOccurred = true;
                 });
             });
 
             migrationList.ForEach(migration =>
             {
-                var index = clip.Events.FindIndex(state => state.Module == migration.Item1);
+                var index = clip.Events.FindIndex(state => state.Module == migration.LegacySerialisedName);
                 if (index == -1) return;
 
-                clip.Events[index].Module = migration.Item2;
+                clip.Events[index].Module = migration.SerialisedName;
                 migrationOccurred = true;
             });
 

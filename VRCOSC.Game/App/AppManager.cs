@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using osu.Framework.Allocation;
@@ -192,7 +191,7 @@ public partial class AppManager : Component
     {
         runningModulesDelegate = Scheduler.AddDelayed(() =>
         {
-            ModuleManager.Modules.ForEach(module => sendModuleRunningState(module, ModuleManager.GetRunningModules().Contains(module)));
+            ModuleManager.Modules.ForEach(module => sendModuleRunningState(module, ModuleManager.IsModuleRunning(module)));
         }, TimeSpan.FromSeconds(1).TotalMilliseconds, true);
     }
 
