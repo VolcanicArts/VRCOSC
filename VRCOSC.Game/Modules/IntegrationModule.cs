@@ -18,8 +18,8 @@ public abstract partial class IntegrationModule : AvatarModule
     private const int delay = 10;
 
     protected virtual string TargetProcess => string.Empty;
-    protected string ReturnProcess => @"vrchat";
-    protected string TargetExe => @$"{TargetProcess}.exe";
+    protected string ReturnProcess => "vrchat";
+    protected string TargetExe => $"{TargetProcess}.exe";
 
     private readonly Dictionary<Enum, User32.VirtualKey[]> keyCombinations = new();
 

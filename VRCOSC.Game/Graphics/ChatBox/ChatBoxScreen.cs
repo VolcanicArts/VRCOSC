@@ -147,7 +147,7 @@ public partial class ChatBoxScreen : Container
 
         protected override void LoadComplete()
         {
-            Action += () => WinForms.OpenFileDialog(@"chatbox.json|*.json", fileName => Schedule(() => appManager.ChatBoxManager.Import(fileName)));
+            Action += () => WinForms.OpenFileDialog("chatbox.json|*.json", fileName => Schedule(() => appManager.ChatBoxManager.Import(fileName)));
         }
     }
 
@@ -173,7 +173,7 @@ public partial class ChatBoxScreen : Container
 
         protected override void LoadComplete()
         {
-            Action += () => host.PresentFileExternally(storage.GetFullPath(@"chatbox.json"));
+            Action += () => host.PresentFileExternally(storage.GetFullPath("chatbox.json"));
         }
     }
 

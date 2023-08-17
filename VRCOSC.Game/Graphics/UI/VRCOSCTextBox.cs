@@ -46,7 +46,7 @@ public partial class VRCOSCTextBox : BasicTextBox
 
     protected override Drawable GetDrawableCharacter(char c)
     {
-        var font = UnicodeSupport ? new FontUsage(@"ArialUnicode", size: CalculatedTextSize) : FrameworkFont.Condensed.With(size: CalculatedTextSize);
+        var font = UnicodeSupport ? new FontUsage("ArialUnicode", size: CalculatedTextSize) : FrameworkFont.Condensed.With(size: CalculatedTextSize);
 
         return new FallingDownContainer
         {

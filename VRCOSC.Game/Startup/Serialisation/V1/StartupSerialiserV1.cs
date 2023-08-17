@@ -11,7 +11,7 @@ namespace VRCOSC.Game.Startup.Serialisation.V1;
 
 public class StartupSerialiserV1 : Serialiser<StartupManager, SerialisableStartupManagerV1>
 {
-    protected override string FileName => @"startup.json";
+    protected override string FileName => "startup.json";
 
     public StartupSerialiserV1(Storage storage, StartupManager startupManager)
         : base(storage, startupManager)

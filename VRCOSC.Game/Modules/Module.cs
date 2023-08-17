@@ -271,7 +271,7 @@ public abstract class Module : IComparable<Module>
 
     private static Regex parameterToRegex(string parameterName)
     {
-        var pattern = parameterName.Replace(@"/", @"\/").Replace(@"*", @"(\S*)");
+        var pattern = parameterName.Replace("/", @"\/").Replace("*", @"(\S*)");
         return new Regex(pattern);
     }
 
@@ -454,7 +454,7 @@ public abstract class Module : IComparable<Module>
 
         if (!receivedParameter.IsValueType(parameterData.ExpectedType))
         {
-            Log($@"Cannot accept input parameter. `{lookup}` expects type `{parameterData.ExpectedType}` but received type `{receivedParameter.Value.GetType()}`");
+            Log($"Cannot accept input parameter. `{lookup}` expects type `{parameterData.ExpectedType}` but received type `{receivedParameter.Value.GetType()}`");
             return;
         }
 

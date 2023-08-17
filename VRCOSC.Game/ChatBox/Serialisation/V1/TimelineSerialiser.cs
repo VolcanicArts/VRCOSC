@@ -15,7 +15,7 @@ namespace VRCOSC.Game.ChatBox.Serialisation.V1;
 
 public class TimelineSerialiser : Serialiser<AppManager, SerialisableTimeline>
 {
-    protected override string FileName => @"chatbox.json";
+    protected override string FileName => "chatbox.json";
 
     public TimelineSerialiser(Storage storage, AppManager appManager)
         : base(storage, appManager)

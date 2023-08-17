@@ -71,7 +71,7 @@ public sealed partial class AboutScreen : BaseScreen
                     new AboutButton
                     {
                         Icon = FontAwesome.Solid.Coffee,
-                        BackgroundColour = Colour4.FromHex(@"ff5f5f"),
+                        BackgroundColour = Colour4.FromHex("ff5f5f"),
                         Action = () => host.OpenUrlExternally("https://ko-fi.com/volcanicarts")
                     }
                 }

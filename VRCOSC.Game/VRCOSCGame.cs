@@ -72,7 +72,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     [BackgroundDependencyLoader]
     private void load()
     {
-        AddFont(Resources, @"Fonts/ArialUnicode/ArialUnicode");
+        AddFont(Resources, "Fonts/ArialUnicode/ArialUnicode");
 
         ThemeManager.VRCOSCTheme = ConfigManager.Get<VRCOSCTheme>(VRCOSCSetting.Theme);
 
@@ -111,7 +111,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
             Title = "Join The Community!",
             Description = "Click to join the Discord server",
             Icon = FontAwesome.Brands.Discord,
-            Colour = Colour4.FromHex(@"7289DA"),
+            Colour = Colour4.FromHex("7289DA"),
             ClickCallback = () => host.OpenUrlExternally(discord_invite_url),
             Delay = 5000d
         });
@@ -121,7 +121,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
             Title = "Enjoying the app?",
             Description = "Click to buy me a coffee",
             Icon = FontAwesome.Solid.Coffee,
-            Colour = Colour4.FromHex(@"ff5f5f"),
+            Colour = Colour4.FromHex("ff5f5f"),
             ClickCallback = () => host.OpenUrlExternally(kofi_url),
             Delay = 5000d
         });
@@ -205,10 +205,10 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
     private void copyOpenVrFiles()
     {
-        var tempStorage = storage.GetStorageForDirectory(@"openvr");
+        var tempStorage = storage.GetStorageForDirectory("openvr");
         var tempStoragePath = tempStorage.GetFullPath(string.Empty);
 
-        var openVrFiles = Resources.GetAvailableResources().Where(file => file.StartsWith(@"OpenVR"));
+        var openVrFiles = Resources.GetAvailableResources().Where(file => file.StartsWith("OpenVR"));
 
         foreach (var file in openVrFiles)
         {
@@ -216,10 +216,10 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         }
 
         var manifest = new OVRManifest();
-        manifest.Applications[0].ActionManifestPath = tempStorage.GetFullPath(@"action_manifest.json");
-        manifest.Applications[0].ImagePath = tempStorage.GetFullPath(@"SteamImage.png");
+        manifest.Applications[0].ActionManifestPath = tempStorage.GetFullPath("action_manifest.json");
+        manifest.Applications[0].ImagePath = tempStorage.GetFullPath("SteamImage.png");
 
-        File.WriteAllText(Path.Combine(tempStoragePath, @"app.vrmanifest"), JsonConvert.SerializeObject(manifest));
+        File.WriteAllText(Path.Combine(tempStoragePath, "app.vrmanifest"), JsonConvert.SerializeObject(manifest));
     }
 
     #region Tray
