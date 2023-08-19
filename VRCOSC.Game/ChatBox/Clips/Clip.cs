@@ -106,11 +106,8 @@ public class Clip
         {
             var (module, lookup) = moduleEvent;
 
-            var clipEvents = Events.Where(clipEvent => clipEvent.Module == module && clipEvent.Lookup == lookup).ToList();
-            if (!clipEvents.Any()) return;
-
-            var clipEvent = clipEvents.Single();
-            if (!clipEvent.Enabled.Value) return;
+            var clipEvent = Events.SingleOrDefault(clipEvent => clipEvent.Module == module && clipEvent.Lookup == lookup);
+            if (clipEvent is null || !clipEvent.Enabled.Value) return;
 
             if (currentEvent?.Item1.Module == module)
                 // If the new event and current event are from the same module, overwrite the current event
