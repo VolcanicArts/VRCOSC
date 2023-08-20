@@ -19,7 +19,7 @@ public class SpeechToTextProvider
     public Action<string>? OnLog;
 
     private readonly object analyseLock = new();
-    private MicrophoneHook? microphoneHook;
+    private CaptureDeviceWrapper captureDeviceWrapper = null!;
     private Model? model;
     private VoskRecognizer? recogniser;
     private bool readyToAccept;
@@ -58,7 +58,7 @@ public class SpeechToTextProvider
 
     public void Update()
     {
-        microphoneHook?.Update();
+        captureDeviceWrapper.Update();
     }
 
     public void Teardown()
@@ -68,8 +68,7 @@ public class SpeechToTextProvider
         lock (analyseLock)
         {
             readyToAccept = false;
-            microphoneHook?.UnHook();
-            microphoneHook = null;
+            captureDeviceWrapper.Teardown();
 
             model?.Dispose();
             recogniser?.Dispose();
@@ -78,28 +77,24 @@ public class SpeechToTextProvider
 
     private void initialiseMicrophoneCapture()
     {
-        OnLog?.Invoke("Hooking into default microphone...");
+        captureDeviceWrapper = new CaptureDeviceWrapper();
+        captureDeviceWrapper.OnNewData += analyseAudio;
+        captureDeviceWrapper.OnLog += OnLog;
+        captureDeviceWrapper.Initialise();
 
-        microphoneHook = new MicrophoneHook();
-        microphoneHook.BufferCallback += analyseAudio;
-        microphoneHook.OnLog += OnLog;
-        var captureDevice = microphoneHook.Hook();
-
-        if (captureDevice is null)
-        {
-            OnLog?.Invoke("Failed to hook into default microphone. Please restart the module");
-            return;
-        }
-
-        OnLog?.Invoke($"Hooked into microphone {captureDevice.DeviceFriendlyName.Trim()}");
+        OnLog?.Invoke($"Listening to microphone {captureDeviceWrapper.CurrentCaptureDevice?.DeviceFriendlyName.Trim()}");
     }
 
     private void initialiseVosk()
     {
-        if (microphoneHook!.AudioCapture is null) return;
+        if (captureDeviceWrapper.AudioCapture is null)
+        {
+            OnLog?.Invoke("Could not initialise Vosk. No default microphone found");
+            return;
+        }
 
         model = new Model(modelDirectoryPath);
-        recogniser = new VoskRecognizer(model, microphoneHook.AudioCapture.WaveFormat.SampleRate);
+        recogniser = new VoskRecognizer(model, captureDeviceWrapper.AudioCapture.WaveFormat.SampleRate);
         recogniser.SetWords(true);
     }
 
