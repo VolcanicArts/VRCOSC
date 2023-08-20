@@ -95,6 +95,16 @@ public class MediaModule : ChatBoxModule
         sendMediaParameters();
     }
 
+    [ModuleUpdate(ModuleUpdateMode.Custom)]
+    private void fixedUpdate()
+    {
+        if (mediaProvider.State.IsPlaying)
+        {
+            // Hack to allow browsers to have time info
+            mediaProvider.Update(TimeSpan.FromMilliseconds(50));
+        }
+    }
+
     [ModuleUpdate(ModuleUpdateMode.Custom, true, 1000)]
     private void sendUpdatableParameters()
     {

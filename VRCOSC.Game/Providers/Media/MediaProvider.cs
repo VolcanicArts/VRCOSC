@@ -13,6 +13,7 @@ public abstract class MediaProvider
     public MediaState State = new();
 
     public abstract Task<bool> InitialiseAsync();
+    public abstract void Update(TimeSpan delta);
     public abstract Task TerminateAsync();
 
     public abstract void Play();

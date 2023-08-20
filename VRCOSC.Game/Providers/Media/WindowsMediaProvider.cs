@@ -35,6 +35,11 @@ public class WindowsMediaProvider : MediaProvider
         return true;
     }
 
+    public override void Update(TimeSpan delta)
+    {
+        State.Timeline.Position += delta;
+    }
+
     public override Task TerminateAsync()
     {
         if (sessionManager is null) return Task.CompletedTask;
