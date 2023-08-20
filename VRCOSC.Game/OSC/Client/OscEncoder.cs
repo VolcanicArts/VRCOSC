@@ -27,13 +27,8 @@ internal static class OscEncoder
 
     private static void validateValueTypes(OscMessage message)
     {
-        message.Values.ForEach(value =>
-        {
-            if (value is not (string or int or float or bool))
-            {
-                throw new InvalidOperationException($"Cannot send value that is of type {value.GetType().ToReadableName()} to address {message.Address}");
-            }
-        });
+        if (message.Values.Any(value => value is not (string or int or float or bool)))
+            throw new InvalidOperationException($"Cannot send value that is not of type string, int, float, or bool to address {message.Address}");
     }
 
     private static int calculateMessageLength(OscMessage message)
