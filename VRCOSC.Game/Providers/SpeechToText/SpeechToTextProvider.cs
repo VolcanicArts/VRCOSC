@@ -19,7 +19,7 @@ public class SpeechToTextProvider
     public Action<string>? OnLog;
 
     private readonly object analyseLock = new();
-    private CaptureDeviceWrapper captureDeviceWrapper = null!;
+    private CaptureDeviceWrapper? captureDeviceWrapper;
     private Model? model;
     private VoskRecognizer? recogniser;
     private bool readyToAccept;
@@ -42,6 +42,12 @@ public class SpeechToTextProvider
             return;
         }
 
+        if (!(Directory.GetDirectories(modelDirectoryPath).FirstOrDefault()?.EndsWith("am") ?? false))
+        {
+            OnLog?.Invoke("Model directory invalid");
+            return;
+        }
+
         this.modelDirectoryPath = modelDirectoryPath;
 
         Task.Run(() =>
@@ -58,7 +64,7 @@ public class SpeechToTextProvider
 
     public void Update()
     {
-        captureDeviceWrapper.Update();
+        captureDeviceWrapper?.Update();
     }
 
     public void Teardown()
@@ -68,7 +74,7 @@ public class SpeechToTextProvider
         lock (analyseLock)
         {
             readyToAccept = false;
-            captureDeviceWrapper.Teardown();
+            captureDeviceWrapper?.Teardown();
 
             model?.Dispose();
             recogniser?.Dispose();
@@ -87,7 +93,7 @@ public class SpeechToTextProvider
 
     private void initialiseVosk()
     {
-        if (captureDeviceWrapper.AudioCapture is null)
+        if (captureDeviceWrapper?.AudioCapture is null)
         {
             OnLog?.Invoke("Could not initialise Vosk. No default microphone found");
             return;
