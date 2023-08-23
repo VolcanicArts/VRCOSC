@@ -27,7 +27,7 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="WebSocket4Net" Version="0.15.2" />
-        <PackageReference Include="NAudio.Wasapi" Version="2.1.0" />
+        <PackageReference Include="NAudio.Wasapi" Version="22.0.0" />
         <PackageReference Include="Vosk" Version="0.3.38" />
         <PackageReference Include="VolcanicArts.Libs.OpenVR" Version="1.26.7" />
     </ItemGroup>
