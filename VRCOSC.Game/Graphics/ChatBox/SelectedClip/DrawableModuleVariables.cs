@@ -44,7 +44,7 @@ public partial class DrawableModuleVariables : Container
         {
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
-            Text = appManager.ModuleManager.GetModuleName(module),
+            Text = appManager.ModuleManager.GetModule(module)!.Title,
             Font = FrameworkFont.Regular.With(size: 20),
             Colour = ThemeManager.Current[ThemeAttribute.Text]
         });

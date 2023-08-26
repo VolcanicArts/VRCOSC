@@ -11,7 +11,7 @@ namespace VRCOSC.Game.Config;
 
 public sealed class VRCOSCConfigManager : IniConfigManager<VRCOSCSetting>
 {
-    protected override string Filename => @"config.ini";
+    protected override string Filename => "config.ini";
 
     public VRCOSCConfigManager(Storage storage)
         : base(storage)

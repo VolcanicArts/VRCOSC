@@ -85,7 +85,7 @@ public partial class DrawableEvent : Container
                                     Anchor = Anchor.CentreLeft,
                                     Origin = Anchor.CentreLeft,
                                     Font = FrameworkFont.Regular.With(size: 18),
-                                    Text = appManager.ModuleManager.GetModuleName(ClipEvent.Module) + " - " + ClipEvent.Name + ":",
+                                    Text = appManager.ModuleManager.GetModule(ClipEvent.Module)!.Title + " - " + ClipEvent.Name + ":",
                                     Colour = ThemeManager.Current[ThemeAttribute.Text]
                                 }
                             }

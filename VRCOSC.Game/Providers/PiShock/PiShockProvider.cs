@@ -23,8 +23,8 @@ public class PiShockProvider
         if (string.IsNullOrEmpty(username)) return new PiShockResponse(false, "Invalid username");
         if (string.IsNullOrEmpty(apiKey)) return new PiShockResponse(false, "Invalid API key");
 
-        if (duration is < 1 or > 15) throw new InvalidOperationException($"{nameof(duration)} must be between 1 and 15");
-        if (intensity is < 1 or > 100) throw new InvalidOperationException($"{nameof(intensity)} must be between 1 and 100");
+        if (duration is < 1 or > 15) return new PiShockResponse(false, "Duration must be between 1 and 15");
+        if (intensity is < 1 or > 100) return new PiShockResponse(false, "Intensity must be between 1 and 100");
 
         var shocker = await retrieveShockerInfo(username, apiKey, sharecode);
         if (shocker is null) return new PiShockResponse(false, "Shocker does not exist");

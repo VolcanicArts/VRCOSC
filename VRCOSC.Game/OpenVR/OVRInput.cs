@@ -34,29 +34,29 @@ public class OVRInput
 
     private void getActionHandles()
     {
-        Valve.VR.OpenVR.Input.GetActionHandle(@"/actions/main/in/lefta", ref leftControllerActions[0]);
-        Valve.VR.OpenVR.Input.GetActionHandle(@"/actions/main/in/leftb", ref leftControllerActions[1]);
-        Valve.VR.OpenVR.Input.GetActionHandle(@"/actions/main/in/leftpad", ref leftControllerActions[2]);
-        Valve.VR.OpenVR.Input.GetActionHandle(@"/actions/main/in/leftstick", ref leftControllerActions[3]);
-        Valve.VR.OpenVR.Input.GetActionHandle(@"/actions/main/in/leftfingerindex", ref leftControllerActions[4]);
-        Valve.VR.OpenVR.Input.GetActionHandle(@"/actions/main/in/leftfingermiddle", ref leftControllerActions[5]);
-        Valve.VR.OpenVR.Input.GetActionHandle(@"/actions/main/in/leftfingerring", ref leftControllerActions[6]);
-        Valve.VR.OpenVR.Input.GetActionHandle(@"/actions/main/in/leftfingerpinky", ref leftControllerActions[7]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/lefta", ref leftControllerActions[0]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/leftb", ref leftControllerActions[1]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/leftpad", ref leftControllerActions[2]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/leftstick", ref leftControllerActions[3]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/leftfingerindex", ref leftControllerActions[4]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/leftfingermiddle", ref leftControllerActions[5]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/leftfingerring", ref leftControllerActions[6]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/leftfingerpinky", ref leftControllerActions[7]);
 
-        Valve.VR.OpenVR.Input.GetActionHandle(@"/actions/main/in/righta", ref rightControllerActions[0]);
-        Valve.VR.OpenVR.Input.GetActionHandle(@"/actions/main/in/rightb", ref rightControllerActions[1]);
-        Valve.VR.OpenVR.Input.GetActionHandle(@"/actions/main/in/rightpad", ref rightControllerActions[2]);
-        Valve.VR.OpenVR.Input.GetActionHandle(@"/actions/main/in/rightstick", ref rightControllerActions[3]);
-        Valve.VR.OpenVR.Input.GetActionHandle(@"/actions/main/in/rightfingerindex", ref rightControllerActions[4]);
-        Valve.VR.OpenVR.Input.GetActionHandle(@"/actions/main/in/rightfingermiddle", ref rightControllerActions[5]);
-        Valve.VR.OpenVR.Input.GetActionHandle(@"/actions/main/in/rightfingerring", ref rightControllerActions[6]);
-        Valve.VR.OpenVR.Input.GetActionHandle(@"/actions/main/in/rightfingerpinky", ref rightControllerActions[7]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/righta", ref rightControllerActions[0]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/rightb", ref rightControllerActions[1]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/rightpad", ref rightControllerActions[2]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/rightstick", ref rightControllerActions[3]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/rightfingerindex", ref rightControllerActions[4]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/rightfingermiddle", ref rightControllerActions[5]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/rightfingerring", ref rightControllerActions[6]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/rightfingerpinky", ref rightControllerActions[7]);
 
-        Valve.VR.OpenVR.Input.GetActionHandle(@"/actions/haptic/out/hapticsleft", ref hapticActions[0]);
-        Valve.VR.OpenVR.Input.GetActionHandle(@"/actions/haptic/out/hapticsright", ref hapticActions[1]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/haptic/out/hapticsleft", ref hapticActions[0]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/haptic/out/hapticsright", ref hapticActions[1]);
 
-        Valve.VR.OpenVR.Input.GetActionSetHandle(@"/actions/main", ref mainActionSetHandle);
-        Valve.VR.OpenVR.Input.GetActionSetHandle(@"/actions/haptic", ref hapticActionSetHandle);
+        Valve.VR.OpenVR.Input.GetActionSetHandle("/actions/main", ref mainActionSetHandle);
+        Valve.VR.OpenVR.Input.GetActionSetHandle("/actions/haptic", ref hapticActionSetHandle);
     }
 
     public void Update()

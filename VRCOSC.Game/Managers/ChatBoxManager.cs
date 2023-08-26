@@ -231,11 +231,11 @@ public class ChatBoxManager
     {
         const int required_width = 64;
 
-        input = Regex.Replace(input, @"/v", "\v");
+        input = Regex.Replace(input, "/v", "\v");
 
-        return Regex.Replace(input, @"/n", match =>
+        return Regex.Replace(input, "/n", match =>
         {
-            var spaces = match.Index == 0 ? 0 : (match.Index - input.LastIndexOf(@"/n", match.Index, StringComparison.Ordinal)) % required_width;
+            var spaces = match.Index == 0 ? 0 : (match.Index - input.LastIndexOf("/n", match.Index, StringComparison.Ordinal)) % required_width;
             var spaceCount = required_width - spaces;
             return spaces < 0 || spaceCount < 0 ? string.Empty : new string(' ', spaceCount);
         });

@@ -123,7 +123,7 @@ public class IntelCPU : CPU
 public class AMDCPU : CPU
 {
     protected override SensorInfo PowerInfo => new(SensorType.Power, "Package");
-    protected override SensorInfoList TemperatureInfo => new(SensorType.Temperature, @"Core (Tdie)", @"Core (Tctl/Tdie)", @"CPU Cores");
+    protected override SensorInfoList TemperatureInfo => new(SensorType.Temperature, "Core (Tdie)", "Core (Tctl/Tdie)", "CPU Cores");
 
     public AMDCPU(int id)
         : base(id)

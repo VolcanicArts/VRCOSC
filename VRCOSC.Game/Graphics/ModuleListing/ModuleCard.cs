@@ -192,8 +192,8 @@ public sealed partial class ModuleCard : Container
             ModuleType.General => Colour4.White.Darken(0.15f),
             ModuleType.Health => Colour4.Red,
             ModuleType.Integrations => Colour4.Yellow.Darken(0.25f),
-            ModuleType.OpenVR => Colour4.FromHex(@"04144d"),
-            ModuleType.Accessibility => Colour4.FromHex(@"0278D8"),
+            ModuleType.OpenVR => Colour4.FromHex("04144d"),
+            ModuleType.Accessibility => Colour4.FromHex("0278D8"),
             ModuleType.NSFW => Colour4.Black.Lighten(0.1f),
             _ => throw new ArgumentOutOfRangeException()
         };

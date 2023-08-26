@@ -4,6 +4,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -18,6 +20,7 @@ using VRCOSC.Game.Modules;
 using VRCOSC.Game.Modules.Avatar;
 using VRCOSC.Game.OSC.VRChat;
 using VRCOSC.Game.Util;
+using WinRT;
 using Module = VRCOSC.Game.Modules.Module;
 
 namespace VRCOSC.Game.Managers;
@@ -29,9 +32,9 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
     private readonly List<AssemblyLoadContext> assemblyContexts = new();
     public readonly Dictionary<string, ModuleCollection> ModuleCollections = new();
 
-    public IReadOnlyList<Module> Modules => ModuleCollections.Values.SelectMany(collection => collection.Modules).ToList();
+    internal IReadOnlyList<Module> Modules => ModuleCollections.Values.SelectMany(collection => collection.Modules).ToList();
 
-    public Action? OnModuleEnabledChanged;
+    internal Action? OnModuleEnabledChanged;
 
     private GameHost host = null!;
     private AppManager appManager = null!;
@@ -40,7 +43,7 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
 
     private readonly List<Module> runningModulesCache = new();
 
-    public void Initialise(GameHost host, AppManager appManager, Scheduler scheduler, Storage storage)
+    internal void Initialise(GameHost host, AppManager appManager, Scheduler scheduler, Storage storage)
     {
         this.host = host;
         this.appManager = appManager;
@@ -48,12 +51,36 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
         this.storage = storage;
     }
 
-    public void Load()
+    internal void Load()
     {
         loadModules();
     }
 
-    public bool DoesModuleExist(string serialisedName)
+    internal bool IsModuleRunning(Module module) => runningModulesCache.Contains(module);
+
+    internal IEnumerable<T> GetModulesOfType<T>(bool useRunningCache) => (useRunningCache ? runningModulesCache : Modules).Where(module => module.GetType().IsSubclassOf(typeof(T))).Select(module => module.As<T>());
+
+    /// <summary>
+    /// Gets a module. Null if the module doesn't exist OR isn't loaded correctly
+    /// </summary>
+    internal Module? GetModule(string serialiseName) => TryGetModule(serialiseName, out var module) ? module : null;
+
+    /// <summary>
+    /// Attempts to get a module. Returns true ONLY if the module exists and is loaded with no errors
+    /// </summary>
+    internal bool TryGetModule(string serialisedName, [NotNullWhen(true)] out Module? module)
+    {
+        if (IsModuleLoaded(serialisedName))
+        {
+            module = getModule(serialisedName)!;
+            return true;
+        }
+
+        module = null;
+        return false;
+    }
+
+    internal bool DoesModuleExist(string serialisedName)
     {
         try
         {
@@ -65,9 +92,11 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
         }
     }
 
-    public bool IsModuleLoaded(string serialisedName) => GetModule(serialisedName) is not null;
-    public bool IsModuleEnabled(string serialisedName) => GetModule(serialisedName)?.Enabled.Value ?? false;
-    public List<(string, string)> GetMigrations() => Modules.Where(module => module.LegacySerialisedName is not null && IsModuleLoaded(module.SerialisedName)).Select(module => (module.LegacySerialisedName!, module.SerialisedName)).ToList();
+    internal bool IsModuleLoaded(string serialisedName) => DoesModuleExist(serialisedName) && getModule(serialisedName) is not null;
+
+    private Module? getModule(string serialisedName) => Modules.SingleOrDefault(module => module.SerialisedName == serialisedName);
+
+    internal List<LegacySerialiseNameMigration> GetMigrations() => Modules.Where(module => module.LegacySerialisedName is not null && IsModuleLoaded(module.SerialisedName)).Select(module => new LegacySerialiseNameMigration(module.LegacySerialisedName!, module.SerialisedName)).ToList();
 
     private void loadModules()
     {
@@ -164,12 +193,14 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
         }
     }
 
-    public void Start()
+    #region Events
+
+    internal void Start()
     {
         if (Modules.All(module => !module.Enabled.Value))
-            terminal.Log("You have no modules selected!\nSelect some modules to begin using VRCOSC");
+            terminal.Log("You have no modules selected\nEnable a module in the module listing screen");
 
-        runningModulesCache.Clear();
+        Debug.Assert(!runningModulesCache.Any());
 
         foreach (var module in Modules.Where(module => module.Enabled.Value))
         {
@@ -178,20 +209,17 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
         }
     }
 
-    public void ChatBoxUpdate()
+    internal void ChatBoxUpdate()
     {
-        foreach (var module in runningModulesCache.Where(module => module.GetType().IsSubclassOf(typeof(AvatarModule))).Select(module => (AvatarModule)module))
-        {
-            module.ChatBoxUpdate();
-        }
+        GetModulesOfType<AvatarModule>(true).ForEach(module => module.ChatBoxUpdate());
     }
 
-    public void Update()
+    internal void Update()
     {
         scheduler.Update();
     }
 
-    public void Stop()
+    internal void Stop()
     {
         scheduler.CancelDelayedTasks();
 
@@ -199,32 +227,25 @@ public sealed class ModuleManager : IEnumerable<ModuleCollection>
         {
             module.Stop();
         }
+
+        runningModulesCache.Clear();
     }
 
-    public void ParameterReceived(VRChatOscMessage message)
+    internal void ParameterReceived(VRChatOscMessage message)
     {
-        foreach (var module in runningModulesCache)
-        {
-            module.OnParameterReceived(message);
-        }
+        runningModulesCache.ForEach(module => module.OnParameterReceived(message));
     }
 
-    public void PlayerUpdate()
+    internal void PlayerUpdate()
     {
-        foreach (var module in runningModulesCache.Where(module => module.GetType().IsSubclassOf(typeof(AvatarModule))).Select(module => (AvatarModule)module))
-        {
-            module.PlayerUpdate();
-        }
+        GetModulesOfType<AvatarModule>(true).ForEach(module => module.PlayerUpdate());
     }
 
-    public Module? GetModule(string serialisedName) => Modules.SingleOrDefault(module => module.SerialisedName == serialisedName);
-
-    public IEnumerable<Module> GetRunningModules() => runningModulesCache;
-
-    public IEnumerable<string> GetEnabledModuleNames() => Modules.Where(module => module.Enabled.Value).Select(module => module.SerialisedName);
-
-    public string GetModuleName(string serialisedName) => Modules.Single(module => module.SerialisedName == serialisedName).Title;
+    #endregion
+    internal IEnumerable<string> GetEnabledModuleNames() => Modules.Where(module => module.Enabled.Value).Select(module => module.SerialisedName);
 
     public IEnumerator<ModuleCollection> GetEnumerator() => ModuleCollections.Values.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
+
+internal record LegacySerialiseNameMigration(string LegacySerialisedName, string SerialisedName);

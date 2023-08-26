@@ -106,11 +106,8 @@ public class Clip
         {
             var (module, lookup) = moduleEvent;
 
-            var clipEvents = Events.Where(clipEvent => clipEvent.Module == module && clipEvent.Lookup == lookup).ToList();
-            if (!clipEvents.Any()) return;
-
-            var clipEvent = clipEvents.Single();
-            if (!clipEvent.Enabled.Value) return;
+            var clipEvent = Events.SingleOrDefault(clipEvent => clipEvent.Module == module && clipEvent.Lookup == lookup);
+            if (clipEvent is null || !clipEvent.Enabled.Value) return;
 
             if (currentEvent?.Item1.Module == module)
                 // If the new event and current event are from the same module, overwrite the current event
@@ -193,14 +190,14 @@ public class Clip
     {
         foreach (var clipState in localStates.ToImmutableList())
         {
-            var stateValid = clipState.ModuleNames.All(moduleName => appManager.ModuleManager.IsModuleEnabled(moduleName));
+            var stateValid = clipState.ModuleNames.All(moduleName => appManager.ModuleManager.GetModule(moduleName)!.Enabled.Value);
             if (!stateValid) localStates.Remove(clipState);
         }
     }
 
     private void removeLessCompoundedStates(List<ClipState> localStates)
     {
-        var enabledAndAssociatedModules = AssociatedModules.Where(moduleName => appManager.ModuleManager.IsModuleEnabled(moduleName)).ToList();
+        var enabledAndAssociatedModules = AssociatedModules.Where(moduleName => appManager.ModuleManager.GetModule(moduleName)!.Enabled.Value).ToList();
         enabledAndAssociatedModules.Sort();
 
         foreach (var clipState in localStates.ToImmutableList())
@@ -214,7 +211,7 @@ public class Clip
 
     private void removeInvalidStates(List<ClipState> localStates)
     {
-        var currentStates = AssociatedModules.Where(moduleName => appManager.ModuleManager.IsModuleEnabled(moduleName) && chatBoxManager.StateValues.ContainsKey(moduleName) && chatBoxManager.StateValues[moduleName] is not null).Select(moduleName => chatBoxManager.StateValues[moduleName]).ToList();
+        var currentStates = AssociatedModules.Where(moduleName => appManager.ModuleManager.GetModule(moduleName)!.Enabled.Value && chatBoxManager.StateValues.ContainsKey(moduleName) && chatBoxManager.StateValues[moduleName] is not null).Select(moduleName => chatBoxManager.StateValues[moduleName]).ToList();
         currentStates.Sort();
 
         if (!currentStates.Any()) return;
@@ -236,7 +233,7 @@ public class Clip
 
         AvailableVariables.ForEach(clipVariable =>
         {
-            if (!appManager.ModuleManager.IsModuleEnabled(clipVariable.Module)) return;
+            if (!appManager.ModuleManager.GetModule(clipVariable.Module)!.Enabled.Value) return;
 
             chatBoxManager.VariableValues.TryGetValue((clipVariable.Module, clipVariable.Lookup), out var variableValue);
             returnText = returnText.Replace(clipVariable.DisplayableFormat, variableValue ?? string.Empty);

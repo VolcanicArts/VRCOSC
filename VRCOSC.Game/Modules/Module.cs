@@ -271,7 +271,7 @@ public abstract class Module : IComparable<Module>
 
     private static Regex parameterToRegex(string parameterName)
     {
-        var pattern = parameterName.Replace(@"/", @"\/").Replace(@"*", @"(\S*)");
+        var pattern = parameterName.Replace("/", @"\/").Replace("*", @"(\S*)");
         return new Regex(pattern);
     }
 
@@ -427,7 +427,7 @@ public abstract class Module : IComparable<Module>
         if (!data.Mode.HasFlagFast(ParameterMode.Write)) throw new InvalidOperationException($"Parameter {lookup.GetType().Name}.{lookup} is a read-only parameter and therefore can't be sent!");
         if (data.ExpectedType != typeof(T)) throw new InvalidOperationException($"Parameter {lookup.GetType().Name}.{lookup} expects type {data.ExpectedType.ToReadableName()} but you tried to send {typeof(T).ToReadableName()}");
 
-        scheduler.Add(() => oscClient.SendValue(data.ParameterAddress, value));
+        scheduler.Add(() => oscClient.SendValue(data.ParameterAddress, value), false);
     }
 
     internal virtual void OnParameterReceived(VRChatOscMessage message)
@@ -454,7 +454,7 @@ public abstract class Module : IComparable<Module>
 
         if (!receivedParameter.IsValueType(parameterData.ExpectedType))
         {
-            Log($@"Cannot accept input parameter. `{lookup}` expects type `{parameterData.ExpectedType}` but received type `{receivedParameter.Value.GetType()}`");
+            Log($"Cannot accept input parameter. `{lookup}` expects type `{parameterData.ExpectedType}` but received type `{receivedParameter.Value.GetType()}`");
             return;
         }
 

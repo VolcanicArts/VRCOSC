@@ -12,7 +12,7 @@ namespace VRCOSC.Game.Graphics.Router;
 
 public partial class RouterHeader : BaseHeader
 {
-    private const string vrcosc_router_wiki_url = @"https://github.com/VolcanicArts/VRCOSC/wiki/VRCOSC-Router";
+    private const string vrcosc_router_wiki_url = "https://github.com/VolcanicArts/VRCOSC/wiki/VRCOSC-Router";
 
     [Resolved]
     private GameHost host { get; set; } = null!;

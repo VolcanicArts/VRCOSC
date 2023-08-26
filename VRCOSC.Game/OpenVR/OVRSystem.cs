@@ -62,7 +62,7 @@ public class OVRSystem
     }
 
     private static uint getHmdIndex() => OVRHelper.GetIndexForTrackedDeviceClass(ETrackedDeviceClass.HMD);
-    private static uint getLeftControllerIndex() => OVRHelper.GetControllerIdFromHint(@"left");
-    private static uint getRightControllerIndex() => OVRHelper.GetControllerIdFromHint(@"right");
+    private static uint getLeftControllerIndex() => OVRHelper.GetLeftControllerId();
+    private static uint getRightControllerIndex() => OVRHelper.GetRightControllerId();
     private static IEnumerable<uint> getTrackerIndexes() => OVRHelper.GetIndexesForTrackedDeviceClass(ETrackedDeviceClass.GenericTracker);
 }

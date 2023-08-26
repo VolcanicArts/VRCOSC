@@ -39,7 +39,7 @@ public class VRChat
 
     public bool HasOpenStateChanged()
     {
-        var clientNewOpenState = Process.GetProcessesByName(@"vrchat").Any();
+        var clientNewOpenState = Process.GetProcessesByName("vrchat").Any();
         if (clientNewOpenState == IsClientOpen) return false;
 
         IsClientOpen = clientNewOpenState;

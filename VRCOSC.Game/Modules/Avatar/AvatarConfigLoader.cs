@@ -11,7 +11,7 @@ namespace VRCOSC.Game.Modules.Avatar;
 
 public static class AvatarConfigLoader
 {
-    private static readonly string vr_chat_osc_folder_path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData).Replace("Roaming", "LocalLow"), @"VRChat", @"VRChat", @"OSC");
+    private static readonly string vr_chat_osc_folder_path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData).Replace("Roaming", "LocalLow"), "VRChat", "VRChat", "OSC");
 
     public static AvatarConfig? LoadConfigFor(string avatarId)
     {
