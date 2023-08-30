@@ -32,7 +32,7 @@ public class TickerTapeModule : ChatBoxModule
                 }
             },
             Name = "Texts",
-            Description = "Each text instance to register for the ChatBox\nText instances can be accessed with the '_Key' suffix\nScroll speed is the number of characters to scroll each update (every 1.5 seconds)"
+            Description = "Each text instance to register for the ChatBox\nText instances can be accessed with the '_Key' suffix\nScroll speed is the number of characters to scroll each update, defined by the chatbox update rate"
         });
 
         CreateVariable(TickerTapeVariable.Text, "Text", "text");
