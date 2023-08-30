@@ -35,7 +35,7 @@ public class PiShockPhraseInstance : IEquatable<PiShockPhraseInstance>
     public Bindable<int> Duration = new(1);
 
     [JsonProperty("intensity")]
-    public Bindable<int> Intensity = new();
+    public Bindable<int> Intensity = new(1);
 
     [JsonConstructor]
     public PiShockPhraseInstance()
@@ -262,7 +262,9 @@ public partial class PiShockPhraseInstanceAttributeCardList : AttributeCardList<
                         BorderThickness = 2,
                         ValidCurrent = instance.Duration.GetBoundCopy(),
                         PlaceholderText = "Duration",
-                        EmptyIsValid = false
+                        EmptyIsValid = false,
+                        Minimum = 1,
+                        Maximum = 15
                     },
                     null,
                     new IntTextBox
@@ -277,7 +279,9 @@ public partial class PiShockPhraseInstanceAttributeCardList : AttributeCardList<
                         BorderThickness = 2,
                         ValidCurrent = instance.Intensity.GetBoundCopy(),
                         PlaceholderText = "Intensity",
-                        EmptyIsValid = false
+                        EmptyIsValid = false,
+                        Minimum = 1,
+                        Maximum = 100
                     }
                 }
             }
