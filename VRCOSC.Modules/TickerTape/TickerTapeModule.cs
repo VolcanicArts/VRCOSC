@@ -5,27 +5,28 @@ using VRCOSC.Game;
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.Modules.Avatar;
 
-namespace VRCOSC.Modules.ChatBoxText;
+namespace VRCOSC.Modules.TickerTape;
 
-[ModuleTitle("ChatBox Text")]
-[ModuleDescription("Display custom text and animate it for the ChatBox")]
+[ModuleTitle("Ticker Tape")]
+[ModuleDescription("Display and animate text for the ChatBox")]
 [ModuleAuthor("VolcanicArts", "https://github.com/VolcanicArts", "https://avatars.githubusercontent.com/u/29819296?v=4")]
 [ModuleGroup(ModuleType.General)]
-public class ChatBoxTextModule : ChatBoxModule
+[ModuleLegacy("chatboxtextmodule")]
+public class TickerTapeModule : ChatBoxModule
 {
     private readonly Dictionary<string, int> indexes = new();
 
     protected override void CreateAttributes()
     {
-        CreateSetting(ChatBoxTextSetting.TextList, new ChatBoxTextInstanceListAttribute
+        CreateSetting(TickerTapeSetting.TextList, new TickerTapeInstanceListAttribute
         {
-            Default = new List<ChatBoxTextInstance>
+            Default = new List<TickerTapeInstance>
             {
                 new()
                 {
                     Key = { Value = "Example" },
                     Text = { Value = "ExampleText" },
-                    Direction = { Value = ChatBoxTextDirection.Right },
+                    Direction = { Value = TickerTapeDirection.Right },
                     ScrollSpeed = { Value = 1 },
                     MaxLength = { Value = 8 }
                 }
@@ -34,45 +35,45 @@ public class ChatBoxTextModule : ChatBoxModule
             Description = "Each text instance to register for the ChatBox\nText instances can be accessed with the '_Key' suffix\nScroll speed is the number of characters to scroll each update (every 1.5 seconds)"
         });
 
-        CreateVariable(ChatBoxTextVariable.Text, "Text", "text");
+        CreateVariable(TickerTapeVariable.Text, "Text", "text");
 
-        CreateState(ChatBoxTextState.Default, "Default", $"{GetVariableFormat(ChatBoxTextVariable.Text, "Example")}");
+        CreateState(TickerTapeState.Default, "Default", $"{GetVariableFormat(TickerTapeVariable.Text, "Example")}");
     }
 
     protected override void OnModuleStart()
     {
         indexes.Clear();
 
-        GetSettingList<ChatBoxTextInstance>(ChatBoxTextSetting.TextList).ForEach(instance =>
+        GetSettingList<TickerTapeInstance>(TickerTapeSetting.TextList).ForEach(instance =>
         {
             if (string.IsNullOrEmpty(instance.Key.Value)) return;
 
             if (!indexes.TryAdd(instance.Key.Value, 0)) indexes[instance.Key.Value] = 0;
-            SetVariableValue(ChatBoxTextVariable.Text, instance.Text.Value, instance.Key.Value);
+            SetVariableValue(TickerTapeVariable.Text, instance.Text.Value, instance.Key.Value);
         });
 
-        ChangeStateTo(ChatBoxTextState.Default);
+        ChangeStateTo(TickerTapeState.Default);
     }
 
     [ModuleUpdate(ModuleUpdateMode.ChatBox)]
     private void updateVariables()
     {
-        GetSettingList<ChatBoxTextInstance>(ChatBoxTextSetting.TextList).ForEach(instance =>
+        GetSettingList<TickerTapeInstance>(TickerTapeSetting.TextList).ForEach(instance =>
         {
             if (string.IsNullOrEmpty(instance.Key.Value) || !indexes.ContainsKey(instance.Key.Value) || string.IsNullOrEmpty(instance.Text.Value)) return;
 
             var position = indexes[instance.Key.Value].Modulo(instance.Text.Value.Length);
             var text = cropAndWrapText(instance.Text.Value, position, instance.MaxLength.Value);
 
-            SetVariableValue(ChatBoxTextVariable.Text, text, instance.Key.Value);
+            SetVariableValue(TickerTapeVariable.Text, text, instance.Key.Value);
 
             switch (instance.Direction.Value)
             {
-                case ChatBoxTextDirection.Right:
+                case TickerTapeDirection.Right:
                     indexes[instance.Key.Value] += instance.ScrollSpeed.Value;
                     break;
 
-                case ChatBoxTextDirection.Left:
+                case TickerTapeDirection.Left:
                     indexes[instance.Key.Value] -= instance.ScrollSpeed.Value;
                     break;
             }
@@ -86,17 +87,17 @@ public class ChatBoxTextModule : ChatBoxModule
         return endPos != text.Length ? subText : subText + text[..Math.Min(maxLength - subText.Length, position)];
     }
 
-    private enum ChatBoxTextSetting
+    private enum TickerTapeSetting
     {
         TextList
     }
 
-    private enum ChatBoxTextState
+    private enum TickerTapeState
     {
         Default
     }
 
-    private enum ChatBoxTextVariable
+    private enum TickerTapeVariable
     {
         Text
     }

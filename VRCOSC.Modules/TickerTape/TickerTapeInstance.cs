@@ -17,9 +17,9 @@ using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Graphics.UI.Text;
 using VRCOSC.Game.Modules.Attributes;
 
-namespace VRCOSC.Modules.ChatBoxText;
+namespace VRCOSC.Modules.TickerTape;
 
-public class ChatBoxTextInstance : IEquatable<ChatBoxTextInstance>
+public class TickerTapeInstance : IEquatable<TickerTapeInstance>
 {
     [JsonProperty("key")]
     public Bindable<string> Key = new(string.Empty);
@@ -28,7 +28,7 @@ public class ChatBoxTextInstance : IEquatable<ChatBoxTextInstance>
     public Bindable<string> Text = new(string.Empty);
 
     [JsonProperty("direction")]
-    public Bindable<ChatBoxTextDirection> Direction = new();
+    public Bindable<TickerTapeDirection> Direction = new();
 
     [JsonProperty("scroll_speed")]
     public Bindable<int> ScrollSpeed = new();
@@ -36,7 +36,7 @@ public class ChatBoxTextInstance : IEquatable<ChatBoxTextInstance>
     [JsonProperty("max_length")]
     public Bindable<int> MaxLength = new();
 
-    public bool Equals(ChatBoxTextInstance? other)
+    public bool Equals(TickerTapeInstance? other)
     {
         if (ReferenceEquals(other, null)) return false;
 
@@ -44,11 +44,11 @@ public class ChatBoxTextInstance : IEquatable<ChatBoxTextInstance>
     }
 
     [JsonConstructor]
-    public ChatBoxTextInstance()
+    public TickerTapeInstance()
     {
     }
 
-    public ChatBoxTextInstance(ChatBoxTextInstance other)
+    public TickerTapeInstance(TickerTapeInstance other)
     {
         Key.Value = other.Key.Value;
         Text.Value = other.Text.Value;
@@ -58,17 +58,17 @@ public class ChatBoxTextInstance : IEquatable<ChatBoxTextInstance>
     }
 }
 
-public class ChatBoxTextInstanceListAttribute : ModuleAttributeList<ChatBoxTextInstance>
+public class TickerTapeInstanceListAttribute : ModuleAttributeList<TickerTapeInstance>
 {
-    public override Drawable GetAssociatedCard() => new ChatBoxTextInstanceAttributeCardList(this);
+    public override Drawable GetAssociatedCard() => new TickerTapeInstanceAttributeCardList(this);
 
-    protected override IEnumerable<ChatBoxTextInstance> JArrayToType(JArray array) => array.Select(value => new ChatBoxTextInstance(value.ToObject<ChatBoxTextInstance>()!)).ToList();
-    protected override IEnumerable<ChatBoxTextInstance> GetClonedDefaults() => Default.Select(defaultValue => new ChatBoxTextInstance(defaultValue)).ToList();
+    protected override IEnumerable<TickerTapeInstance> JArrayToType(JArray array) => array.Select(value => new TickerTapeInstance(value.ToObject<TickerTapeInstance>()!)).ToList();
+    protected override IEnumerable<TickerTapeInstance> GetClonedDefaults() => Default.Select(defaultValue => new TickerTapeInstance(defaultValue)).ToList();
 }
 
-public partial class ChatBoxTextInstanceAttributeCardList : AttributeCardList<ChatBoxTextInstanceListAttribute, ChatBoxTextInstance>
+public partial class TickerTapeInstanceAttributeCardList : AttributeCardList<TickerTapeInstanceListAttribute, TickerTapeInstance>
 {
-    public ChatBoxTextInstanceAttributeCardList(ChatBoxTextInstanceListAttribute attributeData)
+    public TickerTapeInstanceAttributeCardList(TickerTapeInstanceListAttribute attributeData)
         : base(attributeData)
     {
     }
@@ -182,7 +182,7 @@ public partial class ChatBoxTextInstanceAttributeCardList : AttributeCardList<Ch
         }, float.MinValue);
     }
 
-    protected override void OnInstanceAdd(ChatBoxTextInstance instance)
+    protected override void OnInstanceAdd(TickerTapeInstance instance)
     {
         AddToList(new GridContainer
         {
@@ -238,12 +238,12 @@ public partial class ChatBoxTextInstanceAttributeCardList : AttributeCardList<Ch
                         PlaceholderText = "Text"
                     },
                     null,
-                    new ChatBoxTextInstanceDropdown<ChatBoxTextDirection>
+                    new TickerTapeInstanceDropdown<TickerTapeDirection>
                     {
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
                         RelativeSizeAxes = Axes.X,
-                        Items = Enum.GetValues(typeof(ChatBoxTextDirection)).Cast<ChatBoxTextDirection>(),
+                        Items = Enum.GetValues(typeof(TickerTapeDirection)).Cast<TickerTapeDirection>(),
                         Current = instance.Direction.GetBoundCopy()
                     },
                     null,
@@ -279,14 +279,14 @@ public partial class ChatBoxTextInstanceAttributeCardList : AttributeCardList<Ch
         });
     }
 
-    protected override ChatBoxTextInstance CreateInstance() => new();
+    protected override TickerTapeInstance CreateInstance() => new();
 }
 
-public partial class ChatBoxTextInstanceDropdown<T> : VRCOSCDropdown<T>
+public partial class TickerTapeInstanceDropdown<T> : VRCOSCDropdown<T>
 {
-    protected override DropdownHeader CreateHeader() => new VRCOSCSettingsDropdownHeader();
+    protected override DropdownHeader CreateHeader() => new TickerTapeDropdownHeader();
 
-    public partial class VRCOSCSettingsDropdownHeader : DropdownHeader
+    public partial class TickerTapeDropdownHeader : DropdownHeader
     {
         protected override LocalisableString Label
         {
@@ -297,7 +297,7 @@ public partial class ChatBoxTextInstanceDropdown<T> : VRCOSCDropdown<T>
         protected readonly SpriteText Text;
         public readonly SpriteIcon Icon;
 
-        public VRCOSCSettingsDropdownHeader()
+        public TickerTapeDropdownHeader()
         {
             Foreground.Padding = new MarginPadding(10);
 
@@ -356,7 +356,7 @@ public partial class ChatBoxTextInstanceDropdown<T> : VRCOSCDropdown<T>
     }
 }
 
-public enum ChatBoxTextDirection
+public enum TickerTapeDirection
 {
     Right,
     Left
