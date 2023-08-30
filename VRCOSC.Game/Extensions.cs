@@ -87,6 +87,7 @@ public static class AssemblyExtensions
 public static class StringExtensions
 {
     public static string Truncate(this string value, int maxChars) => value.Length <= maxChars ? value : value[..maxChars] + "...";
+    public static string TrimEnd(this string s, string trimmer) => string.IsNullOrEmpty(s) || string.IsNullOrEmpty(trimmer) || !s.EndsWith(trimmer, StringComparison.OrdinalIgnoreCase) ? s : s[..^trimmer.Length];
 }
 
 public static class IntegerExtensions
