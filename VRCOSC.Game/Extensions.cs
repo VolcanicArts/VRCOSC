@@ -88,3 +88,12 @@ public static class StringExtensions
 {
     public static string Truncate(this string value, int maxChars) => value.Length <= maxChars ? value : value[..maxChars] + "...";
 }
+
+public static class IntegerExtensions
+{
+    public static int Modulo(this int x, int m)
+    {
+        var r = x % m;
+        return r < 0 ? r + m : r;
+    }
+}

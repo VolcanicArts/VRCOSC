@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using VRCOSC.Game;
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.Modules.Avatar;
 
@@ -60,33 +61,29 @@ public class ChatBoxTextModule : ChatBoxModule
         {
             if (string.IsNullOrEmpty(instance.Key.Value) || !indexes.ContainsKey(instance.Key.Value) || string.IsNullOrEmpty(instance.Text.Value)) return;
 
-            var text = instance.Text.Value;
+            var position = indexes[instance.Key.Value].Modulo(instance.Text.Value.Length);
+            var text = cropAndWrapText(instance.Text.Value, position, instance.MaxLength.Value);
+
+            SetVariableValue(ChatBoxTextVariable.Text, text, instance.Key.Value);
 
             switch (instance.Direction.Value)
             {
                 case ChatBoxTextDirection.Right:
                     indexes[instance.Key.Value] += instance.ScrollSpeed.Value;
-                    if (indexes[instance.Key.Value] > text.Length - 1) indexes[instance.Key.Value] = 0 + (indexes[instance.Key.Value] - text.Length);
                     break;
 
                 case ChatBoxTextDirection.Left:
                     indexes[instance.Key.Value] -= instance.ScrollSpeed.Value;
-                    if (indexes[instance.Key.Value] < 1) indexes[instance.Key.Value] = text.Length - (0 - indexes[instance.Key.Value]);
                     break;
             }
-
-            var index = indexes[instance.Key.Value];
-
-            if (instance.ScrollSpeed.Value > 0)
-            {
-                var tickerText = $"{text}{text}";
-                var maxLength = Math.Min(instance.MaxLength.Value, text.Length);
-
-                text = tickerText[index..(maxLength + index)];
-            }
-
-            SetVariableValue(ChatBoxTextVariable.Text, text, instance.Key.Value);
         });
+    }
+
+    private static string cropAndWrapText(string text, int position, int maxLength)
+    {
+        var endPos = Math.Min(position + maxLength, text.Length);
+        var subText = text.Substring(position, endPos - position);
+        return endPos != text.Length ? subText : subText + text[..Math.Min(maxLength - subText.Length, position)];
     }
 
     private enum ChatBoxTextSetting
