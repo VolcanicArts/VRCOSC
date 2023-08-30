@@ -33,6 +33,7 @@ public sealed class ClockModule : ChatBoxModule
         CreateVariable(ClockVariable.Minutes, "Minutes", "m");
         CreateVariable(ClockVariable.Seconds, "Seconds", "s");
         CreateVariable(ClockVariable.Period, "AM/PM", "period");
+        CreateVariable(ClockVariable.Symbol, "Symbol", "symbol");
 
         CreateState(ClockState.Default, "Default", $"Local Time/v{GetVariableFormat(ClockVariable.Hours)}:{GetVariableFormat(ClockVariable.Minutes)}{GetVariableFormat(ClockVariable.Period)}");
     }
@@ -81,6 +82,28 @@ public sealed class ClockModule : ChatBoxModule
         SetVariableValue(ClockVariable.Minutes, minuteText);
         SetVariableValue(ClockVariable.Seconds, secondText);
         SetVariableValue(ClockVariable.Period, periodText);
+        SetVariableValue(ClockVariable.Symbol, getClockSymbol(time));
+    }
+
+    private static string getClockSymbol(DateTime time)
+    {
+        var offset = getClockSymbolCharacter(time);
+
+        var surrogate1 = 0xD800 + ((offset - 0x10000) >> 10);
+        var surrogate2 = 0xDC00 + ((offset - 0x10000) & 0x3FF);
+
+        var newCodePoint = ((surrogate1 - 0xD800) << 10) + (surrogate2 - 0xDC00) + 0x10000;
+
+        return char.ConvertFromUtf32(newCodePoint);
+    }
+
+    private static int getClockSymbolCharacter(DateTime time)
+    {
+        const int base_code_point = 128336;
+        const int half_past_base = 128348;
+
+        var hour = (time.Hour + 11) % 12;
+        return time.Minute >= 30 ? half_past_base + hour : base_code_point + hour;
     }
 
     private static float getSmoothedSeconds(DateTime time) => time.Second + time.Millisecond / 1000f;
@@ -126,7 +149,8 @@ public sealed class ClockModule : ChatBoxModule
         Hours,
         Minutes,
         Seconds,
-        Period
+        Period,
+        Symbol
     }
 
     private enum ClockMode
