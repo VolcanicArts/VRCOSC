@@ -45,30 +45,32 @@ Featuring:
 Check the [FAQ](https://github.com/VolcanicArts/VRCOSC/wiki/FAQ) if you have any issues with installing or using any of the prefabs.
 
 ## Official Modules
-If you have a module idea join the [Discord Server](https://discord.gg/vj4brHyvT5) and tell us or create it yourself!
+If you have a module idea join the [Discord Server](https://discord.gg/vj4brHyvT5) and tell us or [create it yourself](https://github.com/VolcanicArts/VRCOSC/wiki/Module-Creation)!
 
 Note: The VRCOSC-Controls.unitypackage prefab is global controls for VRCOSC. It does not require a module to use.
 
+All prefabs listed can be downloaded from the [Releases](https://github.com/VolcanicArts/VRCOSC/releases/latest) page
+
 | Module | Description | Prefab |
-| :--- | :--- | :---: |
+| :---: | :--- | :---: |
 | Media | Allows for media display in the ChatBox and full control over media from your action menu | VRCOSC-Media.unitypackage |
-| Hardware Stats | Gather's hardware stats to send to your avatar and display in the ChatBox | |
-| AFK Display | Displays how long you've been AFK for in the ChatBox | |
-| Speech To Text | Run Speech To Text using any language model and display the result in your ChatBox | |
+| Pulsoid [![pulsoid](https://pulsoid.net/s/github-badge)](https://pulsoid.net/) | Connects to [Pulsoid](https://pulsoid.net/) to display your live heartrate in-game - [Supported Devices](https://www.blog.pulsoid.net/monitors) | VRCOSC-Heartrate.unitypackage |
 | HypeRate | Connects to [HypeRate.io](https://www.hyperate.io/) to display your live heartrate in-game - [Supported Devices](https://www.hyperate.io/supported-devices) | VRCOSC-Heartrate.unitypackage |
-| Pulsoid | Connects to [Pulsoid](https://pulsoid.net/) to display your live heartrate in-game - [Supported Devices](https://www.blog.pulsoid.net/monitors) | VRCOSC-Heartrate.unitypackage |
+| Speech To Text | Run Speech To Text using any language model and display the result in your ChatBox | |
+| Clock | Sends your local time as hours, minutes, and seconds to be displayed on a wrist watch | VRCOSC-Watch.unitypackage |
 | PiShock | Allow you to control groups of PiShock shockers directly from your avatar | VRCOSC-PiShock.unitypackage |
-| Process Manager | Open and close apps on your PC using avatar parameters | |
+| Hardware Stats | Gather's hardware stats to send to your avatar and display in the ChatBox | |
 | Haptic Control | Allows for triggering controller haptics using variables from your avatar | |
 | OpenVR Statistics | Gets statistics from your OpenVR (SteamVR) session | VRCOSC-Trackers.unitypackage |
 | OpenVR Controller Statistics | Gets controller statistics from your OpenVR (SteamVR) session | |
 | Gesture Extensions | Allows for custom gestures to be sent to VRChat from your Index controllers | |
+| AFK Display | Displays how long you've been AFK for in the ChatBox | |
+| Process Manager | Open and close apps on your PC using avatar parameters | |
 | Weather | Gets weather from a postcode/zipcode/city to display in the ChatBox | |
 | Counter | Counts how many times a parameter on your avatar changes to be displayed in the ChatBox | |
 | ChatBox Text | Displays custom text in the ChatBox that can also function like a ticker tape | |
-| Clock | Sends your local time as hours, minutes, and seconds to be displayed on a wrist watch | VRCOSC-Watch.unitypackage |
 | Discord | Allows for toggling of mute and deafen from the action menu | VRCOSC-Discord.unitypackage |
-| Exchange Rate | Retrieves exchange rate information for IRL currencies and displays them in the ChatBox | |
+| Exchange Rate | Retrieves exchange rate information for currencies and displays them in the ChatBox | |
 
 ## License
 This program is licensed under the [GNU General Public License V3](https://www.gnu.org/licenses/gpl-3.0.en.html). Please see [the license file](LICENSE) for more information.
