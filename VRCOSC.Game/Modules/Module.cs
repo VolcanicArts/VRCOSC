@@ -407,7 +407,7 @@ public abstract class Module : IComparable<Module>
     #region Parameters
 
     /// <summary>
-    /// Allows for sending a parameter that hasn't been registed. Only use this when absolutely necessary
+    /// Allows for sending a parameter that hasn't been registered. Only use this when absolutely necessary
     /// </summary>
     protected void SendParameter<T>(string parameterName, T value) where T : struct
     {
