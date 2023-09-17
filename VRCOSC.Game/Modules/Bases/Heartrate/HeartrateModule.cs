@@ -14,7 +14,7 @@ namespace VRCOSC.Game.Modules.Bases.Heartrate;
 public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProvider
 {
     private const int reconnection_delay = 2000;
-    private const int reconnection_limit = 3;
+    private const int reconnection_limit = 30;
 
     protected T? HeartrateProvider;
 
