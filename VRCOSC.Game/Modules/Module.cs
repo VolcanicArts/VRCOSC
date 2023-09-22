@@ -409,7 +409,7 @@ public abstract class Module : IComparable<Module>
     /// <summary>
     /// Allows for sending a parameter that hasn't been registered. Only use this when absolutely necessary
     /// </summary>
-    protected void SendParameter<T>(string parameterName, T value) where T : struct
+    protected void SendParameter(string parameterName, object value)
     {
         scheduler.Add(() => oscClient.SendValue($"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}/{parameterName}", value));
     }
