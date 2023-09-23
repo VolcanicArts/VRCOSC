@@ -10,10 +10,12 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Localisation;
+using osu.Framework.Platform;
 using osuTK;
 using VRCOSC.Game.Graphics.ModuleAttributes.Attributes;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI;
+using VRCOSC.Game.Graphics.UI.Button;
 using VRCOSC.Game.Graphics.UI.Text;
 using VRCOSC.Game.Modules.Attributes;
 
@@ -68,6 +70,9 @@ public class MathsEquationInstanceListAttribute : ModuleAttributeList<MathsEquat
 
 public partial class MathsEquationInstanceAttributeCardList : AttributeCardList<MathsEquationInstanceListAttribute, MathsEquationInstance>
 {
+    [Resolved]
+    private GameHost host { get; set; } = null!;
+
     public MathsEquationInstanceAttributeCardList(MathsEquationInstanceListAttribute attributeData)
         : base(attributeData)
     {
@@ -76,6 +81,26 @@ public partial class MathsEquationInstanceAttributeCardList : AttributeCardList<
     [BackgroundDependencyLoader]
     private void load()
     {
+        Add(new Container
+        {
+            Anchor = Anchor.TopCentre,
+            Origin = Anchor.TopCentre,
+            RelativeSizeAxes = Axes.X,
+            Height = 30,
+            Width = 0.75f,
+            Child = new TextButton
+            {
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                RelativeSizeAxes = Axes.Both,
+                Text = "See built-in functions and variables",
+                CornerRadius = 5,
+                FontSize = 22,
+                Action = () => host.OpenUrlExternally("https://mathparser.org/mxparser-math-collection/"),
+                BackgroundColour = ThemeManager.Current[ThemeAttribute.Action]
+            }
+        });
+
         AddToContent(new Container
         {
             Anchor = Anchor.TopCentre,
