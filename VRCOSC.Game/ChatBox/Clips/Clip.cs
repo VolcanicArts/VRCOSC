@@ -181,7 +181,7 @@ public class Clip
     {
         foreach (var clipState in localStates.ToImmutableList())
         {
-            var stateValid = clipState.ModuleNames.All(moduleName => appManager.ModuleManager.GetModule(moduleName) is not null);
+            var stateValid = clipState.ModuleNames.All(moduleName => appManager.ModuleManager.IsModuleLoaded(moduleName));
             if (!stateValid) localStates.Remove(clipState);
         }
     }

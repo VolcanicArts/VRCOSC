@@ -57,6 +57,7 @@ public class TimelineSerialiser : Serialiser<AppManager, SerialisableTimeline>
                     if (index == -1) return;
 
                     clipState.States[index].Module = migration.SerialisedName;
+                    clipState.Format = clipState.Format.Replace(migration.LegacySerialisedName.TrimEnd("module"), migration.SerialisedName.TrimEnd("module"));
                     migrationOccurred = true;
                 });
             });
