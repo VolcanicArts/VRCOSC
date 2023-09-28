@@ -140,6 +140,7 @@ public class ChatBoxManager
     {
         var newClip = new Clip();
         newClip.InjectDependencies(appManager);
+        newClip.Load();
         return newClip;
     }
 
