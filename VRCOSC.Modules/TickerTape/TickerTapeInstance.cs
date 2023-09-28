@@ -16,60 +16,59 @@ using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Graphics.UI.Text;
 using VRCOSC.Game.Modules.Attributes;
-using VRCOSC.Game.Providers.PiShock;
 
-namespace VRCOSC.Modules.PiShock;
+namespace VRCOSC.Modules.TickerTape;
 
-public class PiShockPhraseInstance : IEquatable<PiShockPhraseInstance>
+public class TickerTapeInstance : IEquatable<TickerTapeInstance>
 {
-    [JsonProperty("phrase")]
-    public Bindable<string> Phrase = new(string.Empty);
+    [JsonProperty("key")]
+    public Bindable<string> Key = new(string.Empty);
 
-    [JsonProperty("shocker_key")]
-    public Bindable<string> ShockerKey = new(string.Empty);
+    [JsonProperty("text")]
+    public Bindable<string> Text = new(string.Empty);
 
-    [JsonProperty("mode")]
-    public Bindable<PiShockMode> Mode = new();
+    [JsonProperty("direction")]
+    public Bindable<TickerTapeDirection> Direction = new();
 
-    [JsonProperty("duration")]
-    public Bindable<int> Duration = new(1);
+    [JsonProperty("scroll_speed")]
+    public Bindable<int> ScrollSpeed = new();
 
-    [JsonProperty("intensity")]
-    public Bindable<int> Intensity = new(1);
+    [JsonProperty("max_length")]
+    public Bindable<int> MaxLength = new();
+
+    public bool Equals(TickerTapeInstance? other)
+    {
+        if (ReferenceEquals(other, null)) return false;
+
+        return Key.Value == other.Key.Value && Text.Value == other.Text.Value && Direction.Value == other.Direction.Value && ScrollSpeed.Value == other.ScrollSpeed.Value && MaxLength.Value == other.MaxLength.Value;
+    }
 
     [JsonConstructor]
-    public PiShockPhraseInstance()
+    public TickerTapeInstance()
     {
     }
 
-    public PiShockPhraseInstance(PiShockPhraseInstance other)
+    public TickerTapeInstance(TickerTapeInstance other)
     {
-        Phrase.Value = other.Phrase.Value;
-        ShockerKey.Value = other.ShockerKey.Value;
-        Mode.Value = other.Mode.Value;
-        Duration.Value = other.Duration.Value;
-        Intensity.Value = other.Intensity.Value;
-    }
-
-    public bool Equals(PiShockPhraseInstance? other)
-    {
-        if (ReferenceEquals(null, other)) return false;
-
-        return Phrase.Value.Equals(other.Phrase.Value) && ShockerKey.Value.Equals(other.ShockerKey.Value) && Mode.Value.Equals(other.Mode.Value) && Duration.Value.Equals(other.Duration.Value) && Intensity.Value.Equals(other.Intensity.Value);
+        Key.Value = other.Key.Value;
+        Text.Value = other.Text.Value;
+        Direction.Value = other.Direction.Value;
+        ScrollSpeed.Value = other.ScrollSpeed.Value;
+        MaxLength.Value = other.MaxLength.Value;
     }
 }
 
-public class PiShockPhraseInstanceListAttribute : ModuleAttributeList<PiShockPhraseInstance>
+public class TickerTapeInstanceListAttribute : ModuleAttributeList<TickerTapeInstance>
 {
-    public override Drawable GetAssociatedCard() => new PiShockPhraseInstanceAttributeCardList(this);
+    public override Drawable GetAssociatedCard() => new TickerTapeInstanceAttributeCardList(this);
 
-    protected override IEnumerable<PiShockPhraseInstance> JArrayToType(JArray array) => array.Select(value => new PiShockPhraseInstance(value.ToObject<PiShockPhraseInstance>()!)).ToList();
-    protected override IEnumerable<PiShockPhraseInstance> GetClonedDefaults() => Default.Select(defaultValue => new PiShockPhraseInstance(defaultValue)).ToList();
+    protected override IEnumerable<TickerTapeInstance> JArrayToType(JArray array) => array.Select(value => new TickerTapeInstance(value.ToObject<TickerTapeInstance>()!)).ToList();
+    protected override IEnumerable<TickerTapeInstance> GetClonedDefaults() => Default.Select(defaultValue => new TickerTapeInstance(defaultValue)).ToList();
 }
 
-public partial class PiShockPhraseInstanceAttributeCardList : AttributeCardList<PiShockPhraseInstanceListAttribute, PiShockPhraseInstance>
+public partial class TickerTapeInstanceAttributeCardList : AttributeCardList<TickerTapeInstanceListAttribute, TickerTapeInstance>
 {
-    public PiShockPhraseInstanceAttributeCardList(PiShockPhraseInstanceListAttribute attributeData)
+    public TickerTapeInstanceAttributeCardList(TickerTapeInstanceListAttribute attributeData)
         : base(attributeData)
     {
     }
@@ -95,9 +94,9 @@ public partial class PiShockPhraseInstanceAttributeCardList : AttributeCardList<
                 AutoSizeAxes = Axes.Y,
                 ColumnDimensions = new[]
                 {
-                    new Dimension(),
+                    new Dimension(maxSize: 150),
                     new Dimension(GridSizeMode.Absolute, 5),
-                    new Dimension(maxSize: 175),
+                    new Dimension(),
                     new Dimension(GridSizeMode.Absolute, 5),
                     new Dimension(maxSize: 100),
                     new Dimension(GridSizeMode.Absolute, 5),
@@ -121,19 +120,6 @@ public partial class PiShockPhraseInstanceAttributeCardList : AttributeCardList<
                             {
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
-                                Text = "Phrase",
-                                Font = FrameworkFont.Regular.With(size: 20)
-                            }
-                        },
-                        null,
-                        new Container
-                        {
-                            RelativeSizeAxes = Axes.X,
-                            AutoSizeAxes = Axes.Y,
-                            Child = new SpriteText
-                            {
-                                Anchor = Anchor.Centre,
-                                Origin = Anchor.Centre,
                                 Text = "Key",
                                 Font = FrameworkFont.Regular.With(size: 20)
                             }
@@ -147,7 +133,7 @@ public partial class PiShockPhraseInstanceAttributeCardList : AttributeCardList<
                             {
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
-                                Text = "Mode",
+                                Text = "Text",
                                 Font = FrameworkFont.Regular.With(size: 20)
                             }
                         },
@@ -160,7 +146,7 @@ public partial class PiShockPhraseInstanceAttributeCardList : AttributeCardList<
                             {
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
-                                Text = "Duration",
+                                Text = "Direction",
                                 Font = FrameworkFont.Regular.With(size: 20)
                             }
                         },
@@ -173,7 +159,20 @@ public partial class PiShockPhraseInstanceAttributeCardList : AttributeCardList<
                             {
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
-                                Text = "Intensity",
+                                Text = "Scroll Speed",
+                                Font = FrameworkFont.Regular.With(size: 20)
+                            }
+                        },
+                        null,
+                        new Container
+                        {
+                            RelativeSizeAxes = Axes.X,
+                            AutoSizeAxes = Axes.Y,
+                            Child = new SpriteText
+                            {
+                                Anchor = Anchor.Centre,
+                                Origin = Anchor.Centre,
+                                Text = "Max Length",
                                 Font = FrameworkFont.Regular.With(size: 20)
                             }
                         }
@@ -183,7 +182,7 @@ public partial class PiShockPhraseInstanceAttributeCardList : AttributeCardList<
         }, float.MinValue);
     }
 
-    protected override void OnInstanceAdd(PiShockPhraseInstance instance)
+    protected override void OnInstanceAdd(TickerTapeInstance instance)
     {
         AddToList(new GridContainer
         {
@@ -193,9 +192,9 @@ public partial class PiShockPhraseInstanceAttributeCardList : AttributeCardList<
             AutoSizeAxes = Axes.Y,
             ColumnDimensions = new[]
             {
-                new Dimension(),
+                new Dimension(maxSize: 150),
                 new Dimension(GridSizeMode.Absolute, 5),
-                new Dimension(maxSize: 175),
+                new Dimension(),
                 new Dimension(GridSizeMode.Absolute, 5),
                 new Dimension(maxSize: 100),
                 new Dimension(GridSizeMode.Absolute, 5),
@@ -221,9 +220,8 @@ public partial class PiShockPhraseInstanceAttributeCardList : AttributeCardList<
                         CornerRadius = 5,
                         BorderColour = ThemeManager.Current[ThemeAttribute.Border],
                         BorderThickness = 2,
-                        ValidCurrent = instance.Phrase.GetBoundCopy(),
-                        PlaceholderText = "Phrase",
-                        EmptyIsValid = false
+                        ValidCurrent = instance.Key.GetBoundCopy(),
+                        PlaceholderText = "Key"
                     },
                     null,
                     new StringTextBox
@@ -236,35 +234,17 @@ public partial class PiShockPhraseInstanceAttributeCardList : AttributeCardList<
                         CornerRadius = 5,
                         BorderColour = ThemeManager.Current[ThemeAttribute.Border],
                         BorderThickness = 2,
-                        ValidCurrent = instance.ShockerKey.GetBoundCopy(),
-                        PlaceholderText = "Key",
-                        EmptyIsValid = false
+                        ValidCurrent = instance.Text.GetBoundCopy(),
+                        PlaceholderText = "Text"
                     },
                     null,
-                    new PiShockPhraseInstanceDropdown<PiShockMode>
+                    new TickerTapeInstanceDropdown<TickerTapeDirection>
                     {
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
                         RelativeSizeAxes = Axes.X,
-                        Items = Enum.GetValues(typeof(PiShockMode)).Cast<PiShockMode>(),
-                        Current = instance.Mode.GetBoundCopy()
-                    },
-                    null,
-                    new IntTextBox
-                    {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        RelativeSizeAxes = Axes.X,
-                        Height = 30,
-                        Masking = true,
-                        CornerRadius = 5,
-                        BorderColour = ThemeManager.Current[ThemeAttribute.Border],
-                        BorderThickness = 2,
-                        ValidCurrent = instance.Duration.GetBoundCopy(),
-                        PlaceholderText = "Duration",
-                        EmptyIsValid = false,
-                        Minimum = 1,
-                        Maximum = 15
+                        Items = Enum.GetValues(typeof(TickerTapeDirection)).Cast<TickerTapeDirection>(),
+                        Current = instance.Direction.GetBoundCopy()
                     },
                     null,
                     new IntTextBox
@@ -277,25 +257,36 @@ public partial class PiShockPhraseInstanceAttributeCardList : AttributeCardList<
                         CornerRadius = 5,
                         BorderColour = ThemeManager.Current[ThemeAttribute.Border],
                         BorderThickness = 2,
-                        ValidCurrent = instance.Intensity.GetBoundCopy(),
-                        PlaceholderText = "Intensity",
-                        EmptyIsValid = false,
-                        Minimum = 1,
-                        Maximum = 100
-                    }
+                        ValidCurrent = instance.ScrollSpeed.GetBoundCopy(),
+                        PlaceholderText = "Scroll Speed"
+                    },
+                    null,
+                    new IntTextBox
+                    {
+                        Anchor = Anchor.TopCentre,
+                        Origin = Anchor.TopCentre,
+                        RelativeSizeAxes = Axes.X,
+                        Height = 30,
+                        Masking = true,
+                        CornerRadius = 5,
+                        BorderColour = ThemeManager.Current[ThemeAttribute.Border],
+                        BorderThickness = 2,
+                        ValidCurrent = instance.MaxLength.GetBoundCopy(),
+                        PlaceholderText = "Max Length"
+                    },
                 }
             }
         });
     }
 
-    protected override PiShockPhraseInstance CreateInstance() => new();
+    protected override TickerTapeInstance CreateInstance() => new();
 }
 
-public partial class PiShockPhraseInstanceDropdown<T> : VRCOSCDropdown<T>
+public partial class TickerTapeInstanceDropdown<T> : VRCOSCDropdown<T>
 {
-    protected override DropdownHeader CreateHeader() => new PiShockPhraseInstanceDropdownHeader();
+    protected override DropdownHeader CreateHeader() => new TickerTapeDropdownHeader();
 
-    public partial class PiShockPhraseInstanceDropdownHeader : DropdownHeader
+    public partial class TickerTapeDropdownHeader : DropdownHeader
     {
         protected override LocalisableString Label
         {
@@ -306,7 +297,7 @@ public partial class PiShockPhraseInstanceDropdown<T> : VRCOSCDropdown<T>
         protected readonly SpriteText Text;
         public readonly SpriteIcon Icon;
 
-        public PiShockPhraseInstanceDropdownHeader()
+        public TickerTapeDropdownHeader()
         {
             Foreground.Padding = new MarginPadding(10);
 
@@ -363,4 +354,10 @@ public partial class PiShockPhraseInstanceDropdown<T> : VRCOSCDropdown<T>
             BackgroundColourHover = ThemeManager.Current[ThemeAttribute.Mid];
         }
     }
+}
+
+public enum TickerTapeDirection
+{
+    Right,
+    Left
 }

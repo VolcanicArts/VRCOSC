@@ -198,7 +198,7 @@ public class PiShockModule : AvatarModule
     {
         var response = await piShockProvider!.Execute(GetSetting<string>(PiShockSetting.Username), GetSetting<string>(PiShockSetting.APIKey), instance.Sharecode.Value, mode, convertedDuration, convertedIntensity);
 
-        Log(response.Success ? $"Executing {mode} on {instance.Sharecode.Value} with duration {response.FinalDuration}s and intensity {response.FinalIntensity}%" : response.Message);
+        Log(response.Success ? $"Executing {mode} on {instance.Key.Value} with duration {response.FinalDuration}s and intensity {response.FinalIntensity}%" : response.Message);
 
         if (response.Success)
         {

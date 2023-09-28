@@ -14,7 +14,7 @@ namespace VRCOSC.Game.Modules.Bases.Heartrate;
 public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProvider
 {
     private const int reconnection_delay = 2000;
-    private const int reconnection_limit = 3;
+    private const int reconnection_limit = 30;
 
     protected T? HeartrateProvider;
 
@@ -59,7 +59,7 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
         ChangeStateTo(HeartrateState.Default);
     }
 
-    private void attemptReconnection()
+    private async void attemptReconnection()
     {
         if (connectionCount >= reconnection_limit)
         {
@@ -70,7 +70,10 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
         Log("Attempting reconnection...");
         Thread.Sleep(reconnection_delay);
 
-        HeartrateProvider?.Teardown();
+        if (HeartrateProvider is null) return;
+
+        await HeartrateProvider.Teardown();
+
         HeartrateProvider?.Initialise();
         connectionCount++;
     }

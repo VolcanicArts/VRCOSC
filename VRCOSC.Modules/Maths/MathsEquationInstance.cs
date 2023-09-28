@@ -10,65 +10,70 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Localisation;
+using osu.Framework.Platform;
 using osuTK;
 using VRCOSC.Game.Graphics.ModuleAttributes.Attributes;
 using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI;
+using VRCOSC.Game.Graphics.UI.Button;
 using VRCOSC.Game.Graphics.UI.Text;
 using VRCOSC.Game.Modules.Attributes;
 
-namespace VRCOSC.Modules.ChatBoxText;
+namespace VRCOSC.Modules.Maths;
 
-public class ChatBoxTextInstance : IEquatable<ChatBoxTextInstance>
+public class MathsEquationInstance : IEquatable<MathsEquationInstance>
 {
-    [JsonProperty("key")]
-    public Bindable<string> Key = new(string.Empty);
+    [JsonProperty("input_parameter")]
+    public Bindable<string> InputParameter = new(string.Empty);
 
-    [JsonProperty("text")]
-    public Bindable<string> Text = new(string.Empty);
+    [JsonProperty("input_type")]
+    public Bindable<MathsEquationValueType> InputType = new();
 
-    [JsonProperty("direction")]
-    public Bindable<ChatBoxTextDirection> Direction = new();
+    [JsonProperty("equation")]
+    public Bindable<string> Equation = new(string.Empty);
 
-    [JsonProperty("scroll_speed")]
-    public Bindable<int> ScrollSpeed = new();
+    [JsonProperty("output_parameter")]
+    public Bindable<string> OutputParameter = new(string.Empty);
 
-    [JsonProperty("max_length")]
-    public Bindable<int> MaxLength = new();
+    [JsonProperty("output_type")]
+    public Bindable<MathsEquationValueType> OutputType = new();
 
-    public bool Equals(ChatBoxTextInstance? other)
+    public bool Equals(MathsEquationInstance? other)
     {
         if (ReferenceEquals(other, null)) return false;
 
-        return Key.Value == other.Key.Value && Text.Value == other.Text.Value && Direction.Value == other.Direction.Value && ScrollSpeed.Value == other.ScrollSpeed.Value && MaxLength.Value == other.MaxLength.Value;
+        return InputParameter.Value == other.InputParameter.Value && InputType.Value == other.InputType.Value && Equation.Value == other.Equation.Value && OutputParameter.Value == other.OutputParameter.Value && OutputType.Value == other.OutputType.Value;
     }
 
     [JsonConstructor]
-    public ChatBoxTextInstance()
+    public MathsEquationInstance()
     {
     }
 
-    public ChatBoxTextInstance(ChatBoxTextInstance other)
+    public MathsEquationInstance(MathsEquationInstance other)
     {
-        Key.Value = other.Key.Value;
-        Text.Value = other.Text.Value;
-        Direction.Value = other.Direction.Value;
-        ScrollSpeed.Value = other.ScrollSpeed.Value;
-        MaxLength.Value = other.MaxLength.Value;
+        InputParameter.Value = other.InputParameter.Value;
+        InputType.Value = other.InputType.Value;
+        Equation.Value = other.Equation.Value;
+        OutputParameter.Value = other.OutputParameter.Value;
+        OutputType.Value = other.OutputType.Value;
     }
 }
 
-public class ChatBoxTextInstanceListAttribute : ModuleAttributeList<ChatBoxTextInstance>
+public class MathsEquationInstanceListAttribute : ModuleAttributeList<MathsEquationInstance>
 {
-    public override Drawable GetAssociatedCard() => new ChatBoxTextInstanceAttributeCardList(this);
+    public override Drawable GetAssociatedCard() => new MathsEquationInstanceAttributeCardList(this);
 
-    protected override IEnumerable<ChatBoxTextInstance> JArrayToType(JArray array) => array.Select(value => new ChatBoxTextInstance(value.ToObject<ChatBoxTextInstance>()!)).ToList();
-    protected override IEnumerable<ChatBoxTextInstance> GetClonedDefaults() => Default.Select(defaultValue => new ChatBoxTextInstance(defaultValue)).ToList();
+    protected override IEnumerable<MathsEquationInstance> JArrayToType(JArray array) => array.Select(value => new MathsEquationInstance(value.ToObject<MathsEquationInstance>()!)).ToList();
+    protected override IEnumerable<MathsEquationInstance> GetClonedDefaults() => Default.Select(defaultValue => new MathsEquationInstance(defaultValue)).ToList();
 }
 
-public partial class ChatBoxTextInstanceAttributeCardList : AttributeCardList<ChatBoxTextInstanceListAttribute, ChatBoxTextInstance>
+public partial class MathsEquationInstanceAttributeCardList : AttributeCardList<MathsEquationInstanceListAttribute, MathsEquationInstance>
 {
-    public ChatBoxTextInstanceAttributeCardList(ChatBoxTextInstanceListAttribute attributeData)
+    [Resolved]
+    private GameHost host { get; set; } = null!;
+
+    public MathsEquationInstanceAttributeCardList(MathsEquationInstanceListAttribute attributeData)
         : base(attributeData)
     {
     }
@@ -76,6 +81,26 @@ public partial class ChatBoxTextInstanceAttributeCardList : AttributeCardList<Ch
     [BackgroundDependencyLoader]
     private void load()
     {
+        Add(new Container
+        {
+            Anchor = Anchor.TopCentre,
+            Origin = Anchor.TopCentre,
+            RelativeSizeAxes = Axes.X,
+            Height = 30,
+            Width = 0.75f,
+            Child = new TextButton
+            {
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                RelativeSizeAxes = Axes.Both,
+                Text = "See built-in functions and variables",
+                CornerRadius = 5,
+                FontSize = 22,
+                Action = () => host.OpenUrlExternally("https://mathparser.org/mxparser-math-collection/"),
+                BackgroundColour = ThemeManager.Current[ThemeAttribute.Action]
+            }
+        });
+
         AddToContent(new Container
         {
             Anchor = Anchor.TopCentre,
@@ -94,13 +119,13 @@ public partial class ChatBoxTextInstanceAttributeCardList : AttributeCardList<Ch
                 AutoSizeAxes = Axes.Y,
                 ColumnDimensions = new[]
                 {
-                    new Dimension(maxSize: 150),
+                    new Dimension(maxSize: 250),
                     new Dimension(GridSizeMode.Absolute, 5),
+                    new Dimension(maxSize: 100),
+                    new Dimension(GridSizeMode.Absolute, 15),
                     new Dimension(),
-                    new Dimension(GridSizeMode.Absolute, 5),
-                    new Dimension(maxSize: 100),
-                    new Dimension(GridSizeMode.Absolute, 5),
-                    new Dimension(maxSize: 100),
+                    new Dimension(GridSizeMode.Absolute, 15),
+                    new Dimension(maxSize: 250),
                     new Dimension(GridSizeMode.Absolute, 5),
                     new Dimension(maxSize: 100)
                 },
@@ -120,7 +145,7 @@ public partial class ChatBoxTextInstanceAttributeCardList : AttributeCardList<Ch
                             {
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
-                                Text = "Key",
+                                Text = "Input Parameter",
                                 Font = FrameworkFont.Regular.With(size: 20)
                             }
                         },
@@ -133,7 +158,7 @@ public partial class ChatBoxTextInstanceAttributeCardList : AttributeCardList<Ch
                             {
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
-                                Text = "Text",
+                                Text = "Input Type",
                                 Font = FrameworkFont.Regular.With(size: 20)
                             }
                         },
@@ -146,7 +171,7 @@ public partial class ChatBoxTextInstanceAttributeCardList : AttributeCardList<Ch
                             {
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
-                                Text = "Direction",
+                                Text = "Equation",
                                 Font = FrameworkFont.Regular.With(size: 20)
                             }
                         },
@@ -159,7 +184,7 @@ public partial class ChatBoxTextInstanceAttributeCardList : AttributeCardList<Ch
                             {
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
-                                Text = "Scroll Speed",
+                                Text = "Output Parameter",
                                 Font = FrameworkFont.Regular.With(size: 20)
                             }
                         },
@@ -172,7 +197,7 @@ public partial class ChatBoxTextInstanceAttributeCardList : AttributeCardList<Ch
                             {
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
-                                Text = "Max Length",
+                                Text = "Output Type",
                                 Font = FrameworkFont.Regular.With(size: 20)
                             }
                         }
@@ -182,7 +207,7 @@ public partial class ChatBoxTextInstanceAttributeCardList : AttributeCardList<Ch
         }, float.MinValue);
     }
 
-    protected override void OnInstanceAdd(ChatBoxTextInstance instance)
+    protected override void OnInstanceAdd(MathsEquationInstance instance)
     {
         AddToList(new GridContainer
         {
@@ -192,13 +217,13 @@ public partial class ChatBoxTextInstanceAttributeCardList : AttributeCardList<Ch
             AutoSizeAxes = Axes.Y,
             ColumnDimensions = new[]
             {
-                new Dimension(maxSize: 150),
+                new Dimension(maxSize: 250),
                 new Dimension(GridSizeMode.Absolute, 5),
+                new Dimension(maxSize: 100),
+                new Dimension(GridSizeMode.Absolute, 15),
                 new Dimension(),
-                new Dimension(GridSizeMode.Absolute, 5),
-                new Dimension(maxSize: 100),
-                new Dimension(GridSizeMode.Absolute, 5),
-                new Dimension(maxSize: 100),
+                new Dimension(GridSizeMode.Absolute, 15),
+                new Dimension(maxSize: 250),
                 new Dimension(GridSizeMode.Absolute, 5),
                 new Dimension(maxSize: 100)
             },
@@ -220,8 +245,17 @@ public partial class ChatBoxTextInstanceAttributeCardList : AttributeCardList<Ch
                         CornerRadius = 5,
                         BorderColour = ThemeManager.Current[ThemeAttribute.Border],
                         BorderThickness = 2,
-                        ValidCurrent = instance.Key.GetBoundCopy(),
-                        PlaceholderText = "Key"
+                        ValidCurrent = instance.InputParameter.GetBoundCopy(),
+                        PlaceholderText = "Input Parameter"
+                    },
+                    null,
+                    new MathsValueTypeInstanceDropdown<MathsEquationValueType>
+                    {
+                        Anchor = Anchor.TopCentre,
+                        Origin = Anchor.TopCentre,
+                        RelativeSizeAxes = Axes.X,
+                        Items = Enum.GetValues(typeof(MathsEquationValueType)).Cast<MathsEquationValueType>(),
+                        Current = instance.InputType.GetBoundCopy()
                     },
                     null,
                     new StringTextBox
@@ -234,20 +268,11 @@ public partial class ChatBoxTextInstanceAttributeCardList : AttributeCardList<Ch
                         CornerRadius = 5,
                         BorderColour = ThemeManager.Current[ThemeAttribute.Border],
                         BorderThickness = 2,
-                        ValidCurrent = instance.Text.GetBoundCopy(),
-                        PlaceholderText = "Text"
+                        ValidCurrent = instance.Equation.GetBoundCopy(),
+                        PlaceholderText = "Equation"
                     },
                     null,
-                    new ChatBoxTextInstanceDropdown<ChatBoxTextDirection>
-                    {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        RelativeSizeAxes = Axes.X,
-                        Items = Enum.GetValues(typeof(ChatBoxTextDirection)).Cast<ChatBoxTextDirection>(),
-                        Current = instance.Direction.GetBoundCopy()
-                    },
-                    null,
-                    new IntTextBox
+                    new StringTextBox
                     {
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
@@ -257,36 +282,31 @@ public partial class ChatBoxTextInstanceAttributeCardList : AttributeCardList<Ch
                         CornerRadius = 5,
                         BorderColour = ThemeManager.Current[ThemeAttribute.Border],
                         BorderThickness = 2,
-                        ValidCurrent = instance.ScrollSpeed.GetBoundCopy(),
-                        PlaceholderText = "Scroll Speed"
+                        ValidCurrent = instance.OutputParameter.GetBoundCopy(),
+                        PlaceholderText = "Output Parameter"
                     },
                     null,
-                    new IntTextBox
+                    new MathsValueTypeInstanceDropdown<MathsEquationValueType>
                     {
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
                         RelativeSizeAxes = Axes.X,
-                        Height = 30,
-                        Masking = true,
-                        CornerRadius = 5,
-                        BorderColour = ThemeManager.Current[ThemeAttribute.Border],
-                        BorderThickness = 2,
-                        ValidCurrent = instance.MaxLength.GetBoundCopy(),
-                        PlaceholderText = "Max Length"
-                    },
+                        Items = Enum.GetValues(typeof(MathsEquationValueType)).Cast<MathsEquationValueType>(),
+                        Current = instance.OutputType.GetBoundCopy()
+                    }
                 }
             }
         });
     }
 
-    protected override ChatBoxTextInstance CreateInstance() => new();
+    protected override MathsEquationInstance CreateInstance() => new();
 }
 
-public partial class ChatBoxTextInstanceDropdown<T> : VRCOSCDropdown<T>
+public partial class MathsValueTypeInstanceDropdown<T> : VRCOSCDropdown<T>
 {
-    protected override DropdownHeader CreateHeader() => new VRCOSCSettingsDropdownHeader();
+    protected override DropdownHeader CreateHeader() => new MathsValueTypeDropdownHeader();
 
-    public partial class VRCOSCSettingsDropdownHeader : DropdownHeader
+    public partial class MathsValueTypeDropdownHeader : DropdownHeader
     {
         protected override LocalisableString Label
         {
@@ -297,7 +317,7 @@ public partial class ChatBoxTextInstanceDropdown<T> : VRCOSCDropdown<T>
         protected readonly SpriteText Text;
         public readonly SpriteIcon Icon;
 
-        public VRCOSCSettingsDropdownHeader()
+        public MathsValueTypeDropdownHeader()
         {
             Foreground.Padding = new MarginPadding(10);
 
@@ -356,8 +376,9 @@ public partial class ChatBoxTextInstanceDropdown<T> : VRCOSCDropdown<T>
     }
 }
 
-public enum ChatBoxTextDirection
+public enum MathsEquationValueType
 {
-    Right,
-    Left
+    Bool,
+    Int,
+    Float
 }
