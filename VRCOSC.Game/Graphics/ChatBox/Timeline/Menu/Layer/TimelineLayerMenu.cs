@@ -46,6 +46,7 @@ public partial class TimelineLayerMenu : TimelineMenu
         clip.End.Value = upperBound;
         clip.Priority.Value = Layer.Priority;
 
+        clip.Load();
         appManager.ChatBoxManager.Clips.Add(clip);
 
         Hide();
