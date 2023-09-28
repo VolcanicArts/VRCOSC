@@ -109,7 +109,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         notificationContainer.Notify(new TimedNotification
         {
             Title = "Join The Community!",
-            Description = "Click to join the Discord server",
+            Description = "Click to join the Discord server!",
             Icon = FontAwesome.Brands.Discord,
             Colour = Colour4.FromHex("7289DA"),
             ClickCallback = () => host.OpenUrlExternally(discord_invite_url),
@@ -119,7 +119,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         notificationContainer.Notify(new TimedNotification
         {
             Title = "Enjoying the app?",
-            Description = "Click to buy me a coffee",
+            Description = "Click to support me!",
             Icon = FontAwesome.Solid.Coffee,
             Colour = Colour4.FromHex("ff5f5f"),
             ClickCallback = () => host.OpenUrlExternally(kofi_url),

@@ -14,7 +14,6 @@ public static class DefaultTimeline
         yield return generateClockClip(chatBoxManager);
         yield return generateHwsClip(chatBoxManager);
         yield return generateWeatherClip(chatBoxManager);
-        yield return generateChatBoxTextClip(chatBoxManager);
         yield return generateHeartrateClip(chatBoxManager);
         yield return generateMediaClip(chatBoxManager);
         yield return generateSpeechToTextClip(chatBoxManager);
@@ -24,7 +23,7 @@ public static class DefaultTimeline
     {
         var clip = chatBoxManager.CreateClip();
         clip.Name.Value = "Clock";
-        clip.Priority.Value = chatBoxManager.PriorityCount.Value - 7;
+        clip.Priority.Value = chatBoxManager.PriorityCount.Value - 6;
         clip.Start.Value = 0;
         clip.End.Value = 60;
         clip.AssociatedModules.Add("clockmodule");
@@ -37,7 +36,7 @@ public static class DefaultTimeline
     {
         var clip = chatBoxManager.CreateClip();
         clip.Name.Value = "Hardware Stats";
-        clip.Priority.Value = chatBoxManager.PriorityCount.Value - 6;
+        clip.Priority.Value = chatBoxManager.PriorityCount.Value - 5;
         clip.Start.Value = 0;
         clip.End.Value = 60;
         clip.AssociatedModules.Add("hardwarestatsmodule");
@@ -50,24 +49,11 @@ public static class DefaultTimeline
     {
         var clip = chatBoxManager.CreateClip();
         clip.Name.Value = "Weather";
-        clip.Priority.Value = chatBoxManager.PriorityCount.Value - 5;
+        clip.Priority.Value = chatBoxManager.PriorityCount.Value - 4;
         clip.Start.Value = 0;
         clip.End.Value = 60;
         clip.AssociatedModules.Add("weathermodule");
         clip.GetStateFor("weathermodule", "default")!.Enabled.Value = true;
-
-        return clip;
-    }
-
-    private static Clip generateChatBoxTextClip(ChatBoxManager chatBoxManager)
-    {
-        var clip = chatBoxManager.CreateClip();
-        clip.Name.Value = "ChatBox Text";
-        clip.Priority.Value = chatBoxManager.PriorityCount.Value - 4;
-        clip.Start.Value = 0;
-        clip.End.Value = 60;
-        clip.AssociatedModules.Add("chatboxtextmodule");
-        clip.GetStateFor("chatboxtextmodule", "default")!.Enabled.Value = true;
 
         return clip;
     }
