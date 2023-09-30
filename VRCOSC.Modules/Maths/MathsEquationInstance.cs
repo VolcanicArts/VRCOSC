@@ -36,7 +36,7 @@ public class MathsEquationInstance : IEquatable<MathsEquationInstance>
     public Bindable<string> OutputParameter = new(string.Empty);
 
     [JsonProperty("output_type")]
-    public Bindable<MathsEquationValueType> OutputType = new(MathsEquationValueType.Int);
+    public Bindable<MathsEquationValueType> OutputType = new();
 
     public bool Equals(MathsEquationInstance? other)
     {
@@ -123,7 +123,9 @@ public partial class MathsEquationInstanceAttributeCardList : AttributeCardList<
                     new Dimension(GridSizeMode.Absolute, 5),
                     new Dimension(),
                     new Dimension(GridSizeMode.Absolute, 5),
-                    new Dimension(maxSize: 150)
+                    new Dimension(maxSize: 150),
+                    new Dimension(GridSizeMode.Absolute, 5),
+                    new Dimension(maxSize: 100)
                 },
                 RowDimensions = new[]
                 {
@@ -170,6 +172,19 @@ public partial class MathsEquationInstanceAttributeCardList : AttributeCardList<
                                 Text = "Output Parameter",
                                 Font = FrameworkFont.Regular.With(size: 20)
                             }
+                        },
+                        null,
+                        new Container
+                        {
+                            RelativeSizeAxes = Axes.X,
+                            AutoSizeAxes = Axes.Y,
+                            Child = new SpriteText
+                            {
+                                Anchor = Anchor.Centre,
+                                Origin = Anchor.Centre,
+                                Text = "Output Type",
+                                Font = FrameworkFont.Regular.With(size: 20)
+                            }
                         }
                     }
                 }
@@ -191,7 +206,9 @@ public partial class MathsEquationInstanceAttributeCardList : AttributeCardList<
                 new Dimension(GridSizeMode.Absolute, 5),
                 new Dimension(),
                 new Dimension(GridSizeMode.Absolute, 5),
-                new Dimension(maxSize: 150)
+                new Dimension(maxSize: 150),
+                new Dimension(GridSizeMode.Absolute, 5),
+                new Dimension(maxSize: 100)
             },
             RowDimensions = new[]
             {
@@ -241,6 +258,15 @@ public partial class MathsEquationInstanceAttributeCardList : AttributeCardList<
                         BorderThickness = 2,
                         ValidCurrent = instance.OutputParameter.GetBoundCopy(),
                         PlaceholderText = "Output Parameter"
+                    },
+                    null,
+                    new MathsValueTypeInstanceDropdown<MathsEquationValueType>
+                    {
+                        Anchor = Anchor.TopCentre,
+                        Origin = Anchor.TopCentre,
+                        RelativeSizeAxes = Axes.X,
+                        Items = Enum.GetValues(typeof(MathsEquationValueType)).Cast<MathsEquationValueType>(),
+                        Current = instance.OutputType.GetBoundCopy()
                     }
                 }
             }
