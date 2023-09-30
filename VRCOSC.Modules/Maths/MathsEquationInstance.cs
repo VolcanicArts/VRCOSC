@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using Newtonsoft.Json;
@@ -229,7 +229,8 @@ public partial class MathsEquationInstanceAttributeCardList : AttributeCardList<
                         BorderColour = ThemeManager.Current[ThemeAttribute.Border],
                         BorderThickness = 2,
                         ValidCurrent = instance.TriggerParameter.GetBoundCopy(),
-                        PlaceholderText = "Trigger Parameter"
+                        PlaceholderText = "Trigger Parameter",
+                        EmptyIsValid = false
                     },
                     null,
                     new StringTextBox
@@ -243,7 +244,8 @@ public partial class MathsEquationInstanceAttributeCardList : AttributeCardList<
                         BorderColour = ThemeManager.Current[ThemeAttribute.Border],
                         BorderThickness = 2,
                         ValidCurrent = instance.Equation.GetBoundCopy(),
-                        PlaceholderText = "Equation"
+                        PlaceholderText = "Equation",
+                        EmptyIsValid = false
                     },
                     null,
                     new StringTextBox
@@ -257,7 +259,8 @@ public partial class MathsEquationInstanceAttributeCardList : AttributeCardList<
                         BorderColour = ThemeManager.Current[ThemeAttribute.Border],
                         BorderThickness = 2,
                         ValidCurrent = instance.OutputParameter.GetBoundCopy(),
-                        PlaceholderText = "Output Parameter"
+                        PlaceholderText = "Output Parameter",
+                        EmptyIsValid = false
                     },
                     null,
                     new MathsValueTypeInstanceDropdown<MathsEquationValueType>
