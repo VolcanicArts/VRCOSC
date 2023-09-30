@@ -40,7 +40,7 @@ public class MathsModule : AvatarModule
         instances.Clear();
         elements.Clear();
 
-        GetSettingList<MathsEquationInstance>(MathsSetting.Equations).ForEach(instance => instances.Add(instance.TriggerParameter.Value, instance));
+        GetSettingList<MathsEquationInstance>(MathsSetting.Equations).ForEach(instance => instances.TryAdd(instance.TriggerParameter.Value, instance));
         elements.AddRange(GetSettingList<string>(MathsSetting.Constants).Select(constant => new Constant(constant)));
         elements.AddRange(GetSettingList<string>(MathsSetting.Functions).Select(function => new Function(function)));
     }
@@ -52,6 +52,14 @@ public class MathsModule : AvatarModule
         if (!instances.TryGetValue(parameter.Name, out var instance)) return;
 
         var expression = new Expression(instance.Equation.Value, parameterValues.Values.Select(createArgumentForParameterValue).Concat(elements).ToArray());
+        expression.disableImpliedMultiplicationMode();
+
+        if (expression.getMissingUserDefinedArguments().Any())
+        {
+            Log($"Missing argument value for equation {instance.TriggerParameter.Value}");
+            return;
+        }
+
         var output = expression.calculate();
 
         SendParameter(instance.OutputParameter.Value, convertToOutputType(output, instance.OutputType.Value));
