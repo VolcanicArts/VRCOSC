@@ -19,7 +19,7 @@ public class VRChatOscClient : OscClient
     public Action<VRChatOscMessage>? OnParameterReceived;
 
     private readonly HttpClient client = new();
-    private int? port;
+    public int? QueryPort { get; private set; }
 
     public VRChatOscClient()
     {
@@ -36,34 +36,41 @@ public class VRChatOscClient : OscClient
 
     public async Task CheckForVRChatOSCQuery()
     {
+        if (QueryPort is not null) return;
+
         var hosts = await ZeroconfResolver.ResolveAsync("_oscjson._tcp.local.");
         var host = hosts.FirstOrDefault();
 
         if (host is null)
         {
             Logger.Log("No OscJson host found");
-            port = null;
+            QueryPort = null;
             return;
         }
 
         if (!host.Services.Any(s => s.Value.ServiceName.Contains("VRChat-Client")))
         {
             Logger.Log("No VRChat-Client found");
-            port = null;
+            QueryPort = null;
             return;
         }
 
         var service = host.Services.Single(s => s.Value.ServiceName.Contains("VRChat-Client"));
 
-        port = service.Value.Port;
-        Logger.Log($"Successfully found OscJson port: {port}");
+        QueryPort = service.Value.Port;
+        Logger.Log($"Successfully found OscJson port: {QueryPort}");
+    }
+
+    public void Reset()
+    {
+        QueryPort = null;
     }
 
     public async Task<object?> FindParameterValue(string parameterName)
     {
-        if (port is null) return null;
+        if (QueryPort is null) return null;
 
-        var url = $"http://127.0.0.1:{port}/avatar/parameters/{parameterName}";
+        var url = $"http://127.0.0.1:{QueryPort}/avatar/parameters/{parameterName}";
 
         var response = await client.GetAsync(new Uri(url));
         var content = await response.Content.ReadAsStringAsync();
@@ -82,9 +89,9 @@ public class VRChatOscClient : OscClient
 
     public async Task<TypeCode?> FindParameterType(string parameterName)
     {
-        if (port is null) return null;
+        if (QueryPort is null) return null;
 
-        var url = $"http://127.0.0.1:{port}/avatar/parameters/{parameterName}";
+        var url = $"http://127.0.0.1:{QueryPort}/avatar/parameters/{parameterName}";
 
         var response = await client.GetAsync(new Uri(url));
         var content = await response.Content.ReadAsStringAsync();
