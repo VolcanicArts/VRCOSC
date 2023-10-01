@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using org.mariuszgromada.math.mxparser;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.Modules.Avatar;
 
@@ -40,7 +41,9 @@ public class MathsModule : AvatarModule
         instances.Clear();
         elements.Clear();
 
-        GetSettingList<MathsEquationInstance>(MathsSetting.Equations).ForEach(instance => instances.TryAdd(instance.TriggerParameter.Value, instance));
+        GetSettingList<MathsEquationInstance>(MathsSetting.Equations)
+            .Where(instance => !string.IsNullOrEmpty(instance.Equation.Value) && !string.IsNullOrEmpty(instance.TriggerParameter.Value) && !string.IsNullOrEmpty(instance.OutputParameter.Value))
+            .ForEach(instance => instances.TryAdd(instance.TriggerParameter.Value, instance));
         elements.AddRange(GetSettingList<string>(MathsSetting.Constants).Select(constant => new Constant(constant)));
         elements.AddRange(GetSettingList<string>(MathsSetting.Functions).Select(function => new Function(function)));
     }

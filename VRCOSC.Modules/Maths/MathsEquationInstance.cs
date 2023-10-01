@@ -26,9 +26,6 @@ public class MathsEquationInstance : IEquatable<MathsEquationInstance>
     [JsonProperty("input_parameter")]
     public Bindable<string> TriggerParameter = new(string.Empty);
 
-    [JsonProperty("input_type")]
-    public Bindable<MathsEquationValueType> InputType = new();
-
     [JsonProperty("equation")]
     public Bindable<string> Equation = new(string.Empty);
 
@@ -39,7 +36,7 @@ public class MathsEquationInstance : IEquatable<MathsEquationInstance>
     {
         if (ReferenceEquals(other, null)) return false;
 
-        return TriggerParameter.Value == other.TriggerParameter.Value && InputType.Value == other.InputType.Value && Equation.Value == other.Equation.Value && OutputParameter.Value == other.OutputParameter.Value;
+        return TriggerParameter.Value == other.TriggerParameter.Value && Equation.Value == other.Equation.Value && OutputParameter.Value == other.OutputParameter.Value;
     }
 
     [JsonConstructor]
@@ -50,7 +47,6 @@ public class MathsEquationInstance : IEquatable<MathsEquationInstance>
     public MathsEquationInstance(MathsEquationInstance other)
     {
         TriggerParameter.Value = other.TriggerParameter.Value;
-        InputType.Value = other.InputType.Value;
         Equation.Value = other.Equation.Value;
         OutputParameter.Value = other.OutputParameter.Value;
     }
@@ -321,11 +317,4 @@ public partial class MathsValueTypeInstanceDropdown<T> : VRCOSCDropdown<T>
             BackgroundColourHover = ThemeManager.Current[ThemeAttribute.Mid];
         }
     }
-}
-
-public enum MathsEquationValueType
-{
-    Bool,
-    Int,
-    Float
 }
