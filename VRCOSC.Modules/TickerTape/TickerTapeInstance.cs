@@ -22,7 +22,7 @@ namespace VRCOSC.Modules.TickerTape;
 public class TickerTapeInstance : IEquatable<TickerTapeInstance>
 {
     [JsonProperty("key")]
-    public Bindable<string> Key = new(string.Empty);
+    public Bindable<string> Name = new(string.Empty);
 
     [JsonProperty("text")]
     public Bindable<string> Text = new(string.Empty);
@@ -40,7 +40,7 @@ public class TickerTapeInstance : IEquatable<TickerTapeInstance>
     {
         if (ReferenceEquals(other, null)) return false;
 
-        return Key.Value == other.Key.Value && Text.Value == other.Text.Value && Direction.Value == other.Direction.Value && ScrollSpeed.Value == other.ScrollSpeed.Value && MaxLength.Value == other.MaxLength.Value;
+        return Name.Value == other.Name.Value && Text.Value == other.Text.Value && Direction.Value == other.Direction.Value && ScrollSpeed.Value == other.ScrollSpeed.Value && MaxLength.Value == other.MaxLength.Value;
     }
 
     [JsonConstructor]
@@ -50,7 +50,7 @@ public class TickerTapeInstance : IEquatable<TickerTapeInstance>
 
     public TickerTapeInstance(TickerTapeInstance other)
     {
-        Key.Value = other.Key.Value;
+        Name.Value = other.Name.Value;
         Text.Value = other.Text.Value;
         Direction.Value = other.Direction.Value;
         ScrollSpeed.Value = other.ScrollSpeed.Value;
@@ -120,7 +120,7 @@ public partial class TickerTapeInstanceAttributeCardList : AttributeCardList<Tic
                             {
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
-                                Text = "Key",
+                                Text = "Name",
                                 Font = FrameworkFont.Regular.With(size: 20)
                             }
                         },
@@ -220,8 +220,8 @@ public partial class TickerTapeInstanceAttributeCardList : AttributeCardList<Tic
                         CornerRadius = 5,
                         BorderColour = ThemeManager.Current[ThemeAttribute.Border],
                         BorderThickness = 2,
-                        ValidCurrent = instance.Key.GetBoundCopy(),
-                        PlaceholderText = "Key"
+                        ValidCurrent = instance.Name.GetBoundCopy(),
+                        PlaceholderText = "Name"
                     },
                     null,
                     new StringTextBox
