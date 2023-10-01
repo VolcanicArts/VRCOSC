@@ -143,6 +143,9 @@ public partial class AppManager : Component
 
     private void initialiseDelayedTasks()
     {
+        // force a check for OscJson to use
+        VRChat.HasOpenStateChanged();
+
         Scheduler.AddDelayed(checkForOpenVR, openvr_check_interval.TotalMilliseconds, true);
         Scheduler.AddDelayed(checkForVRChat, vrchat_check_interval.TotalMilliseconds, true);
         Scheduler.AddDelayed(checkForOscjson, oscjson_check_interval.TotalMilliseconds, true);
@@ -314,7 +317,9 @@ public partial class AppManager : Component
 
     private void checkForVRChat()
     {
-        if (!configManager.Get<bool>(VRCOSCSetting.AutoStartStop) || !VRChat.HasOpenStateChanged()) return;
+        var newOpenState = VRChat.HasOpenStateChanged();
+
+        if (!configManager.Get<bool>(VRCOSCSetting.AutoStartStop) || !newOpenState) return;
 
         if (VRChat.IsClientOpen && State.Value == AppManagerState.Stopped) Start();
         if (!VRChat.IsClientOpen && State.Value == AppManagerState.Started) Stop();
@@ -322,6 +327,8 @@ public partial class AppManager : Component
 
     private async void checkForOscjson()
     {
+        if (!VRChat.IsClientOpen) return;
+
         await OSCClient.CheckForVRChatOSCQuery();
     }
 

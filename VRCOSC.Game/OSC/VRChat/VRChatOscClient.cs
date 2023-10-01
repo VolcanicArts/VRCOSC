@@ -56,6 +56,7 @@ public class VRChatOscClient : OscClient
         var service = host.Services.Single(s => s.Value.ServiceName.Contains("VRChat-Client"));
 
         port = service.Value.Port;
+        Logger.Log($"Successfully found OscJson port: {port}");
     }
 
     public async Task<object?> FindParameterValue(string parameterName)
