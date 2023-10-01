@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using org.mariuszgromada.math.mxparser;
@@ -23,8 +23,8 @@ public class MathsModule : AvatarModule
 
     protected override void CreateAttributes()
     {
-        CreateSetting(MathsSetting.Constants, "Constants", "Define your own constants to reuse in your equations", Array.Empty<string>());
-        CreateSetting(MathsSetting.Functions, "Functions", "Define your own functions to reuse in your equations", Array.Empty<string>());
+        CreateSetting(MathsSetting.Constants, "Constants", "Define your own constants to reuse in your equations\nChanges to this setting requires a module restart", Array.Empty<string>());
+        CreateSetting(MathsSetting.Functions, "Functions", "Define your own functions to reuse in your equations\nChanges to this setting requires a module restart", Array.Empty<string>());
 
         CreateSetting(MathsSetting.Equations, new MathsEquationInstanceListAttribute
         {
@@ -45,7 +45,7 @@ public class MathsModule : AvatarModule
         elements.AddRange(GetSettingList<string>(MathsSetting.Functions).Select(function => new Function(function)));
     }
 
-    protected override void OnAnyParameterReceived(ReceivedParameter parameter)
+    protected override async void OnAnyParameterReceived(ReceivedParameter parameter)
     {
         parameterValues[parameter.Name] = parameter;
 
@@ -54,15 +54,36 @@ public class MathsModule : AvatarModule
         var expression = new Expression(instance.Equation.Value, parameterValues.Values.Select(createArgumentForParameterValue).Concat(elements).ToArray());
         expression.disableImpliedMultiplicationMode();
 
-        if (expression.getMissingUserDefinedArguments().Any())
+        foreach (var missingArgument in expression.getMissingUserDefinedArguments())
         {
-            Log($"Missing argument value for equation {instance.TriggerParameter.Value}");
+            var missingArgumentValue = await FindParameterValue(missingArgument);
+
+            if (missingArgumentValue is null)
+            {
+                Log($"Could not retrieve missing argument value '{missingArgument}'");
+                continue;
+            }
+
+            if (missingArgumentValue is bool boolValue)
+                expression.addArguments(new Argument(missingArgument, boolValue));
+            else if (missingArgumentValue is int intValue)
+                expression.addArguments(new Argument(missingArgument, intValue));
+            else if (missingArgumentValue is float floatValue)
+                expression.addArguments(new Argument(missingArgument, floatValue));
+        }
+
+        var outputType = await FindParameterType(instance.OutputParameter.Value);
+
+        if (outputType is null)
+        {
+            Log($"Could not find output parameter '{instance.OutputParameter.Value}'");
             return;
         }
 
         var output = expression.calculate();
 
-        SendParameter(instance.OutputParameter.Value, convertToOutputType(output, instance.OutputType.Value));
+        var finalValue = convertToOutputType(output, outputType.Value);
+        SendParameter(instance.OutputParameter.Value, finalValue);
     }
 
     private static PrimitiveElement createArgumentForParameterValue(ReceivedParameter parameter)
@@ -74,15 +95,15 @@ public class MathsModule : AvatarModule
         throw new InvalidOperationException("Unknown parameter type");
     }
 
-    private object convertToOutputType(double value, MathsEquationValueType valueType)
+    private object convertToOutputType(double value, TypeCode valueType)
     {
         try
         {
             return valueType switch
             {
-                MathsEquationValueType.Bool => Convert.ToBoolean(value),
-                MathsEquationValueType.Int => Convert.ToInt32(value),
-                MathsEquationValueType.Float => Convert.ToSingle(value),
+                TypeCode.Boolean => Convert.ToBoolean(value),
+                TypeCode.Int32 => Convert.ToInt32(value),
+                TypeCode.Single => Convert.ToSingle(value),
                 _ => throw new ArgumentOutOfRangeException(nameof(valueType), valueType, null)
             };
         }
@@ -92,9 +113,9 @@ public class MathsModule : AvatarModule
 
             return valueType switch
             {
-                MathsEquationValueType.Bool => default(bool),
-                MathsEquationValueType.Int => default(int),
-                MathsEquationValueType.Float => default(float),
+                TypeCode.Boolean => default(bool),
+                TypeCode.Int32 => default(int),
+                TypeCode.Single => default(float),
                 _ => throw new ArgumentOutOfRangeException(nameof(valueType), valueType, null)
             };
         }

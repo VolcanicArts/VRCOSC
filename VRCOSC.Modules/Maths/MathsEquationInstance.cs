@@ -35,14 +35,11 @@ public class MathsEquationInstance : IEquatable<MathsEquationInstance>
     [JsonProperty("output_parameter")]
     public Bindable<string> OutputParameter = new(string.Empty);
 
-    [JsonProperty("output_type")]
-    public Bindable<MathsEquationValueType> OutputType = new();
-
     public bool Equals(MathsEquationInstance? other)
     {
         if (ReferenceEquals(other, null)) return false;
 
-        return TriggerParameter.Value == other.TriggerParameter.Value && InputType.Value == other.InputType.Value && Equation.Value == other.Equation.Value && OutputParameter.Value == other.OutputParameter.Value && OutputType.Value == other.OutputType.Value;
+        return TriggerParameter.Value == other.TriggerParameter.Value && InputType.Value == other.InputType.Value && Equation.Value == other.Equation.Value && OutputParameter.Value == other.OutputParameter.Value;
     }
 
     [JsonConstructor]
@@ -56,7 +53,6 @@ public class MathsEquationInstance : IEquatable<MathsEquationInstance>
         InputType.Value = other.InputType.Value;
         Equation.Value = other.Equation.Value;
         OutputParameter.Value = other.OutputParameter.Value;
-        OutputType.Value = other.OutputType.Value;
     }
 }
 
@@ -123,9 +119,7 @@ public partial class MathsEquationInstanceAttributeCardList : AttributeCardList<
                     new Dimension(GridSizeMode.Absolute, 5),
                     new Dimension(),
                     new Dimension(GridSizeMode.Absolute, 5),
-                    new Dimension(maxSize: 150),
-                    new Dimension(GridSizeMode.Absolute, 5),
-                    new Dimension(maxSize: 100)
+                    new Dimension(maxSize: 150)
                 },
                 RowDimensions = new[]
                 {
@@ -172,19 +166,6 @@ public partial class MathsEquationInstanceAttributeCardList : AttributeCardList<
                                 Text = "Output Parameter",
                                 Font = FrameworkFont.Regular.With(size: 20)
                             }
-                        },
-                        null,
-                        new Container
-                        {
-                            RelativeSizeAxes = Axes.X,
-                            AutoSizeAxes = Axes.Y,
-                            Child = new SpriteText
-                            {
-                                Anchor = Anchor.Centre,
-                                Origin = Anchor.Centre,
-                                Text = "Output Type",
-                                Font = FrameworkFont.Regular.With(size: 20)
-                            }
                         }
                     }
                 }
@@ -206,9 +187,7 @@ public partial class MathsEquationInstanceAttributeCardList : AttributeCardList<
                 new Dimension(GridSizeMode.Absolute, 5),
                 new Dimension(),
                 new Dimension(GridSizeMode.Absolute, 5),
-                new Dimension(maxSize: 150),
-                new Dimension(GridSizeMode.Absolute, 5),
-                new Dimension(maxSize: 100)
+                new Dimension(maxSize: 150)
             },
             RowDimensions = new[]
             {
@@ -261,15 +240,6 @@ public partial class MathsEquationInstanceAttributeCardList : AttributeCardList<
                         ValidCurrent = instance.OutputParameter.GetBoundCopy(),
                         PlaceholderText = "Output Parameter",
                         EmptyIsValid = false
-                    },
-                    null,
-                    new MathsValueTypeInstanceDropdown<MathsEquationValueType>
-                    {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        RelativeSizeAxes = Axes.X,
-                        Items = Enum.GetValues(typeof(MathsEquationValueType)).Cast<MathsEquationValueType>(),
-                        Current = instance.OutputType.GetBoundCopy()
                     }
                 }
             }

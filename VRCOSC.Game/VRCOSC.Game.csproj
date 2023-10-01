@@ -26,9 +26,11 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="VRChat.OSCQuery" Version="0.0.7" />
         <PackageReference Include="WebSocket4Net" Version="0.15.2" />
         <PackageReference Include="NAudio.Wasapi" Version="22.0.0" />
         <PackageReference Include="Vosk" Version="0.3.38" />
         <PackageReference Include="VolcanicArts.Libs.OpenVR" Version="1.26.7" />
+        <PackageReference Include="Zeroconf" Version="3.6.11" />
     </ItemGroup>
 </Project>
