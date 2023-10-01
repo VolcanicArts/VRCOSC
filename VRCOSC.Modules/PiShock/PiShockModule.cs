@@ -44,18 +44,18 @@ public class PiShockModule : AvatarModule
         CreateSetting(PiShockSetting.Shockers, new PiShockShockerInstanceListAttribute
         {
             Name = "Shockers",
-            Description = "Each instance represents a single shocker using a sharecode\nThe key is used as a reference to create groups of shockers",
+            Description = "Each instance represents a single shocker using a sharecode\nThe name is used as a readable reference and can be anything you like",
             Default = new List<PiShockShockerInstance>()
         });
 
         CreateSetting(PiShockSetting.Groups, new PiShockGroupInstanceListAttribute
         {
             Name = "Groups",
-            Description = "Each instance should contain one or more shocker keys separated by a comma\nA group can be chosen by setting the Group parameter to the left number",
+            Description = "Each instance should contain one or more shocker names separated by a comma\nA group can be chosen by setting the Group parameter to the left number",
             Default = new List<PiShockGroupInstance>()
         });
 
-        CreateSetting(PiShockSetting.EnableVoiceControl, "Enable Voice Control", "Enables voice control using speech to text and a phrase list", false);
+        CreateSetting(PiShockSetting.EnableVoiceControl, "Enable Voice Control", "Enables voice control using speech to text and the phrase list", false);
 
         CreateSetting(PiShockSetting.SpeechModelLocation, "Speech Model Location", "The folder location of the speech model you'd like to use\nRecommended default: vosk-model-small-en-us-0.15", string.Empty, "Download a model", () => OpenUrlExternally("https://alphacephei.com/vosk/models"), () => GetSetting<bool>(PiShockSetting.EnableVoiceControl));
         CreateSetting(PiShockSetting.SpeechConfidence, "Speech Confidence", "How confident should VOSK be that it's recognised a phrase to execute the action? (%)", 75, 0, 100, () => GetSetting<bool>(PiShockSetting.EnableVoiceControl));
@@ -63,7 +63,7 @@ public class PiShockModule : AvatarModule
         CreateSetting(PiShockSetting.PhraseList, new PiShockPhraseInstanceListAttribute
         {
             Name = "Phrase List",
-            Description = "The list of words or phrases and what to do when they're said\nUse the shocker keys from Shockers to reference sharecodes",
+            Description = "The list of words or phrases and what to do when they're said",
             Default = new List<PiShockPhraseInstance>(),
             DependsOn = () => GetSetting<bool>(PiShockSetting.EnableVoiceControl)
         });
@@ -164,12 +164,12 @@ public class PiShockModule : AvatarModule
         {
             Log($"Found word: {wordInstance.Phrase.Value}");
 
-            var shockerInstance = getShockerInstanceFromKey(wordInstance.ShockerKey.Value);
+            var shockerInstance = getShockerInstanceFromKey(wordInstance.ShockerName.Value);
             if (shockerInstance is null) continue;
 
             var response = await piShockProvider!.Execute(GetSetting<string>(PiShockSetting.Username), GetSetting<string>(PiShockSetting.APIKey), shockerInstance.Sharecode.Value, wordInstance.Mode.Value, wordInstance.Duration.Value, wordInstance.Intensity.Value);
 
-            Log(response.Success ? $"Executing {wordInstance.Mode.Value} on {wordInstance.ShockerKey.Value} with duration {response.FinalDuration}s and intensity {response.FinalIntensity}%" : response.Message);
+            Log(response.Success ? $"Executing {wordInstance.Mode.Value} on {wordInstance.ShockerName.Value} with duration {response.FinalDuration}s and intensity {response.FinalIntensity}%" : response.Message);
         }
     }
 
@@ -183,7 +183,7 @@ public class PiShockModule : AvatarModule
             return;
         }
 
-        var shockerKeys = groupData.Keys.Value.Split(',').Where(key => !string.IsNullOrEmpty(key)).Select(key => key.Trim());
+        var shockerKeys = groupData.Names.Value.Split(',').Where(key => !string.IsNullOrEmpty(key)).Select(key => key.Trim());
 
         foreach (var shockerKey in shockerKeys)
         {
@@ -198,7 +198,7 @@ public class PiShockModule : AvatarModule
     {
         var response = await piShockProvider!.Execute(GetSetting<string>(PiShockSetting.Username), GetSetting<string>(PiShockSetting.APIKey), instance.Sharecode.Value, mode, convertedDuration, convertedIntensity);
 
-        Log(response.Success ? $"Executing {mode} on {instance.Key.Value} with duration {response.FinalDuration}s and intensity {response.FinalIntensity}%" : response.Message);
+        Log(response.Success ? $"Executing {mode} on {instance.Name.Value} with duration {response.FinalDuration}s and intensity {response.FinalIntensity}%" : response.Message);
 
         if (response.Success)
         {
@@ -213,7 +213,7 @@ public class PiShockModule : AvatarModule
 
     private PiShockShockerInstance? getShockerInstanceFromKey(string key)
     {
-        var instance = GetSettingList<PiShockShockerInstance>(PiShockSetting.Shockers).SingleOrDefault(shockerInstance => shockerInstance.Key.Value == key);
+        var instance = GetSettingList<PiShockShockerInstance>(PiShockSetting.Shockers).SingleOrDefault(shockerInstance => shockerInstance.Name.Value == key);
 
         if (instance is not null) return instance;
 

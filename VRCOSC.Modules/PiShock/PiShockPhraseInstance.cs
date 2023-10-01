@@ -26,7 +26,7 @@ public class PiShockPhraseInstance : IEquatable<PiShockPhraseInstance>
     public Bindable<string> Phrase = new(string.Empty);
 
     [JsonProperty("shocker_key")]
-    public Bindable<string> ShockerKey = new(string.Empty);
+    public Bindable<string> ShockerName = new(string.Empty);
 
     [JsonProperty("mode")]
     public Bindable<PiShockMode> Mode = new();
@@ -45,7 +45,7 @@ public class PiShockPhraseInstance : IEquatable<PiShockPhraseInstance>
     public PiShockPhraseInstance(PiShockPhraseInstance other)
     {
         Phrase.Value = other.Phrase.Value;
-        ShockerKey.Value = other.ShockerKey.Value;
+        ShockerName.Value = other.ShockerName.Value;
         Mode.Value = other.Mode.Value;
         Duration.Value = other.Duration.Value;
         Intensity.Value = other.Intensity.Value;
@@ -55,7 +55,7 @@ public class PiShockPhraseInstance : IEquatable<PiShockPhraseInstance>
     {
         if (ReferenceEquals(null, other)) return false;
 
-        return Phrase.Value.Equals(other.Phrase.Value) && ShockerKey.Value.Equals(other.ShockerKey.Value) && Mode.Value.Equals(other.Mode.Value) && Duration.Value.Equals(other.Duration.Value) && Intensity.Value.Equals(other.Intensity.Value);
+        return Phrase.Value.Equals(other.Phrase.Value) && ShockerName.Value.Equals(other.ShockerName.Value) && Mode.Value.Equals(other.Mode.Value) && Duration.Value.Equals(other.Duration.Value) && Intensity.Value.Equals(other.Intensity.Value);
     }
 }
 
@@ -134,7 +134,7 @@ public partial class PiShockPhraseInstanceAttributeCardList : AttributeCardList<
                             {
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
-                                Text = "Key",
+                                Text = "Shocker Name",
                                 Font = FrameworkFont.Regular.With(size: 20)
                             }
                         },
@@ -236,7 +236,7 @@ public partial class PiShockPhraseInstanceAttributeCardList : AttributeCardList<
                         CornerRadius = 5,
                         BorderColour = ThemeManager.Current[ThemeAttribute.Border],
                         BorderThickness = 2,
-                        ValidCurrent = instance.ShockerKey.GetBoundCopy(),
+                        ValidCurrent = instance.ShockerName.GetBoundCopy(),
                         PlaceholderText = "Key",
                         EmptyIsValid = false
                     },
