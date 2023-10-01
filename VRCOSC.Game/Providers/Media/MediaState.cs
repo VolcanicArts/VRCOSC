@@ -40,9 +40,9 @@ public enum MediaPlaybackStatus
 
 public class MediaTimelineProperties
 {
-    public TimeSpan Start { get; internal set; }
-    public TimeSpan End { get; internal set; }
-    public TimeSpan Position { get; internal set; }
+    public TimeSpan Start { get; internal set; } = TimeSpan.Zero;
+    public TimeSpan End { get; internal set; } = TimeSpan.FromSeconds(1);
+    public TimeSpan Position { get; internal set; } = TimeSpan.Zero;
 
     public float PositionPercentage => Position.Ticks / (float)End.Ticks;
 }
