@@ -76,14 +76,19 @@ public class VRChatOscClient : OscClient
         var content = await response.Content.ReadAsStringAsync();
         var node = JsonConvert.DeserializeObject<OSCQueryNode>(content);
 
-        if (node is null) return null;
+        if (node is null)
+        {
+            Logger.Log("Could not decode node");
+            return null;
+        }
 
         return node.OscType switch
         {
             "f" => Convert.ToSingle(node.Value[0]),
             "i" => Convert.ToInt32(node.Value[0]),
-            "b" => Convert.ToBoolean(node.Value[0]),
-            _ => null
+            "T" => Convert.ToBoolean(node.Value[0]),
+            "F" => Convert.ToBoolean(node.Value[0]),
+            _ => throw new InvalidOperationException("Unknown type")
         };
     }
 
@@ -97,14 +102,19 @@ public class VRChatOscClient : OscClient
         var content = await response.Content.ReadAsStringAsync();
         var node = JsonConvert.DeserializeObject<OSCQueryNode>(content);
 
-        if (node is null) return null;
+        if (node is null)
+        {
+            Logger.Log("Could not decode node");
+            return null;
+        }
 
         return node.OscType switch
         {
             "f" => TypeCode.Single,
             "i" => TypeCode.Int32,
-            "b" => TypeCode.Boolean,
-            _ => null
+            "T" => TypeCode.Boolean,
+            "F" => TypeCode.Boolean,
+            _ => throw new InvalidOperationException("Unknown type")
         };
     }
 }
