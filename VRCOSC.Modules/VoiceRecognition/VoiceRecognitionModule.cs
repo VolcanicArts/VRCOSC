@@ -14,6 +14,7 @@ namespace VRCOSC.Modules.VoiceRecognition;
 public class VoiceRecognitionModule : AvatarModule
 {
     private SpeechToTextProvider? speechToTextProvider;
+    private bool enabled;
 
     protected override void CreateAttributes()
     {
@@ -27,6 +28,8 @@ public class VoiceRecognitionModule : AvatarModule
             Description = "The list of words or phrases and what parameters to set when they're recognised\nYou are allowed to add the same phrase multiple times to affect multiple parameters\nNote that for boolean parameters use 'true' and 'false'",
             Default = new List<VoiceRecognitionPhraseInstance>()
         });
+
+        CreateParameter<bool>(VoiceRecognitionParameter.Enable, ParameterMode.ReadWrite, "VRCOSC/VoiceRecognition/Enable", "Enable", "Enables the recognition when true");
     }
 
     protected override void OnModuleStart()
@@ -34,7 +37,11 @@ public class VoiceRecognitionModule : AvatarModule
         speechToTextProvider = new SpeechToTextProvider();
         speechToTextProvider.OnLog += Log;
         speechToTextProvider.OnFinalResult += onNewSentenceSpoken;
+        speechToTextProvider.RequiredConfidence = GetSetting<int>(VoiceRecognitionSetting.SpeechConfidence) / 100f;
         speechToTextProvider.Initialise(GetSetting<string>(VoiceRecognitionSetting.SpeechModelLocation));
+
+        enabled = true;
+        SendParameter(VoiceRecognitionParameter.Enable, enabled);
     }
 
     protected override void OnModuleStop()
@@ -46,10 +53,16 @@ public class VoiceRecognitionModule : AvatarModule
     [ModuleUpdate(ModuleUpdateMode.Custom, false, 5000)]
     private void onModuleUpdate()
     {
-        if (speechToTextProvider is not null)
+        speechToTextProvider?.Update();
+    }
+
+    protected override void OnRegisteredParameterReceived(AvatarParameter avatarParameter)
+    {
+        switch (avatarParameter.Lookup)
         {
-            speechToTextProvider.Update();
-            speechToTextProvider.RequiredConfidence = GetSetting<int>(VoiceRecognitionSetting.SpeechConfidence) / 100f;
+            case VoiceRecognitionParameter.Enable:
+                enabled = avatarParameter.ValueAs<bool>();
+                break;
         }
     }
 
@@ -110,5 +123,10 @@ public class VoiceRecognitionModule : AvatarModule
         SpeechModelLocation,
         SpeechConfidence,
         PhraseList
+    }
+
+    private enum VoiceRecognitionParameter
+    {
+        Enable
     }
 }
