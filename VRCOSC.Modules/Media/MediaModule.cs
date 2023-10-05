@@ -119,11 +119,11 @@ public class MediaModule : ChatBoxModule
     [ModuleUpdate(ModuleUpdateMode.ChatBox)]
     private void updateVariables()
     {
-        SetVariableValue(MediaVariable.Title, mediaProvider.State.Title.Truncate(GetSetting<int>(MediaSetting.TruncateTitle)));
-        SetVariableValue(MediaVariable.Artist, mediaProvider.State.Artist.Truncate(GetSetting<int>(MediaSetting.TruncateArtist)));
+        SetVariableValue(MediaVariable.Title, mediaProvider.State.Title.Truncate(GetSetting<int>(MediaSetting.TruncateTitle)).EscapeNewLine());
+        SetVariableValue(MediaVariable.Artist, mediaProvider.State.Artist.Truncate(GetSetting<int>(MediaSetting.TruncateArtist)).EscapeNewLine());
         SetVariableValue(MediaVariable.TrackNumber, mediaProvider.State.TrackNumber.ToString());
-        SetVariableValue(MediaVariable.AlbumTitle, mediaProvider.State.AlbumTitle);
-        SetVariableValue(MediaVariable.AlbumArtist, mediaProvider.State.AlbumArtist);
+        SetVariableValue(MediaVariable.AlbumTitle, mediaProvider.State.AlbumTitle.Truncate(GetSetting<int>(MediaSetting.TruncateTitle)).EscapeNewLine());
+        SetVariableValue(MediaVariable.AlbumArtist, mediaProvider.State.AlbumArtist.Truncate(GetSetting<int>(MediaSetting.TruncateArtist)).EscapeNewLine());
         SetVariableValue(MediaVariable.AlbumTrackCount, mediaProvider.State.AlbumTrackCount.ToString());
         SetVariableValue(MediaVariable.Volume, (mediaProvider.TryGetVolume() * 100).ToString("##0"));
         SetVariableValue(MediaVariable.ProgressVisual, getProgressVisual());
