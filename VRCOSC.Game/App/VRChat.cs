@@ -11,7 +11,7 @@ namespace VRCOSC.Game.App;
 
 public class VRChat
 {
-    public bool IsClientOpen;
+    public bool ClientOpen;
 
     public Player Player = null!;
     public AvatarConfig? AvatarConfig;
@@ -37,12 +37,14 @@ public class VRChat
         }
     }
 
+    public bool IsClientOpen() => Process.GetProcessesByName("vrchat").Any();
+
     public bool HasOpenStateChanged()
     {
         var clientNewOpenState = Process.GetProcessesByName("vrchat").Any();
-        if (clientNewOpenState == IsClientOpen) return false;
+        if (clientNewOpenState == ClientOpen) return false;
 
-        IsClientOpen = clientNewOpenState;
+        ClientOpen = clientNewOpenState;
         return true;
     }
 }

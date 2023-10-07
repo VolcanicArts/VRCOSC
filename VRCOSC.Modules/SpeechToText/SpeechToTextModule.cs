@@ -64,6 +64,12 @@ public class SpeechToTextModule : ChatBoxModule
         speechToTextProvider.OnPartialResult += onPartialResult;
         speechToTextProvider.OnFinalResult += onFinalResult;
 
+        if (!GetSettingList<SpeechToTextModelInstance>(SpeechToTextSetting.ModelLocations).Any())
+        {
+            Log("Please add at least 1 model in the speech to text settings");
+            return;
+        }
+
         speechToTextProvider.Initialise(GetSettingList<SpeechToTextModelInstance>(SpeechToTextSetting.ModelLocations)[selectedModel].Path.Value);
     }
 

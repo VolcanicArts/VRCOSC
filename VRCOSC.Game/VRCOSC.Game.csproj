@@ -4,7 +4,7 @@
         <Nullable>enable</Nullable>
         <LangVersion>11</LangVersion>
         <PackageId>VolcanicArts.VRCOSC.SDK</PackageId>
-        <Version>2023.928.0</Version>
+        <Version>2023.1007.0</Version>
         <Title>VRCOSC SDK</Title>
         <Authors>VolcanicArts</Authors>
         <Description>SDK for creating custom modules with VRCOSC</Description>
@@ -19,16 +19,18 @@
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.2" />
-        <PackageReference Include="Octokit" Version="8.0.0" />
-        <PackageReference Include="ppy.osu.Framework" Version="2023.904.0" />
+        <PackageReference Include="Octokit" Version="8.0.1" />
+        <PackageReference Include="ppy.osu.Framework" Version="2023.1006.0" />
         <PackageReference Include="PInvoke.User32" Version="0.7.124" />
         <PackageReference Include="PolySharp" Version="1.13.2">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="VRChat.OSCQuery" Version="0.0.7" />
         <PackageReference Include="WebSocket4Net" Version="0.15.2" />
         <PackageReference Include="NAudio.Wasapi" Version="22.0.0" />
         <PackageReference Include="Vosk" Version="0.3.38" />
         <PackageReference Include="VolcanicArts.Libs.OpenVR" Version="1.26.7" />
+        <PackageReference Include="Zeroconf" Version="3.6.11" />
     </ItemGroup>
 </Project>

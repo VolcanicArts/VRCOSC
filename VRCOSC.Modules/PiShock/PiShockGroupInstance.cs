@@ -17,7 +17,7 @@ namespace VRCOSC.Modules.PiShock;
 public class PiShockGroupInstance : IEquatable<PiShockGroupInstance>
 {
     [JsonProperty("keys")]
-    public Bindable<string> Keys = new(string.Empty);
+    public Bindable<string> Names = new(string.Empty);
 
     [JsonConstructor]
     public PiShockGroupInstance()
@@ -26,7 +26,7 @@ public class PiShockGroupInstance : IEquatable<PiShockGroupInstance>
 
     public PiShockGroupInstance(PiShockGroupInstance other)
     {
-        Keys.Value = other.Keys.Value;
+        Names.Value = other.Names.Value;
     }
 
     public bool Equals(PiShockGroupInstance? other)
@@ -34,7 +34,7 @@ public class PiShockGroupInstance : IEquatable<PiShockGroupInstance>
         if (ReferenceEquals(null, other)) return false;
         if (!ReferenceEquals(this, other)) return false;
 
-        return Keys.Value.Equals(other.Keys.Value);
+        return Names.Value.Equals(other.Names.Value);
     }
 }
 
@@ -125,8 +125,8 @@ public partial class PiShockGroupInstanceAttributeCardList : AttributeCardList<P
                         CornerRadius = 5,
                         BorderColour = ThemeManager.Current[ThemeAttribute.Border],
                         BorderThickness = 2,
-                        ValidCurrent = instance.Keys.GetBoundCopy(),
-                        PlaceholderText = "Key,Key2,Key3",
+                        ValidCurrent = instance.Names.GetBoundCopy(),
+                        PlaceholderText = "Name,Name2,Name3",
                         EmptyIsValid = false
                     }
                 }

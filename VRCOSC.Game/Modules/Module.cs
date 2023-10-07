@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
@@ -405,6 +406,18 @@ public abstract class Module : IComparable<Module>
     #endregion
 
     #region Parameters
+
+    /// <summary>
+    /// Lets you pass a parameter name to attempt to find the current value using OSCQuery
+    /// </summary>
+    /// <remarks>Returns null if no parameter is found or OSCQuery hasn't initialised</remarks>
+    protected async Task<object?> FindParameterValue(string parameterName) => await oscClient.FindParameterValue(parameterName);
+
+    /// <summary>
+    /// Lets you pass a parameter name to attempt to find the type using OSCQuery
+    /// </summary>
+    /// <remarks>Returns null if no parameter is found or OSCQuery hasn't initialised</remarks>
+    protected async Task<TypeCode?> FindParameterType(string parameterName) => await oscClient.FindParameterType(parameterName);
 
     /// <summary>
     /// Allows for sending a parameter that hasn't been registered. Only use this when absolutely necessary

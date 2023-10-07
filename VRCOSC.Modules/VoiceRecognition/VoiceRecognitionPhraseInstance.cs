@@ -13,46 +13,50 @@ using VRCOSC.Game.Graphics.Themes;
 using VRCOSC.Game.Graphics.UI.Text;
 using VRCOSC.Game.Modules.Attributes;
 
-namespace VRCOSC.Modules.PiShock;
+namespace VRCOSC.Modules.VoiceRecognition;
 
-public class PiShockShockerInstance : IEquatable<PiShockShockerInstance>
+public class VoiceRecognitionPhraseInstance : IEquatable<VoiceRecognitionPhraseInstance>
 {
-    [JsonProperty("key")]
-    public Bindable<string> Name = new(string.Empty);
+    [JsonProperty("phrase")]
+    public Bindable<string> Phrase = new(string.Empty);
 
-    [JsonProperty("sharecode")]
-    public Bindable<string> Sharecode = new(string.Empty);
+    [JsonProperty("parameter_name")]
+    public Bindable<string> ParameterName = new(string.Empty);
+
+    [JsonProperty("value")]
+    public Bindable<string> Value = new(string.Empty);
 
     [JsonConstructor]
-    public PiShockShockerInstance()
+    public VoiceRecognitionPhraseInstance()
     {
     }
 
-    public PiShockShockerInstance(PiShockShockerInstance other)
+    public VoiceRecognitionPhraseInstance(VoiceRecognitionPhraseInstance other)
     {
-        Name.Value = other.Name.Value;
-        Sharecode.Value = other.Sharecode.Value;
+        Phrase.Value = other.Phrase.Value;
+        ParameterName.Value = other.ParameterName.Value;
+        Value.Value = other.Value.Value;
     }
 
-    public bool Equals(PiShockShockerInstance? other)
+    public bool Equals(VoiceRecognitionPhraseInstance? other)
     {
         if (ReferenceEquals(null, other)) return false;
 
-        return Name.Value.Equals(other.Name.Value) && Sharecode.Value.Equals(other.Sharecode.Value);
+        return Phrase.Value.Equals(other.Phrase.Value) && ParameterName.Value.Equals(other.ParameterName.Value) && Value.Value.Equals(other.Value.Value);
     }
 }
 
-public class PiShockShockerInstanceListAttribute : ModuleAttributeList<PiShockShockerInstance>
+public class VoiceRecognitionPhraseInstanceListAttribute : ModuleAttributeList<VoiceRecognitionPhraseInstance>
 {
-    public override Drawable GetAssociatedCard() => new PiShockShockerInstanceAttributeCardList(this);
+    public override Drawable GetAssociatedCard() => new PiShockPhraseInstanceAttributeCardList(this);
 
-    protected override IEnumerable<PiShockShockerInstance> JArrayToType(JArray array) => array.Select(value => new PiShockShockerInstance(value.ToObject<PiShockShockerInstance>()!)).ToList();
-    protected override IEnumerable<PiShockShockerInstance> GetClonedDefaults() => Default.Select(defaultValue => new PiShockShockerInstance(defaultValue)).ToList();
+    protected override IEnumerable<VoiceRecognitionPhraseInstance> JArrayToType(JArray array) => array.Select(value => new VoiceRecognitionPhraseInstance(value.ToObject<VoiceRecognitionPhraseInstance>()!)).ToList();
+    protected override IEnumerable<VoiceRecognitionPhraseInstance> GetClonedDefaults() => Default.Select(defaultValue => new VoiceRecognitionPhraseInstance(defaultValue)).ToList();
 }
 
-public partial class PiShockShockerInstanceAttributeCardList : AttributeCardList<PiShockShockerInstanceListAttribute, PiShockShockerInstance>
+public partial class PiShockPhraseInstanceAttributeCardList : AttributeCardList<VoiceRecognitionPhraseInstanceListAttribute, VoiceRecognitionPhraseInstance>
 {
-    public PiShockShockerInstanceAttributeCardList(PiShockShockerInstanceListAttribute attributeData)
+    public PiShockPhraseInstanceAttributeCardList(VoiceRecognitionPhraseInstanceListAttribute attributeData)
         : base(attributeData)
     {
     }
@@ -80,7 +84,9 @@ public partial class PiShockShockerInstanceAttributeCardList : AttributeCardList
                 {
                     new Dimension(),
                     new Dimension(GridSizeMode.Absolute, 5),
-                    new Dimension()
+                    new Dimension(maxSize: 175),
+                    new Dimension(GridSizeMode.Absolute, 5),
+                    new Dimension(maxSize: 100)
                 },
                 RowDimensions = new[]
                 {
@@ -98,7 +104,7 @@ public partial class PiShockShockerInstanceAttributeCardList : AttributeCardList
                             {
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
-                                Text = "Name",
+                                Text = "Phrase",
                                 Font = FrameworkFont.Regular.With(size: 20)
                             }
                         },
@@ -111,7 +117,20 @@ public partial class PiShockShockerInstanceAttributeCardList : AttributeCardList
                             {
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
-                                Text = "Sharecode",
+                                Text = "Parameter Name",
+                                Font = FrameworkFont.Regular.With(size: 20)
+                            }
+                        },
+                        null,
+                        new Container
+                        {
+                            RelativeSizeAxes = Axes.X,
+                            AutoSizeAxes = Axes.Y,
+                            Child = new SpriteText
+                            {
+                                Anchor = Anchor.Centre,
+                                Origin = Anchor.Centre,
+                                Text = "Value",
                                 Font = FrameworkFont.Regular.With(size: 20)
                             }
                         }
@@ -121,7 +140,7 @@ public partial class PiShockShockerInstanceAttributeCardList : AttributeCardList
         }, float.MinValue);
     }
 
-    protected override void OnInstanceAdd(PiShockShockerInstance instance)
+    protected override void OnInstanceAdd(VoiceRecognitionPhraseInstance instance)
     {
         AddToList(new GridContainer
         {
@@ -133,7 +152,9 @@ public partial class PiShockShockerInstanceAttributeCardList : AttributeCardList
             {
                 new Dimension(),
                 new Dimension(GridSizeMode.Absolute, 5),
-                new Dimension()
+                new Dimension(maxSize: 175),
+                new Dimension(GridSizeMode.Absolute, 5),
+                new Dimension(maxSize: 100)
             },
             RowDimensions = new[]
             {
@@ -153,8 +174,8 @@ public partial class PiShockShockerInstanceAttributeCardList : AttributeCardList
                         CornerRadius = 5,
                         BorderColour = ThemeManager.Current[ThemeAttribute.Border],
                         BorderThickness = 2,
-                        ValidCurrent = instance.Name.GetBoundCopy(),
-                        PlaceholderText = "Key",
+                        ValidCurrent = instance.Phrase.GetBoundCopy(),
+                        PlaceholderText = "Phrase",
                         EmptyIsValid = false
                     },
                     null,
@@ -168,8 +189,23 @@ public partial class PiShockShockerInstanceAttributeCardList : AttributeCardList
                         CornerRadius = 5,
                         BorderColour = ThemeManager.Current[ThemeAttribute.Border],
                         BorderThickness = 2,
-                        ValidCurrent = instance.Sharecode.GetBoundCopy(),
-                        PlaceholderText = "Sharecode",
+                        ValidCurrent = instance.ParameterName.GetBoundCopy(),
+                        PlaceholderText = "Parameter Name",
+                        EmptyIsValid = false
+                    },
+                    null,
+                    new StringTextBox
+                    {
+                        Anchor = Anchor.TopCentre,
+                        Origin = Anchor.TopCentre,
+                        RelativeSizeAxes = Axes.X,
+                        Height = 30,
+                        Masking = true,
+                        CornerRadius = 5,
+                        BorderColour = ThemeManager.Current[ThemeAttribute.Border],
+                        BorderThickness = 2,
+                        ValidCurrent = instance.Value.GetBoundCopy(),
+                        PlaceholderText = "Value",
                         EmptyIsValid = false
                     }
                 }
@@ -177,5 +213,5 @@ public partial class PiShockShockerInstanceAttributeCardList : AttributeCardList
         });
     }
 
-    protected override PiShockShockerInstance CreateInstance() => new();
+    protected override VoiceRecognitionPhraseInstance CreateInstance() => new();
 }

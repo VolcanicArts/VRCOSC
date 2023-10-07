@@ -24,7 +24,7 @@ public class TickerTapeModule : ChatBoxModule
             {
                 new()
                 {
-                    Key = { Value = "Example" },
+                    Name = { Value = "Example" },
                     Text = { Value = "ExampleText" },
                     Direction = { Value = TickerTapeDirection.Right },
                     ScrollSpeed = { Value = 1 },
@@ -32,7 +32,7 @@ public class TickerTapeModule : ChatBoxModule
                 }
             },
             Name = "Texts",
-            Description = "Each text instance to register for the ChatBox\nText instances can be accessed with the '_Key' suffix\nScroll speed is the number of characters to scroll each update, defined by the chatbox update rate"
+            Description = "Each text instance to register for the ChatBox\nText instances can be accessed with the '_Name' suffix\nScroll speed is the number of characters to scroll each update, defined by the chatbox update rate"
         });
 
         CreateVariable(TickerTapeVariable.Text, "Text", "text");
@@ -46,10 +46,10 @@ public class TickerTapeModule : ChatBoxModule
 
         GetSettingList<TickerTapeInstance>(TickerTapeSetting.TextList).ForEach(instance =>
         {
-            if (string.IsNullOrEmpty(instance.Key.Value)) return;
+            if (string.IsNullOrEmpty(instance.Name.Value)) return;
 
-            if (!indexes.TryAdd(instance.Key.Value, 0)) indexes[instance.Key.Value] = 0;
-            SetVariableValue(TickerTapeVariable.Text, instance.Text.Value, instance.Key.Value);
+            if (!indexes.TryAdd(instance.Name.Value, 0)) indexes[instance.Name.Value] = 0;
+            SetVariableValue(TickerTapeVariable.Text, instance.Text.Value, instance.Name.Value);
         });
 
         ChangeStateTo(TickerTapeState.Default);
@@ -60,21 +60,21 @@ public class TickerTapeModule : ChatBoxModule
     {
         GetSettingList<TickerTapeInstance>(TickerTapeSetting.TextList).ForEach(instance =>
         {
-            if (string.IsNullOrEmpty(instance.Key.Value) || !indexes.ContainsKey(instance.Key.Value) || string.IsNullOrEmpty(instance.Text.Value)) return;
+            if (string.IsNullOrEmpty(instance.Name.Value) || !indexes.ContainsKey(instance.Name.Value) || string.IsNullOrEmpty(instance.Text.Value)) return;
 
-            var position = indexes[instance.Key.Value].Modulo(instance.Text.Value.Length);
+            var position = indexes[instance.Name.Value].Modulo(instance.Text.Value.Length);
             var text = cropAndWrapText(instance.Text.Value, position, instance.MaxLength.Value);
 
-            SetVariableValue(TickerTapeVariable.Text, text, instance.Key.Value);
+            SetVariableValue(TickerTapeVariable.Text, text, instance.Name.Value);
 
             switch (instance.Direction.Value)
             {
                 case TickerTapeDirection.Right:
-                    indexes[instance.Key.Value] += instance.ScrollSpeed.Value;
+                    indexes[instance.Name.Value] += instance.ScrollSpeed.Value;
                     break;
 
                 case TickerTapeDirection.Left:
-                    indexes[instance.Key.Value] -= instance.ScrollSpeed.Value;
+                    indexes[instance.Name.Value] -= instance.ScrollSpeed.Value;
                     break;
             }
         });

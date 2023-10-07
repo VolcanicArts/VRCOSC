@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using Newtonsoft.Json;
@@ -24,10 +24,7 @@ namespace VRCOSC.Modules.Maths;
 public class MathsEquationInstance : IEquatable<MathsEquationInstance>
 {
     [JsonProperty("input_parameter")]
-    public Bindable<string> InputParameter = new(string.Empty);
-
-    [JsonProperty("input_type")]
-    public Bindable<MathsEquationValueType> InputType = new();
+    public Bindable<string> TriggerParameter = new(string.Empty);
 
     [JsonProperty("equation")]
     public Bindable<string> Equation = new(string.Empty);
@@ -35,14 +32,11 @@ public class MathsEquationInstance : IEquatable<MathsEquationInstance>
     [JsonProperty("output_parameter")]
     public Bindable<string> OutputParameter = new(string.Empty);
 
-    [JsonProperty("output_type")]
-    public Bindable<MathsEquationValueType> OutputType = new();
-
     public bool Equals(MathsEquationInstance? other)
     {
         if (ReferenceEquals(other, null)) return false;
 
-        return InputParameter.Value == other.InputParameter.Value && InputType.Value == other.InputType.Value && Equation.Value == other.Equation.Value && OutputParameter.Value == other.OutputParameter.Value && OutputType.Value == other.OutputType.Value;
+        return TriggerParameter.Value == other.TriggerParameter.Value && Equation.Value == other.Equation.Value && OutputParameter.Value == other.OutputParameter.Value;
     }
 
     [JsonConstructor]
@@ -52,11 +46,9 @@ public class MathsEquationInstance : IEquatable<MathsEquationInstance>
 
     public MathsEquationInstance(MathsEquationInstance other)
     {
-        InputParameter.Value = other.InputParameter.Value;
-        InputType.Value = other.InputType.Value;
+        TriggerParameter.Value = other.TriggerParameter.Value;
         Equation.Value = other.Equation.Value;
         OutputParameter.Value = other.OutputParameter.Value;
-        OutputType.Value = other.OutputType.Value;
     }
 }
 
@@ -119,15 +111,11 @@ public partial class MathsEquationInstanceAttributeCardList : AttributeCardList<
                 AutoSizeAxes = Axes.Y,
                 ColumnDimensions = new[]
                 {
-                    new Dimension(maxSize: 250),
+                    new Dimension(maxSize: 150),
                     new Dimension(GridSizeMode.Absolute, 5),
-                    new Dimension(maxSize: 100),
-                    new Dimension(GridSizeMode.Absolute, 15),
                     new Dimension(),
-                    new Dimension(GridSizeMode.Absolute, 15),
-                    new Dimension(maxSize: 250),
                     new Dimension(GridSizeMode.Absolute, 5),
-                    new Dimension(maxSize: 100)
+                    new Dimension(maxSize: 150)
                 },
                 RowDimensions = new[]
                 {
@@ -145,20 +133,7 @@ public partial class MathsEquationInstanceAttributeCardList : AttributeCardList<
                             {
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
-                                Text = "Input Parameter",
-                                Font = FrameworkFont.Regular.With(size: 20)
-                            }
-                        },
-                        null,
-                        new Container
-                        {
-                            RelativeSizeAxes = Axes.X,
-                            AutoSizeAxes = Axes.Y,
-                            Child = new SpriteText
-                            {
-                                Anchor = Anchor.Centre,
-                                Origin = Anchor.Centre,
-                                Text = "Input Type",
+                                Text = "Trigger Parameter",
                                 Font = FrameworkFont.Regular.With(size: 20)
                             }
                         },
@@ -187,19 +162,6 @@ public partial class MathsEquationInstanceAttributeCardList : AttributeCardList<
                                 Text = "Output Parameter",
                                 Font = FrameworkFont.Regular.With(size: 20)
                             }
-                        },
-                        null,
-                        new Container
-                        {
-                            RelativeSizeAxes = Axes.X,
-                            AutoSizeAxes = Axes.Y,
-                            Child = new SpriteText
-                            {
-                                Anchor = Anchor.Centre,
-                                Origin = Anchor.Centre,
-                                Text = "Output Type",
-                                Font = FrameworkFont.Regular.With(size: 20)
-                            }
                         }
                     }
                 }
@@ -217,15 +179,11 @@ public partial class MathsEquationInstanceAttributeCardList : AttributeCardList<
             AutoSizeAxes = Axes.Y,
             ColumnDimensions = new[]
             {
-                new Dimension(maxSize: 250),
+                new Dimension(maxSize: 150),
                 new Dimension(GridSizeMode.Absolute, 5),
-                new Dimension(maxSize: 100),
-                new Dimension(GridSizeMode.Absolute, 15),
                 new Dimension(),
-                new Dimension(GridSizeMode.Absolute, 15),
-                new Dimension(maxSize: 250),
                 new Dimension(GridSizeMode.Absolute, 5),
-                new Dimension(maxSize: 100)
+                new Dimension(maxSize: 150)
             },
             RowDimensions = new[]
             {
@@ -245,17 +203,9 @@ public partial class MathsEquationInstanceAttributeCardList : AttributeCardList<
                         CornerRadius = 5,
                         BorderColour = ThemeManager.Current[ThemeAttribute.Border],
                         BorderThickness = 2,
-                        ValidCurrent = instance.InputParameter.GetBoundCopy(),
-                        PlaceholderText = "Input Parameter"
-                    },
-                    null,
-                    new MathsValueTypeInstanceDropdown<MathsEquationValueType>
-                    {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        RelativeSizeAxes = Axes.X,
-                        Items = Enum.GetValues(typeof(MathsEquationValueType)).Cast<MathsEquationValueType>(),
-                        Current = instance.InputType.GetBoundCopy()
+                        ValidCurrent = instance.TriggerParameter.GetBoundCopy(),
+                        PlaceholderText = "Trigger Parameter",
+                        EmptyIsValid = false
                     },
                     null,
                     new StringTextBox
@@ -269,7 +219,8 @@ public partial class MathsEquationInstanceAttributeCardList : AttributeCardList<
                         BorderColour = ThemeManager.Current[ThemeAttribute.Border],
                         BorderThickness = 2,
                         ValidCurrent = instance.Equation.GetBoundCopy(),
-                        PlaceholderText = "Equation"
+                        PlaceholderText = "Equation",
+                        EmptyIsValid = false
                     },
                     null,
                     new StringTextBox
@@ -283,16 +234,8 @@ public partial class MathsEquationInstanceAttributeCardList : AttributeCardList<
                         BorderColour = ThemeManager.Current[ThemeAttribute.Border],
                         BorderThickness = 2,
                         ValidCurrent = instance.OutputParameter.GetBoundCopy(),
-                        PlaceholderText = "Output Parameter"
-                    },
-                    null,
-                    new MathsValueTypeInstanceDropdown<MathsEquationValueType>
-                    {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        RelativeSizeAxes = Axes.X,
-                        Items = Enum.GetValues(typeof(MathsEquationValueType)).Cast<MathsEquationValueType>(),
-                        Current = instance.OutputType.GetBoundCopy()
+                        PlaceholderText = "Output Parameter",
+                        EmptyIsValid = false
                     }
                 }
             }
@@ -374,11 +317,4 @@ public partial class MathsValueTypeInstanceDropdown<T> : VRCOSCDropdown<T>
             BackgroundColourHover = ThemeManager.Current[ThemeAttribute.Mid];
         }
     }
-}
-
-public enum MathsEquationValueType
-{
-    Bool,
-    Int,
-    Float
 }

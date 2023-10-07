@@ -38,6 +38,7 @@ public partial class AppManager : Component
 
     private static readonly TimeSpan openvr_check_interval = TimeSpan.FromSeconds(1);
     private static readonly TimeSpan vrchat_check_interval = TimeSpan.FromSeconds(5);
+    private static readonly TimeSpan oscjson_check_interval = TimeSpan.FromSeconds(5);
 
     private readonly Queue<VRChatOscMessage> oscMessageQueue = new();
     private ScheduledDelegate? runningModulesDelegate;
@@ -144,6 +145,8 @@ public partial class AppManager : Component
     {
         Scheduler.AddDelayed(checkForOpenVR, openvr_check_interval.TotalMilliseconds, true);
         Scheduler.AddDelayed(checkForVRChat, vrchat_check_interval.TotalMilliseconds, true);
+        Scheduler.AddDelayed(checkForOscjson, oscjson_check_interval.TotalMilliseconds, true);
+        checkForOscjson();
     }
 
     #endregion
@@ -189,10 +192,7 @@ public partial class AppManager : Component
 
     private void scheduleModuleEnabledParameters()
     {
-        runningModulesDelegate = Scheduler.AddDelayed(() =>
-        {
-            ModuleManager.Modules.ForEach(module => sendModuleRunningState(module, ModuleManager.IsModuleRunning(module)));
-        }, TimeSpan.FromSeconds(1).TotalMilliseconds, true);
+        runningModulesDelegate = Scheduler.AddDelayed(() => ModuleManager.Modules.ForEach(module => sendModuleRunningState(module, ModuleManager.IsModuleRunning(module))), TimeSpan.FromSeconds(1).TotalMilliseconds, true);
     }
 
     private void cancelRunningModulesDelegate()
@@ -314,10 +314,23 @@ public partial class AppManager : Component
 
     private void checkForVRChat()
     {
-        if (!configManager.Get<bool>(VRCOSCSetting.AutoStartStop) || !VRChat.HasOpenStateChanged()) return;
+        var newOpenState = VRChat.HasOpenStateChanged();
 
-        if (VRChat.IsClientOpen && State.Value == AppManagerState.Stopped) Start();
-        if (!VRChat.IsClientOpen && State.Value == AppManagerState.Started) Stop();
+        if (!configManager.Get<bool>(VRCOSCSetting.AutoStartStop) || !newOpenState) return;
+
+        if (VRChat.ClientOpen && State.Value == AppManagerState.Stopped) Start();
+        if (!VRChat.ClientOpen && State.Value == AppManagerState.Started) Stop();
+    }
+
+    private async void checkForOscjson()
+    {
+        if (!VRChat.IsClientOpen())
+        {
+            OSCClient.Reset();
+            return;
+        }
+
+        await OSCClient.CheckForVRChatOSCQuery();
     }
 
     #endregion
