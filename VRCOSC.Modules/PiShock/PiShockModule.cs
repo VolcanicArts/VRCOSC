@@ -270,7 +270,7 @@ public class PiShockModule : AvatarModule
 
             case PiShockParameter.BeepGroup:
                 selectedGroup = parameter.WildcardAs<int>(0);
-                vibrate = parameter.ValueAs<bool>() ? DateTimeOffset.Now : null;
+                beep = parameter.ValueAs<bool>() ? DateTimeOffset.Now : null;
                 break;
 
             case PiShockParameter.Group:
