@@ -74,12 +74,6 @@ public partial class LoadingScreen : Screen
                 }
             }
         });
-    }
-
-    protected override void LoadComplete()
-    {
-        loadingAction.Current.Value = game.LoadingAction.Value;
-        loadingBar.Current.Value = game.LoadingProgress.Value;
 
         game.LoadingAction.ValueChanged += e => Scheduler.Add(() => loadingAction.Current.Value = e.NewValue, false);
         game.LoadingProgress.ValueChanged += e => Scheduler.Add(() => loadingBar.Current.Value = e.NewValue, false);

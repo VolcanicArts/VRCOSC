@@ -38,6 +38,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         loadingScreen = new LoadingScreen();
         mainScreen = new MainScreen();
 
+        LoadComponent(loadingScreen);
         baseScreenStack.Push(loadingScreen);
     }
 
