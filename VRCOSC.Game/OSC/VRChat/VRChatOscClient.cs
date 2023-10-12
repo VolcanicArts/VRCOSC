@@ -66,7 +66,7 @@ public class VRChatOscClient : OscClient
         QueryPort = null;
     }
 
-    public async Task<object?> FindParameterValue(string parameterName)
+    private async Task<OSCQueryNode?> findParameter(string parameterName)
     {
         if (QueryPort is null) return null;
 
@@ -76,11 +76,13 @@ public class VRChatOscClient : OscClient
         var content = await response.Content.ReadAsStringAsync();
         var node = JsonConvert.DeserializeObject<OSCQueryNode>(content);
 
-        if (node is null)
-        {
-            Logger.Log("Could not decode node");
-            return null;
-        }
+        return node is null || node.Access == Attributes.AccessValues.NoValue ? null : node;
+    }
+
+    public async Task<object?> FindParameterValue(string parameterName)
+    {
+        var node = await findParameter(parameterName);
+        if (node is null) return null;
 
         return node.OscType switch
         {
@@ -88,25 +90,14 @@ public class VRChatOscClient : OscClient
             "i" => Convert.ToInt32(node.Value[0]),
             "T" => Convert.ToBoolean(node.Value[0]),
             "F" => Convert.ToBoolean(node.Value[0]),
-            _ => throw new InvalidOperationException("Unknown type")
+            _ => throw new InvalidOperationException($"Unknown type {node.OscType}")
         };
     }
 
     public async Task<TypeCode?> FindParameterType(string parameterName)
     {
-        if (QueryPort is null) return null;
-
-        var url = $"http://127.0.0.1:{QueryPort}/avatar/parameters/{parameterName}";
-
-        var response = await client.GetAsync(new Uri(url));
-        var content = await response.Content.ReadAsStringAsync();
-        var node = JsonConvert.DeserializeObject<OSCQueryNode>(content);
-
-        if (node is null)
-        {
-            Logger.Log("Could not decode node");
-            return null;
-        }
+        var node = await findParameter(parameterName);
+        if (node is null) return null;
 
         return node.OscType switch
         {
@@ -114,7 +105,7 @@ public class VRChatOscClient : OscClient
             "i" => TypeCode.Int32,
             "T" => TypeCode.Boolean,
             "F" => TypeCode.Boolean,
-            _ => throw new InvalidOperationException("Unknown type")
+            _ => throw new InvalidOperationException($"Unknown type {node.OscType}")
         };
     }
 }
