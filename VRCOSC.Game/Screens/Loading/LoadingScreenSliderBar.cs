@@ -31,7 +31,7 @@ public partial class LoadingScreenSliderBar : SliderBar<float>
             selectionBox = new Box
             {
                 RelativeSizeAxes = Axes.Both,
-                Colour = Colours.Light,
+                Colour = Colours.Highlight,
                 Scale = new Vector2(0, 1)
             }
         };

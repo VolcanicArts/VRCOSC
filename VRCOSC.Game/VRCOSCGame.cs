@@ -4,9 +4,10 @@
 using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
+using osu.Framework.Platform;
 using osu.Framework.Screens;
-using VRCOSC.Game.Screens;
 using VRCOSC.Game.Screens.Loading;
+using VRCOSC.Game.Screens.Main;
 
 namespace VRCOSC.Game;
 
@@ -29,8 +30,10 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     public Bindable<float> LoadingProgress = new();
 
     [BackgroundDependencyLoader]
-    private void load()
+    private void load(GameHost host)
     {
+        Window.Title = host.Name;
+
         Add(baseScreenStack = new ScreenStack());
 
         mainScreen = new MainScreen();
@@ -45,9 +48,9 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         base.LoadComplete();
 
         LoadingAction.Value = "Loading some shit idk";
-        Scheduler.AddDelayed(() => LoadingProgress.Value += 0.01f, 30, true);
+        Scheduler.AddDelayed(() => LoadingProgress.Value += 0.01f, 15, true);
 
-        await Task.Delay(3000);
+        await Task.Delay(1500);
 
         LoadingAction.Value = "Complete!";
         Scheduler.Add(() => loadingScreen.Exit(), false);
