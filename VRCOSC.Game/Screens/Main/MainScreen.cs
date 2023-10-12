@@ -18,9 +18,9 @@ public partial class MainScreen : Screen
             Anchor = Anchor.Centre,
             Origin = Anchor.Centre,
             RelativeSizeAxes = Axes.Both,
-            Margin = new MarginPadding
+            Padding = new MarginPadding
             {
-                Left = 100
+                Left = 50
             }
         });
 

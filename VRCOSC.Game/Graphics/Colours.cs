@@ -7,8 +7,10 @@ namespace VRCOSC.Game.Graphics;
 
 public static class Colours
 {
+    public static Color4 Black = new(0, 0, 0, 255);
     public static Color4 Dark = new(30, 31, 34, 255);
     public static Color4 Mid = new(43, 45, 49, 255);
     public static Color4 Light = new(49, 51, 56, 255);
     public static Color4 Highlight = new(56, 58, 64, 255);
+    public static Color4 OffWhite = new(242, 243, 245, 255);
 }
