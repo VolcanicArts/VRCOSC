@@ -10,6 +10,8 @@ using osu.Framework.Configuration;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.IO.Stores;
+using osu.Framework.Platform;
+using VRCOSC.Game.Config;
 using VRCOSC.Resources;
 
 namespace VRCOSC.Game;
@@ -31,14 +33,18 @@ public partial class VRCOSCGameBase : osu.Framework.Game
 
     protected override Container<Drawable> Content { get; }
 
+    protected VRCOSCConfigManager ConfigManager;
+
     protected VRCOSCGameBase()
     {
         base.Content.Add(Content = new DrawSizePreservingFillContainer());
     }
 
     [BackgroundDependencyLoader]
-    private void load()
+    private void load(Storage storage)
     {
         Resources.AddStore(new DllResourceStore(typeof(VRCOSCResources).Assembly));
+
+        DependencyContainer.CacheAs(ConfigManager = new VRCOSCConfigManager(storage.GetStorageForDirectory("configuration")));
     }
 }

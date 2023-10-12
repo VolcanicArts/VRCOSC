@@ -18,6 +18,7 @@
         <ProjectReference Include="..\VRCOSC.Resources\VRCOSC.Resources.csproj" />
     </ItemGroup>
     <ItemGroup>
+        <PackageReference Include="PInvoke.User32" Version="0.7.124" />
         <PackageReference Include="ppy.osu.Framework" Version="2023.1012.0" />
         <PackageReference Include="PolySharp" Version="1.13.2">
             <PrivateAssets>all</PrivateAssets>
