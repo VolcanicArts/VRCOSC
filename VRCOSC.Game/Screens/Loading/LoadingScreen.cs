@@ -85,9 +85,8 @@ public partial class LoadingScreen : Screen
         game.LoadingProgress.ValueChanged += e => Scheduler.Add(() => loadingBar.Current.Value = e.NewValue, false);
     }
 
-    public override bool OnExiting(ScreenExitEvent e)
+    public override void OnSuspending(ScreenTransitionEvent e)
     {
         this.FadeOutFromOne(1000, Easing.OutQuint);
-        return false;
     }
 }

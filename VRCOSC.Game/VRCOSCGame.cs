@@ -1,7 +1,6 @@
 // Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Platform;
@@ -36,10 +35,9 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
         Add(baseScreenStack = new ScreenStack());
 
-        mainScreen = new MainScreen();
         loadingScreen = new LoadingScreen();
+        mainScreen = new MainScreen();
 
-        baseScreenStack.Push(mainScreen);
         baseScreenStack.Push(loadingScreen);
     }
 
@@ -47,12 +45,13 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     {
         base.LoadComplete();
 
-        LoadingAction.Value = "Loading some shit idk";
-        Scheduler.AddDelayed(() => LoadingProgress.Value += 0.01f, 15, true);
-
-        await Task.Delay(1500);
+        LoadingAction.Value = "Loading graphics";
+        LoadingProgress.Value = 0f;
+        await LoadComponentAsync(mainScreen);
+        LoadingProgress.Value = 1f;
 
         LoadingAction.Value = "Complete!";
-        Scheduler.Add(() => loadingScreen.Exit(), false);
+        LoadingProgress.Value = 1f;
+        Scheduler.Add(() => baseScreenStack.Push(mainScreen), false);
     }
 }

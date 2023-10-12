@@ -32,4 +32,9 @@ public partial class MainScreen : Screen
             Width = 50
         });
     }
+
+    public override void OnEntering(ScreenTransitionEvent e)
+    {
+        this.FadeInFromZero(1000, Easing.OutQuint);
+    }
 }
