@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Linq;
 using System.Runtime.Versioning;
 using osu.Framework;
 using osu.Framework.Platform;
@@ -24,7 +23,7 @@ public static class Program
         initSquirrel();
 
         using GameHost host = Host.GetSuitableDesktopHost(base_game_name);
-        using osu.Framework.Game game = new VRCOSCGameDesktop(args.Contains("--module-debug"));
+        using osu.Framework.Game game = new VRCOSCGameDesktop();
         host.Run(game);
     }
 

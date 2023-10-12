@@ -11,6 +11,6 @@ public partial class VRCOSCGame : VRCOSCTestScene
     [SetUp]
     public void SetUp()
     {
-        AddGame(new VRCOSCGameDesktop(false));
+        AddGame(new VRCOSCGameDesktop());
     }
 }
