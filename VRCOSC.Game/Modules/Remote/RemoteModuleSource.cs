@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -9,6 +10,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Octokit;
+using osu.Framework.IO.Network;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 using Semver;
@@ -25,6 +27,7 @@ public class RemoteModuleSource
     private readonly string repositoryName;
 
     private Release? latestRelease;
+    private DefinitionFile? latestReleaseDefinition;
 
     /// <summary>
     /// The remote state of the remote module source as per the last <see cref="UpdateRemoteState"/> call
@@ -59,23 +62,87 @@ public class RemoteModuleSource
         return new SemVersion(version.Major, version.Minor, version.Build);
     }
 
+    private Storage getLocalStorage() => storage.GetStorageForDirectory(FormattedIdentifier);
+
     /// <summary>
     /// Downloads all the files as specified in <see cref="DefinitionFile"/>
-    /// <param name="forceInstall">Set to true when wanting to install the latest version even if it's already installed</param>
     /// </summary>
+    /// <param name="forceInstall">Set to true when wanting to install the latest version even if it's already installed</param>
     public async Task Install(bool forceInstall = false)
     {
+        Logger.Log($"Attempting to install repo {FormattedIdentifier}. forceInstall: {forceInstall}");
+
         if (RemoteState != RemoteModuleSourceRemoteState.Valid)
             throw new InvalidOperationException($"Cannot install when remote state is not {RemoteModuleSourceRemoteState.Valid}");
+
+        Debug.Assert(latestRelease is not null);
+        Debug.Assert(latestReleaseDefinition is not null);
+
+        if (!await IsUpdateAvailable() && !forceInstall) return;
+
+        try
+        {
+            Logger.Log($"Installing repo {FormattedIdentifier}");
+
+            if (forceInstall)
+            {
+                Logger.Log("Force install chosen. Attempting to uninstall first");
+                Uninstall();
+            }
+
+            var localStorage = getLocalStorage();
+            var assetsToDownload = latestRelease.Assets.Where(releaseAsset => latestReleaseDefinition.Files.Contains(releaseAsset.Name));
+
+            foreach (var releaseAsset in assetsToDownload)
+            {
+                var downloadRequest = new FileWebRequest(localStorage.GetFullPath(releaseAsset.Name), releaseAsset.BrowserDownloadUrl);
+                Logger.Log($"Downloading file {releaseAsset.Name}");
+                await downloadRequest.PerformAsync();
+            }
+
+            var metadata = new MetadataFile
+            {
+                InstalledVersion = latestRelease.TagName
+            };
+
+            using var writeStream = localStorage.CreateFileSafely("metadata.json");
+            using var writer = new StreamWriter(writeStream);
+            await writer.WriteAsync(JsonConvert.SerializeObject(metadata));
+
+            Logger.Log("Install successful");
+            await UpdateInstallState();
+        }
+        catch (Exception e)
+        {
+            Logger.Error(e, $"Could not install repo {FormattedIdentifier}");
+        }
+    }
+
+    public void Uninstall()
+    {
+        Logger.Log($"Attempting to uninstall repo {FormattedIdentifier}");
+
+        if (!storage.ExistsDirectory(FormattedIdentifier))
+        {
+            Logger.Log("Module is not installed. Skipping uninstallation");
+            return;
+        }
+
+        storage.DeleteDirectory(FormattedIdentifier);
+        Logger.Log("Uninstall successful");
     }
 
     /// <summary>
     /// Checks if an update is available.
     /// </summary>
-    public async Task<bool> IsUpdateAvailable()
+    /// <param name="updateStates">Set to true to update the states before checking for updates</param>
+    public async Task<bool> IsUpdateAvailable(bool updateStates = false)
     {
-        await UpdateInstallState();
-        await UpdateRemoteState();
+        if (updateStates)
+        {
+            await UpdateInstallState();
+            await UpdateRemoteState();
+        }
 
         if (InstallState != RemoteModuleSourceInstallState.Valid)
             throw new InvalidOperationException($"Cannot check for available update when install state is not {RemoteModuleSourceInstallState.Valid}");
@@ -83,7 +150,7 @@ public class RemoteModuleSource
         if (RemoteState != RemoteModuleSourceRemoteState.Valid)
             throw new InvalidOperationException($"Cannot check for available update when remote state is not {RemoteModuleSourceRemoteState.Valid}");
 
-        var localStorage = storage.GetStorageForDirectory(FormattedIdentifier);
+        var localStorage = getLocalStorage();
         var metadataContents = await File.ReadAllTextAsync(localStorage.GetFullPath("metadata.json"));
         var metadata = JsonConvert.DeserializeObject<MetadataFile>(metadataContents)!;
 
@@ -109,7 +176,7 @@ public class RemoteModuleSource
                 return;
             }
 
-            var localStorage = storage.GetStorageForDirectory(FormattedIdentifier);
+            var localStorage = getLocalStorage();
 
             if (!localStorage.Exists("metadata.json"))
             {
@@ -168,16 +235,16 @@ public class RemoteModuleSource
             }
 
             var definitionFileContents = await (await httpClient.GetAsync(definitionFileAsset.BrowserDownloadUrl)).Content.ReadAsStringAsync();
-            var definitionFile = JsonConvert.DeserializeObject<DefinitionFile>(definitionFileContents);
+            latestReleaseDefinition = JsonConvert.DeserializeObject<DefinitionFile>(definitionFileContents);
 
-            if (definitionFile is null)
+            if (latestReleaseDefinition is null)
             {
                 RemoteState = RemoteModuleSourceRemoteState.InvalidDefinitionFile;
                 return;
             }
 
             var currentSDKVersion = getCurrentSDKVersion();
-            var remoteModuleVersion = SemVersionRange.Parse(definitionFile.SDKVersionRange, SemVersionRangeOptions.Loose);
+            var remoteModuleVersion = SemVersionRange.Parse(latestReleaseDefinition.SDKVersionRange, SemVersionRangeOptions.Loose);
 
             if (!currentSDKVersion.Satisfies(remoteModuleVersion))
             {
@@ -191,6 +258,8 @@ public class RemoteModuleSource
         {
             Logger.Error(e, $"Problem when checking latest release for repo {FormattedIdentifier}");
             RemoteState = RemoteModuleSourceRemoteState.Unknown;
+            latestRelease = null;
+            latestReleaseDefinition = null;
         }
     }
 }

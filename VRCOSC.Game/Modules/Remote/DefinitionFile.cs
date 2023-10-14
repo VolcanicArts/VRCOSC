@@ -11,12 +11,6 @@ namespace VRCOSC.Game.Modules.Remote;
 public class DefinitionFile
 {
     /// <summary>
-    /// The display name of this collection of modules
-    /// </summary>
-    [JsonProperty("collection_name")]
-    public string CollectionName = null!;
-
-    /// <summary>
     /// A semver string to be analysed when loading this collection
     /// </summary>
     [JsonProperty("sdk_version_range")]
