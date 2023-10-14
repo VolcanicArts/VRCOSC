@@ -18,11 +18,13 @@
         <ProjectReference Include="..\VRCOSC.Resources\VRCOSC.Resources.csproj" />
     </ItemGroup>
     <ItemGroup>
+        <PackageReference Include="Octokit" Version="8.1.1" />
         <PackageReference Include="PInvoke.User32" Version="0.7.124" />
         <PackageReference Include="ppy.osu.Framework" Version="2023.1012.0" />
         <PackageReference Include="PolySharp" Version="1.13.2">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="Semver" Version="2.3.0" />
     </ItemGroup>
 </Project>
