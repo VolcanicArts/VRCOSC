@@ -23,6 +23,11 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     [Resolved]
     private GameHost host { get; set; } = null!;
 
+    [Resolved]
+    private Storage storage { get; set; } = null!;
+
+    private readonly AppManager appManager = new();
+
     private ScreenStack baseScreenStack = null!;
 
     private Screen mainScreen = null!;
@@ -60,6 +65,16 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         LoadingAction.Value = "Loading graphics";
         LoadingProgress.Value = 0f;
         await LoadComponentAsync(mainScreen);
+        LoadingProgress.Value = 1f;
+
+        LoadingAction.Value = "Loading managers";
+        LoadingProgress.Value = 0f;
+        appManager.Initialise(storage);
+        LoadingProgress.Value = 1f;
+
+        LoadingAction.Value = "Loading modules";
+        LoadingProgress.Value = 0f;
+        appManager.ModuleManager.LoadAllModules();
         LoadingProgress.Value = 1f;
 
         LoadingAction.Value = "Complete!";
