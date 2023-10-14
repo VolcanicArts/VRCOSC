@@ -9,7 +9,6 @@ using System.Runtime.Loader;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
-using VRCOSC.SDK;
 
 namespace VRCOSC.Game.Modules;
 

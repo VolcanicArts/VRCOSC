@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net6.0-windows10.0.22621.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\VRCOSC.SDK\VRCOSC.SDK.csproj" />
+      <ProjectReference Include="..\VRCOSC.Game\VRCOSC.Game.csproj" />
     </ItemGroup>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">

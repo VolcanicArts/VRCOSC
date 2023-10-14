@@ -17,11 +17,13 @@ public class VRCOSCConfigManager : IniConfigManager<VRCOSCSetting>
 
     protected override void InitialiseDefaults()
     {
+        SetDefault(VRCOSCSetting.FirstTimeSetupComplete, false);
         SetDefault(VRCOSCSetting.StartInTray, false);
     }
 }
 
 public enum VRCOSCSetting
 {
+    FirstTimeSetupComplete,
     StartInTray
 }

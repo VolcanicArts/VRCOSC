@@ -16,7 +16,6 @@
     </PropertyGroup>
     <ItemGroup>
         <ProjectReference Include="..\VRCOSC.Resources\VRCOSC.Resources.csproj" />
-        <ProjectReference Include="..\VRCOSC.SDK\VRCOSC.SDK.csproj" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="PInvoke.User32" Version="0.7.124" />
