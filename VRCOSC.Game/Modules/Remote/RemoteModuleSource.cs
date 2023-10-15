@@ -88,12 +88,6 @@ public class RemoteModuleSource
             return;
         }
 
-        if (!await IsUpdateAvailable() && !forceInstall)
-        {
-            Logger.Log("No update available");
-            return;
-        }
-
         try
         {
             Logger.Log($"Installing repo {Identifier}");
@@ -148,6 +142,8 @@ public class RemoteModuleSource
 
     public async Task UpdateStates()
     {
+        Logger.Log($"Updating states of repo {Identifier}");
+
         await UpdateRemoteState();
         await UpdateInstallState();
     }
