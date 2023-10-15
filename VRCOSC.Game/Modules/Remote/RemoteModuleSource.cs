@@ -54,10 +54,10 @@ public class RemoteModuleSource
         SourceType = sourceType;
     }
 
-    public void InjectDependencies(Storage storage, GitHubClient gitHubClient)
+    public void InjectDependencies(Storage storage, GitHubClient githubClient)
     {
         this.storage = storage;
-        this.githubClient = gitHubClient;
+        this.githubClient = githubClient;
     }
 
     private static SemVersion getCurrentSDKVersion()
@@ -68,13 +68,15 @@ public class RemoteModuleSource
 
     private Storage getLocalStorage() => storage.GetStorageForDirectory(Identifier);
 
+    private void log(string message) => Logger.Log($"[{Identifier}]: {message}");
+
     /// <summary>
     /// Downloads all the files as specified in <see cref="DefinitionFile"/>
     /// </summary>
     /// <param name="forceInstall">Set to true when wanting to install the latest version even if it's already installed</param>
     public async Task Install(bool forceInstall = false)
     {
-        Logger.Log($"Attempting to install repo {Identifier}. forceInstall: {forceInstall}");
+        log($"Attempting to install repo {Identifier}. forceInstall: {forceInstall}");
 
         if (RemoteState != RemoteModuleSourceRemoteState.Valid)
             throw new InvalidOperationException($"Cannot install when remote state is not {RemoteModuleSourceRemoteState.Valid}");
@@ -84,17 +86,15 @@ public class RemoteModuleSource
 
         if (InstallState == RemoteModuleSourceInstallState.Valid && !forceInstall)
         {
-            Logger.Log("Repo is already installed");
+            log("Repo is already installed");
             return;
         }
 
         try
         {
-            Logger.Log($"Installing repo {Identifier}");
-
             if (forceInstall)
             {
-                Logger.Log("Force install chosen. Attempting to uninstall first");
+                log("Force install chosen. Attempting to uninstall first");
                 Uninstall();
             }
 
@@ -104,7 +104,7 @@ public class RemoteModuleSource
             foreach (var releaseAsset in assetsToDownload)
             {
                 var downloadRequest = new FileWebRequest(localStorage.GetFullPath(releaseAsset.Name), releaseAsset.BrowserDownloadUrl);
-                Logger.Log($"Downloading file {releaseAsset.Name}");
+                log($"Downloading file {releaseAsset.Name}");
                 await downloadRequest.PerformAsync();
             }
 
@@ -117,7 +117,7 @@ public class RemoteModuleSource
             using var writer = new StreamWriter(writeStream);
             await writer.WriteAsync(JsonConvert.SerializeObject(metadata));
 
-            Logger.Log("Install successful");
+            log("Install successful");
             await UpdateInstallState();
         }
         catch (Exception e)
@@ -128,22 +128,20 @@ public class RemoteModuleSource
 
     public void Uninstall()
     {
-        Logger.Log($"Attempting to uninstall repo {Identifier}");
+        log($"Attempting to uninstall");
 
         if (!storage.ExistsDirectory(Identifier))
         {
-            Logger.Log("Module is not installed. Skipping uninstallation");
+            log("Module is not installed. Skipping uninstallation");
             return;
         }
 
         storage.DeleteDirectory(Identifier);
-        Logger.Log("Uninstall successful");
+        log("Uninstall successful");
     }
 
     public async Task UpdateStates()
     {
-        Logger.Log($"Updating states of repo {Identifier}");
-
         await UpdateRemoteState();
         await UpdateInstallState();
     }
@@ -154,6 +152,8 @@ public class RemoteModuleSource
     /// <param name="updateStates">Set to true to update the states before checking for updates</param>
     public async Task<bool> IsUpdateAvailable(bool updateStates = false)
     {
+        log($"Checking for updates. updateStates: {updateStates}");
+
         if (updateStates)
         {
             await UpdateRemoteState();
@@ -184,6 +184,8 @@ public class RemoteModuleSource
     /// </summary>
     public async Task UpdateInstallState()
     {
+        log("Updating install state");
+
         try
         {
             if (!storage.ExistsDirectory(Identifier))
@@ -216,6 +218,10 @@ public class RemoteModuleSource
             Logger.Error(e, $"Error when checking install state of repo {Identifier}");
             InstallState = RemoteModuleSourceInstallState.Unknown;
         }
+        finally
+        {
+            log($"Install state: {InstallState}");
+        }
     }
 
     /// <summary>
@@ -228,6 +234,8 @@ public class RemoteModuleSource
     /// </summary>
     public async Task UpdateRemoteState(bool useCache = true)
     {
+        log("Updating remote state");
+
         try
         {
             try
@@ -237,7 +245,7 @@ public class RemoteModuleSource
             }
             catch (ApiException)
             {
-                Logger.Log($"Could not retrieve latest release for repository {Identifier}");
+                log("Could not retrieve latest release");
                 RemoteState = RemoteModuleSourceRemoteState.MissingLatestRelease;
                 return;
             }
@@ -251,7 +259,17 @@ public class RemoteModuleSource
             }
 
             var definitionFileContents = await (await httpClient.GetAsync(definitionFileAsset.BrowserDownloadUrl)).Content.ReadAsStringAsync();
-            latestReleaseDefinition = JsonConvert.DeserializeObject<DefinitionFile>(definitionFileContents);
+
+            try
+            {
+                latestReleaseDefinition = JsonConvert.DeserializeObject<DefinitionFile>(definitionFileContents);
+            }
+            catch (JsonException e)
+            {
+                Logger.Error(e, $"Error when deserialising contents of vrcosc.json for repo {Identifier}");
+                RemoteState = RemoteModuleSourceRemoteState.InvalidDefinitionFile;
+                return;
+            }
 
             if (latestReleaseDefinition is null)
             {
@@ -276,6 +294,10 @@ public class RemoteModuleSource
             RemoteState = RemoteModuleSourceRemoteState.Unknown;
             latestRelease = null;
             latestReleaseDefinition = null;
+        }
+        finally
+        {
+            log($"Remote state: {RemoteState}");
         }
     }
 }
