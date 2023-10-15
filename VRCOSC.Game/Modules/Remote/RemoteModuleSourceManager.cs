@@ -1,6 +1,7 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -28,6 +29,11 @@ public class RemoteModuleSourceManager
 
     public IReadOnlyList<RemoteModuleSource> Sources => sources.Values.ToList();
 
+    /// <summary>
+    /// A callback for any actions this <see cref="RemoteModuleSourceManager"/> may be executing
+    /// </summary>
+    public Action<float>? ActionProgress;
+
     public RemoteModuleSourceManager(Storage storage)
     {
         this.storage = storage.GetStorageForDirectory("modules/remote");
@@ -38,14 +44,23 @@ public class RemoteModuleSourceManager
     /// </summary>
     public async Task Load()
     {
+        ActionProgress?.Invoke(0f);
         loadInstalledModules();
         await loadCommunityModuleSources();
+
+        var divisor = 1f / sources.Count;
+        var currentProgress = 0f;
 
         foreach (var remoteModuleSource in sources.Values)
         {
             remoteModuleSource.InjectDependencies(storage, gitHubClient);
             await remoteModuleSource.UpdateStates();
+
+            currentProgress += divisor;
+            ActionProgress?.Invoke(currentProgress);
         }
+
+        ActionProgress?.Invoke(1f);
 
         var installedWithNoRemote = sources.Values.Where(remoteModuleSource => remoteModuleSource is { RemoteState: RemoteModuleSourceRemoteState.MissingLatestRelease, InstallState: RemoteModuleSourceInstallState.Valid });
     }

@@ -73,9 +73,10 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         LoadingProgress.Value = 1f;
 
         LoadingAction.Value = "Loading remote modules";
-        LoadingProgress.Value = 0f;
+        void onRemoteModulesActionProgress(float e) => LoadingProgress.Value = e;
+        appManager.RemoteModuleSourceManager.ActionProgress += onRemoteModulesActionProgress;
         await appManager.RemoteModuleSourceManager.Load();
-        LoadingProgress.Value = 1f;
+        appManager.RemoteModuleSourceManager.ActionProgress -= onRemoteModulesActionProgress;
 
         LoadingAction.Value = "Loading modules";
         LoadingProgress.Value = 0f;
