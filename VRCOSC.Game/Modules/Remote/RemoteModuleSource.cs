@@ -20,14 +20,16 @@ namespace VRCOSC.Game.Modules.Remote;
 public class RemoteModuleSource
 {
     private Storage storage = null!;
+    private GitHubClient githubClient = null!;
 
     private readonly HttpClient httpClient = new();
-    private readonly GitHubClient githubClient = new(new ProductHeaderValue("VRCOSC"));
     private readonly string repositoryOwner;
     private readonly string repositoryName;
 
     private Release? latestRelease;
     private DefinitionFile? latestReleaseDefinition;
+
+    public readonly RemoteModuleSourceType SourceType;
 
     /// <summary>
     /// The remote state of the remote module source as per the last <see cref="UpdateRemoteState"/> call
@@ -40,29 +42,31 @@ public class RemoteModuleSource
     public RemoteModuleSourceInstallState InstallState { get; private set; } = RemoteModuleSourceInstallState.Unknown;
 
     /// <summary>
-    /// The formatted identifier of this remote module source.
-    /// Used for the storage of the installed files
+    /// The identifier of this remote module source.
+    /// Used for the storage of the installed files.
     /// </summary>
-    public string FormattedIdentifier => $"{repositoryOwner}#{repositoryName}";
+    public string Identifier => $"{repositoryOwner}#{repositoryName}";
 
-    public RemoteModuleSource(string repositoryOwner, string repositoryName)
+    public RemoteModuleSource(string repositoryOwner, string repositoryName, RemoteModuleSourceType sourceType)
     {
         this.repositoryOwner = repositoryOwner;
         this.repositoryName = repositoryName;
+        SourceType = sourceType;
     }
 
-    public void InjectDependencies(Storage storage)
+    public void InjectDependencies(Storage storage, GitHubClient gitHubClient)
     {
-        this.storage = storage.GetStorageForDirectory("modules/remote");
+        this.storage = storage;
+        this.githubClient = gitHubClient;
     }
 
-    private SemVersion getCurrentSDKVersion()
+    private static SemVersion getCurrentSDKVersion()
     {
         var version = Assembly.GetExecutingAssembly().GetName().Version!;
         return new SemVersion(version.Major, version.Minor, version.Build);
     }
 
-    private Storage getLocalStorage() => storage.GetStorageForDirectory(FormattedIdentifier);
+    private Storage getLocalStorage() => storage.GetStorageForDirectory(Identifier);
 
     /// <summary>
     /// Downloads all the files as specified in <see cref="DefinitionFile"/>
@@ -70,7 +74,7 @@ public class RemoteModuleSource
     /// <param name="forceInstall">Set to true when wanting to install the latest version even if it's already installed</param>
     public async Task Install(bool forceInstall = false)
     {
-        Logger.Log($"Attempting to install repo {FormattedIdentifier}. forceInstall: {forceInstall}");
+        Logger.Log($"Attempting to install repo {Identifier}. forceInstall: {forceInstall}");
 
         if (RemoteState != RemoteModuleSourceRemoteState.Valid)
             throw new InvalidOperationException($"Cannot install when remote state is not {RemoteModuleSourceRemoteState.Valid}");
@@ -78,11 +82,21 @@ public class RemoteModuleSource
         Debug.Assert(latestRelease is not null);
         Debug.Assert(latestReleaseDefinition is not null);
 
-        if (!await IsUpdateAvailable() && !forceInstall) return;
+        if (InstallState == RemoteModuleSourceInstallState.Valid && !forceInstall)
+        {
+            Logger.Log("Repo is already installed");
+            return;
+        }
+
+        if (!await IsUpdateAvailable() && !forceInstall)
+        {
+            Logger.Log("No update available");
+            return;
+        }
 
         try
         {
-            Logger.Log($"Installing repo {FormattedIdentifier}");
+            Logger.Log($"Installing repo {Identifier}");
 
             if (forceInstall)
             {
@@ -114,22 +128,28 @@ public class RemoteModuleSource
         }
         catch (Exception e)
         {
-            Logger.Error(e, $"Could not install repo {FormattedIdentifier}");
+            Logger.Error(e, $"Could not install repo {Identifier}");
         }
     }
 
     public void Uninstall()
     {
-        Logger.Log($"Attempting to uninstall repo {FormattedIdentifier}");
+        Logger.Log($"Attempting to uninstall repo {Identifier}");
 
-        if (!storage.ExistsDirectory(FormattedIdentifier))
+        if (!storage.ExistsDirectory(Identifier))
         {
             Logger.Log("Module is not installed. Skipping uninstallation");
             return;
         }
 
-        storage.DeleteDirectory(FormattedIdentifier);
+        storage.DeleteDirectory(Identifier);
         Logger.Log("Uninstall successful");
+    }
+
+    public async Task UpdateStates()
+    {
+        await UpdateRemoteState();
+        await UpdateInstallState();
     }
 
     /// <summary>
@@ -140,8 +160,8 @@ public class RemoteModuleSource
     {
         if (updateStates)
         {
-            await UpdateInstallState();
             await UpdateRemoteState();
+            await UpdateInstallState();
         }
 
         if (InstallState != RemoteModuleSourceInstallState.Valid)
@@ -170,7 +190,7 @@ public class RemoteModuleSource
     {
         try
         {
-            if (!storage.ExistsDirectory(FormattedIdentifier))
+            if (!storage.ExistsDirectory(Identifier))
             {
                 InstallState = RemoteModuleSourceInstallState.NotInstalled;
                 return;
@@ -197,7 +217,7 @@ public class RemoteModuleSource
         }
         catch (Exception e)
         {
-            Logger.Error(e, $"Error when checking install state of repo {FormattedIdentifier}");
+            Logger.Error(e, $"Error when checking install state of repo {Identifier}");
             InstallState = RemoteModuleSourceInstallState.Unknown;
         }
     }
@@ -219,9 +239,9 @@ public class RemoteModuleSource
                 if (latestRelease is null || !useCache)
                     latestRelease = await githubClient.Repository.Release.GetLatest(repositoryOwner, repositoryName);
             }
-            catch (ApiException e)
+            catch (ApiException)
             {
-                Logger.Error(e, $"Could not retrieve latest release for repository {FormattedIdentifier}");
+                Logger.Log($"Could not retrieve latest release for repository {Identifier}");
                 RemoteState = RemoteModuleSourceRemoteState.MissingLatestRelease;
                 return;
             }
@@ -256,7 +276,7 @@ public class RemoteModuleSource
         }
         catch (Exception e)
         {
-            Logger.Error(e, $"Problem when checking latest release for repo {FormattedIdentifier}");
+            Logger.Error(e, $"Problem when checking latest release for repo {Identifier}");
             RemoteState = RemoteModuleSourceRemoteState.Unknown;
             latestRelease = null;
             latestReleaseDefinition = null;
@@ -280,4 +300,11 @@ public enum RemoteModuleSourceInstallState
     NotInstalled,
     Broken,
     Valid
+}
+
+public enum RemoteModuleSourceType
+{
+    Official,
+    Curated,
+    Community
 }

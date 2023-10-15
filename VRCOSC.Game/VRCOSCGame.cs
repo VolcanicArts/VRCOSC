@@ -72,6 +72,11 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         appManager.Initialise(storage);
         LoadingProgress.Value = 1f;
 
+        LoadingAction.Value = "Loading remote modules";
+        LoadingProgress.Value = 0f;
+        await appManager.RemoteModuleSourceManager.Load();
+        LoadingProgress.Value = 1f;
+
         LoadingAction.Value = "Loading modules";
         LoadingProgress.Value = 0f;
         appManager.ModuleManager.LoadAllModules();

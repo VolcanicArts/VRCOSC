@@ -3,15 +3,18 @@
 
 using osu.Framework.Platform;
 using VRCOSC.Game.Modules;
+using VRCOSC.Game.Modules.Remote;
 
 namespace VRCOSC.Game;
 
 public class AppManager
 {
     public ModuleManager ModuleManager { get; private set; } = null!;
+    public RemoteModuleSourceManager RemoteModuleSourceManager { get; private set; } = null!;
 
     public void Initialise(Storage storage)
     {
         ModuleManager = new ModuleManager(storage);
+        RemoteModuleSourceManager = new RemoteModuleSourceManager(storage);
     }
 }
