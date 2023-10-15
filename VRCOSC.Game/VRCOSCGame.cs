@@ -13,6 +13,7 @@ using PInvoke;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Screens.Loading;
 using VRCOSC.Game.Screens.Main;
+using VRCOSC.Game.Screens.Main.Tabs;
 using Screen = osu.Framework.Screens.Screen;
 
 namespace VRCOSC.Game;
@@ -42,6 +43,8 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     /// For use when <see cref="LoadingScreen"/> is pushed
     /// </summary>
     public Bindable<float> LoadingProgress = new();
+
+    public Bindable<Tab> SelectedTab = new(Tab.Home);
 
     [BackgroundDependencyLoader]
     private void load()

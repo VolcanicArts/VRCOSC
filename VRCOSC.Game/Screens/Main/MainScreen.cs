@@ -10,6 +10,8 @@ namespace VRCOSC.Game.Screens.Main;
 
 public partial class MainScreen : Screen
 {
+    private const int tab_bar_size = 70;
+
     [BackgroundDependencyLoader]
     private void load()
     {
@@ -20,7 +22,7 @@ public partial class MainScreen : Screen
             RelativeSizeAxes = Axes.Both,
             Padding = new MarginPadding
             {
-                Left = 50
+                Left = tab_bar_size
             }
         });
 
@@ -29,7 +31,7 @@ public partial class MainScreen : Screen
             Anchor = Anchor.CentreLeft,
             Origin = Anchor.CentreLeft,
             RelativeSizeAxes = Axes.Y,
-            Width = 50
+            Width = tab_bar_size
         });
     }
 
