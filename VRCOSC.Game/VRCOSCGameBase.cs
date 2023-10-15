@@ -11,6 +11,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.IO.Stores;
 using osu.Framework.Platform;
+using osuTK;
 using VRCOSC.Game.Config;
 using VRCOSC.Resources;
 
@@ -35,10 +36,15 @@ public partial class VRCOSCGameBase : osu.Framework.Game
 
     protected VRCOSCConfigManager ConfigManager;
 
+    protected DrawSizePreservingFillContainer DrawSizePreservingFillContainer;
+
     protected VRCOSCGameBase()
     {
-        base.Content.Add(Content = new DrawSizePreservingFillContainer());
+        base.Content.Add(Content = DrawSizePreservingFillContainer = new DrawSizePreservingFillContainer());
     }
+
+    [Resolved]
+    private GameHost host { get; set; } = null!;
 
     [BackgroundDependencyLoader]
     private void load(Storage storage)
@@ -46,5 +52,14 @@ public partial class VRCOSCGameBase : osu.Framework.Game
         Resources.AddStore(new DllResourceStore(typeof(VRCOSCResources).Assembly));
 
         DependencyContainer.CacheAs(ConfigManager = new VRCOSCConfigManager(storage.GetStorageForDirectory("configuration")));
+
+        host.Window.Resized += () => updateUiScale();
+        updateUiScale();
     }
+
+    private void updateUiScale(float scaler = 1f) => Scheduler.AddOnce(() =>
+    {
+        var windowSize = host.Window.ClientSize;
+        DrawSizePreservingFillContainer.TargetDrawSize = new Vector2(windowSize.Width * scaler, windowSize.Height * scaler);
+    });
 }
