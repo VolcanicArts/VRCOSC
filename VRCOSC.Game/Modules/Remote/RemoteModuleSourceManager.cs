@@ -62,7 +62,8 @@ public class RemoteModuleSourceManager
 
         ActionProgress?.Invoke(1f);
 
-        var installedWithNoRemote = sources.Values.Where(remoteModuleSource => remoteModuleSource is { RemoteState: RemoteModuleSourceRemoteState.MissingLatestRelease, InstallState: RemoteModuleSourceInstallState.Valid });
+        var installedWithNoRelease = sources.Values.Where(remoteModuleSource => remoteModuleSource is { RemoteState: RemoteModuleSourceRemoteState.MissingLatestRelease, InstallState: RemoteModuleSourceInstallState.Valid });
+        var installedWithNoRepo = sources.Values.Where(remoteModuleSource => remoteModuleSource is { RemoteState: RemoteModuleSourceRemoteState.Unknown, InstallState: RemoteModuleSourceInstallState.Valid });
     }
 
     private void loadInstalledModules()

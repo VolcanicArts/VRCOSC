@@ -23,10 +23,10 @@ public class RemoteModuleSource
     private GitHubClient githubClient = null!;
 
     private readonly HttpClient httpClient = new();
-    private readonly string repositoryOwner;
-    private readonly string repositoryName;
+    public readonly string RepositoryOwner;
+    public readonly string RepositoryName;
 
-    private Release? latestRelease;
+    public Release? LatestRelease { get; private set; }
     private DefinitionFile? latestReleaseDefinition;
 
     public readonly RemoteModuleSourceType SourceType;
@@ -45,12 +45,12 @@ public class RemoteModuleSource
     /// The identifier of this remote module source.
     /// Used for the storage of the installed files.
     /// </summary>
-    public string Identifier => $"{repositoryOwner}#{repositoryName}";
+    public string Identifier => $"{RepositoryOwner}#{RepositoryName}";
 
     public RemoteModuleSource(string repositoryOwner, string repositoryName, RemoteModuleSourceType sourceType)
     {
-        this.repositoryOwner = repositoryOwner;
-        this.repositoryName = repositoryName;
+        RepositoryOwner = repositoryOwner;
+        RepositoryName = repositoryName;
         SourceType = sourceType;
     }
 
@@ -58,6 +58,16 @@ public class RemoteModuleSource
     {
         this.storage = storage;
         this.githubClient = githubClient;
+    }
+
+    public string GetInstalledVersion()
+    {
+        UpdateInstallState();
+        if (InstallState != RemoteModuleSourceInstallState.Valid) return string.Empty;
+
+        var metadataContents = File.ReadAllText(getLocalStorage().GetFullPath("metadata.json"));
+        var metadata = JsonConvert.DeserializeObject<MetadataFile>(metadataContents);
+        return metadata!.InstalledVersion;
     }
 
     private static SemVersion getCurrentSDKVersion()
@@ -81,7 +91,7 @@ public class RemoteModuleSource
         if (RemoteState != RemoteModuleSourceRemoteState.Valid)
             throw new InvalidOperationException($"Cannot install when remote state is not {RemoteModuleSourceRemoteState.Valid}");
 
-        Debug.Assert(latestRelease is not null);
+        Debug.Assert(LatestRelease is not null);
         Debug.Assert(latestReleaseDefinition is not null);
 
         if (InstallState == RemoteModuleSourceInstallState.Valid && !forceInstall)
@@ -99,7 +109,7 @@ public class RemoteModuleSource
             }
 
             var localStorage = getLocalStorage();
-            var assetsToDownload = latestRelease.Assets.Where(releaseAsset => latestReleaseDefinition.Files.Contains(releaseAsset.Name));
+            var assetsToDownload = LatestRelease.Assets.Where(releaseAsset => latestReleaseDefinition.Files.Contains(releaseAsset.Name));
 
             foreach (var releaseAsset in assetsToDownload)
             {
@@ -110,7 +120,7 @@ public class RemoteModuleSource
 
             var metadata = new MetadataFile
             {
-                InstalledVersion = latestRelease.TagName
+                InstalledVersion = LatestRelease.TagName
             };
 
             using var writeStream = localStorage.CreateFileSafely("metadata.json");
@@ -118,7 +128,7 @@ public class RemoteModuleSource
             await writer.WriteAsync(JsonConvert.SerializeObject(metadata));
 
             log("Install successful");
-            await UpdateInstallState();
+            UpdateInstallState();
         }
         catch (Exception e)
         {
@@ -143,7 +153,7 @@ public class RemoteModuleSource
     public async Task UpdateStates()
     {
         await UpdateRemoteState();
-        await UpdateInstallState();
+        UpdateInstallState();
     }
 
     /// <summary>
@@ -157,8 +167,11 @@ public class RemoteModuleSource
         if (updateStates)
         {
             await UpdateRemoteState();
-            await UpdateInstallState();
+            UpdateInstallState();
         }
+
+        if (RemoteState == RemoteModuleSourceRemoteState.SDKIncompatible)
+            return false;
 
         if (InstallState != RemoteModuleSourceInstallState.Valid)
             throw new InvalidOperationException($"Cannot check for available update when install state is not {RemoteModuleSourceInstallState.Valid}");
@@ -171,7 +184,7 @@ public class RemoteModuleSource
         var metadata = JsonConvert.DeserializeObject<MetadataFile>(metadataContents)!;
 
         var installedVersion = SemVersion.Parse(metadata.InstalledVersion, SemVersionStyles.Any);
-        var latestVersion = SemVersion.Parse(latestRelease!.TagName, SemVersionStyles.Any);
+        var latestVersion = SemVersion.Parse(LatestRelease!.TagName, SemVersionStyles.Any);
 
         return installedVersion.ComparePrecedenceTo(latestVersion) < 0;
     }
@@ -182,7 +195,7 @@ public class RemoteModuleSource
     /// Ensures that metadata.json exists
     /// Ensures that metadata.json is formatted correctly.
     /// </summary>
-    public async Task UpdateInstallState()
+    public void UpdateInstallState()
     {
         log("Updating install state");
 
@@ -202,7 +215,7 @@ public class RemoteModuleSource
                 return;
             }
 
-            var metadataContents = await File.ReadAllTextAsync(localStorage.GetFullPath("metadata.json"));
+            var metadataContents = File.ReadAllText(localStorage.GetFullPath("metadata.json"));
             var metadata = JsonConvert.DeserializeObject<MetadataFile>(metadataContents);
 
             if (metadata is null)
@@ -240,8 +253,8 @@ public class RemoteModuleSource
         {
             try
             {
-                if (latestRelease is null || !useCache)
-                    latestRelease = await githubClient.Repository.Release.GetLatest(repositoryOwner, repositoryName);
+                if (LatestRelease is null || !useCache)
+                    LatestRelease = await githubClient.Repository.Release.GetLatest(RepositoryOwner, RepositoryName);
             }
             catch (ApiException)
             {
@@ -250,7 +263,7 @@ public class RemoteModuleSource
                 return;
             }
 
-            var definitionFileAsset = latestRelease.Assets.SingleOrDefault(asset => asset.Name == "vrcosc.json");
+            var definitionFileAsset = LatestRelease.Assets.SingleOrDefault(asset => asset.Name == "vrcosc.json");
 
             if (definitionFileAsset is null)
             {
@@ -292,7 +305,7 @@ public class RemoteModuleSource
         {
             Logger.Error(e, $"Problem when checking latest release for repo {Identifier}");
             RemoteState = RemoteModuleSourceRemoteState.Unknown;
-            latestRelease = null;
+            LatestRelease = null;
             latestReleaseDefinition = null;
         }
         finally
