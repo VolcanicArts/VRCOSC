@@ -6,6 +6,8 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using osu.Framework.Graphics.UserInterface;
+using osuTK;
 using VRCOSC.Game.Graphics;
 using VRCOSC.Game.Modules.Remote;
 
@@ -16,6 +18,8 @@ public partial class ModulePackageListing : Container
     private readonly int[] columnWidths;
     private readonly RemoteModuleSource remoteModuleSource;
     private readonly bool even;
+
+    private LoadingContainer loadingContainer = null!;
 
     public ModulePackageListing(int[] columnWidths, RemoteModuleSource remoteModuleSource, bool even)
     {
@@ -41,62 +45,90 @@ public partial class ModulePackageListing : Container
                 RelativeSizeAxes = Axes.Both,
                 Colour = even ? Colours.Light : Colours.Mid
             },
-            new GridContainer
+            new Container
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.X,
                 AutoSizeAxes = Axes.Y,
-                ColumnDimensions = new[]
+                Padding = new MarginPadding(3),
+                Child = new GridContainer
                 {
-                    new Dimension(GridSizeMode.Absolute, columnWidths[0]),
-                    new Dimension(GridSizeMode.Absolute, columnWidths[1]),
-                    new Dimension(GridSizeMode.Absolute, columnWidths[2]),
-                    new Dimension(GridSizeMode.Absolute, columnWidths[3]),
-                    new Dimension(GridSizeMode.Absolute, columnWidths[4]),
-                    new Dimension()
-                },
-                RowDimensions = new[]
-                {
-                    new Dimension(GridSizeMode.AutoSize)
-                },
-                Content = new[]
-                {
-                    new Drawable?[]
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    RelativeSizeAxes = Axes.X,
+                    AutoSizeAxes = Axes.Y,
+                    ColumnDimensions = new[]
                     {
-                        new SpriteText
+                        new Dimension(GridSizeMode.Absolute, columnWidths[0]),
+                        new Dimension(GridSizeMode.Absolute, columnWidths[1]),
+                        new Dimension(GridSizeMode.Absolute, columnWidths[2]),
+                        new Dimension(GridSizeMode.Absolute, columnWidths[3]),
+                        new Dimension(GridSizeMode.Absolute, columnWidths[4]),
+                        new Dimension()
+                    },
+                    RowDimensions = new[]
+                    {
+                        new Dimension(GridSizeMode.AutoSize)
+                    },
+                    Content = new[]
+                    {
+                        new Drawable?[]
                         {
-                            Anchor = Anchor.CentreLeft,
-                            Origin = Anchor.CentreLeft,
-                            Font = FrameworkFont.Regular.With(size: 20),
-                            Text = remoteModuleSource.RepositoryName
-                        },
-                        new SpriteText
-                        {
-                            Anchor = Anchor.CentreLeft,
-                            Origin = Anchor.CentreLeft,
-                            Font = FrameworkFont.Regular.With(size: 20),
-                            Text = remoteModuleSource.LatestRelease?.TagName ?? "Unavailable"
-                        },
-                        new SpriteText
-                        {
-                            Anchor = Anchor.CentreLeft,
-                            Origin = Anchor.CentreLeft,
-                            Font = FrameworkFont.Regular.With(size: 20),
-                            Text = remoteModuleSource.GetInstalledVersion()
-                        },
-                        new SpriteText
-                        {
-                            Anchor = Anchor.CentreLeft,
-                            Origin = Anchor.CentreLeft,
-                            Font = FrameworkFont.Regular.With(size: 20),
-                            Text = remoteModuleSource.SourceType.ToString()
-                        },
-                        null,
-                        null
+                            new SpriteText
+                            {
+                                Anchor = Anchor.CentreLeft,
+                                Origin = Anchor.CentreLeft,
+                                Font = FrameworkFont.Regular.With(size: 20),
+                                Text = remoteModuleSource.RepositoryName
+                            },
+                            new SpriteText
+                            {
+                                Anchor = Anchor.CentreLeft,
+                                Origin = Anchor.CentreLeft,
+                                Font = FrameworkFont.Regular.With(size: 20),
+                                Text = remoteModuleSource.LatestRelease?.TagName ?? "Unavailable",
+                                Colour = remoteModuleSource.LatestRelease is not null ? Colours.OffWhite : Colours.Red
+                            },
+                            new SpriteText
+                            {
+                                Anchor = Anchor.CentreLeft,
+                                Origin = Anchor.CentreLeft,
+                                Font = FrameworkFont.Regular.With(size: 20),
+                                Text = remoteModuleSource.GetInstalledVersion()
+                            },
+                            new SpriteText
+                            {
+                                Anchor = Anchor.CentreLeft,
+                                Origin = Anchor.CentreLeft,
+                                Font = FrameworkFont.Regular.With(size: 20),
+                                Text = remoteModuleSource.SourceType.ToString()
+                            },
+                            new BasicButton
+                            {
+                                Anchor = Anchor.Centre,
+                                Origin = Anchor.Centre,
+                                Size = new Vector2(20),
+                                Action = install
+                            },
+                            null
+                        }
                     }
                 }
+            },
+            loadingContainer = new LoadingContainer
+            {
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                RelativeSizeAxes = Axes.Both
             }
         };
+
+        loadingContainer.Hide();
+    }
+
+    private void install()
+    {
+        loadingContainer.Show();
     }
 }

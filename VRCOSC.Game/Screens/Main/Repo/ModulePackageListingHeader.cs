@@ -34,71 +34,75 @@ public partial class ModulePackageListingHeader : Container
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
-                Colour = Colours.Mid
+                Colour = Colours.Highlight
             },
-            new GridContainer
+            new Container
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.X,
                 AutoSizeAxes = Axes.Y,
-                Margin = new MarginPadding
+                Padding = new MarginPadding(3),
+                Child = new GridContainer
                 {
-                    Vertical = 2
-                },
-                ColumnDimensions = new[]
-                {
-                    new Dimension(GridSizeMode.Absolute, columnWidths[0]),
-                    new Dimension(GridSizeMode.Absolute, columnWidths[1]),
-                    new Dimension(GridSizeMode.Absolute, columnWidths[2]),
-                    new Dimension(GridSizeMode.Absolute, columnWidths[3]),
-                    new Dimension(GridSizeMode.Absolute, columnWidths[4]),
-                    new Dimension()
-                },
-                RowDimensions = new[]
-                {
-                    new Dimension(GridSizeMode.AutoSize)
-                },
-                Content = new[]
-                {
-                    new Drawable?[]
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    RelativeSizeAxes = Axes.X,
+                    AutoSizeAxes = Axes.Y,
+                    ColumnDimensions = new[]
                     {
-                        new SpriteText
+                        new Dimension(GridSizeMode.Absolute, columnWidths[0]),
+                        new Dimension(GridSizeMode.Absolute, columnWidths[1]),
+                        new Dimension(GridSizeMode.Absolute, columnWidths[2]),
+                        new Dimension(GridSizeMode.Absolute, columnWidths[3]),
+                        new Dimension(GridSizeMode.Absolute, columnWidths[4]),
+                        new Dimension()
+                    },
+                    RowDimensions = new[]
+                    {
+                        new Dimension(GridSizeMode.AutoSize)
+                    },
+                    Content = new[]
+                    {
+                        new Drawable?[]
                         {
-                            Anchor = Anchor.CentreLeft,
-                            Origin = Anchor.CentreLeft,
-                            Font = FrameworkFont.Regular.With(size: 20, weight: "Bold"),
-                            Text = "Name"
-                        },
-                        new SpriteText
-                        {
-                            Anchor = Anchor.CentreLeft,
-                            Origin = Anchor.CentreLeft,
-                            Font = FrameworkFont.Regular.With(size: 20, weight: "Bold"),
-                            Text = "Latest"
-                        },
-                        new SpriteText
-                        {
-                            Anchor = Anchor.CentreLeft,
-                            Origin = Anchor.CentreLeft,
-                            Font = FrameworkFont.Regular.With(size: 20, weight: "Bold"),
-                            Text = "Installed"
-                        },
-                        new SpriteText
-                        {
-                            Anchor = Anchor.CentreLeft,
-                            Origin = Anchor.CentreLeft,
-                            Font = FrameworkFont.Regular.With(size: 20, weight: "Bold"),
-                            Text = "Type"
-                        },
-                        new SpriteText
-                        {
-                            Anchor = Anchor.CentreLeft,
-                            Origin = Anchor.CentreLeft,
-                            Font = FrameworkFont.Regular.With(size: 20, weight: "Bold"),
-                            Text = "Actions"
-                        },
-                        null
+                            new SpriteText
+                            {
+                                Anchor = Anchor.CentreLeft,
+                                Origin = Anchor.CentreLeft,
+                                Font = FrameworkFont.Regular.With(size: 20, weight: "Bold"),
+                                Text = "Name"
+                            },
+                            new SpriteText
+                            {
+                                Anchor = Anchor.CentreLeft,
+                                Origin = Anchor.CentreLeft,
+                                Font = FrameworkFont.Regular.With(size: 20, weight: "Bold"),
+                                Text = "Latest"
+                            },
+                            new SpriteText
+                            {
+                                Anchor = Anchor.CentreLeft,
+                                Origin = Anchor.CentreLeft,
+                                Font = FrameworkFont.Regular.With(size: 20, weight: "Bold"),
+                                Text = "Installed"
+                            },
+                            new SpriteText
+                            {
+                                Anchor = Anchor.CentreLeft,
+                                Origin = Anchor.CentreLeft,
+                                Font = FrameworkFont.Regular.With(size: 20, weight: "Bold"),
+                                Text = "Type"
+                            },
+                            new SpriteText
+                            {
+                                Anchor = Anchor.CentreLeft,
+                                Origin = Anchor.CentreLeft,
+                                Font = FrameworkFont.Regular.With(size: 20, weight: "Bold"),
+                                Text = "Actions"
+                            },
+                            null
+                        }
                     }
                 }
             }

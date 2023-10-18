@@ -35,6 +35,7 @@ public partial class ModulePackageList : Container
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
+                ClampExtension = 0,
                 ScrollContent =
                 {
                     Children = new Drawable[]
