@@ -11,6 +11,12 @@ namespace VRCOSC.Game.Modules.Remote;
 public class DefinitionFile
 {
     /// <summary>
+    /// A display name for the repo screen
+    /// </summary>
+    [JsonProperty("display_name")]
+    public string? DisplayName;
+
+    /// <summary>
     /// A semver string to be analysed when loading this collection
     /// </summary>
     [JsonProperty("sdk_version_range")]

@@ -47,6 +47,11 @@ public class RemoteModuleSource
     /// </summary>
     public string Identifier => $"{RepositoryOwner}#{RepositoryName}";
 
+    /// <summary>
+    /// The display name if defined in <see cref="latestReleaseDefinition"/> else the <see cref="RepositoryName"/>
+    /// </summary>
+    public string DisplayName => latestReleaseDefinition?.DisplayName ?? RepositoryName;
+
     public RemoteModuleSource(string repositoryOwner, string repositoryName, RemoteModuleSourceType sourceType)
     {
         RepositoryOwner = repositoryOwner;

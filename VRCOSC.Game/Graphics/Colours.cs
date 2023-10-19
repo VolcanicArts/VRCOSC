@@ -15,4 +15,14 @@ public static class Colours
     public static Color4 Highlight = new(56, 58, 64, 255);
     public static Color4 OffWhite = new(242, 243, 245, 255);
     public static Color4 Red = Color4Extensions.FromHex("#e74c3c");
+
+    public static Color4 Transparent = new(0, 0, 0, 0);
+
+    public static Color4 Blue0 = Color4Extensions.FromHex("2980B9");
+    public static Color4 Red1 = Color4Extensions.FromHex("E74C3C");
+    public static Color4 White0 = Color4Extensions.FromHex("FFFFFF");
+    public static Color4 White1 = Color4Extensions.FromHex("808080");
+    public static Color4 Gray0 = Color4Extensions.FromHex("1F1F1F");
+    public static Color4 Gray1 = Color4Extensions.FromHex("292929");
+    public static Color4 Gray2 = Color4Extensions.FromHex("808080");
 }

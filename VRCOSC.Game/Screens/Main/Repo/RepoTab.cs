@@ -5,7 +5,6 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
-using osu.Framework.Graphics.Sprites;
 using VRCOSC.Game.Graphics;
 
 namespace VRCOSC.Game.Screens.Main.Repo;
@@ -26,14 +25,14 @@ public partial class RepoTab : Container
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
-                Colour = Colours.Dark
+                Colour = Colours.Gray0
             },
             new Container
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
-                Padding = new MarginPadding(5),
+                Padding = new MarginPadding(10),
                 Child = new GridContainer
                 {
                     Anchor = Anchor.Centre,
@@ -41,37 +40,16 @@ public partial class RepoTab : Container
                     RelativeSizeAxes = Axes.Both,
                     RowDimensions = new[]
                     {
-                        new Dimension(GridSizeMode.AutoSize),
-                        new Dimension(GridSizeMode.Absolute, 15),
-                        new Dimension()
-                    },
-                    ColumnDimensions = new[]
-                    {
+                        new Dimension(GridSizeMode.Absolute, 38),
+                        new Dimension(GridSizeMode.Absolute, 10),
                         new Dimension()
                     },
                     Content = new[]
                     {
                         new Drawable[]
                         {
-                            new SpriteText
+                            new RepoTabHeader
                             {
-                                Anchor = Anchor.CentreLeft,
-                                Origin = Anchor.CentreLeft,
-                                Font = FrameworkFont.Regular.With(size: 50, weight: "Bold"),
-                                Colour = Colours.OffWhite,
-                                Text = "Module Package Management",
-                                Margin = new MarginPadding
-                                {
-                                    Left = 5
-                                }
-                            }
-                        },
-                        new Drawable[]
-                        {
-                            new Container
-                            {
-                                Anchor = Anchor.Centre,
-                                Origin = Anchor.Centre,
                                 RelativeSizeAxes = Axes.Both
                             }
                         },
