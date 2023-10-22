@@ -44,7 +44,7 @@ public partial class RepoTabHeader : Container
                         Width = 200,
                         BackgroundColour = Colours.Blue0,
                         TextContent = "Refresh",
-                        TextFont = FrameworkFont.Regular.With(size: 20),
+                        TextFont = Fonts.REGULAR,
                         TextColour = Colours.White0
                     },
                     updateAllButton = new TextButton
@@ -55,7 +55,7 @@ public partial class RepoTabHeader : Container
                         Width = 200,
                         BackgroundColour = Colours.Blue0,
                         TextContent = "Update All",
-                        TextFont = FrameworkFont.Regular.With(size: 20),
+                        TextFont = Fonts.REGULAR,
                         TextColour = Colours.White0
                     }
                 }

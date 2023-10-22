@@ -89,7 +89,8 @@ public partial class RepoTabHeaderSearchBar : Container
             Child = new SpriteText
             {
                 Text = c.ToString(),
-                Font = FrameworkFont.Regular.With(size: CalculatedTextSize)
+                Font = Fonts.REGULAR.With(size: CalculatedTextSize),
+                UseFullGlyphHeight = false
             }
         };
 
@@ -99,7 +100,8 @@ public partial class RepoTabHeaderSearchBar : Container
             Origin = Anchor.CentreLeft,
             X = CaretWidth,
             Colour = Colours.White1,
-            Font = FrameworkFont.Regular,
+            Font = Fonts.REGULAR.With(size: 30),
+            UseFullGlyphHeight = false
         };
     }
 }

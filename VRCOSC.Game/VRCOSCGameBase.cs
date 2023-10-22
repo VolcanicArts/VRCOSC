@@ -51,6 +51,9 @@ public partial class VRCOSCGameBase : osu.Framework.Game
     {
         Resources.AddStore(new DllResourceStore(typeof(VRCOSCResources).Assembly));
 
+        AddFont(Resources, "Fonts/NotoSans/NotoSans-Regular/NotoSans-Regular");
+        AddFont(Resources, "Fonts/NotoSans/NotoSans-Bold/NotoSans-Bold");
+
         DependencyContainer.CacheAs(ConfigManager = new VRCOSCConfigManager(storage.GetStorageForDirectory("configuration")));
 
         host.Window.Resized += () => updateUiScale();
