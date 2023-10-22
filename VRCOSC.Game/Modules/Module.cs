@@ -273,6 +273,7 @@ public abstract class Module : IComparable<Module>
     private static Regex parameterToRegex(string parameterName)
     {
         var pattern = parameterName.Replace("/", @"\/").Replace("*", @"(\S*)");
+        pattern += "$";
         return new Regex(pattern);
     }
 

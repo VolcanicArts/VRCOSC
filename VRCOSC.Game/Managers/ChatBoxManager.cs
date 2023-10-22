@@ -98,6 +98,7 @@ public class ChatBoxManager
 
     public void ResetTimeline()
     {
+        SelectedClip.Value = null;
         setDefaults();
         Serialise();
     }

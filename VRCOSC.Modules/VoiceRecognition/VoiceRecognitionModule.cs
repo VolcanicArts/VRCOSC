@@ -70,7 +70,14 @@ public class VoiceRecognitionModule : AvatarModule
     {
         if (!success) return;
 
-        var phraseInstances = GetSettingList<VoiceRecognitionPhraseInstance>(VoiceRecognitionSetting.PhraseList).Where(wordInstance => sentence.Contains(wordInstance.Phrase.Value, StringComparison.InvariantCultureIgnoreCase)).ToList();
+        var phraseInstances = GetSettingList<VoiceRecognitionPhraseInstance>(VoiceRecognitionSetting.PhraseList)
+                              .Where(wordInstance =>
+                                  sentence.Contains(wordInstance.Phrase.Value, StringComparison.InvariantCultureIgnoreCase) &&
+                                  !string.IsNullOrEmpty(wordInstance.Phrase.Value) &&
+                                  !string.IsNullOrEmpty(wordInstance.ParameterName.Value) &&
+                                  !string.IsNullOrEmpty(wordInstance.Value.Value))
+                              .ToList();
+
         if (!phraseInstances.Any()) return;
 
         Log($"Found phrase '{phraseInstances[0].Phrase.Value}'");

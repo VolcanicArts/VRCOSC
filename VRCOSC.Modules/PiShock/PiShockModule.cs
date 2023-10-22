@@ -19,6 +19,17 @@ public class PiShockModule : AvatarModule
     private SpeechToTextProvider? speechToTextProvider;
 
     private int group;
+
+    private int selectedGroup
+    {
+        get => group;
+        set
+        {
+            group = value;
+            SendParameter(PiShockParameter.Group, group);
+        }
+    }
+
     private float duration;
     private float intensity;
 
@@ -71,15 +82,18 @@ public class PiShockModule : AvatarModule
         CreateParameter<int>(PiShockParameter.Group, ParameterMode.ReadWrite, "VRCOSC/PiShock/Group", "Group", "The group to select for the actions");
         CreateParameter<float>(PiShockParameter.Duration, ParameterMode.ReadWrite, "VRCOSC/PiShock/Duration", "Duration", "The duration of the action as a percentage mapped between 1-15");
         CreateParameter<float>(PiShockParameter.Intensity, ParameterMode.ReadWrite, "VRCOSC/PiShock/Intensity", "Intensity", "The intensity of the action as a percentage mapped between 1-100");
-        CreateParameter<bool>(PiShockParameter.Shock, ParameterMode.Read, "VRCOSC/PiShock/Shock", "Shock", "Executes a shock using the defined parameters");
-        CreateParameter<bool>(PiShockParameter.Vibrate, ParameterMode.Read, "VRCOSC/PiShock/Vibrate", "Vibrate", "Executes a vibration using the defined parameters");
-        CreateParameter<bool>(PiShockParameter.Beep, ParameterMode.Read, "VRCOSC/PiShock/Beep", "Beep", "Executes a beep using the defined parameters");
+        CreateParameter<bool>(PiShockParameter.Shock, ParameterMode.Read, "VRCOSC/PiShock/Shock", "Shock", "Executes a shock using the defined parameters on the selected group");
+        CreateParameter<bool>(PiShockParameter.ShockGroup, ParameterMode.Read, "VRCOSC/PiShock/Shock/*", "Shock Group", "For use when you want to execute a shock on a specific group instead of selecting a group");
+        CreateParameter<bool>(PiShockParameter.Vibrate, ParameterMode.Read, "VRCOSC/PiShock/Vibrate", "Vibrate", "Executes a vibration using the defined parameters on the selected group");
+        CreateParameter<bool>(PiShockParameter.VibrateGroup, ParameterMode.Read, "VRCOSC/PiShock/Vibrate/*", "Vibrate Group", "For use when you want to execute a vibration on a specific group instead of selecting a group");
+        CreateParameter<bool>(PiShockParameter.Beep, ParameterMode.Read, "VRCOSC/PiShock/Beep", "Beep", "Executes a beep using the defined parameters on the selected group");
+        CreateParameter<bool>(PiShockParameter.BeepGroup, ParameterMode.Read, "VRCOSC/PiShock/Beep/*", "Beep Group", "For use when you want to execute a beep on a specific group instead of selecting a group");
         CreateParameter<bool>(PiShockParameter.Success, ParameterMode.Write, "VRCOSC/PiShock/Success", "Success", "If the execution was successful, this will become true for 1 second to act as a notification");
     }
 
     protected override void OnModuleStart()
     {
-        group = 0;
+        selectedGroup = 0;
         duration = 0f;
         intensity = 0f;
         shock = null;
@@ -175,11 +189,11 @@ public class PiShockModule : AvatarModule
 
     private async void executePiShockMode(PiShockMode mode)
     {
-        var groupData = GetSettingList<PiShockGroupInstance>(PiShockSetting.Groups).ElementAtOrDefault(group);
+        var groupData = GetSettingList<PiShockGroupInstance>(PiShockSetting.Groups).ElementAtOrDefault(selectedGroup);
 
         if (groupData is null)
         {
-            Log($"No group with ID {group}");
+            Log($"No group with ID {selectedGroup}");
             return;
         }
 
@@ -223,7 +237,7 @@ public class PiShockModule : AvatarModule
 
     private void sendParameters()
     {
-        SendParameter(PiShockParameter.Group, group);
+        SendParameter(PiShockParameter.Group, selectedGroup);
         SendParameter(PiShockParameter.Duration, duration);
         SendParameter(PiShockParameter.Intensity, intensity);
     }
@@ -236,7 +250,17 @@ public class PiShockModule : AvatarModule
                 shock = parameter.ValueAs<bool>() ? DateTimeOffset.Now : null;
                 break;
 
+            case PiShockParameter.ShockGroup:
+                selectedGroup = parameter.WildcardAs<int>(0);
+                shock = parameter.ValueAs<bool>() ? DateTimeOffset.Now : null;
+                break;
+
             case PiShockParameter.Vibrate:
+                vibrate = parameter.ValueAs<bool>() ? DateTimeOffset.Now : null;
+                break;
+
+            case PiShockParameter.VibrateGroup:
+                selectedGroup = parameter.WildcardAs<int>(0);
                 vibrate = parameter.ValueAs<bool>() ? DateTimeOffset.Now : null;
                 break;
 
@@ -244,8 +268,13 @@ public class PiShockModule : AvatarModule
                 beep = parameter.ValueAs<bool>() ? DateTimeOffset.Now : null;
                 break;
 
+            case PiShockParameter.BeepGroup:
+                selectedGroup = parameter.WildcardAs<int>(0);
+                beep = parameter.ValueAs<bool>() ? DateTimeOffset.Now : null;
+                break;
+
             case PiShockParameter.Group:
-                group = parameter.ValueAs<int>();
+                selectedGroup = parameter.ValueAs<int>();
                 break;
 
             case PiShockParameter.Duration:
@@ -281,6 +310,9 @@ public class PiShockModule : AvatarModule
         Shock,
         Vibrate,
         Beep,
-        Success
+        Success,
+        ShockGroup,
+        VibrateGroup,
+        BeepGroup
     }
 }
