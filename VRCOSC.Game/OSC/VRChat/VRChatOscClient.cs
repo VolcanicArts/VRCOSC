@@ -68,15 +68,23 @@ public class VRChatOscClient : OscClient
 
     private async Task<OSCQueryNode?> findParameter(string parameterName)
     {
-        if (QueryPort is null) return null;
+        try
+        {
+            if (QueryPort is null) return null;
 
-        var url = $"http://127.0.0.1:{QueryPort}/avatar/parameters/{parameterName}";
+            var url = $"http://127.0.0.1:{QueryPort}/avatar/parameters/{parameterName}";
 
-        var response = await client.GetAsync(new Uri(url));
-        var content = await response.Content.ReadAsStringAsync();
-        var node = JsonConvert.DeserializeObject<OSCQueryNode>(content);
+            var response = await client.GetAsync(new Uri(url));
+            var content = await response.Content.ReadAsStringAsync();
+            var node = JsonConvert.DeserializeObject<OSCQueryNode>(content);
 
-        return node is null || node.Access == Attributes.AccessValues.NoValue ? null : node;
+            return node is null || node.Access == Attributes.AccessValues.NoValue ? null : node;
+        }
+        catch (Exception e)
+        {
+            Logger.Error(e, $"Exception when trying to find parameter: {parameterName}");
+            return null;
+        }
     }
 
     public async Task<object?> FindParameterValue(string parameterName)
