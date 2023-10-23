@@ -2,8 +2,10 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.UserInterface;
 using osuTK;
 using VRCOSC.Game.Graphics;
@@ -12,27 +14,42 @@ namespace VRCOSC.Game.Screens.Loading;
 
 public partial class LoadingScreenSliderBar : SliderBar<float>
 {
-    private Box box = null!;
+    public Bindable<string> TextCurrent { get; init; } = new();
+
     private Box selectionBox = null!;
+
+    public override bool HandlePositionalInput => false;
 
     [BackgroundDependencyLoader]
     private void load()
     {
         Masking = true;
-        CornerRadius = 2;
+        CornerRadius = 10;
+        BorderThickness = 4;
+        BorderColour = Colours.GRAY2;
 
         Children = new Drawable[]
         {
-            box = new Box
+            new Box
             {
                 RelativeSizeAxes = Axes.Both,
-                Colour = Colours.Mid
+                Colour = Colours.GRAY5
             },
             selectionBox = new Box
             {
                 RelativeSizeAxes = Axes.Both,
-                Colour = Colours.Highlight,
+                Colour = Colours.GRAY3,
                 Scale = new Vector2(0, 1)
+            },
+            new SpriteText
+            {
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                Font = FrameworkFont.Regular.With(size: 15),
+                Colour = Colours.WHITE2,
+                Current = TextCurrent,
+                Shadow = true,
+                ShadowOffset = new Vector2(0, 0.05f)
             }
         };
     }

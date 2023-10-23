@@ -8,13 +8,11 @@ using System.Windows.Forms;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Platform;
-using osu.Framework.Screens;
 using PInvoke;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Screens.Loading;
 using VRCOSC.Game.Screens.Main;
 using VRCOSC.Game.Screens.Main.Tabs;
-using Screen = osu.Framework.Screens.Screen;
 
 namespace VRCOSC.Game;
 
@@ -30,20 +28,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     [Cached]
     private readonly AppManager appManager = new();
 
-    private ScreenStack baseScreenStack = null!;
-
-    private Screen mainScreen = null!;
-    private Screen loadingScreen = null!;
-
-    /// <summary>
-    /// For use when <see cref="LoadingScreen"/> is pushed
-    /// </summary>
-    public Bindable<string> LoadingAction = new(string.Empty);
-
-    /// <summary>
-    /// For use when <see cref="LoadingScreen"/> is pushed
-    /// </summary>
-    public Bindable<float> LoadingProgress = new();
+    public LoadingScreen LoadingScreen { get; private set; } = null!;
 
     public Bindable<Tab> SelectedTab = new(Tab.Home);
 
@@ -53,43 +38,41 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         Window.Title = host.Name;
         setupTrayIcon();
 
-        Add(baseScreenStack = new ScreenStack());
-
-        loadingScreen = new LoadingScreen();
-        mainScreen = new MainScreen();
-
-        LoadComponent(loadingScreen);
-        baseScreenStack.Push(loadingScreen);
+        Add(LoadingScreen = new LoadingScreen());
     }
 
     protected override async void LoadComplete()
     {
         base.LoadComplete();
 
-        LoadingAction.Value = "Loading managers";
-        LoadingProgress.Value = 0f;
-        appManager.Initialise(storage);
-        LoadingProgress.Value = 1f;
+        LoadingScreen.Title.Value = "Welcome to VRCOSC";
+        LoadingScreen.Description.Value = "Sit tight. We're getting things ready for you!";
 
-        LoadingAction.Value = "Loading remote modules";
-        void onRemoteModulesActionProgress(float e) => LoadingProgress.Value = e;
+        LoadingScreen.Action.Value = "Loading managers";
+        appManager.Initialise(storage);
+
+        LoadingScreen.Action.Value = "Loading remote modules";
+        void onRemoteModulesActionProgress(float e) => LoadingScreen.Progress.Value = e;
         appManager.RemoteModuleSourceManager.ActionProgress += onRemoteModulesActionProgress;
         await appManager.RemoteModuleSourceManager.Load();
         appManager.RemoteModuleSourceManager.ActionProgress -= onRemoteModulesActionProgress;
 
-        LoadingAction.Value = "Loading modules";
-        LoadingProgress.Value = 0f;
+        LoadingScreen.Action.Value = "Loading modules";
         appManager.ModuleManager.LoadAllModules();
-        LoadingProgress.Value = 1f;
 
-        LoadingAction.Value = "Loading graphics";
-        LoadingProgress.Value = 0f;
+        LoadingScreen.Action.Value = "Loading graphics";
+        var mainScreen = new MainScreen
+        {
+            EnableBlur = LoadingScreen.State.GetBoundCopy()
+        };
+
         await LoadComponentAsync(mainScreen);
-        LoadingProgress.Value = 1f;
+        Add(mainScreen);
+        ChangeChildDepth(mainScreen, float.MaxValue);
 
-        LoadingAction.Value = "Complete!";
-        LoadingProgress.Value = 1f;
-        Scheduler.Add(() => baseScreenStack.Push(mainScreen), false);
+        LoadingScreen.Action.Value = "Complete!";
+        LoadingScreen.Progress.Value = 1f;
+        Scheduler.Add(() => LoadingScreen.Hide(), false);
     }
 
     protected override void Update()

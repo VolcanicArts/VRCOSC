@@ -158,6 +158,9 @@ public partial class ModulePackageInstance : Container
 
     private partial class ActionButton : IconButton
     {
+        [Resolved]
+        private VRCOSCGame game { get; set; } = null!;
+
         private readonly RemoteModuleSource remoteModuleSource;
 
         protected ActionButton(RemoteModuleSource remoteModuleSource)
@@ -167,6 +170,8 @@ public partial class ModulePackageInstance : Container
             Anchor = Anchor.CentreLeft;
             Origin = Anchor.CentreLeft;
             Size = new Vector2(36);
+
+            Action += () => game.LoadingScreen.Show();
         }
     }
 
