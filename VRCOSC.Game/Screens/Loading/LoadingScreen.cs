@@ -8,6 +8,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using osu.Framework.Input.Events;
 using osuTK;
 using VRCOSC.Game.Graphics;
 
@@ -18,6 +19,11 @@ public partial class LoadingScreen : VisibilityContainer
     public Bindable<string> Title { get; } = new("How are you seeing this");
     public Bindable<string> Description { get; } = new("This shouldn't be possible");
     public Bindable<string> Action { get; } = new("We do love easter eggs");
+
+    protected override bool OnMouseDown(MouseDownEvent e) => true;
+    protected override bool OnClick(ClickEvent e) => true;
+    protected override bool OnHover(HoverEvent e) => true;
+    protected override bool OnScroll(ScrollEvent e) => true;
 
     public BindableNumber<float> Progress { get; } = new()
     {
@@ -83,11 +89,11 @@ public partial class LoadingScreen : VisibilityContainer
 
     protected override void PopIn()
     {
-        this.FadeInFromZero(1000, Easing.OutQuint);
+        this.FadeInFromZero(500, Easing.OutQuint);
     }
 
     protected override void PopOut()
     {
-        this.FadeOutFromOne(1000, Easing.OutQuint);
+        this.FadeOutFromOne(500, Easing.OutQuint);
     }
 }
