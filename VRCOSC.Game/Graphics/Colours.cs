@@ -19,8 +19,10 @@ public static class Colours
     public static Color4 Transparent = new(0, 0, 0, 0);
 
     public static readonly Color4 BLUE0 = Color4Extensions.FromHex("2980B9");
+    public static readonly Color4 RED0 = Color4Extensions.FromHex("C0392B");
     public static readonly Color4 RED1 = Color4Extensions.FromHex("E74C3C");
     public static readonly Color4 ORANGE1 = Color4Extensions.FromHex("E67E22");
+    public static readonly Color4 GREEN0 = Color4Extensions.FromHex("27AE60");
     public static readonly Color4 WHITE0 = Color4Extensions.FromHex("FFFFFF");
     public static readonly Color4 WHITE1 = Color4Extensions.FromHex("808080");
     public static readonly Color4 WHITE2 = Color4Extensions.FromHex("BFBFBF");

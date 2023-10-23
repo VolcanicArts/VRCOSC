@@ -87,6 +87,7 @@ public class RemoteModuleSource
 
     public bool IsIncompatible() => RemoteState is RemoteModuleSourceRemoteState.InvalidDefinitionFile or RemoteModuleSourceRemoteState.MissingDefinitionFile or RemoteModuleSourceRemoteState.SDKIncompatible;
     public bool IsUnavailable() => RemoteState is RemoteModuleSourceRemoteState.MissingLatestRelease or RemoteModuleSourceRemoteState.Unknown;
+    public bool IsAvailable() => RemoteState is RemoteModuleSourceRemoteState.Valid;
 
     /// <summary>
     /// Downloads all the files as specified in <see cref="DefinitionFile"/>
@@ -167,28 +168,19 @@ public class RemoteModuleSource
     /// <summary>
     /// Checks if an update is available.
     /// </summary>
-    /// <param name="updateStates">Set to true to update the states before checking for updates</param>
-    public async Task<bool> IsUpdateAvailable(bool updateStates = false)
+    public bool IsUpdateAvailable()
     {
-        log($"Checking for updates. updateStates: {updateStates}");
-
-        if (updateStates)
-        {
-            await UpdateRemoteState();
-            UpdateInstallState();
-        }
-
         if (RemoteState == RemoteModuleSourceRemoteState.SDKIncompatible)
             return false;
 
         if (InstallState != RemoteModuleSourceInstallState.Valid)
-            throw new InvalidOperationException($"Cannot check for available update when install state is not {RemoteModuleSourceInstallState.Valid}");
+            return false;
 
         if (RemoteState != RemoteModuleSourceRemoteState.Valid)
-            throw new InvalidOperationException($"Cannot check for available update when remote state is not {RemoteModuleSourceRemoteState.Valid}");
+            return false;
 
         var localStorage = getLocalStorage();
-        var metadataContents = await File.ReadAllTextAsync(localStorage.GetFullPath("metadata.json"));
+        var metadataContents = File.ReadAllText(localStorage.GetFullPath("metadata.json"));
         var metadata = JsonConvert.DeserializeObject<MetadataFile>(metadataContents)!;
 
         var installedVersion = SemVersion.Parse(metadata.InstalledVersion, SemVersionStyles.Any);
