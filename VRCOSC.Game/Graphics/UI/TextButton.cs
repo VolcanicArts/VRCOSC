@@ -33,7 +33,7 @@ public partial class TextButton : ClickableContainer
             Origin = Anchor.Centre,
             RelativeSizeAxes = Axes.Both,
             Masking = true,
-            BorderThickness = 2,
+            BorderThickness = 3,
             BorderColour = BackgroundColour,
             CornerRadius = 5,
             Children = new Drawable[]

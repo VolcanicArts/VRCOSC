@@ -26,7 +26,7 @@ public partial class RepoTabHeaderSearchBar : Container
             new Box
             {
                 RelativeSizeAxes = Axes.Both,
-                Colour = Colours.Gray1
+                Colour = Colours.GRAY2
             },
             new GridContainer
             {
@@ -53,7 +53,7 @@ public partial class RepoTabHeaderSearchBar : Container
                                 Origin = Anchor.Centre,
                                 RelativeSizeAxes = Axes.Both,
                                 Icon = FontAwesome.Solid.Search,
-                                Colour = Colours.White1,
+                                Colour = Colours.WHITE1,
                                 Rotation = 180
                             }
                         },
@@ -72,13 +72,13 @@ public partial class RepoTabHeaderSearchBar : Container
 
     private partial class SearchBarTextBox : BasicTextBox
     {
-        protected override Color4 SelectionColour => Colours.Gray2;
-        protected override Color4 InputErrorColour => Colours.Red1;
+        protected override Color4 SelectionColour => Colours.GRAY3;
+        protected override Color4 InputErrorColour => Colours.RED1;
 
         public SearchBarTextBox()
         {
-            BackgroundUnfocused = Colours.Gray1;
-            BackgroundFocused = Colours.Gray1;
+            BackgroundUnfocused = Colours.GRAY2;
+            BackgroundFocused = Colours.GRAY2;
             BackgroundCommit = Colours.Transparent;
             PlaceholderText = "Search";
         }
@@ -100,7 +100,7 @@ public partial class RepoTabHeaderSearchBar : Container
             Anchor = Anchor.CentreLeft,
             Origin = Anchor.CentreLeft,
             X = CaretWidth,
-            Colour = Colours.White1,
+            Colour = Colours.WHITE1,
             Font = Fonts.REGULAR.With(size: 40)
         };
     }

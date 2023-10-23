@@ -25,7 +25,7 @@ public partial class RepoTab : Container
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
-                Colour = Colours.Gray0
+                Colour = Colours.GRAY1
             },
             new Container
             {
@@ -53,6 +53,7 @@ public partial class RepoTab : Container
                                 RelativeSizeAxes = Axes.Both
                             }
                         },
+                        null,
                         new Drawable[]
                         {
                             new ModulePackageList

@@ -4,25 +4,18 @@
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Shapes;
-using VRCOSC.Game.Graphics;
 
 namespace VRCOSC.Game.Screens.Main.Repo;
 
 public partial class ModulePackageList : Container
 {
+    private FillFlowContainer listingFlow = null!;
+
     [BackgroundDependencyLoader]
     private void load()
     {
         Children = new Drawable[]
         {
-            new Box
-            {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                RelativeSizeAxes = Axes.Both,
-                Colour = Colours.Dark
-            },
             new BasicScrollContainer
             {
                 Anchor = Anchor.Centre,
@@ -33,12 +26,25 @@ public partial class ModulePackageList : Container
                 {
                     Children = new Drawable[]
                     {
-                        new FillFlowContainer
+                        listingFlow = new FillFlowContainer
                         {
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
                             RelativeSizeAxes = Axes.X,
-                            AutoSizeAxes = Axes.Y
+                            AutoSizeAxes = Axes.Y,
+                            Direction = FillDirection.Vertical,
+                            Masking = true,
+                            CornerRadius = 5,
+                            Children = new Drawable[]
+                            {
+                                new ModulePackageListHeader
+                                {
+                                    Anchor = Anchor.TopCentre,
+                                    Origin = Anchor.TopCentre,
+                                    RelativeSizeAxes = Axes.X,
+                                    Height = 50
+                                }
+                            }
                         }
                     }
                 }

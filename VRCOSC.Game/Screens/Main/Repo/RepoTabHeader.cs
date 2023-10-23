@@ -42,10 +42,10 @@ public partial class RepoTabHeader : Container
                         Origin = Anchor.CentreLeft,
                         RelativeSizeAxes = Axes.Y,
                         Width = 200,
-                        BackgroundColour = Colours.Blue0,
+                        BackgroundColour = Colours.BLUE0,
                         TextContent = "Refresh",
                         TextFont = Fonts.REGULAR,
-                        TextColour = Colours.White0
+                        TextColour = Colours.WHITE0
                     },
                     updateAllButton = new TextButton
                     {
@@ -53,10 +53,10 @@ public partial class RepoTabHeader : Container
                         Origin = Anchor.CentreLeft,
                         RelativeSizeAxes = Axes.Y,
                         Width = 200,
-                        BackgroundColour = Colours.Blue0,
+                        BackgroundColour = Colours.BLUE0,
                         TextContent = "Update All",
                         TextFont = Fonts.REGULAR,
-                        TextColour = Colours.White0
+                        TextColour = Colours.WHITE0
                     }
                 }
             }
