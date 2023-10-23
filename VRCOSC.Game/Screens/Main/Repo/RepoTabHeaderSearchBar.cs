@@ -85,12 +85,13 @@ public partial class RepoTabHeaderSearchBar : Container
 
         protected override Drawable GetDrawableCharacter(char c) => new FallingDownContainer
         {
+            Anchor = Anchor.CentreLeft,
+            Origin = Anchor.CentreLeft,
             AutoSizeAxes = Axes.Both,
             Child = new SpriteText
             {
                 Text = c.ToString(),
-                Font = Fonts.REGULAR.With(size: CalculatedTextSize),
-                UseFullGlyphHeight = false
+                Font = Fonts.REGULAR.With(size: CalculatedTextSize)
             }
         };
 
@@ -100,8 +101,7 @@ public partial class RepoTabHeaderSearchBar : Container
             Origin = Anchor.CentreLeft,
             X = CaretWidth,
             Colour = Colours.White1,
-            Font = Fonts.REGULAR.With(size: 30),
-            UseFullGlyphHeight = false
+            Font = Fonts.REGULAR.With(size: 40)
         };
     }
 }

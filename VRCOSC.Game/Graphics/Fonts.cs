@@ -7,6 +7,6 @@ namespace VRCOSC.Game.Graphics;
 
 public class Fonts
 {
-    public static readonly FontUsage REGULAR = new("NotoSans", weight: "Regular", size: 50);
-    public static readonly FontUsage BOLD = new("NotoSans", weight: "Bold", size: 40);
+    public static readonly FontUsage REGULAR = new("NotoSans", weight: "Regular", size: 30);
+    public static readonly FontUsage BOLD = new("NotoSans", weight: "Bold", size: 30);
 }
