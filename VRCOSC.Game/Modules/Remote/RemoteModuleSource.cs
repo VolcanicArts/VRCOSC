@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -133,9 +133,11 @@ public class RemoteModuleSource
                 InstalledVersion = LatestRelease.TagName
             };
 
-            using var writeStream = localStorage.CreateFileSafely("metadata.json");
-            using var writer = new StreamWriter(writeStream);
-            await writer.WriteAsync(JsonConvert.SerializeObject(metadata));
+            using (var writeStream = localStorage.CreateFileSafely("metadata.json"))
+            {
+                using var writer = new StreamWriter(writeStream);
+                await writer.WriteAsync(JsonConvert.SerializeObject(metadata));
+            }
 
             log("Install successful");
             UpdateInstallState();
