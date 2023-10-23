@@ -7,7 +7,6 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.UserInterface;
-using osuTK;
 using osuTK.Graphics;
 using VRCOSC.Game.Graphics;
 
@@ -61,8 +60,7 @@ public partial class RepoTabHeaderSearchBar : Container
                         {
                             Anchor = Anchor.CentreLeft,
                             Origin = Anchor.CentreLeft,
-                            RelativeSizeAxes = Axes.Both,
-                            Size = new Vector2(0.8f)
+                            RelativeSizeAxes = Axes.Both
                         }
                     }
                 }

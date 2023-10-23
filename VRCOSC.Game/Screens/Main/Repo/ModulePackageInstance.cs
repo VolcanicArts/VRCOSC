@@ -7,20 +7,35 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using VRCOSC.Game.Graphics;
+using VRCOSC.Game.Modules.Remote;
 
 namespace VRCOSC.Game.Screens.Main.Repo;
 
-public partial class ModulePackageListHeader : Container
+public partial class ModulePackageInstance : Container
 {
+    private readonly RemoteModuleSource remoteModuleSource;
+    private readonly bool even;
+
+    public ModulePackageInstance(RemoteModuleSource remoteModuleSource, bool even)
+    {
+        this.remoteModuleSource = remoteModuleSource;
+        this.even = even;
+    }
+
     [BackgroundDependencyLoader]
     private void load()
     {
+        Anchor = Anchor.TopCentre;
+        Origin = Anchor.TopCentre;
+        RelativeSizeAxes = Axes.X;
+        Height = 50;
+
         Children = new Drawable[]
         {
             new Box
             {
                 RelativeSizeAxes = Axes.Both,
-                Colour = Colours.GRAY0
+                Colour = even ? Colours.GRAY4 : Colours.GRAY2
             },
             new Container
             {
@@ -38,41 +53,39 @@ public partial class ModulePackageListHeader : Container
                         new Dimension(GridSizeMode.Absolute, 242),
                         new Dimension(GridSizeMode.Absolute, 135),
                         new Dimension(GridSizeMode.Absolute, 130),
-                        new Dimension(),
+                        new Dimension()
                     },
                     Content = new[]
                     {
                         new Drawable[]
                         {
-                            new HeaderSpriteText
+                            new InstanceSpriteText
                             {
                                 Anchor = Anchor.CentreLeft,
                                 Origin = Anchor.CentreLeft,
-                                Text = "Name"
+                                Text = remoteModuleSource.DisplayName
                             },
-                            new HeaderSpriteText
+                            new LatestVersionSpriteText(remoteModuleSource)
+                            {
+                                Anchor = Anchor.Centre,
+                                Origin = Anchor.Centre
+                            },
+                            new InstanceSpriteText
                             {
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
-                                Text = "Latest"
+                                Text = remoteModuleSource.GetInstalledVersion()
                             },
-                            new HeaderSpriteText
-                            {
-                                Anchor = Anchor.Centre,
-                                Origin = Anchor.Centre,
-                                Text = "Installed"
-                            },
-                            new HeaderSpriteText
+                            new InstanceSpriteText
                             {
                                 Anchor = Anchor.CentreLeft,
                                 Origin = Anchor.CentreLeft,
-                                Text = "Type"
+                                Text = remoteModuleSource.SourceType.ToString()
                             },
-                            new HeaderSpriteText
+                            new InstanceSpriteText
                             {
                                 Anchor = Anchor.Centre,
-                                Origin = Anchor.Centre,
-                                Text = "Action"
+                                Origin = Anchor.Centre
                             }
                         }
                     }
@@ -81,13 +94,42 @@ public partial class ModulePackageListHeader : Container
         };
     }
 
-    private partial class HeaderSpriteText : SpriteText
+    private partial class InstanceSpriteText : SpriteText
     {
         [BackgroundDependencyLoader]
         private void load()
         {
-            Font = Fonts.BOLD.With(size: 27);
-            Colour = Colours.WHITE2;
+            Font = Fonts.REGULAR.With(size: 27);
+            Colour = Colours.WHITE0;
+        }
+    }
+
+    private partial class LatestVersionSpriteText : InstanceSpriteText
+    {
+        private readonly RemoteModuleSource remoteModuleSource;
+
+        public LatestVersionSpriteText(RemoteModuleSource remoteModuleSource)
+        {
+            this.remoteModuleSource = remoteModuleSource;
+        }
+
+        [BackgroundDependencyLoader]
+        private void load()
+        {
+            if (remoteModuleSource.IsIncompatible())
+            {
+                Text = "Incompatible";
+                Colour = Colours.ORANGE1;
+            }
+            else if (remoteModuleSource.IsUnavailable())
+            {
+                Text = "Unavailable";
+                Colour = Colours.RED1;
+            }
+            else
+            {
+                Text = remoteModuleSource.LatestRelease!.TagName;
+            }
         }
     }
 }

@@ -2,13 +2,19 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Shapes;
+using VRCOSC.Game.Graphics;
 
 namespace VRCOSC.Game.Screens.Main.Repo;
 
 public partial class ModulePackageList : Container
 {
+    [Resolved]
+    private AppManager appManager { get; set; } = null!;
+
     private FillFlowContainer listingFlow = null!;
 
     [BackgroundDependencyLoader]
@@ -50,5 +56,21 @@ public partial class ModulePackageList : Container
                 }
             }
         };
+
+        var even = false;
+        appManager.RemoteModuleSourceManager.Sources.ForEach(remoteModuleSource =>
+        {
+            listingFlow.Add(new ModulePackageInstance(remoteModuleSource, even));
+            even = !even;
+        });
+
+        listingFlow.Add(new Box
+        {
+            Anchor = Anchor.TopCentre,
+            Origin = Anchor.TopCentre,
+            RelativeSizeAxes = Axes.X,
+            Height = 5,
+            Colour = Colours.GRAY0
+        });
     }
 }

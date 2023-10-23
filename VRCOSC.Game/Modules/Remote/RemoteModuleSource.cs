@@ -85,6 +85,9 @@ public class RemoteModuleSource
 
     private void log(string message) => Logger.Log($"[{Identifier}]: {message}");
 
+    public bool IsIncompatible() => RemoteState is RemoteModuleSourceRemoteState.InvalidDefinitionFile or RemoteModuleSourceRemoteState.MissingDefinitionFile or RemoteModuleSourceRemoteState.SDKIncompatible;
+    public bool IsUnavailable() => RemoteState is RemoteModuleSourceRemoteState.MissingLatestRelease or RemoteModuleSourceRemoteState.Unknown;
+
     /// <summary>
     /// Downloads all the files as specified in <see cref="DefinitionFile"/>
     /// </summary>
