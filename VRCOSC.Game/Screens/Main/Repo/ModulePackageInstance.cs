@@ -106,12 +106,12 @@ public partial class ModulePackageInstance : Container
             actionContainer.Add(new UpdateButton(remoteModuleSource));
         }
 
-        if (remoteModuleSource.IsAvailable() && remoteModuleSource.InstallState == RemoteModuleSourceInstallState.NotInstalled)
+        if (remoteModuleSource.IsAvailable() && !remoteModuleSource.IsInstalled())
         {
             actionContainer.Add(new InstallButton(remoteModuleSource));
         }
 
-        if (remoteModuleSource.InstallState == RemoteModuleSourceInstallState.Valid)
+        if (remoteModuleSource.IsInstalled())
         {
             actionContainer.Add(new UninstallButton(remoteModuleSource));
         }
@@ -177,6 +177,9 @@ public partial class ModulePackageInstance : Container
 
     private partial class InstallButton : ActionButton
     {
+        [Resolved]
+        private VRCOSCGame game { get; set; } = null!;
+
         public InstallButton(RemoteModuleSource remoteModuleSource)
             : base(remoteModuleSource)
         {
@@ -184,12 +187,20 @@ public partial class ModulePackageInstance : Container
             IconColour = Colours.WHITE0;
             Icon = FontAwesome.Solid.Plus;
 
-            Action += async () => await remoteModuleSource.Install();
+            Action += async () =>
+            {
+                game.LoadingScreen.Title.Value = "Installing...";
+                game.LoadingScreen.Description.Value = $"Sit tight while {remoteModuleSource.DisplayName} is installed!";
+                await remoteModuleSource.Install();
+            };
         }
     }
 
     private partial class UninstallButton : ActionButton
     {
+        [Resolved]
+        private VRCOSCGame game { get; set; } = null!;
+
         public UninstallButton(RemoteModuleSource remoteModuleSource)
             : base(remoteModuleSource)
         {
@@ -197,12 +208,20 @@ public partial class ModulePackageInstance : Container
             IconColour = Colours.WHITE0;
             Icon = FontAwesome.Solid.Minus;
 
-            Action += remoteModuleSource.Uninstall;
+            Action += () =>
+            {
+                game.LoadingScreen.Title.Value = "Uninstalling...";
+                game.LoadingScreen.Description.Value = "So long and thanks for all the fish";
+                remoteModuleSource.Uninstall();
+            };
         }
     }
 
     private partial class UpdateButton : ActionButton
     {
+        [Resolved]
+        private VRCOSCGame game { get; set; } = null!;
+
         public UpdateButton(RemoteModuleSource remoteModuleSource)
             : base(remoteModuleSource)
         {
@@ -210,7 +229,12 @@ public partial class ModulePackageInstance : Container
             IconColour = Colours.WHITE0;
             Icon = FontAwesome.Solid.Redo;
 
-            Action += async () => await remoteModuleSource.Install(true);
+            Action += async () =>
+            {
+                game.LoadingScreen.Title.Value = "Updating...";
+                game.LoadingScreen.Description.Value = $"Sit tight! {remoteModuleSource.DisplayName} is being updated!";
+                await remoteModuleSource.Install(true);
+            };
         }
     }
 }

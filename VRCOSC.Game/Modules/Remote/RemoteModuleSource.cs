@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -67,8 +67,7 @@ public class RemoteModuleSource
 
     public string GetInstalledVersion()
     {
-        UpdateInstallState();
-        if (InstallState != RemoteModuleSourceInstallState.Valid) return string.Empty;
+        if (!IsInstalled()) return string.Empty;
 
         var metadataContents = File.ReadAllText(getLocalStorage().GetFullPath("metadata.json"));
         var metadata = JsonConvert.DeserializeObject<MetadataFile>(metadataContents);
@@ -88,6 +87,8 @@ public class RemoteModuleSource
     public bool IsIncompatible() => RemoteState is RemoteModuleSourceRemoteState.InvalidDefinitionFile or RemoteModuleSourceRemoteState.MissingDefinitionFile or RemoteModuleSourceRemoteState.SDKIncompatible;
     public bool IsUnavailable() => RemoteState is RemoteModuleSourceRemoteState.MissingLatestRelease or RemoteModuleSourceRemoteState.Unknown;
     public bool IsAvailable() => RemoteState is RemoteModuleSourceRemoteState.Valid;
+
+    public bool IsInstalled() => InstallState is RemoteModuleSourceInstallState.Valid;
 
     /// <summary>
     /// Downloads all the files as specified in <see cref="DefinitionFile"/>
@@ -170,14 +171,7 @@ public class RemoteModuleSource
     /// </summary>
     public bool IsUpdateAvailable()
     {
-        if (RemoteState == RemoteModuleSourceRemoteState.SDKIncompatible)
-            return false;
-
-        if (InstallState != RemoteModuleSourceInstallState.Valid)
-            return false;
-
-        if (RemoteState != RemoteModuleSourceRemoteState.Valid)
-            return false;
+        if (IsUnavailable() || IsIncompatible() || !IsInstalled()) return false;
 
         var localStorage = getLocalStorage();
         var metadataContents = File.ReadAllText(localStorage.GetFullPath("metadata.json"));
