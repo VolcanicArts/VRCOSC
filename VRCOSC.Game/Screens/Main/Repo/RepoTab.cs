@@ -5,12 +5,18 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osuTK;
 using VRCOSC.Game.Graphics;
 
 namespace VRCOSC.Game.Screens.Main.Repo;
 
+[Cached]
 public partial class RepoTab : Container
 {
+    public ModulePackageInfo PackageInfo { get; set; } = null!;
+
+    private BufferedContainer bufferedContainer = null!;
+
     [BackgroundDependencyLoader]
     private void load()
     {
@@ -20,52 +26,73 @@ public partial class RepoTab : Container
 
         Children = new Drawable[]
         {
-            new Box
+            bufferedContainer = new BufferedContainer
             {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
-                Colour = Colours.GRAY1
-            },
-            new Container
-            {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                RelativeSizeAxes = Axes.Both,
-                Padding = new MarginPadding(10),
-                Child = new GridContainer
+                BackgroundColour = Colours.Black,
+                BlurSigma = Vector2.Zero,
+                Children = new Drawable[]
                 {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    RelativeSizeAxes = Axes.Both,
-                    RowDimensions = new[]
+                    new Box
                     {
-                        new Dimension(GridSizeMode.Absolute, 38),
-                        new Dimension(GridSizeMode.Absolute, 10),
-                        new Dimension()
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.Centre,
+                        RelativeSizeAxes = Axes.Both,
+                        Colour = Colours.GRAY1
                     },
-                    Content = new[]
+                    new Container
                     {
-                        new Drawable[]
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.Centre,
+                        RelativeSizeAxes = Axes.Both,
+                        Padding = new MarginPadding(10),
+                        Child = new GridContainer
                         {
-                            new RepoTabHeader
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativeSizeAxes = Axes.Both,
+                            RowDimensions = new[]
                             {
-                                RelativeSizeAxes = Axes.Both
-                            }
-                        },
-                        null,
-                        new Drawable[]
-                        {
-                            new ModulePackageList
+                                new Dimension(GridSizeMode.Absolute, 38),
+                                new Dimension(GridSizeMode.Absolute, 10),
+                                new Dimension()
+                            },
+                            Content = new[]
                             {
-                                Anchor = Anchor.Centre,
-                                Origin = Anchor.Centre,
-                                RelativeSizeAxes = Axes.Both
+                                new Drawable[]
+                                {
+                                    new RepoTabHeader
+                                    {
+                                        RelativeSizeAxes = Axes.Both
+                                    }
+                                },
+                                null,
+                                new Drawable[]
+                                {
+                                    new ModulePackageList
+                                    {
+                                        Anchor = Anchor.Centre,
+                                        Origin = Anchor.Centre,
+                                        RelativeSizeAxes = Axes.Both
+                                    }
+                                }
                             }
                         }
                     }
                 }
+            },
+            PackageInfo = new ModulePackageInfo
+            {
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                RelativeSizeAxes = Axes.Both
             }
         };
+
+        PackageInfo.State.BindValueChanged(e =>
+        {
+            bufferedContainer.TransformTo(nameof(BufferedContainer.BlurSigma), e.NewValue == Visibility.Visible ? new Vector2(2) : Vector2.Zero, 500, Easing.OutQuart);
+            bufferedContainer.FadeColour(e.NewValue == Visibility.Visible ? Colour4.White.Darken(0.5f) : Colour4.White, 500, Easing.OutQuart);
+        });
     }
 }

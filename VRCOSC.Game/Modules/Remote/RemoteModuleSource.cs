@@ -26,6 +26,7 @@ public class RemoteModuleSource
     public readonly string RepositoryOwner;
     public readonly string RepositoryName;
 
+    public Repository? Repository { get; private set; }
     public Release? LatestRelease { get; private set; }
     private DefinitionFile? latestReleaseDefinition;
 
@@ -73,6 +74,8 @@ public class RemoteModuleSource
         var metadata = JsonConvert.DeserializeObject<MetadataFile>(metadataContents);
         return metadata!.InstalledVersion;
     }
+
+    public string? GetCoverUrl() => IsInstalled() ? latestReleaseDefinition?.CoverImageUrl : null;
 
     private static SemVersion getCurrentSDKVersion()
     {
@@ -250,7 +253,9 @@ public class RemoteModuleSource
             try
             {
                 if (LatestRelease is null || !useCache)
+                {
                     LatestRelease = await githubClient.Repository.Release.GetLatest(RepositoryOwner, RepositoryName);
+                }
             }
             catch (ApiException)
             {
@@ -296,6 +301,15 @@ public class RemoteModuleSource
             }
 
             RemoteState = RemoteModuleSourceRemoteState.Valid;
+
+            try
+            {
+                Repository = await githubClient.Repository.Get(RepositoryOwner, RepositoryName);
+            }
+            catch (ApiException)
+            {
+                log("Could not retrieve repository");
+            }
         }
         catch (Exception e)
         {

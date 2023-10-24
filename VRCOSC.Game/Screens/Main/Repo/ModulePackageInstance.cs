@@ -15,6 +15,9 @@ namespace VRCOSC.Game.Screens.Main.Repo;
 
 public partial class ModulePackageInstance : Container
 {
+    [Resolved]
+    private RepoTab repoTab { get; set; } = null!;
+
     private readonly RemoteModuleSource remoteModuleSource;
     private readonly bool even;
 
@@ -94,7 +97,38 @@ public partial class ModulePackageInstance : Container
                                 Direction = FillDirection.Horizontal,
                                 Spacing = new Vector2(8, 0)
                             },
-                            null
+                            new FillFlowContainer
+                            {
+                                Anchor = Anchor.CentreRight,
+                                Origin = Anchor.CentreRight,
+                                RelativeSizeAxes = Axes.Y,
+                                AutoSizeAxes = Axes.X,
+                                Direction = FillDirection.Horizontal,
+                                Spacing = new Vector2(8, 0),
+                                Children = new Drawable[]
+                                {
+                                    new Container
+                                    {
+                                        Anchor = Anchor.CentreRight,
+                                        Origin = Anchor.CentreRight,
+                                        AutoSizeAxes = Axes.Both,
+                                        Child = new IconButton
+                                        {
+                                            Anchor = Anchor.Centre,
+                                            Origin = Anchor.Centre,
+                                            Size = new Vector2(36),
+                                            Icon = FontAwesome.Solid.Info,
+                                            CornerRadius = 5,
+                                            BackgroundColour = Colours.BLUE0,
+                                            Action = () =>
+                                            {
+                                                repoTab.PackageInfo.CurrentRemoteModuleSource.Value = remoteModuleSource;
+                                                repoTab.PackageInfo.Show();
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -170,6 +204,7 @@ public partial class ModulePackageInstance : Container
             Anchor = Anchor.CentreLeft;
             Origin = Anchor.CentreLeft;
             Size = new Vector2(36);
+            CornerRadius = 5;
 
             Action += () => game.LoadingScreen.Show();
         }

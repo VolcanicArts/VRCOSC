@@ -17,6 +17,12 @@ public class DefinitionFile
     public string? DisplayName;
 
     /// <summary>
+    /// A cover image for the repo info overlay
+    /// </summary>
+    [JsonProperty("cover_image_url")]
+    public string? CoverImageUrl;
+
+    /// <summary>
     /// A semver string to be analysed when loading this collection
     /// </summary>
     [JsonProperty("sdk_version_range")]

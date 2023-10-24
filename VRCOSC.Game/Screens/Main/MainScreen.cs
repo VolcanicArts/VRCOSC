@@ -27,7 +27,6 @@ public partial class MainScreen : Container
         {
             RelativeSizeAxes = Axes.Both,
             BackgroundColour = Colours.Black,
-            BlurSigma = new Vector2(5),
             Children = new Drawable[]
             {
                 new TabContainer

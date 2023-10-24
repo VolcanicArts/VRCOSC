@@ -27,15 +27,15 @@ public partial class IconButton : ClickableContainer
     [BackgroundDependencyLoader]
     private void load()
     {
+        Masking = true;
+        BorderThickness = 3;
+        BorderColour = BackgroundColour;
+
         Child = new Container
         {
             Anchor = Anchor.Centre,
             Origin = Anchor.Centre,
             RelativeSizeAxes = Axes.Both,
-            Masking = true,
-            BorderThickness = 3,
-            BorderColour = BackgroundColour,
-            CornerRadius = 5,
             Children = new Drawable[]
             {
                 background = new Box
