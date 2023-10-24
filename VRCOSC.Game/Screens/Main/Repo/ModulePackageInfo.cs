@@ -131,7 +131,7 @@ public partial class ModulePackageInfo : VisibilityContainer
                                                 IconSize = 24,
                                                 IconColour = Colours.WHITE0,
                                                 BackgroundColour = Colours.RED0,
-                                                Action = Hide
+                                                Action = () => CurrentRemoteModuleSource.Value = null
                                             }
                                         },
                                         new FillFlowContainer
@@ -211,8 +211,8 @@ public partial class ModulePackageInfo : VisibilityContainer
                                     new FooterButton
                                     {
                                         Icon = FontAwesome.Brands.Github,
-                                        BackgroundColour = Color4Extensions.FromHex("333"),
-                                        Action = () => host.OpenUrlExternally(CurrentRemoteModuleSource.Value!.Repository!.HtmlUrl)
+                                        BackgroundColour = Color4Extensions.FromHex("333333"),
+                                        Action = () => host.OpenUrlExternally(CurrentRemoteModuleSource.Value?.Repository!.HtmlUrl ?? "https://www.youtube.com/watch?v=bfAPmzWkQAI")
                                     }
                                 }
                             }
@@ -227,7 +227,13 @@ public partial class ModulePackageInfo : VisibilityContainer
 
     private async void onCurrentRemoteModuleSourceChange()
     {
-        if (CurrentRemoteModuleSource.Value is null) return;
+        if (CurrentRemoteModuleSource.Value is null)
+        {
+            Hide();
+            return;
+        }
+
+        Show();
 
         title.Text = CurrentRemoteModuleSource.Value.DisplayName;
         author.Text = $"Created by {CurrentRemoteModuleSource.Value.RepositoryOwner}";
@@ -255,7 +261,6 @@ public partial class ModulePackageInfo : VisibilityContainer
     {
         this.ScaleTo(0.9f, 500, Easing.OutQuart);
         this.FadeOutFromOne(500, Easing.OutQuart);
-        Scheduler.AddDelayed(() => CurrentRemoteModuleSource.Value = null, 500);
     }
 
     private partial class FooterButton : Container

@@ -122,11 +122,7 @@ public partial class ModulePackageInstance : Container
                                             Icon = FontAwesome.Solid.Info,
                                             CornerRadius = 5,
                                             BackgroundColour = Colours.BLUE0,
-                                            Action = () =>
-                                            {
-                                                repoTab.PackageInfo.CurrentRemoteModuleSource.Value = remoteModuleSource;
-                                                repoTab.PackageInfo.Show();
-                                            }
+                                            Action = () => repoTab.PackageInfo.CurrentRemoteModuleSource.Value = remoteModuleSource
                                         }
                                     }
                                 }
