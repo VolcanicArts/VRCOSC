@@ -21,6 +21,8 @@ public partial class ModulePackageInstance : Container
     private readonly RemoteModuleSource remoteModuleSource;
     private readonly bool even;
 
+    private Container infoButton = null!;
+
     public ModulePackageInstance(RemoteModuleSource remoteModuleSource, bool even)
     {
         this.remoteModuleSource = remoteModuleSource;
@@ -107,7 +109,7 @@ public partial class ModulePackageInstance : Container
                                 Spacing = new Vector2(8, 0),
                                 Children = new Drawable[]
                                 {
-                                    new Container
+                                    infoButton = new Container
                                     {
                                         Anchor = Anchor.CentreRight,
                                         Origin = Anchor.CentreRight,
@@ -148,6 +150,11 @@ public partial class ModulePackageInstance : Container
         if (remoteModuleSource.IsInstalled())
         {
             actionContainer.Add(new UninstallButton(remoteModuleSource));
+        }
+
+        if (remoteModuleSource.IsUnavailable())
+        {
+            infoButton.Hide();
         }
     }
 

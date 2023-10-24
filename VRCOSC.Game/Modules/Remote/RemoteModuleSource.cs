@@ -256,6 +256,11 @@ public class RemoteModuleSource
                 {
                     LatestRelease = await githubClient.Repository.Release.GetLatest(RepositoryOwner, RepositoryName);
                 }
+
+                if (Repository is null || !useCache)
+                {
+                    Repository = await githubClient.Repository.Get(RepositoryOwner, RepositoryName);
+                }
             }
             catch (ApiException)
             {
@@ -301,15 +306,6 @@ public class RemoteModuleSource
             }
 
             RemoteState = RemoteModuleSourceRemoteState.Valid;
-
-            try
-            {
-                Repository = await githubClient.Repository.Get(RepositoryOwner, RepositoryName);
-            }
-            catch (ApiException)
-            {
-                log("Could not retrieve repository");
-            }
         }
         catch (Exception e)
         {

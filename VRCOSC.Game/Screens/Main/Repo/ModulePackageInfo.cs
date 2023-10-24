@@ -87,14 +87,14 @@ public partial class ModulePackageInfo : VisibilityContainer
                             {
                                 new Container
                                 {
-                                    Anchor = Anchor.TopCentre,
-                                    Origin = Anchor.TopCentre,
+                                    Anchor = Anchor.Centre,
+                                    Origin = Anchor.Centre,
                                     RelativeSizeAxes = Axes.X,
                                     Height = cover_height,
                                     Child = coverSprite = new Sprite
                                     {
-                                        Anchor = Anchor.TopCentre,
-                                        Origin = Anchor.TopCentre,
+                                        Anchor = Anchor.Centre,
+                                        Origin = Anchor.Centre,
                                         RelativeSizeAxes = Axes.Both,
                                         FillMode = FillMode.Fill
                                     }
@@ -104,8 +104,6 @@ public partial class ModulePackageInfo : VisibilityContainer
                             {
                                 new Box
                                 {
-                                    Anchor = Anchor.TopCentre,
-                                    Origin = Anchor.TopCentre,
                                     RelativeSizeAxes = Axes.X,
                                     Height = 3,
                                     Colour = Colours.GRAY0
@@ -157,7 +155,7 @@ public partial class ModulePackageInfo : VisibilityContainer
                                                     Anchor = Anchor.TopCentre,
                                                     Origin = Anchor.TopCentre,
                                                     Colour = Colours.WHITE2,
-                                                    Font = Fonts.REGULAR.With(size: 17)
+                                                    Font = Fonts.REGULAR.With(size: 19)
                                                 },
                                                 new Container
                                                 {
@@ -169,7 +167,7 @@ public partial class ModulePackageInfo : VisibilityContainer
                                                     Child = description = new TextFlowContainer(t =>
                                                     {
                                                         t.Colour = Colours.WHITE0;
-                                                        t.Font = Fonts.REGULAR.With(size: 30);
+                                                        t.Font = Fonts.REGULAR.With(size: 26);
                                                     })
                                                     {
                                                         Anchor = Anchor.TopCentre,
@@ -235,14 +233,15 @@ public partial class ModulePackageInfo : VisibilityContainer
         author.Text = $"Created by {CurrentRemoteModuleSource.Value.RepositoryOwner}";
         description.Text = CurrentRemoteModuleSource.Value.Repository?.Description ?? string.Empty;
 
-        var coverUrl = CurrentRemoteModuleSource.Value.GetCoverUrl();
-        if (coverUrl is null) return;
+        var coverUrl = CurrentRemoteModuleSource.Value.GetCoverUrl() ?? "https://wallpapercave.com/wp/Zs1bPI9.jpg";
 
+        // TODO: Revisit this as some images seem to overflow
         var texture = await game.Textures.GetAsync(coverUrl, CancellationToken.None);
         var textureCrop = new RectangleF(new Vector2(0, texture.Height / 2f - cover_height), new Vector2(texture.Width, cover_height * 2));
         coverSprite.Texture = texture.Crop(textureCrop);
         coverSprite.FillAspectRatio = coverSprite.Texture.Width / (float)coverSprite.Texture.Height;
         coverSprite.FadeInFromZero(500, Easing.OutQuart);
+        coverSprite.ScaleTo(1.1f).ScaleTo(1f, 250, Easing.OutQuart);
     }
 
     protected override void PopIn()

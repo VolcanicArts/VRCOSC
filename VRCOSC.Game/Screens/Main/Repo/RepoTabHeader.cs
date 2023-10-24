@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -12,6 +13,9 @@ namespace VRCOSC.Game.Screens.Main.Repo;
 
 public partial class RepoTabHeader : Container
 {
+    [Resolved]
+    private AppManager appManager { get; set; } = null!;
+
     private TextButton updateAllButton = null!;
 
     [BackgroundDependencyLoader]
@@ -56,7 +60,8 @@ public partial class RepoTabHeader : Container
                         BackgroundColour = Colours.BLUE0,
                         TextContent = "Update All",
                         TextFont = Fonts.REGULAR,
-                        TextColour = Colours.WHITE0
+                        TextColour = Colours.WHITE0,
+                        Alpha = appManager.RemoteModuleSourceManager.Sources.Any(remoteModuleSource => remoteModuleSource.IsUpdateAvailable()) ? 1 : 0
                     }
                 }
             }
