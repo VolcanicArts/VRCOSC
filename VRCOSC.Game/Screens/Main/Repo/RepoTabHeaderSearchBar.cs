@@ -7,6 +7,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.UserInterface;
+using osuTK;
 using osuTK.Graphics;
 using VRCOSC.Game.Graphics;
 
@@ -27,40 +28,42 @@ public partial class RepoTabHeaderSearchBar : Container
                 RelativeSizeAxes = Axes.Both,
                 Colour = Colours.GRAY2
             },
-            new GridContainer
+            new FillFlowContainer
             {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                RelativeSizeAxes = Axes.Both,
-                ColumnDimensions = new[]
+                Anchor = Anchor.CentreLeft,
+                Origin = Anchor.CentreLeft,
+                RelativeSizeAxes = Axes.Y,
+                AutoSizeAxes = Axes.X,
+                Direction = FillDirection.Horizontal,
+                Children = new Drawable[]
                 {
-                    new Dimension(GridSizeMode.Absolute, 40),
-                    new Dimension()
-                },
-                Content = new[]
-                {
-                    new Drawable[]
+                    new Container
                     {
-                        new Container
+                        Anchor = Anchor.CentreLeft,
+                        Origin = Anchor.CentreLeft,
+                        Size = new Vector2(40),
+                        Padding = new MarginPadding(10),
+                        Child = new SpriteIcon
                         {
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
-                            Padding = new MarginPadding(10),
-                            Child = new SpriteIcon
-                            {
-                                Anchor = Anchor.Centre,
-                                Origin = Anchor.Centre,
-                                RelativeSizeAxes = Axes.Both,
-                                Icon = FontAwesome.Solid.Search,
-                                Colour = Colours.WHITE1,
-                                Rotation = 180
-                            }
-                        },
-                        new SearchBarTextBox
+                            RelativeSizeAxes = Axes.Both,
+                            Icon = FontAwesome.Solid.Search,
+                            Colour = Colours.WHITE1
+                        }
+                    },
+                    new Container
+                    {
+                        Anchor = Anchor.CentreLeft,
+                        Origin = Anchor.CentreLeft,
+                        RelativeSizeAxes = Axes.Y,
+                        Width = Width - 40 + 5,
+                        Child = new SearchBarTextBox
                         {
-                            Anchor = Anchor.CentreLeft,
-                            Origin = Anchor.CentreLeft,
-                            RelativeSizeAxes = Axes.Both
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativeSizeAxes = Axes.Both,
+                            X = -5
                         }
                     }
                 }
@@ -75,8 +78,8 @@ public partial class RepoTabHeaderSearchBar : Container
 
         public SearchBarTextBox()
         {
-            BackgroundUnfocused = Colours.GRAY2;
-            BackgroundFocused = Colours.GRAY2;
+            BackgroundUnfocused = Colours.Transparent;
+            BackgroundFocused = Colours.Transparent;
             BackgroundCommit = Colours.Transparent;
             PlaceholderText = "Search";
         }
@@ -97,7 +100,6 @@ public partial class RepoTabHeaderSearchBar : Container
         {
             Anchor = Anchor.CentreLeft,
             Origin = Anchor.CentreLeft,
-            X = CaretWidth,
             Colour = Colours.WHITE1,
             Font = Fonts.REGULAR.With(size: 40)
         };
