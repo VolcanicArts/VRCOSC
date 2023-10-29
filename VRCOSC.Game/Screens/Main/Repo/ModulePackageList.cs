@@ -40,22 +40,32 @@ public partial class ModulePackageList : Container
                             AutoSizeAxes = Axes.Y,
                             Direction = FillDirection.Vertical,
                             Masking = true,
-                            CornerRadius = 5,
-                            Children = new Drawable[]
-                            {
-                                new ModulePackageListHeader
-                                {
-                                    Anchor = Anchor.TopCentre,
-                                    Origin = Anchor.TopCentre,
-                                    RelativeSizeAxes = Axes.X,
-                                    Height = 50
-                                }
-                            }
+                            CornerRadius = 5
                         }
                     }
                 }
             }
         };
+
+        populate();
+    }
+
+    public void Refresh()
+    {
+        populate();
+    }
+
+    private void populate()
+    {
+        listingFlow.Clear();
+
+        listingFlow.Add(new ModulePackageListHeader
+        {
+            Anchor = Anchor.TopCentre,
+            Origin = Anchor.TopCentre,
+            RelativeSizeAxes = Axes.X,
+            Height = 50
+        });
 
         var even = false;
         appManager.RemoteModuleSourceManager.Sources.ForEach(remoteModuleSource =>

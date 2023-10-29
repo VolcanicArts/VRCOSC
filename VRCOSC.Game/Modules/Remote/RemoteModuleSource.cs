@@ -53,6 +53,11 @@ public class RemoteModuleSource
     /// </summary>
     public string DisplayName => latestReleaseDefinition?.DisplayName ?? RepositoryName;
 
+    /// <summary>
+    /// A hook for getting data out of what this <see cref="RemoteModuleSource"/> is doing
+    /// </summary>
+    public Action<LoadingInfo>? Progress;
+
     public RemoteModuleSource(string repositoryOwner, string repositoryName, RemoteModuleSourceType sourceType)
     {
         RepositoryOwner = repositoryOwner;
@@ -96,10 +101,11 @@ public class RemoteModuleSource
     /// <summary>
     /// Downloads all the files as specified in <see cref="DefinitionFile"/>
     /// </summary>
-    /// <param name="forceInstall">Set to true when wanting to install the latest version even if it's already installed</param>
-    public async Task Install(bool forceInstall = false)
+    public async Task Install()
     {
-        log($"Attempting to install repo {Identifier}. forceInstall: {forceInstall}");
+        Progress?.Invoke(new LoadingInfo($"Installing {Identifier}", 0f, false));
+
+        log($"Attempting to install repo {Identifier}");
 
         if (RemoteState != RemoteModuleSourceRemoteState.Valid)
             throw new InvalidOperationException($"Cannot install when remote state is not {RemoteModuleSourceRemoteState.Valid}");
@@ -107,34 +113,31 @@ public class RemoteModuleSource
         Debug.Assert(LatestRelease is not null);
         Debug.Assert(latestReleaseDefinition is not null);
 
-        if (InstallState == RemoteModuleSourceInstallState.Valid && !forceInstall)
-        {
-            log("Repo is already installed");
-            return;
-        }
+        storage.DeleteDirectory(Identifier);
 
         try
         {
-            if (forceInstall)
-            {
-                log("Force install chosen. Attempting to uninstall first");
-                Uninstall();
-            }
-
             var localStorage = getLocalStorage();
-            var assetsToDownload = LatestRelease.Assets.Where(releaseAsset => latestReleaseDefinition.Files.Contains(releaseAsset.Name));
+            var assetsToDownload = LatestRelease.Assets.Where(releaseAsset => latestReleaseDefinition.Files.Contains(releaseAsset.Name)).ToList();
+
+            var divisor = 1f / assetsToDownload.Count;
+            var count = 0f;
 
             foreach (var releaseAsset in assetsToDownload)
             {
                 var downloadRequest = new FileWebRequest(localStorage.GetFullPath(releaseAsset.Name), releaseAsset.BrowserDownloadUrl);
                 log($"Downloading file {releaseAsset.Name}");
+                Progress?.Invoke(new LoadingInfo("Downloading required files", count, false));
                 await downloadRequest.PerformAsync();
+                count += divisor;
             }
 
             var metadata = new MetadataFile
             {
                 InstalledVersion = LatestRelease.TagName
             };
+
+            Progress?.Invoke(new LoadingInfo("Writing metadata", 0f, false));
 
             using (var writeStream = localStorage.CreateFileSafely("metadata.json"))
             {
@@ -144,6 +147,8 @@ public class RemoteModuleSource
 
             log("Install successful");
             UpdateInstallState();
+
+            Progress?.Invoke(new LoadingInfo("Finished!", 1f, true));
         }
         catch (Exception e)
         {
@@ -153,7 +158,9 @@ public class RemoteModuleSource
 
     public void Uninstall()
     {
-        log($"Attempting to uninstall");
+        Progress?.Invoke(new LoadingInfo("Uninstalling", 0f, false));
+
+        log("Attempting to uninstall");
 
         if (!storage.ExistsDirectory(Identifier))
         {
@@ -163,6 +170,9 @@ public class RemoteModuleSource
 
         storage.DeleteDirectory(Identifier);
         log("Uninstall successful");
+        UpdateInstallState();
+
+        Progress?.Invoke(new LoadingInfo("Finished!", 1f, true));
     }
 
     public async Task UpdateStates()

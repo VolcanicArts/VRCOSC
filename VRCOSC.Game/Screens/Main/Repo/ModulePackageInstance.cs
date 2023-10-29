@@ -198,6 +198,9 @@ public partial class ModulePackageInstance : Container
         [Resolved]
         private VRCOSCGame game { get; set; } = null!;
 
+        [Resolved]
+        private RepoTab repoTab { get; set; } = null!;
+
         private readonly RemoteModuleSource remoteModuleSource;
 
         protected ActionButton(RemoteModuleSource remoteModuleSource)
@@ -209,7 +212,21 @@ public partial class ModulePackageInstance : Container
             Size = new Vector2(36);
             CornerRadius = 5;
 
-            Action += () => game.LoadingScreen.Show();
+            Action += () =>
+            {
+                game.LoadingScreen.Show();
+                remoteModuleSource.Progress = loadingInfo =>
+                {
+                    game.LoadingScreen.Action.Value = loadingInfo.Action;
+                    game.LoadingScreen.Progress.Value = loadingInfo.Progress;
+
+                    if (loadingInfo.Complete)
+                    {
+                        repoTab.Refresh();
+                        game.LoadingScreen.Hide();
+                    }
+                };
+            };
         }
     }
 
@@ -271,7 +288,7 @@ public partial class ModulePackageInstance : Container
             {
                 game.LoadingScreen.Title.Value = "Updating...";
                 game.LoadingScreen.Description.Value = $"Sit tight! {remoteModuleSource.DisplayName} is being updated!";
-                await remoteModuleSource.Install(true);
+                await remoteModuleSource.Install();
             };
         }
     }

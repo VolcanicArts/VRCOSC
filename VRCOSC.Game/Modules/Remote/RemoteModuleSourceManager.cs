@@ -32,7 +32,7 @@ public class RemoteModuleSourceManager
     /// <summary>
     /// A callback for any actions this <see cref="RemoteModuleSourceManager"/> may be executing
     /// </summary>
-    public Action<float>? ActionProgress;
+    public Action<LoadingInfo>? Progress;
 
     public RemoteModuleSourceManager(Storage storage)
     {
@@ -40,11 +40,31 @@ public class RemoteModuleSourceManager
     }
 
     /// <summary>
+    /// Refreshes the listing
+    /// </summary>
+    public async Task Refresh()
+    {
+        Progress?.Invoke(new LoadingInfo("Beginning refresh", 0f, false));
+
+        var divisor = 1f / sources.Count;
+        var currentProgress = 0f;
+
+        foreach (var remoteModuleSource in Sources)
+        {
+            Progress?.Invoke(new LoadingInfo($"Refreshing {remoteModuleSource.Identifier}", currentProgress, false));
+            await remoteModuleSource.UpdateRemoteState(false);
+            currentProgress += divisor;
+        }
+
+        Progress?.Invoke(new LoadingInfo("Finished!", 1f, true));
+    }
+
+    /// <summary>
     /// Loads all remote module sources and executes update checks
     /// </summary>
     public async Task Load()
     {
-        ActionProgress?.Invoke(0f);
+        Progress?.Invoke(new LoadingInfo("Loading remote modules", 0f, false));
         loadInstalledModules();
         await loadCommunityModuleSources();
 
@@ -57,21 +77,20 @@ public class RemoteModuleSourceManager
             await remoteModuleSource.UpdateStates();
 
             currentProgress += divisor;
-            ActionProgress?.Invoke(currentProgress);
+            Progress?.Invoke(new LoadingInfo($"Loading {remoteModuleSource.Identifier}", currentProgress, false));
         }
-
-        ActionProgress?.Invoke(1f);
 
         var installedWithNoRelease = sources.Values.Where(remoteModuleSource => remoteModuleSource is { RemoteState: RemoteModuleSourceRemoteState.MissingLatestRelease, InstallState: RemoteModuleSourceInstallState.Valid });
         var installedWithNoRepo = sources.Values.Where(remoteModuleSource => remoteModuleSource is { RemoteState: RemoteModuleSourceRemoteState.Unknown, InstallState: RemoteModuleSourceInstallState.Valid });
+        Progress?.Invoke(new LoadingInfo("Finished!", 1f, true));
     }
 
     private void loadInstalledModules()
     {
         storage.GetDirectories(string.Empty).ForEach(directoryName =>
         {
-            var repoOwner = directoryName.Split('#')[0];
-            var repoName = directoryName.Split('#')[1];
+            var repoOwner = directoryName.Split('#', 2)[0];
+            var repoName = directoryName.Split('#', 2)[1];
             var remoteModuleSource = new RemoteModuleSource(repoOwner, repoName, RemoteModuleSourceType.Community);
             sources.TryAdd(remoteModuleSource.Identifier, remoteModuleSource);
         });

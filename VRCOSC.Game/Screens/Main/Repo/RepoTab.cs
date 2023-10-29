@@ -16,6 +16,8 @@ public partial class RepoTab : Container
     public ModulePackageInfo PackageInfo { get; set; } = null!;
 
     private BufferedContainer bufferedContainer = null!;
+    private ModulePackageList packageList = null!;
+    private RepoTabHeader header = null!;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -61,7 +63,7 @@ public partial class RepoTab : Container
                             {
                                 new Drawable[]
                                 {
-                                    new RepoTabHeader
+                                    header = new RepoTabHeader
                                     {
                                         RelativeSizeAxes = Axes.Both
                                     }
@@ -69,7 +71,7 @@ public partial class RepoTab : Container
                                 null,
                                 new Drawable[]
                                 {
-                                    new ModulePackageList
+                                    packageList = new ModulePackageList
                                     {
                                         Anchor = Anchor.Centre,
                                         Origin = Anchor.Centre,
@@ -94,5 +96,11 @@ public partial class RepoTab : Container
             bufferedContainer.TransformTo(nameof(BufferedContainer.BlurSigma), e.NewValue == Visibility.Visible ? new Vector2(2) : Vector2.Zero, 500, Easing.OutQuart);
             bufferedContainer.FadeColour(e.NewValue == Visibility.Visible ? Colour4.White.Darken(0.5f) : Colour4.White, 500, Easing.OutQuart);
         });
+    }
+
+    public void Refresh()
+    {
+        packageList.Refresh();
+        header.Refresh();
     }
 }
