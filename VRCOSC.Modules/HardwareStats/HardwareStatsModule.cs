@@ -73,25 +73,23 @@ public sealed class HardwareStatsModule : ChatBoxModule
 
         await hardwareStatsProvider.Update();
 
-        var cpu = hardwareStatsProvider.GetCPU(GetSetting<int>(HardwareStatsSetting.SelectedCPU));
-        var gpu = hardwareStatsProvider.GetGPU(GetSetting<int>(HardwareStatsSetting.SelectedGPU));
-        var ram = hardwareStatsProvider.GetRam();
-
-        if (cpu is null)
+        if (!hardwareStatsProvider.CPUs.TryGetValue(GetSetting<int>(HardwareStatsSetting.SelectedCPU), out var cpu))
         {
-            Log("Warning. Could not connect to CPU");
+            Log($"CPU of id {GetSetting<int>(HardwareStatsSetting.SelectedCPU)} isn't available. If you have multiple, try changing the index");
             return;
         }
 
-        if (gpu is null)
+        if (!hardwareStatsProvider.GPUs.TryGetValue(GetSetting<int>(HardwareStatsSetting.SelectedGPU), out var gpu))
         {
-            Log("Warning. Could not connect to GPU");
+            Log($"GPU of id {GetSetting<int>(HardwareStatsSetting.SelectedGPU)} isn't available. If you have multiple, try changing the index");
             return;
         }
+
+        var ram = hardwareStatsProvider.RAM;
 
         if (ram is null)
         {
-            Log("Warning. Could not connect to RAM");
+            Log("Could not connect to RAM. This is impossible, so well done!");
             return;
         }
 
