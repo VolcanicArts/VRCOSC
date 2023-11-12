@@ -28,7 +28,7 @@ public partial class HomeTab : Container
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
-                Colour = Colours.Dark
+                Colour = Colours.GRAY1
             },
             new Container
             {

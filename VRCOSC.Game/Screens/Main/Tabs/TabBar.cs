@@ -30,7 +30,7 @@ public partial class TabBar : Container
             Anchor = Anchor.Centre,
             Origin = Anchor.Centre,
             RelativeSizeAxes = Axes.Both,
-            Colour = Colours.Mid
+            Colour = Colours.GRAY0
         });
 
         AddInternal(drawableTabFlow = new FillFlowContainer<DrawableTab>

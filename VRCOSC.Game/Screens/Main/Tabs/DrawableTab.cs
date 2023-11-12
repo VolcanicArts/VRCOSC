@@ -14,15 +14,14 @@ namespace VRCOSC.Game.Screens.Main.Tabs;
 
 public sealed partial class DrawableTab : ClickableContainer
 {
-    private static readonly Colour4 default_colour = Colours.Dark;
-    private static readonly Colour4 hover_colour = Colours.Light;
+    private static readonly Colour4 default_colour = Colours.GRAY0;
+    private static readonly Colour4 hover_colour = Colours.GRAY5;
+    private static readonly Colour4 selected_colour = Colours.GRAY1;
 
     private const int onhover_duration = 250;
     private const int onhoverlost_duration = onhover_duration;
 
     private Box background = null!;
-    private SelectedIndicator indicator = null!;
-    private SpriteIcon spriteIcon = null!;
 
     public Tab Tab { get; init; }
     public IconUsage Icon { get; init; }
@@ -43,7 +42,7 @@ public sealed partial class DrawableTab : ClickableContainer
                 RelativeSizeAxes = Axes.Both,
                 Colour = default_colour
             },
-            spriteIcon = new SpriteIcon
+            new SpriteIcon
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
@@ -51,11 +50,9 @@ public sealed partial class DrawableTab : ClickableContainer
                 Size = new Vector2(0.35f),
                 FillMode = FillMode.Fit,
                 Icon = Icon,
-                Colour = Colours.Highlight
-            },
-            indicator = new SelectedIndicator
-            {
-                RelativeSizeAxes = Axes.Both
+                Colour = Colours.WHITE0,
+                Shadow = true,
+                ShadowOffset = new Vector2(0, 1)
             }
         };
     }
@@ -68,14 +65,11 @@ public sealed partial class DrawableTab : ClickableContainer
         {
             if (tab.NewValue == Tab)
             {
-                indicator.Select();
-                spriteIcon.Colour = Colours.Light;
+                background.FadeColour(IsHovered ? hover_colour : selected_colour, onhover_duration, Easing.OutQuart);
             }
             else
             {
-                indicator.DeSelect();
-                background.FadeColour(default_colour, onhoverlost_duration, Easing.InOutSine);
-                spriteIcon.Colour = Colours.OffWhite;
+                background.FadeColour(IsHovered ? hover_colour : default_colour, onhoverlost_duration, Easing.OutQuart);
             }
         }, true);
 
@@ -84,57 +78,13 @@ public sealed partial class DrawableTab : ClickableContainer
 
     protected override bool OnHover(HoverEvent e)
     {
-        background.FadeColour(hover_colour, onhover_duration, Easing.InOutSine);
-
-        if (game.SelectedTab.Value == Tab) return base.OnHover(e);
-
-        indicator.PreSelect();
+        background.FadeColour(hover_colour, onhover_duration, Easing.OutQuart);
         return base.OnHover(e);
     }
 
     protected override void OnHoverLost(HoverLostEvent e)
     {
         base.OnHoverLost(e);
-
-        background.FadeColour(default_colour, onhoverlost_duration, Easing.InOutSine);
-
-        if (game.SelectedTab.Value == Tab) return;
-
-        indicator.DeSelect();
-    }
-
-    private partial class SelectedIndicator : Container
-    {
-        public SelectedIndicator()
-        {
-            Child = new CircularContainer
-            {
-                Anchor = Anchor.CentreLeft,
-                Origin = Anchor.Centre,
-                RelativeSizeAxes = Axes.Both,
-                Size = new Vector2(0.1f, 0f),
-                Masking = true,
-                Child = new Box
-                {
-                    RelativeSizeAxes = Axes.Both,
-                    Colour = Colours.Highlight
-                }
-            };
-        }
-
-        public void Select()
-        {
-            Child.ResizeTo(new Vector2(0.1f, 0.75f), 100, Easing.OutQuad);
-        }
-
-        public void DeSelect()
-        {
-            Child.ResizeTo(Vector2.Zero, 200, Easing.OutQuad);
-        }
-
-        public void PreSelect()
-        {
-            Child.ResizeTo(new Vector2(0.1f, 0.25f), 200, Easing.OutQuad);
-        }
+        background.FadeColour(game.SelectedTab.Value == Tab ? selected_colour : default_colour, onhoverlost_duration, Easing.OutQuart);
     }
 }
