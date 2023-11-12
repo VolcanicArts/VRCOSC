@@ -8,14 +8,6 @@ namespace VRCOSC.Game.Graphics;
 
 public static class Colours
 {
-    public static Color4 Black = new(0, 0, 0, 255);
-    public static Color4 Dark = new(30, 31, 34, 255);
-    public static Color4 Mid = new(43, 45, 49, 255);
-    public static Color4 Light = new(49, 51, 56, 255);
-    public static Color4 Highlight = new(56, 58, 64, 255);
-    public static Color4 OffWhite = new(242, 243, 245, 255);
-    public static Color4 Red = Color4Extensions.FromHex("#e74c3c");
-
     public static Color4 Transparent = new(0, 0, 0, 0);
 
     public static readonly Color4 BLUE0 = Color4Extensions.FromHex("2980B9");
@@ -32,4 +24,5 @@ public static class Colours
     public static readonly Color4 GRAY3 = Color4Extensions.FromHex("808080");
     public static readonly Color4 GRAY4 = Color4Extensions.FromHex("1A1A1A");
     public static readonly Color4 GRAY5 = Color4Extensions.FromHex("333333");
+    public static readonly Color4 BLACK = Color4Extensions.FromHex("000000");
 }

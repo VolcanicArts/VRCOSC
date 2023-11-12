@@ -20,7 +20,7 @@ public class EdgeEffects
 
     public static EdgeEffectParameters BasicShadow => new()
     {
-        Colour = Colours.Black.Opacity(0.6f),
+        Colour = Colours.BLACK.Opacity(0.6f),
         Radius = 2.5f,
         Type = EdgeEffectType.Shadow,
         Offset = new Vector2(0.0f, 1.5f)
@@ -28,7 +28,7 @@ public class EdgeEffects
 
     public static EdgeEffectParameters HoverShadow => new()
     {
-        Colour = Colours.Black,
+        Colour = Colours.BLACK,
         Radius = 1,
         Type = EdgeEffectType.Shadow,
         Offset = new Vector2(0.0f, 1.5f)
@@ -36,7 +36,7 @@ public class EdgeEffects
 
     public static EdgeEffectParameters UniformShadow => new()
     {
-        Colour = Colours.Black.Opacity(0.6f),
+        Colour = Colours.BLACK.Opacity(0.6f),
         Radius = 5f,
         Type = EdgeEffectType.Shadow,
         Offset = new Vector2(0f),
@@ -45,7 +45,7 @@ public class EdgeEffects
 
     public static EdgeEffectParameters DispersedShadow => new()
     {
-        Colour = Colours.Black.Opacity(0.75f),
+        Colour = Colours.BLACK.Opacity(0.75f),
         Radius = 15f,
         Type = EdgeEffectType.Shadow,
         Offset = new Vector2(0f)

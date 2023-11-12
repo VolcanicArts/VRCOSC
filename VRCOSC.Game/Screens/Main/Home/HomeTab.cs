@@ -50,7 +50,7 @@ public partial class HomeTab : Container
                         Origin = Anchor.CentreLeft,
                         Text = $"Welcome {Environment.UserName}!",
                         Font = FrameworkFont.Regular.With(size: 60, weight: "Bold"),
-                        Colour = Colours.OffWhite
+                        Colour = Colours.WHITE2
                     },
                     new FillFlowContainer
                     {

@@ -31,7 +31,7 @@ public partial class RepoTab : Container
             bufferedContainer = new BufferedContainer
             {
                 RelativeSizeAxes = Axes.Both,
-                BackgroundColour = Colours.Black,
+                BackgroundColour = Colours.BLACK,
                 BlurSigma = Vector2.Zero,
                 Children = new Drawable[]
                 {

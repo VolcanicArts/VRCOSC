@@ -53,7 +53,7 @@ public partial class TextButton : ClickableContainer
                     Text = TextContent,
                     Colour = TextColour,
                     Shadow = true,
-                    ShadowColour = Colours.Black.Opacity(0.75f),
+                    ShadowColour = Colours.BLACK.Opacity(0.75f),
                     ShadowOffset = Vector2.Zero
                 }
             }

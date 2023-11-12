@@ -39,7 +39,7 @@ public partial class ModuleAssemblyContainerHeader : Container
                 Origin = Anchor.CentreLeft,
                 X = 11,
                 Text = title,
-                Font = Fonts.REGULAR.With(size: 30),
+                Font = Fonts.BOLD.With(size: 30),
                 Colour = Colours.WHITE2
             }
         };

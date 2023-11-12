@@ -26,7 +26,7 @@ public partial class MainScreen : Container
         AddInternal(bufferedContainer = new BufferedContainer
         {
             RelativeSizeAxes = Axes.Both,
-            BackgroundColour = Colours.Black,
+            BackgroundColour = Colours.BLACK,
             Children = new Drawable[]
             {
                 new TabContainer

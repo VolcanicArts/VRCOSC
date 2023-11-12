@@ -59,7 +59,7 @@ public partial class ModulePackageInfo : VisibilityContainer
                 EdgeEffect = new EdgeEffectParameters
                 {
                     Radius = 10,
-                    Colour = Colours.Black,
+                    Colour = Colours.BLACK,
                     Type = EdgeEffectType.Shadow,
                     Offset = Vector2.Zero
                 },

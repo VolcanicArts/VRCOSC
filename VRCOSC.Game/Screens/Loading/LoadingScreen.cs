@@ -47,7 +47,7 @@ public partial class LoadingScreen : VisibilityContainer
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
             RelativeSizeAxes = Axes.Both,
-            Colour = Colours.Black.Opacity(0.5f)
+            Colour = Colours.BLACK.Opacity(0.5f)
         });
 
         AddInternal(new FillFlowContainer
