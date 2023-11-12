@@ -3,9 +3,11 @@
 
 using System.Collections.Generic;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osuTK;
 using VRCOSC.Game.Graphics;
 using VRCOSC.Game.Modules.SDK;
 
@@ -18,6 +20,9 @@ public partial class ModuleAssemblyContainer : FillFlowContainer
 
     [Resolved]
     private AppManager appManager { get; set; } = null!;
+
+    [Cached]
+    private Bindable<bool> collapsed = new();
 
     private FillFlowContainer collapseWrapper;
     private FillFlowContainer moduleFlow;
@@ -75,5 +80,12 @@ public partial class ModuleAssemblyContainer : FillFlowContainer
             moduleFlow.Add(new DrawableModule(module, even));
             even = !even;
         });
+
+        collapsed.BindValueChanged(onCollapsedChange);
+    }
+
+    private void onCollapsedChange(ValueChangedEvent<bool> e)
+    {
+        collapseWrapper.ScaleTo(e.NewValue ? new Vector2(1, 0) : Vector2.One, 150, Easing.OutQuart);
     }
 }
