@@ -6,9 +6,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Loader;
+using System.Threading.Tasks;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
+using VRCOSC.Game.Modules.SDK;
 
 namespace VRCOSC.Game.Modules;
 
@@ -26,6 +28,37 @@ public class ModuleManager
     {
         this.storage = storage;
     }
+
+    #region Runtime
+
+    public async void Start()
+    {
+        if (LocalModules is not null) await startLocalModules();
+    }
+
+    private async Task startLocalModules()
+    {
+        Logger.Log("Starting local modules");
+
+        foreach (var localModule in LocalModules!)
+        {
+            await localModule.Start();
+        }
+    }
+
+    private async Task startRemoteModules()
+    {
+        Logger.Log("Starting remote modules");
+
+        foreach (var remoteModule in RemoteModules!)
+        {
+            await remoteModule.Start();
+        }
+    }
+
+    #endregion
+
+    #region Management
 
     /// <summary>
     /// Reloads all local and remote modules by unloading their assembly contexts and calling <see cref="LoadAllModules"/>
@@ -88,7 +121,15 @@ public class ModuleManager
     private List<Module> retrieveModuleInstances(AssemblyLoadContext assemblyLoadContext)
     {
         var moduleInstanceList = new List<Module>();
-        assemblyLoadContext.Assemblies.ForEach(assembly => moduleInstanceList.AddRange(assembly.ExportedTypes.Where(type => type.IsSubclassOf(typeof(Module)) && !type.IsAbstract).Select(type => (Module)Activator.CreateInstance(type)!)));
+
+        try
+        {
+            assemblyLoadContext.Assemblies.ForEach(assembly => moduleInstanceList.AddRange(assembly.ExportedTypes.Where(type => type.IsSubclassOf(typeof(Module)) && !type.IsAbstract).Select(type => (Module)Activator.CreateInstance(type)!)));
+        }
+        catch
+        {
+        }
+
         return moduleInstanceList;
     }
 
@@ -111,4 +152,6 @@ public class ModuleManager
             Logger.Error(e, "ModuleManager experienced an exception");
         }
     }
+
+    #endregion
 }
