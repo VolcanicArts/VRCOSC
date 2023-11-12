@@ -59,7 +59,7 @@ public class ModuleTypeAttribute : Attribute
 }
 
 [MeansImplicitUse(ImplicitUseKindFlags.InstantiatedNoFixedConstructorSignature)]
-[AttributeUsage(AttributeTargets.Class)]
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 public class ModulePrefabAttribute : Attribute
 {
     public readonly string Name;
@@ -86,8 +86,8 @@ public class ModuleUpdateAttribute : Attribute
     public readonly double DeltaMilliseconds;
 
     /// <param name="mode">The mode this update is defined as</param>
-    /// <param name="updateImmediately">Whether this method should be called immediately after <see cref="M:VRCOSC.Game.Modules.Module.OnModuleStart" />. This is only used when <paramref name="mode" /> is <see cref="F:VRCOSC.Game.Modules.ModuleUpdateMode.Custom" /></param>
-    /// <param name="deltaMilliseconds">The time between this method being called in milliseconds. This is only used when <paramref name="mode" /> is <see cref="F:VRCOSC.Game.Modules.ModuleUpdateMode.Custom" /></param>
+    /// <param name="updateImmediately">Whether this method should be called immediately after <see cref="Module.OnModuleStart" />. This is only used when <paramref name="mode" /> is <see cref="ModuleUpdateMode.Custom" /></param>
+    /// <param name="deltaMilliseconds">The time between this method being called in milliseconds. This is only used when <paramref name="mode" /> is <see cref="ModuleUpdateMode.Custom" /></param>
     /// <remarks><paramref name="deltaMilliseconds" /> defaults to the fastest update rate you should need for sending parameters. If multiple of this attribute that have the same <see cref="ModuleUpdateMode"/> are defined in a class they will execute top to bottom</remarks>
     public ModuleUpdateAttribute(ModuleUpdateMode mode, bool updateImmediately = true, double deltaMilliseconds = 50)
     {
@@ -101,33 +101,14 @@ public class ModuleUpdateAttribute : Attribute
 public class ModulePersistentAttribute : Attribute
 {
     public string SerialisedName { get; }
-    public string? LegacySerialisedName { get; }
 
     /// <summary>
     /// Used to mark a field for being automatically loaded and saved when the <see cref="Module"/> starts and stops
     /// </summary>
     /// <param name="serialisedName">The name to serialise this property as</param>
-    /// <param name="legacySerialisedName">Support for migration from a legacy name to the <paramref name="serialisedName" /></param>
-    public ModulePersistentAttribute(string serialisedName, string? legacySerialisedName = null)
+    public ModulePersistentAttribute(string serialisedName)
     {
         SerialisedName = serialisedName;
-        LegacySerialisedName = legacySerialisedName;
-    }
-}
-
-[MeansImplicitUse(ImplicitUseKindFlags.InstantiatedNoFixedConstructorSignature)]
-[AttributeUsage(AttributeTargets.Class)]
-public class ModuleLegacyAttribute : Attribute
-{
-    public string? LegacySerialisedName { get; }
-
-    /// <summary>
-    /// Marks a <see cref="Module"/> with legacy fields to allow for migration
-    /// </summary>
-    /// <param name="legacySerialisedName">Allows migration from a legacy serialised name to the current serialised name in the case that the class is renamed</param>
-    public ModuleLegacyAttribute(string? legacySerialisedName = null)
-    {
-        LegacySerialisedName = legacySerialisedName;
     }
 }
 
