@@ -7,5 +7,6 @@ public enum Tab
 {
     Home,
     Repo,
-    Modules
+    Modules,
+    Run
 }

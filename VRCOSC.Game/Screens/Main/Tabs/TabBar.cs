@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Collections.Generic;
 using osu.Framework.Allocation;
 using osu.Framework.Extensions.IEnumerableExtensions;
@@ -9,16 +10,21 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using VRCOSC.Game.Graphics;
+using VRCOSC.Game.Screens.Main.Home;
+using VRCOSC.Game.Screens.Main.Modules;
+using VRCOSC.Game.Screens.Main.Repo;
+using VRCOSC.Game.Screens.Main.Run;
 
 namespace VRCOSC.Game.Screens.Main.Tabs;
 
 public partial class TabBar : Container
 {
-    private static readonly IReadOnlyDictionary<Tab, IconUsage> tabs = new Dictionary<Tab, IconUsage>
+    public static readonly IReadOnlyDictionary<Tab, TabDefinition> TABS = new Dictionary<Tab, TabDefinition>
     {
-        { Tab.Home, FontAwesome.Solid.Home },
-        { Tab.Repo, FontAwesome.Solid.Download },
-        { Tab.Modules, FontAwesome.Solid.List }
+        { Tab.Home, new TabDefinition(FontAwesome.Solid.Home, typeof(HomeTab)) },
+        { Tab.Repo, new TabDefinition(FontAwesome.Solid.Download, typeof(RepoTab)) },
+        { Tab.Modules, new TabDefinition(FontAwesome.Solid.List, typeof(ModulesTab)) },
+        { Tab.Run, new TabDefinition(FontAwesome.Solid.Play, typeof(RunTab)) }
     };
 
     [BackgroundDependencyLoader]
@@ -41,13 +47,15 @@ public partial class TabBar : Container
             RelativeSizeAxes = Axes.Both
         });
 
-        tabs.ForEach(tabInstance =>
+        TABS.ForEach(tabInstance =>
         {
             drawableTabFlow.Add(new DrawableTab
             {
                 Tab = tabInstance.Key,
-                Icon = tabInstance.Value
+                Icon = tabInstance.Value.Icon
             });
         });
     }
 }
+
+public record TabDefinition(IconUsage Icon, Type InstanceType);

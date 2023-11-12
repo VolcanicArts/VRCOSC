@@ -1,11 +1,11 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using osu.Framework.Allocation;
+using osu.Framework.Extensions.IEnumerableExtensions;
+using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using VRCOSC.Game.Screens.Main.Home;
-using VRCOSC.Game.Screens.Main.Modules;
-using VRCOSC.Game.Screens.Main.Repo;
 
 namespace VRCOSC.Game.Screens.Main.Tabs;
 
@@ -17,9 +17,7 @@ public partial class TabContainer : Container
     [BackgroundDependencyLoader]
     private void load()
     {
-        Add(new HomeTab());
-        Add(new RepoTab());
-        Add(new ModulesTab());
+        TabBar.TABS.Values.ForEach(definition => Add((Drawable)Activator.CreateInstance(definition.InstanceType)!));
 
         game.SelectedTab.BindValueChanged(e =>
         {
