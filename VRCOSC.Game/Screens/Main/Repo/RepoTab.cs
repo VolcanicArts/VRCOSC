@@ -13,6 +13,9 @@ namespace VRCOSC.Game.Screens.Main.Repo;
 [Cached]
 public partial class RepoTab : Container
 {
+    [Resolved]
+    private VRCOSCGame game { get; set; } = null!;
+
     public ModulePackageInfo PackageInfo { get; set; } = null!;
 
     private BufferedContainer bufferedContainer = null!;
@@ -96,11 +99,11 @@ public partial class RepoTab : Container
             bufferedContainer.TransformTo(nameof(BufferedContainer.BlurSigma), e.NewValue == Visibility.Visible ? new Vector2(2) : Vector2.Zero, 500, Easing.OutQuart);
             bufferedContainer.FadeColour(e.NewValue == Visibility.Visible ? Colour4.White.Darken(0.5f) : Colour4.White, 500, Easing.OutQuart);
         });
-    }
 
-    public void Refresh()
-    {
-        packageList.Refresh();
-        header.Refresh();
+        game.OnListingRefresh += () =>
+        {
+            packageList.Refresh();
+            header.Refresh();
+        };
     }
 }

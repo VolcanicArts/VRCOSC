@@ -32,6 +32,8 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
     public Bindable<Tab> SelectedTab = new(Tab.Home);
 
+    public Action? OnListingRefresh;
+
     [BackgroundDependencyLoader]
     private void load()
     {
@@ -78,6 +80,15 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         LoadingScreen.Action.Value = "Complete!";
         LoadingScreen.Progress.Value = 1f;
         Scheduler.Add(() => LoadingScreen.Hide(), false);
+    }
+
+    /// <summary>
+    /// Fires events to all the tabs that need updating when listing are changed
+    /// </summary>
+    public void RefreshListings()
+    {
+        appManager.ModuleManager.ReloadAllModules();
+        OnListingRefresh?.Invoke();
     }
 
     protected override void Update()

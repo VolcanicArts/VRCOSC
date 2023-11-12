@@ -198,9 +198,6 @@ public partial class ModulePackageInstance : Container
         [Resolved]
         private VRCOSCGame game { get; set; } = null!;
 
-        [Resolved]
-        private RepoTab repoTab { get; set; } = null!;
-
         private readonly RemoteModuleSource remoteModuleSource;
 
         protected ActionButton(RemoteModuleSource remoteModuleSource)
@@ -222,7 +219,7 @@ public partial class ModulePackageInstance : Container
 
                     if (loadingInfo.Complete)
                     {
-                        repoTab.Refresh();
+                        game.RefreshListings();
                         game.LoadingScreen.Hide();
                     }
                 };

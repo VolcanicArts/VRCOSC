@@ -71,7 +71,10 @@ public class ModuleManager
         RemoteModules.Clear();
 
         localModulesContext?.Unload();
+        localModulesContext = null;
+
         remoteModulesContexts?.ForEach(remoteModuleContext => remoteModuleContext.Unload());
+        remoteModulesContexts = null;
 
         LoadAllModules();
     }

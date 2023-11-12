@@ -15,6 +15,9 @@ namespace VRCOSC.Game.Screens.Main.Modules;
 public partial class ModulesTab : Container
 {
     [Resolved]
+    private VRCOSCGame game { get; set; } = null!;
+
+    [Resolved]
     private AppManager appManager { get; set; } = null!;
 
     private FillFlowContainer assemblyFlowContainer;
@@ -57,7 +60,21 @@ public partial class ModulesTab : Container
             }
         };
 
+        game.OnListingRefresh += Refresh;
+        Refresh();
+    }
+
+    public void Refresh()
+    {
+        assemblyFlowContainer.Clear();
+
         appManager.ModuleManager.LocalModules.ForEach(pair =>
+        {
+            var title = pair.Key.GetCustomAttribute<AssemblyProductAttribute>()?.Product ?? "Unknown";
+            assemblyFlowContainer.Add(new ModuleAssemblyContainer(title, pair.Value));
+        });
+
+        appManager.ModuleManager.RemoteModules.ForEach(pair =>
         {
             var title = pair.Key.GetCustomAttribute<AssemblyProductAttribute>()?.Product ?? "Unknown";
             assemblyFlowContainer.Add(new ModuleAssemblyContainer(title, pair.Value));
