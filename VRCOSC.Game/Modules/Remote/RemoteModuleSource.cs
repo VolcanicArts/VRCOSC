@@ -80,7 +80,7 @@ public class RemoteModuleSource
         return metadata!.InstalledVersion;
     }
 
-    public string? GetCoverUrl() => IsInstalled() ? latestReleaseDefinition?.CoverImageUrl : null;
+    public string? GetCoverUrl() => latestReleaseDefinition?.CoverImageUrl;
 
     private static SemVersion getCurrentSDKVersion()
     {
