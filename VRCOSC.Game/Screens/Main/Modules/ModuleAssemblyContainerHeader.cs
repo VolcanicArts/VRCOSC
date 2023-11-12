@@ -22,15 +22,17 @@ public partial class ModuleAssemblyContainerHeader : Container
     private const int onhoverlost_duration = onhover_duration;
 
     private readonly string title;
+    private readonly bool isLocal;
     private Box background = null!;
     private SpriteIcon collapsedChevron;
 
     [Resolved]
     private Bindable<bool> collapsed { get; set; } = null!;
 
-    public ModuleAssemblyContainerHeader(string title)
+    public ModuleAssemblyContainerHeader(string title, bool isLocal)
     {
         this.title = title;
+        this.isLocal = isLocal;
     }
 
     [BackgroundDependencyLoader]
@@ -47,15 +49,63 @@ public partial class ModuleAssemblyContainerHeader : Container
                 RelativeSizeAxes = Axes.Both,
                 Colour = default_colour
             },
-            new SpriteText
+            new FillFlowContainer
             {
                 Anchor = Anchor.CentreLeft,
                 Origin = Anchor.CentreLeft,
+                RelativeSizeAxes = Axes.Y,
+                AutoSizeAxes = Axes.X,
                 X = 11,
-                Text = title,
-                Font = Fonts.BOLD.With(size: 32),
-                Colour = Colours.WHITE2
+                Spacing = new Vector2(10, 0),
+                Direction = FillDirection.Horizontal,
+                Children = new Drawable[]
+                {
+                    new SpriteText
+                    {
+                        Anchor = Anchor.CentreLeft,
+                        Origin = Anchor.CentreLeft,
+                        Text = title,
+                        Font = Fonts.BOLD.With(size: 32),
+                        Colour = Colours.WHITE2
+                    },
+                    new Container
+                    {
+                        Anchor = Anchor.CentreLeft,
+                        Origin = Anchor.CentreLeft,
+                        RelativeSizeAxes = Axes.Y,
+                        Width = 90,
+                        Padding = new MarginPadding
+                        {
+                            Vertical = 10
+                        },
+                        Alpha = isLocal ? 1 : 0,
+                        Child = new Container
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativeSizeAxes = Axes.Both,
+                            Masking = true,
+                            CornerRadius = 5,
+                            Children = new Drawable[]
+                            {
+                                new Box
+                                {
+                                    RelativeSizeAxes = Axes.Both,
+                                    Colour = Colours.BLUE0
+                                },
+                                new SpriteText
+                                {
+                                    Anchor = Anchor.Centre,
+                                    Origin = Anchor.Centre,
+                                    Text = "LOCAL",
+                                    Font = Fonts.BOLD.With(size: 25)
+                                }
+                            }
+                        }
+                    }
+                }
             },
+
             new Container
             {
                 Anchor = Anchor.CentreRight,

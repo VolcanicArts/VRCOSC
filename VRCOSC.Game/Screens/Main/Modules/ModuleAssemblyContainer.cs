@@ -17,6 +17,7 @@ public partial class ModuleAssemblyContainer : FillFlowContainer
 {
     private readonly string title;
     private readonly List<Module> modules;
+    private readonly bool isLocal;
 
     [Resolved]
     private AppManager appManager { get; set; } = null!;
@@ -27,10 +28,11 @@ public partial class ModuleAssemblyContainer : FillFlowContainer
     private FillFlowContainer collapseWrapper;
     private FillFlowContainer moduleFlow;
 
-    public ModuleAssemblyContainer(string title, List<Module> modules)
+    public ModuleAssemblyContainer(string title, List<Module> modules, bool isLocal = false)
     {
         this.title = title;
         this.modules = modules;
+        this.isLocal = isLocal;
     }
 
     [BackgroundDependencyLoader]
@@ -44,7 +46,7 @@ public partial class ModuleAssemblyContainer : FillFlowContainer
 
         Children = new Drawable[]
         {
-            new ModuleAssemblyContainerHeader(title),
+            new ModuleAssemblyContainerHeader(title, isLocal),
             collapseWrapper = new FillFlowContainer
             {
                 Anchor = Anchor.TopCentre,

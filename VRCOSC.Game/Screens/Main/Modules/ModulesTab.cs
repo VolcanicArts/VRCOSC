@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System.Linq;
@@ -81,7 +81,7 @@ public partial class ModulesTab : Container
         appManager.ModuleManager.LocalModules.ForEach(pair =>
         {
             var title = pair.Key.GetCustomAttribute<AssemblyProductAttribute>()?.Product ?? "Unknown";
-            assemblyFlowContainer.Add(new ModuleAssemblyContainer(title, pair.Value));
+            assemblyFlowContainer.Add(new ModuleAssemblyContainer(title, pair.Value, true));
         });
 
         appManager.ModuleManager.RemoteModules.ForEach(pair =>
