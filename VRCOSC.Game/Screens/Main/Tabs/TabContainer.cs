@@ -4,6 +4,7 @@
 using osu.Framework.Allocation;
 using osu.Framework.Graphics.Containers;
 using VRCOSC.Game.Screens.Main.Home;
+using VRCOSC.Game.Screens.Main.Modules;
 using VRCOSC.Game.Screens.Main.Repo;
 
 namespace VRCOSC.Game.Screens.Main.Tabs;
@@ -18,6 +19,7 @@ public partial class TabContainer : Container
     {
         Add(new HomeTab());
         Add(new RepoTab());
+        Add(new ModulesTab());
 
         game.SelectedTab.BindValueChanged(e =>
         {

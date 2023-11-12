@@ -6,5 +6,6 @@ namespace VRCOSC.Game.Screens.Main.Tabs;
 public enum Tab
 {
     Home,
-    Repo
+    Repo,
+    Modules
 }

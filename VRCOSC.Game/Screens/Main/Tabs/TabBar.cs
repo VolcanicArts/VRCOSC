@@ -17,7 +17,8 @@ public partial class TabBar : Container
     private static readonly IReadOnlyDictionary<Tab, IconUsage> tabs = new Dictionary<Tab, IconUsage>
     {
         { Tab.Home, FontAwesome.Solid.Home },
-        { Tab.Repo, FontAwesome.Solid.Download }
+        { Tab.Repo, FontAwesome.Solid.Download },
+        { Tab.Modules, FontAwesome.Solid.List }
     };
 
     [BackgroundDependencyLoader]
