@@ -85,15 +85,11 @@ public partial class ModulePackageList : Container
     {
         if (flowWrapper.DrawHeight >= DrawHeight)
         {
-            flowWrapper.AutoSizeAxes = Axes.None;
-            flowWrapper.Height = DrawHeight;
-
             scrollContainer.AutoSizeAxes = Axes.None;
             scrollContainer.Height = DrawHeight - 55;
         }
         else
         {
-            flowWrapper.AutoSizeAxes = Axes.Y;
             scrollContainer.AutoSizeAxes = Axes.Y;
         }
     }
