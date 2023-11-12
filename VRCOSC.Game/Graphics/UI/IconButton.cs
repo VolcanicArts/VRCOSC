@@ -54,7 +54,7 @@ public partial class IconButton : ClickableContainer
                     Colour = IconColour,
                     Shadow = true,
                     ShadowColour = Colours.BLACK.Opacity(0.75f),
-                    ShadowOffset = Vector2.Zero
+                    ShadowOffset = new Vector2(0, 1)
                 }
             }
         };

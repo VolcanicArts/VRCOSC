@@ -1,13 +1,18 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace VRCOSC.Game.Modules.SDK;
 
 public class Module
 {
-    public ModuleState State { get; private set; } = ModuleState.Stopped;
+    internal string Title => GetType().GetCustomAttribute<ModuleTitleAttribute>()?.Title ?? "PLACEHOLDER";
+    internal string ShortDescription => GetType().GetCustomAttribute<ModuleDescriptionAttribute>()?.ShortDescription ?? string.Empty;
+    internal ModuleType Type => GetType().GetCustomAttribute<ModuleTypeAttribute>()?.Type ?? ModuleType.Generic;
+
+    internal ModuleState State { get; private set; } = ModuleState.Stopped;
 
     internal Task Start()
     {
