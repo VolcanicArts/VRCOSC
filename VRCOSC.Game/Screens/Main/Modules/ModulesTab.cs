@@ -1,6 +1,7 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Linq;
 using System.Reflection;
 using osu.Framework.Allocation;
 using osu.Framework.Extensions.IEnumerableExtensions;
@@ -20,7 +21,8 @@ public partial class ModulesTab : Container
     [Resolved]
     private AppManager appManager { get; set; } = null!;
 
-    private FillFlowContainer assemblyFlowContainer;
+    private FillFlowContainer assemblyFlowContainer = null!;
+    private TextFlowContainer noModulesText = null!;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -57,6 +59,14 @@ public partial class ModulesTab : Container
                         Spacing = new Vector2(0, 10)
                     }
                 }
+            },
+            noModulesText = new TextFlowContainer(t => { t.Font = Fonts.REGULAR.With(size: 40); })
+            {
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                TextAnchor = Anchor.Centre,
+                RelativeSizeAxes = Axes.Both,
+                Text = "You have no modules!\nInstall some using the package manager"
             }
         };
 
@@ -79,5 +89,7 @@ public partial class ModulesTab : Container
             var title = pair.Key.GetCustomAttribute<AssemblyProductAttribute>()?.Product ?? "Unknown";
             assemblyFlowContainer.Add(new ModuleAssemblyContainer(title, pair.Value));
         });
+
+        noModulesText.Alpha = assemblyFlowContainer.Any() ? 0 : 1;
     }
 }
