@@ -5,12 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Loader;
 using System.Threading.Tasks;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
-using VRCOSC.Game.Modules.SDK;
+using Module = VRCOSC.Game.Modules.SDK.Module;
 
 namespace VRCOSC.Game.Modules;
 
@@ -19,10 +20,10 @@ public class ModuleManager
     private readonly Storage storage;
 
     private AssemblyLoadContext? localModulesContext;
-    public List<Module>? LocalModules { get; private set; }
-
     private List<AssemblyLoadContext>? remoteModulesContexts;
-    public List<Module>? RemoteModules { get; private set; }
+
+    public readonly Dictionary<Assembly, List<Module>> LocalModules = new();
+    public readonly Dictionary<Assembly, List<Module>> RemoteModules = new();
 
     public ModuleManager(Storage storage)
     {
@@ -33,14 +34,15 @@ public class ModuleManager
 
     public async void Start()
     {
-        if (LocalModules is not null) await startLocalModules();
+        await startLocalModules();
+        await startRemoteModules();
     }
 
     private async Task startLocalModules()
     {
         Logger.Log("Starting local modules");
 
-        foreach (var localModule in LocalModules!)
+        foreach (var localModule in LocalModules.Values.SelectMany(localModuleList => localModuleList))
         {
             await localModule.Start();
         }
@@ -50,7 +52,7 @@ public class ModuleManager
     {
         Logger.Log("Starting remote modules");
 
-        foreach (var remoteModule in RemoteModules!)
+        foreach (var remoteModule in RemoteModules.Values.SelectMany(remoteModuleList => remoteModuleList))
         {
             await remoteModule.Start();
         }
@@ -65,8 +67,8 @@ public class ModuleManager
     /// </summary>
     public void ReloadAllModules()
     {
-        LocalModules = null;
-        RemoteModules = null;
+        LocalModules.Clear();
+        RemoteModules.Clear();
 
         localModulesContext?.Unload();
         remoteModulesContexts?.ForEach(remoteModuleContext => remoteModuleContext.Unload());
@@ -94,9 +96,19 @@ public class ModuleManager
         localModulesContext = loadContextFromPath(localModulesPath);
         Logger.Log($"Found {localModulesContext.Assemblies.Count()} assemblies");
 
-        LocalModules = retrieveModuleInstances(localModulesContext);
+        var localModules = retrieveModuleInstances(localModulesContext);
 
-        Logger.Log($"Final local module count: {LocalModules.Count}");
+        localModules.ForEach(localModule =>
+        {
+            if (!LocalModules.ContainsKey(localModule.GetType().Assembly))
+            {
+                LocalModules[localModule.GetType().Assembly] = new List<Module>();
+            }
+
+            LocalModules[localModule.GetType().Assembly].Add(localModule);
+        });
+
+        Logger.Log($"Final local module count: {localModules.Count}");
     }
 
     private void loadRemoteModules()
@@ -112,10 +124,20 @@ public class ModuleManager
         Directory.GetDirectories(remoteModulesDirectory).ForEach(moduleDirectory => remoteModulesContexts.Add(loadContextFromPath(moduleDirectory)));
         Logger.Log($"Found {remoteModulesContexts.Sum(remoteModuleContext => remoteModuleContext.Assemblies.Count())} assemblies");
 
-        RemoteModules = new List<Module>();
-        remoteModulesContexts.ForEach(remoteModuleContext => RemoteModules.AddRange(retrieveModuleInstances(remoteModuleContext)));
+        var remoteModules = new List<Module>();
+        remoteModulesContexts.ForEach(remoteModuleContext => remoteModules.AddRange(retrieveModuleInstances(remoteModuleContext)));
 
-        Logger.Log($"Final remote module count: {RemoteModules.Count}");
+        remoteModules.ForEach(remoteModule =>
+        {
+            if (!RemoteModules.ContainsKey(remoteModule.GetType().Assembly))
+            {
+                RemoteModules[remoteModule.GetType().Assembly] = new List<Module>();
+            }
+
+            RemoteModules[remoteModule.GetType().Assembly].Add(remoteModule);
+        });
+
+        Logger.Log($"Final remote module count: {remoteModules.Count}");
     }
 
     private List<Module> retrieveModuleInstances(AssemblyLoadContext assemblyLoadContext)
