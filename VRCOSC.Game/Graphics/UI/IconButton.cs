@@ -20,6 +20,7 @@ public partial class IconButton : ClickableContainer
     public IconUsage Icon { get; init; } = FontAwesome.Regular.Angry;
     public float IconSize { get; init; } = 20;
     public Color4 IconColour { get; init; } = Color4.White;
+    public new float CornerRadius = 0;
 
     private Box background = null!;
     private SpriteIcon icon = null!;
@@ -27,15 +28,15 @@ public partial class IconButton : ClickableContainer
     [BackgroundDependencyLoader]
     private void load()
     {
-        Masking = true;
-        BorderThickness = 3;
-        BorderColour = BackgroundColour;
-
-        Child = new Container
+        InternalChild = new Container
         {
             Anchor = Anchor.Centre,
             Origin = Anchor.Centre,
             RelativeSizeAxes = Axes.Both,
+            Masking = true,
+            BorderThickness = 3,
+            BorderColour = BackgroundColour,
+            CornerRadius = CornerRadius,
             Children = new Drawable[]
             {
                 background = new Box
@@ -77,7 +78,7 @@ public partial class IconButton : ClickableContainer
     {
         if (e.Button != MouseButton.Left) return false;
 
-        Child.ScaleTo(0.95f, 500, Easing.OutQuart);
+        InternalChild.ScaleTo(0.95f, 500, Easing.OutQuart);
         return true;
     }
 
@@ -85,7 +86,7 @@ public partial class IconButton : ClickableContainer
     {
         if (e.Button != MouseButton.Left) return;
 
-        Child.ScaleTo(1f, 500, Easing.OutQuart);
+        InternalChild.ScaleTo(1f, 500, Easing.OutQuart);
 
         if (!IsHovered)
         {

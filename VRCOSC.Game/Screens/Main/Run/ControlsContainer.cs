@@ -43,6 +43,7 @@ public partial class ControlsContainer : Container
                         Width = 150,
                         BackgroundColour = Colours.GREEN0,
                         Icon = FontAwesome.Solid.Play,
+                        Masking = true,
                         CornerRadius = 10
                     }
                 }
@@ -66,6 +67,7 @@ public partial class ControlsContainer : Container
                         Width = 150,
                         BackgroundColour = Colours.RED0,
                         Icon = FontAwesome.Solid.Stop,
+                        Masking = true,
                         CornerRadius = 10
                     },
                     new IconButton
@@ -76,7 +78,8 @@ public partial class ControlsContainer : Container
                         Width = 150,
                         BackgroundColour = Colours.BLUE0,
                         Icon = FontAwesome.Solid.Redo,
-                        CornerRadius = 10
+                        Masking = true,
+                        CornerRadius = 10,
                     }
                 }
             }
