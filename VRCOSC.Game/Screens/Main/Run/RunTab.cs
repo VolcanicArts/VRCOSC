@@ -22,10 +22,78 @@ public partial class RunTab : Container
         {
             new Box
             {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 Colour = Colours.GRAY1
+            },
+            new Container
+            {
+                RelativeSizeAxes = Axes.Both,
+                Padding = new MarginPadding(10),
+                Child = new GridContainer
+                {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    RelativeSizeAxes = Axes.Both,
+                    ColumnDimensions = new[]
+                    {
+                        new Dimension(GridSizeMode.Relative, 0.3f),
+                        new Dimension(GridSizeMode.Absolute, 5),
+                        new Dimension()
+                    },
+                    Content = new[]
+                    {
+                        new Drawable?[]
+                        {
+                            new TerminalContainer
+                            {
+                                Anchor = Anchor.Centre,
+                                Origin = Anchor.Centre,
+                                RelativeSizeAxes = Axes.Both,
+                                Masking = true,
+                                CornerRadius = 5
+                            },
+                            null,
+                            new GridContainer
+                            {
+                                Anchor = Anchor.Centre,
+                                Origin = Anchor.Centre,
+                                RelativeSizeAxes = Axes.Both,
+                                RowDimensions = new[]
+                                {
+                                    new Dimension(),
+                                    new Dimension(GridSizeMode.Absolute, 5),
+                                    new Dimension(GridSizeMode.Absolute, 60)
+                                },
+                                Content = new[]
+                                {
+                                    new Drawable[]
+                                    {
+                                        new ViewContainer
+                                        {
+                                            Anchor = Anchor.Centre,
+                                            Origin = Anchor.Centre,
+                                            RelativeSizeAxes = Axes.Both,
+                                            Masking = true,
+                                            CornerRadius = 5
+                                        }
+                                    },
+                                    null,
+                                    new Drawable[]
+                                    {
+                                        new ControlsContainer
+                                        {
+                                            Anchor = Anchor.Centre,
+                                            Origin = Anchor.Centre,
+                                            RelativeSizeAxes = Axes.Both,
+                                            Masking = true,
+                                            CornerRadius = 5
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         };
     }
