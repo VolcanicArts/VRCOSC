@@ -24,7 +24,7 @@ public partial class ModuleAssemblyContainerHeader : Container
     private readonly string title;
     private readonly bool isLocal;
     private Box background = null!;
-    private SpriteIcon collapsedChevron;
+    private SpriteIcon collapsedChevron = null!;
 
     [Resolved]
     private Bindable<bool> collapsed { get; set; } = null!;

@@ -83,7 +83,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     }
 
     /// <summary>
-    /// Fires events to all the tabs that need updating when listing are changed
+    /// Fires events to all the tabs that need updating when listings are changed
     /// </summary>
     public void RefreshListings()
     {

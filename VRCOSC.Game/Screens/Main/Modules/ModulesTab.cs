@@ -70,11 +70,11 @@ public partial class ModulesTab : Container
             }
         };
 
-        game.OnListingRefresh += Refresh;
-        Refresh();
+        game.OnListingRefresh += refresh;
+        refresh();
     }
 
-    public void Refresh()
+    private void refresh()
     {
         assemblyFlowContainer.Clear();
 
