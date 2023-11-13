@@ -84,7 +84,7 @@ public class RemoteModuleSource
 
     private static SemVersion getCurrentSDKVersion()
     {
-        var version = Assembly.GetExecutingAssembly().GetName().Version!;
+        var version = Assembly.GetEntryAssembly()?.GetName().Version ?? new Version();
         return new SemVersion(version.Major, version.Minor, version.Build);
     }
 
