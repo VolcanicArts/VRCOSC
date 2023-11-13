@@ -61,7 +61,8 @@ public partial class DrawableModule : Container
                             RelativeSizeAxes = Axes.Both,
                             BackgroundColour = Colours.GRAY6,
                             BorderColour = Colours.GRAY3,
-                            Icon = FontAwesome.Solid.Check
+                            Icon = FontAwesome.Solid.Check,
+                            State = module.Enabled.GetBoundCopy()
                         }
                     },
                     new Container
@@ -97,6 +98,14 @@ public partial class DrawableModule : Container
                         }
                     }
                 }
+            },
+            new FillFlowContainer
+            {
+                Name = "Button Flow",
+                Anchor = Anchor.CentreRight,
+                Origin = Anchor.CentreRight,
+                RelativeSizeAxes = Axes.Y,
+                AutoSizeAxes = Axes.X
             }
         };
     }

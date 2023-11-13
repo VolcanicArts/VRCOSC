@@ -3,11 +3,14 @@
 
 using System.Reflection;
 using System.Threading.Tasks;
+using osu.Framework.Bindables;
 
 namespace VRCOSC.Game.Modules.SDK;
 
 public class Module
 {
+    internal Bindable<bool> Enabled = new();
+
     internal string Title => GetType().GetCustomAttribute<ModuleTitleAttribute>()?.Title ?? "PLACEHOLDER";
     internal string ShortDescription => GetType().GetCustomAttribute<ModuleDescriptionAttribute>()?.ShortDescription ?? string.Empty;
     internal ModuleType Type => GetType().GetCustomAttribute<ModuleTypeAttribute>()?.Type ?? ModuleType.Generic;
