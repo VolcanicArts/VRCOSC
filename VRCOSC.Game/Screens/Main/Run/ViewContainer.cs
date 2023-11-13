@@ -5,6 +5,7 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osuTK;
 using VRCOSC.Game.Graphics;
 
 namespace VRCOSC.Game.Screens.Main.Run;
@@ -20,6 +21,15 @@ public partial class ViewContainer : Container
             {
                 RelativeSizeAxes = Axes.Both,
                 Colour = Colours.GRAY0
+            },
+            new ViewSwitcher
+            {
+                Anchor = Anchor.BottomCentre,
+                Origin = Anchor.BottomCentre,
+                Size = new Vector2(300, 40),
+                Y = -10,
+                Masking = true,
+                CornerRadius = 5
             }
         };
     }
