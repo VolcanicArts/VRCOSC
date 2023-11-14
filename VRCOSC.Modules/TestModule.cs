@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.Game.Modules.SDK;
+using VRCOSC.Game.Modules.SDK.Parameters;
 
 namespace VRCOSC.Modules;
 
@@ -11,6 +12,11 @@ namespace VRCOSC.Modules;
 public class TestModule : Module
 {
     private float foo;
+
+    protected override void OnLoad()
+    {
+        RegisterParameter<float>(TestParameter.Test, "SomeTestParameter", "This is a test parameter", "This is a parameter description", ParameterMode.Write);
+    }
 
     protected override Task OnModuleStart()
     {
@@ -23,12 +29,17 @@ public class TestModule : Module
     private void onModuleUpdate()
     {
         SendParameter("SomeFloatParameter", foo += 0.01f);
-        Log("This is a test 2");
+        SendParameter(TestParameter.Test, foo += 0.01f);
     }
 
     protected override Task OnModuleStop()
     {
         SendParameter("SomeParameter", false);
         return Task.CompletedTask;
+    }
+
+    private enum TestParameter
+    {
+        Test
     }
 }

@@ -123,8 +123,11 @@ public class ModuleManager
         loadLocalModules();
         loadRemoteModules();
 
-        LocalModules.Values.ForEach(moduleList => moduleList.ForEach(module => module.InjectDependencies(clock, appManager)));
-        RemoteModules.Values.ForEach(moduleList => moduleList.ForEach(module => module.InjectDependencies(clock, appManager)));
+        modules.ForEach(module =>
+        {
+            module.InjectDependencies(clock, appManager);
+            module.Load();
+        });
     }
 
     private void loadLocalModules()
