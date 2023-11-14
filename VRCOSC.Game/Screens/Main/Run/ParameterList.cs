@@ -16,15 +16,12 @@ public partial class ParameterList : Container
 {
     private readonly string title;
 
-    [Resolved]
-    private AppManager appManager { get; set; } = null!;
-
     private FillFlowContainer flowWrapper = null!;
     private BasicScrollContainer scrollContainer = null!;
     private FillFlowContainer<DrawableParameter> listingFlow = null!;
     private Box endCap = null!;
 
-    private readonly Dictionary<string, DrawableParameter> listingCache = new();
+    private readonly SortedDictionary<string, DrawableParameter> listingCache = new();
 
     public ParameterList(string title)
     {
@@ -93,7 +90,9 @@ public partial class ParameterList : Container
                                     Origin = Anchor.TopCentre,
                                     RelativeSizeAxes = Axes.X,
                                     AutoSizeAxes = Axes.Y,
-                                    Direction = FillDirection.Vertical
+                                    Direction = FillDirection.Vertical,
+                                    LayoutDuration = 100,
+                                    LayoutEasing = Easing.OutQuint
                                 }
                             }
                         }
@@ -137,6 +136,15 @@ public partial class ParameterList : Container
             var newDrawableParameter = new DrawableParameter(message.Address, message.ParameterValue, listingFlow.Count % 2 == 1);
             listingCache.Add(message.Address, newDrawableParameter);
             listingFlow.Add(newDrawableParameter);
+
+            var depth = 0f;
+
+            foreach (var sortedDrawableParameter in listingCache.Values)
+            {
+                listingFlow.ChangeChildDepth(newDrawableParameter, depth);
+                listingFlow.SetLayoutPosition(sortedDrawableParameter, depth);
+                depth++;
+            }
         }
     }
 }

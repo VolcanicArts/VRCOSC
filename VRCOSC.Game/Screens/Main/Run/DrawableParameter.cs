@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -16,6 +17,7 @@ public partial class DrawableParameter : Container
     private readonly object parameterInitialValue;
     private readonly bool even;
 
+    private Box background = null!;
     private SpriteText valueSpriteText = null!;
 
     public DrawableParameter(string parameterName, object parameterInitialValue, bool even)
@@ -35,7 +37,7 @@ public partial class DrawableParameter : Container
 
         Children = new Drawable[]
         {
-            new Box
+            background = new Box
             {
                 RelativeSizeAxes = Axes.Both,
                 Colour = even ? Colours.GRAY1 : Colours.GRAY2
@@ -75,5 +77,6 @@ public partial class DrawableParameter : Container
     public void UpdateValue(object value)
     {
         valueSpriteText.Text = value.ToString() ?? "INVALID";
+        background.FlashColour(Colours.WHITE0.Opacity(0.5f), 500, Easing.OutQuint);
     }
 }
