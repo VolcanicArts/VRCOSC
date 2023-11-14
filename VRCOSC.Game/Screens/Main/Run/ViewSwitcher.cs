@@ -20,7 +20,7 @@ public partial class ViewSwitcher : Container
     /// <summary>
     /// False: OSC View. True: Module View
     /// </summary>
-    public readonly Bindable<bool> State = new(true);
+    public Bindable<bool> State = new(true);
 
     [BackgroundDependencyLoader]
     private void load()

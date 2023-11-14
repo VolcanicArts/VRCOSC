@@ -26,7 +26,7 @@ public partial class TerminalContainer : Container<TerminalEntry>
             new Box
             {
                 RelativeSizeAxes = Axes.Both,
-                Colour = Colours.GRAY0
+                Colour = Colours.GRAY7
             },
             new Container
             {

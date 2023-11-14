@@ -22,7 +22,7 @@ public partial class ControlsContainer : Container
             new Box
             {
                 RelativeSizeAxes = Axes.Both,
-                Colour = Colours.GRAY0
+                Colour = Colours.GRAY7
             },
             new FillFlowContainer
             {

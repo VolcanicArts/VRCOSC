@@ -25,5 +25,6 @@ public static class Colours
     public static readonly Color4 GRAY4 = Color4Extensions.FromHex("1A1A1A");
     public static readonly Color4 GRAY5 = Color4Extensions.FromHex("333333");
     public static readonly Color4 GRAY6 = Color4Extensions.FromHex("4D4D4D");
+    public static readonly Color4 GRAY7 = Color4Extensions.FromHex("141414");
     public static readonly Color4 BLACK = Color4Extensions.FromHex("000000");
 }
