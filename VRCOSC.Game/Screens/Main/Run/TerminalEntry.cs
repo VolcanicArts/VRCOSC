@@ -24,7 +24,7 @@ public partial class TerminalEntry : PoolableDrawable
 
         InternalChild = new TextFlowContainer(t =>
         {
-            t.Font = Fonts.REGULAR.With(size: 22);
+            t.Font = Fonts.REGULAR.With(size: 20);
             t.Colour = Colours.WHITE1;
         })
         {

@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -59,16 +60,39 @@ public partial class IconButton : ClickableContainer
                 }
             }
         };
+
+        Enabled.BindValueChanged(onEnabledChange, true);
+    }
+
+    private void onEnabledChange(ValueChangedEvent<bool> e)
+    {
+        InternalChild.FadeTo(e.NewValue ? 1f : 0.25f, 250, Easing.OutQuint);
+
+        if (e.NewValue)
+        {
+            if (IsHovered)
+                fadeInBackground();
+            else
+                fadeOutBackground();
+        }
+        else
+        {
+            fadeOutBackground();
+        }
     }
 
     protected override bool OnHover(HoverEvent e)
     {
+        if (!Enabled.Value) return true;
+
         fadeInBackground();
         return true;
     }
 
     protected override void OnHoverLost(HoverLostEvent e)
     {
+        if (!Enabled.Value) return;
+
         if (e.IsPressed(MouseButton.Left)) return;
 
         fadeOutBackground();
@@ -76,7 +100,9 @@ public partial class IconButton : ClickableContainer
 
     protected override bool OnMouseDown(MouseDownEvent e)
     {
-        if (e.Button != MouseButton.Left) return false;
+        if (!Enabled.Value) return true;
+
+        if (e.Button != MouseButton.Left) return true;
 
         InternalChild.ScaleTo(0.95f, 500, Easing.OutQuart);
         return true;
@@ -84,6 +110,8 @@ public partial class IconButton : ClickableContainer
 
     protected override void OnMouseUp(MouseUpEvent e)
     {
+        if (!Enabled.Value) return;
+
         if (e.Button != MouseButton.Left) return;
 
         InternalChild.ScaleTo(1f, 500, Easing.OutQuart);
@@ -96,13 +124,13 @@ public partial class IconButton : ClickableContainer
 
     private void fadeInBackground()
     {
-        background.FadeInFromZero(100, Easing.OutQuart);
+        background.FadeIn(100, Easing.OutQuart);
         icon.TransformTo(nameof(SpriteText.ShadowOffset), new Vector2(0, 0.05f));
     }
 
     private void fadeOutBackground()
     {
-        background.FadeOutFromOne(100, Easing.OutQuart);
+        background.FadeOut(100, Easing.OutQuart);
         icon.TransformTo(nameof(SpriteText.ShadowOffset), Vector2.Zero);
     }
 }

@@ -97,7 +97,7 @@ public partial class ControlsContainer : Container
             }
         };
 
-        appManager.ModuleManager.State.BindValueChanged(onModuleManagerStateChange);
+        appManager.ModuleManager.State.BindValueChanged(onModuleManagerStateChange, true);
     }
 
     private void onModuleManagerStateChange(ValueChangedEvent<ModuleManagerState> e)
@@ -106,20 +106,26 @@ public partial class ControlsContainer : Container
         {
             case ModuleManagerState.Starting:
                 startButton.Enabled.Value = false;
+                restartButton.Enabled.Value = false;
+                stopButton.Enabled.Value = false;
                 break;
 
             case ModuleManagerState.Started:
+                startButton.Enabled.Value = false;
                 restartButton.Enabled.Value = true;
                 stopButton.Enabled.Value = true;
                 break;
 
             case ModuleManagerState.Stopping:
-                restartButton.Enabled.Value = true;
-                stopButton.Enabled.Value = true;
+                startButton.Enabled.Value = false;
+                restartButton.Enabled.Value = false;
+                stopButton.Enabled.Value = false;
                 break;
 
             case ModuleManagerState.Stopped:
                 startButton.Enabled.Value = true;
+                restartButton.Enabled.Value = false;
+                stopButton.Enabled.Value = false;
                 break;
         }
     }
