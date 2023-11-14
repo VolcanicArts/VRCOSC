@@ -91,6 +91,7 @@ public partial class ControlsContainer : Container
                         Icon = FontAwesome.Solid.Redo,
                         Masking = true,
                         CornerRadius = 10,
+                        Action = () => appManager.ModuleManager.Restart()
                     }
                 }
             }

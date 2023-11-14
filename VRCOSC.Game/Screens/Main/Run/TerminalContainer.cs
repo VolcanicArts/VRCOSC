@@ -2,17 +2,23 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Pooling;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Logging;
 using VRCOSC.Game.Graphics;
+using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Screens.Main.Run;
 
 public partial class TerminalContainer : Container<TerminalEntry>
 {
+    [Resolved]
+    private AppManager appManager { get; set; } = null!;
+
     private const int terminal_entry_count = 50;
     private readonly DrawablePool<TerminalEntry> terminalEntryPool = new(terminal_entry_count);
 
@@ -55,8 +61,18 @@ public partial class TerminalContainer : Container<TerminalEntry>
                 }
             }
         };
+    }
 
+    [BackgroundDependencyLoader]
+    private void load()
+    {
         Logger.NewEntry += onNewLogEntry;
+        appManager.ModuleManager.State.BindValueChanged(onModuleManagerStateChange);
+    }
+
+    private void onModuleManagerStateChange(ValueChangedEvent<ModuleManagerState> e)
+    {
+        if (e.NewValue == ModuleManagerState.Starting) reset();
     }
 
     private void onNewLogEntry(LogEntry entry)
@@ -66,7 +82,7 @@ public partial class TerminalContainer : Container<TerminalEntry>
         log(entry.Message);
     }
 
-    public void Reset()
+    private void reset()
     {
         RemoveAll(_ => true, false);
     }

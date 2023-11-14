@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
+using System.Threading.Tasks;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Logging;
@@ -29,7 +30,7 @@ public class ModuleManager
 
     public readonly Bindable<ModuleManagerState> State = new(ModuleManagerState.Stopped);
 
-    private IReadOnlyList<Module> modules => LocalModules.Values.SelectMany(moduleList => moduleList).Concat(RemoteModules.Values.SelectMany(moduleList => moduleList)).ToList();
+    private IEnumerable<Module> modules => LocalModules.Values.SelectMany(moduleList => moduleList).Concat(RemoteModules.Values.SelectMany(moduleList => moduleList)).ToList();
 
     private readonly List<Module> runningModuleCache = new();
 
@@ -37,11 +38,22 @@ public class ModuleManager
     {
         this.storage = storage;
         this.clock = clock;
+
+        State.BindValueChanged(e => Logger.Log($"ModuleManager state changed to {e.NewValue}"));
     }
 
     #region Runtime
 
-    public async void Start()
+    public async void Restart()
+    {
+        await StopAsync();
+        await Task.Delay(100);
+        await StartAsync();
+    }
+
+    public async void Start() => await StartAsync();
+
+    public async Task StartAsync()
     {
         State.Value = ModuleManagerState.Starting;
 
@@ -60,11 +72,13 @@ public class ModuleManager
         State.Value = ModuleManagerState.Started;
     }
 
-    public async void Stop()
+    public async void Stop() => await StopAsync();
+
+    public async Task StopAsync()
     {
         State.Value = ModuleManagerState.Stopping;
 
-        runningModuleCache.ForEach(module => module.Stop());
+        foreach (var module in runningModuleCache) await module.Stop();
         runningModuleCache.Clear();
 
         State.Value = ModuleManagerState.Stopped;

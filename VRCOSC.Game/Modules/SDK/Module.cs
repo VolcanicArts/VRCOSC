@@ -17,7 +17,7 @@ public class Module
 {
     private Scheduler scheduler = null!;
 
-    internal Bindable<bool> Enabled = new(true);
+    internal Bindable<bool> Enabled = new();
 
     internal readonly Bindable<ModuleState> State = new(ModuleState.Stopped);
 
@@ -120,6 +120,7 @@ public class Module
 
     protected internal void PushException(Exception e)
     {
+        State.Value = ModuleState.Exception;
         Logger.Error(e, $"{className} experienced an exception");
     }
 }
