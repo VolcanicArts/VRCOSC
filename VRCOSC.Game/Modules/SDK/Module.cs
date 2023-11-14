@@ -10,12 +10,14 @@ using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Logging;
 using osu.Framework.Threading;
 using osu.Framework.Timing;
+using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Game.Modules.SDK;
 
 public class Module
 {
     private Scheduler scheduler = null!;
+    private AppManager appManager = null!;
 
     internal Bindable<bool> Enabled = new();
 
@@ -35,9 +37,10 @@ public class Module
         Log($"State changed to {e.NewValue}");
     }
 
-    internal void InjectDependencies(IClock clock)
+    internal void InjectDependencies(IClock clock, AppManager appManager)
     {
         scheduler = new Scheduler(() => ThreadSafety.IsUpdateThread, clock);
+        this.appManager = appManager;
     }
 
     internal void FrameworkUpdate()
@@ -70,7 +73,7 @@ public class Module
         return stopTask;
     }
 
-    protected void UpdateMethod(MethodBase method)
+    private void updateMethod(MethodBase method)
     {
         try
         {
@@ -97,22 +100,42 @@ public class Module
                 switch (updateAttribute.Mode)
                 {
                     case ModuleUpdateMode.Custom:
-                        scheduler.AddDelayed(() => UpdateMethod(method), updateAttribute.DeltaMilliseconds, true);
-                        if (updateAttribute.UpdateImmediately) UpdateMethod(method);
+                        scheduler.AddDelayed(() => updateMethod(method), updateAttribute.DeltaMilliseconds, true);
+                        if (updateAttribute.UpdateImmediately) updateMethod(method);
                         break;
                 }
             });
     }
+
+    #region SDK Exposed
+
+    protected virtual Task OnModuleStart() => Task.CompletedTask;
+    protected virtual Task OnModuleStop() => Task.CompletedTask;
 
     protected void Log(string message)
     {
         Logger.Log($"[{Title}]: {message}", TerminalLogger.TARGET_NAME);
     }
 
-    #region Events
+    /// <summary>
+    /// Allows you to send any parameter name and value.
+    /// If you want the user to be able to customise the parameter, register a parameter and use <see cref="SendParameter(Enum,object)"/>
+    /// </summary>
+    /// <param name="name">The name of the parameter</param>
+    /// <param name="value">The value of the parameter</param>
+    protected void SendParameter(string name, object value)
+    {
+        appManager.VRChatOscClient.SendValue($"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{name}", value);
+    }
 
-    protected virtual Task OnModuleStart() => Task.CompletedTask;
-    protected virtual Task OnModuleStop() => Task.CompletedTask;
+    /// <summary>
+    /// Allows you to send a customisable parameter using its lookup and a value
+    /// </summary>
+    /// <param name="lookup"></param>
+    /// <param name="value"></param>
+    protected void SendParameter(Enum lookup, object value)
+    {
+    }
 
     #endregion
 

@@ -10,19 +10,25 @@ namespace VRCOSC.Modules;
 [ModuleType(ModuleType.Generic)]
 public class TestModule : Module
 {
+    private float foo;
+
     protected override Task OnModuleStart()
     {
+        foo = 0f;
+        SendParameter("SomeParameter", true);
         return Task.CompletedTask;
     }
 
     [ModuleUpdate(ModuleUpdateMode.Custom, true, 500)]
     private void onModuleUpdate()
     {
-        Log("This is a test");
+        SendParameter("SomeFloatParameter", foo += 0.01f);
+        Log("This is a test 2");
     }
 
     protected override Task OnModuleStop()
     {
+        SendParameter("SomeParameter", false);
         return Task.CompletedTask;
     }
 }

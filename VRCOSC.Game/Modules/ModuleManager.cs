@@ -21,6 +21,7 @@ public class ModuleManager
 {
     private readonly Storage storage;
     private readonly IClock clock;
+    private readonly AppManager appManager;
 
     private AssemblyLoadContext? localModulesContext;
     private List<AssemblyLoadContext>? remoteModulesContexts;
@@ -34,10 +35,11 @@ public class ModuleManager
 
     private readonly List<Module> runningModuleCache = new();
 
-    public ModuleManager(Storage storage, IClock clock)
+    public ModuleManager(Storage storage, IClock clock, AppManager appManager)
     {
         this.storage = storage;
         this.clock = clock;
+        this.appManager = appManager;
 
         State.BindValueChanged(e => Logger.Log($"ModuleManager state changed to {e.NewValue}"));
     }
@@ -121,8 +123,8 @@ public class ModuleManager
         loadLocalModules();
         loadRemoteModules();
 
-        LocalModules.Values.ForEach(moduleList => moduleList.ForEach(module => module.InjectDependencies(clock)));
-        RemoteModules.Values.ForEach(moduleList => moduleList.ForEach(module => module.InjectDependencies(clock)));
+        LocalModules.Values.ForEach(moduleList => moduleList.ForEach(module => module.InjectDependencies(clock, appManager)));
+        RemoteModules.Values.ForEach(moduleList => moduleList.ForEach(module => module.InjectDependencies(clock, appManager)));
     }
 
     private void loadLocalModules()

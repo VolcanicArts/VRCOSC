@@ -18,7 +18,7 @@ public class AppManager
 
     public void Initialise(Storage storage, IClock clock)
     {
-        ModuleManager = new ModuleManager(storage, clock);
+        ModuleManager = new ModuleManager(storage, clock, this);
         RemoteModuleSourceManager = new RemoteModuleSourceManager(storage);
         VRChatOscClient = new VRChatOscClient();
 

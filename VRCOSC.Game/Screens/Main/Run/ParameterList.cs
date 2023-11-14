@@ -3,22 +3,26 @@
 
 using System.Collections.Generic;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using VRCOSC.Game.Graphics;
+using VRCOSC.Game.Modules;
 using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Game.Screens.Main.Run;
 
 public partial class ParameterList : Container
 {
+    [Resolved]
+    private AppManager appManager { get; set; } = null!;
+
     private readonly string title;
 
     private FillFlowContainer flowWrapper = null!;
     private BasicScrollContainer scrollContainer = null!;
     private FillFlowContainer<DrawableParameter> listingFlow = null!;
-    private Box endCap = null!;
 
     private readonly SortedDictionary<string, DrawableParameter> listingCache = new();
 
@@ -96,7 +100,7 @@ public partial class ParameterList : Container
                             }
                         }
                     },
-                    endCap = new Box
+                    new Box
                     {
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
@@ -107,6 +111,17 @@ public partial class ParameterList : Container
                 }
             }
         };
+
+        appManager.ModuleManager.State.BindValueChanged(onModuleManagerStateChange);
+    }
+
+    private void onModuleManagerStateChange(ValueChangedEvent<ModuleManagerState> e)
+    {
+        if (e.NewValue == ModuleManagerState.Starting)
+        {
+            listingCache.Clear();
+            listingFlow.Clear();
+        }
     }
 
     protected override void UpdateAfterChildren()
