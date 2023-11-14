@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -9,11 +10,19 @@ using osu.Framework.Graphics.Sprites;
 using osuTK;
 using VRCOSC.Game.Graphics;
 using VRCOSC.Game.Graphics.UI;
+using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Screens.Main.Run;
 
 public partial class ControlsContainer : Container
 {
+    private IconButton startButton = null!;
+    private IconButton stopButton = null!;
+    private IconButton restartButton = null!;
+
+    [Resolved]
+    private AppManager appManager { get; set; } = null!;
+
     [BackgroundDependencyLoader]
     private void load()
     {
@@ -35,7 +44,7 @@ public partial class ControlsContainer : Container
                 Spacing = new Vector2(10, 0),
                 Children = new Drawable[]
                 {
-                    new IconButton
+                    startButton = new IconButton
                     {
                         Anchor = Anchor.CentreLeft,
                         Origin = Anchor.CentreLeft,
@@ -44,7 +53,8 @@ public partial class ControlsContainer : Container
                         BackgroundColour = Colours.GREEN0,
                         Icon = FontAwesome.Solid.Play,
                         Masking = true,
-                        CornerRadius = 10
+                        CornerRadius = 10,
+                        Action = () => appManager.ModuleManager.Start()
                     }
                 }
             },
@@ -59,7 +69,7 @@ public partial class ControlsContainer : Container
                 Spacing = new Vector2(10, 0),
                 Children = new Drawable[]
                 {
-                    new IconButton
+                    stopButton = new IconButton
                     {
                         Anchor = Anchor.CentreRight,
                         Origin = Anchor.CentreRight,
@@ -68,9 +78,10 @@ public partial class ControlsContainer : Container
                         BackgroundColour = Colours.RED0,
                         Icon = FontAwesome.Solid.Stop,
                         Masking = true,
-                        CornerRadius = 10
+                        CornerRadius = 10,
+                        Action = () => appManager.ModuleManager.Stop()
                     },
-                    new IconButton
+                    restartButton = new IconButton
                     {
                         Anchor = Anchor.CentreRight,
                         Origin = Anchor.CentreRight,
@@ -84,5 +95,31 @@ public partial class ControlsContainer : Container
                 }
             }
         };
+
+        appManager.ModuleManager.State.BindValueChanged(onModuleManagerStateChange);
+    }
+
+    private void onModuleManagerStateChange(ValueChangedEvent<ModuleManagerState> e)
+    {
+        switch (e.NewValue)
+        {
+            case ModuleManagerState.Starting:
+                startButton.Enabled.Value = false;
+                break;
+
+            case ModuleManagerState.Started:
+                restartButton.Enabled.Value = true;
+                stopButton.Enabled.Value = true;
+                break;
+
+            case ModuleManagerState.Stopping:
+                restartButton.Enabled.Value = true;
+                stopButton.Enabled.Value = true;
+                break;
+
+            case ModuleManagerState.Stopped:
+                startButton.Enabled.Value = true;
+                break;
+        }
     }
 }

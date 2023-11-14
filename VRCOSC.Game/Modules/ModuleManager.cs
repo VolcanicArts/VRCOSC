@@ -7,10 +7,11 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
-using System.Threading.Tasks;
+using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
+using osu.Framework.Timing;
 using Module = VRCOSC.Game.Modules.SDK.Module;
 
 namespace VRCOSC.Game.Modules;
@@ -18,6 +19,7 @@ namespace VRCOSC.Game.Modules;
 public class ModuleManager
 {
     private readonly Storage storage;
+    private readonly IClock clock;
 
     private AssemblyLoadContext? localModulesContext;
     private List<AssemblyLoadContext>? remoteModulesContexts;
@@ -25,37 +27,55 @@ public class ModuleManager
     public readonly Dictionary<Assembly, List<Module>> LocalModules = new();
     public readonly Dictionary<Assembly, List<Module>> RemoteModules = new();
 
-    public ModuleManager(Storage storage)
+    public readonly Bindable<ModuleManagerState> State = new(ModuleManagerState.Stopped);
+
+    private IReadOnlyList<Module> modules => LocalModules.Values.SelectMany(moduleList => moduleList).Concat(RemoteModules.Values.SelectMany(moduleList => moduleList)).ToList();
+
+    private readonly List<Module> runningModuleCache = new();
+
+    public ModuleManager(Storage storage, IClock clock)
     {
         this.storage = storage;
+        this.clock = clock;
     }
 
     #region Runtime
 
     public async void Start()
     {
-        await startLocalModules();
-        await startRemoteModules();
+        State.Value = ModuleManagerState.Starting;
+
+        var enabledModules = modules.Where(module => module.Enabled.Value).ToList();
+
+        if (!enabledModules.Any())
+        {
+            // TODO: Handle this
+            State.Value = ModuleManagerState.Stopped;
+        }
+
+        foreach (var module in enabledModules) await module.Start();
+
+        runningModuleCache.AddRange(enabledModules);
+
+        State.Value = ModuleManagerState.Started;
     }
 
-    private async Task startLocalModules()
+    public async void Stop()
     {
-        Logger.Log("Starting local modules");
+        State.Value = ModuleManagerState.Stopping;
 
-        foreach (var localModule in LocalModules.Values.SelectMany(localModuleList => localModuleList))
-        {
-            await localModule.Start();
-        }
+        runningModuleCache.ForEach(module => module.Stop());
+        runningModuleCache.Clear();
+
+        State.Value = ModuleManagerState.Stopped;
     }
 
-    private async Task startRemoteModules()
+    public void FrameworkUpdate()
     {
-        Logger.Log("Starting remote modules");
+        if (State.Value != ModuleManagerState.Started) return;
 
-        foreach (var remoteModule in RemoteModules.Values.SelectMany(remoteModuleList => remoteModuleList))
-        {
-            await remoteModule.Start();
-        }
+        LocalModules.Values.ForEach(moduleList => moduleList.ForEach(module => module.FrameworkUpdate()));
+        RemoteModules.Values.ForEach(moduleList => moduleList.ForEach(module => module.FrameworkUpdate()));
     }
 
     #endregion
@@ -86,6 +106,9 @@ public class ModuleManager
     {
         loadLocalModules();
         loadRemoteModules();
+
+        LocalModules.Values.ForEach(moduleList => moduleList.ForEach(module => module.InjectDependencies(clock)));
+        RemoteModules.Values.ForEach(moduleList => moduleList.ForEach(module => module.InjectDependencies(clock)));
     }
 
     private void loadLocalModules()
@@ -179,4 +202,12 @@ public class ModuleManager
     }
 
     #endregion
+}
+
+public enum ModuleManagerState
+{
+    Starting,
+    Started,
+    Stopping,
+    Stopped
 }

@@ -51,7 +51,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         LoadingScreen.Description.Value = "Sit tight. We're getting things ready for you!";
 
         LoadingScreen.Action.Value = "Loading managers";
-        appManager.Initialise(storage);
+        appManager.Initialise(storage, Clock);
 
         LoadingScreen.Action.Value = "Loading remote modules";
 
@@ -93,6 +93,8 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
     protected override void Update()
     {
+        appManager.FrameworkUpdate();
+
         if (!startInTrayComplete) obtainWindowHandle();
 
         if (host.Window.WindowState == WindowState.Minimised || inTray)

@@ -12,13 +12,17 @@ public class TestModule : Module
 {
     protected override Task OnModuleStart()
     {
-        Console.WriteLine("I'm started!");
         return Task.CompletedTask;
+    }
+
+    [ModuleUpdate(ModuleUpdateMode.Custom, true, 500)]
+    private void onModuleUpdate()
+    {
+        Log("This is a test");
     }
 
     protected override Task OnModuleStop()
     {
-        Console.WriteLine("I'm stopped");
         return Task.CompletedTask;
     }
 }

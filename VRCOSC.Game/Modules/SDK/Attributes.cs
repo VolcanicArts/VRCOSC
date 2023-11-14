@@ -115,11 +115,6 @@ public class ModulePersistentAttribute : Attribute
 public enum ModuleUpdateMode
 {
     /// <summary>
-    /// Updates before the ChatBox is evaluated and text is sent. This is useful for setting ChatBox variables and updating states/events
-    /// </summary>
-    ChatBox,
-
-    /// <summary>
     /// A custom update rate as marked by <see cref="ModuleUpdateAttribute.DeltaMilliseconds"/>
     /// </summary>
     Custom
