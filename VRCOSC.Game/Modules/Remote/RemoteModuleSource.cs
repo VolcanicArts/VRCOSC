@@ -46,7 +46,9 @@ public class RemoteModuleSource
     /// The identifier of this remote module source.
     /// Used for the storage of the installed files.
     /// </summary>
-    public string Identifier => $"{RepositoryOwner}#{RepositoryName}";
+    public string? PackageID => latestReleaseDefinition?.ID;
+
+    public string InternalReference => $"{RepositoryOwner}#{RepositoryName}";
 
     /// <summary>
     /// The display name if defined in <see cref="latestReleaseDefinition"/> else the <see cref="RepositoryName"/>
@@ -88,9 +90,9 @@ public class RemoteModuleSource
         return new SemVersion(version.Major, version.Minor, version.Build);
     }
 
-    private Storage getLocalStorage() => storage.GetStorageForDirectory(Identifier);
+    private Storage getLocalStorage() => storage.GetStorageForDirectory(PackageID);
 
-    private void log(string message) => Logger.Log($"[{Identifier}]: {message}");
+    private void log(string message) => Logger.Log($"[{InternalReference}]: {message}");
 
     public bool IsIncompatible() => RemoteState is RemoteModuleSourceRemoteState.InvalidDefinitionFile or RemoteModuleSourceRemoteState.MissingDefinitionFile or RemoteModuleSourceRemoteState.SDKIncompatible;
     public bool IsUnavailable() => RemoteState is RemoteModuleSourceRemoteState.MissingLatestRelease or RemoteModuleSourceRemoteState.Unknown;
@@ -103,9 +105,9 @@ public class RemoteModuleSource
     /// </summary>
     public async Task Install()
     {
-        Progress?.Invoke(new LoadingInfo($"Installing {Identifier}", 0f, false));
+        Progress?.Invoke(new LoadingInfo($"Installing {InternalReference}", 0f, false));
 
-        log($"Attempting to install repo {Identifier}");
+        log($"Attempting to install repo {InternalReference}");
 
         if (RemoteState != RemoteModuleSourceRemoteState.Valid)
             throw new InvalidOperationException($"Cannot install when remote state is not {RemoteModuleSourceRemoteState.Valid}");
@@ -113,7 +115,7 @@ public class RemoteModuleSource
         Debug.Assert(LatestRelease is not null);
         Debug.Assert(latestReleaseDefinition is not null);
 
-        storage.DeleteDirectory(Identifier);
+        storage.DeleteDirectory(PackageID);
 
         try
         {
@@ -134,7 +136,9 @@ public class RemoteModuleSource
 
             var metadata = new MetadataFile
             {
-                InstalledVersion = LatestRelease.TagName
+                InstalledVersion = LatestRelease.TagName,
+                RepoOwner = RepositoryOwner,
+                RepoName = RepositoryName
             };
 
             Progress?.Invoke(new LoadingInfo("Writing metadata", 0f, false));
@@ -152,7 +156,7 @@ public class RemoteModuleSource
         }
         catch (Exception e)
         {
-            Logger.Error(e, $"Could not install repo {Identifier}");
+            Logger.Error(e, $"Could not install repo {InternalReference}");
         }
     }
 
@@ -162,13 +166,13 @@ public class RemoteModuleSource
 
         log("Attempting to uninstall");
 
-        if (!storage.ExistsDirectory(Identifier))
+        if (!storage.ExistsDirectory(PackageID))
         {
             log("Module is not installed. Skipping uninstallation");
             return;
         }
 
-        storage.DeleteDirectory(Identifier);
+        storage.DeleteDirectory(PackageID);
         log("Uninstall successful");
         UpdateInstallState();
 
@@ -210,7 +214,13 @@ public class RemoteModuleSource
 
         try
         {
-            if (!storage.ExistsDirectory(Identifier))
+            if (PackageID is null)
+            {
+                InstallState = RemoteModuleSourceInstallState.NotInstalled;
+                return;
+            }
+
+            if (!storage.ExistsDirectory(PackageID))
             {
                 InstallState = RemoteModuleSourceInstallState.NotInstalled;
                 return;
@@ -237,7 +247,7 @@ public class RemoteModuleSource
         }
         catch (Exception e)
         {
-            Logger.Error(e, $"Error when checking install state of repo {Identifier}");
+            Logger.Error(e, $"Error when checking install state of repo {InternalReference}");
             InstallState = RemoteModuleSourceInstallState.Unknown;
         }
         finally
@@ -295,7 +305,7 @@ public class RemoteModuleSource
             }
             catch (JsonException e)
             {
-                Logger.Error(e, $"Error when deserialising contents of vrcosc.json for repo {Identifier}");
+                Logger.Error(e, $"Error when deserialising contents of vrcosc.json for repo {InternalReference}");
                 RemoteState = RemoteModuleSourceRemoteState.InvalidDefinitionFile;
                 return;
             }
@@ -319,7 +329,7 @@ public class RemoteModuleSource
         }
         catch (Exception e)
         {
-            Logger.Error(e, $"Problem when checking latest release for repo {Identifier}");
+            Logger.Error(e, $"Problem when checking latest release for repo {InternalReference}");
             RemoteState = RemoteModuleSourceRemoteState.Unknown;
             LatestRelease = null;
             latestReleaseDefinition = null;

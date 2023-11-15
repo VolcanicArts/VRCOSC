@@ -7,6 +7,12 @@ namespace VRCOSC.Game.Modules.Remote;
 
 public class MetadataFile
 {
+    [JsonProperty("repo_owner")]
+    public string RepoOwner = null!;
+
+    [JsonProperty("repo_name")]
+    public string RepoName = null!;
+
     [JsonProperty("installed_version")]
     public string InstalledVersion = null!;
 }

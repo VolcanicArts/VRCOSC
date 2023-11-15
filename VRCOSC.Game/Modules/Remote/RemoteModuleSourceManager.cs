@@ -3,8 +3,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Octokit;
 using Octokit.Internal;
 using osu.Framework.Extensions.IEnumerableExtensions;
@@ -21,13 +23,11 @@ public class RemoteModuleSourceManager
     private readonly GitHubClient gitHubClient = new(new ProductHeaderValue("VRCOSC"), new InMemoryCredentialStore(new Credentials(github_token)));
     private readonly Storage storage;
 
-    private readonly Dictionary<string, RemoteModuleSource> sources = new()
+    public readonly List<RemoteModuleSource> Sources = new()
     {
-        { "VolcanicArts#VRCOSC-OfficialModules", new RemoteModuleSource("VolcanicArts", "VRCOSC-OfficialModules", RemoteModuleSourceType.Official) },
-        { "DJDavid98#VRCOSC-BluetoothHeartrate", new RemoteModuleSource("DJDavid98", "VRCOSC-BluetoothHeartrate", RemoteModuleSourceType.Curated) }
+        new RemoteModuleSource("VolcanicArts", "VRCOSC-OfficialModules", RemoteModuleSourceType.Official),
+        new RemoteModuleSource("DJDavid98", "VRCOSC-BluetoothHeartrate", RemoteModuleSourceType.Curated)
     };
-
-    public IReadOnlyList<RemoteModuleSource> Sources => sources.Values.ToList();
 
     /// <summary>
     /// A callback for any actions this <see cref="RemoteModuleSourceManager"/> may be executing
@@ -46,12 +46,12 @@ public class RemoteModuleSourceManager
     {
         Progress?.Invoke(new LoadingInfo("Beginning refresh", 0f, false));
 
-        var divisor = 1f / sources.Count;
+        var divisor = 1f / Sources.Count;
         var currentProgress = 0f;
 
         foreach (var remoteModuleSource in Sources)
         {
-            Progress?.Invoke(new LoadingInfo($"Refreshing {remoteModuleSource.Identifier}", currentProgress, false));
+            Progress?.Invoke(new LoadingInfo($"Refreshing {remoteModuleSource.InternalReference}", currentProgress, false));
             await remoteModuleSource.UpdateRemoteState(false);
             currentProgress += divisor;
         }
@@ -65,35 +65,42 @@ public class RemoteModuleSourceManager
     public async Task Load()
     {
         Progress?.Invoke(new LoadingInfo("Loading remote modules", 0f, false));
-        loadInstalledModules();
+        await loadInstalledModules();
         await loadCommunityModuleSources();
 
-        var divisor = 1f / sources.Count;
+        var divisor = 1f / Sources.Count;
         var currentProgress = 0f;
 
-        foreach (var remoteModuleSource in sources.Values)
+        foreach (var remoteModuleSource in Sources)
         {
             remoteModuleSource.InjectDependencies(storage, gitHubClient);
             await remoteModuleSource.UpdateStates();
 
             currentProgress += divisor;
-            Progress?.Invoke(new LoadingInfo($"Loading {remoteModuleSource.Identifier}", currentProgress, false));
+            Progress?.Invoke(new LoadingInfo($"Loading {remoteModuleSource.InternalReference}", currentProgress, false));
         }
 
-        var installedWithNoRelease = sources.Values.Where(remoteModuleSource => remoteModuleSource is { RemoteState: RemoteModuleSourceRemoteState.MissingLatestRelease, InstallState: RemoteModuleSourceInstallState.Valid });
-        var installedWithNoRepo = sources.Values.Where(remoteModuleSource => remoteModuleSource is { RemoteState: RemoteModuleSourceRemoteState.Unknown, InstallState: RemoteModuleSourceInstallState.Valid });
+        var installedWithNoRelease = Sources.Where(remoteModuleSource => remoteModuleSource is { RemoteState: RemoteModuleSourceRemoteState.MissingLatestRelease, InstallState: RemoteModuleSourceInstallState.Valid });
+        var installedWithNoRepo = Sources.Where(remoteModuleSource => remoteModuleSource is { RemoteState: RemoteModuleSourceRemoteState.Unknown, InstallState: RemoteModuleSourceInstallState.Valid });
         Progress?.Invoke(new LoadingInfo("Finished!", 1f, true));
     }
 
-    private void loadInstalledModules()
+    private async Task loadInstalledModules()
     {
-        storage.GetDirectories(string.Empty).ForEach(directoryName =>
+        var directoryPath = storage.GetFullPath(string.Empty);
+
+        foreach (var repoDirectoryPath in Directory.GetDirectories(directoryPath))
         {
-            var repoOwner = directoryName.Split('#', 2)[0];
-            var repoName = directoryName.Split('#', 2)[1];
-            var remoteModuleSource = new RemoteModuleSource(repoOwner, repoName, RemoteModuleSourceType.Community);
-            sources.TryAdd(remoteModuleSource.Identifier, remoteModuleSource);
-        });
+            var metadataFile = JsonConvert.DeserializeObject<MetadataFile>(await File.ReadAllTextAsync(Path.Join(repoDirectoryPath, "metadata.json")));
+            if (metadataFile is null) continue;
+
+            var remoteModuleSource = new RemoteModuleSource(metadataFile.RepoOwner, metadataFile.RepoName, RemoteModuleSourceType.Community);
+
+            if (Sources.All(comparedSource => comparedSource.InternalReference != remoteModuleSource.InternalReference))
+            {
+                Sources.Add(remoteModuleSource);
+            }
+        }
     }
 
     private async Task loadCommunityModuleSources()
@@ -110,7 +117,11 @@ public class RemoteModuleSourceManager
         repos.Items.Where(repo => repo.Name != "VRCOSC").ForEach(repo =>
         {
             var remoteModuleSource = new RemoteModuleSource(repo.Owner.HtmlUrl.Split('/').Last(), repo.Name, RemoteModuleSourceType.Community);
-            sources.TryAdd(remoteModuleSource.Identifier, remoteModuleSource);
+
+            if (Sources.All(comparedSource => comparedSource.InternalReference != remoteModuleSource.InternalReference))
+            {
+                Sources.Add(remoteModuleSource);
+            }
         });
     }
 }

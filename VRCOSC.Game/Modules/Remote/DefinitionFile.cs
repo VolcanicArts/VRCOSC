@@ -11,6 +11,12 @@ namespace VRCOSC.Game.Modules.Remote;
 public class DefinitionFile
 {
     /// <summary>
+    /// The ID of this package
+    /// </summary>
+    [JsonProperty("id")]
+    public string ID = null!;
+
+    /// <summary>
     /// A display name for the repo screen
     /// </summary>
     [JsonProperty("display_name")]
