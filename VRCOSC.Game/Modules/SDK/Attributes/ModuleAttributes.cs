@@ -103,7 +103,7 @@ public abstract class ModuleSetting
     /// <summary>
     /// Retrieves the unknown raw typed value for this <see cref="ModuleSetting"/>.
     /// </summary>
-    internal abstract object? GetRawValue();
+    internal abstract object GetRawValue();
 
     protected ModuleSetting(ModuleSettingMetadata metadata)
     {
@@ -123,7 +123,7 @@ public abstract class ValueModuleSetting<T> : ModuleSetting
     internal override bool IsDefault() => Attribute.IsDefault;
     internal override void SetDefault() => Attribute.SetDefault();
 
-    internal override object? GetRawValue() => Attribute.Value;
+    internal override object GetRawValue() => Attribute.Value!;
 
     protected ValueModuleSetting(ModuleSettingMetadata metadata, T defaultValue)
         : base(metadata)

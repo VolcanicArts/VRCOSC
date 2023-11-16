@@ -31,8 +31,10 @@ public class Module
     internal string ShortDescription => GetType().GetCustomAttribute<ModuleDescriptionAttribute>()?.ShortDescription ?? string.Empty;
     internal ModuleType Type => GetType().GetCustomAttribute<ModuleTypeAttribute>()?.Type ?? ModuleType.Generic;
 
-    private readonly Dictionary<Enum, ModuleParameter> moduleParameters = new();
-    private readonly Dictionary<Enum, ModuleSetting> moduleSettings = new();
+    internal readonly Dictionary<string, ModuleParameter> Parameters = new();
+    internal readonly Dictionary<string, ModuleSetting> Settings = new();
+
+    internal string SerialisedName => GetType().Name.ToLowerInvariant();
 
     protected Module()
     {
@@ -54,7 +56,7 @@ public class Module
     {
         OnLoad();
 
-        moduleSettings.Values.ForEach(moduleSetting => moduleSetting.Load());
+        Settings.Values.ForEach(moduleSetting => moduleSetting.Load());
 
         OnPostLoad();
     }
@@ -138,7 +140,7 @@ public class Module
     /// <param name="mode">Whether the parameter can read to or write from VRChat</param>
     protected void RegisterParameter<T>(Enum lookup, string defaultName, string title, string description, ParameterMode mode) where T : struct
     {
-        moduleParameters.Add(lookup, new ModuleParameter(defaultName, title, description, mode, typeof(T)));
+        Parameters.Add(lookup.ToString(), new ModuleParameter(defaultName, title, description, mode, typeof(T)));
     }
 
     /// <summary>
@@ -158,37 +160,37 @@ public class Module
     protected void CreateCustomSetting(Enum lookup, ModuleSetting moduleSetting)
     {
         validateSettingsLookup(lookup);
-        moduleSettings.Add(lookup, moduleSetting);
+        Settings.Add(lookup.ToString(), moduleSetting);
     }
 
     protected void CreateToggle(Enum lookup, string title, string description, bool required, bool defaultValue)
     {
         validateSettingsLookup(lookup);
-        moduleSettings.Add(lookup, new BoolModuleSetting(new ModuleSettingMetadata(title, description, typeof(DrawableBoolModuleSetting), required), defaultValue));
+        Settings.Add(lookup.ToString(), new BoolModuleSetting(new ModuleSettingMetadata(title, description, typeof(DrawableBoolModuleSetting), required), defaultValue));
     }
 
     protected void CreateTextBox(Enum lookup, string title, string description, bool required, string defaultValue)
     {
         validateSettingsLookup(lookup);
-        moduleSettings.Add(lookup, new StringModuleSetting(new ModuleSettingMetadata(title, description, typeof(DrawableStringModuleSetting), required), defaultValue));
+        Settings.Add(lookup.ToString(), new StringModuleSetting(new ModuleSettingMetadata(title, description, typeof(DrawableStringModuleSetting), required), defaultValue));
     }
 
     protected void CreateDropdown<T>(Enum lookup, string title, string description, bool required, T defaultValue) where T : Enum
     {
         validateSettingsLookup(lookup);
-        moduleSettings.Add(lookup, new EnumModuleSetting<T>(new ModuleSettingMetadata(title, description, typeof(DrawableEnumModuleSetting<T>), required), defaultValue));
+        Settings.Add(lookup.ToString(), new EnumModuleSetting<T>(new ModuleSettingMetadata(title, description, typeof(DrawableEnumModuleSetting<T>), required), defaultValue));
     }
 
     protected void CreateDropdown(Enum lookup, string title, string description, bool required, IEnumerable<string> dropdownValues, int defaultSelection)
     {
         validateSettingsLookup(lookup);
-        moduleSettings.Add(lookup, new StringDropdownModuleSetting(new ModuleSettingMetadata(title, description, typeof(DrawableStringDropdownModuleSetting), required), dropdownValues, defaultSelection));
+        Settings.Add(lookup.ToString(), new StringDropdownModuleSetting(new ModuleSettingMetadata(title, description, typeof(DrawableStringDropdownModuleSetting), required), dropdownValues, defaultSelection));
     }
 
     protected void CreateStringList(Enum lookup, string title, string description, bool required, IEnumerable<string> values)
     {
         validateSettingsLookup(lookup);
-        moduleSettings.Add(lookup, new ListStringModuleSetting(new ModuleSettingMetadata(title, description, typeof(DrawableListStringModuleSetting), required), values));
+        Settings.Add(lookup.ToString(), new ListStringModuleSetting(new ModuleSettingMetadata(title, description, typeof(DrawableListStringModuleSetting), required), values));
     }
 
     protected virtual void OnLoad()
@@ -201,7 +203,7 @@ public class Module
 
     private void validateSettingsLookup(Enum lookup)
     {
-        if (!moduleSettings.ContainsKey(lookup)) return;
+        if (!Settings.ContainsKey(lookup.ToString())) return;
 
         PushException(new InvalidOperationException("Cannot add multiple of the same key for settings"));
     }
@@ -213,15 +215,14 @@ public class Module
     /// <param name="lookup">The lookup of the setting</param>
     /// <typeparam name="T">The container type of the setting</typeparam>
     /// <returns>The container if successful, otherwise pushes an exception and returns default</returns>
-    protected T? GetSettingContainer<T>(Enum lookup) where T : ModuleSetting
-    {
-        if (!moduleSettings.ContainsKey(lookup))
-        {
-            PushException(new InvalidOperationException($"Cannot access setting of lookup {lookup} as it has not been created"));
-            return default;
-        }
+    protected T? GetSettingContainer<T>(Enum lookup) where T : ModuleSetting => GetSettingContainer<T>(lookup.ToString());
 
-        return (T)moduleSettings[lookup];
+    internal T? GetSettingContainer<T>(string lookup) where T : ModuleSetting
+    {
+        if (Settings.TryGetValue(lookup, out var setting)) return (T)setting;
+
+        PushException(new InvalidOperationException($"Cannot access setting of lookup {lookup} as it has not been created"));
+        return default;
     }
 
     /// <summary>
@@ -232,13 +233,13 @@ public class Module
     /// <returns>The value if successful, otherwise pushes an exception and returns default</returns>
     protected T? GetSetting<T>(Enum lookup)
     {
-        if (!moduleSettings.ContainsKey(lookup))
+        if (!Settings.ContainsKey(lookup.ToString()))
         {
             PushException(new InvalidOperationException($"Cannot access setting of lookup {lookup} as it has not been created"));
             return default;
         }
 
-        if (moduleSettings[lookup].GetValue<T>(out var value)) return value;
+        if (Settings[lookup.ToString()].GetValue<T>(out var value)) return value;
 
         PushException(new InvalidOperationException($"Could not get setting of lookup {lookup} and of type {typeof(T)}"));
         return default;
@@ -271,7 +272,7 @@ public class Module
     /// <param name="value">The value to set the parameter to</param>
     protected void SendParameter(Enum lookup, object value)
     {
-        if (!moduleParameters.TryGetValue(lookup, out var moduleParameter))
+        if (!Parameters.TryGetValue(lookup.ToString(), out var moduleParameter))
         {
             PushException(new InvalidOperationException($"Lookup `{lookup}` has not been registered. Please register it using `RegisterParameter<T>(Enum,object)`"));
             return;
