@@ -15,6 +15,9 @@ namespace VRCOSC.Game.Screens.Main.Modules;
 
 public partial class DrawableModule : Container
 {
+    [Resolved]
+    private ModulesTab modulesTab { get; set; } = null!;
+
     private readonly Module module;
     private readonly bool even;
 
@@ -105,7 +108,23 @@ public partial class DrawableModule : Container
                 Anchor = Anchor.CentreRight,
                 Origin = Anchor.CentreRight,
                 RelativeSizeAxes = Axes.Y,
-                AutoSizeAxes = Axes.X
+                AutoSizeAxes = Axes.X,
+                Padding = new MarginPadding(7),
+                Children = new Drawable[]
+                {
+                    new IconButton
+                    {
+                        Anchor = Anchor.CentreRight,
+                        Origin = Anchor.CentreRight,
+                        Size = new Vector2(36),
+                        Icon = FontAwesome.Solid.Cog,
+                        Masking = true,
+                        CornerRadius = 5,
+                        IconSize = 23,
+                        BackgroundColour = Colours.GRAY6,
+                        Action = () => modulesTab.ShowSettings(module)
+                    }
+                }
             }
         };
     }

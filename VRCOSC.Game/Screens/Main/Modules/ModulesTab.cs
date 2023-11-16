@@ -4,15 +4,19 @@
 using System.Linq;
 using System.Reflection;
 using osu.Framework.Allocation;
+using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osuTK;
 using VRCOSC.Game.Graphics;
+using VRCOSC.Game.Screens.Main.Modules.Settings;
+using Module = VRCOSC.Game.Modules.SDK.Module;
 
 namespace VRCOSC.Game.Screens.Main.Modules;
 
+[Cached]
 public partial class ModulesTab : Container
 {
     [Resolved]
@@ -21,8 +25,11 @@ public partial class ModulesTab : Container
     [Resolved]
     private AppManager appManager { get; set; } = null!;
 
+    private BufferedContainer bufferedContainer = null!;
     private FillFlowContainer assemblyFlowContainer = null!;
     private TextFlowContainer noModulesText = null!;
+    private Box backgroundDarkener = null!;
+    private ModuleSettingsContainer moduleSettingsContainer = null!;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -33,45 +40,82 @@ public partial class ModulesTab : Container
 
         Children = new Drawable[]
         {
-            new Box
+            bufferedContainer = new BufferedContainer
             {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
-                Colour = Colours.GRAY1
-            },
-            new BasicScrollContainer
-            {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                RelativeSizeAxes = Axes.Both,
-                ClampExtension = 0,
-                ScrollContent =
+                BackgroundColour = Colours.BLACK,
+                Children = new Drawable[]
                 {
-                    Child = assemblyFlowContainer = new FillFlowContainer
+                    new Box
                     {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        RelativeSizeAxes = Axes.X,
-                        AutoSizeAxes = Axes.Y,
-                        Direction = FillDirection.Vertical,
-                        Padding = new MarginPadding(10),
-                        Spacing = new Vector2(0, 10)
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.Centre,
+                        RelativeSizeAxes = Axes.Both,
+                        Colour = Colours.GRAY1
+                    },
+                    new BasicScrollContainer
+                    {
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.Centre,
+                        RelativeSizeAxes = Axes.Both,
+                        ClampExtension = 0,
+                        ScrollContent =
+                        {
+                            Child = assemblyFlowContainer = new FillFlowContainer
+                            {
+                                Anchor = Anchor.TopCentre,
+                                Origin = Anchor.TopCentre,
+                                RelativeSizeAxes = Axes.X,
+                                AutoSizeAxes = Axes.Y,
+                                Direction = FillDirection.Vertical,
+                                Padding = new MarginPadding(10),
+                                Spacing = new Vector2(0, 10)
+                            }
+                        }
+                    },
+                    noModulesText = new TextFlowContainer(t => { t.Font = Fonts.REGULAR.With(size: 40); })
+                    {
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.Centre,
+                        TextAnchor = Anchor.Centre,
+                        RelativeSizeAxes = Axes.Both,
+                        Text = "You have no modules!\nInstall some using the package manager"
                     }
                 }
             },
-            noModulesText = new TextFlowContainer(t => { t.Font = Fonts.REGULAR.With(size: 40); })
+            backgroundDarkener = new Box
+            {
+                RelativeSizeAxes = Axes.Both,
+                Colour = Colours.Transparent
+            },
+            moduleSettingsContainer = new ModuleSettingsContainer
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
-                TextAnchor = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
-                Text = "You have no modules!\nInstall some using the package manager"
+                Padding = new MarginPadding(20)
             }
         };
 
         game.OnListingRefresh += refresh;
         refresh();
+
+        setupBlur();
+    }
+
+    public void ShowSettings(Module module)
+    {
+        moduleSettingsContainer.SetModule(module);
+        moduleSettingsContainer.Show();
+    }
+
+    private void setupBlur()
+    {
+        moduleSettingsContainer.State.BindValueChanged(e =>
+        {
+            bufferedContainer.TransformTo(nameof(BufferedContainer.BlurSigma), e.NewValue == Visibility.Visible ? new Vector2(5) : new Vector2(0), 250, Easing.OutCubic);
+            backgroundDarkener.FadeColour(e.NewValue == Visibility.Visible ? Colours.BLACK.Opacity(0.25f) : Colours.Transparent, 250, Easing.OutCubic);
+        });
     }
 
     private void refresh()

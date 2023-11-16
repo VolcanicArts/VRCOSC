@@ -29,6 +29,8 @@ public partial class IconButton : ClickableContainer
     [BackgroundDependencyLoader]
     private void load()
     {
+        Enabled.Value = true;
+
         InternalChild = new Container
         {
             Anchor = Anchor.Centre,
