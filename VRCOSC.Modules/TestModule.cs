@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.Game.Modules.SDK;
+using VRCOSC.Game.Modules.SDK.Attributes;
 using VRCOSC.Game.Modules.SDK.Parameters;
 
 namespace VRCOSC.Modules;
@@ -21,6 +22,12 @@ public class TestModule : Module
         CreateStringList(TestSetting.TestList, "Test List", "This is a test list", new[] { "This", "Is", "A", "Test" });
     }
 
+    protected override void OnPostLoad()
+    {
+        GetSettingContainer<BindableBoolModuleAttribute>(TestSetting.Test)!.Attribute.BindValueChanged(_ => { GetSettingContainer<BindableListBindableStringModuleAttribute>(TestSetting.TestList)!.Attribute[1].Value = "Is Not"; });
+        GetSettingContainer<BindableBoolModuleAttribute>(TestSetting.Test)!.Attribute.Value = true;
+    }
+
     protected override Task OnModuleStart()
     {
         foo = 0f;
@@ -35,7 +42,7 @@ public class TestModule : Module
         SendParameter(TestParameter.Test, foo += 0.01f);
 
         Log($"This setting is {GetSetting<bool>(TestSetting.Test)}");
-        Log($"The value in index 1 is {GetSetting<IEnumerable<string>>(TestSetting.TestList)!.First()}");
+        Log($"The value in index 1 is {GetSetting<List<string>>(TestSetting.TestList)![1]}");
     }
 
     protected override Task OnModuleStop()

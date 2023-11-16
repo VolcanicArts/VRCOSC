@@ -55,6 +55,8 @@ public class Module
         OnLoad();
 
         moduleSettings.Values.ForEach(moduleSetting => moduleSetting.Load());
+
+        OnPostLoad();
     }
 
     internal void FrameworkUpdate()
@@ -142,7 +144,7 @@ public class Module
     protected void CreateToggle(Enum lookup, string title, string description, bool defaultValue)
     {
         validateSettingsLookup(lookup);
-        var moduleAttribute = new BindableBoolModuleAttribute(title, description, typeof(DrawableBindableBoolModuleAttribute), defaultValue);
+        moduleSettings.Add(lookup, new BindableBoolModuleAttribute(title, description, typeof(DrawableBindableBoolModuleAttribute), defaultValue));
     }
 
     protected void CreateTextBox()
@@ -167,6 +169,10 @@ public class Module
     {
     }
 
+    protected virtual void OnPostLoad()
+    {
+    }
+
     private void validateSettingsLookup(Enum lookup)
     {
         if (!moduleSettings.ContainsKey(lookup)) return;
@@ -175,11 +181,29 @@ public class Module
     }
 
     /// <summary>
+    /// Retrieves the container of the setting using the provided lookup. This allows for creating more complex UI callback behaviour.
+    /// This is best used inside of <see cref="OnPostLoad"/>
+    /// </summary>
+    /// <param name="lookup">The lookup of the setting</param>
+    /// <typeparam name="T">The container type of the setting</typeparam>
+    /// <returns>The container if successful, otherwise pushes an exception and returns default</returns>
+    protected T? GetSettingContainer<T>(Enum lookup) where T : ModuleAttribute
+    {
+        if (!moduleSettings.ContainsKey(lookup))
+        {
+            PushException(new InvalidOperationException($"Cannot access setting of lookup {lookup} as it has not been created"));
+            return default;
+        }
+
+        return (T)moduleSettings[lookup];
+    }
+
+    /// <summary>
     /// Retrieves a setting using the provided lookup
     /// </summary>
     /// <param name="lookup">The lookup of the setting</param>
     /// <typeparam name="T">The value type of the setting</typeparam>
-    /// <returns>The value if successful, otherwise pushes an exception if failed and returns default</returns>
+    /// <returns>The value if successful, otherwise pushes an exception and returns default</returns>
     protected T? GetSetting<T>(Enum lookup)
     {
         if (!moduleSettings.ContainsKey(lookup))
