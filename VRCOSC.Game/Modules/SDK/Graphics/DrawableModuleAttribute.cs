@@ -6,16 +6,28 @@ using VRCOSC.Game.Modules.SDK.Attributes;
 
 namespace VRCOSC.Game.Modules.SDK.Graphics;
 
-public partial class DrawableModuleAttribute : Container
+public abstract partial class DrawableModuleAttribute<T> : Container where T : ModuleAttribute
 {
-}
+    protected T ModuleAttribute;
 
-public partial class DrawableModuleAttribute<T> : DrawableModuleAttribute where T : ModuleAttribute
-{
-    protected readonly T ModuleAttribute;
-
-    public DrawableModuleAttribute(T moduleAttribute)
+    protected DrawableModuleAttribute(T moduleAttribute)
     {
         ModuleAttribute = moduleAttribute;
+    }
+}
+
+public abstract partial class DrawableValueModuleAttribute<T> : DrawableModuleAttribute<T> where T : ModuleAttribute
+{
+    protected DrawableValueModuleAttribute(T moduleAttribute)
+        : base(moduleAttribute)
+    {
+    }
+}
+
+public abstract partial class DrawableListModuleAttribute<T> : DrawableModuleAttribute<T> where T : ModuleAttribute
+{
+    protected DrawableListModuleAttribute(T moduleAttribute)
+        : base(moduleAttribute)
+    {
     }
 }

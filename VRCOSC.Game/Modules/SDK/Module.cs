@@ -144,7 +144,7 @@ public class Module
     protected void CreateToggle(Enum lookup, string title, string description, bool defaultValue)
     {
         validateSettingsLookup(lookup);
-        moduleSettings.Add(lookup, new BindableBoolModuleAttribute(title, description, typeof(DrawableBindableBoolModuleAttribute), defaultValue));
+        moduleSettings.Add(lookup, new BoolModuleAttribute(title, description, typeof(DrawableBoolModuleAttribute), defaultValue));
     }
 
     protected void CreateTextBox()
@@ -162,7 +162,7 @@ public class Module
     protected void CreateStringList(Enum lookup, string title, string description, IEnumerable<string> values)
     {
         validateSettingsLookup(lookup);
-        moduleSettings.Add(lookup, new BindableListBindableStringModuleAttribute(title, description, typeof(DrawableBindableListBindableStringModuleAttribute), values));
+        moduleSettings.Add(lookup, new ListStringModuleAttribute(title, description, typeof(DrawableListStringModuleAttribute), values));
     }
 
     protected virtual void OnLoad()

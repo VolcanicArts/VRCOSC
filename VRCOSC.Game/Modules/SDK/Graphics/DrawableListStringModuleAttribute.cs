@@ -5,9 +5,9 @@ using VRCOSC.Game.Modules.SDK.Attributes;
 
 namespace VRCOSC.Game.Modules.SDK.Graphics;
 
-public partial class DrawableBindableBoolModuleAttribute : DrawableBindableModuleAttribute<BindableBoolModuleAttribute>
+public partial class DrawableListStringModuleAttribute : DrawableListModuleAttribute<ListStringModuleAttribute>
 {
-    public DrawableBindableBoolModuleAttribute(BindableBoolModuleAttribute moduleAttribute)
+    public DrawableListStringModuleAttribute(ListStringModuleAttribute moduleAttribute)
         : base(moduleAttribute)
     {
     }
