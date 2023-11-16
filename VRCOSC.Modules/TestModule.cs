@@ -16,6 +16,8 @@ public class TestModule : Module
     protected override void OnLoad()
     {
         RegisterParameter<float>(TestParameter.Test, "SomeTestParameter", "This is a test parameter", "This is a parameter description", ParameterMode.Write);
+
+        CreateToggle(TestSetting.Test, "Test", "This is a test setting", false);
     }
 
     protected override Task OnModuleStart()
@@ -30,12 +32,19 @@ public class TestModule : Module
     {
         SendParameter("SomeFloatParameter", foo += 0.01f);
         SendParameter(TestParameter.Test, foo += 0.01f);
+
+        Log($"This setting is {GetSetting<bool>(TestSetting.Test)}");
     }
 
     protected override Task OnModuleStop()
     {
         SendParameter("SomeParameter", false);
         return Task.CompletedTask;
+    }
+
+    private enum TestSetting
+    {
+        Test
     }
 
     private enum TestParameter

@@ -11,6 +11,7 @@ using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Logging;
 using osu.Framework.Threading;
 using osu.Framework.Timing;
+using VRCOSC.Game.Modules.SDK.Attributes;
 using VRCOSC.Game.Modules.SDK.Parameters;
 using VRCOSC.Game.OSC.VRChat;
 
@@ -29,7 +30,8 @@ public class Module
     internal string ShortDescription => GetType().GetCustomAttribute<ModuleDescriptionAttribute>()?.ShortDescription ?? string.Empty;
     internal ModuleType Type => GetType().GetCustomAttribute<ModuleTypeAttribute>()?.Type ?? ModuleType.Generic;
 
-    private Dictionary<Enum, ModuleParameter> moduleParameters = new();
+    private readonly Dictionary<Enum, ModuleParameter> moduleParameters = new();
+    private readonly Dictionary<Enum, ModuleAttribute> moduleSettings = new();
 
     protected Module()
     {
@@ -50,6 +52,8 @@ public class Module
     internal void Load()
     {
         OnLoad();
+
+        moduleSettings.Values.ForEach(moduleSetting => moduleSetting.Load());
     }
 
     internal void FrameworkUpdate()
@@ -134,8 +138,45 @@ public class Module
         moduleParameters.Add(lookup, new ModuleParameter(defaultName, title, description, mode, typeof(T)));
     }
 
+    protected void CreateToggle(Enum lookup, string name, string description, bool defaultValue)
+    {
+        if (moduleSettings.ContainsKey(lookup))
+        {
+            PushException(new InvalidOperationException("Cannot add multiple of the same key for settings"));
+            return;
+        }
+
+        moduleSettings.Add(lookup, new BindableBoolModuleAttribute(name, description, defaultValue));
+    }
+
+    protected void CreateTextBox()
+    {
+    }
+
+    protected void CreateDropdown<T>(Enum defaultValue) where T : Enum
+    {
+    }
+
+    protected void CreateDropdown(IEnumerable<string> values, int defaultSelection)
+    {
+    }
+
     protected virtual void OnLoad()
     {
+    }
+
+    /// <summary>
+    /// Retrieves a setting using the provided lookup
+    /// </summary>
+    /// <param name="lookup">The lookup of the setting</param>
+    /// <typeparam name="T">The value type of the setting</typeparam>
+    /// <returns>The value if successful, otherwise pushes an exception if failed and returns default</returns>
+    protected T? GetSetting<T>(Enum lookup)
+    {
+        if (moduleSettings[lookup].GetValue<T>(out var value)) return value;
+
+        PushException(new InvalidOperationException($"Could not get setting of lookup {lookup} and of type {typeof(T)}"));
+        return default;
     }
 
     /// <summary>
@@ -167,7 +208,7 @@ public class Module
     {
         if (!moduleParameters.TryGetValue(lookup, out var moduleParameter))
         {
-            PushException(new InvalidOperationException($"Lookup `{lookup}` has not been registered. Please register it using RegisterParameter<T>(Enum,object)"));
+            PushException(new InvalidOperationException($"Lookup `{lookup}` has not been registered. Please register it using `RegisterParameter<T>(Enum,object)`"));
             return;
         }
 
