@@ -12,6 +12,7 @@ using osu.Framework.Logging;
 using osu.Framework.Threading;
 using osu.Framework.Timing;
 using VRCOSC.Game.Modules.SDK.Attributes;
+using VRCOSC.Game.Modules.SDK.Graphics;
 using VRCOSC.Game.Modules.SDK.Parameters;
 using VRCOSC.Game.OSC.VRChat;
 
@@ -141,7 +142,7 @@ public class Module
     protected void CreateToggle(Enum lookup, string title, string description, bool defaultValue)
     {
         validateSettingsLookup(lookup);
-        moduleSettings.Add(lookup, new BindableBoolModuleAttribute(title, description, defaultValue));
+        var moduleAttribute = new BindableBoolModuleAttribute(title, description, typeof(DrawableBindableBoolModuleAttribute), defaultValue);
     }
 
     protected void CreateTextBox()
@@ -159,7 +160,7 @@ public class Module
     protected void CreateStringList(Enum lookup, string title, string description, IEnumerable<string> values)
     {
         validateSettingsLookup(lookup);
-        moduleSettings.Add(lookup, new BindableListBindableStringModuleAttribute(title, description, values));
+        moduleSettings.Add(lookup, new BindableListBindableStringModuleAttribute(title, description, typeof(DrawableBindableListBindableStringModuleAttribute), values));
     }
 
     protected virtual void OnLoad()

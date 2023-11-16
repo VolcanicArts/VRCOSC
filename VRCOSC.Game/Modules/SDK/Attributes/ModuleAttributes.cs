@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using osu.Framework.Bindables;
+using VRCOSC.Game.Modules.SDK.Graphics;
 
 namespace VRCOSC.Game.Modules.SDK.Attributes;
 
@@ -20,6 +21,13 @@ public abstract class ModuleAttribute
     /// The description of this <see cref="ModuleAttribute"/>
     /// </summary>
     internal readonly string Description;
+
+    private readonly Type drawableModuleAttributeType;
+
+    /// <summary>
+    /// The GUI component associated with this <see cref="ModuleAttribute"/>
+    /// </summary>
+    internal DrawableModuleAttribute GetDrawableModuleAttribute() => (DrawableModuleAttribute)Activator.CreateInstance(drawableModuleAttributeType, this)!;
 
     /// <summary>
     /// Initialises this <see cref="ModuleAttribute"/> before <see cref="Deserialise"/> is ran
@@ -68,10 +76,11 @@ public abstract class ModuleAttribute
     /// </summary>
     internal abstract object? GetRawValue();
 
-    protected ModuleAttribute(string title, string description)
+    protected ModuleAttribute(string title, string description, Type drawableModuleAttributeType)
     {
         Title = title;
         Description = description;
+        this.drawableModuleAttributeType = drawableModuleAttributeType;
     }
 }
 
@@ -89,8 +98,8 @@ public abstract class BindableModuleAttribute<T> : ModuleAttribute
 
     internal override object? GetRawValue() => Attribute.Value;
 
-    protected BindableModuleAttribute(string title, string description, T defaultValue)
-        : base(title, description)
+    protected BindableModuleAttribute(string title, string description, Type drawableModuleAttributeType, T defaultValue)
+        : base(title, description, drawableModuleAttributeType)
     {
         DefaultValue = defaultValue;
     }
@@ -108,8 +117,8 @@ public class BindableBoolModuleAttribute : BindableModuleAttribute<bool>
         return true;
     }
 
-    public BindableBoolModuleAttribute(string title, string description, bool defaultValue)
-        : base(title, description, defaultValue)
+    public BindableBoolModuleAttribute(string title, string description, Type drawableModuleAttributeType, bool defaultValue)
+        : base(title, description, drawableModuleAttributeType, defaultValue)
     {
     }
 }
@@ -126,8 +135,8 @@ public class BindableIntModuleAttribute : BindableModuleAttribute<int>
         return true;
     }
 
-    internal BindableIntModuleAttribute(string title, string description, int defaultValue)
-        : base(title, description, defaultValue)
+    internal BindableIntModuleAttribute(string title, string description, Type drawableModuleAttributeType, int defaultValue)
+        : base(title, description, drawableModuleAttributeType, defaultValue)
     {
     }
 }
@@ -144,8 +153,8 @@ public class BindableFloatModuleAttribute : BindableModuleAttribute<float>
         return true;
     }
 
-    internal BindableFloatModuleAttribute(string title, string description, float defaultValue)
-        : base(title, description, defaultValue)
+    internal BindableFloatModuleAttribute(string title, string description, Type drawableModuleAttributeType, float defaultValue)
+        : base(title, description, drawableModuleAttributeType, defaultValue)
     {
     }
 }
@@ -162,8 +171,8 @@ public class BindableStringModuleAttribute : BindableModuleAttribute<string>
         return true;
     }
 
-    internal BindableStringModuleAttribute(string title, string description, string defaultValue)
-        : base(title, description, defaultValue)
+    internal BindableStringModuleAttribute(string title, string description, Type drawableModuleAttributeType, string defaultValue)
+        : base(title, description, drawableModuleAttributeType, defaultValue)
     {
     }
 }
@@ -182,8 +191,8 @@ public class BindableEnumModuleAttribute<TEnum> : BindableModuleAttribute<TEnum>
 
     internal override object GetRawValue() => Convert.ToInt32(Attribute.Value);
 
-    internal BindableEnumModuleAttribute(string title, string description, TEnum defaultValue)
-        : base(title, description, defaultValue)
+    internal BindableEnumModuleAttribute(string title, string description, Type drawableModuleAttributeType, TEnum defaultValue)
+        : base(title, description, drawableModuleAttributeType, defaultValue)
     {
     }
 }
@@ -201,8 +210,8 @@ public class BindableRangedIntModuleAttribute : BindableIntModuleAttribute
         return baseBindable;
     }
 
-    internal BindableRangedIntModuleAttribute(string title, string description, int defaultValue, int minValue, int maxValue)
-        : base(title, description, defaultValue)
+    internal BindableRangedIntModuleAttribute(string title, string description, Type drawableModuleAttributeType, int defaultValue, int minValue, int maxValue)
+        : base(title, description, drawableModuleAttributeType, defaultValue)
     {
         this.minValue = minValue;
         this.maxValue = maxValue;
@@ -222,8 +231,8 @@ public class BindableRangedFloatModuleAttribute : BindableFloatModuleAttribute
         return baseBindable;
     }
 
-    internal BindableRangedFloatModuleAttribute(string title, string description, float defaultValue, float minValue, float maxValue)
-        : base(title, description, defaultValue)
+    internal BindableRangedFloatModuleAttribute(string title, string description, Type drawableModuleAttributeType, float defaultValue, float minValue, float maxValue)
+        : base(title, description, drawableModuleAttributeType, defaultValue)
     {
         this.minValue = minValue;
         this.maxValue = maxValue;
@@ -254,8 +263,8 @@ public abstract class BindableListModuleAttribute<T> : ModuleAttribute
         return true;
     }
 
-    protected BindableListModuleAttribute(string title, string description, IEnumerable<T> defaultValues)
-        : base(title, description)
+    protected BindableListModuleAttribute(string title, string description, Type drawableModuleAttributeType, IEnumerable<T> defaultValues)
+        : base(title, description, drawableModuleAttributeType)
     {
         DefaultValues = defaultValues;
     }
@@ -268,16 +277,16 @@ public abstract class BindableListBindableModuleAttribute<T> : BindableListModul
     protected override Bindable<T> CloneValue(Bindable<T> value) => value.GetUnboundCopy();
     protected override Bindable<T> ConstructValue(JToken token) => new(token.Value<T>()!);
 
-    protected BindableListBindableModuleAttribute(string title, string description, IEnumerable<Bindable<T>> defaultValues)
-        : base(title, description, defaultValues)
+    protected BindableListBindableModuleAttribute(string title, string description, Type drawableModuleAttributeType, IEnumerable<Bindable<T>> defaultValues)
+        : base(title, description, drawableModuleAttributeType, defaultValues)
     {
     }
 }
 
 public class BindableListBindableStringModuleAttribute : BindableListBindableModuleAttribute<string>
 {
-    public BindableListBindableStringModuleAttribute(string title, string description, IEnumerable<string> defaultValues)
-        : base(title, description, defaultValues.Select(value => new Bindable<string>(value)))
+    public BindableListBindableStringModuleAttribute(string title, string description, Type drawableModuleAttributeType, IEnumerable<string> defaultValues)
+        : base(title, description, drawableModuleAttributeType, defaultValues.Select(value => new Bindable<string>(value)))
     {
     }
 }
@@ -287,8 +296,8 @@ public class BindableListMutableKeyValuePairModuleAttribute : BindableListModule
     protected override MutableKeyValuePair CloneValue(MutableKeyValuePair value) => new(value);
     protected override MutableKeyValuePair ConstructValue(JToken token) => token.ToObject<MutableKeyValuePair>()!;
 
-    public BindableListMutableKeyValuePairModuleAttribute(string title, string description, IEnumerable<MutableKeyValuePair> defaultValues)
-        : base(title, description, defaultValues)
+    public BindableListMutableKeyValuePairModuleAttribute(string title, string description, Type drawableModuleAttributeType, IEnumerable<MutableKeyValuePair> defaultValues)
+        : base(title, description, drawableModuleAttributeType, defaultValues)
     {
     }
 }
