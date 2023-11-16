@@ -5,8 +5,11 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
+using osuTK;
 using VRCOSC.Game.Graphics;
+using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Modules.SDK;
 
 namespace VRCOSC.Game.Screens.Main.Modules.Settings;
@@ -25,13 +28,48 @@ public partial class ModuleSettingsContainer : VisibilityContainer
         {
             RelativeSizeAxes = Axes.Both,
             Masking = true,
-            CornerRadius = 5,
+            CornerRadius = 10,
+            BorderThickness = 3,
             Children = new Drawable[]
             {
                 new Box
                 {
                     RelativeSizeAxes = Axes.Both,
                     Colour = Colours.GRAY1
+                },
+                new Container
+                {
+                    Anchor = Anchor.TopCentre,
+                    Origin = Anchor.TopCentre,
+                    RelativeSizeAxes = Axes.X,
+                    AutoSizeAxes = Axes.Y,
+                    Padding = new MarginPadding(13),
+                    Children = new Drawable[]
+                    {
+                        new TextButton
+                        {
+                            Anchor = Anchor.TopLeft,
+                            Origin = Anchor.TopLeft,
+                            RelativeSizeAxes = Axes.Y,
+                            Width = 200,
+                            BackgroundColour = Colours.BLUE0,
+                            TextContent = "Reset To Default",
+                            TextFont = Fonts.REGULAR.With(size: 25),
+                            TextColour = Colours.WHITE0
+                        },
+                        new IconButton
+                        {
+                            Anchor = Anchor.TopRight,
+                            Origin = Anchor.TopRight,
+                            Size = new Vector2(36),
+                            CornerRadius = 5,
+                            Icon = FontAwesome.Solid.Undo,
+                            IconSize = 24,
+                            IconColour = Colours.WHITE0,
+                            BackgroundColour = Colours.RED0,
+                            Action = Hide
+                        }
+                    }
                 }
             }
         };

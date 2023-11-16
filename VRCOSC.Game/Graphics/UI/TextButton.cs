@@ -27,6 +27,8 @@ public partial class TextButton : ClickableContainer
     [BackgroundDependencyLoader]
     private void load()
     {
+        Enabled.Value = true;
+
         Child = new Container
         {
             Anchor = Anchor.Centre,
