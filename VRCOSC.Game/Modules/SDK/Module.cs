@@ -138,15 +138,10 @@ public class Module
         moduleParameters.Add(lookup, new ModuleParameter(defaultName, title, description, mode, typeof(T)));
     }
 
-    protected void CreateToggle(Enum lookup, string name, string description, bool defaultValue)
+    protected void CreateToggle(Enum lookup, string title, string description, bool defaultValue)
     {
-        if (moduleSettings.ContainsKey(lookup))
-        {
-            PushException(new InvalidOperationException("Cannot add multiple of the same key for settings"));
-            return;
-        }
-
-        moduleSettings.Add(lookup, new BindableBoolModuleAttribute(name, description, defaultValue));
+        validateSettingsLookup(lookup);
+        moduleSettings.Add(lookup, new BindableBoolModuleAttribute(title, description, defaultValue));
     }
 
     protected void CreateTextBox()
@@ -157,12 +152,25 @@ public class Module
     {
     }
 
-    protected void CreateDropdown(IEnumerable<string> values, int defaultSelection)
+    protected void CreateDropdown(Enum lookup, string title, string description, IEnumerable<string> values, int defaultSelection)
     {
+    }
+
+    protected void CreateStringList(Enum lookup, string title, string description, IEnumerable<string> values)
+    {
+        validateSettingsLookup(lookup);
+        moduleSettings.Add(lookup, new BindableListBindableStringModuleAttribute(title, description, values));
     }
 
     protected virtual void OnLoad()
     {
+    }
+
+    private void validateSettingsLookup(Enum lookup)
+    {
+        if (!moduleSettings.ContainsKey(lookup)) return;
+
+        PushException(new InvalidOperationException("Cannot add multiple of the same key for settings"));
     }
 
     /// <summary>
@@ -173,6 +181,12 @@ public class Module
     /// <returns>The value if successful, otherwise pushes an exception if failed and returns default</returns>
     protected T? GetSetting<T>(Enum lookup)
     {
+        if (!moduleSettings.ContainsKey(lookup))
+        {
+            PushException(new InvalidOperationException($"Cannot access setting of lookup {lookup} as it has not been created"));
+            return default;
+        }
+
         if (moduleSettings[lookup].GetValue<T>(out var value)) return value;
 
         PushException(new InvalidOperationException($"Could not get setting of lookup {lookup} and of type {typeof(T)}"));
