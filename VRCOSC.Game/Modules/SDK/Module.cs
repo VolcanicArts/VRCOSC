@@ -32,7 +32,7 @@ public class Module
     internal ModuleType Type => GetType().GetCustomAttribute<ModuleTypeAttribute>()?.Type ?? ModuleType.Generic;
 
     private readonly Dictionary<Enum, ModuleParameter> moduleParameters = new();
-    private readonly Dictionary<Enum, ModuleAttribute> moduleSettings = new();
+    private readonly Dictionary<Enum, ModuleSetting> moduleSettings = new();
 
     protected Module()
     {
@@ -141,28 +141,54 @@ public class Module
         moduleParameters.Add(lookup, new ModuleParameter(defaultName, title, description, mode, typeof(T)));
     }
 
-    protected void CreateToggle(Enum lookup, string title, string description, bool defaultValue)
+    /// <summary>
+    /// Specifies a list of settings to group together in the UI
+    /// </summary>
+    /// <param name="title">The title of the group</param>
+    /// <param name="lookups">The settings lookups to put in this group</param>
+    protected void CreateGroup(string title, params Enum[] lookups)
+    {
+    }
+
+    /// <summary>
+    /// Allows you to define a completely custom <see cref="ModuleSetting"/>
+    /// </summary>
+    /// <param name="lookup">The lookup of the setting</param>
+    /// <param name="moduleSetting"></param>
+    protected void CreateCustomSetting(Enum lookup, ModuleSetting moduleSetting)
     {
         validateSettingsLookup(lookup);
-        moduleSettings.Add(lookup, new BoolModuleAttribute(title, description, typeof(DrawableBoolModuleAttribute), defaultValue));
+        moduleSettings.Add(lookup, moduleSetting);
     }
 
-    protected void CreateTextBox()
-    {
-    }
-
-    protected void CreateDropdown<T>(Enum defaultValue) where T : Enum
-    {
-    }
-
-    protected void CreateDropdown(Enum lookup, string title, string description, IEnumerable<string> values, int defaultSelection)
-    {
-    }
-
-    protected void CreateStringList(Enum lookup, string title, string description, IEnumerable<string> values)
+    protected void CreateToggle(Enum lookup, string title, string description, bool required, bool defaultValue)
     {
         validateSettingsLookup(lookup);
-        moduleSettings.Add(lookup, new ListStringModuleAttribute(title, description, typeof(DrawableListStringModuleAttribute), values));
+        moduleSettings.Add(lookup, new BoolModuleSetting(new ModuleSettingMetadata(title, description, typeof(DrawableBoolModuleSetting), required), defaultValue));
+    }
+
+    protected void CreateTextBox(Enum lookup, string title, string description, bool required, string defaultValue)
+    {
+        validateSettingsLookup(lookup);
+        moduleSettings.Add(lookup, new StringModuleSetting(new ModuleSettingMetadata(title, description, typeof(DrawableStringModuleSetting), required), defaultValue));
+    }
+
+    protected void CreateDropdown<T>(Enum lookup, string title, string description, bool required, T defaultValue) where T : Enum
+    {
+        validateSettingsLookup(lookup);
+        moduleSettings.Add(lookup, new EnumModuleSetting<T>(new ModuleSettingMetadata(title, description, typeof(DrawableEnumModuleSetting<T>), required), defaultValue));
+    }
+
+    protected void CreateDropdown(Enum lookup, string title, string description, bool required, IEnumerable<string> dropdownValues, int defaultSelection)
+    {
+        validateSettingsLookup(lookup);
+        moduleSettings.Add(lookup, new StringDropdownModuleSetting(new ModuleSettingMetadata(title, description, typeof(DrawableStringDropdownModuleSetting), required), dropdownValues, defaultSelection));
+    }
+
+    protected void CreateStringList(Enum lookup, string title, string description, bool required, IEnumerable<string> values)
+    {
+        validateSettingsLookup(lookup);
+        moduleSettings.Add(lookup, new ListStringModuleSetting(new ModuleSettingMetadata(title, description, typeof(DrawableListStringModuleSetting), required), values));
     }
 
     protected virtual void OnLoad()
@@ -187,7 +213,7 @@ public class Module
     /// <param name="lookup">The lookup of the setting</param>
     /// <typeparam name="T">The container type of the setting</typeparam>
     /// <returns>The container if successful, otherwise pushes an exception and returns default</returns>
-    protected T? GetSettingContainer<T>(Enum lookup) where T : ModuleAttribute
+    protected T? GetSettingContainer<T>(Enum lookup) where T : ModuleSetting
     {
         if (!moduleSettings.ContainsKey(lookup))
         {

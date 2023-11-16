@@ -10,55 +10,79 @@ using osu.Framework.Graphics.Containers;
 
 namespace VRCOSC.Game.Modules.SDK.Attributes;
 
-public abstract class ModuleAttribute
+public class ModuleSettingMetadata
 {
     /// <summary>
-    /// The enabled value of this <see cref="ModuleAttribute"/>
+    /// The title for this <see cref="ModuleSetting"/>
+    /// </summary>
+    public readonly string Title;
+
+    /// <summary>
+    /// The description for this <see cref="ModuleSetting"/>
+    /// </summary>
+    public readonly string Description;
+
+    /// <summary>
+    /// The type to create for the UI of this <see cref="ModuleSetting"/>
+    /// </summary>
+    public readonly Type DrawableModuleAttributeType;
+
+    /// <summary>
+    /// Whether to mark this <see cref="ModuleSetting"/> as required for the module to work
+    /// </summary>
+    public readonly bool Required;
+
+    public ModuleSettingMetadata(string title, string description, Type drawableModuleAttributeType, bool required)
+    {
+        Title = title;
+        Description = description;
+        DrawableModuleAttributeType = drawableModuleAttributeType;
+        Required = required;
+    }
+}
+
+public abstract class ModuleSetting
+{
+    /// <summary>
+    /// The enabled value of this <see cref="ModuleSetting"/>
     /// </summary>
     public Bindable<bool> Enabled = new(true);
 
     /// <summary>
-    /// The title of this <see cref="ModuleAttribute"/>
+    /// The metadata for this <see cref="ModuleSetting"/>
     /// </summary>
-    internal readonly string Title;
+    internal ModuleSettingMetadata Metadata;
 
     /// <summary>
-    /// The description of this <see cref="ModuleAttribute"/>
+    /// The GUI component associated with this <see cref="ModuleSetting"/>
     /// </summary>
-    internal readonly string Description;
-
-    private readonly Type drawableModuleAttributeType;
+    internal Container GetDrawableModuleAttribute() => (Container)Activator.CreateInstance(Metadata.DrawableModuleAttributeType, this)!;
 
     /// <summary>
-    /// The GUI component associated with this <see cref="ModuleAttribute"/>
-    /// </summary>
-    internal Container GetDrawableModuleAttribute() => (Container)Activator.CreateInstance(drawableModuleAttributeType, this)!;
-
-    /// <summary>
-    /// Initialises this <see cref="ModuleAttribute"/> before <see cref="Deserialise"/> is ran
+    /// Initialises this <see cref="ModuleSetting"/> before <see cref="Deserialise"/> is ran
     /// </summary>
     internal abstract void Load();
 
     /// <summary>
-    /// Resets this <see cref="ModuleAttribute"/>'s value to its default value
+    /// Resets this <see cref="ModuleSetting"/>'s value to its default value
     /// </summary>
     internal abstract void SetDefault();
 
     /// <summary>
-    /// If this <see cref="ModuleAttribute"/>'s value is currently the default value
+    /// If this <see cref="ModuleSetting"/>'s value is currently the default value
     /// </summary>
     /// <returns></returns>
     internal abstract bool IsDefault();
 
     /// <summary>
-    /// Attempts to deserialise an object into this <see cref="ModuleAttribute"/>'s value's type
+    /// Attempts to deserialise an object into this <see cref="ModuleSetting"/>'s value's type
     /// </summary>
     /// <param name="ingestValue">The value to attempt to deserialise</param>
     /// <returns>True if the deserialisation was successful, otherwise false</returns>
     internal abstract bool Deserialise(object ingestValue);
 
     /// <summary>
-    /// Retrieves the value for this <see cref="ModuleAttribute"/> using a provided expected type
+    /// Retrieves the value for this <see cref="ModuleSetting"/> using a provided expected type
     /// </summary>
     /// <typeparam name="TValueType">The type to attempt to convert the value to</typeparam>
     /// <returns>True if the value was converted successfully, otherwise false</returns>
@@ -77,19 +101,17 @@ public abstract class ModuleAttribute
     }
 
     /// <summary>
-    /// Retrieves the unknown raw typed value for this <see cref="ModuleAttribute"/>.
+    /// Retrieves the unknown raw typed value for this <see cref="ModuleSetting"/>.
     /// </summary>
     internal abstract object? GetRawValue();
 
-    protected ModuleAttribute(string title, string description, Type drawableModuleAttributeType)
+    protected ModuleSetting(ModuleSettingMetadata metadata)
     {
-        Title = title;
-        Description = description;
-        this.drawableModuleAttributeType = drawableModuleAttributeType;
+        Metadata = metadata;
     }
 }
 
-public abstract class ValueModuleAttribute<T> : ModuleAttribute
+public abstract class ValueModuleSetting<T> : ModuleSetting
 {
     public Bindable<T> Attribute { get; private set; } = null!;
 
@@ -103,14 +125,14 @@ public abstract class ValueModuleAttribute<T> : ModuleAttribute
 
     internal override object? GetRawValue() => Attribute.Value;
 
-    protected ValueModuleAttribute(string title, string description, Type drawableModuleAttributeType, T defaultValue)
-        : base(title, description, drawableModuleAttributeType)
+    protected ValueModuleSetting(ModuleSettingMetadata metadata, T defaultValue)
+        : base(metadata)
     {
         DefaultValue = defaultValue;
     }
 }
 
-public class BoolModuleAttribute : ValueModuleAttribute<bool>
+public class BoolModuleSetting : ValueModuleSetting<bool>
 {
     protected override BindableBool CreateBindable() => new(DefaultValue);
 
@@ -122,13 +144,13 @@ public class BoolModuleAttribute : ValueModuleAttribute<bool>
         return true;
     }
 
-    public BoolModuleAttribute(string title, string description, Type drawableModuleAttributeType, bool defaultValue)
-        : base(title, description, drawableModuleAttributeType, defaultValue)
+    public BoolModuleSetting(ModuleSettingMetadata metadata, bool defaultValue)
+        : base(metadata, defaultValue)
     {
     }
 }
 
-public class IntModuleAttribute : ValueModuleAttribute<int>
+public class IntModuleSetting : ValueModuleSetting<int>
 {
     protected override BindableNumber<int> CreateBindable() => new(DefaultValue);
 
@@ -140,13 +162,13 @@ public class IntModuleAttribute : ValueModuleAttribute<int>
         return true;
     }
 
-    internal IntModuleAttribute(string title, string description, Type drawableModuleAttributeType, int defaultValue)
-        : base(title, description, drawableModuleAttributeType, defaultValue)
+    internal IntModuleSetting(ModuleSettingMetadata metadata, int defaultValue)
+        : base(metadata, defaultValue)
     {
     }
 }
 
-public class FloatModuleAttribute : ValueModuleAttribute<float>
+public class FloatModuleSetting : ValueModuleSetting<float>
 {
     protected override BindableNumber<float> CreateBindable() => new(DefaultValue);
 
@@ -158,13 +180,13 @@ public class FloatModuleAttribute : ValueModuleAttribute<float>
         return true;
     }
 
-    internal FloatModuleAttribute(string title, string description, Type drawableModuleAttributeType, float defaultValue)
-        : base(title, description, drawableModuleAttributeType, defaultValue)
+    internal FloatModuleSetting(ModuleSettingMetadata metadata, float defaultValue)
+        : base(metadata, defaultValue)
     {
     }
 }
 
-public class StringModuleAttribute : ValueModuleAttribute<string>
+public class StringModuleSetting : ValueModuleSetting<string>
 {
     protected override Bindable<string> CreateBindable() => new(DefaultValue);
 
@@ -176,13 +198,13 @@ public class StringModuleAttribute : ValueModuleAttribute<string>
         return true;
     }
 
-    internal StringModuleAttribute(string title, string description, Type drawableModuleAttributeType, string defaultValue)
-        : base(title, description, drawableModuleAttributeType, defaultValue)
+    internal StringModuleSetting(ModuleSettingMetadata metadata, string defaultValue)
+        : base(metadata, defaultValue)
     {
     }
 }
 
-public class EnumModuleAttribute<TEnum> : ValueModuleAttribute<TEnum> where TEnum : Enum
+public class EnumModuleSetting<TEnum> : ValueModuleSetting<TEnum> where TEnum : Enum
 {
     protected override Bindable<TEnum> CreateBindable() => new(DefaultValue);
 
@@ -196,13 +218,13 @@ public class EnumModuleAttribute<TEnum> : ValueModuleAttribute<TEnum> where TEnu
 
     internal override object GetRawValue() => Convert.ToInt32(Attribute.Value);
 
-    internal EnumModuleAttribute(string title, string description, Type drawableModuleAttributeType, TEnum defaultValue)
-        : base(title, description, drawableModuleAttributeType, defaultValue)
+    internal EnumModuleSetting(ModuleSettingMetadata metadata, TEnum defaultValue)
+        : base(metadata, defaultValue)
     {
     }
 }
 
-public class RangedIntModuleAttribute : IntModuleAttribute
+public class RangedIntModuleSetting : IntModuleSetting
 {
     private readonly int minValue;
     private readonly int maxValue;
@@ -215,15 +237,15 @@ public class RangedIntModuleAttribute : IntModuleAttribute
         return baseBindable;
     }
 
-    internal RangedIntModuleAttribute(string title, string description, Type drawableModuleAttributeType, int defaultValue, int minValue, int maxValue)
-        : base(title, description, drawableModuleAttributeType, defaultValue)
+    internal RangedIntModuleSetting(ModuleSettingMetadata metadata, int defaultValue, int minValue, int maxValue)
+        : base(metadata, defaultValue)
     {
         this.minValue = minValue;
         this.maxValue = maxValue;
     }
 }
 
-public class RangedFloatModuleAttribute : FloatModuleAttribute
+public class RangedFloatModuleSetting : FloatModuleSetting
 {
     private readonly float minValue;
     private readonly float maxValue;
@@ -236,15 +258,26 @@ public class RangedFloatModuleAttribute : FloatModuleAttribute
         return baseBindable;
     }
 
-    internal RangedFloatModuleAttribute(string title, string description, Type drawableModuleAttributeType, float defaultValue, float minValue, float maxValue)
-        : base(title, description, drawableModuleAttributeType, defaultValue)
+    internal RangedFloatModuleSetting(ModuleSettingMetadata metadata, float defaultValue, float minValue, float maxValue)
+        : base(metadata, defaultValue)
     {
         this.minValue = minValue;
         this.maxValue = maxValue;
     }
 }
 
-public abstract class ListModuleAttribute<T> : ModuleAttribute
+public class StringDropdownModuleSetting : IntModuleSetting
+{
+    internal readonly IEnumerable<string> DropdownValues;
+
+    internal StringDropdownModuleSetting(ModuleSettingMetadata metadata, IEnumerable<string> dropdownValues, int defaultValue)
+        : base(metadata, defaultValue)
+    {
+        DropdownValues = dropdownValues;
+    }
+}
+
+public abstract class ListModuleSetting<T> : ModuleSetting
 {
     public BindableList<T> Attribute = null!;
 
@@ -268,41 +301,41 @@ public abstract class ListModuleAttribute<T> : ModuleAttribute
         return true;
     }
 
-    protected ListModuleAttribute(string title, string description, Type drawableModuleAttributeType, IEnumerable<T> defaultValues)
-        : base(title, description, drawableModuleAttributeType)
+    protected ListModuleSetting(ModuleSettingMetadata metadata, IEnumerable<T> defaultValues)
+        : base(metadata)
     {
         this.defaultValues = defaultValues;
     }
 }
 
-public abstract class ListBindableModuleAttribute<T> : ListModuleAttribute<Bindable<T>>
+public abstract class ListValueModuleSetting<T> : ListModuleSetting<Bindable<T>>
 {
     internal override object GetRawValue() => Attribute.Select(bindable => bindable.Value).ToList();
 
     protected override Bindable<T> CloneValue(Bindable<T> value) => value.GetUnboundCopy();
     protected override Bindable<T> ConstructValue(JToken token) => new(token.Value<T>()!);
 
-    protected ListBindableModuleAttribute(string title, string description, Type drawableModuleAttributeType, IEnumerable<Bindable<T>> defaultValues)
-        : base(title, description, drawableModuleAttributeType, defaultValues)
+    protected ListValueModuleSetting(ModuleSettingMetadata metadata, IEnumerable<Bindable<T>> defaultValues)
+        : base(metadata, defaultValues)
     {
     }
 }
 
-public class ListStringModuleAttribute : ListBindableModuleAttribute<string>
+public class ListStringModuleSetting : ListValueModuleSetting<string>
 {
-    public ListStringModuleAttribute(string title, string description, Type drawableModuleAttributeType, IEnumerable<string> defaultValues)
-        : base(title, description, drawableModuleAttributeType, defaultValues.Select(value => new Bindable<string>(value)))
+    public ListStringModuleSetting(ModuleSettingMetadata metadata, IEnumerable<string> defaultValues)
+        : base(metadata, defaultValues.Select(value => new Bindable<string>(value)))
     {
     }
 }
 
-public class ListMutableKeyValuePairModuleAttribute : ListModuleAttribute<MutableKeyValuePair>
+public class ListMutableKeyValuePairModuleSetting : ListModuleSetting<MutableKeyValuePair>
 {
     protected override MutableKeyValuePair CloneValue(MutableKeyValuePair value) => new(value);
     protected override MutableKeyValuePair ConstructValue(JToken token) => token.ToObject<MutableKeyValuePair>()!;
 
-    public ListMutableKeyValuePairModuleAttribute(string title, string description, Type drawableModuleAttributeType, IEnumerable<MutableKeyValuePair> defaultValues)
-        : base(title, description, drawableModuleAttributeType, defaultValues)
+    public ListMutableKeyValuePairModuleSetting(ModuleSettingMetadata metadata, IEnumerable<MutableKeyValuePair> defaultValues)
+        : base(metadata, defaultValues)
     {
     }
 }

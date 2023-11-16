@@ -5,10 +5,10 @@ using VRCOSC.Game.Modules.SDK.Attributes;
 
 namespace VRCOSC.Game.Modules.SDK.Graphics;
 
-public partial class DrawableListStringModuleAttribute : DrawableListModuleAttribute<ListStringModuleAttribute>
+public partial class DrawableBoolModuleSetting : DrawableModuleSetting<BoolModuleSetting>
 {
-    public DrawableListStringModuleAttribute(ListStringModuleAttribute moduleAttribute)
-        : base(moduleAttribute)
+    public DrawableBoolModuleSetting(BoolModuleSetting moduleSetting)
+        : base(moduleSetting)
     {
     }
 }
