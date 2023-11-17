@@ -13,6 +13,7 @@ using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Framework.Timing;
+using VRCOSC.Game.OSC.VRChat;
 using Module = VRCOSC.Game.Modules.SDK.Module;
 
 namespace VRCOSC.Game.Modules;
@@ -45,13 +46,6 @@ public class ModuleManager
     }
 
     #region Runtime
-
-    public async void Restart()
-    {
-        await StopAsync();
-        await Task.Delay(100);
-        await StartAsync();
-    }
 
     public async void Start() => await StartAsync();
 
@@ -92,6 +86,14 @@ public class ModuleManager
 
         LocalModules.Values.ForEach(moduleList => moduleList.ForEach(module => module.FrameworkUpdate()));
         RemoteModules.Values.ForEach(moduleList => moduleList.ForEach(module => module.FrameworkUpdate()));
+    }
+
+    public void PlayerUpdate()
+    {
+    }
+
+    public void ParameterReceived(VRChatOscMessage vrChatOscMessage)
+    {
     }
 
     #endregion

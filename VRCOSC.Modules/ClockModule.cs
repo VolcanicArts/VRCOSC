@@ -8,7 +8,7 @@ using VRCOSC.Game.Modules.SDK.Attributes;
 namespace VRCOSC.Modules;
 
 [ModuleTitle("Clock")]
-[ModuleDescription("Sends a chosen time as hours, minutes, and seconds")]
+[ModuleDescription("Sends a chosen timezone as hours, minutes, and seconds")]
 [ModuleType(ModuleType.Generic)]
 [ModulePrefab("VRCOSC-Watch", "https://github.com/VolcanicArts/VRCOSC/releases/download/latest/VRCOSC-Watch.unitypackage")]
 public sealed class ClockModule : Module
@@ -26,6 +26,8 @@ public sealed class ClockModule : Module
         RegisterParameter<float>(ClockParameter.Minutes, "VRCOSC/Clock/Minutes", ParameterMode.Write, "Minutes", "The current minute normalised between 0 and 1");
         RegisterParameter<float>(ClockParameter.Seconds, "VRCOSC/Clock/Seconds", ParameterMode.Write, "Seconds", "The current second normalised between 0 and 1");
         RegisterParameter<bool>(ClockParameter.Period, "VRCOSC/Clock/Period", ParameterMode.Write, "Period", "False for AM. True for PM");
+
+        CreateGroup("Smoothing", ClockSetting.SmoothHour, ClockSetting.SmoothMinute, ClockSetting.SmoothSecond);
     }
 
     [ModuleUpdate(ModuleUpdateMode.Custom)]

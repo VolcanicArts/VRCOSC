@@ -10,7 +10,6 @@ using osu.Framework.Graphics.Sprites;
 using osuTK;
 using VRCOSC.Game.Graphics;
 using VRCOSC.Game.Graphics.UI;
-using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Screens.Main.Run;
 
@@ -54,7 +53,7 @@ public partial class ControlsContainer : Container
                         Icon = FontAwesome.Solid.Play,
                         Masking = true,
                         CornerRadius = 10,
-                        Action = () => appManager.ModuleManager.Start()
+                        Action = () => appManager.Start()
                     }
                 }
             },
@@ -79,7 +78,7 @@ public partial class ControlsContainer : Container
                         Icon = FontAwesome.Solid.Stop,
                         Masking = true,
                         CornerRadius = 10,
-                        Action = () => appManager.ModuleManager.Stop()
+                        Action = () => appManager.Stop()
                     },
                     restartButton = new IconButton
                     {
@@ -91,38 +90,38 @@ public partial class ControlsContainer : Container
                         Icon = FontAwesome.Solid.Redo,
                         Masking = true,
                         CornerRadius = 10,
-                        Action = () => appManager.ModuleManager.Restart()
+                        Action = () => appManager.Restart()
                     }
                 }
             }
         };
 
-        appManager.ModuleManager.State.BindValueChanged(onModuleManagerStateChange, true);
+        appManager.State.BindValueChanged(onAppManagerStateChange, true);
     }
 
-    private void onModuleManagerStateChange(ValueChangedEvent<ModuleManagerState> e)
+    private void onAppManagerStateChange(ValueChangedEvent<AppManagerState> e)
     {
         switch (e.NewValue)
         {
-            case ModuleManagerState.Starting:
+            case AppManagerState.Starting:
                 startButton.Enabled.Value = false;
                 restartButton.Enabled.Value = false;
                 stopButton.Enabled.Value = false;
                 break;
 
-            case ModuleManagerState.Started:
+            case AppManagerState.Started:
                 startButton.Enabled.Value = false;
                 restartButton.Enabled.Value = true;
                 stopButton.Enabled.Value = true;
                 break;
 
-            case ModuleManagerState.Stopping:
+            case AppManagerState.Stopping:
                 startButton.Enabled.Value = false;
                 restartButton.Enabled.Value = false;
                 stopButton.Enabled.Value = false;
                 break;
 
-            case ModuleManagerState.Stopped:
+            case AppManagerState.Stopped:
                 startButton.Enabled.Value = true;
                 restartButton.Enabled.Value = false;
                 stopButton.Enabled.Value = false;
