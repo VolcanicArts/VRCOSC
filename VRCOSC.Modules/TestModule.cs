@@ -18,14 +18,18 @@ public class TestModule : Module
     {
         RegisterParameter<float>(TestParameter.Test, "SomeTestParameter", "This is a test parameter", "This is a parameter description", ParameterMode.Write);
 
-        CreateToggle(TestSetting.Test, "Test", "This is a test setting", false);
-        CreateStringList(TestSetting.TestList, "Test List", "This is a test list", new[] { "This", "Is", "A", "Test" });
+        CreateToggle(TestSetting.Test, "Test", "This is a test setting", false, false);
+        CreateStringList(TestSetting.TestList, "Test List", "This is a test list", false, new[] { "This", "Is", "A", "Test" });
+        CreateToggle(TestSetting.TestAgain, "Test Again", "This is another separate setting", true, false);
+
+        CreateGroup("Credentials", TestSetting.Test, TestSetting.TestList);
     }
 
     protected override void OnPostLoad()
     {
-        GetSettingContainer<BindableBoolModuleAttribute>(TestSetting.Test)!.Attribute.BindValueChanged(_ => { GetSettingContainer<BindableListBindableStringModuleAttribute>(TestSetting.TestList)!.Attribute[1].Value = "Is Not"; });
-        GetSettingContainer<BindableBoolModuleAttribute>(TestSetting.Test)!.Attribute.Value = true;
+        GetSettingContainer<ListStringModuleSetting>(TestSetting.TestList)!.Enabled.BindTo(GetSettingContainer<BoolModuleSetting>(TestSetting.Test)!.Attribute);
+
+        GetSettingContainer<BoolModuleSetting>(TestSetting.Test)!.Attribute.Value = true;
     }
 
     protected override Task OnModuleStart()
@@ -54,7 +58,8 @@ public class TestModule : Module
     private enum TestSetting
     {
         Test,
-        TestList
+        TestList,
+        TestAgain
     }
 
     private enum TestParameter

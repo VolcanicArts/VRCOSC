@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using osu.Framework.Bindables;
@@ -33,6 +34,7 @@ public class Module
 
     internal readonly Dictionary<string, ModuleParameter> Parameters = new();
     internal readonly Dictionary<string, ModuleSetting> Settings = new();
+    internal readonly Dictionary<string, List<string>> Groups = new();
 
     internal string SerialisedName => GetType().Name.ToLowerInvariant();
 
@@ -150,6 +152,7 @@ public class Module
     /// <param name="lookups">The settings lookups to put in this group</param>
     protected void CreateGroup(string title, params Enum[] lookups)
     {
+        Groups.Add(title, lookups.Select(lookup => lookup.ToString()).ToList());
     }
 
     /// <summary>

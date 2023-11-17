@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -20,6 +21,8 @@ public partial class ModuleSettingsContainer : VisibilityContainer
     protected override bool OnClick(ClickEvent e) => true;
     protected override bool OnHover(HoverEvent e) => true;
     protected override bool OnScroll(ScrollEvent e) => true;
+
+    private FillFlowContainer settingsFlow = null!;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -70,6 +73,42 @@ public partial class ModuleSettingsContainer : VisibilityContainer
                             Action = Hide
                         }
                     }
+                },
+                new Container
+                {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    RelativeSizeAxes = Axes.Both,
+                    Padding = new MarginPadding
+                    {
+                        Vertical = 3
+                    },
+                    Child = new BasicScrollContainer
+                    {
+                        Anchor = Anchor.TopCentre,
+                        Origin = Anchor.TopCentre,
+                        RelativeSizeAxes = Axes.Both,
+                        ClampExtension = 0,
+                        Width = 0.5f,
+                        ScrollbarVisible = false,
+                        ScrollContent =
+                        {
+                            Child = settingsFlow = new FillFlowContainer
+                            {
+                                Name = "Settings Flow",
+                                Anchor = Anchor.TopCentre,
+                                Origin = Anchor.TopCentre,
+                                RelativeSizeAxes = Axes.X,
+                                AutoSizeAxes = Axes.Y,
+                                Direction = FillDirection.Vertical,
+                                Padding = new MarginPadding
+                                {
+                                    Vertical = 10
+                                },
+                                Spacing = new Vector2(0, 10)
+                            }
+                        }
+                    }
                 }
             }
         };
@@ -77,6 +116,8 @@ public partial class ModuleSettingsContainer : VisibilityContainer
 
     public void SetModule(Module module)
     {
+        settingsFlow.Clear();
+        module.Settings.ForEach(setting => settingsFlow.Add(setting.Value.GetDrawableModuleAttribute()));
     }
 
     protected override void PopIn()

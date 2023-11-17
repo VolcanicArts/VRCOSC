@@ -18,8 +18,8 @@ public partial class CheckBox : Button
 {
     public Bindable<bool> State = new();
 
-    public Color4 BackgroundColour { get; init; } = Color4.Black;
-    public IconUsage Icon { get; init; } = FontAwesome.Regular.Angry;
+    public Color4 BackgroundColour { get; init; } = Colours.GRAY2;
+    public IconUsage Icon { get; init; } = FontAwesome.Solid.Check;
 
     private const float icon_size = 25;
     private readonly Color4 iconColour = Color4.White;
@@ -32,6 +32,7 @@ public partial class CheckBox : Button
         Masking = true;
         CornerRadius = 5;
         BorderThickness = 4;
+        BorderColour = Colours.GRAY5;
 
         Children = new Drawable[]
         {
