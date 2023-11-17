@@ -235,8 +235,6 @@ public class EnumModuleSetting<TEnum> : ValueModuleSetting<TEnum> where TEnum : 
         return true;
     }
 
-    internal override object GetRawValue() => Convert.ToInt32(Attribute.Value);
-
     internal EnumModuleSetting(ModuleSettingMetadata metadata, TEnum defaultValue)
         : base(metadata, defaultValue)
     {

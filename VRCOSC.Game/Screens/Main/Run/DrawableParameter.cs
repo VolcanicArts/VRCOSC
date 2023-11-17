@@ -78,6 +78,8 @@ public partial class DrawableParameter : Container
 
     public void UpdateValue(object value)
     {
+        if (valueSpriteText.Text == (value.ToString() ?? "INVALID")) return;
+
         valueSpriteText.Text = value.ToString() ?? "INVALID";
         background.FlashColour(Colours.WHITE0.Opacity(0.5f), 500, Easing.OutQuint);
     }

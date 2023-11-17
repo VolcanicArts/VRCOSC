@@ -140,7 +140,7 @@ public class Module
     /// <param name="title">The title of the parameter</param>
     /// <param name="description">A short description of the parameter</param>
     /// <param name="mode">Whether the parameter can read to or write from VRChat</param>
-    protected void RegisterParameter<T>(Enum lookup, string title, string description, ParameterMode mode, string defaultName) where T : struct
+    protected void RegisterParameter<T>(Enum lookup, string defaultName, ParameterMode mode, string title, string description) where T : struct
     {
         Parameters.Add(lookup.ToString(), new ModuleParameter(new ModuleParameterMetadata(title, description, mode, typeof(T)), defaultName));
     }
