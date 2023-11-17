@@ -20,12 +20,6 @@ public abstract class ModuleAttribute
     internal ModuleAttributeMetadata Metadata;
 
     /// <summary>
-    /// The UI component associated with this <see cref="ModuleSetting"/>.
-    /// This creates a new instance each time this is called to allow for proper disposal of UI components
-    /// </summary>
-    internal Container GetDrawableModuleAttribute() => (Container)Activator.CreateInstance(Metadata.DrawableModuleAttributeType, this)!;
-
-    /// <summary>
     /// Initialises this <see cref="ModuleSetting"/> before <see cref="Deserialise"/> is ran
     /// </summary>
     internal abstract void Load();
@@ -86,6 +80,12 @@ public abstract class ModuleSetting : ModuleAttribute
     internal new ModuleSettingMetadata Metadata => (ModuleSettingMetadata)base.Metadata;
 
     /// <summary>
+    /// The UI component associated with this <see cref="ModuleSetting"/>.
+    /// This creates a new instance each time this is called to allow for proper disposal of UI components
+    /// </summary>
+    internal Container GetDrawableModuleAttribute() => (Container)Activator.CreateInstance(Metadata.DrawableModuleSettingType, this)!;
+
+    /// <summary>
     /// The enabled value of this <see cref="ModuleSetting"/>
     /// </summary>
     public Bindable<bool> Enabled = new(true);
@@ -104,8 +104,6 @@ public class ModuleParameter : ModuleAttribute
     internal new ModuleParameterMetadata Metadata => (ModuleParameterMetadata)base.Metadata;
 
     internal Bindable<string> Name = null!;
-    internal readonly ParameterMode Mode;
-    internal readonly Type ExpectedType;
 
     private readonly string defaultName;
 
@@ -122,11 +120,9 @@ public class ModuleParameter : ModuleAttribute
         return true;
     }
 
-    public ModuleParameter(ModuleParameterMetadata metadata, ParameterMode mode, Type expectedType, string defaultName)
+    public ModuleParameter(ModuleParameterMetadata metadata, string defaultName)
         : base(metadata)
     {
-        Mode = mode;
-        ExpectedType = expectedType;
         this.defaultName = defaultName;
     }
 }

@@ -13,7 +13,6 @@ using osu.Framework.Logging;
 using osu.Framework.Threading;
 using osu.Framework.Timing;
 using VRCOSC.Game.Modules.SDK.Attributes;
-using VRCOSC.Game.Modules.SDK.Graphics.Parameters;
 using VRCOSC.Game.Modules.SDK.Graphics.Settings;
 using VRCOSC.Game.OSC.VRChat;
 
@@ -143,7 +142,7 @@ public class Module
     /// <param name="mode">Whether the parameter can read to or write from VRChat</param>
     protected void RegisterParameter<T>(Enum lookup, string title, string description, ParameterMode mode, string defaultName) where T : struct
     {
-        Parameters.Add(lookup.ToString(), new ModuleParameter(new ModuleParameterMetadata(title, description, typeof(DrawableModuleParameter)), mode, typeof(T), defaultName));
+        Parameters.Add(lookup.ToString(), new ModuleParameter(new ModuleParameterMetadata(title, description, mode, typeof(T)), defaultName));
     }
 
     /// <summary>
@@ -160,41 +159,41 @@ public class Module
     /// Allows you to define a completely custom <see cref="ModuleSetting"/>
     /// </summary>
     /// <param name="lookup">The lookup of the setting</param>
-    /// <param name="moduleSetting"></param>
+    /// <param name="moduleSetting">The custom <see cref="ModuleSetting"/></param>
     protected void CreateCustomSetting(Enum lookup, ModuleSetting moduleSetting)
     {
         validateSettingsLookup(lookup);
         Settings.Add(lookup.ToString(), moduleSetting);
     }
 
-    protected void CreateToggle(Enum lookup, string title, string description, bool required, bool defaultValue)
+    protected void CreateToggle(Enum lookup, string title, string description, bool defaultValue)
     {
         validateSettingsLookup(lookup);
-        Settings.Add(lookup.ToString(), new BoolModuleSetting(new ModuleSettingMetadata(title, description, typeof(DrawableBoolModuleSetting), required), defaultValue));
+        Settings.Add(lookup.ToString(), new BoolModuleSetting(new ModuleSettingMetadata(title, description, typeof(DrawableBoolModuleSetting)), defaultValue));
     }
 
-    protected void CreateTextBox(Enum lookup, string title, string description, bool required, bool emptyIsValid, string defaultValue)
+    protected void CreateTextBox(Enum lookup, string title, string description, bool emptyIsValid, string defaultValue)
     {
         validateSettingsLookup(lookup);
-        Settings.Add(lookup.ToString(), new StringModuleSetting(new ModuleSettingMetadata(title, description, typeof(DrawableStringModuleSetting), required), emptyIsValid, defaultValue));
+        Settings.Add(lookup.ToString(), new StringModuleSetting(new ModuleSettingMetadata(title, description, typeof(DrawableStringModuleSetting)), emptyIsValid, defaultValue));
     }
 
-    protected void CreateDropdown<T>(Enum lookup, string title, string description, bool required, T defaultValue) where T : Enum
+    protected void CreateDropdown<T>(Enum lookup, string title, string description, T defaultValue) where T : Enum
     {
         validateSettingsLookup(lookup);
-        Settings.Add(lookup.ToString(), new EnumModuleSetting<T>(new ModuleSettingMetadata(title, description, typeof(DrawableEnumModuleSetting<T>), required), defaultValue));
+        Settings.Add(lookup.ToString(), new EnumModuleSetting<T>(new ModuleSettingMetadata(title, description, typeof(DrawableEnumModuleSetting<T>)), defaultValue));
     }
 
-    protected void CreateDropdown(Enum lookup, string title, string description, bool required, IEnumerable<string> dropdownValues, int defaultSelection)
+    protected void CreateDropdown(Enum lookup, string title, string description, IEnumerable<string> dropdownValues, int defaultSelection)
     {
         validateSettingsLookup(lookup);
-        Settings.Add(lookup.ToString(), new StringDropdownModuleSetting(new ModuleSettingMetadata(title, description, typeof(DrawableStringDropdownModuleSetting), required), dropdownValues, defaultSelection));
+        Settings.Add(lookup.ToString(), new StringDropdownModuleSetting(new ModuleSettingMetadata(title, description, typeof(DrawableStringDropdownModuleSetting)), dropdownValues, defaultSelection));
     }
 
-    protected void CreateStringList(Enum lookup, string title, string description, bool required, IEnumerable<string> values)
+    protected void CreateStringList(Enum lookup, string title, string description, IEnumerable<string> values)
     {
         validateSettingsLookup(lookup);
-        Settings.Add(lookup.ToString(), new ListStringModuleSetting(new ModuleSettingMetadata(title, description, typeof(DrawableListStringModuleSetting), required), values));
+        Settings.Add(lookup.ToString(), new ListStringModuleSetting(new ModuleSettingMetadata(title, description, typeof(DrawableListStringModuleSetting)), values));
     }
 
     protected virtual void OnLoad()

@@ -90,7 +90,7 @@ public partial class ModuleParameterInstance : Container
                                 TextAnchor = Anchor.Centre,
                                 RelativeSizeAxes = Axes.X,
                                 AutoSizeAxes = Axes.Y,
-                                Text = moduleParameter.ExpectedType.ToReadableName()
+                                Text = moduleParameter.Metadata.ExpectedType.ToReadableName()
                             },
                             new TextFlowContainer(defaultCreationParameters)
                             {
@@ -99,7 +99,7 @@ public partial class ModuleParameterInstance : Container
                                 TextAnchor = Anchor.Centre,
                                 RelativeSizeAxes = Axes.X,
                                 AutoSizeAxes = Axes.Y,
-                                Text = moduleParameter.Mode.ToString()
+                                Text = moduleParameter.Metadata.Mode.ToString()
                             },
                             new ParameterNameTextBox
                             {
