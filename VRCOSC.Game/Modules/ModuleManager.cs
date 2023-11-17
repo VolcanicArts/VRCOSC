@@ -8,7 +8,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
 using System.Threading.Tasks;
-using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
@@ -30,8 +29,6 @@ public class ModuleManager
     public readonly Dictionary<Assembly, List<Module>> LocalModules = new();
     public readonly Dictionary<Assembly, List<Module>> RemoteModules = new();
 
-    public readonly Bindable<ModuleManagerState> State = new(ModuleManagerState.Stopped);
-
     private IEnumerable<Module> modules => LocalModules.Values.SelectMany(moduleList => moduleList).Concat(RemoteModules.Values.SelectMany(moduleList => moduleList)).ToList();
 
     private readonly List<Module> runningModuleCache = new();
@@ -41,8 +38,6 @@ public class ModuleManager
         this.storage = storage;
         this.clock = clock;
         this.appManager = appManager;
-
-        State.BindValueChanged(e => Logger.Log($"ModuleManager state changed to {e.NewValue}"));
     }
 
     #region Runtime
@@ -51,45 +46,27 @@ public class ModuleManager
 
     public async Task StartAsync()
     {
-        State.Value = ModuleManagerState.Starting;
-
         var enabledModules = modules.Where(module => module.Enabled.Value).ToList();
-
-        if (!enabledModules.Any())
-        {
-            // TODO: Handle this
-            State.Value = ModuleManagerState.Stopped;
-        }
-
         foreach (var module in enabledModules) await module.Start();
-
         runningModuleCache.AddRange(enabledModules);
-
-        State.Value = ModuleManagerState.Started;
     }
 
     public async void Stop() => await StopAsync();
 
     public async Task StopAsync()
     {
-        State.Value = ModuleManagerState.Stopping;
-
         foreach (var module in runningModuleCache) await module.Stop();
         runningModuleCache.Clear();
-
-        State.Value = ModuleManagerState.Stopped;
     }
 
     public void FrameworkUpdate()
     {
-        if (State.Value != ModuleManagerState.Started) return;
-
-        LocalModules.Values.ForEach(moduleList => moduleList.ForEach(module => module.FrameworkUpdate()));
-        RemoteModules.Values.ForEach(moduleList => moduleList.ForEach(module => module.FrameworkUpdate()));
+        modules.ForEach(module => module.FrameworkUpdate());
     }
 
     public void PlayerUpdate()
     {
+        modules.ForEach(module => module.PlayerUpdate());
     }
 
     public void ParameterReceived(VRChatOscMessage vrChatOscMessage)
@@ -223,12 +200,4 @@ public class ModuleManager
     }
 
     #endregion
-}
-
-public enum ModuleManagerState
-{
-    Starting,
-    Started,
-    Stopping,
-    Stopped
 }

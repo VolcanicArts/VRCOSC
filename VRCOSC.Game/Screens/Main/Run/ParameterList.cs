@@ -8,7 +8,6 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using VRCOSC.Game.Graphics;
-using VRCOSC.Game.Modules;
 using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Game.Screens.Main.Run;
@@ -112,12 +111,12 @@ public partial class ParameterList : Container
             }
         };
 
-        appManager.ModuleManager.State.BindValueChanged(onModuleManagerStateChange);
+        appManager.State.BindValueChanged(onAppManagerStateChange);
     }
 
-    private void onModuleManagerStateChange(ValueChangedEvent<ModuleManagerState> e)
+    private void onAppManagerStateChange(ValueChangedEvent<AppManagerState> e)
     {
-        if (e.NewValue == ModuleManagerState.Starting)
+        if (e.NewValue == AppManagerState.Starting)
         {
             listingCache.Clear();
             listingFlow.Clear();

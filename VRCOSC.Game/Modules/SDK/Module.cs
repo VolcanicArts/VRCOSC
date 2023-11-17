@@ -5,15 +5,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using osu.Framework.Bindables;
 using osu.Framework.Development;
+using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Logging;
 using osu.Framework.Threading;
 using osu.Framework.Timing;
 using VRCOSC.Game.Modules.SDK.Attributes;
 using VRCOSC.Game.Modules.SDK.Graphics.Settings;
+using VRCOSC.Game.Modules.SDK.Parameters;
 using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Game.Modules.SDK;
@@ -31,9 +34,13 @@ public class Module
     internal string ShortDescription => GetType().GetCustomAttribute<ModuleDescriptionAttribute>()?.ShortDescription ?? string.Empty;
     internal ModuleType Type => GetType().GetCustomAttribute<ModuleTypeAttribute>()?.Type ?? ModuleType.Generic;
 
-    internal readonly Dictionary<string, ModuleParameter> Parameters = new();
+    internal readonly Dictionary<Enum, ModuleParameter> Parameters = new();
     internal readonly Dictionary<string, ModuleSetting> Settings = new();
     internal readonly Dictionary<string, List<string>> Groups = new();
+
+    // Cached pre-computed lookups
+    private readonly Dictionary<string, Enum> parameterNameEnum = new();
+    private readonly Dictionary<string, Regex> parameterNameRegex = new();
 
     internal string SerialisedName => GetType().Name.ToLowerInvariant();
 
@@ -68,9 +75,22 @@ public class Module
         scheduler.Update();
     }
 
+    private static Regex parameterToRegex(string parameterName)
+    {
+        var pattern = parameterName.Replace("/", @"\/").Replace("*", @"(\S*)");
+        pattern += "$";
+        return new Regex(pattern);
+    }
+
     internal Task Start()
     {
         State.Value = ModuleState.Starting;
+
+        parameterNameEnum.Clear();
+        Parameters.ForEach(pair => parameterNameEnum.Add(pair.Value.Name.Value, pair.Key));
+
+        parameterNameRegex.Clear();
+        Parameters.ForEach(pair => parameterNameRegex.Add(pair.Value.Name.Value, parameterToRegex(pair.Value.Name.Value)));
 
         var startTask = OnModuleStart();
         startTask.GetAwaiter().OnCompleted(() =>
@@ -142,7 +162,7 @@ public class Module
     /// <param name="mode">Whether the parameter can read to or write from VRChat</param>
     protected void RegisterParameter<T>(Enum lookup, string defaultName, ParameterMode mode, string title, string description) where T : struct
     {
-        Parameters.Add(lookup.ToString(), new ModuleParameter(new ModuleParameterMetadata(title, description, mode, typeof(T)), defaultName));
+        Parameters.Add(lookup, new ModuleParameter(new ModuleParameterMetadata(title, description, mode, typeof(T)), defaultName));
     }
 
     /// <summary>
@@ -275,7 +295,7 @@ public class Module
     /// <param name="value">The value to set the parameter to</param>
     protected void SendParameter(Enum lookup, object value)
     {
-        if (!Parameters.TryGetValue(lookup.ToString(), out var moduleParameter))
+        if (!Parameters.TryGetValue(lookup, out var moduleParameter))
         {
             PushException(new InvalidOperationException($"Lookup `{lookup}` has not been registered. Please register it using `RegisterParameter<T>(Enum,object)`"));
             return;
@@ -292,5 +312,62 @@ public class Module
     {
         State.Value = ModuleState.Exception;
         Logger.Error(e, $"{className} experienced an exception");
+    }
+
+    internal void PlayerUpdate()
+    {
+        OnPlayerUpdate();
+    }
+
+    protected virtual void OnPlayerUpdate()
+    {
+    }
+
+    internal void OnParameterReceived(VRChatOscMessage message)
+    {
+        var receivedParameter = new ReceivedParameter(message.ParameterName, message.ParameterValue);
+
+        try
+        {
+            OnAnyParameterReceived(receivedParameter);
+        }
+        catch (Exception e)
+        {
+            PushException(e);
+        }
+
+        var parameterName = Parameters.Values.FirstOrDefault(moduleParameter => parameterNameRegex[moduleParameter.Name.Value].IsMatch(receivedParameter.Name))?.Name.Value;
+        if (parameterName is null) return;
+
+        if (!parameterNameEnum.TryGetValue(parameterName, out var lookup)) return;
+
+        var parameterData = Parameters[lookup];
+
+        if (!parameterData.Metadata.Mode.HasFlagFast(ParameterMode.Read)) return;
+
+        if (!receivedParameter.IsValueType(parameterData.Metadata.ExpectedType))
+        {
+            Log($"Cannot accept input parameter. `{lookup}` expects type `{parameterData.Metadata.ExpectedType.ToReadableName()}` but received type `{receivedParameter.Value.GetType().ToReadableName()}`");
+            return;
+        }
+
+        var registeredParameter = new RegisteredParameter(receivedParameter, lookup, parameterData);
+
+        try
+        {
+            OnRegisteredParameterReceived(registeredParameter);
+        }
+        catch (Exception e)
+        {
+            PushException(e);
+        }
+    }
+
+    protected virtual void OnAnyParameterReceived(ReceivedParameter receivedParameter)
+    {
+    }
+
+    protected virtual void OnRegisteredParameterReceived(RegisteredParameter registeredParameter)
+    {
     }
 }

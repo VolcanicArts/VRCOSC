@@ -10,7 +10,6 @@ using osu.Framework.Graphics.Pooling;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Logging;
 using VRCOSC.Game.Graphics;
-using VRCOSC.Game.Modules;
 
 namespace VRCOSC.Game.Screens.Main.Run;
 
@@ -67,12 +66,12 @@ public partial class TerminalContainer : Container<TerminalEntry>
     private void load()
     {
         Logger.NewEntry += onNewLogEntry;
-        appManager.ModuleManager.State.BindValueChanged(onModuleManagerStateChange);
+        appManager.State.BindValueChanged(onAppManagerStateChange);
     }
 
-    private void onModuleManagerStateChange(ValueChangedEvent<ModuleManagerState> e)
+    private void onAppManagerStateChange(ValueChangedEvent<AppManagerState> e)
     {
-        if (e.NewValue == ModuleManagerState.Starting) reset();
+        if (e.NewValue == AppManagerState.Starting) reset();
     }
 
     private void onNewLogEntry(LogEntry entry)
