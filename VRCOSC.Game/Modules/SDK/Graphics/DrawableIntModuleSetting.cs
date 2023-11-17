@@ -8,9 +8,9 @@ using VRCOSC.Game.Modules.SDK.Attributes;
 
 namespace VRCOSC.Game.Modules.SDK.Graphics;
 
-public partial class DrawableStringModuleSetting : DrawableValueModuleSetting<StringModuleSetting>
+public partial class DrawableIntModuleSetting : DrawableValueModuleSetting<IntModuleSetting>
 {
-    public DrawableStringModuleSetting(StringModuleSetting moduleSetting)
+    public DrawableIntModuleSetting(IntModuleSetting moduleSetting)
         : base(moduleSetting)
     {
     }
@@ -18,14 +18,13 @@ public partial class DrawableStringModuleSetting : DrawableValueModuleSetting<St
     [BackgroundDependencyLoader]
     private void load()
     {
-        Add(new StringTextBox
+        Add(new IntTextBox
         {
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
             RelativeSizeAxes = Axes.X,
             Height = 35,
-            ValidCurrent = ModuleSetting.Attribute.GetBoundCopy(),
-            EmptyIsValid = ModuleSetting.EmptyIsValid
+            ValidCurrent = ModuleSetting.Attribute.GetBoundCopy()
         });
     }
 }

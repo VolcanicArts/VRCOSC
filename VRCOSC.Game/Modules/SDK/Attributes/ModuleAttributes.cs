@@ -189,7 +189,7 @@ public class FloatModuleSetting : ValueModuleSetting<float>
 
 public class StringModuleSetting : ValueModuleSetting<string>
 {
-    public readonly bool EmptyIsValid;
+    internal readonly bool EmptyIsValid;
 
     protected override Bindable<string> CreateBindable() => new(DefaultValue);
 

@@ -13,11 +13,6 @@ namespace VRCOSC.Game.Graphics.UI.Text;
 public abstract partial class ValidationTextBox<T> : TextBox
 {
     /// <summary>
-    /// Controls whether empty is valid
-    /// </summary>
-    public Bindable<bool> EmptyIsValid { get; set; } = new();
-
-    /// <summary>
     /// This bindable gets updated whenever there has been a valid input. Bind to this for only valid inputs
     /// </summary>
     public Bindable<T> ValidCurrent { get; set; } = new();
@@ -41,7 +36,7 @@ public abstract partial class ValidationTextBox<T> : TextBox
 
         Current.BindValueChanged(e =>
         {
-            if (validate(e.NewValue))
+            if (IsTextValid(e.NewValue))
             {
                 invalidIcon.Hide();
                 var value = GetConvertedText();
@@ -54,8 +49,6 @@ public abstract partial class ValidationTextBox<T> : TextBox
             }
         }, true);
     }
-
-    private bool validate(string text) => string.IsNullOrEmpty(text) ? EmptyIsValid.Value : IsTextValid(text);
 
     /// <summary>
     /// This is where you should apply validation on the raw string from <see cref="osu.Framework.Graphics.UserInterface.TextBox.Current"/>
