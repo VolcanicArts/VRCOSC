@@ -81,6 +81,11 @@ public abstract class ModuleAttribute
 public abstract class ModuleSetting : ModuleAttribute
 {
     /// <summary>
+    /// The metadata for this <see cref="ModuleAttribute"/>
+    /// </summary>
+    internal new ModuleSettingMetadata Metadata => (ModuleSettingMetadata)base.Metadata;
+
+    /// <summary>
     /// The enabled value of this <see cref="ModuleSetting"/>
     /// </summary>
     public Bindable<bool> Enabled = new(true);
@@ -88,12 +93,16 @@ public abstract class ModuleSetting : ModuleAttribute
     protected ModuleSetting(ModuleSettingMetadata metadata)
         : base(metadata)
     {
-        Metadata = metadata;
     }
 }
 
 public class ModuleParameter : ModuleAttribute
 {
+    /// <summary>
+    /// The metadata for this <see cref="ModuleAttribute"/>
+    /// </summary>
+    internal new ModuleParameterMetadata Metadata => (ModuleParameterMetadata)base.Metadata;
+
     internal Bindable<string> Name = null!;
     internal readonly ParameterMode Mode;
     internal readonly Type ExpectedType;

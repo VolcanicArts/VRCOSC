@@ -1,12 +1,13 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using osuTK;
 
 namespace VRCOSC.Game.Graphics.UI.Text;
 
@@ -19,7 +20,7 @@ public abstract partial class ValidationTextBox<T> : TextBox
 
     private InvalidIcon invalidIcon = null!;
 
-    public Action<T>? OnValidEntry;
+    public bool IsCurrentValid { get; private set; }
 
     [BackgroundDependencyLoader]
     private void load()
@@ -40,12 +41,13 @@ public abstract partial class ValidationTextBox<T> : TextBox
             {
                 invalidIcon.Hide();
                 var value = GetConvertedText();
-                OnValidEntry?.Invoke(value);
                 ValidCurrent.Value = value;
+                IsCurrentValid = true;
             }
             else
             {
                 invalidIcon.Show();
+                IsCurrentValid = false;
             }
         }, true);
     }
@@ -78,13 +80,19 @@ public abstract partial class ValidationTextBox<T> : TextBox
                 Masking = true,
                 Children = new Drawable[]
                 {
+                    new Box
+                    {
+                        RelativeSizeAxes = Axes.Both,
+                        Colour = Colours.RED0
+                    },
                     new SpriteIcon
                     {
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,
                         RelativeSizeAxes = Axes.Both,
-                        Icon = FontAwesome.Solid.ExclamationCircle,
-                        Colour = Colours.RED0
+                        Size = new Vector2(0.7f),
+                        Icon = FontAwesome.Solid.Exclamation,
+                        Colour = Colours.WHITE0,
                     }
                 }
             };
