@@ -172,10 +172,10 @@ public class Module
         Settings.Add(lookup.ToString(), new BoolModuleSetting(new ModuleSettingMetadata(title, description, typeof(DrawableBoolModuleSetting), required), defaultValue));
     }
 
-    protected void CreateTextBox(Enum lookup, string title, string description, bool required, string defaultValue)
+    protected void CreateTextBox(Enum lookup, string title, string description, bool required, bool emptyIsValid, string defaultValue)
     {
         validateSettingsLookup(lookup);
-        Settings.Add(lookup.ToString(), new StringModuleSetting(new ModuleSettingMetadata(title, description, typeof(DrawableStringModuleSetting), required), defaultValue));
+        Settings.Add(lookup.ToString(), new StringModuleSetting(new ModuleSettingMetadata(title, description, typeof(DrawableStringModuleSetting), required), emptyIsValid, defaultValue));
     }
 
     protected void CreateDropdown<T>(Enum lookup, string title, string description, bool required, T defaultValue) where T : Enum

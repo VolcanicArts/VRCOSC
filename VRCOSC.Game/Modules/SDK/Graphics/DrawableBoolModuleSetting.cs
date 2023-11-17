@@ -19,7 +19,7 @@ public partial class DrawableBoolModuleSetting : DrawableValueModuleSetting<Bool
     [BackgroundDependencyLoader]
     private void load()
     {
-        Add(new CheckBox
+        AddSide(new CheckBox
         {
             Anchor = Anchor.CentreRight,
             Origin = Anchor.CentreRight,

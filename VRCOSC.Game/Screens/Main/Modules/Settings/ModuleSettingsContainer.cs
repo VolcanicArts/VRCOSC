@@ -114,10 +114,10 @@ public partial class ModuleSettingsContainer : VisibilityContainer
         };
     }
 
-    public void SetModule(Module module)
+    public void SetModule(Module? module)
     {
         settingsFlow.Clear();
-        module.Settings.ForEach(setting => settingsFlow.Add(setting.Value.GetDrawableModuleAttribute()));
+        module?.Settings.ForEach(setting => settingsFlow.Add(setting.Value.GetDrawableModuleAttribute()));
     }
 
     protected override void PopIn()
@@ -127,6 +127,6 @@ public partial class ModuleSettingsContainer : VisibilityContainer
 
     protected override void PopOut()
     {
-        this.FadeOutFromOne(250, Easing.OutCubic);
+        this.FadeOutFromOne(250, Easing.OutCubic).Finally(_ => SetModule(null));
     }
 }

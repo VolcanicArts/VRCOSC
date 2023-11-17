@@ -54,7 +54,8 @@ public abstract class ModuleSetting
     internal ModuleSettingMetadata Metadata;
 
     /// <summary>
-    /// The GUI component associated with this <see cref="ModuleSetting"/>
+    /// The UI component associated with this <see cref="ModuleSetting"/>.
+    /// This creates a new instance each time this is called to allow for proper disposal of UI components
     /// </summary>
     internal Container GetDrawableModuleAttribute() => (Container)Activator.CreateInstance(Metadata.DrawableModuleAttributeType, this)!;
 
@@ -188,6 +189,8 @@ public class FloatModuleSetting : ValueModuleSetting<float>
 
 public class StringModuleSetting : ValueModuleSetting<string>
 {
+    public readonly bool EmptyIsValid;
+
     protected override Bindable<string> CreateBindable() => new(DefaultValue);
 
     internal override bool Deserialise(object ingestValue)
@@ -198,9 +201,10 @@ public class StringModuleSetting : ValueModuleSetting<string>
         return true;
     }
 
-    internal StringModuleSetting(ModuleSettingMetadata metadata, string defaultValue)
+    internal StringModuleSetting(ModuleSettingMetadata metadata, bool emptyIsValid, string defaultValue)
         : base(metadata, defaultValue)
     {
+        EmptyIsValid = emptyIsValid;
     }
 }
 

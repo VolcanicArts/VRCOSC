@@ -19,6 +19,7 @@ public class TestModule : Module
         RegisterParameter<float>(TestParameter.Test, "SomeTestParameter", "This is a test parameter", "This is a parameter description", ParameterMode.Write);
 
         CreateToggle(TestSetting.Test, "Test", "This is a test setting", false, false);
+        CreateTextBox(TestSetting.TextBox, "Text Box", "Did you know that this is a text box?\nJust checking new lines too", false, false, "This is a default value");
         CreateStringList(TestSetting.TestList, "Test List", "This is a test list", false, new[] { "This", "Is", "A", "Test" });
         CreateToggle(TestSetting.TestAgain, "Test Again", "This is another separate setting", true, false);
 
@@ -47,6 +48,7 @@ public class TestModule : Module
 
         Log($"This setting is {GetSetting<bool>(TestSetting.Test)}");
         Log($"The value in index 1 is {GetSetting<List<string>>(TestSetting.TestList)![1]}");
+        Log($"TextBox: {GetSetting<string>(TestSetting.TextBox)}");
     }
 
     protected override Task OnModuleStop()
@@ -59,7 +61,8 @@ public class TestModule : Module
     {
         Test,
         TestList,
-        TestAgain
+        TestAgain,
+        TextBox
     }
 
     private enum TestParameter

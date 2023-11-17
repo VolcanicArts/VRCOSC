@@ -17,6 +17,8 @@ public abstract partial class DrawableModuleSetting<T> : Container where T : Mod
 
     protected override Container<Drawable> Content { get; }
 
+    protected readonly Container SideContainer;
+
     protected DrawableModuleSetting(T moduleSetting)
     {
         ModuleSetting = moduleSetting;
@@ -68,15 +70,28 @@ public abstract partial class DrawableModuleSetting<T> : Container where T : Mod
                                         Colour = Colours.WHITE0,
                                         Text = ModuleSetting.Metadata.Title
                                     },
-                                    new SpriteText
+                                    new TextFlowContainer(t =>
                                     {
-                                        Font = Fonts.REGULAR.With(size: 20),
-                                        Colour = Colours.WHITE2,
+                                        t.Font = Fonts.REGULAR.With(size: 20);
+                                        t.Colour = Colours.WHITE2;
+                                    })
+                                    {
+                                        RelativeSizeAxes = Axes.X,
+                                        AutoSizeAxes = Axes.Y,
                                         Text = ModuleSetting.Metadata.Description
+                                    },
+                                    Content = new Container
+                                    {
+                                        RelativeSizeAxes = Axes.X,
+                                        AutoSizeAxes = Axes.Y,
+                                        Margin = new MarginPadding
+                                        {
+                                            Top = 7
+                                        }
                                     }
                                 }
                             },
-                            Content = new Container
+                            SideContainer = new Container
                             {
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
@@ -97,6 +112,8 @@ public abstract partial class DrawableValueModuleSetting<T> : DrawableModuleSett
         : base(moduleAttribute)
     {
     }
+
+    protected internal void AddSide(Drawable drawable) => SideContainer.Add(drawable);
 }
 
 public abstract partial class DrawableListModuleSetting<T> : DrawableModuleSetting<T> where T : ModuleSetting
