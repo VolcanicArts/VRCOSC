@@ -3,7 +3,7 @@
 
 using System;
 
-namespace VRCOSC.Game.Modules.SDK.Attributes;
+namespace VRCOSC.Game.Modules.SDK.Parameters;
 
 [Flags]
 public enum ParameterMode
@@ -22,4 +22,15 @@ public enum ParameterMode
     /// Has the ability to read from and write to VRChat
     /// </summary>
     ReadWrite = Read | Write
+}
+
+public static class ParameterModeExtensions
+{
+    public static string ToReadableName(this ParameterMode mode) => mode switch
+    {
+        ParameterMode.Read => "Read",
+        ParameterMode.Write => "Write",
+        ParameterMode.ReadWrite => "Read/Write",
+        _ => throw new ArgumentOutOfRangeException(nameof(mode), mode, null)
+    };
 }

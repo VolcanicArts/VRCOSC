@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using VRCOSC.Game.Modules.SDK.Parameters;
 
 namespace VRCOSC.Game.Modules.SDK.Attributes;
 
