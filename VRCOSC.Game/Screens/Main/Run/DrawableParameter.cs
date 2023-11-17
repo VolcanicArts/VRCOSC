@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -15,16 +16,16 @@ public partial class DrawableParameter : Container
 {
     private readonly string parameterName;
     private readonly object parameterInitialValue;
-    private readonly bool even;
+
+    public Bindable<bool> Even = new();
 
     private Box background = null!;
     private SpriteText valueSpriteText = null!;
 
-    public DrawableParameter(string parameterName, object parameterInitialValue, bool even)
+    public DrawableParameter(string parameterName, object parameterInitialValue)
     {
         this.parameterName = parameterName;
         this.parameterInitialValue = parameterInitialValue;
-        this.even = even;
     }
 
     [BackgroundDependencyLoader]
@@ -39,8 +40,7 @@ public partial class DrawableParameter : Container
         {
             background = new Box
             {
-                RelativeSizeAxes = Axes.Both,
-                Colour = even ? Colours.GRAY1 : Colours.GRAY2
+                RelativeSizeAxes = Axes.Both
             },
             new Container
             {
@@ -72,6 +72,8 @@ public partial class DrawableParameter : Container
                 }
             }
         };
+
+        Even.BindValueChanged(e => background.Colour = e.NewValue ? Colours.GRAY1 : Colours.GRAY2, true);
     }
 
     public void UpdateValue(object value)

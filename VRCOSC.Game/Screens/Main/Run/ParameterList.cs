@@ -145,7 +145,7 @@ public partial class ParameterList : Container
         }
         else
         {
-            var newDrawableParameter = new DrawableParameter(message.Address, message.ParameterValue, listingFlow.Count % 2 == 1);
+            var newDrawableParameter = new DrawableParameter(message.Address, message.ParameterValue);
             listingCache.Add(message.Address, newDrawableParameter);
             listingFlow.Add(newDrawableParameter);
 
@@ -153,8 +153,9 @@ public partial class ParameterList : Container
 
             foreach (var sortedDrawableParameter in listingCache.Values)
             {
-                listingFlow.ChangeChildDepth(newDrawableParameter, depth);
+                listingFlow.ChangeChildDepth(sortedDrawableParameter, depth);
                 listingFlow.SetLayoutPosition(sortedDrawableParameter, depth);
+                sortedDrawableParameter.Even.Value = depth % 2f != 0f;
                 depth++;
             }
         }
