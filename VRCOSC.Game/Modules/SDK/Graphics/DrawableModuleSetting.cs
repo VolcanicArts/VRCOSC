@@ -44,7 +44,7 @@ public abstract partial class DrawableModuleSetting<T> : Container where T : Mod
                 AutoSizeAxes = Axes.Y,
                 Direction = FillDirection.Vertical,
                 Spacing = new Vector2(0, 10),
-                Padding = new MarginPadding(10),
+                Padding = new MarginPadding(7),
                 Children = new Drawable[]
                 {
                     new Container

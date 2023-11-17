@@ -1,6 +1,8 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Collections.Generic;
+using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
@@ -117,7 +119,31 @@ public partial class ModuleSettingsContainer : VisibilityContainer
     public void SetModule(Module? module)
     {
         settingsFlow.Clear();
-        module?.Settings.ForEach(setting => settingsFlow.Add(setting.Value.GetDrawableModuleAttribute()));
+        if (module is null) return;
+
+        var settingsInGroup = new List<string>();
+
+        module.Groups.ForEach(groupPair =>
+        {
+            var moduleSettingsGroupContainer = new ModuleSettingsGroupContainer(groupPair.Key);
+
+            groupPair.Value.ForEach(settingLookup =>
+            {
+                settingsInGroup.Add(settingLookup);
+
+                var moduleSetting = module.Settings[settingLookup];
+                moduleSettingsGroupContainer.Add(moduleSetting.GetDrawableModuleAttribute());
+            });
+
+            settingsFlow.Add(moduleSettingsGroupContainer);
+        });
+
+        var miscModuleSettingsGroupContainer = new ModuleSettingsGroupContainer(module.Groups.Any() ? "Miscellaneous" : string.Empty);
+        module.Settings.Where(settingPair => !settingsInGroup.Contains(settingPair.Key))
+              .Select(settingPair => settingPair.Value)
+              .ForEach(moduleSetting => miscModuleSettingsGroupContainer.Add(moduleSetting.GetDrawableModuleAttribute()));
+
+        settingsFlow.Add(miscModuleSettingsGroupContainer);
     }
 
     protected override void PopIn()

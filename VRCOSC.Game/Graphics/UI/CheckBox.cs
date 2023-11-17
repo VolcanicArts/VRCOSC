@@ -26,13 +26,18 @@ public partial class CheckBox : Button
     private Box background = null!;
     private SpriteIcon icon = null!;
 
+    public CheckBox()
+    {
+        BorderColour = Colours.GRAY5;
+    }
+
     [BackgroundDependencyLoader]
     private void load()
     {
         Masking = true;
         CornerRadius = 5;
         BorderThickness = 4;
-        BorderColour = Colours.GRAY5;
+        BorderColour = BorderColour;
 
         Children = new Drawable[]
         {
