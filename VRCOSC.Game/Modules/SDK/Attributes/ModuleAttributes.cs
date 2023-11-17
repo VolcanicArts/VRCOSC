@@ -81,7 +81,7 @@ public abstract class ModuleAttribute
 public abstract class ModuleSetting : ModuleAttribute
 {
     /// <summary>
-    /// The metadata for this <see cref="ModuleAttribute"/>
+    /// The metadata for this <see cref="ModuleSetting"/>
     /// </summary>
     internal new ModuleSettingMetadata Metadata => (ModuleSettingMetadata)base.Metadata;
 
@@ -99,7 +99,7 @@ public abstract class ModuleSetting : ModuleAttribute
 public class ModuleParameter : ModuleAttribute
 {
     /// <summary>
-    /// The metadata for this <see cref="ModuleAttribute"/>
+    /// The metadata for this <see cref="ModuleParameter"/>
     /// </summary>
     internal new ModuleParameterMetadata Metadata => (ModuleParameterMetadata)base.Metadata;
 

@@ -11,6 +11,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osuTK;
 using VRCOSC.Game.Graphics;
+using VRCOSC.Game.Screens.Main.Modules.Parameters;
 using VRCOSC.Game.Screens.Main.Modules.Settings;
 using Module = VRCOSC.Game.Modules.SDK.Module;
 
@@ -30,7 +31,7 @@ public partial class ModulesTab : Container
     private TextFlowContainer noModulesText = null!;
     private Box backgroundDarkener = null!;
     private ModuleSettingsContainer moduleSettingsContainer = null!;
-    private ModuleSettingsContainer moduleParametersContainer = null!;
+    private ModuleParametersContainer moduleParametersContainer = null!;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -96,7 +97,7 @@ public partial class ModulesTab : Container
                 RelativeSizeAxes = Axes.Both,
                 Padding = new MarginPadding(20)
             },
-            moduleParametersContainer = new ModuleSettingsContainer
+            moduleParametersContainer = new ModuleParametersContainer
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,

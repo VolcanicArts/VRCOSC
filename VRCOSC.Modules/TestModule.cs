@@ -15,7 +15,9 @@ public class TestModule : Module
 
     protected override void OnLoad()
     {
-        RegisterParameter<float>(TestParameter.Test, "This is a test parameter", "This is a parameter description", ParameterMode.Write, "SomeTestParameter");
+        RegisterParameter<float>(TestParameter.Test, "Test", "This is parameter test's description", ParameterMode.Write, "SomeTestParameter");
+        RegisterParameter<float>(TestParameter.Test2, "Test2", "This is parameter test's description. It's kinda long, and this should test to see how overlapping could work", ParameterMode.ReadWrite, "SomeTest2Parameter");
+        RegisterParameter<float>(TestParameter.Test3, "Test3", "This is parameter test's description.\nThat was a new line\n\nIt can do multiple too", ParameterMode.Read, "SomeTest3Parameter");
 
         CreateToggle(TestSetting.Test, "Test", "This is a test setting", false, false);
         CreateTextBox(TestSetting.TextBox, "Text Box", "Did you know that this is a text box?\nJust checking new lines too", false, false, "This is a default value");
@@ -35,7 +37,6 @@ public class TestModule : Module
     protected override Task OnModuleStart()
     {
         foo = 0f;
-        SendParameter("SomeParameter", true);
         return Task.CompletedTask;
     }
 
@@ -44,6 +45,8 @@ public class TestModule : Module
     {
         SendParameter("SomeFloatParameter", foo += 0.01f);
         SendParameter(TestParameter.Test, foo += 0.01f);
+        SendParameter(TestParameter.Test2, foo += 0.01f);
+        SendParameter(TestParameter.Test3, foo += 0.01f);
 
         Log($"This setting is {GetSetting<bool>(TestSetting.Test)}");
         Log($"The value in index 1 is {GetSetting<List<string>>(TestSetting.TestList)![1]}");
@@ -52,7 +55,6 @@ public class TestModule : Module
 
     protected override Task OnModuleStop()
     {
-        SendParameter("SomeParameter", false);
         return Task.CompletedTask;
     }
 
@@ -66,6 +68,8 @@ public class TestModule : Module
 
     private enum TestParameter
     {
-        Test
+        Test,
+        Test2,
+        Test3
     }
 }
