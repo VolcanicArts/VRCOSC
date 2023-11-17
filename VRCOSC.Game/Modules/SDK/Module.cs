@@ -13,8 +13,8 @@ using osu.Framework.Logging;
 using osu.Framework.Threading;
 using osu.Framework.Timing;
 using VRCOSC.Game.Modules.SDK.Attributes;
-using VRCOSC.Game.Modules.SDK.Graphics;
-using VRCOSC.Game.Modules.SDK.Parameters;
+using VRCOSC.Game.Modules.SDK.Graphics.Parameters;
+using VRCOSC.Game.Modules.SDK.Graphics.Settings;
 using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Game.Modules.SDK;
@@ -59,6 +59,7 @@ public class Module
         OnLoad();
 
         Settings.Values.ForEach(moduleSetting => moduleSetting.Load());
+        Parameters.Values.ForEach(moduleParameter => moduleParameter.Load());
 
         OnPostLoad();
     }
@@ -140,9 +141,9 @@ public class Module
     /// <param name="title">The title of the parameter</param>
     /// <param name="description">A short description of the parameter</param>
     /// <param name="mode">Whether the parameter can read to or write from VRChat</param>
-    protected void RegisterParameter<T>(Enum lookup, string defaultName, string title, string description, ParameterMode mode) where T : struct
+    protected void RegisterParameter<T>(Enum lookup, string title, string description, ParameterMode mode, string defaultName) where T : struct
     {
-        Parameters.Add(lookup.ToString(), new ModuleParameter(defaultName, title, description, mode, typeof(T)));
+        Parameters.Add(lookup.ToString(), new ModuleParameter(new ModuleParameterMetadata(title, description, typeof(DrawableModuleParameter)), mode, typeof(T), defaultName));
     }
 
     /// <summary>

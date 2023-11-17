@@ -3,7 +3,7 @@
 
 using VRCOSC.Game.Modules.SDK.Attributes;
 
-namespace VRCOSC.Game.Modules.SDK.Graphics;
+namespace VRCOSC.Game.Modules.SDK.Graphics.Settings;
 
 public partial class DrawableStringDropdownModuleSetting : DrawableModuleSetting<StringDropdownModuleSetting>
 {

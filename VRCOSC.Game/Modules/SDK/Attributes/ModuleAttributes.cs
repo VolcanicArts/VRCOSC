@@ -8,50 +8,16 @@ using Newtonsoft.Json.Linq;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics.Containers;
 
+// ReSharper disable SuggestBaseTypeForParameterInConstructor
+
 namespace VRCOSC.Game.Modules.SDK.Attributes;
 
-public class ModuleSettingMetadata
+public abstract class ModuleAttribute
 {
     /// <summary>
-    /// The title for this <see cref="ModuleSetting"/>
+    /// The metadata for this <see cref="ModuleAttribute"/>
     /// </summary>
-    public readonly string Title;
-
-    /// <summary>
-    /// The description for this <see cref="ModuleSetting"/>
-    /// </summary>
-    public readonly string Description;
-
-    /// <summary>
-    /// The type to create for the UI of this <see cref="ModuleSetting"/>
-    /// </summary>
-    public readonly Type DrawableModuleAttributeType;
-
-    /// <summary>
-    /// Whether to mark this <see cref="ModuleSetting"/> as required for the module to work
-    /// </summary>
-    public readonly bool Required;
-
-    public ModuleSettingMetadata(string title, string description, Type drawableModuleAttributeType, bool required)
-    {
-        Title = title;
-        Description = description;
-        DrawableModuleAttributeType = drawableModuleAttributeType;
-        Required = required;
-    }
-}
-
-public abstract class ModuleSetting
-{
-    /// <summary>
-    /// The enabled value of this <see cref="ModuleSetting"/>
-    /// </summary>
-    public Bindable<bool> Enabled = new(true);
-
-    /// <summary>
-    /// The metadata for this <see cref="ModuleSetting"/>
-    /// </summary>
-    internal ModuleSettingMetadata Metadata;
+    internal ModuleAttributeMetadata Metadata;
 
     /// <summary>
     /// The UI component associated with this <see cref="ModuleSetting"/>.
@@ -106,9 +72,53 @@ public abstract class ModuleSetting
     /// </summary>
     internal abstract object GetRawValue();
 
-    protected ModuleSetting(ModuleSettingMetadata metadata)
+    protected ModuleAttribute(ModuleAttributeMetadata metadata)
     {
         Metadata = metadata;
+    }
+}
+
+public abstract class ModuleSetting : ModuleAttribute
+{
+    /// <summary>
+    /// The enabled value of this <see cref="ModuleSetting"/>
+    /// </summary>
+    public Bindable<bool> Enabled = new(true);
+
+    protected ModuleSetting(ModuleSettingMetadata metadata)
+        : base(metadata)
+    {
+        Metadata = metadata;
+    }
+}
+
+public class ModuleParameter : ModuleAttribute
+{
+    internal Bindable<string> Name = null!;
+    internal readonly ParameterMode Mode;
+    internal readonly Type ExpectedType;
+
+    private readonly string defaultName;
+
+    internal override void Load() => Name = new Bindable<string>(defaultName);
+    internal override bool IsDefault() => Name.IsDefault;
+    internal override void SetDefault() => Name.SetDefault();
+    internal override object GetRawValue() => Name.Value;
+
+    internal override bool Deserialise(object ingestValue)
+    {
+        if (ingestValue is not string stringIngestValue) return false;
+
+        Name.Value = stringIngestValue;
+        return true;
+    }
+
+    public ModuleParameter(ModuleParameterMetadata metadata, ParameterMode mode, Type expectedType, string defaultName)
+        : base(metadata)
+    {
+        Mode = mode;
+        ExpectedType = expectedType;
+        this.defaultName = defaultName;
     }
 }
 

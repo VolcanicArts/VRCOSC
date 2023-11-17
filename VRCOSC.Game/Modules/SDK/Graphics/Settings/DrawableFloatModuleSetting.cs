@@ -6,11 +6,11 @@ using osu.Framework.Graphics;
 using VRCOSC.Game.Graphics.UI.Text;
 using VRCOSC.Game.Modules.SDK.Attributes;
 
-namespace VRCOSC.Game.Modules.SDK.Graphics;
+namespace VRCOSC.Game.Modules.SDK.Graphics.Settings;
 
-public partial class DrawableIntModuleSetting : DrawableValueModuleSetting<IntModuleSetting>
+public partial class DrawableFloatModuleSetting : DrawableValueModuleSetting<FloatModuleSetting>
 {
-    public DrawableIntModuleSetting(IntModuleSetting moduleSetting)
+    public DrawableFloatModuleSetting(FloatModuleSetting moduleSetting)
         : base(moduleSetting)
     {
     }
@@ -18,7 +18,7 @@ public partial class DrawableIntModuleSetting : DrawableValueModuleSetting<IntMo
     [BackgroundDependencyLoader]
     private void load()
     {
-        Add(new IntTextBox
+        Add(new FloatTextBox
         {
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,

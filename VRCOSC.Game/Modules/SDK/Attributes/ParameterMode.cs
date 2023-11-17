@@ -3,7 +3,7 @@
 
 using System;
 
-namespace VRCOSC.Game.Modules.SDK.Parameters;
+namespace VRCOSC.Game.Modules.SDK.Attributes;
 
 [Flags]
 public enum ParameterMode

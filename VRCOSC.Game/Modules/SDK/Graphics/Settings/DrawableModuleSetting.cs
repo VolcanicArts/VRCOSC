@@ -9,7 +9,7 @@ using osuTK;
 using VRCOSC.Game.Graphics;
 using VRCOSC.Game.Modules.SDK.Attributes;
 
-namespace VRCOSC.Game.Modules.SDK.Graphics;
+namespace VRCOSC.Game.Modules.SDK.Graphics.Settings;
 
 public abstract partial class DrawableModuleSetting<T> : Container where T : ModuleSetting
 {

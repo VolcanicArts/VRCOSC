@@ -17,10 +17,10 @@ namespace VRCOSC.Game.Graphics.UI;
 
 public partial class IconButton : ClickableContainer
 {
-    public Color4 BackgroundColour { get; init; } = Color4.Black;
-    public IconUsage Icon { get; init; } = FontAwesome.Regular.Angry;
-    public float IconSize { get; init; } = 20;
-    public Color4 IconColour { get; init; } = Color4.White;
+    public Color4 BackgroundColour { get; set; } = Color4.Black;
+    public IconUsage Icon { get; set; } = FontAwesome.Regular.Angry;
+    public float IconSize { get; set; } = 20;
+    public Color4 IconColour { get; set; } = Color4.White;
     public new float CornerRadius = 0;
 
     private Box background = null!;

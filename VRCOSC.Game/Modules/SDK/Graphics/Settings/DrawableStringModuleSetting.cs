@@ -6,7 +6,7 @@ using osu.Framework.Graphics;
 using VRCOSC.Game.Graphics.UI.Text;
 using VRCOSC.Game.Modules.SDK.Attributes;
 
-namespace VRCOSC.Game.Modules.SDK.Graphics;
+namespace VRCOSC.Game.Modules.SDK.Graphics.Settings;
 
 public partial class DrawableStringModuleSetting : DrawableValueModuleSetting<StringModuleSetting>
 {

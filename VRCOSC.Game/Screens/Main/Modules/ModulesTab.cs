@@ -30,6 +30,7 @@ public partial class ModulesTab : Container
     private TextFlowContainer noModulesText = null!;
     private Box backgroundDarkener = null!;
     private ModuleSettingsContainer moduleSettingsContainer = null!;
+    private ModuleSettingsContainer moduleParametersContainer = null!;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -94,6 +95,13 @@ public partial class ModulesTab : Container
                 Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.Both,
                 Padding = new MarginPadding(20)
+            },
+            moduleParametersContainer = new ModuleSettingsContainer
+            {
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                RelativeSizeAxes = Axes.Both,
+                Padding = new MarginPadding(20)
             }
         };
 
@@ -109,9 +117,21 @@ public partial class ModulesTab : Container
         moduleSettingsContainer.Show();
     }
 
+    public void ShowParameters(Module module)
+    {
+        moduleParametersContainer.SetModule(module);
+        moduleParametersContainer.Show();
+    }
+
     private void setupBlur()
     {
         moduleSettingsContainer.State.BindValueChanged(e =>
+        {
+            bufferedContainer.TransformTo(nameof(BufferedContainer.BlurSigma), e.NewValue == Visibility.Visible ? new Vector2(5) : new Vector2(0), 250, Easing.OutCubic);
+            backgroundDarkener.FadeColour(e.NewValue == Visibility.Visible ? Colours.BLACK.Opacity(0.25f) : Colours.Transparent, 250, Easing.OutCubic);
+        });
+
+        moduleParametersContainer.State.BindValueChanged(e =>
         {
             bufferedContainer.TransformTo(nameof(BufferedContainer.BlurSigma), e.NewValue == Visibility.Visible ? new Vector2(5) : new Vector2(0), 250, Easing.OutCubic);
             backgroundDarkener.FadeColour(e.NewValue == Visibility.Visible ? Colours.BLACK.Opacity(0.25f) : Colours.Transparent, 250, Easing.OutCubic);

@@ -110,23 +110,37 @@ public partial class DrawableModule : Container
                 RelativeSizeAxes = Axes.Y,
                 AutoSizeAxes = Axes.X,
                 Padding = new MarginPadding(7),
+                Direction = FillDirection.Horizontal,
+                Spacing = new Vector2(7, 0),
                 Children = new Drawable[]
                 {
-                    new IconButton
+                    new DrawableModuleButton
                     {
-                        Anchor = Anchor.CentreRight,
-                        Origin = Anchor.CentreRight,
-                        Size = new Vector2(36),
+                        Icon = FontAwesome.Solid.Link,
+                        Action = () => modulesTab.ShowParameters(module)
+                    },
+                    new DrawableModuleButton
+                    {
                         Icon = FontAwesome.Solid.Cog,
-                        Masking = true,
-                        CornerRadius = 5,
-                        IconSize = 23,
-                        BackgroundColour = Colours.GRAY6,
                         Action = () => modulesTab.ShowSettings(module)
                     }
                 }
             }
         };
+    }
+
+    private partial class DrawableModuleButton : IconButton
+    {
+        public DrawableModuleButton()
+        {
+            Anchor = Anchor.CentreRight;
+            Origin = Anchor.CentreRight;
+            Size = new Vector2(36);
+            Masking = true;
+            CornerRadius = 5;
+            IconSize = 23;
+            BackgroundColour = Colours.GRAY6;
+        }
     }
 
     private partial class TypeIdentifier : Container

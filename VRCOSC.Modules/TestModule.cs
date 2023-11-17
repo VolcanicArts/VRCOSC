@@ -1,9 +1,8 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.Game.Modules.SDK;
 using VRCOSC.Game.Modules.SDK.Attributes;
-using VRCOSC.Game.Modules.SDK.Parameters;
 
 namespace VRCOSC.Modules;
 
@@ -16,7 +15,7 @@ public class TestModule : Module
 
     protected override void OnLoad()
     {
-        RegisterParameter<float>(TestParameter.Test, "SomeTestParameter", "This is a test parameter", "This is a parameter description", ParameterMode.Write);
+        RegisterParameter<float>(TestParameter.Test, "This is a test parameter", "This is a parameter description", ParameterMode.Write, "SomeTestParameter");
 
         CreateToggle(TestSetting.Test, "Test", "This is a test setting", false, false);
         CreateTextBox(TestSetting.TextBox, "Text Box", "Did you know that this is a text box?\nJust checking new lines too", false, false, "This is a default value");
