@@ -61,16 +61,22 @@ public class ModuleManager
 
     public void FrameworkUpdate()
     {
-        modules.ForEach(module => module.FrameworkUpdate());
+        runningModuleCache.ForEach(module => module.FrameworkUpdate());
     }
 
     public void PlayerUpdate()
     {
-        modules.ForEach(module => module.PlayerUpdate());
+        runningModuleCache.ForEach(module => module.PlayerUpdate());
+    }
+
+    public void AvatarChange()
+    {
+        runningModuleCache.ForEach(module => module.AvatarChange());
     }
 
     public void ParameterReceived(VRChatOscMessage vrChatOscMessage)
     {
+        runningModuleCache.ForEach(module => module.OnParameterReceived(vrChatOscMessage));
     }
 
     #endregion

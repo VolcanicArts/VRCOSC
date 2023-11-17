@@ -9,20 +9,16 @@ namespace VRCOSC.Game.Modules.SDK;
 
 public enum ModuleType
 {
-    Generic
+    Generic,
+    Integrations
 }
 
 public static class ModuleTypeExtensions
 {
-    public static Color4 ToColour(this ModuleType type)
+    public static Color4 ToColour(this ModuleType type) => type switch
     {
-        switch (type)
-        {
-            case ModuleType.Generic:
-                return Colours.WHITE0;
-
-            default:
-                throw new ArgumentOutOfRangeException(nameof(type), type, null);
-        }
-    }
+        ModuleType.Generic => Colours.WHITE0,
+        ModuleType.Integrations => Colours.YELLOW0,
+        _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+    };
 }

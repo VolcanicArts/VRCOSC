@@ -56,6 +56,12 @@ public class AppManager
     {
         while (oscMessageQueue.TryDequeue(out var message))
         {
+            if (message.IsAvatarChangeEvent)
+            {
+                ModuleManager.AvatarChange();
+                continue;
+            }
+
             if (message.IsAvatarParameter)
             {
                 var wasPlayerUpdated = VRChatClient.Player.Update(message.ParameterName, message.ParameterValue);

@@ -95,6 +95,12 @@ public class Module
         var startTask = OnModuleStart();
         startTask.GetAwaiter().OnCompleted(() =>
         {
+            if (!startTask.Result)
+            {
+                Log("Failed to start");
+                // TODO: Handle stopping a module in the module manager
+            }
+
             State.Value = ModuleState.Started;
 
             initialiseUpdateAttributes(GetType());
@@ -149,8 +155,17 @@ public class Module
 
     #region SDK Exposed
 
-    protected virtual Task OnModuleStart() => Task.CompletedTask;
+    protected virtual Task<bool> OnModuleStart() => Task.FromResult(true);
     protected virtual Task OnModuleStop() => Task.CompletedTask;
+
+    internal void AvatarChange()
+    {
+        OnAvatarChange();
+    }
+
+    protected virtual void OnAvatarChange()
+    {
+    }
 
     /// <summary>
     /// Registers a parameter with a lookup to allow the user to customise the parameter name
