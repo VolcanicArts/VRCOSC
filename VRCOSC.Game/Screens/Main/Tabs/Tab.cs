@@ -8,5 +8,6 @@ public enum Tab
     Home,
     Repo,
     Modules,
-    Run
+    Run,
+    Settings
 }
