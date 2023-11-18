@@ -29,8 +29,8 @@ public class SerialisableProfileManager : SerialisableVersion
         Version = 1;
 
         Profiles.AddRange(profileManager.Profiles.Select(profile => new SerialisableProfile(profile)));
-        DefaultProfile = profileManager.DefaultProfile.Value.Name.Value;
-        ActiveProfile = profileManager.ActiveProfile.Value.Name.Value;
+        DefaultProfile = profileManager.DefaultProfile.Value.SerialisedName;
+        ActiveProfile = profileManager.ActiveProfile.Value.SerialisedName;
     }
 }
 

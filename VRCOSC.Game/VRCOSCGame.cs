@@ -64,11 +64,11 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         appManager.RemoteModuleSourceManager.Progress = onRemoteModulesActionProgress;
         await appManager.RemoteModuleSourceManager.Load();
 
-        LoadingScreen.Action.Value = "Loading modules";
-        appManager.ModuleManager.LoadAllModules();
-
         LoadingScreen.Action.Value = "Loading profiles";
         appManager.ProfileManager.Load();
+
+        LoadingScreen.Action.Value = "Loading modules";
+        appManager.ModuleManager.LoadAllModules();
 
         LoadingScreen.Action.Value = "Loading graphics";
         var mainScreen = new MainScreen

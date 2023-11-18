@@ -12,7 +12,9 @@ using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Framework.Timing;
+using VRCOSC.Game.Modules.Serialisation;
 using VRCOSC.Game.OSC.VRChat;
+using VRCOSC.Game.Serialisation;
 using Module = VRCOSC.Game.Modules.SDK.Module;
 
 namespace VRCOSC.Game.Modules;
@@ -24,7 +26,7 @@ public class ModuleManager
     private readonly AppManager appManager;
 
     private AssemblyLoadContext? localModulesContext;
-    private List<AssemblyLoadContext>? remoteModulesContexts;
+    private Dictionary<string, AssemblyLoadContext>? remoteModulesContexts;
 
     public readonly Dictionary<Assembly, List<Module>> LocalModules = new();
     public readonly Dictionary<Assembly, List<Module>> RemoteModules = new();
@@ -88,13 +90,15 @@ public class ModuleManager
     /// </summary>
     public void ReloadAllModules()
     {
+        modules.ForEach(module => module.Serialise());
+
         LocalModules.Clear();
         RemoteModules.Clear();
 
         localModulesContext?.Unload();
         localModulesContext = null;
 
-        remoteModulesContexts?.ForEach(remoteModuleContext => remoteModuleContext.Unload());
+        remoteModulesContexts?.Values.ForEach(remoteModuleContext => remoteModuleContext.Unload());
         remoteModulesContexts = null;
 
         LoadAllModules();
@@ -110,8 +114,12 @@ public class ModuleManager
 
         modules.ForEach(module =>
         {
-            module.InjectDependencies(clock, appManager);
+            var moduleSerialisationManager = new SerialisationManager();
+            moduleSerialisationManager.RegisterSerialiser(1, new ModuleSerialiser(storage, module, appManager.ProfileManager.ActiveProfile));
+
+            module.InjectDependencies(clock, appManager, moduleSerialisationManager);
             module.Load();
+            module.Deseralise();
         });
     }
 
@@ -126,7 +134,7 @@ public class ModuleManager
         localModulesContext = loadContextFromPath(localModulesPath);
         Logger.Log($"Found {localModulesContext.Assemblies.Count()} assemblies");
 
-        var localModules = retrieveModuleInstances(localModulesContext);
+        var localModules = retrieveModuleInstances("local", localModulesContext);
 
         localModules.ForEach(localModule =>
         {
@@ -148,14 +156,18 @@ public class ModuleManager
         if (remoteModulesContexts is not null)
             throw new InvalidOperationException("Cannot load remote modules while remote modules are already loaded");
 
-        remoteModulesContexts = new List<AssemblyLoadContext>();
+        remoteModulesContexts = new Dictionary<string, AssemblyLoadContext>();
 
         var remoteModulesDirectory = storage.GetStorageForDirectory("modules/remote").GetFullPath(string.Empty, true);
-        Directory.GetDirectories(remoteModulesDirectory).ForEach(moduleDirectory => remoteModulesContexts.Add(loadContextFromPath(moduleDirectory)));
-        Logger.Log($"Found {remoteModulesContexts.Sum(remoteModuleContext => remoteModuleContext.Assemblies.Count())} assemblies");
+        Directory.GetDirectories(remoteModulesDirectory).ForEach(moduleDirectory =>
+        {
+            var packageId = moduleDirectory.Split('\\').Last();
+            remoteModulesContexts.Add(packageId, loadContextFromPath(moduleDirectory));
+        });
+        Logger.Log($"Found {remoteModulesContexts.Values.Sum(remoteModuleContext => remoteModuleContext.Assemblies.Count())} assemblies");
 
         var remoteModules = new List<Module>();
-        remoteModulesContexts.ForEach(remoteModuleContext => remoteModules.AddRange(retrieveModuleInstances(remoteModuleContext)));
+        remoteModulesContexts.ForEach(pair => remoteModules.AddRange(retrieveModuleInstances(pair.Key, pair.Value)));
 
         remoteModules.ForEach(remoteModule =>
         {
@@ -170,13 +182,18 @@ public class ModuleManager
         Logger.Log($"Final remote module count: {remoteModules.Count}");
     }
 
-    private List<Module> retrieveModuleInstances(AssemblyLoadContext assemblyLoadContext)
+    private List<Module> retrieveModuleInstances(string packageId, AssemblyLoadContext assemblyLoadContext)
     {
         var moduleInstanceList = new List<Module>();
 
         try
         {
-            assemblyLoadContext.Assemblies.ForEach(assembly => moduleInstanceList.AddRange(assembly.ExportedTypes.Where(type => type.IsSubclassOf(typeof(Module)) && !type.IsAbstract).Select(type => (Module)Activator.CreateInstance(type)!)));
+            assemblyLoadContext.Assemblies.ForEach(assembly => moduleInstanceList.AddRange(assembly.ExportedTypes.Where(type => type.IsSubclassOf(typeof(Module)) && !type.IsAbstract).Select(type =>
+            {
+                var module = (Module)Activator.CreateInstance(type)!;
+                module.PackageId = packageId;
+                return module;
+            })));
         }
         catch
         {

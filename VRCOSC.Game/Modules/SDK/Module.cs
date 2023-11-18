@@ -18,13 +18,18 @@ using VRCOSC.Game.Modules.SDK.Attributes;
 using VRCOSC.Game.Modules.SDK.Graphics.Settings;
 using VRCOSC.Game.Modules.SDK.Parameters;
 using VRCOSC.Game.OSC.VRChat;
+using VRCOSC.Game.Serialisation;
 
 namespace VRCOSC.Game.Modules.SDK;
 
 public class Module
 {
+    public string PackageId { get; set; } = null!;
+
     private Scheduler scheduler = null!;
     private AppManager appManager = null!;
+
+    private SerialisationManager serialisationManager = null!;
 
     internal Bindable<bool> Enabled = new();
 
@@ -42,7 +47,7 @@ public class Module
     private readonly Dictionary<string, Enum> parameterNameEnum = new();
     private readonly Dictionary<string, Regex> parameterNameRegex = new();
 
-    internal string SerialisedName => GetType().Name.ToLowerInvariant();
+    internal string SerialisedName => $"{PackageId}.{GetType().Name.ToLowerInvariant()}";
 
     protected Module()
     {
@@ -54,10 +59,21 @@ public class Module
         Log($"State changed to {e.NewValue}");
     }
 
-    internal void InjectDependencies(IClock clock, AppManager appManager)
+    internal void InjectDependencies(IClock clock, AppManager appManager, SerialisationManager serialisationManager)
     {
         scheduler = new Scheduler(() => ThreadSafety.IsUpdateThread, clock);
         this.appManager = appManager;
+        this.serialisationManager = serialisationManager;
+    }
+
+    internal void Serialise()
+    {
+        serialisationManager.Serialise();
+    }
+
+    internal void Deseralise()
+    {
+        serialisationManager.Deserialise();
     }
 
     internal void Load()

@@ -1,23 +1,24 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.IO;
+using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Platform;
 using VRCOSC.Game.Modules.SDK;
 using VRCOSC.Game.Modules.SDK.Attributes;
+using VRCOSC.Game.Profiles;
 using VRCOSC.Game.Serialisation;
 
-namespace VRCOSC.Game.Modules.Serialisation.V1;
+namespace VRCOSC.Game.Modules.Serialisation;
 
-public class ModuleSerialiser : Serialiser<Module, SerialisableModule>
+public class ModuleSerialiser : ProfiledSerialiser<Module, SerialisableModule>
 {
-    protected override string Directory => "configuration";
-
-    // TODO: Replace with profiles
+    protected override string Directory => Path.Join(base.Directory, "modules");
     protected override string FileName => $"{Reference.SerialisedName}.json";
 
-    public ModuleSerialiser(Storage storage, Module reference)
-        : base(storage, reference)
+    public ModuleSerialiser(Storage storage, Module reference, Bindable<Profile> activeProfile)
+        : base(storage, reference, activeProfile)
     {
     }
 

@@ -25,11 +25,11 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
     protected virtual string Directory => string.Empty;
     protected virtual string FileName => string.Empty;
 
-    private Storage storage;
+    private readonly Storage baseStorage;
 
     protected Serialiser(Storage storage, TReference reference)
     {
-        this.storage = storage;
+        baseStorage = storage;
         Reference = reference;
     }
 
@@ -37,12 +37,10 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
     {
         if (string.IsNullOrEmpty(Directory) || string.IsNullOrEmpty(FileName))
             throw new InvalidOperationException("Cannot initialise serialiser without a directory and filename");
-
-        storage = storage.GetStorageForDirectory(Directory);
     }
 
-    public string FullPath => storage.GetFullPath(FileName);
-    public bool DoesFileExist() => storage.Exists(FileName);
+    public string FullPath => baseStorage.GetStorageForDirectory(Directory).GetFullPath(FileName);
+    public bool DoesFileExist() => baseStorage.GetStorageForDirectory(Directory).Exists(FileName);
 
     public bool TryGetVersion([NotNullWhen(true)] out int? version)
     {
@@ -111,7 +109,7 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
                 var data = (TSerialisable)Activator.CreateInstance(typeof(TSerialisable), Reference)!;
 
                 var bytes = Encoding.Unicode.GetBytes(JsonConvert.SerializeObject(data, Formatting.Indented));
-                using var stream = storage.CreateFileSafely(FileName);
+                using var stream = baseStorage.GetStorageForDirectory(Directory).CreateFileSafely(FileName);
                 stream.Write(bytes);
             }
 

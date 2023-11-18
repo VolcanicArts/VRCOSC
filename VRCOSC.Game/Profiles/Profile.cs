@@ -7,6 +7,8 @@ namespace VRCOSC.Game.Profiles;
 
 public class Profile
 {
+    public string SerialisedName => Name.Value.ToLowerInvariant();
+
     /// <summary>
     /// The name of this <see cref="Profile"/>
     /// </summary>

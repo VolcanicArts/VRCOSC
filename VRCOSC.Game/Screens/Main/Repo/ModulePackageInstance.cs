@@ -39,7 +39,7 @@ public partial class ModulePackageInstance : Container
 
         FillFlowContainer actionContainer;
 
-        Children = new Drawable[]
+        InternalChildren = new Drawable[]
         {
             new Box
             {

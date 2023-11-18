@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Linq;
 using osu.Framework.Platform;
 using VRCOSC.Game.Serialisation;
@@ -34,6 +35,9 @@ public class ProfileManagerSerialiser : Serialiser<ProfileManager, SerialisableP
             };
             return profile;
         }));
+
+        Reference.ActiveProfile.Value = Reference.Profiles.First(profile => profile.SerialisedName.Equals(data.ActiveProfile, StringComparison.InvariantCultureIgnoreCase));
+        Reference.DefaultProfile.Value = Reference.Profiles.First(profile => profile.SerialisedName.Equals(data.DefaultProfile, StringComparison.InvariantCultureIgnoreCase));
 
         return false;
     }

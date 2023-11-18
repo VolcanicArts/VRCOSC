@@ -24,12 +24,12 @@ public class ProfileManager
     /// </summary>
     public readonly Bindable<Profile> DefaultProfile = new();
 
-    private readonly SerialisationManager<ProfileManager> serialisationManager;
+    private readonly SerialisationManager serialisationManager;
 
     public ProfileManager(Storage storage)
     {
-        serialisationManager = new SerialisationManager<ProfileManager>(storage, this);
-        serialisationManager.RegisterSerialiser<ProfileManagerSerialiser>(1);
+        serialisationManager = new SerialisationManager();
+        serialisationManager.RegisterSerialiser(1, new ProfileManagerSerialiser(storage, this));
     }
 
     public void Serialise() => serialisationManager.Serialise();

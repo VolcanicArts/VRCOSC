@@ -5,14 +5,12 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using VRCOSC.Game.Modules.SDK;
+using VRCOSC.Game.Serialisation;
 
-namespace VRCOSC.Game.Modules.Serialisation.V1;
+namespace VRCOSC.Game.Modules.Serialisation;
 
-public class SerialisableModule
+public class SerialisableModule : SerialisableVersion
 {
-    [JsonProperty("version")]
-    public int Version;
-
     [JsonProperty("enabled")]
     public bool Enabled;
 
