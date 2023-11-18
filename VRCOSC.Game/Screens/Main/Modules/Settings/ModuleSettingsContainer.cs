@@ -26,6 +26,7 @@ public partial class ModuleSettingsContainer : VisibilityContainer
     protected override FillFlowContainer Content { get; }
 
     private Module? module;
+    private readonly TextFlowContainer noSettingsDisplay;
 
     public ModuleSettingsContainer()
     {
@@ -112,6 +113,16 @@ public partial class ModuleSettingsContainer : VisibilityContainer
                             }
                         }
                     }
+                },
+                noSettingsDisplay = new TextFlowContainer(t =>
+                {
+                    t.Font = Fonts.REGULAR.With(size: 40);
+                    t.Colour = Colours.WHITE2;
+                })
+                {
+                    RelativeSizeAxes = Axes.Both,
+                    TextAnchor = Anchor.Centre,
+                    Text = "No Settings Available",
                 }
             }
         };
@@ -146,7 +157,9 @@ public partial class ModuleSettingsContainer : VisibilityContainer
               .Select(settingPair => settingPair.Value)
               .ForEach(moduleSetting => miscModuleSettingsGroupContainer.Add(moduleSetting.GetDrawableModuleAttribute()));
 
-        Add(miscModuleSettingsGroupContainer);
+        if (miscModuleSettingsGroupContainer.Any()) Add(miscModuleSettingsGroupContainer);
+
+        noSettingsDisplay.Alpha = this.Any() ? 0 : 1;
     }
 
     protected override void PopIn()

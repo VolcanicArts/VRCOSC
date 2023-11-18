@@ -134,6 +134,8 @@ public class ModuleManager
         localModulesContext = loadContextFromPath(localModulesPath);
         Logger.Log($"Found {localModulesContext.Assemblies.Count()} assemblies");
 
+        if (!localModulesContext.Assemblies.Any()) return;
+
         var localModules = retrieveModuleInstances("local", localModulesContext);
 
         localModules.ForEach(localModule =>
@@ -165,6 +167,8 @@ public class ModuleManager
             remoteModulesContexts.Add(packageId, loadContextFromPath(moduleDirectory));
         });
         Logger.Log($"Found {remoteModulesContexts.Values.Sum(remoteModuleContext => remoteModuleContext.Assemblies.Count())} assemblies");
+
+        if (!remoteModulesContexts.Any()) return;
 
         var remoteModules = new List<Module>();
         remoteModulesContexts.ForEach(pair => remoteModules.AddRange(retrieveModuleInstances(pair.Key, pair.Value)));

@@ -107,7 +107,7 @@ public partial class ModuleParameterInstance : Container
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
                                 RelativeSizeAxes = Axes.X,
-                                Height = 33,
+                                Height = 30,
                                 ValidCurrent = moduleParameter.Name.GetBoundCopy()
                             }
                         }

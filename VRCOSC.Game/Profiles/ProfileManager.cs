@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using osu.Framework.Bindables;
+using osu.Framework.Logging;
 using osu.Framework.Platform;
 using VRCOSC.Game.Profiles.Serialisation;
 using VRCOSC.Game.Serialisation;
@@ -20,7 +21,7 @@ public class ProfileManager
     public readonly Bindable<Profile> ActiveProfile = new();
 
     /// <summary>
-    /// The default profile as selected in the settings
+    /// The default profile as selected in the settings. This is the profile that the app will default back to if automatic profile switching fails to find a suitable profile
     /// </summary>
     public readonly Bindable<Profile> DefaultProfile = new();
 
@@ -30,6 +31,9 @@ public class ProfileManager
     {
         serialisationManager = new SerialisationManager();
         serialisationManager.RegisterSerialiser(1, new ProfileManagerSerialiser(storage, this));
+
+        ActiveProfile.BindValueChanged(e => Logger.Log($"Active profile changed to {e.NewValue.SerialisedName}"));
+        DefaultProfile.BindValueChanged(e => Logger.Log($"Default profile changed to {e.NewValue.SerialisedName}"));
     }
 
     public void Serialise() => serialisationManager.Serialise();
