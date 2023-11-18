@@ -23,6 +23,8 @@ public partial class ModuleParametersContainer : VisibilityContainer
 
     protected override ModuleParametersList Content { get; }
 
+    private Module? module;
+
     public ModuleParametersContainer()
     {
         InternalChild = new Container
@@ -56,7 +58,8 @@ public partial class ModuleParametersContainer : VisibilityContainer
                             BackgroundColour = Colours.BLUE0,
                             TextContent = "Reset To Default",
                             TextFont = Fonts.REGULAR.With(size: 25),
-                            TextColour = Colours.WHITE0
+                            TextColour = Colours.WHITE0,
+                            Action = () => module?.Parameters.Values.ForEach(moduleParameter => moduleParameter.SetDefault())
                         },
                         new IconButton
                         {
@@ -94,6 +97,7 @@ public partial class ModuleParametersContainer : VisibilityContainer
 
     public void SetModule(Module? module)
     {
+        this.module = module;
         Clear();
 
         if (module is null) return;

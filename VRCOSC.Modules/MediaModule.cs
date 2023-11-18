@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.Game.Modules.SDK;
-using VRCOSC.Game.Modules.SDK.Attributes;
 using VRCOSC.Game.Modules.SDK.Parameters;
 using VRCOSC.Game.Modules.SDK.Providers.Media;
 

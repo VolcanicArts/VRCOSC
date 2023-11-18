@@ -3,7 +3,6 @@
 
 using System.Globalization;
 using VRCOSC.Game.Modules.SDK;
-using VRCOSC.Game.Modules.SDK.Attributes;
 using VRCOSC.Game.Modules.SDK.Parameters;
 
 namespace VRCOSC.Modules;

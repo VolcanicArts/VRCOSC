@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using osu.Framework.Allocation;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -24,12 +23,13 @@ public partial class ModuleSettingsContainer : VisibilityContainer
     protected override bool OnHover(HoverEvent e) => true;
     protected override bool OnScroll(ScrollEvent e) => true;
 
-    private FillFlowContainer settingsFlow = null!;
+    protected override FillFlowContainer Content { get; }
 
-    [BackgroundDependencyLoader]
-    private void load()
+    private Module? module;
+
+    public ModuleSettingsContainer()
     {
-        Child = new Container
+        InternalChild = new Container
         {
             RelativeSizeAxes = Axes.Both,
             Masking = true,
@@ -60,7 +60,8 @@ public partial class ModuleSettingsContainer : VisibilityContainer
                             BackgroundColour = Colours.BLUE0,
                             TextContent = "Reset To Default",
                             TextFont = Fonts.REGULAR.With(size: 25),
-                            TextColour = Colours.WHITE0
+                            TextColour = Colours.WHITE0,
+                            Action = () => module?.Settings.Values.ForEach(moduleSetting => moduleSetting.SetDefault())
                         },
                         new IconButton
                         {
@@ -95,7 +96,7 @@ public partial class ModuleSettingsContainer : VisibilityContainer
                         ScrollbarVisible = false,
                         ScrollContent =
                         {
-                            Child = settingsFlow = new FillFlowContainer
+                            Child = Content = new FillFlowContainer
                             {
                                 Name = "Settings Flow",
                                 Anchor = Anchor.TopCentre,
@@ -118,7 +119,9 @@ public partial class ModuleSettingsContainer : VisibilityContainer
 
     public void SetModule(Module? module)
     {
-        settingsFlow.Clear();
+        this.module = module;
+
+        Clear();
         if (module is null) return;
 
         var settingsInGroup = new List<string>();
@@ -135,7 +138,7 @@ public partial class ModuleSettingsContainer : VisibilityContainer
                 moduleSettingsGroupContainer.Add(moduleSetting.GetDrawableModuleAttribute());
             });
 
-            settingsFlow.Add(moduleSettingsGroupContainer);
+            Add(moduleSettingsGroupContainer);
         });
 
         var miscModuleSettingsGroupContainer = new ModuleSettingsGroupContainer(module.Groups.Any() ? "Miscellaneous" : string.Empty);
@@ -143,7 +146,7 @@ public partial class ModuleSettingsContainer : VisibilityContainer
               .Select(settingPair => settingPair.Value)
               .ForEach(moduleSetting => miscModuleSettingsGroupContainer.Add(moduleSetting.GetDrawableModuleAttribute()));
 
-        settingsFlow.Add(miscModuleSettingsGroupContainer);
+        Add(miscModuleSettingsGroupContainer);
     }
 
     protected override void PopIn()
