@@ -10,7 +10,8 @@ namespace VRCOSC.Game.Modules.SDK;
 public enum ModuleType
 {
     Generic,
-    Integrations
+    Integrations,
+    Health
 }
 
 public static class ModuleTypeExtensions
@@ -19,6 +20,7 @@ public static class ModuleTypeExtensions
     {
         ModuleType.Generic => Colours.WHITE0,
         ModuleType.Integrations => Colours.YELLOW0,
+        ModuleType.Health => Colours.RED0,
         _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
     };
 }

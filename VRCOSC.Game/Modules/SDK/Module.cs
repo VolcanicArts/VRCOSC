@@ -232,10 +232,16 @@ public class Module
         Settings.Add(lookup.ToLookup(), new BoolModuleSetting(new ModuleSettingMetadata(title, description, typeof(DrawableBoolModuleSetting)), defaultValue));
     }
 
-    protected void CreateTextBox(Enum lookup, string title, string description, bool emptyIsValid, string defaultValue)
+    protected void CreateTextBox(Enum lookup, string title, string description, string defaultValue, bool emptyIsValid)
     {
         validateSettingsLookup(lookup);
         Settings.Add(lookup.ToLookup(), new StringModuleSetting(new ModuleSettingMetadata(title, description, typeof(DrawableStringModuleSetting)), emptyIsValid, defaultValue));
+    }
+
+    protected void CreateTextBox(Enum lookup, string title, string description, int defaultValue)
+    {
+        validateSettingsLookup(lookup);
+        Settings.Add(lookup.ToLookup(), new IntModuleSetting(new ModuleSettingMetadata(title, description, typeof(DrawableIntModuleSetting)), defaultValue));
     }
 
     protected void CreateDropdown<T>(Enum lookup, string title, string description, T defaultValue) where T : Enum
@@ -271,6 +277,11 @@ public class Module
     }
 
     protected void OpenUrlExternally(string url) => host.OpenUrlExternally(url);
+
+    /// <summary>
+    /// Maps a value <paramref name="source"/> from a source range to a destination range
+    /// </summary>
+    protected static float Map(float source, float sMin, float sMax, float dMin, float dMax) => dMin + (dMax - dMin) * ((source - sMin) / (sMax - sMin));
 
     private void validateSettingsLookup(Enum lookup)
     {

@@ -40,7 +40,7 @@ public class ModuleSerialiser : ProfiledSerialiser<Module, SerialisableModule>
         {
             var (parameterKey, parameterValue) = parameterPair;
 
-            var parameter = Reference.GetParameterContainer(parameterKey);
+            var parameter = Reference.GetParameter(parameterKey);
             if (parameter is null) return;
 
             parameter.Deserialise(parameterValue);

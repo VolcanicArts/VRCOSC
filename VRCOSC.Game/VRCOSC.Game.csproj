@@ -27,6 +27,7 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Semver" Version="2.3.0" />
+        <PackageReference Include="WebSocket4Net" Version="0.15.2" />
         <PackageReference Include="Zeroconf" Version="3.6.11" />
     </ItemGroup>
 </Project>

@@ -5,7 +5,7 @@ using VRCOSC.Game.Modules.SDK;
 using VRCOSC.Game.Modules.SDK.Parameters;
 using VRCOSC.Game.Modules.SDK.Providers.Media;
 
-namespace VRCOSC.Modules;
+namespace VRCOSC.Modules.Media;
 
 [ModuleTitle("Media")]
 [ModuleDescription("Integration with Windows Media")]

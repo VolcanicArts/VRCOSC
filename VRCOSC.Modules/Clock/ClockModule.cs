@@ -1,11 +1,13 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System.Globalization;
+using VRCOSC.Game.Graphics;
 using VRCOSC.Game.Modules.SDK;
+using VRCOSC.Game.Modules.SDK.Attributes;
 using VRCOSC.Game.Modules.SDK.Parameters;
 
-namespace VRCOSC.Modules;
+namespace VRCOSC.Modules.Clock;
 
 [ModuleTitle("Clock")]
 [ModuleDescription("Sends a chosen timezone as hours, minutes, and seconds")]
@@ -28,6 +30,13 @@ public sealed class ClockModule : Module
         RegisterParameter<bool>(ClockParameter.Period, "VRCOSC/Clock/Period", ParameterMode.Write, "Period", "False for AM. True for PM");
 
         CreateGroup("Smoothing", ClockSetting.SmoothHour, ClockSetting.SmoothMinute, ClockSetting.SmoothSecond);
+    }
+
+    protected override void OnPostLoad()
+    {
+        GetSetting(ClockSetting.SmoothSecond)!
+            .AddAddon(new ButtonModuleSettingAddon("Test Button", Colours.BLUE0, () => OpenUrlExternally("https://github.com/VolcanicArts/VRCOSC")))
+            .AddAddon(new ButtonModuleSettingAddon("Another test button", Colours.RED0, () => OpenUrlExternally("https://github.com/VolcanicArts/VRCOSC/releases/latest")));
     }
 
     [ModuleUpdate(ModuleUpdateMode.Custom)]
