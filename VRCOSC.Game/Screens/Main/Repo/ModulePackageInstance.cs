@@ -35,7 +35,7 @@ public partial class ModulePackageInstance : Container
         Anchor = Anchor.TopCentre;
         Origin = Anchor.TopCentre;
         RelativeSizeAxes = Axes.X;
-        Height = 50;
+        AutoSizeAxes = Axes.Y;
 
         FillFlowContainer actionContainer;
 
@@ -48,13 +48,15 @@ public partial class ModulePackageInstance : Container
             },
             new Container
             {
-                RelativeSizeAxes = Axes.Both,
+                RelativeSizeAxes = Axes.X,
+                AutoSizeAxes = Axes.Y,
                 Padding = new MarginPadding(10),
                 Child = new GridContainer
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
-                    RelativeSizeAxes = Axes.Both,
+                    RelativeSizeAxes = Axes.X,
+                    AutoSizeAxes = Axes.Y,
                     ColumnDimensions = new[]
                     {
                         new Dimension(GridSizeMode.Absolute, 315),
@@ -63,6 +65,10 @@ public partial class ModulePackageInstance : Container
                         new Dimension(GridSizeMode.Absolute, 135),
                         new Dimension(GridSizeMode.Absolute, 130),
                         new Dimension()
+                    },
+                    RowDimensions = new[]
+                    {
+                        new Dimension(GridSizeMode.AutoSize)
                     },
                     Content = new[]
                     {
@@ -95,7 +101,8 @@ public partial class ModulePackageInstance : Container
                             {
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
-                                AutoSizeAxes = Axes.Both,
+                                RelativeSizeAxes = Axes.Y,
+                                AutoSizeAxes = Axes.X,
                                 Direction = FillDirection.Horizontal,
                                 Spacing = new Vector2(8, 0)
                             },
@@ -118,7 +125,7 @@ public partial class ModulePackageInstance : Container
                                         {
                                             Anchor = Anchor.Centre,
                                             Origin = Anchor.Centre,
-                                            Size = new Vector2(36),
+                                            Size = new Vector2(32),
                                             Icon = FontAwesome.Solid.Info,
                                             CornerRadius = 5,
                                             BackgroundColour = Colours.BLUE0,
@@ -159,7 +166,7 @@ public partial class ModulePackageInstance : Container
         [BackgroundDependencyLoader]
         private void load()
         {
-            Font = Fonts.REGULAR.With(size: 27);
+            Font = Fonts.REGULAR.With(size: 23);
             Colour = Colours.WHITE0;
         }
     }
@@ -198,15 +205,11 @@ public partial class ModulePackageInstance : Container
         [Resolved]
         private VRCOSCGame game { get; set; } = null!;
 
-        private readonly RemoteModuleSource remoteModuleSource;
-
         protected ActionButton(RemoteModuleSource remoteModuleSource)
         {
-            this.remoteModuleSource = remoteModuleSource;
-
             Anchor = Anchor.CentreLeft;
             Origin = Anchor.CentreLeft;
-            Size = new Vector2(36);
+            Size = new Vector2(32);
             CornerRadius = 5;
 
             Action += () =>

@@ -14,69 +14,68 @@ public partial class ModulePackageList : Container
     [Resolved]
     private AppManager appManager { get; set; } = null!;
 
-    private FillFlowContainer flowWrapper = null!;
-    private BasicScrollContainer scrollContainer = null!;
-    private FillFlowContainer listingFlow = null!;
+    private readonly FillFlowContainer flowWrapper;
+    private readonly BasicScrollContainer scrollContainer;
+    private readonly ModulePackageListHeader header;
+
+    protected override FillFlowContainer Content { get; }
+
+    public ModulePackageList()
+    {
+        InternalChild = flowWrapper = new FillFlowContainer
+        {
+            Name = "Flow Wrapper",
+            Anchor = Anchor.TopCentre,
+            Origin = Anchor.TopCentre,
+            RelativeSizeAxes = Axes.X,
+            AutoSizeAxes = Axes.Y,
+            Direction = FillDirection.Vertical,
+            Masking = true,
+            CornerRadius = 5,
+            Children = new Drawable[]
+            {
+                header = new ModulePackageListHeader
+                {
+                    Anchor = Anchor.TopCentre,
+                    Origin = Anchor.TopCentre,
+                    RelativeSizeAxes = Axes.X,
+                    AutoSizeAxes = Axes.Y,
+                },
+                scrollContainer = new BasicScrollContainer
+                {
+                    Anchor = Anchor.TopCentre,
+                    Origin = Anchor.TopCentre,
+                    RelativeSizeAxes = Axes.X,
+                    AutoSizeAxes = Axes.Y,
+                    ClampExtension = 0,
+                    ScrollbarVisible = false,
+                    ScrollContent =
+                    {
+                        Child = Content = new FillFlowContainer
+                        {
+                            Anchor = Anchor.TopCentre,
+                            Origin = Anchor.TopCentre,
+                            RelativeSizeAxes = Axes.X,
+                            AutoSizeAxes = Axes.Y,
+                            Direction = FillDirection.Vertical
+                        }
+                    }
+                },
+                new Box
+                {
+                    Anchor = Anchor.TopCentre,
+                    Origin = Anchor.TopCentre,
+                    RelativeSizeAxes = Axes.X,
+                    Height = 5,
+                    Colour = Colours.GRAY0
+                }
+            }
+        };
+    }
 
     [BackgroundDependencyLoader]
     private void load()
     {
-        Children = new Drawable[]
-        {
-            flowWrapper = new FillFlowContainer
-            {
-                Name = "Flow Wrapper",
-                Anchor = Anchor.TopCentre,
-                Origin = Anchor.TopCentre,
-                RelativeSizeAxes = Axes.X,
-                AutoSizeAxes = Axes.Y,
-                Direction = FillDirection.Vertical,
-                Masking = true,
-                CornerRadius = 5,
-                Children = new Drawable[]
-                {
-                    new ModulePackageListHeader
-                    {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        RelativeSizeAxes = Axes.X,
-                        Height = 50
-                    },
-                    scrollContainer = new BasicScrollContainer
-                    {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        RelativeSizeAxes = Axes.X,
-                        AutoSizeAxes = Axes.Y,
-                        ClampExtension = 0,
-                        ScrollbarVisible = false,
-                        ScrollContent =
-                        {
-                            Children = new Drawable[]
-                            {
-                                listingFlow = new FillFlowContainer
-                                {
-                                    Anchor = Anchor.TopCentre,
-                                    Origin = Anchor.TopCentre,
-                                    RelativeSizeAxes = Axes.X,
-                                    AutoSizeAxes = Axes.Y,
-                                    Direction = FillDirection.Vertical
-                                }
-                            }
-                        }
-                    },
-                    new Box
-                    {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        RelativeSizeAxes = Axes.X,
-                        Height = 5,
-                        Colour = Colours.GRAY0
-                    }
-                }
-            }
-        };
-
         populate();
     }
 
@@ -85,7 +84,7 @@ public partial class ModulePackageList : Container
         if (flowWrapper.DrawHeight >= DrawHeight)
         {
             scrollContainer.AutoSizeAxes = Axes.None;
-            scrollContainer.Height = DrawHeight - 55;
+            scrollContainer.Height = DrawHeight - header.DrawHeight - 5;
         }
         else
         {
@@ -100,12 +99,12 @@ public partial class ModulePackageList : Container
 
     private void populate()
     {
-        listingFlow.Clear();
+        Clear();
 
         var even = false;
         appManager.RemoteModuleSourceManager.Sources.ForEach(remoteModuleSource =>
         {
-            listingFlow.Add(new ModulePackageInstance(remoteModuleSource, even));
+            Add(new ModulePackageInstance(remoteModuleSource, even));
             even = !even;
         });
     }

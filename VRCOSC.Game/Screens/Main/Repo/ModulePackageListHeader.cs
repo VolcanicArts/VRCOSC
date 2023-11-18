@@ -24,13 +24,15 @@ public partial class ModulePackageListHeader : Container
             },
             new Container
             {
-                RelativeSizeAxes = Axes.Both,
+                RelativeSizeAxes = Axes.X,
+                AutoSizeAxes = Axes.Y,
                 Padding = new MarginPadding(10),
                 Child = new GridContainer
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
-                    RelativeSizeAxes = Axes.Both,
+                    RelativeSizeAxes = Axes.X,
+                    AutoSizeAxes = Axes.Y,
                     ColumnDimensions = new[]
                     {
                         new Dimension(GridSizeMode.Absolute, 315),
@@ -39,6 +41,10 @@ public partial class ModulePackageListHeader : Container
                         new Dimension(GridSizeMode.Absolute, 135),
                         new Dimension(GridSizeMode.Absolute, 130),
                         new Dimension(),
+                    },
+                    RowDimensions = new[]
+                    {
+                        new Dimension(GridSizeMode.AutoSize)
                     },
                     Content = new[]
                     {
@@ -86,7 +92,7 @@ public partial class ModulePackageListHeader : Container
         [BackgroundDependencyLoader]
         private void load()
         {
-            Font = Fonts.BOLD.With(size: 27);
+            Font = Fonts.BOLD.With(size: 23);
             Colour = Colours.WHITE2;
         }
     }
