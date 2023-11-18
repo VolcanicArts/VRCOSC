@@ -91,7 +91,7 @@ public abstract class ModuleSetting : ModuleAttribute
     internal Container GetDrawableModuleAttribute() => (Container)Activator.CreateInstance(Metadata.DrawableModuleSettingType, this)!;
 
     /// <summary>
-    /// A callback for checking to see if a <see cref="ModuleSetting"/> should be enabled
+    /// A callback for checking to see if this <see cref="ModuleSetting"/> should be enabled
     /// </summary>
     public Func<bool> IsEnabled = () => true;
 

@@ -30,9 +30,12 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
         CreateTextBox(HeartrateSetting.NormalisedLowerbound, "Normalised Lowerbound", "The lower bound BPM the normalised parameter should use", 0);
         CreateTextBox(HeartrateSetting.NormalisedUpperbound, "Normalised Upperbound", "The upper bound BPM the normalised parameter should use", 240);
 
-        RegisterParameter<bool>(HeartrateParameter.Enabled, "VRCOSC/Heartrate/Enabled", ParameterMode.Write, "Enabled", "Whether this module is connected and receiving values");
+        RegisterParameter<bool>(HeartrateParameter.Connected, "VRCOSC/Heartrate/Connected", ParameterMode.Write, "Connected", "Whether this module is connected and receiving values");
         RegisterParameter<int>(HeartrateParameter.Value, "VRCOSC/Heartrate/Value", ParameterMode.Write, "Value", "The raw value of your heartrate");
         RegisterParameter<float>(HeartrateParameter.Normalised, "VRCOSC/Heartrate/Normalised", ParameterMode.Write, "Normalised", "The heartrate value normalised to the set bounds");
+
+        CreateGroup("Smoothing", HeartrateSetting.Smoothing, HeartrateSetting.SmoothingLength);
+        CreateGroup("Normalised Parameter", HeartrateSetting.NormalisedLowerbound, HeartrateSetting.NormalisedUpperbound);
     }
 
     protected override void OnPostLoad()
@@ -85,7 +88,7 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
             HeartrateProvider = null;
         }
 
-        SendParameter(HeartrateParameter.Enabled, false);
+        SendParameter(HeartrateParameter.Connected, false);
 
         return Task.CompletedTask;
     }
@@ -108,7 +111,7 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
     {
         var isReceiving = HeartrateProvider?.IsReceiving ?? false;
 
-        SendParameter(HeartrateParameter.Enabled, isReceiving);
+        SendParameter(HeartrateParameter.Connected, isReceiving);
 
         if (isReceiving)
         {
@@ -134,7 +137,7 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
 
     private enum HeartrateParameter
     {
-        Enabled,
+        Connected,
         Normalised,
         Value
     }

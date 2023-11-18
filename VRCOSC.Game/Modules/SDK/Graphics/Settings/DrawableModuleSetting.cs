@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -122,6 +123,7 @@ public abstract partial class DrawableModuleSetting<T> : Container where T : Mod
     [BackgroundDependencyLoader]
     private void load()
     {
+        addonFlow.Alpha = ModuleSetting.Addons.Any() ? 1 : 0;
         ModuleSetting.Addons.ForEach(moduleSettingAddon => addonFlow.Add(moduleSettingAddon.GetDrawableModuleSettingAddon()));
     }
 

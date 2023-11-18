@@ -19,6 +19,9 @@ public sealed class PulsoidModule : HeartrateModule<PulsoidProvider>
     protected override void OnLoad()
     {
         CreateTextBox(PulsoidSetting.AccessToken, "Access Token", "Your Pulsoid access token", string.Empty, false);
+
+        CreateGroup("Access", PulsoidSetting.AccessToken);
+
         base.OnLoad();
     }
 
@@ -26,6 +29,8 @@ public sealed class PulsoidModule : HeartrateModule<PulsoidProvider>
     {
         GetSetting(PulsoidSetting.AccessToken)!
             .AddAddon(new ButtonModuleSettingAddon("Obtain Access Token", Colours.BLUE0, () => OpenUrlExternally(pulsoid_access_token_url)));
+
+        base.OnPostLoad();
     }
 
     protected override Task<bool> OnModuleStart()
