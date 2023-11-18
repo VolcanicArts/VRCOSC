@@ -8,6 +8,11 @@ using PInvoke;
 
 namespace VRCOSC.Game;
 
+public static class EnumExtensions
+{
+    public static string ToLookup(this Enum @enum) => @enum.ToString().ToLowerInvariant();
+}
+
 public static class TypeExtensions
 {
     public static string ToReadableName(this Type type)

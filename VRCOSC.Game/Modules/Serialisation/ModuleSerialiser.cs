@@ -36,6 +36,16 @@ public class ModuleSerialiser : ProfiledSerialiser<Module, SerialisableModule>
             setting.Deserialise(settingValue);
         });
 
+        data.Parameters.ForEach(parameterPair =>
+        {
+            var (parameterKey, parameterValue) = parameterPair;
+
+            var parameter = Reference.GetParameterContainer(parameterKey);
+            if (parameter is null) return;
+
+            parameter.Deserialise(parameterValue);
+        });
+
         return false;
     }
 }

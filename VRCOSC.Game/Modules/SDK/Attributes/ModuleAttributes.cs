@@ -66,6 +66,8 @@ public abstract class ModuleAttribute
     /// </summary>
     internal abstract object GetRawValue();
 
+    internal Action? RequestSerialisation;
+
     protected ModuleAttribute(ModuleAttributeMetadata metadata)
     {
         Metadata = metadata;
@@ -107,7 +109,12 @@ public class ModuleParameter : ModuleAttribute
 
     private readonly string defaultName;
 
-    internal override void Load() => Name = new Bindable<string>(defaultName);
+    internal override void Load()
+    {
+        Name = new Bindable<string>(defaultName);
+        Name.BindValueChanged(_ => RequestSerialisation?.Invoke());
+    }
+
     internal override bool IsDefault() => Name.IsDefault;
     internal override void SetDefault() => Name.SetDefault();
     internal override object GetRawValue() => Name.Value;
@@ -135,7 +142,12 @@ public abstract class ValueModuleSetting<T> : ModuleSetting
 
     protected abstract Bindable<T> CreateBindable();
 
-    internal override void Load() => Attribute = CreateBindable();
+    internal override void Load()
+    {
+        Attribute = CreateBindable();
+        Attribute.BindValueChanged(_ => RequestSerialisation?.Invoke());
+    }
+
     internal override bool IsDefault() => Attribute.IsDefault;
     internal override void SetDefault() => Attribute.SetDefault();
 
@@ -172,9 +184,9 @@ public class IntModuleSetting : ValueModuleSetting<int>
 
     internal override bool Deserialise(object ingestValue)
     {
-        if (ingestValue is not int intIngestValue) return false;
+        if (ingestValue is not long intIngestValue) return false;
 
-        Attribute.Value = intIngestValue;
+        Attribute.Value = (int)intIngestValue;
         return true;
     }
 
@@ -190,9 +202,9 @@ public class FloatModuleSetting : ValueModuleSetting<float>
 
     internal override bool Deserialise(object ingestValue)
     {
-        if (ingestValue is not float floatIngestValue) return false;
+        if (ingestValue is not double floatIngestValue) return false;
 
-        Attribute.Value = floatIngestValue;
+        Attribute.Value = (float)floatIngestValue;
         return true;
     }
 
@@ -229,9 +241,9 @@ public class EnumModuleSetting<TEnum> : ValueModuleSetting<TEnum> where TEnum : 
 
     internal override bool Deserialise(object ingestValue)
     {
-        if (ingestValue is not int intIngestValue) return false;
+        if (ingestValue is not long intIngestValue) return false;
 
-        Attribute.Value = (TEnum)Enum.ToObject(typeof(TEnum), intIngestValue);
+        Attribute.Value = (TEnum)Enum.ToObject(typeof(TEnum), (int)intIngestValue);
         return true;
     }
 
@@ -302,7 +314,12 @@ public abstract class ListModuleSetting<T> : ModuleSetting
 
     internal override object GetRawValue() => Attribute.ToList();
 
-    internal override void Load() => Attribute = new BindableList<T>(getClonedDefaults());
+    internal override void Load()
+    {
+        Attribute = new BindableList<T>(getClonedDefaults());
+        Attribute.BindCollectionChanged((_, _) => RequestSerialisation?.Invoke());
+    }
+
     internal override bool IsDefault() => Attribute.SequenceEqual(defaultValues);
     internal override void SetDefault() => Attribute.ReplaceRange(0, Attribute.Count, getClonedDefaults());
 
@@ -328,6 +345,21 @@ public abstract class ListModuleSetting<T> : ModuleSetting
 public abstract class ListValueModuleSetting<T> : ListModuleSetting<Bindable<T>>
 {
     internal override object GetRawValue() => Attribute.Select(bindable => bindable.Value).ToList();
+
+    internal override void Load()
+    {
+        base.Load();
+
+        Attribute.BindCollectionChanged((_, e) =>
+        {
+            if (e.NewItems is null) return;
+
+            foreach (Bindable<T> newItem in e.NewItems)
+            {
+                newItem.BindValueChanged(_ => RequestSerialisation?.Invoke());
+            }
+        }, true);
+    }
 
     protected override Bindable<T> CloneValue(Bindable<T> value) => value.GetUnboundCopy();
     protected override Bindable<T> ConstructValue(JToken token) => new(token.Value<T>()!);
