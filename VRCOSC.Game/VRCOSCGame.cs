@@ -53,7 +53,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         LoadingScreen.Action.Value = "Loading managers";
         appManager.Initialise(storage, Clock);
 
-        LoadingScreen.Action.Value = "Loading remote modules";
+        LoadingScreen.Action.Value = "Loading packages";
 
         void onRemoteModulesActionProgress(LoadingInfo loadingInfo)
         {
@@ -66,6 +66,9 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
         LoadingScreen.Action.Value = "Loading modules";
         appManager.ModuleManager.LoadAllModules();
+
+        LoadingScreen.Action.Value = "Loading profiles";
+        appManager.ProfileManager.Load();
 
         LoadingScreen.Action.Value = "Loading graphics";
         var mainScreen = new MainScreen

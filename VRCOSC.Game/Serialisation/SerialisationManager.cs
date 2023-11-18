@@ -5,22 +5,36 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using osu.Framework.Platform;
 
 namespace VRCOSC.Game.Serialisation;
 
-public class SerialisationManager
+/// <summary>
+/// Manages multiple <see cref="ISerialiser"/>s and handles migration between <see cref="ISerialiser"/> versions
+/// </summary>
+public class SerialisationManager<TSerialisable>
 {
+    private readonly Storage storage;
+    private readonly TSerialisable serialisable;
+
     private int latestSerialiserVersion;
 
     private readonly Dictionary<int, ISerialiser> serialisers = new();
+
+    public SerialisationManager(Storage storage, TSerialisable serialisable)
+    {
+        this.storage = storage;
+        this.serialisable = serialisable;
+    }
 
     /// <summary>
     /// Registers an <see cref="ISerialiser"/> with a specific version. Lower versions that get deserialised will be migrated to the highest serialiser version
     /// </summary>
     /// <param name="version">The version of the serialiser</param>
-    /// <param name="serialiser">The <see cref="ISerialiser"/> to register with this <see cref="SerialisationManager"/></param>
-    public void RegisterSerialiser(int version, ISerialiser serialiser)
+    public void RegisterSerialiser<TSerialiser>(int version) where TSerialiser : ISerialiser
     {
+        var serialiser = (TSerialiser)Activator.CreateInstance(typeof(TSerialiser), storage, serialisable)!;
+
         serialiser.Initialise();
         latestSerialiserVersion = Math.Max(version, latestSerialiserVersion);
         serialisers.Add(version, serialiser);

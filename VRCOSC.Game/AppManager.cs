@@ -15,11 +15,13 @@ using VRCOSC.Game.Modules;
 using VRCOSC.Game.Modules.Remote;
 using VRCOSC.Game.Modules.SDK.VRChat;
 using VRCOSC.Game.OSC.VRChat;
+using VRCOSC.Game.Profiles;
 
 namespace VRCOSC.Game;
 
 public class AppManager
 {
+    public ProfileManager ProfileManager { get; private set; } = null!;
     public ModuleManager ModuleManager { get; private set; } = null!;
     public RemoteModuleSourceManager RemoteModuleSourceManager { get; private set; } = null!;
     public VRChatOscClient VRChatOscClient { get; private set; } = null!;
@@ -35,6 +37,7 @@ public class AppManager
     {
         scheduler = new Scheduler(() => ThreadSafety.IsUpdateThread, clock);
 
+        ProfileManager = new ProfileManager(storage);
         ModuleManager = new ModuleManager(storage, clock, this);
         RemoteModuleSourceManager = new RemoteModuleSourceManager(storage);
         VRChatOscClient = new VRChatOscClient();
@@ -58,6 +61,8 @@ public class AppManager
         {
             if (message.IsAvatarChangeEvent)
             {
+                if (ProfileManager.AvatarChange((string)message.ParameterValue)) continue;
+
                 ModuleManager.AvatarChange();
                 continue;
             }
