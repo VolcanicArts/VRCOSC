@@ -77,7 +77,7 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
     {
         var filePath = string.IsNullOrEmpty(filePathOverride) ? FullPath : filePathOverride;
 
-        Logger.Log($"Performing load for file {filePath}");
+        Logger.Log($"Performing load for {filePath}");
 
         try
         {
@@ -93,7 +93,7 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
         }
         catch (Exception e)
         {
-            Logger.Error(e, $"Load failed for file {filePath}");
+            Logger.Error(e, $"Load failed for {filePath}");
             return DeserialisationResult.GenericError;
         }
     }

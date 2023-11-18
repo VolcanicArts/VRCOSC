@@ -119,7 +119,6 @@ public class ModuleManager
 
             module.InjectDependencies(clock, appManager, moduleSerialisationManager);
             module.Load();
-            module.Deseralise();
         });
     }
 

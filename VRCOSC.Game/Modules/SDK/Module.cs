@@ -83,6 +83,8 @@ public class Module
         Settings.Values.ForEach(moduleSetting => moduleSetting.Load());
         Parameters.Values.ForEach(moduleParameter => moduleParameter.Load());
 
+        Deseralise();
+
         Enabled.BindValueChanged(_ => Serialise());
         Settings.Values.ForEach(moduleSetting => moduleSetting.RequestSerialisation = Serialise);
         Parameters.Values.ForEach(moduleParameter => moduleParameter.RequestSerialisation = Serialise);
