@@ -10,10 +10,10 @@ public class Profile
     /// <summary>
     /// The name of this <see cref="Profile"/>
     /// </summary>
-    public readonly Bindable<string> Name = new();
+    public readonly Bindable<string> Name = new(string.Empty);
 
     /// <summary>
     /// The avatar ID of the bound avatar. Allows for binding an avatar to a profile to have the profile load when you change into an avatar
     /// </summary>
-    public readonly Bindable<string> BoundAvatar = new();
+    public readonly Bindable<string> BoundAvatar = new(string.Empty);
 }

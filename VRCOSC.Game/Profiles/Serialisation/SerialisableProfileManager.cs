@@ -13,6 +13,12 @@ public class SerialisableProfileManager : SerialisableVersion
     [JsonProperty("profiles")]
     public List<SerialisableProfile> Profiles = new();
 
+    [JsonProperty("default_profile")]
+    public string DefaultProfile = null!;
+
+    [JsonProperty("active_profile")]
+    public string ActiveProfile = null!;
+
     [JsonConstructor]
     public SerialisableProfileManager()
     {
@@ -23,6 +29,8 @@ public class SerialisableProfileManager : SerialisableVersion
         Version = 1;
 
         Profiles.AddRange(profileManager.Profiles.Select(profile => new SerialisableProfile(profile)));
+        DefaultProfile = profileManager.DefaultProfile.Value.Name.Value;
+        ActiveProfile = profileManager.ActiveProfile.Value.Name.Value;
     }
 }
 

@@ -38,6 +38,24 @@ public class ProfileManager
     public void Load()
     {
         Deserialise();
+
+        checkForDefault();
+    }
+
+    private void checkForDefault()
+    {
+        if (Profiles.Any()) return;
+
+        var defaultProfile = new Profile
+        {
+            Name = { Value = "Default" }
+        };
+
+        Profiles.Add(defaultProfile);
+        ActiveProfile.Value = defaultProfile;
+        DefaultProfile.Value = defaultProfile;
+
+        Serialise();
     }
 
     /// <summary>
