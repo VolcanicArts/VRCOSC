@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -20,6 +21,8 @@ public abstract partial class DrawableModuleSetting<T> : Container where T : Mod
     protected override bool ShouldBeConsideredForInput(Drawable child) => ModuleSetting.IsEnabled.Invoke();
 
     protected readonly Container SideContainer;
+
+    private readonly FillFlowContainer addonFlow;
 
     protected DrawableModuleSetting(T moduleSetting)
     {
@@ -101,10 +104,25 @@ public abstract partial class DrawableModuleSetting<T> : Container where T : Mod
                                 AutoSizeAxes = Axes.Y
                             }
                         }
+                    },
+                    addonFlow = new FillFlowContainer
+                    {
+                        Anchor = Anchor.TopCentre,
+                        Origin = Anchor.TopCentre,
+                        RelativeSizeAxes = Axes.X,
+                        AutoSizeAxes = Axes.Y,
+                        Direction = FillDirection.Vertical,
+                        Spacing = new Vector2(0, 5)
                     }
                 }
             }
         };
+    }
+
+    [BackgroundDependencyLoader]
+    private void load()
+    {
+        ModuleSetting.Addons.ForEach(moduleSettingAddon => addonFlow.Add(moduleSettingAddon.GetDrawableModuleSettingAddon()));
     }
 
     protected override void Update()

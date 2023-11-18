@@ -30,7 +30,7 @@ public class ModuleSerialiser : ProfiledSerialiser<Module, SerialisableModule>
         {
             var (settingKey, settingValue) = settingPair;
 
-            var setting = Reference.GetSettingContainer<ModuleSetting>(settingKey);
+            var setting = Reference.GetSetting<ModuleSetting>(settingKey);
             if (setting is null) return;
 
             setting.Deserialise(settingValue);

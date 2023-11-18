@@ -21,6 +21,7 @@ namespace VRCOSC.Game.Modules;
 
 public class ModuleManager
 {
+    private readonly GameHost host;
     private readonly Storage storage;
     private readonly IClock clock;
     private readonly AppManager appManager;
@@ -35,8 +36,9 @@ public class ModuleManager
 
     private readonly List<Module> runningModuleCache = new();
 
-    public ModuleManager(Storage storage, IClock clock, AppManager appManager)
+    public ModuleManager(GameHost host, Storage storage, IClock clock, AppManager appManager)
     {
+        this.host = host;
         this.storage = storage;
         this.clock = clock;
         this.appManager = appManager;
@@ -115,7 +117,7 @@ public class ModuleManager
             var moduleSerialisationManager = new SerialisationManager();
             moduleSerialisationManager.RegisterSerialiser(1, new ModuleSerialiser(storage, module, appManager.ProfileManager.ActiveProfile));
 
-            module.InjectDependencies(clock, appManager, moduleSerialisationManager);
+            module.InjectDependencies(host, clock, appManager, moduleSerialisationManager);
             module.Load();
         });
     }

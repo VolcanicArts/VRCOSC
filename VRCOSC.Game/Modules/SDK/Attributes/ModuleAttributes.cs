@@ -95,9 +95,24 @@ public abstract class ModuleSetting : ModuleAttribute
     /// </summary>
     public Func<bool> IsEnabled = () => true;
 
+    /// <summary>
+    /// Addons for this <see cref="ModuleSetting"/>
+    /// </summary>
+    internal readonly List<ModuleSettingAddon> Addons = new();
+
     protected ModuleSetting(ModuleSettingMetadata metadata)
         : base(metadata)
     {
+    }
+
+    /// <summary>
+    /// Add a <see cref="ModuleSettingAddon"/> to this <see cref="ModuleSetting"/>
+    /// </summary>
+    /// <param name="addon">The <see cref="ModuleSettingAddon"/> to add</param>
+    public ModuleSetting AddAddon(ModuleSettingAddon addon)
+    {
+        Addons.Add(addon);
+        return this;
     }
 }
 

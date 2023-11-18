@@ -12,6 +12,7 @@ using osu.Framework.Development;
 using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Logging;
+using osu.Framework.Platform;
 using osu.Framework.Threading;
 using osu.Framework.Timing;
 using VRCOSC.Game.Modules.SDK.Attributes;
@@ -26,6 +27,7 @@ public class Module
 {
     public string PackageId { get; set; } = null!;
 
+    private GameHost host = null!;
     private Scheduler scheduler = null!;
     private AppManager appManager = null!;
 
@@ -59,9 +61,10 @@ public class Module
         Log($"State changed to {e.NewValue}");
     }
 
-    internal void InjectDependencies(IClock clock, AppManager appManager, SerialisationManager serialisationManager)
+    internal void InjectDependencies(GameHost host, IClock clock, AppManager appManager, SerialisationManager serialisationManager)
     {
         scheduler = new Scheduler(() => ThreadSafety.IsUpdateThread, clock);
+        this.host = host;
         this.appManager = appManager;
         this.serialisationManager = serialisationManager;
     }
@@ -267,6 +270,8 @@ public class Module
     {
     }
 
+    protected void OpenUrlExternally(string url) => host.OpenUrlExternally(url);
+
     private void validateSettingsLookup(Enum lookup)
     {
         if (!Settings.ContainsKey(lookup.ToLookup())) return;
@@ -279,11 +284,10 @@ public class Module
     /// This is best used inside of <see cref="OnPostLoad"/>
     /// </summary>
     /// <param name="lookup">The lookup of the setting</param>
-    /// <typeparam name="T">The container type of the setting</typeparam>
     /// <returns>The container if successful, otherwise pushes an exception and returns default</returns>
-    protected T? GetSettingContainer<T>(Enum lookup) where T : ModuleSetting => GetSettingContainer<T>(lookup.ToLookup());
+    protected ModuleSetting? GetSetting(Enum lookup) => GetSetting<ModuleSetting>(lookup.ToLookup());
 
-    internal T? GetSettingContainer<T>(string lookup) where T : ModuleSetting
+    internal T? GetSetting<T>(string lookup) where T : ModuleSetting
     {
         if (Settings.TryGetValue(lookup, out var setting)) return (T)setting;
 
@@ -291,18 +295,18 @@ public class Module
         return default;
     }
 
-    internal ModuleParameter? GetParameterContainer(string lookup)
+    internal ModuleParameter? GetParameter(string lookup)
     {
         return Parameters.SingleOrDefault(pair => pair.Key.ToLookup() == lookup).Value;
     }
 
     /// <summary>
-    /// Retrieves a setting using the provided lookup
+    /// Retrieves a <see cref="ModuleSetting"/>'s value as a shorthand for <see cref="ModuleAttribute.GetValue{TValueType}"/>
     /// </summary>
     /// <param name="lookup">The lookup of the setting</param>
     /// <typeparam name="T">The value type of the setting</typeparam>
     /// <returns>The value if successful, otherwise pushes an exception and returns default</returns>
-    protected T? GetSetting<T>(Enum lookup)
+    protected T? GetSettingValue<T>(Enum lookup)
     {
         if (!Settings.ContainsKey(lookup.ToLookup()))
         {

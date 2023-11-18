@@ -33,12 +33,12 @@ public class AppManager
 
     public readonly Bindable<AppManagerState> State = new(AppManagerState.Stopped);
 
-    public void Initialise(Storage storage, IClock clock)
+    public void Initialise(GameHost host, Storage storage, IClock clock)
     {
         scheduler = new Scheduler(() => ThreadSafety.IsUpdateThread, clock);
 
         ProfileManager = new ProfileManager(storage);
-        ModuleManager = new ModuleManager(storage, clock, this);
+        ModuleManager = new ModuleManager(host, storage, clock, this);
         RemoteModuleSourceManager = new RemoteModuleSourceManager(storage);
         VRChatOscClient = new VRChatOscClient();
         VRChatClient = new VRChatClient(VRChatOscClient);

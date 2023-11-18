@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System.Globalization;
@@ -33,11 +33,11 @@ public sealed class ClockModule : Module
     [ModuleUpdate(ModuleUpdateMode.Custom)]
     private void updateVariables()
     {
-        time = timezoneToTime(GetSetting<ClockTimeZone>(ClockSetting.Timezone));
+        time = timezoneToTime(GetSettingValue<ClockTimeZone>(ClockSetting.Timezone));
 
-        var hours = GetSetting<bool>(ClockSetting.SmoothHour) ? getSmoothedHours(time) : time.Hour;
-        var minutes = GetSetting<bool>(ClockSetting.SmoothMinute) ? getSmoothedMinutes(time) : time.Minute;
-        var seconds = GetSetting<bool>(ClockSetting.SmoothSecond) ? getSmoothedSeconds(time) : time.Second;
+        var hours = GetSettingValue<bool>(ClockSetting.SmoothHour) ? getSmoothedHours(time) : time.Hour;
+        var minutes = GetSettingValue<bool>(ClockSetting.SmoothMinute) ? getSmoothedMinutes(time) : time.Minute;
+        var seconds = GetSettingValue<bool>(ClockSetting.SmoothSecond) ? getSmoothedSeconds(time) : time.Second;
 
         var hourNormalised = hours % 12f / 12f;
         var minuteNormalised = minutes / 60f;
