@@ -140,7 +140,7 @@ public class AppManager
         State.Value = AppManagerState.Stopping;
 
         await VRChatOscClient.DisableReceive();
-        ModuleManager.Stop();
+        await ModuleManager.StopAsync();
         oscMessageQueue.Clear();
 
         State.Value = AppManagerState.Stopped;

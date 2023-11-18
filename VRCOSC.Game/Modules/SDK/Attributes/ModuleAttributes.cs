@@ -20,30 +20,30 @@ public abstract class ModuleAttribute
     internal ModuleAttributeMetadata Metadata;
 
     /// <summary>
-    /// Initialises this <see cref="ModuleSetting"/> before <see cref="Deserialise"/> is ran
+    /// Initialises this <see cref="ModuleAttribute"/>
     /// </summary>
     internal abstract void Load();
 
     /// <summary>
-    /// Resets this <see cref="ModuleSetting"/>'s value to its default value
+    /// Resets this <see cref="ModuleAttribute"/>'s value to its default value
     /// </summary>
     internal abstract void SetDefault();
 
     /// <summary>
-    /// If this <see cref="ModuleSetting"/>'s value is currently the default value
+    /// If this <see cref="ModuleAttribute"/>'s value is currently the default value
     /// </summary>
     /// <returns></returns>
     internal abstract bool IsDefault();
 
     /// <summary>
-    /// Attempts to deserialise an object into this <see cref="ModuleSetting"/>'s value's type
+    /// Attempts to deserialise an object into this <see cref="ModuleAttribute"/>'s value's type
     /// </summary>
     /// <param name="ingestValue">The value to attempt to deserialise</param>
     /// <returns>True if the deserialisation was successful, otherwise false</returns>
     internal abstract bool Deserialise(object ingestValue);
 
     /// <summary>
-    /// Retrieves the value for this <see cref="ModuleSetting"/> using a provided expected type
+    /// Retrieves the value for this <see cref="ModuleAttribute"/> using a provided expected type
     /// </summary>
     /// <typeparam name="TValueType">The type to attempt to convert the value to</typeparam>
     /// <returns>True if the value was converted successfully, otherwise false</returns>
@@ -62,10 +62,13 @@ public abstract class ModuleAttribute
     }
 
     /// <summary>
-    /// Retrieves the unknown raw typed value for this <see cref="ModuleSetting"/>.
+    /// Retrieves the unknown raw typed value for this <see cref="ModuleAttribute"/>.
     /// </summary>
     internal abstract object GetRawValue();
 
+    /// <summary>
+    /// Call to request serialisation of this <see cref="ModuleAttribute"/>
+    /// </summary>
     internal Action? RequestSerialisation;
 
     protected ModuleAttribute(ModuleAttributeMetadata metadata)
@@ -88,9 +91,9 @@ public abstract class ModuleSetting : ModuleAttribute
     internal Container GetDrawableModuleAttribute() => (Container)Activator.CreateInstance(Metadata.DrawableModuleSettingType, this)!;
 
     /// <summary>
-    /// The enabled value of this <see cref="ModuleSetting"/>
+    /// A callback for checking to see if a <see cref="ModuleSetting"/> should be enabled
     /// </summary>
-    public Bindable<bool> Enabled = new(true);
+    public Func<bool> IsEnabled = () => true;
 
     protected ModuleSetting(ModuleSettingMetadata metadata)
         : base(metadata)

@@ -253,10 +253,16 @@ public class Module
         Settings.Add(lookup.ToLookup(), new ListStringModuleSetting(new ModuleSettingMetadata(title, description, typeof(DrawableListStringModuleSetting)), values));
     }
 
+    /// <summary>
+    /// Create your settings and register your parameters by overriding this method
+    /// </summary>
     protected virtual void OnLoad()
     {
     }
 
+    /// <summary>
+    /// Link your settings together and define callbacks for custom UI behaviour by overriding this method
+    /// </summary>
     protected virtual void OnPostLoad()
     {
     }

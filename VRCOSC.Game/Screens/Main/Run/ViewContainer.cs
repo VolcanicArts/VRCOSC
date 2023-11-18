@@ -113,7 +113,7 @@ public partial class ViewContainer : Container
 
         viewState.BindValueChanged(onStateChange, true);
 
-        appManager.VRChatOscClient.OnParameterSent += message => outgoingParameterList.UpdateParameterValue(message);
+        appManager.VRChatOscClient.OnParameterSent += message => Schedule(() => outgoingParameterList.UpdateParameterValue(message));
         appManager.VRChatOscClient.OnParameterReceived += message => Schedule(() => incomingParameterList.UpdateParameterValue(message));
     }
 

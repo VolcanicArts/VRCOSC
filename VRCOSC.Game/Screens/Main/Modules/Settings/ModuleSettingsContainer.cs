@@ -27,6 +27,7 @@ public partial class ModuleSettingsContainer : VisibilityContainer
 
     private Module? module;
     private readonly TextFlowContainer noSettingsDisplay;
+    private readonly TextButton resetToDefault;
 
     public ModuleSettingsContainer()
     {
@@ -52,7 +53,7 @@ public partial class ModuleSettingsContainer : VisibilityContainer
                     Padding = new MarginPadding(13),
                     Children = new Drawable[]
                     {
-                        new TextButton
+                        resetToDefault = new TextButton
                         {
                             Anchor = Anchor.TopLeft,
                             Origin = Anchor.TopLeft,
@@ -160,6 +161,7 @@ public partial class ModuleSettingsContainer : VisibilityContainer
         if (miscModuleSettingsGroupContainer.Any()) Add(miscModuleSettingsGroupContainer);
 
         noSettingsDisplay.Alpha = this.Any() ? 0 : 1;
+        resetToDefault.Alpha = this.Any() ? 1 : 0;
     }
 
     protected override void PopIn()

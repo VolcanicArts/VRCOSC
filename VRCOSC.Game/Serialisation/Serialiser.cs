@@ -107,7 +107,6 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
             lock (serialisationLock)
             {
                 var data = (TSerialisable)Activator.CreateInstance(typeof(TSerialisable), Reference)!;
-
                 var bytes = Encoding.Unicode.GetBytes(JsonConvert.SerializeObject(data, Formatting.Indented));
                 using var stream = baseStorage.GetStorageForDirectory(Directory).CreateFileSafely(FileName);
                 stream.Write(bytes);

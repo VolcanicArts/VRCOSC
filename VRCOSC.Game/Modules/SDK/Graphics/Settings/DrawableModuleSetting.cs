@@ -17,6 +17,8 @@ public abstract partial class DrawableModuleSetting<T> : Container where T : Mod
 
     protected override Container<Drawable> Content { get; }
 
+    protected override bool ShouldBeConsideredForInput(Drawable child) => ModuleSetting.IsEnabled.Invoke();
+
     protected readonly Container SideContainer;
 
     protected DrawableModuleSetting(T moduleSetting)
@@ -103,6 +105,11 @@ public abstract partial class DrawableModuleSetting<T> : Container where T : Mod
                 }
             }
         };
+    }
+
+    protected override void Update()
+    {
+        this.FadeTo(ModuleSetting.IsEnabled.Invoke() ? 1 : 0.25f, 150, Easing.OutQuart);
     }
 }
 

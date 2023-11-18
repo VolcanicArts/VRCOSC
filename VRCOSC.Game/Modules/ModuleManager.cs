@@ -44,16 +44,12 @@ public class ModuleManager
 
     #region Runtime
 
-    public async void Start() => await StartAsync();
-
     public async Task StartAsync()
     {
         var enabledModules = modules.Where(module => module.Enabled.Value).ToList();
         foreach (var module in enabledModules) await module.Start();
         runningModuleCache.AddRange(enabledModules);
     }
-
-    public async void Stop() => await StopAsync();
 
     public async Task StopAsync()
     {
@@ -90,7 +86,7 @@ public class ModuleManager
     /// </summary>
     public void ReloadAllModules()
     {
-        modules.ForEach(module => module.Serialise());
+        Logger.Log("Module reload requested");
 
         LocalModules.Clear();
         RemoteModules.Clear();
@@ -100,6 +96,8 @@ public class ModuleManager
 
         remoteModulesContexts?.Values.ForEach(remoteModuleContext => remoteModuleContext.Unload());
         remoteModulesContexts = null;
+
+        Logger.Log("Unloading successful");
 
         LoadAllModules();
     }
