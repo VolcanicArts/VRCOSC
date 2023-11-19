@@ -12,6 +12,8 @@ namespace VRCOSC.Game.Profiles;
 
 public class ProfileManager
 {
+    private readonly AppManager appManager;
+
     public readonly BindableList<Profile> Profiles = new();
 
     /// <summary>
@@ -26,8 +28,9 @@ public class ProfileManager
 
     private readonly SerialisationManager serialisationManager;
 
-    public ProfileManager(Storage storage)
+    public ProfileManager(AppManager appManager, Storage storage)
     {
+        this.appManager = appManager;
         serialisationManager = new SerialisationManager();
         serialisationManager.RegisterSerialiser(1, new ProfileManagerSerialiser(storage, this));
 
@@ -47,6 +50,8 @@ public class ProfileManager
         Profiles.BindCollectionChanged((_, _) => Serialise());
         ActiveProfile.BindValueChanged(_ => Serialise());
         DefaultProfile.BindValueChanged(_ => Serialise());
+
+        Serialise();
     }
 
     private void checkForDefault()
@@ -61,8 +66,6 @@ public class ProfileManager
         Profiles.Add(defaultProfile);
         ActiveProfile.Value = defaultProfile;
         DefaultProfile.Value = defaultProfile;
-
-        Serialise();
     }
 
     /// <summary>
@@ -72,12 +75,12 @@ public class ProfileManager
     /// <returns>True if the profile was changed, otherwise false</returns>
     public bool AvatarChange(string avatarId)
     {
-        var avatarBoundProfile = Profiles.FirstOrDefault(profile => profile.BoundAvatar.Value == avatarId);
+        var avatarBoundProfile = Profiles.FirstOrDefault(profile => profile.BoundAvatars.Contains(avatarId));
         var newProfile = avatarBoundProfile ?? DefaultProfile.Value;
 
         if (newProfile == ActiveProfile.Value) return false;
 
-        ActiveProfile.Value = newProfile;
+        appManager.ChangeProfile(newProfile);
         return true;
     }
 }

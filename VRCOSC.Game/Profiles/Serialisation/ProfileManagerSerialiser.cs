@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using osu.Framework.Bindables;
 using osu.Framework.Platform;
 using VRCOSC.Game.Serialisation;
 
@@ -27,12 +28,9 @@ public class ProfileManagerSerialiser : Serialiser<ProfileManager, SerialisableP
                 Name =
                 {
                     Value = serialisableProfile.Name
-                },
-                BoundAvatar =
-                {
-                    Value = serialisableProfile.BoundAvatar
                 }
             };
+            profile.BoundAvatars.AddRange(new BindableList<string>(serialisableProfile.BoundAvatars));
             return profile;
         }));
 

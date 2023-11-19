@@ -39,7 +39,7 @@ public class AppManager
         this.game = game;
         scheduler = new Scheduler(() => ThreadSafety.IsUpdateThread, clock);
 
-        ProfileManager = new ProfileManager(storage);
+        ProfileManager = new ProfileManager(this, storage);
         ModuleManager = new ModuleManager(host, storage, clock, this);
         RemoteModuleSourceManager = new RemoteModuleSourceManager(storage);
         VRChatOscClient = new VRChatOscClient();
@@ -57,7 +57,7 @@ public class AppManager
 
     #region Profiles
 
-    public async Task ChangeProfile(Profile newProfile)
+    public async void ChangeProfile(Profile newProfile)
     {
         if (ProfileManager.ActiveProfile.Value == newProfile) return;
 

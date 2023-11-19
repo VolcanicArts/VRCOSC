@@ -39,8 +39,8 @@ public class SerialisableProfile
     [JsonProperty("name")]
     public string Name = null!;
 
-    [JsonProperty("bound_avatar")]
-    public string BoundAvatar = null!;
+    [JsonProperty("bound_avatars")]
+    public List<string> BoundAvatars = null!;
 
     [JsonConstructor]
     public SerialisableProfile()
@@ -50,6 +50,6 @@ public class SerialisableProfile
     public SerialisableProfile(Profile profile)
     {
         Name = profile.Name.Value;
-        BoundAvatar = profile.BoundAvatar.Value;
+        BoundAvatars = profile.BoundAvatars.ToList();
     }
 }
