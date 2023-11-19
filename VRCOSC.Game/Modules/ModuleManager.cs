@@ -12,6 +12,7 @@ using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Framework.Timing;
+using VRCOSC.Game.Modules.SDK;
 using VRCOSC.Game.Modules.Serialisation;
 using VRCOSC.Game.OSC.VRChat;
 using VRCOSC.Game.Serialisation;
@@ -33,8 +34,7 @@ public class ModuleManager
     public readonly Dictionary<Assembly, List<Module>> RemoteModules = new();
 
     private IEnumerable<Module> modules => LocalModules.Values.SelectMany(moduleList => moduleList).Concat(RemoteModules.Values.SelectMany(moduleList => moduleList)).ToList();
-
-    private readonly List<Module> runningModuleCache = new();
+    private IEnumerable<Module> runningModules => modules.Where(module => module.State.Value == ModuleState.Started);
 
     public ModuleManager(GameHost host, Storage storage, IClock clock, AppManager appManager)
     {
@@ -50,33 +50,31 @@ public class ModuleManager
     {
         var enabledModules = modules.Where(module => module.Enabled.Value).ToList();
         foreach (var module in enabledModules) await module.Start();
-        runningModuleCache.AddRange(enabledModules);
     }
 
     public async Task StopAsync()
     {
-        foreach (var module in runningModuleCache) await module.Stop();
-        runningModuleCache.Clear();
+        foreach (var module in runningModules) await module.Stop();
     }
 
     public void FrameworkUpdate()
     {
-        runningModuleCache.ForEach(module => module.FrameworkUpdate());
+        runningModules.ForEach(module => module.FrameworkUpdate());
     }
 
     public void PlayerUpdate()
     {
-        runningModuleCache.ForEach(module => module.PlayerUpdate());
+        runningModules.ForEach(module => module.PlayerUpdate());
     }
 
     public void AvatarChange()
     {
-        runningModuleCache.ForEach(module => module.AvatarChange());
+        runningModules.ForEach(module => module.AvatarChange());
     }
 
     public void ParameterReceived(VRChatOscMessage vrChatOscMessage)
     {
-        runningModuleCache.ForEach(module => module.OnParameterReceived(vrChatOscMessage));
+        runningModules.ForEach(module => module.OnParameterReceived(vrChatOscMessage));
     }
 
     #endregion

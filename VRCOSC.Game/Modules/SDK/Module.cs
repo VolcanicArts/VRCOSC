@@ -58,7 +58,7 @@ public class Module
 
     private void onModuleStateChange(ValueChangedEvent<ModuleState> e)
     {
-        Log($"State changed to {e.NewValue}");
+        Log(e.NewValue.ToString());
     }
 
     internal void InjectDependencies(GameHost host, IClock clock, AppManager appManager, SerialisationManager serialisationManager)
@@ -107,7 +107,7 @@ public class Module
         return new Regex(pattern);
     }
 
-    internal Task Start()
+    internal async Task Start()
     {
         State.Value = ModuleState.Starting;
 
@@ -117,31 +117,27 @@ public class Module
         parameterNameRegex.Clear();
         Parameters.ForEach(pair => parameterNameRegex.Add(pair.Value.Name.Value, parameterToRegex(pair.Value.Name.Value)));
 
-        var startTask = OnModuleStart();
-        startTask.GetAwaiter().OnCompleted(() =>
+        var startResult = await OnModuleStart();
+
+        if (!startResult)
         {
-            if (!startTask.Result)
-            {
-                Log("Failed to start");
-                // TODO: Handle stopping a module in the module manager
-            }
+            await Stop();
+            return;
+        }
 
-            State.Value = ModuleState.Started;
+        State.Value = ModuleState.Started;
 
-            initialiseUpdateAttributes(GetType());
-        });
-        return startTask;
+        initialiseUpdateAttributes(GetType());
     }
 
-    internal Task Stop()
+    internal async Task Stop()
     {
         State.Value = ModuleState.Stopping;
 
         scheduler.CancelDelayedTasks();
+        await OnModuleStop();
 
-        var stopTask = OnModuleStop();
-        stopTask.GetAwaiter().OnCompleted(() => State.Value = ModuleState.Stopped);
-        return stopTask;
+        State.Value = ModuleState.Stopped;
     }
 
     private void updateMethod(MethodBase method)
@@ -371,10 +367,11 @@ public class Module
 
     private string className => GetType().Name.ToLowerInvariant();
 
-    protected internal void PushException(Exception e)
+    protected internal async void PushException(Exception e)
     {
         State.Value = ModuleState.Exception;
         Logger.Error(e, $"{className} experienced an exception");
+        await Stop();
     }
 
     internal void PlayerUpdate()

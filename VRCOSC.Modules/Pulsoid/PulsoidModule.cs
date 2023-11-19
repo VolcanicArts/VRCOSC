@@ -18,7 +18,7 @@ public sealed class PulsoidModule : HeartrateModule<PulsoidProvider>
 
     protected override void OnLoad()
     {
-        CreateTextBox(PulsoidSetting.AccessToken, "Access Token", "Your Pulsoid access token", string.Empty, false);
+        CreateTextBox(PulsoidSetting.AccessToken, "Access Token", "Your Pulsoid access token", string.Empty, true);
 
         CreateGroup("Access", PulsoidSetting.AccessToken);
 
