@@ -52,7 +52,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         LoadingScreen.Description.Value = "Sit tight. We're getting things ready for you!";
 
         LoadingScreen.Action.Value = "Loading managers";
-        appManager.Initialise(host, storage, Clock);
+        appManager.Initialise(this, host, storage, Clock);
 
         LoadingScreen.Action.Value = "Loading packages";
 

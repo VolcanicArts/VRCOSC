@@ -88,6 +88,14 @@ public class ModuleManager
     {
         Logger.Log("Module reload requested");
 
+        UnloadAllModules();
+        LoadAllModules();
+    }
+
+    public void UnloadAllModules()
+    {
+        Logger.Log("Unloading all modules");
+
         LocalModules.Clear();
         RemoteModules.Clear();
 
@@ -98,8 +106,6 @@ public class ModuleManager
         remoteModulesContexts = null;
 
         Logger.Log("Unloading successful");
-
-        LoadAllModules();
     }
 
     /// <summary>
@@ -196,8 +202,9 @@ public class ModuleManager
                 return module;
             })));
         }
-        catch
+        catch (Exception e)
         {
+            Logger.Error(e, "Error in ModuleManager");
         }
 
         return moduleInstanceList;

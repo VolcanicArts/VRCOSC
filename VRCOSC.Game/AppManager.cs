@@ -27,14 +27,16 @@ public class AppManager
     public VRChatOscClient VRChatOscClient { get; private set; } = null!;
     public VRChatClient VRChatClient { get; private set; } = null!;
 
+    private VRCOSCGame game = null!;
     private Scheduler scheduler = null!;
 
     private readonly Queue<VRChatOscMessage> oscMessageQueue = new();
 
     public readonly Bindable<AppManagerState> State = new(AppManagerState.Stopped);
 
-    public void Initialise(GameHost host, Storage storage, IClock clock)
+    public void Initialise(VRCOSCGame game, GameHost host, Storage storage, IClock clock)
     {
+        this.game = game;
         scheduler = new Scheduler(() => ThreadSafety.IsUpdateThread, clock);
 
         ProfileManager = new ProfileManager(storage);
@@ -52,6 +54,36 @@ public class AppManager
         processOscMessageQueue();
         ModuleManager.FrameworkUpdate();
     }
+
+    #region Profiles
+
+    public async Task ChangeProfile(Profile newProfile)
+    {
+        if (ProfileManager.ActiveProfile.Value == newProfile) return;
+
+        Logger.Log($"Changing profile from {ProfileManager.ActiveProfile.Value.Name.Value} to {newProfile.Name.Value}");
+
+        var beforeState = State.Value;
+
+        if (State.Value == AppManagerState.Started)
+        {
+            await StopAsync();
+        }
+
+        ModuleManager.UnloadAllModules();
+        ProfileManager.ActiveProfile.Value = newProfile;
+        ModuleManager.LoadAllModules();
+
+        game.OnListingRefresh?.Invoke();
+
+        if (beforeState == AppManagerState.Started)
+        {
+            await Task.Delay(100);
+            await StartAsync();
+        }
+    }
+
+    #endregion
 
     #region OSC
 
@@ -141,6 +173,7 @@ public class AppManager
 
         await VRChatOscClient.DisableReceive();
         await ModuleManager.StopAsync();
+        VRChatOscClient.DisableSend();
         oscMessageQueue.Clear();
 
         State.Value = AppManagerState.Stopped;

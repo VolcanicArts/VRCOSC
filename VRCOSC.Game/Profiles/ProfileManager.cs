@@ -1,7 +1,6 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Collections.Generic;
 using System.Linq;
 using osu.Framework.Bindables;
 using osu.Framework.Logging;
@@ -13,7 +12,7 @@ namespace VRCOSC.Game.Profiles;
 
 public class ProfileManager
 {
-    public readonly List<Profile> Profiles = new();
+    public readonly BindableList<Profile> Profiles = new();
 
     /// <summary>
     /// The current active profile that the app is using
@@ -44,6 +43,10 @@ public class ProfileManager
         Deserialise();
 
         checkForDefault();
+
+        Profiles.BindCollectionChanged((_, _) => Serialise());
+        ActiveProfile.BindValueChanged(_ => Serialise());
+        DefaultProfile.BindValueChanged(_ => Serialise());
     }
 
     private void checkForDefault()
