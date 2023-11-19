@@ -2,8 +2,10 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Collections.Generic;
+using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -77,7 +79,7 @@ public partial class ModuleAssemblyContainer : FillFlowContainer
         };
 
         var even = false;
-        modules.ForEach(module =>
+        modules.OrderBy(module => module.Type).ThenBy(module => module.SerialisedName).ForEach(module =>
         {
             moduleFlow.Add(new DrawableModule(module, even));
             even = !even;

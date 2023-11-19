@@ -77,7 +77,7 @@ public partial class ModuleParametersListHeader : Container
                             {
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
-                                Text = "Name"
+                                Text = "Parameter Name"
                             }
                         }
                     }
