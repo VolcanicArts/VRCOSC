@@ -4,6 +4,7 @@
 using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
@@ -103,14 +104,17 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         if (host.Window.WindowState == WindowState.Minimised || inTray)
             host.DrawThread.InactiveHz = 1;
         else
-            host.DrawThread.InactiveHz = 60;
+            host.DrawThread.InactiveHz = 15;
     }
 
     protected override bool OnExiting()
     {
         trayIcon.Dispose();
+        Task.WhenAll(
+            appManager.StopAsync()
+        ).GetAwaiter().OnCompleted(Exit);
 
-        return base.OnExiting();
+        return true;
     }
 
     #region Tray

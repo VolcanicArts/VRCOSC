@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using osu.Framework.Utils;
 using VRCOSC.Game.Modules.SDK.Parameters;
@@ -15,7 +16,7 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
     protected T? HeartrateProvider;
 
     protected virtual int ReconnectionDelay => 2000;
-    protected virtual int ReconnectionLimit => 30;
+    protected virtual int ReconnectionLimit => 5;
 
     private float currentHeartrate;
     private int targetHeartrate;
@@ -61,36 +62,43 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
 
     private async Task attemptReconnection()
     {
+        Debug.Assert(HeartrateProvider is not null);
+
+        Log($"{typeof(T).Name} disconnected");
+        Log("Attempting reconnection...");
+
         await Task.Delay(ReconnectionDelay);
 
         if (connectionCount >= ReconnectionLimit)
         {
             Log("Connection cannot be established");
+            Log("Restart the module to attempt a full reconnection");
+            await teardownProvider();
             return;
         }
 
-        Log("Attempting reconnection...");
-
-        if (HeartrateProvider is null) return;
+        connectionCount++;
 
         await HeartrateProvider.Teardown();
         await Task.Delay(100);
         await HeartrateProvider.Initialise();
-
-        connectionCount++;
     }
 
-    protected override Task OnModuleStop()
+    protected override async Task OnModuleStop()
+    {
+        await teardownProvider();
+    }
+
+    private async Task teardownProvider()
     {
         if (HeartrateProvider is not null)
         {
-            HeartrateProvider.Teardown();
+            HeartrateProvider.OnDisconnected = null;
+            await HeartrateProvider.Teardown();
             HeartrateProvider = null;
         }
 
         SendParameter(HeartrateParameter.Connected, false);
-
-        return Task.CompletedTask;
     }
 
     [ModuleUpdate(ModuleUpdateMode.Custom)]

@@ -7,7 +7,7 @@ using VRCOSC.Game.Graphics;
 using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Modules.SDK.Attributes;
 
-namespace VRCOSC.Game.Modules.SDK.Graphics.Settings.Addons;
+namespace VRCOSC.Game.Modules.SDK.Graphics.Addons;
 
 public partial class DrawableButtonModuleSettingAddon : DrawableModuleSettingAddon<ButtonModuleSettingAddon>
 {

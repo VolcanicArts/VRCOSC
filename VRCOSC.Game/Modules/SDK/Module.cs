@@ -232,7 +232,7 @@ public class Module
         Settings.Add(lookup.ToLookup(), new BoolModuleSetting(new ModuleSettingMetadata(title, description, typeof(DrawableBoolModuleSetting)), defaultValue));
     }
 
-    protected void CreateTextBox(Enum lookup, string title, string description, string defaultValue, bool emptyIsValid)
+    protected void CreateTextBox(Enum lookup, string title, string description, string defaultValue, bool emptyIsValid = false)
     {
         validateSettingsLookup(lookup);
         Settings.Add(lookup.ToLookup(), new StringModuleSetting(new ModuleSettingMetadata(title, description, typeof(DrawableStringModuleSetting)), emptyIsValid, defaultValue));
