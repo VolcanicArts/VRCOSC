@@ -24,8 +24,7 @@ public abstract class ListModuleSetting<T> : ModuleSetting
     internal Container GetItemDrawable(T item) => (Container)Activator.CreateInstance(Metadata.DrawableListModuleSettingItemType, item)!;
 
     public BindableList<T> Attribute = null!;
-
-    private readonly IEnumerable<T> defaultValues;
+    protected readonly IEnumerable<T> DefaultValues;
 
     internal override object GetRawValue() => Attribute.ToList();
 
@@ -35,14 +34,17 @@ public abstract class ListModuleSetting<T> : ModuleSetting
         Attribute.BindCollectionChanged((_, _) => RequestSerialisation?.Invoke());
     }
 
-    internal override bool IsDefault() => Attribute.SequenceEqual(defaultValues);
+    internal override bool IsDefault() => Attribute.SequenceEqual(DefaultValues);
     internal override void SetDefault() => Attribute.ReplaceRange(0, Attribute.Count, getClonedDefaults());
 
-    private IEnumerable<T> getClonedDefaults() => defaultValues.Select(CloneValue);
+    private IEnumerable<T> getClonedDefaults() => DefaultValues.Select(CloneValue);
     private IEnumerable<T> jArrayToEnumerable(JArray array) => array.Select(ConstructValue);
 
     protected abstract T CloneValue(T value);
     protected abstract T ConstructValue(JToken token);
+
+    internal void AddItem() => Attribute.Add(CreateNewItem());
+    protected abstract T CreateNewItem();
 
     internal override bool Deserialise(object value)
     {
@@ -53,13 +55,14 @@ public abstract class ListModuleSetting<T> : ModuleSetting
     protected ListModuleSetting(ListModuleSettingMetadata metadata, IEnumerable<T> defaultValues)
         : base(metadata)
     {
-        this.defaultValues = defaultValues;
+        this.DefaultValues = defaultValues;
     }
 }
 
 public abstract class ValueListModuleSetting<T> : ListModuleSetting<Bindable<T>>
 {
     internal override object GetRawValue() => Attribute.Select(bindable => bindable.Value).ToList();
+    internal override bool IsDefault() => Attribute.Select(bindable => bindable.Value).SequenceEqual(DefaultValues.Select(defaultBindable => defaultBindable.Value));
 
     internal override void Load()
     {
@@ -91,4 +94,6 @@ public class StringListModuleSetting : ValueListModuleSetting<string>
         : base(metadata, defaultValues.Select(value => new Bindable<string>(value)))
     {
     }
+
+    protected override Bindable<string> CreateNewItem() => new(string.Empty);
 }

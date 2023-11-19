@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
@@ -9,6 +10,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
 using VRCOSC.Game.Graphics;
+using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Modules.SDK.Attributes.Settings;
 
 namespace VRCOSC.Game.Modules.SDK.Graphics.Settings;
@@ -145,12 +147,29 @@ public abstract partial class DrawableValueModuleSetting<T> : DrawableModuleSett
 
 public abstract partial class DrawableListModuleSetting<T> : DrawableModuleSetting<ListModuleSetting<T>>
 {
-    private readonly FillFlowContainer listContentFlow;
+    protected virtual Container? Header => null;
 
     protected DrawableListModuleSetting(ListModuleSetting<T> moduleSetting)
         : base(moduleSetting)
     {
-        base.Add(listContentFlow = new FillFlowContainer
+        FillFlowContainer flowWrapper;
+
+        Child = flowWrapper = new FillFlowContainer
+        {
+            Anchor = Anchor.TopCentre,
+            Origin = Anchor.TopCentre,
+            RelativeSizeAxes = Axes.X,
+            AutoSizeAxes = Axes.Y,
+            Direction = FillDirection.Vertical,
+            Spacing = new Vector2(0, 5)
+        };
+
+        var header = Header;
+        if (header is not null) flowWrapper.Add(header);
+
+        FillFlowContainer listContentFlow;
+
+        flowWrapper.Add(listContentFlow = new FillFlowContainer
         {
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
@@ -160,13 +179,71 @@ public abstract partial class DrawableListModuleSetting<T> : DrawableModuleSetti
             Spacing = new Vector2(0, 5)
         });
 
+        flowWrapper.Add(new IconButton
+        {
+            Anchor = Anchor.TopCentre,
+            Origin = Anchor.TopCentre,
+            Size = new Vector2(30),
+            Icon = FontAwesome.Solid.Plus,
+            Masking = true,
+            CornerRadius = 15,
+            BackgroundColour = Colours.GREEN0,
+            Action = () => ModuleSetting.AddItem()
+        });
+
         ModuleSetting.Attribute.BindCollectionChanged((_, e) =>
         {
             if (e.NewItems is not null)
             {
+                if (ModuleSetting.IsDefault())
+                    listContentFlow.Clear();
+
                 foreach (T newItem in e.NewItems)
                 {
-                    listContentFlow.Add(ModuleSetting.GetItemDrawable(newItem));
+                    GridContainer gridInstance;
+
+                    listContentFlow.Add(gridInstance = new GridContainer
+                    {
+                        Anchor = Anchor.TopCentre,
+                        Origin = Anchor.TopCentre,
+                        RelativeSizeAxes = Axes.X,
+                        AutoSizeAxes = Axes.Y,
+                        ColumnDimensions = new[]
+                        {
+                            new Dimension(),
+                            new Dimension(GridSizeMode.Absolute, 5),
+                            new Dimension(GridSizeMode.Absolute, 30)
+                        },
+                        RowDimensions = new[]
+                        {
+                            new Dimension(GridSizeMode.AutoSize)
+                        }
+                    });
+
+                    gridInstance.Content = new[]
+                    {
+                        new[]
+                        {
+                            ModuleSetting.GetItemDrawable(newItem),
+                            null,
+                            new IconButton
+                            {
+                                Anchor = Anchor.Centre,
+                                Origin = Anchor.Centre,
+                                RelativeSizeAxes = Axes.Both,
+                                FillMode = FillMode.Fit,
+                                Scale = new Vector2(0.9f),
+                                CornerRadius = 5,
+                                BackgroundColour = Colours.RED0,
+                                Icon = FontAwesome.Solid.Get(0xf00d),
+                                Action = () =>
+                                {
+                                    ModuleSetting.Attribute.Remove(newItem);
+                                    gridInstance.RemoveAndDisposeImmediately();
+                                }
+                            }
+                        }
+                    };
                 }
             }
         }, true);

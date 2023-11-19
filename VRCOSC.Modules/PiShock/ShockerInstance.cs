@@ -53,6 +53,7 @@ public class ShockerListModuleSetting : ListModuleSetting<Shocker>
 
     protected override Shocker CloneValue(Shocker value) => new(value);
     protected override Shocker ConstructValue(JToken token) => token.ToObject<Shocker>()!;
+    protected override Shocker CreateNewItem() => new();
 }
 
 public partial class DrawableShockerListModuleSetting : DrawableListModuleSetting<Shocker>
