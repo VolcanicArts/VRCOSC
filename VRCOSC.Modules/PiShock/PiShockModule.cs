@@ -41,10 +41,10 @@ public class PiShockModule : Module
         CreateSlider(PiShockSetting.MaxIntensity, "Max Intensity", "The maximum value the intensity can be in percent\nThis is the upper limit of 100% intensity and is local only", 100, 1, 100);
 
         CreateCustomSetting(PiShockSetting.Shockers, new ShockerListModuleSetting(
-            new ListModuleSettingMetadata("Shockers", "Each instance represents a single shocker using a sharecode\nThe name is used as a readable reference and can be anything you like", typeof(DrawableShockerListModuleSetting), typeof(DrawableShockerInstance)),
+            new ListModuleSettingMetadata("Shockers", "Each instance represents a single shocker using a sharecode\nThe name is used as a readable reference and can be anything you like", typeof(DrawableShockerListModuleSetting), typeof(DrawableShocker)),
             new[]
             {
-                new ShockerInstance
+                new Shocker
                 {
                     Name = { Value = "Test" }
                 }
@@ -147,7 +147,7 @@ public class PiShockModule : Module
         // }
     }
 
-    private async Task sendPiShockData(PiShockMode mode, ShockerInstance instance)
+    private async Task sendPiShockData(PiShockMode mode, Shocker instance)
     {
         var response = await piShockProvider!.Execute(GetSettingValue<string>(PiShockSetting.Username)!, GetSettingValue<string>(PiShockSetting.APIKey)!, instance.Sharecode.Value, mode, convertedDuration, convertedIntensity);
 
@@ -164,9 +164,9 @@ public class PiShockModule : Module
         }
     }
 
-    private ShockerInstance? getShockerInstanceFromKey(string key)
+    private Shocker? getShockerInstanceFromKey(string key)
     {
-        var instance = GetSettingValue<List<ShockerInstance>>(PiShockSetting.Shockers).SingleOrDefault(shockerInstance => shockerInstance.Name.Value == key);
+        var instance = GetSettingValue<List<Shocker>>(PiShockSetting.Shockers).SingleOrDefault(shockerInstance => shockerInstance.Name.Value == key);
 
         if (instance is not null) return instance;
 

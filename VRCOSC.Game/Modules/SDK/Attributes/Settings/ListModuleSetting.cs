@@ -18,7 +18,7 @@ public abstract class ListModuleSetting<T> : ModuleSetting
     internal new ListModuleSettingMetadata Metadata => (ListModuleSettingMetadata)base.Metadata;
 
     /// <summary>
-    /// The UI component associated with this <see cref="ModuleSetting"/>.
+    /// The UI component associated with this <see cref="ListModuleSetting{T}"/>'s item.
     /// This creates a new instance each time this is called to allow for proper disposal of UI components
     /// </summary>
     internal Container GetItemDrawable(T item) => (Container)Activator.CreateInstance(Metadata.DrawableListModuleSettingItemType, item)!;

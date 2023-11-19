@@ -143,11 +143,11 @@ public abstract partial class DrawableValueModuleSetting<T> : DrawableModuleSett
     protected internal void AddSide(Drawable drawable) => SideContainer.Add(drawable);
 }
 
-public abstract partial class DrawableListModuleSetting<TModuleSetting, TItem> : DrawableModuleSetting<TModuleSetting> where TModuleSetting : ListModuleSetting<TItem>
+public abstract partial class DrawableListModuleSetting<T> : DrawableModuleSetting<ListModuleSetting<T>>
 {
     private readonly FillFlowContainer listContentFlow;
 
-    protected DrawableListModuleSetting(TModuleSetting moduleSetting)
+    protected DrawableListModuleSetting(ListModuleSetting<T> moduleSetting)
         : base(moduleSetting)
     {
         base.Add(listContentFlow = new FillFlowContainer
@@ -164,7 +164,7 @@ public abstract partial class DrawableListModuleSetting<TModuleSetting, TItem> :
         {
             if (e.NewItems is not null)
             {
-                foreach (TItem newItem in e.NewItems)
+                foreach (T newItem in e.NewItems)
                 {
                     listContentFlow.Add(ModuleSetting.GetItemDrawable(newItem));
                 }

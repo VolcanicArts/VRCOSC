@@ -9,7 +9,7 @@ using VRCOSC.Game.Modules.SDK.Graphics.Settings;
 
 namespace VRCOSC.Modules.PiShock;
 
-public class ShockerInstance : IEquatable<ShockerInstance>
+public class Shocker : IEquatable<Shocker>
 {
     [JsonProperty("name")]
     public Bindable<string> Name = new(string.Empty);
@@ -18,17 +18,17 @@ public class ShockerInstance : IEquatable<ShockerInstance>
     public Bindable<string> Sharecode = new(string.Empty);
 
     [JsonConstructor]
-    public ShockerInstance()
+    public Shocker()
     {
     }
 
-    public ShockerInstance(ShockerInstance other)
+    public Shocker(Shocker other)
     {
         Name.Value = other.Name.Value;
         Sharecode.Value = other.Sharecode.Value;
     }
 
-    public bool Equals(ShockerInstance? other)
+    public bool Equals(Shocker? other)
     {
         if (ReferenceEquals(null, other)) return false;
 
@@ -36,26 +36,26 @@ public class ShockerInstance : IEquatable<ShockerInstance>
     }
 }
 
-public partial class DrawableShockerInstance : DrawableListModuleSettingItem<ShockerInstance>
+public partial class DrawableShocker : DrawableListModuleSettingItem<Shocker>
 {
-    public DrawableShockerInstance(ShockerInstance item)
+    public DrawableShocker(Shocker item)
         : base(item)
     {
     }
 }
 
-public class ShockerListModuleSetting : ListModuleSetting<ShockerInstance>
+public class ShockerListModuleSetting : ListModuleSetting<Shocker>
 {
-    public ShockerListModuleSetting(ListModuleSettingMetadata metadata, IEnumerable<ShockerInstance> defaultValues)
+    public ShockerListModuleSetting(ListModuleSettingMetadata metadata, IEnumerable<Shocker> defaultValues)
         : base(metadata, defaultValues)
     {
     }
 
-    protected override ShockerInstance CloneValue(ShockerInstance value) => new(value);
-    protected override ShockerInstance ConstructValue(JToken token) => token.ToObject<ShockerInstance>()!;
+    protected override Shocker CloneValue(Shocker value) => new(value);
+    protected override Shocker ConstructValue(JToken token) => token.ToObject<Shocker>()!;
 }
 
-public partial class DrawableShockerListModuleSetting : DrawableListModuleSetting<ShockerListModuleSetting, ShockerInstance>
+public partial class DrawableShockerListModuleSetting : DrawableListModuleSetting<Shocker>
 {
     public DrawableShockerListModuleSetting(ShockerListModuleSetting moduleSetting)
         : base(moduleSetting)
