@@ -143,11 +143,11 @@ public abstract partial class DrawableValueModuleSetting<T> : DrawableModuleSett
     protected internal void AddSide(Drawable drawable) => SideContainer.Add(drawable);
 }
 
-public abstract partial class DrawableListModuleSetting<T> : DrawableModuleSetting<T> where T : ModuleSetting
+public abstract partial class DrawableListModuleSetting<TModuleSetting, TItem> : DrawableModuleSetting<TModuleSetting> where TModuleSetting : ListModuleSetting<TItem>
 {
     private readonly FillFlowContainer listContentFlow;
 
-    protected DrawableListModuleSetting(T moduleSetting)
+    protected DrawableListModuleSetting(TModuleSetting moduleSetting)
         : base(moduleSetting)
     {
         base.Add(listContentFlow = new FillFlowContainer
@@ -159,10 +159,31 @@ public abstract partial class DrawableListModuleSetting<T> : DrawableModuleSetti
             Direction = FillDirection.Vertical,
             Spacing = new Vector2(0, 5)
         });
-    }
 
-    public override void Add(Drawable drawable)
+        ModuleSetting.Attribute.BindCollectionChanged((_, e) =>
+        {
+            if (e.NewItems is not null)
+            {
+                foreach (TItem newItem in e.NewItems)
+                {
+                    listContentFlow.Add(ModuleSetting.GetItemDrawable(newItem));
+                }
+            }
+        }, true);
+    }
+}
+
+public abstract partial class DrawableListModuleSettingItem<T> : Container
+{
+    protected readonly T Item;
+
+    protected DrawableListModuleSettingItem(T item)
     {
-        listContentFlow.Add(drawable);
+        Item = item;
+
+        Anchor = Anchor.TopCentre;
+        Origin = Anchor.TopCentre;
+        RelativeSizeAxes = Axes.X;
+        AutoSizeAxes = Axes.Y;
     }
 }

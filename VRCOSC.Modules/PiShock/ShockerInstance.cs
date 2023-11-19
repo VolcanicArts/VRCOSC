@@ -3,11 +3,7 @@
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using osu.Framework.Allocation;
 using osu.Framework.Bindables;
-using osu.Framework.Extensions.IEnumerableExtensions;
-using osu.Framework.Graphics.Sprites;
-using VRCOSC.Game.Graphics;
 using VRCOSC.Game.Modules.SDK.Attributes.Settings;
 using VRCOSC.Game.Modules.SDK.Graphics.Settings;
 
@@ -40,9 +36,17 @@ public class ShockerInstance : IEquatable<ShockerInstance>
     }
 }
 
+public partial class DrawableShockerInstance : DrawableListModuleSettingItem<ShockerInstance>
+{
+    public DrawableShockerInstance(ShockerInstance item)
+        : base(item)
+    {
+    }
+}
+
 public class ShockerListModuleSetting : ListModuleSetting<ShockerInstance>
 {
-    public ShockerListModuleSetting(ModuleSettingMetadata metadata, IEnumerable<ShockerInstance> defaultValues)
+    public ShockerListModuleSetting(ListModuleSettingMetadata metadata, IEnumerable<ShockerInstance> defaultValues)
         : base(metadata, defaultValues)
     {
     }
@@ -51,24 +55,10 @@ public class ShockerListModuleSetting : ListModuleSetting<ShockerInstance>
     protected override ShockerInstance ConstructValue(JToken token) => token.ToObject<ShockerInstance>()!;
 }
 
-public partial class DrawableShockerListModuleSetting : DrawableListModuleSetting<ShockerListModuleSetting>
+public partial class DrawableShockerListModuleSetting : DrawableListModuleSetting<ShockerListModuleSetting, ShockerInstance>
 {
     public DrawableShockerListModuleSetting(ShockerListModuleSetting moduleSetting)
         : base(moduleSetting)
     {
-    }
-
-    [BackgroundDependencyLoader]
-    private void load()
-    {
-        ModuleSetting.Attribute.ForEach(shockerInstance =>
-        {
-            Add(new SpriteText
-            {
-                Font = Fonts.REGULAR.With(size: 25),
-                Colour = Colours.WHITE0,
-                Text = shockerInstance.Name.Value
-            });
-        });
     }
 }

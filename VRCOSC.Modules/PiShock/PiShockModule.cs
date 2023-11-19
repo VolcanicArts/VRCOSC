@@ -41,7 +41,7 @@ public class PiShockModule : Module
         CreateSlider(PiShockSetting.MaxIntensity, "Max Intensity", "The maximum value the intensity can be in percent\nThis is the upper limit of 100% intensity and is local only", 100, 1, 100);
 
         CreateCustomSetting(PiShockSetting.Shockers, new ShockerListModuleSetting(
-            new ModuleSettingMetadata("Shockers", "Each instance represents a single shocker using a sharecode\nThe name is used as a readable reference and can be anything you like", typeof(DrawableShockerListModuleSetting)),
+            new ListModuleSettingMetadata("Shockers", "Each instance represents a single shocker using a sharecode\nThe name is used as a readable reference and can be anything you like", typeof(DrawableShockerListModuleSetting), typeof(DrawableShockerInstance)),
             new[]
             {
                 new ShockerInstance

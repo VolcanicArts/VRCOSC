@@ -1,16 +1,18 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
+using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
-using VRCOSC.Game.Graphics.UI.Text;
+using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Modules.SDK.Attributes.Settings;
 
-namespace VRCOSC.Game.Modules.SDK.Graphics.Settings;
+namespace VRCOSC.Game.Modules.SDK.Graphics.Settings.Values;
 
-public partial class DrawableStringModuleSetting : DrawableValueModuleSetting<StringModuleSetting>
+public partial class DrawableEnumModuleSetting<T> : DrawableModuleSetting<EnumModuleSetting<T>> where T : Enum
 {
-    public DrawableStringModuleSetting(StringModuleSetting moduleSetting)
+    public DrawableEnumModuleSetting(EnumModuleSetting<T> moduleSetting)
         : base(moduleSetting)
     {
     }
@@ -18,14 +20,13 @@ public partial class DrawableStringModuleSetting : DrawableValueModuleSetting<St
     [BackgroundDependencyLoader]
     private void load()
     {
-        Add(new StringTextBox
+        Add(new VRCOSCDropdown<T>
         {
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
             RelativeSizeAxes = Axes.X,
-            Height = 35,
-            ValidCurrent = ModuleSetting.Attribute.GetBoundCopy(),
-            EmptyIsValid = ModuleSetting.EmptyIsValid
+            Items = Enum.GetValues(typeof(T)).Cast<T>(),
+            Current = ModuleSetting.Attribute.GetBoundCopy()
         });
     }
 }

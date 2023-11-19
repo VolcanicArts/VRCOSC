@@ -18,7 +18,8 @@ using osu.Framework.Timing;
 using VRCOSC.Game.Modules.SDK.Attributes;
 using VRCOSC.Game.Modules.SDK.Attributes.Parameters;
 using VRCOSC.Game.Modules.SDK.Attributes.Settings;
-using VRCOSC.Game.Modules.SDK.Graphics.Settings;
+using VRCOSC.Game.Modules.SDK.Graphics.Settings.Lists;
+using VRCOSC.Game.Modules.SDK.Graphics.Settings.Values;
 using VRCOSC.Game.Modules.SDK.Parameters;
 using VRCOSC.Game.OSC.VRChat;
 using VRCOSC.Game.Serialisation;
@@ -255,7 +256,7 @@ public class Module
     protected void CreateStringList(Enum lookup, string title, string description, IEnumerable<string> values)
     {
         validateSettingsLookup(lookup);
-        Settings.Add(lookup.ToLookup(), new ListStringModuleSetting(new ModuleSettingMetadata(title, description, typeof(DrawableListStringModuleSetting)), values));
+        Settings.Add(lookup.ToLookup(), new StringListModuleSetting(new ListModuleSettingMetadata(title, description, typeof(DrawableStringListModuleSetting), typeof(DrawableStringListModuleSettingItem)), values));
     }
 
     /// <summary>

@@ -1,15 +1,28 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using osu.Framework.Bindables;
+using osu.Framework.Graphics.Containers;
 
 namespace VRCOSC.Game.Modules.SDK.Attributes.Settings;
 
 public abstract class ListModuleSetting<T> : ModuleSetting
 {
+    /// <summary>
+    /// The metadata for this <see cref="ModuleSetting"/>
+    /// </summary>
+    internal new ListModuleSettingMetadata Metadata => (ListModuleSettingMetadata)base.Metadata;
+
+    /// <summary>
+    /// The UI component associated with this <see cref="ModuleSetting"/>.
+    /// This creates a new instance each time this is called to allow for proper disposal of UI components
+    /// </summary>
+    internal Container GetItemDrawable(T item) => (Container)Activator.CreateInstance(Metadata.DrawableListModuleSettingItemType, item)!;
+
     public BindableList<T> Attribute = null!;
 
     private readonly IEnumerable<T> defaultValues;
@@ -37,14 +50,14 @@ public abstract class ListModuleSetting<T> : ModuleSetting
         return true;
     }
 
-    protected ListModuleSetting(ModuleSettingMetadata metadata, IEnumerable<T> defaultValues)
+    protected ListModuleSetting(ListModuleSettingMetadata metadata, IEnumerable<T> defaultValues)
         : base(metadata)
     {
         this.defaultValues = defaultValues;
     }
 }
 
-public abstract class ListValueModuleSetting<T> : ListModuleSetting<Bindable<T>>
+public abstract class ValueListModuleSetting<T> : ListModuleSetting<Bindable<T>>
 {
     internal override object GetRawValue() => Attribute.Select(bindable => bindable.Value).ToList();
 
@@ -66,15 +79,15 @@ public abstract class ListValueModuleSetting<T> : ListModuleSetting<Bindable<T>>
     protected override Bindable<T> CloneValue(Bindable<T> value) => value.GetUnboundCopy();
     protected override Bindable<T> ConstructValue(JToken token) => new(token.Value<T>()!);
 
-    protected ListValueModuleSetting(ModuleSettingMetadata metadata, IEnumerable<Bindable<T>> defaultValues)
+    protected ValueListModuleSetting(ListModuleSettingMetadata metadata, IEnumerable<Bindable<T>> defaultValues)
         : base(metadata, defaultValues)
     {
     }
 }
 
-public class ListStringModuleSetting : ListValueModuleSetting<string>
+public class StringListModuleSetting : ValueListModuleSetting<string>
 {
-    public ListStringModuleSetting(ModuleSettingMetadata metadata, IEnumerable<string> defaultValues)
+    public StringListModuleSetting(ListModuleSettingMetadata metadata, IEnumerable<string> defaultValues)
         : base(metadata, defaultValues.Select(value => new Bindable<string>(value)))
     {
     }

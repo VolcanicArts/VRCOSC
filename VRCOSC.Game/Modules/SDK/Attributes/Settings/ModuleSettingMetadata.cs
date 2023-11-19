@@ -18,3 +18,17 @@ public class ModuleSettingMetadata : ModuleAttributeMetadata
         DrawableModuleSettingType = drawableModuleSettingType;
     }
 }
+
+public class ListModuleSettingMetadata : ModuleSettingMetadata
+{
+    /// <summary>
+    /// The type to create for the UI of this <see cref="ListModuleSetting{T}"/>'s instance
+    /// </summary>
+    public readonly Type DrawableListModuleSettingItemType;
+
+    public ListModuleSettingMetadata(string title, string description, Type drawableModuleSettingType, Type drawableListModuleSettingItemType)
+        : base(title, description, drawableModuleSettingType)
+    {
+        DrawableListModuleSettingItemType = drawableListModuleSettingItemType;
+    }
+}
