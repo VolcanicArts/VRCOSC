@@ -8,7 +8,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using VRCOSC.Game.Graphics;
 using VRCOSC.Game.Graphics.UI.Text;
-using VRCOSC.Game.Modules.SDK.Attributes;
+using VRCOSC.Game.Modules.SDK.Attributes.Parameters;
 using VRCOSC.Game.Modules.SDK.Parameters;
 
 namespace VRCOSC.Game.Screens.Main.Modules.Parameters;

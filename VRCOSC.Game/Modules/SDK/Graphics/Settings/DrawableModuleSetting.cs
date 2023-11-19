@@ -9,7 +9,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
 using VRCOSC.Game.Graphics;
-using VRCOSC.Game.Modules.SDK.Attributes;
+using VRCOSC.Game.Modules.SDK.Attributes.Settings;
 
 namespace VRCOSC.Game.Modules.SDK.Graphics.Settings;
 

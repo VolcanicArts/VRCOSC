@@ -16,6 +16,8 @@ using osu.Framework.Platform;
 using osu.Framework.Threading;
 using osu.Framework.Timing;
 using VRCOSC.Game.Modules.SDK.Attributes;
+using VRCOSC.Game.Modules.SDK.Attributes.Parameters;
+using VRCOSC.Game.Modules.SDK.Attributes.Settings;
 using VRCOSC.Game.Modules.SDK.Graphics.Settings;
 using VRCOSC.Game.Modules.SDK.Parameters;
 using VRCOSC.Game.OSC.VRChat;
@@ -248,12 +250,6 @@ public class Module
     {
         validateSettingsLookup(lookup);
         Settings.Add(lookup.ToLookup(), new EnumModuleSetting<T>(new ModuleSettingMetadata(title, description, typeof(DrawableEnumModuleSetting<T>)), defaultValue));
-    }
-
-    protected void CreateDropdown(Enum lookup, string title, string description, IEnumerable<string> dropdownValues, int defaultSelection)
-    {
-        validateSettingsLookup(lookup);
-        Settings.Add(lookup.ToLookup(), new StringDropdownModuleSetting(new ModuleSettingMetadata(title, description, typeof(DrawableStringDropdownModuleSetting)), dropdownValues, defaultSelection));
     }
 
     protected void CreateStringList(Enum lookup, string title, string description, IEnumerable<string> values)

@@ -147,7 +147,7 @@ public partial class ModuleSettingsContainer : VisibilityContainer
                 settingsInGroup.Add(settingLookup);
 
                 var moduleSetting = module.Settings[settingLookup];
-                moduleSettingsGroupContainer.Add(moduleSetting.GetDrawableModuleAttribute());
+                moduleSettingsGroupContainer.Add(moduleSetting.GetDrawable());
             });
 
             Add(moduleSettingsGroupContainer);
@@ -156,7 +156,7 @@ public partial class ModuleSettingsContainer : VisibilityContainer
         var miscModuleSettingsGroupContainer = new ModuleSettingsGroupContainer(module.Groups.Any() ? "Miscellaneous" : string.Empty);
         module.Settings.Where(settingPair => !settingsInGroup.Contains(settingPair.Key))
               .Select(settingPair => settingPair.Value)
-              .ForEach(moduleSetting => miscModuleSettingsGroupContainer.Add(moduleSetting.GetDrawableModuleAttribute()));
+              .ForEach(moduleSetting => miscModuleSettingsGroupContainer.Add(moduleSetting.GetDrawable()));
 
         if (miscModuleSettingsGroupContainer.Any()) Add(miscModuleSettingsGroupContainer);
 

@@ -8,7 +8,7 @@ using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics.Sprites;
 using VRCOSC.Game.Graphics;
-using VRCOSC.Game.Modules.SDK.Attributes;
+using VRCOSC.Game.Modules.SDK.Attributes.Settings;
 using VRCOSC.Game.Modules.SDK.Graphics.Settings;
 
 namespace VRCOSC.Modules.PiShock;

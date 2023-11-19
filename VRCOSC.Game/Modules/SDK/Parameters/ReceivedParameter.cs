@@ -3,7 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using VRCOSC.Game.Modules.SDK.Attributes;
+using VRCOSC.Game.Modules.SDK.Attributes.Parameters;
 
 namespace VRCOSC.Game.Modules.SDK.Parameters;
 

@@ -5,7 +5,7 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using VRCOSC.Game.Graphics;
 using VRCOSC.Game.Graphics.UI;
-using VRCOSC.Game.Modules.SDK.Attributes;
+using VRCOSC.Game.Modules.SDK.Attributes.Settings.Addons;
 
 namespace VRCOSC.Game.Modules.SDK.Graphics.Addons;
 
