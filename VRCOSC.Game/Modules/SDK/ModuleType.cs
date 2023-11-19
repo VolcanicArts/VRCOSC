@@ -11,7 +11,8 @@ public enum ModuleType
 {
     Generic,
     Integrations,
-    Health
+    Health,
+    NSFW
 }
 
 public static class ModuleTypeExtensions
@@ -21,6 +22,7 @@ public static class ModuleTypeExtensions
         ModuleType.Generic => Colours.WHITE0,
         ModuleType.Integrations => Colours.YELLOW0,
         ModuleType.Health => Colours.RED0,
+        ModuleType.NSFW => Colours.BLACK,
         _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
     };
 }

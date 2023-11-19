@@ -94,7 +94,6 @@ public partial class ModuleSettingsContainer : VisibilityContainer
                         Origin = Anchor.TopCentre,
                         RelativeSizeAxes = Axes.Both,
                         ClampExtension = 0,
-                        Width = 0.5f,
                         ScrollbarVisible = false,
                         ScrollContent =
                         {
@@ -105,6 +104,7 @@ public partial class ModuleSettingsContainer : VisibilityContainer
                                 Origin = Anchor.TopCentre,
                                 RelativeSizeAxes = Axes.X,
                                 AutoSizeAxes = Axes.Y,
+                                Width = 0.5f,
                                 Direction = FillDirection.Vertical,
                                 Padding = new MarginPadding
                                 {

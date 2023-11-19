@@ -145,8 +145,24 @@ public abstract partial class DrawableValueModuleSetting<T> : DrawableModuleSett
 
 public abstract partial class DrawableListModuleSetting<T> : DrawableModuleSetting<T> where T : ModuleSetting
 {
+    private readonly FillFlowContainer listContentFlow;
+
     protected DrawableListModuleSetting(T moduleSetting)
         : base(moduleSetting)
     {
+        base.Add(listContentFlow = new FillFlowContainer
+        {
+            Anchor = Anchor.TopCentre,
+            Origin = Anchor.TopCentre,
+            RelativeSizeAxes = Axes.X,
+            AutoSizeAxes = Axes.Y,
+            Direction = FillDirection.Vertical,
+            Spacing = new Vector2(0, 5)
+        });
+    }
+
+    public override void Add(Drawable drawable)
+    {
+        listContentFlow.Add(drawable);
     }
 }

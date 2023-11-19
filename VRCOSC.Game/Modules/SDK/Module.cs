@@ -240,6 +240,10 @@ public class Module
         Settings.Add(lookup.ToLookup(), new IntModuleSetting(new ModuleSettingMetadata(title, description, typeof(DrawableIntModuleSetting)), defaultValue));
     }
 
+    protected void CreateSlider(Enum lookup, string title, string description, int defaultValue, int minValue, int maxValue)
+    {
+    }
+
     protected void CreateDropdown<T>(Enum lookup, string title, string description, T defaultValue) where T : Enum
     {
         validateSettingsLookup(lookup);
