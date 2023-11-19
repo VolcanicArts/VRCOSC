@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
@@ -147,7 +146,7 @@ public abstract partial class DrawableValueModuleSetting<T> : DrawableModuleSett
 
 public abstract partial class DrawableListModuleSetting<T> : DrawableModuleSetting<ListModuleSetting<T>>
 {
-    protected virtual Container? Header => null;
+    protected virtual Drawable? Header => null;
 
     protected DrawableListModuleSetting(ListModuleSetting<T> moduleSetting)
         : base(moduleSetting)
@@ -165,7 +164,22 @@ public abstract partial class DrawableListModuleSetting<T> : DrawableModuleSetti
         };
 
         var header = Header;
-        if (header is not null) flowWrapper.Add(header);
+
+        if (header is not null)
+        {
+            flowWrapper.Add(new Container
+            {
+                Anchor = Anchor.TopCentre,
+                Origin = Anchor.TopCentre,
+                RelativeSizeAxes = Axes.X,
+                AutoSizeAxes = Axes.Y,
+                Padding = new MarginPadding
+                {
+                    Right = 35
+                },
+                Child = header
+            });
+        }
 
         FillFlowContainer listContentFlow;
 
@@ -179,16 +193,27 @@ public abstract partial class DrawableListModuleSetting<T> : DrawableModuleSetti
             Spacing = new Vector2(0, 5)
         });
 
-        flowWrapper.Add(new IconButton
+        flowWrapper.Add(new Container
         {
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
-            Size = new Vector2(30),
-            Icon = FontAwesome.Solid.Plus,
-            Masking = true,
-            CornerRadius = 15,
-            BackgroundColour = Colours.GREEN0,
-            Action = () => ModuleSetting.AddItem()
+            RelativeSizeAxes = Axes.X,
+            AutoSizeAxes = Axes.Y,
+            Padding = new MarginPadding
+            {
+                Right = 35
+            },
+            Child = new IconButton
+            {
+                Anchor = Anchor.TopCentre,
+                Origin = Anchor.TopCentre,
+                Size = new Vector2(30),
+                Icon = FontAwesome.Solid.Plus,
+                Masking = true,
+                CornerRadius = 15,
+                BackgroundColour = Colours.GREEN0,
+                Action = () => ModuleSetting.AddItem()
+            }
         });
 
         ModuleSetting.Attribute.BindCollectionChanged((_, e) =>

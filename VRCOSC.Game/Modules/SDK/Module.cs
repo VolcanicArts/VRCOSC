@@ -219,7 +219,7 @@ public class Module
     /// </summary>
     /// <param name="lookup">The lookup of the setting</param>
     /// <param name="moduleSetting">The custom <see cref="ModuleSetting"/></param>
-    protected void CreateCustomSetting(Enum lookup, ModuleSetting moduleSetting)
+    protected void CreateCustom(Enum lookup, ModuleSetting moduleSetting)
     {
         validateSettingsLookup(lookup);
         Settings.Add(lookup.ToLookup(), moduleSetting);

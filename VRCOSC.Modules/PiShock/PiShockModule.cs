@@ -40,15 +40,7 @@ public class PiShockModule : Module
         CreateSlider(PiShockSetting.MaxDuration, "Max Duration", "The maximum value the duration can be in seconds\nThis is the upper limit of 100% duration and is local only", 15, 1, 15);
         CreateSlider(PiShockSetting.MaxIntensity, "Max Intensity", "The maximum value the intensity can be in percent\nThis is the upper limit of 100% intensity and is local only", 100, 1, 100);
 
-        CreateCustomSetting(PiShockSetting.Shockers, new ShockerListModuleSetting(
-            new ListModuleSettingMetadata("Shockers", "Each instance represents a single shocker using a sharecode\nThe name is used as a readable reference and can be anything you like", typeof(DrawableShockerListModuleSetting), typeof(DrawableShocker)),
-            new[]
-            {
-                new Shocker
-                {
-                    Name = { Value = "Test" }
-                }
-            }));
+        CreateCustom(PiShockSetting.Shockers, new ShockerListModuleSetting(new ListModuleSettingMetadata("Shockers", "Each instance represents a single shocker using a sharecode\nThe name is used as a readable reference and can be anything you like", typeof(DrawableShockerListModuleSetting), typeof(DrawableShocker)), Array.Empty<Shocker>()));
 
         CreateToggle(PiShockSetting.EnableVoiceControl, "Enable Voice Control", "Enables voice control using speech to text and the phrase list", false);
 
