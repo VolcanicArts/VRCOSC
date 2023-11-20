@@ -8,6 +8,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osuTK;
+using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics;
 
 namespace VRCOSC.Game.Screens.Main.Repo;
@@ -18,17 +19,22 @@ public partial class RepoTab : Container
     [Resolved]
     private VRCOSCGame game { get; set; } = null!;
 
+    [Resolved]
+    private VRCOSCConfigManager configManager { get; set; } = null!;
+
     public ModulePackageInfo PackageInfo { get; set; } = null!;
 
     private BufferedContainer bufferedContainer = null!;
     private ModulePackageList packageList = null!;
     private RepoTabHeader header = null!;
 
-    public Bindable<PackageListingFilter> Filter = new(PackageListingFilter.Type_Official | PackageListingFilter.Type_Curated | PackageListingFilter.Type_Community);
+    public Bindable<PackageListingFilter> Filter = null!;
 
     [BackgroundDependencyLoader]
     private void load()
     {
+        Filter = new Bindable<PackageListingFilter>((PackageListingFilter)configManager.Get<int>(VRCOSCSetting.PackageFilter));
+
         Anchor = Anchor.Centre;
         Origin = Anchor.Centre;
         RelativeSizeAxes = Axes.Both;

@@ -3,6 +3,7 @@
 
 using osu.Framework.Configuration;
 using osu.Framework.Platform;
+using VRCOSC.Game.Screens.Main.Repo;
 
 namespace VRCOSC.Game.Config;
 
@@ -19,11 +20,13 @@ public class VRCOSCConfigManager : IniConfigManager<VRCOSCSetting>
     {
         SetDefault(VRCOSCSetting.FirstTimeSetupComplete, false);
         SetDefault(VRCOSCSetting.StartInTray, false);
+        SetDefault(VRCOSCSetting.PackageFilter, (int)(PackageListingFilter.Type_Official | PackageListingFilter.Type_Curated | PackageListingFilter.Type_Community));
     }
 }
 
 public enum VRCOSCSetting
 {
     FirstTimeSetupComplete,
-    StartInTray
+    StartInTray,
+    PackageFilter
 }

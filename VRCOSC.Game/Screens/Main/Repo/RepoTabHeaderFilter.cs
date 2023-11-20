@@ -8,6 +8,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Input.Events;
 using osuTK;
+using VRCOSC.Game.Config;
 
 namespace VRCOSC.Game.Screens.Main.Repo;
 
@@ -15,6 +16,9 @@ public partial class RepoTabHeaderFilter : ClickableContainer
 {
     [Resolved]
     private RepoTab repoTab { get; set; } = null!;
+
+    [Resolved]
+    private VRCOSCConfigManager configManager { get; set; } = null!;
 
     private readonly BindableBool open = new();
 
@@ -69,6 +73,8 @@ public partial class RepoTabHeaderFilter : ClickableContainer
             repoTab.Filter.Value |= filter;
         else
             repoTab.Filter.Value &= ~filter;
+
+        configManager.SetValue(VRCOSCSetting.PackageFilter, (int)repoTab.Filter.Value);
     }
 
     private void onOpenStateChanged(ValueChangedEvent<bool> e)
