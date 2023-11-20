@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using osu.Framework.Utils;
 using VRCOSC.Game.Modules.SDK.Parameters;
@@ -24,6 +25,8 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
 
     protected abstract T CreateProvider();
 
+    private bool isReceiving => HeartrateProvider?.IsReceiving ?? false;
+
     protected override void OnLoad()
     {
         CreateToggle(HeartrateSetting.Smoothing, "Smoothing", "Whether the current heartrate should jump or smoothly converge to the received heartrate", true);
@@ -32,8 +35,13 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
         CreateTextBox(HeartrateSetting.NormalisedUpperbound, "Normalised Upperbound", "The upper bound BPM the normalised parameter should use", 240);
 
         RegisterParameter<bool>(HeartrateParameter.Connected, "VRCOSC/Heartrate/Connected", ParameterMode.Write, "Connected", "Whether this module is connected and receiving values");
-        RegisterParameter<int>(HeartrateParameter.Value, "VRCOSC/Heartrate/Value", ParameterMode.Write, "Value", "The raw value of your heartrate");
+        RegisterParameter<int>(HeartrateParameter.Value, "VRCOSC/Heartrate/Value", ParameterMode.Write, "Value", "The value of your heartrate");
         RegisterParameter<float>(HeartrateParameter.Normalised, "VRCOSC/Heartrate/Normalised", ParameterMode.Write, "Normalised", "The heartrate value normalised to the set bounds");
+
+        RegisterParameter<bool>(LegacyHeartrateParameter.Enabled, "VRCOSC/Heartrate/Enabled", ParameterMode.Write, "Legacy: Enabled", "Whether this module is connected and receiving values");
+        RegisterParameter<float>(LegacyHeartrateParameter.Units, "VRCOSC/Heartrate/Units", ParameterMode.Write, "Legacy: Units", "The units digit 0-9 mapped to a float");
+        RegisterParameter<float>(LegacyHeartrateParameter.Tens, "VRCOSC/Heartrate/Tens", ParameterMode.Write, "Legacy: Tens", "The tens digit 0-9 mapped to a float");
+        RegisterParameter<float>(LegacyHeartrateParameter.Hundreds, "VRCOSC/Heartrate/Hundreds", ParameterMode.Write, "Legacy: Hundreds", "The hundreds digit 0-9 mapped to a float");
 
         CreateGroup("Smoothing", HeartrateSetting.Smoothing, HeartrateSetting.SmoothingLength);
         CreateGroup("Normalised Parameter", HeartrateSetting.NormalisedLowerbound, HeartrateSetting.NormalisedUpperbound);
@@ -99,6 +107,7 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
         }
 
         SendParameter(HeartrateParameter.Connected, false);
+        SendParameter(LegacyHeartrateParameter.Enabled, false);
     }
 
     [ModuleUpdate(ModuleUpdateMode.Custom)]
@@ -117,8 +126,6 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
     [ModuleUpdate(ModuleUpdateMode.Custom)]
     private void updateParameters()
     {
-        var isReceiving = HeartrateProvider?.IsReceiving ?? false;
-
         SendParameter(HeartrateParameter.Connected, isReceiving);
 
         if (isReceiving)
@@ -135,6 +142,29 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
         }
     }
 
+    [ModuleUpdate(ModuleUpdateMode.Custom)]
+    private void updateLegacyParameters()
+    {
+        SendParameter(LegacyHeartrateParameter.Enabled, isReceiving);
+
+        if (isReceiving)
+        {
+            var individualValues = toDigitArray((int)Math.Round(currentHeartrate), 3);
+
+            SendParameter(LegacyHeartrateParameter.Units, individualValues[2] / 10f);
+            SendParameter(LegacyHeartrateParameter.Tens, individualValues[1] / 10f);
+            SendParameter(LegacyHeartrateParameter.Hundreds, individualValues[0] / 10f);
+        }
+        else
+        {
+            SendParameter(LegacyHeartrateParameter.Units, 0f);
+            SendParameter(LegacyHeartrateParameter.Tens, 0f);
+            SendParameter(LegacyHeartrateParameter.Hundreds, 0f);
+        }
+    }
+
+    private static int[] toDigitArray(int num, int totalWidth) => num.ToString().PadLeft(totalWidth, '0').Select(digit => int.Parse(digit.ToString())).ToArray();
+
     private enum HeartrateSetting
     {
         Smoothing,
@@ -148,5 +178,13 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
         Connected,
         Normalised,
         Value
+    }
+
+    private enum LegacyHeartrateParameter
+    {
+        Enabled,
+        Units,
+        Tens,
+        Hundreds
     }
 }

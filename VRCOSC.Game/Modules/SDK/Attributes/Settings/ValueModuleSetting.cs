@@ -11,7 +11,7 @@ namespace VRCOSC.Game.Modules.SDK.Attributes.Settings;
 /// </summary>
 public abstract class ValueModuleSetting<T> : ModuleSetting
 {
-    public Bindable<T> Attribute { get; private set; } = null!;
+    public virtual Bindable<T> Attribute { get; private set; } = null!;
 
     protected readonly T DefaultValue;
 
@@ -68,6 +68,27 @@ public class IntModuleSetting : ValueModuleSetting<int>
     internal IntModuleSetting(ModuleSettingMetadata metadata, int defaultValue)
         : base(metadata, defaultValue)
     {
+    }
+}
+
+public class RangedIntModuleSetting : IntModuleSetting
+{
+    private readonly int minValue;
+    private readonly int maxValue;
+
+    public override BindableNumber<int> Attribute => (BindableNumber<int>)base.Attribute;
+
+    protected override BindableNumber<int> CreateBindable() => new(DefaultValue)
+    {
+        MinValue = minValue,
+        MaxValue = maxValue
+    };
+
+    internal RangedIntModuleSetting(ModuleSettingMetadata metadata, int defaultValue, int minValue, int maxValue)
+        : base(metadata, defaultValue)
+    {
+        this.minValue = minValue;
+        this.maxValue = maxValue;
     }
 }
 

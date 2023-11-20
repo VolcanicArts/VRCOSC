@@ -243,8 +243,10 @@ public class Module
         Settings.Add(lookup.ToLookup(), new IntModuleSetting(new ModuleSettingMetadata(title, description, typeof(DrawableIntModuleSetting)), defaultValue));
     }
 
-    protected void CreateSlider(Enum lookup, string title, string description, int defaultValue, int minValue, int maxValue)
+    protected void CreateRangeSlider(Enum lookup, string title, string description, int defaultValue, int minValue, int maxValue)
     {
+        //validateSettingsLookup(lookup);
+        //Settings.Add(lookup.ToLookup(), new RangedIntModuleSetting(new ModuleSettingMetadata(title, description, typeof(DrawableRangedIntModuleSetting)), defaultValue, minValue, maxValue));
     }
 
     protected void CreateDropdown<T>(Enum lookup, string title, string description, T defaultValue) where T : Enum
