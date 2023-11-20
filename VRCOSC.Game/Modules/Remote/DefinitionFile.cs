@@ -13,8 +13,8 @@ public class DefinitionFile
     /// <summary>
     /// The ID of this package
     /// </summary>
-    [JsonProperty("id")]
-    public string ID = null!;
+    [JsonProperty("package_id")]
+    public string? PackageID;
 
     /// <summary>
     /// A display name for the repo screen

@@ -46,7 +46,7 @@ public class RemoteModuleSource
     /// The identifier of this remote module source.
     /// Used for the storage of the installed files.
     /// </summary>
-    public string? PackageID => latestReleaseDefinition?.ID;
+    public string? PackageID => latestReleaseDefinition?.PackageID;
 
     public string InternalReference => $"{RepositoryOwner}#{RepositoryName}";
 
@@ -311,6 +311,12 @@ public class RemoteModuleSource
             }
 
             if (latestReleaseDefinition is null)
+            {
+                RemoteState = RemoteModuleSourceRemoteState.InvalidDefinitionFile;
+                return;
+            }
+
+            if (string.IsNullOrEmpty(latestReleaseDefinition.PackageID))
             {
                 RemoteState = RemoteModuleSourceRemoteState.InvalidDefinitionFile;
                 return;
