@@ -1,7 +1,9 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -22,6 +24,8 @@ public partial class RepoTab : Container
     private ModulePackageList packageList = null!;
     private RepoTabHeader header = null!;
 
+    public Bindable<PackageListingFilter> Filter = new(PackageListingFilter.Type_Official | PackageListingFilter.Type_Curated | PackageListingFilter.Type_Community);
+
     [BackgroundDependencyLoader]
     private void load()
     {
@@ -40,8 +44,6 @@ public partial class RepoTab : Container
                 {
                     new Box
                     {
-                        Anchor = Anchor.Centre,
-                        Origin = Anchor.Centre,
                         RelativeSizeAxes = Axes.Both,
                         Colour = Colours.GRAY1
                     },
@@ -58,7 +60,7 @@ public partial class RepoTab : Container
                             RelativeSizeAxes = Axes.Both,
                             RowDimensions = new[]
                             {
-                                new Dimension(GridSizeMode.Absolute, 38),
+                                new Dimension(GridSizeMode.Absolute, 35),
                                 new Dimension(GridSizeMode.Absolute, 10),
                                 new Dimension()
                             },
@@ -68,7 +70,8 @@ public partial class RepoTab : Container
                                 {
                                     header = new RepoTabHeader
                                     {
-                                        RelativeSizeAxes = Axes.Both
+                                        RelativeSizeAxes = Axes.Both,
+                                        Depth = float.MinValue
                                     }
                                 },
                                 null,
@@ -108,4 +111,15 @@ public partial class RepoTab : Container
         packageList.Refresh();
         header.Refresh();
     }
+}
+
+[Flags]
+public enum PackageListingFilter
+{
+    None = 0,
+    Type_Official = 1 << 0,
+    Type_Curated = 1 << 1,
+    Type_Community = 1 << 2,
+    Release_Unavailable = 1 << 3,
+    Release_Incompatible = 1 << 4
 }

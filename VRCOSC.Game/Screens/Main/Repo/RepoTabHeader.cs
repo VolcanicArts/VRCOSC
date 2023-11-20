@@ -89,6 +89,24 @@ public partial class RepoTabHeader : Container
                         TextColour = Colours.WHITE0
                     }
                 }
+            },
+            new FillFlowContainer
+            {
+                Anchor = Anchor.CentreRight,
+                Origin = Anchor.CentreRight,
+                RelativeSizeAxes = Axes.Y,
+                AutoSizeAxes = Axes.X,
+                Direction = FillDirection.Horizontal,
+                Children = new Drawable[]
+                {
+                    new RepoTabHeaderFilter
+                    {
+                        Anchor = Anchor.CentreRight,
+                        Origin = Anchor.CentreRight,
+                        RelativeSizeAxes = Axes.Y,
+                        Width = 285
+                    }
+                }
             }
         };
 

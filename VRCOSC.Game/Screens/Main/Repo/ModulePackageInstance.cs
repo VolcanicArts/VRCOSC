@@ -3,6 +3,8 @@
 
 using System.Threading.Tasks;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
+using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -20,19 +22,18 @@ public partial class ModulePackageInstance : Container
     private RepoTab repoTab { get; set; } = null!;
 
     private readonly RemoteModuleSource remoteModuleSource;
-    private readonly bool even;
 
-    private Container infoButton = null!;
+    private readonly Container infoButton;
+    private readonly Box background;
 
-    public ModulePackageInstance(RemoteModuleSource remoteModuleSource, bool even)
+    public Bindable<bool> Even = new();
+
+    protected override Container<Drawable> Content { get; }
+
+    public ModulePackageInstance(RemoteModuleSource remoteModuleSource)
     {
         this.remoteModuleSource = remoteModuleSource;
-        this.even = even;
-    }
 
-    [BackgroundDependencyLoader]
-    private void load()
-    {
         Anchor = Anchor.TopCentre;
         Origin = Anchor.TopCentre;
         RelativeSizeAxes = Axes.X;
@@ -42,12 +43,11 @@ public partial class ModulePackageInstance : Container
 
         InternalChildren = new Drawable[]
         {
-            new Box
+            background = new Box
             {
-                RelativeSizeAxes = Axes.Both,
-                Colour = even ? Colours.GRAY4 : Colours.GRAY2
+                RelativeSizeAxes = Axes.Both
             },
-            new Container
+            Content = new Container
             {
                 RelativeSizeAxes = Axes.X,
                 AutoSizeAxes = Axes.Y,
@@ -141,6 +141,8 @@ public partial class ModulePackageInstance : Container
             }
         };
 
+        Even.BindValueChanged(e => background.Colour = e.NewValue ? Colours.GRAY4 : Colours.GRAY2, true);
+
         if (remoteModuleSource.IsUpdateAvailable())
         {
             actionContainer.Add(new UpdateButton(remoteModuleSource));
@@ -160,6 +162,21 @@ public partial class ModulePackageInstance : Container
         {
             infoButton.Hide();
         }
+    }
+
+    public bool Satisfies(PackageListingFilter filter)
+    {
+        var satisfies = (((remoteModuleSource.SourceType == RemoteModuleSourceType.Official && filter.HasFlagFast(PackageListingFilter.Type_Official)) ||
+                          (remoteModuleSource.SourceType == RemoteModuleSourceType.Curated && filter.HasFlagFast(PackageListingFilter.Type_Curated)) ||
+                          (remoteModuleSource.SourceType == RemoteModuleSourceType.Community && filter.HasFlagFast(PackageListingFilter.Type_Community))) &&
+                         ((remoteModuleSource.IsUnavailable() && filter.HasFlagFast(PackageListingFilter.Release_Unavailable)) ||
+                          (remoteModuleSource.IsIncompatible() && filter.HasFlagFast(PackageListingFilter.Release_Incompatible)) ||
+                          remoteModuleSource.IsAvailable())) ||
+                        remoteModuleSource.IsInstalled();
+
+        Content.Alpha = satisfies ? 1 : 0;
+
+        return satisfies;
     }
 
     private partial class InstanceSpriteText : SpriteText

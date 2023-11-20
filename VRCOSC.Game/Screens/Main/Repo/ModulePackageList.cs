@@ -11,16 +11,19 @@ using VRCOSC.Game.Graphics;
 
 namespace VRCOSC.Game.Screens.Main.Repo;
 
-public partial class ModulePackageList : Container
+public partial class ModulePackageList : Container<ModulePackageInstance>
 {
     [Resolved]
     private AppManager appManager { get; set; } = null!;
+
+    [Resolved]
+    private RepoTab repoTab { get; set; } = null!;
 
     private readonly FillFlowContainer flowWrapper;
     private readonly BasicScrollContainer scrollContainer;
     private readonly ModulePackageListHeader header;
 
-    protected override FillFlowContainer Content { get; }
+    protected override FillFlowContainer<ModulePackageInstance> Content { get; }
 
     public ModulePackageList()
     {
@@ -53,7 +56,7 @@ public partial class ModulePackageList : Container
                     ScrollbarVisible = false,
                     ScrollContent =
                     {
-                        Child = Content = new FillFlowContainer
+                        Child = Content = new FillFlowContainer<ModulePackageInstance>
                         {
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
@@ -79,6 +82,18 @@ public partial class ModulePackageList : Container
     private void load()
     {
         populate();
+
+        repoTab.Filter.BindValueChanged(e => applyFilter(e.NewValue), true);
+    }
+
+    private void applyFilter(PackageListingFilter filter)
+    {
+        var even = false;
+        this.Where(modulePackageInstance => modulePackageInstance.Satisfies(filter)).ForEach(modulePackageInstance =>
+        {
+            modulePackageInstance.Even.Value = even;
+            even = !even;
+        });
     }
 
     protected override void UpdateAfterChildren()
@@ -110,8 +125,10 @@ public partial class ModulePackageList : Container
                   .ThenBy(remoteModuleSource => remoteModuleSource.DisplayName)
                   .ForEach(remoteModuleSource =>
                   {
-                      Add(new ModulePackageInstance(remoteModuleSource, even));
+                      Add(new ModulePackageInstance(remoteModuleSource));
                       even = !even;
                   });
+
+        applyFilter(repoTab.Filter.Value);
     }
 }

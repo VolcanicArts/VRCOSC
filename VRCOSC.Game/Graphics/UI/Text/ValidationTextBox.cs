@@ -8,6 +8,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
+using osuTK.Graphics;
 
 namespace VRCOSC.Game.Graphics.UI.Text;
 
@@ -16,11 +17,14 @@ public abstract partial class ValidationTextBox<T> : TextBox
     /// <summary>
     /// This bindable gets updated whenever there has been a valid input. Bind to this for only valid inputs
     /// </summary>
-    public Bindable<T> ValidCurrent { get; set; } = new();
+    public Bindable<T> ValidCurrent { get; init; } = new();
 
     private InvalidIcon invalidIcon = null!;
 
     public bool IsCurrentValid { get; private set; }
+
+    protected override Color4 SelectionColour => Colours.GRAY3;
+    protected override Color4 InputErrorColour => Colours.RED1;
 
     [BackgroundDependencyLoader]
     private void load()
