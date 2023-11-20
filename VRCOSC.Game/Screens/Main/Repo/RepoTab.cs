@@ -100,10 +100,12 @@ public partial class RepoTab : Container
             bufferedContainer.FadeColour(e.NewValue == Visibility.Visible ? Colour4.White.Darken(0.5f) : Colour4.White, 500, Easing.OutQuart);
         });
 
-        game.OnListingRefresh += () =>
-        {
-            packageList.Refresh();
-            header.Refresh();
-        };
+        game.OnListingRefresh += RefreshListings;
+    }
+
+    public void RefreshListings()
+    {
+        packageList.Refresh();
+        header.Refresh();
     }
 }

@@ -19,6 +19,9 @@ public partial class RepoTabHeader : Container
     [Resolved]
     private AppManager appManager { get; set; } = null!;
 
+    [Resolved]
+    private RepoTab repoTab { get; set; } = null!;
+
     private TextButton updateAllButton = null!;
 
     [BackgroundDependencyLoader]
@@ -66,6 +69,7 @@ public partial class RepoTabHeader : Container
                                 if (loadingInfo.Complete)
                                 {
                                     game.LoadingScreen.Hide();
+                                    repoTab.RefreshListings();
                                 }
                             };
 
