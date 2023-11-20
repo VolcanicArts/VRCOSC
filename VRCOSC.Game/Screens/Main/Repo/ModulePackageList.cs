@@ -1,7 +1,9 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Linq;
 using osu.Framework.Allocation;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -102,10 +104,14 @@ public partial class ModulePackageList : Container
         Clear();
 
         var even = false;
-        appManager.RemoteModuleSourceManager.Sources.ForEach(remoteModuleSource =>
-        {
-            Add(new ModulePackageInstance(remoteModuleSource, even));
-            even = !even;
-        });
+        appManager.RemoteModuleSourceManager.Sources
+                  .OrderByDescending(removeModuleSource => removeModuleSource.IsInstalled())
+                  .ThenBy(remoteModuleSource => remoteModuleSource.SourceType)
+                  .ThenBy(remoteModuleSource => remoteModuleSource.DisplayName)
+                  .ForEach(remoteModuleSource =>
+                  {
+                      Add(new ModulePackageInstance(remoteModuleSource, even));
+                      even = !even;
+                  });
     }
 }

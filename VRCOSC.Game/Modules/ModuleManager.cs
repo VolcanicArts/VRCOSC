@@ -133,7 +133,7 @@ public class ModuleManager
         if (localModulesContext is not null)
             throw new InvalidOperationException("Cannot load local modules while local modules are already loaded");
 
-        var localModulesPath = storage.GetStorageForDirectory("modules/local").GetFullPath(string.Empty, true);
+        var localModulesPath = storage.GetStorageForDirectory("packages/local").GetFullPath(string.Empty, true);
         localModulesContext = loadContextFromPath(localModulesPath);
         Logger.Log($"Found {localModulesContext.Assemblies.Count()} assemblies");
 
@@ -163,7 +163,7 @@ public class ModuleManager
 
         remoteModulesContexts = new Dictionary<string, AssemblyLoadContext>();
 
-        var remoteModulesDirectory = storage.GetStorageForDirectory("modules/remote").GetFullPath(string.Empty, true);
+        var remoteModulesDirectory = storage.GetStorageForDirectory("packages/remote").GetFullPath(string.Empty, true);
         Directory.GetDirectories(remoteModulesDirectory).ForEach(moduleDirectory =>
         {
             var packageId = moduleDirectory.Split('\\').Last();

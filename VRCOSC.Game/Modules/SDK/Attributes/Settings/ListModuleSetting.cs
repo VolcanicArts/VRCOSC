@@ -55,7 +55,7 @@ public abstract class ListModuleSetting<T> : ModuleSetting
     protected ListModuleSetting(ListModuleSettingMetadata metadata, IEnumerable<T> defaultValues)
         : base(metadata)
     {
-        this.DefaultValues = defaultValues;
+        DefaultValues = defaultValues;
     }
 }
 

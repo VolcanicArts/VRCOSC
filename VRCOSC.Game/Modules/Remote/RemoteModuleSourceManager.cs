@@ -36,7 +36,7 @@ public class RemoteModuleSourceManager
 
     public RemoteModuleSourceManager(Storage storage)
     {
-        this.storage = storage.GetStorageForDirectory("modules/remote");
+        this.storage = storage.GetStorageForDirectory("packages/remote");
     }
 
     /// <summary>
