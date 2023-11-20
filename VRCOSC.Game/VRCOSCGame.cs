@@ -89,13 +89,9 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     protected override void Update()
     {
         appManager.FrameworkUpdate();
+        host.DrawThread.InactiveHz = inTray ? 1 : 15;
 
         if (!startInTrayComplete) obtainWindowHandle();
-
-        if (host.Window.WindowState == WindowState.Minimised || inTray)
-            host.DrawThread.InactiveHz = 1;
-        else
-            host.DrawThread.InactiveHz = 15;
     }
 
     protected override bool OnExiting()
