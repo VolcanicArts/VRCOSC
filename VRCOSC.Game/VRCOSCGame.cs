@@ -86,15 +86,6 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         Scheduler.Add(() => LoadingScreen.Hide(), false);
     }
 
-    /// <summary>
-    /// Fires events to all the tabs that need updating when listings are changed
-    /// </summary>
-    public void RefreshListings()
-    {
-        appManager.ModuleManager.ReloadAllModules();
-        OnListingRefresh?.Invoke();
-    }
-
     protected override void Update()
     {
         appManager.FrameworkUpdate();

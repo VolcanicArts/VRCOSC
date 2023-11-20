@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -202,31 +203,42 @@ public partial class ModulePackageInstance : Container
 
     private partial class ActionButton : IconButton
     {
+        protected readonly RemoteModuleSource RemoteModuleSource;
+
         [Resolved]
         private VRCOSCGame game { get; set; } = null!;
 
+        [Resolved]
+        private AppManager appManager { get; set; } = null!;
+
         protected ActionButton(RemoteModuleSource remoteModuleSource)
         {
+            RemoteModuleSource = remoteModuleSource;
             Anchor = Anchor.CentreLeft;
             Origin = Anchor.CentreLeft;
             Size = new Vector2(32);
             CornerRadius = 5;
 
-            Action += () =>
-            {
-                game.LoadingScreen.Show();
-                remoteModuleSource.Progress = loadingInfo =>
-                {
-                    game.LoadingScreen.Action.Value = loadingInfo.Action;
-                    game.LoadingScreen.Progress.Value = loadingInfo.Progress;
+            Action += async () => await ExecuteAction();
+        }
 
-                    if (loadingInfo.Complete)
-                    {
-                        game.RefreshListings();
-                        game.LoadingScreen.Hide();
-                    }
-                };
+        protected virtual async Task ExecuteAction()
+        {
+            RemoteModuleSource.Progress = loadingInfo =>
+            {
+                game.LoadingScreen.Action.Value = loadingInfo.Action;
+                game.LoadingScreen.Progress.Value = loadingInfo.Progress;
+
+                if (loadingInfo.Complete)
+                {
+                    appManager.ModuleManager.ReloadAllModules();
+                    game.OnListingRefresh?.Invoke();
+                    game.LoadingScreen.Hide();
+                }
             };
+
+            await appManager.StopAsync();
+            game.LoadingScreen.Show();
         }
     }
 
@@ -241,13 +253,15 @@ public partial class ModulePackageInstance : Container
             BackgroundColour = Colours.GREEN0;
             IconColour = Colours.WHITE0;
             Icon = FontAwesome.Solid.Plus;
+        }
 
-            Action += async () =>
-            {
-                game.LoadingScreen.Title.Value = "Installing...";
-                game.LoadingScreen.Description.Value = $"Sit tight while {remoteModuleSource.DisplayName} is installed!";
-                await remoteModuleSource.Install();
-            };
+        protected override async Task ExecuteAction()
+        {
+            await base.ExecuteAction();
+
+            game.LoadingScreen.Title.Value = "Installing...";
+            game.LoadingScreen.Description.Value = $"Sit tight while {RemoteModuleSource.DisplayName} is installed!";
+            await RemoteModuleSource.Install();
         }
     }
 
@@ -262,13 +276,15 @@ public partial class ModulePackageInstance : Container
             BackgroundColour = Colours.RED0;
             IconColour = Colours.WHITE0;
             Icon = FontAwesome.Solid.Minus;
+        }
 
-            Action += () =>
-            {
-                game.LoadingScreen.Title.Value = "Uninstalling...";
-                game.LoadingScreen.Description.Value = "So long and thanks for all the fish";
-                remoteModuleSource.Uninstall();
-            };
+        protected override async Task ExecuteAction()
+        {
+            await base.ExecuteAction();
+
+            game.LoadingScreen.Title.Value = "Uninstalling...";
+            game.LoadingScreen.Description.Value = "So long and thanks for all the fish";
+            RemoteModuleSource.Uninstall();
         }
     }
 
@@ -283,13 +299,15 @@ public partial class ModulePackageInstance : Container
             BackgroundColour = Colours.BLUE0;
             IconColour = Colours.WHITE0;
             Icon = FontAwesome.Solid.Redo;
+        }
 
-            Action += async () =>
-            {
-                game.LoadingScreen.Title.Value = "Updating...";
-                game.LoadingScreen.Description.Value = $"Sit tight! {remoteModuleSource.DisplayName} is being updated!";
-                await remoteModuleSource.Install();
-            };
+        protected override async Task ExecuteAction()
+        {
+            await base.ExecuteAction();
+
+            game.LoadingScreen.Title.Value = "Updating...";
+            game.LoadingScreen.Description.Value = $"Sit tight! {RemoteModuleSource.DisplayName} is being updated!";
+            await RemoteModuleSource.Install();
         }
     }
 }
