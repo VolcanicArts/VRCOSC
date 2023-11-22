@@ -22,7 +22,7 @@ public class PackageManager
     private const string github_token = "";
     public static readonly GitHubClient GITHUB_CLIENT = new(new ProductHeaderValue("VRCOSC"), new InMemoryCredentialStore(new Credentials(github_token)));
 
-    private const string community_tag = "vrcosc";
+    private const string community_tag = "vrcosc-package";
     private readonly Storage storage;
     private readonly SerialisationManager serialisationManager;
 
@@ -40,7 +40,7 @@ public class PackageManager
         storage = baseStorage.GetStorageForDirectory("packages/remote");
 
         builtinSources.Add(new PackageSource(this, "VolcanicArts", "VRCOSC-Modules", PackageType.Official));
-        builtinSources.Add(new PackageSource(this, "DJDavid98", "VRCOSC-BluetoothHeartrate", PackageType.Curated));
+        //builtinSources.Add(new PackageSource(this, "DJDavid98", "VRCOSC-BluetoothHeartrate", PackageType.Curated));
 
         serialisationManager = new SerialisationManager();
         serialisationManager.RegisterSerialiser(1, new PackageManagerSerialiser(baseStorage, this));

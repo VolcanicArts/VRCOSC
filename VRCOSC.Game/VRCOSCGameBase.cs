@@ -34,7 +34,7 @@ public partial class VRCOSCGameBase : osu.Framework.Game
 
     protected override Container<Drawable> Content { get; }
 
-    protected VRCOSCConfigManager ConfigManager;
+    protected VRCOSCConfigManager ConfigManager = null!;
 
     protected DrawSizePreservingFillContainer DrawSizePreservingFillContainer;
 
