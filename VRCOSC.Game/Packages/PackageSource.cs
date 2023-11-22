@@ -39,8 +39,16 @@ public class PackageSource
     public Action<LoadingInfo>? Progress;
 
     public bool IsInstalled() => packageManager.IsInstalled(this);
-    public bool IsUpdateAvailable() => false;
-    public string GetInstalledVersion() => string.Empty;
+    public string GetInstalledVersion() => packageManager.GetInstalledVersion(this);
+
+    public bool IsUpdateAvailable()
+    {
+        if (IsUnavailable() || IsIncompatible() || !IsInstalled()) return false;
+
+        var installedVersion = SemVersion.Parse(GetInstalledVersion(), SemVersionStyles.Any);
+        var latestVersion = SemVersion.Parse(LatestVersion, SemVersionStyles.Any);
+        return installedVersion.ComparePrecedenceTo(latestVersion) < 0;
+    }
 
     public bool IsIncompatible() => State is PackageSourceState.InvalidPackageFile or PackageSourceState.SDKIncompatible;
     public bool IsUnavailable() => State is PackageSourceState.MissingRepo or PackageSourceState.MissingLatestRelease or PackageSourceState.Unknown;

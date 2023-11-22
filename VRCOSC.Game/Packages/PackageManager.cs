@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -31,7 +31,7 @@ public class PackageManager
     private readonly List<PackageSource> builtinSources = new();
 
     public readonly List<PackageSource> Sources = new();
-    public readonly List<PackageInstall> InstalledPackages = new();
+    public readonly Dictionary<string, string> InstalledPackages = new();
 
     public PackageManager(Storage baseStorage)
     {
@@ -64,6 +64,8 @@ public class PackageManager
 
     public async Task InstallPackage(PackageSource packageSource)
     {
+        storage.DeleteDirectory(packageSource.PackageID);
+
         var installDirectory = storage.GetStorageForDirectory(packageSource.PackageID);
         var installAssets = packageSource.GetAssets();
 
@@ -73,11 +75,12 @@ public class PackageManager
             await assetDownload.PerformAsync();
         }
 
-        InstalledPackages.Add(new PackageInstall(packageSource.PackageID!, packageSource.LatestVersion!));
+        InstalledPackages[packageSource.PackageID!] = packageSource.LatestVersion!;
         serialisationManager.Serialise();
     }
 
-    public bool IsInstalled(PackageSource packageSource) => InstalledPackages.Any(packageInstall => packageInstall.PackageID == packageSource.PackageID);
+    public bool IsInstalled(PackageSource packageSource) => packageSource.PackageID is not null && InstalledPackages.ContainsKey(packageSource.PackageID);
+    public string GetInstalledVersion(PackageSource packageSource) => packageSource.PackageID is not null && InstalledPackages.TryGetValue(packageSource.PackageID, out var version) ? version : string.Empty;
 
     private async Task<List<PackageSource>> loadCommunityPackages()
     {

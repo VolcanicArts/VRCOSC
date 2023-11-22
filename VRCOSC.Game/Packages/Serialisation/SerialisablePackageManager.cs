@@ -21,7 +21,6 @@ public class SerialisablePackageManager : SerialisableVersion
     public SerialisablePackageManager(PackageManager packageManager)
     {
         Version = 1;
-
         Installed.AddRange(packageManager.InstalledPackages.Select(packageInstall => new SerialisablePackageInstall(packageInstall)));
     }
 }
@@ -39,9 +38,9 @@ public class SerialisablePackageInstall
     {
     }
 
-    public SerialisablePackageInstall(PackageInstall packageInstall)
+    public SerialisablePackageInstall(KeyValuePair<string, string> pair)
     {
-        PackageID = packageInstall.PackageID;
-        Version = packageInstall.Version;
+        PackageID = pair.Key;
+        Version = pair.Value;
     }
 }
