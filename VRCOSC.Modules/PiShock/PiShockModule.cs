@@ -37,17 +37,14 @@ public class PiShockModule : Module
         CreateTextBox(PiShockSetting.APIKey, "API Key", "Your PiShock API key", string.Empty);
 
         CreateTextBox(PiShockSetting.Delay, "Button Delay", "The amount of time in milliseconds the shock, vibrate, and beep parameters need to be true to execute the action\nThis is helpful for if you accidentally press buttons on your action menu", 0);
-        CreateRangeSlider(PiShockSetting.MaxDuration, "Max Duration", "The maximum value the duration can be in seconds\nThis is the upper limit of 100% duration and is local only", 15, 1, 15);
-        CreateRangeSlider(PiShockSetting.MaxIntensity, "Max Intensity", "The maximum value the intensity can be in percent\nThis is the upper limit of 100% intensity and is local only", 100, 1, 100);
+        CreateSlider(PiShockSetting.MaxDuration, "Max Duration", "The maximum value the duration can be in seconds\nThis is the upper limit of 100% duration and is local only", 15, 1, 15);
+        CreateSlider(PiShockSetting.MaxIntensity, "Max Intensity", "The maximum value the intensity can be in percent\nThis is the upper limit of 100% intensity and is local only", 100, 1, 100);
 
         CreateCustom(PiShockSetting.Shockers, new ShockerListModuleSetting(new ListModuleSettingMetadata("Shockers", "Each instance represents a single shocker using a sharecode\nThe name is used as a readable reference and can be anything you like", typeof(DrawableShockerListModuleSetting), typeof(DrawableShocker)), Array.Empty<Shocker>()));
 
-        CreateToggle(PiShockSetting.EnableVoiceControl, "Enable Voice Control", "Enables voice control using speech to text and the phrase list", false);
-
         CreateGroup("Credentials", PiShockSetting.Username, PiShockSetting.APIKey);
-        CreateGroup("Tweaks", PiShockSetting.Delay);
+        CreateGroup("Tweaks", PiShockSetting.Delay, PiShockSetting.MaxDuration, PiShockSetting.MaxIntensity);
         CreateGroup("Shockers", PiShockSetting.Shockers);
-        CreateGroup("Voice Control", PiShockSetting.EnableVoiceControl);
 
         RegisterParameter<float>(PiShockParameter.Duration, "VRCOSC/PiShock/Duration", ParameterMode.ReadWrite, "Duration", "The duration of the action as a percentage mapped between 1-15");
         RegisterParameter<float>(PiShockParameter.Intensity, "VRCOSC/PiShock/Intensity", ParameterMode.ReadWrite, "Intensity", "The intensity of the action as a percentage mapped between 1-100");
@@ -61,8 +58,6 @@ public class PiShockModule : Module
     {
         GetSetting(PiShockSetting.APIKey)!
             .AddAddon(new ButtonModuleSettingAddon("Generate API Key", Colours.BLUE0, () => OpenUrlExternally("https://pishock.com/#/account")));
-
-        // GetSetting(PiShockSetting.PhraseList)!.IsEnabled = () => GetSettingValue<bool>(PiShockSetting.EnableVoiceControl);
     }
 
     protected override Task<bool> OnModuleStart()
@@ -158,7 +153,7 @@ public class PiShockModule : Module
 
     private Shocker? getShockerInstanceFromKey(string key)
     {
-        var instance = GetSettingValue<List<Shocker>>(PiShockSetting.Shockers).SingleOrDefault(shockerInstance => shockerInstance.Name.Value == key);
+        var instance = GetSettingValue<List<Shocker>>(PiShockSetting.Shockers)!.SingleOrDefault(shockerInstance => shockerInstance.Name.Value == key);
 
         if (instance is not null) return instance;
 

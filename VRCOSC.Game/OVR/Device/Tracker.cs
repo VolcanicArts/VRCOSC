@@ -1,12 +1,8 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-namespace VRCOSC.Game.Modules.SDK;
+namespace VRCOSC.Game.OVR.Device;
 
-public enum ModuleState
+public class Tracker : OVRDevice
 {
-    Starting,
-    Started,
-    Stopping,
-    Stopped
 }

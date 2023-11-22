@@ -18,7 +18,6 @@ using osu.Framework.Timing;
 using VRCOSC.Game.Modules.SDK.Attributes;
 using VRCOSC.Game.Modules.SDK.Attributes.Parameters;
 using VRCOSC.Game.Modules.SDK.Attributes.Settings;
-using VRCOSC.Game.Modules.SDK.Graphics.Settings.Lists;
 using VRCOSC.Game.Modules.SDK.Graphics.Settings.Values;
 using VRCOSC.Game.Modules.SDK.Parameters;
 using VRCOSC.Game.OSC.VRChat;
@@ -243,22 +242,22 @@ public class Module
         Settings.Add(lookup.ToLookup(), new IntModuleSetting(new ModuleSettingMetadata(title, description, typeof(DrawableIntModuleSetting)), defaultValue));
     }
 
-    protected void CreateRangeSlider(Enum lookup, string title, string description, int defaultValue, int minValue, int maxValue)
-    {
-        //validateSettingsLookup(lookup);
-        //Settings.Add(lookup.ToLookup(), new RangedIntModuleSetting(new ModuleSettingMetadata(title, description, typeof(DrawableRangedIntModuleSetting)), defaultValue, minValue, maxValue));
-    }
-
     protected void CreateDropdown<T>(Enum lookup, string title, string description, T defaultValue) where T : Enum
     {
         validateSettingsLookup(lookup);
         Settings.Add(lookup.ToLookup(), new EnumModuleSetting<T>(new ModuleSettingMetadata(title, description, typeof(DrawableEnumModuleSetting<T>)), defaultValue));
     }
 
-    protected void CreateStringList(Enum lookup, string title, string description, IEnumerable<string> values)
+    protected void CreateSlider(Enum lookup, string title, string description, int defaultValue, int minValue, int maxValue)
     {
         validateSettingsLookup(lookup);
-        Settings.Add(lookup.ToLookup(), new StringListModuleSetting(new ListModuleSettingMetadata(title, description, typeof(DrawableStringListModuleSetting), typeof(DrawableStringListModuleSettingItem)), values));
+        Settings.Add(lookup.ToLookup(), new RangedIntModuleSetting(new ModuleSettingMetadata(title, description, typeof(DrawableIntSliderModuleSetting)), defaultValue, minValue, maxValue));
+    }
+
+    protected void CreateSlider(Enum lookup, string title, string description, float defaultValue, float minValue, float maxValue)
+    {
+        validateSettingsLookup(lookup);
+        Settings.Add(lookup.ToLookup(), new RangedFloatModuleSetting(new ModuleSettingMetadata(title, description, typeof(DrawableFloatSliderModuleSetting)), defaultValue, minValue, maxValue));
     }
 
     /// <summary>
@@ -372,7 +371,6 @@ public class Module
 
     protected internal async void PushException(Exception e)
     {
-        State.Value = ModuleState.Exception;
         Logger.Error(e, $"{className} experienced an exception");
         await Stop();
     }

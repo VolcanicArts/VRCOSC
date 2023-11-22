@@ -110,6 +110,27 @@ public class FloatModuleSetting : ValueModuleSetting<float>
     }
 }
 
+public class RangedFloatModuleSetting : FloatModuleSetting
+{
+    private readonly float minValue;
+    private readonly float maxValue;
+
+    public override BindableNumber<float> Attribute => (BindableNumber<float>)base.Attribute;
+
+    protected override BindableNumber<float> CreateBindable() => new(DefaultValue)
+    {
+        MinValue = minValue,
+        MaxValue = maxValue
+    };
+
+    internal RangedFloatModuleSetting(ModuleSettingMetadata metadata, float defaultValue, float minValue, float maxValue)
+        : base(metadata, defaultValue)
+    {
+        this.minValue = minValue;
+        this.maxValue = maxValue;
+    }
+}
+
 public class StringModuleSetting : ValueModuleSetting<string>
 {
     internal readonly bool EmptyIsValid;
