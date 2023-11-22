@@ -12,9 +12,9 @@ namespace VRCOSC.Desktop;
 public static class Program
 {
 #if DEBUG
-    private const string base_game_name = @"VRCOSC-V2";
+    private const string base_game_name = @"VRCOSC-V2-Dev";
 #else
-    private const string base_game_name = @"VRCOSC";
+    private const string base_game_name = @"VRCOSC-V2";
 #endif
 
     [STAThread]
