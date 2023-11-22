@@ -13,7 +13,7 @@ using osuTK;
 using VRCOSC.Game.Graphics;
 using VRCOSC.Game.Screens.Main.Modules.Parameters;
 using VRCOSC.Game.Screens.Main.Modules.Settings;
-using Module = VRCOSC.Game.Modules.SDK.Module;
+using Module = VRCOSC.Game.SDK.Module;
 
 namespace VRCOSC.Game.Screens.Main.Modules;
 

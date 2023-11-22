@@ -12,10 +12,10 @@ using osu.Framework.Platform;
 using osu.Framework.Threading;
 using osu.Framework.Timing;
 using VRCOSC.Game.Modules;
-using VRCOSC.Game.Modules.SDK.VRChat;
 using VRCOSC.Game.OSC.VRChat;
 using VRCOSC.Game.Packages;
 using VRCOSC.Game.Profiles;
+using VRCOSC.Game.SDK.VRChat;
 
 namespace VRCOSC.Game;
 

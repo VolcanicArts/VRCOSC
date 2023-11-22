@@ -12,11 +12,11 @@ using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Framework.Timing;
-using VRCOSC.Game.Modules.SDK;
 using VRCOSC.Game.Modules.Serialisation;
 using VRCOSC.Game.OSC.VRChat;
+using VRCOSC.Game.SDK;
 using VRCOSC.Game.Serialisation;
-using Module = VRCOSC.Game.Modules.SDK.Module;
+using Module = VRCOSC.Game.SDK.Module;
 
 namespace VRCOSC.Game.Modules;
 

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using osu.Framework.Extensions.IEnumerableExtensions;
-using VRCOSC.Game.Modules.SDK;
+using VRCOSC.Game.SDK;
 using VRCOSC.Game.Serialisation;
 
 namespace VRCOSC.Game.Modules.Serialisation;

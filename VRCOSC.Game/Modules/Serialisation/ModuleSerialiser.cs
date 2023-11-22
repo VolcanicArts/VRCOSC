@@ -5,9 +5,9 @@ using System.IO;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Platform;
-using VRCOSC.Game.Modules.SDK;
-using VRCOSC.Game.Modules.SDK.Attributes.Settings;
 using VRCOSC.Game.Profiles;
+using VRCOSC.Game.SDK;
+using VRCOSC.Game.SDK.Attributes.Settings;
 using VRCOSC.Game.Serialisation;
 
 namespace VRCOSC.Game.Modules.Serialisation;

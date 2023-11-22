@@ -10,7 +10,7 @@ using osu.Framework.Input.Events;
 using osuTK;
 using VRCOSC.Game.Graphics;
 using VRCOSC.Game.Graphics.UI;
-using VRCOSC.Game.Modules.SDK;
+using VRCOSC.Game.SDK;
 
 namespace VRCOSC.Game.Screens.Main.Modules.Parameters;
 
