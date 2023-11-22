@@ -1,0 +1,105 @@
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// See the LICENSE file in the repository root for full license text.
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Octokit;
+using Octokit.Internal;
+using osu.Framework.Extensions.IEnumerableExtensions;
+using osu.Framework.IO.Network;
+using osu.Framework.Logging;
+using osu.Framework.Platform;
+using VRCOSC.Game.Packages.Serialisation;
+using VRCOSC.Game.Screens.Loading;
+using VRCOSC.Game.Serialisation;
+
+namespace VRCOSC.Game.Packages;
+
+public class PackageManager
+{
+    private const string github_token = "";
+    public static readonly GitHubClient GITHUB_CLIENT = new(new ProductHeaderValue("VRCOSC"), new InMemoryCredentialStore(new Credentials(github_token)));
+
+    private const string community_tag = "vrcosc";
+    private readonly Storage storage;
+    private readonly SerialisationManager serialisationManager;
+
+    public Action<LoadingInfo>? Progress;
+
+    private readonly List<PackageSource> builtinSources = new();
+
+    public readonly List<PackageSource> Sources = new();
+    public readonly List<PackageInstall> InstalledPackages = new();
+
+    public PackageManager(Storage baseStorage)
+    {
+        storage = baseStorage.GetStorageForDirectory("packages/remote");
+
+        builtinSources.Add(new PackageSource(this, "VolcanicArts", "VRCOSC-OfficialModules", PackageType.Official));
+        builtinSources.Add(new PackageSource(this, "DJDavid98", "VRCOSC-BluetoothHeartrate", PackageType.Curated));
+
+        serialisationManager = new SerialisationManager();
+        serialisationManager.RegisterSerialiser(1, new PackageManagerSerialiser(baseStorage, this));
+    }
+
+    public async Task Load()
+    {
+        await RefreshAllSources();
+        serialisationManager.Deserialise();
+    }
+
+    public async Task RefreshAllSources()
+    {
+        Sources.Clear();
+        Sources.AddRange(builtinSources);
+        Sources.AddRange(await loadCommunityPackages());
+
+        foreach (var remoteModuleSource in Sources)
+        {
+            await remoteModuleSource.Refresh(true);
+        }
+    }
+
+    public async Task InstallPackage(PackageSource packageSource)
+    {
+        var installDirectory = storage.GetStorageForDirectory(packageSource.PackageID);
+        var installAssets = packageSource.GetAssets();
+
+        foreach (var asset in installAssets)
+        {
+            var assetDownload = new FileWebRequest(installDirectory.GetFullPath(asset.Name), asset.BrowserDownloadUrl);
+            await assetDownload.PerformAsync();
+        }
+
+        InstalledPackages.Add(new PackageInstall(packageSource.PackageID!, packageSource.LatestVersion!));
+        serialisationManager.Serialise();
+    }
+
+    public bool IsInstalled(PackageSource packageSource) => InstalledPackages.Any(packageInstall => packageInstall.PackageID == packageSource.PackageID);
+
+    private async Task<List<PackageSource>> loadCommunityPackages()
+    {
+        var packageSources = new List<PackageSource>();
+
+        Logger.Log("Attempting to load community repos");
+
+        var repos = await GITHUB_CLIENT.Search.SearchRepo(new SearchRepositoriesRequest
+        {
+            Topic = community_tag,
+        });
+
+        Logger.Log($"Found {repos.TotalCount} community repos");
+
+        repos.Items.Where(repo => repo.Name != "VRCOSC").ForEach(repo =>
+        {
+            var packageSource = new PackageSource(this, repo.Owner.HtmlUrl.Split('/').Last(), repo.Name, PackageType.Community);
+            if (builtinSources.Any(comparedSource => comparedSource.InternalReference == packageSource.InternalReference)) return;
+
+            packageSources.Add(packageSource);
+        });
+
+        return packageSources;
+    }
+}

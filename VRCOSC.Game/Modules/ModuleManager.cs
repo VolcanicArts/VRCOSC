@@ -113,17 +113,24 @@ public class ModuleManager
     /// </summary>
     public void LoadAllModules()
     {
-        loadLocalModules();
-        loadRemoteModules();
-
-        modules.ForEach(module =>
+        try
         {
-            var moduleSerialisationManager = new SerialisationManager();
-            moduleSerialisationManager.RegisterSerialiser(1, new ModuleSerialiser(storage, module, appManager.ProfileManager.ActiveProfile));
+            loadLocalModules();
+            loadRemoteModules();
 
-            module.InjectDependencies(host, clock, appManager, moduleSerialisationManager);
-            module.Load();
-        });
+            modules.ForEach(module =>
+            {
+                var moduleSerialisationManager = new SerialisationManager();
+                moduleSerialisationManager.RegisterSerialiser(1, new ModuleSerialiser(storage, module, appManager.ProfileManager.ActiveProfile));
+
+                module.InjectDependencies(host, clock, appManager, moduleSerialisationManager);
+                module.Load();
+            });
+        }
+        catch (Exception)
+        {
+            // TODO: Handle this
+        }
     }
 
     private void loadLocalModules()

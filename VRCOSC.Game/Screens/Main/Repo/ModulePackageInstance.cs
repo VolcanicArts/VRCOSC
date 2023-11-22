@@ -12,7 +12,7 @@ using osu.Framework.Graphics.Sprites;
 using osuTK;
 using VRCOSC.Game.Graphics;
 using VRCOSC.Game.Graphics.UI;
-using VRCOSC.Game.Modules.Remote;
+using VRCOSC.Game.Packages;
 
 namespace VRCOSC.Game.Screens.Main.Repo;
 
@@ -21,7 +21,7 @@ public partial class ModulePackageInstance : Container
     [Resolved]
     private RepoTab repoTab { get; set; } = null!;
 
-    private readonly RemoteModuleSource remoteModuleSource;
+    private readonly PackageSource packageSource;
 
     private readonly Container infoButton;
     private readonly Box background;
@@ -30,9 +30,9 @@ public partial class ModulePackageInstance : Container
 
     protected override Container<Drawable> Content { get; }
 
-    public ModulePackageInstance(RemoteModuleSource remoteModuleSource)
+    public ModulePackageInstance(PackageSource packageSource)
     {
-        this.remoteModuleSource = remoteModuleSource;
+        this.packageSource = packageSource;
 
         Anchor = Anchor.TopCentre;
         Origin = Anchor.TopCentre;
@@ -79,9 +79,9 @@ public partial class ModulePackageInstance : Container
                             {
                                 Anchor = Anchor.CentreLeft,
                                 Origin = Anchor.CentreLeft,
-                                Text = remoteModuleSource.DisplayName
+                                Text = packageSource.GetDisplayName()
                             },
-                            new LatestVersionSpriteText(remoteModuleSource)
+                            new LatestVersionSpriteText(packageSource)
                             {
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre
@@ -90,13 +90,13 @@ public partial class ModulePackageInstance : Container
                             {
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
-                                Text = remoteModuleSource.GetInstalledVersion()
+                                Text = packageSource.GetInstalledVersion()
                             },
                             new InstanceSpriteText
                             {
                                 Anchor = Anchor.CentreLeft,
                                 Origin = Anchor.CentreLeft,
-                                Text = remoteModuleSource.SourceType.ToString()
+                                Text = packageSource.PackageType.ToString()
                             },
                             actionContainer = new FillFlowContainer
                             {
@@ -130,7 +130,7 @@ public partial class ModulePackageInstance : Container
                                             Icon = FontAwesome.Solid.Info,
                                             CornerRadius = 5,
                                             BackgroundColour = Colours.BLUE0,
-                                            Action = () => repoTab.PackageInfo.CurrentRemoteModuleSource.Value = remoteModuleSource
+                                            Action = () => repoTab.PackageInfo.CurrentPackageSource.Value = packageSource
                                         }
                                     }
                                 }
@@ -143,22 +143,22 @@ public partial class ModulePackageInstance : Container
 
         Even.BindValueChanged(e => background.Colour = e.NewValue ? Colours.GRAY4 : Colours.GRAY2, true);
 
-        if (remoteModuleSource.IsUpdateAvailable())
+        if (packageSource.IsUpdateAvailable())
         {
-            actionContainer.Add(new UpdateButton(remoteModuleSource));
+            actionContainer.Add(new UpdateButton(packageSource));
         }
 
-        if (remoteModuleSource.IsAvailable() && !remoteModuleSource.IsInstalled())
+        if (packageSource.IsAvailable() && !packageSource.IsInstalled())
         {
-            actionContainer.Add(new InstallButton(remoteModuleSource));
+            actionContainer.Add(new InstallButton(packageSource));
         }
 
-        if (remoteModuleSource.IsInstalled())
+        if (packageSource.IsInstalled())
         {
-            actionContainer.Add(new UninstallButton(remoteModuleSource));
+            actionContainer.Add(new UninstallButton(packageSource));
         }
 
-        if (remoteModuleSource.IsUnavailable())
+        if (packageSource.IsUnavailable())
         {
             infoButton.Hide();
         }
@@ -166,13 +166,13 @@ public partial class ModulePackageInstance : Container
 
     public bool Satisfies(PackageListingFilter filter)
     {
-        var satisfies = (((remoteModuleSource.SourceType == RemoteModuleSourceType.Official && filter.HasFlagFast(PackageListingFilter.Type_Official)) ||
-                          (remoteModuleSource.SourceType == RemoteModuleSourceType.Curated && filter.HasFlagFast(PackageListingFilter.Type_Curated)) ||
-                          (remoteModuleSource.SourceType == RemoteModuleSourceType.Community && filter.HasFlagFast(PackageListingFilter.Type_Community))) &&
-                         ((remoteModuleSource.IsUnavailable() && filter.HasFlagFast(PackageListingFilter.Release_Unavailable)) ||
-                          (remoteModuleSource.IsIncompatible() && filter.HasFlagFast(PackageListingFilter.Release_Incompatible)) ||
-                          remoteModuleSource.IsAvailable())) ||
-                        remoteModuleSource.IsInstalled();
+        var satisfies = (((packageSource.PackageType == PackageType.Official && filter.HasFlagFast(PackageListingFilter.Type_Official)) ||
+                          (packageSource.PackageType == PackageType.Curated && filter.HasFlagFast(PackageListingFilter.Type_Curated)) ||
+                          (packageSource.PackageType == PackageType.Community && filter.HasFlagFast(PackageListingFilter.Type_Community))) &&
+                         ((packageSource.IsUnavailable() && filter.HasFlagFast(PackageListingFilter.Release_Unavailable)) ||
+                          (packageSource.IsIncompatible() && filter.HasFlagFast(PackageListingFilter.Release_Incompatible)) ||
+                          packageSource.IsAvailable())) ||
+                        packageSource.IsInstalled();
 
         Content.Alpha = satisfies ? 1 : 0;
 
@@ -191,36 +191,36 @@ public partial class ModulePackageInstance : Container
 
     private partial class LatestVersionSpriteText : InstanceSpriteText
     {
-        private readonly RemoteModuleSource remoteModuleSource;
+        private readonly PackageSource packageSource;
 
-        public LatestVersionSpriteText(RemoteModuleSource remoteModuleSource)
+        public LatestVersionSpriteText(PackageSource packageSource)
         {
-            this.remoteModuleSource = remoteModuleSource;
+            this.packageSource = packageSource;
         }
 
         [BackgroundDependencyLoader]
         private void load()
         {
-            if (remoteModuleSource.IsIncompatible())
-            {
-                Text = "Incompatible";
-                Colour = Colours.ORANGE1;
-            }
-            else if (remoteModuleSource.IsUnavailable())
+            if (packageSource.IsUnavailable())
             {
                 Text = "Unavailable";
                 Colour = Colours.RED1;
             }
+            else if (packageSource.IsIncompatible())
+            {
+                Text = "Incompatible";
+                Colour = Colours.ORANGE1;
+            }
             else
             {
-                Text = remoteModuleSource.LatestRelease!.TagName;
+                Text = packageSource.LatestVersion!;
             }
         }
     }
 
     private partial class ActionButton : IconButton
     {
-        protected readonly RemoteModuleSource RemoteModuleSource;
+        protected readonly PackageSource PackageSource;
 
         [Resolved]
         private VRCOSCGame game { get; set; } = null!;
@@ -228,9 +228,9 @@ public partial class ModulePackageInstance : Container
         [Resolved]
         private AppManager appManager { get; set; } = null!;
 
-        protected ActionButton(RemoteModuleSource remoteModuleSource)
+        protected ActionButton(PackageSource packageSource)
         {
-            RemoteModuleSource = remoteModuleSource;
+            PackageSource = packageSource;
             Anchor = Anchor.CentreLeft;
             Origin = Anchor.CentreLeft;
             Size = new Vector2(32);
@@ -241,7 +241,7 @@ public partial class ModulePackageInstance : Container
 
         protected virtual async Task ExecuteAction()
         {
-            RemoteModuleSource.Progress = loadingInfo =>
+            PackageSource.Progress = loadingInfo =>
             {
                 game.LoadingScreen.Action.Value = loadingInfo.Action;
                 game.LoadingScreen.Progress.Value = loadingInfo.Progress;
@@ -264,8 +264,8 @@ public partial class ModulePackageInstance : Container
         [Resolved]
         private VRCOSCGame game { get; set; } = null!;
 
-        public InstallButton(RemoteModuleSource remoteModuleSource)
-            : base(remoteModuleSource)
+        public InstallButton(PackageSource packageSource)
+            : base(packageSource)
         {
             BackgroundColour = Colours.GREEN0;
             IconColour = Colours.WHITE0;
@@ -277,8 +277,8 @@ public partial class ModulePackageInstance : Container
             await base.ExecuteAction();
 
             game.LoadingScreen.Title.Value = "Installing...";
-            game.LoadingScreen.Description.Value = $"Sit tight while {RemoteModuleSource.DisplayName} is installed!";
-            await RemoteModuleSource.Install();
+            game.LoadingScreen.Description.Value = $"Sit tight while {PackageSource.GetDisplayName()} is installed!";
+            await PackageSource.Install();
         }
     }
 
@@ -287,7 +287,7 @@ public partial class ModulePackageInstance : Container
         [Resolved]
         private VRCOSCGame game { get; set; } = null!;
 
-        public UninstallButton(RemoteModuleSource remoteModuleSource)
+        public UninstallButton(PackageSource remoteModuleSource)
             : base(remoteModuleSource)
         {
             BackgroundColour = Colours.RED0;
@@ -301,7 +301,7 @@ public partial class ModulePackageInstance : Container
 
             game.LoadingScreen.Title.Value = "Uninstalling...";
             game.LoadingScreen.Description.Value = "So long and thanks for all the fish";
-            RemoteModuleSource.Uninstall();
+            PackageSource.Uninstall();
         }
     }
 
@@ -310,7 +310,7 @@ public partial class ModulePackageInstance : Container
         [Resolved]
         private VRCOSCGame game { get; set; } = null!;
 
-        public UpdateButton(RemoteModuleSource remoteModuleSource)
+        public UpdateButton(PackageSource remoteModuleSource)
             : base(remoteModuleSource)
         {
             BackgroundColour = Colours.BLUE0;
@@ -323,8 +323,8 @@ public partial class ModulePackageInstance : Container
             await base.ExecuteAction();
 
             game.LoadingScreen.Title.Value = "Updating...";
-            game.LoadingScreen.Description.Value = $"Sit tight! {RemoteModuleSource.DisplayName} is being updated!";
-            await RemoteModuleSource.Install();
+            game.LoadingScreen.Description.Value = $"Sit tight! {PackageSource.GetDisplayName()} is being updated!";
+            await PackageSource.Install();
         }
     }
 }

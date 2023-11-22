@@ -3,12 +3,12 @@
 
 using Newtonsoft.Json;
 
-namespace VRCOSC.Game.Modules.Remote;
+namespace VRCOSC.Game.Packages;
 
 /// <summary>
 /// Represents the vrcosc.json file remote module listings require to be compatible with VRCOSC
 /// </summary>
-public class DefinitionFile
+public class PackageFile
 {
     /// <summary>
     /// The ID of this package

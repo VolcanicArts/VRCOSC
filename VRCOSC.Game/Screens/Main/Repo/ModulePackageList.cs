@@ -119,13 +119,13 @@ public partial class ModulePackageList : Container<ModulePackageInstance>
         Clear();
 
         var even = false;
-        appManager.RemoteModuleSourceManager.Sources
-                  .OrderByDescending(removeModuleSource => removeModuleSource.IsInstalled())
-                  .ThenBy(remoteModuleSource => remoteModuleSource.SourceType)
-                  .ThenBy(remoteModuleSource => remoteModuleSource.DisplayName)
-                  .ForEach(remoteModuleSource =>
+        appManager.PackageManager.Sources
+                  .OrderByDescending(packageSource => packageSource.IsInstalled())
+                  .ThenBy(packageSource => packageSource.PackageType)
+                  .ThenBy(packageSource => packageSource.GetDisplayName())
+                  .ForEach(packageSource =>
                   {
-                      Add(new ModulePackageInstance(remoteModuleSource));
+                      Add(new ModulePackageInstance(packageSource));
                       even = !even;
                   });
 

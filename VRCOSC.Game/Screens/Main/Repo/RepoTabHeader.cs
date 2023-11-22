@@ -61,7 +61,7 @@ public partial class RepoTabHeader : Container
                             game.LoadingScreen.Title.Value = "Refreshing listing";
                             game.LoadingScreen.Description.Value = "Sit tight. We're gathering the latest data";
 
-                            appManager.RemoteModuleSourceManager.Progress = loadingInfo =>
+                            appManager.PackageManager.Progress = loadingInfo =>
                             {
                                 game.LoadingScreen.Action.Value = loadingInfo.Action;
                                 game.LoadingScreen.Progress.Value = loadingInfo.Progress;
@@ -74,7 +74,7 @@ public partial class RepoTabHeader : Container
                             };
 
                             game.LoadingScreen.Show();
-                            await appManager.RemoteModuleSourceManager.Refresh();
+                            await appManager.PackageManager.RefreshAllSources();
                         }
                     },
                     updateAllButton = new TextButton
@@ -115,6 +115,6 @@ public partial class RepoTabHeader : Container
 
     public void Refresh()
     {
-        updateAllButton.Alpha = appManager.RemoteModuleSourceManager.Sources.Any(remoteModuleSource => remoteModuleSource.IsUpdateAvailable()) ? 1 : 0;
+        updateAllButton.Alpha = appManager.PackageManager.Sources.Any(remoteModuleSource => remoteModuleSource.IsUpdateAvailable()) ? 1 : 0;
     }
 }

@@ -18,7 +18,7 @@ using osuTK;
 using osuTK.Graphics;
 using VRCOSC.Game.Graphics;
 using VRCOSC.Game.Graphics.UI;
-using VRCOSC.Game.Modules.Remote;
+using VRCOSC.Game.Packages;
 
 namespace VRCOSC.Game.Screens.Main.Repo;
 
@@ -41,8 +41,9 @@ public partial class ModulePackageInfo : VisibilityContainer
     private SpriteText title = null!;
     private SpriteText author = null!;
     private TextFlowContainer description = null!;
+    private FooterButton footerButton = null!;
 
-    public Bindable<RemoteModuleSource?> CurrentRemoteModuleSource { get; } = new();
+    public Bindable<PackageSource?> CurrentPackageSource { get; } = new();
 
     [BackgroundDependencyLoader]
     private void load()
@@ -131,7 +132,7 @@ public partial class ModulePackageInfo : VisibilityContainer
                                                 IconSize = 24,
                                                 IconColour = Colours.WHITE0,
                                                 BackgroundColour = Colours.RED0,
-                                                Action = () => CurrentRemoteModuleSource.Value = null
+                                                Action = () => CurrentPackageSource.Value = null
                                             }
                                         },
                                         new FillFlowContainer
@@ -208,11 +209,10 @@ public partial class ModulePackageInfo : VisibilityContainer
                                 Spacing = new Vector2(5, 0),
                                 Children = new Drawable[]
                                 {
-                                    new FooterButton
+                                    footerButton = new FooterButton
                                     {
                                         Icon = FontAwesome.Brands.Github,
-                                        BackgroundColour = Color4Extensions.FromHex("333333"),
-                                        Action = () => host.OpenUrlExternally(CurrentRemoteModuleSource.Value?.Repository!.HtmlUrl ?? "https://www.youtube.com/watch?v=bfAPmzWkQAI")
+                                        BackgroundColour = Color4Extensions.FromHex("333333")
                                     }
                                 }
                             }
@@ -222,12 +222,12 @@ public partial class ModulePackageInfo : VisibilityContainer
             }
         };
 
-        CurrentRemoteModuleSource.BindValueChanged(_ => onCurrentRemoteModuleSourceChange());
+        CurrentPackageSource.BindValueChanged(_ => onCurrentRemoteModuleSourceChange());
     }
 
     private async void onCurrentRemoteModuleSourceChange()
     {
-        if (CurrentRemoteModuleSource.Value is null)
+        if (CurrentPackageSource.Value is null)
         {
             Hide();
             return;
@@ -235,11 +235,13 @@ public partial class ModulePackageInfo : VisibilityContainer
 
         Show();
 
-        title.Text = CurrentRemoteModuleSource.Value.DisplayName;
-        author.Text = $"Created by {CurrentRemoteModuleSource.Value.RepositoryOwner}";
-        description.Text = CurrentRemoteModuleSource.Value.Repository?.Description ?? string.Empty;
+        footerButton.Action = () => host.OpenUrlExternally(CurrentPackageSource.Value.GetSourceURL());
 
-        var coverUrl = CurrentRemoteModuleSource.Value.GetCoverUrl() ?? "https://wallpapercave.com/wp/Zs1bPI9.jpg";
+        title.Text = CurrentPackageSource.Value.GetDisplayName();
+        author.Text = $"Created by {CurrentPackageSource.Value.GetAuthor()}";
+        description.Text = CurrentPackageSource.Value.GetDescription();
+
+        var coverUrl = CurrentPackageSource.Value.GetCoverURL();
 
         // TODO: Revisit this as some images seem to overflow
         var texture = await game.Textures.GetAsync(coverUrl, CancellationToken.None);

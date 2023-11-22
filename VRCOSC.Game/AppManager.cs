@@ -12,9 +12,9 @@ using osu.Framework.Platform;
 using osu.Framework.Threading;
 using osu.Framework.Timing;
 using VRCOSC.Game.Modules;
-using VRCOSC.Game.Modules.Remote;
 using VRCOSC.Game.Modules.SDK.VRChat;
 using VRCOSC.Game.OSC.VRChat;
+using VRCOSC.Game.Packages;
 using VRCOSC.Game.Profiles;
 
 namespace VRCOSC.Game;
@@ -23,7 +23,7 @@ public class AppManager
 {
     public ProfileManager ProfileManager { get; private set; } = null!;
     public ModuleManager ModuleManager { get; private set; } = null!;
-    public RemoteModuleSourceManager RemoteModuleSourceManager { get; private set; } = null!;
+    public PackageManager PackageManager { get; private set; } = null!;
     public VRChatOscClient VRChatOscClient { get; private set; } = null!;
     public VRChatClient VRChatClient { get; private set; } = null!;
 
@@ -41,7 +41,7 @@ public class AppManager
 
         ProfileManager = new ProfileManager(this, storage);
         ModuleManager = new ModuleManager(host, storage, clock, this);
-        RemoteModuleSourceManager = new RemoteModuleSourceManager(storage);
+        PackageManager = new PackageManager(storage);
         VRChatOscClient = new VRChatOscClient();
         VRChatClient = new VRChatClient(VRChatOscClient);
     }

@@ -62,8 +62,8 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
             LoadingScreen.Progress.Value = loadingInfo.Progress;
         }
 
-        appManager.RemoteModuleSourceManager.Progress = onRemoteModulesActionProgress;
-        await appManager.RemoteModuleSourceManager.Load();
+        appManager.PackageManager.Progress = onRemoteModulesActionProgress;
+        await appManager.PackageManager.Load();
 
         LoadingScreen.Action.Value = "Loading profiles";
         appManager.ProfileManager.Load();
