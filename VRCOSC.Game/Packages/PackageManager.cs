@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -48,12 +48,15 @@ public class PackageManager
 
     public async Task Load()
     {
+        Sources.AddRange(builtinSources);
         serialisationManager.Deserialise();
         await RefreshAllSources(CacheExpireTime + TimeSpan.FromDays(1) <= DateTime.Now);
     }
 
     public async Task RefreshAllSources(bool forceRemoteGrab)
     {
+        Progress?.Invoke(new LoadingInfo("Refreshing all packages", 0f, false));
+
         if (forceRemoteGrab)
         {
             Sources.Clear();
@@ -61,16 +64,23 @@ public class PackageManager
             Sources.AddRange(await loadCommunityPackages());
         }
 
-        foreach (var remoteModuleSource in Sources)
+        var divisor = 1f / Sources.Count;
+        var count = 0f;
+
+        foreach (var packageSource in Sources)
         {
-            await remoteModuleSource.Refresh(forceRemoteGrab);
+            Progress?.Invoke(new LoadingInfo($"Refreshing {packageSource.GetDisplayName()}", count, false));
+            await packageSource.Refresh(forceRemoteGrab);
+            count += divisor;
         }
 
         CacheExpireTime = DateTime.Now + TimeSpan.FromDays(1);
         serialisationManager.Serialise();
+
+        Progress?.Invoke(new LoadingInfo("Complete!", 1f, true));
     }
 
-    public async Task InstallPackage(PackageSource packageSource)
+    public async Task InstallPackage(PackageSource packageSource, Action<LoadingInfo>? callback)
     {
         storage.DeleteDirectory(packageSource.PackageID);
 
@@ -78,10 +88,15 @@ public class PackageManager
         var installAssets = packageSource.GetAssets();
         installAssets.Remove("vrcosc.json");
 
+        var divisor = 1f / installAssets.Count;
+        var count = 0f;
+
         foreach (var assetName in installAssets)
         {
+            callback?.Invoke(new LoadingInfo($"Installing {assetName}", count, false));
             var assetDownload = new FileWebRequest(installDirectory.GetFullPath(assetName), $"{packageSource.DownloadURL}/{assetName}");
             await assetDownload.PerformAsync();
+            count += divisor;
         }
 
         InstalledPackages[packageSource.PackageID!] = packageSource.LatestVersion!;
@@ -100,6 +115,8 @@ public class PackageManager
 
     private async Task<List<PackageSource>> loadCommunityPackages()
     {
+        Progress?.Invoke(new LoadingInfo("Retrieving community packages", 0f, false));
+
         var packageSources = new List<PackageSource>();
 
         Logger.Log("Attempting to load community repos");

@@ -76,38 +76,30 @@ public class PackageSource
     {
         Logger.Log($"Checking {InternalReference}");
 
-        if (State is PackageSourceState.Unknown || forceRemoteGrab)
-        {
-            State = PackageSourceState.Unknown;
+        State = PackageSourceState.Unknown;
 
-            await loadRepository(forceRemoteGrab);
-            await loadLatestRelease(forceRemoteGrab);
-            await loadPackageFile(forceRemoteGrab);
-            checkSDKCompatibility();
+        await loadRepository(forceRemoteGrab);
+        await loadLatestRelease(forceRemoteGrab);
+        await loadPackageFile(forceRemoteGrab);
+        checkSDKCompatibility();
 
-            if (State is PackageSourceState.Unknown) State = PackageSourceState.Valid;
-        }
-        else
-        {
-            await loadPackageFile(forceRemoteGrab);
-            checkSDKCompatibility();
-        }
+        if (State is PackageSourceState.Unknown) State = PackageSourceState.Valid;
 
         Logger.Log($"{InternalReference} resulted in {State}");
     }
 
     public async Task Install()
     {
-        Progress?.Invoke(new LoadingInfo($"Installing {GetDisplayName()}", 0f, false));
-        await packageManager.InstallPackage(this);
-        Progress?.Invoke(new LoadingInfo($"Installing {GetDisplayName()}", 1f, true));
+        Progress?.Invoke(new LoadingInfo("Beginning install...", 0f, false));
+        await packageManager.InstallPackage(this, Progress);
+        Progress?.Invoke(new LoadingInfo("Finished!", 1f, true));
     }
 
     public void Uninstall()
     {
-        Progress?.Invoke(new LoadingInfo($"Uninstalling {GetDisplayName()}", 0f, false));
+        Progress?.Invoke(new LoadingInfo("Beginning uninstall", 0f, false));
         packageManager.UninstallPackage(this);
-        Progress?.Invoke(new LoadingInfo($"Uninstalling {GetDisplayName()}", 1f, true));
+        Progress?.Invoke(new LoadingInfo("Finished!", 1f, true));
     }
 
     public List<string> GetAssets() => LatestRelease!.AssetNames.Where(assetName => PackageFile!.Files.Contains(assetName)).ToList();
@@ -131,6 +123,11 @@ public class PackageSource
                 Repository = null;
                 Repository = new PackageRepository(await PackageManager.GITHUB_CLIENT.Repository.Get(RepoOwner, RepoName));
             }
+
+            if (Repository is null)
+            {
+                State = PackageSourceState.MissingRepo;
+            }
         }
         catch (ApiException)
         {
@@ -150,6 +147,11 @@ public class PackageSource
             {
                 LatestRelease = null;
                 LatestRelease = new PackageLatestRelease(await PackageManager.GITHUB_CLIENT.Repository.Release.GetLatest(RepoOwner, RepoName));
+            }
+
+            if (LatestRelease is null)
+            {
+                State = PackageSourceState.MissingLatestRelease;
             }
         }
         catch (ApiException)
@@ -192,16 +194,28 @@ public class PackageSource
                 State = PackageSourceState.InvalidPackageFile;
             }
         }
+
+        if (PackageFile is null)
+        {
+            State = PackageSourceState.InvalidPackageFile;
+        }
     }
 
     private void checkSDKCompatibility()
     {
         if (State is PackageSourceState.MissingRepo or PackageSourceState.MissingLatestRelease or PackageSourceState.InvalidPackageFile) return;
 
-        var currentSDKVersion = getCurrentSDKVersion();
-        var remoteModuleVersion = SemVersionRange.Parse(PackageFile!.SDKVersionRange, SemVersionRangeOptions.Loose);
+        try
+        {
+            var currentSDKVersion = getCurrentSDKVersion();
+            var remoteModuleVersion = SemVersionRange.Parse(PackageFile!.SDKVersionRange, SemVersionRangeOptions.Loose);
 
-        if (!currentSDKVersion.Satisfies(remoteModuleVersion))
+            if (!currentSDKVersion.Satisfies(remoteModuleVersion))
+            {
+                State = PackageSourceState.SDKIncompatible;
+            }
+        }
+        catch (Exception)
         {
             State = PackageSourceState.SDKIncompatible;
         }
