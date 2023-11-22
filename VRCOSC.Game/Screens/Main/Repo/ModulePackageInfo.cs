@@ -235,7 +235,7 @@ public partial class ModulePackageInfo : VisibilityContainer
 
         Show();
 
-        footerButton.Action = () => host.OpenUrlExternally(CurrentPackageSource.Value.GetSourceURL());
+        footerButton.Action = () => host.OpenUrlExternally(CurrentPackageSource.Value.URL);
 
         title.Text = CurrentPackageSource.Value.GetDisplayName();
         author.Text = $"Created by {CurrentPackageSource.Value.GetAuthor()}";

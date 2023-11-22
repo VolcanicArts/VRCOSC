@@ -74,7 +74,7 @@ public partial class RepoTabHeader : Container
                             };
 
                             game.LoadingScreen.Show();
-                            await appManager.PackageManager.RefreshAllSources();
+                            await appManager.PackageManager.RefreshAllSources(true);
                         }
                     },
                     updateAllButton = new TextButton

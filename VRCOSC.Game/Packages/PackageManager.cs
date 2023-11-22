@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -33,6 +33,8 @@ public class PackageManager
     public readonly List<PackageSource> Sources = new();
     public readonly Dictionary<string, string> InstalledPackages = new();
 
+    public DateTime CacheExpireTime = DateTime.UnixEpoch;
+
     public PackageManager(Storage baseStorage)
     {
         storage = baseStorage.GetStorageForDirectory("packages/remote");
@@ -46,20 +48,26 @@ public class PackageManager
 
     public async Task Load()
     {
-        await RefreshAllSources();
         serialisationManager.Deserialise();
+        await RefreshAllSources(CacheExpireTime + TimeSpan.FromDays(1) <= DateTime.Now);
     }
 
-    public async Task RefreshAllSources()
+    public async Task RefreshAllSources(bool forceRemoteGrab)
     {
-        Sources.Clear();
-        Sources.AddRange(builtinSources);
-        Sources.AddRange(await loadCommunityPackages());
+        if (forceRemoteGrab)
+        {
+            Sources.Clear();
+            Sources.AddRange(builtinSources);
+            Sources.AddRange(await loadCommunityPackages());
+        }
 
         foreach (var remoteModuleSource in Sources)
         {
-            await remoteModuleSource.Refresh(true);
+            await remoteModuleSource.Refresh(forceRemoteGrab);
         }
+
+        CacheExpireTime = DateTime.Now + TimeSpan.FromDays(1);
+        serialisationManager.Serialise();
     }
 
     public async Task InstallPackage(PackageSource packageSource)
@@ -68,14 +76,22 @@ public class PackageManager
 
         var installDirectory = storage.GetStorageForDirectory(packageSource.PackageID);
         var installAssets = packageSource.GetAssets();
+        installAssets.Remove("vrcosc.json");
 
-        foreach (var asset in installAssets)
+        foreach (var assetName in installAssets)
         {
-            var assetDownload = new FileWebRequest(installDirectory.GetFullPath(asset.Name), asset.BrowserDownloadUrl);
+            var assetDownload = new FileWebRequest(installDirectory.GetFullPath(assetName), $"{packageSource.DownloadURL}/{assetName}");
             await assetDownload.PerformAsync();
         }
 
         InstalledPackages[packageSource.PackageID!] = packageSource.LatestVersion!;
+        serialisationManager.Serialise();
+    }
+
+    public void UninstallPackage(PackageSource packageSource)
+    {
+        InstalledPackages.Remove(packageSource.PackageID!);
+        storage.DeleteDirectory(packageSource.PackageID);
         serialisationManager.Serialise();
     }
 
@@ -97,7 +113,7 @@ public class PackageManager
 
         repos.Items.Where(repo => repo.Name != "VRCOSC").ForEach(repo =>
         {
-            var packageSource = new PackageSource(this, repo.Owner.HtmlUrl.Split('/').Last(), repo.Name, PackageType.Community);
+            var packageSource = new PackageSource(this, repo.Owner.HtmlUrl.Split('/').Last(), repo.Name);
             if (builtinSources.Any(comparedSource => comparedSource.InternalReference == packageSource.InternalReference)) return;
 
             packageSources.Add(packageSource);

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
@@ -13,6 +14,12 @@ public class SerialisablePackageManager : SerialisableVersion
     [JsonProperty("installed")]
     public List<SerialisablePackageInstall> Installed = new();
 
+    [JsonProperty("cache_expire_time")]
+    public DateTime CacheExpireTime;
+
+    [JsonProperty("cache")]
+    public List<SerialisablePackageSource> Cache = new();
+
     [JsonConstructor]
     public SerialisablePackageManager()
     {
@@ -22,6 +29,8 @@ public class SerialisablePackageManager : SerialisableVersion
     {
         Version = 1;
         Installed.AddRange(packageManager.InstalledPackages.Select(packageInstall => new SerialisablePackageInstall(packageInstall)));
+        CacheExpireTime = packageManager.CacheExpireTime;
+        Cache.AddRange(packageManager.Sources.Select(packageSource => new SerialisablePackageSource(packageSource)));
     }
 }
 
@@ -42,5 +51,40 @@ public class SerialisablePackageInstall
     {
         PackageID = pair.Key;
         Version = pair.Value;
+    }
+}
+
+public class SerialisablePackageSource
+{
+    [JsonIgnore]
+    public string Reference => $"{Owner}#{Name}";
+
+    [JsonProperty("owner")]
+    public string Owner = null!;
+
+    [JsonProperty("name")]
+    public string Name = null!;
+
+    [JsonProperty("repository")]
+    public PackageRepository? Repository;
+
+    [JsonProperty("latest_release")]
+    public PackageLatestRelease? LatestRelease;
+
+    [JsonProperty("package_file")]
+    public PackageFile? PackageFile;
+
+    [JsonConstructor]
+    public SerialisablePackageSource()
+    {
+    }
+
+    public SerialisablePackageSource(PackageSource packageSource)
+    {
+        Owner = packageSource.RepoOwner;
+        Name = packageSource.RepoName;
+        Repository = packageSource.Repository;
+        LatestRelease = packageSource.LatestRelease;
+        PackageFile = packageSource.PackageFile;
     }
 }

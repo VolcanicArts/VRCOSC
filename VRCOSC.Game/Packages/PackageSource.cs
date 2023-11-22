@@ -22,19 +22,22 @@ public class PackageSource
     private readonly HttpClient httpClient = new();
 
     private readonly PackageManager packageManager;
-    private readonly string repoOwner;
-    private readonly string repoName;
+    public readonly string RepoOwner;
+    public readonly string RepoName;
     public readonly PackageType PackageType;
 
-    private Repository? repository;
-    private Release? latestRelease;
-    private PackageFile? packageFile;
+    public PackageRepository? Repository { get; private set; }
+    public PackageLatestRelease? LatestRelease { get; private set; }
+    public PackageFile? PackageFile { get; private set; }
 
-    public string InternalReference => $"{repoOwner}#{repoName}";
+    public string InternalReference => $"{RepoOwner}#{RepoName}";
+    public string URL => $"https://github.com/{RepoOwner}/{RepoName}";
+    public string DownloadURL => $"{URL}/releases/download/{LatestRelease!.Version}";
+    private string packageFileURL => $"{DownloadURL}/vrcosc.json";
 
     public PackageSourceState State { get; private set; } = PackageSourceState.Unknown;
-    public string? PackageID => packageFile?.PackageID;
-    public string? LatestVersion => latestRelease?.TagName;
+    public string? PackageID => PackageFile?.PackageID;
+    public string? LatestVersion => LatestRelease?.Version;
 
     public Action<LoadingInfo>? Progress;
 
@@ -54,12 +57,19 @@ public class PackageSource
     public bool IsUnavailable() => State is PackageSourceState.MissingRepo or PackageSourceState.MissingLatestRelease or PackageSourceState.Unknown;
     public bool IsAvailable() => State is PackageSourceState.Valid;
 
-    public PackageSource(PackageManager packageManager, string repoOwner, string repoName, PackageType packageType)
+    public PackageSource(PackageManager packageManager, string repoOwner, string repoName, PackageType packageType = PackageType.Community)
     {
         this.packageManager = packageManager;
-        this.repoOwner = repoOwner;
-        this.repoName = repoName;
+        RepoOwner = repoOwner;
+        RepoName = repoName;
         PackageType = packageType;
+    }
+
+    public void InjectCachedData(PackageRepository? repository, PackageLatestRelease? latestRelease, PackageFile? packageFile)
+    {
+        Repository = repository;
+        LatestRelease = latestRelease;
+        PackageFile = packageFile;
     }
 
     public async Task Refresh(bool forceRemoteGrab)
@@ -70,12 +80,17 @@ public class PackageSource
         {
             State = PackageSourceState.Unknown;
 
-            await loadRepository(false);
-            await loadLatestRelease(false);
-            await loadPackageFile(false);
+            await loadRepository(forceRemoteGrab);
+            await loadLatestRelease(forceRemoteGrab);
+            await loadPackageFile(forceRemoteGrab);
             checkSDKCompatibility();
 
             if (State is PackageSourceState.Unknown) State = PackageSourceState.Valid;
+        }
+        else
+        {
+            await loadPackageFile(forceRemoteGrab);
+            checkSDKCompatibility();
         }
 
         Logger.Log($"{InternalReference} resulted in {State}");
@@ -90,15 +105,16 @@ public class PackageSource
 
     public void Uninstall()
     {
+        Progress?.Invoke(new LoadingInfo($"Uninstalling {GetDisplayName()}", 0f, false));
+        packageManager.UninstallPackage(this);
         Progress?.Invoke(new LoadingInfo($"Uninstalling {GetDisplayName()}", 1f, true));
     }
 
-    public List<ReleaseAsset> GetAssets() => latestRelease!.Assets.Where(releaseAsset => packageFile!.Files.Contains(releaseAsset.Name)).ToList();
-    public string GetDisplayName() => packageFile?.DisplayName ?? repoName;
-    public string GetSourceURL() => repository?.HtmlUrl ?? "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
-    public string GetAuthor() => repoOwner;
-    public string GetDescription() => repository?.Description ?? "How did you find this";
-    public string GetCoverURL() => packageFile?.CoverImageUrl ?? "https://wallpapercave.com/wp/Zs1bPI9.jpg";
+    public List<string> GetAssets() => LatestRelease!.AssetNames.Where(assetName => PackageFile!.Files.Contains(assetName)).ToList();
+    public string GetDisplayName() => PackageFile?.DisplayName ?? RepoName;
+    public string GetAuthor() => RepoOwner;
+    public string GetDescription() => Repository?.Description ?? "How did you find this";
+    public string GetCoverURL() => PackageFile?.CoverImageUrl ?? "https://wallpapercave.com/wp/Zs1bPI9.jpg";
 
     private static SemVersion getCurrentSDKVersion()
     {
@@ -110,10 +126,10 @@ public class PackageSource
     {
         try
         {
-            if (repository is null || forceRemoteGrab)
+            if (Repository is null || forceRemoteGrab)
             {
-                repository = null;
-                repository = await PackageManager.GITHUB_CLIENT.Repository.Get(repoOwner, repoName);
+                Repository = null;
+                Repository = new PackageRepository(await PackageManager.GITHUB_CLIENT.Repository.Get(RepoOwner, RepoName));
             }
         }
         catch (ApiException)
@@ -126,14 +142,14 @@ public class PackageSource
     {
         if (State is PackageSourceState.MissingRepo) return;
 
-        Debug.Assert(repository is not null);
+        Debug.Assert(Repository is not null);
 
         try
         {
-            if (latestRelease is null || forceRemoteGrab)
+            if (LatestRelease is null || forceRemoteGrab)
             {
-                latestRelease = null;
-                latestRelease = await PackageManager.GITHUB_CLIENT.Repository.Release.GetLatest(repoOwner, repoName);
+                LatestRelease = null;
+                LatestRelease = new PackageLatestRelease(await PackageManager.GITHUB_CLIENT.Repository.Release.GetLatest(RepoOwner, RepoName));
             }
         }
         catch (ApiException)
@@ -146,26 +162,24 @@ public class PackageSource
     {
         if (State is PackageSourceState.MissingRepo or PackageSourceState.MissingLatestRelease) return;
 
-        Debug.Assert(repository is not null);
-        Debug.Assert(latestRelease is not null);
+        Debug.Assert(Repository is not null);
+        Debug.Assert(LatestRelease is not null);
 
-        if (packageFile is null || forceRemoteGrab)
+        if (PackageFile is null || forceRemoteGrab)
         {
-            packageFile = null;
+            PackageFile = null;
 
-            var packageFileAsset = latestRelease.Assets.SingleOrDefault(asset => asset.Name == "vrcosc.json");
-
-            if (packageFileAsset is null)
+            if (!LatestRelease.AssetNames.Contains("vrcosc.json"))
             {
                 State = PackageSourceState.InvalidPackageFile;
                 return;
             }
 
-            var packageFileContents = await (await httpClient.GetAsync(packageFileAsset.BrowserDownloadUrl)).Content.ReadAsStringAsync();
+            var packageFileContents = await (await httpClient.GetAsync(packageFileURL)).Content.ReadAsStringAsync();
 
             try
             {
-                packageFile = JsonConvert.DeserializeObject<PackageFile>(packageFileContents);
+                PackageFile = JsonConvert.DeserializeObject<PackageFile>(packageFileContents);
             }
             catch (JsonException)
             {
@@ -173,7 +187,7 @@ public class PackageSource
                 return;
             }
 
-            if (packageFile is null || string.IsNullOrEmpty(packageFile.PackageID))
+            if (PackageFile is null || string.IsNullOrEmpty(PackageFile.PackageID))
             {
                 State = PackageSourceState.InvalidPackageFile;
             }
@@ -185,7 +199,7 @@ public class PackageSource
         if (State is PackageSourceState.MissingRepo or PackageSourceState.MissingLatestRelease or PackageSourceState.InvalidPackageFile) return;
 
         var currentSDKVersion = getCurrentSDKVersion();
-        var remoteModuleVersion = SemVersionRange.Parse(packageFile!.SDKVersionRange, SemVersionRangeOptions.Loose);
+        var remoteModuleVersion = SemVersionRange.Parse(PackageFile!.SDKVersionRange, SemVersionRangeOptions.Loose);
 
         if (!currentSDKVersion.Satisfies(remoteModuleVersion))
         {
