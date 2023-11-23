@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
 using System.Linq;
 using osu.Framework.Bindables;
 using osu.Framework.Platform;
@@ -23,19 +22,22 @@ public class ProfileManagerSerialiser : Serialiser<ProfileManager, SerialisableP
     {
         Reference.Profiles.AddRange(data.Profiles.Select(serialisableProfile =>
         {
-            var profile = new Profile
+            var profile = new Profile(serialisableProfile.ID)
             {
                 Name =
                 {
                     Value = serialisableProfile.Name
                 }
             };
-            profile.BoundAvatars.AddRange(new BindableList<string>(serialisableProfile.BoundAvatars));
+            profile.LinkedAvatars.AddRange(new BindableList<Bindable<string>>(serialisableProfile.LinkedAvatars.Select(linkedAvatarId => new Bindable<string>(string.Empty)
+            {
+                Value = linkedAvatarId
+            })));
             return profile;
         }));
 
-        Reference.ActiveProfile.Value = Reference.Profiles.First(profile => profile.SerialisedName.Equals(data.ActiveProfile, StringComparison.InvariantCultureIgnoreCase));
-        Reference.DefaultProfile.Value = Reference.Profiles.First(profile => profile.SerialisedName.Equals(data.DefaultProfile, StringComparison.InvariantCultureIgnoreCase));
+        Reference.ActiveProfile.Value = Reference.Profiles.First(profile => profile.ID == data.ActiveProfile);
+        Reference.DefaultProfile.Value = Reference.Profiles.First(profile => profile.ID == data.DefaultProfile);
 
         return false;
     }

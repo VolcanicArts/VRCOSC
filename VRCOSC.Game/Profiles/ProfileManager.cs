@@ -34,8 +34,8 @@ public class ProfileManager
         serialisationManager = new SerialisationManager();
         serialisationManager.RegisterSerialiser(1, new ProfileManagerSerialiser(storage, this));
 
-        ActiveProfile.BindValueChanged(e => Logger.Log($"Active profile changed to {e.NewValue.SerialisedName}"));
-        DefaultProfile.BindValueChanged(e => Logger.Log($"Default profile changed to {e.NewValue.SerialisedName}"));
+        ActiveProfile.BindValueChanged(e => Logger.Log($"Active profile changed to {e.NewValue.ID}"));
+        DefaultProfile.BindValueChanged(e => Logger.Log($"Default profile changed to {e.NewValue.ID}"));
     }
 
     public void Serialise() => serialisationManager.Serialise();
@@ -50,6 +50,27 @@ public class ProfileManager
         Profiles.BindCollectionChanged((_, _) => Serialise());
         ActiveProfile.BindValueChanged(_ => Serialise());
         DefaultProfile.BindValueChanged(_ => Serialise());
+
+        Profiles.BindCollectionChanged((_, e) =>
+        {
+            if (e.NewItems is null) return;
+
+            foreach (Profile profile in e.NewItems)
+            {
+                profile.Name.BindValueChanged(_ => Serialise());
+                profile.LinkedAvatars.BindCollectionChanged((_, _) => Serialise());
+
+                profile.LinkedAvatars.BindCollectionChanged((_, e2) =>
+                {
+                    if (e2.NewItems is null) return;
+
+                    foreach (Bindable<string> linkedAvatar in e2.NewItems)
+                    {
+                        linkedAvatar.BindValueChanged(_ => Serialise());
+                    }
+                }, true);
+            }
+        }, true);
 
         Serialise();
     }
@@ -75,7 +96,7 @@ public class ProfileManager
     /// <returns>True if the profile was changed, otherwise false</returns>
     public bool AvatarChange(string avatarId)
     {
-        var avatarBoundProfile = Profiles.FirstOrDefault(profile => profile.BoundAvatars.Contains(avatarId));
+        var avatarBoundProfile = Profiles.FirstOrDefault(profile => profile.LinkedAvatars.Select(linkedAvatar => linkedAvatar.Value).Contains(avatarId));
         var newProfile = avatarBoundProfile ?? DefaultProfile.Value;
 
         if (newProfile == ActiveProfile.Value) return false;

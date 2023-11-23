@@ -20,8 +20,8 @@ public partial class CheckBox : Button
 
     public Color4 BackgroundColour { get; init; } = Colours.GRAY2;
     public IconUsage Icon { get; init; } = FontAwesome.Solid.Check;
+    public float IconSize = 25;
 
-    private const float icon_size = 25;
     private readonly Color4 iconColour = Color4.White;
     private Box background = null!;
     private SpriteIcon icon = null!;
@@ -52,7 +52,7 @@ public partial class CheckBox : Button
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 Icon = Icon,
-                Size = new Vector2(icon_size),
+                Size = new Vector2(IconSize),
                 Colour = iconColour,
                 Shadow = true,
                 ShadowColour = Colours.BLACK.Opacity(0.25f),

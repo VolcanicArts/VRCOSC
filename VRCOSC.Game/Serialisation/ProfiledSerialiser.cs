@@ -12,7 +12,7 @@ public abstract class ProfiledSerialiser<TReference, TSerialisable> : Serialiser
 {
     private readonly Bindable<Profile> activeProfile;
 
-    protected override string Directory => Path.Join("profiles", activeProfile.Value.SerialisedName);
+    protected override string Directory => Path.Join("profiles", activeProfile.Value.ID.ToString());
 
     protected ProfiledSerialiser(Storage storage, TReference reference, Bindable<Profile> activeProfile)
         : base(storage, reference)

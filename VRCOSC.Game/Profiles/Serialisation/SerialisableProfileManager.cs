@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
@@ -14,10 +15,10 @@ public class SerialisableProfileManager : SerialisableVersion
     public List<SerialisableProfile> Profiles = new();
 
     [JsonProperty("default_profile")]
-    public string DefaultProfile = null!;
+    public Guid DefaultProfile;
 
     [JsonProperty("active_profile")]
-    public string ActiveProfile = null!;
+    public Guid ActiveProfile;
 
     [JsonConstructor]
     public SerialisableProfileManager()
@@ -29,18 +30,21 @@ public class SerialisableProfileManager : SerialisableVersion
         Version = 1;
 
         Profiles.AddRange(profileManager.Profiles.Select(profile => new SerialisableProfile(profile)));
-        DefaultProfile = profileManager.DefaultProfile.Value.SerialisedName;
-        ActiveProfile = profileManager.ActiveProfile.Value.SerialisedName;
+        DefaultProfile = profileManager.DefaultProfile.Value.ID;
+        ActiveProfile = profileManager.ActiveProfile.Value.ID;
     }
 }
 
 public class SerialisableProfile
 {
+    [JsonProperty("id")]
+    public Guid ID = Guid.NewGuid();
+
     [JsonProperty("name")]
     public string Name = null!;
 
-    [JsonProperty("bound_avatars")]
-    public List<string> BoundAvatars = null!;
+    [JsonProperty("linked_avatars")]
+    public List<string> LinkedAvatars = null!;
 
     [JsonConstructor]
     public SerialisableProfile()
@@ -49,7 +53,8 @@ public class SerialisableProfile
 
     public SerialisableProfile(Profile profile)
     {
+        ID = profile.ID;
         Name = profile.Name.Value;
-        BoundAvatars = profile.BoundAvatars.ToList();
+        LinkedAvatars = profile.LinkedAvatars.Select(avatarId => avatarId.Value).ToList();
     }
 }

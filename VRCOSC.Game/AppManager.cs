@@ -125,8 +125,14 @@ public class AppManager
         State.Value = AppManagerState.Starting;
 
         await ModuleManager.StartAsync();
+        VRChatOscClient.OnParameterReceived += onParameterReceived;
 
         State.Value = AppManagerState.Started;
+    }
+
+    private void onParameterReceived(VRChatOscMessage message)
+    {
+        scheduler.Add(() => oscMessageQueue.Enqueue(message));
     }
 
     private bool initialiseOSCClient()
@@ -172,6 +178,7 @@ public class AppManager
         State.Value = AppManagerState.Stopping;
 
         await VRChatOscClient.DisableReceive();
+        VRChatOscClient.OnParameterReceived -= onParameterReceived;
         await ModuleManager.StopAsync();
         VRChatOscClient.DisableSend();
         oscMessageQueue.Clear();
