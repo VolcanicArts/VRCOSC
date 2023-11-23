@@ -99,10 +99,7 @@ public class ModuleManager
         LocalModules.Clear();
         RemoteModules.Clear();
 
-        localModulesContext?.Unload();
         localModulesContext = null;
-
-        remoteModulesContexts?.Values.ForEach(remoteModuleContext => remoteModuleContext.Unload());
         remoteModulesContexts = null;
 
         Logger.Log("Unloading successful");
@@ -219,7 +216,7 @@ public class ModuleManager
 
     private AssemblyLoadContext loadContextFromPath(string path)
     {
-        var assemblyLoadContext = new AssemblyLoadContext(null, true);
+        var assemblyLoadContext = new AssemblyLoadContext(null);
         Directory.GetFiles(path, "*.dll").ForEach(dllPath => loadAssemblyFromPath(assemblyLoadContext, dllPath));
         return assemblyLoadContext;
     }
