@@ -29,10 +29,7 @@ public class ProfileManagerSerialiser : Serialiser<ProfileManager, SerialisableP
                     Value = serialisableProfile.Name
                 }
             };
-            profile.LinkedAvatars.AddRange(new BindableList<Bindable<string>>(serialisableProfile.LinkedAvatars.Select(linkedAvatarId => new Bindable<string>(string.Empty)
-            {
-                Value = linkedAvatarId
-            })));
+            profile.LinkedAvatars.AddRange(new BindableList<Bindable<string>>(serialisableProfile.LinkedAvatars.Select(linkedAvatarId => new Bindable<string>(linkedAvatarId))));
             return profile;
         }));
 

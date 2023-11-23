@@ -49,6 +49,7 @@ public partial class DrawableProfile : Container
         SpriteText defaultSpriteText;
         CheckBox defaultCheckBox;
         IconButton removeButton;
+        TextButton selectProfileButton;
 
         Children = new Drawable[]
         {
@@ -65,59 +66,87 @@ public partial class DrawableProfile : Container
                 Padding = new MarginPadding(7),
                 Children = new Drawable[]
                 {
-                    new GridContainer
+                    new Container
                     {
                         RelativeSizeAxes = Axes.X,
                         AutoSizeAxes = Axes.Y,
-                        Width = 0.5f,
-                        ColumnDimensions = new[]
+                        Children = new Drawable[]
                         {
-                            new Dimension(GridSizeMode.Absolute, 75),
-                            new Dimension()
-                        },
-                        RowDimensions = new[]
-                        {
-                            new Dimension(GridSizeMode.AutoSize),
-                            new Dimension(GridSizeMode.Absolute, 5),
-                            new Dimension(GridSizeMode.AutoSize)
-                        },
-                        Content = new[]
-                        {
-                            new Drawable[]
+                            new Container
                             {
-                                new SpriteText
-                                {
-                                    Anchor = Anchor.CentreLeft,
-                                    Origin = Anchor.CentreLeft,
-                                    Font = Fonts.REGULAR.With(size: 25),
-                                    Text = "Name:",
-                                    X = 3
-                                },
-                                new StringTextBox
-                                {
-                                    RelativeSizeAxes = Axes.X,
-                                    Height = 30,
-                                    ValidCurrent = profile.Name.GetBoundCopy(),
-                                    EmptyIsValid = true
-                                }
-                            },
-                            null,
-                            new Drawable[]
-                            {
-                                defaultSpriteText = new SpriteText
-                                {
-                                    Anchor = Anchor.CentreLeft,
-                                    Origin = Anchor.CentreLeft,
-                                    Font = Fonts.REGULAR.With(size: 25),
-                                    Text = "Default:",
-                                    X = 3
-                                },
-                                defaultCheckBox = new CheckBox
+                                Anchor = Anchor.CentreRight,
+                                Origin = Anchor.CentreRight,
+                                RelativeSizeAxes = Axes.X,
+                                AutoSizeAxes = Axes.Y,
+                                Width = 0.5f,
+                                Child = selectProfileButton = new TextButton
                                 {
                                     Anchor = Anchor.Centre,
                                     Origin = Anchor.Centre,
-                                    Size = new Vector2(30),
-                                    IconSize = 20
+                                    Size = new Vector2(175, 40),
+                                    TextContent = "Select Profile",
+                                    TextFont = Fonts.REGULAR.With(size: 28),
+                                    BackgroundColour = Colours.BLUE0,
+                                    Action = () => appManager.ChangeProfile(profile)
+                                }
+                            },
+                            new GridContainer
+                            {
+                                Anchor = Anchor.CentreLeft,
+                                Origin = Anchor.CentreLeft,
+                                RelativeSizeAxes = Axes.X,
+                                AutoSizeAxes = Axes.Y,
+                                Width = 0.5f,
+                                ColumnDimensions = new[]
+                                {
+                                    new Dimension(GridSizeMode.Absolute, 75),
+                                    new Dimension()
+                                },
+                                RowDimensions = new[]
+                                {
+                                    new Dimension(GridSizeMode.AutoSize),
+                                    new Dimension(GridSizeMode.Absolute, 5),
+                                    new Dimension(GridSizeMode.AutoSize)
+                                },
+                                Content = new[]
+                                {
+                                    new Drawable[]
+                                    {
+                                        new SpriteText
+                                        {
+                                            Anchor = Anchor.CentreLeft,
+                                            Origin = Anchor.CentreLeft,
+                                            Font = Fonts.REGULAR.With(size: 25),
+                                            Text = "Name:",
+                                            X = 3
+                                        },
+                                        new StringTextBox
+                                        {
+                                            RelativeSizeAxes = Axes.X,
+                                            Height = 30,
+                                            ValidCurrent = profile.Name.GetBoundCopy(),
+                                            EmptyIsValid = true
+                                        }
+                                    },
+                                    null,
+                                    new Drawable[]
+                                    {
+                                        defaultSpriteText = new SpriteText
+                                        {
+                                            Anchor = Anchor.CentreLeft,
+                                            Origin = Anchor.CentreLeft,
+                                            Font = Fonts.REGULAR.With(size: 25),
+                                            Text = "Default:",
+                                            X = 3
+                                        },
+                                        defaultCheckBox = new CheckBox
+                                        {
+                                            Anchor = Anchor.Centre,
+                                            Origin = Anchor.Centre,
+                                            Size = new Vector2(30),
+                                            IconSize = 20
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -146,6 +175,7 @@ public partial class DrawableProfile : Container
             if (e.NewValue) appManager.ProfileManager.DefaultProfile.Value = profile;
         });
 
+        appManager.ProfileManager.ActiveProfile.BindValueChanged(e => selectProfileButton.Alpha = e.NewValue == profile ? 0 : 1, true);
         appManager.ProfileManager.DefaultProfile.BindValueChanged(e => defaultCheckBox.State.Value = e.NewValue == profile, true);
         appManager.ProfileManager.Profiles.BindCollectionChanged((_, _) => removeButton.Alpha = defaultCheckBox.Alpha = defaultSpriteText.Alpha = appManager.ProfileManager.Profiles.Count > 1 ? 1 : 0, true);
     }
