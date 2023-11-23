@@ -70,7 +70,7 @@ public class AppManager
             await StopAsync();
         }
 
-        ModuleManager.UnloadAllModules();
+        ModuleManager.ClearAllModules();
         ProfileManager.ActiveProfile.Value = newProfile;
         ModuleManager.LoadAllModules();
 

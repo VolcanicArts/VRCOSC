@@ -69,7 +69,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         appManager.ProfileManager.Load();
 
         LoadingScreen.Action.Value = "Loading modules";
-        appManager.ModuleManager.LoadAllModules();
+        appManager.ModuleManager.LoadAllModulesFromFile();
 
         LoadingScreen.Action.Value = "Loading graphics";
         var mainScreen = new MainScreen
