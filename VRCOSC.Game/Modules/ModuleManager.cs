@@ -82,73 +82,25 @@ public class ModuleManager
     #region Management
 
     /// <summary>
-    /// Reloads all local and remote modules by unloading their assembly contexts and calling <see cref="LoadAllModulesFromFile"/>
+    /// Reloads all local and remote modules by unloading their assembly contexts and calling <see cref="LoadAllModules"/>
     /// </summary>
     public void ReloadAllModules()
     {
         Logger.Log("Module reload requested");
 
         UnloadAllModules();
-        LoadAllModulesFromFile();
-    }
-
-    public void ClearAllModules()
-    {
-        LocalModules.Clear();
-        RemoteModules.Clear();
-    }
-
-    /// <summary>
-    /// Loads all local and remote modules from memory
-    /// </summary>
-    public void LoadAllModules()
-    {
-        if (localModulesContext is not null)
-        {
-            var localModules = retrieveModuleInstances("local", localModulesContext);
-
-            localModules.ForEach(localModule =>
-            {
-                if (!LocalModules.ContainsKey(localModule.GetType().Assembly))
-                {
-                    LocalModules[localModule.GetType().Assembly] = new List<Module>();
-                }
-
-                LocalModules[localModule.GetType().Assembly].Add(localModule);
-            });
-        }
-
-        if (remoteModulesContexts is not null)
-        {
-            var remoteModules = new List<Module>();
-            remoteModulesContexts.ForEach(pair => remoteModules.AddRange(retrieveModuleInstances(pair.Key, pair.Value)));
-
-            remoteModules.ForEach(remoteModule =>
-            {
-                if (!RemoteModules.ContainsKey(remoteModule.GetType().Assembly))
-                {
-                    RemoteModules[remoteModule.GetType().Assembly] = new List<Module>();
-                }
-
-                RemoteModules[remoteModule.GetType().Assembly].Add(remoteModule);
-            });
-        }
-
-        modules.ForEach(module =>
-        {
-            var moduleSerialisationManager = new SerialisationManager();
-            moduleSerialisationManager.RegisterSerialiser(1, new ModuleSerialiser(storage, module, appManager.ProfileManager.ActiveProfile));
-
-            module.InjectDependencies(host, clock, appManager, moduleSerialisationManager);
-            module.Load();
-        });
+        LoadAllModules();
     }
 
     public void UnloadAllModules()
     {
         Logger.Log("Unloading all modules");
 
-        ClearAllModules();
+        LocalModules.Clear();
+        RemoteModules.Clear();
+
+        localModulesContext?.Unload();
+        remoteModulesContexts?.ForEach(remoteModuleContextPair => remoteModuleContextPair.Value.Unload());
 
         localModulesContext = null;
         remoteModulesContexts = null;
@@ -159,7 +111,7 @@ public class ModuleManager
     /// <summary>
     /// Loads all local and remote modules from file
     /// </summary>
-    public void LoadAllModulesFromFile()
+    public void LoadAllModules()
     {
         try
         {
@@ -267,7 +219,7 @@ public class ModuleManager
 
     private AssemblyLoadContext loadContextFromPath(string path)
     {
-        var assemblyLoadContext = new AssemblyLoadContext(null);
+        var assemblyLoadContext = new AssemblyLoadContext(null, true);
         Directory.GetFiles(path, "*.dll").ForEach(dllPath => loadAssemblyFromPath(assemblyLoadContext, dllPath));
         return assemblyLoadContext;
     }
