@@ -4,7 +4,6 @@
 using System.Collections.Specialized;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
-using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -91,16 +90,43 @@ public partial class AvatarLinkContainer : Container
     {
         linkFlow.Clear();
 
-        profile.LinkedAvatars.ForEach(linkedAvatarID =>
+        var index = 0;
+
+        foreach (var linkedAvatarID in profile.LinkedAvatars)
         {
-            linkFlow.Add(new StringTextBox
+            var localIndex = index;
+
+            linkFlow.Add(new Container
             {
                 RelativeSizeAxes = Axes.X,
-                Width = 0.5f,
-                Height = 30,
-                ValidCurrent = linkedAvatarID.GetBoundCopy(),
-                EmptyIsValid = true
+                AutoSizeAxes = Axes.Y,
+                Children = new Drawable[]
+                {
+                    new StringTextBox
+                    {
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.CentreRight,
+                        RelativeSizeAxes = Axes.X,
+                        Width = 0.5f,
+                        Height = 30,
+                        ValidCurrent = linkedAvatarID.GetBoundCopy(),
+                        EmptyIsValid = true
+                    },
+                    new IconButton
+                    {
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.CentreLeft,
+                        Position = new Vector2(5, 0),
+                        Size = new Vector2(25),
+                        CornerRadius = 5,
+                        BackgroundColour = Colours.RED0,
+                        Icon = FontAwesome.Solid.Get(0xf00d),
+                        Action = () => profile.LinkedAvatars.RemoveAt(localIndex)
+                    }
+                }
             });
-        });
+
+            index++;
+        }
     }
 }
