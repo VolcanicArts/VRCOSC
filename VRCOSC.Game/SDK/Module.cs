@@ -15,6 +15,7 @@ using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Framework.Threading;
 using osu.Framework.Timing;
+using VRCOSC.Game.Config;
 using VRCOSC.Game.OSC.VRChat;
 using VRCOSC.Game.SDK.Attributes;
 using VRCOSC.Game.SDK.Attributes.Parameters;
@@ -32,6 +33,7 @@ public class Module
     private GameHost host = null!;
     private Scheduler scheduler = null!;
     private AppManager appManager = null!;
+    private VRCOSCConfigManager configManager = null!;
 
     private SerialisationManager serialisationManager = null!;
 
@@ -63,12 +65,13 @@ public class Module
         Log(e.NewValue.ToString());
     }
 
-    internal void InjectDependencies(GameHost host, IClock clock, AppManager appManager, SerialisationManager serialisationManager)
+    internal void InjectDependencies(GameHost host, IClock clock, AppManager appManager, SerialisationManager serialisationManager, VRCOSCConfigManager configManager)
     {
         scheduler = new Scheduler(() => ThreadSafety.IsUpdateThread, clock);
         this.host = host;
         this.appManager = appManager;
         this.serialisationManager = serialisationManager;
+        this.configManager = configManager;
     }
 
     internal void Serialise()
@@ -336,6 +339,17 @@ public class Module
     protected void Log(string message)
     {
         Logger.Log($"[{Title}]: {message}", TerminalLogger.TARGET_NAME);
+    }
+
+    /// <summary>
+    /// Logs to a module debug file when enabled in the settings
+    /// </summary>
+    /// <param name="message">The message to log to the file</param>
+    protected void LogDebug(string message)
+    {
+        if (!configManager.Get<bool>(VRCOSCSetting.ModuleLogDebug)) return;
+
+        Logger.Log($"[{Title}]: {message}", "module-debug");
     }
 
     /// <summary>

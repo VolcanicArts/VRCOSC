@@ -9,7 +9,7 @@ namespace VRCOSC.Game.Packages.Serialisation;
 
 public class PackageManagerSerialiser : Serialiser<PackageManager, SerialisablePackageManager>
 {
-    protected override string Directory => "Configuration";
+    protected override string Directory => "configuration";
     protected override string FileName => "packages.json";
 
     public PackageManagerSerialiser(Storage storage, PackageManager reference)

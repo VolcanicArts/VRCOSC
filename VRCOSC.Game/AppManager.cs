@@ -41,7 +41,7 @@ public class AppManager
         scheduler = new Scheduler(() => ThreadSafety.IsUpdateThread, clock);
 
         ProfileManager = new ProfileManager(this, storage, configManager);
-        ModuleManager = new ModuleManager(host, storage, clock, this);
+        ModuleManager = new ModuleManager(host, storage, clock, this, configManager);
         PackageManager = new PackageManager(storage);
         VRChatOscClient = new VRChatOscClient();
         VRChatClient = new VRChatClient(VRChatOscClient);

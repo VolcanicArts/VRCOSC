@@ -22,6 +22,7 @@ public class VRCOSCConfigManager : IniConfigManager<VRCOSCSetting>
         SetDefault(VRCOSCSetting.StartInTray, false);
         SetDefault(VRCOSCSetting.PackageFilter, (int)(PackageListingFilter.Type_Official | PackageListingFilter.Type_Curated | PackageListingFilter.Type_Community));
         SetDefault(VRCOSCSetting.EnableAutomaticProfileSwitching, false);
+        SetDefault(VRCOSCSetting.ModuleLogDebug, false);
     }
 }
 
@@ -30,5 +31,6 @@ public enum VRCOSCSetting
     FirstTimeSetupComplete,
     StartInTray,
     PackageFilter,
-    EnableAutomaticProfileSwitching
+    EnableAutomaticProfileSwitching,
+    ModuleLogDebug
 }

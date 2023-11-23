@@ -12,6 +12,7 @@ using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Framework.Timing;
+using VRCOSC.Game.Config;
 using VRCOSC.Game.Modules.Serialisation;
 using VRCOSC.Game.OSC.VRChat;
 using VRCOSC.Game.SDK;
@@ -26,6 +27,7 @@ public class ModuleManager
     private readonly Storage storage;
     private readonly IClock clock;
     private readonly AppManager appManager;
+    private readonly VRCOSCConfigManager configManager;
 
     private AssemblyLoadContext? localModulesContext;
     private Dictionary<string, AssemblyLoadContext>? remoteModulesContexts;
@@ -36,12 +38,13 @@ public class ModuleManager
     private IEnumerable<Module> modules => LocalModules.Values.SelectMany(moduleList => moduleList).Concat(RemoteModules.Values.SelectMany(moduleList => moduleList)).ToList();
     private IEnumerable<Module> runningModules => modules.Where(module => module.State.Value == ModuleState.Started);
 
-    public ModuleManager(GameHost host, Storage storage, IClock clock, AppManager appManager)
+    public ModuleManager(GameHost host, Storage storage, IClock clock, AppManager appManager, VRCOSCConfigManager configManager)
     {
         this.host = host;
         this.storage = storage;
         this.clock = clock;
         this.appManager = appManager;
+        this.configManager = configManager;
     }
 
     #region Runtime
@@ -123,7 +126,7 @@ public class ModuleManager
                 var moduleSerialisationManager = new SerialisationManager();
                 moduleSerialisationManager.RegisterSerialiser(1, new ModuleSerialiser(storage, module, appManager.ProfileManager.ActiveProfile));
 
-                module.InjectDependencies(host, clock, appManager, moduleSerialisationManager);
+                module.InjectDependencies(host, clock, appManager, moduleSerialisationManager, configManager);
                 module.Load();
             });
         }
