@@ -221,6 +221,13 @@ public class ModuleManager
     private AssemblyLoadContext loadContextFromPath(string path)
     {
         var assemblyLoadContext = new AssemblyLoadContext(null, true);
+        assemblyLoadContext.Resolving += (_, name) =>
+        {
+            Logger.Log($"Could not load assembly {name.Name} - {name.Version}");
+            var fallbackAssembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(assembly => assembly.GetName().Name == name.Name);
+            if (fallbackAssembly is not null) Logger.Log($"Falling back to {fallbackAssembly.GetName().Name} - {fallbackAssembly.GetName().Version}");
+            return fallbackAssembly;
+        };
         Directory.GetFiles(path, "*.dll").ForEach(dllPath => loadAssemblyFromPath(assemblyLoadContext, dllPath));
         return assemblyLoadContext;
     }
