@@ -38,6 +38,7 @@ public partial class CheckBox : Button
         CornerRadius = 5;
         BorderThickness = 4;
         BorderColour = BorderColour;
+        Enabled.Value = true;
 
         Children = new Drawable[]
         {
@@ -65,6 +66,8 @@ public partial class CheckBox : Button
 
     protected override bool OnClick(ClickEvent e)
     {
+        if (!Enabled.Value) return base.OnClick(e);
+
         State.Value = !State.Value;
         return true;
     }

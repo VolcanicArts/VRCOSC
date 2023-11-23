@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
@@ -24,6 +25,7 @@ public partial class DrawableProfile : Container
     [Resolved]
     private AppManager appManager { get; set; } = null!;
 
+    public Guid ProfileID => profile.ID;
     private readonly Profile profile;
 
     private Bindable<bool> avatarLinkBindable = null!;
@@ -44,6 +46,7 @@ public partial class DrawableProfile : Container
         CornerRadius = 5;
 
         AvatarLinkContainer avatarLinkContainer;
+        SpriteText defaultSpriteText;
         CheckBox defaultCheckBox;
 
         Children = new Drawable[]
@@ -100,7 +103,7 @@ public partial class DrawableProfile : Container
                             null,
                             new Drawable[]
                             {
-                                new SpriteText
+                                defaultSpriteText = new SpriteText
                                 {
                                     Anchor = Anchor.CentreLeft,
                                     Origin = Anchor.CentreLeft,
@@ -132,5 +135,6 @@ public partial class DrawableProfile : Container
         });
 
         appManager.ProfileManager.DefaultProfile.BindValueChanged(e => defaultCheckBox.State.Value = e.NewValue == profile, true);
+        appManager.ProfileManager.Profiles.BindCollectionChanged((_, _) => defaultCheckBox.Alpha = defaultSpriteText.Alpha = appManager.ProfileManager.Profiles.Count > 1 ? 1 : 0, true);
     }
 }

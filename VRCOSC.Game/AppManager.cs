@@ -11,6 +11,7 @@ using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Framework.Threading;
 using osu.Framework.Timing;
+using VRCOSC.Game.Config;
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.OSC.VRChat;
 using VRCOSC.Game.Packages;
@@ -34,12 +35,12 @@ public class AppManager
 
     public readonly Bindable<AppManagerState> State = new(AppManagerState.Stopped);
 
-    public void Initialise(VRCOSCGame game, GameHost host, Storage storage, IClock clock)
+    public void Initialise(VRCOSCGame game, GameHost host, Storage storage, IClock clock, VRCOSCConfigManager configManager)
     {
         this.game = game;
         scheduler = new Scheduler(() => ThreadSafety.IsUpdateThread, clock);
 
-        ProfileManager = new ProfileManager(this, storage);
+        ProfileManager = new ProfileManager(this, storage, configManager);
         ModuleManager = new ModuleManager(host, storage, clock, this);
         PackageManager = new PackageManager(storage);
         VRChatOscClient = new VRChatOscClient();
@@ -70,7 +71,7 @@ public class AppManager
             await StopAsync();
         }
 
-        ModuleManager.ClearAllModules();
+        ModuleManager.UnloadAllModules();
         ProfileManager.ActiveProfile.Value = newProfile;
         ModuleManager.LoadAllModules();
 

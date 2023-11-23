@@ -5,6 +5,7 @@ using System.Linq;
 using osu.Framework.Bindables;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
+using VRCOSC.Game.Config;
 using VRCOSC.Game.Profiles.Serialisation;
 using VRCOSC.Game.Serialisation;
 
@@ -13,6 +14,7 @@ namespace VRCOSC.Game.Profiles;
 public class ProfileManager
 {
     private readonly AppManager appManager;
+    private readonly VRCOSCConfigManager configManager;
 
     public readonly BindableList<Profile> Profiles = new();
 
@@ -28,9 +30,10 @@ public class ProfileManager
 
     private readonly SerialisationManager serialisationManager;
 
-    public ProfileManager(AppManager appManager, Storage storage)
+    public ProfileManager(AppManager appManager, Storage storage, VRCOSCConfigManager configManager)
     {
         this.appManager = appManager;
+        this.configManager = configManager;
         serialisationManager = new SerialisationManager();
         serialisationManager.RegisterSerialiser(1, new ProfileManagerSerialiser(storage, this));
 
@@ -96,6 +99,8 @@ public class ProfileManager
     /// <returns>True if the profile was changed, otherwise false</returns>
     public bool AvatarChange(string avatarId)
     {
+        if (!configManager.Get<bool>(VRCOSCSetting.EnableAutomaticProfileSwitching)) return false;
+
         var avatarBoundProfile = Profiles.FirstOrDefault(profile => profile.LinkedAvatars.Select(linkedAvatar => linkedAvatar.Value).Contains(avatarId));
         var newProfile = avatarBoundProfile ?? DefaultProfile.Value;
 

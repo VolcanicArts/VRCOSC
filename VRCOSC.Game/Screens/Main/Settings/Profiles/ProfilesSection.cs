@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Collections.Specialized;
-using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -24,7 +23,7 @@ public partial class ProfilesSection : Container
     [Resolved]
     private AppManager appManager { get; set; } = null!;
 
-    private FillFlowContainer profileFlow = null!;
+    private FillFlowContainer<DrawableProfile> profileFlow = null!;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -73,7 +72,7 @@ public partial class ProfilesSection : Container
                         }
                     },
                     new SettingsToggle(configManager.GetBindable<bool>(VRCOSCSetting.EnableAutomaticProfileSwitching), "Enable Automatic Switching", "Automatic switching changes your selected profile to one that is linked to the avatar you’re wearing when you change avatar. If none is found, the default profile is used"),
-                    profileFlow = new FillFlowContainer
+                    profileFlow = new FillFlowContainer<DrawableProfile>
                     {
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
@@ -107,7 +106,20 @@ public partial class ProfilesSection : Container
 
     private void onProfileCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        profileFlow.Clear();
-        profileFlow.AddRange(appManager.ProfileManager.Profiles.Select(profile => new DrawableProfile(profile)));
+        if (e.NewItems is not null)
+        {
+            foreach (Profile newProfile in e.NewItems)
+            {
+                profileFlow.Add(new DrawableProfile(newProfile));
+            }
+        }
+
+        if (e.OldItems is not null)
+        {
+            foreach (Profile oldProfile in e.OldItems)
+            {
+                profileFlow.RemoveAll(drawableProfile => drawableProfile.ProfileID == oldProfile.ID, true);
+            }
+        }
     }
 }
