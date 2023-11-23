@@ -14,6 +14,7 @@ namespace VRCOSC.Game.Profiles;
 public class ProfileManager
 {
     private readonly AppManager appManager;
+    private readonly Storage storage;
     private readonly VRCOSCConfigManager configManager;
 
     public readonly BindableList<Profile> Profiles = new();
@@ -33,6 +34,7 @@ public class ProfileManager
     public ProfileManager(AppManager appManager, Storage storage, VRCOSCConfigManager configManager)
     {
         this.appManager = appManager;
+        this.storage = storage;
         this.configManager = configManager;
         serialisationManager = new SerialisationManager();
         serialisationManager.RegisterSerialiser(1, new ProfileManagerSerialiser(storage, this));
@@ -50,7 +52,25 @@ public class ProfileManager
 
         checkForDefault();
 
-        Profiles.BindCollectionChanged((_, _) => Serialise());
+        Profiles.BindCollectionChanged((_, e) =>
+        {
+            if (Profiles.All(profile => profile != DefaultProfile.Value))
+            {
+                DefaultProfile.Value = Profiles[0];
+                appManager.ChangeProfile(DefaultProfile.Value);
+            }
+
+            if (e.OldItems is not null)
+            {
+                foreach (Profile oldProfile in e.OldItems)
+                {
+                    storage.DeleteDirectory($"profiles/{oldProfile.ID}");
+                }
+            }
+
+            Serialise();
+        });
+
         ActiveProfile.BindValueChanged(_ => Serialise());
         DefaultProfile.BindValueChanged(_ => Serialise());
 

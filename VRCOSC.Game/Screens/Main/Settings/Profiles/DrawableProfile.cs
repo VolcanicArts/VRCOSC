@@ -48,6 +48,7 @@ public partial class DrawableProfile : Container
         AvatarLinkContainer avatarLinkContainer;
         SpriteText defaultSpriteText;
         CheckBox defaultCheckBox;
+        IconButton removeButton;
 
         Children = new Drawable[]
         {
@@ -123,6 +124,17 @@ public partial class DrawableProfile : Container
                     },
                     avatarLinkContainer = new AvatarLinkContainer(profile)
                 }
+            },
+            removeButton = new IconButton
+            {
+                Anchor = Anchor.TopRight,
+                Origin = Anchor.TopRight,
+                Position = new Vector2(-5, 5),
+                Size = new Vector2(30),
+                CornerRadius = 5,
+                BackgroundColour = Colours.RED0,
+                Icon = FontAwesome.Solid.Get(0xf00d),
+                Action = () => appManager.ProfileManager.Profiles.Remove(profile)
             }
         };
 
@@ -135,6 +147,6 @@ public partial class DrawableProfile : Container
         });
 
         appManager.ProfileManager.DefaultProfile.BindValueChanged(e => defaultCheckBox.State.Value = e.NewValue == profile, true);
-        appManager.ProfileManager.Profiles.BindCollectionChanged((_, _) => defaultCheckBox.Alpha = defaultSpriteText.Alpha = appManager.ProfileManager.Profiles.Count > 1 ? 1 : 0, true);
+        appManager.ProfileManager.Profiles.BindCollectionChanged((_, _) => removeButton.Alpha = defaultCheckBox.Alpha = defaultSpriteText.Alpha = appManager.ProfileManager.Profiles.Count > 1 ? 1 : 0, true);
     }
 }
