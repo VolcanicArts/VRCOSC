@@ -40,7 +40,7 @@ public class PackageManager
         storage = baseStorage.GetStorageForDirectory("packages/remote");
 
         builtinSources.Add(new PackageSource(this, "VolcanicArts", "VRCOSC-Modules", PackageType.Official));
-        //builtinSources.Add(new PackageSource(this, "DJDavid98", "VRCOSC-BluetoothHeartrate", PackageType.Curated));
+        builtinSources.Add(new PackageSource(this, "DJDavid98", "VRCOSC-BluetoothHeartrate", PackageType.Curated));
 
         serialisationManager = new SerialisationManager();
         serialisationManager.RegisterSerialiser(1, new PackageManagerSerialiser(baseStorage, this));
@@ -123,7 +123,7 @@ public class PackageManager
 
         var repos = await GITHUB_CLIENT.Search.SearchRepo(new SearchRepositoriesRequest
         {
-            Topic = community_tag,
+            Topic = community_tag
         });
 
         Logger.Log($"Found {repos.TotalCount} community repos");

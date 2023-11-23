@@ -135,6 +135,8 @@ public class PackageSource
         }
     }
 
+    private const bool allow_prelease = true;
+
     private async Task loadLatestRelease(bool forceRemoteGrab)
     {
         if (State is PackageSourceState.MissingRepo) return;
@@ -147,6 +149,24 @@ public class PackageSource
             {
                 LatestRelease = null;
                 LatestRelease = new PackageLatestRelease(await PackageManager.GITHUB_CLIENT.Repository.Release.GetLatest(RepoOwner, RepoName));
+
+                var releases = await PackageManager.GITHUB_CLIENT.Repository.Release.GetAll(RepoOwner, RepoName);
+
+                PackageLatestRelease? localLatestRelease = null;
+
+                if (allow_prelease)
+                {
+                    var latestPrerelease = releases.Where(release => release.Prerelease).MaxBy(release => release.CreatedAt);
+                    if (latestPrerelease is not null) localLatestRelease = new PackageLatestRelease(latestPrerelease);
+                }
+
+                if (localLatestRelease is null)
+                {
+                    var latestRelease = releases.MaxBy(release => release.CreatedAt);
+                    if (latestRelease is not null) localLatestRelease = new PackageLatestRelease(latestRelease);
+                }
+
+                LatestRelease = localLatestRelease;
             }
 
             if (LatestRelease is null)
