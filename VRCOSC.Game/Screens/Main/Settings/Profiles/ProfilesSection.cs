@@ -3,6 +3,7 @@
 
 using System.Collections.Specialized;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -24,6 +25,7 @@ public partial class ProfilesSection : Container
     private AppManager appManager { get; set; } = null!;
 
     private FillFlowContainer<DrawableProfile> profileFlow = null!;
+    private SpriteText currentProfileText = null!;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -71,6 +73,19 @@ public partial class ProfilesSection : Container
                             X = 3
                         }
                     },
+                    new Container
+                    {
+                        Anchor = Anchor.TopCentre,
+                        Origin = Anchor.TopCentre,
+                        RelativeSizeAxes = Axes.X,
+                        AutoSizeAxes = Axes.Y,
+                        Child = currentProfileText = new SpriteText
+                        {
+                            Font = Fonts.REGULAR.With(size: 30),
+                            Colour = Colours.WHITE2,
+                            X = 3
+                        }
+                    },
                     new SettingsToggle(configManager.GetBindable<bool>(VRCOSCSetting.EnableAutomaticProfileSwitching), "Enable Automatic Switching", "Automatic switching changes your selected profile to one that is linked to the avatar you’re wearing when you change avatar. If none is found, the default profile is used"),
                     profileFlow = new FillFlowContainer<DrawableProfile>
                     {
@@ -102,6 +117,7 @@ public partial class ProfilesSection : Container
         };
 
         appManager.ProfileManager.Profiles.BindCollectionChanged(onProfileCollectionChanged, true);
+        appManager.ProfileManager.ActiveProfile.BindValueChanged(onActiveProfileChange, true);
     }
 
     private void onProfileCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
@@ -121,5 +137,18 @@ public partial class ProfilesSection : Container
                 profileFlow.RemoveAll(drawableProfile => drawableProfile.ProfileID == oldProfile.ID, true);
             }
         }
+    }
+
+    private void onActiveProfileChange(ValueChangedEvent<Profile> e)
+    {
+        e.OldValue.Name.ValueChanged -= onActiveProfileNameChange;
+        e.NewValue.Name.ValueChanged += onActiveProfileNameChange;
+
+        currentProfileText.Text = $"Active Profile: {e.NewValue.Name.Value}";
+    }
+
+    private void onActiveProfileNameChange(ValueChangedEvent<string> e)
+    {
+        currentProfileText.Text = $"Active Profile: {e.NewValue}";
     }
 }

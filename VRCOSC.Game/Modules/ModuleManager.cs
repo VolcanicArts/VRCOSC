@@ -173,6 +173,7 @@ public class ModuleManager
         var remoteModulesDirectory = storage.GetStorageForDirectory("packages/remote").GetFullPath(string.Empty, true);
         Directory.GetDirectories(remoteModulesDirectory).ForEach(moduleDirectory =>
         {
+            // TODO: Improve this to use the package manager
             var packageId = moduleDirectory.Split('\\').Last();
             remoteModulesContexts.Add(packageId, loadContextFromPath(moduleDirectory));
         });
