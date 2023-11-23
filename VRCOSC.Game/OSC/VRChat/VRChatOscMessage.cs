@@ -11,7 +11,7 @@ public class VRChatOscMessage : OscMessage
     public bool IsAvatarParameter => Address.StartsWith(VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX);
 
     private string? parameterName;
-    public string ParameterName => parameterName ??= Address[(VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX.Length + 1)..];
+    public string ParameterName => parameterName ??= Address[(VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX.Length)..];
 
     public object ParameterValue => Values[0];
 
