@@ -42,4 +42,10 @@ public class Profile
             LinkedAvatars = new BindableList<Bindable<string>>(LinkedAvatars.Select(linkedAvatarBindable => linkedAvatarBindable.GetUnboundCopy()))
         };
     }
+
+    public void CopyTo(Profile profile)
+    {
+        profile.Name.Value = Name.Value;
+        profile.LinkedAvatars.ReplaceRange(0, profile.LinkedAvatars.Count, new BindableList<Bindable<string>>(LinkedAvatars.Select(linkedAvatarBindable => linkedAvatarBindable.GetUnboundCopy())));
+    }
 }

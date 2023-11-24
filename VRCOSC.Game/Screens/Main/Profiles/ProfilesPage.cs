@@ -9,6 +9,7 @@ using osu.Framework.Graphics.Shapes;
 using osuTK;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics;
+using VRCOSC.Game.Profiles;
 using VRCOSC.Game.Screens.Main.Profiles.ManagementOverlay;
 
 namespace VRCOSC.Game.Screens.Main.Profiles;
@@ -113,6 +114,12 @@ public partial class ProfilesPage : Container
     public void CreateProfile()
     {
         profileManagementOverlay.SetProfile(null);
+        profileManagementOverlay.Show();
+    }
+
+    public void EditProfile(Profile profile)
+    {
+        profileManagementOverlay.SetProfile(profile);
         profileManagementOverlay.Show();
     }
 }

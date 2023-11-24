@@ -162,6 +162,9 @@ public partial class ProfileListInstance : Container
     [Resolved]
     private AppManager appManager { get; set; } = null!;
 
+    [Resolved]
+    private ProfilesPage profilesPage { get; set; } = null!;
+
     private readonly Profile profile;
 
     private readonly SpriteText nameText;
@@ -216,6 +219,17 @@ public partial class ProfileListInstance : Container
                         BackgroundColour = Colours.RED0,
                         CornerRadius = 5,
                         Action = () => appManager.ProfileManager.Profiles.Remove(profile)
+                    },
+                    new IconButton
+                    {
+                        Anchor = Anchor.CentreRight,
+                        Origin = Anchor.CentreRight,
+                        RelativeSizeAxes = Axes.Both,
+                        FillMode = FillMode.Fit,
+                        Icon = FontAwesome.Solid.Edit,
+                        BackgroundColour = Colours.BLUE0,
+                        CornerRadius = 5,
+                        Action = () => profilesPage.EditProfile(profile)
                     }
                 }
             }

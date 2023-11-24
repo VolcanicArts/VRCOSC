@@ -29,8 +29,6 @@ public partial class ProfileManagementOverlay : VisibilityContainer
     protected override bool OnHover(HoverEvent e) => true;
     protected override bool OnScroll(ScrollEvent e) => true;
 
-    public Bindable<bool> Editing = new();
-
     private SpriteText headerText = null!;
     private TextButton saveButton = null!;
     private FillFlowContainer contentFlow = null!;
@@ -130,17 +128,37 @@ public partial class ProfileManagementOverlay : VisibilityContainer
                                             RelativeSizeAxes = Axes.Both,
                                             Colour = Colours.GRAY0
                                         },
-                                        saveButton = new TextButton
+                                        new Container
                                         {
-                                            Anchor = Anchor.Centre,
-                                            Origin = Anchor.Centre,
-                                            Size = new Vector2(240, 34),
-                                            TextContent = "Save",
-                                            TextFont = Fonts.REGULAR.With(size: 30),
-                                            BackgroundColour = Colours.BLUE0,
-                                            CornerRadius = 17,
-                                            Enabled = { Value = false },
-                                            Action = OnSave
+                                            RelativeSizeAxes = Axes.Both,
+                                            Padding = new MarginPadding(8),
+                                            Children = new Drawable[]
+                                            {
+                                                new TextButton
+                                                {
+                                                    Anchor = Anchor.CentreLeft,
+                                                    Origin = Anchor.CentreLeft,
+                                                    Size = new Vector2(240, 34),
+                                                    TextContent = "Cancel",
+                                                    TextFont = Fonts.REGULAR.With(size: 30),
+                                                    BackgroundColour = Colours.RED0,
+                                                    CornerRadius = 17,
+                                                    Enabled = { Value = false },
+                                                    Action = Hide
+                                                },
+                                                saveButton = new TextButton
+                                                {
+                                                    Anchor = Anchor.CentreRight,
+                                                    Origin = Anchor.CentreRight,
+                                                    Size = new Vector2(240, 34),
+                                                    TextContent = "Save",
+                                                    TextFont = Fonts.REGULAR.With(size: 30),
+                                                    BackgroundColour = Colours.BLUE0,
+                                                    CornerRadius = 17,
+                                                    Enabled = { Value = false },
+                                                    Action = OnSave
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -150,14 +168,12 @@ public partial class ProfileManagementOverlay : VisibilityContainer
                 }
             }
         };
-
-        Editing.BindValueChanged(e => headerText.Text = e.NewValue ? "Edit Profile" : "Create Profile", true);
     }
 
     protected override void Update()
     {
         var canSave = !string.IsNullOrEmpty(editingProfile.Name.Value) &&
-                      appManager.ProfileManager.Profiles.All(profile => profile.Name.Value != editingProfile.Name.Value) &&
+                      appManager.ProfileManager.Profiles.Where(profile => !profile.ID.Equals(editingProfile.ID)).All(profile => profile.Name.Value != editingProfile.Name.Value) &&
                       editingProfile.LinkedAvatars.All(linkedAvatar => avatarIDRegex.IsMatch(linkedAvatar.Value));
 
         saveButton.Enabled.Value = canSave;
@@ -167,6 +183,7 @@ public partial class ProfileManagementOverlay : VisibilityContainer
     {
         originalProfile = profile;
         editingProfile = profile is null ? new Profile() : profile.Clone();
+        headerText.Text = profile is null ? "Create Profile" : "Edit Profile";
 
         contentFlow.Clear();
         contentFlow.AddRange(new Drawable[]
@@ -191,10 +208,12 @@ public partial class ProfileManagementOverlay : VisibilityContainer
         if (originalProfile is not null)
         {
             var foundProfile = appManager.ProfileManager.Profiles.First(profile => profile.ID.Equals(editingProfile.ID));
-            appManager.ProfileManager.Profiles.Remove(foundProfile);
+            editingProfile.CopyTo(foundProfile);
         }
-
-        appManager.ProfileManager.Profiles.Add(editingProfile.Clone());
+        else
+        {
+            appManager.ProfileManager.Profiles.Add(editingProfile.Clone());
+        }
 
         Hide();
     }
