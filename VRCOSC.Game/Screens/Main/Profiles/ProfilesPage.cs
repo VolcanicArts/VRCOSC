@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
-using osu.Framework.Bindables;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -22,8 +21,7 @@ public partial class ProfilesPage : Container
 
     private BufferedContainer bufferedContainer = null!;
     private Box backgroundDarkener = null!;
-
-    public Bindable<bool> BlurState = new();
+    private ProfileManagementOverlay profileManagementOverlay = null!;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -97,7 +95,7 @@ public partial class ProfilesPage : Container
                 RelativeSizeAxes = Axes.Both,
                 Colour = Colours.Transparent
             },
-            new ProfileManagementOverlay()
+            profileManagementOverlay = new ProfileManagementOverlay()
         };
 
         setupBlur();
@@ -105,10 +103,16 @@ public partial class ProfilesPage : Container
 
     private void setupBlur()
     {
-        BlurState.BindValueChanged(e =>
+        profileManagementOverlay.State.BindValueChanged(e =>
         {
-            bufferedContainer.TransformTo(nameof(BufferedContainer.BlurSigma), e.NewValue ? new Vector2(5) : new Vector2(0), 250, Easing.OutCubic);
-            backgroundDarkener.FadeColour(e.NewValue ? Colours.BLACK.Opacity(0.25f) : Colours.Transparent, 250, Easing.OutCubic);
+            bufferedContainer.TransformTo(nameof(BufferedContainer.BlurSigma), e.NewValue == Visibility.Visible ? new Vector2(5) : new Vector2(0), 250, Easing.OutCubic);
+            backgroundDarkener.FadeColour(e.NewValue == Visibility.Visible ? Colours.BLACK.Opacity(0.25f) : Colours.Transparent, 250, Easing.OutCubic);
         });
+    }
+
+    public void CreateProfile()
+    {
+        profileManagementOverlay.SetProfile(null);
+        profileManagementOverlay.Show();
     }
 }

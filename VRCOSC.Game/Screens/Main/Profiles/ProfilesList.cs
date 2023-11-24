@@ -21,6 +21,9 @@ public partial class ProfilesList : Container
     [Resolved]
     private AppManager appManager { get; set; } = null!;
 
+    [Resolved]
+    private ProfilesPage profilesPage { get; set; } = null!;
+
     private readonly FillFlowContainer flowWrapper;
     private readonly BasicScrollContainer scrollContainer;
     private readonly Container header;
@@ -113,7 +116,7 @@ public partial class ProfilesList : Container
                             IconSize = 20,
                             BackgroundColour = Colours.GREEN0,
                             CornerRadius = 5,
-                            Action = () => appManager.ProfileManager.Profiles.Add(new Profile())
+                            Action = () => profilesPage.CreateProfile()
                         }
                     }
                 }

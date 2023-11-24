@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Linq;
 using osu.Framework.Bindables;
 
 namespace VRCOSC.Game.Profiles;
@@ -16,12 +17,12 @@ public class Profile
     /// <summary>
     /// The name of this <see cref="Profile"/>
     /// </summary>
-    public readonly Bindable<string> Name = new(string.Empty);
+    public Bindable<string> Name { get; private init; } = new(string.Empty);
 
     /// <summary>
     /// The avatar IDs of the linked avatars. Allows for linking avatars to a profile to have the profile load when you change into an avatar
     /// </summary>
-    public readonly BindableList<Bindable<string>> LinkedAvatars = new();
+    public BindableList<Bindable<string>> LinkedAvatars { get; private init; } = new();
 
     public Profile()
     {
@@ -31,5 +32,14 @@ public class Profile
     public Profile(Guid id)
     {
         ID = id;
+    }
+
+    public Profile Clone()
+    {
+        return new Profile(ID)
+        {
+            Name = Name.GetUnboundCopy(),
+            LinkedAvatars = new BindableList<Bindable<string>>(LinkedAvatars.Select(linkedAvatarBindable => linkedAvatarBindable.GetUnboundCopy()))
+        };
     }
 }
