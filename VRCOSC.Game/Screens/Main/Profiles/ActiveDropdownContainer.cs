@@ -2,11 +2,13 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using VRCOSC.Game.Graphics;
+using VRCOSC.Game.Profiles;
 
 namespace VRCOSC.Game.Screens.Main.Profiles;
 
@@ -14,6 +16,8 @@ public partial class ActiveDropdownContainer : Container
 {
     [Resolved]
     private AppManager appManager { get; set; } = null!;
+
+    private Bindable<Profile> proxyActiveProfile;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -23,8 +27,10 @@ public partial class ActiveDropdownContainer : Container
         RelativeSizeAxes = Axes.X;
         AutoSizeAxes = Axes.Y;
 
-        var unboundActiveProfile = appManager.ProfileManager.ActiveProfile.GetUnboundCopy();
-        unboundActiveProfile.BindValueChanged(e => appManager.ChangeProfile(e.NewValue));
+        proxyActiveProfile = appManager.ProfileManager.ActiveProfile.GetUnboundCopy();
+
+        proxyActiveProfile.BindValueChanged(e => appManager.ChangeProfile(e.NewValue));
+        appManager.ProfileManager.ActiveProfile.BindValueChanged(e => proxyActiveProfile.Value = e.NewValue);
 
         Children = new Drawable[]
         {
@@ -60,7 +66,7 @@ public partial class ActiveDropdownContainer : Container
                         Origin = Anchor.CentreRight,
                         AutoSizeAxes = Axes.Y,
                         Width = 285,
-                        ProfileBindable = unboundActiveProfile
+                        ProfileBindable = proxyActiveProfile.GetBoundCopy()
                     }
                 }
             }

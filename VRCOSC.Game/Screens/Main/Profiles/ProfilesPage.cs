@@ -71,15 +71,15 @@ public partial class ProfilesPage : Container
                                 null,
                                 new Drawable[]
                                 {
-                                    new DefaultDropdownContainer
-                                    {
-                                        Depth = -1
-                                    }
+                                    new ProfilesToggle(configManager.GetBindable<bool>(VRCOSCSetting.AutomaticProfileSwitching), "Automatic Switching", "Automatic switching changes your selected profile to one that is linked to the avatar you’re wearing when you change avatar. If none is found, the default profile is used"),
                                 },
                                 null,
                                 new Drawable[]
                                 {
-                                    new ProfilesToggle(configManager.GetBindable<bool>(VRCOSCSetting.AutomaticProfileSwitching), "Automatic Switching", "Automatic switching changes your selected profile to one that is linked to the avatar you’re wearing when you change avatar. If none is found, the default profile is used"),
+                                    new DefaultDropdownContainer
+                                    {
+                                        Depth = -1
+                                    }
                                 },
                                 null,
                                 new Drawable[]

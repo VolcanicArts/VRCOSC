@@ -9,7 +9,9 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using osuTK;
 using VRCOSC.Game.Graphics;
+using VRCOSC.Game.Graphics.UI;
 using VRCOSC.Game.Profiles;
 
 namespace VRCOSC.Game.Screens.Main.Profiles;
@@ -135,9 +137,11 @@ public partial class ProfilesList : Container
 
 public partial class ProfileListInstance : Container
 {
+    [Resolved]
+    private AppManager appManager { get; set; } = null!;
+
     private readonly Profile profile;
 
-    protected override Container Content { get; }
     private readonly SpriteText nameText;
 
     public ProfileListInstance(Profile profile, bool even)
@@ -156,7 +160,7 @@ public partial class ProfileListInstance : Container
                 RelativeSizeAxes = Axes.Both,
                 Colour = even ? Colours.GRAY4 : Colours.GRAY2
             },
-            Content = new Container
+            new Container
             {
                 RelativeSizeAxes = Axes.X,
                 AutoSizeAxes = Axes.Y,
@@ -166,6 +170,29 @@ public partial class ProfileListInstance : Container
                     nameText = new SpriteText
                     {
                         Font = Fonts.REGULAR.With(size: 25)
+                    }
+                }
+            },
+            new FillFlowContainer
+            {
+                Anchor = Anchor.CentreRight,
+                Origin = Anchor.CentreRight,
+                RelativeSizeAxes = Axes.Both,
+                Direction = FillDirection.Horizontal,
+                Spacing = new Vector2(8, 0),
+                Padding = new MarginPadding(5),
+                Children = new Drawable[]
+                {
+                    new IconButton
+                    {
+                        Anchor = Anchor.CentreRight,
+                        Origin = Anchor.CentreRight,
+                        RelativeSizeAxes = Axes.Both,
+                        FillMode = FillMode.Fit,
+                        Icon = FontAwesome.Solid.Minus,
+                        BackgroundColour = Colours.RED0,
+                        CornerRadius = 5,
+                        Action = () => appManager.ProfileManager.Profiles.Remove(profile)
                     }
                 }
             }

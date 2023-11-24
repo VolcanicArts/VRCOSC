@@ -23,7 +23,7 @@ public partial class ProfileDropdown : ClickableContainer
 
     private readonly BindableBool open = new();
 
-    public Bindable<Profile> ProfileBindable { get; init; } = null!;
+    public Bindable<Profile> ProfileBindable { get; set; } = null!;
 
     [BackgroundDependencyLoader]
     private void load()
