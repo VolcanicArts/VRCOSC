@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -18,8 +19,9 @@ public partial class TextButton : ClickableContainer
 {
     public Color4 BackgroundColour { get; init; } = Color4.Black;
     public string TextContent { get; init; } = "PLACEHOLDER";
-    public FontUsage TextFont { get; init; } = FontUsage.Default;
+    public FontUsage TextFont { get; init; } = Fonts.REGULAR;
     public Color4 TextColour { get; init; } = Color4.White;
+    public new float CornerRadius { get; init; } = 5;
 
     private Box background = null!;
     private SpriteText text = null!;
@@ -27,9 +29,7 @@ public partial class TextButton : ClickableContainer
     [BackgroundDependencyLoader]
     private void load()
     {
-        Enabled.Value = true;
-
-        Child = new Container
+        InternalChild = new Container
         {
             Anchor = Anchor.Centre,
             Origin = Anchor.Centre,
@@ -37,7 +37,7 @@ public partial class TextButton : ClickableContainer
             Masking = true,
             BorderThickness = 3,
             BorderColour = BackgroundColour,
-            CornerRadius = 5,
+            CornerRadius = CornerRadius,
             Children = new Drawable[]
             {
                 background = new Box
@@ -60,6 +60,27 @@ public partial class TextButton : ClickableContainer
                 }
             }
         };
+
+        Enabled.BindValueChanged(onEnabledChange, true);
+    }
+
+    public override bool HandlePositionalInput => Enabled.Value;
+
+    private void onEnabledChange(ValueChangedEvent<bool> e)
+    {
+        InternalChild.FadeTo(e.NewValue ? 1f : 0.25f, 250, Easing.OutQuint);
+
+        if (e.NewValue)
+        {
+            if (IsHovered)
+                fadeInBackground();
+            else
+                fadeOutBackground();
+        }
+        else
+        {
+            fadeOutBackground();
+        }
     }
 
     protected override bool OnHover(HoverEvent e)
@@ -97,13 +118,13 @@ public partial class TextButton : ClickableContainer
 
     private void fadeInBackground()
     {
-        background.FadeInFromZero(100, Easing.OutQuart);
+        background.FadeIn(100, Easing.OutQuart);
         text.TransformTo(nameof(SpriteText.ShadowOffset), new Vector2(0, 0.05f));
     }
 
     private void fadeOutBackground()
     {
-        background.FadeOutFromOne(100, Easing.OutQuart);
+        background.FadeOut(100, Easing.OutQuart);
         text.TransformTo(nameof(SpriteText.ShadowOffset), Vector2.Zero);
     }
 }

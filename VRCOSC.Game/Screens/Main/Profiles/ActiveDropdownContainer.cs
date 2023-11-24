@@ -17,7 +17,7 @@ public partial class ActiveDropdownContainer : Container
     [Resolved]
     private AppManager appManager { get; set; } = null!;
 
-    private Bindable<Profile> proxyActiveProfile;
+    private Bindable<Profile> proxyActiveProfile = null!;
 
     [BackgroundDependencyLoader]
     private void load()

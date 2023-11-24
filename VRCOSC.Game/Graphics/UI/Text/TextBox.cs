@@ -9,7 +9,7 @@ namespace VRCOSC.Game.Graphics.UI.Text;
 
 public partial class TextBox : BasicTextBox
 {
-    protected TextBox()
+    public TextBox()
     {
         BackgroundUnfocused = Colours.GRAY2;
         BackgroundFocused = Colours.GRAY2;

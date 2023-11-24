@@ -16,7 +16,7 @@ public class Profile
     /// <summary>
     /// The name of this <see cref="Profile"/>
     /// </summary>
-    public readonly Bindable<string> Name = new("Profile");
+    public readonly Bindable<string> Name = new(string.Empty);
 
     /// <summary>
     /// The avatar IDs of the linked avatars. Allows for linking avatars to a profile to have the profile load when you change into an avatar

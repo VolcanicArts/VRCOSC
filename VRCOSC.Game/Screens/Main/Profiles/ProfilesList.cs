@@ -90,13 +90,32 @@ public partial class ProfilesList : Container
                         }
                     }
                 },
-                new Box
+                new Container
                 {
+                    Name = "Footer",
                     Anchor = Anchor.TopCentre,
                     Origin = Anchor.TopCentre,
                     RelativeSizeAxes = Axes.X,
-                    Height = 5,
-                    Colour = Colours.GRAY0
+                    Height = 46,
+                    Children = new Drawable[]
+                    {
+                        new Box
+                        {
+                            RelativeSizeAxes = Axes.Both,
+                            Colour = Colours.GRAY0
+                        },
+                        new IconButton
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            Size = new Vector2(140, 36),
+                            Icon = FontAwesome.Solid.Plus,
+                            IconSize = 20,
+                            BackgroundColour = Colours.GREEN0,
+                            CornerRadius = 5,
+                            Action = () => appManager.ProfileManager.Profiles.Add(new Profile())
+                        }
+                    }
                 }
             }
         };
@@ -170,7 +189,7 @@ public partial class ProfileListInstance : Container
                 {
                     nameText = new SpriteText
                     {
-                        Font = Fonts.REGULAR.With(size: 25)
+                        Font = Fonts.BOLD.With(size: 25)
                     }
                 }
             },

@@ -10,6 +10,7 @@ using osu.Framework.Graphics.Shapes;
 using osuTK;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Graphics;
+using VRCOSC.Game.Screens.Main.Profiles.ManagementOverlay;
 
 namespace VRCOSC.Game.Screens.Main.Profiles;
 
@@ -95,7 +96,8 @@ public partial class ProfilesPage : Container
             {
                 RelativeSizeAxes = Axes.Both,
                 Colour = Colours.Transparent
-            }
+            },
+            new ProfileManagementOverlay()
         };
 
         setupBlur();
