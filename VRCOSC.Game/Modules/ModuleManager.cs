@@ -227,8 +227,13 @@ public class ModuleManager
         assemblyLoadContext.Resolving += (_, name) =>
         {
             Logger.Log($"Could not load assembly {name.Name} - {name.Version}");
-            var fallbackAssembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(assembly => assembly.GetName().Name == name.Name);
-            if (fallbackAssembly is not null) Logger.Log($"Falling back to {fallbackAssembly.GetName().Name} - {fallbackAssembly.GetName().Version}");
+
+            var foundAssemblies = AppDomain.CurrentDomain.GetAssemblies().Where(assembly => assembly.GetName().Name == name.Name && assembly.GetName().Version != name.Version).ToList();
+            foundAssemblies.ForEach(assembly => Logger.Log($"Candidate: {assembly.GetName().Name} - {assembly.GetName().Version}"));
+
+            var fallbackAssembly = foundAssemblies.FirstOrDefault();
+            Logger.Log(fallbackAssembly is null ? "No suitable fallback found" : $"Falling back to {fallbackAssembly.GetName().Name} - {fallbackAssembly.GetName().Version}");
+
             return fallbackAssembly;
         };
         Directory.GetFiles(path, "*.dll").ForEach(dllPath => loadAssemblyFromPath(assemblyLoadContext, dllPath));
