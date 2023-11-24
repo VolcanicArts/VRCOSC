@@ -10,7 +10,7 @@ using VRCOSC.Game.Graphics;
 
 namespace VRCOSC.Game.Screens.Main.Profiles;
 
-public partial class DefaultDropdownContainer : Container
+public partial class ActiveDropdownContainer : Container
 {
     [Resolved]
     private AppManager appManager { get; set; } = null!;
@@ -22,6 +22,9 @@ public partial class DefaultDropdownContainer : Container
         Origin = Anchor.TopCentre;
         RelativeSizeAxes = Axes.X;
         AutoSizeAxes = Axes.Y;
+
+        var unboundActiveProfile = appManager.ProfileManager.ActiveProfile.GetUnboundCopy();
+        unboundActiveProfile.BindValueChanged(e => appManager.ChangeProfile(e.NewValue));
 
         Children = new Drawable[]
         {
@@ -47,7 +50,7 @@ public partial class DefaultDropdownContainer : Container
                     {
                         Anchor = Anchor.CentreLeft,
                         Origin = Anchor.CentreLeft,
-                        Text = "Default Profile",
+                        Text = "Current Profile",
                         Font = Fonts.REGULAR.With(size: 30),
                         Colour = Colours.WHITE0
                     },
@@ -57,7 +60,7 @@ public partial class DefaultDropdownContainer : Container
                         Origin = Anchor.CentreRight,
                         AutoSizeAxes = Axes.Y,
                         Width = 285,
-                        ProfileBindable = appManager.ProfileManager.DefaultProfile.GetBoundCopy()
+                        ProfileBindable = unboundActiveProfile
                     }
                 }
             }

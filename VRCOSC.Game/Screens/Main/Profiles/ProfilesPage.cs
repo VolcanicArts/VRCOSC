@@ -55,21 +55,31 @@ public partial class ProfilesPage : Container
                                 new Dimension(GridSizeMode.Absolute, 8),
                                 new Dimension(GridSizeMode.AutoSize),
                                 new Dimension(GridSizeMode.Absolute, 8),
+                                new Dimension(GridSizeMode.AutoSize),
+                                new Dimension(GridSizeMode.Absolute, 8),
                                 new Dimension()
                             },
                             Content = new[]
                             {
                                 new Drawable[]
                                 {
-                                    new ProfilesToggle(configManager.GetBindable<bool>(VRCOSCSetting.AutomaticProfileSwitching), "Automatic Switching", "Automatic switching changes your selected profile to one that is linked to the avatar you’re wearing when you change avatar. If none is found, the default profile is used"),
+                                    new ActiveDropdownContainer
+                                    {
+                                        Depth = -2
+                                    }
                                 },
                                 null,
                                 new Drawable[]
                                 {
                                     new DefaultDropdownContainer
                                     {
-                                        Depth = float.MinValue
+                                        Depth = -1
                                     }
+                                },
+                                null,
+                                new Drawable[]
+                                {
+                                    new ProfilesToggle(configManager.GetBindable<bool>(VRCOSCSetting.AutomaticProfileSwitching), "Automatic Switching", "Automatic switching changes your selected profile to one that is linked to the avatar you’re wearing when you change avatar. If none is found, the default profile is used"),
                                 },
                                 null,
                                 new Drawable[]

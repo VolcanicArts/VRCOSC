@@ -16,19 +16,22 @@ using VRCOSC.Game.Profiles;
 
 namespace VRCOSC.Game.Screens.Main.Profiles;
 
-public partial class DefaultDropdown : ClickableContainer
+[Cached]
+public partial class ProfileDropdown : ClickableContainer
 {
-    private DefaultDropdownContent dropdownContent = null!;
+    private ProfileDropdownContent dropdownContent = null!;
 
     private readonly BindableBool open = new();
+
+    public Bindable<Profile> ProfileBindable { get; init; } = null!;
 
     [BackgroundDependencyLoader]
     private void load()
     {
         Children = new Drawable[]
         {
-            new DefaultDropdownHeader(),
-            dropdownContent = new DefaultDropdownContent()
+            new ProfileDropdownHeader(),
+            dropdownContent = new ProfileDropdownContent()
         };
 
         Action += () => open.Toggle();
@@ -53,10 +56,10 @@ public partial class DefaultDropdown : ClickableContainer
     }
 }
 
-public partial class DefaultDropdownHeader : Container
+public partial class ProfileDropdownHeader : Container
 {
     [Resolved]
-    private AppManager appManager { get; set; } = null!;
+    private ProfileDropdown profileDropdown { get; set; } = null!;
 
     private Box background = null!;
     private SpriteText headerText = null!;
@@ -114,8 +117,8 @@ public partial class DefaultDropdownHeader : Container
             }
         };
 
-        appManager.ProfileManager.DefaultProfile.BindValueChanged(onDefaultProfileChange);
-        appManager.ProfileManager.DefaultProfile.Value.Name.BindValueChanged(onDefaultProfileNameChange, true);
+        profileDropdown.ProfileBindable.BindValueChanged(onDefaultProfileChange);
+        profileDropdown.ProfileBindable.Value.Name.BindValueChanged(onDefaultProfileNameChange, true);
     }
 
     private void onDefaultProfileChange(ValueChangedEvent<Profile> e)
@@ -141,14 +144,14 @@ public partial class DefaultDropdownHeader : Container
     }
 }
 
-public partial class DefaultDropdownContent : Container
+public partial class ProfileDropdownContent : Container
 {
     [Resolved]
     private AppManager appManager { get; set; } = null!;
 
     protected override FillFlowContainer Content { get; }
 
-    public DefaultDropdownContent()
+    public ProfileDropdownContent()
     {
         Anchor = Anchor.BottomCentre;
         Origin = Anchor.TopCentre;
@@ -186,23 +189,23 @@ public partial class DefaultDropdownContent : Container
     private void onProfileCollectionChange(object? sender, NotifyCollectionChangedEventArgs e)
     {
         Clear();
-        AddRange(appManager.ProfileManager.Profiles.Select(profile => new DefaultDropdownItem(profile)));
+        AddRange(appManager.ProfileManager.Profiles.Select(profile => new ProfileDropdownItem(profile)));
     }
 
     protected override bool OnClick(ClickEvent e) => true;
 }
 
-public partial class DefaultDropdownItem : Container
+public partial class ProfileDropdownItem : Container
 {
     [Resolved]
-    private AppManager appManager { get; set; } = null!;
+    private ProfileDropdown profileDropdown { get; set; } = null!;
 
     private readonly Profile profile;
 
     private Box background = null!;
     private SpriteText nameText = null!;
 
-    public DefaultDropdownItem(Profile profile)
+    public ProfileDropdownItem(Profile profile)
     {
         this.profile = profile;
     }
@@ -259,7 +262,7 @@ public partial class DefaultDropdownItem : Container
     protected override bool OnClick(ClickEvent e)
     {
         GetContainingInputManager().ChangeFocus(null);
-        appManager.ProfileManager.DefaultProfile.Value = profile;
+        profileDropdown.ProfileBindable.Value = profile;
         return true;
     }
 }
