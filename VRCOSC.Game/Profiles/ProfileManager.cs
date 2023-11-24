@@ -54,16 +54,13 @@ public class ProfileManager
 
         Profiles.BindCollectionChanged((_, e) =>
         {
-            if (Profiles.All(profile => profile != DefaultProfile.Value))
-            {
-                DefaultProfile.Value = Profiles[0];
-                appManager.ChangeProfile(DefaultProfile.Value);
-            }
-
             if (e.OldItems is not null)
             {
                 foreach (Profile oldProfile in e.OldItems)
                 {
+                    if (DefaultProfile.Value.ID.Equals(oldProfile.ID)) DefaultProfile.Value = Profiles[0];
+                    if (ActiveProfile.Value.ID.Equals(oldProfile.ID)) appManager.ChangeProfile(DefaultProfile.Value);
+
                     storage.DeleteDirectory($"profiles/{oldProfile.ID}");
                 }
             }
