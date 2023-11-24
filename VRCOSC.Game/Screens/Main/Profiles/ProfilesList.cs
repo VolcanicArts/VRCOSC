@@ -143,6 +143,7 @@ public partial class ProfileListInstance : Container
     private readonly Profile profile;
 
     private readonly SpriteText nameText;
+    private readonly IconButton removeButton;
 
     public ProfileListInstance(Profile profile, bool even)
     {
@@ -183,7 +184,7 @@ public partial class ProfileListInstance : Container
                 Padding = new MarginPadding(5),
                 Children = new Drawable[]
                 {
-                    new IconButton
+                    removeButton = new IconButton
                     {
                         Anchor = Anchor.CentreRight,
                         Origin = Anchor.CentreRight,
@@ -203,5 +204,6 @@ public partial class ProfileListInstance : Container
     private void load()
     {
         profile.Name.BindValueChanged(e => nameText.Text = e.NewValue, true);
+        removeButton.Alpha = appManager.ProfileManager.Profiles.Count > 1 ? 1 : 0;
     }
 }
