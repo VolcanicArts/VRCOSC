@@ -2,17 +2,27 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
+using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Shapes;
 using osuTK;
 using VRCOSC.Game.Config;
+using VRCOSC.Game.Graphics;
 
 namespace VRCOSC.Game.Screens.Main.Profiles;
 
+[Cached]
 public partial class ProfilesPage : Container
 {
     [Resolved]
     private VRCOSCConfigManager configManager { get; set; } = null!;
+
+    private BufferedContainer bufferedContainer = null!;
+    private Box backgroundDarkener = null!;
+
+    public Bindable<bool> BlurState = new();
 
     [BackgroundDependencyLoader]
     private void load()
@@ -21,20 +31,72 @@ public partial class ProfilesPage : Container
 
         Children = new Drawable[]
         {
-            new FillFlowContainer
+            bufferedContainer = new BufferedContainer
             {
-                Anchor = Anchor.TopCentre,
-                Origin = Anchor.TopCentre,
-                RelativeSizeAxes = Axes.X,
-                AutoSizeAxes = Axes.Y,
-                Spacing = new Vector2(0, 8),
-                Padding = new MarginPadding(10),
+                RelativeSizeAxes = Axes.Both,
+                BackgroundColour = Colours.BLACK,
                 Children = new Drawable[]
                 {
-                    new ProfilesToggle(configManager.GetBindable<bool>(VRCOSCSetting.AutomaticProfileSwitching), "Automatic Switching", "Automatic switching changes your selected profile to one that is linked to the avatar you’re wearing when you change avatar. If none is found, the default profile is used"),
-                    new DefaultDropdownContainer()
+                    new Box
+                    {
+                        RelativeSizeAxes = Axes.Both,
+                        Colour = Colours.GRAY1
+                    },
+                    new Container
+                    {
+                        RelativeSizeAxes = Axes.Both,
+                        Padding = new MarginPadding(10),
+                        Child = new GridContainer
+                        {
+                            RelativeSizeAxes = Axes.Both,
+                            RowDimensions = new[]
+                            {
+                                new Dimension(GridSizeMode.AutoSize),
+                                new Dimension(GridSizeMode.Absolute, 8),
+                                new Dimension(GridSizeMode.AutoSize),
+                                new Dimension(GridSizeMode.Absolute, 8),
+                                new Dimension()
+                            },
+                            Content = new[]
+                            {
+                                new Drawable[]
+                                {
+                                    new ProfilesToggle(configManager.GetBindable<bool>(VRCOSCSetting.AutomaticProfileSwitching), "Automatic Switching", "Automatic switching changes your selected profile to one that is linked to the avatar you’re wearing when you change avatar. If none is found, the default profile is used"),
+                                },
+                                null,
+                                new Drawable[]
+                                {
+                                    new DefaultDropdownContainer
+                                    {
+                                        Depth = float.MinValue
+                                    }
+                                },
+                                null,
+                                new Drawable[]
+                                {
+                                    new ProfilesList()
+                                }
+                            }
+                        }
+                    }
                 }
+            },
+            backgroundDarkener = new Box
+            {
+                RelativeSizeAxes = Axes.Both,
+                Colour = Colours.Transparent
             }
         };
+
+        setupBlur();
+    }
+
+    private void setupBlur()
+    {
+        BlurState.BindValueChanged(e =>
+        {
+            bufferedContainer.TransformTo(nameof(BufferedContainer.BlurSigma), e.NewValue ? new Vector2(5) : new Vector2(0), 250, Easing.OutCubic);
+            backgroundDarkener.FadeColour(e.NewValue ? Colours.BLACK.Opacity(0.25f) : Colours.Transparent, 250, Easing.OutCubic);
+        });
     }
 }

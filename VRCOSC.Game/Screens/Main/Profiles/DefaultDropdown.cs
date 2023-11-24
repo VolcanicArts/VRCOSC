@@ -156,6 +156,7 @@ public partial class DefaultDropdownContent : Container
         AutoSizeAxes = Axes.Y;
         Masking = true;
         CornerRadius = 5;
+        BorderThickness = 3;
 
         InternalChildren = new Drawable[]
         {
