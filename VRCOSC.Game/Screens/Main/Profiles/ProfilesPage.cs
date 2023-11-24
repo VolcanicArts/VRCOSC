@@ -4,15 +4,16 @@
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Shapes;
 using osuTK;
-using VRCOSC.Game.Graphics;
-using VRCOSC.Game.Screens.Main.Settings.Profiles;
+using VRCOSC.Game.Config;
 
-namespace VRCOSC.Game.Screens.Main.Settings;
+namespace VRCOSC.Game.Screens.Main.Profiles;
 
-public partial class SettingsTab : Container
+public partial class ProfilesPage : Container
 {
+    [Resolved]
+    private VRCOSCConfigManager configManager { get; set; } = null!;
+
     [BackgroundDependencyLoader]
     private void load()
     {
@@ -20,23 +21,18 @@ public partial class SettingsTab : Container
 
         Children = new Drawable[]
         {
-            new Box
-            {
-                RelativeSizeAxes = Axes.Both,
-                Colour = Colours.GRAY1
-            },
             new FillFlowContainer
             {
                 Anchor = Anchor.TopCentre,
                 Origin = Anchor.TopCentre,
                 RelativeSizeAxes = Axes.X,
                 AutoSizeAxes = Axes.Y,
+                Spacing = new Vector2(0, 8),
                 Padding = new MarginPadding(10),
-                Spacing = new Vector2(0, 10),
-                Direction = FillDirection.Vertical,
                 Children = new Drawable[]
                 {
-                    new ProfilesSection()
+                    new ProfilesToggle(configManager.GetBindable<bool>(VRCOSCSetting.AutomaticProfileSwitching), "Automatic Switching", "Automatic switching changes your selected profile to one that is linked to the avatar you’re wearing when you change avatar. If none is found, the default profile is used"),
+                    new DefaultDropdownContainer()
                 }
             }
         };

@@ -119,7 +119,7 @@ public class ProfileManager
     /// <returns>True if the profile was changed, otherwise false</returns>
     public bool AvatarChange(string avatarId)
     {
-        if (!configManager.Get<bool>(VRCOSCSetting.EnableAutomaticProfileSwitching)) return false;
+        if (!configManager.Get<bool>(VRCOSCSetting.AutomaticProfileSwitching)) return false;
 
         var avatarBoundProfile = Profiles.FirstOrDefault(profile => profile.LinkedAvatars.Select(linkedAvatar => linkedAvatar.Value).Contains(avatarId));
         var newProfile = avatarBoundProfile ?? DefaultProfile.Value;

@@ -212,7 +212,8 @@ public partial class ModulePackageInfo : VisibilityContainer
                                     footerButton = new FooterButton
                                     {
                                         Icon = FontAwesome.Brands.Github,
-                                        BackgroundColour = Color4Extensions.FromHex("333333")
+                                        BackgroundColour = Color4Extensions.FromHex("333333"),
+                                        Action = () => host.OpenUrlExternally(CurrentPackageSource.Value.URL)
                                     }
                                 }
                             }
