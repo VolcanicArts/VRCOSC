@@ -23,18 +23,19 @@ public partial class TabBar : Container
 {
     public static readonly IReadOnlyDictionary<Tab, TabDefinition> TABS = new Dictionary<Tab, TabDefinition>
     {
-        { Tab.Home, new TabDefinition(FontAwesome.Solid.Home, typeof(HomeTab)) },
-        { Tab.Repo, new TabDefinition(FontAwesome.Solid.Download, typeof(RepoTab)) },
-        { Tab.Modules, new TabDefinition(FontAwesome.Solid.List, typeof(ModulesTab)) },
-        { Tab.Run, new TabDefinition(FontAwesome.Solid.Play, typeof(RunTab)) },
-        { Tab.Profiles, new TabDefinition(FontAwesome.Solid.User, typeof(ProfilesTab)) },
-        { Tab.Settings, new TabDefinition(FontAwesome.Solid.Cog, typeof(SettingsTab)) }
+        { Tab.Home, new TabDefinition(FontAwesome.Solid.Home, typeof(HomeTab), false) },
+        { Tab.Repo, new TabDefinition(FontAwesome.Solid.Download, typeof(RepoTab), false) },
+        { Tab.Modules, new TabDefinition(FontAwesome.Solid.List, typeof(ModulesTab), false) },
+        { Tab.Run, new TabDefinition(FontAwesome.Solid.Play, typeof(RunTab), false) },
+        { Tab.Profiles, new TabDefinition(FontAwesome.Solid.User, typeof(ProfilesTab), false) },
+        { Tab.Settings, new TabDefinition(FontAwesome.Solid.Cog, typeof(SettingsTab), true) }
     };
 
     [BackgroundDependencyLoader]
     private void load()
     {
-        FillFlowContainer<DrawableTab> drawableTabFlow;
+        FillFlowContainer<DrawableTab> topDrawableTabFlow;
+        FillFlowContainer<DrawableTab> bottomDrawableTabFlow;
 
         AddInternal(new Box
         {
@@ -44,22 +45,44 @@ public partial class TabBar : Container
             Colour = Colours.GRAY0
         });
 
-        AddInternal(drawableTabFlow = new FillFlowContainer<DrawableTab>
+        AddInternal(topDrawableTabFlow = new FillFlowContainer<DrawableTab>
         {
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
             RelativeSizeAxes = Axes.Both
         });
 
+        AddInternal(bottomDrawableTabFlow = new FillFlowContainer<DrawableTab>
+        {
+            Anchor = Anchor.BottomCentre,
+            Origin = Anchor.BottomCentre,
+            RelativeSizeAxes = Axes.Both
+        });
+
         TABS.ForEach(tabInstance =>
         {
-            drawableTabFlow.Add(new DrawableTab
+            if (tabInstance.Value.PlaceBottom)
             {
-                Tab = tabInstance.Key,
-                Icon = tabInstance.Value.Icon
-            });
+                bottomDrawableTabFlow.Add(new DrawableTab
+                {
+                    Anchor = Anchor.BottomCentre,
+                    Origin = Anchor.BottomCentre,
+                    Tab = tabInstance.Key,
+                    Icon = tabInstance.Value.Icon
+                });
+            }
+            else
+            {
+                topDrawableTabFlow.Add(new DrawableTab
+                {
+                    Anchor = Anchor.TopCentre,
+                    Origin = Anchor.TopCentre,
+                    Tab = tabInstance.Key,
+                    Icon = tabInstance.Value.Icon
+                });
+            }
         });
     }
 }
 
-public record TabDefinition(IconUsage Icon, Type InstanceType);
+public record TabDefinition(IconUsage Icon, Type InstanceType, bool PlaceBottom);
