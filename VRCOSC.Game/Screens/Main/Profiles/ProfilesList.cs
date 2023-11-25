@@ -67,7 +67,7 @@ public partial class ProfilesList : Container
                             {
                                 Anchor = Anchor.CentreLeft,
                                 Origin = Anchor.CentreLeft,
-                                Font = Fonts.REGULAR.With(size: 28),
+                                Font = Fonts.BOLD.With(size: 28),
                                 Text = "Profiles"
                             }
                         }
@@ -195,7 +195,7 @@ public partial class ProfileListInstance : Container
                 {
                     nameText = new SpriteText
                     {
-                        Font = Fonts.BOLD.With(size: 25)
+                        Font = Fonts.REGULAR.With(size: 25)
                     }
                 }
             },

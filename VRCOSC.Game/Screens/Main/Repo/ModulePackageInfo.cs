@@ -117,23 +117,18 @@ public partial class ModulePackageInfo : VisibilityContainer
                                     RelativeSizeAxes = Axes.Both,
                                     Children = new Drawable[]
                                     {
-                                        new Container
+                                        new IconButton
                                         {
-                                            Anchor = Anchor.TopLeft,
-                                            Origin = Anchor.TopLeft,
-                                            Size = new Vector2(40),
-                                            Child = new IconButton
-                                            {
-                                                Anchor = Anchor.Centre,
-                                                Origin = Anchor.Centre,
-                                                Size = new Vector2(36),
-                                                CornerRadius = 5,
-                                                Icon = FontAwesome.Solid.Undo,
-                                                IconSize = 24,
-                                                IconColour = Colours.WHITE0,
-                                                BackgroundColour = Colours.RED0,
-                                                Action = () => CurrentPackageSource.Value = null
-                                            }
+                                            Anchor = Anchor.TopRight,
+                                            Origin = Anchor.TopRight,
+                                            Size = new Vector2(36),
+                                            Position = new Vector2(-5, 5),
+                                            CornerRadius = 5,
+                                            Icon = Icons.Exit,
+                                            IconSize = 24,
+                                            IconColour = Colours.WHITE0,
+                                            BackgroundColour = Colours.RED0,
+                                            Action = () => CurrentPackageSource.Value = null
                                         },
                                         new FillFlowContainer
                                         {

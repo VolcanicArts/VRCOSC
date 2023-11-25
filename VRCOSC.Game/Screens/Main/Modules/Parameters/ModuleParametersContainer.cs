@@ -5,7 +5,6 @@ using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
-using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
 using osuTK;
 using VRCOSC.Game.Graphics;
@@ -67,7 +66,7 @@ public partial class ModuleParametersContainer : VisibilityContainer
                             Origin = Anchor.TopRight,
                             Size = new Vector2(36),
                             CornerRadius = 5,
-                            Icon = FontAwesome.Solid.Undo,
+                            Icon = Icons.Exit,
                             IconSize = 24,
                             IconColour = Colours.WHITE0,
                             BackgroundColour = Colours.RED0,

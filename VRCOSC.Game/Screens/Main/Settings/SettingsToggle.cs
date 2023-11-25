@@ -10,15 +10,15 @@ using osu.Framework.Graphics.Sprites;
 using VRCOSC.Game.Graphics;
 using VRCOSC.Game.Graphics.UI;
 
-namespace VRCOSC.Game.Screens.Main.Profiles;
+namespace VRCOSC.Game.Screens.Main.Settings;
 
-public partial class ProfilesToggle : Container
+public partial class SettingsToggle : Container
 {
     private readonly Bindable<bool> bindable;
     private readonly string title;
-    private readonly string description;
+    private readonly string? description;
 
-    public ProfilesToggle(Bindable<bool> bindable, string title, string description)
+    public SettingsToggle(Bindable<bool> bindable, string title, string? description = null)
     {
         this.bindable = bindable;
         this.title = title;
@@ -32,6 +32,7 @@ public partial class ProfilesToggle : Container
         Origin = Anchor.TopCentre;
         RelativeSizeAxes = Axes.X;
         AutoSizeAxes = Axes.Y;
+        Width = 0.75f;
         Masking = true;
         CornerRadius = 5;
 
@@ -53,21 +54,22 @@ public partial class ProfilesToggle : Container
                 {
                     new SpriteText
                     {
-                        Anchor = Anchor.TopLeft,
-                        Origin = Anchor.TopLeft,
+                        Anchor = description is null ? Anchor.CentreLeft : Anchor.TopLeft,
+                        Origin = description is null ? Anchor.CentreLeft : Anchor.TopLeft,
                         Text = title,
                         Font = Fonts.BOLD.With(size: 28),
                         Colour = Colours.WHITE0,
-                        Y = -5
+                        Y = description is null ? 0 : -5
                     },
                     new SpriteText
                     {
                         Anchor = Anchor.BottomLeft,
                         Origin = Anchor.BottomLeft,
-                        Text = description,
+                        Text = description ?? "INVALID",
                         Font = Fonts.REGULAR.With(size: 22),
                         Colour = Colours.WHITE2,
-                        Y = 2
+                        Y = 2,
+                        Alpha = description is null ? 0 : 1
                     }
                 }
             },

@@ -48,7 +48,7 @@ public partial class DefaultDropdownContainer : Container
                         Anchor = Anchor.CentreLeft,
                         Origin = Anchor.CentreLeft,
                         Text = "Default Profile",
-                        Font = Fonts.REGULAR.With(size: 30),
+                        Font = Fonts.BOLD.With(size: 30),
                         Colour = Colours.WHITE0
                     },
                     new ProfileDropdown

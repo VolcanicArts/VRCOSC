@@ -14,8 +14,6 @@ public partial class RunTab : Container
     [BackgroundDependencyLoader]
     private void load()
     {
-        Anchor = Anchor.Centre;
-        Origin = Anchor.Centre;
         RelativeSizeAxes = Axes.Both;
 
         Children = new Drawable[]

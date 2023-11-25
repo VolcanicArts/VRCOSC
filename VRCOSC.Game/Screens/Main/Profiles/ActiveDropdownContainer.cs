@@ -57,7 +57,7 @@ public partial class ActiveDropdownContainer : Container
                         Anchor = Anchor.CentreLeft,
                         Origin = Anchor.CentreLeft,
                         Text = "Current Profile",
-                        Font = Fonts.REGULAR.With(size: 30),
+                        Font = Fonts.BOLD.With(size: 30),
                         Colour = Colours.WHITE0
                     },
                     new ProfileDropdown

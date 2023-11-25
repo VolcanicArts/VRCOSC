@@ -15,6 +15,7 @@ using VRCOSC.Game.Screens.Main.Modules;
 using VRCOSC.Game.Screens.Main.Profiles;
 using VRCOSC.Game.Screens.Main.Repo;
 using VRCOSC.Game.Screens.Main.Run;
+using VRCOSC.Game.Screens.Main.Settings;
 
 namespace VRCOSC.Game.Screens.Main.Tabs;
 
@@ -26,7 +27,8 @@ public partial class TabBar : Container
         { Tab.Repo, new TabDefinition(FontAwesome.Solid.Download, typeof(RepoTab)) },
         { Tab.Modules, new TabDefinition(FontAwesome.Solid.List, typeof(ModulesTab)) },
         { Tab.Run, new TabDefinition(FontAwesome.Solid.Play, typeof(RunTab)) },
-        { Tab.Profiles, new TabDefinition(FontAwesome.Solid.User, typeof(ProfilesTab)) }
+        { Tab.Profiles, new TabDefinition(FontAwesome.Solid.User, typeof(ProfilesTab)) },
+        { Tab.Settings, new TabDefinition(FontAwesome.Solid.Cog, typeof(SettingsTab)) }
     };
 
     [BackgroundDependencyLoader]
