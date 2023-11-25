@@ -29,7 +29,9 @@ public class AppManager
     public VRChatClient VRChatClient { get; private set; } = null!;
 
     private VRCOSCGame game = null!;
-    private Scheduler scheduler = null!;
+    private VRCOSCConfigManager configManager = null!;
+    private Scheduler localScheduler = null!;
+    private Scheduler oscQueueScheduler = null!;
 
     private readonly Queue<VRChatOscMessage> oscMessageQueue = new();
 
@@ -38,22 +40,38 @@ public class AppManager
     public void Initialise(VRCOSCGame game, GameHost host, Storage storage, IClock clock, VRCOSCConfigManager configManager)
     {
         this.game = game;
-        scheduler = new Scheduler(() => ThreadSafety.IsUpdateThread, clock);
+        this.configManager = configManager;
+        localScheduler = new Scheduler(() => ThreadSafety.IsUpdateThread, clock);
+        oscQueueScheduler = new Scheduler(() => ThreadSafety.IsUpdateThread, clock);
 
         ProfileManager = new ProfileManager(this, storage, configManager);
         ModuleManager = new ModuleManager(host, storage, clock, this, configManager);
         PackageManager = new PackageManager(storage);
         VRChatOscClient = new VRChatOscClient();
         VRChatClient = new VRChatClient(VRChatOscClient);
+
+        localScheduler.AddDelayed(checkForVRChat, 5000, true);
     }
 
     public void FrameworkUpdate()
     {
+        localScheduler.Update();
+
         if (State.Value != AppManagerState.Started) return;
 
-        scheduler.Update();
+        oscQueueScheduler.Update();
         processOscMessageQueue();
         ModuleManager.FrameworkUpdate();
+    }
+
+    private void checkForVRChat()
+    {
+        var newOpenState = VRChatClient.HasOpenStateChanged();
+
+        if (!configManager.Get<bool>(VRCOSCSetting.AutoStartStop) || !newOpenState) return;
+
+        if (VRChatClient.ClientOpen && State.Value == AppManagerState.Stopped) Start();
+        if (!VRChatClient.ClientOpen && State.Value == AppManagerState.Started) Stop();
     }
 
     #region Profiles
@@ -133,7 +151,7 @@ public class AppManager
 
     private void onParameterReceived(VRChatOscMessage message)
     {
-        scheduler.Add(() => oscMessageQueue.Enqueue(message));
+        oscQueueScheduler.Add(() => oscMessageQueue.Enqueue(message));
     }
 
     private bool initialiseOSCClient()
@@ -181,6 +199,7 @@ public class AppManager
         await VRChatOscClient.DisableReceive();
         VRChatOscClient.OnParameterReceived -= onParameterReceived;
         await ModuleManager.StopAsync();
+        VRChatClient.Teardown();
         VRChatOscClient.DisableSend();
         oscMessageQueue.Clear();
 

@@ -39,7 +39,8 @@ public partial class SettingsTab : Container
                 Spacing = new Vector2(0, 10),
                 Children = new Drawable[]
                 {
-                    new SettingsToggle(configManager.GetBindable<bool>(VRCOSCSetting.ModuleLogDebug), "Debug Mode", "Debug mode allows modules to log detailed events for more granularity, but it can produce a big log file")
+                    new SettingsToggle(configManager.GetBindable<bool>(VRCOSCSetting.ModuleLogDebug), "Debug Mode", "Debug mode allows modules to log detailed events for more granularity, but it can produce a big log file"),
+                    new SettingsToggle(configManager.GetBindable<bool>(VRCOSCSetting.AutoStartStop), "Auto Start/Stop", "Allows VRCOSC to start/stop modules when VRChat opens/closes")
                 }
             }
         };
