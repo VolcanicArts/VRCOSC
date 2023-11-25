@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using Microsoft.Win32;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -48,7 +49,7 @@ public partial class HomeTab : Container
                     {
                         Anchor = Anchor.CentreLeft,
                         Origin = Anchor.CentreLeft,
-                        Text = $"Welcome {Environment.UserName}!",
+                        Text = $"Welcome {getUserName()}!",
                         Font = FrameworkFont.Regular.With(size: 60, weight: "Bold"),
                         Colour = Colours.WHITE2
                     },
@@ -73,5 +74,21 @@ public partial class HomeTab : Container
                 }
             }
         };
+    }
+
+    private static string getUserName()
+    {
+        try
+        {
+            using var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Office\Common\UserInfo");
+            if (key is null) return Environment.UserName;
+
+            var userNameValue = key.GetValue("UserName");
+            return userNameValue is not null ? userNameValue.ToString()! : Environment.UserName;
+        }
+        catch (Exception)
+        {
+            return Environment.UserName;
+        }
     }
 }
