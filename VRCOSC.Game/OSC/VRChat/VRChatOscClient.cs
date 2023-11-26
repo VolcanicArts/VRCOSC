@@ -9,7 +9,6 @@ using Newtonsoft.Json;
 using osu.Framework.Logging;
 using VRCOSC.Game.OSC.Client;
 using VRCOSC.Game.OSC.Query;
-using Zeroconf;
 
 namespace VRCOSC.Game.OSC.VRChat;
 
@@ -19,7 +18,8 @@ public class VRChatOscClient : OscClient
     public Action<VRChatOscMessage>? OnParameterReceived;
 
     private readonly HttpClient client = new();
-    public int? QueryPort { get; private set; }
+
+    private ConnectionManager connectionManager = null!;
 
     public VRChatOscClient()
     {
@@ -34,46 +34,18 @@ public class VRChatOscClient : OscClient
         };
     }
 
-    public async Task CheckForVRChatOSCQuery()
+    public void Init(ConnectionManager connectionManager)
     {
-        if (QueryPort is not null) return;
-
-        var hosts = await ZeroconfResolver.ResolveAsync("_oscjson._tcp.local.");
-
-        if (hosts.Count == 0)
-        {
-            Logger.Log("No OscJson host found");
-            QueryPort = null;
-            return;
-        }
-
-        var host = hosts[0];
-
-        if (!host.Services.Any(s => s.Value.ServiceName.Contains("VRChat-Client")))
-        {
-            Logger.Log("No VRChat-Client found");
-            QueryPort = null;
-            return;
-        }
-
-        var service = host.Services.Single(s => s.Value.ServiceName.Contains("VRChat-Client"));
-
-        QueryPort = service.Value.Port;
-        Logger.Log($"Successfully found OscJson port: {QueryPort}");
-    }
-
-    public void Reset()
-    {
-        QueryPort = null;
+        this.connectionManager = connectionManager;
     }
 
     private async Task<OSCQueryNode?> findParameter(string parameterName)
     {
         try
         {
-            if (QueryPort is null) return null;
+            if (connectionManager.QueryPort is null) return null;
 
-            var url = $"http://127.0.0.1:{QueryPort}/avatar/parameters/{parameterName}";
+            var url = $"http://127.0.0.1:{connectionManager.QueryPort}/avatar/parameters/{parameterName}";
 
             var response = await client.GetAsync(new Uri(url));
             var content = await response.Content.ReadAsStringAsync();

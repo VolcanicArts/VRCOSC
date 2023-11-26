@@ -13,6 +13,7 @@ using osu.Framework.Threading;
 using osu.Framework.Timing;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Modules;
+using VRCOSC.Game.OSC;
 using VRCOSC.Game.OSC.VRChat;
 using VRCOSC.Game.Packages;
 using VRCOSC.Game.Profiles;
@@ -27,6 +28,7 @@ public class AppManager
     public PackageManager PackageManager { get; private set; } = null!;
     public VRChatOscClient VRChatOscClient { get; private set; } = null!;
     public VRChatClient VRChatClient { get; private set; } = null!;
+    public ConnectionManager ConnectionManager { get; private set; } = null!;
 
     private VRCOSCGame game = null!;
     private VRCOSCConfigManager configManager = null!;
@@ -49,12 +51,17 @@ public class AppManager
         PackageManager = new PackageManager(storage);
         VRChatOscClient = new VRChatOscClient();
         VRChatClient = new VRChatClient(VRChatOscClient);
+        ConnectionManager = new ConnectionManager(clock);
+
+        VRChatOscClient.Init(ConnectionManager);
+        ConnectionManager.Init();
 
         localScheduler.AddDelayed(checkForVRChat, 5000, true);
     }
 
     public void FrameworkUpdate()
     {
+        ConnectionManager.FrameworkUpdate();
         localScheduler.Update();
 
         if (State.Value != AppManagerState.Started) return;
@@ -158,8 +165,10 @@ public class AppManager
     {
         try
         {
-            var sendEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 9000);
-            var receiveEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 9001);
+            if (!ConnectionManager.IsConnected) return false;
+
+            var sendEndpoint = new IPEndPoint(IPAddress.Loopback, ConnectionManager.SendPort!.Value);
+            var receiveEndpoint = new IPEndPoint(IPAddress.Loopback, ConnectionManager.ReceivePort);
 
             VRChatOscClient.Initialise(sendEndpoint, receiveEndpoint);
             return true;
