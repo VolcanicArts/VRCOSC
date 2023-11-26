@@ -121,7 +121,7 @@ public class PackageSource
             if (Repository is null || forceRemoteGrab)
             {
                 Repository = null;
-                Repository = new PackageRepository(await PackageManager.GITHUB_CLIENT.Repository.Get(RepoOwner, RepoName));
+                Repository = new PackageRepository(await GitHubProxy.Client.Repository.Get(RepoOwner, RepoName));
             }
 
             if (Repository is null)
@@ -148,9 +148,9 @@ public class PackageSource
             if (LatestRelease is null || forceRemoteGrab)
             {
                 LatestRelease = null;
-                LatestRelease = new PackageLatestRelease(await PackageManager.GITHUB_CLIENT.Repository.Release.GetLatest(RepoOwner, RepoName));
+                LatestRelease = new PackageLatestRelease(await GitHubProxy.Client.Repository.Release.GetLatest(RepoOwner, RepoName));
 
-                var releases = await PackageManager.GITHUB_CLIENT.Repository.Release.GetAll(RepoOwner, RepoName);
+                var releases = await GitHubProxy.Client.Repository.Release.GetAll(RepoOwner, RepoName);
 
                 PackageLatestRelease? localLatestRelease = null;
 

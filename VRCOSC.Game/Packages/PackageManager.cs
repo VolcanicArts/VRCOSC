@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Octokit;
-using Octokit.Internal;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.IO.Network;
 using osu.Framework.Logging;
@@ -19,9 +18,6 @@ namespace VRCOSC.Game.Packages;
 
 public class PackageManager
 {
-    private const string github_token = "";
-    public static readonly GitHubClient GITHUB_CLIENT = new(new ProductHeaderValue("VRCOSC"), new InMemoryCredentialStore(new Credentials(github_token)));
-
     private const string community_tag = "vrcosc-package";
     private readonly Storage storage;
     private readonly SerialisationManager serialisationManager;
@@ -121,7 +117,7 @@ public class PackageManager
 
         Logger.Log("Attempting to load community repos");
 
-        var repos = await GITHUB_CLIENT.Search.SearchRepo(new SearchRepositoriesRequest
+        var repos = await GitHubProxy.Client.Search.SearchRepo(new SearchRepositoriesRequest
         {
             Topic = community_tag
         });
