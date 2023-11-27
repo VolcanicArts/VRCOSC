@@ -21,32 +21,42 @@ public sealed class HardwareStatsProvider
 
     public bool CanAcceptQueries { get; private set; }
 
+    public Action<string>? Log;
+
     private readonly List<HardwareComponent> components = new();
 
     public CPU? GetCPU(int id) => components.Where(component => component.GetType().IsSubclassOf(typeof(CPU))).Select(component => (CPU)component).SingleOrDefault(cpu => cpu.Id == id);
     public GPU? GetGPU(int id) => components.Where(component => component.GetType() == typeof(GPU)).Select(component => (GPU)component).SingleOrDefault(gpu => gpu.Id == id);
     public RAM? GetRam() => components.Where(component => component.GetType() == typeof(RAM)).Select(component => (RAM)component).SingleOrDefault();
 
-    public void Init()
+    public void Init() => Task.Run(() =>
     {
+        Log?.Invoke("Starting computer hook");
         computer.Open();
         CanAcceptQueries = true;
-    }
+    });
 
-    public void Shutdown()
+    public void Shutdown() => Task.Run(() =>
     {
+        Log?.Invoke("Stopping computer hook");
         CanAcceptQueries = false;
         components.Clear();
         computer.Close();
-    }
+    });
 
     public async Task Update() => await Task.Run(() =>
     {
+        Log?.Invoke("Updating hardware");
         computer.Hardware.ForEach(hardware =>
         {
+            Log?.Invoke($"Updating hardware {hardware.Identifier}");
             updateHardware(hardware);
             auditHardware(hardware);
-            hardware.Sensors.ForEach(sensor => components.ForEach(component => component.Update(sensor)));
+            hardware.Sensors.ForEach(sensor =>
+            {
+                Log?.Invoke($"Updating sensor {sensor.Identifier}");
+                components.ForEach(component => component.Update(sensor));
+            });
         });
     });
 
@@ -58,7 +68,9 @@ public sealed class HardwareStatsProvider
 
     private void auditHardware(IHardware hardware)
     {
-        var address = hardware.Identifier.ToString();
+        Log?.Invoke($"Auditing {hardware.Identifier}");
+
+        var address = hardware.Identifier.ToString()!;
         var index = 0;
 
         try
@@ -69,6 +81,8 @@ public sealed class HardwareStatsProvider
         {
         }
 
+        Log?.Invoke($"Found index {index}");
+
         if (address.Contains("cpu", StringComparison.InvariantCultureIgnoreCase))
         {
             var cpu = GetCPU(index);
@@ -77,11 +91,13 @@ public sealed class HardwareStatsProvider
             {
                 if (address.Contains("intel", StringComparison.InvariantCultureIgnoreCase))
                 {
+                    Log?.Invoke("Adding Intel CPU");
                     components.Add(new IntelCPU(index));
                 }
 
                 if (address.Contains("amd", StringComparison.InvariantCultureIgnoreCase))
                 {
+                    Log?.Invoke("Adding AMD CPU");
                     components.Add(new AMDCPU(index));
                 }
             }
@@ -93,6 +109,7 @@ public sealed class HardwareStatsProvider
 
             if (gpu is null)
             {
+                Log?.Invoke("Adding GPU");
                 components.Add(new GPU(index));
             }
         }
@@ -103,6 +120,7 @@ public sealed class HardwareStatsProvider
 
             if (ram is null)
             {
+                Log?.Invoke("Adding RAM");
                 components.Add(new RAM());
             }
         }
