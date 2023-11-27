@@ -72,14 +72,14 @@ public class PackageSource
         PackageFile = packageFile;
     }
 
-    public async Task Refresh(bool forceRemoteGrab)
+    public async Task Refresh(bool forceRemoteGrab, bool allowPreRelease)
     {
         Logger.Log($"Checking {InternalReference}");
 
         State = PackageSourceState.Unknown;
 
         await loadRepository(forceRemoteGrab);
-        await loadLatestRelease(forceRemoteGrab);
+        await loadLatestRelease(forceRemoteGrab, allowPreRelease);
         await loadPackageFile(forceRemoteGrab);
         checkSDKCompatibility();
 
@@ -135,9 +135,7 @@ public class PackageSource
         }
     }
 
-    private const bool allow_prelease = true;
-
-    private async Task loadLatestRelease(bool forceRemoteGrab)
+    private async Task loadLatestRelease(bool forceRemoteGrab, bool allowPreRelease)
     {
         if (State is PackageSourceState.MissingRepo) return;
 
@@ -154,10 +152,10 @@ public class PackageSource
 
                 PackageLatestRelease? localLatestRelease = null;
 
-                if (allow_prelease)
+                if (allowPreRelease)
                 {
-                    var latestPrerelease = releases.Where(release => release.Prerelease).MaxBy(release => release.CreatedAt);
-                    if (latestPrerelease is not null) localLatestRelease = new PackageLatestRelease(latestPrerelease);
+                    var latestPreRelease = releases.Where(release => release.Prerelease).MaxBy(release => release.CreatedAt);
+                    if (latestPreRelease is not null) localLatestRelease = new PackageLatestRelease(latestPreRelease);
                 }
 
                 if (localLatestRelease is null)

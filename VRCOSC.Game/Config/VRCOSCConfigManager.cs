@@ -24,6 +24,7 @@ public class VRCOSCConfigManager : IniConfigManager<VRCOSCSetting>
         SetDefault(VRCOSCSetting.AutomaticProfileSwitching, false);
         SetDefault(VRCOSCSetting.ModuleLogDebug, false);
         SetDefault(VRCOSCSetting.AutoStartStop, false);
+        SetDefault(VRCOSCSetting.AllowPreReleasePackages, true); // TODO: False on release
     }
 }
 
@@ -34,5 +35,6 @@ public enum VRCOSCSetting
     PackageFilter,
     AutomaticProfileSwitching,
     ModuleLogDebug,
-    AutoStartStop
+    AutoStartStop,
+    AllowPreReleasePackages
 }

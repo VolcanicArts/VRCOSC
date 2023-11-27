@@ -10,6 +10,7 @@ using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.IO.Network;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
+using VRCOSC.Game.Config;
 using VRCOSC.Game.Packages.Serialisation;
 using VRCOSC.Game.Screens.Loading;
 using VRCOSC.Game.Serialisation;
@@ -19,6 +20,7 @@ namespace VRCOSC.Game.Packages;
 public class PackageManager
 {
     private const string community_tag = "vrcosc-package";
+    private readonly VRCOSCConfigManager configManager;
     private readonly Storage storage;
     private readonly SerialisationManager serialisationManager;
 
@@ -31,8 +33,9 @@ public class PackageManager
 
     public DateTime CacheExpireTime = DateTime.UnixEpoch;
 
-    public PackageManager(Storage baseStorage)
+    public PackageManager(Storage baseStorage, VRCOSCConfigManager configManager)
     {
+        this.configManager = configManager;
         storage = baseStorage.GetStorageForDirectory("packages/remote");
 
         builtinSources.Add(new PackageSource(this, "VolcanicArts", "VRCOSC-Modules", PackageType.Official));
@@ -66,7 +69,7 @@ public class PackageManager
         foreach (var packageSource in Sources)
         {
             Progress?.Invoke(new LoadingInfo($"Refreshing {packageSource.GetDisplayName()}", count, false));
-            await packageSource.Refresh(forceRemoteGrab);
+            await packageSource.Refresh(forceRemoteGrab | IsInstalled(packageSource), configManager.Get<bool>(VRCOSCSetting.AllowPreReleasePackages));
             count += divisor;
         }
 
