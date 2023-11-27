@@ -134,6 +134,16 @@ public partial class ParameterList : Container
         {
             scrollContainer.AutoSizeAxes = Axes.Y;
         }
+
+        var depth = 0f;
+
+        foreach (var sortedDrawableParameter in listingCache.Values)
+        {
+            listingFlow.ChangeChildDepth(sortedDrawableParameter, depth);
+            listingFlow.SetLayoutPosition(sortedDrawableParameter, depth);
+            sortedDrawableParameter.Even.Value = depth % 2f != 0f;
+            depth++;
+        }
     }
 
     public void UpdateParameterValue(VRChatOscMessage message)
@@ -147,16 +157,6 @@ public partial class ParameterList : Container
             var newDrawableParameter = new DrawableParameter(message.Address, message.ParameterValue);
             listingCache.Add(message.Address, newDrawableParameter);
             listingFlow.Add(newDrawableParameter);
-
-            var depth = 0f;
-
-            foreach (var sortedDrawableParameter in listingCache.Values)
-            {
-                listingFlow.ChangeChildDepth(sortedDrawableParameter, depth);
-                listingFlow.SetLayoutPosition(sortedDrawableParameter, depth);
-                sortedDrawableParameter.Even.Value = depth % 2f != 0f;
-                depth++;
-            }
         }
     }
 }
