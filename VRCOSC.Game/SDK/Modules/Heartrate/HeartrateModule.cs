@@ -52,7 +52,7 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
         GetSetting(HeartrateSetting.SmoothingLength)!.IsEnabled = () => GetSettingValue<bool>(HeartrateSetting.Smoothing);
     }
 
-    protected override Task<bool> OnModuleStart()
+    protected override async Task<bool> OnModuleStart()
     {
         currentHeartrate = 0;
         targetHeartrate = 0;
@@ -66,9 +66,9 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
         };
         HeartrateProvider.OnDisconnected += attemptReconnection;
         HeartrateProvider.OnLog += Log;
-        HeartrateProvider.Initialise();
+        await HeartrateProvider.Initialise();
 
-        return Task.FromResult(true);
+        return true;
     }
 
     private async void attemptReconnection()
