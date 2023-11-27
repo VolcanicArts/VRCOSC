@@ -223,6 +223,7 @@ public class ModuleManager
     private AssemblyLoadContext loadContextFromPath(string path)
     {
         var assemblyLoadContext = new AssemblyLoadContext(null, true);
+
         assemblyLoadContext.Resolving += (_, name) =>
         {
             Logger.Log($"Could not load assembly {name.Name} - {name.Version}");
@@ -231,19 +232,38 @@ public class ModuleManager
             foundAssemblies.ForEach(assembly => Logger.Log($"Candidate: {assembly.GetName().Name} - {assembly.GetName().Version}"));
 
             var fallbackAssembly = foundAssemblies.FirstOrDefault();
-            Logger.Log(fallbackAssembly is null ? "No suitable fallback found" : $"Falling back to {fallbackAssembly.GetName().Name} - {fallbackAssembly.GetName().Version}");
 
-            return fallbackAssembly;
+            if (fallbackAssembly is null)
+            {
+                Logger.Log("No suitable fallback found");
+                return null;
+            }
+
+            Logger.Log($"Falling back to {fallbackAssembly.GetName().Name} - {fallbackAssembly.GetName().Version}");
+            return assemblyLoadContext.LoadFromStream(new MemoryStream(File.ReadAllBytes(fallbackAssembly.Location)));
         };
+
         Directory.GetFiles(path, "*.dll").ForEach(dllPath => loadAssemblyFromPath(assemblyLoadContext, dllPath));
         return assemblyLoadContext;
     }
 
-    private void loadAssemblyFromPath(AssemblyLoadContext context, string path)
+    private static void loadAssemblyFromPath(AssemblyLoadContext context, string path)
     {
         try
         {
             using var assemblyStream = new FileStream(path, FileMode.Open);
+            loadAssemblyFromStream(context, assemblyStream);
+        }
+        catch (Exception e)
+        {
+            Logger.Error(e, "ModuleManager experienced an exception");
+        }
+    }
+
+    private static void loadAssemblyFromStream(AssemblyLoadContext context, Stream assemblyStream)
+    {
+        try
+        {
             context.LoadFromStream(assemblyStream);
         }
         catch (Exception e)
