@@ -6,12 +6,12 @@
     <ApplicationIcon>game.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <Version>0.0.0</Version>
-    <FileVersion>2023.1127.0</FileVersion>
+    <FileVersion>2023.1127.1</FileVersion>
     <Title>VRCOSC</Title>
     <Authors>VolcanicArts</Authors>
     <Company>VolcanicArts</Company>
     <Nullable>enable</Nullable>
-    <AssemblyVersion>2023.1127.0</AssemblyVersion>
+    <AssemblyVersion>2023.1127.1</AssemblyVersion>
   </PropertyGroup>
   <ItemGroup Label="Project References">
     <ProjectReference Include="..\VRCOSC.Game\VRCOSC.Game.csproj" />
