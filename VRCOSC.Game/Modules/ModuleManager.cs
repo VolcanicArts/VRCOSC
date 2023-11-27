@@ -51,13 +51,12 @@ public class ModuleManager
 
     public async Task StartAsync()
     {
-        var enabledModules = modules.Where(module => module.Enabled.Value).ToList();
-        foreach (var module in enabledModules) await module.Start();
+        await Task.WhenAll(modules.Where(module => module.Enabled.Value).Select(module => module.Start()));
     }
 
     public async Task StopAsync()
     {
-        foreach (var module in runningModules) await module.Stop();
+        await Task.WhenAll(runningModules.Select(module => module.Stop()));
     }
 
     public void FrameworkUpdate()

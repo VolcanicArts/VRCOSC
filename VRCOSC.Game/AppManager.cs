@@ -48,7 +48,7 @@ public class AppManager
 
         ProfileManager = new ProfileManager(this, storage, configManager);
         ModuleManager = new ModuleManager(host, storage, clock, this, configManager);
-        PackageManager = new PackageManager(storage);
+        PackageManager = new PackageManager(storage, configManager);
         VRChatOscClient = new VRChatOscClient();
         VRChatClient = new VRChatClient(VRChatOscClient);
         ConnectionManager = new ConnectionManager(clock);
