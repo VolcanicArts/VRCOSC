@@ -165,10 +165,10 @@ public class AppManager
     {
         try
         {
-            if (!ConnectionManager.IsConnected) return false;
+            if (VRChatClient.IsClientOpen() && !ConnectionManager.IsConnected) return false;
 
-            var sendEndpoint = new IPEndPoint(IPAddress.Loopback, ConnectionManager.SendPort!.Value);
-            var receiveEndpoint = new IPEndPoint(IPAddress.Loopback, ConnectionManager.ReceivePort);
+            var sendEndpoint = new IPEndPoint(IPAddress.Loopback, VRChatClient.ClientOpen ? ConnectionManager.SendPort!.Value : 9000);
+            var receiveEndpoint = new IPEndPoint(IPAddress.Loopback, VRChatClient.ClientOpen ? ConnectionManager.ReceivePort : 9001);
 
             VRChatOscClient.Initialise(sendEndpoint, receiveEndpoint);
             return true;

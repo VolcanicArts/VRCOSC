@@ -22,7 +22,7 @@ public class VRChatClient
         Player.ResetAll();
     }
 
-    public bool IsClientOpen() => Process.GetProcessesByName("vrchat").Any();
+    public bool IsClientOpen() => ClientOpen = Process.GetProcessesByName("vrchat").Any();
 
     public bool HasOpenStateChanged()
     {
