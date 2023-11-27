@@ -69,7 +69,7 @@ public class PackageManager
         foreach (var packageSource in Sources)
         {
             Progress?.Invoke(new LoadingInfo($"Refreshing {packageSource.GetDisplayName()}", count, false));
-            await packageSource.Refresh(forceRemoteGrab | IsInstalled(packageSource), configManager.Get<bool>(VRCOSCSetting.AllowPreReleasePackages));
+            await packageSource.Refresh(forceRemoteGrab, configManager.Get<bool>(VRCOSCSetting.AllowPreReleasePackages));
             count += divisor;
         }
 
