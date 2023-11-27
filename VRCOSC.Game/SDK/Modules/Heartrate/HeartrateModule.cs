@@ -59,16 +59,19 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
         connectionCount = 1;
 
         HeartrateProvider = CreateProvider();
-        HeartrateProvider.OnHeartrateUpdate += newHeartrate => targetHeartrate = newHeartrate;
-        HeartrateProvider.OnConnected += () => connectionCount = 0;
-        HeartrateProvider.OnDisconnected += async () => await attemptReconnection();
+        HeartrateProvider.OnHeartrateUpdate += newHeartrate =>
+        {
+            connectionCount = 0;
+            targetHeartrate = newHeartrate;
+        };
+        HeartrateProvider.OnDisconnected += attemptReconnection;
         HeartrateProvider.OnLog += Log;
         HeartrateProvider.Initialise();
 
         return Task.FromResult(true);
     }
 
-    private async Task attemptReconnection()
+    private async void attemptReconnection()
     {
         Debug.Assert(HeartrateProvider is not null);
 
