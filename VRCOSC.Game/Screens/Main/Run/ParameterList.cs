@@ -123,19 +123,6 @@ public partial class ParameterList : Container
         }
     }
 
-    protected override void Update()
-    {
-        var depth = 0f;
-
-        foreach (var sortedDrawableParameter in listingCache.Values)
-        {
-            listingFlow.ChangeChildDepth(sortedDrawableParameter, depth);
-            listingFlow.SetLayoutPosition(sortedDrawableParameter, depth);
-            sortedDrawableParameter.UpdateEven(depth % 2f != 0f);
-            depth++;
-        }
-    }
-
     protected override void UpdateAfterChildren()
     {
         if (flowWrapper.DrawHeight >= DrawHeight)
@@ -160,6 +147,16 @@ public partial class ParameterList : Container
             var newDrawableParameter = new DrawableParameter(message.Address, message.ParameterValue);
             listingCache.Add(message.Address, newDrawableParameter);
             listingFlow.Add(newDrawableParameter);
+
+            var depth = 0f;
+
+            foreach (var sortedDrawableParameter in listingCache.Values)
+            {
+                listingFlow.ChangeChildDepth(sortedDrawableParameter, depth);
+                listingFlow.SetLayoutPosition(sortedDrawableParameter, depth);
+                sortedDrawableParameter.UpdateEven(depth % 2f != 0f);
+                depth++;
+            }
         }
     }
 }
