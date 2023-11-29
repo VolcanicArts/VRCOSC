@@ -35,6 +35,8 @@ public class AppManager
     private Scheduler localScheduler = null!;
     private Scheduler oscQueueScheduler = null!;
 
+    private bool oscInitialised;
+
     private readonly Queue<VRChatOscMessage> oscMessageQueue = new();
 
     public readonly Bindable<AppManagerState> State = new(AppManagerState.Stopped);
@@ -57,6 +59,7 @@ public class AppManager
         ConnectionManager.Init();
 
         localScheduler.AddDelayed(checkForVRChat, 5000, true);
+        localScheduler.AddDelayed(initialiseOSC, 500, true);
     }
 
     public void FrameworkUpdate()
@@ -145,15 +148,24 @@ public class AppManager
     {
         if (State.Value is AppManagerState.Starting or AppManagerState.Started) return;
 
-        if (!initialiseOSCClient()) return;
-        if (!VRChatOscClient.EnableSend() || !VRChatOscClient.EnableReceive()) return;
-
         State.Value = AppManagerState.Starting;
 
         await ModuleManager.StartAsync();
         VRChatOscClient.OnParameterReceived += onParameterReceived;
 
         State.Value = AppManagerState.Started;
+    }
+
+    private void initialiseOSC()
+    {
+        if (State.Value != AppManagerState.Started || oscInitialised) return;
+
+        oscInitialised = true;
+
+        if (!initialiseOSCClient()) return;
+
+        VRChatOscClient.EnableSend();
+        VRChatOscClient.EnableReceive();
     }
 
     private void onParameterReceived(VRChatOscMessage message)
@@ -165,10 +177,15 @@ public class AppManager
     {
         try
         {
-            if (VRChatClient.IsClientOpen() && !ConnectionManager.IsConnected) return false;
+            if (!configManager.Get<bool>(VRCOSCSetting.UseLegacyPorts) && !ConnectionManager.IsConnected) return false;
 
-            var sendEndpoint = new IPEndPoint(IPAddress.Loopback, VRChatClient.ClientOpen ? ConnectionManager.SendPort!.Value : 9000);
-            var receiveEndpoint = new IPEndPoint(IPAddress.Loopback, VRChatClient.ClientOpen ? ConnectionManager.ReceivePort : 9001);
+            var sendPort = configManager.Get<bool>(VRCOSCSetting.UseLegacyPorts) ? 9000 : ConnectionManager.SendPort!.Value;
+            var receivePort = configManager.Get<bool>(VRCOSCSetting.UseLegacyPorts) ? 9001 : ConnectionManager.ReceivePort;
+
+            Logger.Log($"Initialising OSC with send ({sendPort}) and receive ({receivePort}). UseLegacyPorts: {configManager.Get<bool>(VRCOSCSetting.UseLegacyPorts)}");
+
+            var sendEndpoint = new IPEndPoint(IPAddress.Loopback, sendPort);
+            var receiveEndpoint = new IPEndPoint(IPAddress.Loopback, receivePort);
 
             VRChatOscClient.Initialise(sendEndpoint, receiveEndpoint);
             return true;
@@ -211,6 +228,7 @@ public class AppManager
         VRChatClient.Teardown();
         VRChatOscClient.DisableSend();
         oscMessageQueue.Clear();
+        oscInitialised = false;
 
         State.Value = AppManagerState.Stopped;
     }

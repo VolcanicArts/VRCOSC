@@ -40,7 +40,8 @@ public partial class SettingsTab : Container
                 Children = new Drawable[]
                 {
                     new SettingsToggle(configManager.GetBindable<bool>(VRCOSCSetting.ModuleLogDebug), "Debug Mode", "Debug mode allows modules to log detailed events for more granularity, but it can produce a big log file"),
-                    new SettingsToggle(configManager.GetBindable<bool>(VRCOSCSetting.AutoStartStop), "Auto Start/Stop", "Allows VRCOSC to start/stop modules when VRChat opens/closes")
+                    new SettingsToggle(configManager.GetBindable<bool>(VRCOSCSetting.AutoStartStop), "Auto Start/Stop", "Allows VRCOSC to start/stop modules when VRChat opens/closes"),
+                    new SettingsToggle(configManager.GetBindable<bool>(VRCOSCSetting.UseLegacyPorts), "Use Legacy Ports", "Prefer the legacy 9000/9001 ports over using OSCQuery")
                 }
             }
         };
