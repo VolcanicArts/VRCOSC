@@ -4,13 +4,17 @@
 using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Newtonsoft.Json;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Platform;
 using PInvoke;
 using VRCOSC.Game.Config;
+using VRCOSC.Game.OVR.Metadata;
 using VRCOSC.Game.Screens.Loading;
 using VRCOSC.Game.Screens.Main;
 using VRCOSC.Game.Screens.Main.Tabs;
@@ -50,6 +54,8 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
         LoadingScreen.Title.Value = "Welcome to VRCOSC";
         LoadingScreen.Description.Value = "Sit tight. We're getting things ready for you!";
+
+        copyOpenVrFiles();
 
         LoadingScreen.Action.Value = "Loading managers";
         appManager.Initialise(this, host, storage, Clock, ConfigManager);
@@ -103,6 +109,29 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
         return true;
     }
+
+    #region Resources
+
+    private void copyOpenVrFiles()
+    {
+        var tempStorage = storage.GetStorageForDirectory("runtime/openvr");
+        var tempStoragePath = tempStorage.GetFullPath(string.Empty);
+
+        var openVrFiles = Resources.GetAvailableResources().Where(file => file.StartsWith("OpenVR"));
+
+        foreach (var file in openVrFiles)
+        {
+            File.WriteAllBytes(Path.Combine(tempStoragePath, file.Split('/')[1]), Resources.Get(file));
+        }
+
+        var manifest = new OVRManifest();
+        manifest.Applications[0].ActionManifestPath = tempStorage.GetFullPath("action_manifest.json");
+        manifest.Applications[0].ImagePath = tempStorage.GetFullPath("SteamImage.png");
+
+        File.WriteAllText(Path.Combine(tempStoragePath, "app.vrmanifest"), JsonConvert.SerializeObject(manifest));
+    }
+
+    #endregion
 
     #region Tray
 
