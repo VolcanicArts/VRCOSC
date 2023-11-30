@@ -23,9 +23,13 @@ public class VRCOSCConfigManager : IniConfigManager<VRCOSCSetting>
         SetDefault(VRCOSCSetting.PackageFilter, (int)(PackageListingFilter.Type_Official | PackageListingFilter.Type_Curated | PackageListingFilter.Type_Community));
         SetDefault(VRCOSCSetting.AutomaticProfileSwitching, false);
         SetDefault(VRCOSCSetting.ModuleLogDebug, false);
-        SetDefault(VRCOSCSetting.AutoStartStop, false);
+        SetDefault(VRCOSCSetting.VRCAutoStart, false);
+        SetDefault(VRCOSCSetting.VRCAutoStop, false);
+        SetDefault(VRCOSCSetting.OVRAutoOpen, false);
+        SetDefault(VRCOSCSetting.OVRAutoClose, false);
         SetDefault(VRCOSCSetting.AllowPreReleasePackages, true); // TODO: False on release
         SetDefault(VRCOSCSetting.UseLegacyPorts, false);
+        SetDefault(VRCOSCSetting.TrayOnClose, false);
     }
 }
 
@@ -36,7 +40,11 @@ public enum VRCOSCSetting
     PackageFilter,
     AutomaticProfileSwitching,
     ModuleLogDebug,
-    AutoStartStop,
+    VRCAutoStart,
+    VRCAutoStop,
+    OVRAutoOpen,
+    OVRAutoClose,
     AllowPreReleasePackages,
-    UseLegacyPorts
+    UseLegacyPorts,
+    TrayOnClose
 }

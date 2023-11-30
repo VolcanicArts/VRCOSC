@@ -87,6 +87,11 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         Add(mainScreen);
         ChangeChildDepth(mainScreen, float.MaxValue);
 
+        appManager.OVRClient.OnShutdown += () =>
+        {
+            if (ConfigManager.Get<bool>(VRCOSCSetting.OVRAutoClose)) prepareForExit();
+        };
+
         LoadingScreen.Action.Value = "Complete!";
         LoadingScreen.Progress.Value = 1f;
         Scheduler.Add(() => LoadingScreen.Hide(), false);
@@ -100,15 +105,34 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         if (!startInTrayComplete) obtainWindowHandle();
     }
 
+    #region Exit
+
     protected override bool OnExiting()
     {
-        trayIcon.Dispose();
-        Task.WhenAll(
-            appManager.StopAsync()
-        ).GetAwaiter().OnCompleted(Exit);
+        base.OnExiting();
+
+        if (ConfigManager.Get<bool>(VRCOSCSetting.TrayOnClose))
+        {
+            inTray = true;
+            handleTrayTransition();
+            return true;
+        }
+
+        prepareForExit();
 
         return true;
     }
+
+    private void prepareForExit()
+    {
+        trayIcon.Dispose();
+
+        Task.WhenAll(
+            appManager.StopAsync()
+        ).GetAwaiter().OnCompleted(Exit);
+    }
+
+    #endregion
 
     #region Resources
 
@@ -187,7 +211,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
                 },
                 new ToolStripSeparator(),
                 {
-                    "Exit", null, (_, _) => Schedule(Exit)
+                    "Exit", null, (_, _) => Schedule(prepareForExit)
                 }
             }
         };

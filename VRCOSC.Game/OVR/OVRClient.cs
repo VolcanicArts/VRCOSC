@@ -44,7 +44,7 @@ public class OVRClient
 
         if (!OVRHelper.InitialiseOpenVR(Metadata.ApplicationType)) return;
 
-        Valve.VR.OpenVR.Applications.AddApplicationManifest(Metadata.ApplicationManifest, false);
+        OpenVR.Applications.AddApplicationManifest(Metadata.ApplicationManifest, false);
         System.Init();
         Input.Init();
 
@@ -67,14 +67,14 @@ public class OVRClient
     {
         var evenT = new VREvent_t();
 
-        while (Valve.VR.OpenVR.System.PollNextEvent(ref evenT, vrevent_t_size))
+        while (OpenVR.System.PollNextEvent(ref evenT, vrevent_t_size))
         {
             var eventType = (EVREventType)evenT.eventType;
 
             switch (eventType)
             {
                 case EVREventType.VREvent_Quit:
-                    Valve.VR.OpenVR.System.AcknowledgeQuit_Exiting();
+                    OpenVR.System.AcknowledgeQuit_Exiting();
                     shutdown();
                     return;
             }
@@ -86,7 +86,7 @@ public class OVRClient
 
     private void shutdown()
     {
-        Valve.VR.OpenVR.Shutdown();
+        OpenVR.Shutdown();
         HasInitialised = false;
         OnShutdown?.Invoke();
     }
@@ -95,6 +95,6 @@ public class OVRClient
     {
         if (!HasInitialised) return;
 
-        Valve.VR.OpenVR.Applications.SetApplicationAutoLaunch("volcanicarts.vrcosc", value);
+        OpenVR.Applications.SetApplicationAutoLaunch("volcanicarts.vrcosc", value);
     }
 }

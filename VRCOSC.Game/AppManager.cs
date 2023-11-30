@@ -11,10 +11,13 @@ using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Framework.Threading;
 using osu.Framework.Timing;
+using Valve.VR;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Modules;
 using VRCOSC.Game.OSC;
 using VRCOSC.Game.OSC.VRChat;
+using VRCOSC.Game.OVR;
+using VRCOSC.Game.OVR.Metadata;
 using VRCOSC.Game.Packages;
 using VRCOSC.Game.Profiles;
 using VRCOSC.Game.SDK.VRChat;
@@ -29,6 +32,7 @@ public class AppManager
     public VRChatOscClient VRChatOscClient { get; private set; } = null!;
     public VRChatClient VRChatClient { get; private set; } = null!;
     public ConnectionManager ConnectionManager { get; private set; } = null!;
+    public OVRClient OVRClient { get; private set; } = null!;
 
     private VRCOSCGame game = null!;
     private VRCOSCConfigManager configManager = null!;
@@ -54,10 +58,21 @@ public class AppManager
         VRChatOscClient = new VRChatOscClient();
         VRChatClient = new VRChatClient(VRChatOscClient);
         ConnectionManager = new ConnectionManager(clock);
+        OVRClient = new OVRClient();
+
+        OVRClient.SetMetadata(new OVRMetadata
+        {
+            ApplicationType = EVRApplicationType.VRApplication_Background,
+            ApplicationManifest = storage.GetFullPath("openvr/app.vrmanifest"),
+            ActionManifest = storage.GetFullPath("openvr/action_manifest.json")
+        });
+
+        OVRHelper.OnError += m => Logger.Log($"[OpenVR] {m}");
 
         VRChatOscClient.Init(ConnectionManager);
         ConnectionManager.Init();
 
+        localScheduler.AddDelayed(checkForOpenVR, 1000, true);
         localScheduler.AddDelayed(checkForVRChat, 5000, true);
         localScheduler.AddDelayed(initialiseOSC, 500, true);
     }
@@ -74,11 +89,17 @@ public class AppManager
         ModuleManager.FrameworkUpdate();
     }
 
+    private void checkForOpenVR() => Task.Run(() =>
+    {
+        OVRClient.Init();
+        OVRClient.SetAutoLaunch(configManager.Get<bool>(VRCOSCSetting.OVRAutoOpen));
+    });
+
     private void checkForVRChat()
     {
         var newOpenState = VRChatClient.HasOpenStateChanged();
 
-        if (!configManager.Get<bool>(VRCOSCSetting.AutoStartStop) || !newOpenState) return;
+        if (!configManager.Get<bool>(VRCOSCSetting.VRCAutoStart) || !newOpenState) return;
 
         if (VRChatClient.ClientOpen && State.Value == AppManagerState.Stopped) Start();
         if (!VRChatClient.ClientOpen && State.Value == AppManagerState.Started) Stop();
