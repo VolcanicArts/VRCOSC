@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using Newtonsoft.Json;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Platform;
 using PInvoke;
 using VRCOSC.Game.Config;
@@ -42,10 +43,18 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     [BackgroundDependencyLoader]
     private void load()
     {
+        clearCustomLogs();
         Window.Title = host.Name;
         setupTrayIcon();
 
         Add(LoadingScreen = new LoadingScreen());
+    }
+
+    private void clearCustomLogs()
+    {
+        var logsStorage = storage.GetStorageForDirectory("logs");
+        logsStorage.Delete("module-debug.log");
+        logsStorage.Delete("terminal.log");
     }
 
     protected override async void LoadComplete()
@@ -126,10 +135,27 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     private void prepareForExit()
     {
         trayIcon.Dispose();
+        manageLogs();
 
         Task.WhenAll(
             appManager.StopAsync()
         ).GetAwaiter().OnCompleted(Exit);
+    }
+
+    private void manageLogs()
+    {
+        var archiveStorage = storage.GetStorageForDirectory("archive");
+        var specificArchiveStorage = archiveStorage.GetStorageForDirectory($"{DateTime.Now:yyyyMMdd_HHmmss}");
+        copyFilesRecursively(new DirectoryInfo(storage.GetFullPath("logs")), new DirectoryInfo(specificArchiveStorage.GetFullPath(string.Empty)));
+
+        var archiveDirectoryInfo = new DirectoryInfo(archiveStorage.GetFullPath(string.Empty));
+        archiveDirectoryInfo.GetDirectories().OrderByDescending(d => d.CreationTime).Skip(5).ForEach(d => d.Delete(true));
+    }
+
+    private static void copyFilesRecursively(DirectoryInfo source, DirectoryInfo target)
+    {
+        source.GetDirectories().ForEach(dir => copyFilesRecursively(dir, target.CreateSubdirectory(dir.Name)));
+        source.GetFiles().ForEach(file => file.CopyTo(Path.Combine(target.FullName, file.Name)));
     }
 
     #endregion
