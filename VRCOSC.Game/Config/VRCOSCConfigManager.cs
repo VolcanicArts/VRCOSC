@@ -20,16 +20,17 @@ public class VRCOSCConfigManager : IniConfigManager<VRCOSCSetting>
     {
         SetDefault(VRCOSCSetting.FirstTimeSetupComplete, false);
         SetDefault(VRCOSCSetting.StartInTray, false);
-        SetDefault(VRCOSCSetting.PackageFilter, (int)(PackageListingFilter.Type_Official | PackageListingFilter.Type_Curated | PackageListingFilter.Type_Community));
+        SetDefault(VRCOSCSetting.TrayOnClose, false);
+        SetDefault(VRCOSCSetting.AllowPreReleasePackages, true); // TODO: False on release
+        SetDefault(VRCOSCSetting.PackageFilter, (int)(PackageListingFilter.Type_Official | PackageListingFilter.Type_Curated | PackageListingFilter.Type_Community)); // TODO: Remove community on release
         SetDefault(VRCOSCSetting.AutomaticProfileSwitching, false);
         SetDefault(VRCOSCSetting.ModuleLogDebug, false);
         SetDefault(VRCOSCSetting.VRCAutoStart, false);
         SetDefault(VRCOSCSetting.VRCAutoStop, false);
         SetDefault(VRCOSCSetting.OVRAutoOpen, false);
         SetDefault(VRCOSCSetting.OVRAutoClose, false);
-        SetDefault(VRCOSCSetting.AllowPreReleasePackages, true); // TODO: False on release
         SetDefault(VRCOSCSetting.UseLegacyPorts, false);
-        SetDefault(VRCOSCSetting.TrayOnClose, false);
+        SetDefault(VRCOSCSetting.GlobalPersistence, false);
     }
 }
 
@@ -46,5 +47,6 @@ public enum VRCOSCSetting
     OVRAutoClose,
     AllowPreReleasePackages,
     UseLegacyPorts,
-    TrayOnClose
+    TrayOnClose,
+    GlobalPersistence
 }
