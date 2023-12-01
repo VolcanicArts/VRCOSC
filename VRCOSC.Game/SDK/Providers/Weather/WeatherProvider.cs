@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using osu.Framework.Logging;
 
 namespace VRCOSC.Game.SDK.Providers.Weather;
 
@@ -35,39 +36,47 @@ public class WeatherProvider
 
     public async Task<CurrentWeather?> RetrieveFor(string location)
     {
-        if (lastUpdate + api_call_delta > DateTimeOffset.Now && location == lastLocation) return weather;
+        try
+        {
+            if (lastUpdate + api_call_delta > DateTimeOffset.Now && location == lastLocation) return weather;
 
-        lastUpdate = DateTimeOffset.Now;
-        lastLocation = location;
+            lastUpdate = DateTimeOffset.Now;
+            lastLocation = location;
 
-        var currentUrl = string.Format(current_url_format, apiKey, location);
-        var currentResponseData = await httpClient.GetAsync(new Uri(currentUrl));
-        var currentResponseString = await currentResponseData.Content.ReadAsStringAsync();
-        var currentResponse = JsonConvert.DeserializeObject<WeatherCurrentResponse>(currentResponseString)?.Current;
+            var currentUrl = string.Format(current_url_format, apiKey, location);
+            var currentResponseData = await httpClient.GetAsync(new Uri(currentUrl));
+            var currentResponseString = await currentResponseData.Content.ReadAsStringAsync();
+            var currentResponse = JsonConvert.DeserializeObject<WeatherCurrentResponse>(currentResponseString)?.Current;
 
-        if (currentResponse is null) return null;
+            if (currentResponse is null) return null;
 
-        var astronomyUrl = string.Format(astronomy_url_format, apiKey, location, DateTime.Now.ToString("yyyy-MM-dd"));
-        var astronomyResponseData = await httpClient.GetAsync(new Uri(astronomyUrl));
-        var astronomyResponseString = await astronomyResponseData.Content.ReadAsStringAsync();
-        var astronomyResponse = JsonConvert.DeserializeObject<WeatherAstronomyResponse>(astronomyResponseString)?.Astronomy.Astro;
+            var astronomyUrl = string.Format(astronomy_url_format, apiKey, location, DateTime.Now.ToString("yyyy-MM-dd"));
+            var astronomyResponseData = await httpClient.GetAsync(new Uri(astronomyUrl));
+            var astronomyResponseString = await astronomyResponseData.Content.ReadAsStringAsync();
+            var astronomyResponse = JsonConvert.DeserializeObject<WeatherAstronomyResponse>(astronomyResponseString)?.Astronomy.Astro;
 
-        if (astronomyResponse is null) return null;
-        if (!DateTime.TryParse(astronomyResponse.Sunrise, out var sunriseParsed)) return null;
-        if (!DateTime.TryParse(astronomyResponse.Sunset, out var sunsetParsed)) return null;
+            if (astronomyResponse is null) return null;
+            if (!DateTime.TryParse(astronomyResponse.Sunrise, out var sunriseParsed)) return null;
+            if (!DateTime.TryParse(astronomyResponse.Sunset, out var sunsetParsed)) return null;
 
-        if (conditions is null) await retrieveConditions();
+            if (conditions is null) await retrieveConditions();
 
-        var conditionResponse = conditions?[currentResponse.Condition.Code];
-        var dateTimeNow = DateTime.Now;
+            var conditionResponse = conditions?[currentResponse.Condition.Code];
+            var dateTimeNow = DateTime.Now;
 
-        if (dateTimeNow >= sunriseParsed && dateTimeNow < sunsetParsed)
-            currentResponse.ConditionString = conditionResponse?.Day ?? string.Empty;
-        else
-            currentResponse.ConditionString = conditionResponse?.Night ?? string.Empty;
+            if (dateTimeNow >= sunriseParsed && dateTimeNow < sunsetParsed)
+                currentResponse.ConditionString = conditionResponse?.Day ?? string.Empty;
+            else
+                currentResponse.ConditionString = conditionResponse?.Night ?? string.Empty;
 
-        weather = currentResponse;
-        return weather;
+            weather = currentResponse;
+            return weather;
+        }
+        catch (Exception e)
+        {
+            Logger.Error(e, $"{nameof(WeatherProvider)} experienced an issue");
+            return null;
+        }
     }
 
     private async Task retrieveConditions()
