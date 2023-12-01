@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -9,18 +10,20 @@ namespace VRCOSC.Game.Graphics.UI.List;
 
 public abstract partial class HeightLimitedScrollableList<T> : Container<T> where T : HeightLimitedScrollableListItem
 {
-    private readonly Drawable header;
-    private readonly Drawable footer;
-    private readonly BasicScrollContainer scrollContainer;
+    private readonly FillFlowContainer flowWrapper;
+    private Drawable header = null!;
+    private Drawable footer = null!;
+    private BasicScrollContainer scrollContainer = null!;
 
     protected virtual Colour4 BackgroundColourOdd => Colours.GRAY2;
     protected virtual Colour4 BackgroundColourEven => Colours.GRAY1;
+    protected virtual bool AnimatePositionChange => false;
 
     protected override FillFlowContainer<T> Content { get; }
 
     protected HeightLimitedScrollableList()
     {
-        InternalChild = new FillFlowContainer
+        InternalChild = flowWrapper = new FillFlowContainer
         {
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
@@ -28,37 +31,44 @@ public abstract partial class HeightLimitedScrollableList<T> : Container<T> wher
             AutoSizeAxes = Axes.Y,
             Direction = FillDirection.Vertical,
             Masking = true,
-            CornerRadius = 5,
-            Children = new[]
-            {
-                header = CreateHeader(),
-                scrollContainer = new BasicScrollContainer
-                {
-                    Anchor = Anchor.TopCentre,
-                    Origin = Anchor.TopCentre,
-                    RelativeSizeAxes = Axes.X,
-                    AutoSizeAxes = Axes.Y,
-                    ClampExtension = 0,
-                    ScrollbarVisible = false,
-                    AutoSizeEasing = Easing.OutQuint,
-                    AutoSizeDuration = 100,
-                    ScrollContent =
-                    {
-                        Child = Content = new FillFlowContainer<T>
-                        {
-                            Anchor = Anchor.TopCentre,
-                            Origin = Anchor.TopCentre,
-                            RelativeSizeAxes = Axes.X,
-                            AutoSizeAxes = Axes.Y,
-                            Direction = FillDirection.Vertical,
-                            LayoutDuration = 100,
-                            LayoutEasing = Easing.OutQuint
-                        }
-                    }
-                },
-                footer = CreateFooter(),
-            }
+            CornerRadius = 5
         };
+
+        Content = new FillFlowContainer<T>
+        {
+            Anchor = Anchor.TopCentre,
+            Origin = Anchor.TopCentre,
+            RelativeSizeAxes = Axes.X,
+            AutoSizeAxes = Axes.Y,
+            Direction = FillDirection.Vertical,
+            LayoutDuration = AnimatePositionChange ? 100 : 0,
+            LayoutEasing = AnimatePositionChange ? Easing.OutQuint : Easing.None
+        };
+    }
+
+    [BackgroundDependencyLoader]
+    private void load()
+    {
+        flowWrapper.AddRange(new[]
+        {
+            header = CreateHeader(),
+            scrollContainer = new BasicScrollContainer
+            {
+                Anchor = Anchor.TopCentre,
+                Origin = Anchor.TopCentre,
+                RelativeSizeAxes = Axes.X,
+                AutoSizeAxes = Axes.Y,
+                ClampExtension = 0,
+                ScrollbarVisible = false,
+                AutoSizeDuration = AnimatePositionChange ? 100 : 0,
+                AutoSizeEasing = AnimatePositionChange ? Easing.OutQuint : Easing.None,
+                ScrollContent =
+                {
+                    Child = Content
+                }
+            },
+            footer = CreateFooter()
+        });
     }
 
     protected void ChangeListChildPosition(T child, float depth)

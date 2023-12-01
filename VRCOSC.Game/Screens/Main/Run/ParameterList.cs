@@ -5,9 +5,6 @@ using System.Collections.Generic;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
-using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Shapes;
-using VRCOSC.Game.Graphics;
 using VRCOSC.Game.Graphics.UI.List;
 using VRCOSC.Game.OSC.VRChat;
 
@@ -27,31 +24,9 @@ public partial class ParameterList : HeightLimitedScrollableList<DrawableParamet
         this.title = title;
     }
 
-    protected override Drawable CreateHeader() => new Container
-    {
-        Anchor = Anchor.TopCentre,
-        Origin = Anchor.TopCentre,
-        RelativeSizeAxes = Axes.X,
-        Height = 40,
-        Children = new Drawable[]
-        {
-            new Box
-            {
-                RelativeSizeAxes = Axes.Both,
-                Colour = Colours.GRAY0
-            },
-            new TextFlowContainer(t =>
-            {
-                t.Font = Fonts.BOLD.With(size: 30);
-                t.Colour = Colours.WHITE2;
-            })
-            {
-                RelativeSizeAxes = Axes.Both,
-                TextAnchor = Anchor.Centre,
-                Text = title
-            }
-        }
-    };
+    protected override bool AnimatePositionChange => true;
+
+    protected override Drawable CreateHeader() => new ParameterListHeader(title);
 
     [BackgroundDependencyLoader]
     private void load()
