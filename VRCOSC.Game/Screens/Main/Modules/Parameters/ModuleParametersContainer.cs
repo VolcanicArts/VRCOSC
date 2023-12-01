@@ -96,8 +96,8 @@ public partial class ModuleParametersContainer : VisibilityContainer
     public void SetModule(Module? module)
     {
         this.module = module;
-        parameterList.ClearList();
-        module?.Parameters.ForEach(parameterPair => parameterList.AddList(new ModuleParameterInstance(parameterPair.Value)));
+        parameterList.Clear();
+        module?.Parameters.ForEach(parameterPair => parameterList.Add(new ModuleParameterInstance(parameterPair.Value)));
     }
 
     protected override void PopIn()

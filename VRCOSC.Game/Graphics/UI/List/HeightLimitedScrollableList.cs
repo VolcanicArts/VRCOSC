@@ -1,27 +1,26 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 
 namespace VRCOSC.Game.Graphics.UI.List;
 
-public abstract partial class HeightLimitedScrollableList<T> : Container where T : HeightLimitedScrollableListItem
+public abstract partial class HeightLimitedScrollableList<T> : Container<T> where T : HeightLimitedScrollableListItem
 {
-    private Drawable header = null!;
-    private Drawable footer = null!;
-    private BasicScrollContainer scrollContainer = null!;
-    private FillFlowContainer<T> listingFlow = null!;
+    private readonly Drawable header;
+    private readonly Drawable footer;
+    private readonly BasicScrollContainer scrollContainer;
 
     protected virtual Colour4 BackgroundColourOdd => Colours.GRAY2;
     protected virtual Colour4 BackgroundColourEven => Colours.GRAY1;
 
-    [BackgroundDependencyLoader]
-    private void load()
+    protected override FillFlowContainer<T> Content { get; }
+
+    protected HeightLimitedScrollableList()
     {
-        Child = new FillFlowContainer
+        InternalChild = new FillFlowContainer
         {
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
@@ -45,7 +44,7 @@ public abstract partial class HeightLimitedScrollableList<T> : Container where T
                     AutoSizeDuration = 100,
                     ScrollContent =
                     {
-                        Child = listingFlow = new FillFlowContainer<T>
+                        Child = Content = new FillFlowContainer<T>
                         {
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
@@ -62,20 +61,10 @@ public abstract partial class HeightLimitedScrollableList<T> : Container where T
         };
     }
 
-    public void AddList(T drawable)
+    protected void ChangeListChildPosition(T child, float depth)
     {
-        listingFlow.Add(drawable);
-    }
-
-    public void ClearList()
-    {
-        listingFlow.Clear(true);
-    }
-
-    public void ChangeListChildPosition(T child, float depth)
-    {
-        listingFlow.ChangeChildDepth(child, depth);
-        listingFlow.SetLayoutPosition(child, depth);
+        Content.ChangeChildDepth(child, depth);
+        Content.SetLayoutPosition(child, depth);
     }
 
     protected virtual Drawable CreateHeader() => new Container
@@ -107,7 +96,7 @@ public abstract partial class HeightLimitedScrollableList<T> : Container where T
     {
         var contentTargetHeight = DrawHeight - header.DrawHeight - footer.DrawHeight;
 
-        if (listingFlow.Height >= contentTargetHeight)
+        if (Content.Height >= contentTargetHeight)
         {
             scrollContainer.AutoSizeAxes = Axes.None;
             scrollContainer.Height = contentTargetHeight;
@@ -119,7 +108,7 @@ public abstract partial class HeightLimitedScrollableList<T> : Container where T
 
         var even = false;
 
-        foreach (var child in listingFlow)
+        foreach (var child in this)
         {
             child.SetBackground(even ? BackgroundColourEven : BackgroundColourOdd);
             even = !even;

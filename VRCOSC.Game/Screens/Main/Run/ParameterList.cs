@@ -64,7 +64,7 @@ public partial class ParameterList : HeightLimitedScrollableList<DrawableParamet
         if (e.NewValue == AppManagerState.Starting)
         {
             listingCache.Clear();
-            ClearList();
+            Clear();
         }
     }
 
@@ -78,7 +78,7 @@ public partial class ParameterList : HeightLimitedScrollableList<DrawableParamet
         {
             var newDrawableParameter = new DrawableParameter(message.Address, message.ParameterValue);
             listingCache.Add(message.Address, newDrawableParameter);
-            AddList(newDrawableParameter);
+            Add(newDrawableParameter);
 
             var depth = 0f;
 
