@@ -3,7 +3,6 @@
 
 using System.Linq;
 using osu.Framework.Allocation;
-using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using VRCOSC.Game.Graphics.UI.List;
 
@@ -22,14 +21,7 @@ public partial class ModulePackageList : HeightLimitedScrollableList<ModulePacka
     [BackgroundDependencyLoader]
     private void load()
     {
-        populate();
-
-        repoTab.Filter.BindValueChanged(e => applyFilter(e.NewValue), true);
-    }
-
-    private void applyFilter(PackageListingFilter filter)
-    {
-        this.ForEach(modulePackageInstance => modulePackageInstance.Satisfies(filter));
+        repoTab.Filter.BindValueChanged(_ => populate(), true);
     }
 
     public void Refresh()
@@ -41,12 +33,11 @@ public partial class ModulePackageList : HeightLimitedScrollableList<ModulePacka
     {
         Clear();
 
-        appManager.PackageManager.Sources
-                  .OrderByDescending(packageSource => packageSource.IsInstalled())
-                  .ThenBy(packageSource => packageSource.PackageType)
-                  .ThenBy(packageSource => packageSource.GetDisplayName())
-                  .ForEach(packageSource => Add(new ModulePackageInstance(packageSource)));
-
-        applyFilter(repoTab.Filter.Value);
+        AddRange(appManager.PackageManager.Sources
+                           .OrderByDescending(packageSource => packageSource.IsInstalled())
+                           .ThenBy(packageSource => packageSource.PackageType)
+                           .ThenBy(packageSource => packageSource.GetDisplayName())
+                           .Select(packageSource => new ModulePackageInstance(packageSource))
+                           .Where(packageInstance => packageInstance.Satisfies(repoTab.Filter.Value)));
     }
 }
