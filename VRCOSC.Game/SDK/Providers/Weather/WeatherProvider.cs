@@ -18,7 +18,7 @@ public class WeatherProvider
 
     private const string condition_url = "https://www.weatherapi.com/docs/weather_conditions.json";
 
-    private static readonly TimeSpan api_call_delta = TimeSpan.FromMinutes(20);
+    private static readonly TimeSpan cache_expire_time = TimeSpan.FromMinutes(20);
 
     private readonly HttpClient httpClient = new();
     private readonly string apiKey;
@@ -38,7 +38,7 @@ public class WeatherProvider
     {
         try
         {
-            if (lastUpdate + api_call_delta > DateTimeOffset.Now && location == lastLocation) return weather;
+            if (lastUpdate + cache_expire_time > DateTimeOffset.Now && location == lastLocation) return weather;
 
             lastUpdate = DateTimeOffset.Now;
             lastLocation = location;
@@ -79,6 +79,8 @@ public class WeatherProvider
                 return weather;
             }
 
+            currentResponse.ConditionString = "Unknown";
+
             if (!DateTime.TryParse(astronomyResponse.Sunrise, out var sunriseParsed)) return weather;
             if (!DateTime.TryParse(astronomyResponse.Sunset, out var sunsetParsed)) return weather;
 
@@ -87,29 +89,26 @@ public class WeatherProvider
             if (conditions is not null)
             {
                 var conditionResponse = conditions[currentResponse.Condition.Code];
-                var dateTimeNow = DateTime.Now;
+                var dateTimeNow = DateTime.Now; // TODO: This isn't accurate if a user requests a location that isn't in the same timezone as them
                 currentResponse.ConditionString = dateTimeNow >= sunriseParsed && dateTimeNow < sunsetParsed ? conditionResponse.Day : conditionResponse.Night;
-            }
-            else
-            {
-                currentResponse.ConditionString = "Unknown";
             }
 
             weather = currentResponse;
-            return weather;
         }
         catch (Exception e)
         {
             Logger.Error(e, $"{nameof(WeatherProvider)} experienced an issue");
-            return null;
+            weather = null;
         }
+
+        return weather;
     }
 
     private async Task retrieveConditions()
     {
         try
         {
-            if (conditions is null) return;
+            if (conditions is not null) return;
 
             var conditionResponseData = await httpClient.GetAsync(condition_url);
 
@@ -134,6 +133,7 @@ public class WeatherProvider
         catch (Exception e)
         {
             Logger.Error(e, $"{nameof(WeatherProvider)} experienced an issue");
+            conditions = null;
         }
     }
 }
