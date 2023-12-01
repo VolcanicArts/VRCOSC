@@ -61,6 +61,7 @@ public partial class ModulesTab : Container
                         Origin = Anchor.Centre,
                         RelativeSizeAxes = Axes.Both,
                         ClampExtension = 0,
+                        ScrollbarVisible = false,
                         ScrollContent =
                         {
                             Child = assemblyFlowContainer = new FillFlowContainer
@@ -75,7 +76,7 @@ public partial class ModulesTab : Container
                             }
                         }
                     },
-                    noModulesText = new TextFlowContainer(t => { t.Font = Fonts.REGULAR.With(size: 40); })
+                    noModulesText = new TextFlowContainer(t => t.Font = Fonts.REGULAR.With(size: 40))
                     {
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,

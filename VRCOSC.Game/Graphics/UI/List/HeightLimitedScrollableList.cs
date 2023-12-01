@@ -15,8 +15,8 @@ public abstract partial class HeightLimitedScrollableList<T> : Container<T> wher
     private Drawable footer = null!;
     private BasicScrollContainer scrollContainer = null!;
 
-    protected virtual Colour4 BackgroundColourOdd => Colours.GRAY4;
-    protected virtual Colour4 BackgroundColourEven => Colours.GRAY2;
+    protected virtual Colour4 BackgroundColourOdd => Colours.GRAY2;
+    protected virtual Colour4 BackgroundColourEven => Colours.GRAY4;
     protected virtual bool AnimatePositionChange => false;
 
     protected override FillFlowContainer<T> Content { get; }

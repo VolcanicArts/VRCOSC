@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
-using VRCOSC.Game.Graphics;
 using VRCOSC.Game.Graphics.UI.List;
 using VRCOSC.Game.OSC.VRChat;
 
@@ -19,9 +18,6 @@ public partial class ParameterList : HeightLimitedScrollableList<DrawableParamet
     private readonly string title;
 
     private readonly SortedDictionary<string, DrawableParameter> listingCache = new();
-
-    protected override Colour4 BackgroundColourEven => Colours.GRAY2;
-    protected override Colour4 BackgroundColourOdd => Colours.GRAY1;
 
     public ParameterList(string title)
     {
