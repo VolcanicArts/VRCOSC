@@ -15,8 +15,8 @@ public abstract partial class HeightLimitedScrollableList<T> : Container<T> wher
     private Drawable footer = null!;
     private BasicScrollContainer scrollContainer = null!;
 
-    protected virtual Colour4 BackgroundColourOdd => Colours.GRAY2;
-    protected virtual Colour4 BackgroundColourEven => Colours.GRAY1;
+    protected virtual Colour4 BackgroundColourOdd => Colours.GRAY4;
+    protected virtual Colour4 BackgroundColourEven => Colours.GRAY2;
     protected virtual bool AnimatePositionChange => false;
 
     protected override FillFlowContainer<T> Content { get; }
@@ -40,9 +40,7 @@ public abstract partial class HeightLimitedScrollableList<T> : Container<T> wher
             Origin = Anchor.TopCentre,
             RelativeSizeAxes = Axes.X,
             AutoSizeAxes = Axes.Y,
-            Direction = FillDirection.Vertical,
-            LayoutDuration = AnimatePositionChange ? 100 : 0,
-            LayoutEasing = AnimatePositionChange ? Easing.OutQuint : Easing.None
+            Direction = FillDirection.Vertical
         };
     }
 
@@ -69,6 +67,9 @@ public abstract partial class HeightLimitedScrollableList<T> : Container<T> wher
             },
             footer = CreateFooter()
         });
+
+        Content.LayoutDuration = AnimatePositionChange ? 100 : 0;
+        Content.LayoutEasing = AnimatePositionChange ? Easing.OutQuint : Easing.None;
     }
 
     protected void ChangeListChildPosition(T child, float depth)

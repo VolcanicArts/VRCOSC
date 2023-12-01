@@ -5,7 +5,6 @@ using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
-using VRCOSC.Game.Graphics;
 using VRCOSC.Game.Graphics.UI.List;
 
 namespace VRCOSC.Game.Screens.Main.Repo;
@@ -19,9 +18,6 @@ public partial class ModulePackageList : HeightLimitedScrollableList<ModulePacka
     private RepoTab repoTab { get; set; } = null!;
 
     protected override Drawable CreateHeader() => new ModulePackageListHeader();
-
-    protected override Colour4 BackgroundColourEven => Colours.GRAY4;
-    protected override Colour4 BackgroundColourOdd => Colours.GRAY2;
 
     [BackgroundDependencyLoader]
     private void load()

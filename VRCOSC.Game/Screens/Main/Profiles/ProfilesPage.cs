@@ -84,7 +84,10 @@ public partial class ProfilesPage : Container
                                 null,
                                 new Drawable[]
                                 {
-                                    new ProfilesList()
+                                    new ProfileList
+                                    {
+                                        RelativeSizeAxes = Axes.Both
+                                    }
                                 }
                             }
                         }
