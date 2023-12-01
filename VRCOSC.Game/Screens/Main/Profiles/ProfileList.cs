@@ -24,6 +24,9 @@ public partial class ProfileList : HeightLimitedScrollableList<ProfileListInstan
     [Resolved]
     private ProfilesPage profilesPage { get; set; } = null!;
 
+    protected override Colour4 BackgroundColourOdd => Colours.GRAY2;
+    protected override Colour4 BackgroundColourEven => Colours.GRAY4;
+
     protected override Drawable CreateHeader() => new Container
     {
         Anchor = Anchor.TopCentre,
