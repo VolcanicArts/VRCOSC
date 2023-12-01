@@ -5,6 +5,7 @@ using osu.Framework.Allocation;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using VRCOSC.Game.Graphics;
 using VRCOSC.Game.Graphics.UI.List;
@@ -17,6 +18,7 @@ public partial class DrawableParameter : HeightLimitedScrollableListItem
     private readonly object parameterInitialValue;
 
     private SpriteText valueSpriteText = null!;
+    private Box flashBackground = null!;
 
     public DrawableParameter(string parameterName, object parameterInitialValue)
     {
@@ -27,32 +29,40 @@ public partial class DrawableParameter : HeightLimitedScrollableListItem
     [BackgroundDependencyLoader]
     private void load()
     {
-        Child = new Container
+        Children = new Drawable[]
         {
-            RelativeSizeAxes = Axes.X,
-            AutoSizeAxes = Axes.Y,
-            Padding = new MarginPadding
+            flashBackground = new Box
             {
-                Vertical = 2,
-                Horizontal = 5
+                RelativeSizeAxes = Axes.Both,
+                Colour = Colours.Transparent
             },
-            Children = new Drawable[]
+            new Container
             {
-                new SpriteText
+                RelativeSizeAxes = Axes.X,
+                AutoSizeAxes = Axes.Y,
+                Padding = new MarginPadding
                 {
-                    Anchor = Anchor.CentreLeft,
-                    Origin = Anchor.CentreLeft,
-                    Text = parameterName,
-                    Font = Fonts.REGULAR.With(size: 20),
-                    Colour = Colours.WHITE2
+                    Vertical = 2,
+                    Horizontal = 5
                 },
-                valueSpriteText = new SpriteText
+                Children = new Drawable[]
                 {
-                    Anchor = Anchor.CentreRight,
-                    Origin = Anchor.CentreRight,
-                    Font = Fonts.REGULAR.With(size: 20),
-                    Colour = Colours.WHITE2,
-                    Text = parameterInitialValue.ToString() ?? "INVALID"
+                    new SpriteText
+                    {
+                        Anchor = Anchor.CentreLeft,
+                        Origin = Anchor.CentreLeft,
+                        Text = parameterName,
+                        Font = Fonts.REGULAR.With(size: 20),
+                        Colour = Colours.WHITE2
+                    },
+                    valueSpriteText = new SpriteText
+                    {
+                        Anchor = Anchor.CentreRight,
+                        Origin = Anchor.CentreRight,
+                        Font = Fonts.REGULAR.With(size: 20),
+                        Colour = Colours.WHITE2,
+                        Text = parameterInitialValue.ToString() ?? "INVALID"
+                    }
                 }
             }
         };
@@ -63,6 +73,6 @@ public partial class DrawableParameter : HeightLimitedScrollableListItem
         if (valueSpriteText.Text == (value.ToString() ?? "INVALID")) return;
 
         valueSpriteText.Text = value.ToString() ?? "INVALID";
-        Background.FlashColour(Colours.WHITE0.Opacity(0.5f), 500, Easing.OutQuint);
+        flashBackground.FlashColour(Colours.WHITE0.Opacity(0.5f), 1000, Easing.OutQuad);
     }
 }

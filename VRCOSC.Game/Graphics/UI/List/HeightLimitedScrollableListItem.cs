@@ -11,7 +11,7 @@ public partial class HeightLimitedScrollableListItem : Container
 {
     protected override Container<Drawable> Content { get; }
 
-    protected readonly Box Background;
+    private readonly Box background;
 
     protected HeightLimitedScrollableListItem()
     {
@@ -22,7 +22,7 @@ public partial class HeightLimitedScrollableListItem : Container
 
         InternalChildren = new Drawable[]
         {
-            Background = new Box
+            background = new Box
             {
                 RelativeSizeAxes = Axes.Both
             },
@@ -38,6 +38,6 @@ public partial class HeightLimitedScrollableListItem : Container
 
     public void SetBackground(Colour4 colour)
     {
-        Background.Colour = colour;
+        background.Colour = colour;
     }
 }
