@@ -4,112 +4,97 @@
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using VRCOSC.Game.Graphics;
+using VRCOSC.Game.Graphics.UI.List;
 using VRCOSC.Game.Graphics.UI.Text;
 using VRCOSC.Game.SDK.Attributes.Parameters;
 using VRCOSC.Game.SDK.Parameters;
 
 namespace VRCOSC.Game.Screens.Main.Modules.Parameters;
 
-public partial class ModuleParameterInstance : Container
+public partial class ModuleParameterInstance : HeightLimitedScrollableListItem
 {
     private readonly ModuleParameter moduleParameter;
-    private readonly bool even;
 
-    public ModuleParameterInstance(ModuleParameter moduleParameter, bool even)
+    public ModuleParameterInstance(ModuleParameter moduleParameter)
     {
         this.moduleParameter = moduleParameter;
-        this.even = even;
     }
 
     [BackgroundDependencyLoader]
     private void load()
     {
-        Anchor = Anchor.TopCentre;
-        Origin = Anchor.TopCentre;
-        RelativeSizeAxes = Axes.X;
-        AutoSizeAxes = Axes.Y;
-
-        Children = new Drawable[]
+        Child = new Container
         {
-            new Box
+            RelativeSizeAxes = Axes.X,
+            AutoSizeAxes = Axes.Y,
+            Padding = new MarginPadding(7),
+            Child = new GridContainer
             {
-                RelativeSizeAxes = Axes.Both,
-                Colour = even ? Colours.GRAY4 : Colours.GRAY2
-            },
-            new Container
-            {
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
                 RelativeSizeAxes = Axes.X,
                 AutoSizeAxes = Axes.Y,
-                Padding = new MarginPadding(7),
-                Child = new GridContainer
+                ColumnDimensions = new[]
                 {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    RelativeSizeAxes = Axes.X,
-                    AutoSizeAxes = Axes.Y,
-                    ColumnDimensions = new[]
+                    new Dimension(GridSizeMode.Relative, 0.1f),
+                    new Dimension(GridSizeMode.Relative, 0.4f),
+                    new Dimension(GridSizeMode.Relative, 0.1f),
+                    new Dimension(GridSizeMode.Relative, 0.1f),
+                    new Dimension()
+                },
+                RowDimensions = new[]
+                {
+                    new Dimension(GridSizeMode.AutoSize)
+                },
+                Content = new[]
+                {
+                    new Drawable?[]
                     {
-                        new Dimension(GridSizeMode.Relative, 0.1f),
-                        new Dimension(GridSizeMode.Relative, 0.4f),
-                        new Dimension(GridSizeMode.Relative, 0.1f),
-                        new Dimension(GridSizeMode.Relative, 0.1f),
-                        new Dimension()
-                    },
-                    RowDimensions = new[]
-                    {
-                        new Dimension(GridSizeMode.AutoSize)
-                    },
-                    Content = new[]
-                    {
-                        new Drawable?[]
+                        new TextFlowContainer(defaultCreationParameters)
                         {
-                            new TextFlowContainer(defaultCreationParameters)
-                            {
-                                Anchor = Anchor.CentreLeft,
-                                Origin = Anchor.CentreLeft,
-                                TextAnchor = Anchor.CentreLeft,
-                                RelativeSizeAxes = Axes.X,
-                                AutoSizeAxes = Axes.Y,
-                                Text = moduleParameter.Metadata.Title
-                            },
-                            new TextFlowContainer(defaultCreationParameters)
-                            {
-                                Anchor = Anchor.CentreLeft,
-                                Origin = Anchor.CentreLeft,
-                                TextAnchor = Anchor.CentreLeft,
-                                RelativeSizeAxes = Axes.X,
-                                AutoSizeAxes = Axes.Y,
-                                Text = moduleParameter.Metadata.Description
-                            },
-                            new TextFlowContainer(defaultCreationParameters)
-                            {
-                                Anchor = Anchor.CentreLeft,
-                                Origin = Anchor.CentreLeft,
-                                TextAnchor = Anchor.Centre,
-                                RelativeSizeAxes = Axes.X,
-                                AutoSizeAxes = Axes.Y,
-                                Text = moduleParameter.Metadata.ExpectedType.ToReadableName()
-                            },
-                            new TextFlowContainer(defaultCreationParameters)
-                            {
-                                Anchor = Anchor.CentreLeft,
-                                Origin = Anchor.CentreLeft,
-                                TextAnchor = Anchor.Centre,
-                                RelativeSizeAxes = Axes.X,
-                                AutoSizeAxes = Axes.Y,
-                                Text = moduleParameter.Metadata.Mode.ToReadableName()
-                            },
-                            new ParameterNameTextBox
-                            {
-                                Anchor = Anchor.Centre,
-                                Origin = Anchor.Centre,
-                                RelativeSizeAxes = Axes.X,
-                                Height = 30,
-                                ValidCurrent = moduleParameter.Name.GetBoundCopy()
-                            }
+                            Anchor = Anchor.CentreLeft,
+                            Origin = Anchor.CentreLeft,
+                            TextAnchor = Anchor.CentreLeft,
+                            RelativeSizeAxes = Axes.X,
+                            AutoSizeAxes = Axes.Y,
+                            Text = moduleParameter.Metadata.Title
+                        },
+                        new TextFlowContainer(defaultCreationParameters)
+                        {
+                            Anchor = Anchor.CentreLeft,
+                            Origin = Anchor.CentreLeft,
+                            TextAnchor = Anchor.CentreLeft,
+                            RelativeSizeAxes = Axes.X,
+                            AutoSizeAxes = Axes.Y,
+                            Text = moduleParameter.Metadata.Description
+                        },
+                        new TextFlowContainer(defaultCreationParameters)
+                        {
+                            Anchor = Anchor.CentreLeft,
+                            Origin = Anchor.CentreLeft,
+                            TextAnchor = Anchor.Centre,
+                            RelativeSizeAxes = Axes.X,
+                            AutoSizeAxes = Axes.Y,
+                            Text = moduleParameter.Metadata.ExpectedType.ToReadableName()
+                        },
+                        new TextFlowContainer(defaultCreationParameters)
+                        {
+                            Anchor = Anchor.CentreLeft,
+                            Origin = Anchor.CentreLeft,
+                            TextAnchor = Anchor.Centre,
+                            RelativeSizeAxes = Axes.X,
+                            AutoSizeAxes = Axes.Y,
+                            Text = moduleParameter.Metadata.Mode.ToReadableName()
+                        },
+                        new ParameterNameTextBox
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativeSizeAxes = Axes.X,
+                            Height = 30,
+                            ValidCurrent = moduleParameter.Name.GetBoundCopy()
                         }
                     }
                 }

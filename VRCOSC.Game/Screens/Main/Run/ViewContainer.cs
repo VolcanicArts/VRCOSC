@@ -79,12 +79,12 @@ public partial class ViewContainer : Container
                                             {
                                                 outgoingParameterList = new ParameterList("Outgoing")
                                                 {
-                                                    RelativeSizeAxes = Axes.Both,
+                                                    RelativeSizeAxes = Axes.Both
                                                 },
                                                 null,
                                                 incomingParameterList = new ParameterList("Incoming")
                                                 {
-                                                    RelativeSizeAxes = Axes.Both,
+                                                    RelativeSizeAxes = Axes.Both
                                                 }
                                             }
                                         }

@@ -15,6 +15,11 @@ public partial class ModuleParametersListHeader : Container
     [BackgroundDependencyLoader]
     private void load()
     {
+        Anchor = Anchor.TopCentre;
+        Origin = Anchor.TopCentre;
+        RelativeSizeAxes = Axes.X;
+        AutoSizeAxes = Axes.Y;
+
         Children = new Drawable[]
         {
             new Box

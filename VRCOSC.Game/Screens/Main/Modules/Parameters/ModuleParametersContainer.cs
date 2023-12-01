@@ -20,9 +20,8 @@ public partial class ModuleParametersContainer : VisibilityContainer
     protected override bool OnHover(HoverEvent e) => true;
     protected override bool OnScroll(ScrollEvent e) => true;
 
-    protected override ModuleParametersList Content { get; }
-
     private Module? module;
+    private readonly ModuleParametersList parameterList;
 
     public ModuleParametersContainer()
     {
@@ -83,7 +82,7 @@ public partial class ModuleParametersContainer : VisibilityContainer
                         Top = 56,
                         Bottom = 10
                     },
-                    Child = Content = new ModuleParametersList
+                    Child = parameterList = new ModuleParametersList
                     {
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,
@@ -97,17 +96,8 @@ public partial class ModuleParametersContainer : VisibilityContainer
     public void SetModule(Module? module)
     {
         this.module = module;
-        Clear();
-
-        if (module is null) return;
-
-        var even = false;
-
-        module.Parameters.ForEach(parameterPair =>
-        {
-            Add(new ModuleParameterInstance(parameterPair.Value, even));
-            even = !even;
-        });
+        parameterList.ClearList();
+        module?.Parameters.ForEach(parameterPair => parameterList.AddList(new ModuleParameterInstance(parameterPair.Value)));
     }
 
     protected override void PopIn()

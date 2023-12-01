@@ -28,6 +28,8 @@ public abstract partial class HeightLimitedScrollableList<T> : Container where T
             RelativeSizeAxes = Axes.X,
             AutoSizeAxes = Axes.Y,
             Direction = FillDirection.Vertical,
+            Masking = true,
+            CornerRadius = 5,
             Children = new[]
             {
                 header = CreateHeader(),
@@ -60,17 +62,17 @@ public abstract partial class HeightLimitedScrollableList<T> : Container where T
         };
     }
 
-    protected void AddList(T drawable)
+    public void AddList(T drawable)
     {
         listingFlow.Add(drawable);
     }
 
-    protected void ClearList()
+    public void ClearList()
     {
         listingFlow.Clear(true);
     }
 
-    protected void ChangeListChildPosition(T child, float depth)
+    public void ChangeListChildPosition(T child, float depth)
     {
         listingFlow.ChangeChildDepth(child, depth);
         listingFlow.SetLayoutPosition(child, depth);
