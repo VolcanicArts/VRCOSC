@@ -5,18 +5,17 @@ using osu.Framework.Allocation;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using VRCOSC.Game.Graphics;
+using VRCOSC.Game.Graphics.UI.List;
 
 namespace VRCOSC.Game.Screens.Main.Run;
 
-public partial class DrawableParameter : Container
+public partial class DrawableParameter : HeightLimitedScrollableListItem
 {
     private readonly string parameterName;
     private readonly object parameterInitialValue;
 
-    private Box background = null!;
     private SpriteText valueSpriteText = null!;
 
     public DrawableParameter(string parameterName, object parameterInitialValue)
@@ -28,45 +27,32 @@ public partial class DrawableParameter : Container
     [BackgroundDependencyLoader]
     private void load()
     {
-        Anchor = Anchor.TopCentre;
-        Origin = Anchor.TopCentre;
-        RelativeSizeAxes = Axes.X;
-        AutoSizeAxes = Axes.Y;
-
-        Children = new Drawable[]
+        Child = new Container
         {
-            background = new Box
+            RelativeSizeAxes = Axes.X,
+            AutoSizeAxes = Axes.Y,
+            Padding = new MarginPadding
             {
-                RelativeSizeAxes = Axes.Both,
-                Colour = Colours.GRAY2
+                Vertical = 2,
+                Horizontal = 5
             },
-            new Container
+            Children = new Drawable[]
             {
-                RelativeSizeAxes = Axes.X,
-                AutoSizeAxes = Axes.Y,
-                Padding = new MarginPadding
+                new SpriteText
                 {
-                    Vertical = 2,
-                    Horizontal = 5
+                    Anchor = Anchor.CentreLeft,
+                    Origin = Anchor.CentreLeft,
+                    Text = parameterName,
+                    Font = Fonts.REGULAR.With(size: 20),
+                    Colour = Colours.WHITE2
                 },
-                Children = new Drawable[]
+                valueSpriteText = new SpriteText
                 {
-                    new SpriteText
-                    {
-                        Anchor = Anchor.CentreLeft,
-                        Origin = Anchor.CentreLeft,
-                        Text = parameterName,
-                        Font = Fonts.REGULAR.With(size: 20),
-                        Colour = Colours.WHITE2
-                    },
-                    valueSpriteText = new SpriteText
-                    {
-                        Anchor = Anchor.CentreRight,
-                        Origin = Anchor.CentreRight,
-                        Font = Fonts.REGULAR.With(size: 20),
-                        Colour = Colours.WHITE2,
-                        Text = parameterInitialValue.ToString() ?? "INVALID"
-                    }
+                    Anchor = Anchor.CentreRight,
+                    Origin = Anchor.CentreRight,
+                    Font = Fonts.REGULAR.With(size: 20),
+                    Colour = Colours.WHITE2,
+                    Text = parameterInitialValue.ToString() ?? "INVALID"
                 }
             }
         };
@@ -77,11 +63,6 @@ public partial class DrawableParameter : Container
         if (valueSpriteText.Text == (value.ToString() ?? "INVALID")) return;
 
         valueSpriteText.Text = value.ToString() ?? "INVALID";
-        background.FlashColour(Colours.WHITE0.Opacity(0.5f), 500, Easing.OutQuint);
-    }
-
-    public void UpdateEven(bool even)
-    {
-        background.Colour = even ? Colours.GRAY1 : Colours.GRAY2;
+        Background.FlashColour(Colours.WHITE0.Opacity(0.5f), 500, Easing.OutQuint);
     }
 }

@@ -8,20 +8,17 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using VRCOSC.Game.Graphics;
+using VRCOSC.Game.Graphics.UI.List;
 using VRCOSC.Game.OSC.VRChat;
 
 namespace VRCOSC.Game.Screens.Main.Run;
 
-public partial class ParameterList : Container
+public partial class ParameterList : HeightLimitedScrollableList<DrawableParameter>
 {
     [Resolved]
     private AppManager appManager { get; set; } = null!;
 
     private readonly string title;
-
-    private FillFlowContainer flowWrapper = null!;
-    private BasicScrollContainer scrollContainer = null!;
-    private FillFlowContainer<DrawableParameter> listingFlow = null!;
 
     private readonly SortedDictionary<string, DrawableParameter> listingCache = new();
 
@@ -30,87 +27,35 @@ public partial class ParameterList : Container
         this.title = title;
     }
 
+    protected override Drawable CreateHeader() => new Container
+    {
+        Anchor = Anchor.TopCentre,
+        Origin = Anchor.TopCentre,
+        RelativeSizeAxes = Axes.X,
+        Height = 40,
+        Children = new Drawable[]
+        {
+            new Box
+            {
+                RelativeSizeAxes = Axes.Both,
+                Colour = Colours.GRAY0
+            },
+            new TextFlowContainer(t =>
+            {
+                t.Font = Fonts.BOLD.With(size: 30);
+                t.Colour = Colours.WHITE2;
+            })
+            {
+                RelativeSizeAxes = Axes.Both,
+                TextAnchor = Anchor.Centre,
+                Text = title
+            }
+        }
+    };
+
     [BackgroundDependencyLoader]
     private void load()
     {
-        Children = new Drawable[]
-        {
-            flowWrapper = new FillFlowContainer
-            {
-                Name = "Flow Wrapper",
-                Anchor = Anchor.TopCentre,
-                Origin = Anchor.TopCentre,
-                RelativeSizeAxes = Axes.X,
-                AutoSizeAxes = Axes.Y,
-                Direction = FillDirection.Vertical,
-                Masking = true,
-                CornerRadius = 5,
-                Children = new Drawable[]
-                {
-                    new Container
-                    {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        RelativeSizeAxes = Axes.X,
-                        Height = 40,
-                        Children = new Drawable[]
-                        {
-                            new Box
-                            {
-                                RelativeSizeAxes = Axes.Both,
-                                Colour = Colours.GRAY0
-                            },
-                            new TextFlowContainer(t =>
-                            {
-                                t.Font = Fonts.BOLD.With(size: 30);
-                                t.Colour = Colours.WHITE2;
-                            })
-                            {
-                                RelativeSizeAxes = Axes.Both,
-                                TextAnchor = Anchor.Centre,
-                                Text = title
-                            }
-                        }
-                    },
-                    scrollContainer = new BasicScrollContainer
-                    {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        RelativeSizeAxes = Axes.X,
-                        AutoSizeAxes = Axes.Y,
-                        ClampExtension = 0,
-                        ScrollbarVisible = false,
-                        AutoSizeEasing = Easing.OutQuint,
-                        AutoSizeDuration = 100,
-                        ScrollContent =
-                        {
-                            Children = new Drawable[]
-                            {
-                                listingFlow = new FillFlowContainer<DrawableParameter>
-                                {
-                                    Anchor = Anchor.TopCentre,
-                                    Origin = Anchor.TopCentre,
-                                    RelativeSizeAxes = Axes.X,
-                                    AutoSizeAxes = Axes.Y,
-                                    Direction = FillDirection.Vertical,
-                                    LayoutDuration = 100,
-                                    LayoutEasing = Easing.OutQuint
-                                }
-                            }
-                        }
-                    },
-                    new Box
-                    {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        RelativeSizeAxes = Axes.X,
-                        Height = 5,
-                        Colour = Colours.GRAY0
-                    }
-                }
-            }
-        };
-
         appManager.State.BindValueChanged(onAppManagerStateChange);
     }
 
@@ -119,20 +64,7 @@ public partial class ParameterList : Container
         if (e.NewValue == AppManagerState.Starting)
         {
             listingCache.Clear();
-            listingFlow.Clear();
-        }
-    }
-
-    protected override void UpdateAfterChildren()
-    {
-        if (flowWrapper.DrawHeight >= DrawHeight)
-        {
-            scrollContainer.AutoSizeAxes = Axes.None;
-            scrollContainer.Height = DrawHeight - 45;
-        }
-        else
-        {
-            scrollContainer.AutoSizeAxes = Axes.Y;
+            ClearList();
         }
     }
 
@@ -146,15 +78,13 @@ public partial class ParameterList : Container
         {
             var newDrawableParameter = new DrawableParameter(message.Address, message.ParameterValue);
             listingCache.Add(message.Address, newDrawableParameter);
-            listingFlow.Add(newDrawableParameter);
+            AddList(newDrawableParameter);
 
             var depth = 0f;
 
             foreach (var sortedDrawableParameter in listingCache.Values)
             {
-                listingFlow.ChangeChildDepth(sortedDrawableParameter, depth);
-                listingFlow.SetLayoutPosition(sortedDrawableParameter, depth);
-                sortedDrawableParameter.UpdateEven(depth % 2f != 0f);
+                ChangeListChildPosition(sortedDrawableParameter, depth);
                 depth++;
             }
         }
