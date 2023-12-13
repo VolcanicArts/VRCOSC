@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -30,11 +30,12 @@ public abstract class Module
 {
     public string PackageId { get; set; } = null!;
 
-    private GameHost host = null!;
-    private Scheduler scheduler = null!;
-    private AppManager appManager = null!;
-    private VRCOSCConfigManager configManager = null!;
     private SerialisationManager serialisationManager = null!;
+    private Scheduler scheduler = null!;
+
+    protected internal GameHost Host = null!;
+    protected internal AppManager AppManager = null!;
+    protected internal VRCOSCConfigManager ConfigManager = null!;
 
     internal Bindable<bool> Enabled = new();
 
@@ -66,11 +67,11 @@ public abstract class Module
 
     internal void InjectDependencies(GameHost host, IClock clock, AppManager appManager, SerialisationManager serialisationManager, VRCOSCConfigManager configManager)
     {
-        scheduler = new Scheduler(() => ThreadSafety.IsUpdateThread, clock);
-        this.host = host;
-        this.appManager = appManager;
         this.serialisationManager = serialisationManager;
-        this.configManager = configManager;
+        scheduler = new Scheduler(() => ThreadSafety.IsUpdateThread, clock);
+        Host = host;
+        AppManager = appManager;
+        ConfigManager = configManager;
     }
 
     internal void Serialise()
@@ -268,7 +269,7 @@ public abstract class Module
     {
     }
 
-    protected void OpenUrlExternally(string url) => host.OpenUrlExternally(url);
+    protected void OpenUrlExternally(string url) => Host.OpenUrlExternally(url);
 
     /// <summary>
     /// Maps a value <paramref name="source"/> from a source range to a destination range
@@ -347,7 +348,7 @@ public abstract class Module
     /// <param name="message">The message to log to the file</param>
     protected void LogDebug(string message)
     {
-        if (!configManager.Get<bool>(VRCOSCSetting.ModuleLogDebug)) return;
+        if (!ConfigManager.Get<bool>(VRCOSCSetting.ModuleLogDebug)) return;
 
         Logger.Log($"[{Title}]: {message}", "module-debug");
     }
@@ -360,7 +361,7 @@ public abstract class Module
     /// <param name="value">The value to set the parameter to</param>
     protected void SendParameter(string name, object value)
     {
-        appManager.VRChatOscClient.SendValue($"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{name}", value);
+        AppManager.VRChatOscClient.SendValue($"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{name}", value);
     }
 
     /// <summary>
@@ -376,7 +377,7 @@ public abstract class Module
             return;
         }
 
-        appManager.VRChatOscClient.SendValue($"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{moduleParameter.Name.Value}", value);
+        AppManager.VRChatOscClient.SendValue($"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{moduleParameter.Name.Value}", value);
     }
 
     #endregion
