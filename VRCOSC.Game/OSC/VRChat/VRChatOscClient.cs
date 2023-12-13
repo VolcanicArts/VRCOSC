@@ -48,6 +48,8 @@ public class VRChatOscClient : OscClient
             var url = $"http://127.0.0.1:{connectionManager.QueryPort}/avatar/parameters/{parameterName}";
 
             var response = await client.GetAsync(new Uri(url));
+            if (!response.IsSuccessStatusCode) return null;
+
             var content = await response.Content.ReadAsStringAsync();
             var node = JsonConvert.DeserializeObject<OSCQueryNode>(content);
 

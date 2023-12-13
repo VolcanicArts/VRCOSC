@@ -34,7 +34,7 @@ public class WeatherProvider
         this.apiKey = apiKey;
     }
 
-    public async Task<CurrentWeather?> RetrieveFor(string location)
+    public async Task<CurrentWeather?> RetrieveFor(string location, DateTime locationDateTime)
     {
         try
         {
@@ -89,8 +89,7 @@ public class WeatherProvider
             if (conditions is not null)
             {
                 var conditionResponse = conditions[currentResponse.Condition.Code];
-                var dateTimeNow = DateTime.Now; // TODO: This isn't accurate if a user requests a location that isn't in the same timezone as them
-                currentResponse.ConditionString = dateTimeNow >= sunriseParsed && dateTimeNow < sunsetParsed ? conditionResponse.Day : conditionResponse.Night;
+                currentResponse.ConditionString = locationDateTime >= sunriseParsed && locationDateTime < sunsetParsed ? conditionResponse.Day : conditionResponse.Night;
             }
 
             weather = currentResponse;

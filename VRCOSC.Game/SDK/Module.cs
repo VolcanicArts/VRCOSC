@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -289,7 +289,16 @@ public abstract class Module
     /// </summary>
     /// <param name="lookup">The lookup of the setting</param>
     /// <returns>The container if successful, otherwise pushes an exception and returns default</returns>
-    protected ModuleSetting? GetSetting(Enum lookup) => GetSetting<ModuleSetting>(lookup.ToLookup());
+    protected ModuleSetting? GetSetting(Enum lookup) => GetSetting<ModuleSetting>(lookup);
+
+    /// <summary>
+    /// Retrieves the container of the setting using the provided lookup and type param for custom <see cref="ModuleSetting"/>s. This allows for creating more complex UI callback behaviour.
+    /// This is best used inside of <see cref="OnPostLoad"/>
+    /// </summary>
+    /// <typeparam name="T">The custom <see cref="ModuleSetting"/> type</typeparam>
+    /// <param name="lookup">The lookup of the setting</param>
+    /// <returns>The container if successful, otherwise pushes an exception and returns default</returns>
+    protected T? GetSetting<T>(Enum lookup) where T : ModuleSetting => GetSetting<T>(lookup.ToLookup());
 
     internal T? GetSetting<T>(string lookup) where T : ModuleSetting
     {
