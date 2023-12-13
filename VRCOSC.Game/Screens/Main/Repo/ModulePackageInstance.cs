@@ -269,7 +269,7 @@ public partial class ModulePackageInstance : HeightLimitedScrollableListItem
             await base.ExecuteAction();
 
             game.LoadingScreen.Description.Value = "So long and thanks for all the fish...";
-            PackageSource.Uninstall();
+            await PackageSource.Uninstall();
         }
     }
 

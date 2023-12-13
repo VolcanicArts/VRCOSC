@@ -90,9 +90,9 @@ public class PackageSource
         await packageManager.InstallPackage(this);
     }
 
-    public void Uninstall()
+    public async Task Uninstall()
     {
-        packageManager.UninstallPackage(this);
+        await packageManager.UninstallPackage(this);
     }
 
     public List<string> GetAssets() => LatestRelease!.AssetNames.Where(assetName => PackageFile!.Files.Contains(assetName)).ToList();

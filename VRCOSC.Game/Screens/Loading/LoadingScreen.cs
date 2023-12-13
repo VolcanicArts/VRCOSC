@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
@@ -31,12 +31,6 @@ public partial class LoadingScreen : VisibilityContainer
     public Bindable<ProgressAction?> CurrentAction = new();
 
     private LoadingScreenSliderBar rootProgress = null!;
-    private LoadingScreenSliderBar childProgress = null!;
-
-    public LoadingScreen()
-    {
-        Show();
-    }
 
     [BackgroundDependencyLoader]
     private void load()
@@ -87,19 +81,6 @@ public partial class LoadingScreen : VisibilityContainer
                         MinValue = 0,
                         MaxValue = 1
                     }
-                },
-                childProgress = new LoadingScreenSliderBar
-                {
-                    Anchor = Anchor.TopCentre,
-                    Origin = Anchor.TopCentre,
-                    Size = new Vector2(600, 30),
-                    Current = new BindableNumber<float>
-                    {
-                        Value = 0,
-                        MinValue = 0,
-                        MaxValue = 1
-                    },
-                    Alpha = 0
                 }
             }
         });
@@ -115,8 +96,6 @@ public partial class LoadingScreen : VisibilityContainer
             return;
         }
 
-        childProgress.Alpha = e.NewValue is CompositeProgressAction ? 1f : 0f;
-
         Show();
     }
 
@@ -126,12 +105,6 @@ public partial class LoadingScreen : VisibilityContainer
 
         rootProgress.TextCurrent.Value = CurrentAction.Value.Title;
         rootProgress.Current.Value = CurrentAction.Value.GetProgress();
-
-        if (CurrentAction.Value is CompositeProgressAction compositeProgressAction)
-        {
-            childProgress.TextCurrent.Value = compositeProgressAction.SubTitle;
-            childProgress.Current.Value = compositeProgressAction.GetSubProgress();
-        }
 
         if (CurrentAction.Value.IsComplete) CurrentAction.Value = null;
     }

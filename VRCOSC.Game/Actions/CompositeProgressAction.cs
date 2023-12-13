@@ -9,15 +9,7 @@ namespace VRCOSC.Game.Actions;
 
 public abstract class CompositeProgressAction : ProgressAction
 {
-    /// <summary>
-    /// Returns the lowest <see cref="CompositeProgressAction"/> title
-    /// </summary>
-    public override string Title => currentChild is CompositeProgressAction compositeCurrentChild ? compositeCurrentChild.Title : Title;
-
-    /// <summary>
-    /// Returns the lowest <see cref="ProgressAction"/> title
-    /// </summary>
-    public string SubTitle => currentChild is CompositeProgressAction compositeCurrentChild ? compositeCurrentChild.SubTitle : currentChild?.Title ?? string.Empty;
+    public override string Title => currentChild is CompositeProgressAction ? currentChild.Title : Title;
 
     private readonly List<ProgressAction> children = new();
     private ProgressAction? currentChild => children.FirstOrDefault(child => !child.IsComplete);
@@ -40,8 +32,6 @@ public abstract class CompositeProgressAction : ProgressAction
         var multiplier = 1f / children.Count;
         return children.Sum(child => child.IsComplete ? multiplier : map(child.GetProgress(), 0f, 1f, 0f, multiplier));
     }
-
-    public float GetSubProgress() => currentChild is CompositeProgressAction compositeCurrentChild ? compositeCurrentChild.GetSubProgress() : currentChild?.GetProgress() ?? 1f;
 
     private static float map(float source, float sMin, float sMax, float dMin, float dMax) => dMin + (dMax - dMin) * ((source - sMin) / (sMax - sMin));
 }
