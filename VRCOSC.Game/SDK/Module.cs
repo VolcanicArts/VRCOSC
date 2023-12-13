@@ -34,7 +34,6 @@ public abstract class Module
     private Scheduler scheduler = null!;
     private AppManager appManager = null!;
     private VRCOSCConfigManager configManager = null!;
-
     private SerialisationManager serialisationManager = null!;
 
     internal Bindable<bool> Enabled = new();

@@ -50,14 +50,14 @@ public class ModuleManager
 
     #region Runtime
 
-    public async Task StartAsync()
+    public Task StartAsync()
     {
-        await Task.WhenAll(modules.Where(module => module.Enabled.Value).Select(module => module.Start()));
+        return Task.WhenAll(modules.Where(module => module.Enabled.Value).Select(module => module.Start()));
     }
 
-    public async Task StopAsync()
+    public Task StopAsync()
     {
-        await Task.WhenAll(runningModules.Select(module => module.Stop()));
+        return Task.WhenAll(runningModules.Select(module => module.Stop()));
     }
 
     public void FrameworkUpdate()
