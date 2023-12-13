@@ -104,7 +104,12 @@ public partial class LoadingScreen : VisibilityContainer
 
     protected override void PopOut()
     {
-        this.FadeOutFromOne(500, Easing.OutQuint);
+        this.FadeOutFromOne(500, Easing.OutQuint).Finally(_ =>
+        {
+            Title.SetDefault();
+            Description.SetDefault();
+            rootProgress.Current.SetDefault();
+        });
     }
 
     public void SetAction(ProgressAction? action)
