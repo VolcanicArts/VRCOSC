@@ -109,7 +109,7 @@ public partial class RepoTab : Container
             bufferedContainer.FadeColour(e.NewValue == Visibility.Visible ? Colour4.White.Darken(0.5f) : Colour4.White, 500, Easing.OutQuart);
         });
 
-        game.OnListingRefresh += RefreshListings;
+        game.OnListingRefresh += () => Scheduler.Add(RefreshListings, false);
     }
 
     public void RefreshListings()

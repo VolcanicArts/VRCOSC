@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Threading.Tasks;
 
 namespace VRCOSC.Actions;
@@ -21,12 +22,18 @@ public abstract class ProgressAction
     public bool IsComplete { get; private set; }
 
     /// <summary>
+    /// Called when <see cref="Execute"/> has completed
+    /// </summary>
+    public Action? OnComplete;
+
+    /// <summary>
     /// Executes this <see cref="ProgressAction"/>
     /// </summary>
     public async Task Execute()
     {
         await Perform();
         IsComplete = true;
+        OnComplete?.Invoke();
     }
 
     /// <summary>

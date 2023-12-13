@@ -61,6 +61,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     {
         base.LoadComplete();
 
+        LoadingScreen.Show();
         LoadingScreen.Title.Value = "Welcome to VRCOSC";
         LoadingScreen.Description.Value = "Sit tight. We're getting things ready for you!";
 

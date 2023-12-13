@@ -12,6 +12,7 @@ using Newtonsoft.Json;
 using Octokit;
 using osu.Framework.Logging;
 using Semver;
+using VRCOSC.Actions.Packages;
 
 namespace VRCOSC.Packages;
 
@@ -84,15 +85,8 @@ public class PackageSource
         Logger.Log($"{InternalReference} resulted in {State}");
     }
 
-    public async Task Install()
-    {
-        await packageManager.InstallPackage(this);
-    }
-
-    public async Task Uninstall()
-    {
-        await packageManager.UninstallPackage(this);
-    }
+    public PackageInstallAction Install() => packageManager.InstallPackage(this);
+    public PackageUninstallAction Uninstall() => packageManager.UninstallPackage(this);
 
     public List<string> GetAssets() => LatestRelease!.AssetNames.Where(assetName => PackageFile!.Files.Contains(assetName)).ToList();
     public string GetDisplayName() => PackageFile?.DisplayName ?? RepoName;

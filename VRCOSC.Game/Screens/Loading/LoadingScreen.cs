@@ -21,21 +21,22 @@ public partial class LoadingScreen : VisibilityContainer
     public Bindable<string> Description { get; } = new("This shouldn't be possible");
     public Bindable<string> Action { get; } = new("We do love easter eggs");
 
-    protected override bool OnMouseDown(MouseDownEvent e) => true;
-    protected override bool OnClick(ClickEvent e) => true;
-    protected override bool OnHover(HoverEvent e) => true;
-    protected override bool OnScroll(ScrollEvent e) => true;
+    protected override bool OnMouseDown(MouseDownEvent e) => State.Value == Visibility.Visible;
+    protected override bool OnClick(ClickEvent e) => State.Value == Visibility.Visible;
+    protected override bool OnHover(HoverEvent e) => State.Value == Visibility.Visible;
+    protected override bool OnScroll(ScrollEvent e) => State.Value == Visibility.Visible;
 
     public BindableNumber<float> Progress { get; } = new();
 
-    public Bindable<ProgressAction?> CurrentAction = new();
-
     private LoadingScreenSliderBar rootProgress = null!;
+
+    private ProgressAction? currentAction;
 
     [BackgroundDependencyLoader]
     private void load()
     {
         RelativeSizeAxes = Axes.Both;
+        AlwaysPresent = true;
 
         AddInternal(new Box
         {
@@ -84,29 +85,16 @@ public partial class LoadingScreen : VisibilityContainer
                 }
             }
         });
-
-        CurrentAction.BindValueChanged(onCurrentActionChanged);
-    }
-
-    private void onCurrentActionChanged(ValueChangedEvent<ProgressAction?> e)
-    {
-        if (e.NewValue is null)
-        {
-            Hide();
-            return;
-        }
-
-        Show();
     }
 
     protected override void Update()
     {
-        if (CurrentAction.Value is null) return;
+        if (currentAction is null) return;
 
-        rootProgress.TextCurrent.Value = CurrentAction.Value.Title;
-        rootProgress.Current.Value = CurrentAction.Value.GetProgress();
+        rootProgress.TextCurrent.Value = currentAction.Title;
+        rootProgress.Current.Value = currentAction.GetProgress();
 
-        if (CurrentAction.Value.IsComplete) CurrentAction.Value = null;
+        if (currentAction.IsComplete) SetAction(null);
     }
 
     protected override void PopIn()
@@ -117,5 +105,19 @@ public partial class LoadingScreen : VisibilityContainer
     protected override void PopOut()
     {
         this.FadeOutFromOne(500, Easing.OutQuint);
+    }
+
+    public void SetAction(ProgressAction? action)
+    {
+        currentAction = action;
+
+        if (currentAction is null)
+        {
+            Scheduler.Add(Hide, false);
+        }
+        else
+        {
+            Scheduler.Add(Show, false);
+        }
     }
 }

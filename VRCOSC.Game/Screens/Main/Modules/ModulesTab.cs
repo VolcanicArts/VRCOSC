@@ -107,7 +107,7 @@ public partial class ModulesTab : Container
             }
         };
 
-        game.OnListingRefresh += refresh;
+        game.OnListingRefresh += () => Scheduler.Add(refresh, false);
         refresh();
 
         setupBlur();

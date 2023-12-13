@@ -6,7 +6,6 @@ using osu.Framework.Allocation;
 using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
 using VRCOSC.Graphics;
@@ -22,8 +21,6 @@ public partial class ModulePackageInstance : HeightLimitedScrollableListItem
     private RepoTab repoTab { get; set; } = null!;
 
     private readonly PackageSource packageSource;
-
-    private readonly Box background = null!;
 
     public ModulePackageInstance(PackageSource packageSource)
     {
@@ -205,12 +202,9 @@ public partial class ModulePackageInstance : HeightLimitedScrollableListItem
         }
     }
 
-    private partial class ActionButton : IconButton
+    private abstract partial class ActionButton : IconButton
     {
         protected readonly PackageSource PackageSource;
-
-        [Resolved]
-        private AppManager appManager { get; set; } = null!;
 
         protected ActionButton(PackageSource packageSource)
         {
@@ -220,19 +214,19 @@ public partial class ModulePackageInstance : HeightLimitedScrollableListItem
             Size = new Vector2(32);
             CornerRadius = 5;
 
-            Action += async () => await ExecuteAction();
+            Action += ExecuteAction;
         }
 
-        protected virtual async Task ExecuteAction()
-        {
-            await appManager.StopAsync();
-        }
+        protected abstract void ExecuteAction();
     }
 
     private partial class InstallButton : ActionButton
     {
         [Resolved]
         private VRCOSCGame game { get; set; } = null!;
+
+        [Resolved]
+        private AppManager appManager { get; set; } = null!;
 
         public InstallButton(PackageSource packageSource)
             : base(packageSource)
@@ -242,19 +236,27 @@ public partial class ModulePackageInstance : HeightLimitedScrollableListItem
             Icon = FontAwesome.Solid.Plus;
         }
 
-        protected override async Task ExecuteAction()
+        protected override void ExecuteAction() => Task.Run(async () =>
         {
-            await base.ExecuteAction();
+            await appManager.StopAsync();
 
+            game.LoadingScreen.Title.Value = "Installing...";
             game.LoadingScreen.Description.Value = $"Sit tight while {PackageSource.GetDisplayName()} is installed!";
-            await PackageSource.Install();
-        }
+
+            var installAction = PackageSource.Install();
+
+            game.LoadingScreen.SetAction(installAction);
+            await installAction.Execute();
+        });
     }
 
     private partial class UninstallButton : ActionButton
     {
         [Resolved]
         private VRCOSCGame game { get; set; } = null!;
+
+        [Resolved]
+        private AppManager appManager { get; set; } = null!;
 
         public UninstallButton(PackageSource remoteModuleSource)
             : base(remoteModuleSource)
@@ -264,19 +266,26 @@ public partial class ModulePackageInstance : HeightLimitedScrollableListItem
             Icon = FontAwesome.Solid.Minus;
         }
 
-        protected override async Task ExecuteAction()
+        protected override void ExecuteAction() => Task.Run(async () =>
         {
-            await base.ExecuteAction();
+            await appManager.StopAsync();
 
+            game.LoadingScreen.Title.Value = "Uninstalling...";
             game.LoadingScreen.Description.Value = "So long and thanks for all the fish...";
-            await PackageSource.Uninstall();
-        }
+
+            var uninstallAction = PackageSource.Uninstall();
+            game.LoadingScreen.SetAction(uninstallAction);
+            await uninstallAction.Execute();
+        });
     }
 
     private partial class UpdateButton : ActionButton
     {
         [Resolved]
         private VRCOSCGame game { get; set; } = null!;
+
+        [Resolved]
+        private AppManager appManager { get; set; } = null!;
 
         public UpdateButton(PackageSource remoteModuleSource)
             : base(remoteModuleSource)
@@ -286,12 +295,17 @@ public partial class ModulePackageInstance : HeightLimitedScrollableListItem
             Icon = FontAwesome.Solid.Redo;
         }
 
-        protected override async Task ExecuteAction()
+        protected override void ExecuteAction() => Task.Run(async () =>
         {
-            await base.ExecuteAction();
+            await appManager.StopAsync();
 
+            game.LoadingScreen.Title.Value = "Updating...";
             game.LoadingScreen.Description.Value = $"Sit tight! {PackageSource.GetDisplayName()} is being updated!";
-            await PackageSource.Install();
-        }
+
+            var installAction = PackageSource.Install();
+
+            game.LoadingScreen.SetAction(installAction);
+            await installAction.Execute();
+        });
     }
 }

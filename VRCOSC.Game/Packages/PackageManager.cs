@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -83,32 +83,35 @@ public class PackageManager
         Progress?.Invoke(new LoadingInfo("Complete!", 1f, true));
     }
 
-    public async Task InstallPackage(PackageSource packageSource)
+    public PackageInstallAction InstallPackage(PackageSource packageSource)
     {
         var isInstalled = InstalledPackages.ContainsKey(packageSource.PackageID!);
         var installAction = new PackageInstallAction(storage, packageSource, isInstalled);
-        game.LoadingScreen.CurrentAction.Value = installAction;
 
-        await installAction.Execute();
-        appManager.ModuleManager.ReloadAllModules();
+        installAction.OnComplete += () =>
+        {
+            InstalledPackages[packageSource.PackageID!] = packageSource.LatestVersion!;
+            serialisationManager.Serialise();
+            appManager.ModuleManager.ReloadAllModules();
+            game.OnListingRefresh?.Invoke();
+        };
 
-        InstalledPackages[packageSource.PackageID!] = packageSource.LatestVersion!;
-        serialisationManager.Serialise();
-
-        game.OnListingRefresh?.Invoke();
+        return installAction;
     }
 
-    public async Task UninstallPackage(PackageSource packageSource)
+    public PackageUninstallAction UninstallPackage(PackageSource packageSource)
     {
         var uninstallAction = new PackageUninstallAction(storage, packageSource);
-        game.LoadingScreen.CurrentAction.Value = uninstallAction;
-        await uninstallAction.Execute();
-        appManager.ModuleManager.ReloadAllModules();
 
-        InstalledPackages.Remove(packageSource.PackageID!);
-        serialisationManager.Serialise();
+        uninstallAction.OnComplete += () =>
+        {
+            InstalledPackages.Remove(packageSource.PackageID!);
+            serialisationManager.Serialise();
+            appManager.ModuleManager.ReloadAllModules();
+            game.OnListingRefresh?.Invoke();
+        };
 
-        game.OnListingRefresh?.Invoke();
+        return uninstallAction;
     }
 
     public bool IsInstalled(PackageSource packageSource) => packageSource.PackageID is not null && InstalledPackages.ContainsKey(packageSource.PackageID);
