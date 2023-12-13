@@ -10,6 +10,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
 using osuTK;
+using VRCOSC.Game.Actions;
 using VRCOSC.Game.Graphics;
 
 namespace VRCOSC.Game.Screens.Loading;
@@ -25,12 +26,13 @@ public partial class LoadingScreen : VisibilityContainer
     protected override bool OnHover(HoverEvent e) => true;
     protected override bool OnScroll(ScrollEvent e) => true;
 
-    public BindableNumber<float> Progress { get; } = new()
-    {
-        Value = 0,
-        MinValue = 0,
-        MaxValue = 1
-    };
+    public BindableNumber<float> Progress { get; } = new();
+
+    public Bindable<ProgressAction?> CurrentAction = new();
+
+    private SpriteText title = null!;
+    private LoadingScreenSliderBar rootProgress = null!;
+    private LoadingScreenSliderBar childProgress = null!;
 
     public LoadingScreen()
     {
@@ -59,32 +61,72 @@ public partial class LoadingScreen : VisibilityContainer
             Spacing = new Vector2(0, 5),
             Children = new Drawable[]
             {
-                new SpriteText
+                title = new SpriteText
                 {
                     Anchor = Anchor.TopCentre,
                     Origin = Anchor.TopCentre,
                     Font = FrameworkFont.Regular.With(size: 45),
                     Colour = Colours.WHITE0,
-                    Current = Title.GetBoundCopy()
+                    Text = "Sit Tight!"
                 },
-                new SpriteText
-                {
-                    Anchor = Anchor.TopCentre,
-                    Origin = Anchor.TopCentre,
-                    Font = FrameworkFont.Regular.With(size: 25),
-                    Colour = Colours.WHITE2,
-                    Current = Description.GetBoundCopy()
-                },
-                new LoadingScreenSliderBar
+                rootProgress = new LoadingScreenSliderBar
                 {
                     Anchor = Anchor.TopCentre,
                     Origin = Anchor.TopCentre,
                     Size = new Vector2(600, 30),
-                    Current = Progress.GetBoundCopy(),
-                    TextCurrent = Action.GetBoundCopy()
+                    Current = new BindableNumber<float>
+                    {
+                        Value = 0,
+                        MinValue = 0,
+                        MaxValue = 1
+                    }
+                },
+                childProgress = new LoadingScreenSliderBar
+                {
+                    Anchor = Anchor.TopCentre,
+                    Origin = Anchor.TopCentre,
+                    Size = new Vector2(600, 30),
+                    Current = new BindableNumber<float>
+                    {
+                        Value = 0,
+                        MinValue = 0,
+                        MaxValue = 1
+                    },
+                    Alpha = 0
                 }
             }
         });
+
+        CurrentAction.BindValueChanged(onCurrentActionChanged);
+    }
+
+    private void onCurrentActionChanged(ValueChangedEvent<ProgressAction?> e)
+    {
+        if (e.NewValue is null)
+        {
+            Hide();
+            return;
+        }
+
+        childProgress.Alpha = e.NewValue is CompositeProgressAction ? 1f : 0f;
+
+        Show();
+    }
+
+    protected override void Update()
+    {
+        if (CurrentAction.Value is null) return;
+
+        rootProgress.TextCurrent.Value = CurrentAction.Value.Title;
+        rootProgress.Current.Value = CurrentAction.Value.GetProgress();
+
+        if (CurrentAction.Value is CompositeProgressAction compositeProgressAction)
+        {
+            childProgress.TextCurrent.Value = compositeProgressAction.SubTitle;
+            childProgress.Current.Value = compositeProgressAction.GetSubProgress();
+        }
+
+        if (CurrentAction.Value.IsComplete) CurrentAction.Value = null;
     }
 
     protected override void PopIn()

@@ -13,7 +13,6 @@ using Octokit;
 using osu.Framework.Logging;
 using Semver;
 using VRCOSC.Game.Packages.Sources;
-using VRCOSC.Game.Screens.Loading;
 
 namespace VRCOSC.Game.Packages;
 
@@ -38,8 +37,6 @@ public class PackageSource
     public PackageSourceState State { get; private set; } = PackageSourceState.Unknown;
     public string? PackageID => PackageFile?.PackageID;
     public string? LatestVersion => LatestRelease?.Version;
-
-    public Action<LoadingInfo>? Progress;
 
     public bool IsInstalled() => packageManager.IsInstalled(this);
     public string GetInstalledVersion() => packageManager.GetInstalledVersion(this);
@@ -90,16 +87,12 @@ public class PackageSource
 
     public async Task Install()
     {
-        Progress?.Invoke(new LoadingInfo("Beginning install...", 0f, false));
-        await packageManager.InstallPackage(this, Progress);
-        Progress?.Invoke(new LoadingInfo("Finished!", 1f, true));
+        await packageManager.InstallPackage(this);
     }
 
     public void Uninstall()
     {
-        Progress?.Invoke(new LoadingInfo("Beginning uninstall", 0f, false));
         packageManager.UninstallPackage(this);
-        Progress?.Invoke(new LoadingInfo("Finished!", 1f, true));
     }
 
     public List<string> GetAssets() => LatestRelease!.AssetNames.Where(assetName => PackageFile!.Files.Contains(assetName)).ToList();

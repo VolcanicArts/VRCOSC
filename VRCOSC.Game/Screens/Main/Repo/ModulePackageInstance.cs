@@ -228,21 +228,7 @@ public partial class ModulePackageInstance : HeightLimitedScrollableListItem
 
         protected virtual async Task ExecuteAction()
         {
-            PackageSource.Progress = loadingInfo =>
-            {
-                game.LoadingScreen.Action.Value = loadingInfo.Action;
-                game.LoadingScreen.Progress.Value = loadingInfo.Progress;
-
-                if (loadingInfo.Complete)
-                {
-                    appManager.ModuleManager.ReloadAllModules();
-                    game.OnListingRefresh?.Invoke();
-                    game.LoadingScreen.Hide();
-                }
-            };
-
             await appManager.StopAsync();
-            game.LoadingScreen.Show();
         }
     }
 

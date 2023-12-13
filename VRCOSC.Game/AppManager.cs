@@ -45,7 +45,7 @@ public class AppManager
 
     public readonly Bindable<AppManagerState> State = new(AppManagerState.Stopped);
 
-    public void Initialise(VRCOSCGame game, GameHost host, Storage storage, IClock clock, VRCOSCConfigManager configManager)
+    public void Initialise(GameHost host, VRCOSCGame game, Storage storage, IClock clock, VRCOSCConfigManager configManager)
     {
         this.game = game;
         this.configManager = configManager;
@@ -54,7 +54,7 @@ public class AppManager
 
         ProfileManager = new ProfileManager(this, storage, configManager);
         ModuleManager = new ModuleManager(host, storage, clock, this, configManager);
-        PackageManager = new PackageManager(storage, configManager);
+        PackageManager = new PackageManager(game, this, storage, configManager);
         VRChatOscClient = new VRChatOscClient();
         VRChatClient = new VRChatClient(VRChatOscClient);
         ConnectionManager = new ConnectionManager(clock);

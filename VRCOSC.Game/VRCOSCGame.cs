@@ -67,7 +67,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         copyOpenVrFiles();
 
         LoadingScreen.Action.Value = "Loading managers";
-        appManager.Initialise(this, host, storage, Clock, ConfigManager);
+        appManager.Initialise(host, this, storage, Clock, ConfigManager);
 
         LoadingScreen.Action.Value = "Loading packages";
 

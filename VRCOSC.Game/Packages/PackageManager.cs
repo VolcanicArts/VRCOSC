@@ -7,9 +7,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Octokit;
 using osu.Framework.Extensions.IEnumerableExtensions;
-using osu.Framework.IO.Network;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
+using VRCOSC.Game.Actions.Packages.Installation;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Packages.Serialisation;
 using VRCOSC.Game.Screens.Loading;
@@ -20,6 +20,8 @@ namespace VRCOSC.Game.Packages;
 public class PackageManager
 {
     private const string community_tag = "vrcosc-package";
+    private readonly VRCOSCGame game;
+    private readonly AppManager appManager;
     private readonly VRCOSCConfigManager configManager;
     private readonly Storage storage;
     private readonly SerialisationManager serialisationManager;
@@ -33,8 +35,10 @@ public class PackageManager
 
     public DateTime CacheExpireTime = DateTime.UnixEpoch;
 
-    public PackageManager(Storage baseStorage, VRCOSCConfigManager configManager)
+    public PackageManager(VRCOSCGame game, AppManager appManager, Storage baseStorage, VRCOSCConfigManager configManager)
     {
+        this.game = game;
+        this.appManager = appManager;
         this.configManager = configManager;
         storage = baseStorage.GetStorageForDirectory("packages/remote");
 
@@ -79,27 +83,18 @@ public class PackageManager
         Progress?.Invoke(new LoadingInfo("Complete!", 1f, true));
     }
 
-    public async Task InstallPackage(PackageSource packageSource, Action<LoadingInfo>? callback)
+    public async Task InstallPackage(PackageSource packageSource)
     {
-        storage.DeleteDirectory(packageSource.PackageID);
+        var installAction = new PackageInstallAction(storage, packageSource);
+        game.LoadingScreen.CurrentAction.Value = installAction;
 
-        var installDirectory = storage.GetStorageForDirectory(packageSource.PackageID);
-        var installAssets = packageSource.GetAssets();
-        installAssets.Remove("vrcosc.json");
-
-        var divisor = 1f / installAssets.Count;
-        var count = 0f;
-
-        foreach (var assetName in installAssets)
-        {
-            callback?.Invoke(new LoadingInfo($"Installing {assetName}", count, false));
-            var assetDownload = new FileWebRequest(installDirectory.GetFullPath(assetName), $"{packageSource.DownloadURL}/{assetName}");
-            await assetDownload.PerformAsync();
-            count += divisor;
-        }
+        await installAction.Execute();
+        appManager.ModuleManager.ReloadAllModules();
 
         InstalledPackages[packageSource.PackageID!] = packageSource.LatestVersion!;
         serialisationManager.Serialise();
+
+        game.OnListingRefresh?.Invoke();
     }
 
     public void UninstallPackage(PackageSource packageSource)

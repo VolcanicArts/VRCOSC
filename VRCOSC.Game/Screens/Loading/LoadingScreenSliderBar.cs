@@ -14,7 +14,7 @@ namespace VRCOSC.Game.Screens.Loading;
 
 public partial class LoadingScreenSliderBar : SliderBar<float>
 {
-    public Bindable<string> TextCurrent { get; init; } = new();
+    public Bindable<string> TextCurrent { get; init; } = new(string.Empty);
 
     private Box selectionBox = null!;
 
