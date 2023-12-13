@@ -27,7 +27,6 @@ public class VRCOSCConfigManager : IniConfigManager<VRCOSCSetting>
         SetDefault(VRCOSCSetting.ModuleLogDebug, false);
         SetDefault(VRCOSCSetting.VRCAutoStart, false);
         SetDefault(VRCOSCSetting.VRCAutoStop, false);
-        SetDefault(VRCOSCSetting.OVRAutoOpen, false);
         SetDefault(VRCOSCSetting.OVRAutoClose, false);
         SetDefault(VRCOSCSetting.UseLegacyPorts, false);
         SetDefault(VRCOSCSetting.GlobalPersistence, false);
@@ -43,7 +42,6 @@ public enum VRCOSCSetting
     ModuleLogDebug,
     VRCAutoStart,
     VRCAutoStop,
-    OVRAutoOpen,
     OVRAutoClose,
     AllowPreReleasePackages,
     UseLegacyPorts,

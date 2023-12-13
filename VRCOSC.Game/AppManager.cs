@@ -89,11 +89,7 @@ public class AppManager
         ModuleManager.FrameworkUpdate();
     }
 
-    private void checkForOpenVR() => Task.Run(() =>
-    {
-        OVRClient.Init();
-        OVRClient.SetAutoLaunch(configManager.Get<bool>(VRCOSCSetting.OVRAutoOpen));
-    });
+    private void checkForOpenVR() => Task.Run(() => OVRClient.Init());
 
     private void checkForVRChat()
     {
