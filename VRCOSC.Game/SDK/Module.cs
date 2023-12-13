@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -26,7 +26,7 @@ using VRCOSC.Game.Serialisation;
 
 namespace VRCOSC.Game.SDK;
 
-public class Module
+public abstract class Module
 {
     public string PackageId { get; set; } = null!;
 
@@ -184,18 +184,10 @@ public class Module
     protected virtual Task<bool> OnModuleStart() => Task.FromResult(true);
     protected virtual Task OnModuleStop() => Task.CompletedTask;
 
-    internal void AvatarChange()
-    {
-        OnAvatarChange();
-    }
-
-    protected virtual void OnAvatarChange()
-    {
-    }
-
     /// <summary>
     /// Registers a parameter with a lookup to allow the user to customise the parameter name
     /// </summary>
+    /// <typeparam name="T">The value type of this <see cref="ModuleParameter"/></typeparam>
     /// <param name="lookup">The lookup of this parameter, used as a reference when calling <see cref="SendParameter(Enum,object)"/></param>
     /// <param name="defaultName">The default name of the parameter</param>
     /// <param name="title">The title of the parameter</param>
@@ -389,16 +381,7 @@ public class Module
         await Stop();
     }
 
-    internal void PlayerUpdate()
-    {
-        OnPlayerUpdate();
-    }
-
-    protected virtual void OnPlayerUpdate()
-    {
-    }
-
-    internal void OnParameterReceived(VRChatOscMessage message)
+    internal virtual void OnParameterReceived(VRChatOscMessage message)
     {
         var receivedParameter = new ReceivedParameter(message.ParameterName, message.ParameterValue);
 
@@ -430,7 +413,7 @@ public class Module
 
         try
         {
-            OnRegisteredParameterReceived(registeredParameter);
+            InternalOnRegisteredParameterReceived(registeredParameter);
         }
         catch (Exception e)
         {
@@ -438,11 +421,9 @@ public class Module
         }
     }
 
-    protected virtual void OnAnyParameterReceived(ReceivedParameter receivedParameter)
-    {
-    }
+    protected internal abstract void InternalOnRegisteredParameterReceived(RegisteredParameter registeredParameter);
 
-    protected virtual void OnRegisteredParameterReceived(RegisteredParameter registeredParameter)
+    protected virtual void OnAnyParameterReceived(ReceivedParameter receivedParameter)
     {
     }
 }

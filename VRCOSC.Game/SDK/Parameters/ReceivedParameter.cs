@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using VRCOSC.Game.SDK.Attributes.Parameters;
+using VRCOSC.Game.SDK.Avatars;
+using VRCOSC.Game.SDK.Worlds;
 
 namespace VRCOSC.Game.SDK.Parameters;
 
@@ -165,4 +167,26 @@ public class Wildcard
     /// </summary>
     /// <returns>True if the value is exactly the type passed, otherwise false</returns>
     public bool IsValueType(Type type) => value.GetType() == type;
+}
+
+/// <summary>
+/// <see cref="AvatarModule"/> specific <see cref="RegisteredParameter"/>
+/// </summary>
+public class AvatarParameter : RegisteredParameter
+{
+    internal AvatarParameter(RegisteredParameter other)
+        : base(other)
+    {
+    }
+}
+
+/// <summary>
+/// <see cref="WorldModule"/> specific <see cref="RegisteredParameter"/>
+/// </summary>
+public class WorldParameter : RegisteredParameter
+{
+    internal WorldParameter(RegisteredParameter other)
+        : base(other)
+    {
+    }
 }

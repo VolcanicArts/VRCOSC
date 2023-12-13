@@ -16,6 +16,7 @@ using VRCOSC.Game.Config;
 using VRCOSC.Game.Modules.Serialisation;
 using VRCOSC.Game.OSC.VRChat;
 using VRCOSC.Game.SDK;
+using VRCOSC.Game.SDK.Avatars;
 using VRCOSC.Game.Serialisation;
 using Module = VRCOSC.Game.SDK.Module;
 
@@ -66,12 +67,7 @@ public class ModuleManager
 
     public void PlayerUpdate()
     {
-        runningModules.ForEach(module => module.PlayerUpdate());
-    }
-
-    public void AvatarChange()
-    {
-        runningModules.ForEach(module => module.AvatarChange());
+        runningModules.OfType<AvatarModule>().ForEach(module => module.PlayerUpdate());
     }
 
     public void ParameterReceived(VRChatOscMessage vrChatOscMessage)

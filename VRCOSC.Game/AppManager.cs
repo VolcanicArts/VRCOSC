@@ -144,9 +144,6 @@ public class AppManager
             if (message.IsAvatarChangeEvent)
             {
                 if (ProfileManager.AvatarChange((string)message.ParameterValue)) continue;
-
-                ModuleManager.AvatarChange();
-                continue;
             }
 
             if (message.IsAvatarParameter)
