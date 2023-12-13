@@ -13,7 +13,7 @@ using osuTK;
 using osuTK.Graphics;
 using osuTK.Input;
 
-namespace VRCOSC.Game.Graphics.UI;
+namespace VRCOSC.Graphics.UI;
 
 public partial class IconButton : ClickableContainer
 {

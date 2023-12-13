@@ -6,10 +6,10 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osuTK;
-using VRCOSC.Game.Graphics;
-using VRCOSC.Game.Graphics.UI;
+using VRCOSC.Graphics;
+using VRCOSC.Graphics.UI;
 
-namespace VRCOSC.Game.Screens.Main.Repo;
+namespace VRCOSC.Screens.Main.Repo;
 
 public partial class RepoTabHeader : Container
 {

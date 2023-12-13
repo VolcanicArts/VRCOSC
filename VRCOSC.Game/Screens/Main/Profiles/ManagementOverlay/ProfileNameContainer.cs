@@ -6,11 +6,11 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
-using VRCOSC.Game.Graphics;
-using VRCOSC.Game.Graphics.UI.Text;
-using VRCOSC.Game.Profiles;
+using VRCOSC.Graphics;
+using VRCOSC.Graphics.UI.Text;
+using VRCOSC.Profiles;
 
-namespace VRCOSC.Game.Screens.Main.Profiles.ManagementOverlay;
+namespace VRCOSC.Screens.Main.Profiles.ManagementOverlay;
 
 public partial class ProfileNameContainer : Container
 {

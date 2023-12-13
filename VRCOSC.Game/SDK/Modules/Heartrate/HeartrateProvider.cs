@@ -4,7 +4,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace VRCOSC.Game.SDK.Modules.Heartrate;
+namespace VRCOSC.SDK.Modules.Heartrate;
 
 /// <summary>
 /// The base class for anything looking to gather heartrate data from a source

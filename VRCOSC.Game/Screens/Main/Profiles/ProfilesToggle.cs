@@ -7,10 +7,10 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
-using VRCOSC.Game.Graphics;
-using VRCOSC.Game.Graphics.UI;
+using VRCOSC.Graphics;
+using VRCOSC.Graphics.UI;
 
-namespace VRCOSC.Game.Screens.Main.Profiles;
+namespace VRCOSC.Screens.Main.Profiles;
 
 public partial class ProfilesToggle : Container
 {

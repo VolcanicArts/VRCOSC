@@ -5,9 +5,9 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osuTK;
-using VRCOSC.Game.Graphics;
+using VRCOSC.Graphics;
 
-namespace VRCOSC.Game.Screens.Main.Modules.Settings;
+namespace VRCOSC.Screens.Main.Modules.Settings;
 
 public partial class ModuleSettingsGroupContainer : Container
 {

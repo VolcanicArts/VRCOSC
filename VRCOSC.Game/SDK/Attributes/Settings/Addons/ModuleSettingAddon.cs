@@ -4,7 +4,7 @@
 using System;
 using osu.Framework.Graphics.Containers;
 
-namespace VRCOSC.Game.SDK.Attributes.Settings.Addons;
+namespace VRCOSC.SDK.Attributes.Settings.Addons;
 
 public class ModuleSettingAddon
 {

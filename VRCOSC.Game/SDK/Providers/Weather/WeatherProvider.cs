@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using osu.Framework.Logging;
 
-namespace VRCOSC.Game.SDK.Providers.Weather;
+namespace VRCOSC.SDK.Providers.Weather;
 
 public class WeatherProvider
 {

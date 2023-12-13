@@ -12,7 +12,7 @@ using osu.Framework.Input.Events;
 using osuTK;
 using osuTK.Graphics;
 
-namespace VRCOSC.Game.Graphics.UI;
+namespace VRCOSC.Graphics.UI;
 
 public partial class CheckBox : Button
 {

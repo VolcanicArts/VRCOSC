@@ -3,9 +3,9 @@
 
 using System.Diagnostics;
 using System.Linq;
-using VRCOSC.Game.OSC.VRChat;
+using VRCOSC.OSC.VRChat;
 
-namespace VRCOSC.Game.SDK.VRChat;
+namespace VRCOSC.SDK.VRChat;
 
 public class VRChatClient
 {

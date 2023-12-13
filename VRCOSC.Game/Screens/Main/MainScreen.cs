@@ -6,10 +6,10 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osuTK;
-using VRCOSC.Game.Graphics;
-using VRCOSC.Game.Screens.Main.Tabs;
+using VRCOSC.Graphics;
+using VRCOSC.Screens.Main.Tabs;
 
-namespace VRCOSC.Game.Screens.Main;
+namespace VRCOSC.Screens.Main;
 
 public partial class MainScreen : Container
 {

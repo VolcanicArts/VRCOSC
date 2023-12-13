@@ -7,10 +7,10 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
-using VRCOSC.Game.Graphics;
-using VRCOSC.Game.Graphics.UI.List;
+using VRCOSC.Graphics;
+using VRCOSC.Graphics.UI.List;
 
-namespace VRCOSC.Game.Screens.Main.Run;
+namespace VRCOSC.Screens.Main.Run;
 
 public partial class DrawableParameter : HeightLimitedScrollableListItem
 {

@@ -13,6 +13,7 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <UseWindowsForms>true</UseWindowsForms>
+        <RootNamespace>VRCOSC</RootNamespace>
     </PropertyGroup>
     <ItemGroup>
         <ProjectReference Include="..\VRCOSC.Resources\VRCOSC.Resources.csproj" />

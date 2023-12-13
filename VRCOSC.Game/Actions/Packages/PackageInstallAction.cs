@@ -6,9 +6,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using osu.Framework.IO.Network;
 using osu.Framework.Platform;
-using VRCOSC.Game.Packages;
+using VRCOSC.Packages;
 
-namespace VRCOSC.Game.Actions.Packages;
+namespace VRCOSC.Actions.Packages;
 
 public class PackageInstallAction : CompositeProgressAction
 {

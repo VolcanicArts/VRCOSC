@@ -3,11 +3,11 @@
 
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
-using VRCOSC.Game.Graphics;
-using VRCOSC.Game.Graphics.UI;
-using VRCOSC.Game.SDK.Attributes.Settings.Addons;
+using VRCOSC.Graphics;
+using VRCOSC.Graphics.UI;
+using VRCOSC.SDK.Attributes.Settings.Addons;
 
-namespace VRCOSC.Game.SDK.Graphics.Addons;
+namespace VRCOSC.SDK.Graphics.Addons;
 
 public partial class DrawableButtonModuleSettingAddon : DrawableModuleSettingAddon<ButtonModuleSettingAddon>
 {

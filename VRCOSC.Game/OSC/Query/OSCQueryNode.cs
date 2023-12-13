@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using osu.Framework.Logging;
 
-namespace VRCOSC.Game.OSC.Query;
+namespace VRCOSC.OSC.Query;
 
 public class OSCQueryRootNode : OSCQueryNode
 {

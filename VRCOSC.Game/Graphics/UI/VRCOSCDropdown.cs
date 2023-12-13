@@ -12,7 +12,7 @@ using osu.Framework.Localisation;
 using osuTK;
 using osuTK.Graphics;
 
-namespace VRCOSC.Game.Graphics.UI;
+namespace VRCOSC.Graphics.UI;
 
 // Taken and modified from https://github.com/ppy/osu/blob/4bc26dbb487241e2bbae73751dbe9e93a4e427da/osu.Game/Graphics/UserInterface/OsuDropdown.cs
 public partial class VRCOSCDropdown<T> : Dropdown<T>

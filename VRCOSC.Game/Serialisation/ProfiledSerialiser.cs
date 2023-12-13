@@ -4,9 +4,9 @@
 using System.IO;
 using osu.Framework.Bindables;
 using osu.Framework.Platform;
-using VRCOSC.Game.Profiles;
+using VRCOSC.Profiles;
 
-namespace VRCOSC.Game.Serialisation;
+namespace VRCOSC.Serialisation;
 
 public abstract class ProfiledSerialiser<TReference, TSerialisable> : Serialiser<TReference, TSerialisable> where TSerialisable : class
 {

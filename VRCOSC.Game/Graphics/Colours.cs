@@ -4,7 +4,7 @@
 using osu.Framework.Extensions.Color4Extensions;
 using osuTK.Graphics;
 
-namespace VRCOSC.Game.Graphics;
+namespace VRCOSC.Graphics;
 
 public static class Colours
 {

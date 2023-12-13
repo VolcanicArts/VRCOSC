@@ -7,7 +7,7 @@ using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 
-namespace VRCOSC.Game.Screens.Main.Tabs;
+namespace VRCOSC.Screens.Main.Tabs;
 
 public partial class TabContainer : Container
 {

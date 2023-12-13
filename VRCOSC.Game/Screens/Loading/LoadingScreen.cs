@@ -10,10 +10,10 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
 using osuTK;
-using VRCOSC.Game.Actions;
-using VRCOSC.Game.Graphics;
+using VRCOSC.Actions;
+using VRCOSC.Graphics;
 
-namespace VRCOSC.Game.Screens.Loading;
+namespace VRCOSC.Screens.Loading;
 
 public partial class LoadingScreen : VisibilityContainer
 {

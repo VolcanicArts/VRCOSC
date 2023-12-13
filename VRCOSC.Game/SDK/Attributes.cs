@@ -4,7 +4,7 @@
 using System;
 using JetBrains.Annotations;
 
-namespace VRCOSC.Game.SDK;
+namespace VRCOSC.SDK;
 
 [MeansImplicitUse(ImplicitUseKindFlags.InstantiatedNoFixedConstructorSignature)]
 [AttributeUsage(AttributeTargets.Class)]

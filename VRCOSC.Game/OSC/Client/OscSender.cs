@@ -6,7 +6,7 @@ using System.Net;
 using System.Net.Sockets;
 using osu.Framework.Logging;
 
-namespace VRCOSC.Game.OSC.Client;
+namespace VRCOSC.OSC.Client;
 
 public class OscSender
 {

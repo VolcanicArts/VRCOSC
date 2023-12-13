@@ -4,7 +4,7 @@
 using System;
 using osu.Framework.Bindables;
 
-namespace VRCOSC.Game.SDK.Attributes.Settings;
+namespace VRCOSC.SDK.Attributes.Settings;
 
 /// <summary>
 /// For use with value types

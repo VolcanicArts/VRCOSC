@@ -5,10 +5,10 @@ using System.Collections.Generic;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
-using VRCOSC.Game.Graphics.UI.List;
-using VRCOSC.Game.OSC.VRChat;
+using VRCOSC.Graphics.UI.List;
+using VRCOSC.OSC.VRChat;
 
-namespace VRCOSC.Game.Screens.Main.Run;
+namespace VRCOSC.Screens.Main.Run;
 
 public partial class ParameterList : HeightLimitedScrollableList<DrawableParameter>
 {

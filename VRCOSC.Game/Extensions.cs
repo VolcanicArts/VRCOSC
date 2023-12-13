@@ -6,7 +6,7 @@ using System.Diagnostics;
 using NAudio.CoreAudioApi;
 using PInvoke;
 
-namespace VRCOSC.Game;
+namespace VRCOSC;
 
 public static class EnumExtensions
 {

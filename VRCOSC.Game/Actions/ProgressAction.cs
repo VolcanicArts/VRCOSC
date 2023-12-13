@@ -3,7 +3,7 @@
 
 using System.Threading.Tasks;
 
-namespace VRCOSC.Game.Actions;
+namespace VRCOSC.Actions;
 
 /// <summary>
 /// Represents an action that has a progress associated with it

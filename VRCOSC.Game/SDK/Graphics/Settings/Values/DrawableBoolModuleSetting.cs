@@ -4,10 +4,10 @@
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osuTK;
-using VRCOSC.Game.Graphics.UI;
-using VRCOSC.Game.SDK.Attributes.Settings;
+using VRCOSC.Graphics.UI;
+using VRCOSC.SDK.Attributes.Settings;
 
-namespace VRCOSC.Game.SDK.Graphics.Settings.Values;
+namespace VRCOSC.SDK.Graphics.Settings.Values;
 
 public partial class DrawableBoolModuleSetting : DrawableValueModuleSetting<BoolModuleSetting>
 {

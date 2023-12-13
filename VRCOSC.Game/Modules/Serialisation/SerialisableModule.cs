@@ -5,10 +5,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using osu.Framework.Extensions.IEnumerableExtensions;
-using VRCOSC.Game.SDK;
-using VRCOSC.Game.Serialisation;
+using VRCOSC.SDK;
+using VRCOSC.Serialisation;
 
-namespace VRCOSC.Game.Modules.Serialisation;
+namespace VRCOSC.Modules.Serialisation;
 
 public class SerialisableModule : SerialisableVersion
 {

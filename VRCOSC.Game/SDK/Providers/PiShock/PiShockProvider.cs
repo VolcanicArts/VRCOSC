@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-namespace VRCOSC.Game.SDK.Providers.PiShock;
+namespace VRCOSC.SDK.Providers.PiShock;
 
 public class PiShockProvider
 {

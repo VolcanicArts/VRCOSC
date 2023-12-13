@@ -9,7 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using Valve.VR;
 
-namespace VRCOSC.Game.OVR;
+namespace VRCOSC.OVR;
 
 [SuppressMessage("Usage", "CA2211:Non-constant fields should not be visible")]
 public static class OVRHelper

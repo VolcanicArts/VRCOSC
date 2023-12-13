@@ -5,12 +5,12 @@ using System.IO;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Platform;
-using VRCOSC.Game.Profiles;
-using VRCOSC.Game.SDK;
-using VRCOSC.Game.SDK.Attributes.Settings;
-using VRCOSC.Game.Serialisation;
+using VRCOSC.Profiles;
+using VRCOSC.SDK;
+using VRCOSC.SDK.Attributes.Settings;
+using VRCOSC.Serialisation;
 
-namespace VRCOSC.Game.Modules.Serialisation;
+namespace VRCOSC.Modules.Serialisation;
 
 public class ModuleSerialiser : ProfiledSerialiser<Module, SerialisableModule>
 {

@@ -8,10 +8,10 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
-using VRCOSC.Game.Graphics;
-using VRCOSC.Game.Graphics.UI;
+using VRCOSC.Graphics;
+using VRCOSC.Graphics.UI;
 
-namespace VRCOSC.Game.Screens.Main.Run;
+namespace VRCOSC.Screens.Main.Run;
 
 public partial class ControlsContainer : Container
 {

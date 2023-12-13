@@ -8,10 +8,10 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
 using osuTK;
-using VRCOSC.Game.Graphics;
-using VRCOSC.Game.Graphics.UI;
+using VRCOSC.Graphics;
+using VRCOSC.Graphics.UI;
 
-namespace VRCOSC.Game.Screens.Main.Repo;
+namespace VRCOSC.Screens.Main.Repo;
 
 public partial class FilterDropdown : Container
 {

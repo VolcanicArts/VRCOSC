@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace VRCOSC.Game.Serialisation;
+namespace VRCOSC.Serialisation;
 
 /// <summary>
 /// Manages multiple <see cref="ISerialiser"/>s and handles migration between <see cref="ISerialiser"/> versions

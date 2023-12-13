@@ -3,7 +3,7 @@
 
 using osu.Framework.Bindables;
 
-namespace VRCOSC.Game.SDK.Attributes.Parameters;
+namespace VRCOSC.SDK.Attributes.Parameters;
 
 public class ModuleParameter : ModuleAttribute
 {

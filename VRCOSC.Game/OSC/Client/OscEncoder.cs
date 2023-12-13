@@ -7,7 +7,7 @@ using System.Text;
 
 // ReSharper disable SuggestBaseTypeForParameter
 
-namespace VRCOSC.Game.OSC.Client;
+namespace VRCOSC.OSC.Client;
 
 internal static class OscEncoder
 {

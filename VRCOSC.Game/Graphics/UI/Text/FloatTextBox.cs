@@ -3,7 +3,7 @@
 
 using System.Globalization;
 
-namespace VRCOSC.Game.Graphics.UI.Text;
+namespace VRCOSC.Graphics.UI.Text;
 
 public partial class FloatTextBox : ValidationTextBox<float>
 {

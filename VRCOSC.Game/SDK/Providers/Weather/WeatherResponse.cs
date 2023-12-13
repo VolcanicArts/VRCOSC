@@ -3,7 +3,7 @@
 
 using Newtonsoft.Json;
 
-namespace VRCOSC.Game.SDK.Providers.Weather;
+namespace VRCOSC.SDK.Providers.Weather;
 
 public class WeatherCurrentResponse
 {

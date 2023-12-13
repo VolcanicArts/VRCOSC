@@ -10,7 +10,7 @@ using Windows.Media;
 using Windows.Media.Control;
 using osu.Framework.Extensions.IEnumerableExtensions;
 
-namespace VRCOSC.Game.SDK.Providers.Media;
+namespace VRCOSC.SDK.Providers.Media;
 
 public class WindowsMediaProvider : MediaProvider
 {

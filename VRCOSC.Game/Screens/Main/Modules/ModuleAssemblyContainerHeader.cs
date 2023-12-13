@@ -9,9 +9,9 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
 using osuTK;
-using VRCOSC.Game.Graphics;
+using VRCOSC.Graphics;
 
-namespace VRCOSC.Game.Screens.Main.Modules;
+namespace VRCOSC.Screens.Main.Modules;
 
 public partial class ModuleAssemblyContainerHeader : Container
 {

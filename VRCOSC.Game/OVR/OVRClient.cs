@@ -5,10 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Valve.VR;
-using VRCOSC.Game.OVR.Device;
-using VRCOSC.Game.OVR.Metadata;
+using VRCOSC.OVR.Device;
+using VRCOSC.OVR.Metadata;
 
-namespace VRCOSC.Game.OVR;
+namespace VRCOSC.OVR;
 
 public class OVRClient
 {

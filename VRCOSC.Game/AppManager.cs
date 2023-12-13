@@ -12,17 +12,17 @@ using osu.Framework.Platform;
 using osu.Framework.Threading;
 using osu.Framework.Timing;
 using Valve.VR;
-using VRCOSC.Game.Config;
-using VRCOSC.Game.Modules;
-using VRCOSC.Game.OSC;
-using VRCOSC.Game.OSC.VRChat;
-using VRCOSC.Game.OVR;
-using VRCOSC.Game.OVR.Metadata;
-using VRCOSC.Game.Packages;
-using VRCOSC.Game.Profiles;
-using VRCOSC.Game.SDK.VRChat;
+using VRCOSC.Config;
+using VRCOSC.Modules;
+using VRCOSC.OSC;
+using VRCOSC.OSC.VRChat;
+using VRCOSC.OVR;
+using VRCOSC.OVR.Metadata;
+using VRCOSC.Packages;
+using VRCOSC.Profiles;
+using VRCOSC.SDK.VRChat;
 
-namespace VRCOSC.Game;
+namespace VRCOSC;
 
 public class AppManager
 {

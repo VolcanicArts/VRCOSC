@@ -5,11 +5,11 @@ using System.Linq;
 using osu.Framework.Bindables;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
-using VRCOSC.Game.Config;
-using VRCOSC.Game.Profiles.Serialisation;
-using VRCOSC.Game.Serialisation;
+using VRCOSC.Config;
+using VRCOSC.Profiles.Serialisation;
+using VRCOSC.Serialisation;
 
-namespace VRCOSC.Game.Profiles;
+namespace VRCOSC.Profiles;
 
 public class ProfileManager
 {

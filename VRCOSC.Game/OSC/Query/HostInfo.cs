@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 // ReSharper disable InconsistentNaming
 // ReSharper disable IdentifierTypo
 
-namespace VRCOSC.Game.OSC.Query;
+namespace VRCOSC.OSC.Query;
 
 public class HostInfo
 {

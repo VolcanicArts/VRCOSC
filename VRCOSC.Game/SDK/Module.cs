@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -15,16 +15,16 @@ using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Framework.Threading;
 using osu.Framework.Timing;
-using VRCOSC.Game.Config;
-using VRCOSC.Game.OSC.VRChat;
-using VRCOSC.Game.SDK.Attributes;
-using VRCOSC.Game.SDK.Attributes.Parameters;
-using VRCOSC.Game.SDK.Attributes.Settings;
-using VRCOSC.Game.SDK.Graphics.Settings.Values;
-using VRCOSC.Game.SDK.Parameters;
-using VRCOSC.Game.Serialisation;
+using VRCOSC.Config;
+using VRCOSC.OSC.VRChat;
+using VRCOSC.SDK.Attributes;
+using VRCOSC.SDK.Attributes.Parameters;
+using VRCOSC.SDK.Attributes.Settings;
+using VRCOSC.SDK.Graphics.Settings.Values;
+using VRCOSC.SDK.Parameters;
+using VRCOSC.Serialisation;
 
-namespace VRCOSC.Game.SDK;
+namespace VRCOSC.SDK;
 
 public abstract class Module
 {

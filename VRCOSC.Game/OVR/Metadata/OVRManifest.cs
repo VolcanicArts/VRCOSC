@@ -4,7 +4,7 @@
 using System;
 using Newtonsoft.Json;
 
-namespace VRCOSC.Game.OVR.Metadata;
+namespace VRCOSC.OVR.Metadata;
 
 public class OVRManifest
 {

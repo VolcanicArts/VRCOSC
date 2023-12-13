@@ -10,7 +10,7 @@ using osu.Framework.Logging;
 // ReSharper disable ParameterTypeCanBeEnumerable.Local
 // ReSharper disable SuggestBaseTypeForParameter
 
-namespace VRCOSC.Game.OSC.Client;
+namespace VRCOSC.OSC.Client;
 
 internal static class OscDecoder
 {

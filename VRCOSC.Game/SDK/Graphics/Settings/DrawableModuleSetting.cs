@@ -8,11 +8,11 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
-using VRCOSC.Game.Graphics;
-using VRCOSC.Game.Graphics.UI;
-using VRCOSC.Game.SDK.Attributes.Settings;
+using VRCOSC.Graphics;
+using VRCOSC.Graphics.UI;
+using VRCOSC.SDK.Attributes.Settings;
 
-namespace VRCOSC.Game.SDK.Graphics.Settings;
+namespace VRCOSC.SDK.Graphics.Settings;
 
 public abstract partial class DrawableModuleSetting<T> : Container where T : ModuleSetting
 {

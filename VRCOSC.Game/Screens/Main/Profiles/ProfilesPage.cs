@@ -7,12 +7,12 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osuTK;
-using VRCOSC.Game.Config;
-using VRCOSC.Game.Graphics;
-using VRCOSC.Game.Profiles;
-using VRCOSC.Game.Screens.Main.Profiles.ManagementOverlay;
+using VRCOSC.Config;
+using VRCOSC.Graphics;
+using VRCOSC.Profiles;
+using VRCOSC.Screens.Main.Profiles.ManagementOverlay;
 
-namespace VRCOSC.Game.Screens.Main.Profiles;
+namespace VRCOSC.Screens.Main.Profiles;
 
 [Cached]
 public partial class ProfilesPage : Container

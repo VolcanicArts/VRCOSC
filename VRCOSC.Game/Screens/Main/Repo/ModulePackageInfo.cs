@@ -16,11 +16,11 @@ using osu.Framework.Input.Events;
 using osu.Framework.Platform;
 using osuTK;
 using osuTK.Graphics;
-using VRCOSC.Game.Graphics;
-using VRCOSC.Game.Graphics.UI;
-using VRCOSC.Game.Packages;
+using VRCOSC.Graphics;
+using VRCOSC.Graphics.UI;
+using VRCOSC.Packages;
 
-namespace VRCOSC.Game.Screens.Main.Repo;
+namespace VRCOSC.Screens.Main.Repo;
 
 public partial class ModulePackageInfo : VisibilityContainer
 {

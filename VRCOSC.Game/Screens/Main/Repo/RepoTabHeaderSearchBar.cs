@@ -9,9 +9,9 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.UserInterface;
 using osuTK;
 using osuTK.Graphics;
-using VRCOSC.Game.Graphics;
+using VRCOSC.Graphics;
 
-namespace VRCOSC.Game.Screens.Main.Repo;
+namespace VRCOSC.Screens.Main.Repo;
 
 public partial class RepoTabHeaderSearchBar : Container
 {

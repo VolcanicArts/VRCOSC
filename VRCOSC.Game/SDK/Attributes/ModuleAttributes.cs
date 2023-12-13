@@ -5,7 +5,7 @@ using System;
 
 // ReSharper disable SuggestBaseTypeForParameterInConstructor
 
-namespace VRCOSC.Game.SDK.Attributes;
+namespace VRCOSC.SDK.Attributes;
 
 public abstract class ModuleAttribute
 {

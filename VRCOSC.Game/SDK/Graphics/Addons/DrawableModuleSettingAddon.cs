@@ -3,9 +3,9 @@
 
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using VRCOSC.Game.SDK.Attributes.Settings.Addons;
+using VRCOSC.SDK.Attributes.Settings.Addons;
 
-namespace VRCOSC.Game.SDK.Graphics.Addons;
+namespace VRCOSC.SDK.Graphics.Addons;
 
 public partial class DrawableModuleSettingAddon<T> : Container where T : ModuleSettingAddon
 {

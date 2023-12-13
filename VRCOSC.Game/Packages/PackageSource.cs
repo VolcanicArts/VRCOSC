@@ -12,9 +12,8 @@ using Newtonsoft.Json;
 using Octokit;
 using osu.Framework.Logging;
 using Semver;
-using VRCOSC.Game.Packages.Sources;
 
-namespace VRCOSC.Game.Packages;
+namespace VRCOSC.Packages;
 
 public class PackageSource
 {

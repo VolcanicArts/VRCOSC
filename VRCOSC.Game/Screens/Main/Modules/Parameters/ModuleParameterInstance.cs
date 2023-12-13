@@ -5,13 +5,13 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
-using VRCOSC.Game.Graphics;
-using VRCOSC.Game.Graphics.UI.List;
-using VRCOSC.Game.Graphics.UI.Text;
-using VRCOSC.Game.SDK.Attributes.Parameters;
-using VRCOSC.Game.SDK.Parameters;
+using VRCOSC.Graphics;
+using VRCOSC.Graphics.UI.List;
+using VRCOSC.Graphics.UI.Text;
+using VRCOSC.SDK.Attributes.Parameters;
+using VRCOSC.SDK.Parameters;
 
-namespace VRCOSC.Game.Screens.Main.Modules.Parameters;
+namespace VRCOSC.Screens.Main.Modules.Parameters;
 
 public partial class ModuleParameterInstance : HeightLimitedScrollableListItem
 {

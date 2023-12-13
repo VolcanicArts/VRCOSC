@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Valve.VR;
-using VRCOSC.Game.OVR.Device;
+using VRCOSC.OVR.Device;
 
-namespace VRCOSC.Game.OVR;
+namespace VRCOSC.OVR;
 
 public class OVRSystem
 {

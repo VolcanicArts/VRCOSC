@@ -6,9 +6,9 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
-using VRCOSC.Game.Graphics;
+using VRCOSC.Graphics;
 
-namespace VRCOSC.Game.Screens.Main.Modules.Parameters;
+namespace VRCOSC.Screens.Main.Modules.Parameters;
 
 public partial class ModuleParametersListHeader : Container
 {

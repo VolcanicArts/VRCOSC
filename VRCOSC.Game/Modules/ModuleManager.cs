@@ -12,15 +12,15 @@ using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Framework.Timing;
-using VRCOSC.Game.Config;
-using VRCOSC.Game.Modules.Serialisation;
-using VRCOSC.Game.OSC.VRChat;
-using VRCOSC.Game.SDK;
-using VRCOSC.Game.SDK.Avatars;
-using VRCOSC.Game.Serialisation;
-using Module = VRCOSC.Game.SDK.Module;
+using VRCOSC.Config;
+using VRCOSC.Modules.Serialisation;
+using VRCOSC.OSC.VRChat;
+using VRCOSC.SDK;
+using VRCOSC.SDK.Avatars;
+using VRCOSC.Serialisation;
+using Module = VRCOSC.SDK.Module;
 
-namespace VRCOSC.Game.Modules;
+namespace VRCOSC.Modules;
 
 public class ModuleManager
 {

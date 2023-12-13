@@ -5,7 +5,7 @@ using System;
 using System.Linq;
 using osu.Framework.Bindables;
 
-namespace VRCOSC.Game.Profiles;
+namespace VRCOSC.Profiles;
 
 public class Profile
 {

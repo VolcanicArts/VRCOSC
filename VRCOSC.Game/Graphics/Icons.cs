@@ -3,7 +3,7 @@
 
 using osu.Framework.Graphics.Sprites;
 
-namespace VRCOSC.Game.Graphics;
+namespace VRCOSC.Graphics;
 
 public static class Icons
 {

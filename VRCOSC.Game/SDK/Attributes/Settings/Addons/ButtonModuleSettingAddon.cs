@@ -3,9 +3,9 @@
 
 using System;
 using osu.Framework.Graphics;
-using VRCOSC.Game.SDK.Graphics.Addons;
+using VRCOSC.SDK.Graphics.Addons;
 
-namespace VRCOSC.Game.SDK.Attributes.Settings.Addons;
+namespace VRCOSC.SDK.Attributes.Settings.Addons;
 
 public class ButtonModuleSettingAddon : ModuleSettingAddon
 {

@@ -3,10 +3,10 @@
 
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
-using VRCOSC.Game.Graphics.UI.Text;
-using VRCOSC.Game.SDK.Attributes.Settings;
+using VRCOSC.Graphics.UI.Text;
+using VRCOSC.SDK.Attributes.Settings;
 
-namespace VRCOSC.Game.SDK.Graphics.Settings.Lists;
+namespace VRCOSC.SDK.Graphics.Settings.Lists;
 
 public partial class DrawableStringListModuleSetting : DrawableListModuleSetting<Bindable<string>>
 {

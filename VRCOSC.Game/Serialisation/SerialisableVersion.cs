@@ -3,7 +3,7 @@
 
 using Newtonsoft.Json;
 
-namespace VRCOSC.Game.Serialisation;
+namespace VRCOSC.Serialisation;
 
 public class SerialisableVersion
 {

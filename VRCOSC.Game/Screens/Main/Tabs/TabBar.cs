@@ -9,15 +9,15 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
-using VRCOSC.Game.Graphics;
-using VRCOSC.Game.Screens.Main.Home;
-using VRCOSC.Game.Screens.Main.Modules;
-using VRCOSC.Game.Screens.Main.Profiles;
-using VRCOSC.Game.Screens.Main.Repo;
-using VRCOSC.Game.Screens.Main.Run;
-using VRCOSC.Game.Screens.Main.Settings;
+using VRCOSC.Graphics;
+using VRCOSC.Screens.Main.Home;
+using VRCOSC.Screens.Main.Modules;
+using VRCOSC.Screens.Main.Profiles;
+using VRCOSC.Screens.Main.Repo;
+using VRCOSC.Screens.Main.Run;
+using VRCOSC.Screens.Main.Settings;
 
-namespace VRCOSC.Game.Screens.Main.Tabs;
+namespace VRCOSC.Screens.Main.Tabs;
 
 public partial class TabBar : Container
 {

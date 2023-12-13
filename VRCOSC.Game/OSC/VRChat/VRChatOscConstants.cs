@@ -3,7 +3,7 @@
 
 // ReSharper disable MemberCanBePrivate.Global
 
-namespace VRCOSC.Game.OSC.VRChat;
+namespace VRCOSC.OSC.VRChat;
 
 public static class VRChatOscConstants
 {

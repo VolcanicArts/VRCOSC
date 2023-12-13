@@ -3,7 +3,7 @@
 
 using Octokit;
 
-namespace VRCOSC.Game.Packages;
+namespace VRCOSC.Packages;
 
 public static class GitHubProxy
 {

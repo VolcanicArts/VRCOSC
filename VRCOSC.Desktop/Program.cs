@@ -23,7 +23,7 @@ public static class Program
         initSquirrel();
 
         using GameHost host = Host.GetSuitableDesktopHost(base_game_name);
-        using osu.Framework.Game game = new VRCOSCGameDesktop();
+        using Game game = new VRCOSCGameDesktop();
         host.Run(game);
     }
 

@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using osu.Framework.Logging;
 
-namespace VRCOSC.Game.OSC.Client;
+namespace VRCOSC.OSC.Client;
 
 public class OscReceiver
 {

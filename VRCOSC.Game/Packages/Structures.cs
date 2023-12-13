@@ -6,7 +6,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using Octokit;
 
-namespace VRCOSC.Game.Packages;
+namespace VRCOSC.Packages;
 
 public class PackageLatestRelease
 {

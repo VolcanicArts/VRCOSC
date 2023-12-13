@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using LibreHardwareMonitor.Hardware;
 using osu.Framework.Extensions.IEnumerableExtensions;
 
-namespace VRCOSC.Game.SDK.Providers.Hardware;
+namespace VRCOSC.SDK.Providers.Hardware;
 
 public sealed class HardwareStatsProvider
 {

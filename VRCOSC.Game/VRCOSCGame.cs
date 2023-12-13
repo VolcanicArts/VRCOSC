@@ -14,13 +14,13 @@ using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Platform;
 using PInvoke;
-using VRCOSC.Game.Config;
-using VRCOSC.Game.OVR.Metadata;
-using VRCOSC.Game.Screens.Loading;
-using VRCOSC.Game.Screens.Main;
-using VRCOSC.Game.Screens.Main.Tabs;
+using VRCOSC.Config;
+using VRCOSC.OVR.Metadata;
+using VRCOSC.Screens.Loading;
+using VRCOSC.Screens.Main;
+using VRCOSC.Screens.Main.Tabs;
 
-namespace VRCOSC.Game;
+namespace VRCOSC;
 
 [Cached]
 public abstract partial class VRCOSCGame : VRCOSCGameBase

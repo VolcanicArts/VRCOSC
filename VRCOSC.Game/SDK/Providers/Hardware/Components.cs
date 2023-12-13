@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using LibreHardwareMonitor.Hardware;
 
-namespace VRCOSC.Game.SDK.Providers.Hardware;
+namespace VRCOSC.SDK.Providers.Hardware;
 
 public record SensorPair(SensorType Type, string Name);
 

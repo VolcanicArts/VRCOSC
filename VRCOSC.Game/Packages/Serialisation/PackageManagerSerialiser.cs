@@ -3,9 +3,9 @@
 
 using System.Linq;
 using osu.Framework.Platform;
-using VRCOSC.Game.Serialisation;
+using VRCOSC.Serialisation;
 
-namespace VRCOSC.Game.Packages.Serialisation;
+namespace VRCOSC.Packages.Serialisation;
 
 public class PackageManagerSerialiser : Serialiser<PackageManager, SerialisablePackageManager>
 {

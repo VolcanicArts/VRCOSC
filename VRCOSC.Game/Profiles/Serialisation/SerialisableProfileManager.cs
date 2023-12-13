@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
-using VRCOSC.Game.Serialisation;
+using VRCOSC.Serialisation;
 
-namespace VRCOSC.Game.Profiles.Serialisation;
+namespace VRCOSC.Profiles.Serialisation;
 
 public class SerialisableProfileManager : SerialisableVersion
 {

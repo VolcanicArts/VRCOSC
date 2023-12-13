@@ -3,7 +3,7 @@
 
 using Newtonsoft.Json;
 
-namespace VRCOSC.Game.SDK.Providers.PiShock;
+namespace VRCOSC.SDK.Providers.PiShock;
 
 public abstract class BasePiShockRequest
 {

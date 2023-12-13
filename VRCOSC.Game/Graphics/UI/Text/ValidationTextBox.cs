@@ -10,7 +10,7 @@ using osu.Framework.Graphics.Sprites;
 using osuTK;
 using osuTK.Graphics;
 
-namespace VRCOSC.Game.Graphics.UI.Text;
+namespace VRCOSC.Graphics.UI.Text;
 
 public abstract partial class ValidationTextBox<T> : TextBox
 {

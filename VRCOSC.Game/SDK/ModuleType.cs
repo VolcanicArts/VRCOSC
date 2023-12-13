@@ -3,9 +3,9 @@
 
 using System;
 using osuTK.Graphics;
-using VRCOSC.Game.Graphics;
+using VRCOSC.Graphics;
 
-namespace VRCOSC.Game.SDK;
+namespace VRCOSC.SDK;
 
 public enum ModuleType
 {

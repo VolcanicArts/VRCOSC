@@ -3,7 +3,7 @@
 
 using Valve.VR;
 
-namespace VRCOSC.Game.OVR.Metadata;
+namespace VRCOSC.OVR.Metadata;
 
 public class OVRMetadata
 {

@@ -2,9 +2,9 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using VRCOSC.Game.SDK.Parameters;
+using VRCOSC.SDK.Parameters;
 
-namespace VRCOSC.Game.SDK.Attributes.Parameters;
+namespace VRCOSC.SDK.Attributes.Parameters;
 
 public class ModuleParameterMetadata : ModuleAttributeMetadata
 {

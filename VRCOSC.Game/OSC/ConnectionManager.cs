@@ -13,9 +13,9 @@ using osu.Framework.Development;
 using osu.Framework.Logging;
 using osu.Framework.Threading;
 using osu.Framework.Timing;
-using VRCOSC.Game.OSC.Query;
+using VRCOSC.OSC.Query;
 
-namespace VRCOSC.Game.OSC;
+namespace VRCOSC.OSC;
 
 public class ConnectionManager
 {

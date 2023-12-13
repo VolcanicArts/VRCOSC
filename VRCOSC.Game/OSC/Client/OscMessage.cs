@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace VRCOSC.Game.OSC.Client;
+namespace VRCOSC.OSC.Client;
 
 public class OscMessage
 {

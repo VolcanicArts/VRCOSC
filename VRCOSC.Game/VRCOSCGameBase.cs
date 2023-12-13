@@ -12,10 +12,10 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.IO.Stores;
 using osu.Framework.Platform;
 using osuTK;
-using VRCOSC.Game.Config;
+using VRCOSC.Config;
 using VRCOSC.Resources;
 
-namespace VRCOSC.Game;
+namespace VRCOSC;
 
 public partial class VRCOSCGameBase : osu.Framework.Game
 {

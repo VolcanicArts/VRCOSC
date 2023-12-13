@@ -8,9 +8,9 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.UserInterface;
 using osuTK;
-using VRCOSC.Game.Graphics;
+using VRCOSC.Graphics;
 
-namespace VRCOSC.Game.Screens.Loading;
+namespace VRCOSC.Screens.Loading;
 
 public partial class LoadingScreenSliderBar : SliderBar<float>
 {

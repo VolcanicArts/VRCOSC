@@ -3,7 +3,7 @@
 
 using System.Runtime.CompilerServices;
 
-namespace VRCOSC.Game.OSC.Client;
+namespace VRCOSC.OSC.Client;
 
 public static class OscUtils
 {

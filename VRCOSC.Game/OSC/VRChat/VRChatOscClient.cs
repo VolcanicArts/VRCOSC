@@ -7,10 +7,10 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using osu.Framework.Logging;
-using VRCOSC.Game.OSC.Client;
-using VRCOSC.Game.OSC.Query;
+using VRCOSC.OSC.Client;
+using VRCOSC.OSC.Query;
 
-namespace VRCOSC.Game.OSC.VRChat;
+namespace VRCOSC.OSC.VRChat;
 
 public class VRChatOscClient : OscClient
 {

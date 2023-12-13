@@ -2,9 +2,9 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Graphics;
-using VRCOSC.Game.Graphics.UI.List;
+using VRCOSC.Graphics.UI.List;
 
-namespace VRCOSC.Game.Screens.Main.Modules.Parameters;
+namespace VRCOSC.Screens.Main.Modules.Parameters;
 
 public partial class ModuleParametersList : HeightLimitedScrollableList<ModuleParameterInstance>
 {

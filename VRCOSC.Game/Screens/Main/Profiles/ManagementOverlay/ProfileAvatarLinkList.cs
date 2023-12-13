@@ -8,10 +8,10 @@ using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
-using VRCOSC.Game.Graphics;
-using VRCOSC.Game.Profiles;
+using VRCOSC.Graphics;
+using VRCOSC.Profiles;
 
-namespace VRCOSC.Game.Screens.Main.Profiles.ManagementOverlay;
+namespace VRCOSC.Screens.Main.Profiles.ManagementOverlay;
 
 public partial class ProfileAvatarLinkList : Container
 {

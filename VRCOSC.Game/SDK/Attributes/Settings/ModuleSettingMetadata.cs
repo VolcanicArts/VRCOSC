@@ -3,7 +3,7 @@
 
 using System;
 
-namespace VRCOSC.Game.SDK.Attributes.Settings;
+namespace VRCOSC.SDK.Attributes.Settings;
 
 public class ModuleSettingMetadata : ModuleAttributeMetadata
 {

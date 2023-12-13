@@ -8,9 +8,9 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Input.Events;
 using osuTK;
-using VRCOSC.Game.Config;
+using VRCOSC.Config;
 
-namespace VRCOSC.Game.Screens.Main.Repo;
+namespace VRCOSC.Screens.Main.Repo;
 
 public partial class RepoTabHeaderFilter : ClickableContainer
 {

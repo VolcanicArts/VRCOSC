@@ -10,10 +10,10 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osuTK;
-using VRCOSC.Game.Graphics;
-using VRCOSC.Game.SDK;
+using VRCOSC.Graphics;
+using VRCOSC.SDK;
 
-namespace VRCOSC.Game.Screens.Main.Modules;
+namespace VRCOSC.Screens.Main.Modules;
 
 public partial class ModuleAssemblyContainer : FillFlowContainer
 {

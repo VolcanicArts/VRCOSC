@@ -7,10 +7,10 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
-using VRCOSC.Game.Graphics;
-using VRCOSC.Game.Profiles;
+using VRCOSC.Graphics;
+using VRCOSC.Profiles;
 
-namespace VRCOSC.Game.Screens.Main.Profiles;
+namespace VRCOSC.Screens.Main.Profiles;
 
 public partial class ActiveDropdownContainer : Container
 {

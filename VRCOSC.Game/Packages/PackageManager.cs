@@ -9,13 +9,13 @@ using Octokit;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
-using VRCOSC.Game.Actions.Packages;
-using VRCOSC.Game.Config;
-using VRCOSC.Game.Packages.Serialisation;
-using VRCOSC.Game.Screens.Loading;
-using VRCOSC.Game.Serialisation;
+using VRCOSC.Actions.Packages;
+using VRCOSC.Config;
+using VRCOSC.Packages.Serialisation;
+using VRCOSC.Screens.Loading;
+using VRCOSC.Serialisation;
 
-namespace VRCOSC.Game.Packages;
+namespace VRCOSC.Packages;
 
 public class PackageManager
 {

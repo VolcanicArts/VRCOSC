@@ -5,7 +5,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 
-namespace VRCOSC.Game.Graphics.UI.List;
+namespace VRCOSC.Graphics.UI.List;
 
 public partial class HeightLimitedScrollableListItem : Container
 {

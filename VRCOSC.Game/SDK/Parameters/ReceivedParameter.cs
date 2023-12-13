@@ -3,11 +3,11 @@
 
 using System;
 using System.Collections.Generic;
-using VRCOSC.Game.SDK.Attributes.Parameters;
-using VRCOSC.Game.SDK.Avatars;
-using VRCOSC.Game.SDK.Worlds;
+using VRCOSC.SDK.Attributes.Parameters;
+using VRCOSC.SDK.Avatars;
+using VRCOSC.SDK.Worlds;
 
-namespace VRCOSC.Game.SDK.Parameters;
+namespace VRCOSC.SDK.Parameters;
 
 /// <summary>
 /// Base class of all parameters received from VRChat

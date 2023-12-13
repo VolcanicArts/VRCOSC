@@ -11,10 +11,10 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
 using osuTK;
-using VRCOSC.Game.Graphics;
-using VRCOSC.Game.Profiles;
+using VRCOSC.Graphics;
+using VRCOSC.Profiles;
 
-namespace VRCOSC.Game.Screens.Main.Profiles;
+namespace VRCOSC.Screens.Main.Profiles;
 
 [Cached]
 public partial class ProfileDropdown : ClickableContainer

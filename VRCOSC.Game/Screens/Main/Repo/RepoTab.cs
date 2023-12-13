@@ -8,10 +8,10 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osuTK;
-using VRCOSC.Game.Config;
-using VRCOSC.Game.Graphics;
+using VRCOSC.Config;
+using VRCOSC.Graphics;
 
-namespace VRCOSC.Game.Screens.Main.Repo;
+namespace VRCOSC.Screens.Main.Repo;
 
 [Cached]
 public partial class RepoTab : Container

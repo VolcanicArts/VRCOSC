@@ -4,9 +4,9 @@
 using System;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using VRCOSC.Game.SDK.Utilities;
+using VRCOSC.SDK.Utilities;
 
-namespace VRCOSC.Game.SDK.Modules.Heartrate;
+namespace VRCOSC.SDK.Modules.Heartrate;
 
 /// <inheritdoc />
 /// <summary>

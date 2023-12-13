@@ -4,9 +4,9 @@
 using System.Linq;
 using osu.Framework.Bindables;
 using osu.Framework.Platform;
-using VRCOSC.Game.Serialisation;
+using VRCOSC.Serialisation;
 
-namespace VRCOSC.Game.Profiles.Serialisation;
+namespace VRCOSC.Profiles.Serialisation;
 
 public class ProfileManagerSerialiser : Serialiser<ProfileManager, SerialisableProfileManager>
 {

@@ -3,7 +3,7 @@
 
 using System;
 
-namespace VRCOSC.Game.SDK.Providers.Media;
+namespace VRCOSC.SDK.Providers.Media;
 
 public class MediaState
 {

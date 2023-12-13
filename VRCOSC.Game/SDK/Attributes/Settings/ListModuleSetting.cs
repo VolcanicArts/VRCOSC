@@ -8,7 +8,7 @@ using Newtonsoft.Json.Linq;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics.Containers;
 
-namespace VRCOSC.Game.SDK.Attributes.Settings;
+namespace VRCOSC.SDK.Attributes.Settings;
 
 public abstract class ListModuleSetting<T> : ModuleSetting
 {

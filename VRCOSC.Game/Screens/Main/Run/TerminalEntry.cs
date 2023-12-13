@@ -5,10 +5,10 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Pooling;
 using osuTK;
-using VRCOSC.Game.Graphics;
-using Fonts = VRCOSC.Game.Graphics.Fonts;
+using VRCOSC.Graphics;
+using Fonts = VRCOSC.Graphics.Fonts;
 
-namespace VRCOSC.Game.Screens.Main.Run;
+namespace VRCOSC.Screens.Main.Run;
 
 public partial class TerminalEntry : PoolableDrawable
 {

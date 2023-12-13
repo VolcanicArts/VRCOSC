@@ -3,9 +3,9 @@
 
 using osu.Framework.Configuration;
 using osu.Framework.Platform;
-using VRCOSC.Game.Screens.Main.Repo;
+using VRCOSC.Screens.Main.Repo;
 
-namespace VRCOSC.Game.Config;
+namespace VRCOSC.Config;
 
 public class VRCOSCConfigManager : IniConfigManager<VRCOSCSetting>
 {

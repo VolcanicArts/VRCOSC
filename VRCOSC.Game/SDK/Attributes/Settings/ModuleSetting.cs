@@ -4,9 +4,9 @@
 using System;
 using System.Collections.Generic;
 using osu.Framework.Graphics.Containers;
-using VRCOSC.Game.SDK.Attributes.Settings.Addons;
+using VRCOSC.SDK.Attributes.Settings.Addons;
 
-namespace VRCOSC.Game.SDK.Attributes.Settings;
+namespace VRCOSC.SDK.Attributes.Settings;
 
 public abstract class ModuleSetting : ModuleAttribute
 {

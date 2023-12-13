@@ -10,11 +10,11 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
-using VRCOSC.Game.Graphics;
-using VRCOSC.Game.Graphics.UI;
-using VRCOSC.Game.Graphics.UI.List;
+using VRCOSC.Graphics;
+using VRCOSC.Graphics.UI;
+using VRCOSC.Graphics.UI.List;
 
-namespace VRCOSC.Game.Screens.Main.Profiles;
+namespace VRCOSC.Screens.Main.Profiles;
 
 public partial class ProfileList : HeightLimitedScrollableList<ProfileListInstance>
 {

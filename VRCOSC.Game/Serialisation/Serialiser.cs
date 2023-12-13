@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 
-namespace VRCOSC.Game.Serialisation;
+namespace VRCOSC.Serialisation;
 
 /// <summary>
 /// Allows for serialising TReference into TSerialisable and deserialising TSerialisable to pass to <see cref="ExecuteAfterDeserialisation"/>

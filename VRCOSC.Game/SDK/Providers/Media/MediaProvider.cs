@@ -4,7 +4,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace VRCOSC.Game.SDK.Providers.Media;
+namespace VRCOSC.SDK.Providers.Media;
 
 public abstract class MediaProvider
 {

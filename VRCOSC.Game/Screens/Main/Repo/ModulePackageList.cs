@@ -4,9 +4,9 @@
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
-using VRCOSC.Game.Graphics.UI.List;
+using VRCOSC.Graphics.UI.List;
 
-namespace VRCOSC.Game.Screens.Main.Repo;
+namespace VRCOSC.Screens.Main.Repo;
 
 public partial class ModulePackageList : HeightLimitedScrollableList<ModulePackageInstance>
 {

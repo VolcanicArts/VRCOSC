@@ -6,10 +6,10 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osuTK;
-using VRCOSC.Game.Config;
-using VRCOSC.Game.Graphics;
+using VRCOSC.Config;
+using VRCOSC.Graphics;
 
-namespace VRCOSC.Game.Screens.Main.Settings;
+namespace VRCOSC.Screens.Main.Settings;
 
 public partial class SettingsTab : Container
 {

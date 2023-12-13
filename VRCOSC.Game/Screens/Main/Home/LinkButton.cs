@@ -8,9 +8,9 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Platform;
 using osuTK;
 using osuTK.Graphics;
-using VRCOSC.Game.Graphics.UI;
+using VRCOSC.Graphics.UI;
 
-namespace VRCOSC.Game.Screens.Main.Home;
+namespace VRCOSC.Screens.Main.Home;
 
 public partial class LinkButton : VRCOSCButton
 {

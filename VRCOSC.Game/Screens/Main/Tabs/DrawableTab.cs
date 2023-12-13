@@ -8,9 +8,9 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
 using osuTK;
-using VRCOSC.Game.Graphics;
+using VRCOSC.Graphics;
 
-namespace VRCOSC.Game.Screens.Main.Tabs;
+namespace VRCOSC.Screens.Main.Tabs;
 
 public sealed partial class DrawableTab : ClickableContainer
 {

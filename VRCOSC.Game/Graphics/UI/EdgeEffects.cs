@@ -6,7 +6,7 @@ using osu.Framework.Graphics.Effects;
 using osuTK;
 using osuTK.Graphics;
 
-namespace VRCOSC.Game.Graphics.UI;
+namespace VRCOSC.Graphics.UI;
 
 public class EdgeEffects
 {

@@ -5,7 +5,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.UserInterface;
 
-namespace VRCOSC.Game.Graphics.UI.Text;
+namespace VRCOSC.Graphics.UI.Text;
 
 public partial class TextBox : BasicTextBox
 {

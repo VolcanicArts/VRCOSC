@@ -10,12 +10,12 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osuTK;
-using VRCOSC.Game.Graphics;
-using VRCOSC.Game.Screens.Main.Modules.Parameters;
-using VRCOSC.Game.Screens.Main.Modules.Settings;
-using Module = VRCOSC.Game.SDK.Module;
+using VRCOSC.Graphics;
+using VRCOSC.Screens.Main.Modules.Parameters;
+using VRCOSC.Screens.Main.Modules.Settings;
+using Module = VRCOSC.SDK.Module;
 
-namespace VRCOSC.Game.Screens.Main.Modules;
+namespace VRCOSC.Screens.Main.Modules;
 
 [Cached]
 public partial class ModulesTab : Container

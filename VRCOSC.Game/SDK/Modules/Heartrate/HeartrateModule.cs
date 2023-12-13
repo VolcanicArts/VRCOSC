@@ -6,10 +6,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using osu.Framework.Utils;
-using VRCOSC.Game.SDK.Avatars;
-using VRCOSC.Game.SDK.Parameters;
+using VRCOSC.SDK.Avatars;
+using VRCOSC.SDK.Parameters;
 
-namespace VRCOSC.Game.SDK.Modules.Heartrate;
+namespace VRCOSC.SDK.Modules.Heartrate;
 
 [ModuleType(ModuleType.Health)]
 [ModulePrefab("VRCOSC-Heartrate", "https://github.com/VolcanicArts/VRCOSC/releases/download/latest/VRCOSC-Heartrate.unitypackage")]

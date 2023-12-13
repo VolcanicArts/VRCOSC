@@ -9,12 +9,12 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
-using VRCOSC.Game.Graphics;
-using VRCOSC.Game.Graphics.UI;
-using VRCOSC.Game.Graphics.UI.List;
-using VRCOSC.Game.Packages;
+using VRCOSC.Graphics;
+using VRCOSC.Graphics.UI;
+using VRCOSC.Graphics.UI.List;
+using VRCOSC.Packages;
 
-namespace VRCOSC.Game.Screens.Main.Repo;
+namespace VRCOSC.Screens.Main.Repo;
 
 public partial class ModulePackageInstance : HeightLimitedScrollableListItem
 {
