@@ -8,7 +8,7 @@ using osu.Framework.IO.Network;
 using osu.Framework.Platform;
 using VRCOSC.Game.Packages;
 
-namespace VRCOSC.Game.Actions.Packages.Installation;
+namespace VRCOSC.Game.Actions.Packages;
 
 public class PackageInstallAction : CompositeProgressAction
 {
@@ -16,38 +16,12 @@ public class PackageInstallAction : CompositeProgressAction
 
     public override string Title => $"Installing {packageSource.GetDisplayName()}";
 
-    public PackageInstallAction(Storage storage, PackageSource packageSource)
+    public PackageInstallAction(Storage storage, PackageSource packageSource, bool shouldUninstall)
     {
         this.packageSource = packageSource;
 
-        AddAction(new PackageDeleteAction(storage, packageSource));
+        if (shouldUninstall) AddAction(new PackageUninstallAction(storage, packageSource));
         AddAction(new PackageDownloadAction(storage, packageSource));
-    }
-
-    private class PackageDeleteAction : ProgressAction
-    {
-        private readonly Storage storage;
-        private readonly PackageSource packageSource;
-
-        private float localProgress;
-
-        public override string Title => $"Deleting local {packageSource.GetDisplayName()} files";
-
-        public PackageDeleteAction(Storage storage, PackageSource packageSource)
-        {
-            this.storage = storage;
-            this.packageSource = packageSource;
-        }
-
-        protected override async Task Perform()
-        {
-            localProgress = 0f;
-            storage.DeleteDirectory(packageSource.PackageID);
-            await Task.Delay(1000);
-            localProgress = 1f;
-        }
-
-        public override float GetProgress() => localProgress;
     }
 
     private class PackageDownloadAction : CompositeProgressAction
@@ -65,8 +39,6 @@ public class PackageInstallAction : CompositeProgressAction
 
             foreach (var assetName in assetNames)
             {
-                AddAction(new PackageAssetDownloadAction(targetDirectory, packageSource, assetName));
-                AddAction(new PackageAssetDownloadAction(targetDirectory, packageSource, assetName));
                 AddAction(new PackageAssetDownloadAction(targetDirectory, packageSource, assetName));
             }
         }
@@ -97,7 +69,6 @@ public class PackageInstallAction : CompositeProgressAction
                 assetDownload.DownloadProgress += (downloadedBytes, totalBytes) => localProgress = downloadedBytes / (float)totalBytes;
 
                 await assetDownload.PerformAsync();
-                await Task.Delay(1000);
             }
 
             public override float GetProgress() => localProgress;

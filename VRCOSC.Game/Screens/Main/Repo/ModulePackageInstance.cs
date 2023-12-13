@@ -210,9 +210,6 @@ public partial class ModulePackageInstance : HeightLimitedScrollableListItem
         protected readonly PackageSource PackageSource;
 
         [Resolved]
-        private VRCOSCGame game { get; set; } = null!;
-
-        [Resolved]
         private AppManager appManager { get; set; } = null!;
 
         protected ActionButton(PackageSource packageSource)
@@ -249,7 +246,6 @@ public partial class ModulePackageInstance : HeightLimitedScrollableListItem
         {
             await base.ExecuteAction();
 
-            game.LoadingScreen.Title.Value = "Installing...";
             game.LoadingScreen.Description.Value = $"Sit tight while {PackageSource.GetDisplayName()} is installed!";
             await PackageSource.Install();
         }
@@ -272,8 +268,7 @@ public partial class ModulePackageInstance : HeightLimitedScrollableListItem
         {
             await base.ExecuteAction();
 
-            game.LoadingScreen.Title.Value = "Uninstalling...";
-            game.LoadingScreen.Description.Value = "So long and thanks for all the fish";
+            game.LoadingScreen.Description.Value = "So long and thanks for all the fish...";
             PackageSource.Uninstall();
         }
     }
@@ -295,7 +290,6 @@ public partial class ModulePackageInstance : HeightLimitedScrollableListItem
         {
             await base.ExecuteAction();
 
-            game.LoadingScreen.Title.Value = "Updating...";
             game.LoadingScreen.Description.Value = $"Sit tight! {PackageSource.GetDisplayName()} is being updated!";
             await PackageSource.Install();
         }

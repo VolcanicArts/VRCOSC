@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
@@ -30,7 +30,6 @@ public partial class LoadingScreen : VisibilityContainer
 
     public Bindable<ProgressAction?> CurrentAction = new();
 
-    private SpriteText title = null!;
     private LoadingScreenSliderBar rootProgress = null!;
     private LoadingScreenSliderBar childProgress = null!;
 
@@ -61,13 +60,21 @@ public partial class LoadingScreen : VisibilityContainer
             Spacing = new Vector2(0, 5),
             Children = new Drawable[]
             {
-                title = new SpriteText
+                new SpriteText
                 {
                     Anchor = Anchor.TopCentre,
                     Origin = Anchor.TopCentre,
                     Font = FrameworkFont.Regular.With(size: 45),
                     Colour = Colours.WHITE0,
-                    Text = "Sit Tight!"
+                    Current = Title.GetBoundCopy()
+                },
+                new SpriteText
+                {
+                    Anchor = Anchor.TopCentre,
+                    Origin = Anchor.TopCentre,
+                    Font = FrameworkFont.Regular.With(size: 25),
+                    Colour = Colours.WHITE2,
+                    Current = Description.GetBoundCopy()
                 },
                 rootProgress = new LoadingScreenSliderBar
                 {

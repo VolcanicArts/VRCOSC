@@ -30,7 +30,7 @@ public abstract class ProgressAction
     }
 
     /// <summary>
-    /// Overwrite this to perform the task
+    /// Performs the action
     /// </summary>
     protected abstract Task Perform();
 

@@ -9,7 +9,7 @@ using Octokit;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
-using VRCOSC.Game.Actions.Packages.Installation;
+using VRCOSC.Game.Actions.Packages;
 using VRCOSC.Game.Config;
 using VRCOSC.Game.Packages.Serialisation;
 using VRCOSC.Game.Screens.Loading;
@@ -85,7 +85,8 @@ public class PackageManager
 
     public async Task InstallPackage(PackageSource packageSource)
     {
-        var installAction = new PackageInstallAction(storage, packageSource);
+        var isInstalled = InstalledPackages.ContainsKey(packageSource.PackageID!);
+        var installAction = new PackageInstallAction(storage, packageSource, isInstalled);
         game.LoadingScreen.CurrentAction.Value = installAction;
 
         await installAction.Execute();
@@ -97,11 +98,17 @@ public class PackageManager
         game.OnListingRefresh?.Invoke();
     }
 
-    public void UninstallPackage(PackageSource packageSource)
+    public async Task UninstallPackage(PackageSource packageSource)
     {
+        var uninstallAction = new PackageUninstallAction(storage, packageSource);
+        game.LoadingScreen.CurrentAction.Value = uninstallAction;
+        await uninstallAction.Execute();
+        appManager.ModuleManager.ReloadAllModules();
+
         InstalledPackages.Remove(packageSource.PackageID!);
-        storage.DeleteDirectory(packageSource.PackageID);
         serialisationManager.Serialise();
+
+        game.OnListingRefresh?.Invoke();
     }
 
     public bool IsInstalled(PackageSource packageSource) => packageSource.PackageID is not null && InstalledPackages.ContainsKey(packageSource.PackageID);

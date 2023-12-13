@@ -9,7 +9,14 @@ namespace VRCOSC.Game.Actions;
 
 public abstract class CompositeProgressAction : ProgressAction
 {
+    /// <summary>
+    /// Returns the lowest <see cref="CompositeProgressAction"/> title
+    /// </summary>
     public override string Title => currentChild is CompositeProgressAction compositeCurrentChild ? compositeCurrentChild.Title : Title;
+
+    /// <summary>
+    /// Returns the lowest <see cref="ProgressAction"/> title
+    /// </summary>
     public string SubTitle => currentChild is CompositeProgressAction compositeCurrentChild ? compositeCurrentChild.SubTitle : currentChild?.Title ?? string.Empty;
 
     private readonly List<ProgressAction> children = new();
