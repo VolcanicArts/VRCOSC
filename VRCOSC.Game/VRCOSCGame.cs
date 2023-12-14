@@ -40,6 +40,11 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
     public Action? OnListingRefresh;
 
+    protected VRCOSCGame()
+    {
+        AppDomain.CurrentDomain.UnhandledException += (_, _) => manageLogs();
+    }
+
     [BackgroundDependencyLoader]
     private void load()
     {
@@ -136,27 +141,32 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     private void prepareForExit()
     {
         trayIcon.Dispose();
-        manageLogs();
 
         Task.WhenAll(
             appManager.StopAsync()
-        ).GetAwaiter().OnCompleted(Exit);
+        ).GetAwaiter().OnCompleted(() =>
+        {
+            manageLogs();
+            Exit();
+        });
     }
+
+    #endregion
+
+    #region logs
+
+    private readonly IEnumerable<string> ignoredLogs = new[] { "network.log", "input.log", "performance.log", "performance-draw.log", "performance-update", "performance-input" };
 
     private void manageLogs()
     {
-        var archiveStorage = storage.GetStorageForDirectory("archive");
+        var archiveStorage = storage.GetStorageForDirectory("logs/archive");
         var specificArchiveStorage = archiveStorage.GetStorageForDirectory($"{DateTime.Now:yyyyMMdd_HHmmss}");
-        copyFilesRecursively(new DirectoryInfo(storage.GetFullPath("logs")), new DirectoryInfo(specificArchiveStorage.GetFullPath(string.Empty)));
+        new DirectoryInfo(storage.GetFullPath("logs"))
+            .GetFiles().SkipWhile(file => ignoredLogs.Contains(file.Name))
+            .ForEach(file => file.CopyTo(Path.Combine(specificArchiveStorage.GetFullPath(string.Empty), file.Name)));
 
         var archiveDirectoryInfo = new DirectoryInfo(archiveStorage.GetFullPath(string.Empty));
         archiveDirectoryInfo.GetDirectories().OrderByDescending(d => d.CreationTime).Skip(5).ForEach(d => d.Delete(true));
-    }
-
-    private static void copyFilesRecursively(DirectoryInfo source, DirectoryInfo target)
-    {
-        source.GetDirectories().ForEach(dir => copyFilesRecursively(dir, target.CreateSubdirectory(dir.Name)));
-        source.GetFiles().ForEach(file => file.CopyTo(Path.Combine(target.FullName, file.Name)));
     }
 
     #endregion
