@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -12,10 +13,12 @@ using Newtonsoft.Json;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.IEnumerableExtensions;
+using osu.Framework.Graphics.Containers;
 using osu.Framework.Platform;
 using PInvoke;
 using VRCOSC.Config;
 using VRCOSC.OVR.Metadata;
+using VRCOSC.Screens.Exceptions;
 using VRCOSC.Screens.Loading;
 using VRCOSC.Screens.Main;
 using VRCOSC.Screens.Main.Tabs;
@@ -36,6 +39,9 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
     public LoadingScreen LoadingScreen { get; private set; } = null!;
 
+    private ExceptionScreen exceptionScreen = null!;
+    private MainScreen mainScreen = null!;
+
     public Bindable<Tab> SelectedTab = new(Tab.Home);
 
     public Action? OnListingRefresh;
@@ -53,6 +59,8 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         setupTrayIcon();
 
         Add(LoadingScreen = new LoadingScreen());
+        Add(exceptionScreen = new ExceptionScreen());
+        ChangeChildDepth(exceptionScreen, float.MinValue);
     }
 
     private void clearCustomLogs()
@@ -93,10 +101,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         appManager.ModuleManager.LoadAllModules();
 
         LoadingScreen.Action.Value = "Loading graphics";
-        var mainScreen = new MainScreen
-        {
-            EnableBlur = LoadingScreen.State.GetBoundCopy()
-        };
+        mainScreen = new MainScreen();
 
         await LoadComponentAsync(mainScreen);
         Add(mainScreen);
@@ -116,6 +121,8 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     {
         appManager.FrameworkUpdate();
         host.DrawThread.InactiveHz = inTray ? 1 : 15;
+
+        mainScreen.ShouldBlur = LoadingScreen.State.Value == Visibility.Visible || exceptionScreen.State.Value == Visibility.Visible;
 
         if (!startInTrayComplete) obtainWindowHandle();
     }

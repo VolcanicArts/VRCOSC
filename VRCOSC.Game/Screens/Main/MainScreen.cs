@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
-using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osuTK;
@@ -16,7 +15,7 @@ public partial class MainScreen : Container
     private const int tab_bar_size = 70;
     private BufferedContainer bufferedContainer = null!;
 
-    public Bindable<Visibility> EnableBlur { get; init; } = null!;
+    public bool ShouldBlur;
 
     [BackgroundDependencyLoader]
     private void load()
@@ -48,12 +47,10 @@ public partial class MainScreen : Container
                 }
             }
         });
-
-        EnableBlur.BindValueChanged(transitionBlur);
     }
 
-    private void transitionBlur(ValueChangedEvent<Visibility> e)
+    protected override void Update()
     {
-        bufferedContainer.TransformTo(nameof(BufferedContainer.BlurSigma), e.NewValue == Visibility.Visible ? new Vector2(5) : new Vector2(0), 500);
+        bufferedContainer.TransformTo(nameof(BufferedContainer.BlurSigma), ShouldBlur ? new Vector2(5) : new Vector2(0), 500);
     }
 }
