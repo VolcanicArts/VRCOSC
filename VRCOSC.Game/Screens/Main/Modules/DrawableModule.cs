@@ -42,90 +42,114 @@ public partial class DrawableModule : Container
                 RelativeSizeAxes = Axes.Both,
                 Colour = even ? Colours.GRAY4 : Colours.GRAY2
             },
-            new FillFlowContainer
+            new GridContainer
             {
-                Anchor = Anchor.CentreLeft,
-                Origin = Anchor.CentreLeft,
-                RelativeSizeAxes = Axes.Y,
-                AutoSizeAxes = Axes.X,
-                Direction = FillDirection.Horizontal,
-                Children = new Drawable[]
+                RelativeSizeAxes = Axes.X,
+                AutoSizeAxes = Axes.Y,
+                RowDimensions = new[]
                 {
-                    new TypeIdentifier(module),
-                    new Container
+                    new Dimension(GridSizeMode.AutoSize)
+                },
+                ColumnDimensions = new[]
+                {
+                    new Dimension(GridSizeMode.AutoSize),
+                    new Dimension(),
+                    new Dimension(GridSizeMode.AutoSize)
+                },
+                Content = new[]
+                {
+                    new Drawable[]
                     {
-                        Anchor = Anchor.CentreLeft,
-                        Origin = Anchor.CentreLeft,
-                        Size = new Vector2(36),
-                        Child = new CheckBox
+                        new FillFlowContainer
                         {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
-                            RelativeSizeAxes = Axes.Both,
-                            BackgroundColour = Colours.GRAY6,
-                            BorderColour = Colours.GRAY3,
-                            Icon = FontAwesome.Solid.Check,
-                            State = module.Enabled.GetBoundCopy()
-                        }
-                    },
-                    new Container
-                    {
-                        Anchor = Anchor.CentreLeft,
-                        Origin = Anchor.CentreLeft,
-                        RelativeSizeAxes = Axes.Y,
-                        AutoSizeAxes = Axes.X,
-                        Padding = new MarginPadding
-                        {
-                            Horizontal = 7,
-                            Top = 3,
-                            Bottom = 5
+                            Anchor = Anchor.CentreLeft,
+                            Origin = Anchor.CentreLeft,
+                            AutoSizeAxes = Axes.Both,
+                            Direction = FillDirection.Horizontal,
+                            Children = new Drawable[]
+                            {
+                                new TypeIdentifier(module),
+                                new Container
+                                {
+                                    Anchor = Anchor.CentreLeft,
+                                    Origin = Anchor.CentreLeft,
+                                    Size = new Vector2(36),
+                                    Child = new CheckBox
+                                    {
+                                        Anchor = Anchor.Centre,
+                                        Origin = Anchor.Centre,
+                                        RelativeSizeAxes = Axes.Both,
+                                        BackgroundColour = Colours.GRAY6,
+                                        BorderColour = Colours.GRAY3,
+                                        Icon = FontAwesome.Solid.Check,
+                                        State = module.Enabled.GetBoundCopy()
+                                    }
+                                },
+                            }
                         },
-                        Children = new Drawable[]
+                        new Container
                         {
-                            new SpriteText
+                            RelativeSizeAxes = Axes.Both,
+                            Padding = new MarginPadding
                             {
-                                Anchor = Anchor.TopLeft,
-                                Origin = Anchor.TopLeft,
-                                Text = module.Title,
-                                Font = Fonts.BOLD.With(size: 25),
-                                Colour = Colours.WHITE0
+                                Horizontal = 7,
+                                Top = 3,
+                                Bottom = 5
                             },
-                            new SpriteText
+                            Children = new Drawable[]
                             {
-                                Anchor = Anchor.BottomLeft,
-                                Origin = Anchor.BottomLeft,
-                                Text = module.ShortDescription,
-                                Font = Fonts.REGULAR.With(size: 20),
-                                Colour = Colours.WHITE2
+                                new SpriteText
+                                {
+                                    Anchor = Anchor.TopLeft,
+                                    Origin = Anchor.TopLeft,
+                                    RelativeSizeAxes = Axes.X,
+                                    Text = module.Title,
+                                    Font = Fonts.BOLD.With(size: 25),
+                                    Colour = Colours.WHITE0,
+                                    Truncate = true
+                                },
+                                new SpriteText
+                                {
+                                    Anchor = Anchor.BottomLeft,
+                                    Origin = Anchor.BottomLeft,
+                                    RelativeSizeAxes = Axes.X,
+                                    Text = module.ShortDescription,
+                                    Font = Fonts.REGULAR.With(size: 20),
+                                    Colour = Colours.WHITE2,
+                                    Truncate = true
+                                }
+                            }
+                        },
+                        new FillFlowContainer
+                        {
+                            Name = "Button Flow",
+                            Anchor = Anchor.CentreRight,
+                            Origin = Anchor.CentreRight,
+                            AutoSizeAxes = Axes.Both,
+                            Padding = new MarginPadding
+                            {
+                                Vertical = 7,
+                                Right = 7
+                            },
+                            Direction = FillDirection.Horizontal,
+                            Spacing = new Vector2(7, 0),
+                            Children = new Drawable[]
+                            {
+                                new DrawableModuleButton
+                                {
+                                    Icon = FontAwesome.Solid.Link,
+                                    Action = () => modulesTab.ShowParameters(module)
+                                },
+                                new DrawableModuleButton
+                                {
+                                    Icon = FontAwesome.Solid.Cog,
+                                    Action = () => modulesTab.ShowSettings(module)
+                                }
                             }
                         }
                     }
                 }
             },
-            new FillFlowContainer
-            {
-                Name = "Button Flow",
-                Anchor = Anchor.CentreRight,
-                Origin = Anchor.CentreRight,
-                RelativeSizeAxes = Axes.Y,
-                AutoSizeAxes = Axes.X,
-                Padding = new MarginPadding(7),
-                Direction = FillDirection.Horizontal,
-                Spacing = new Vector2(7, 0),
-                Children = new Drawable[]
-                {
-                    new DrawableModuleButton
-                    {
-                        Icon = FontAwesome.Solid.Link,
-                        Action = () => modulesTab.ShowParameters(module)
-                    },
-                    new DrawableModuleButton
-                    {
-                        Icon = FontAwesome.Solid.Cog,
-                        Action = () => modulesTab.ShowSettings(module)
-                    }
-                }
-            }
         };
     }
 
