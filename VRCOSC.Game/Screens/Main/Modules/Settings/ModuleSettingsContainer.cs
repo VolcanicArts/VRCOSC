@@ -24,9 +24,7 @@ public partial class ModuleSettingsContainer : VisibilityContainer
 
     protected override FillFlowContainer Content { get; }
 
-    private Module? module;
     private readonly TextFlowContainer noSettingsDisplay;
-    private readonly TextButton resetToDefault;
 
     public ModuleSettingsContainer()
     {
@@ -52,18 +50,6 @@ public partial class ModuleSettingsContainer : VisibilityContainer
                     Padding = new MarginPadding(13),
                     Children = new Drawable[]
                     {
-                        resetToDefault = new TextButton
-                        {
-                            Anchor = Anchor.TopLeft,
-                            Origin = Anchor.TopLeft,
-                            RelativeSizeAxes = Axes.Y,
-                            Width = 200,
-                            BackgroundColour = Colours.BLUE0,
-                            TextContent = "Reset To Default",
-                            TextFont = Fonts.REGULAR.With(size: 25),
-                            TextColour = Colours.WHITE0,
-                            Action = () => module?.Settings.Values.ForEach(moduleSetting => moduleSetting.SetDefault())
-                        },
                         new IconButton
                         {
                             Anchor = Anchor.TopRight,
@@ -103,7 +89,7 @@ public partial class ModuleSettingsContainer : VisibilityContainer
                                 Origin = Anchor.TopCentre,
                                 RelativeSizeAxes = Axes.X,
                                 AutoSizeAxes = Axes.Y,
-                                Width = 0.5f,
+                                Width = 0.65f,
                                 Direction = FillDirection.Vertical,
                                 Padding = new MarginPadding
                                 {
@@ -130,8 +116,6 @@ public partial class ModuleSettingsContainer : VisibilityContainer
 
     public void SetModule(Module? module)
     {
-        this.module = module;
-
         Clear();
         if (module is null) return;
 
@@ -160,7 +144,6 @@ public partial class ModuleSettingsContainer : VisibilityContainer
         if (miscModuleSettingsGroupContainer.Any()) Add(miscModuleSettingsGroupContainer);
 
         noSettingsDisplay.Alpha = this.Any() ? 0 : 1;
-        resetToDefault.Alpha = this.Any() ? 1 : 0;
     }
 
     protected override void PopIn()

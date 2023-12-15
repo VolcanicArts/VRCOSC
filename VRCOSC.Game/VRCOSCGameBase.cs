@@ -57,6 +57,7 @@ public partial class VRCOSCGameBase : osu.Framework.Game
         DependencyContainer.CacheAs(ConfigManager = new VRCOSCConfigManager(storage.GetStorageForDirectory("configuration")));
 
         host.Window.Resized += () => updateUiScale();
+        host.Window.MinSize = new Size(875, 500);
         updateUiScale();
     }
 
