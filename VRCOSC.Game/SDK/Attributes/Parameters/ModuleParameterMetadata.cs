@@ -16,12 +16,12 @@ public class ModuleParameterMetadata : ModuleAttributeMetadata
     /// <summary>
     /// The expected type for this <see cref="ModuleParameter"/>
     /// </summary>
-    public readonly Type ExpectedType;
+    public readonly Type Type;
 
-    public ModuleParameterMetadata(string title, string description, ParameterMode mode, Type expectedType)
+    public ModuleParameterMetadata(string title, string description, ParameterMode mode, Type type)
         : base(title, description)
     {
         Mode = mode;
-        ExpectedType = expectedType;
+        Type = type;
     }
 }

@@ -38,11 +38,15 @@ public partial class ModuleParameterInstance : HeightLimitedScrollableListItem
                 AutoSizeAxes = Axes.Y,
                 ColumnDimensions = new[]
                 {
-                    new Dimension(GridSizeMode.Relative, 0.1f),
-                    new Dimension(GridSizeMode.Relative, 0.4f),
-                    new Dimension(GridSizeMode.Relative, 0.1f),
-                    new Dimension(GridSizeMode.Relative, 0.1f),
-                    new Dimension()
+                    new Dimension(GridSizeMode.Absolute, 120),
+                    new Dimension(GridSizeMode.Absolute, 7),
+                    new Dimension(),
+                    new Dimension(GridSizeMode.Absolute, 7),
+                    new Dimension(GridSizeMode.Absolute, 100),
+                    new Dimension(GridSizeMode.Absolute, 7),
+                    new Dimension(GridSizeMode.Absolute, 100),
+                    new Dimension(GridSizeMode.Absolute, 7),
+                    new Dimension(GridSizeMode.Absolute, 300)
                 },
                 RowDimensions = new[]
                 {
@@ -61,6 +65,7 @@ public partial class ModuleParameterInstance : HeightLimitedScrollableListItem
                             AutoSizeAxes = Axes.Y,
                             Text = moduleParameter.Metadata.Title
                         },
+                        null,
                         new TextFlowContainer(defaultCreationParameters)
                         {
                             Anchor = Anchor.CentreLeft,
@@ -70,6 +75,7 @@ public partial class ModuleParameterInstance : HeightLimitedScrollableListItem
                             AutoSizeAxes = Axes.Y,
                             Text = moduleParameter.Metadata.Description
                         },
+                        null,
                         new TextFlowContainer(defaultCreationParameters)
                         {
                             Anchor = Anchor.CentreLeft,
@@ -77,8 +83,9 @@ public partial class ModuleParameterInstance : HeightLimitedScrollableListItem
                             TextAnchor = Anchor.Centre,
                             RelativeSizeAxes = Axes.X,
                             AutoSizeAxes = Axes.Y,
-                            Text = moduleParameter.Metadata.ExpectedType.ToReadableName()
+                            Text = moduleParameter.Metadata.Type.ToReadableName()
                         },
+                        null,
                         new TextFlowContainer(defaultCreationParameters)
                         {
                             Anchor = Anchor.CentreLeft,
@@ -88,6 +95,7 @@ public partial class ModuleParameterInstance : HeightLimitedScrollableListItem
                             AutoSizeAxes = Axes.Y,
                             Text = moduleParameter.Metadata.Mode.ToReadableName()
                         },
+                        null,
                         new ParameterNameTextBox
                         {
                             Anchor = Anchor.Centre,

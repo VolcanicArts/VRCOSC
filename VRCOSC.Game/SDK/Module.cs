@@ -458,9 +458,9 @@ public abstract class Module
 
         if (!parameterData.Metadata.Mode.HasFlagFast(ParameterMode.Read)) return;
 
-        if (!receivedParameter.IsValueType(parameterData.Metadata.ExpectedType))
+        if (!receivedParameter.IsValueType(parameterData.Metadata.Type))
         {
-            Log($"Cannot accept input parameter. `{lookup}` expects type `{parameterData.Metadata.ExpectedType.ToReadableName()}` but received type `{receivedParameter.Value.GetType().ToReadableName()}`");
+            Log($"Cannot accept input parameter. `{lookup}` expects type `{parameterData.Metadata.Type.ToReadableName()}` but received type `{receivedParameter.Value.GetType().ToReadableName()}`");
             return;
         }
 

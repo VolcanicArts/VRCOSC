@@ -40,11 +40,15 @@ public partial class ModuleParametersListHeader : Container
                     AutoSizeAxes = Axes.Y,
                     ColumnDimensions = new[]
                     {
-                        new Dimension(GridSizeMode.Relative, 0.1f),
-                        new Dimension(GridSizeMode.Relative, 0.4f),
-                        new Dimension(GridSizeMode.Relative, 0.1f),
-                        new Dimension(GridSizeMode.Relative, 0.1f),
-                        new Dimension()
+                        new Dimension(GridSizeMode.Absolute, 120),
+                        new Dimension(GridSizeMode.Absolute, 7),
+                        new Dimension(),
+                        new Dimension(GridSizeMode.Absolute, 7),
+                        new Dimension(GridSizeMode.Absolute, 100),
+                        new Dimension(GridSizeMode.Absolute, 7),
+                        new Dimension(GridSizeMode.Absolute, 100),
+                        new Dimension(GridSizeMode.Absolute, 7),
+                        new Dimension(GridSizeMode.Absolute, 300)
                     },
                     RowDimensions = new[]
                     {
@@ -52,7 +56,7 @@ public partial class ModuleParametersListHeader : Container
                     },
                     Content = new[]
                     {
-                        new Drawable[]
+                        new Drawable?[]
                         {
                             new HeaderSpriteText
                             {
@@ -60,24 +64,28 @@ public partial class ModuleParametersListHeader : Container
                                 Origin = Anchor.CentreLeft,
                                 Text = "Title"
                             },
+                            null,
                             new HeaderSpriteText
                             {
                                 Anchor = Anchor.CentreLeft,
                                 Origin = Anchor.CentreLeft,
                                 Text = "Description"
                             },
+                            null,
                             new HeaderSpriteText
                             {
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
-                                Text = "Expected Type"
+                                Text = "Type"
                             },
+                            null,
                             new HeaderSpriteText
                             {
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
                                 Text = "Read/Write"
                             },
+                            null,
                             new HeaderSpriteText
                             {
                                 Anchor = Anchor.Centre,

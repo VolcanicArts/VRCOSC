@@ -122,8 +122,8 @@ public class RegisteredParameter : ReceivedParameter
 
     public override T GetValue<T>()
     {
-        if (typeof(T) != moduleParameter.Metadata.ExpectedType)
-            throw new InvalidCastException($"Parameter's value was expected as {moduleParameter.Metadata.ExpectedType.ToReadableName()} and you're trying to use it as {typeof(T).ToReadableName()}");
+        if (typeof(T) != moduleParameter.Metadata.Type)
+            throw new InvalidCastException($"Parameter's value was expected as {moduleParameter.Metadata.Type.ToReadableName()} and you're trying to use it as {typeof(T).ToReadableName()}");
 
         return base.GetValue<T>()!;
     }
