@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -17,6 +18,7 @@ using osu.Framework.Threading;
 using osu.Framework.Timing;
 using VRCOSC.Config;
 using VRCOSC.OSC.VRChat;
+using VRCOSC.Screens.Exceptions;
 using VRCOSC.SDK.Attributes;
 using VRCOSC.SDK.Attributes.Parameters;
 using VRCOSC.SDK.Attributes.Settings;
@@ -31,6 +33,7 @@ public abstract class Module
     public string PackageId { get; set; } = null!;
 
     private SerialisationManager serialisationManager = null!;
+    private SerialisationManager persistenceSerialisationManager = null!;
     private Scheduler scheduler = null!;
 
     protected internal GameHost Host = null!;
@@ -48,12 +51,15 @@ public abstract class Module
     internal readonly Dictionary<Enum, ModuleParameter> Parameters = new();
     internal readonly Dictionary<string, ModuleSetting> Settings = new();
     internal readonly Dictionary<string, List<string>> Groups = new();
+    internal readonly Dictionary<ModulePersistentAttribute, PropertyInfo> PersistentProperties = new();
 
     // Cached pre-computed lookups
     private readonly Dictionary<string, Enum> parameterNameEnum = new();
     private readonly Dictionary<string, Regex> parameterNameRegex = new();
 
     internal string SerialisedName => $"{PackageId}.{GetType().Name.ToLowerInvariant()}";
+
+    protected virtual bool ShouldUsePersistence => true;
 
     protected Module()
     {
@@ -65,23 +71,14 @@ public abstract class Module
         Log(e.NewValue.ToString());
     }
 
-    internal void InjectDependencies(GameHost host, IClock clock, AppManager appManager, SerialisationManager serialisationManager, VRCOSCConfigManager configManager)
+    internal void InjectDependencies(GameHost host, IClock clock, AppManager appManager, SerialisationManager serialisationManager, SerialisationManager persistenceSerialisationManager, VRCOSCConfigManager configManager)
     {
         this.serialisationManager = serialisationManager;
+        this.persistenceSerialisationManager = persistenceSerialisationManager;
         scheduler = new Scheduler(() => ThreadSafety.IsUpdateThread, clock);
         Host = host;
         AppManager = appManager;
         ConfigManager = configManager;
-    }
-
-    internal void Serialise()
-    {
-        serialisationManager.Serialise();
-    }
-
-    internal void Deseralise()
-    {
-        serialisationManager.Deserialise();
     }
 
     internal void Load()
@@ -91,11 +88,12 @@ public abstract class Module
         Settings.Values.ForEach(moduleSetting => moduleSetting.Load());
         Parameters.Values.ForEach(moduleParameter => moduleParameter.Load());
 
-        Deseralise();
+        serialisationManager.Deserialise();
+        cachePersistentProperties();
 
-        Enabled.BindValueChanged(_ => Serialise());
-        Settings.Values.ForEach(moduleSetting => moduleSetting.RequestSerialisation = Serialise);
-        Parameters.Values.ForEach(moduleParameter => moduleParameter.RequestSerialisation = Serialise);
+        Enabled.BindValueChanged(_ => serialisationManager.Serialise());
+        Settings.Values.ForEach(moduleSetting => moduleSetting.RequestSerialisation = () => serialisationManager.Serialise());
+        Parameters.Values.ForEach(moduleParameter => moduleParameter.RequestSerialisation = () => serialisationManager.Serialise());
 
         OnPostLoad();
     }
@@ -104,6 +102,50 @@ public abstract class Module
     {
         scheduler.Update();
     }
+
+    #region Persistence
+
+    internal bool TryGetPersistentProperty(string key, [NotNullWhen(true)] out PropertyInfo? property)
+    {
+        property = PersistentProperties.SingleOrDefault(property => property.Key.SerialisedName == key).Value;
+        return property is not null;
+    }
+
+    private void cachePersistentProperties()
+    {
+        try
+        {
+            GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).ForEach(info =>
+            {
+                var isDefined = info.IsDefined(typeof(ModulePersistentAttribute));
+                if (!isDefined) return;
+
+                if (!info.CanRead || !info.CanWrite) throw new InvalidOperationException($"Property '{info.Name}' must be declared with get/set to have persistence");
+
+                PersistentProperties.Add(info.GetCustomAttribute<ModulePersistentAttribute>()!, info);
+            });
+        }
+        catch (Exception e)
+        {
+            PushException(e);
+        }
+    }
+
+    private void loadPersistentProperties()
+    {
+        if (!PersistentProperties.Any() || !ShouldUsePersistence) return;
+
+        persistenceSerialisationManager.Deserialise();
+    }
+
+    private void savePersistentProperties()
+    {
+        if (!PersistentProperties.Any() || !ShouldUsePersistence) return;
+
+        persistenceSerialisationManager.Serialise();
+    }
+
+    #endregion
 
     private static Regex parameterToRegex(string parameterName)
     {
@@ -121,6 +163,8 @@ public abstract class Module
 
         parameterNameRegex.Clear();
         Parameters.ForEach(pair => parameterNameRegex.Add(pair.Value.Name.Value, parameterToRegex(pair.Value.Name.Value)));
+
+        loadPersistentProperties();
 
         var startResult = await OnModuleStart();
 
@@ -142,6 +186,8 @@ public abstract class Module
         scheduler.CancelDelayedTasks();
         await OnModuleStop();
 
+        savePersistentProperties();
+
         State.Value = ModuleState.Stopped;
     }
 
@@ -153,7 +199,7 @@ public abstract class Module
         }
         catch (Exception e)
         {
-            PushException(new Exception($"{className} experienced an exception calling method {method.Name}", e));
+            PushException(new Exception($"{Title} ({className}) experienced an exception calling method {method.Name}", e));
         }
     }
 
@@ -386,7 +432,7 @@ public abstract class Module
 
     protected internal async void PushException(Exception e)
     {
-        Logger.Error(e, $"{className} experienced an exception");
+        ExceptionScreen.HandleException(e);
         await Stop();
     }
 

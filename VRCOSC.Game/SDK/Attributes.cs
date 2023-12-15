@@ -10,7 +10,7 @@ namespace VRCOSC.SDK;
 [AttributeUsage(AttributeTargets.Class)]
 public class ModuleTitleAttribute : Attribute
 {
-    public readonly string Title;
+    internal readonly string Title;
 
     /// <summary>
     /// Defines a title for the <see cref="Module"/>
@@ -26,8 +26,8 @@ public class ModuleTitleAttribute : Attribute
 [AttributeUsage(AttributeTargets.Class)]
 public class ModuleDescriptionAttribute : Attribute
 {
-    public readonly string ShortDescription;
-    public readonly string LongDescription;
+    internal readonly string ShortDescription;
+    internal readonly string LongDescription;
 
     /// <summary>
     /// Allows for providing descriptions of the <see cref="Module"/>
@@ -46,7 +46,7 @@ public class ModuleDescriptionAttribute : Attribute
 [AttributeUsage(AttributeTargets.Class)]
 public class ModuleTypeAttribute : Attribute
 {
-    public readonly ModuleType Type;
+    internal readonly ModuleType Type;
 
     /// <summary>
     /// Puts a <see cref="Module"/> into a specific type
@@ -62,8 +62,8 @@ public class ModuleTypeAttribute : Attribute
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 public class ModulePrefabAttribute : Attribute
 {
-    public readonly string Name;
-    public readonly string? Url;
+    internal readonly string Name;
+    internal readonly string? Url;
 
     /// <summary>
     /// Adds a reference to a prefab for this <see cref="Module"/>
@@ -81,9 +81,9 @@ public class ModulePrefabAttribute : Attribute
 [AttributeUsage(AttributeTargets.Method)]
 public class ModuleUpdateAttribute : Attribute
 {
-    public readonly ModuleUpdateMode Mode;
-    public readonly bool UpdateImmediately;
-    public readonly double DeltaMilliseconds;
+    internal readonly ModuleUpdateMode Mode;
+    internal readonly bool UpdateImmediately;
+    internal readonly double DeltaMilliseconds;
 
     /// <param name="mode">The mode this update is defined as</param>
     /// <param name="updateImmediately">Whether this method should be called immediately after <see cref="Module.OnModuleStart" />. This is only used when <paramref name="mode" /> is <see cref="ModuleUpdateMode.Custom" /></param>
@@ -100,7 +100,7 @@ public class ModuleUpdateAttribute : Attribute
 [AttributeUsage(AttributeTargets.Property)]
 public class ModulePersistentAttribute : Attribute
 {
-    public string SerialisedName { get; }
+    internal readonly string SerialisedName;
 
     /// <summary>
     /// Used to mark a field for being automatically loaded and saved when the <see cref="Module"/> starts and stops

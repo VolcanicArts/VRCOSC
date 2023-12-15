@@ -13,6 +13,7 @@ using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Framework.Timing;
 using VRCOSC.Config;
+using VRCOSC.Modules.Persistence;
 using VRCOSC.Modules.Serialisation;
 using VRCOSC.OSC.VRChat;
 using VRCOSC.SDK;
@@ -121,7 +122,10 @@ public class ModuleManager
                 var moduleSerialisationManager = new SerialisationManager();
                 moduleSerialisationManager.RegisterSerialiser(1, new ModuleSerialiser(storage, module, appManager.ProfileManager.ActiveProfile));
 
-                module.InjectDependencies(host, clock, appManager, moduleSerialisationManager, configManager);
+                var modulePersistenceSerialisationManager = new SerialisationManager();
+                modulePersistenceSerialisationManager.RegisterSerialiser(1, new ModulePersistenceSerialiser(storage, module, appManager.ProfileManager.ActiveProfile, configManager.GetBindable<bool>(VRCOSCSetting.GlobalPersistence)));
+
+                module.InjectDependencies(host, clock, appManager, moduleSerialisationManager, modulePersistenceSerialisationManager, configManager);
                 module.Load();
             });
         }
