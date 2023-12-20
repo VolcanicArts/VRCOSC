@@ -37,8 +37,11 @@ public class OpenVRStatisticsModule : ChatBoxModule
         }
 
         CreateVariable(OpenVrVariable.FPS, "FPS", "fps");
+        CreateVariable(OpenVrVariable.HMDCharging, "HMD Charging", "hmdcharging");
         CreateVariable(OpenVrVariable.HMDBattery, "HMD Battery (%)", "hmdbattery");
+        CreateVariable(OpenVrVariable.LeftControllerCharging, "Left Controller Charging", "leftcontrollercharging");
         CreateVariable(OpenVrVariable.LeftControllerBattery, "Left Controller Battery (%)", "leftcontrollerbattery");
+        CreateVariable(OpenVrVariable.RightControllerCharging, "Right Controller Charging", "rightcontrollercharging");
         CreateVariable(OpenVrVariable.RightControllerBattery, "Right Controller Battery (%)", "rightcontrollerbattery");
         CreateVariable(OpenVrVariable.AverageTrackerBattery, "Average Tracker Battery (%)", "averagetrackerbattery");
 
@@ -71,16 +74,22 @@ public class OpenVRStatisticsModule : ChatBoxModule
             }
 
             SetVariableValue(OpenVrVariable.FPS, OVRClient.System.FPS.ToString("##0"));
+            SetVariableValue(OpenVrVariable.HMDCharging, OVRClient.HMD.IsCharging ? "Charging" : "Uncharging");
             SetVariableValue(OpenVrVariable.HMDBattery, ((int)(OVRClient.HMD.BatteryPercentage * 100)).ToString("##0"));
+            SetVariableValue(OpenVrVariable.LeftControllerCharging, OVRClient.LeftController.IsCharging ? "Charging" : "Uncharging");
             SetVariableValue(OpenVrVariable.LeftControllerBattery, ((int)(OVRClient.LeftController.BatteryPercentage * 100)).ToString("##0"));
+            SetVariableValue(OpenVrVariable.RightControllerCharging, OVRClient.RightController.IsCharging ? "Charging" : "Uncharging");
             SetVariableValue(OpenVrVariable.RightControllerBattery, ((int)(OVRClient.RightController.BatteryPercentage * 100)).ToString("##0"));
             SetVariableValue(OpenVrVariable.AverageTrackerBattery, ((int)(trackerBatteryAverage * 100)).ToString("##0"));
         }
         else
         {
             SetVariableValue(OpenVrVariable.FPS, "0");
+            SetVariableValue(OpenVrVariable.HMDCharging, "Unknown");
             SetVariableValue(OpenVrVariable.HMDBattery, "0");
+            SetVariableValue(OpenVrVariable.LeftControllerCharging, "Unknown");
             SetVariableValue(OpenVrVariable.LeftControllerBattery, "0");
+            SetVariableValue(OpenVrVariable.RightControllerCharging, "Unknown");
             SetVariableValue(OpenVrVariable.RightControllerBattery, "0");
             SetVariableValue(OpenVrVariable.AverageTrackerBattery, "0");
 
@@ -220,6 +229,9 @@ public class OpenVRStatisticsModule : ChatBoxModule
         HMDBattery,
         LeftControllerBattery,
         RightControllerBattery,
-        AverageTrackerBattery
+        AverageTrackerBattery,
+        HMDCharging,
+        LeftControllerCharging,
+        RightControllerCharging
     }
 }

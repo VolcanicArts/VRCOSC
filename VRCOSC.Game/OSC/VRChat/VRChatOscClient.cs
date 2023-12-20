@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using osu.Framework.IO.Network;
 using osu.Framework.Logging;
 using VRC.OSCQuery;
 using VRCOSC.Game.OSC.Client;
@@ -72,7 +73,8 @@ public class VRChatOscClient : OscClient
         {
             if (QueryPort is null) return null;
 
-            var url = $"http://127.0.0.1:{QueryPort}/avatar/parameters/{parameterName}";
+            var parameterNameEncoded = UrlEncoding.UrlEncode(parameterName);
+            var url = $"http://127.0.0.1:{QueryPort}/avatar/parameters/{parameterNameEncoded}";
 
             var response = await client.GetAsync(new Uri(url));
             var content = await response.Content.ReadAsStringAsync();

@@ -20,6 +20,11 @@ public class TimerModule : ChatBoxModule
         CreateState(TimerState.Default, "Default", GetVariableFormat(TimerVariable.Time));
     }
 
+    protected override void OnModuleStart()
+    {
+        ChangeStateTo(TimerState.Default);
+    }
+
     [ModuleUpdate(ModuleUpdateMode.ChatBox)]
     private void onChatBoxUpdate()
     {

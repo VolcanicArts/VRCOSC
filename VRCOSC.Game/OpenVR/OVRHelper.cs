@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -108,6 +108,8 @@ public static class OVRHelper
 
     internal static bool GetBoolTrackedDeviceProperty(uint index, ETrackedDeviceProperty property)
     {
+        if (index == Valve.VR.OpenVR.k_unTrackedDeviceIndexInvalid) return default;
+
         var error = new ETrackedPropertyError();
         var value = Valve.VR.OpenVR.System.GetBoolTrackedDeviceProperty(index, property, ref error);
 
@@ -119,6 +121,8 @@ public static class OVRHelper
 
     internal static int GetInt32TrackedDeviceProperty(uint index, ETrackedDeviceProperty property)
     {
+        if (index == Valve.VR.OpenVR.k_unTrackedDeviceIndexInvalid) return default;
+
         var error = new ETrackedPropertyError();
         var value = Valve.VR.OpenVR.System.GetInt32TrackedDeviceProperty(index, property, ref error);
 
@@ -130,6 +134,8 @@ public static class OVRHelper
 
     internal static float GetFloatTrackedDeviceProperty(uint index, ETrackedDeviceProperty property)
     {
+        if (index == Valve.VR.OpenVR.k_unTrackedDeviceIndexInvalid) return default;
+
         var error = new ETrackedPropertyError();
         var value = Valve.VR.OpenVR.System.GetFloatTrackedDeviceProperty(index, property, ref error);
 
@@ -143,6 +149,8 @@ public static class OVRHelper
 
     internal static string GetStringTrackedDeviceProperty(uint index, ETrackedDeviceProperty property)
     {
+        if (index == Valve.VR.OpenVR.k_unTrackedDeviceIndexInvalid) return string.Empty;
+
         var error = new ETrackedPropertyError();
         sb.Clear();
         Valve.VR.OpenVR.System.GetStringTrackedDeviceProperty(index, property, sb, Valve.VR.OpenVR.k_unMaxPropertyStringSize, ref error);

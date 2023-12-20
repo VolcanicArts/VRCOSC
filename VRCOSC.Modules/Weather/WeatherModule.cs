@@ -56,7 +56,7 @@ public class WeatherModule : ChatBoxModule
             return;
         }
 
-        var weather = await weatherProvider.RetrieveFor(GetSetting<string>(WeatherSetting.Postcode));
+        var weather = await weatherProvider.RetrieveFor(GetSetting<string>(WeatherSetting.Postcode), DateTime.Now);
 
         if (weather is null)
         {

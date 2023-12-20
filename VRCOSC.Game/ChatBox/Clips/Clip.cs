@@ -214,8 +214,6 @@ public class Clip
         var currentStates = AssociatedModules.Where(moduleName => appManager.ModuleManager.GetModule(moduleName)!.Enabled.Value && chatBoxManager.StateValues.ContainsKey(moduleName) && chatBoxManager.StateValues[moduleName] is not null).Select(moduleName => chatBoxManager.StateValues[moduleName]).ToList();
         currentStates.Sort();
 
-        if (!currentStates.Any()) return;
-
         foreach (var clipState in localStates.ToImmutableList())
         {
             var clipStateStates = clipState.StateNames;
