@@ -53,7 +53,10 @@ public class VoiceRecognitionModule : AvatarModule
     [ModuleUpdate(ModuleUpdateMode.Custom, false, 5000)]
     private void onModuleUpdate()
     {
-        speechToTextProvider?.Update();
+        if (speechToTextProvider is null) return;
+
+        speechToTextProvider.AnalysisEnabled = enabled;
+        speechToTextProvider.Update();
     }
 
     protected override void OnRegisteredParameterReceived(AvatarParameter avatarParameter)
