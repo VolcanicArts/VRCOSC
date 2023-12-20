@@ -3,10 +3,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using LibreHardwareMonitor.Hardware;
 using osu.Framework.Extensions.IEnumerableExtensions;
+
+// ReSharper disable InconsistentNaming
 
 namespace VRCOSC.SDK.Providers.Hardware;
 
@@ -19,43 +21,63 @@ public sealed class HardwareStatsProvider
         IsMemoryEnabled = true
     };
 
+    private readonly Regex hardwareIDRegex = new(".+/([0-9])");
+    private readonly Regex sensorIDRegex = new(".+/([0-9])/.+");
+
     public bool CanAcceptQueries { get; private set; }
 
-    public Action<string>? Log;
-
-    private readonly List<HardwareComponent> components = new();
-
-    public CPU? GetCPU(int id) => components.Where(component => component.GetType().IsSubclassOf(typeof(CPU))).Select(component => (CPU)component).SingleOrDefault(cpu => cpu.Id == id);
-    public GPU? GetGPU(int id) => components.Where(component => component.GetType() == typeof(GPU)).Select(component => (GPU)component).SingleOrDefault(gpu => gpu.Id == id);
-    public RAM? GetRam() => components.Where(component => component.GetType() == typeof(RAM)).Select(component => (RAM)component).SingleOrDefault();
+    public readonly Dictionary<int, CPU> CPUs = new();
+    public readonly Dictionary<int, GPU> GPUs = new();
+    public RAM? RAM { get; private set; }
 
     public void Init() => Task.Run(() =>
     {
-        Log?.Invoke("Starting computer hook");
         computer.Open();
         CanAcceptQueries = true;
     });
 
     public void Shutdown() => Task.Run(() =>
     {
-        Log?.Invoke("Stopping computer hook");
         CanAcceptQueries = false;
-        components.Clear();
+        CPUs.Clear();
+        GPUs.Clear();
+        RAM = null;
+
         computer.Close();
     });
 
-    public async Task Update() => await Task.Run(() =>
+    public Task Update() => Task.Run(() =>
     {
-        Log?.Invoke("Updating hardware");
         computer.Hardware.ForEach(hardware =>
         {
-            Log?.Invoke($"Updating hardware {hardware.Identifier}");
             updateHardware(hardware);
             auditHardware(hardware);
             hardware.Sensors.ForEach(sensor =>
             {
-                Log?.Invoke($"Updating sensor {sensor.Identifier}");
-                components.ForEach(component => component.Update(sensor));
+                var identifier = sensor.Identifier.ToString()!;
+
+                if (identifier.Contains("ram", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    RAM!.Update(sensor);
+                    return;
+                }
+
+                var sensorIdMatch = sensorIDRegex.Match(identifier);
+                if (!sensorIdMatch.Success) return;
+
+                var sensorId = int.Parse(sensorIdMatch.Groups[1].Value);
+
+                if (identifier.Contains("cpu", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    CPUs[sensorId].Update(sensor);
+                    return;
+                }
+
+                if (identifier.Contains("gpu", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    GPUs[sensorId].Update(sensor);
+                    return;
+                }
             });
         });
     });
@@ -68,61 +90,38 @@ public sealed class HardwareStatsProvider
 
     private void auditHardware(IHardware hardware)
     {
-        Log?.Invoke($"Auditing {hardware.Identifier}");
+        var identifier = hardware.Identifier.ToString()!;
 
-        var address = hardware.Identifier.ToString()!;
-        var index = 0;
-
-        try
+        if (identifier.Contains("ram", StringComparison.InvariantCultureIgnoreCase))
         {
-            index = int.Parse(address.Split('/').Last());
-        }
-        catch (FormatException)
-        {
+            RAM ??= new RAM();
+            return;
         }
 
-        Log?.Invoke($"Found index {index}");
+        var hardwareIDMatch = hardwareIDRegex.Match(identifier);
+        if (!hardwareIDMatch.Success) return;
 
-        if (address.Contains("cpu", StringComparison.InvariantCultureIgnoreCase))
+        var hardwareID = int.Parse(hardwareIDMatch.Groups[1].Value);
+
+        if (identifier.Contains("cpu", StringComparison.InvariantCultureIgnoreCase))
         {
-            var cpu = GetCPU(index);
-
-            if (cpu is null)
+            if (identifier.Contains("intel", StringComparison.InvariantCultureIgnoreCase))
             {
-                if (address.Contains("intel", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    Log?.Invoke("Adding Intel CPU");
-                    components.Add(new IntelCPU(index));
-                }
+                CPUs.TryAdd(hardwareID, new IntelCPU());
+                return;
+            }
 
-                if (address.Contains("amd", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    Log?.Invoke("Adding AMD CPU");
-                    components.Add(new AMDCPU(index));
-                }
+            if (identifier.Contains("amd", StringComparison.InvariantCultureIgnoreCase))
+            {
+                CPUs.TryAdd(hardwareID, new AMDCPU());
+                return;
             }
         }
 
-        if (address.Contains("gpu", StringComparison.InvariantCultureIgnoreCase))
+        if (identifier.Contains("gpu", StringComparison.InvariantCultureIgnoreCase))
         {
-            var gpu = GetGPU(index);
-
-            if (gpu is null)
-            {
-                Log?.Invoke("Adding GPU");
-                components.Add(new GPU(index));
-            }
-        }
-
-        if (address.Contains("ram", StringComparison.InvariantCultureIgnoreCase))
-        {
-            var ram = GetRam();
-
-            if (ram is null)
-            {
-                Log?.Invoke("Adding RAM");
-                components.Add(new RAM());
-            }
+            GPUs.TryAdd(hardwareID, new GPU());
+            return;
         }
     }
 }

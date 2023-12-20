@@ -24,14 +24,7 @@ public abstract class HardwareComponent
 {
     protected virtual SensorInfo LoadInfo => throw new NotImplementedException();
 
-    public readonly int Id;
-
     public float Usage { get; private set; }
-
-    protected HardwareComponent(int id)
-    {
-        Id = id;
-    }
 
     protected static bool GetIntValue(ISensor sensor, SensorInfo info, out int value)
     {
@@ -72,11 +65,6 @@ public abstract class CPU : HardwareComponent
     public int Power { get; private set; }
     public int Temperature { get; private set; }
 
-    protected CPU(int id)
-        : base(id)
-    {
-    }
-
     public override void Update(ISensor sensor)
     {
         base.Update(sensor);
@@ -89,11 +77,6 @@ public class IntelCPU : CPU
 {
     protected override SensorInfo PowerInfo => new(SensorType.Power, "CPU Package");
     protected override SensorInfo TemperatureInfo => new(SensorType.Temperature, "CPU Package");
-
-    public IntelCPU(int id)
-        : base(id)
-    {
-    }
 }
 
 // ReSharper disable once InconsistentNaming
@@ -101,11 +84,6 @@ public class AMDCPU : CPU
 {
     protected override SensorInfo PowerInfo => new(SensorType.Power, "Package");
     protected override SensorInfo TemperatureInfo => new(SensorType.Temperature, "Core (Tdie)", "Core (Tctl/Tdie)", "CPU Cores");
-
-    public AMDCPU(int id)
-        : base(id)
-    {
-    }
 }
 
 public class GPU : HardwareComponent
@@ -123,11 +101,6 @@ public class GPU : HardwareComponent
     public float MemoryUsed { get; private set; }
     public float MemoryTotal { get; private set; }
     public float MemoryUsage => MemoryUsed / MemoryTotal;
-
-    public GPU(int id)
-        : base(id)
-    {
-    }
 
     public override void Update(ISensor sensor)
     {
@@ -149,11 +122,6 @@ public class RAM : HardwareComponent
     public float Used { get; private set; }
     public float Available { get; private set; }
     public float Total => Used + Available;
-
-    public RAM()
-        : base(0)
-    {
-    }
 
     public override void Update(ISensor sensor)
     {
