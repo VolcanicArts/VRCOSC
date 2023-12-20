@@ -309,7 +309,8 @@ public partial class AppManager : Component
     private void checkForOpenVR() => Task.Run(() =>
     {
         OVRClient.Init();
-        OVRClient.SetAutoLaunch(configManager.Get<bool>(VRCOSCSetting.AutoStartOpenVR));
+        // https://github.com/ValveSoftware/openvr/issues/1803
+        // OVRClient.SetAutoLaunch(configManager.Get<bool>(VRCOSCSetting.AutoStartOpenVR));
     });
 
     private void checkForVRChat()
