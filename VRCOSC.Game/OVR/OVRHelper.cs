@@ -108,6 +108,8 @@ public static class OVRHelper
 
     internal static bool GetBoolTrackedDeviceProperty(uint index, ETrackedDeviceProperty property)
     {
+        if (index == OpenVR.k_unTrackedDeviceIndexInvalid) return default;
+
         var error = new ETrackedPropertyError();
         var value = OpenVR.System.GetBoolTrackedDeviceProperty(index, property, ref error);
 
@@ -119,6 +121,8 @@ public static class OVRHelper
 
     internal static int GetInt32TrackedDeviceProperty(uint index, ETrackedDeviceProperty property)
     {
+        if (index == OpenVR.k_unTrackedDeviceIndexInvalid) return default;
+
         var error = new ETrackedPropertyError();
         var value = OpenVR.System.GetInt32TrackedDeviceProperty(index, property, ref error);
 
@@ -130,6 +134,8 @@ public static class OVRHelper
 
     internal static float GetFloatTrackedDeviceProperty(uint index, ETrackedDeviceProperty property)
     {
+        if (index == OpenVR.k_unTrackedDeviceIndexInvalid) return default;
+
         var error = new ETrackedPropertyError();
         var value = OpenVR.System.GetFloatTrackedDeviceProperty(index, property, ref error);
 
@@ -143,6 +149,8 @@ public static class OVRHelper
 
     internal static string GetStringTrackedDeviceProperty(uint index, ETrackedDeviceProperty property)
     {
+        if (index == OpenVR.k_unTrackedDeviceIndexInvalid) return string.Empty;
+
         var error = new ETrackedPropertyError();
         sb.Clear();
         OpenVR.System.GetStringTrackedDeviceProperty(index, property, sb, OpenVR.k_unMaxPropertyStringSize, ref error);
@@ -155,6 +163,8 @@ public static class OVRHelper
 
     public static void TriggerHaptic(ulong action, uint device, float durationSeconds, float frequency, float amplitude)
     {
+        if (device == OpenVR.k_unTrackedDeviceIndexInvalid) return;
+
         OpenVR.Input.TriggerHapticVibrationAction(action, 0, durationSeconds, frequency, amplitude, device);
     }
 }
