@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using Newtonsoft.Json;
+using osu.Framework.Logging;
 
 namespace VRCOSC.Modules.Weather;
 
@@ -13,7 +14,7 @@ public class WeatherProvider
 
     private const string condition_url = "https://www.weatherapi.com/docs/weather_conditions.json";
 
-    private static readonly TimeSpan api_call_delta = TimeSpan.FromMinutes(20);
+    private static readonly TimeSpan cache_expire_time = TimeSpan.FromMinutes(20);
 
     private readonly HttpClient httpClient = new();
     private readonly string apiKey;
@@ -29,52 +30,105 @@ public class WeatherProvider
         this.apiKey = apiKey;
     }
 
-    public async Task<Weather?> RetrieveFor(string location)
+    public async Task<Weather?> RetrieveFor(string location, DateTime locationDateTime)
     {
-        if (lastUpdate + api_call_delta > DateTimeOffset.Now && location == lastLocation) return weather;
+        try
+        {
+            if (lastUpdate + cache_expire_time > DateTimeOffset.Now && location == lastLocation) return weather;
 
-        lastUpdate = DateTimeOffset.Now;
-        lastLocation = location;
+            lastUpdate = DateTimeOffset.Now;
+            lastLocation = location;
 
-        var currentUrl = string.Format(current_url_format, apiKey, location);
-        var currentResponseData = await httpClient.GetAsync(new Uri(currentUrl));
-        var currentResponseString = await currentResponseData.Content.ReadAsStringAsync();
-        var currentResponse = JsonConvert.DeserializeObject<WeatherCurrentResponse>(currentResponseString)?.Current;
+            var currentUrl = string.Format(current_url_format, apiKey, location);
+            var currentResponseData = await httpClient.GetAsync(new Uri(currentUrl));
 
-        if (currentResponse is null) return null;
+            if (!currentResponseData.IsSuccessStatusCode)
+            {
+                Logger.Log($"{nameof(WeatherProvider)} could not retrieve {nameof(currentResponseData)}");
+                return weather;
+            }
 
-        var astronomyUrl = string.Format(astronomy_url_format, apiKey, location, DateTime.Now.ToString("yyyy-MM-dd"));
-        var astronomyResponseData = await httpClient.GetAsync(new Uri(astronomyUrl));
-        var astronomyResponseString = await astronomyResponseData.Content.ReadAsStringAsync();
-        var astronomyResponse = JsonConvert.DeserializeObject<WeatherAstronomyResponse>(astronomyResponseString)?.Astronomy.Astro;
+            var currentResponseString = await currentResponseData.Content.ReadAsStringAsync();
+            var currentResponse = JsonConvert.DeserializeObject<WeatherCurrentResponse>(currentResponseString)?.Current;
 
-        if (astronomyResponse is null) return null;
-        if (!DateTime.TryParse(astronomyResponse.Sunrise, out var sunriseParsed)) return null;
-        if (!DateTime.TryParse(astronomyResponse.Sunset, out var sunsetParsed)) return null;
+            if (currentResponse is null)
+            {
+                Logger.Log($"{nameof(WeatherProvider)} could not parse {nameof(currentResponse)}");
+                return weather;
+            }
 
-        if (conditions is null) await retrieveConditions();
+            var astronomyUrl = string.Format(astronomy_url_format, apiKey, location, DateTime.Now.ToString("yyyy-MM-dd"));
+            var astronomyResponseData = await httpClient.GetAsync(new Uri(astronomyUrl));
 
-        var conditionResponse = conditions?[currentResponse.Condition.Code];
-        var dateTimeNow = DateTime.Now;
+            if (!astronomyResponseData.IsSuccessStatusCode)
+            {
+                Logger.Log($"{nameof(WeatherProvider)} could not retrieve {nameof(astronomyResponseData)}");
+                return weather;
+            }
 
-        if (dateTimeNow >= sunriseParsed && dateTimeNow < sunsetParsed)
-            currentResponse.ConditionString = conditionResponse?.Day ?? string.Empty;
-        else
-            currentResponse.ConditionString = conditionResponse?.Night ?? string.Empty;
+            var astronomyResponseString = await astronomyResponseData.Content.ReadAsStringAsync();
+            var astronomyResponse = JsonConvert.DeserializeObject<WeatherAstronomyResponse>(astronomyResponseString)?.Astronomy.Astro;
 
-        weather = currentResponse;
+            if (astronomyResponse is null)
+            {
+                Logger.Log($"{nameof(WeatherProvider)} could not parse {nameof(astronomyResponse)}");
+                return weather;
+            }
+
+            currentResponse.ConditionString = "Unknown";
+
+            if (!DateTime.TryParse(astronomyResponse.Sunrise, out var sunriseParsed)) return weather;
+            if (!DateTime.TryParse(astronomyResponse.Sunset, out var sunsetParsed)) return weather;
+
+            await retrieveConditions();
+
+            if (conditions is not null)
+            {
+                var conditionResponse = conditions[currentResponse.Condition.Code];
+                currentResponse.ConditionString = locationDateTime >= sunriseParsed && locationDateTime < sunsetParsed ? conditionResponse.Day : conditionResponse.Night;
+            }
+
+            weather = currentResponse;
+        }
+        catch (Exception e)
+        {
+            Logger.Error(e, $"{nameof(WeatherProvider)} experienced an issue");
+            weather = null;
+        }
+
         return weather;
     }
 
     private async Task retrieveConditions()
     {
-        var conditionResponseData = await httpClient.GetAsync(condition_url);
-        var conditionResponseString = await conditionResponseData.Content.ReadAsStringAsync();
-        var conditionData = JsonConvert.DeserializeObject<List<WeatherCondition>>(conditionResponseString);
+        try
+        {
+            if (conditions is not null) return;
 
-        if (conditionData is null) return;
+            var conditionResponseData = await httpClient.GetAsync(condition_url);
 
-        conditions = new Dictionary<int, WeatherCondition>();
-        conditionData.ForEach(condition => conditions.Add(condition.Code, condition));
+            if (!conditionResponseData.IsSuccessStatusCode)
+            {
+                Logger.Log($"{nameof(WeatherProvider)} could not retrieve {nameof(conditionResponseData)}");
+                return;
+            }
+
+            var conditionResponseString = await conditionResponseData.Content.ReadAsStringAsync();
+            var conditionResponse = JsonConvert.DeserializeObject<List<WeatherCondition>>(conditionResponseString);
+
+            if (conditionResponse is null)
+            {
+                Logger.Log($"{nameof(WeatherProvider)} could not parse {nameof(conditionResponse)}");
+                return;
+            }
+
+            conditions = new Dictionary<int, WeatherCondition>();
+            conditionResponse.ForEach(condition => conditions.Add(condition.Code, condition));
+        }
+        catch (Exception e)
+        {
+            Logger.Error(e, $"{nameof(WeatherProvider)} experienced an issue");
+            conditions = null;
+        }
     }
 }
