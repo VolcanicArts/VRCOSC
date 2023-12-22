@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using VRCOSC.Screens.Exceptions;
 
 namespace VRCOSC.SDK.Providers.PiShock;
 
@@ -20,32 +21,33 @@ public class PiShockProvider
 
     public async Task<PiShockResponse> Execute(string username, string apiKey, string sharecode, PiShockMode mode, int duration, int intensity)
     {
-        if (string.IsNullOrEmpty(username)) return new PiShockResponse(false, "Invalid username");
-        if (string.IsNullOrEmpty(apiKey)) return new PiShockResponse(false, "Invalid API key");
-
-        if (duration is < 1 or > 15) return new PiShockResponse(false, "Duration must be between 1 and 15");
-        if (intensity is < 1 or > 100) return new PiShockResponse(false, "Intensity must be between 1 and 100");
-
-        var shocker = await retrieveShockerInfo(username, apiKey, sharecode);
-        if (shocker is null) return new PiShockResponse(false, "Shocker does not exist");
-
-        duration = Math.Min(duration, shocker.MaxDuration);
-        intensity = Math.Min(intensity, shocker.MaxIntensity);
-
-        var request = getRequestForMode(mode, duration, intensity);
-        request.AppName = app_name;
-        request.Username = username;
-        request.APIKey = apiKey;
-        request.ShareCode = sharecode;
-
         try
         {
+            if (string.IsNullOrEmpty(username)) return new PiShockResponse(false, "Invalid username");
+            if (string.IsNullOrEmpty(apiKey)) return new PiShockResponse(false, "Invalid API key");
+
+            if (duration is < 1 or > 15) return new PiShockResponse(false, "Duration must be between 1 and 15");
+            if (intensity is < 1 or > 100) return new PiShockResponse(false, "Intensity must be between 1 and 100");
+
+            var shocker = await retrieveShockerInfo(username, apiKey, sharecode);
+            if (shocker is null) return new PiShockResponse(false, "Shocker does not exist");
+
+            duration = Math.Min(duration, shocker.MaxDuration);
+            intensity = Math.Min(intensity, shocker.MaxIntensity);
+
+            var request = getRequestForMode(mode, duration, intensity);
+            request.AppName = app_name;
+            request.Username = username;
+            request.APIKey = apiKey;
+            request.ShareCode = sharecode;
+
             var response = await client.PostAsync(action_api_url, new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"));
             var responseString = await response.Content.ReadAsStringAsync();
             return new PiShockResponse(responseString is "Operation Succeeded." or "Operation Attempted.", responseString, duration, intensity);
         }
         catch (Exception e)
         {
+            ExceptionScreen.HandleException(e, $"{nameof(PiShockProvider)} has experienced an exception");
             return new PiShockResponse(false, e.Message);
         }
     }
@@ -65,8 +67,9 @@ public class PiShockProvider
             var responseString = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<PiShockShocker>(responseString);
         }
-        catch (Exception)
+        catch (Exception e)
         {
+            ExceptionScreen.HandleException(e, $"{nameof(PiShockProvider)} has experienced an exception");
             return null;
         }
     }
