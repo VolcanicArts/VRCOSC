@@ -119,19 +119,26 @@ public class ModuleManager
 
             modules.ForEach(module =>
             {
-                var moduleSerialisationManager = new SerialisationManager();
-                moduleSerialisationManager.RegisterSerialiser(1, new ModuleSerialiser(storage, module, appManager.ProfileManager.ActiveProfile));
+                try
+                {
+                    var moduleSerialisationManager = new SerialisationManager();
+                    moduleSerialisationManager.RegisterSerialiser(1, new ModuleSerialiser(storage, module, appManager.ProfileManager.ActiveProfile));
 
-                var modulePersistenceSerialisationManager = new SerialisationManager();
-                modulePersistenceSerialisationManager.RegisterSerialiser(1, new ModulePersistenceSerialiser(storage, module, appManager.ProfileManager.ActiveProfile, configManager.GetBindable<bool>(VRCOSCSetting.GlobalPersistence)));
+                    var modulePersistenceSerialisationManager = new SerialisationManager();
+                    modulePersistenceSerialisationManager.RegisterSerialiser(1, new ModulePersistenceSerialiser(storage, module, appManager.ProfileManager.ActiveProfile, configManager.GetBindable<bool>(VRCOSCSetting.GlobalPersistence)));
 
-                module.InjectDependencies(host, clock, appManager, moduleSerialisationManager, modulePersistenceSerialisationManager, configManager);
-                module.Load();
+                    module.InjectDependencies(host, clock, appManager, moduleSerialisationManager, modulePersistenceSerialisationManager, configManager);
+                    module.Load();
+                }
+                catch (Exception e)
+                {
+                    Logger.Error(e, $"{module.SerialisedName} failed to load");
+                }
             });
         }
-        catch (Exception)
+        catch (Exception e)
         {
-            // TODO: Handle this
+            Logger.Error(e, $"{nameof(ModuleManager)} has experienced an exception");
         }
     }
 
