@@ -22,4 +22,9 @@
   <ItemGroup>
     <PackageReference Include="Clowd.Squirrel" Version="2.11.1" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="bindings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

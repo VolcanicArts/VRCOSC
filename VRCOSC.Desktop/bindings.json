@@ -1,0 +1,26 @@
+{
+  "runtimeOptions": {
+    "configProperties": {
+      "System.GC.Server": true
+    },
+    "assemblyBinding": {
+      "dependentAssembly": [
+        {
+          "assemblyIdentity": {
+            "name": "Microsoft.Windows.SDK.NET",
+            "publicKeyToken": "31bf3856ad364e35",
+            "culture": "neutral"
+          },
+          "codeBase": null,
+          "privatePath": null,
+          "redirect": {
+            "oldVersion": "10.0.22621.0-10.0.22621.31",
+            "newVersion": "10.0.22621.29"
+          },
+          "publisherPolicy": null,
+          "bindingRedirect": null
+        }
+      ]
+    }
+  }
+}
