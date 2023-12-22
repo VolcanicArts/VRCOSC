@@ -6,6 +6,7 @@ using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using VRCOSC.Graphics.UI;
+using VRCOSC.Screens.Main.Modules.Settings;
 using VRCOSC.SDK.Attributes.Settings;
 
 namespace VRCOSC.SDK.Graphics.Settings.Values;
