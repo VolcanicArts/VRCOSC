@@ -38,7 +38,7 @@ public partial class ModuleParameterInstance : HeightLimitedScrollableListItem
                 AutoSizeAxes = Axes.Y,
                 ColumnDimensions = new[]
                 {
-                    new Dimension(GridSizeMode.Absolute, 120),
+                    new Dimension(GridSizeMode.Absolute, 200),
                     new Dimension(GridSizeMode.Absolute, 7),
                     new Dimension(),
                     new Dimension(GridSizeMode.Absolute, 7),
