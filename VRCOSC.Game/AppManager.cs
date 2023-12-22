@@ -270,7 +270,7 @@ public class AppManager
         oscQueueScheduler.Add(() => oscMessageQueue.Enqueue(message));
     }
 
-    private bool initialiseOSCClient(int sendPort, int receivePort)
+    private void initialiseOSCClient(int sendPort, int receivePort)
     {
         try
         {
@@ -280,12 +280,10 @@ public class AppManager
             var receiveEndpoint = new IPEndPoint(IPAddress.Loopback, receivePort);
 
             VRChatOscClient.Initialise(sendEndpoint, receiveEndpoint);
-            return true;
         }
         catch (Exception e)
         {
             Logger.Error(e, $"{nameof(AppManager)} experienced an exception");
-            return false;
         }
     }
 
