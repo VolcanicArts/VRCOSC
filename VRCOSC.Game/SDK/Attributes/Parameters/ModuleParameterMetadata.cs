@@ -18,10 +18,16 @@ public class ModuleParameterMetadata : ModuleAttributeMetadata
     /// </summary>
     public readonly Type Type;
 
-    public ModuleParameterMetadata(string title, string description, ParameterMode mode, Type type)
+    /// <summary>
+    /// Whether this <see cref="ModuleParameter"/> should be marked as legacy
+    /// </summary>
+    public readonly bool Legacy;
+
+    public ModuleParameterMetadata(string title, string description, ParameterMode mode, Type type, bool legacy)
         : base(title, description)
     {
         Mode = mode;
         Type = type;
+        Legacy = legacy;
     }
 }

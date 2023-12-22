@@ -239,9 +239,10 @@ public abstract class Module
     /// <param name="title">The title of the parameter</param>
     /// <param name="description">A short description of the parameter</param>
     /// <param name="mode">Whether the parameter can read to or write from VRChat</param>
-    protected void RegisterParameter<T>(Enum lookup, string defaultName, ParameterMode mode, string title, string description) where T : struct
+    /// <param name="legacy">Whether the parameter is legacy and should no longer be used in favour of the other parameters</param>
+    protected void RegisterParameter<T>(Enum lookup, string defaultName, ParameterMode mode, string title, string description, bool legacy = false) where T : struct
     {
-        Parameters.Add(lookup, new ModuleParameter(new ModuleParameterMetadata(title, description, mode, typeof(T)), defaultName));
+        Parameters.Add(lookup, new ModuleParameter(new ModuleParameterMetadata(title, description, mode, typeof(T), legacy), defaultName));
     }
 
     /// <summary>

@@ -61,10 +61,10 @@ public abstract class HeartrateModule<T> : AvatarModule where T : HeartrateProvi
         RegisterParameter<int>(HeartrateParameter.Average, "VRCOSC/Heartrate/Average", ParameterMode.Write, "Average", "The average of your heartrate");
         RegisterParameter<bool>(HeartrateParameter.Beat, "VRCOSC/Heartrate/Beat", ParameterMode.ReadWrite, "Beat", "Toggles value OR becomes true for 1 update (depending on the setting) when your heart beats");
 
-        RegisterParameter<bool>(LegacyHeartrateParameter.Enabled, "VRCOSC/Heartrate/Enabled", ParameterMode.Write, "Legacy: Enabled", "Whether this module is connected and receiving values");
-        RegisterParameter<float>(LegacyHeartrateParameter.Units, "VRCOSC/Heartrate/Units", ParameterMode.Write, "Legacy: Units", "The units digit 0-9 mapped to a float");
-        RegisterParameter<float>(LegacyHeartrateParameter.Tens, "VRCOSC/Heartrate/Tens", ParameterMode.Write, "Legacy: Tens", "The tens digit 0-9 mapped to a float");
-        RegisterParameter<float>(LegacyHeartrateParameter.Hundreds, "VRCOSC/Heartrate/Hundreds", ParameterMode.Write, "Legacy: Hundreds", "The hundreds digit 0-9 mapped to a float");
+        RegisterParameter<bool>(LegacyHeartrateParameter.Enabled, "VRCOSC/Heartrate/Enabled", ParameterMode.Write, "Enabled", "Whether this module is connected and receiving values", true);
+        RegisterParameter<float>(LegacyHeartrateParameter.Units, "VRCOSC/Heartrate/Units", ParameterMode.Write, "Units", "The units digit 0-9 mapped to a float", true);
+        RegisterParameter<float>(LegacyHeartrateParameter.Tens, "VRCOSC/Heartrate/Tens", ParameterMode.Write, "Tens", "The tens digit 0-9 mapped to a float", true);
+        RegisterParameter<float>(LegacyHeartrateParameter.Hundreds, "VRCOSC/Heartrate/Hundreds", ParameterMode.Write, "Hundreds", "The hundreds digit 0-9 mapped to a float", true);
 
         CreateGroup("Value", HeartrateSetting.SmoothValue, HeartrateSetting.SmoothValueLength);
         CreateGroup("Average", HeartrateSetting.AveragePeriod, HeartrateSetting.SmoothAverage, HeartrateSetting.SmoothAverageLength);

@@ -63,7 +63,7 @@ public partial class ModuleParameterInstance : HeightLimitedScrollableListItem
                             TextAnchor = Anchor.CentreLeft,
                             RelativeSizeAxes = Axes.X,
                             AutoSizeAxes = Axes.Y,
-                            Text = moduleParameter.Metadata.Title
+                            Text = moduleParameter.Metadata.Legacy ? $"Legacy: {moduleParameter.Metadata.Title}" : moduleParameter.Metadata.Title
                         },
                         null,
                         new TextFlowContainer(defaultCreationParameters)
