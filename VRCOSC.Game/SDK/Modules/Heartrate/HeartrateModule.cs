@@ -61,10 +61,10 @@ public abstract class HeartrateModule<T> : AvatarModule where T : HeartrateProvi
         RegisterParameter<int>(HeartrateParameter.Average, "VRCOSC/Heartrate/Average", ParameterMode.Write, "Average", "The average of your heartrate");
         RegisterParameter<bool>(HeartrateParameter.Beat, "VRCOSC/Heartrate/Beat", ParameterMode.ReadWrite, "Beat", "Toggles value OR becomes true for 1 update (depending on the setting) when your heart beats");
 
-        RegisterParameter<bool>(LegacyHeartrateParameter.Enabled, "VRCOSC/Heartrate/Enabled", ParameterMode.Write, "Enabled", "Whether this module is connected and receiving values", true);
-        RegisterParameter<float>(LegacyHeartrateParameter.Units, "VRCOSC/Heartrate/Units", ParameterMode.Write, "Units", "The units digit 0-9 mapped to a float", true);
-        RegisterParameter<float>(LegacyHeartrateParameter.Tens, "VRCOSC/Heartrate/Tens", ParameterMode.Write, "Tens", "The tens digit 0-9 mapped to a float", true);
-        RegisterParameter<float>(LegacyHeartrateParameter.Hundreds, "VRCOSC/Heartrate/Hundreds", ParameterMode.Write, "Hundreds", "The hundreds digit 0-9 mapped to a float", true);
+        RegisterParameter<bool>(HeartrateParameter.LegacyEnabled, "VRCOSC/Heartrate/Enabled", ParameterMode.Write, "Enabled", "Whether this module is connected and receiving values", true);
+        RegisterParameter<float>(HeartrateParameter.LegacyUnits, "VRCOSC/Heartrate/Units", ParameterMode.Write, "Units", "The units digit 0-9 mapped to a float", true);
+        RegisterParameter<float>(HeartrateParameter.LegacyTens, "VRCOSC/Heartrate/Tens", ParameterMode.Write, "Tens", "The tens digit 0-9 mapped to a float", true);
+        RegisterParameter<float>(HeartrateParameter.LegacyHundreds, "VRCOSC/Heartrate/Hundreds", ParameterMode.Write, "Hundreds", "The hundreds digit 0-9 mapped to a float", true);
 
         CreateGroup("Value", HeartrateSetting.SmoothValue, HeartrateSetting.SmoothValueLength);
         CreateGroup("Average", HeartrateSetting.AveragePeriod, HeartrateSetting.SmoothAverage, HeartrateSetting.SmoothAverageLength);
@@ -150,7 +150,7 @@ public abstract class HeartrateModule<T> : AvatarModule where T : HeartrateProvi
         }
 
         SendParameter(HeartrateParameter.Connected, false);
-        SendParameter(LegacyHeartrateParameter.Enabled, false);
+        SendParameter(HeartrateParameter.LegacyEnabled, false);
     }
 
     private async Task handleBeatParameter()
@@ -253,21 +253,21 @@ public abstract class HeartrateModule<T> : AvatarModule where T : HeartrateProvi
     [ModuleUpdate(ModuleUpdateMode.Custom)]
     private void updateLegacyParameters()
     {
-        SendParameter(LegacyHeartrateParameter.Enabled, isReceiving);
+        SendParameter(HeartrateParameter.LegacyEnabled, isReceiving);
 
         if (isReceiving)
         {
             var individualValues = toDigitArray((int)Math.Round(currentValue), 3);
 
-            SendParameter(LegacyHeartrateParameter.Units, individualValues[2] / 10f);
-            SendParameter(LegacyHeartrateParameter.Tens, individualValues[1] / 10f);
-            SendParameter(LegacyHeartrateParameter.Hundreds, individualValues[0] / 10f);
+            SendParameter(HeartrateParameter.LegacyUnits, individualValues[2] / 10f);
+            SendParameter(HeartrateParameter.LegacyTens, individualValues[1] / 10f);
+            SendParameter(HeartrateParameter.LegacyHundreds, individualValues[0] / 10f);
         }
         else
         {
-            SendParameter(LegacyHeartrateParameter.Units, 0f);
-            SendParameter(LegacyHeartrateParameter.Tens, 0f);
-            SendParameter(LegacyHeartrateParameter.Hundreds, 0f);
+            SendParameter(HeartrateParameter.LegacyUnits, 0f);
+            SendParameter(HeartrateParameter.LegacyTens, 0f);
+            SendParameter(HeartrateParameter.LegacyHundreds, 0f);
         }
     }
 
@@ -291,14 +291,10 @@ public abstract class HeartrateModule<T> : AvatarModule where T : HeartrateProvi
         Normalised,
         Value,
         Average,
-        Beat
-    }
-
-    private enum LegacyHeartrateParameter
-    {
-        Enabled,
-        Units,
-        Tens,
-        Hundreds
+        Beat,
+        LegacyEnabled,
+        LegacyUnits,
+        LegacyTens,
+        LegacyHundreds
     }
 }
