@@ -3,7 +3,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using osu.Framework.Bindables;
 using osu.Framework.Development;
@@ -39,8 +42,6 @@ public class AppManager
     private Scheduler localScheduler = null!;
     private Scheduler oscQueueScheduler = null!;
 
-    private bool oscInitialised;
-
     private readonly Queue<VRChatOscMessage> oscMessageQueue = new();
 
     public readonly Bindable<AppManagerState> State = new(AppManagerState.Stopped);
@@ -73,8 +74,7 @@ public class AppManager
         ConnectionManager.Init();
 
         localScheduler.AddDelayed(checkForOpenVR, 1000, true);
-        localScheduler.AddDelayed(checkForVRChat, 5000, true);
-        localScheduler.AddDelayed(initialiseOSC, 500, true);
+        localScheduler.AddDelayed(checkForVRChatAutoStart, 1000, true);
     }
 
     public void FrameworkUpdate()
@@ -95,14 +95,13 @@ public class AppManager
         OVRClient.SetAutoLaunch(configManager.Get<bool>(VRCOSCSetting.OVRAutoOpen));
     });
 
-    private void checkForVRChat()
+    private void checkForVRChatAutoStart()
     {
-        var newOpenState = VRChatClient.HasOpenStateChanged();
+        var hasOpenStateChanged = VRChatClient.HasOpenStateChanged(out var clientOpenState);
+        if (!configManager.Get<bool>(VRCOSCSetting.VRCAutoStart) || !hasOpenStateChanged) return;
 
-        if (!configManager.Get<bool>(VRCOSCSetting.VRCAutoStart) || !newOpenState) return;
-
-        if (VRChatClient.ClientOpen && State.Value == AppManagerState.Stopped) Start();
-        if (!VRChatClient.ClientOpen && State.Value == AppManagerState.Started) Stop();
+        if (clientOpenState && State.Value == AppManagerState.Stopped) RequestStart();
+        if (!clientOpenState && State.Value == AppManagerState.Started) Stop();
     }
 
     #region Profiles
@@ -129,7 +128,7 @@ public class AppManager
         if (beforeState == AppManagerState.Started)
         {
             await Task.Delay(100);
-            await StartAsync();
+            await startAsync();
         }
     }
 
@@ -160,30 +159,110 @@ public class AppManager
 
     #region Start
 
-    public async void Start() => await StartAsync();
+    private CancellationTokenSource requestStartCancellationSource = null!;
 
-    public async Task StartAsync()
+    public async void ForceStart()
     {
-        if (State.Value is AppManagerState.Starting or AppManagerState.Started) return;
-
-        State.Value = AppManagerState.Starting;
-
-        await ModuleManager.StartAsync();
-        VRChatOscClient.OnParameterReceived += onParameterReceived;
-
-        State.Value = AppManagerState.Started;
+        initialiseOSCClient(9000, 9001);
+        await startAsync();
     }
 
-    private void initialiseOSC()
+    public void CancelStartRequest()
     {
-        if (State.Value != AppManagerState.Started || oscInitialised) return;
+        requestStartCancellationSource.Cancel();
+    }
 
-        oscInitialised = true;
+    public async void RequestStart()
+    {
+        if (State.Value is AppManagerState.Waiting or AppManagerState.Starting or AppManagerState.Started) return;
 
-        if (!initialiseOSCClient()) return;
+        requestStartCancellationSource = new CancellationTokenSource();
+
+        if (configManager.Get<bool>(VRCOSCSetting.UseLegacyPorts))
+        {
+            initialiseOSCClient(9000, 9001);
+            await startAsync();
+            return;
+        }
+
+        State.Value = AppManagerState.Waiting;
+        await Task.Run(waitForStart, requestStartCancellationSource.Token);
+    }
+
+    private async Task waitForStart()
+    {
+        Logger.Log("Waiting for starting conditions");
+
+        var waitingCancellationSource = new CancellationTokenSource();
+
+        await Task.WhenAny(new[]
+        {
+            Task.Run(() => waitForUnity(waitingCancellationSource), requestStartCancellationSource.Token),
+            Task.Run(() => waitForVRChat(waitingCancellationSource), requestStartCancellationSource.Token)
+        });
+
+        waitingCancellationSource.Cancel();
+
+        if (requestStartCancellationSource.IsCancellationRequested) return;
+
+        if (isVRChatOpen())
+        {
+            Logger.Log("Found VRChat. Waiting for OSCQuery");
+            ConnectionManager.Reset();
+            await waitForOSCQuery();
+            if (requestStartCancellationSource.IsCancellationRequested) return;
+
+            initialiseOSCClient(ConnectionManager.VRChatSendPort!.Value, ConnectionManager.VRCOSCReceivePort);
+        }
+        else
+        {
+            if (isUnityOpen())
+            {
+                Logger.Log("Found Unity");
+                initialiseOSCClient(9000, 9001);
+            }
+        }
+
+        await startAsync();
+    }
+
+    private static bool isVRChatOpen() => Process.GetProcessesByName("vrchat").Any();
+    private static bool isUnityOpen() => Process.GetProcessesByName("unity").Any();
+
+    private async Task waitForUnity(CancellationTokenSource waitingSource)
+    {
+        while (!isUnityOpen() && !requestStartCancellationSource.IsCancellationRequested && !waitingSource.IsCancellationRequested)
+        {
+            await Task.Delay(500, requestStartCancellationSource.Token);
+        }
+    }
+
+    private async Task waitForVRChat(CancellationTokenSource waitingSource)
+    {
+        while (!isVRChatOpen() && !requestStartCancellationSource.IsCancellationRequested && !waitingSource.IsCancellationRequested)
+        {
+            await Task.Delay(500, requestStartCancellationSource.Token);
+        }
+    }
+
+    private async Task waitForOSCQuery()
+    {
+        while (!ConnectionManager.IsConnected && !requestStartCancellationSource.IsCancellationRequested)
+        {
+            await Task.Delay(500, requestStartCancellationSource.Token);
+        }
+    }
+
+    private async Task startAsync()
+    {
+        State.Value = AppManagerState.Starting;
 
         VRChatOscClient.EnableSend();
+        await ModuleManager.StartAsync();
+        VRChatOscClient.OnParameterReceived += onParameterReceived;
         VRChatOscClient.EnableReceive();
+
+        State.Value = AppManagerState.Started;
     }
 
     private void onParameterReceived(VRChatOscMessage message)
@@ -191,16 +270,11 @@ public class AppManager
         oscQueueScheduler.Add(() => oscMessageQueue.Enqueue(message));
     }
 
-    private bool initialiseOSCClient()
+    private bool initialiseOSCClient(int sendPort, int receivePort)
     {
         try
         {
-            if (!configManager.Get<bool>(VRCOSCSetting.UseLegacyPorts) && !ConnectionManager.IsConnected) return false;
-
-            var sendPort = configManager.Get<bool>(VRCOSCSetting.UseLegacyPorts) ? 9000 : ConnectionManager.SendPort!.Value;
-            var receivePort = configManager.Get<bool>(VRCOSCSetting.UseLegacyPorts) ? 9001 : ConnectionManager.ReceivePort;
-
-            Logger.Log($"Initialising OSC with send ({sendPort}) and receive ({receivePort}). UseLegacyPorts: {configManager.Get<bool>(VRCOSCSetting.UseLegacyPorts)}");
+            Logger.Log($"Initialising OSC with send ({sendPort}) and receive ({receivePort})");
 
             var sendEndpoint = new IPEndPoint(IPAddress.Loopback, sendPort);
             var receiveEndpoint = new IPEndPoint(IPAddress.Loopback, receivePort);
@@ -225,7 +299,7 @@ public class AppManager
     {
         await StopAsync();
         await Task.Delay(100);
-        await StartAsync();
+        RequestStart();
     }
 
     #endregion
@@ -246,7 +320,6 @@ public class AppManager
         VRChatClient.Teardown();
         VRChatOscClient.DisableSend();
         oscMessageQueue.Clear();
-        oscInitialised = false;
 
         State.Value = AppManagerState.Stopped;
     }
@@ -256,6 +329,7 @@ public class AppManager
 
 public enum AppManagerState
 {
+    Waiting,
     Starting,
     Started,
     Stopping,

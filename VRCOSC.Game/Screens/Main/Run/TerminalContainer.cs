@@ -69,10 +69,10 @@ public partial class TerminalContainer : Container<TerminalEntry>
         appManager.State.BindValueChanged(onAppManagerStateChange);
     }
 
-    private void onAppManagerStateChange(ValueChangedEvent<AppManagerState> e)
+    private void onAppManagerStateChange(ValueChangedEvent<AppManagerState> e) => Scheduler.Add(() =>
     {
         if (e.NewValue == AppManagerState.Starting) reset();
-    }
+    }, false);
 
     private void onNewLogEntry(LogEntry entry)
     {
@@ -101,13 +101,13 @@ public partial class TerminalContainer : Container<TerminalEntry>
     {
         var dateTimeText = $"[{DateTime.Now:HH:mm:ss}] {text}";
 
-        Schedule(() =>
+        Scheduler.Add(() =>
         {
             var entry = terminalEntryPool.Get();
             entry.Text = dateTimeText;
             Add(entry);
             entry.Hide();
             entry.Show();
-        });
+        }, false);
     }
 }

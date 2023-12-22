@@ -53,7 +53,7 @@ public partial class ControlsContainer : Container
                         Icon = FontAwesome.Solid.Play,
                         Masking = true,
                         CornerRadius = 10,
-                        Action = () => appManager.Start()
+                        Action = () => appManager.RequestStart()
                     }
                 }
             },
@@ -103,7 +103,9 @@ public partial class ControlsContainer : Container
     {
         switch (e.NewValue)
         {
+            case AppManagerState.Waiting:
             case AppManagerState.Starting:
+            case AppManagerState.Stopping:
                 startButton.Enabled.Value = false;
                 restartButton.Enabled.Value = false;
                 stopButton.Enabled.Value = false;
@@ -113,12 +115,6 @@ public partial class ControlsContainer : Container
                 startButton.Enabled.Value = false;
                 restartButton.Enabled.Value = true;
                 stopButton.Enabled.Value = true;
-                break;
-
-            case AppManagerState.Stopping:
-                startButton.Enabled.Value = false;
-                restartButton.Enabled.Value = false;
-                stopButton.Enabled.Value = false;
                 break;
 
             case AppManagerState.Stopped:

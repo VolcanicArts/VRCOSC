@@ -34,14 +34,14 @@ public partial class ParameterList : HeightLimitedScrollableList<DrawableParamet
         appManager.State.BindValueChanged(onAppManagerStateChange);
     }
 
-    private void onAppManagerStateChange(ValueChangedEvent<AppManagerState> e)
+    private void onAppManagerStateChange(ValueChangedEvent<AppManagerState> e) => Scheduler.Add(() =>
     {
         if (e.NewValue == AppManagerState.Starting)
         {
             listingCache.Clear();
             Clear();
         }
-    }
+    }, false);
 
     public void UpdateParameterValue(VRChatOscMessage message)
     {

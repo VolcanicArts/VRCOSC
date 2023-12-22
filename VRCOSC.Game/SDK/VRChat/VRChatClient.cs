@@ -10,7 +10,8 @@ namespace VRCOSC.SDK.VRChat;
 public class VRChatClient
 {
     public readonly Player Player;
-    public bool ClientOpen { get; private set; }
+
+    private bool lastKnownOpenState;
 
     public VRChatClient(VRChatOscClient oscClient)
     {
@@ -22,14 +23,17 @@ public class VRChatClient
         Player.ResetAll();
     }
 
-    public bool CheckIsClientOpen() => Process.GetProcessesByName("vrchat").Any();
-
-    public bool HasOpenStateChanged()
+    public bool HasOpenStateChanged(out bool openState)
     {
-        var clientNewOpenState = CheckIsClientOpen();
-        if (clientNewOpenState == ClientOpen) return false;
+        var newOpenState = Process.GetProcessesByName("vrchat").Any();
 
-        ClientOpen = clientNewOpenState;
+        if (newOpenState == lastKnownOpenState)
+        {
+            openState = lastKnownOpenState;
+            return false;
+        }
+
+        openState = lastKnownOpenState = newOpenState;
         return true;
     }
 }

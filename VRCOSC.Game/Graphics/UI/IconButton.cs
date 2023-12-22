@@ -66,7 +66,7 @@ public partial class IconButton : ClickableContainer
         Enabled.BindValueChanged(onEnabledChange, true);
     }
 
-    private void onEnabledChange(ValueChangedEvent<bool> e)
+    private void onEnabledChange(ValueChangedEvent<bool> e) => Scheduler.Add(() =>
     {
         InternalChild.FadeTo(e.NewValue ? 1f : 0.25f, 250, Easing.OutQuint);
 
@@ -81,7 +81,7 @@ public partial class IconButton : ClickableContainer
         {
             fadeOutBackground();
         }
-    }
+    }, false);
 
     protected override bool OnHover(HoverEvent e)
     {

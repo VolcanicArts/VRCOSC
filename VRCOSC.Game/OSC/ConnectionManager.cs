@@ -21,16 +21,16 @@ public class ConnectionManager
 {
     private const int refresh_interval = 2500;
 
-    public bool IsConnected => QueryPort is not null && SendPort is not null;
+    public bool IsConnected => VRChatQueryPort is not null && VRChatSendPort is not null;
 
-    public int? QueryPort;
-    public int? SendPort;
-    public int ReceivePort;
+    public int? VRChatQueryPort;
+    public int? VRChatSendPort;
+    public int VRCOSCReceivePort;
 
     private MulticastService mdns = null!;
     private ServiceDiscovery serviceDiscovery = null!;
     private HttpListener queryServer = null!;
-    private int queryServerPort;
+    private int vrcoscQueryPort;
 
     private readonly Scheduler scheduler;
 
@@ -43,11 +43,11 @@ public class ConnectionManager
     {
         scheduler.AddDelayed(() => Task.Run(refreshServices), refresh_interval, true);
 
-        ReceivePort = getAvailableUdpPort();
-        queryServerPort = getAvailableTcpPort();
+        VRCOSCReceivePort = getAvailableUdpPort();
+        vrcoscQueryPort = getAvailableTcpPort();
         queryServer = new HttpListener();
 
-        string prefix = $"http://{IPAddress.Loopback}:{queryServerPort}/";
+        string prefix = $"http://{IPAddress.Loopback}:{vrcoscQueryPort}/";
         queryServer.Prefixes.Add(prefix);
         queryServer.Start();
         queryServer.BeginGetContext(httpListenerLoop, queryServer);
@@ -62,11 +62,17 @@ public class ConnectionManager
         mdns.AnswerReceived += onRemoteServiceInfo;
         mdns.Start();
 
-        var serviceOscQ = new ServiceProfile("VRCOSC", "_oscjson._tcp", (ushort)queryServerPort, new[] { IPAddress.Loopback });
+        var serviceOscQ = new ServiceProfile("VRCOSC", "_oscjson._tcp", (ushort)vrcoscQueryPort, new[] { IPAddress.Loopback });
         serviceDiscovery.Advertise(serviceOscQ);
 
-        Logger.Log($"Listening for OSC on {ReceivePort}");
-        Logger.Log($"Listening for OSCQ on {queryServerPort}");
+        Logger.Log($"Listening for OSC on {VRCOSCReceivePort}");
+        Logger.Log($"Listening for OSCQ on {vrcoscQueryPort}");
+    }
+
+    public void Reset()
+    {
+        VRChatQueryPort = null;
+        VRChatSendPort = null;
     }
 
     #region OSCQuery Server
@@ -86,7 +92,7 @@ public class ConnectionManager
 
         try
         {
-            var serialisedHostInfo = JsonConvert.SerializeObject(new HostInfo(ReceivePort));
+            var serialisedHostInfo = JsonConvert.SerializeObject(new HostInfo(VRCOSCReceivePort));
             context.Response.Headers.Add("pragma:no-cache");
             context.Response.ContentType = "application/json";
             context.Response.ContentLength64 = serialisedHostInfo.Length;
@@ -195,12 +201,12 @@ public class ConnectionManager
 
         if (instanceName.Contains("VRChat-Client") && serviceName.Contains("_osc._udp"))
         {
-            SendPort = port;
+            VRChatSendPort = port;
         }
 
         if (instanceName.Contains("VRChat-Client") && serviceName.Contains("_oscjson._tcp"))
         {
-            QueryPort = port;
+            VRChatQueryPort = port;
         }
     }
 }
