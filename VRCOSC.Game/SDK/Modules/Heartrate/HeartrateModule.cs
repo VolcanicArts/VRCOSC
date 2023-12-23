@@ -34,7 +34,7 @@ public abstract class HeartrateModule<T> : AvatarModule where T : HeartrateProvi
     private CancellationTokenSource? beatParameterSource;
     private Task? beatParameterTask;
 
-    private object valuesLock = new();
+    private readonly object valuesLock = new();
     private readonly Dictionary<DateTimeOffset, int> values = new();
 
     protected abstract T CreateProvider();
@@ -207,14 +207,18 @@ public abstract class HeartrateModule<T> : AvatarModule where T : HeartrateProvi
     [ModuleUpdate(ModuleUpdateMode.Custom)]
     private void updateAverage()
     {
-        if (!values.Any()) return;
-
         var averageLength = TimeSpan.FromMilliseconds(GetSettingValue<int>(HeartrateSetting.AveragePeriod));
 
         lock (valuesLock)
         {
             var valuesToRemove = values.Where(pair => pair.Key + averageLength <= DateTimeOffset.Now);
             valuesToRemove.ForEach(pair => values.Remove(pair.Key));
+
+            if (!values.Any())
+            {
+                targetAverage = 0;
+                return;
+            }
 
             targetAverage = (int)MathF.Round(values.Values.Sum() / (float)values.Count);
         }
