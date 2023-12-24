@@ -51,7 +51,8 @@ public partial class ParameterList : HeightLimitedScrollableList<DrawableParamet
         }
         else
         {
-            var newDrawableParameter = new DrawableParameter(message.Address, message.ParameterValue);
+            var address = message.IsAvatarParameter ? message.ParameterName : message.Address;
+            var newDrawableParameter = new DrawableParameter(address, message.ParameterValue);
             listingCache.Add(message.Address, newDrawableParameter);
             Add(newDrawableParameter);
 
