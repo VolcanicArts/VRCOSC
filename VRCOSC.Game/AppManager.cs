@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -97,11 +97,10 @@ public class AppManager
 
     private void checkForVRChatAutoStart()
     {
-        var hasOpenStateChanged = VRChatClient.HasOpenStateChanged(out var clientOpenState);
-        if (!configManager.Get<bool>(VRCOSCSetting.VRCAutoStart) || !hasOpenStateChanged) return;
+        if (!VRChatClient.HasOpenStateChanged(out var clientOpenState)) return;
 
-        if (clientOpenState && State.Value == AppManagerState.Stopped) RequestStart();
-        if (!clientOpenState && State.Value == AppManagerState.Started) Stop();
+        if (clientOpenState && State.Value == AppManagerState.Stopped && configManager.Get<bool>(VRCOSCSetting.VRCAutoStart)) RequestStart();
+        if (!clientOpenState && State.Value == AppManagerState.Started && configManager.Get<bool>(VRCOSCSetting.VRCAutoStop)) Stop();
     }
 
     #region Profiles
