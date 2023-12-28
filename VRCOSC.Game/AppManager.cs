@@ -162,6 +162,9 @@ public class AppManager
 
     public async void ForceStart()
     {
+        CancelStartRequest();
+        await Task.Delay(50);
+
         initialiseOSCClient(9000, 9001);
         await startAsync();
     }
@@ -169,6 +172,7 @@ public class AppManager
     public void CancelStartRequest()
     {
         requestStartCancellationSource.Cancel();
+        State.Value = AppManagerState.Stopped;
     }
 
     public async void RequestStart()
