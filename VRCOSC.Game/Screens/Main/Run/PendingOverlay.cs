@@ -58,7 +58,7 @@ public partial class PendingOverlay : VisibilityContainer
                             RelativeSizeAxes = Axes.Both,
                             TextAnchor = Anchor.TopCentre,
                             Padding = new MarginPadding(5),
-                            Text = "Waiting for Unity or VRChat"
+                            Text = "Waiting for VRChat or Unity"
                         },
                         new Container
                         {
