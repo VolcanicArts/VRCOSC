@@ -4,7 +4,7 @@
         <Nullable>enable</Nullable>
         <LangVersion>11</LangVersion>
         <PackageId>VolcanicArts.VRCOSC.SDK</PackageId>
-        <Version>2023.1127.1</Version>
+        <Version>2023.1228.0</Version>
         <Title>VRCOSC SDK</Title>
         <Authors>VolcanicArts</Authors>
         <Description>SDK for creating custom modules with VRCOSC</Description>
@@ -14,6 +14,8 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <UseWindowsForms>true</UseWindowsForms>
         <RootNamespace>VRCOSC</RootNamespace>
+        <AssemblyVersion>2023.1228.0</AssemblyVersion>
+        <FileVersion>2023.1228.0</FileVersion>
     </PropertyGroup>
     <ItemGroup>
         <ProjectReference Include="..\VRCOSC.Resources\VRCOSC.Resources.csproj" />
