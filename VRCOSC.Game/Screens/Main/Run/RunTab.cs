@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -119,15 +120,16 @@ public partial class RunTab : Container
         };
 
         setupBlur();
-
-        appManager.State.BindValueChanged(e =>
-        {
-            if (e.NewValue == AppManagerState.Waiting)
-                pendingOverlay.Show();
-            else
-                pendingOverlay.Hide();
-        });
+        appManager.State.BindValueChanged(onAppManagerStateChange);
     }
+
+    private void onAppManagerStateChange(ValueChangedEvent<AppManagerState> e) => Scheduler.Add(() =>
+    {
+        if (e.NewValue == AppManagerState.Waiting)
+            pendingOverlay.Show();
+        else
+            pendingOverlay.Hide();
+    }, false);
 
     private void setupBlur()
     {
