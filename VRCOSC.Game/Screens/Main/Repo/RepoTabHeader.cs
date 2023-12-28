@@ -15,6 +15,9 @@ namespace VRCOSC.Screens.Main.Repo;
 public partial class RepoTabHeader : Container
 {
     [Resolved]
+    private VRCOSCGame game { get; set; } = null!;
+
+    [Resolved]
     private AppManager appManager { get; set; } = null!;
 
     private TextButton updateAllButton = null!;
@@ -58,6 +61,7 @@ public partial class RepoTabHeader : Container
 
                             var refreshAction = appManager.PackageManager.RefreshAllSources(true);
                             LoadingScreen.SetAction(refreshAction);
+                            refreshAction.OnComplete += () => game.OnListingRefresh?.Invoke();
                             await refreshAction.Execute();
                         }
                     },
@@ -70,7 +74,8 @@ public partial class RepoTabHeader : Container
                         BackgroundColour = Colours.BLUE0,
                         TextContent = "Update All",
                         TextFont = Fonts.REGULAR,
-                        TextColour = Colours.WHITE0
+                        TextColour = Colours.WHITE0,
+                        Enabled = { Value = true }
                     }
                 }
             },
