@@ -17,20 +17,24 @@ namespace VRCOSC.Screens.Loading;
 
 public partial class LoadingScreen : VisibilityContainer
 {
-    public Bindable<string> Title { get; } = new("How are you seeing this");
-    public Bindable<string> Description { get; } = new("This shouldn't be possible");
-    public Bindable<string> Action { get; } = new("We do love easter eggs");
+    private static LoadingScreen instance = null!;
+
+    public static Bindable<string> Title { get; } = new("How are you seeing this");
+    public static Bindable<string> Description { get; } = new("This shouldn't be possible");
 
     protected override bool OnMouseDown(MouseDownEvent e) => State.Value == Visibility.Visible;
     protected override bool OnClick(ClickEvent e) => State.Value == Visibility.Visible;
     protected override bool OnHover(HoverEvent e) => State.Value == Visibility.Visible;
     protected override bool OnScroll(ScrollEvent e) => State.Value == Visibility.Visible;
 
-    public BindableNumber<float> Progress { get; } = new();
-
     private LoadingScreenSliderBar rootProgress = null!;
 
     private ProgressAction? currentAction;
+
+    public LoadingScreen()
+    {
+        instance = this;
+    }
 
     [BackgroundDependencyLoader]
     private void load()
@@ -94,7 +98,7 @@ public partial class LoadingScreen : VisibilityContainer
         rootProgress.TextCurrent.Value = currentAction.Title;
         rootProgress.Current.Value = currentAction.GetProgress();
 
-        if (currentAction.IsComplete) SetAction(null);
+        if (currentAction.IsComplete) setAction(null);
     }
 
     protected override void PopIn()
@@ -112,7 +116,9 @@ public partial class LoadingScreen : VisibilityContainer
         });
     }
 
-    public void SetAction(ProgressAction? action)
+    public static void SetAction(ProgressAction? action) => instance.setAction(action);
+
+    private void setAction(ProgressAction? action)
     {
         currentAction = action;
 

@@ -16,6 +16,8 @@ using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Platform;
 using PInvoke;
+using VRCOSC.Actions;
+using VRCOSC.Actions.Game;
 using VRCOSC.Config;
 using VRCOSC.OVR.Metadata;
 using VRCOSC.Screens.Exceptions;
@@ -37,10 +39,9 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
     [Cached]
     private readonly AppManager appManager = new();
 
-    public LoadingScreen LoadingScreen { get; private set; } = null!;
-
     private ExceptionScreen exceptionScreen = null!;
-    private MainScreen mainScreen = null!;
+    private LoadingScreen loadingScreen = null!;
+    private MainScreen? mainScreen;
 
     public Bindable<Tab> SelectedTab = new(Tab.Home);
 
@@ -58,7 +59,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         Window.Title = host.Name;
         setupTrayIcon();
 
-        Add(LoadingScreen = new LoadingScreen());
+        Add(loadingScreen = new LoadingScreen());
         Add(exceptionScreen = new ExceptionScreen());
         ChangeChildDepth(exceptionScreen, float.MinValue);
     }
@@ -70,59 +71,53 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         logsStorage.Delete("terminal.log");
     }
 
+    private bool asyncLoadComplete;
+
     protected override async void LoadComplete()
     {
         base.LoadComplete();
 
-        LoadingScreen.Show();
-        LoadingScreen.Title.Value = "Welcome to VRCOSC";
-        LoadingScreen.Description.Value = "Sit tight. We're getting things ready for you!";
-
-        copyOpenVrFiles();
-
-        LoadingScreen.Action.Value = "Loading managers";
         appManager.Initialise(host, this, storage, Clock, ConfigManager);
-
-        LoadingScreen.Action.Value = "Loading packages";
-
-        void onRemoteModulesActionProgress(LoadingInfo loadingInfo)
-        {
-            LoadingScreen.Action.Value = loadingInfo.Action;
-            LoadingScreen.Progress.Value = loadingInfo.Progress;
-        }
-
-        appManager.PackageManager.Progress = onRemoteModulesActionProgress;
-        await appManager.PackageManager.Load();
-
-        LoadingScreen.Action.Value = "Loading profiles";
-        appManager.ProfileManager.Load();
-
-        LoadingScreen.Action.Value = "Loading modules";
-        appManager.ModuleManager.LoadAllModules();
-
-        LoadingScreen.Action.Value = "Loading graphics";
-        mainScreen = new MainScreen();
-
-        await LoadComponentAsync(mainScreen);
-        Add(mainScreen);
-        ChangeChildDepth(mainScreen, float.MaxValue);
-
         appManager.OVRClient.OnShutdown += () =>
         {
             if (ConfigManager.Get<bool>(VRCOSCSetting.OVRAutoClose)) prepareForExit();
         };
 
-        LoadingScreen.Action.Value = "Complete!";
-        LoadingScreen.Progress.Value = 1f;
-        Scheduler.Add(() => LoadingScreen.Hide(), false);
+        copyOpenVrFiles();
+
+        LoadingScreen.Title.Value = "Welcome to VRCOSC";
+        LoadingScreen.Description.Value = "Sit tight. We're getting things ready for you!";
+        var loadingAction = new LoadGameAction();
+
+        loadingAction.AddAction(appManager.PackageManager.Load());
+        loadingAction.AddAction(new DynamicProgressAction("Loading profiles", () => appManager.ProfileManager.Load()));
+        loadingAction.AddAction(new DynamicProgressAction("Loading modules", () => appManager.ModuleManager.LoadAllModules()));
+        loadingAction.AddAction(new DynamicAsyncProgressAction("Loading graphics", async () =>
+        {
+            mainScreen = new MainScreen();
+            await LoadComponentAsync(mainScreen);
+            Add(mainScreen);
+            ChangeChildDepth(mainScreen, float.MaxValue);
+        }));
+
+        loadingAction.OnComplete += () =>
+        {
+            asyncLoadComplete = true;
+            Scheduler.Add(() => loadingScreen.Hide(), false);
+        };
+
+        LoadingScreen.SetAction(loadingAction);
+        await loadingAction.Execute();
     }
 
     protected override void Update()
     {
+        if (!asyncLoadComplete) return;
+
         appManager.FrameworkUpdate();
         host.DrawThread.InactiveHz = inTray ? 1 : 15;
 
-        mainScreen.ShouldBlur = LoadingScreen.State.Value == Visibility.Visible || exceptionScreen.State.Value == Visibility.Visible;
+        mainScreen!.ShouldBlur = loadingScreen.State.Value == Visibility.Visible || exceptionScreen.State.Value == Visibility.Visible;
 
         if (!startInTrayComplete) obtainWindowHandle();
     }

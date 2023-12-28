@@ -9,12 +9,12 @@ namespace VRCOSC.Actions;
 
 public abstract class CompositeProgressAction : ProgressAction
 {
-    public override string Title => currentChild is CompositeProgressAction ? currentChild.Title : Title;
+    public override string Title => currentChild is CompositeProgressAction compositeCurrentChild ? compositeCurrentChild.Title : currentChild?.Title ?? string.Empty;
 
     private readonly List<ProgressAction> children = new();
     private ProgressAction? currentChild => children.FirstOrDefault(child => !child.IsComplete);
 
-    protected void AddAction(ProgressAction child)
+    public void AddAction(ProgressAction child)
     {
         children.Add(child);
     }

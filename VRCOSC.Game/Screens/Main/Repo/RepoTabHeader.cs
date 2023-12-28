@@ -8,19 +8,14 @@ using osu.Framework.Graphics.Containers;
 using osuTK;
 using VRCOSC.Graphics;
 using VRCOSC.Graphics.UI;
+using VRCOSC.Screens.Loading;
 
 namespace VRCOSC.Screens.Main.Repo;
 
 public partial class RepoTabHeader : Container
 {
     [Resolved]
-    private VRCOSCGame game { get; set; } = null!;
-
-    [Resolved]
     private AppManager appManager { get; set; } = null!;
-
-    [Resolved]
-    private RepoTab repoTab { get; set; } = null!;
 
     private TextButton updateAllButton = null!;
 
@@ -58,23 +53,12 @@ public partial class RepoTabHeader : Container
                         TextColour = Colours.WHITE0,
                         Action = async () =>
                         {
-                            game.LoadingScreen.Title.Value = "Refreshing listing";
-                            game.LoadingScreen.Description.Value = "Sit tight. We're gathering the latest data";
+                            LoadingScreen.Title.Value = "Refreshing listing";
+                            LoadingScreen.Description.Value = "Sit tight. We're gathering the latest data";
 
-                            appManager.PackageManager.Progress = loadingInfo =>
-                            {
-                                game.LoadingScreen.Action.Value = loadingInfo.Action;
-                                game.LoadingScreen.Progress.Value = loadingInfo.Progress;
-
-                                if (loadingInfo.Complete)
-                                {
-                                    game.LoadingScreen.Hide();
-                                    repoTab.RefreshListings();
-                                }
-                            };
-
-                            game.LoadingScreen.Show();
-                            await appManager.PackageManager.RefreshAllSources(true);
+                            var refreshAction = appManager.PackageManager.RefreshAllSources(true);
+                            LoadingScreen.SetAction(refreshAction);
+                            await refreshAction.Execute();
                         }
                     },
                     updateAllButton = new TextButton

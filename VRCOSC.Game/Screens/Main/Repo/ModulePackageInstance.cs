@@ -12,6 +12,7 @@ using VRCOSC.Graphics;
 using VRCOSC.Graphics.UI;
 using VRCOSC.Graphics.UI.List;
 using VRCOSC.Packages;
+using VRCOSC.Screens.Loading;
 
 namespace VRCOSC.Screens.Main.Repo;
 
@@ -223,9 +224,6 @@ public partial class ModulePackageInstance : HeightLimitedScrollableListItem
     private partial class InstallButton : ActionButton
     {
         [Resolved]
-        private VRCOSCGame game { get; set; } = null!;
-
-        [Resolved]
         private AppManager appManager { get; set; } = null!;
 
         public InstallButton(PackageSource packageSource)
@@ -240,21 +238,18 @@ public partial class ModulePackageInstance : HeightLimitedScrollableListItem
         {
             await appManager.StopAsync();
 
-            game.LoadingScreen.Title.Value = "Installing...";
-            game.LoadingScreen.Description.Value = $"Sit tight while {PackageSource.GetDisplayName()} is installed!";
+            LoadingScreen.Title.Value = "Installing...";
+            LoadingScreen.Description.Value = $"Sit tight while {PackageSource.GetDisplayName()} is installed!";
 
             var installAction = PackageSource.Install();
 
-            game.LoadingScreen.SetAction(installAction);
+            LoadingScreen.SetAction(installAction);
             await installAction.Execute();
         });
     }
 
     private partial class UninstallButton : ActionButton
     {
-        [Resolved]
-        private VRCOSCGame game { get; set; } = null!;
-
         [Resolved]
         private AppManager appManager { get; set; } = null!;
 
@@ -270,20 +265,17 @@ public partial class ModulePackageInstance : HeightLimitedScrollableListItem
         {
             await appManager.StopAsync();
 
-            game.LoadingScreen.Title.Value = "Uninstalling...";
-            game.LoadingScreen.Description.Value = "So long and thanks for all the fish...";
+            LoadingScreen.Title.Value = "Uninstalling...";
+            LoadingScreen.Description.Value = "So long and thanks for all the fish...";
 
             var uninstallAction = PackageSource.Uninstall();
-            game.LoadingScreen.SetAction(uninstallAction);
+            LoadingScreen.SetAction(uninstallAction);
             await uninstallAction.Execute();
         });
     }
 
     private partial class UpdateButton : ActionButton
     {
-        [Resolved]
-        private VRCOSCGame game { get; set; } = null!;
-
         [Resolved]
         private AppManager appManager { get; set; } = null!;
 
@@ -299,12 +291,12 @@ public partial class ModulePackageInstance : HeightLimitedScrollableListItem
         {
             await appManager.StopAsync();
 
-            game.LoadingScreen.Title.Value = "Updating...";
-            game.LoadingScreen.Description.Value = $"Sit tight! {PackageSource.GetDisplayName()} is being updated!";
+            LoadingScreen.Title.Value = "Updating...";
+            LoadingScreen.Description.Value = $"Sit tight! {PackageSource.GetDisplayName()} is being updated!";
 
             var installAction = PackageSource.Install();
 
-            game.LoadingScreen.SetAction(installAction);
+            LoadingScreen.SetAction(installAction);
             await installAction.Execute();
         });
     }
