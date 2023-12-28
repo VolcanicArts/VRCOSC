@@ -2,15 +2,24 @@
 // See the LICENSE file in the repository root for full license text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osuTK;
 using VRCOSC.Graphics;
 
 namespace VRCOSC.Screens.Main.Run;
 
 public partial class RunTab : Container
 {
+    [Resolved]
+    private AppManager appManager { get; set; } = null!;
+
+    private BufferedContainer bufferedContainer = null!;
+    private Box backgroundDarkener = null!;
+    private PendingOverlay pendingOverlay = null!;
+
     [BackgroundDependencyLoader]
     private void load()
     {
@@ -18,73 +27,81 @@ public partial class RunTab : Container
 
         Children = new Drawable[]
         {
-            new Box
+            bufferedContainer = new BufferedContainer
             {
                 RelativeSizeAxes = Axes.Both,
-                Colour = Colours.GRAY1
-            },
-            new Container
-            {
-                RelativeSizeAxes = Axes.Both,
-                Padding = new MarginPadding(10),
-                Child = new GridContainer
+                BackgroundColour = Colours.BLACK,
+                Children = new Drawable[]
                 {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    RelativeSizeAxes = Axes.Both,
-                    ColumnDimensions = new[]
+                    new Box
                     {
-                        new Dimension(GridSizeMode.Relative, 0.3f),
-                        new Dimension(GridSizeMode.Absolute, 5),
-                        new Dimension()
+                        RelativeSizeAxes = Axes.Both,
+                        Colour = Colours.GRAY1
                     },
-                    Content = new[]
+                    new Container
                     {
-                        new Drawable?[]
+                        RelativeSizeAxes = Axes.Both,
+                        Padding = new MarginPadding(10),
+                        Child = new GridContainer
                         {
-                            new TerminalContainer
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativeSizeAxes = Axes.Both,
+                            ColumnDimensions = new[]
                             {
-                                Anchor = Anchor.Centre,
-                                Origin = Anchor.Centre,
-                                RelativeSizeAxes = Axes.Both,
-                                Masking = true,
-                                CornerRadius = 5
+                                new Dimension(GridSizeMode.Relative, 0.3f),
+                                new Dimension(GridSizeMode.Absolute, 5),
+                                new Dimension()
                             },
-                            null,
-                            new GridContainer
+                            Content = new[]
                             {
-                                Anchor = Anchor.Centre,
-                                Origin = Anchor.Centre,
-                                RelativeSizeAxes = Axes.Both,
-                                RowDimensions = new[]
+                                new Drawable?[]
                                 {
-                                    new Dimension(),
-                                    new Dimension(GridSizeMode.Absolute, 5),
-                                    new Dimension(GridSizeMode.Absolute, 60)
-                                },
-                                Content = new[]
-                                {
-                                    new Drawable[]
+                                    new TerminalContainer
                                     {
-                                        new ViewContainer
-                                        {
-                                            Anchor = Anchor.Centre,
-                                            Origin = Anchor.Centre,
-                                            RelativeSizeAxes = Axes.Both,
-                                            Masking = true,
-                                            CornerRadius = 5
-                                        }
+                                        Anchor = Anchor.Centre,
+                                        Origin = Anchor.Centre,
+                                        RelativeSizeAxes = Axes.Both,
+                                        Masking = true,
+                                        CornerRadius = 5
                                     },
                                     null,
-                                    new Drawable[]
+                                    new GridContainer
                                     {
-                                        new ControlsContainer
+                                        Anchor = Anchor.Centre,
+                                        Origin = Anchor.Centre,
+                                        RelativeSizeAxes = Axes.Both,
+                                        RowDimensions = new[]
                                         {
-                                            Anchor = Anchor.Centre,
-                                            Origin = Anchor.Centre,
-                                            RelativeSizeAxes = Axes.Both,
-                                            Masking = true,
-                                            CornerRadius = 5
+                                            new Dimension(),
+                                            new Dimension(GridSizeMode.Absolute, 5),
+                                            new Dimension(GridSizeMode.Absolute, 60)
+                                        },
+                                        Content = new[]
+                                        {
+                                            new Drawable[]
+                                            {
+                                                new ViewContainer
+                                                {
+                                                    Anchor = Anchor.Centre,
+                                                    Origin = Anchor.Centre,
+                                                    RelativeSizeAxes = Axes.Both,
+                                                    Masking = true,
+                                                    CornerRadius = 5
+                                                }
+                                            },
+                                            null,
+                                            new Drawable[]
+                                            {
+                                                new ControlsContainer
+                                                {
+                                                    Anchor = Anchor.Centre,
+                                                    Origin = Anchor.Centre,
+                                                    RelativeSizeAxes = Axes.Both,
+                                                    Masking = true,
+                                                    CornerRadius = 5
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -92,7 +109,32 @@ public partial class RunTab : Container
                         }
                     }
                 }
-            }
+            },
+            backgroundDarkener = new Box
+            {
+                RelativeSizeAxes = Axes.Both,
+                Colour = Colours.Transparent
+            },
+            pendingOverlay = new PendingOverlay()
         };
+
+        setupBlur();
+
+        appManager.State.BindValueChanged(e =>
+        {
+            if (e.NewValue == AppManagerState.Waiting)
+                pendingOverlay.Show();
+            else
+                pendingOverlay.Hide();
+        });
+    }
+
+    private void setupBlur()
+    {
+        pendingOverlay.State.BindValueChanged(e =>
+        {
+            bufferedContainer.TransformTo(nameof(BufferedContainer.BlurSigma), e.NewValue == Visibility.Visible ? new Vector2(5) : new Vector2(0), 250, Easing.OutCubic);
+            backgroundDarkener.FadeColour(e.NewValue == Visibility.Visible ? Colours.BLACK.Opacity(0.25f) : Colours.Transparent, 250, Easing.OutCubic);
+        });
     }
 }
