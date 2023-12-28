@@ -45,6 +45,9 @@ public class OVRDevice
     public void Update()
     {
         IsPresent = Id != OpenVR.k_unTrackedDeviceIndexInvalid;
+
+        if (!IsPresent) return;
+
         IsConnected = IsPresent && IsTrackedDeviceConnected();
         ProvidesBatteryStatus = OVRHelper.GetBoolTrackedDeviceProperty(Id, ETrackedDeviceProperty.Prop_DeviceProvidesBatteryStatus_Bool);
         IsCharging = OVRHelper.GetBoolTrackedDeviceProperty(Id, ETrackedDeviceProperty.Prop_DeviceIsCharging_Bool);
