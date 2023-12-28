@@ -9,7 +9,6 @@ public enum Tab
     Repo,
     Modules,
     Run,
-    Startup,
 
     Settings,
     Profiles
