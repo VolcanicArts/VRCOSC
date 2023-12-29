@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -351,7 +351,6 @@ public abstract class Module
     {
         if (Settings.TryGetValue(lookup, out var setting)) return (T)setting;
 
-        PushException(new InvalidOperationException($"Cannot access setting of lookup {lookup} as it has not been created"));
         return default;
     }
 
@@ -368,16 +367,9 @@ public abstract class Module
     /// <returns>The value if successful, otherwise pushes an exception and returns default</returns>
     protected T? GetSettingValue<T>(Enum lookup)
     {
-        if (!Settings.ContainsKey(lookup.ToLookup()))
-        {
-            PushException(new InvalidOperationException($"Cannot access setting of lookup {lookup} as it has not been created"));
-            return default;
-        }
+        if (!Settings.ContainsKey(lookup.ToLookup())) return default;
 
-        if (Settings[lookup.ToLookup()].GetValue<T>(out var value)) return value;
-
-        PushException(new InvalidOperationException($"Could not get setting of lookup {lookup} and of type {typeof(T)}"));
-        return default;
+        return Settings[lookup.ToLookup()].GetValue<T>(out var value) ? value : default;
     }
 
     /// <summary>
