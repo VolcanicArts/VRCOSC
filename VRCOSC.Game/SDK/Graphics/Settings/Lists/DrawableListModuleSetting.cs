@@ -77,6 +77,7 @@ public abstract partial class DrawableListModuleSetting<TSetting, TItem> : Drawa
                 Origin = Anchor.TopCentre,
                 Size = new Vector2(30),
                 Icon = FontAwesome.Solid.Plus,
+                IconSize = 17,
                 Masking = true,
                 CornerRadius = 15,
                 BackgroundColour = Colours.GREEN0,
@@ -129,6 +130,7 @@ public abstract partial class DrawableListModuleSetting<TSetting, TItem> : Drawa
                                 CornerRadius = 5,
                                 BackgroundColour = Colours.RED0,
                                 Icon = FontAwesome.Solid.Get(0xf00d),
+                                IconSize = 17,
                                 Action = () =>
                                 {
                                     ModuleSetting.Attribute.Remove(newItem);
