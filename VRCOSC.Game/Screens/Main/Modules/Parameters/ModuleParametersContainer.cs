@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Linq;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -22,6 +23,8 @@ public partial class ModuleParametersContainer : VisibilityContainer
 
     private Module? module;
     private readonly ModuleParametersList parameterList;
+    private readonly TextButton resetToDefault;
+    private readonly TextFlowContainer noParametersDisplay;
 
     public ModuleParametersContainer()
     {
@@ -47,7 +50,7 @@ public partial class ModuleParametersContainer : VisibilityContainer
                     Padding = new MarginPadding(10),
                     Children = new Drawable[]
                     {
-                        new TextButton
+                        resetToDefault = new TextButton
                         {
                             Anchor = Anchor.TopLeft,
                             Origin = Anchor.TopLeft,
@@ -88,6 +91,16 @@ public partial class ModuleParametersContainer : VisibilityContainer
                         Origin = Anchor.Centre,
                         RelativeSizeAxes = Axes.Both
                     }
+                },
+                noParametersDisplay = new TextFlowContainer(t =>
+                {
+                    t.Font = Fonts.REGULAR.With(size: 40);
+                    t.Colour = Colours.WHITE2;
+                })
+                {
+                    RelativeSizeAxes = Axes.Both,
+                    TextAnchor = Anchor.Centre,
+                    Text = "No Parameters Available",
                 }
             }
         };
@@ -97,7 +110,13 @@ public partial class ModuleParametersContainer : VisibilityContainer
     {
         this.module = module;
         parameterList.Clear();
-        module?.Parameters.ForEach(parameterPair => parameterList.Add(new ModuleParameterInstance(parameterPair.Value)));
+
+        if (module is null) return;
+
+        parameterList.Alpha = resetToDefault.Alpha = module.Parameters.Any() ? 1 : 0;
+        module.Parameters.ForEach(parameterPair => parameterList.Add(new ModuleParameterInstance(parameterPair.Value)));
+
+        noParametersDisplay.Alpha = module.Parameters.Any() ? 0 : 1;
     }
 
     protected override void PopIn()
