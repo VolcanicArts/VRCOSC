@@ -99,7 +99,7 @@ public partial class ControlsContainer : Container
         appManager.State.BindValueChanged(onAppManagerStateChange, true);
     }
 
-    private void onAppManagerStateChange(ValueChangedEvent<AppManagerState> e)
+    private void onAppManagerStateChange(ValueChangedEvent<AppManagerState> e) => Scheduler.Add(() =>
     {
         switch (e.NewValue)
         {
@@ -123,5 +123,5 @@ public partial class ControlsContainer : Container
                 stopButton.Enabled.Value = false;
                 break;
         }
-    }
+    }, false);
 }
