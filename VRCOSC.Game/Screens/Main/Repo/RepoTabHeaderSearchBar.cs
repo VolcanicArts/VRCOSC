@@ -92,7 +92,7 @@ public partial class RepoTabHeaderSearchBar : Container
             Child = new SpriteText
             {
                 Text = c.ToString(),
-                Font = Fonts.REGULAR.With(size: CalculatedTextSize)
+                Font = Fonts.REGULAR.With(size: FontSize)
             }
         };
 

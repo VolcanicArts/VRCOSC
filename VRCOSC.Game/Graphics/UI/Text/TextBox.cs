@@ -21,7 +21,7 @@ public partial class TextBox : BasicTextBox
     protected override Drawable GetDrawableCharacter(char c) => new FallingDownContainer
     {
         AutoSizeAxes = Axes.Both,
-        Child = new SpriteText { Text = c.ToString(), Font = Fonts.REGULAR.With(size: CalculatedTextSize) }
+        Child = new SpriteText { Text = c.ToString(), Font = Fonts.REGULAR.With(size: FontSize) }
     };
 
     protected override SpriteText CreatePlaceholder() => base.CreatePlaceholder().With(t => t.Font = Fonts.REGULAR);
