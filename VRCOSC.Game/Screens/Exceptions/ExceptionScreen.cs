@@ -37,7 +37,7 @@ public partial class ExceptionScreen : VisibilityContainer
 
     public static void HandleException(Exception e, string message = "", bool critical = false) => instance.handleException(e, message, critical);
 
-    private void handleException(Exception e, string message, bool critical)
+    private void handleException(Exception e, string message, bool critical) => Scheduler.Add(() =>
     {
         var title = critical ? critical_error_title : error_title;
         var finalMessage = critical ? "This error is unrecoverable. Please restart the app and send your logs in a support thread in the Discord server" : "Please send your logs in a support thread in the Discord server";
@@ -47,7 +47,7 @@ public partial class ExceptionScreen : VisibilityContainer
         errorText.Text = finalMessage;
         Logger.Error(e, title, LoggingTarget.Runtime, true);
         Show();
-    }
+    }, false);
 
     [BackgroundDependencyLoader]
     private void load()
