@@ -8,7 +8,7 @@ using VRCOSC.SDK.Attributes.Settings;
 
 namespace VRCOSC.SDK.Graphics.Settings.Lists;
 
-public partial class DrawableStringListModuleSetting : DrawableListModuleSetting<Bindable<string>>
+public partial class DrawableStringListModuleSetting : DrawableListModuleSetting<StringListModuleSetting, Bindable<string>>
 {
     public DrawableStringListModuleSetting(StringListModuleSetting moduleSetting)
         : base(moduleSetting)

@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -22,6 +22,8 @@ using VRCOSC.Screens.Exceptions;
 using VRCOSC.SDK.Attributes;
 using VRCOSC.SDK.Attributes.Parameters;
 using VRCOSC.SDK.Attributes.Settings;
+using VRCOSC.SDK.Attributes.Settings.Types;
+using VRCOSC.SDK.Graphics.Settings.Lists;
 using VRCOSC.SDK.Graphics.Settings.Values;
 using VRCOSC.SDK.Parameters;
 using VRCOSC.Serialisation;
@@ -300,6 +302,12 @@ public abstract class Module
     {
         validateSettingsLookup(lookup);
         Settings.Add(lookup.ToLookup(), new RangedFloatModuleSetting(new ModuleSettingMetadata(title, description, typeof(DrawableFloatSliderModuleSetting)), defaultValue, minValue, maxValue));
+    }
+
+    protected void CreateKeyValuePairList(Enum lookup, string title, string description, List<MutableKeyValuePair> defaultValues, string keyTitle, string valueTitle)
+    {
+        validateSettingsLookup(lookup);
+        Settings.Add(lookup.ToLookup(), new MutableKeyValuePairListModuleSetting(new MutableKeyValuePairSettingMetadata(title, description, typeof(DrawableMutableKeyValuePairListModuleSetting), typeof(DrawableMutableKeyValuePairListModuleSettingItem), keyTitle, valueTitle), defaultValues));
     }
 
     /// <summary>

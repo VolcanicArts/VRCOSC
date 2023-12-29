@@ -12,11 +12,11 @@ using VRCOSC.SDK.Attributes.Settings;
 
 namespace VRCOSC.SDK.Graphics.Settings.Lists;
 
-public abstract partial class DrawableListModuleSetting<T> : DrawableModuleSetting<ListModuleSetting<T>>
+public abstract partial class DrawableListModuleSetting<TSetting, TItem> : DrawableModuleSetting<TSetting> where TSetting : ListModuleSetting<TItem>
 {
     protected virtual Drawable? Header => null;
 
-    protected DrawableListModuleSetting(ListModuleSetting<T> moduleSetting)
+    protected DrawableListModuleSetting(TSetting moduleSetting)
         : base(moduleSetting)
     {
         FillFlowContainer flowWrapper;
@@ -91,7 +91,7 @@ public abstract partial class DrawableListModuleSetting<T> : DrawableModuleSetti
                 if (ModuleSetting.IsDefault())
                     listContentFlow.Clear();
 
-                foreach (T newItem in e.NewItems)
+                foreach (TItem newItem in e.NewItems)
                 {
                     GridContainer gridInstance;
 

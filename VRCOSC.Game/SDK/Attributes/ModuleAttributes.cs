@@ -12,7 +12,7 @@ public abstract class ModuleAttribute
     /// <summary>
     /// The metadata for this <see cref="ModuleAttribute"/>
     /// </summary>
-    internal ModuleAttributeMetadata Metadata;
+    public ModuleAttributeMetadata Metadata;
 
     /// <summary>
     /// Initialises this <see cref="ModuleAttribute"/>
