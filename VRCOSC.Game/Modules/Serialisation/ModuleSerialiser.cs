@@ -24,6 +24,8 @@ public class ModuleSerialiser : ProfiledSerialiser<Module, SerialisableModule>
 
     protected override bool ExecuteAfterDeserialisation(SerialisableModule data)
     {
+        var shouldReserialise = false;
+
         Reference.Enabled.Value = data.Enabled;
 
         data.Settings.ForEach(settingPair =>
@@ -31,7 +33,12 @@ public class ModuleSerialiser : ProfiledSerialiser<Module, SerialisableModule>
             var (settingKey, settingValue) = settingPair;
 
             var setting = Reference.GetSetting<ModuleSetting>(settingKey);
-            if (setting is null) return;
+
+            if (setting is null)
+            {
+                shouldReserialise = true;
+                return;
+            }
 
             setting.Deserialise(settingValue);
         });
@@ -41,11 +48,16 @@ public class ModuleSerialiser : ProfiledSerialiser<Module, SerialisableModule>
             var (parameterKey, parameterValue) = parameterPair;
 
             var parameter = Reference.GetParameter(parameterKey);
-            if (parameter is null) return;
+
+            if (parameter is null)
+            {
+                shouldReserialise = true;
+                return;
+            }
 
             parameter.Deserialise(parameterValue);
         });
 
-        return false;
+        return shouldReserialise;
     }
 }
