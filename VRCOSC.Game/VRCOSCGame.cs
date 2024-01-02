@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -12,7 +11,6 @@ using System.Windows.Forms;
 using Newtonsoft.Json;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
-using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Platform;
 using PInvoke;
@@ -47,28 +45,15 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
     public Action? OnListingRefresh;
 
-    protected VRCOSCGame()
-    {
-        AppDomain.CurrentDomain.UnhandledException += (_, _) => manageLogs();
-    }
-
     [BackgroundDependencyLoader]
     private void load()
     {
-        clearCustomLogs();
         Window.Title = host.Name;
         setupTrayIcon();
 
         Add(loadingScreen = new LoadingScreen());
         Add(exceptionScreen = new ExceptionScreen());
         ChangeChildDepth(exceptionScreen, float.MinValue);
-    }
-
-    private void clearCustomLogs()
-    {
-        var logsStorage = storage.GetStorageForDirectory("logs");
-        logsStorage.Delete("module-debug.log");
-        logsStorage.Delete("terminal.log");
     }
 
     private bool asyncLoadComplete;
@@ -147,29 +132,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
 
         Task.WhenAll(
             appManager.StopAsync()
-        ).GetAwaiter().OnCompleted(() =>
-        {
-            manageLogs();
-            Exit();
-        });
-    }
-
-    #endregion
-
-    #region logs
-
-    private readonly IEnumerable<string> ignoredLogs = new[] { "network.log", "input.log", "performance.log", "performance-draw.log", "performance-update", "performance-input" };
-
-    private void manageLogs()
-    {
-        var archiveStorage = storage.GetStorageForDirectory("logs/archive");
-        var specificArchiveStorage = archiveStorage.GetStorageForDirectory($"{DateTime.Now:yyyyMMdd_HHmmss}");
-        new DirectoryInfo(storage.GetFullPath("logs"))
-            .GetFiles().SkipWhile(file => ignoredLogs.Contains(file.Name))
-            .ForEach(file => file.CopyTo(Path.Combine(specificArchiveStorage.GetFullPath(string.Empty), file.Name)));
-
-        var archiveDirectoryInfo = new DirectoryInfo(archiveStorage.GetFullPath(string.Empty));
-        archiveDirectoryInfo.GetDirectories().OrderByDescending(d => d.CreationTime).Skip(5).ForEach(d => d.Delete(true));
+        ).GetAwaiter().OnCompleted(Exit);
     }
 
     #endregion
