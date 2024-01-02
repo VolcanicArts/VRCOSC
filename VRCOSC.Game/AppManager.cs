@@ -124,6 +124,7 @@ public class AppManager
         ModuleManager.UnloadAllModules();
         ProfileManager.ActiveProfile.Value = newProfile;
         ModuleManager.LoadAllModules();
+        RouterManager.Load();
 
         game.OnListingRefresh?.Invoke();
 
