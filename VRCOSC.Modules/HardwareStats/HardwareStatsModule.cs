@@ -19,6 +19,7 @@ public sealed class HardwareStatsModule : ChatBoxModule
     {
         CreateSetting(HardwareStatsSetting.SelectedCPU, "Selected CPU", "Enter the (0th based) index of the CPU you want to track", 0);
         CreateSetting(HardwareStatsSetting.SelectedGPU, "Selected GPU", "Enter the (0th based) index of the GPU you want to track", 0);
+        CreateSetting(HardwareStatsSetting.ChatBoxFormatting, "ChatBox Formatting", "How should numbers be formatted in the chatbox?", "0.0");
 
         CreateParameter<float>(HardwareStatsParameter.CpuUsage, ParameterMode.Write, "VRCOSC/Hardware/CPUUsage", "CPU Usage", "The CPU usage normalised");
         CreateParameter<int>(HardwareStatsParameter.CpuPower, ParameterMode.Write, "VRCOSC/Hardware/CPUPower", "CPU Power", "The power usage of your CPU in Watts");
@@ -110,20 +111,21 @@ public sealed class HardwareStatsModule : ChatBoxModule
         SendParameter(HardwareStatsParameter.VRamUsed, gpu.MemoryUsed / 1000f);
         SendParameter(HardwareStatsParameter.VRamTotal, gpu.MemoryTotal / 1000f);
 
-        SetVariableValue(HardwareStatsParameter.CpuUsage, cpu.Usage.ToString("0.00"));
+        var format = GetSetting<string>(HardwareStatsSetting.ChatBoxFormatting);
+        SetVariableValue(HardwareStatsParameter.CpuUsage, cpu.Usage.ToString(format));
         SetVariableValue(HardwareStatsParameter.CpuPower, cpu.Power.ToString());
         SetVariableValue(HardwareStatsParameter.CpuTemp, cpu.Temperature.ToString());
-        SetVariableValue(HardwareStatsParameter.GpuUsage, gpu.Usage.ToString("0.00"));
+        SetVariableValue(HardwareStatsParameter.GpuUsage, gpu.Usage.ToString(format));
         SetVariableValue(HardwareStatsParameter.GpuPower, gpu.Power.ToString());
         SetVariableValue(HardwareStatsParameter.GpuTemp, gpu.Temperature.ToString());
-        SetVariableValue(HardwareStatsParameter.RamUsage, ram.Usage.ToString("0.00"));
-        SetVariableValue(HardwareStatsParameter.RamTotal, ram.Total.ToString("0.0"));
-        SetVariableValue(HardwareStatsParameter.RamUsed, ram.Used.ToString("0.0"));
-        SetVariableValue(HardwareStatsParameter.RamAvailable, ram.Available.ToString("0.0"));
-        SetVariableValue(HardwareStatsParameter.VRamUsage, (gpu.MemoryUsage * 100f).ToString("0.0"));
-        SetVariableValue(HardwareStatsParameter.VRamFree, (gpu.MemoryFree / 1000f).ToString("0.0"));
-        SetVariableValue(HardwareStatsParameter.VRamUsed, (gpu.MemoryUsed / 1000f).ToString("0.0"));
-        SetVariableValue(HardwareStatsParameter.VRamTotal, (gpu.MemoryTotal / 1000f).ToString("0.0"));
+        SetVariableValue(HardwareStatsParameter.RamUsage, ram.Usage.ToString(format));
+        SetVariableValue(HardwareStatsParameter.RamTotal, ram.Total.ToString(format));
+        SetVariableValue(HardwareStatsParameter.RamUsed, ram.Used.ToString(format));
+        SetVariableValue(HardwareStatsParameter.RamAvailable, ram.Available.ToString(format));
+        SetVariableValue(HardwareStatsParameter.VRamUsage, (gpu.MemoryUsage * 100f).ToString(format));
+        SetVariableValue(HardwareStatsParameter.VRamFree, (gpu.MemoryFree / 1000f).ToString(format));
+        SetVariableValue(HardwareStatsParameter.VRamUsed, (gpu.MemoryUsed / 1000f).ToString(format));
+        SetVariableValue(HardwareStatsParameter.VRamTotal, (gpu.MemoryTotal / 1000f).ToString(format));
     }
 
     protected override void OnModuleStop()
@@ -134,7 +136,8 @@ public sealed class HardwareStatsModule : ChatBoxModule
     private enum HardwareStatsSetting
     {
         SelectedCPU,
-        SelectedGPU
+        SelectedGPU,
+        ChatBoxFormatting
     }
 
     private enum HardwareStatsParameter
