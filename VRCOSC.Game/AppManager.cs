@@ -23,6 +23,7 @@ using VRCOSC.OVR;
 using VRCOSC.OVR.Metadata;
 using VRCOSC.Packages;
 using VRCOSC.Profiles;
+using VRCOSC.Router;
 using VRCOSC.SDK.VRChat;
 
 namespace VRCOSC;
@@ -32,6 +33,7 @@ public class AppManager
     public ProfileManager ProfileManager { get; private set; } = null!;
     public ModuleManager ModuleManager { get; private set; } = null!;
     public PackageManager PackageManager { get; private set; } = null!;
+    public RouterManager RouterManager { get; private set; } = null!;
     public VRChatOscClient VRChatOscClient { get; private set; } = null!;
     public VRChatClient VRChatClient { get; private set; } = null!;
     public ConnectionManager ConnectionManager { get; private set; } = null!;
@@ -56,6 +58,7 @@ public class AppManager
         ProfileManager = new ProfileManager(this, storage, configManager);
         ModuleManager = new ModuleManager(host, storage, clock, this, configManager);
         PackageManager = new PackageManager(game, this, storage, configManager);
+        RouterManager = new RouterManager(this, storage);
         VRChatOscClient = new VRChatOscClient();
         VRChatClient = new VRChatClient(VRChatOscClient);
         ConnectionManager = new ConnectionManager(clock);

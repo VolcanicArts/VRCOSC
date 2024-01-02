@@ -92,6 +92,7 @@ public abstract partial class VRCOSCGame : VRCOSCGameBase
         loadingAction.AddAction(appManager.PackageManager.Load());
         loadingAction.AddAction(new DynamicProgressAction("Loading profiles", () => appManager.ProfileManager.Load()));
         loadingAction.AddAction(new DynamicProgressAction("Loading modules", () => appManager.ModuleManager.LoadAllModules()));
+        loadingAction.AddAction(new DynamicProgressAction("Loading routes", () => appManager.RouterManager.Load()));
         loadingAction.AddAction(new DynamicAsyncProgressAction("Loading graphics", async () =>
         {
             mainScreen = new MainScreen();
