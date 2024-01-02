@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using LibreHardwareMonitor.Hardware;
 
 namespace VRCOSC.Game.Providers.Hardware;
@@ -28,7 +27,7 @@ public abstract class HardwareComponent
 
     protected static bool GetIntValue(ISensor sensor, SensorInfo info, out int value)
     {
-        if (!GetFloatValue(sensor, info, out var floatValue))
+        if (GetFloatValue(sensor, info, out var floatValue))
         {
             value = (int)MathF.Round(floatValue);
             return true;
@@ -40,13 +39,17 @@ public abstract class HardwareComponent
 
     protected static bool GetFloatValue(ISensor sensor, SensorInfo info, out float value)
     {
-        if (info.Pairs.Any(pair => sensor.SensorType == pair.Type && sensor.Name == pair.Name))
+        foreach (var pair in info.Pairs)
         {
-            value = sensor.Value ?? 0f;
+            var innerValue = sensor.Value.GetValueOrDefault(0f);
+
+            if (sensor.SensorType != pair.Type || sensor.Name != pair.Name || innerValue == 0f) continue;
+
+            value = innerValue;
             return true;
         }
 
-        value = 0;
+        value = 0f;
         return false;
     }
 
