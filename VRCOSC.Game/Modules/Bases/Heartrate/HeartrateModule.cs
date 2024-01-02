@@ -40,7 +40,8 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
 
         CreateVariable(HeartrateVariable.Heartrate, "Heartrate", "hr");
 
-        CreateState(HeartrateState.Default, "Default", $"Heartrate/v{GetVariableFormat(HeartrateVariable.Heartrate)} bpm");
+        CreateState(HeartrateState.Default, "Connected", $"Heartrate/v{GetVariableFormat(HeartrateVariable.Heartrate)} bpm");
+        CreateState(HeartrateState.Disconnected, "Disconnected", "Heartrate Disconnected");
     }
 
     protected override void OnModuleStart()
@@ -56,7 +57,7 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
         HeartrateProvider.OnLog += Log;
         HeartrateProvider.Initialise();
 
-        ChangeStateTo(HeartrateState.Default);
+        ChangeStateTo(HeartrateState.Disconnected);
     }
 
     private async void attemptReconnection()
@@ -111,6 +112,7 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
     private void updateParameters()
     {
         var isReceiving = HeartrateProvider?.IsReceiving ?? false;
+        ChangeStateTo(isReceiving ? HeartrateState.Default : HeartrateState.Disconnected);
 
         SendParameter(HeartrateParameter.Enabled, isReceiving);
 
@@ -166,7 +168,8 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
 
     private enum HeartrateState
     {
-        Default
+        Default,
+        Disconnected
     }
 
     private enum HeartrateVariable
