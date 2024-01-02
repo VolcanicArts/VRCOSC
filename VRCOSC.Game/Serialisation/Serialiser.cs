@@ -33,12 +33,6 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
         Reference = reference;
     }
 
-    public void Initialise()
-    {
-        if (string.IsNullOrEmpty(Directory) || string.IsNullOrEmpty(FileName))
-            throw new InvalidOperationException("Cannot initialise serialiser without a directory and filename");
-    }
-
     public string FullPath => baseStorage.GetStorageForDirectory(Directory).GetFullPath(FileName);
     public bool DoesFileExist() => baseStorage.GetStorageForDirectory(Directory).Exists(FileName);
 

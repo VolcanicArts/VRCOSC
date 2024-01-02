@@ -24,7 +24,6 @@ public class SerialisationManager
     /// <param name="serialiser">The <see cref="ISerialiser"/></param>
     public void RegisterSerialiser(int version, ISerialiser serialiser)
     {
-        serialiser.Initialise();
         latestSerialiserVersion = Math.Max(version, latestSerialiserVersion);
         serialisers.Add(version, serialiser);
     }
