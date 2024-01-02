@@ -58,8 +58,8 @@ public class AppManager
         ProfileManager = new ProfileManager(this, storage, configManager);
         ModuleManager = new ModuleManager(host, storage, clock, this, configManager);
         PackageManager = new PackageManager(game, this, storage, configManager);
-        RouterManager = new RouterManager(this, storage);
         VRChatOscClient = new VRChatOscClient();
+        RouterManager = new RouterManager(this, storage, VRChatOscClient);
         VRChatClient = new VRChatClient(VRChatOscClient);
         ConnectionManager = new ConnectionManager(clock);
         OVRClient = new OVRClient();
@@ -261,6 +261,8 @@ public class AppManager
     {
         State.Value = AppManagerState.Starting;
 
+        RouterManager.Start();
+
         VRChatOscClient.EnableSend();
         await ModuleManager.StartAsync();
         VRChatOscClient.OnParameterReceived += onParameterReceived;
@@ -315,6 +317,8 @@ public class AppManager
         if (State.Value is AppManagerState.Stopping or AppManagerState.Stopped) return;
 
         State.Value = AppManagerState.Stopping;
+
+        RouterManager.Stop();
 
         await VRChatOscClient.DisableReceive();
         VRChatOscClient.OnParameterReceived -= onParameterReceived;
