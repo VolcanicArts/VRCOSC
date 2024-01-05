@@ -238,7 +238,7 @@ public class AppManager
     {
         while (!isUnityOpen() && !requestStartCancellationSource.IsCancellationRequested && !waitingSource.IsCancellationRequested)
         {
-            await Task.Delay(500, requestStartCancellationSource.Token);
+            await Task.Delay(500);
         }
     }
 
@@ -246,7 +246,7 @@ public class AppManager
     {
         while (!isVRChatOpen() && !requestStartCancellationSource.IsCancellationRequested && !waitingSource.IsCancellationRequested)
         {
-            await Task.Delay(500, requestStartCancellationSource.Token);
+            await Task.Delay(500);
         }
     }
 
@@ -254,7 +254,7 @@ public class AppManager
     {
         while (!ConnectionManager.IsConnected && !requestStartCancellationSource.IsCancellationRequested)
         {
-            await Task.Delay(500, requestStartCancellationSource.Token);
+            await Task.Delay(500);
         }
     }
 
