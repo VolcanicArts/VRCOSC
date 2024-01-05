@@ -81,7 +81,7 @@ public partial class IconButton : ClickableContainer
         {
             fadeOutBackground();
         }
-    }, false);
+    });
 
     protected override bool OnHover(HoverEvent e)
     {
