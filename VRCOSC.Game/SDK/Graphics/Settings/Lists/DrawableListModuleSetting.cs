@@ -1,6 +1,8 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
@@ -15,6 +17,8 @@ namespace VRCOSC.SDK.Graphics.Settings.Lists;
 public abstract partial class DrawableListModuleSetting<TSetting, TItem> : DrawableModuleSetting<TSetting> where TSetting : ListModuleSetting<TItem>
 {
     protected virtual Drawable? Header => null;
+
+    private readonly FillFlowContainer<GridContainer> listContentFlow;
 
     protected DrawableListModuleSetting(TSetting moduleSetting)
         : base(moduleSetting)
@@ -49,9 +53,7 @@ public abstract partial class DrawableListModuleSetting<TSetting, TItem> : Drawa
             });
         }
 
-        FillFlowContainer listContentFlow;
-
-        flowWrapper.Add(listContentFlow = new FillFlowContainer
+        flowWrapper.Add(listContentFlow = new FillFlowContainer<GridContainer>
         {
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
@@ -141,7 +143,21 @@ public abstract partial class DrawableListModuleSetting<TSetting, TItem> : Drawa
                     };
                 }
             }
+
+            Scheduler.Add(callOnPositionChanged);
         }, true);
+    }
+
+    private void callOnPositionChanged()
+    {
+        var index = 0;
+
+        listContentFlow.ForEach(gridInstance =>
+        {
+            var drawableItem = (DrawableListModuleSettingItem<TItem>)gridInstance.Content[0][0];
+            drawableItem.OnPositionChanged?.Invoke(index);
+            index++;
+        });
     }
 }
 
@@ -158,4 +174,9 @@ public abstract partial class DrawableListModuleSettingItem<T> : Container
         RelativeSizeAxes = Axes.X;
         AutoSizeAxes = Axes.Y;
     }
+
+    /// <summary>
+    /// Called when the position of this <see cref="DrawableListModuleSettingItem{T}"/> changes in its parent list
+    /// </summary>
+    public Action<int>? OnPositionChanged;
 }
