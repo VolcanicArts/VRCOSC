@@ -263,7 +263,7 @@ public partial class VRCOSCDropdown<T> : Dropdown<T>
 
     public partial class VRCOSCDropdownHeader : DropdownHeader
     {
-        protected override DropdownSearchBar? CreateSearchBar() => null;
+        protected override DropdownSearchBar CreateSearchBar() => new BasicDropdown<T>.BasicDropdownHeader.BasicDropdownSearchBar();
 
         protected override LocalisableString Label
         {
