@@ -123,5 +123,5 @@ public partial class ControlsContainer : Container
                 stopButton.Enabled.Value = false;
                 break;
         }
-    }, false);
+    });
 }
