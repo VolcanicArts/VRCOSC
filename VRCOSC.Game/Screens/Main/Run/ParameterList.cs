@@ -2,8 +2,10 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Collections.Generic;
+using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using VRCOSC.Graphics.UI.List;
 using VRCOSC.OSC.VRChat;
@@ -18,6 +20,7 @@ public partial class ParameterList : HeightLimitedScrollableList<DrawableParamet
     private readonly string title;
 
     private readonly SortedDictionary<string, DrawableParameter> listingCache = new();
+    private readonly object listingCacheLock = new();
 
     public ParameterList(string title)
     {
@@ -45,24 +48,51 @@ public partial class ParameterList : HeightLimitedScrollableList<DrawableParamet
 
     public void UpdateParameterValue(VRChatOscMessage message)
     {
-        if (listingCache.TryGetValue(message.Address, out var drawableParameter))
+        var drawableParameter = this.FirstOrDefault(drawableParameter => drawableParameter.ParameterAddress == message.ParameterName);
+
+        if (drawableParameter is not null)
         {
             drawableParameter.UpdateValue(message.ParameterValue);
+            return;
         }
-        else
+
+        if (listingCache.TryGetValue(message.Address, out var cachedDrawableParameter))
+        {
+            cachedDrawableParameter.UpdateValue(message.ParameterValue);
+            return;
+        }
+
+        lock (listingCacheLock)
         {
             var address = message.IsAvatarParameter ? message.ParameterName : message.Address;
             var newDrawableParameter = new DrawableParameter(address, message.ParameterValue);
             listingCache.Add(message.Address, newDrawableParameter);
-            Add(newDrawableParameter);
-
-            var depth = 0f;
-
-            foreach (var sortedDrawableParameter in listingCache.Values)
-            {
-                ChangeListChildPosition(sortedDrawableParameter, depth);
-                depth++;
-            }
         }
+    }
+
+    protected override void Update()
+    {
+        Scheduler.Add(() =>
+        {
+            if (listingCache.Any())
+            {
+                lock (listingCacheLock)
+                {
+                    listingCache.Values.ForEach(Add);
+                    listingCache.Clear();
+                }
+
+                Scheduler.Add(() =>
+                {
+                    var depth = 0f;
+
+                    foreach (var sortedDrawableParameter in this.OrderBy(drawableParameter => drawableParameter.ParameterAddress))
+                    {
+                        ChangeListChildPosition(sortedDrawableParameter, depth);
+                        depth++;
+                    }
+                });
+            }
+        });
     }
 }

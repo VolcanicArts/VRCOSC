@@ -14,15 +14,16 @@ namespace VRCOSC.Screens.Main.Run;
 
 public partial class DrawableParameter : HeightLimitedScrollableListItem
 {
-    private readonly string parameterName;
+    public readonly string ParameterAddress;
     private readonly object parameterInitialValue;
 
     private SpriteText valueSpriteText = null!;
     private Box flashBackground = null!;
+    private object? currentValue;
 
-    public DrawableParameter(string parameterName, object parameterInitialValue)
+    public DrawableParameter(string parameterAddress, object parameterInitialValue)
     {
-        this.parameterName = parameterName;
+        ParameterAddress = parameterAddress;
         this.parameterInitialValue = parameterInitialValue;
     }
 
@@ -51,7 +52,7 @@ public partial class DrawableParameter : HeightLimitedScrollableListItem
                     {
                         Anchor = Anchor.CentreLeft,
                         Origin = Anchor.CentreLeft,
-                        Text = parameterName,
+                        Text = ParameterAddress,
                         Font = Fonts.REGULAR.With(size: 20),
                         Colour = Colours.WHITE2
                     },
@@ -70,9 +71,14 @@ public partial class DrawableParameter : HeightLimitedScrollableListItem
 
     public void UpdateValue(object value)
     {
-        if (valueSpriteText.Text == (value.ToString() ?? "INVALID")) return;
+        currentValue = value;
+    }
 
-        valueSpriteText.Text = value.ToString() ?? "INVALID";
+    protected override void Update()
+    {
+        if (!IsLoaded || currentValue is null || valueSpriteText.Text == (currentValue?.ToString() ?? "INVALID")) return;
+
+        valueSpriteText.Text = currentValue?.ToString() ?? "INVALID";
         flashBackground.FlashColour(Colours.WHITE0.Opacity(0.5f), 1000, Easing.OutQuad);
     }
 }
