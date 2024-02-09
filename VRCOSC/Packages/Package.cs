@@ -14,13 +14,16 @@ public enum PackageType
 
 public class Package
 {
+    public string ID { get; set; }
+
     public string Title { get; set; }
     public SemVersion? LatestVersion { get; set; }
     public SemVersion? InstalledVersion { get; set; }
     public PackageType PackageType { get; set; }
 
-    public Package(string title, SemVersion latestVersion, SemVersion installedVersion, PackageType packageType)
+    public Package(string id, string title, SemVersion latestVersion, SemVersion installedVersion, PackageType packageType)
     {
+        ID = id;
         Title = title;
         LatestVersion = latestVersion;
         InstalledVersion = installedVersion;

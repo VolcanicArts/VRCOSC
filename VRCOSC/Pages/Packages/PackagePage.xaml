@@ -4,7 +4,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="clr-namespace:VRCOSC.Pages.Packages"
-      MouseDown="PackagePage_OnMouseDown"
+      xmlns:fa5="http://schemas.fontawesome.com/icons/"
       mc:Ignorable="d">
     <Page.Resources>
         <Style x:Key="DataGridHeaderStyle" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}" TargetType="{x:Type DataGridColumnHeader}">
@@ -43,6 +43,7 @@
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Padding" Value="10"/>
             <Setter Property="FontSize" Value="20"></Setter>
+            <Setter Property="Background" Value="Transparent"></Setter>
             <Setter Property="Foreground" Value="White"></Setter>
             <Setter Property="HorizontalAlignment" Value="Left"></Setter>
             <Setter Property="Template">
@@ -60,7 +61,7 @@
         </Style>
     </Page.Resources>
     <Border Padding="10" Background="{StaticResource CBackground2}">
-        <DataGrid Name="PackageGrid" ItemsSource="{Binding Packages}" AutoGenerateColumns="False" RowHeaderWidth="0" CanUserAddRows="False" CanUserDeleteRows="False" AlternationCount="2" CanUserResizeColumns="False" CanUserReorderColumns="False" Style="{StaticResource DataGridRoundedCorners}" HeadersVisibility="Column" MinColumnWidth="150" GridLinesVisibility="None" d:DataContext="{d:PackageViewModel }">
+        <DataGrid Name="PackageGrid" ItemsSource="{Binding Packages}" AutoGenerateColumns="False" RowHeaderWidth="0" CanUserAddRows="False" CanUserDeleteRows="False" AlternationCount="2" CanUserResizeColumns="False" CanUserReorderColumns="False" Style="{StaticResource DataGridRoundedCorners}" HeadersVisibility="Column" MinColumnWidth="150" GridLinesVisibility="None" d:DataContext="{d:PackageViewModel}" Tag="{Binding ID}">
             <DataGrid.Resources>
                 <Style BasedOn="{StaticResource {x:Type DataGridRow}}" TargetType="DataGridRow">
                     <Setter Property="IsHitTestVisible" Value="False"></Setter>
@@ -79,6 +80,17 @@
                 <DataGridTextColumn Binding="{Binding LatestVersion}" Header="Latest" HeaderStyle="{StaticResource DataGridHeaderStyleCenterAligned}" CellStyle="{StaticResource DataGridCellStyleCenterAligned}"/>
                 <DataGridTextColumn Binding="{Binding InstalledVersion}" Header="Installed" HeaderStyle="{StaticResource DataGridHeaderStyleCenterAligned}" CellStyle="{StaticResource DataGridCellStyleCenterAligned}"/>
                 <DataGridTextColumn Binding="{Binding PackageType}" Header="Type" HeaderStyle="{StaticResource DataGridHeaderStyle}" CellStyle="{StaticResource DataGridCellStyle}"/>
+                <DataGridTemplateColumn Header="Action" HeaderStyle="{StaticResource DataGridHeaderStyleCenterAligned}" CellStyle="{StaticResource DataGridCellStyleCenterAligned}">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Border Background="Green" CornerRadius="5" BorderThickness="0">
+                                <Button BorderThickness="0" Background="Transparent" IsEnabled="True" Command="{Binding InstallButtonCommand}" CommandParameter="{Binding Tag}" d:DataContext="{d:PackageViewModel}" Padding="7" MaxWidth="150" MaxHeight="30">
+                                    <fa5:ImageAwesome Icon="Solid_Plus" Foreground="White" />
+                                </Button>
+                            </Border>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
     </Border>
