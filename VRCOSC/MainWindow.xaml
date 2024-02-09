@@ -1,0 +1,71 @@
+﻿<Window x:Class="VRCOSC.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:system="clr-namespace:System;assembly=System.Runtime"
+        xmlns:fa5="http://schemas.fontawesome.com/icons/"
+        mc:Ignorable="d"
+        Title="VRCOSC" Width="1920" Height="1080" WindowState="Maximized" MinWidth="960" MinHeight="540">
+    <Window.Resources>
+        <system:Double x:Key="TabHeaderWidth">70</system:Double>
+        <Thickness x:Key="TabIconMargin">23</Thickness>
+        <Style TargetType="TabControl">
+            <Setter Property="TabStripPlacement" Value="Left" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabControl">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Column="0" Background="{StaticResource CBackground1}">
+                                <TabPanel IsItemsHost="True" Margin="0" />
+                            </Grid>
+                            <ContentPresenter Grid.Column="1" ContentSource="SelectedContent" />
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="TabItem">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Grid>
+                            <Border x:Name="Border">
+                                <ContentPresenter ContentSource="Header" />
+                            </Border>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="{StaticResource CBackground2}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <Grid Background="#1F1F1F">
+        <TabControl>
+            <TabItem MaxWidth="{StaticResource TabHeaderWidth}" MinHeight="{StaticResource TabHeaderWidth}">
+                <TabItem.Header>
+                    <fa5:ImageAwesome Icon="Solid_Home" Foreground="White" Margin="{StaticResource TabIconMargin}" />
+                </TabItem.Header>
+                <Frame Source="Pages/HomePage.xaml"></Frame>
+            </TabItem>
+            <TabItem MaxWidth="{StaticResource TabHeaderWidth}" MinHeight="{StaticResource TabHeaderWidth}">
+                <TabItem.Header>
+                    <fa5:ImageAwesome Icon="Solid_Download" Foreground="White" Margin="{StaticResource TabIconMargin}" />
+                </TabItem.Header>
+            </TabItem>
+            <TabItem MaxWidth="{StaticResource TabHeaderWidth}" MinHeight="{StaticResource TabHeaderWidth}">
+                <TabItem.Header>
+                    <fa5:ImageAwesome Icon="Solid_List" Foreground="White" Margin="{StaticResource TabIconMargin}" />
+                </TabItem.Header>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>

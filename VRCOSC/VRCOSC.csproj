@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0-windows</TargetFramework>
+        <Nullable>enable</Nullable>
+        <UseWPF>true</UseWPF>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Remove="VA-PFP.png" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Remove="Fonts\FontAwesomeSolid.otf" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="FontAwesome5" Version="2.1.11" />
+        <PackageReference Include="Velopack" Version="0.0.292" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Remove="Resources\app.ico" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Folder Include="Resources\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ApplicationDefinition Remove="App.xaml" />
+        <Page Include="App.xaml" />
+    </ItemGroup>
+
+</Project>

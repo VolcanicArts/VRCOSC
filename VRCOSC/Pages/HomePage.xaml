@@ -1,0 +1,26 @@
+﻿<Page x:Class="VRCOSC.Pages.HomePage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      mc:Ignorable="d">
+    <Grid Background="{StaticResource CBackground2}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Name="Title" Text="PLACEHOLDER" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="60"
+                   Margin="10 5" Foreground="{StaticResource CForeground2}" FontFamily="Roboto" FontWeight="Bold" />
+        <Button Click="ButtonBase_OnClick" Width="20" Height="10"></Button>
+        <Popup x:Name="Popup" IsOpen="False" Placement="Center" AllowsTransparency="True">
+            <Grid x:Name="PopupContent" Background="Transparent">
+                <Border Background="LightGray" Padding="20">
+                    <TextBlock Text="Popup Content" />
+                </Border>
+            </Grid>
+        </Popup>
+    </Grid>
+</Page>
