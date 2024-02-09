@@ -48,7 +48,7 @@
             </Setter>
         </Style>
     </Window.Resources>
-    <Grid Background="#1F1F1F">
+    <Grid>
         <TabControl>
             <TabItem MaxWidth="{StaticResource TabHeaderWidth}" MinHeight="{StaticResource TabHeaderWidth}">
                 <TabItem.Header>
@@ -60,6 +60,7 @@
                 <TabItem.Header>
                     <fa5:ImageAwesome Icon="Solid_Download" Foreground="White" Margin="{StaticResource TabIconMargin}" />
                 </TabItem.Header>
+                <Frame Source="Pages/Packages/PackagePage.xaml"></Frame>
             </TabItem>
             <TabItem MaxWidth="{StaticResource TabHeaderWidth}" MinHeight="{StaticResource TabHeaderWidth}">
                 <TabItem.Header>

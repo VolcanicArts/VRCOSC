@@ -16,6 +16,7 @@
 
     <ItemGroup>
         <PackageReference Include="FontAwesome5" Version="2.1.11" />
+        <PackageReference Include="Semver" Version="2.3.0" />
         <PackageReference Include="Velopack" Version="0.0.292" />
     </ItemGroup>
 
@@ -25,11 +26,17 @@
 
     <ItemGroup>
         <Folder Include="Resources\" />
+        <Folder Include="Windows\" />
     </ItemGroup>
 
     <ItemGroup>
         <ApplicationDefinition Remove="App.xaml" />
         <Page Include="App.xaml" />
+        <Page Update="Pages\Packages\PackagePage.xaml">
+          <Generator>MSBuild:Compile</Generator>
+          <XamlRuntime>Wpf</XamlRuntime>
+          <SubType>Designer</SubType>
+        </Page>
     </ItemGroup>
 
 </Project>

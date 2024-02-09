@@ -14,13 +14,5 @@
 
         <TextBlock Name="Title" Text="PLACEHOLDER" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="60"
                    Margin="10 5" Foreground="{StaticResource CForeground2}" FontFamily="Roboto" FontWeight="Bold" />
-        <Button Click="ButtonBase_OnClick" Width="20" Height="10"></Button>
-        <Popup x:Name="Popup" IsOpen="False" Placement="Center" AllowsTransparency="True">
-            <Grid x:Name="PopupContent" Background="Transparent">
-                <Border Background="LightGray" Padding="20">
-                    <TextBlock Text="Popup Content" />
-                </Border>
-            </Grid>
-        </Popup>
     </Grid>
 </Page>

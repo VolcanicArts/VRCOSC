@@ -2,9 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Windows;
 using Microsoft.Win32;
-using VRCOSC.Windows;
 
 namespace VRCOSC.Pages;
 
@@ -31,27 +29,5 @@ public partial class HomePage
         {
             return Environment.UserName;
         }
-    }
-
-    private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
-    {
-        // PopupContent.Opacity = 0;
-        //
-        // // Open the popup
-        // Popup.IsOpen = true;
-        //
-        // // Create a DoubleAnimation to animate opacity
-        // DoubleAnimation animation = new DoubleAnimation
-        // {
-        //     To = 1, // Final opacity value
-        //     Duration = TimeSpan.FromSeconds(1), // Animation duration
-        //     EasingFunction = new QuarticEase() // Quartic easing
-        // };
-        //
-        // // Set the target property to animate
-        // PopupContent.BeginAnimation(OpacityProperty, animation);
-
-        var window = new TestWindow();
-        window.Show();
     }
 }

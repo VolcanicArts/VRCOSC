@@ -6,6 +6,7 @@
         <Brush x:Key="CBackground1">#FF0F0F0F</Brush>
         <Brush x:Key="CBackground2">#FF1F1F1F</Brush>
         <Brush x:Key="CBackground3">#FF292929</Brush>
+        <Brush x:Key="CBackground4">#FF1A1A1A</Brush>
         <Brush x:Key="CForeground1">#FFFFFFFF</Brush>
         <Brush x:Key="CForeground2">#FFBFBFBF</Brush>
     </Application.Resources>
