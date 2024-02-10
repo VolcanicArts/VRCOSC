@@ -8,13 +8,13 @@ using VRCOSC.Game.Modules.Avatar;
 namespace VRCOSC.Modules.Timer;
 
 [ModuleTitle("Timer")]
-[ModuleDescription("Counts down to a specified time to be put in the ChatBox")]
+[ModuleDescription("Counts to a specified time to be put in the ChatBox")]
 [ModuleGroup(ModuleType.General)]
 public class TimerModule : ChatBoxModule
 {
     protected override void CreateAttributes()
     {
-        CreateSetting(TimerSetting.Time, "Time", "The date/time to countdown to", string.Empty);
+        CreateSetting(TimerSetting.Time, "Time", "The date/time to count to.\nWorks with future and past dates/times", string.Empty);
 
         CreateVariable(TimerVariable.Time, "Time", "time");
         CreateState(TimerState.Default, "Default", GetVariableFormat(TimerVariable.Time));
@@ -30,14 +30,12 @@ public class TimerModule : ChatBoxModule
     {
         if (DateTime.TryParse(GetSetting<string>(TimerSetting.Time), null, DateTimeStyles.AssumeLocal, out var time))
         {
-            var timeNow = DateTime.Now;
-            var difference = time - timeNow;
-            var differenceNoMilli = new TimeSpan(difference.Days, difference.Hours, difference.Minutes, difference.Seconds);
-            SetVariableValue(TimerVariable.Time, differenceNoMilli.ToString("g"));
+            var diff = time - DateTime.Now;
+            SetVariableValue(TimerVariable.Time, $"{diff.Days * 24 + diff.Hours:00}:{diff.Minutes:00}:{diff.Seconds:00}".Replace("-", string.Empty));
         }
         else
         {
-            Log("Could not parse entered time");
+            Log("Could not parse entered time. Example: 1/1/2024 12:00:00");
         }
     }
 
