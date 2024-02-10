@@ -13,7 +13,6 @@ namespace VRCOSC.Modules.Maths;
 [ModuleAuthor("VolcanicArts")]
 public class MathsModule : AvatarModule
 {
-    private readonly Dictionary<string, ReceivedParameter> parameterValues = new();
     private readonly Dictionary<string, MathsEquationInstance> instances = new();
     private readonly List<PrimitiveElement> elements = new();
 
@@ -37,7 +36,6 @@ public class MathsModule : AvatarModule
 
     protected override void OnModuleStart()
     {
-        parameterValues.Clear();
         instances.Clear();
         elements.Clear();
 
@@ -50,11 +48,9 @@ public class MathsModule : AvatarModule
 
     protected override async void OnAnyParameterReceived(ReceivedParameter parameter)
     {
-        parameterValues[parameter.Name] = parameter;
-
         if (!instances.TryGetValue(parameter.Name, out var instance)) return;
 
-        var expression = new Expression(instance.Equation.Value, parameterValues.Values.Select(createArgumentForParameterValue).Concat(elements).ToArray());
+        var expression = new Expression(instance.Equation.Value, elements.ToArray());
         expression.disableImpliedMultiplicationMode();
 
         foreach (var missingArgument in expression.getMissingUserDefinedArguments())
@@ -89,15 +85,6 @@ public class MathsModule : AvatarModule
         SendParameter(instance.OutputParameter.Value, finalValue);
     }
 
-    private static PrimitiveElement createArgumentForParameterValue(ReceivedParameter parameter)
-    {
-        if (parameter.IsValueType<bool>()) return new Argument(parameter.Name, parameter.ValueAs<bool>() ? 1 : 0);
-        if (parameter.IsValueType<int>()) return new Argument(parameter.Name, parameter.ValueAs<int>());
-        if (parameter.IsValueType<float>()) return new Argument(parameter.Name, parameter.ValueAs<float>());
-
-        throw new InvalidOperationException("Unknown parameter type");
-    }
-
     private object convertToOutputType(double value, TypeCode valueType)
     {
         try
@@ -112,7 +99,7 @@ public class MathsModule : AvatarModule
         }
         catch (Exception e)
         {
-            Log($"Warning. Value {value}. " + e.Message);
+            Log($"Output error for value '{value}': '{e.Message}'");
 
             return valueType switch
             {
