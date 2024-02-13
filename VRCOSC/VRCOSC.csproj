@@ -15,6 +15,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Extended.Wpf.Toolkit" Version="4.6.0" />
         <PackageReference Include="FontAwesome5" Version="2.1.11" />
         <PackageReference Include="MaterialDesignThemes" Version="4.9.0" />
         <PackageReference Include="Semver" Version="2.3.0" />

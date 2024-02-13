@@ -3,13 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:system="clr-namespace:System;assembly=System.Runtime"
         xmlns:fa5="http://schemas.fontawesome.com/icons/"
         mc:Ignorable="d"
         Title="VRCOSC" Width="1920" Height="1080" WindowState="Maximized" MinWidth="960" MinHeight="540">
     <Window.Resources>
-        <system:Double x:Key="TabHeaderWidth">70</system:Double>
-        <Thickness x:Key="TabIconMargin">23</Thickness>
         <Style TargetType="TabControl">
             <Setter Property="TabStripPlacement" Value="Left" />
             <Setter Property="Template">
@@ -30,6 +27,8 @@
             </Setter>
         </Style>
         <Style TargetType="TabItem">
+            <Setter Property="MaxWidth" Value="70" />
+            <Setter Property="MinHeight" Value="70" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TabItem">
@@ -47,27 +46,29 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <Style TargetType="fa5:ImageAwesome">
+            <Setter Property="Margin" Value="23" />
+            <Setter Property="Foreground" Value="{StaticResource CForeground1}" />
+        </Style>
     </Window.Resources>
-    <Grid>
-        <TabControl>
-            <TabItem MaxWidth="{StaticResource TabHeaderWidth}" MinHeight="{StaticResource TabHeaderWidth}">
-                <TabItem.Header>
-                    <fa5:ImageAwesome Icon="Solid_Home" Foreground="White" Margin="{StaticResource TabIconMargin}" />
-                </TabItem.Header>
-                <Frame Source="Pages/HomePage.xaml"></Frame>
-            </TabItem>
-            <TabItem MaxWidth="{StaticResource TabHeaderWidth}" MinHeight="{StaticResource TabHeaderWidth}">
-                <TabItem.Header>
-                    <fa5:ImageAwesome Icon="Solid_Download" Foreground="White" Margin="{StaticResource TabIconMargin}" />
-                </TabItem.Header>
-                <Frame Source="Pages/Packages/PackagePage.xaml"></Frame>
-            </TabItem>
-            <TabItem MaxWidth="{StaticResource TabHeaderWidth}" MinHeight="{StaticResource TabHeaderWidth}">
-                <TabItem.Header>
-                    <fa5:ImageAwesome Icon="Solid_List" Foreground="White" Margin="{StaticResource TabIconMargin}" />
-                </TabItem.Header>
-                <Frame Source="Pages/Modules/ModulesPage.xaml"></Frame>
-            </TabItem>
-        </TabControl>
-    </Grid>
+    <TabControl>
+        <TabItem>
+            <TabItem.Header>
+                <fa5:ImageAwesome Icon="Solid_Home" />
+            </TabItem.Header>
+            <Frame Source="Pages/HomePage.xaml" />
+        </TabItem>
+        <TabItem>
+            <TabItem.Header>
+                <fa5:ImageAwesome Icon="Solid_Download" />
+            </TabItem.Header>
+            <Frame Source="Pages/Packages/PackagePage.xaml" />
+        </TabItem>
+        <TabItem>
+            <TabItem.Header>
+                <fa5:ImageAwesome Icon="Solid_List" />
+            </TabItem.Header>
+            <Frame Source="Pages/Modules/ModulesPage.xaml" />
+        </TabItem>
+    </TabControl>
 </Window>

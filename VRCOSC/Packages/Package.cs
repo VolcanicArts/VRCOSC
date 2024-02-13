@@ -39,17 +39,22 @@ public class Package
     public Visibility UIUpgradeVisible => InstalledVersion is not null && LatestVersion?.ComparePrecedenceTo(InstalledVersion) == 1 ? Visibility.Visible : Visibility.Collapsed;
 
     public ICommand UIInstallButton => new RelayCommand(_ => OnInstallButtonClick());
+    public ICommand UIUnInstallButton => new RelayCommand(_ => OnUnInstallButtonClick());
+    public ICommand UIInfoButton => new RelayCommand(_ => OnInfoButtonClick());
 
     private void OnInstallButtonClick()
     {
         MessageBox.Show("WOOOOOOOO");
     }
 
-    public ICommand UIUnInstallButton => new RelayCommand(_ => OnUnInstallButtonClick());
-
     private void OnUnInstallButtonClick()
     {
         MessageBox.Show("WOOOOOOOO");
+    }
+
+    private void OnInfoButtonClick()
+    {
+        MessageBox.Show("Info button clicked");
     }
 
     #endregion

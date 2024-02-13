@@ -5,45 +5,39 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="clr-namespace:VRCOSC.Pages.Packages"
       xmlns:fa5="http://schemas.fontawesome.com/icons/"
-      xmlns:packages="clr-namespace:VRCOSC.Packages"
       xmlns:vrcosc="clr-namespace:VRCOSC"
       mc:Ignorable="d">
     <Page.Resources>
-        <Style x:Key="DataGridHeaderStyle" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}" TargetType="{x:Type DataGridColumnHeader}">
-            <Setter Property="FontSize" Value="20"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="FontFamily" Value="Roboto"/>
-            <Setter Property="Background" Value="{StaticResource CBackground1}"/>
-            <Setter Property="Foreground" Value="{StaticResource CForeground2}"/>
-            <Setter Property="Padding" Value="10"/>
+        <Style x:Key="DataGridHeaderStyle" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}"
+               TargetType="{x:Type DataGridColumnHeader}">
+            <Setter Property="FontSize" Value="20" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="FontFamily" Value="Roboto" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{StaticResource CForeground2}" />
+            <Setter Property="Padding" Value="10" />
         </Style>
-        <Style x:Key="DataGridHeaderStyleCenterAligned" BasedOn="{StaticResource DataGridHeaderStyle}" TargetType="{x:Type DataGridColumnHeader}">
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Style x:Key="DataGridHeaderStyleCenterAligned" BasedOn="{StaticResource DataGridHeaderStyle}"
+               TargetType="{x:Type DataGridColumnHeader}">
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
         </Style>
-        <Style x:Key="DataGridRoundedCorners" BasedOn="{StaticResource {x:Type DataGrid}}" TargetType="{x:Type DataGrid}">
-            <Setter Property="Background" Value="Transparent"/>
+        <Style x:Key="ColumnHeadersPresenterStyle" TargetType="DataGridColumnHeadersPresenter">
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type DataGrid}">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="50"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="5"/>
-                            </Grid.RowDefinitions>
-                            <DataGridColumnHeadersPresenter Grid.Row="0" Visibility="Visible"/>
-                            <ScrollViewer Grid.Row="1" Focusable="false" CanContentScroll="True" VerticalScrollBarVisibility="Disabled" >
-                                <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
-                            </ScrollViewer>
-                            <Border Grid.Row="2" Background="{StaticResource CBackground1}"/>
-                        </Grid>
+                    <ControlTemplate>
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="5 5 0 0">
+                            <ItemsPresenter />
+                        </Border>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
         <Style x:Key="DataGridCellStyle" BasedOn="{StaticResource {x:Type DataGridCell}}" TargetType="DataGridCell">
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="10"/>
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="10" />
             <Setter Property="FontSize" Value="20"></Setter>
             <Setter Property="Background" Value="Transparent"></Setter>
             <Setter Property="Foreground" Value="White"></Setter>
@@ -52,8 +46,10 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type DataGridCell}">
-                        <Border Padding="{TemplateBinding Padding}" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" SnapsToDevicePixels="True">
-                            <ContentPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                        <Border Padding="{TemplateBinding Padding}" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}" SnapsToDevicePixels="True">
+                            <ContentPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
@@ -62,62 +58,123 @@
                 <Trigger Property="DataGridCell.IsSelected" Value="True">
                     <Setter Property="BorderBrush">
                         <Setter.Value>
-                            <SolidColorBrush Color="Transparent"/>
+                            <SolidColorBrush Color="Transparent" />
                         </Setter.Value>
                     </Setter>
-                    <Setter Property="Foreground" Value="{StaticResource CForeground1}"/>
+                    <Setter Property="Foreground" Value="{StaticResource CForeground1}" />
                     <Setter Property="Background">
                         <Setter.Value>
-                            <SolidColorBrush Color="Transparent"/>
+                            <SolidColorBrush Color="Transparent" />
                         </Setter.Value>
                     </Setter>
                 </Trigger>
             </Style.Triggers>
         </Style>
-        <Style x:Key="DataGridCellStyleCenterAligned" BasedOn="{StaticResource DataGridCellStyle}" TargetType="DataGridCell">
+        <Style x:Key="DataGridCellStyleCenterAligned" BasedOn="{StaticResource DataGridCellStyle}"
+               TargetType="DataGridCell">
             <Setter Property="HorizontalAlignment" Value="Center"></Setter>
+        </Style>
+        <Style x:Key="DataGridCellStyleRightAligned" BasedOn="{StaticResource DataGridCellStyle}"
+               TargetType="DataGridCell">
+            <Setter Property="HorizontalAlignment" Value="Right"></Setter>
         </Style>
     </Page.Resources>
     <Border Padding="10" Background="{StaticResource CBackground2}">
-        <DataGrid Name="PackageGrid" ItemsSource="{Binding Packages}" AutoGenerateColumns="False" RowHeaderWidth="0" CanUserAddRows="False" CanUserDeleteRows="False" AlternationCount="2" CanUserResizeColumns="False" CanUserReorderColumns="False" Style="{StaticResource DataGridRoundedCorners}" HeadersVisibility="Column" MinColumnWidth="150" GridLinesVisibility="None">
-            <DataGrid.DataContext>
-                <local:PackageViewModel/>
-            </DataGrid.DataContext>
-            <DataGrid.Resources>
-                <Style BasedOn="{StaticResource {x:Type DataGridRow}}" TargetType="DataGridRow">
-                    <Setter Property="Background" Value="{StaticResource CBackground3}"/>
-                    <Setter Property="BorderThickness" Value="0"/>
-                    <Setter Property="BorderBrush" Value="Transparent"/>
-                    <Style.Triggers>
-                        <Trigger Property="ItemsControl.AlternationIndex" Value="1">
-                            <Setter Property="Background" Value="{StaticResource CBackground4}"/>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </DataGrid.Resources>
-            <DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding Title, Mode=OneWay}" Header="Name" HeaderStyle="{StaticResource DataGridHeaderStyle}" MinWidth="200" CellStyle="{StaticResource DataGridCellStyle}"/>
-                <DataGridTextColumn Binding="{Binding LatestVersion, Mode=OneWay}" Header="Latest" HeaderStyle="{StaticResource DataGridHeaderStyleCenterAligned}" CellStyle="{StaticResource DataGridCellStyleCenterAligned}"/>
-                <DataGridTextColumn Binding="{Binding InstalledVersion, Mode=OneWay}" Header="Installed" HeaderStyle="{StaticResource DataGridHeaderStyleCenterAligned}" CellStyle="{StaticResource DataGridCellStyleCenterAligned}"/>
-                <DataGridTextColumn Binding="{Binding PackageType, Mode=OneWay}" Header="Type" HeaderStyle="{StaticResource DataGridHeaderStyle}" CellStyle="{StaticResource DataGridCellStyle}"/>
-                <DataGridTemplateColumn Header="Action" HeaderStyle="{StaticResource DataGridHeaderStyleCenterAligned}" CellStyle="{StaticResource DataGridCellStyleCenterAligned}">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <vrcosc:SpacedStackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <Button Style="{StaticResource VRCOSCBlueButtonStyle}" Command="{Binding Path=UIInstallButton, Mode=OneWay}" MaxWidth="30" MaxHeight="30" Visibility="{Binding UIUpgradeVisible}">
-                                    <fa5:ImageAwesome Icon="Solid_Redo" Foreground="White" Margin="4"/>
-                                </Button>
-                                <Button Style="{StaticResource VRCOSCGreenButtonStyle}" Command="{Binding Path=UIInstallButton, Mode=OneWay}" MaxWidth="30" MaxHeight="30" Visibility="{Binding UIInstallVisible}">
-                                    <fa5:ImageAwesome Icon="Solid_Plus" Foreground="White" Margin="4"/>
-                                </Button>
-                                <Button Style="{StaticResource VRCOSCRedButtonStyle}" Command="{Binding Path=UIUnInstallButton, Mode=OneWay}" MaxWidth="30" MaxHeight="30" Visibility="{Binding UIUnInstallVisible}">
-                                    <fa5:ImageAwesome Icon="Solid_Minus" Foreground="White" Margin="4"/>
-                                </Button>
-                            </vrcosc:SpacedStackPanel>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-            </DataGrid.Columns>
-        </DataGrid>
+        <Border Name="GridContainer" Background="Transparent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <DataGrid Name="PackageGrid" ItemsSource="{Binding Packages}" AutoGenerateColumns="False"
+                      RowHeaderWidth="0" CanUserAddRows="False"
+                      CanUserDeleteRows="False" AlternationCount="2"
+                      CanUserResizeColumns="False"
+                      CanUserReorderColumns="False" HeadersVisibility="Column" MinColumnWidth="150"
+                      GridLinesVisibility="None" Background="Transparent" HorizontalScrollBarVisibility="Hidden">
+                <DataGrid.DataContext>
+                    <local:PackageViewModel />
+                </DataGrid.DataContext>
+                <DataGrid.Template>
+                    <ControlTemplate>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="50" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="5" />
+                            </Grid.RowDefinitions>
+                            <DataGridColumnHeadersPresenter Grid.Row="0"
+                                                            Style="{StaticResource ColumnHeadersPresenterStyle}"
+                                                            Background="{StaticResource CBackground1}" />
+                            <ScrollViewer Grid.Row="1" Focusable="false" CanContentScroll="False"
+                                          VerticalScrollBarVisibility="Hidden" Height="{Binding ScrollHeight}">
+                                <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                            </ScrollViewer>
+                            <Border Grid.Row="2" Background="{StaticResource CBackground1}" CornerRadius="0 0 5 5" />
+                        </Grid>
+                    </ControlTemplate>
+                </DataGrid.Template>
+                <DataGrid.Resources>
+                    <Style BasedOn="{StaticResource {x:Type DataGridRow}}" TargetType="DataGridRow">
+                        <Setter Property="Background" Value="{StaticResource CBackground3}" />
+                        <Setter Property="BorderThickness" Value="0" />
+                        <Setter Property="BorderBrush" Value="Transparent" />
+                        <Style.Triggers>
+                            <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                                <Setter Property="Background" Value="{StaticResource CBackground4}" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.Resources>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Binding="{Binding Title, Mode=OneWay}" Header="Name"
+                                        HeaderStyle="{StaticResource DataGridHeaderStyle}" MinWidth="200"
+                                        CellStyle="{StaticResource DataGridCellStyle}" />
+                    <DataGridTextColumn Binding="{Binding LatestVersion, Mode=OneWay}" Header="Latest"
+                                        HeaderStyle="{StaticResource DataGridHeaderStyleCenterAligned}"
+                                        CellStyle="{StaticResource DataGridCellStyleCenterAligned}" />
+                    <DataGridTextColumn Binding="{Binding InstalledVersion, Mode=OneWay}" Header="Installed"
+                                        HeaderStyle="{StaticResource DataGridHeaderStyleCenterAligned}"
+                                        CellStyle="{StaticResource DataGridCellStyleCenterAligned}" />
+                    <DataGridTextColumn Binding="{Binding PackageType, Mode=OneWay}" Header="Type"
+                                        HeaderStyle="{StaticResource DataGridHeaderStyle}"
+                                        CellStyle="{StaticResource DataGridCellStyle}" />
+                    <DataGridTemplateColumn Header="Action"
+                                            HeaderStyle="{StaticResource DataGridHeaderStyleCenterAligned}"
+                                            CellStyle="{StaticResource DataGridCellStyleCenterAligned}">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <vrcosc:SpacedStackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <Button Style="{StaticResource VRCOSCBlueButtonStyle}"
+                                            Command="{Binding Path=UIInstallButton, Mode=OneWay}" MaxWidth="30"
+                                            MaxHeight="30" Visibility="{Binding UIUpgradeVisible}">
+                                        <fa5:ImageAwesome Icon="Solid_Redo" Foreground="White" Margin="4" />
+                                    </Button>
+                                    <Button Style="{StaticResource VRCOSCGreenButtonStyle}"
+                                            Command="{Binding Path=UIInstallButton, Mode=OneWay}" MaxWidth="30"
+                                            MaxHeight="30" Visibility="{Binding UIInstallVisible}">
+                                        <fa5:ImageAwesome Icon="Solid_Plus" Foreground="White" Margin="4" />
+                                    </Button>
+                                    <Button Style="{StaticResource VRCOSCRedButtonStyle}"
+                                            Command="{Binding Path=UIUnInstallButton, Mode=OneWay}" MaxWidth="30"
+                                            MaxHeight="30" Visibility="{Binding UIUnInstallVisible}">
+                                        <fa5:ImageAwesome Icon="Solid_Minus" Foreground="White" Margin="4" />
+                                    </Button>
+                                </vrcosc:SpacedStackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn HeaderStyle="{StaticResource DataGridHeaderStyle}"
+                                            CellStyle="{StaticResource DataGridCellStyleRightAligned}" Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <vrcosc:SpacedStackPanel Orientation="Horizontal" HorizontalAlignment="Right"
+                                                         FlowDirection="RightToLeft">
+                                    <Button Style="{StaticResource VRCOSCBlueButtonStyle}"
+                                            Command="{Binding Path=UIInfoButton, Mode=OneWay}" Width="30" Height="30">
+                                        <fa5:ImageAwesome Icon="Solid_Info" Foreground="White" Margin="4" />
+                                    </Button>
+                                </vrcosc:SpacedStackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
     </Border>
 </Page>
