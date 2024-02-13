@@ -16,6 +16,7 @@
 
     <ItemGroup>
         <PackageReference Include="FontAwesome5" Version="2.1.11" />
+        <PackageReference Include="MaterialDesignThemes" Version="4.9.0" />
         <PackageReference Include="Semver" Version="2.3.0" />
         <PackageReference Include="Velopack" Version="0.0.292" />
     </ItemGroup>
@@ -37,6 +38,11 @@
           <XamlRuntime>Wpf</XamlRuntime>
           <SubType>Designer</SubType>
         </Page>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Page Remove="Themes\Dark.xaml" />
+      <Resource Include="Themes\Dark.xaml" />
     </ItemGroup>
 
 </Project>

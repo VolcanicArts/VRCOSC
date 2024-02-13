@@ -2,20 +2,24 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Diagnostics;
 using System.Windows.Input;
 
 namespace VRCOSC;
 
-public class RelayCommand<T> : ICommand
+public class RelayCommand : ICommand
 {
-    private readonly Action<T> _execute;
-    private readonly Func<T, bool>? _canExecute;
+    private readonly Action<object?> execute;
+    private readonly Predicate<object?>? canExecute;
 
-    public RelayCommand(Action<T> execute, Func<T, bool>? canExecute = null)
+    public RelayCommand(Action<object?> execute, Predicate<object?>? canExecute = null)
     {
-        _execute = execute ?? throw new ArgumentNullException(nameof(execute));
-        _canExecute = canExecute;
+        this.execute = execute ?? throw new ArgumentNullException(nameof(execute));
+        this.canExecute = canExecute;
     }
+
+    [DebuggerStepThrough]
+    public bool CanExecute(object? parameters) => canExecute?.Invoke(parameters) ?? true;
 
     public event EventHandler? CanExecuteChanged
     {
@@ -23,13 +27,8 @@ public class RelayCommand<T> : ICommand
         remove => CommandManager.RequerySuggested -= value;
     }
 
-    public bool CanExecute(object? parameter)
+    public void Execute(object? parameters)
     {
-        return _canExecute == null || _canExecute((T)(parameter ?? string.Empty));
-    }
-
-    public void Execute(object? parameter)
-    {
-        _execute((T)(parameter ?? string.Empty));
+        execute(parameters);
     }
 }

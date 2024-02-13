@@ -5,6 +5,8 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="clr-namespace:VRCOSC.Pages.Packages"
       xmlns:fa5="http://schemas.fontawesome.com/icons/"
+      xmlns:packages="clr-namespace:VRCOSC.Packages"
+      xmlns:vrcosc="clr-namespace:VRCOSC"
       mc:Ignorable="d">
     <Page.Resources>
         <Style x:Key="DataGridHeaderStyle" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}" TargetType="{x:Type DataGridColumnHeader}">
@@ -25,7 +27,7 @@
                     <ControlTemplate TargetType="{x:Type DataGrid}">
                         <Grid>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="50"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="5"/>
                             </Grid.RowDefinitions>
@@ -46,6 +48,7 @@
             <Setter Property="Background" Value="Transparent"></Setter>
             <Setter Property="Foreground" Value="White"></Setter>
             <Setter Property="HorizontalAlignment" Value="Left"></Setter>
+            <Setter Property="Height" Value="50"></Setter>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type DataGridCell}">
@@ -55,16 +58,33 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+            <Style.Triggers>
+                <Trigger Property="DataGridCell.IsSelected" Value="True">
+                    <Setter Property="BorderBrush">
+                        <Setter.Value>
+                            <SolidColorBrush Color="Transparent"/>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="Foreground" Value="{StaticResource CForeground1}"/>
+                    <Setter Property="Background">
+                        <Setter.Value>
+                            <SolidColorBrush Color="Transparent"/>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
         </Style>
         <Style x:Key="DataGridCellStyleCenterAligned" BasedOn="{StaticResource DataGridCellStyle}" TargetType="DataGridCell">
             <Setter Property="HorizontalAlignment" Value="Center"></Setter>
         </Style>
     </Page.Resources>
     <Border Padding="10" Background="{StaticResource CBackground2}">
-        <DataGrid Name="PackageGrid" ItemsSource="{Binding Packages}" AutoGenerateColumns="False" RowHeaderWidth="0" CanUserAddRows="False" CanUserDeleteRows="False" AlternationCount="2" CanUserResizeColumns="False" CanUserReorderColumns="False" Style="{StaticResource DataGridRoundedCorners}" HeadersVisibility="Column" MinColumnWidth="150" GridLinesVisibility="None" d:DataContext="{d:PackageViewModel}" Tag="{Binding ID}">
+        <DataGrid Name="PackageGrid" ItemsSource="{Binding Packages}" AutoGenerateColumns="False" RowHeaderWidth="0" CanUserAddRows="False" CanUserDeleteRows="False" AlternationCount="2" CanUserResizeColumns="False" CanUserReorderColumns="False" Style="{StaticResource DataGridRoundedCorners}" HeadersVisibility="Column" MinColumnWidth="150" GridLinesVisibility="None">
+            <DataGrid.DataContext>
+                <local:PackageViewModel/>
+            </DataGrid.DataContext>
             <DataGrid.Resources>
                 <Style BasedOn="{StaticResource {x:Type DataGridRow}}" TargetType="DataGridRow">
-                    <Setter Property="IsHitTestVisible" Value="False"></Setter>
                     <Setter Property="Background" Value="{StaticResource CBackground3}"/>
                     <Setter Property="BorderThickness" Value="0"/>
                     <Setter Property="BorderBrush" Value="Transparent"/>
@@ -76,18 +96,24 @@
                 </Style>
             </DataGrid.Resources>
             <DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding Title}" Header="Name" HeaderStyle="{StaticResource DataGridHeaderStyle}" MinWidth="200" CellStyle="{StaticResource DataGridCellStyle}"/>
-                <DataGridTextColumn Binding="{Binding LatestVersion}" Header="Latest" HeaderStyle="{StaticResource DataGridHeaderStyleCenterAligned}" CellStyle="{StaticResource DataGridCellStyleCenterAligned}"/>
-                <DataGridTextColumn Binding="{Binding InstalledVersion}" Header="Installed" HeaderStyle="{StaticResource DataGridHeaderStyleCenterAligned}" CellStyle="{StaticResource DataGridCellStyleCenterAligned}"/>
-                <DataGridTextColumn Binding="{Binding PackageType}" Header="Type" HeaderStyle="{StaticResource DataGridHeaderStyle}" CellStyle="{StaticResource DataGridCellStyle}"/>
+                <DataGridTextColumn Binding="{Binding Title, Mode=OneWay}" Header="Name" HeaderStyle="{StaticResource DataGridHeaderStyle}" MinWidth="200" CellStyle="{StaticResource DataGridCellStyle}"/>
+                <DataGridTextColumn Binding="{Binding LatestVersion, Mode=OneWay}" Header="Latest" HeaderStyle="{StaticResource DataGridHeaderStyleCenterAligned}" CellStyle="{StaticResource DataGridCellStyleCenterAligned}"/>
+                <DataGridTextColumn Binding="{Binding InstalledVersion, Mode=OneWay}" Header="Installed" HeaderStyle="{StaticResource DataGridHeaderStyleCenterAligned}" CellStyle="{StaticResource DataGridCellStyleCenterAligned}"/>
+                <DataGridTextColumn Binding="{Binding PackageType, Mode=OneWay}" Header="Type" HeaderStyle="{StaticResource DataGridHeaderStyle}" CellStyle="{StaticResource DataGridCellStyle}"/>
                 <DataGridTemplateColumn Header="Action" HeaderStyle="{StaticResource DataGridHeaderStyleCenterAligned}" CellStyle="{StaticResource DataGridCellStyleCenterAligned}">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Border Background="Green" CornerRadius="5" BorderThickness="0">
-                                <Button BorderThickness="0" Background="Transparent" IsEnabled="True" Command="{Binding InstallButtonCommand}" CommandParameter="{Binding Tag}" d:DataContext="{d:PackageViewModel}" Padding="7" MaxWidth="150" MaxHeight="30">
-                                    <fa5:ImageAwesome Icon="Solid_Plus" Foreground="White" />
+                            <vrcosc:SpacedStackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Button Style="{StaticResource VRCOSCBlueButtonStyle}" Command="{Binding Path=UIInstallButton, Mode=OneWay}" MaxWidth="30" MaxHeight="30" Visibility="{Binding UIUpgradeVisible}">
+                                    <fa5:ImageAwesome Icon="Solid_Redo" Foreground="White" Margin="4"/>
                                 </Button>
-                            </Border>
+                                <Button Style="{StaticResource VRCOSCGreenButtonStyle}" Command="{Binding Path=UIInstallButton, Mode=OneWay}" MaxWidth="30" MaxHeight="30" Visibility="{Binding UIInstallVisible}">
+                                    <fa5:ImageAwesome Icon="Solid_Plus" Foreground="White" Margin="4"/>
+                                </Button>
+                                <Button Style="{StaticResource VRCOSCRedButtonStyle}" Command="{Binding Path=UIUnInstallButton, Mode=OneWay}" MaxWidth="30" MaxHeight="30" Visibility="{Binding UIUnInstallVisible}">
+                                    <fa5:ImageAwesome Icon="Solid_Minus" Foreground="White" Margin="4"/>
+                                </Button>
+                            </vrcosc:SpacedStackPanel>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
