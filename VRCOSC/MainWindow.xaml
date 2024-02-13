@@ -66,6 +66,7 @@
                 <TabItem.Header>
                     <fa5:ImageAwesome Icon="Solid_List" Foreground="White" Margin="{StaticResource TabIconMargin}" />
                 </TabItem.Header>
+                <Frame Source="Pages/Modules/ModulesPage.xaml"></Frame>
             </TabItem>
         </TabControl>
     </Grid>
