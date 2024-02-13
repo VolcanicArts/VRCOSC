@@ -2,25 +2,26 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Windows;
+using VRCOSC.Packages;
 
 namespace VRCOSC.Pages.Packages;
 
 public partial class PackagePage
 {
-    private readonly PackageViewModel packageViewModel = new();
-
     public PackagePage()
     {
         InitializeComponent();
 
-        PackageGrid.DataContext = packageViewModel;
+        PackageGrid.DataContext = PackageManager.GetInstance();
         SizeChanged += OnSizeChanged;
     }
 
     private void OnSizeChanged(object sender, SizeChangedEventArgs e)
     {
-        var contentHeight = packageViewModel.Packages.Count * 50;
+        var packageManager = PackageManager.GetInstance();
+
+        var contentHeight = packageManager.Sources.Count * 50;
         var targetHeight = GridContainer.ActualHeight - 55;
-        packageViewModel.ScrollHeight = contentHeight >= targetHeight ? targetHeight : double.NaN;
+        packageManager.PackageScrollViewerHeight = contentHeight >= targetHeight ? targetHeight : double.NaN;
     }
 }
