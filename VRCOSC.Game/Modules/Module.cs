@@ -446,37 +446,44 @@ public abstract class Module : IComparable<Module>
 
     internal virtual void OnParameterReceived(VRChatOscMessage message)
     {
-        var receivedParameter = new ReceivedParameter(message.ParameterName, message.ParameterValue);
-
         try
         {
-            OnAnyParameterReceived(receivedParameter);
-        }
-        catch (Exception e)
-        {
-            PushException(e);
-        }
+            var receivedParameter = new ReceivedParameter(message.ParameterName, message.ParameterValue);
 
-        var parameterName = Parameters.Values.FirstOrDefault(moduleParameter => parameterNameRegex[moduleParameter.ParameterName].IsMatch(receivedParameter.Name))?.ParameterName;
-        if (parameterName is null) return;
+            try
+            {
+                OnAnyParameterReceived(receivedParameter);
+            }
+            catch (Exception e)
+            {
+                PushException(e);
+            }
 
-        if (!parameterNameEnum.TryGetValue(parameterName, out var lookup)) return;
+            var parameterName = Parameters.Values.FirstOrDefault(moduleParameter => parameterNameRegex[moduleParameter.ParameterName].IsMatch(receivedParameter.Name))?.ParameterName;
+            if (string.IsNullOrEmpty(parameterName)) return;
 
-        var parameterData = Parameters[lookup];
+            if (!parameterNameEnum.TryGetValue(parameterName, out var lookup)) return;
 
-        if (!parameterData.Mode.HasFlagFast(ParameterMode.Read)) return;
+            var parameterData = Parameters[lookup];
 
-        if (!receivedParameter.IsValueType(parameterData.ExpectedType))
-        {
-            Log($"Cannot accept input parameter. `{lookup}` expects type `{parameterData.ExpectedType}` but received type `{receivedParameter.Value.GetType()}`");
-            return;
-        }
+            if (!parameterData.Mode.HasFlagFast(ParameterMode.Read)) return;
 
-        var registeredParameter = new RegisteredParameter(receivedParameter, lookup, parameterData);
+            if (!receivedParameter.IsValueType(parameterData.ExpectedType))
+            {
+                Log($"Cannot accept input parameter. `{lookup}` expects type `{parameterData.ExpectedType}` but received type `{receivedParameter.Value.GetType()}`");
+                return;
+            }
 
-        try
-        {
-            ModuleParameterReceived(registeredParameter);
+            var registeredParameter = new RegisteredParameter(receivedParameter, lookup, parameterData);
+
+            try
+            {
+                ModuleParameterReceived(registeredParameter);
+            }
+            catch (Exception e)
+            {
+                PushException(e);
+            }
         }
         catch (Exception e)
         {
