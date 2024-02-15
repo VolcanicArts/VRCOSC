@@ -4,7 +4,7 @@
 using System.Windows;
 using System.Windows.Controls;
 
-namespace VRCOSC;
+namespace VRCOSC.UI;
 
 public class SpacedStackPanel : StackPanel
 {

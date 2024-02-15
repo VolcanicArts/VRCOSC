@@ -13,6 +13,6 @@
         </Grid.ColumnDefinitions>
 
         <TextBlock Name="Title" Text="PLACEHOLDER" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="60"
-                   Margin="10 5" Foreground="{StaticResource CForeground2}" FontFamily="Roboto" FontWeight="Bold" />
+                   Margin="10 5" Foreground="{StaticResource CForeground2}" FontWeight="Bold" />
     </Grid>
 </Page>

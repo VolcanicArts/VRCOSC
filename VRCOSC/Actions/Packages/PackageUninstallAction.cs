@@ -13,7 +13,7 @@ public class PackageUninstallAction : ProgressAction
 
     private float localProgress;
 
-    public override string Title => $"Uninstalling {packageSource.GetDisplayName()}";
+    public override string Title => $"Uninstalling {packageSource.DisplayName}";
 
     public PackageUninstallAction(Storage storage, PackageSource packageSource)
     {

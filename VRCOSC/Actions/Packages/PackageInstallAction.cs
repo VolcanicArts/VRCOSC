@@ -13,7 +13,7 @@ public class PackageInstallAction : CompositeProgressAction
 {
     private readonly PackageSource packageSource;
 
-    public override string Title => $"Installing {packageSource.GetDisplayName()}";
+    public override string Title => $"Installing {packageSource.DisplayName}";
 
     public PackageInstallAction(Storage storage, PackageSource packageSource, bool shouldUninstall)
     {
@@ -27,7 +27,7 @@ public class PackageInstallAction : CompositeProgressAction
     {
         private readonly PackageSource packageSource;
 
-        public override string Title => $"Downloading all {packageSource.GetDisplayName()} files";
+        public override string Title => $"Downloading all {packageSource.DisplayName} files";
 
         public PackageDownloadAction(Storage storage, PackageSource packageSource)
         {

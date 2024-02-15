@@ -87,10 +87,10 @@ public class PackageSource
     }
 
     public List<string> GetAssets() => LatestRelease!.AssetNames.Where(assetName => PackageFile!.Files.Contains(assetName)).ToList();
-    public string GetDisplayName() => PackageFile?.DisplayName ?? RepoName;
-    public string GetAuthor() => RepoOwner;
-    public string GetDescription() => Repository?.Description ?? "How did you find this";
-    public string GetCoverURL() => PackageFile?.CoverImageUrl ?? "https://wallpapercave.com/wp/Zs1bPI9.jpg";
+    public string DisplayName => PackageFile?.DisplayName ?? RepoName;
+    public string Author => RepoOwner;
+    public string Description => Repository?.Description ?? "How did you find this";
+    public string CoverURL => PackageFile?.CoverImageUrl ?? "https://wallpapercave.com/wp/Zs1bPI9.jpg";
 
     private static SemVersion getCurrentSDKVersion()
     {
