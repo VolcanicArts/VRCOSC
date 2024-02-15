@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Windows.Controls;
 
 namespace VRCOSC;
 
@@ -12,13 +11,13 @@ public class AppManager
     private static AppManager? instance;
     public static AppManager GetInstance() => instance ??= new AppManager();
 
-    private readonly Dictionary<PageLookup, Page> pageInstances = new();
+    private readonly Dictionary<PageLookup, IVRCOSCPage> pageInstances = new();
 
     public AppManager()
     {
     }
 
-    public void RegisterPage(PageLookup pageLookup, Page instance)
+    public void RegisterPage(PageLookup pageLookup, IVRCOSCPage instance)
     {
         pageInstances[pageLookup] = instance;
     }
@@ -26,13 +25,13 @@ public class AppManager
     public void Refresh(PageLookup flags)
     {
         if ((flags & PageLookup.Home) == PageLookup.Home && pageInstances.TryGetValue(PageLookup.Home, out var homePage))
-            homePage.NavigationService?.Refresh();
+            homePage.Refresh();
 
         if ((flags & PageLookup.Packages) == PageLookup.Packages && pageInstances.TryGetValue(PageLookup.Packages, out var packagePage))
-            packagePage.NavigationService?.Refresh();
+            packagePage.Refresh();
 
         if ((flags & PageLookup.Modules) == PageLookup.Modules && pageInstances.TryGetValue(PageLookup.Modules, out var modulesPage))
-            modulesPage.NavigationService?.Refresh();
+            modulesPage.Refresh();
     }
 }
 

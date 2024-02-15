@@ -3,7 +3,7 @@
 
 namespace VRCOSC.Pages.Modules;
 
-public partial class ModulesPage
+public partial class ModulesPage : IVRCOSCPage
 {
     private readonly ModuleViewModel moduleViewModel = new();
 
@@ -14,5 +14,9 @@ public partial class ModulesPage
         StackPanel.DataContext = moduleViewModel;
 
         AppManager.GetInstance().RegisterPage(PageLookup.Modules, this);
+    }
+
+    public void Refresh()
+    {
     }
 }

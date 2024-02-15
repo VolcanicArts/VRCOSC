@@ -8,7 +8,7 @@ using VRCOSC.Packages;
 
 namespace VRCOSC.Pages.Packages;
 
-public partial class PackagePage
+public partial class PackagePage : IVRCOSCPage
 {
     public PackagePage()
     {
@@ -19,12 +19,7 @@ public partial class PackagePage
         PackageGrid.DataContext = packageManager;
         SizeChanged += OnSizeChanged;
 
-        SearchTextBox.TextChanged += (_, _) =>
-        {
-            var text = SearchTextBox.Text;
-            filterDataGrid(text);
-        };
-
+        SearchTextBox.TextChanged += (_, _) => filterDataGrid(SearchTextBox.Text);
         filterDataGrid(string.Empty);
 
         AppManager.GetInstance().RegisterPage(PageLookup.Packages, this);
@@ -73,5 +68,11 @@ public partial class PackagePage
         PackageGrid.ItemsSource = packageManager.Sources;
         itemsCount = packageManager.Sources.Count;
         evaluateContentHeight();
+    }
+
+    public void Refresh()
+    {
+        PackageGrid.ItemsSource = null;
+        filterDataGrid(SearchTextBox.Text);
     }
 }

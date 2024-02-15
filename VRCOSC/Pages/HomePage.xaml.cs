@@ -6,7 +6,7 @@ using Microsoft.Win32;
 
 namespace VRCOSC.Pages;
 
-public partial class HomePage
+public partial class HomePage : IVRCOSCPage
 {
     public HomePage()
     {
@@ -31,5 +31,9 @@ public partial class HomePage
         {
             return Environment.UserName;
         }
+    }
+
+    public void Refresh()
+    {
     }
 }
