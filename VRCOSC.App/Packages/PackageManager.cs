@@ -11,6 +11,8 @@ using System.Windows;
 using System.Windows.Input;
 using VRCOSC.App.Actions;
 using VRCOSC.App.Actions.Packages;
+using VRCOSC.App.Packages.Serialisation;
+using VRCOSC.App.Serialisation;
 
 namespace VRCOSC.App.Packages;
 
@@ -22,7 +24,7 @@ public class PackageManager : INotifyPropertyChanged
     private const string community_tag = "vrcosc-package";
 
     private readonly Storage storage;
-    //private readonly SerialisationManager serialisationManager;
+    private readonly SerialisationManager serialisationManager;
 
     private readonly List<PackageSource> builtinSources = new();
 
@@ -38,8 +40,8 @@ public class PackageManager : INotifyPropertyChanged
         builtinSources.Add(new PackageSource(this, "VolcanicArts", "VRCOSC-Modules", PackageType.Official));
         builtinSources.Add(new PackageSource(this, "DJDavid98", "VRCOSC-BluetoothHeartrate", PackageType.Curated));
 
-        //serialisationManager = new SerialisationManager();
-        //serialisationManager.RegisterSerialiser(1, new PackageManagerSerialiser(baseStorage, this));
+        serialisationManager = new SerialisationManager();
+        serialisationManager.RegisterSerialiser(1, new PackageManagerSerialiser(baseStorage, this));
     }
 
     public PackageManager()
@@ -49,7 +51,7 @@ public class PackageManager : INotifyPropertyChanged
     public PackageLoadAction Load()
     {
         builtinSources.ForEach(source => Sources.Add(source));
-        //serialisationManager.Deserialise();
+        serialisationManager.Deserialise();
         return RefreshAllSources(CacheExpireTime + TimeSpan.FromDays(1) <= DateTime.Now);
     }
 
@@ -72,7 +74,7 @@ public class PackageManager : INotifyPropertyChanged
         packageLoadAction.OnComplete += () =>
         {
             CacheExpireTime = DateTime.Now + TimeSpan.FromDays(1);
-            //serialisationManager.Serialise();
+            serialisationManager.Serialise();
         };
 
         return packageLoadAction;
@@ -86,7 +88,8 @@ public class PackageManager : INotifyPropertyChanged
         installAction.OnComplete += () =>
         {
             InstalledPackages[packageSource.PackageID!] = packageSource.LatestVersion!;
-            //serialisationManager.Serialise();
+            serialisationManager.Serialise();
+            OnPropertyChanged(nameof(UpdateAllButtonVisibility));
             //appManager.ModuleManager.ReloadAllModules();
         };
 
@@ -100,7 +103,7 @@ public class PackageManager : INotifyPropertyChanged
         uninstallAction.OnComplete += () =>
         {
             InstalledPackages.Remove(packageSource.PackageID!);
-            //serialisationManager.Serialise();
+            serialisationManager.Serialise();
             //appManager.ModuleManager.ReloadAllModules();
         };
 
@@ -116,15 +119,12 @@ public class PackageManager : INotifyPropertyChanged
 
         var packageSources = new List<PackageSource>();
 
-        //Logger.Log("Attempting to load community repos");
-
         var searchProgressAction = new SearchRepositoriesAction(community_tag);
         findCommunityPackages.AddAction(searchProgressAction);
 
         findCommunityPackages.AddAction(new DynamicProgressAction("Auditing community packages", () =>
         {
             var repos = searchProgressAction.Result!;
-            //Logger.Log($"Found {repos.TotalCount} community repos");
 
             repos.Items.Where(repo => repo.Name != "VRCOSC").ToList().ForEach(repo =>
             {
@@ -152,15 +152,7 @@ public class PackageManager : INotifyPropertyChanged
         }
     }
 
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-
-    // TODO: This may not refresh automatically
-    public Visibility UpdateButtonVisibility => Sources.Any(packageSource => packageSource.IsUpdateAvailable()) ? Visibility.Visible : Visibility.Collapsed;
+    public Visibility UpdateAllButtonVisibility => Sources.Any(packageSource => packageSource.IsUpdateAvailable()) ? Visibility.Visible : Visibility.Collapsed;
 
     public ICommand UIRefreshButton => new RelayCommand(_ => OnRefreshButtonClick());
     public ICommand UIUpdateAllButton => new RelayCommand(_ => OnUpdateAllButtonClick());
@@ -180,6 +172,14 @@ public class PackageManager : INotifyPropertyChanged
         }
 
         AppManager.GetInstance().Refresh(PageLookup.Packages);
+        OnPropertyChanged(nameof(UpdateAllButtonVisibility));
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
     #endregion

@@ -106,7 +106,7 @@
                 <Button Width="200" Style="{StaticResource VRCOSCBlueButtonStyle}" Command="{Binding Path=UIRefreshButton}">
                     <TextBlock Text="Refresh" FontSize="20" Foreground="{StaticResource CForeground1}"/>
                 </Button>
-                <Button Width="200" Style="{StaticResource VRCOSCBlueButtonStyle}" Command="{Binding Path=UIUpdateAllButton}" Visibility="{Binding UpdateButtonVisibility, Mode=OneWay}">
+                <Button Width="200" Style="{StaticResource VRCOSCBlueButtonStyle}" Command="{Binding Path=UIUpdateAllButton}" Visibility="{Binding UpdateAllButtonVisibility, Mode=OneWay}">
                     <TextBlock Text="Update All" FontSize="20" Foreground="{StaticResource CForeground1}"/>
                 </Button>
             </ui:SpacedStackPanel>
