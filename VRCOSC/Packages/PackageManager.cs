@@ -40,13 +40,6 @@ public class PackageManager : INotifyPropertyChanged
         //serialisationManager.RegisterSerialiser(1, new PackageManagerSerialiser(baseStorage, this));
     }
 
-    internal Action? RefreshPackagePage;
-
-    internal void Refresh()
-    {
-        RefreshPackagePage?.Invoke();
-    }
-
     public PackageManager()
     {
     }
@@ -93,7 +86,6 @@ public class PackageManager : INotifyPropertyChanged
             InstalledPackages[packageSource.PackageID!] = packageSource.LatestVersion!;
             //serialisationManager.Serialise();
             //appManager.ModuleManager.ReloadAllModules();
-            //game.OnListingRefresh?.Invoke();
         };
 
         return installAction;
@@ -108,7 +100,6 @@ public class PackageManager : INotifyPropertyChanged
             InstalledPackages.Remove(packageSource.PackageID!);
             //serialisationManager.Serialise();
             //appManager.ModuleManager.ReloadAllModules();
-            //game.OnListingRefresh?.Invoke();
         };
 
         return uninstallAction;

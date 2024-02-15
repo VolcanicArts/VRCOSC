@@ -13,10 +13,11 @@ public partial class PackagePage
         InitializeComponent();
 
         var packageManager = PackageManager.GetInstance();
-        packageManager.RefreshPackagePage += () => NavigationService?.Refresh();
 
         PackageGrid.DataContext = packageManager;
         SizeChanged += OnSizeChanged;
+
+        AppManager.GetInstance().RegisterPage(PageLookup.Packages, this);
     }
 
     private void OnSizeChanged(object sender, SizeChangedEventArgs e)

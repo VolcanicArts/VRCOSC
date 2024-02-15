@@ -13,6 +13,8 @@ public partial class HomePage
         InitializeComponent();
 
         Title.Text = $"Welcome {getUserName()}!";
+
+        AppManager.GetInstance().RegisterPage(PageLookup.Home, this);
     }
 
     private static string getUserName()

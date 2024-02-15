@@ -12,5 +12,7 @@ public partial class ModulesPage
         InitializeComponent();
 
         StackPanel.DataContext = moduleViewModel;
+
+        AppManager.GetInstance().RegisterPage(PageLookup.Modules, this);
     }
 }
