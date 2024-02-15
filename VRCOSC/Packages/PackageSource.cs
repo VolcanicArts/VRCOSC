@@ -233,14 +233,14 @@ public class PackageSource
     public ICommand UIUnInstallButton => new RelayCommand(_ => OnUnInstallButtonClick());
     public ICommand UIInfoButton => new RelayCommand(_ => OnInfoButtonClick());
 
-    private void OnInstallButtonClick()
+    private async void OnInstallButtonClick()
     {
-        packageManager.InstallPackage(this).Execute().Wait();
+        await packageManager.InstallPackage(this).Execute();
     }
 
-    private void OnUnInstallButtonClick()
+    private async void OnUnInstallButtonClick()
     {
-        packageManager.UninstallPackage(this).Execute().Wait();
+        await packageManager.UninstallPackage(this).Execute();
     }
 
     private void OnInfoButtonClick()

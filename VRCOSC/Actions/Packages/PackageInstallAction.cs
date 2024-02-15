@@ -2,10 +2,10 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using VRCOSC.Packages;
+using VRCOSC.Utils;
 
 namespace VRCOSC.Actions.Packages;
 
@@ -63,18 +63,11 @@ public class PackageInstallAction : CompositeProgressAction
             {
                 localProgress = 0f;
 
-                var assetDownload = new FileWebRequest(targetDirectory.GetFullPath(assetName), $"{packageSource.DownloadURL}/{assetName}");
+                var fileDownload = new FileDownload();
+                fileDownload.ProgressChanged += p => localProgress = p;
+                await fileDownload.DownloadFileAsync($"{packageSource.DownloadURL}/{assetName}", targetDirectory.GetFullPath(assetName, true));
 
-                assetDownload.Finished += () =>
-                {
-                    Debug.WriteLine("FINISHED");
-                    localProgress = 1f;
-                };
-
-                await assetDownload.PerformAsync();
-
-                // TODO: WebRequest is probably broken. We're not reaching here
-                Debug.WriteLine("COMPLETE");
+                localProgress = 1f;
             }
 
             public override float GetProgress() => localProgress;
