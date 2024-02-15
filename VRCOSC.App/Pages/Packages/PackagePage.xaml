@@ -8,6 +8,9 @@
       xmlns:ui="clr-namespace:VRCOSC.App.UI"
       xmlns:packages="clr-namespace:VRCOSC.App.Packages"
       mc:Ignorable="d">
+    <Page.DataContext>
+        <packages:PackageManager/>
+    </Page.DataContext>
     <Page.Resources>
         <Style x:Key="DataGridHeaderStyle" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}"
                TargetType="{x:Type DataGridColumnHeader}">
@@ -100,10 +103,10 @@
                         <TextBox x:Name="SearchTextBox" Grid.Row="0" Grid.Column="1" Style="{StaticResource VRCOSCTextBoxStyle}" FontSize="20" Foreground="{StaticResource CForeground3}" VerticalContentAlignment="Center" Background="Transparent" CaretBrush="{StaticResource CForeground3}" BorderBrush="Transparent" SelectionBrush="{StaticResource CForeground2}"/>
                     </Grid>
                 </Border>
-                <Button Width="200" Style="{StaticResource VRCOSCBlueButtonStyle}">
+                <Button Width="200" Style="{StaticResource VRCOSCBlueButtonStyle}" Command="{Binding Path=UIRefreshButton}">
                     <TextBlock Text="Refresh" FontSize="20" Foreground="{StaticResource CForeground1}"/>
                 </Button>
-                <Button Width="200" Style="{StaticResource VRCOSCBlueButtonStyle}">
+                <Button Width="200" Style="{StaticResource VRCOSCBlueButtonStyle}" Command="{Binding Path=UIUpdateAllButton}" Visibility="{Binding UpdateButtonVisibility, Mode=OneWay}">
                     <TextBlock Text="Update All" FontSize="20" Foreground="{StaticResource CForeground1}"/>
                 </Button>
             </ui:SpacedStackPanel>

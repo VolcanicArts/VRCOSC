@@ -7,6 +7,8 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Windows;
+using System.Windows.Input;
 using VRCOSC.App.Actions;
 using VRCOSC.App.Actions.Packages;
 
@@ -155,6 +157,29 @@ public class PackageManager : INotifyPropertyChanged
     protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    // TODO: This may not refresh automatically
+    public Visibility UpdateButtonVisibility => Sources.Any(packageSource => packageSource.IsUpdateAvailable()) ? Visibility.Visible : Visibility.Collapsed;
+
+    public ICommand UIRefreshButton => new RelayCommand(_ => OnRefreshButtonClick());
+    public ICommand UIUpdateAllButton => new RelayCommand(_ => OnUpdateAllButtonClick());
+
+    private async void OnRefreshButtonClick()
+    {
+        await RefreshAllSources(true).Execute();
+        AppManager.GetInstance().Refresh(PageLookup.Packages);
+    }
+
+    private async void OnUpdateAllButtonClick()
+    {
+        // TODO: This probably needs to be its own refresh action
+        foreach (var packageSource in Sources.Where(packageSource => packageSource.IsUpdateAvailable()))
+        {
+            await InstallPackage(packageSource).Execute();
+        }
+
+        AppManager.GetInstance().Refresh(PageLookup.Packages);
     }
 
     #endregion

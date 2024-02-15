@@ -16,6 +16,7 @@ public partial class PackagePage : IVRCOSCPage
 
         var packageManager = PackageManager.GetInstance();
 
+        DataContext = packageManager;
         PackageGrid.DataContext = packageManager;
         SizeChanged += OnSizeChanged;
 
