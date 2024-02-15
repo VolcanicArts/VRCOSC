@@ -13,4 +13,6 @@
     <Brush x:Key="CRedL">#FFD65548</Brush>
     <Brush x:Key="CBlue">#FF2980B9</Brush>
     <Brush x:Key="CBlueL">#FF3F99D4</Brush>
+    <Brush x:Key="CGray">#FF4D4D4D</Brush>
+    <Brush x:Key="CGrayL">#FF666666</Brush>
 </ResourceDictionary>

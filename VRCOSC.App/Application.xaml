@@ -17,7 +17,7 @@
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="border" Property="BorderBrush" Value="Black" />
+                                    <Setter TargetName="border" Property="BorderThickness" Value="0" />
                                     <Setter TargetName="border" Property="Background" Value="{StaticResource CGreenL}" />
                                 </Trigger>
                             </ControlTemplate.Triggers>
@@ -35,7 +35,7 @@
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="border" Property="BorderBrush" Value="Black" />
+                                    <Setter TargetName="border" Property="BorderThickness" Value="0" />
                                     <Setter TargetName="border" Property="Background" Value="{StaticResource CRedL}" />
                                 </Trigger>
                             </ControlTemplate.Triggers>
@@ -53,8 +53,26 @@
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource CBlueL}" />
+                                    <Setter TargetName="border" Property="BorderThickness" Value="0" />
                                     <Setter TargetName="border" Property="Background" Value="{StaticResource CBlueL}" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <Style x:Key="VRCOSCGrayButtonStyle" TargetType="Button">
+                <Setter Property="OverridesDefaultStyle" Value="True"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border Name="border" Background="Transparent" CornerRadius="5" BorderBrush="{StaticResource CGray}" BorderThickness="2">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="border" Property="BorderThickness" Value="0" />
+                                    <Setter TargetName="border" Property="Background" Value="{StaticResource CGrayL}" />
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>

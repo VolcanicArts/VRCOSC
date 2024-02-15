@@ -4,27 +4,132 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:modules="clr-namespace:VRCOSC.App.Pages.Modules"
-      mc:Ignorable="d" Width="1920" Height="1080">
+      xmlns:ui="clr-namespace:VRCOSC.App.UI"
+      xmlns:fa5="http://schemas.fontawesome.com/icons/"
+      mc:Ignorable="d">
     <Page.Resources>
+        <Style TargetType="Expander">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Expander">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="50" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="5" />
+                            </Grid.RowDefinitions>
+                            <ToggleButton Grid.Row="0" Content="{TemplateBinding Header}"
+                                          IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}}"
+                                          BorderThickness="0" Foreground="{StaticResource CForeground2}"
+                                          HorizontalContentAlignment="Left">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border x:Name="HeaderBorder" Background="{StaticResource CBackground1}"
+                                                Padding="10"
+                                                CornerRadius="5 5 0 0">
+                                            <ui:SpacedStackPanel Orientation="Horizontal" Spacing="5">
+                                                <fa5:ImageAwesome x:Name="OpenIcon" Icon="Solid_ChevronUp"
+                                                                  Foreground="White" Margin="4" Width="20" />
+                                                <ContentPresenter />
+                                            </ui:SpacedStackPanel>
+                                        </Border>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <ContentPresenter Name="ContentPresenter" Grid.Row="1" Content="{TemplateBinding Content}"
+                                              Visibility="Collapsed" />
+                            <Border x:Name="Footer" Grid.Row="2" CornerRadius="0 0 5 5"
+                                    Background="{StaticResource CBackground1}" />
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsExpanded" Value="True">
+                                <Setter TargetName="ContentPresenter" Property="Visibility" Value="Visible" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="ItemsControl">
+            <Style.Triggers>
+                <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                    <Setter Property="Background" Value="{StaticResource CBackground4}" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </Page.Resources>
     <Grid>
-        <Border Background="{StaticResource CBackground2}">
+        <Border Background="{StaticResource CBackground2}" Padding="10">
             <ScrollViewer VerticalScrollBarVisibility="Hidden">
                 <StackPanel x:Name="StackPanel">
                     <StackPanel.DataContext>
-                        <modules:ModuleViewModel/>
+                        <modules:ModuleViewModel />
                     </StackPanel.DataContext>
                     <ItemsControl ItemsSource="{Binding Modules, Mode=OneWay}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Expander Header="{Binding Key, Mode=OneWay}">
-                                    <ItemsControl ItemsSource="{Binding Value, Mode=OneWay}">
+                                <Expander Header="{Binding Key, Mode=OneWay}" FontSize="20">
+                                    <ItemsControl ItemsSource="{Binding Value, Mode=OneWay}" AlternationCount="2">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <StackPanel Orientation="Horizontal">
-                                                    <TextBox Width="200" Text="{Binding DisplayName, Mode=OneWay}" Margin="5"/>
-                                                    <Button Width="50" Command="{Binding Path=UISettingsButton, Mode=OneTime}"/>
-                                                </StackPanel>
+                                                <Border Background="{StaticResource CBackground3}">
+                                                    <Grid HorizontalAlignment="Stretch">
+                                                        <ui:SpacedStackPanel Orientation="Horizontal" Spacing="5"
+                                                                             HorizontalAlignment="Left"
+                                                                             VerticalAlignment="Stretch">
+                                                            <CheckBox VerticalAlignment="Center"
+                                                                      IsChecked="{Binding Enabled}" Width="30"
+                                                                      Height="30">
+                                                            </CheckBox>
+                                                            <Grid>
+                                                                <Grid.RowDefinitions>
+                                                                    <RowDefinition Height="*" />
+                                                                    <RowDefinition Height="*" />
+                                                                </Grid.RowDefinitions>
+                                                                <TextBlock Grid.Row="0" Text="{Binding DisplayName}"
+                                                                           Foreground="{StaticResource CForeground1}"
+                                                                           FontSize="20" />
+                                                                <TextBlock Grid.Row="1" Text="{Binding Description}"
+                                                                           Foreground="{StaticResource CForeground2}"
+                                                                           FontSize="15" />
+                                                            </Grid>
+                                                        </ui:SpacedStackPanel>
+                                                        <ui:SpacedStackPanel Orientation="Horizontal"
+                                                                             FlowDirection="RightToLeft" Spacing="5"
+                                                                             HorizontalAlignment="Right">
+                                                            <Button Style="{StaticResource VRCOSCBlueButtonStyle}"
+                                                                    Width="40" Height="40">
+                                                                <fa5:ImageAwesome Icon="Solid_Info" Foreground="White"
+                                                                    Margin="5" />
+                                                            </Button>
+                                                            <Button Style="{StaticResource VRCOSCGrayButtonStyle}"
+                                                                    Width="40" Height="40">
+                                                                <fa5:ImageAwesome Icon="Solid_Upload"
+                                                                    Foreground="White" Margin="5" />
+                                                            </Button>
+                                                            <Button Style="{StaticResource VRCOSCGrayButtonStyle}"
+                                                                    Width="40" Height="40">
+                                                                <fa5:ImageAwesome Icon="Solid_Download"
+                                                                    Foreground="White" Margin="5" />
+                                                            </Button>
+                                                            <Button Style="{StaticResource VRCOSCGrayButtonStyle}"
+                                                                    Width="40" Height="40">
+                                                                <fa5:ImageAwesome Icon="Solid_Cube" Foreground="White"
+                                                                    Margin="5" />
+                                                            </Button>
+                                                            <Button Style="{StaticResource VRCOSCGrayButtonStyle}"
+                                                                    Width="40" Height="40">
+                                                                <fa5:ImageAwesome Icon="Solid_Link" Foreground="White"
+                                                                    Margin="5" />
+                                                            </Button>
+                                                            <Button Style="{StaticResource VRCOSCGrayButtonStyle}"
+                                                                    Width="40" Height="40">
+                                                                <fa5:ImageAwesome Icon="Solid_Cog" Foreground="White"
+                                                                    Margin="5" />
+                                                            </Button>
+                                                        </ui:SpacedStackPanel>
+                                                    </Grid>
+                                                </Border>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>

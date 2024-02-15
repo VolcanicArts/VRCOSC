@@ -8,11 +8,14 @@ namespace VRCOSC.App.Modules;
 
 public class Module
 {
+    public bool Enabled { get; set; }
     public string DisplayName { get; }
+    public string Description { get; }
 
-    public Module(string displayName)
+    public Module(string displayName, string description)
     {
         DisplayName = displayName;
+        Description = description;
     }
 
     #region UI

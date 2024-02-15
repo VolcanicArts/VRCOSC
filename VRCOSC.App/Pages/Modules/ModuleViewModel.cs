@@ -14,14 +14,16 @@ public class ModuleViewModel
     {
         var packageCollection = new ObservableCollection<Module>
         {
-            new("test"),
-            new("test"),
-            new("test"),
-            new("test"),
-            new("test"),
-            new("test")
+            new("test", "This is a test module"),
+            new("test", "This is a test module"),
+            new("test", "This is a test module"),
+            new("test", "This is a test module"),
+            new("test", "This is a test module"),
+            new("test", "This is a test module"),
+            new("test", "This is a test module"),
+            new("test", "This is a test module"),
         };
 
-        Modules.Add("test package", packageCollection);
+        Modules.Add("Official Modules", packageCollection);
     }
 }
