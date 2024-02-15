@@ -30,25 +30,48 @@ public partial class PackagePage
         AppManager.GetInstance().RegisterPage(PageLookup.Packages, this);
     }
 
-    private int itemCount;
-
     private void OnSizeChanged(object sender, SizeChangedEventArgs e) => evaluateContentHeight();
+
+    private int itemsCount;
 
     private void evaluateContentHeight()
     {
         var packageManager = PackageManager.GetInstance();
 
-        var contentHeight = itemCount * 50;
+        var contentHeight = itemsCount * 50;
         var targetHeight = GridContainer.ActualHeight - 55;
         packageManager.PackageScrollViewerHeight = contentHeight >= targetHeight ? targetHeight : double.NaN;
     }
 
     private void filterDataGrid(string filterText)
     {
-        var filteredItems = string.IsNullOrEmpty(filterText) ? PackageManager.GetInstance().Sources.ToList() : PackageManager.GetInstance().Sources.Where(item => item.DisplayName.Contains(filterText, StringComparison.InvariantCultureIgnoreCase)).ToList();
+        var packageManager = PackageManager.GetInstance();
 
-        itemCount = filteredItems.Count;
-        PackageGrid.ItemsSource = filteredItems.Any() ? filteredItems : PackageManager.GetInstance().Sources;
+        if (string.IsNullOrEmpty(filterText))
+        {
+            showDefaultItemsSource();
+            return;
+        }
+
+        var filteredItems = packageManager.Sources.Where(item => item.DisplayName.Contains(filterText, StringComparison.InvariantCultureIgnoreCase)).ToList();
+
+        if (!filteredItems.Any())
+        {
+            showDefaultItemsSource();
+            return;
+        }
+
+        PackageGrid.ItemsSource = filteredItems;
+        itemsCount = filteredItems.Count;
+        evaluateContentHeight();
+    }
+
+    private void showDefaultItemsSource()
+    {
+        var packageManager = PackageManager.GetInstance();
+
+        PackageGrid.ItemsSource = packageManager.Sources;
+        itemsCount = packageManager.Sources.Count;
         evaluateContentHeight();
     }
 }

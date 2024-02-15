@@ -81,11 +81,11 @@
         </Style>
     </Page.Resources>
     <Border Padding="10" Background="{StaticResource CBackground2}">
-        <Grid>
+        <Grid VerticalAlignment="Stretch">
             <Grid.RowDefinitions>
                 <RowDefinition Height="36" />
                 <RowDefinition Height="8" />
-                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <ui:SpacedStackPanel Grid.Row="0" Spacing="7" Orientation="Horizontal">
                 <Border Background="{StaticResource CBackground3}" Width="570" CornerRadius="5">
