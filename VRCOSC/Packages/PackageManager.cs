@@ -40,6 +40,13 @@ public class PackageManager : INotifyPropertyChanged
         //serialisationManager.RegisterSerialiser(1, new PackageManagerSerialiser(baseStorage, this));
     }
 
+    internal Action? RefreshPackagePage;
+
+    internal void Refresh()
+    {
+        RefreshPackagePage?.Invoke();
+    }
+
     public PackageManager()
     {
     }

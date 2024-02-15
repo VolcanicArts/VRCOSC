@@ -236,11 +236,13 @@ public class PackageSource
     private async void OnInstallButtonClick()
     {
         await packageManager.InstallPackage(this).Execute();
+        packageManager.Refresh();
     }
 
     private async void OnUnInstallButtonClick()
     {
         await packageManager.UninstallPackage(this).Execute();
+        packageManager.Refresh();
     }
 
     private void OnInfoButtonClick()

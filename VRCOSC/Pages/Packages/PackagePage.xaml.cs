@@ -12,7 +12,10 @@ public partial class PackagePage
     {
         InitializeComponent();
 
-        PackageGrid.DataContext = PackageManager.GetInstance();
+        var packageManager = PackageManager.GetInstance();
+        packageManager.RefreshPackagePage += () => NavigationService?.Refresh();
+
+        PackageGrid.DataContext = packageManager;
         SizeChanged += OnSizeChanged;
     }
 
