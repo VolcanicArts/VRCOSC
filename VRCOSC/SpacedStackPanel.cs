@@ -38,14 +38,11 @@ public class SpacedStackPanel : StackPanel
 
         foreach (UIElement child in InternalChildren)
         {
-            if (child != InternalChildren[^1])
+            child.Arrange(new Rect(x, 0, child.DesiredSize.Width, arrangeSize.Height));
+
+            if (child != InternalChildren[^1] && child.Visibility == Visibility.Visible)
             {
-                child.Arrange(new Rect(x, 0, child.DesiredSize.Width, arrangeSize.Height));
                 x += child.DesiredSize.Width + Spacing;
-            }
-            else
-            {
-                child.Arrange(new Rect(x, 0, child.DesiredSize.Width, arrangeSize.Height));
             }
         }
 
