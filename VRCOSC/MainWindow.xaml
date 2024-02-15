@@ -51,24 +51,27 @@
             <Setter Property="Foreground" Value="{StaticResource CForeground1}" />
         </Style>
     </Window.Resources>
-    <TabControl>
-        <TabItem>
-            <TabItem.Header>
-                <fa5:ImageAwesome Icon="Solid_Home" />
-            </TabItem.Header>
-            <Frame Source="Pages/HomePage.xaml" />
-        </TabItem>
-        <TabItem>
-            <TabItem.Header>
-                <fa5:ImageAwesome Icon="Solid_Download" />
-            </TabItem.Header>
-            <Frame Source="Pages/Packages/PackagePage.xaml" />
-        </TabItem>
-        <TabItem>
-            <TabItem.Header>
-                <fa5:ImageAwesome Icon="Solid_List" />
-            </TabItem.Header>
-            <Frame Source="Pages/Modules/ModulesPage.xaml" />
-        </TabItem>
-    </TabControl>
+    <Grid>
+        <TabControl>
+            <TabItem>
+                <TabItem.Header>
+                    <fa5:ImageAwesome Icon="Solid_Home" />
+                </TabItem.Header>
+                <Frame Source="Pages/HomePage.xaml" />
+            </TabItem>
+            <TabItem>
+                <TabItem.Header>
+                    <fa5:ImageAwesome Icon="Solid_Download" />
+                </TabItem.Header>
+                <Frame Source="Pages/Packages/PackagePage.xaml" />
+            </TabItem>
+            <TabItem>
+                <TabItem.Header>
+                    <fa5:ImageAwesome Icon="Solid_List" />
+                </TabItem.Header>
+                <Frame Source="Pages/Modules/ModulesPage.xaml" />
+            </TabItem>
+        </TabControl>
+        <Frame Source="LoadingOverlay.xaml" Visibility="Collapsed"/>
+    </Grid>
 </Window>
