@@ -1,54 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
+        <OutputType>WinExe</OutputType>
         <TargetFramework>net6.0-windows</TargetFramework>
         <Nullable>enable</Nullable>
         <UseWPF>true</UseWPF>
-        <Version>2023.1228.0</Version>
+        <ApplicationIcon>app.ico</ApplicationIcon>
+        <Company>VRCOSC</Company>
+        <Product>VRCOSC</Product>
+        <LangVersion>latestmajor</LangVersion>
+        <AssemblyName>VRCOSC</AssemblyName>
         <AssemblyVersion>2023.1228.0</AssemblyVersion>
         <FileVersion>2023.1228.0</FileVersion>
     </PropertyGroup>
 
     <ItemGroup>
-        <None Remove="VA-PFP.png" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <None Remove="Fonts\FontAwesomeSolid.otf" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <PackageReference Include="Extended.Wpf.Toolkit" Version="4.6.0" />
-        <PackageReference Include="FontAwesome5" Version="2.1.11" />
-        <PackageReference Include="MaterialDesignThemes" Version="4.9.0" />
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-        <PackageReference Include="Octokit" Version="9.1.2" />
-        <PackageReference Include="Semver" Version="2.3.0" />
-        <PackageReference Include="Velopack" Version="0.0.292" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <None Remove="Resources\app.ico" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <Folder Include="Resources\" />
-        <Folder Include="Windows\" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <ApplicationDefinition Remove="App.xaml" />
-        <Page Include="App.xaml" />
-        <Page Update="Pages\Packages\PackagePage.xaml">
-          <Generator>MSBuild:Compile</Generator>
-          <XamlRuntime>Wpf</XamlRuntime>
-          <SubType>Designer</SubType>
-        </Page>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Page Remove="Themes\Dark.xaml" />
-      <Resource Include="Themes\Dark.xaml" />
+      <ProjectReference Include="..\VRCOSC.App\VRCOSC.App.csproj" />
     </ItemGroup>
 
 </Project>

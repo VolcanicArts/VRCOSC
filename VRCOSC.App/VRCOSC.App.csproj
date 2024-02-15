@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0-windows</TargetFramework>
+        <Nullable>enable</Nullable>
+        <UseWPF>true</UseWPF>
+        <Version>2023.1228.0</Version>
+        <AssemblyVersion>2023.1228.0</AssemblyVersion>
+        <FileVersion>2023.1228.0</FileVersion>
+        <AssemblyName>VRCOSC.App</AssemblyName>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageId>VolcanicArts.VRCOSC.SDK</PackageId>
+        <Title>VRCOSC's SDK</Title>
+        <Authors>VolcanicArts</Authors>
+        <Description>VRCOSC's SDK for developing VRCOSC modules</Description>
+        <PackageProjectUrl>https://github.com/VolcanicArts/VRCOSC</PackageProjectUrl>
+        <PackageLicenseUrl>https://github.com/VolcanicArts/VRCOSC/blob/main/LICENSE</PackageLicenseUrl>
+        <RepositoryUrl>https://github.com/VolcanicArts/VRCOSC</RepositoryUrl>
+        <Company>VRCOSC</Company>
+        <LangVersion>latestmajor</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Extended.Wpf.Toolkit" Version="4.6.0" />
+        <PackageReference Include="FontAwesome5" Version="2.1.11" />
+        <PackageReference Include="MaterialDesignThemes" Version="4.9.0" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageReference Include="Octokit" Version="9.1.2" />
+        <PackageReference Include="Semver" Version="2.3.0" />
+        <PackageReference Include="Velopack" Version="0.0.292" />
+    </ItemGroup>
+
+</Project>

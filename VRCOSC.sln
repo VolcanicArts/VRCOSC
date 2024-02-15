@@ -8,9 +8,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		VRCOSC.sln.DotSettings = VRCOSC.sln.DotSettings
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VRCOSC", "VRCOSC\VRCOSC.csproj", "{86C71362-26D0-4F41-8851-F424BE844352}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VRCOSC.App", "VRCOSC.App\VRCOSC.App.csproj", "{86C71362-26D0-4F41-8851-F424BE844352}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VRCOSC.Desktop", "VRCOSC.Desktop\VRCOSC.Desktop.csproj", "{6337B998-53B5-40B5-90EF-994A8468BF5D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VRCOSC", "VRCOSC\VRCOSC.csproj", "{6337B998-53B5-40B5-90EF-994A8468BF5D}"
 EndProject
 Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
