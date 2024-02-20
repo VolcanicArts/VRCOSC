@@ -14,6 +14,7 @@ using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.ChatBox.Serialisation.V1;
 using VRCOSC.Game.OSC.VRChat;
 using VRCOSC.Game.Serialisation;
+using VRCOSC.Game.Util;
 
 namespace VRCOSC.Game.Managers;
 
@@ -146,7 +147,7 @@ public class ChatBoxManager
 
     public void Update()
     {
-        if (sendAllowed)
+        if (sendAllowed && !CurrentWorldExtractor.IsCurrentWorldBlacklisted)
         {
             appManager.ModuleManager.ChatBoxUpdate();
 

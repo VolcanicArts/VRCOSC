@@ -33,6 +33,7 @@ public partial class GeneralSection : SectionContainer
         AddDropdown("Theme", "Select a theme and restart to see the effect", ConfigManager.GetBindable<VRCOSCTheme>(VRCOSCSetting.Theme));
         AddFloatSlider("UI Scaling", "Change the UI scale multiplier", uiScaleBindableNumber);
         AddTextBox<IntTextBox, int>("ChatBox Update Rate", "The ChatBox update rate (milliseconds)", ConfigManager.GetBindable<int>(VRCOSCSetting.ChatBoxTimeSpan), chatbox_timespan_url);
+        AddToggle("ChatBox Blacklist", "Blocks the ChatBox from being used when in common club/event worlds", ConfigManager.GetBindable<bool>(VRCOSCSetting.ChatboxWorldBlock), "https://github.com/cyberkitsune/chatbox-club-blacklist/blob/master/npblacklist.json");
         AddToggle("Tray on close", "Tells VRCOSC to minimise to the tray when the X is pressed", ConfigManager.GetBindable<bool>(VRCOSCSetting.TrayOnClose));
     }
 }
