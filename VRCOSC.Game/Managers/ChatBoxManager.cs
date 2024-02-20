@@ -63,6 +63,8 @@ public class ChatBoxManager
     private DateTimeOffset nextValidTime;
     private bool isClear;
 
+    private List<string> worldBlacklistModuleBlocklist = new() { "afktrackermodule", "clockmodule", "countermodule", "exchangeratemodule", "hardwarestatsmodule", "mediamodule", "openvrstatisticsmodule", "openvrcontrollerstatisticsmodule", "tickertapemodule", "timermodule", "weathermodule" };
+
     public void Initialise(Storage storage, AppManager appManager, VRCOSCConfigManager configManager, VRChatOscClient oscClient, Bindable<int> sendDelay)
     {
         this.appManager = appManager;
@@ -152,12 +154,6 @@ public class ChatBoxManager
     {
         if (!sendAllowed) return;
 
-        if (CurrentWorldExtractor.IsCurrentWorldBlacklisted && configManager.Get<bool>(VRCOSCSetting.ChatboxWorldBlock))
-        {
-            if (!isClear) Clear();
-            return;
-        }
-
         appManager.ModuleManager.ChatBoxUpdate();
 
         Clips.ForEach(clip => clip.Update());
@@ -199,6 +195,19 @@ public class ChatBoxManager
     private void evaluateClips()
     {
         var validClip = getValidClip();
+
+        if (CurrentWorldExtractor.IsCurrentWorldBlacklisted && configManager.Get<bool>(VRCOSCSetting.ChatboxWorldBlock) && validClip is not null)
+        {
+            var blockedFromSending = validClip.AssociatedModules.Any(moduleId => worldBlacklistModuleBlocklist.Contains(moduleId));
+
+            if (blockedFromSending)
+            {
+                handleClip(null);
+                nextValidTime += TimeSpan.FromMilliseconds(SendDelay.Value);
+                return;
+            }
+        }
+
         handleClip(validClip);
         nextValidTime += TimeSpan.FromMilliseconds(SendDelay.Value);
     }
