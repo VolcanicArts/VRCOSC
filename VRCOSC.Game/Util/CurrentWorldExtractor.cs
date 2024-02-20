@@ -49,6 +49,7 @@ public static class CurrentWorldExtractor
         }
 
         IsCurrentWorldBlacklisted = ids.Contains(CurrentWorldId);
+        Logger.Log($"Is world blacklisted?: {IsCurrentWorldBlacklisted}");
     }
 
     private static async Task requestBlacklist()
