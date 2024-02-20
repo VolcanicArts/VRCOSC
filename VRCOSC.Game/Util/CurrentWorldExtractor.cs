@@ -24,6 +24,7 @@ public static class CurrentWorldExtractor
     private static IEnumerable<string>? ids;
 
     public static bool IsCurrentWorldBlacklisted { get; private set; }
+    public static string? CurrentWorldId { get; private set; }
 
     public static async void UpdateCurrentWorld()
     {
@@ -35,15 +36,19 @@ public static class CurrentWorldExtractor
             return;
         }
 
-        var currentWorldId = await getCurrentWorldId();
+        var newCurrentWorldId = await getCurrentWorldId();
+        if (newCurrentWorldId == CurrentWorldId) return;
 
-        if (currentWorldId is null)
+        CurrentWorldId = newCurrentWorldId;
+        Logger.Log($"World change detected: {CurrentWorldId}");
+
+        if (CurrentWorldId is null)
         {
             IsCurrentWorldBlacklisted = false;
             return;
         }
 
-        IsCurrentWorldBlacklisted = ids.Contains(currentWorldId);
+        IsCurrentWorldBlacklisted = ids.Contains(CurrentWorldId);
     }
 
     private static async Task requestBlacklist()
@@ -52,20 +57,14 @@ public static class CurrentWorldExtractor
         {
             if (blacklist is not null) return;
 
-            Logger.Log("Updating world blacklist");
-
             using var client = new HttpClient();
 
             var response = await client.GetAsync(blacklist_url);
             response.EnsureSuccessStatusCode();
 
-            Logger.Log("Found blacklist file");
-
             var content = await response.Content.ReadAsStringAsync();
             blacklist = JsonConvert.DeserializeObject<Blacklist>(content);
             if (blacklist is null) return;
-
-            Logger.Log("Successfully extracted blacklist data");
 
             ids = blacklist.Worlds.Select(world => world.ID);
         }
@@ -80,18 +79,12 @@ public static class CurrentWorldExtractor
     {
         try
         {
-            Logger.Log($"Attempting to find current world using log pattern {logfile_location}\\{logfile_pattern}");
-
             var logFile = Directory.GetFiles(logfile_location, logfile_pattern).MaxBy(d => new FileInfo(d).CreationTime);
             if (logFile is null) return null;
-
-            Logger.Log($"Found latest log file at {logFile}");
 
             using var fileStream = new FileStream(logFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             using var textReader = new StreamReader(fileStream);
             var content = await textReader.ReadToEndAsync();
-
-            Logger.Log("Successfully read latest log file");
 
             var latestWorld = world_regex.Matches(content).LastOrDefault()?.Groups.Values.LastOrDefault();
             if (latestWorld is null) return null;
@@ -99,7 +92,6 @@ public static class CurrentWorldExtractor
             var latestWorldId = latestWorld.Captures.FirstOrDefault();
             if (latestWorldId is null) return null;
 
-            Logger.Log($"Found current world: {latestWorldId.Value}");
             return latestWorldId.Value;
         }
         catch (Exception)
