@@ -35,6 +35,7 @@ public sealed class VRCOSCConfigManager : IniConfigManager<VRCOSCSetting>
         SetDefault(VRCOSCSetting.UIScale, 1f);
         SetDefault(VRCOSCSetting.StartInTray, false);
         SetDefault(VRCOSCSetting.TrayOnClose, false);
+        SetDefault(VRCOSCSetting.ChatboxWorldBlock, true);
     }
 }
 
@@ -54,5 +55,6 @@ public enum VRCOSCSetting
     WindowState,
     UIScale,
     StartInTray,
-    TrayOnClose
+    TrayOnClose,
+    ChatboxWorldBlock
 }

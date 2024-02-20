@@ -22,6 +22,7 @@ using VRCOSC.Game.OpenVR;
 using VRCOSC.Game.OpenVR.Metadata;
 using VRCOSC.Game.OSC;
 using VRCOSC.Game.OSC.VRChat;
+using VRCOSC.Game.Util;
 
 namespace VRCOSC.Game.App;
 
@@ -146,6 +147,7 @@ public partial class AppManager : Component
         Scheduler.AddDelayed(checkForOpenVR, openvr_check_interval.TotalMilliseconds, true);
         Scheduler.AddDelayed(checkForVRChat, vrchat_check_interval.TotalMilliseconds, true);
         Scheduler.AddDelayed(checkForOscjson, oscjson_check_interval.TotalMilliseconds, true);
+        Scheduler.AddDelayed(CurrentWorldExtractor.UpdateCurrentWorld, 2500, true);
         checkForOscjson();
     }
 
