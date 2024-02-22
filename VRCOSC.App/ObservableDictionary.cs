@@ -41,8 +41,16 @@ public class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValue>, INo
         get => dictionary[key];
         set
         {
-            dictionary[key] = value;
-            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, new KeyValuePair<TKey, TValue>(key, value)));
+            if (dictionary.ContainsKey(key))
+            {
+                dictionary[key] = value;
+                OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, new KeyValuePair<TKey, TValue>(key, value)));
+            }
+            else
+            {
+                dictionary[key] = value;
+                OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, new KeyValuePair<TKey, TValue>(key, value)));
+            }
         }
     }
 

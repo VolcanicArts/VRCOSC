@@ -3,9 +3,9 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-      xmlns:modules="clr-namespace:VRCOSC.App.Pages.Modules"
       xmlns:ui="clr-namespace:VRCOSC.App.UI"
       xmlns:fa5="http://schemas.fontawesome.com/icons/"
+      xmlns:modules="clr-namespace:VRCOSC.App.Modules"
       mc:Ignorable="d">
     <Page.Resources>
         <Style TargetType="Expander">
@@ -63,12 +63,12 @@
             <ScrollViewer VerticalScrollBarVisibility="Hidden">
                 <StackPanel x:Name="StackPanel">
                     <StackPanel.DataContext>
-                        <modules:ModuleViewModel />
+                        <modules:ModuleManager />
                     </StackPanel.DataContext>
                     <ItemsControl ItemsSource="{Binding Modules, Mode=OneWay}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Expander Header="{Binding Key, Mode=OneWay}" FontSize="20">
+                                <Expander Header="{Binding Key.DisplayName, Mode=OneWay}" FontSize="20">
                                     <ItemsControl ItemsSource="{Binding Value, Mode=OneWay}" AlternationCount="2">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
@@ -86,10 +86,10 @@
                                                                     <RowDefinition Height="*" />
                                                                     <RowDefinition Height="*" />
                                                                 </Grid.RowDefinitions>
-                                                                <TextBlock Grid.Row="0" Text="{Binding DisplayName}"
+                                                                <TextBlock Grid.Row="0" Text="{Binding Title}"
                                                                            Foreground="{StaticResource CForeground1}"
                                                                            FontSize="20" />
-                                                                <TextBlock Grid.Row="1" Text="{Binding Description}"
+                                                                <TextBlock Grid.Row="1" Text="{Binding ShortDescription}"
                                                                            Foreground="{StaticResource CForeground2}"
                                                                            FontSize="15" />
                                                             </Grid>
