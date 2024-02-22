@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.Loader;
@@ -23,7 +22,7 @@ public class ModuleManager
     private AssemblyLoadContext? localModulesContext;
     private Dictionary<string, AssemblyLoadContext>? remoteModulesContexts;
 
-    public ObservableDictionary<ModulePackage, ObservableCollection<Module>> Modules { get; } = new();
+    public ObservableDictionary<ModulePackage, List<Module>> Modules { get; } = new();
 
     private IEnumerable<Module> modules => Modules.Values.SelectMany(moduleList => moduleList).ToList();
     private IEnumerable<Module> runningModules => modules.Where(module => module.State == ModuleState.Started);
@@ -134,7 +133,7 @@ public class ModuleManager
         {
             if (Modules.All(pair => pair.Key.Assembly != localModule.GetType().Assembly))
             {
-                Modules[new ModulePackage(localModule.GetType().Assembly, false)] = new ObservableCollection<Module>();
+                Modules[new ModulePackage(localModule.GetType().Assembly, false)] = new List<Module>();
             }
 
             Modules.First(pair => pair.Key.Assembly == localModule.GetType().Assembly).Value.Add(localModule);
@@ -170,7 +169,7 @@ public class ModuleManager
         {
             if (Modules.All(pair => pair.Key.Assembly != remoteModule.GetType().Assembly))
             {
-                Modules[new ModulePackage(remoteModule.GetType().Assembly, true)] = new ObservableCollection<Module>();
+                Modules[new ModulePackage(remoteModule.GetType().Assembly, true)] = new List<Module>();
             }
 
             Modules.First(pair => pair.Key.Assembly == remoteModule.GetType().Assembly).Value.Add(remoteModule);

@@ -45,12 +45,10 @@ public class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValue>, INo
             {
                 dictionary[key] = value;
                 OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, new KeyValuePair<TKey, TValue>(key, value)));
+                return;
             }
-            else
-            {
-                dictionary[key] = value;
-                OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, new KeyValuePair<TKey, TValue>(key, value)));
-            }
+
+            Add(key, value);
         }
     }
 
@@ -60,7 +58,7 @@ public class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValue>, INo
     private void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
     {
         CollectionChanged?.Invoke(this, e);
-        OnPropertyChanged("Count");
+        OnPropertyChanged(nameof(Count));
         OnPropertyChanged("Item[]");
     }
 
@@ -81,6 +79,7 @@ public class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValue>, INo
     public void Clear()
     {
         dictionary.Clear();
+        OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
     }
 
     public bool Contains(KeyValuePair<TKey, TValue> item) => dictionary.Contains(item);

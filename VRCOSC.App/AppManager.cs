@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using VRCOSC.App.Modules;
 
 namespace VRCOSC.App;
 
@@ -31,7 +32,10 @@ public class AppManager
             packagePage.Refresh();
 
         if ((flags & PageLookup.Modules) == PageLookup.Modules && pageInstances.TryGetValue(PageLookup.Modules, out var modulesPage))
+        {
+            ModuleManager.GetInstance().ReloadAllModules();
             modulesPage.Refresh();
+        }
     }
 }
 
