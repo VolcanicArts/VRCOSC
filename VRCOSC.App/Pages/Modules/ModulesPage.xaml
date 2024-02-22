@@ -78,7 +78,7 @@
                                                                              HorizontalAlignment="Left"
                                                                              VerticalAlignment="Stretch">
                                                             <CheckBox VerticalAlignment="Center"
-                                                                      IsChecked="{Binding Enabled}" Width="30"
+                                                                      IsChecked="{Binding Enabled.Value}" Width="30"
                                                                       Height="30">
                                                             </CheckBox>
                                                             <Grid>

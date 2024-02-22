@@ -25,13 +25,13 @@ public class ModuleManager
     public ObservableDictionary<ModulePackage, List<Module>> Modules { get; } = new();
 
     private IEnumerable<Module> modules => Modules.Values.SelectMany(moduleList => moduleList).ToList();
-    private IEnumerable<Module> runningModules => modules.Where(module => module.State == ModuleState.Started);
+    private IEnumerable<Module> runningModules => modules.Where(module => module.State.Value == ModuleState.Started);
 
     #region Runtime
 
     public Task StartAsync()
     {
-        return Task.WhenAll(modules.Where(module => module.Enabled).Select(module => module.Start()));
+        return Task.WhenAll(modules.Where(module => module.Enabled.Value).Select(module => module.Start()));
     }
 
     public Task StopAsync()
