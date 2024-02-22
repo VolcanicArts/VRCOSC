@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 using VRCOSC.App.Modules.Attributes.Settings;
 using VRCOSC.App.Pages.Modules;
@@ -109,11 +110,31 @@ public class Module
 
     #region UI
 
+    private ModuleSettingsWindow? moduleSettingsWindow;
+
     public ICommand UISettingsButton => new RelayCommand(_ => OnSettingsButtonClick());
 
     private void OnSettingsButtonClick()
     {
-        new ModuleSettingsWindow(this).Show();
+        if (moduleSettingsWindow is null)
+        {
+            moduleSettingsWindow = new ModuleSettingsWindow(this);
+
+            moduleSettingsWindow.Closed += (_, _) =>
+            {
+                var mainWindow = Application.Current.MainWindow!;
+                mainWindow.WindowState = WindowState.Normal;
+                mainWindow.Focus();
+
+                moduleSettingsWindow = null;
+            };
+
+            moduleSettingsWindow.Show();
+        }
+        else
+        {
+            moduleSettingsWindow.Focus();
+        }
     }
 
     #endregion
