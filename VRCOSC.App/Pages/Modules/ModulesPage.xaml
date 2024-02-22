@@ -72,7 +72,7 @@
                                     <ItemsControl ItemsSource="{Binding Value, Mode=OneWay}" AlternationCount="2">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <Border Background="{StaticResource CBackground3}">
+                                                <Border Background="{StaticResource CBackground3}" Padding="5">
                                                     <Grid HorizontalAlignment="Stretch">
                                                         <ui:SpacedStackPanel Orientation="Horizontal" Spacing="5"
                                                                              HorizontalAlignment="Left"
@@ -89,7 +89,8 @@
                                                                 <TextBlock Grid.Row="0" Text="{Binding Title}"
                                                                            Foreground="{StaticResource CForeground1}"
                                                                            FontSize="20" />
-                                                                <TextBlock Grid.Row="1" Text="{Binding ShortDescription}"
+                                                                <TextBlock Grid.Row="1"
+                                                                           Text="{Binding ShortDescription}"
                                                                            Foreground="{StaticResource CForeground2}"
                                                                            FontSize="15" />
                                                             </Grid>
@@ -123,9 +124,8 @@
                                                                     Margin="5" />
                                                             </Button>
                                                             <Button Style="{StaticResource VRCOSCGrayButtonStyle}"
-                                                                    Width="40" Height="40">
-                                                                <fa5:ImageAwesome Icon="Solid_Cog" Foreground="White"
-                                                                    Margin="5" />
+                                                                    Width="40" Height="40" Command="{Binding UISettingsButton}">
+                                                                <fa5:ImageAwesome Icon="Solid_Cog" Foreground="White" Margin="5" />
                                                             </Button>
                                                         </ui:SpacedStackPanel>
                                                     </Grid>

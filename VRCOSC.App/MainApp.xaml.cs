@@ -1,8 +1,8 @@
 ﻿namespace VRCOSC.App;
 
-public partial class Application
+public partial class MainApp
 {
-    public Application()
+    public MainApp()
     {
         InitializeComponent();
     }

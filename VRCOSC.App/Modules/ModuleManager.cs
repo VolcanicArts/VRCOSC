@@ -24,7 +24,7 @@ public class ModuleManager
 
     public ObservableDictionary<ModulePackage, List<Module>> Modules { get; } = new();
 
-    private IEnumerable<Module> modules => Modules.Values.SelectMany(moduleList => moduleList).ToList();
+    private IEnumerable<Module> modules => Modules.Values.SelectMany(moduleList => moduleList);
     private IEnumerable<Module> runningModules => modules.Where(module => module.State.Value == ModuleState.Started);
 
     #region Runtime

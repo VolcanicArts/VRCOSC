@@ -7,8 +7,18 @@ namespace VRCOSC.WPFModuleTest;
 [ModuleType(ModuleType.Generic)]
 public class TestModule : Module
 {
+    public override void OnPreLoad()
+    {
+        CreateToggle(TestModuleSetting.TestSetting, "Test Setting", "This is a test setting", false);
+    }
+
     public override Task<bool> OnModuleStart()
     {
         return Task.FromResult(true);
+    }
+
+    private enum TestModuleSetting
+    {
+        TestSetting
     }
 }

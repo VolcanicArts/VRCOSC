@@ -52,8 +52,8 @@ public class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValue>, INo
         }
     }
 
-    public ICollection<TKey> Keys { get; }
-    public ICollection<TValue> Values { get; }
+    public ICollection<TKey> Keys => dictionary.Keys;
+    public ICollection<TValue> Values => dictionary.Values;
 
     private void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
     {
