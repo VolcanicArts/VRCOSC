@@ -31,6 +31,35 @@ public class Module
     private readonly Dictionary<string, ModuleSetting> settings = new();
     public List<ModuleSetting> Settings => settings.Select(pair => pair.Value).ToList();
 
+    internal readonly Dictionary<string, List<string>> Groups = new();
+
+    public Dictionary<string, List<ModuleSetting>> GroupsFormatted
+    {
+        get
+        {
+            var settingsInGroup = new List<string>();
+
+            var groupsFormatted = new Dictionary<string, List<ModuleSetting>>();
+
+            Groups.ForEach(pair =>
+            {
+                var moduleSettings = new List<ModuleSetting>();
+                pair.Value.ForEach(moduleSettingLookup =>
+                {
+                    moduleSettings.Add(settings[moduleSettingLookup]);
+                    settingsInGroup.Add(moduleSettingLookup);
+                });
+                groupsFormatted.Add(pair.Key, moduleSettings);
+            });
+
+            var miscModuleSettings = new List<ModuleSetting>();
+            settings.Where(pair => !settingsInGroup.Contains(pair.Key)).ForEach(pair => miscModuleSettings.Add(pair.Value));
+            groupsFormatted.Add("Miscellaneous", miscModuleSettings);
+
+            return groupsFormatted;
+        }
+    }
+
     public Module()
     {
         State.Subscribe(newState => Log(newState.ToString()));
@@ -91,6 +120,16 @@ public class Module
     protected void Log(string message)
     {
         Logger.Log($"[{Title}]: {message}");
+    }
+
+    /// <summary>
+    /// Specifies a list of settings to group together in the UI
+    /// </summary>
+    /// <param name="title">The title of the group</param>
+    /// <param name="lookups">The settings lookups to put in this group</param>
+    protected void CreateGroup(string title, params Enum[] lookups)
+    {
+        Groups.Add(title, lookups.Select(lookup => lookup.ToLookup()).ToList());
     }
 
     protected void CreateToggle(Enum lookup, string title, string description, bool defaultValue)
