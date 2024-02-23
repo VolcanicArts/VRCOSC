@@ -34,13 +34,13 @@
                                                 <ListBox ItemsSource="{Binding Value}" HorizontalAlignment="Stretch"
                                                          HorizontalContentAlignment="Stretch" MaxWidth="650"
                                                          BorderThickness="0"
-                                                         Background="Transparent">
+                                                         Background="Transparent" Padding="0 0 0 5">
                                                     <b:Interaction.Behaviors>
                                                         <ui:BubbleScrollEvent />
                                                     </b:Interaction.Behaviors>
                                                     <ListBox.ItemContainerStyle>
                                                         <Style TargetType="ListBoxItem">
-                                                            <Setter Property="Margin" Value="10" />
+                                                            <Setter Property="Margin" Value="5" />
                                                             <Setter Property="Template">
                                                                 <Setter.Value>
                                                                     <ControlTemplate TargetType="ListBoxItem">
