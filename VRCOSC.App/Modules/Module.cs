@@ -62,6 +62,8 @@ public class Module
 
     public Module()
     {
+        Application.Current.MainWindow!.Closed += MainWindowOnClosed;
+
         State.Subscribe(newState => Log(newState.ToString()));
         Enabled.Subscribe(isEnabled => Log(isEnabled.ToString()));
     }
@@ -157,6 +159,11 @@ public class Module
 
     private ModuleSettingsWindow? moduleSettingsWindow;
 
+    private void MainWindowOnClosed(object? sender, EventArgs e)
+    {
+        moduleSettingsWindow?.Close();
+    }
+
     public ICommand UISettingsButton => new RelayCommand(_ => OnSettingsButtonClick());
 
     private void OnSettingsButtonClick()
@@ -167,7 +174,9 @@ public class Module
 
             moduleSettingsWindow.Closed += (_, _) =>
             {
-                var mainWindow = Application.Current.MainWindow!;
+                var mainWindow = Application.Current.MainWindow;
+                if (mainWindow is null) return;
+
                 mainWindow.WindowState = WindowState.Normal;
                 mainWindow.Focus();
 
