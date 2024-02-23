@@ -5,7 +5,7 @@ namespace VRCOSC.WPFModuleTest;
 [ModuleTitle("Test Module")]
 [ModuleDescription("This is my test module")]
 [ModuleType(ModuleType.Generic)]
-public class TestModule : Module
+public class TestModule : AvatarModule
 {
     public override void OnPreLoad()
     {
@@ -34,7 +34,7 @@ public class TestModule : Module
 [ModuleTitle("Test Module 2")]
 [ModuleDescription("This is my 2nd test module")]
 [ModuleType(ModuleType.Generic)]
-public class TestModule2 : Module
+public class TestModule2 : AvatarModule
 {
     public override void OnPreLoad()
     {
