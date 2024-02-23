@@ -21,6 +21,6 @@
     <EmbeddedResource Include="game.ico" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Clowd.Squirrel" Version="2.9.42" />
+    <PackageReference Include="Clowd.Squirrel" Version="2.10.2" />
   </ItemGroup>
 </Project>
