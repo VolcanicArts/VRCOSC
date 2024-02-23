@@ -3,8 +3,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
@@ -14,13 +16,14 @@ using VRCOSC.App.Modules.Attributes.Parameters;
 using VRCOSC.App.Modules.Attributes.Settings;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.Pages.Modules;
+using VRCOSC.App.Pages.Modules.Parameters;
 using VRCOSC.App.Pages.Modules.Settings;
 using VRCOSC.App.Parameters;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Modules;
 
-public abstract class Module
+public abstract class Module : INotifyPropertyChanged
 {
     public string PackageId { get; set; } = null!;
 
@@ -278,10 +281,12 @@ public abstract class Module
     #region UI
 
     private ModuleSettingsWindow? moduleSettingsWindow;
+    private ModuleParametersWindow? moduleParametersWindow;
 
     private void MainWindowOnClosed(object? sender, EventArgs e)
     {
         moduleSettingsWindow?.Close();
+        moduleParametersWindow?.Close();
     }
 
     public ICommand UISettingsButton => new RelayCommand(_ => OnSettingsButtonClick());
@@ -309,6 +314,52 @@ public abstract class Module
         {
             moduleSettingsWindow.Focus();
         }
+    }
+
+    public ICommand UIParametersButton => new RelayCommand(_ => OnParametersButtonClicked());
+
+    private void OnParametersButtonClicked()
+    {
+        if (moduleParametersWindow is null)
+        {
+            moduleParametersWindow = new ModuleParametersWindow(this);
+
+            moduleParametersWindow.Closed += (_, _) =>
+            {
+                var mainWindow = Application.Current.MainWindow;
+                if (mainWindow is null) return;
+
+                mainWindow.WindowState = WindowState.Normal;
+                mainWindow.Focus();
+
+                moduleParametersWindow = null;
+            };
+
+            moduleParametersWindow.Show();
+        }
+        else
+        {
+            moduleParametersWindow.Focus();
+        }
+    }
+
+    private double parameterScrollViewerHeight = double.NaN;
+
+    public double ParameterScrollViewerHeight
+    {
+        get => parameterScrollViewerHeight;
+        set
+        {
+            parameterScrollViewerHeight = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
     #endregion

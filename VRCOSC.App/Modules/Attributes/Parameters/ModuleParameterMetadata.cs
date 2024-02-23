@@ -3,6 +3,7 @@
 
 using System;
 using VRCOSC.App.Parameters;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Modules.Attributes.Parameters;
 
@@ -11,17 +12,19 @@ public class ModuleParameterMetadata : ModuleAttributeMetadata
     /// <summary>
     /// The mode for this <see cref="ModuleParameter"/>
     /// </summary>
-    public readonly ParameterMode Mode;
+    public ParameterMode Mode { get; }
 
     /// <summary>
     /// The expected type for this <see cref="ModuleParameter"/>
     /// </summary>
-    public readonly Type Type;
+    public Type Type { get; }
+
+    public string ReadableType => Type.ToReadableName();
 
     /// <summary>
     /// Whether this <see cref="ModuleParameter"/> should be marked as legacy
     /// </summary>
-    public readonly bool Legacy;
+    public bool Legacy { get; }
 
     public ModuleParameterMetadata(string title, string description, ParameterMode mode, Type type, bool legacy)
         : base(title, description)

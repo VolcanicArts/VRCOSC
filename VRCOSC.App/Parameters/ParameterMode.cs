@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.ComponentModel;
 
 namespace VRCOSC.App.Parameters;
 
@@ -11,26 +12,18 @@ public enum ParameterMode
     /// <summary>
     /// Has the ability to read from VRChat
     /// </summary>
+    [Description("Read")]
     Read = 1 << 0,
 
     /// <summary>
     /// Has the ability to write to VRChat
     /// </summary>
+    [Description("Write")]
     Write = 1 << 1,
 
     /// <summary>
     /// Has the ability to read from and write to VRChat
     /// </summary>
+    [Description("Read/Write")]
     ReadWrite = Read | Write
-}
-
-public static class ParameterModeExtensions
-{
-    public static string ToReadableName(this ParameterMode mode) => mode switch
-    {
-        ParameterMode.Read => "Read",
-        ParameterMode.Write => "Write",
-        ParameterMode.ReadWrite => "Read/Write",
-        _ => throw new ArgumentOutOfRangeException(nameof(mode), mode, null)
-    };
 }

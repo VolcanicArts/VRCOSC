@@ -1,4 +1,5 @@
 ﻿using VRCOSC.App.Modules;
+using VRCOSC.App.Parameters;
 
 namespace VRCOSC.WPFModuleTest;
 
@@ -14,6 +15,15 @@ public class TestModule : AvatarModule
         CreateToggle(TestModuleSetting.TestSetting3, "Lone Wolf", "This is a setting with no group", false);
         CreateTextBox(TestModuleSetting.StringSetting, "String Setting", "This is a string setting", "Woooo");
 
+        RegisterParameter<bool>(TestModuleParameter.Parameter1, "VRCOSC/TestModule/Parameter1", ParameterMode.ReadWrite, "My Parameter", "This is my parameter");
+        RegisterParameter<bool>(TestModuleParameter.Parameter2, "VRCOSC/TestModule/Parameter1", ParameterMode.Read, "My Parameter", "This is my parameter");
+        RegisterParameter<bool>(TestModuleParameter.Parameter3, "VRCOSC/TestModule/Parameter1", ParameterMode.Read, "My Parameter", "This is my parameter");
+        RegisterParameter<bool>(TestModuleParameter.Parameter4, "VRCOSC/TestModule/Parameter1", ParameterMode.Read, "My Parameter", "This is my parameter");
+        RegisterParameter<bool>(TestModuleParameter.Parameter5, "VRCOSC/TestModule/Parameter1", ParameterMode.Read, "My Parameter", "This is my parameter");
+        RegisterParameter<bool>(TestModuleParameter.Parameter6, "VRCOSC/TestModule/Parameter1", ParameterMode.Read, "My Parameter", "This is my parameter");
+        RegisterParameter<bool>(TestModuleParameter.Parameter7, "VRCOSC/TestModule/Parameter1", ParameterMode.Read, "My Parameter", "This is my parameter");
+        RegisterParameter<bool>(TestModuleParameter.Parameter8, "VRCOSC/TestModule/Parameter1", ParameterMode.Read, "My Parameter", "This is my parameter");
+
         CreateGroup("Best Friends", TestModuleSetting.TestSetting, TestModuleSetting.TestSetting2);
     }
 
@@ -28,6 +38,18 @@ public class TestModule : AvatarModule
         TestSetting2,
         TestSetting3,
         StringSetting
+    }
+
+    private enum TestModuleParameter
+    {
+        Parameter1,
+        Parameter2,
+        Parameter3,
+        Parameter4,
+        Parameter5,
+        Parameter6,
+        Parameter7,
+        Parameter8
     }
 }
 

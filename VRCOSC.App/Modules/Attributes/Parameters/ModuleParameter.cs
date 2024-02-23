@@ -10,7 +10,7 @@ public class ModuleParameter : ModuleAttribute
     /// <summary>
     /// The metadata for this <see cref="ModuleParameter"/>
     /// </summary>
-    internal new ModuleParameterMetadata Metadata => (ModuleParameterMetadata)base.Metadata;
+    public new ModuleParameterMetadata Metadata => (ModuleParameterMetadata)base.Metadata;
 
     public Observable<string> Name { get; private set; } = null!;
 

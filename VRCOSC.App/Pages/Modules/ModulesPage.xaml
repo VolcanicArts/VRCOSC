@@ -119,7 +119,7 @@
                                                                     Margin="5" />
                                                             </Button>
                                                             <Button Style="{StaticResource VRCOSCGrayButtonStyle}"
-                                                                    Width="40" Height="40">
+                                                                    Width="40" Height="40" Command="{Binding UIParametersButton}">
                                                                 <fa5:ImageAwesome Icon="Solid_Link" Foreground="White"
                                                                     Margin="5" />
                                                             </Button>
