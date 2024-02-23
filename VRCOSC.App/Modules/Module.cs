@@ -138,6 +138,12 @@ public class Module
         settings.Add(lookup.ToLookup(), new BoolModuleSetting(new ModuleSettingMetadata(title, description, typeof(BoolSettingPage)), defaultValue));
     }
 
+    protected void CreateTextBox(Enum lookup, string title, string description, string defaultValue, bool emptyIsValid = true)
+    {
+        validateSettingsLookup(lookup);
+        settings.Add(lookup.ToLookup(), new StringModuleSetting(new ModuleSettingMetadata(title, description, typeof(StringSettingPage)), emptyIsValid, defaultValue));
+    }
+
     private void validateSettingsLookup(Enum lookup)
     {
         if (!settings.ContainsKey(lookup.ToLookup())) return;

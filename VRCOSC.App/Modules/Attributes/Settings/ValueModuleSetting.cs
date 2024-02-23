@@ -51,3 +51,24 @@ public class BoolModuleSetting : ValueModuleSetting<bool>
     {
     }
 }
+
+public class StringModuleSetting : ValueModuleSetting<string>
+{
+    internal readonly bool EmptyIsValid;
+
+    protected override Observable<string> CreateObservable() => new(DefaultValue);
+
+    internal override bool Deserialise(object ingestValue)
+    {
+        if (ingestValue is not string stringIngestValue) return false;
+
+        Attribute.Value = stringIngestValue;
+        return true;
+    }
+
+    internal StringModuleSetting(ModuleSettingMetadata metadata, bool emptyIsValid, string defaultValue)
+        : base(metadata, defaultValue)
+    {
+        EmptyIsValid = emptyIsValid;
+    }
+}

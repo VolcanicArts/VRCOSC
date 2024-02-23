@@ -58,7 +58,7 @@
                                                                                     Text="{Binding Metadata.Description}"
                                                                                     FontSize="15"
                                                                                     Foreground="{StaticResource CForeground2}" />
-                                                                                <Viewbox Height="50">
+                                                                                <Viewbox Height="50" Width="580">
                                                                                     <Frame
                                                                                         Content="{Binding PageInstance}" />
                                                                                 </Viewbox>
