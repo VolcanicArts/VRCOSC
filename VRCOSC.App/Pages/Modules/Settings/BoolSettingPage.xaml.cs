@@ -7,11 +7,13 @@ namespace VRCOSC.App.Pages.Modules.Settings;
 
 public partial class BoolSettingPage
 {
-    private readonly BoolModuleSetting moduleSetting;
+    private BoolModuleSetting boolModuleSetting;
 
-    public BoolSettingPage(BoolModuleSetting moduleSetting)
+    public BoolSettingPage(BoolModuleSetting boolModuleSetting)
     {
-        this.moduleSetting = moduleSetting;
         InitializeComponent();
+
+        this.boolModuleSetting = boolModuleSetting;
+        Title.DataContext = boolModuleSetting;
     }
 }

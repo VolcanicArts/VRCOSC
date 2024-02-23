@@ -16,7 +16,7 @@ public abstract class ModuleSetting : ModuleAttribute
     /// <summary>
     /// Creates a new <see cref="Page"/> instance as set in the <see cref="Metadata"/>
     /// </summary>
-    public Page GetPageInstance() => (Page)Activator.CreateInstance(Metadata.PageType, this)!;
+    public Page PageInstance => (Page)Activator.CreateInstance(Metadata.PageType, this)!;
 
     /// <summary>
     /// A callback for checking to see if this <see cref="ModuleSetting"/> should be enabled

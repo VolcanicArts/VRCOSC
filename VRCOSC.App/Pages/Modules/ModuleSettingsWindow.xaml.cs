@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.App.Modules;
-using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Pages.Modules;
 
@@ -16,8 +15,5 @@ public partial class ModuleSettingsWindow
 
         this.module = module;
         DataContext = module;
-
-        Logger.Log(module.Settings.Count.ToString());
-        Logger.Log(module.Settings[0].Metadata.Title);
     }
 }

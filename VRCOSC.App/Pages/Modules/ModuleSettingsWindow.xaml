@@ -10,10 +10,10 @@
         <modules:Module />
     </Window.DataContext>
     <Grid>
-        <ListBox ItemsSource="{Binding Settings}">
+        <ListBox ItemsSource="{Binding Settings}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Text="{Binding Metadata.Title}" FontSize="20"/>
+                    <Frame Content="{Binding PageInstance, Mode=OneTime}"/>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
