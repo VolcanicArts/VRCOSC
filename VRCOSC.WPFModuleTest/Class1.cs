@@ -10,6 +10,7 @@ public class TestModule : Module
     public override void OnPreLoad()
     {
         CreateToggle(TestModuleSetting.TestSetting, "Test Setting", "This is a test setting", false);
+        CreateToggle(TestModuleSetting.TestSetting2, "Another Test Setting", "This is another test setting to test the settings", true);
     }
 
     public override Task<bool> OnModuleStart()
@@ -19,6 +20,7 @@ public class TestModule : Module
 
     private enum TestModuleSetting
     {
-        TestSetting
+        TestSetting,
+        TestSetting2
     }
 }

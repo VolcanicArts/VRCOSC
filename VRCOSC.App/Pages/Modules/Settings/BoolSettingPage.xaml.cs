@@ -14,6 +14,6 @@ public partial class BoolSettingPage
         InitializeComponent();
 
         this.boolModuleSetting = boolModuleSetting;
-        Title.DataContext = boolModuleSetting;
+        DataContext = boolModuleSetting;
     }
 }

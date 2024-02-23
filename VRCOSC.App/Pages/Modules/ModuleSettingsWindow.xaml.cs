@@ -13,6 +13,8 @@ public partial class ModuleSettingsWindow
     {
         InitializeComponent();
 
+        Title = $"{module.Title}'s Settings";
+
         this.module = module;
         DataContext = module;
     }

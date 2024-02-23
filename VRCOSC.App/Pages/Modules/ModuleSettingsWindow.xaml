@@ -4,18 +4,38 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:modules="clr-namespace:VRCOSC.App.Modules"
+        xmlns:ui="clr-namespace:VRCOSC.App.UI"
         mc:Ignorable="d"
-        Title="ModuleSettingsWindow" Height="450" Width="800">
+        Title="ModuleSettingsWindow" Width="900" Height="600">
     <Window.DataContext>
         <modules:Module />
     </Window.DataContext>
     <Grid>
-        <ListBox ItemsSource="{Binding Settings}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <Frame Content="{Binding PageInstance, Mode=OneTime}"/>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+        <Border Background="{StaticResource CBackground2}">
+            <ListBox ItemsSource="{Binding Settings}" HorizontalAlignment="Stretch"
+                     HorizontalContentAlignment="Stretch" MaxWidth="650" Margin="10" BorderThickness="0"
+                     Background="Transparent">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Margin" Value="0 0 0 5"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <Border Background="{StaticResource CBackground1}" Padding="5" CornerRadius="5" >
+                                        <ui:SpacedStackPanel Orientation="Vertical" Spacing="5">
+                                            <TextBlock Text="{Binding Metadata.Title}" FontSize="20" Foreground="{StaticResource CForeground1}"/>
+                                            <TextBlock Text="{Binding Metadata.Description}" FontSize="15" Foreground="{StaticResource CForeground2}"/>
+                                            <Viewbox Height="50">
+                                                <Frame Content="{Binding PageInstance}"/>
+                                            </Viewbox>
+                                        </ui:SpacedStackPanel>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+            </ListBox>
+        </Border>
     </Grid>
 </Window>

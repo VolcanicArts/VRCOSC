@@ -6,15 +6,7 @@
       xmlns:settings="clr-namespace:VRCOSC.App.Modules.Attributes.Settings"
       mc:Ignorable="d"
       Title="BoolSettingPage">
-    <Grid Background="{StaticResource CBackground2}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
-
-        <TextBlock Name="Title" Text="{Binding Metadata.Title, Mode=OneTime}" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="60"
-                   Margin="10 5" Foreground="{StaticResource CForeground2}" FontWeight="Bold" />
+    <Grid>
+        <ToggleButton IsChecked="{Binding Attribute.Value}"/>
     </Grid>
 </Page>
