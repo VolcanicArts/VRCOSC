@@ -103,12 +103,12 @@
                         <TextBox x:Name="SearchTextBox" Grid.Row="0" Grid.Column="1" Style="{StaticResource VRCOSCTextBoxStyle}" FontSize="20" Foreground="{StaticResource CForeground3}" VerticalContentAlignment="Center" Background="Transparent" CaretBrush="{StaticResource CForeground3}" BorderBrush="Transparent" SelectionBrush="{StaticResource CForeground2}"/>
                     </Grid>
                 </Border>
-                <Button Width="200" Style="{StaticResource VRCOSCBlueButtonStyle}" Command="{Binding Path=UIRefreshButton}">
+                <ui:VRCOSCButton Width="200" ButtonColour="Blue" Command="{Binding Path=UIRefreshButton}">
                     <TextBlock Text="Refresh" FontSize="20" Foreground="{StaticResource CForeground1}"/>
-                </Button>
-                <Button Width="200" Style="{StaticResource VRCOSCBlueButtonStyle}" Command="{Binding Path=UIUpdateAllButton}" Visibility="{Binding UpdateAllButtonVisibility, Mode=OneWay}">
+                </ui:VRCOSCButton>
+                <ui:VRCOSCButton Width="200" ButtonColour="Blue" Command="{Binding Path=UIUpdateAllButton}" Visibility="{Binding UpdateAllButtonVisibility, Mode=OneWay}">
                     <TextBlock Text="Update All" FontSize="20" Foreground="{StaticResource CForeground1}"/>
-                </Button>
+                </ui:VRCOSCButton>
             </ui:SpacedStackPanel>
             <Border Name="GridContainer" Background="Transparent" HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch" Grid.Row="2">
@@ -172,21 +172,21 @@
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <ui:SpacedStackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                        <Button Style="{StaticResource VRCOSCBlueButtonStyle}"
+                                        <ui:VRCOSCButton ButtonColour="Blue"
                                                 Command="{Binding Path=UIInstallButton, Mode=OneWay}" MaxWidth="30"
                                                 MaxHeight="30" Visibility="{Binding UIUpgradeVisible}">
                                             <fa5:ImageAwesome Icon="Solid_Redo" Foreground="White" Margin="4" />
-                                        </Button>
-                                        <Button Style="{StaticResource VRCOSCGreenButtonStyle}"
+                                        </ui:VRCOSCButton>
+                                        <ui:VRCOSCButton ButtonColour="Green"
                                                 Command="{Binding Path=UIInstallButton, Mode=OneWay}" MaxWidth="30"
                                                 MaxHeight="30" Visibility="{Binding UIInstallVisible}">
                                             <fa5:ImageAwesome Icon="Solid_Plus" Foreground="White" Margin="4" />
-                                        </Button>
-                                        <Button Style="{StaticResource VRCOSCRedButtonStyle}"
+                                        </ui:VRCOSCButton>
+                                        <ui:VRCOSCButton ButtonColour="Red"
                                                 Command="{Binding Path=UIUnInstallButton, Mode=OneWay}" MaxWidth="30"
                                                 MaxHeight="30" Visibility="{Binding UIUnInstallVisible}">
                                             <fa5:ImageAwesome Icon="Solid_Minus" Foreground="White" Margin="4" />
-                                        </Button>
+                                        </ui:VRCOSCButton>
                                     </ui:SpacedStackPanel>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
@@ -197,11 +197,11 @@
                                 <DataTemplate>
                                     <ui:SpacedStackPanel Orientation="Horizontal" HorizontalAlignment="Right"
                                                              FlowDirection="RightToLeft">
-                                        <Button Style="{StaticResource VRCOSCBlueButtonStyle}"
+                                        <ui:VRCOSCButton ButtonColour="Blue"
                                                 Command="{Binding Path=UIInfoButton, Mode=OneWay}" Width="30"
                                                 Height="30">
                                             <fa5:ImageAwesome Icon="Solid_Info" Foreground="White" Margin="4" />
-                                        </Button>
+                                        </ui:VRCOSCButton>
                                     </ui:SpacedStackPanel>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>

@@ -98,35 +98,35 @@
                                                         <ui:SpacedStackPanel Orientation="Horizontal"
                                                                              FlowDirection="RightToLeft" Spacing="5"
                                                                              HorizontalAlignment="Right">
-                                                            <Button Style="{StaticResource VRCOSCBlueButtonStyle}"
+                                                            <ui:VRCOSCButton ButtonColour="Blue"
                                                                     Width="40" Height="40">
                                                                 <fa5:ImageAwesome Icon="Solid_Info" Foreground="White"
                                                                     Margin="5" />
-                                                            </Button>
-                                                            <Button Style="{StaticResource VRCOSCGrayButtonStyle}"
+                                                            </ui:VRCOSCButton>
+                                                            <ui:VRCOSCButton ButtonColour="Gray"
                                                                     Width="40" Height="40">
                                                                 <fa5:ImageAwesome Icon="Solid_Upload"
                                                                     Foreground="White" Margin="5" />
-                                                            </Button>
-                                                            <Button Style="{StaticResource VRCOSCGrayButtonStyle}"
+                                                            </ui:VRCOSCButton>
+                                                            <ui:VRCOSCButton ButtonColour="Gray"
                                                                     Width="40" Height="40">
                                                                 <fa5:ImageAwesome Icon="Solid_Download"
                                                                     Foreground="White" Margin="5" />
-                                                            </Button>
-                                                            <Button Style="{StaticResource VRCOSCGrayButtonStyle}"
+                                                            </ui:VRCOSCButton>
+                                                            <ui:VRCOSCButton ButtonColour="Gray"
                                                                     Width="40" Height="40">
                                                                 <fa5:ImageAwesome Icon="Solid_Cube" Foreground="White"
                                                                     Margin="5" />
-                                                            </Button>
-                                                            <Button Style="{StaticResource VRCOSCGrayButtonStyle}"
+                                                            </ui:VRCOSCButton>
+                                                            <ui:VRCOSCButton ButtonColour="Gray"
                                                                     Width="40" Height="40" Command="{Binding UIParametersButton}">
                                                                 <fa5:ImageAwesome Icon="Solid_Link" Foreground="White"
                                                                     Margin="5" />
-                                                            </Button>
-                                                            <Button Style="{StaticResource VRCOSCGrayButtonStyle}"
+                                                            </ui:VRCOSCButton>
+                                                            <ui:VRCOSCButton ButtonColour="Gray"
                                                                     Width="40" Height="40" Command="{Binding UISettingsButton}">
                                                                 <fa5:ImageAwesome Icon="Solid_Cog" Foreground="White" Margin="5" />
-                                                            </Button>
+                                                            </ui:VRCOSCButton>
                                                         </ui:SpacedStackPanel>
                                                     </Grid>
                                                 </Border>
