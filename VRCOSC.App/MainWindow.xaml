@@ -72,6 +72,12 @@
                 </TabItem.Header>
                 <Frame Source="Pages/Modules/ModulesPage.xaml" />
             </TabItem>
+            <TabItem>
+                <TabItem.Header>
+                    <fa5:ImageAwesome Icon="Solid_Play" />
+                </TabItem.Header>
+                <Frame Source="Pages/Run/RunPage.xaml" />
+            </TabItem>
         </TabControl>
         <Frame Source="LoadingOverlay.xaml" Visibility="Collapsed"/>
     </Grid>

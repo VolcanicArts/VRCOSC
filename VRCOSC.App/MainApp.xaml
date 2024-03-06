@@ -48,7 +48,7 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="Button">
-                            <Border Name="border" Background="Transparent" CornerRadius="5" BorderBrush="{StaticResource CBlue}" BorderThickness="2">
+                            <Border Name="border" Background="{StaticResource CBlue}" CornerRadius="5">
                                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                             </Border>
                             <ControlTemplate.Triggers>
