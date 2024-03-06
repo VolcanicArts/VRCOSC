@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Modules.Attributes.Settings;
@@ -10,7 +11,7 @@ namespace VRCOSC.App.Modules.Attributes.Settings;
 /// </summary>
 public abstract class ValueModuleSetting<T> : ModuleSetting
 {
-    public virtual Observable<T> Attribute { get; private set; } = null!;
+    public Observable<T> Attribute { get; private set; } = null!;
 
     protected readonly T DefaultValue;
 
@@ -54,8 +55,6 @@ public class BoolModuleSetting : ValueModuleSetting<bool>
 
 public class StringModuleSetting : ValueModuleSetting<string>
 {
-    internal readonly bool EmptyIsValid;
-
     protected override Observable<string> CreateObservable() => new(DefaultValue);
 
     internal override bool Deserialise(object ingestValue)
@@ -66,9 +65,79 @@ public class StringModuleSetting : ValueModuleSetting<string>
         return true;
     }
 
-    internal StringModuleSetting(ModuleSettingMetadata metadata, bool emptyIsValid, string defaultValue)
+    internal StringModuleSetting(ModuleSettingMetadata metadata, string defaultValue)
         : base(metadata, defaultValue)
     {
-        EmptyIsValid = emptyIsValid;
+    }
+}
+
+public class IntModuleSetting : ValueModuleSetting<int>
+{
+    protected override Observable<int> CreateObservable() => new(DefaultValue);
+
+    internal override bool Deserialise(object ingestValue)
+    {
+        if (ingestValue is not long intIngestValue) return false;
+
+        Attribute.Value = (int)intIngestValue;
+        return true;
+    }
+
+    internal IntModuleSetting(ModuleSettingMetadata metadata, int defaultValue)
+        : base(metadata, defaultValue)
+    {
+    }
+}
+
+public class SliderModuleSetting : ValueModuleSetting<float>
+{
+    public Type ValueType;
+
+    public float MinValue { get; }
+    public float MaxValue { get; }
+    public float TickFrequency { get; }
+
+    protected override Observable<float> CreateObservable() => new(DefaultValue);
+
+    internal override bool Deserialise(object ingestValue)
+    {
+        if (ingestValue is not double floatIngestValue) return false;
+
+        Attribute.Value = Math.Clamp((float)floatIngestValue, MinValue, MaxValue);
+        return true;
+    }
+
+    internal override bool GetValue<TValueType>(out TValueType? outValue) where TValueType : default
+    {
+        var value = GetRawValue();
+
+        if (typeof(TValueType) == ValueType)
+        {
+            outValue = (TValueType)value;
+            return true;
+        }
+
+        outValue = default;
+        return false;
+    }
+
+    internal SliderModuleSetting(ModuleSettingMetadata metadata, float defaultValue, float minValue, float maxValue, float tickFrequency)
+        : base(metadata, defaultValue)
+    {
+        ValueType = typeof(float);
+
+        MinValue = minValue;
+        MaxValue = maxValue;
+        TickFrequency = tickFrequency;
+    }
+
+    internal SliderModuleSetting(ModuleSettingMetadata metadata, int defaultValue, int minValue, int maxValue, int tickFrequency)
+        : base(metadata, defaultValue)
+    {
+        ValueType = typeof(int);
+
+        MinValue = minValue;
+        MaxValue = maxValue;
+        TickFrequency = tickFrequency;
     }
 }

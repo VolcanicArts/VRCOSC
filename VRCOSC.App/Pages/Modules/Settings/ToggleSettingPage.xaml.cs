@@ -5,15 +5,12 @@ using VRCOSC.App.Modules.Attributes.Settings;
 
 namespace VRCOSC.App.Pages.Modules.Settings;
 
-public partial class BoolSettingPage
+public partial class ToggleSettingPage
 {
-    private BoolModuleSetting boolModuleSetting;
-
-    public BoolSettingPage(BoolModuleSetting boolModuleSetting)
+    public ToggleSettingPage(BoolModuleSetting moduleSetting)
     {
         InitializeComponent();
 
-        this.boolModuleSetting = boolModuleSetting;
-        DataContext = boolModuleSetting;
+        DataContext = moduleSetting;
     }
 }

@@ -15,7 +15,6 @@ public partial class ModuleParametersWindow
         InitializeComponent();
 
         this.module = module;
-        DataContext = this.module;
         ParameterGrid.DataContext = this.module;
 
         SizeChanged += OnSizeChanged;

@@ -40,7 +40,7 @@ public abstract class ModuleAttribute
     /// </summary>
     /// <typeparam name="TValueType">The type to attempt to convert the value to</typeparam>
     /// <returns>True if the value was converted successfully, otherwise false</returns>
-    internal bool GetValue<TValueType>(out TValueType? outValue)
+    internal virtual bool GetValue<TValueType>(out TValueType? outValue)
     {
         var value = GetRawValue();
 

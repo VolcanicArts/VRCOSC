@@ -5,15 +5,12 @@ using VRCOSC.App.Modules.Attributes.Settings;
 
 namespace VRCOSC.App.Pages.Modules.Settings;
 
-public partial class StringSettingPage
+public partial class TextBoxSettingPage
 {
-    private StringModuleSetting stringModuleSetting;
-
-    public StringSettingPage(StringModuleSetting stringModuleSetting)
+    public TextBoxSettingPage(ModuleSetting moduleSetting)
     {
         InitializeComponent();
 
-        this.stringModuleSetting = stringModuleSetting;
-        DataContext = stringModuleSetting;
+        DataContext = moduleSetting;
     }
 }

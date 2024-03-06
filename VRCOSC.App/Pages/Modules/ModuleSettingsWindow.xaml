@@ -8,9 +8,6 @@
         xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d"
         Title="ModuleSettingsWindow" Width="900" Height="600">
-    <Window.DataContext>
-        <modules:Module />
-    </Window.DataContext>
     <Grid>
         <Border Background="{StaticResource CBackground2}">
             <ui:MouseScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">

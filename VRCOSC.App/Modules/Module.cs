@@ -95,6 +95,7 @@ public abstract class Module : INotifyPropertyChanged
         OnPreLoad();
 
         settings.Values.ForEach(moduleSetting => moduleSetting.Load());
+        parameters.Values.ForEach(moduleParameter => moduleParameter.Load());
 
         OnPostLoad();
     }
@@ -180,13 +181,31 @@ public abstract class Module : INotifyPropertyChanged
     protected void CreateToggle(Enum lookup, string title, string description, bool defaultValue)
     {
         validateSettingsLookup(lookup);
-        settings.Add(lookup.ToLookup(), new BoolModuleSetting(new ModuleSettingMetadata(title, description, typeof(BoolSettingPage)), defaultValue));
+        settings.Add(lookup.ToLookup(), new BoolModuleSetting(new ModuleSettingMetadata(title, description, typeof(ToggleSettingPage)), defaultValue));
     }
 
-    protected void CreateTextBox(Enum lookup, string title, string description, string defaultValue, bool emptyIsValid = true)
+    protected void CreateTextBox(Enum lookup, string title, string description, string defaultValue)
     {
         validateSettingsLookup(lookup);
-        settings.Add(lookup.ToLookup(), new StringModuleSetting(new ModuleSettingMetadata(title, description, typeof(StringSettingPage)), emptyIsValid, defaultValue));
+        settings.Add(lookup.ToLookup(), new StringModuleSetting(new ModuleSettingMetadata(title, description, typeof(TextBoxSettingPage)), defaultValue));
+    }
+
+    protected void CreateTextBox(Enum lookup, string title, string description, int defaultValue)
+    {
+        validateSettingsLookup(lookup);
+        settings.Add(lookup.ToLookup(), new IntModuleSetting(new ModuleSettingMetadata(title, description, typeof(TextBoxSettingPage)), defaultValue));
+    }
+
+    protected void CreateSlider(Enum lookup, string title, string description, int defaultValue, int minValue, int maxValue, int tickFrequency = 1)
+    {
+        validateSettingsLookup(lookup);
+        settings.Add(lookup.ToLookup(), new SliderModuleSetting(new ModuleSettingMetadata(title, description, typeof(SliderSettingPage)), defaultValue, minValue, maxValue, tickFrequency));
+    }
+
+    protected void CreateSlider(Enum lookup, string title, string description, float defaultValue, float minValue, float maxValue, float tickFrequency = 0.1f)
+    {
+        validateSettingsLookup(lookup);
+        settings.Add(lookup.ToLookup(), new SliderModuleSetting(new ModuleSettingMetadata(title, description, typeof(SliderSettingPage)), defaultValue, minValue, maxValue, tickFrequency));
     }
 
     private void validateSettingsLookup(Enum lookup)
