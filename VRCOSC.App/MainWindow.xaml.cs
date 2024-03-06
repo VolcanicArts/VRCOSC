@@ -14,6 +14,8 @@ public partial class MainWindow
 
         Title = "VRCOSC 2024.209.0";
 
+        AppManager.GetInstance().Initialise();
+
         PackageManager.GetInstance().Load().Execute().Wait();
         ModuleManager.GetInstance().LoadAllModules();
     }

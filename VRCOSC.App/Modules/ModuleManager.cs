@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Loader;
 using System.Threading.Tasks;
+using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.Utils;
 using Logger = VRCOSC.App.Utils.Logger;
 
@@ -44,10 +45,10 @@ public class ModuleManager
     //     runningModules.OfType<AvatarModule>().ForEach(module => module.PlayerUpdate());
     // }
 
-    // public void ParameterReceived(VRChatOscMessage vrChatOscMessage)
-    // {
-    //     runningModules.ForEach(module => module.OnParameterReceived(vrChatOscMessage));
-    // }
+    public void ParameterReceived(VRChatOscMessage vrChatOscMessage)
+    {
+        runningModules.ForEach(module => module.OnParameterReceived(vrChatOscMessage));
+    }
 
     #endregion
 

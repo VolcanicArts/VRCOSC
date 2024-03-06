@@ -1,5 +1,6 @@
 ﻿using VRCOSC.App.Modules;
 using VRCOSC.App.Parameters;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.WPFModuleTest;
 
@@ -33,6 +34,11 @@ public class TestModule : AvatarModule
     public override Task<bool> OnModuleStart()
     {
         return Task.FromResult(true);
+    }
+
+    protected override void OnAnyParameterReceived(ReceivedParameter receivedParameter)
+    {
+        Logger.Log(receivedParameter.Name);
     }
 
     private enum TestModuleSetting

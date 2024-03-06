@@ -3,7 +3,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 using VRCOSC.App.Modules;
+using VRCOSC.App.OSC;
+using VRCOSC.App.OSC.VRChat;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App;
 
@@ -12,7 +20,16 @@ public class AppManager
     private static AppManager? instance;
     public static AppManager GetInstance() => instance ??= new AppManager();
 
+    public Observable<AppManagerState> State = new(AppManagerState.Stopped);
+
     private readonly Dictionary<PageLookup, IVRCOSCPage> pageInstances = new();
+
+    public ConnectionManager ConnectionManager;
+    public VRChatOscClient VRChatOscClient;
+
+    private Task? updateTask;
+
+    private readonly Queue<VRChatOscMessage> oscMessageQueue = new();
 
     public AppManager()
     {
@@ -37,6 +54,222 @@ public class AppManager
             modulesPage.Refresh();
         }
     }
+
+    public void Initialise()
+    {
+        ConnectionManager = new ConnectionManager();
+        VRChatOscClient = new VRChatOscClient();
+
+        VRChatOscClient.Init(ConnectionManager);
+        ConnectionManager.Init();
+    }
+
+    private void update()
+    {
+        if (State.Value != AppManagerState.Started) return;
+
+        processOscMessageQueue();
+    }
+
+    #region OSC
+
+    private void onParameterReceived(VRChatOscMessage message)
+    {
+        oscMessageQueue.Enqueue(message);
+    }
+
+    private void processOscMessageQueue()
+    {
+        while (oscMessageQueue.TryDequeue(out var message))
+        {
+            if (message.IsAvatarChangeEvent)
+            {
+                //if (ProfileManager.AvatarChange((string)message.ParameterValue)) continue;
+            }
+
+            if (message.IsAvatarParameter)
+            {
+                // var wasPlayerUpdated = VRChatClient.Player.Update(message.ParameterName, message.ParameterValue);
+                // if (wasPlayerUpdated) ModuleManager.PlayerUpdate();
+            }
+
+            ModuleManager.GetInstance().ParameterReceived(message);
+        }
+    }
+
+    #endregion
+
+    #region Start
+
+    private CancellationTokenSource requestStartCancellationSource = null!;
+
+    public async void ForceStart()
+    {
+        CancelStartRequest();
+        initialiseOSCClient(9000, 9001);
+        await startAsync();
+    }
+
+    public void CancelStartRequest()
+    {
+        requestStartCancellationSource.Cancel();
+        State.Value = AppManagerState.Stopped;
+    }
+
+    public async void RequestStart()
+    {
+        if (State.Value is AppManagerState.Waiting or AppManagerState.Starting or AppManagerState.Started) return;
+
+        requestStartCancellationSource = new CancellationTokenSource();
+
+        //if (configManager.Get<bool>(VRCOSCSetting.UseLegacyPorts))
+        if (false)
+        {
+            initialiseOSCClient(9000, 9001);
+            await startAsync();
+            return;
+        }
+
+        State.Value = AppManagerState.Waiting;
+        await Task.Run(waitForStart, requestStartCancellationSource.Token);
+    }
+
+    private async Task waitForStart()
+    {
+        Logger.Log("Waiting for starting conditions");
+
+        var waitingCancellationSource = new CancellationTokenSource();
+
+        await Task.WhenAny(new[]
+        {
+            Task.Run(() => waitForUnity(waitingCancellationSource), requestStartCancellationSource.Token),
+            Task.Run(() => waitForVRChat(waitingCancellationSource), requestStartCancellationSource.Token)
+        });
+
+        waitingCancellationSource.Cancel();
+
+        if (requestStartCancellationSource.IsCancellationRequested) return;
+
+        if (isVRChatOpen())
+        {
+            Logger.Log("Found VRChat. Waiting for OSCQuery");
+            ConnectionManager.Reset();
+            await waitForOSCQuery();
+            if (requestStartCancellationSource.IsCancellationRequested) return;
+
+            initialiseOSCClient(ConnectionManager.VRChatSendPort!.Value, ConnectionManager.VRCOSCReceivePort);
+        }
+        else
+        {
+            if (isUnityOpen())
+            {
+                Logger.Log("Found Unity");
+                initialiseOSCClient(9000, 9001);
+            }
+        }
+
+        await startAsync();
+    }
+
+    private static bool isVRChatOpen() => Process.GetProcessesByName("vrchat").Any();
+    private static bool isUnityOpen() => Process.GetProcessesByName("unity").Any();
+
+    private async Task waitForUnity(CancellationTokenSource waitingSource)
+    {
+        while (!isUnityOpen() && !requestStartCancellationSource.IsCancellationRequested && !waitingSource.IsCancellationRequested)
+        {
+            await Task.Delay(500);
+        }
+    }
+
+    private async Task waitForVRChat(CancellationTokenSource waitingSource)
+    {
+        while (!isVRChatOpen() && !requestStartCancellationSource.IsCancellationRequested && !waitingSource.IsCancellationRequested)
+        {
+            await Task.Delay(500);
+        }
+    }
+
+    private async Task waitForOSCQuery()
+    {
+        while (!ConnectionManager.IsConnected && !requestStartCancellationSource.IsCancellationRequested)
+        {
+            await Task.Delay(500);
+        }
+    }
+
+    private async Task startAsync()
+    {
+        State.Value = AppManagerState.Starting;
+
+        //RouterManager.Start();
+
+        VRChatOscClient.EnableSend();
+        await ModuleManager.GetInstance().StartAsync();
+
+        updateTask = Task.Run(update);
+
+        VRChatOscClient.OnParameterReceived += onParameterReceived;
+        VRChatOscClient.EnableReceive();
+
+        State.Value = AppManagerState.Started;
+    }
+
+    private void initialiseOSCClient(int sendPort, int receivePort)
+    {
+        try
+        {
+            Logger.Log($"Initialising OSC with send ({sendPort}) and receive ({receivePort})");
+
+            var sendEndpoint = new IPEndPoint(IPAddress.Loopback, sendPort);
+            var receiveEndpoint = new IPEndPoint(IPAddress.Loopback, receivePort);
+
+            VRChatOscClient.Initialise(sendEndpoint, receiveEndpoint);
+        }
+        catch (Exception e)
+        {
+            Logger.Error(e, $"{nameof(AppManager)} experienced an exception");
+        }
+    }
+
+    #endregion
+
+    #region Restart
+
+    public async void Restart() => await RestartAsync();
+
+    public async Task RestartAsync()
+    {
+        await StopAsync();
+        await Task.Delay(100);
+        RequestStart();
+    }
+
+    #endregion
+
+    #region Stop
+
+    public async void Stop() => await StopAsync();
+
+    public async Task StopAsync()
+    {
+        if (State.Value is AppManagerState.Stopping or AppManagerState.Stopped) return;
+
+        State.Value = AppManagerState.Stopping;
+
+        //RouterManager.Stop();
+
+        await VRChatOscClient.DisableReceive();
+        VRChatOscClient.OnParameterReceived -= onParameterReceived;
+        await ModuleManager.GetInstance().StopAsync();
+        //VRChatClient.Teardown();
+        VRChatOscClient.DisableSend();
+        oscMessageQueue.Clear();
+
+        State.Value = AppManagerState.Stopped;
+    }
+
+    #endregion
 }
 
 [Flags]
@@ -45,4 +278,13 @@ public enum PageLookup
     Home = 1 << 0,
     Packages = 1 << 1,
     Modules = 1 << 2
+}
+
+public enum AppManagerState
+{
+    Waiting,
+    Starting,
+    Started,
+    Stopping,
+    Stopped
 }
