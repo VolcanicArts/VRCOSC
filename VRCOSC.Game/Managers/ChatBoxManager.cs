@@ -12,6 +12,7 @@ using VRCOSC.Game.App;
 using VRCOSC.Game.ChatBox;
 using VRCOSC.Game.ChatBox.Clips;
 using VRCOSC.Game.ChatBox.Serialisation.V1;
+using VRCOSC.Game.Config;
 using VRCOSC.Game.OSC.VRChat;
 using VRCOSC.Game.Serialisation;
 using VRCOSC.Game.Util;
@@ -41,6 +42,7 @@ public class ChatBoxManager
     public readonly Dictionary<string, Dictionary<string, ClipEventMetadata>> EventMetadata = new();
     public Bindable<int> SendDelay { get; private set; } = null!;
     private VRChatOscClient oscClient = null!;
+    private VRCOSCConfigManager configManager = null!;
     private SerialisationManager serialisationManager = null!;
 
     public readonly Dictionary<(string, string), string?> VariableValues = new();
@@ -61,10 +63,13 @@ public class ChatBoxManager
     private DateTimeOffset nextValidTime;
     private bool isClear;
 
-    public void Initialise(Storage storage, AppManager appManager, VRChatOscClient oscClient, Bindable<int> sendDelay)
+    private List<string> worldBlacklistModuleBlocklist = new() { "afktrackermodule", "clockmodule", "countermodule", "exchangeratemodule", "hardwarestatsmodule", "mediamodule", "openvrstatisticsmodule", "openvrcontrollerstatisticsmodule", "tickertapemodule", "timermodule", "weathermodule" };
+
+    public void Initialise(Storage storage, AppManager appManager, VRCOSCConfigManager configManager, VRChatOscClient oscClient, Bindable<int> sendDelay)
     {
         this.appManager = appManager;
         this.oscClient = oscClient;
+        this.configManager = configManager;
         SendDelay = sendDelay;
         serialisationManager = new SerialisationManager();
         serialisationManager.RegisterSerialiser(1, new TimelineSerialiser(storage, appManager));
@@ -147,15 +152,14 @@ public class ChatBoxManager
 
     public void Update()
     {
-        if (sendAllowed && !CurrentWorldExtractor.IsCurrentWorldBlacklisted)
-        {
-            appManager.ModuleManager.ChatBoxUpdate();
+        if (!sendAllowed) return;
 
-            Clips.ForEach(clip => clip.Update());
-            TriggeredEvents.Clear();
+        appManager.ModuleManager.ChatBoxUpdate();
 
-            evaluateClips();
-        }
+        Clips.ForEach(clip => clip.Update());
+        TriggeredEvents.Clear();
+
+        evaluateClips();
     }
 
     public void Teardown()
@@ -191,6 +195,19 @@ public class ChatBoxManager
     private void evaluateClips()
     {
         var validClip = getValidClip();
+
+        if (CurrentWorldExtractor.IsCurrentWorldBlacklisted && configManager.Get<bool>(VRCOSCSetting.ChatboxWorldBlock) && validClip is not null)
+        {
+            var blockedFromSending = validClip.AssociatedModules.Any(moduleId => worldBlacklistModuleBlocklist.Contains(moduleId));
+
+            if (blockedFromSending)
+            {
+                handleClip(null);
+                nextValidTime += TimeSpan.FromMilliseconds(SendDelay.Value);
+                return;
+            }
+        }
+
         handleClip(validClip);
         nextValidTime += TimeSpan.FromMilliseconds(SendDelay.Value);
     }

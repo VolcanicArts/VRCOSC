@@ -121,7 +121,7 @@ public partial class AppManager : Component
 
     private void initialiseChatBoxManager()
     {
-        ChatBoxManager.Initialise(storage, this, OSCClient, configManager.GetBindable<int>(VRCOSCSetting.ChatBoxTimeSpan));
+        ChatBoxManager.Initialise(storage, this, configManager, OSCClient, configManager.GetBindable<int>(VRCOSCSetting.ChatBoxTimeSpan));
         ChatBoxManager.Load();
     }
 
