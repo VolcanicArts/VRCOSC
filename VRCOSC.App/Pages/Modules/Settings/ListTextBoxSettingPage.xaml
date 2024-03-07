@@ -7,18 +7,42 @@
       Title="ListTextBoxSettingPage"
       Width="{Binding ActualWidth, ElementName=SettingPageFrame}">
     <Grid>
-        <ListView ItemsSource="{Binding Attribute}" VerticalAlignment="Stretch" Background="Transparent" Padding="0" BorderThickness="0">
+        <ListView ItemsSource="{Binding Attribute}" VerticalAlignment="Stretch" Background="Transparent" Padding="0"
+                  BorderThickness="0">
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <TextBox Text="{Binding Value}" Background="{StaticResource CBackground3}" Foreground="{StaticResource CForeground1}" FontSize="20" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" />
+                    <Grid Margin="5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0"
+                                   Text="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=(ItemsControl.AlternationIndex)}"
+                                   VerticalAlignment="Center" Margin="0,0,10,0"
+                                   Foreground="{StaticResource CForeground1}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Style.Triggers>
+                                        <DataTrigger
+                                            Binding="{Binding Path=DataContext.RowNumberVisibility, RelativeSource={RelativeSource AncestorType=ListView}}">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <TextBox Grid.Column="1" Text="{Binding Value}" Background="{StaticResource CBackground3}"
+                                 Foreground="{StaticResource CForeground1}" FontSize="20" HorizontalAlignment="Stretch"
+                                 VerticalContentAlignment="Center" />
+                    </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
-                    <Setter Property="HorizontalAlignment" Value="Stretch"/>
-                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                    <Setter Property="Padding" Value="0"/>
-                    <Setter Property="Margin" Value="0"/>
+                    <Setter Property="HorizontalAlignment" Value="Stretch" />
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    <Setter Property="Padding" Value="0" />
+                    <Setter Property="Margin" Value="0" />
                 </Style>
             </ListView.ItemContainerStyle>
         </ListView>

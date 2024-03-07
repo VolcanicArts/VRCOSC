@@ -208,10 +208,10 @@ public abstract class Module : INotifyPropertyChanged
         settings.Add(lookup.ToLookup(), new SliderModuleSetting(new ModuleSettingMetadata(title, description, typeof(SliderSettingPage)), defaultValue, minValue, maxValue, tickFrequency));
     }
 
-    protected void CreateTextBoxList(Enum lookup, string title, string description, IEnumerable<string> defaultValues)
+    protected void CreateTextBoxList(Enum lookup, string title, string description, IEnumerable<string> defaultValues, bool rowNumberVisible = false)
     {
         validateSettingsLookup(lookup);
-        settings.Add(lookup.ToLookup(), new StringListModuleSetting(new ModuleSettingMetadata(title, description, typeof(ListTextBoxSettingPage)), defaultValues));
+        settings.Add(lookup.ToLookup(), new StringListModuleSetting(new ModuleSettingMetadata(title, description, typeof(ListTextBoxSettingPage)), defaultValues, rowNumberVisible));
     }
 
     private void validateSettingsLookup(Enum lookup)
