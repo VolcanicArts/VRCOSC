@@ -7,6 +7,6 @@
       Title="StringSettingPage"
       Width="{Binding ActualWidth, ElementName=SettingPageFrame}">
     <Grid>
-        <TextBox Text="{Binding Attribute.Value}" Background="{StaticResource CBackground3}" Foreground="{StaticResource CForeground1}" FontSize="25" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" />
+        <TextBox Text="{Binding Attribute.Value}" Background="{StaticResource CBackground3}" Foreground="{StaticResource CForeground1}" FontSize="20" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" />
     </Grid>
 </Page>

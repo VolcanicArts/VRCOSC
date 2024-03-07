@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -75,7 +75,7 @@ public abstract class Module : INotifyPropertyChanged
         }
     }
 
-    public Module()
+    protected Module()
     {
         Application.Current.MainWindow!.Closed += MainWindowOnClosed;
 
@@ -206,6 +206,12 @@ public abstract class Module : INotifyPropertyChanged
     {
         validateSettingsLookup(lookup);
         settings.Add(lookup.ToLookup(), new SliderModuleSetting(new ModuleSettingMetadata(title, description, typeof(SliderSettingPage)), defaultValue, minValue, maxValue, tickFrequency));
+    }
+
+    protected void CreateTextBoxList(Enum lookup, string title, string description, IEnumerable<string> defaultValues)
+    {
+        validateSettingsLookup(lookup);
+        settings.Add(lookup.ToLookup(), new StringListModuleSetting(new ModuleSettingMetadata(title, description, typeof(ListTextBoxSettingPage)), defaultValues));
     }
 
     private void validateSettingsLookup(Enum lookup)

@@ -18,6 +18,7 @@ public class TestModule : AvatarModule
         CreateTextBox(TestModuleSetting.IntSetting, "Int Setting", "This is an int setting", 10);
         CreateSlider(TestModuleSetting.IntSliderSetting, "Int Slider Setting", "Blah", 5, 1, 15);
         CreateSlider(TestModuleSetting.FloatSliderSetting, "Float Slider Setting", "foo", 0f, 0f, 9f);
+        CreateTextBoxList(TestModuleSetting.TextBoxList, "Text Box List", "bar", new List<string> { "This is a test entry", "This is another test entry" });
 
         RegisterParameter<bool>(TestModuleParameter.Parameter1, "VRCOSC/TestModule/Parameter1", ParameterMode.ReadWrite, "My Parameter", "This is my parameter");
         RegisterParameter<bool>(TestModuleParameter.Parameter2, "VRCOSC/TestModule/Parameter1", ParameterMode.Read, "My Parameter", "This is my parameter");
@@ -49,7 +50,8 @@ public class TestModule : AvatarModule
         StringSetting,
         IntSetting,
         IntSliderSetting,
-        FloatSliderSetting
+        FloatSliderSetting,
+        TextBoxList
     }
 
     private enum TestModuleParameter
