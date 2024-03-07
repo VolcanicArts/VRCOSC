@@ -4,9 +4,9 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       mc:Ignorable="d"
-      Title="StringSettingPage" Height="50" Width="800">
-    <Grid HorizontalAlignment="Stretch"
-          VerticalAlignment="Stretch" >
-        <TextBox Text="{Binding Attribute.Value}" Background="{StaticResource CBackground3}" Foreground="{StaticResource CForeground1}" FontSize="30" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" />
+      Title="StringSettingPage"
+      Width="{Binding ActualWidth, ElementName=SettingPageFrame}">
+    <Grid>
+        <TextBox Text="{Binding Attribute.Value}" Background="{StaticResource CBackground3}" Foreground="{StaticResource CForeground1}" FontSize="25" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" />
     </Grid>
 </Page>

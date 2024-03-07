@@ -4,8 +4,9 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       mc:Ignorable="d"
-      Title="BoolSettingPage">
+      Title="BoolSettingPage"
+      Width="{Binding ActualWidth, ElementName=SettingPageFrame}">
     <Grid>
-        <ToggleButton IsChecked="{Binding Attribute.Value}"/>
+        <ToggleButton IsChecked="{Binding Attribute.Value}" Width="50" Height="50"/>
     </Grid>
 </Page>

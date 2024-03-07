@@ -55,10 +55,7 @@
                                                                                     Text="{Binding Metadata.Description}"
                                                                                     FontSize="15"
                                                                                     Foreground="{StaticResource CForeground2}" />
-                                                                                <Viewbox Height="50" Width="580">
-                                                                                    <Frame
-                                                                                        Content="{Binding PageInstance}" />
-                                                                                </Viewbox>
+                                                                                <Frame Name="SettingPageFrame" Content="{Binding PageInstance}" NavigationUIVisibility="Hidden"/>
                                                                             </ui:SpacedStackPanel>
                                                                         </Border>
                                                                     </ControlTemplate>

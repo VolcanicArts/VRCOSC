@@ -5,9 +5,9 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="clr-namespace:VRCOSC.App.Pages.Modules.Settings"
       mc:Ignorable="d"
-      Title="FloatSliderSettingPage" Height="50" Width="800">
-    <Grid HorizontalAlignment="Stretch"
-          VerticalAlignment="Stretch" >
+      Title="FloatSliderSettingPage"
+      Width="{Binding ActualWidth, ElementName=SettingPageFrame}">
+    <Grid Height="50">
         <Slider Value="{Binding Attribute.Value}" Minimum="{Binding MinValue, Mode=OneTime}" Maximum="{Binding MaxValue, Mode=OneTime}" TickFrequency="{Binding TickFrequency, Mode=OneTime}" TickPlacement="BottomRight" IsSnapToTickEnabled="True"/>
         <TextBlock Text="{Binding MinValue, Mode=OneTime}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Foreground="{StaticResource CForeground1}" FontSize="20"/>
         <TextBlock Text="{Binding Attribute.Value, Mode=OneWay, StringFormat='F2'}" HorizontalAlignment="Center" VerticalAlignment="Bottom" Foreground="{StaticResource CForeground1}" FontSize="20"/>
