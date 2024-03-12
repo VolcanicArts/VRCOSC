@@ -29,7 +29,7 @@ public abstract class Module : INotifyPropertyChanged
 
     internal string SerialisedName => $"{PackageId}.{GetType().Name.ToLowerInvariant()}";
 
-    public Observable<bool> Enabled { get; } = new(false);
+    public Observable<bool> Enabled { get; } = new(true);
     public Observable<ModuleState> State { get; } = new(ModuleState.Stopped);
 
     public string Title => GetType().GetCustomAttribute<ModuleTitleAttribute>()?.Title ?? "PLACEHOLDER";
@@ -218,6 +218,33 @@ public abstract class Module : INotifyPropertyChanged
         if (!settings.ContainsKey(lookup.ToLookup())) return;
 
         //PushException(new InvalidOperationException("Cannot add multiple of the same key for settings"));
+    }
+
+    /// <summary>
+    /// Allows you to send any parameter name and value.
+    /// If you want the user to be able to customise the parameter, register a parameter and use <see cref="SendParameter(Enum,object)"/>
+    /// </summary>
+    /// <param name="name">The name of the parameter</param>
+    /// <param name="value">The value to set the parameter to</param>
+    protected void SendParameter(string name, object value)
+    {
+        AppManager.GetInstance().VRChatOscClient.SendValue($"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{name}", value);
+    }
+
+    /// <summary>
+    /// Allows you to send a customisable parameter using its lookup and a value
+    /// </summary>
+    /// <param name="lookup">The lookup of the parameter</param>
+    /// <param name="value">The value to set the parameter to</param>
+    protected void SendParameter(Enum lookup, object value)
+    {
+        if (!parameters.TryGetValue(lookup, out var moduleParameter))
+        {
+            //PushException(new InvalidOperationException($"Lookup `{lookup}` has not been registered. Please register it using `RegisterParameter<T>(Enum,object)`"));
+            return;
+        }
+
+        AppManager.GetInstance().VRChatOscClient.SendValue($"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{moduleParameter.Name.Value}", value);
     }
 
     /// <summary>

@@ -18,23 +18,28 @@ public class TestModule : AvatarModule
         CreateTextBox(TestModuleSetting.IntSetting, "Int Setting", "This is an int setting", 10);
         CreateSlider(TestModuleSetting.IntSliderSetting, "Int Slider Setting", "Blah", 5, 1, 15);
         CreateSlider(TestModuleSetting.FloatSliderSetting, "Float Slider Setting", "foo", 0f, 0f, 9f);
-        CreateTextBoxList(TestModuleSetting.TextBoxList, "Text Box List", "bar", new List<string> { "This is a test entry", "This is another test entry" }, true);
+        CreateTextBoxList(TestModuleSetting.TextBoxList, "Text Box List", "bar", new List<string> { "This is a test entry", "This is another test entry" });
 
         RegisterParameter<bool>(TestModuleParameter.Parameter1, "VRCOSC/TestModule/Parameter1", ParameterMode.ReadWrite, "My Parameter", "This is my parameter");
-        RegisterParameter<bool>(TestModuleParameter.Parameter2, "VRCOSC/TestModule/Parameter1", ParameterMode.Read, "My Parameter", "This is my parameter");
-        RegisterParameter<bool>(TestModuleParameter.Parameter3, "VRCOSC/TestModule/Parameter1", ParameterMode.Read, "My Parameter", "This is my parameter");
-        RegisterParameter<bool>(TestModuleParameter.Parameter4, "VRCOSC/TestModule/Parameter1", ParameterMode.Read, "My Parameter", "This is my parameter");
-        RegisterParameter<bool>(TestModuleParameter.Parameter5, "VRCOSC/TestModule/Parameter1", ParameterMode.Read, "My Parameter", "This is my parameter");
-        RegisterParameter<bool>(TestModuleParameter.Parameter6, "VRCOSC/TestModule/Parameter1", ParameterMode.Read, "My Parameter", "This is my parameter");
-        RegisterParameter<bool>(TestModuleParameter.Parameter7, "VRCOSC/TestModule/Parameter1", ParameterMode.Read, "My Parameter", "This is my parameter");
-        RegisterParameter<bool>(TestModuleParameter.Parameter8, "VRCOSC/TestModule/Parameter1", ParameterMode.Read, "My Parameter", "This is my parameter");
+        RegisterParameter<bool>(TestModuleParameter.Parameter2, "VRCOSC/TestModule/Parameter2", ParameterMode.Read, "My Parameter", "This is my parameter");
+        RegisterParameter<bool>(TestModuleParameter.Parameter3, "VRCOSC/TestModule/Parameter3", ParameterMode.Read, "My Parameter", "This is my parameter");
+        RegisterParameter<bool>(TestModuleParameter.Parameter4, "VRCOSC/TestModule/Parameter4", ParameterMode.Read, "My Parameter", "This is my parameter");
+        RegisterParameter<bool>(TestModuleParameter.Parameter5, "VRCOSC/TestModule/Parameter5", ParameterMode.Read, "My Parameter", "This is my parameter");
+        RegisterParameter<bool>(TestModuleParameter.Parameter6, "VRCOSC/TestModule/Parameter6", ParameterMode.Read, "My Parameter", "This is my parameter");
+        RegisterParameter<bool>(TestModuleParameter.Parameter7, "VRCOSC/TestModule/Parameter7", ParameterMode.Read, "My Parameter", "This is my parameter");
+        RegisterParameter<bool>(TestModuleParameter.Parameter8, "VRCOSC/TestModule/Parameter8", ParameterMode.Read, "My Parameter", "This is my parameter");
 
         CreateGroup("Best Friends", TestModuleSetting.TestSetting, TestModuleSetting.TestSetting2);
     }
 
-    public override Task<bool> OnModuleStart()
+    public override async Task<bool> OnModuleStart()
     {
-        return Task.FromResult(true);
+        await Task.Delay(1000);
+
+        SendParameter(TestModuleParameter.Parameter1, true);
+        SendParameter(TestModuleParameter.Parameter2, false);
+
+        return true;
     }
 
     protected override void OnAnyParameterReceived(ReceivedParameter receivedParameter)
