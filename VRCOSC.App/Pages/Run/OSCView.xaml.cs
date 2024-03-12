@@ -28,10 +28,10 @@ public partial class OSCView
     private void OnParameterSent(VRChatOscMessage e) => Dispatcher.Invoke(() => OutgoingMessages[e.ParameterName] = e.ParameterValue);
     private void OnParameterReceived(VRChatOscMessage e) => Dispatcher.Invoke(() => IncomingMessages[e.ParameterName] = e.ParameterValue);
 
-    private void OnAppManagerStateChange(AppManagerState newState)
+    private void OnAppManagerStateChange(AppManagerState newState) => Dispatcher.Invoke(() =>
     {
         if (newState == AppManagerState.Starting) OutgoingMessages.Clear();
-    }
+    });
 }
 
 public class BackgroundConverter : IValueConverter

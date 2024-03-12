@@ -19,7 +19,7 @@ public partial class RunPage
         Logger.NewEntry += onLogEntry;
     }
 
-    private void onAppManagerStateChange(AppManagerState newState)
+    private void onAppManagerStateChange(AppManagerState newState) => Dispatcher.Invoke(() =>
     {
         if (newState == AppManagerState.Starting) LogStackPanel.Children.Clear();
 
@@ -48,9 +48,9 @@ public partial class RunPage
             default:
                 throw new ArgumentOutOfRangeException(nameof(newState), newState, null);
         }
-    }
+    });
 
-    private void onLogEntry(LogEntry e)
+    private void onLogEntry(LogEntry e) => Dispatcher.Invoke(() =>
     {
         if (e.LoggerName != "terminal") return;
 
@@ -69,7 +69,7 @@ public partial class RunPage
         }
 
         LogScrollViewer.ScrollToBottom();
-    }
+    });
 
     private void PlayButtonOnClick(object sender, RoutedEventArgs e)
     {
