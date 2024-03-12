@@ -33,6 +33,7 @@ public class AppManager
 
     public AppManager()
     {
+        State.Subscribe(newState => Logger.Log("AppManager changed state to " + newState));
     }
 
     public void RegisterPage(PageLookup pageLookup, IVRCOSCPage instance)
@@ -123,7 +124,7 @@ public class AppManager
         requestStartCancellationSource = new CancellationTokenSource();
 
         //if (configManager.Get<bool>(VRCOSCSetting.UseLegacyPorts))
-        if (false)
+        if (true)
         {
             initialiseOSCClient(9000, 9001);
             await startAsync();

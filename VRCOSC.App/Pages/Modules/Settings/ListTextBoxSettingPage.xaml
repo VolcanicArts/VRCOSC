@@ -19,17 +19,8 @@
                         <TextBlock Grid.Column="0"
                                    Text="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=(ItemsControl.AlternationIndex)}"
                                    VerticalAlignment="Center" Margin="0,0,10,0"
-                                   Foreground="{StaticResource CForeground1}">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock">
-                                    <Style.Triggers>
-                                        <DataTrigger
-                                            Binding="{Binding Path=DataContext.RowNumberVisibility, RelativeSource={RelativeSource AncestorType=ListView}}">
-                                            <Setter Property="Visibility" Value="Collapsed" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
+                                   Foreground="{StaticResource CForeground1}"
+                                   Visibility="{Binding Path=DataContext.RowNumberVisibility, RelativeSource={RelativeSource AncestorType=Page}}">
                         </TextBlock>
                         <TextBox Grid.Column="1" Text="{Binding Value}" Background="{StaticResource CBackground3}"
                                  Foreground="{StaticResource CForeground1}" FontSize="20" HorizontalAlignment="Stretch"

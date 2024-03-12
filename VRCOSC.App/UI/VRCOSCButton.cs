@@ -49,6 +49,12 @@ public class VRCOSCButton : Button
     public VRCOSCButton()
     {
         Style = (Style)FindResource("VRCOSCButtonStyle");
+        IsEnabledChanged += OnIsEnabledChanged;
+    }
+
+    private void OnIsEnabledChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+        Opacity = (bool)e.NewValue ? 1d : 0.5d;
     }
 
     private Brush buttonColourToBrush(bool isLight) => ButtonColour switch

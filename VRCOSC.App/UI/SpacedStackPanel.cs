@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -38,6 +39,8 @@ public class SpacedStackPanel : StackPanel
             }
 
             totalChildWidth += Spacing * (InternalChildren.Cast<UIElement>().Count(c => c.Visibility == Visibility.Visible) - 1);
+
+            totalChildWidth = Math.Max(totalChildWidth, 0);
 
             return new Size(totalChildWidth, sizeAvailable.Height);
         }
