@@ -3,6 +3,9 @@
 
 using System;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Pages.Run;
 
@@ -13,10 +16,13 @@ public partial class RunPage
         InitializeComponent();
 
         AppManager.GetInstance().State.Subscribe(onAppManagerStateChange, true);
+        Logger.NewEntry += onLogEntry;
     }
 
     private void onAppManagerStateChange(AppManagerState newState)
     {
+        if (newState == AppManagerState.Starting) LogStackPanel.Children.Clear();
+
         switch (newState)
         {
             case AppManagerState.Waiting:
@@ -42,6 +48,27 @@ public partial class RunPage
             default:
                 throw new ArgumentOutOfRangeException(nameof(newState), newState, null);
         }
+    }
+
+    private void onLogEntry(LogEntry e)
+    {
+        if (e.LoggerName != "terminal") return;
+
+        var dateTimeText = $"[{DateTime.Now:HH:mm:ss}] {e.Message}";
+
+        LogStackPanel.Children.Add(new TextBlock
+        {
+            Text = dateTimeText,
+            FontSize = 15,
+            Foreground = (Brush)FindResource("CForeground2")
+        });
+
+        if (LogStackPanel.Children.Count >= 50)
+        {
+            LogStackPanel.Children.RemoveAt(0);
+        }
+
+        LogScrollViewer.ScrollToBottom();
     }
 
     private void PlayButtonOnClick(object sender, RoutedEventArgs e)

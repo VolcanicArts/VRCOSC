@@ -11,37 +11,46 @@
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="3*" />
-                    <ColumnDefinition Width="5"/>
+                    <ColumnDefinition Width="5" />
                     <ColumnDefinition Width="7*" />
                 </Grid.ColumnDefinitions>
                 <Border Grid.Column="0" Background="{StaticResource CBackground5}" HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch" Padding="5" CornerRadius="5">
-                    <StackPanel Name="LogStackPanel" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Orientation="Vertical" />
+                    <ScrollViewer Name="LogScrollViewer" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel Name="LogStackPanel" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                                    Orientation="Vertical" />
+                    </ScrollViewer>
                 </Border>
                 <Grid Grid.Column="2">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
-                        <RowDefinition Height="5"/>
+                        <RowDefinition Height="5" />
                         <RowDefinition Height="60" />
                     </Grid.RowDefinitions>
                     <Border Grid.Row="0" Background="{StaticResource CBackground5}" HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch" Padding="5" CornerRadius="5">
-                        <TextBlock Text="Hello" Foreground="White"/>
+                        <TextBlock Text="Hello" Foreground="White" />
                     </Border>
                     <Border Grid.Row="2" Background="{StaticResource CBackground5}" HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch" Padding="10" CornerRadius="5">
                         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                             <ui:SpacedStackPanel FlowDirection="LeftToRight" Orientation="Horizontal" Spacing="10">
-                                <ui:VRCOSCButton x:Name="StartButton" Width="150" VerticalAlignment="Stretch" CornerRadius="10" ButtonColour="Green" Click="PlayButtonOnClick">
-                                    <fa5:ImageAwesome Icon="Solid_Play" Foreground="{StaticResource CForeground1}" Width="23"/>
+                                <ui:VRCOSCButton x:Name="StartButton" Width="150" VerticalAlignment="Stretch"
+                                                 CornerRadius="10" ButtonColour="Green" Click="PlayButtonOnClick">
+                                    <fa5:ImageAwesome Icon="Solid_Play" Foreground="{StaticResource CForeground1}"
+                                                      Width="23" />
                                 </ui:VRCOSCButton>
                             </ui:SpacedStackPanel>
                             <ui:SpacedStackPanel FlowDirection="RightToLeft" Orientation="Horizontal" Spacing="10">
-                                <ui:VRCOSCButton x:Name="StopButton" Width="150" VerticalAlignment="Stretch" CornerRadius="10" ButtonColour="Red" Click="StopButtonOnClick">
-                                    <fa5:ImageAwesome Icon="Solid_Stop" Foreground="{StaticResource CForeground1}" Width="23"/>
+                                <ui:VRCOSCButton x:Name="StopButton" Width="150" VerticalAlignment="Stretch"
+                                                 CornerRadius="10" ButtonColour="Red" Click="StopButtonOnClick">
+                                    <fa5:ImageAwesome Icon="Solid_Stop" Foreground="{StaticResource CForeground1}"
+                                                      Width="23" />
                                 </ui:VRCOSCButton>
-                                <ui:VRCOSCButton x:Name="RestartButton" Width="150" VerticalAlignment="Stretch" CornerRadius="10" ButtonColour="Blue" Click="RestartButtonOnClick">
-                                    <fa5:ImageAwesome Icon="Solid_Redo" Foreground="{StaticResource CForeground1}" Width="23"/>
+                                <ui:VRCOSCButton x:Name="RestartButton" Width="150" VerticalAlignment="Stretch"
+                                                 CornerRadius="10" ButtonColour="Blue" Click="RestartButtonOnClick">
+                                    <fa5:ImageAwesome Icon="Solid_Redo" Foreground="{StaticResource CForeground1}"
+                                                      Width="23" />
                                 </ui:VRCOSCButton>
                             </ui:SpacedStackPanel>
                         </Grid>

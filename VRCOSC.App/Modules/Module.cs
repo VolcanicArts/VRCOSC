@@ -80,7 +80,6 @@ public abstract class Module : INotifyPropertyChanged
         Application.Current.MainWindow!.Closed += MainWindowOnClosed;
 
         State.Subscribe(newState => Log(newState.ToString()));
-        Enabled.Subscribe(isEnabled => Log(isEnabled.ToString()));
     }
 
     private static Regex parameterToRegex(string parameterName)
@@ -150,7 +149,7 @@ public abstract class Module : INotifyPropertyChanged
     /// <param name="message">The message to log to the terminal</param>
     protected void Log(string message)
     {
-        Logger.Log($"[{Title}]: {message}");
+        Logger.Log($"[{Title}]: {message}", "terminal");
     }
 
     /// <summary>
