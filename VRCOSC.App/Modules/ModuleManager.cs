@@ -132,12 +132,12 @@ public class ModuleManager
 
         localModules.ForEach(localModule =>
         {
-            if (Modules.All(pair => pair.Key.Assembly != localModule.GetType().Assembly))
+            if (Modules.All<ObservableKeyValuePair<ModulePackage, List<Module>>>(pair => pair.Key.Assembly != localModule.GetType().Assembly))
             {
                 Modules[new ModulePackage(localModule.GetType().Assembly, false)] = new List<Module>();
             }
 
-            Modules.First(pair => pair.Key.Assembly == localModule.GetType().Assembly).Value.Add(localModule);
+            Modules.First<ObservableKeyValuePair<ModulePackage, List<Module>>>(pair => pair.Key.Assembly == localModule.GetType().Assembly).Value.Add(localModule);
         });
 
         Logger.Log($"Final local module count: {localModules.Count}");
@@ -168,12 +168,12 @@ public class ModuleManager
 
         remoteModules.ForEach(remoteModule =>
         {
-            if (Modules.All(pair => pair.Key.Assembly != remoteModule.GetType().Assembly))
+            if (Modules.All<ObservableKeyValuePair<ModulePackage, List<Module>>>(pair => pair.Key.Assembly != remoteModule.GetType().Assembly))
             {
                 Modules[new ModulePackage(remoteModule.GetType().Assembly, true)] = new List<Module>();
             }
 
-            Modules.First(pair => pair.Key.Assembly == remoteModule.GetType().Assembly).Value.Add(remoteModule);
+            Modules.First<ObservableKeyValuePair<ModulePackage, List<Module>>>(pair => pair.Key.Assembly == remoteModule.GetType().Assembly).Value.Add(remoteModule);
         });
 
         Logger.Log($"Final remote module count: {remoteModules.Count}");

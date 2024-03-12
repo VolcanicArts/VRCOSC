@@ -12,21 +12,21 @@ namespace VRCOSC.App.Pages.Run;
 public partial class OSCView
 {
     public ObservableDictionary<string, object> OutgoingMessages { get; } = new();
+    public ObservableDictionary<string, object> IncomingMessages { get; } = new();
 
     public OSCView()
     {
         InitializeComponent();
 
         AppManager.GetInstance().VRChatOscClient.OnParameterSent += OnParameterSent;
+        AppManager.GetInstance().VRChatOscClient.OnParameterReceived += OnParameterReceived;
         AppManager.GetInstance().State.Subscribe(OnAppManagerStateChange);
 
         DataContext = this;
     }
 
-    private void OnParameterSent(VRChatOscMessage e)
-    {
-        OutgoingMessages[e.ParameterName] = e.ParameterValue;
-    }
+    private void OnParameterSent(VRChatOscMessage e) => Dispatcher.Invoke(() => OutgoingMessages[e.ParameterName] = e.ParameterValue);
+    private void OnParameterReceived(VRChatOscMessage e) => Dispatcher.Invoke(() => IncomingMessages[e.ParameterName] = e.ParameterValue);
 
     private void OnAppManagerStateChange(AppManagerState newState)
     {

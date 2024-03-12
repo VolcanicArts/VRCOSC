@@ -1,96 +1,191 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Collections;
+using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 
 namespace VRCOSC.App;
 
-public class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValue>, INotifyCollectionChanged, INotifyPropertyChanged
+public class ObservableKeyValuePair<TKey, TValue> : INotifyPropertyChanged
 {
-    private readonly IDictionary<TKey, TValue> dictionary = new Dictionary<TKey, TValue>();
+    #region properties
 
-    public event NotifyCollectionChangedEventHandler? CollectionChanged;
-    public event PropertyChangedEventHandler? PropertyChanged;
+    private TKey key;
+    private TValue value;
+
+    public TKey Key
+    {
+        get => key;
+        set
+        {
+            key = value;
+            OnPropertyChanged("Key");
+        }
+    }
+
+    public TValue Value
+    {
+        get => value;
+        set
+        {
+            this.value = value;
+            OnPropertyChanged("Value");
+        }
+    }
+
+    #endregion
+
+    #region INotifyPropertyChanged Members
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    public void OnPropertyChanged(string name)
+    {
+        PropertyChangedEventHandler handler = PropertyChanged;
+        if (handler != null) handler(this, new PropertyChangedEventArgs(name));
+    }
+
+    #endregion
+}
+
+public class ObservableDictionary<TKey, TValue> : ObservableCollection<ObservableKeyValuePair<TKey, TValue>>, IDictionary<TKey, TValue>
+{
+    #region IDictionary<TKey,TValue> Members
 
     public void Add(TKey key, TValue value)
     {
-        dictionary.Add(key, value);
-        OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, new KeyValuePair<TKey, TValue>(key, value)));
+        if (ContainsKey(key))
+        {
+            throw new ArgumentException("The dictionary already contains the key");
+        }
+
+        base.Add(new ObservableKeyValuePair<TKey, TValue> { Key = key, Value = value });
     }
 
-    public bool ContainsKey(TKey key) => dictionary.ContainsKey(key);
+    public bool ContainsKey(TKey key)
+    {
+        var r = thisAsCollection().FirstOrDefault(i => Equals(key, i.Key));
+        return !Equals(default, r);
+    }
+
+    public bool Equals<TKey>(TKey a, TKey b) => EqualityComparer<TKey>.Default.Equals(a, b);
+
+    private ObservableCollection<ObservableKeyValuePair<TKey, TValue>> thisAsCollection() => this;
+
+    public ICollection<TKey> Keys => (from i in thisAsCollection() select i.Key).ToList();
 
     public bool Remove(TKey key)
     {
-        if (dictionary.Remove(key, out TValue value))
+        var remove = thisAsCollection().Where(pair => Equals(key, pair.Key)).ToList();
+
+        foreach (var pair in remove)
         {
-            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, new KeyValuePair<TKey, TValue>(key, value)));
-            return true;
+            thisAsCollection().Remove(pair);
         }
 
-        return false;
+        return remove.Count > 0;
     }
 
-    public bool TryGetValue(TKey key, out TValue value) => dictionary.TryGetValue(key, out value);
+    public bool TryGetValue(TKey key, out TValue value)
+    {
+        value = default;
+        var r = getKvpByTheKey(key);
+
+        if (Equals(r, default))
+        {
+            return false;
+        }
+
+        value = r.Value;
+        return true;
+    }
+
+    private ObservableKeyValuePair<TKey, TValue> getKvpByTheKey(TKey key)
+    {
+        return thisAsCollection().FirstOrDefault(i => i.Key.Equals(key));
+    }
+
+    public ICollection<TValue> Values => (from i in thisAsCollection() select i.Value).ToList();
 
     public TValue this[TKey key]
     {
-        get => dictionary[key];
-        set
+        get
         {
-            if (dictionary.ContainsKey(key))
+            TValue result;
+
+            if (!TryGetValue(key, out result))
             {
-                dictionary[key] = value;
-                OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, new KeyValuePair<TKey, TValue>(key, value)));
-                return;
+                throw new ArgumentException("Key not found");
             }
 
-            Add(key, value);
+            return result;
+        }
+        set
+        {
+            if (ContainsKey(key))
+            {
+                getKvpByTheKey(key).Value = value;
+            }
+            else
+            {
+                Add(key, value);
+            }
         }
     }
 
-    public ICollection<TKey> Keys => dictionary.Keys;
-    public ICollection<TValue> Values => dictionary.Values;
+    #endregion
 
-    private void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
-    {
-        CollectionChanged?.Invoke(this, e);
-        OnPropertyChanged(nameof(Count));
-        OnPropertyChanged("Item[]");
-    }
-
-    protected virtual void OnPropertyChanged(string propertyName)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-
-    public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => dictionary.GetEnumerator();
-
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    #region ICollection<KeyValuePair<TKey,TValue>> Members
 
     public void Add(KeyValuePair<TKey, TValue> item)
     {
-        dictionary.Add(item);
+        Add(item.Key, item.Value);
     }
 
-    public void Clear()
+    public bool Contains(KeyValuePair<TKey, TValue> item)
     {
-        dictionary.Clear();
-        OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-    }
+        var r = getKvpByTheKey(item.Key);
 
-    public bool Contains(KeyValuePair<TKey, TValue> item) => dictionary.Contains(item);
+        if (Equals(r, default))
+        {
+            return false;
+        }
+
+        return Equals(r.Value, item.Value);
+    }
 
     public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
     {
-        dictionary.CopyTo(array, arrayIndex);
+        throw new NotImplementedException();
     }
 
-    public bool Remove(KeyValuePair<TKey, TValue> item) => dictionary.Remove(item);
+    public bool IsReadOnly => false;
 
-    public int Count => dictionary.Count;
-    public bool IsReadOnly => dictionary.IsReadOnly;
+    public bool Remove(KeyValuePair<TKey, TValue> item)
+    {
+        var r = getKvpByTheKey(item.Key);
+
+        if (Equals(r, default))
+        {
+            return false;
+        }
+
+        if (!Equals(r.Value, item.Value))
+        {
+            return false;
+        }
+
+        return thisAsCollection().Remove(r);
+    }
+
+    #endregion
+
+    #region IEnumerable<KeyValuePair<TKey,TValue>> Members
+
+    public new IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => (from i in thisAsCollection() select new KeyValuePair<TKey, TValue>(i.Key, i.Value)).ToList().GetEnumerator();
+
+    #endregion
 }
