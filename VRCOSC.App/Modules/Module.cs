@@ -51,6 +51,8 @@ public abstract class Module : INotifyPropertyChanged
     internal readonly Dictionary<string, List<string>> Groups = new();
     internal readonly Dictionary<ModulePersistentAttribute, PropertyInfo> PersistentProperties = new();
 
+    private List<Repeater> updateTasks = new();
+
     private SerialisationManager moduleSerialisationManager;
     private SerialisationManager persistenceSerialisationManager;
 
@@ -193,6 +195,8 @@ public abstract class Module : INotifyPropertyChanged
     {
         State.Value = ModuleState.Stopping;
 
+        foreach (var updateTask in updateTasks) await updateTask.StopAsync();
+        updateTasks.Clear();
         await OnModuleStop();
 
         savePersistentProperties();
@@ -227,7 +231,9 @@ public abstract class Module : INotifyPropertyChanged
                 switch (updateAttribute.Mode)
                 {
                     case ModuleUpdateMode.Custom:
-                        //scheduler.AddDelayed(() => updateMethod(method), updateAttribute.DeltaMilliseconds, true);
+                        var updateTask = new Repeater(() => updateMethod(method));
+                        updateTask.Start(TimeSpan.FromMilliseconds(updateAttribute.DeltaMilliseconds));
+                        updateTasks.Add(updateTask);
                         if (updateAttribute.UpdateImmediately) updateMethod(method);
                         break;
                 }

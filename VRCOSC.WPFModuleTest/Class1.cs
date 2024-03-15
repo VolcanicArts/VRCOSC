@@ -32,14 +32,13 @@ public class TestModule : AvatarModule
         CreateGroup("Best Friends", TestModuleSetting.TestSetting, TestModuleSetting.TestSetting2);
     }
 
-    public override async Task<bool> OnModuleStart()
+    private bool someValue;
+
+    [ModuleUpdate(ModuleUpdateMode.Custom, false)]
+    private void onModuleUpdate()
     {
-        await Task.Delay(1000);
-
-        SendParameter(TestModuleParameter.Parameter1, true);
-        SendParameter(TestModuleParameter.Parameter2, false);
-
-        return true;
+        SendParameter(TestModuleParameter.Parameter1, someValue);
+        someValue = !someValue;
     }
 
     protected override void OnAnyParameterReceived(ReceivedParameter receivedParameter)
