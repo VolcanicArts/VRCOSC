@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using VRCOSC.App.Modules;
 using VRCOSC.App.OSC;
 using VRCOSC.App.OSC.VRChat;
+using VRCOSC.App.Profiles;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App;
@@ -61,6 +62,8 @@ public class AppManager
         ConnectionManager = new ConnectionManager();
         VRChatOscClient = new VRChatOscClient();
 
+        ProfileManager.GetInstance().Load();
+
         VRChatOscClient.Init(ConnectionManager);
         ConnectionManager.Init();
     }
@@ -85,7 +88,7 @@ public class AppManager
         {
             if (message.IsAvatarChangeEvent)
             {
-                //if (ProfileManager.AvatarChange((string)message.ParameterValue)) continue;
+                if (ProfileManager.GetInstance().AvatarChange((string)message.ParameterValue)) continue;
             }
 
             if (message.IsAvatarParameter)
@@ -268,6 +271,35 @@ public class AppManager
         oscMessageQueue.Clear();
 
         State.Value = AppManagerState.Stopped;
+    }
+
+    #endregion
+
+    #region Profiles
+
+    public async void ChangeProfile(Profile newProfile)
+    {
+        if (ProfileManager.GetInstance().ActiveProfile.Value == newProfile) return;
+
+        Logger.Log($"Changing profile from {ProfileManager.GetInstance().ActiveProfile.Value.Name.Value} to {newProfile.Name.Value}");
+
+        var beforeState = State.Value;
+
+        if (State.Value == AppManagerState.Started)
+        {
+            await StopAsync();
+        }
+
+        ModuleManager.GetInstance().UnloadAllModules();
+        ProfileManager.GetInstance().ActiveProfile.Value = newProfile;
+        ModuleManager.GetInstance().LoadAllModules();
+        //RouterManager.Load();
+
+        if (beforeState == AppManagerState.Started)
+        {
+            await Task.Delay(100);
+            await startAsync();
+        }
     }
 
     #endregion

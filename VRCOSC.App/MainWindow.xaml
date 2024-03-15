@@ -78,6 +78,12 @@
                 </TabItem.Header>
                 <Frame Source="Pages/Run/RunPage.xaml" />
             </TabItem>
+            <TabItem>
+                <TabItem.Header>
+                    <fa5:ImageAwesome Icon="Solid_User" />
+                </TabItem.Header>
+                <Frame Source="Pages/Profiles/ProfilesPage.xaml" />
+            </TabItem>
         </TabControl>
         <Frame Source="LoadingOverlay.xaml" Visibility="Collapsed"/>
     </Grid>

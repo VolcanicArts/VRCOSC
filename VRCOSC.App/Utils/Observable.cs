@@ -9,11 +9,11 @@ namespace VRCOSC.App.Utils;
 using System;
 using System.Collections.Generic;
 
-public class Observable<T> : IObservable<T?>, INotifyPropertyChanged
+public sealed class Observable<T> : IObservable<T>, INotifyPropertyChanged
 {
-    private T? value;
+    private T value;
 
-    public T? Value
+    public T Value
     {
         get => value;
         set
@@ -31,13 +31,13 @@ public class Observable<T> : IObservable<T?>, INotifyPropertyChanged
     private readonly List<IObserver<T?>> observers = new();
     private readonly List<Action<T?>> actions = new();
 
-    public Observable(T initialValue)
+    public Observable(T initialValue = default)
     {
         value = initialValue;
         DefaultValue = initialValue;
     }
 
-    public IDisposable Subscribe(IObserver<T?> observer)
+    public IDisposable Subscribe(IObserver<T> observer)
     {
         if (!observers.Contains(observer))
             observers.Add(observer);
@@ -47,7 +47,7 @@ public class Observable<T> : IObservable<T?>, INotifyPropertyChanged
         return new Unsubscriber(observers, observer);
     }
 
-    public void Subscribe(Action<T?> action, bool runOnceImmediately = false)
+    public void Subscribe(Action<T> action, bool runOnceImmediately = false)
     {
         actions.Add(action);
         if (runOnceImmediately) action(value);
@@ -75,17 +75,17 @@ public class Observable<T> : IObservable<T?>, INotifyPropertyChanged
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
     private class Unsubscriber : IDisposable
     {
-        private readonly List<IObserver<T?>> observers;
-        private readonly IObserver<T?> observer;
+        private readonly List<IObserver<T>> observers;
+        private readonly IObserver<T> observer;
 
-        public Unsubscriber(List<IObserver<T?>> observers, IObserver<T?> observer)
+        public Unsubscriber(List<IObserver<T>> observers, IObserver<T> observer)
         {
             this.observers = observers;
             this.observer = observer;
