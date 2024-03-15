@@ -28,9 +28,10 @@ public class AppManager
     public ConnectionManager ConnectionManager;
     public VRChatOscClient VRChatOscClient;
 
-    private Task? updateTask;
+    private Repeater updateTask;
 
     private readonly Queue<VRChatOscMessage> oscMessageQueue = new();
+    private readonly object oscMessageQueueLock = new();
 
     public AppManager()
     {
@@ -70,14 +71,20 @@ public class AppManager
     {
         if (State.Value != AppManagerState.Started) return;
 
-        processOscMessageQueue();
+        lock (oscMessageQueueLock)
+        {
+            processOscMessageQueue();
+        }
     }
 
     #region OSC
 
     private void onParameterReceived(VRChatOscMessage message)
     {
-        oscMessageQueue.Enqueue(message);
+        lock (oscMessageQueueLock)
+        {
+            oscMessageQueue.Enqueue(message);
+        }
     }
 
     private void processOscMessageQueue()
@@ -125,7 +132,7 @@ public class AppManager
         requestStartCancellationSource = new CancellationTokenSource();
 
         //if (configManager.Get<bool>(VRCOSCSetting.UseLegacyPorts))
-        if (true)
+        if (false)
         {
             initialiseOSCClient(9000, 9001);
             await startAsync();
@@ -209,7 +216,8 @@ public class AppManager
         VRChatOscClient.EnableSend();
         await ModuleManager.GetInstance().StartAsync();
 
-        updateTask = Task.Run(update);
+        updateTask = new Repeater(update);
+        updateTask.Start(TimeSpan.FromSeconds(1d / 60d));
 
         VRChatOscClient.OnParameterReceived += onParameterReceived;
         VRChatOscClient.EnableReceive();
@@ -263,10 +271,15 @@ public class AppManager
 
         await VRChatOscClient.DisableReceive();
         VRChatOscClient.OnParameterReceived -= onParameterReceived;
+        await updateTask.StopAsync();
         await ModuleManager.GetInstance().StopAsync();
         //VRChatClient.Teardown();
         VRChatOscClient.DisableSend();
-        oscMessageQueue.Clear();
+
+        lock (oscMessageQueueLock)
+        {
+            oscMessageQueue.Clear();
+        }
 
         State.Value = AppManagerState.Stopped;
     }

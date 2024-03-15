@@ -4,10 +4,8 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:run="clr-namespace:VRCOSC.App.Pages.Run"
-      xmlns:ui="clr-namespace:VRCOSC.App.UI"
       mc:Ignorable="d">
     <Page.Resources>
-        <!-- Local background converter -->
         <run:BackgroundConverter x:Key="BackgroundConverter" />
     </Page.Resources>
     <Grid>
@@ -18,13 +16,11 @@
                     <ColumnDefinition Width="10" />
                     <ColumnDefinition Width="5*" />
                 </Grid.ColumnDefinitions>
-                <Border Grid.Column="0" CornerRadius="5" Background="{StaticResource CBackground1}"
-                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <Border Grid.Column="0" CornerRadius="5" Background="{StaticResource CBackground1}">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="40" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="5" />
+                            <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
                         <TextBlock Grid.Row="0" Text="Outgoing" Foreground="{StaticResource CForeground2}"
                                    FontSize="25" TextAlignment="Center" VerticalAlignment="Center"
@@ -32,7 +28,7 @@
                         <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto"
                                       VerticalScrollBarVisibility="Auto">
                             <ListView ItemsSource="{Binding OutgoingMessages, Mode=OneWay}"
-                                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                      HorizontalAlignment="Stretch"
                                       Background="Transparent"
                                       BorderThickness="0" AlternationCount="2">
                                 <ListView.ItemContainerStyle>
@@ -46,12 +42,13 @@
                                                         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                                                             <Grid.ColumnDefinitions>
                                                                 <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="10"/>
                                                                 <ColumnDefinition Width="*" />
                                                             </Grid.ColumnDefinitions>
                                                             <TextBlock Grid.Column="0" Text="{Binding Key}"
                                                                        Foreground="{StaticResource CForeground2}"
                                                                        FontSize="17" VerticalAlignment="Center" />
-                                                            <TextBlock x:Name="ValueTextBlock" Grid.Column="1"
+                                                            <TextBlock x:Name="ValueTextBlock" Grid.Column="2"
                                                                        Text="{Binding Value}"
                                                                        Foreground="{StaticResource CForeground2}"
                                                                        FontSize="17" VerticalAlignment="Center"
@@ -73,7 +70,6 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="40" />
                             <RowDefinition Height="*" />
-                            <RowDefinition Height="5" />
                         </Grid.RowDefinitions>
                         <TextBlock Grid.Row="0" Text="Incoming" Foreground="{StaticResource CForeground2}"
                                    FontSize="25" TextAlignment="Center" VerticalAlignment="Center"
@@ -115,7 +111,6 @@
                                 </ListView.ItemContainerStyle>
                             </ListView>
                         </ScrollViewer>
-                        <Border Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
                     </Grid>
                 </Border>
             </Grid>

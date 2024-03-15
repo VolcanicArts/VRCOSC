@@ -16,9 +16,8 @@
                 </Grid.ColumnDefinitions>
                 <Border Grid.Column="0" Background="{StaticResource CBackground5}" HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch" Padding="5" CornerRadius="5">
-                    <ScrollViewer Name="LogScrollViewer" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Disabled">
-                        <StackPanel Name="LogStackPanel" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                                    Orientation="Vertical" />
+                    <ScrollViewer Name="LogScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel Name="LogStackPanel" Orientation="Vertical" />
                     </ScrollViewer>
                 </Border>
                 <Grid Grid.Column="2">

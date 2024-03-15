@@ -50,11 +50,13 @@
                                                                                 <TextBlock
                                                                                     Text="{Binding Metadata.Title}"
                                                                                     FontSize="20"
-                                                                                    Foreground="{StaticResource CForeground1}" />
+                                                                                    Foreground="{StaticResource CForeground1}"
+                                                                                    TextWrapping="Wrap"/>
                                                                                 <TextBlock
                                                                                     Text="{Binding Metadata.Description}"
                                                                                     FontSize="15"
-                                                                                    Foreground="{StaticResource CForeground2}" />
+                                                                                    Foreground="{StaticResource CForeground2}"
+                                                                                    TextWrapping="Wrap"/>
                                                                                 <Frame Name="SettingPageFrame" Content="{Binding PageInstance}" NavigationUIVisibility="Hidden"/>
                                                                             </ui:SpacedStackPanel>
                                                                         </Border>
