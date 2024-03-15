@@ -5,6 +5,9 @@ using System;
 using System.Collections;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows;
+using System.Windows.Input;
+using VRCOSC.App.Pages.Profiles;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
 
@@ -51,8 +54,8 @@ public class ProfileManager
 
         checkForDefault();
 
-        ActiveProfile.Subscribe(_ => Serialise());
-        DefaultProfile.Subscribe(_ => Serialise());
+        //ActiveProfile.Subscribe(_ => Serialise());
+        //DefaultProfile.Subscribe(_ => Serialise());
 
         Profiles.CollectionChanged += (_, e) => onProfilesOnCollectionChanged(e.OldItems, e.NewItems);
         onProfilesOnCollectionChanged(null, Profiles);
@@ -77,12 +80,14 @@ public class ProfileManager
         {
             foreach (Profile profile in newItems)
             {
-                profile.Name.Subscribe(_ => Serialise());
-                profile.LinkedAvatars.CollectionChanged += (_, _) => Serialise();
+                //profile.Name.Subscribe(_ => Serialise());
+                //profile.LinkedAvatars.CollectionChanged += (_, _) => Serialise();
                 profile.LinkedAvatars.CollectionChanged += (_, e) => onLinkedAvatarsOnCollectionChanged(e.OldItems, e.NewItems);
                 onLinkedAvatarsOnCollectionChanged(null, profile.LinkedAvatars);
             }
         }
+
+        Profiles.ForEach(profile => profile.Update());
 
         // Serialise()
     }
@@ -93,7 +98,7 @@ public class ProfileManager
 
         foreach (Observable<string> linkedAvatar in newItems)
         {
-            linkedAvatar.Subscribe(_ => Serialise());
+            //linkedAvatar.Subscribe(_ => Serialise());
         }
     }
 
@@ -128,4 +133,46 @@ public class ProfileManager
         AppManager.GetInstance().ChangeProfile(newProfile);
         return true;
     }
+
+    #region UI
+
+    public void SpawnProfileEditWindow(Profile? profile = null)
+    {
+        if (ProfileEditWindow is null)
+        {
+            ProfileEditWindow = new ProfileEditWindow(profile);
+
+            ProfileEditWindow!.Closed += (_, _) =>
+            {
+                var mainWindow = Application.Current.MainWindow;
+                if (mainWindow is null) return;
+
+                mainWindow.WindowState = WindowState.Normal;
+                mainWindow.Focus();
+
+                ProfileEditWindow = null;
+            };
+
+            ProfileEditWindow.Show();
+        }
+        else
+        {
+            ProfileEditWindow.Focus();
+        }
+    }
+
+    public void ExitProfileEditWindow()
+    {
+        if (ProfileEditWindow is null) return;
+
+        ProfileEditWindow.ForceClose = true;
+        ProfileEditWindow.Close();
+    }
+
+    public ProfileEditWindow? ProfileEditWindow { get; private set; }
+
+    public ICommand UICreateProfileButton => new RelayCommand(_ => OnCreateProfileButtonClick());
+    private void OnCreateProfileButtonClick() => SpawnProfileEditWindow();
+
+    #endregion
 }

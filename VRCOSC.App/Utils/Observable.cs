@@ -53,6 +53,12 @@ public sealed class Observable<T> : IObservable<T>, INotifyPropertyChanged
         if (runOnceImmediately) action(value);
     }
 
+    public void Unsubscribe(Action<T> action)
+    {
+        if (actions.Contains(action))
+            actions.Remove(action);
+    }
+
     public bool IsDefault => EqualityComparer<T>.Default.Equals(value, DefaultValue);
 
     public void SetDefault()

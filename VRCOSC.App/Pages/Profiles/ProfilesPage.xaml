@@ -8,7 +8,6 @@
       xmlns:fa5="http://schemas.fontawesome.com/icons/"
       mc:Ignorable="d">
     <Page.Resources>
-        <!-- Local background converter -->
         <profiles:BackgroundConverter x:Key="BackgroundConverter" />
     </Page.Resources>
     <Grid>
@@ -50,47 +49,59 @@
                 <Border Background="{StaticResource CBackground1}" CornerRadius="5">
                     <StackPanel>
                         <Border Height="50" Padding="9">
-                            <TextBlock Text="Profiles" FontSize="20" Foreground="{StaticResource CForeground1}" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" />
+                            <TextBlock Text="Profiles" FontSize="20" Foreground="{StaticResource CForeground1}"
+                                       HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" />
                         </Border>
                         <ListView ItemsSource="{Binding Profiles, Mode=OneWay}"
-                                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                      Background="Transparent"
-                                      BorderThickness="0" AlternationCount="2">
-                                <ListView.ItemContainerStyle>
-                                    <Style TargetType="ListViewItem">
-                                        <Setter Property="Template">
-                                            <Setter.Value>
-                                                <ControlTemplate>
-                                                    <Border
-                                                        Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource BackgroundConverter}}"
-                                                        Padding="7 2">
-                                                        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="50">
-                                                            <Grid.ColumnDefinitions>
-                                                                <ColumnDefinition Width="*" />
-                                                                <ColumnDefinition Width="*" />
-                                                            </Grid.ColumnDefinitions>
-                                                            <TextBlock Grid.Column="0" Text="{Binding Name.Value}" Foreground="{StaticResource CForeground1}" FontSize="20" HorizontalAlignment="Left" VerticalAlignment="Center" />
-                                                            <ui:SpacedStackPanel Grid.Column="1" FlowDirection="RightToLeft" Orientation="Horizontal" Spacing="8">
-                                                                <ui:VRCOSCButton ButtonColour="Red"
-                                                                    Width="36" Height="36">
-                                                                    <fa5:ImageAwesome Icon="Solid_Minus" Foreground="White"
-                                                                        Margin="5" />
-                                                                </ui:VRCOSCButton>
-                                                                <ui:VRCOSCButton ButtonColour="Blue"
-                                                                    Width="36" Height="36">
-                                                                    <fa5:ImageAwesome Icon="Solid_Edit" Foreground="White" Margin="5" />
-                                                                </ui:VRCOSCButton>
-                                                            </ui:SpacedStackPanel>
-                                                        </Grid>
-                                                    </Border>
-                                                </ControlTemplate>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </ListView.ItemContainerStyle>
-                            </ListView>
+                                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                  Background="Transparent"
+                                  BorderThickness="0" AlternationCount="2">
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate>
+                                                <Border
+                                                    Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource BackgroundConverter}}"
+                                                    Padding="7 2">
+                                                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                                          Height="50">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="*" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Grid.Column="0" Text="{Binding Name.Value}"
+                                                                   Foreground="{StaticResource CForeground1}"
+                                                                   FontSize="20" HorizontalAlignment="Left"
+                                                                   VerticalAlignment="Center" />
+                                                        <ui:SpacedStackPanel Grid.Column="1"
+                                                                             FlowDirection="RightToLeft"
+                                                                             Orientation="Horizontal" Spacing="8">
+                                                            <ui:VRCOSCButton ButtonColour="Red"
+                                                                             Command="{Binding UIRemoveProfileButton}"
+                                                                             Visibility="{Binding UIRemoveProfileButtonVisibility}"
+                                                                             Width="36" Height="36">
+                                                                <fa5:ImageAwesome Icon="Solid_Minus" Foreground="White"
+                                                                    Margin="5" />
+                                                            </ui:VRCOSCButton>
+                                                            <ui:VRCOSCButton ButtonColour="Blue"
+                                                                             Command="{Binding UIEditProfileButton}"
+                                                                             Width="36" Height="36">
+                                                                <fa5:ImageAwesome Icon="Solid_Edit" Foreground="White"
+                                                                    Margin="5" />
+                                                            </ui:VRCOSCButton>
+                                                        </ui:SpacedStackPanel>
+                                                    </Grid>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                        </ListView>
                         <Border Height="50" Padding="5">
-                            <ui:VRCOSCButton ButtonColour="Green" Width="140" Height="36">
+                            <ui:VRCOSCButton ButtonColour="Green" Width="140" Height="36"
+                                             Command="{Binding UICreateProfileButton}">
                                 <fa5:ImageAwesome Icon="Solid_Plus" Foreground="White" Margin="5" />
                             </ui:VRCOSCButton>
                         </Border>
