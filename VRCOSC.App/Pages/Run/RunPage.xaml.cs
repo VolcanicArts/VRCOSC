@@ -60,7 +60,8 @@ public partial class RunPage
         {
             Text = dateTimeText,
             FontSize = 15,
-            Foreground = (Brush)FindResource("CForeground3")
+            Foreground = (Brush)FindResource("CForeground3"),
+            TextWrapping = TextWrapping.Wrap
         });
 
         if (LogStackPanel.Children.Count >= 50)
