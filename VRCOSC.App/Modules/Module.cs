@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -19,6 +20,7 @@ using VRCOSC.App.Pages.Modules;
 using VRCOSC.App.Pages.Modules.Parameters;
 using VRCOSC.App.Pages.Modules.Settings;
 using VRCOSC.App.Parameters;
+using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Modules;
@@ -40,13 +42,19 @@ public abstract class Module : INotifyPropertyChanged
     private readonly Dictionary<string, Enum> parameterNameEnum = new();
     private readonly Dictionary<string, Regex> parameterNameRegex = new();
 
-    private readonly Dictionary<Enum, ModuleParameter> parameters = new();
-    public List<ModuleParameter> Parameters => parameters.Select(pair => pair.Value).ToList();
+    internal readonly Dictionary<Enum, ModuleParameter> Parameters = new();
+    public List<ModuleParameter> UIParameters => Parameters.Select(pair => pair.Value).ToList();
 
-    private readonly Dictionary<string, ModuleSetting> settings = new();
-    public List<ModuleSetting> Settings => settings.Select(pair => pair.Value).ToList();
+    internal readonly Dictionary<string, ModuleSetting> Settings = new();
+    public List<ModuleSetting> UISettings => Settings.Select(pair => pair.Value).ToList();
 
     internal readonly Dictionary<string, List<string>> Groups = new();
+    internal readonly Dictionary<ModulePersistentAttribute, PropertyInfo> PersistentProperties = new();
+
+    private SerialisationManager moduleSerialisationManager;
+    private SerialisationManager persistenceSerialisationManager;
+
+    protected virtual bool ShouldUsePersistence => true;
 
     public Dictionary<string, List<ModuleSetting>> GroupsFormatted
     {
@@ -61,14 +69,14 @@ public abstract class Module : INotifyPropertyChanged
                 var moduleSettings = new List<ModuleSetting>();
                 pair.Value.ForEach(moduleSettingLookup =>
                 {
-                    moduleSettings.Add(settings[moduleSettingLookup]);
+                    moduleSettings.Add(Settings[moduleSettingLookup]);
                     settingsInGroup.Add(moduleSettingLookup);
                 });
                 groupsFormatted.Add(pair.Key, moduleSettings);
             });
 
             var miscModuleSettings = new List<ModuleSetting>();
-            settings.Where(pair => !settingsInGroup.Contains(pair.Key)).ForEach(pair => miscModuleSettings.Add(pair.Value));
+            Settings.Where(pair => !settingsInGroup.Contains(pair.Key)).ForEach(pair => miscModuleSettings.Add(pair.Value));
             groupsFormatted.Add("Miscellaneous", miscModuleSettings);
 
             return groupsFormatted;
@@ -89,25 +97,84 @@ public abstract class Module : INotifyPropertyChanged
         return new Regex(pattern);
     }
 
+    public void InjectDependencies(SerialisationManager moduleSerialisationManager, SerialisationManager persistenceSerialisationManager)
+    {
+        this.moduleSerialisationManager = moduleSerialisationManager;
+        this.persistenceSerialisationManager = persistenceSerialisationManager;
+    }
+
     public void Load()
     {
         OnPreLoad();
 
-        settings.Values.ForEach(moduleSetting => moduleSetting.Load());
-        parameters.Values.ForEach(moduleParameter => moduleParameter.Load());
+        Settings.Values.ForEach(moduleSetting => moduleSetting.Load());
+        Parameters.Values.ForEach(moduleParameter => moduleParameter.Load());
+
+        moduleSerialisationManager.Deserialise();
+        cachePersistentProperties();
+
+        Enabled.Subscribe(_ => moduleSerialisationManager.Serialise());
+        Settings.Values.ForEach(moduleSetting => moduleSetting.RequestSerialisation = () => moduleSerialisationManager.Serialise());
+        Parameters.Values.ForEach(moduleParameter => moduleParameter.RequestSerialisation = () => moduleSerialisationManager.Serialise());
 
         OnPostLoad();
     }
+
+    #region Persistence
+
+    internal bool TryGetPersistentProperty(string key, [NotNullWhen(true)] out PropertyInfo? property)
+    {
+        property = PersistentProperties.SingleOrDefault(property => property.Key.SerialisedName == key).Value;
+        return property is not null;
+    }
+
+    private void cachePersistentProperties()
+    {
+        try
+        {
+            GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).ForEach(info =>
+            {
+                var isDefined = info.IsDefined(typeof(ModulePersistentAttribute));
+                if (!isDefined) return;
+
+                if (!info.CanRead || !info.CanWrite) throw new InvalidOperationException($"Property '{info.Name}' must be declared with get/set to have persistence");
+
+                PersistentProperties.Add(info.GetCustomAttribute<ModulePersistentAttribute>()!, info);
+            });
+        }
+        catch (Exception e)
+        {
+            //PushException(e);
+        }
+    }
+
+    private void loadPersistentProperties()
+    {
+        if (!PersistentProperties.Any() || !ShouldUsePersistence) return;
+
+        persistenceSerialisationManager.Deserialise();
+    }
+
+    private void savePersistentProperties()
+    {
+        if (!PersistentProperties.Any() || !ShouldUsePersistence) return;
+
+        persistenceSerialisationManager.Serialise();
+    }
+
+    #endregion
 
     public async Task Start()
     {
         State.Value = ModuleState.Starting;
 
         parameterNameEnum.Clear();
-        parameters.ForEach(pair => parameterNameEnum.Add(pair.Value.Name.Value, pair.Key));
+        Parameters.ForEach(pair => parameterNameEnum.Add(pair.Value.Name.Value, pair.Key));
 
         parameterNameRegex.Clear();
-        parameters.ForEach(pair => parameterNameRegex.Add(pair.Value.Name.Value, parameterToRegex(pair.Value.Name.Value)));
+        Parameters.ForEach(pair => parameterNameRegex.Add(pair.Value.Name.Value, parameterToRegex(pair.Value.Name.Value)));
+
+        loadPersistentProperties();
 
         var startResult = await OnModuleStart();
 
@@ -118,6 +185,8 @@ public abstract class Module : INotifyPropertyChanged
         }
 
         State.Value = ModuleState.Started;
+
+        initialiseUpdateAttributes(GetType());
     }
 
     public async Task Stop()
@@ -126,7 +195,43 @@ public abstract class Module : INotifyPropertyChanged
 
         await OnModuleStop();
 
+        savePersistentProperties();
+
         State.Value = ModuleState.Stopped;
+    }
+
+    private void updateMethod(MethodBase method)
+    {
+        try
+        {
+            method.Invoke(this, null);
+        }
+        catch (Exception e)
+        {
+            //PushException(new Exception($"{Title} ({className}) experienced an exception calling method {method.Name}", e));
+        }
+    }
+
+    private void initialiseUpdateAttributes(Type? type)
+    {
+        if (type is null) return;
+
+        initialiseUpdateAttributes(type.BaseType);
+
+        type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            .ForEach(method =>
+            {
+                var updateAttribute = method.GetCustomAttribute<ModuleUpdateAttribute>();
+                if (updateAttribute is null) return;
+
+                switch (updateAttribute.Mode)
+                {
+                    case ModuleUpdateMode.Custom:
+                        //scheduler.AddDelayed(() => updateMethod(method), updateAttribute.DeltaMilliseconds, true);
+                        if (updateAttribute.UpdateImmediately) updateMethod(method);
+                        break;
+                }
+            });
     }
 
     #region SDK
@@ -164,7 +269,7 @@ public abstract class Module : INotifyPropertyChanged
     /// <param name="legacy">Whether the parameter is legacy and should no longer be used in favour of the other parameters</param>
     protected void RegisterParameter<T>(Enum lookup, string defaultName, ParameterMode mode, string title, string description, bool legacy = false) where T : struct
     {
-        parameters.Add(lookup, new ModuleParameter(new ModuleParameterMetadata(title, description, mode, typeof(T), legacy), defaultName));
+        Parameters.Add(lookup, new ModuleParameter(new ModuleParameterMetadata(title, description, mode, typeof(T), legacy), defaultName));
     }
 
     /// <summary>
@@ -180,42 +285,42 @@ public abstract class Module : INotifyPropertyChanged
     protected void CreateToggle(Enum lookup, string title, string description, bool defaultValue)
     {
         validateSettingsLookup(lookup);
-        settings.Add(lookup.ToLookup(), new BoolModuleSetting(new ModuleSettingMetadata(title, description, typeof(ToggleSettingPage)), defaultValue));
+        Settings.Add(lookup.ToLookup(), new BoolModuleSetting(new ModuleSettingMetadata(title, description, typeof(ToggleSettingPage)), defaultValue));
     }
 
     protected void CreateTextBox(Enum lookup, string title, string description, string defaultValue)
     {
         validateSettingsLookup(lookup);
-        settings.Add(lookup.ToLookup(), new StringModuleSetting(new ModuleSettingMetadata(title, description, typeof(TextBoxSettingPage)), defaultValue));
+        Settings.Add(lookup.ToLookup(), new StringModuleSetting(new ModuleSettingMetadata(title, description, typeof(TextBoxSettingPage)), defaultValue));
     }
 
     protected void CreateTextBox(Enum lookup, string title, string description, int defaultValue)
     {
         validateSettingsLookup(lookup);
-        settings.Add(lookup.ToLookup(), new IntModuleSetting(new ModuleSettingMetadata(title, description, typeof(TextBoxSettingPage)), defaultValue));
+        Settings.Add(lookup.ToLookup(), new IntModuleSetting(new ModuleSettingMetadata(title, description, typeof(TextBoxSettingPage)), defaultValue));
     }
 
     protected void CreateSlider(Enum lookup, string title, string description, int defaultValue, int minValue, int maxValue, int tickFrequency = 1)
     {
         validateSettingsLookup(lookup);
-        settings.Add(lookup.ToLookup(), new SliderModuleSetting(new ModuleSettingMetadata(title, description, typeof(SliderSettingPage)), defaultValue, minValue, maxValue, tickFrequency));
+        Settings.Add(lookup.ToLookup(), new SliderModuleSetting(new ModuleSettingMetadata(title, description, typeof(SliderSettingPage)), defaultValue, minValue, maxValue, tickFrequency));
     }
 
     protected void CreateSlider(Enum lookup, string title, string description, float defaultValue, float minValue, float maxValue, float tickFrequency = 0.1f)
     {
         validateSettingsLookup(lookup);
-        settings.Add(lookup.ToLookup(), new SliderModuleSetting(new ModuleSettingMetadata(title, description, typeof(SliderSettingPage)), defaultValue, minValue, maxValue, tickFrequency));
+        Settings.Add(lookup.ToLookup(), new SliderModuleSetting(new ModuleSettingMetadata(title, description, typeof(SliderSettingPage)), defaultValue, minValue, maxValue, tickFrequency));
     }
 
     protected void CreateTextBoxList(Enum lookup, string title, string description, IEnumerable<string> defaultValues, bool rowNumberVisible = false)
     {
         validateSettingsLookup(lookup);
-        settings.Add(lookup.ToLookup(), new StringListModuleSetting(new ModuleSettingMetadata(title, description, typeof(ListTextBoxSettingPage)), defaultValues, rowNumberVisible));
+        Settings.Add(lookup.ToLookup(), new StringListModuleSetting(new ModuleSettingMetadata(title, description, typeof(ListTextBoxSettingPage)), defaultValues, rowNumberVisible));
     }
 
     private void validateSettingsLookup(Enum lookup)
     {
-        if (!settings.ContainsKey(lookup.ToLookup())) return;
+        if (!Settings.ContainsKey(lookup.ToLookup())) return;
 
         //PushException(new InvalidOperationException("Cannot add multiple of the same key for settings"));
     }
@@ -238,7 +343,7 @@ public abstract class Module : INotifyPropertyChanged
     /// <param name="value">The value to set the parameter to</param>
     protected void SendParameter(Enum lookup, object value)
     {
-        if (!parameters.TryGetValue(lookup, out var moduleParameter))
+        if (!Parameters.TryGetValue(lookup, out var moduleParameter))
         {
             //PushException(new InvalidOperationException($"Lookup `{lookup}` has not been registered. Please register it using `RegisterParameter<T>(Enum,object)`"));
             return;
@@ -258,14 +363,14 @@ public abstract class Module : INotifyPropertyChanged
 
     internal T? GetSetting<T>(string lookup) where T : ModuleSetting
     {
-        if (settings.TryGetValue(lookup, out var setting)) return (T)setting;
+        if (Settings.TryGetValue(lookup, out var setting)) return (T)setting;
 
         return default;
     }
 
     internal ModuleParameter? GetParameter(string lookup)
     {
-        return parameters.SingleOrDefault(pair => pair.Key.ToLookup() == lookup).Value;
+        return Parameters.SingleOrDefault(pair => pair.Key.ToLookup() == lookup).Value;
     }
 
     /// <summary>
@@ -276,9 +381,9 @@ public abstract class Module : INotifyPropertyChanged
     /// <returns>The value if successful, otherwise pushes an exception and returns default</returns>
     protected T? GetSettingValue<T>(Enum lookup)
     {
-        if (!settings.ContainsKey(lookup.ToLookup())) return default;
+        if (!Settings.ContainsKey(lookup.ToLookup())) return default;
 
-        return settings[lookup.ToLookup()].GetValue<T>(out var value) ? value : default;
+        return Settings[lookup.ToLookup()].GetValue<T>(out var value) ? value : default;
     }
 
     internal virtual void OnParameterReceived(VRChatOscMessage message)
@@ -294,12 +399,12 @@ public abstract class Module : INotifyPropertyChanged
             //PushException(e);
         }
 
-        var parameterName = parameters.Values.FirstOrDefault(moduleParameter => parameterNameRegex[moduleParameter.Name.Value].IsMatch(receivedParameter.Name))?.Name.Value;
+        var parameterName = Parameters.Values.FirstOrDefault(moduleParameter => parameterNameRegex[moduleParameter.Name.Value].IsMatch(receivedParameter.Name))?.Name.Value;
         if (parameterName is null) return;
 
         if (!parameterNameEnum.TryGetValue(parameterName, out var lookup)) return;
 
-        var parameterData = parameters[lookup];
+        var parameterData = Parameters[lookup];
 
         if (!parameterData.Metadata.Mode.HasFlagFast(ParameterMode.Read)) return;
 

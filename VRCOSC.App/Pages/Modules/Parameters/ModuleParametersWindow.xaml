@@ -89,7 +89,7 @@
             <Border Grid.Row="0" Background="Aqua"></Border>
             <Border Name="GridContainer" Background="Transparent" HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch" Grid.Row="2">
-                <DataGrid Name="ParameterGrid" ItemsSource="{Binding Parameters}" AutoGenerateColumns="False"
+                <DataGrid Name="ParameterGrid" ItemsSource="{Binding UIParameters}" AutoGenerateColumns="False"
                           RowHeaderWidth="0" CanUserAddRows="False"
                           CanUserDeleteRows="False" AlternationCount="2"
                           CanUserResizeColumns="False"

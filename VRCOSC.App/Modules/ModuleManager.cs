@@ -7,7 +7,10 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Loader;
 using System.Threading.Tasks;
+using VRCOSC.App.Modules.Serialisation;
 using VRCOSC.App.OSC.VRChat;
+using VRCOSC.App.Profiles;
+using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
 using Logger = VRCOSC.App.Utils.Logger;
 
@@ -40,10 +43,10 @@ public class ModuleManager
         return Task.WhenAll(runningModules.Select(module => module.Stop()));
     }
 
-    // public void PlayerUpdate()
-    // {
-    //     runningModules.OfType<AvatarModule>().ForEach(module => module.PlayerUpdate());
-    // }
+    public void PlayerUpdate()
+    {
+        runningModules.OfType<AvatarModule>().ForEach(module => module.PlayerUpdate());
+    }
 
     public void ParameterReceived(VRChatOscMessage vrChatOscMessage)
     {
@@ -94,13 +97,13 @@ public class ModuleManager
             {
                 try
                 {
-                    // var moduleSerialisationManager = new SerialisationManager();
-                    // moduleSerialisationManager.RegisterSerialiser(1, new ModuleSerialiser(storage, module, appManager.ProfileManager.ActiveProfile));
-                    //
-                    // var modulePersistenceSerialisationManager = new SerialisationManager();
-                    // modulePersistenceSerialisationManager.RegisterSerialiser(1, new ModulePersistenceSerialiser(storage, module, appManager.ProfileManager.ActiveProfile, configManager.GetBindable<bool>(VRCOSCSetting.GlobalPersistence)));
+                    var moduleSerialisationManager = new SerialisationManager();
+                    moduleSerialisationManager.RegisterSerialiser(1, new ModuleSerialiser(storage, module, ProfileManager.GetInstance().ActiveProfile));
 
-                    //module.InjectDependencies(host, clock, appManager, moduleSerialisationManager, modulePersistenceSerialisationManager, configManager);
+                    var modulePersistenceSerialisationManager = new SerialisationManager();
+                    modulePersistenceSerialisationManager.RegisterSerialiser(1, new ModulePersistenceSerialiser(storage, module, ProfileManager.GetInstance().ActiveProfile, new Observable<bool>(false)));
+
+                    module.InjectDependencies(moduleSerialisationManager, modulePersistenceSerialisationManager);
                     module.Load();
                 }
                 catch (Exception e)

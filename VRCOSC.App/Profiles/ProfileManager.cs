@@ -8,6 +8,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using VRCOSC.App.Pages.Profiles;
+using VRCOSC.App.Profiles.Serialisation;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
 
@@ -39,7 +40,7 @@ public class ProfileManager
     {
         //this.configManager = configManager;
         serialisationManager = new SerialisationManager();
-        //serialisationManager.RegisterSerialiser(1, new ProfileManagerSerialiser(storage, this));
+        serialisationManager.RegisterSerialiser(1, new ProfileManagerSerialiser(storage, this));
 
         ActiveProfile.Subscribe(newProfile => Logger.Log($"Active profile changed to {newProfile.ID}"));
         DefaultProfile.Subscribe(newProfile => Logger.Log($"Default profile changed to {newProfile.ID}"));
@@ -50,20 +51,20 @@ public class ProfileManager
 
     public void Load()
     {
-        //Deserialise();
+        Deserialise();
 
         checkForDefault();
 
         UIActiveProfile.Value = ActiveProfile.Value;
         UIActiveProfile.Subscribe(newProfile => AppManager.GetInstance().ChangeProfile(newProfile));
 
-        //ActiveProfile.Subscribe(newProfile => Serialise());
-        //DefaultProfile.Subscribe(_ => Serialise());
+        ActiveProfile.Subscribe(_ => Serialise());
+        DefaultProfile.Subscribe(_ => Serialise());
 
         Profiles.CollectionChanged += (_, e) => onProfilesOnCollectionChanged(e.OldItems, e.NewItems);
         onProfilesOnCollectionChanged(null, Profiles);
 
-        //Serialise();
+        Serialise();
     }
 
     private void onProfilesOnCollectionChanged(IList? oldItems, IList? newItems)
@@ -88,8 +89,8 @@ public class ProfileManager
         {
             foreach (Profile profile in newItems)
             {
-                //profile.Name.Subscribe(_ => Serialise());
-                //profile.LinkedAvatars.CollectionChanged += (_, _) => Serialise();
+                profile.Name.Subscribe(_ => Serialise());
+                profile.LinkedAvatars.CollectionChanged += (_, _) => Serialise();
                 profile.LinkedAvatars.CollectionChanged += (_, e) => onLinkedAvatarsOnCollectionChanged(e.OldItems, e.NewItems);
                 onLinkedAvatarsOnCollectionChanged(null, profile.LinkedAvatars);
             }
@@ -97,7 +98,7 @@ public class ProfileManager
 
         Profiles.ForEach(profile => profile.Update());
 
-        // Serialise()
+        Serialise();
     }
 
     private void onLinkedAvatarsOnCollectionChanged(IList? _, IList? newItems)
@@ -106,7 +107,7 @@ public class ProfileManager
 
         foreach (Observable<string> linkedAvatar in newItems)
         {
-            //linkedAvatar.Subscribe(_ => Serialise());
+            linkedAvatar.Subscribe(_ => Serialise());
         }
     }
 

@@ -120,7 +120,7 @@
                                      VerticalAlignment="Stretch">
                     <ui:VRCOSCButton ButtonColour="Red" Width="200" Height="34" CornerRadius="17"
                                      Command="{Binding UICancelEditProfile}">
-                        <TextBlock Text="Cancel" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBlock Text="Cancel" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource CForeground1}"/>
                     </ui:VRCOSCButton>
                 </ui:SpacedStackPanel>
                 <ui:SpacedStackPanel FlowDirection="RightToLeft" Orientation="Horizontal" HorizontalAlignment="Stretch"

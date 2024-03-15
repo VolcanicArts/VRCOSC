@@ -24,7 +24,7 @@ public partial class ModuleParametersWindow
 
     private void evaluateContentHeight()
     {
-        var contentHeight = module.Parameters.Count * 50;
+        var contentHeight = module.UIParameters.Count * 50;
         var targetHeight = GridContainer.ActualHeight - 55;
         module.ParameterScrollViewerHeight = contentHeight >= targetHeight ? targetHeight : double.NaN;
     }
