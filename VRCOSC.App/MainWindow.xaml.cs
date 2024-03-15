@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Packages;
+using VRCOSC.App.Profiles;
 
 namespace VRCOSC.App;
 
@@ -17,6 +18,7 @@ public partial class MainWindow
         AppManager.GetInstance().Initialise();
 
         PackageManager.GetInstance().Load().Execute().Wait();
+        ProfileManager.GetInstance().Load();
         ModuleManager.GetInstance().LoadAllModules();
     }
 

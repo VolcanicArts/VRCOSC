@@ -37,7 +37,8 @@
                                  Text="{Binding Name.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                  Foreground="{StaticResource CForeground2}"
                                  FontSize="22" VerticalContentAlignment="Center"
-                                 Background="{StaticResource CBackground3}">
+                                 Background="{StaticResource CBackground3}"
+                                 BorderBrush="Transparent">
                             <TextBox.Template>
                                 <ControlTemplate TargetType="TextBox">
                                     <Border Background="{TemplateBinding Background}"

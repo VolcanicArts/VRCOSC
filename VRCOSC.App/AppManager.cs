@@ -62,8 +62,6 @@ public class AppManager
         ConnectionManager = new ConnectionManager();
         VRChatOscClient = new VRChatOscClient();
 
-        ProfileManager.GetInstance().Load();
-
         VRChatOscClient.Init(ConnectionManager);
         ConnectionManager.Init();
     }

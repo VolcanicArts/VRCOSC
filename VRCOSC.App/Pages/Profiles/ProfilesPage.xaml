@@ -19,7 +19,7 @@
                         <TextBlock Text="Active Profile" FontSize="20" Foreground="{StaticResource CForeground1}"
                                    HorizontalAlignment="Left" VerticalAlignment="Center" />
                         <ComboBox ItemsSource="{Binding Profiles}" SelectedValuePath="Name.Value"
-                                  DisplayMemberPath="Name.Value" SelectedItem="{Binding ActiveProfile.Value}"
+                                  DisplayMemberPath="Name.Value" SelectedItem="{Binding UIActiveProfile.Value}"
                                   HorizontalAlignment="Right" Width="200" VerticalContentAlignment="Center"
                                   FontSize="20" Background="{StaticResource CBackground3}" />
                     </Grid>

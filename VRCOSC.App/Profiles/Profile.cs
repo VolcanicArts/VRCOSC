@@ -57,7 +57,7 @@ public class Profile : INotifyPropertyChanged
 
     public bool IsValidForSave()
     {
-        var profileNameDuplication = ProfileManager.GetInstance().Profiles.Where(profile => profile != this).Any(profile => string.Equals(profile.Name.Value, Name.Value, StringComparison.InvariantCultureIgnoreCase));
+        var profileNameDuplication = ProfileManager.GetInstance().Profiles.Where(profile => profile != ProfileManager.GetInstance().ProfileEditWindow!.OriginalProfile).Any(profile => string.Equals(profile.Name.Value, Name.Value, StringComparison.InvariantCultureIgnoreCase));
         var isEmpty = string.IsNullOrEmpty(Name.Value);
 
         return !profileNameDuplication && !isEmpty;

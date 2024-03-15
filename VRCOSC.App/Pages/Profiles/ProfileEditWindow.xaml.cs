@@ -24,7 +24,7 @@ public partial class ProfileEditWindow
         OriginalProfile = profile;
         Profile = OriginalProfile?.Clone() ?? new Profile();
 
-        Profile.Name.Subscribe(globalProfileNameChanged, true);
+        Profile.Name.Subscribe(globalProfileNameChanged);
 
         if (OriginalProfile is not null)
         {

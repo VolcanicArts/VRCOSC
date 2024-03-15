@@ -26,12 +26,12 @@ public class ProfileManager
     /// <summary>
     /// The current active profile that the app is using
     /// </summary>
-    public Observable<Profile?> ActiveProfile { get; } = new();
+    public Observable<Profile> ActiveProfile { get; } = new();
 
     /// <summary>
     /// The default profile as selected in the settings. This is the profile that the app will default back to if automatic profile switching fails to find a suitable profile
     /// </summary>
-    public Observable<Profile?> DefaultProfile { get; } = new();
+    public Observable<Profile> DefaultProfile { get; } = new();
 
     private readonly SerialisationManager serialisationManager;
 
@@ -54,7 +54,10 @@ public class ProfileManager
 
         checkForDefault();
 
-        //ActiveProfile.Subscribe(_ => Serialise());
+        UIActiveProfile.Value = ActiveProfile.Value;
+        UIActiveProfile.Subscribe(newProfile => AppManager.GetInstance().ChangeProfile(newProfile));
+
+        //ActiveProfile.Subscribe(newProfile => Serialise());
         //DefaultProfile.Subscribe(_ => Serialise());
 
         Profiles.CollectionChanged += (_, e) => onProfilesOnCollectionChanged(e.OldItems, e.NewItems);
@@ -70,7 +73,12 @@ public class ProfileManager
             foreach (Profile oldProfile in oldItems)
             {
                 if (DefaultProfile.Value.ID.Equals(oldProfile.ID)) DefaultProfile.Value = Profiles[0];
-                if (ActiveProfile.Value.ID.Equals(oldProfile.ID)) AppManager.GetInstance().ChangeProfile(DefaultProfile.Value);
+
+                if (ActiveProfile.Value.ID.Equals(oldProfile.ID))
+                {
+                    UIActiveProfile.Value = DefaultProfile.Value;
+                    AppManager.GetInstance().ChangeProfile(DefaultProfile.Value);
+                }
 
                 storage.DeleteDirectory($"profiles/{oldProfile.ID}");
             }
@@ -92,7 +100,7 @@ public class ProfileManager
         // Serialise()
     }
 
-    private void onLinkedAvatarsOnCollectionChanged(IList? oldItems, IList? newItems)
+    private void onLinkedAvatarsOnCollectionChanged(IList? _, IList? newItems)
     {
         if (newItems is null) return;
 
@@ -173,6 +181,8 @@ public class ProfileManager
 
     public ICommand UICreateProfileButton => new RelayCommand(_ => OnCreateProfileButtonClick());
     private void OnCreateProfileButtonClick() => SpawnProfileEditWindow();
+
+    public Observable<Profile> UIActiveProfile { get; } = new();
 
     #endregion
 }
