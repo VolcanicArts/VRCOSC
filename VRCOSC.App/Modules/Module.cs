@@ -51,7 +51,7 @@ public abstract class Module : INotifyPropertyChanged
     internal readonly Dictionary<string, List<string>> Groups = new();
     internal readonly Dictionary<ModulePersistentAttribute, PropertyInfo> PersistentProperties = new();
 
-    private List<Repeater> updateTasks = new();
+    private readonly List<Repeater> updateTasks = new();
 
     private SerialisationManager moduleSerialisationManager;
     private SerialisationManager persistenceSerialisationManager;
@@ -79,7 +79,7 @@ public abstract class Module : INotifyPropertyChanged
 
             var miscModuleSettings = new List<ModuleSetting>();
             Settings.Where(pair => !settingsInGroup.Contains(pair.Key)).ForEach(pair => miscModuleSettings.Add(pair.Value));
-            groupsFormatted.Add("Miscellaneous", miscModuleSettings);
+            if (miscModuleSettings.Any()) groupsFormatted.Add("Miscellaneous", miscModuleSettings);
 
             return groupsFormatted;
         }
@@ -242,17 +242,17 @@ public abstract class Module : INotifyPropertyChanged
 
     #region SDK
 
-    public virtual void OnPreLoad()
+    protected virtual void OnPreLoad()
     {
     }
 
-    public virtual void OnPostLoad()
+    protected virtual void OnPostLoad()
     {
     }
 
-    public virtual Task<bool> OnModuleStart() => Task.FromResult(true);
+    protected virtual Task<bool> OnModuleStart() => Task.FromResult(true);
 
-    public virtual Task OnModuleStop() => Task.CompletedTask;
+    protected virtual Task OnModuleStop() => Task.CompletedTask;
 
     /// <summary>
     /// Logs to the terminal when the module is running
@@ -332,6 +332,11 @@ public abstract class Module : INotifyPropertyChanged
     }
 
     /// <summary>
+    /// Maps a value <paramref name="source"/> from a source range to a destination range
+    /// </summary>
+    protected static float Map(float source, float sMin, float sMax, float dMin, float dMax) => dMin + (dMax - dMin) * ((source - sMin) / (sMax - sMin));
+
+    /// <summary>
     /// Allows you to send any parameter name and value.
     /// If you want the user to be able to customise the parameter, register a parameter and use <see cref="SendParameter(Enum,object)"/>
     /// </summary>
@@ -357,6 +362,14 @@ public abstract class Module : INotifyPropertyChanged
 
         AppManager.GetInstance().VRChatOscClient.SendValue($"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{moduleParameter.Name.Value}", value);
     }
+
+    /// <summary>
+    /// Retrieves the container of the setting using the provided lookup. This allows for creating more complex UI callback behaviour.
+    /// This is best used inside of <see cref="OnPostLoad"/>
+    /// </summary>
+    /// <param name="lookup">The lookup of the setting</param>
+    /// <returns>The container if successful, otherwise pushes an exception and returns default</returns>
+    protected ModuleSetting? GetSetting(Enum lookup) => GetSetting<ModuleSetting>(lookup);
 
     /// <summary>
     /// Retrieves the container of the setting using the provided lookup and type param for custom <see cref="ModuleSetting"/>s. This allows for creating more complex UI callback behaviour.

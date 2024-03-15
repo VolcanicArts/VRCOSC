@@ -7,12 +7,12 @@
         xmlns:ui="clr-namespace:VRCOSC.App.UI"
         xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d"
-        Title="ModuleSettingsWindow" Width="900" Height="600">
+        Title="ModuleSettingsWindow" Width="1200" Height="600">
     <Grid>
         <Border Background="{StaticResource CBackground2}">
             <ui:MouseScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
                 <ListBox ItemsSource="{Binding GroupsFormatted}" HorizontalAlignment="Stretch"
-                         HorizontalContentAlignment="Stretch" MaxWidth="650" Margin="10" BorderThickness="0"
+                         HorizontalContentAlignment="Stretch" MaxWidth="900" Margin="10" BorderThickness="0"
                          Background="Transparent">
                     <b:Interaction.Behaviors>
                         <ui:BubbleScrollEvent />
@@ -29,7 +29,7 @@
                                                 <TextBlock HorizontalAlignment="Center" Text="{Binding Key}"
                                                            FontSize="25" Foreground="{StaticResource CForeground1}" />
                                                 <ListBox ItemsSource="{Binding Value}" HorizontalAlignment="Stretch"
-                                                         HorizontalContentAlignment="Stretch" MaxWidth="650"
+                                                         HorizontalContentAlignment="Stretch" MaxWidth="880"
                                                          BorderThickness="0"
                                                          Background="Transparent" Padding="0 0 0 5">
                                                     <b:Interaction.Behaviors>

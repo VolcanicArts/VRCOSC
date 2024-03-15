@@ -9,7 +9,7 @@ namespace VRCOSC.WPFModuleTest;
 [ModuleType(ModuleType.Generic)]
 public class TestModule : AvatarModule
 {
-    public override void OnPreLoad()
+    protected override void OnPreLoad()
     {
         CreateToggle(TestModuleSetting.TestSetting, "Test Setting", "This is a test setting", false);
         CreateToggle(TestModuleSetting.TestSetting2, "Another Test Setting", "This is another test setting to test the settings", true);
@@ -76,7 +76,7 @@ public class TestModule : AvatarModule
 [ModuleType(ModuleType.Generic)]
 public class TestModule2 : AvatarModule
 {
-    public override void OnPreLoad()
+    protected override void OnPreLoad()
     {
         CreateToggle(TestModuleSetting.TestSetting, "Test Setting", "This is a test setting", false);
         CreateToggle(TestModuleSetting.TestSetting2, "Another Test Setting", "This is another test setting to test the settings", true);
@@ -84,11 +84,6 @@ public class TestModule2 : AvatarModule
         CreateTextBox(TestModuleSetting.StringSetting, "String Setting", "This is a string setting", "Woooo");
 
         CreateGroup("Best Friends", TestModuleSetting.TestSetting, TestModuleSetting.TestSetting2);
-    }
-
-    public override Task<bool> OnModuleStart()
-    {
-        return Task.FromResult(true);
     }
 
     private enum TestModuleSetting

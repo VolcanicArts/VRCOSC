@@ -31,6 +31,7 @@
         <PackageReference Include="Semver" Version="2.3.0" />
         <PackageReference Include="Velopack" Version="0.0.292" />
         <PackageReference Include="VRChat.OSCQuery" Version="0.0.7" />
+        <PackageReference Include="WebSocket4Net" Version="0.15.2" />
     </ItemGroup>
 
 </Project>
