@@ -7,10 +7,12 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using VRCOSC.App.Actions;
 using VRCOSC.App.Actions.Packages;
+using VRCOSC.App.Modules;
 using VRCOSC.App.Packages.Serialisation;
 using VRCOSC.App.Serialisation;
 
@@ -69,12 +71,13 @@ public class PackageManager : INotifyPropertyChanged
             packageLoadAction.AddAction(loadCommunityPackages());
         }
 
-        packageLoadAction.AddAction(new PackagesRefreshAction(Sources.ToList(), forceRemoteGrab, true));
+        packageLoadAction.AddAction(new PackagesRefreshAction(Sources, forceRemoteGrab, true));
 
         packageLoadAction.OnComplete += () =>
         {
             CacheExpireTime = DateTime.Now + TimeSpan.FromDays(1);
             serialisationManager.Serialise();
+            AppManager.GetInstance().Refresh(PageLookup.Packages);
         };
 
         return packageLoadAction;
@@ -90,7 +93,8 @@ public class PackageManager : INotifyPropertyChanged
             InstalledPackages[packageSource.PackageID!] = packageSource.LatestVersion!;
             serialisationManager.Serialise();
             OnPropertyChanged(nameof(UpdateAllButtonVisibility));
-            //appManager.ModuleManager.ReloadAllModules();
+            ModuleManager.GetInstance().ReloadAllModules();
+            AppManager.GetInstance().Refresh(PageLookup.Packages | PageLookup.Modules);
         };
 
         return installAction;
@@ -104,7 +108,9 @@ public class PackageManager : INotifyPropertyChanged
         {
             InstalledPackages.Remove(packageSource.PackageID!);
             serialisationManager.Serialise();
-            //appManager.ModuleManager.ReloadAllModules();
+            OnPropertyChanged(nameof(UpdateAllButtonVisibility));
+            ModuleManager.GetInstance().ReloadAllModules();
+            AppManager.GetInstance().Refresh(PageLookup.Packages | PageLookup.Modules);
         };
 
         return uninstallAction;
@@ -157,22 +163,21 @@ public class PackageManager : INotifyPropertyChanged
     public ICommand UIRefreshButton => new RelayCommand(_ => OnRefreshButtonClick());
     public ICommand UIUpdateAllButton => new RelayCommand(_ => OnUpdateAllButtonClick());
 
-    private async void OnRefreshButtonClick()
+    private void OnRefreshButtonClick()
     {
-        await RefreshAllSources(true).Execute();
-        AppManager.GetInstance().Refresh(PageLookup.Packages);
+        _ = RefreshAllSources(true).Execute();
     }
 
-    private async void OnUpdateAllButtonClick()
+    private void OnUpdateAllButtonClick()
     {
         // TODO: This probably needs to be its own refresh action
-        foreach (var packageSource in Sources.Where(packageSource => packageSource.IsUpdateAvailable()))
+        _ = Task.Run(async () =>
         {
-            await InstallPackage(packageSource).Execute();
-        }
-
-        AppManager.GetInstance().Refresh(PageLookup.Packages);
-        OnPropertyChanged(nameof(UpdateAllButtonVisibility));
+            foreach (var packageSource in Sources.Where(packageSource => packageSource.IsUpdateAvailable()))
+            {
+                await InstallPackage(packageSource).Execute();
+            }
+        });
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

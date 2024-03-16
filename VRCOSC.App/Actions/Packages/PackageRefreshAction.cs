@@ -1,15 +1,16 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using VRCOSC.App.Packages;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Actions.Packages;
 
 public class PackagesRefreshAction : CompositeProgressAction
 {
-    public PackagesRefreshAction(List<PackageSource> sources, bool forceRemoteGrab, bool allowPreRelease)
+    public PackagesRefreshAction(ObservableCollection<PackageSource> sources, bool forceRemoteGrab, bool allowPreRelease)
     {
         sources.ForEach(source => AddAction(new PackageSourceRefreshAction(source, forceRemoteGrab, allowPreRelease)));
     }

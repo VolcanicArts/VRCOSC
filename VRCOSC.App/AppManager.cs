@@ -52,10 +52,7 @@ public class AppManager
             packagePage.Refresh();
 
         if ((flags & PageLookup.Modules) == PageLookup.Modules && pageInstances.TryGetValue(PageLookup.Modules, out var modulesPage))
-        {
-            ModuleManager.GetInstance().ReloadAllModules();
             modulesPage.Refresh();
-        }
     }
 
     public void Initialise()
