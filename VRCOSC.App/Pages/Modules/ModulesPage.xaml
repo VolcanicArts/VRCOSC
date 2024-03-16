@@ -12,45 +12,44 @@
     </Page.Resources>
     <Grid>
         <Border Background="{StaticResource CBackground2}">
-            <ListView ItemsSource="{Binding UIModules, Mode=OneWay}"
-                      HorizontalAlignment="Stretch"
-                      Background="Transparent"
-                      BorderThickness="0">
-                <ListView.ItemContainerStyle>
-                    <Style TargetType="ListViewItem">
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate>
-                                    <Border Background="Transparent" Padding="10">
-                                        <Grid>
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="50" />
-                                                <RowDefinition Height="Auto" />
-                                                <RowDefinition Height="5" />
-                                            </Grid.RowDefinitions>
-                                            <Border Grid.Row="0" Background="{StaticResource CBackground1}"
-                                                    Padding="10" CornerRadius="5 5 0 0">
-                                                <ui:SpacedStackPanel FlowDirection="LeftToRight"
-                                                                     Orientation="Horizontal" Spacing="10">
-                                                    <TextBlock Text="{Binding Key.DisplayName, Mode=OneWay}"
-                                                               FontSize="25"
-                                                               FontWeight="Bold"
-                                                               Foreground="{StaticResource CForeground2}"
-                                                               Padding="0 -3" />
-                                                    <Border Background="{StaticResource CBlue}" CornerRadius="5"
-                                                            Padding="20 0">
-                                                        <TextBlock Text="LOCAL" FontSize="17" FontWeight="Medium"
-                                                                   Visibility="{Binding LocalVisibility, Mode=OneWay}"
-                                                                   Foreground="{StaticResource CForeground1}"
-                                                                   VerticalAlignment="Center"
-                                                                   HorizontalAlignment="Center" />
-                                                    </Border>
-                                                </ui:SpacedStackPanel>
-
-                                            </Border>
-                                            <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto"
-                                                          VerticalScrollBarVisibility="Auto">
-                                                <ListView ItemsSource="{Binding Value, Mode=OneWay}"
+            <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                          VerticalScrollBarVisibility="Auto">
+                <ListView ItemsSource="{Binding UIModules, Mode=OneWay}"
+                          HorizontalAlignment="Stretch"
+                          Background="Transparent"
+                          BorderThickness="0">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate>
+                                        <Border Background="Transparent" Padding="10">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="50" />
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="5" />
+                                                </Grid.RowDefinitions>
+                                                <Border Grid.Row="0" Background="{StaticResource CBackground1}"
+                                                        Padding="10" CornerRadius="5 5 0 0">
+                                                    <ui:SpacedStackPanel FlowDirection="LeftToRight"
+                                                                         Orientation="Horizontal" Spacing="10">
+                                                        <TextBlock Text="{Binding Key.DisplayName, Mode=OneWay}"
+                                                                   FontSize="25"
+                                                                   FontWeight="Bold"
+                                                                   Foreground="{StaticResource CForeground2}"
+                                                                   Padding="0 -3" />
+                                                        <Border Background="{StaticResource CBlue}" CornerRadius="5"
+                                                                Padding="20 0">
+                                                            <TextBlock Text="LOCAL" FontSize="17" FontWeight="Medium"
+                                                                       Visibility="{Binding LocalVisibility, Mode=OneWay}"
+                                                                       Foreground="{StaticResource CForeground1}"
+                                                                       VerticalAlignment="Center"
+                                                                       HorizontalAlignment="Center" />
+                                                        </Border>
+                                                    </ui:SpacedStackPanel>
+                                                </Border>
+                                                <ListView Grid.Row="1" ItemsSource="{Binding Value, Mode=OneWay}"
                                                           HorizontalAlignment="Stretch"
                                                           Background="Transparent"
                                                           BorderThickness="0" AlternationCount="2" Padding="-1">
@@ -225,17 +224,17 @@
                                                         </Style>
                                                     </ListView.ItemContainerStyle>
                                                 </ListView>
-                                            </ScrollViewer>
-                                            <Border Grid.Row="2" Background="{StaticResource CBackground1}"
-                                                    CornerRadius="0 0 5 5" />
-                                        </Grid>
-                                    </Border>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </ListView.ItemContainerStyle>
-            </ListView>
+                                                <Border Grid.Row="2" Background="{StaticResource CBackground1}"
+                                                        CornerRadius="0 0 5 5" />
+                                            </Grid>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                </ListView>
+            </ScrollViewer>
         </Border>
     </Grid>
 </Page>
