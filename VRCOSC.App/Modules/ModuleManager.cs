@@ -28,6 +28,16 @@ public class ModuleManager
 
     public ObservableDictionary<ModulePackage, List<Module>> Modules { get; } = new();
 
+    public Dictionary<ModulePackage, List<Module>> UIModules
+    {
+        get
+        {
+            var orderedModules = new Dictionary<ModulePackage, List<Module>>();
+            foreach (var pair in Modules) orderedModules.Add(pair.Key, pair.Value.OrderByDescending(module => module.Type).ThenBy(module => module.SerialisedName).ToList());
+            return orderedModules;
+        }
+    }
+
     private IEnumerable<Module> modules => Modules.Values.SelectMany(moduleList => moduleList);
     private IEnumerable<Module> runningModules => modules.Where(module => module.State.Value == ModuleState.Started);
 

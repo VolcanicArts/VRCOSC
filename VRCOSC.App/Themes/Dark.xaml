@@ -5,6 +5,7 @@
     <Brush x:Key="CBackground3">#FF292929</Brush>
     <Brush x:Key="CBackground4">#FF1A1A1A</Brush>
     <Brush x:Key="CBackground5">#FF141414</Brush>
+    <Brush x:Key="CBackground6">#FF4D4D4D</Brush>
     <Brush x:Key="CForeground1">#FFFFFFFF</Brush>
     <Brush x:Key="CForeground2">#FFBFBFBF</Brush>
     <Brush x:Key="CForeground3">#FF808080</Brush>
@@ -17,4 +18,5 @@
     <Brush x:Key="CBlueL">#FF3F99D4</Brush>
     <Brush x:Key="CGray">#FF4D4D4D</Brush>
     <Brush x:Key="CGrayL">#FF666666</Brush>
+    <Brush x:Key="CYellow">#FFF1C40F</Brush>
 </ResourceDictionary>

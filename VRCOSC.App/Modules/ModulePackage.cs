@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Reflection;
+using System.Windows;
 
 namespace VRCOSC.App.Modules;
 
@@ -11,6 +12,7 @@ public class ModulePackage
     public bool Remote { get; }
 
     public string DisplayName => Assembly.GetCustomAttribute<AssemblyProductAttribute>()?.Product ?? "UNKNOWN";
+    public Visibility LocalVisibility => Remote ? Visibility.Collapsed : Visibility.Visible;
 
     public ModulePackage(Assembly assembly, bool remote)
     {

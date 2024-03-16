@@ -5,140 +5,237 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:ui="clr-namespace:VRCOSC.App.UI"
       xmlns:fa5="http://schemas.fontawesome.com/icons/"
-      xmlns:modules="clr-namespace:VRCOSC.App.Modules"
+      xmlns:modules="clr-namespace:VRCOSC.App.Pages.Modules"
       mc:Ignorable="d">
     <Page.Resources>
-        <Style TargetType="Expander">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Expander">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="50" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="5" />
-                            </Grid.RowDefinitions>
-                            <ToggleButton Grid.Row="0" Content="{TemplateBinding Header}"
-                                          IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}}"
-                                          BorderThickness="0" Foreground="{StaticResource CForeground2}"
-                                          HorizontalContentAlignment="Left">
-                                <ToggleButton.Template>
-                                    <ControlTemplate TargetType="ToggleButton">
-                                        <Border x:Name="HeaderBorder" Background="{StaticResource CBackground1}"
-                                                Padding="10"
-                                                CornerRadius="5 5 0 0">
-                                            <ui:SpacedStackPanel Orientation="Horizontal" Spacing="5">
-                                                <fa5:ImageAwesome x:Name="OpenIcon" Icon="Solid_ChevronUp"
-                                                                  Foreground="White" Margin="4" Width="20" />
-                                                <ContentPresenter />
-                                            </ui:SpacedStackPanel>
-                                        </Border>
-                                    </ControlTemplate>
-                                </ToggleButton.Template>
-                            </ToggleButton>
-                            <ContentPresenter Name="ContentPresenter" Grid.Row="1" Content="{TemplateBinding Content}"
-                                              Visibility="Collapsed" />
-                            <Border x:Name="Footer" Grid.Row="2" CornerRadius="0 0 5 5"
-                                    Background="{StaticResource CBackground1}" />
-                        </Grid>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsExpanded" Value="True">
-                                <Setter TargetName="ContentPresenter" Property="Visibility" Value="Visible" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style TargetType="ItemsControl">
-            <Style.Triggers>
-                <Trigger Property="ItemsControl.AlternationIndex" Value="1">
-                    <Setter Property="Background" Value="{StaticResource CBackground4}" />
-                </Trigger>
-            </Style.Triggers>
-        </Style>
+        <modules:BackgroundConverter x:Key="BackgroundConverter" />
     </Page.Resources>
     <Grid>
-        <Border Background="{StaticResource CBackground2}" Padding="10">
-            <ScrollViewer VerticalScrollBarVisibility="Hidden">
-                <StackPanel x:Name="StackPanel">
-                    <StackPanel.DataContext>
-                        <modules:ModuleManager />
-                    </StackPanel.DataContext>
-                    <ItemsControl ItemsSource="{Binding Modules, Mode=OneWay}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Expander Header="{Binding Key.DisplayName, Mode=OneWay}" FontSize="20">
-                                    <ItemsControl ItemsSource="{Binding Value, Mode=OneWay}" AlternationCount="2">
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <Border Background="{StaticResource CBackground3}" Padding="5">
-                                                    <Grid HorizontalAlignment="Stretch">
-                                                        <ui:SpacedStackPanel Orientation="Horizontal" Spacing="5"
-                                                                             HorizontalAlignment="Left"
-                                                                             VerticalAlignment="Stretch">
-                                                            <CheckBox VerticalAlignment="Center"
-                                                                      IsChecked="{Binding Enabled.Value}" Width="30"
-                                                                      Height="30">
-                                                            </CheckBox>
-                                                            <Grid>
-                                                                <Grid.RowDefinitions>
-                                                                    <RowDefinition Height="*" />
-                                                                    <RowDefinition Height="*" />
-                                                                </Grid.RowDefinitions>
-                                                                <TextBlock Grid.Row="0" Text="{Binding Title}"
-                                                                           Foreground="{StaticResource CForeground1}"
-                                                                           FontSize="20" />
-                                                                <TextBlock Grid.Row="1"
-                                                                           Text="{Binding ShortDescription}"
-                                                                           Foreground="{StaticResource CForeground2}"
-                                                                           FontSize="15" />
-                                                            </Grid>
-                                                        </ui:SpacedStackPanel>
-                                                        <ui:SpacedStackPanel Orientation="Horizontal"
-                                                                             FlowDirection="RightToLeft" Spacing="5"
-                                                                             HorizontalAlignment="Right">
-                                                            <ui:VRCOSCButton ButtonColour="Blue"
-                                                                    Width="40" Height="40">
-                                                                <fa5:ImageAwesome Icon="Solid_Info" Foreground="White"
-                                                                    Margin="5" />
-                                                            </ui:VRCOSCButton>
-                                                            <ui:VRCOSCButton ButtonColour="Gray"
-                                                                    Width="40" Height="40">
-                                                                <fa5:ImageAwesome Icon="Solid_Upload"
-                                                                    Foreground="White" Margin="5" />
-                                                            </ui:VRCOSCButton>
-                                                            <ui:VRCOSCButton ButtonColour="Gray"
-                                                                    Width="40" Height="40">
-                                                                <fa5:ImageAwesome Icon="Solid_Download"
-                                                                    Foreground="White" Margin="5" />
-                                                            </ui:VRCOSCButton>
-                                                            <ui:VRCOSCButton ButtonColour="Gray"
-                                                                    Width="40" Height="40">
-                                                                <fa5:ImageAwesome Icon="Solid_Cube" Foreground="White"
-                                                                    Margin="5" />
-                                                            </ui:VRCOSCButton>
-                                                            <ui:VRCOSCButton ButtonColour="Gray"
-                                                                    Width="40" Height="40" Command="{Binding UIParametersButton}">
-                                                                <fa5:ImageAwesome Icon="Solid_Link" Foreground="White"
-                                                                    Margin="5" />
-                                                            </ui:VRCOSCButton>
-                                                            <ui:VRCOSCButton ButtonColour="Gray"
-                                                                    Width="40" Height="40" Command="{Binding UISettingsButton}">
-                                                                <fa5:ImageAwesome Icon="Solid_Cog" Foreground="White" Margin="5" />
-                                                            </ui:VRCOSCButton>
-                                                        </ui:SpacedStackPanel>
-                                                    </Grid>
-                                                </Border>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                </Expander>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </StackPanel>
-            </ScrollViewer>
+        <Border Background="{StaticResource CBackground2}">
+            <ListView ItemsSource="{Binding UIModules, Mode=OneWay}"
+                      HorizontalAlignment="Stretch"
+                      Background="Transparent"
+                      BorderThickness="0">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate>
+                                    <Border Background="Transparent" Padding="10">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="50" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="5" />
+                                            </Grid.RowDefinitions>
+                                            <Border Grid.Row="0" Background="{StaticResource CBackground1}"
+                                                    Padding="10" CornerRadius="5 5 0 0">
+                                                <ui:SpacedStackPanel FlowDirection="LeftToRight"
+                                                                     Orientation="Horizontal" Spacing="10">
+                                                    <TextBlock Text="{Binding Key.DisplayName, Mode=OneWay}"
+                                                               FontSize="25"
+                                                               FontWeight="Bold"
+                                                               Foreground="{StaticResource CForeground2}"
+                                                               Padding="0 -3" />
+                                                    <Border Background="{StaticResource CBlue}" CornerRadius="5"
+                                                            Padding="20 0">
+                                                        <TextBlock Text="LOCAL" FontSize="17" FontWeight="Medium"
+                                                                   Visibility="{Binding LocalVisibility, Mode=OneWay}"
+                                                                   Foreground="{StaticResource CForeground1}"
+                                                                   VerticalAlignment="Center"
+                                                                   HorizontalAlignment="Center" />
+                                                    </Border>
+                                                </ui:SpacedStackPanel>
+
+                                            </Border>
+                                            <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto"
+                                                          VerticalScrollBarVisibility="Auto">
+                                                <ListView ItemsSource="{Binding Value, Mode=OneWay}"
+                                                          HorizontalAlignment="Stretch"
+                                                          Background="Transparent"
+                                                          BorderThickness="0" AlternationCount="2" Padding="-1">
+                                                    <ListView.ItemContainerStyle>
+                                                        <Style TargetType="ListViewItem">
+                                                            <Setter Property="Template">
+                                                                <Setter.Value>
+                                                                    <ControlTemplate>
+                                                                        <Border
+                                                                            Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource BackgroundConverter}}"
+                                                                            Padding="7" Height="50">
+                                                                            <Grid>
+                                                                                <ui:SpacedStackPanel
+                                                                                    Orientation="Horizontal"
+                                                                                    Spacing="5"
+                                                                                    HorizontalAlignment="Left"
+                                                                                    VerticalAlignment="Stretch">
+                                                                                    <Border
+                                                                                        Background="{Binding Colour}"
+                                                                                        Width="3" Height="22"
+                                                                                        CornerRadius="2" />
+                                                                                    <CheckBox
+                                                                                        VerticalAlignment="Center"
+                                                                                        IsChecked="{Binding Enabled.Value}"
+                                                                                        Width="36"
+                                                                                        Height="36">
+                                                                                        <CheckBox.Style>
+                                                                                            <Style
+                                                                                                TargetType="CheckBox">
+                                                                                                <Setter
+                                                                                                    Property="Template">
+                                                                                                    <Setter.Value>
+                                                                                                        <ControlTemplate
+                                                                                                            TargetType="{x:Type CheckBox}">
+                                                                                                            <Border
+                                                                                                                x:Name="border"
+                                                                                                                Background="{TemplateBinding Background}"
+                                                                                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                                                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                                                                                CornerRadius="5"
+                                                                                                                Padding="0">
+                                                                                                                <fa5:FontAwesome
+                                                                                                                    Name="CheckIcon"
+                                                                                                                    Icon="Solid_Check"
+                                                                                                                    Foreground="{StaticResource CForeground1}"
+                                                                                                                    HorizontalAlignment="Center"
+                                                                                                                    VerticalAlignment="Center"
+                                                                                                                    FontSize="25"
+                                                                                                                    Visibility="Collapsed" />
+                                                                                                            </Border>
+                                                                                                            <ControlTemplate.Triggers>
+                                                                                                                <Trigger
+                                                                                                                    Property="IsChecked"
+                                                                                                                    Value="True">
+                                                                                                                    <Setter
+                                                                                                                        TargetName="CheckIcon"
+                                                                                                                        Property="Visibility"
+                                                                                                                        Value="Visible" />
+                                                                                                                </Trigger>
+                                                                                                            </ControlTemplate.Triggers>
+                                                                                                        </ControlTemplate>
+                                                                                                    </Setter.Value>
+                                                                                                </Setter>
+                                                                                                <Style.Triggers>
+                                                                                                    <Trigger
+                                                                                                        Property="IsChecked"
+                                                                                                        Value="False">
+                                                                                                        <Setter
+                                                                                                            Property="Background"
+                                                                                                            Value="Transparent" />
+                                                                                                        <Setter
+                                                                                                            Property="BorderBrush"
+                                                                                                            Value="{StaticResource CForeground3}" />
+                                                                                                        <Setter
+                                                                                                            Property="BorderThickness"
+                                                                                                            Value="3" />
+                                                                                                    </Trigger>
+                                                                                                    <Trigger
+                                                                                                        Property="IsChecked"
+                                                                                                        Value="True">
+                                                                                                        <Setter
+                                                                                                            Property="Background"
+                                                                                                            Value="{StaticResource CBackground6}" />
+                                                                                                        <Setter
+                                                                                                            Property="BorderBrush"
+                                                                                                            Value="Transparent" />
+                                                                                                        <Setter
+                                                                                                            Property="BorderThickness"
+                                                                                                            Value="0" />
+                                                                                                    </Trigger>
+                                                                                                </Style.Triggers>
+                                                                                            </Style>
+                                                                                        </CheckBox.Style>
+                                                                                    </CheckBox>
+                                                                                    <Grid>
+                                                                                        <TextBlock
+                                                                                            Text="{Binding Title}"
+                                                                                            Foreground="{StaticResource CForeground1}"
+                                                                                            FontSize="20"
+                                                                                            VerticalAlignment="Top"
+                                                                                            FontWeight="DemiBold"
+                                                                                            Padding="2 -5" />
+                                                                                        <TextBlock
+                                                                                            Text="{Binding ShortDescription}"
+                                                                                            Foreground="{StaticResource CForeground2}"
+                                                                                            FontSize="14"
+                                                                                            VerticalAlignment="Bottom"
+                                                                                            Padding="2 -2" />
+                                                                                    </Grid>
+                                                                                </ui:SpacedStackPanel>
+                                                                                <ui:SpacedStackPanel
+                                                                                    Orientation="Horizontal"
+                                                                                    FlowDirection="RightToLeft"
+                                                                                    Spacing="7"
+                                                                                    HorizontalAlignment="Right">
+                                                                                    <ui:VRCOSCButton
+                                                                                        ButtonColour="Blue"
+                                                                                        Width="36" Height="36">
+                                                                                        <fa5:ImageAwesome
+                                                                                            Icon="Solid_Info"
+                                                                                            Foreground="White"
+                                                                                            Margin="5" />
+                                                                                    </ui:VRCOSCButton>
+                                                                                    <ui:VRCOSCButton
+                                                                                        ButtonColour="Gray"
+                                                                                        Width="36" Height="36">
+                                                                                        <fa5:ImageAwesome
+                                                                                            Icon="Solid_Upload"
+                                                                                            Foreground="White"
+                                                                                            Margin="5" />
+                                                                                    </ui:VRCOSCButton>
+                                                                                    <ui:VRCOSCButton
+                                                                                        ButtonColour="Gray"
+                                                                                        Width="36" Height="36">
+                                                                                        <fa5:ImageAwesome
+                                                                                            Icon="Solid_Download"
+                                                                                            Foreground="White"
+                                                                                            Margin="5" />
+                                                                                    </ui:VRCOSCButton>
+                                                                                    <ui:VRCOSCButton
+                                                                                        ButtonColour="Gray"
+                                                                                        Width="36" Height="36">
+                                                                                        <fa5:ImageAwesome
+                                                                                            Icon="Solid_Cube"
+                                                                                            Foreground="White"
+                                                                                            Margin="5" />
+                                                                                    </ui:VRCOSCButton>
+                                                                                    <ui:VRCOSCButton
+                                                                                        ButtonColour="Gray"
+                                                                                        Width="36" Height="36"
+                                                                                        Command="{Binding UIParametersButton}">
+                                                                                        <fa5:ImageAwesome
+                                                                                            Icon="Solid_Link"
+                                                                                            Foreground="White"
+                                                                                            Margin="5" />
+                                                                                    </ui:VRCOSCButton>
+                                                                                    <ui:VRCOSCButton
+                                                                                        ButtonColour="Gray"
+                                                                                        Width="36" Height="36"
+                                                                                        Command="{Binding UISettingsButton}">
+                                                                                        <fa5:ImageAwesome
+                                                                                            Icon="Solid_Cog"
+                                                                                            Foreground="White"
+                                                                                            Margin="5" />
+                                                                                    </ui:VRCOSCButton>
+                                                                                </ui:SpacedStackPanel>
+                                                                            </Grid>
+                                                                        </Border>
+                                                                    </ControlTemplate>
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                        </Style>
+                                                    </ListView.ItemContainerStyle>
+                                                </ListView>
+                                            </ScrollViewer>
+                                            <Border Grid.Row="2" Background="{StaticResource CBackground1}"
+                                                    CornerRadius="0 0 5 5" />
+                                        </Grid>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListView.ItemContainerStyle>
+            </ListView>
         </Border>
     </Grid>
 </Page>

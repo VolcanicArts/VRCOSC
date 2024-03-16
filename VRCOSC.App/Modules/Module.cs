@@ -12,6 +12,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using VRCOSC.App.Modules.Attributes;
 using VRCOSC.App.Modules.Attributes.Parameters;
 using VRCOSC.App.Modules.Attributes.Settings;
@@ -37,6 +38,7 @@ public abstract class Module : INotifyPropertyChanged
     public string Title => GetType().GetCustomAttribute<ModuleTitleAttribute>()?.Title ?? "PLACEHOLDER";
     public string ShortDescription => GetType().GetCustomAttribute<ModuleDescriptionAttribute>()?.ShortDescription ?? string.Empty;
     public ModuleType Type => GetType().GetCustomAttribute<ModuleTypeAttribute>()?.Type ?? ModuleType.Generic;
+    public Brush Colour => Type.ToColour();
 
     // Cached pre-computed lookups
     private readonly Dictionary<string, Enum> parameterNameEnum = new();

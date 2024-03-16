@@ -64,7 +64,7 @@ public partial class RunPage
             TextWrapping = TextWrapping.Wrap
         });
 
-        if (LogStackPanel.Children.Count >= 50)
+        if (LogStackPanel.Children.Count >= 100)
         {
             LogStackPanel.Children.RemoveAt(0);
         }
