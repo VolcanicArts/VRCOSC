@@ -12,84 +12,61 @@
         Closing="MainWindow_OnClosing"
         Closed="MainWindow_OnClosed">
     <Window.Resources>
-        <Style TargetType="TabControl">
-            <Setter Property="TabStripPlacement" Value="Left" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TabControl">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition />
-                            </Grid.ColumnDefinitions>
-                            <Grid Grid.Column="0" Background="{StaticResource CBackground1}">
-                                <TabPanel IsItemsHost="True" Margin="0" />
-                            </Grid>
-                            <ContentPresenter Grid.Column="1" ContentSource="SelectedContent" />
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style TargetType="TabItem">
-            <Setter Property="MaxWidth" Value="70" />
-            <Setter Property="MinHeight" Value="70" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TabItem">
-                        <Grid>
-                            <Border x:Name="Border">
-                                <ContentPresenter ContentSource="Header" />
-                            </Border>
-                        </Grid>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="{StaticResource CBackground2}" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style TargetType="fa5:ImageAwesome">
-            <Setter Property="Margin" Value="23" />
+        <Style TargetType="fa5:FontAwesome">
             <Setter Property="Foreground" Value="{StaticResource CForeground1}" />
+            <Setter Property="FontSize" Value="25" />
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Height" Value="75" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="10" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </Window.Resources>
     <Grid>
         <Border x:Name="MainWindowContent">
-            <TabControl>
-                <TabItem>
-                    <TabItem.Header>
-                        <fa5:ImageAwesome Icon="Solid_Home" />
-                    </TabItem.Header>
-                    <Frame Source="Pages/HomePage.xaml" />
-                </TabItem>
-                <TabItem>
-                    <TabItem.Header>
-                        <fa5:ImageAwesome Icon="Solid_Download" />
-                    </TabItem.Header>
-                    <Frame Source="Pages/Packages/PackagePage.xaml" />
-                </TabItem>
-                <TabItem>
-                    <TabItem.Header>
-                        <fa5:ImageAwesome Icon="Solid_List" />
-                    </TabItem.Header>
-                    <Frame Source="Pages/Modules/ModulesPage.xaml" />
-                </TabItem>
-                <TabItem>
-                    <TabItem.Header>
-                        <fa5:ImageAwesome Icon="Solid_Play" />
-                    </TabItem.Header>
-                    <Frame Source="Pages/Run/RunPage.xaml" />
-                </TabItem>
-                <TabItem>
-                    <TabItem.Header>
-                        <fa5:ImageAwesome Icon="Solid_User" />
-                    </TabItem.Header>
-                    <Frame Source="Pages/Profiles/ProfilesPage.xaml" />
-                </TabItem>
-            </TabControl>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="75" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Background="{StaticResource CBackground1}">
+                    <Grid>
+                        <StackPanel Orientation="Vertical" VerticalAlignment="Top">
+                            <Button Name="HomeButton" Command="{Binding HomeButtonClick}">
+                                <fa5:FontAwesome Icon="Solid_Home" />
+                            </Button>
+                            <Button Name="PackagesButton" Command="{Binding PackagesButtonClick}">
+                                <fa5:FontAwesome Icon="Solid_Download" />
+                            </Button>
+                            <Button Name="ModulesButton" Command="{Binding ModulesButtonClick}">
+                                <fa5:FontAwesome Icon="Solid_List" />
+                            </Button>
+                            <Button Name="RunButton" Command="{Binding RunButtonClick}">
+                                <fa5:FontAwesome Icon="Solid_Play" />
+                            </Button>
+                        </StackPanel>
+                        <StackPanel Orientation="Vertical" VerticalAlignment="Bottom">
+                            <Button Name="ProfilesButton" Command="{Binding ProfilesButtonClick}">
+                                <fa5:FontAwesome Icon="Solid_User" />
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+                <Frame Grid.Column="1" Name="ContentFrame" NavigationUIVisibility="Hidden" />
+            </Grid>
         </Border>
         <Grid Name="LoadingOverlay" Visibility="Collapsed" Opacity="0">
             <Rectangle ClipToBounds="True">
@@ -98,7 +75,8 @@
                 </b:Interaction.Behaviors>
             </Rectangle>
             <Border Background="Black" Opacity="0.5">
-                <ProgressBar Name="ProgressBar" Width="300" Height="30" VerticalAlignment="Center" HorizontalAlignment="Center"
+                <ProgressBar Name="ProgressBar" Width="300" Height="30" VerticalAlignment="Center"
+                             HorizontalAlignment="Center"
                              Minimum="0" Maximum="1" Value="0">
                 </ProgressBar>
             </Border>

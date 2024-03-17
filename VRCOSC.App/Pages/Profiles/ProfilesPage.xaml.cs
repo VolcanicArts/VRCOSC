@@ -13,6 +13,8 @@ public partial class ProfilesPage
 {
     public ProfilesPage()
     {
+        InitializeComponent();
+
         DataContext = ProfileManager.GetInstance();
     }
 }

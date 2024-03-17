@@ -4,22 +4,44 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Animation;
 using VRCOSC.App.Actions;
 using VRCOSC.App.Actions.Game;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Packages;
+using VRCOSC.App.Pages;
+using VRCOSC.App.Pages.Modules;
+using VRCOSC.App.Pages.Packages;
+using VRCOSC.App.Pages.Profiles;
+using VRCOSC.App.Pages.Run;
 using VRCOSC.App.Profiles;
 
 namespace VRCOSC.App;
 
 public partial class MainWindow
 {
+    private readonly HomePage homePage;
+    private readonly PackagePage packagePage;
+    private readonly ModulesPage modulesPage;
+    private readonly RunPage runPage;
+    private readonly ProfilesPage profilesPage;
+
     public MainWindow()
     {
         InitializeComponent();
 
+        DataContext = this;
+
         Title = "VRCOSC 2024.209.0";
+
+        homePage = new HomePage();
+        packagePage = new PackagePage();
+        modulesPage = new ModulesPage();
+        runPage = new RunPage();
+        profilesPage = new ProfilesPage();
+
+        setPageContents(homePage, HomeButton);
 
         AppManager.GetInstance().Initialise();
 
@@ -121,5 +143,23 @@ public partial class MainWindow
         storyboard.Children.Add(fadeOutAnimation);
         storyboard.Completed += (_, _) => grid.Visibility = Visibility.Collapsed;
         storyboard.Begin(grid);
+    }
+
+    public ICommand HomeButtonClick => new RelayCommand(_ => setPageContents(homePage, HomeButton));
+    public ICommand PackagesButtonClick => new RelayCommand(_ => setPageContents(packagePage, PackagesButton));
+    public ICommand ModulesButtonClick => new RelayCommand(_ => setPageContents(modulesPage, ModulesButton));
+    public ICommand RunButtonClick => new RelayCommand(_ => setPageContents(runPage, RunButton));
+    public ICommand ProfilesButtonClick => new RelayCommand(_ => setPageContents(profilesPage, ProfilesButton));
+
+    private void setPageContents(object page, Button button)
+    {
+        HomeButton.Background = Brushes.Transparent;
+        PackagesButton.Background = Brushes.Transparent;
+        ModulesButton.Background = Brushes.Transparent;
+        RunButton.Background = Brushes.Transparent;
+        ProfilesButton.Background = Brushes.Transparent;
+
+        ContentFrame.Content = page;
+        button.Background = (Brush)FindResource("CBackground2");
     }
 }
