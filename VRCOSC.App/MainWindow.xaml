@@ -62,6 +62,9 @@
                             <Button Name="ProfilesButton" Command="{Binding ProfilesButtonClick}">
                                 <fa5:FontAwesome Icon="Solid_User" />
                             </Button>
+                            <Button Name="SettingsButton" Command="{Binding SettingsButtonClick}">
+                                <fa5:FontAwesome Icon="Solid_Cog" />
+                            </Button>
                         </StackPanel>
                     </Grid>
                 </Border>

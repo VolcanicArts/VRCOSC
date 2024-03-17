@@ -14,6 +14,7 @@ using VRCOSC.App.Modules;
 using VRCOSC.App.OSC;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.Profiles;
+using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App;
@@ -152,8 +153,7 @@ public class AppManager
 
         requestStartCancellationSource = new CancellationTokenSource();
 
-        //if (configManager.Get<bool>(VRCOSCSetting.UseLegacyPorts))
-        if (true)
+        if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.UseLegacyPorts))
         {
             initialiseOSCClient(9000, 9001);
             await startAsync();

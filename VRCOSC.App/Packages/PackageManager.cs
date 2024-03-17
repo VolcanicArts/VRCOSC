@@ -14,6 +14,7 @@ using VRCOSC.App.Actions.Packages;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Packages.Serialisation;
 using VRCOSC.App.Serialisation;
+using VRCOSC.App.Settings;
 
 namespace VRCOSC.App.Packages;
 
@@ -66,7 +67,7 @@ public class PackageManager : INotifyPropertyChanged
             packageLoadAction.AddAction(loadCommunityPackages());
         }
 
-        var allowPreRelease = true;
+        var allowPreRelease = SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AllowPreReleasePackages);
         packageLoadAction.AddAction(new PackagesRefreshAction(Sources, forceRemoteGrab, allowPreRelease));
 
         packageLoadAction.OnComplete += () =>

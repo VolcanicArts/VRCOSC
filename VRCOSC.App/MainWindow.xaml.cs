@@ -15,7 +15,9 @@ using VRCOSC.App.Pages.Modules;
 using VRCOSC.App.Pages.Packages;
 using VRCOSC.App.Pages.Profiles;
 using VRCOSC.App.Pages.Run;
+using VRCOSC.App.Pages.Settings;
 using VRCOSC.App.Profiles;
+using VRCOSC.App.Settings;
 
 namespace VRCOSC.App;
 
@@ -26,6 +28,7 @@ public partial class MainWindow
     private readonly ModulesPage modulesPage;
     private readonly RunPage runPage;
     private readonly ProfilesPage profilesPage;
+    private readonly SettingsPage settingsPage;
 
     public MainWindow()
     {
@@ -35,15 +38,17 @@ public partial class MainWindow
 
         Title = "VRCOSC 2024.209.0";
 
+        AppManager.GetInstance().Initialise();
+        SettingsManager.GetInstance().Load();
+
         homePage = new HomePage();
         packagePage = new PackagePage();
         modulesPage = new ModulesPage();
         runPage = new RunPage();
         profilesPage = new ProfilesPage();
+        settingsPage = new SettingsPage();
 
         setPageContents(homePage, HomeButton);
-
-        AppManager.GetInstance().Initialise();
 
         load();
     }
@@ -150,6 +155,7 @@ public partial class MainWindow
     public ICommand ModulesButtonClick => new RelayCommand(_ => setPageContents(modulesPage, ModulesButton));
     public ICommand RunButtonClick => new RelayCommand(_ => setPageContents(runPage, RunButton));
     public ICommand ProfilesButtonClick => new RelayCommand(_ => setPageContents(profilesPage, ProfilesButton));
+    public ICommand SettingsButtonClick => new RelayCommand(_ => setPageContents(settingsPage, SettingsButton));
 
     private void setPageContents(object page, Button button)
     {
@@ -158,6 +164,7 @@ public partial class MainWindow
         ModulesButton.Background = Brushes.Transparent;
         RunButton.Background = Brushes.Transparent;
         ProfilesButton.Background = Brushes.Transparent;
+        SettingsButton.Background = Brushes.Transparent;
 
         ContentFrame.Content = page;
         button.Background = (Brush)FindResource("CBackground2");

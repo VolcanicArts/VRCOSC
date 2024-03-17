@@ -1,0 +1,31 @@
+﻿<Page x:Class="VRCOSC.App.Pages.Settings.SettingsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:ui="clr-namespace:VRCOSC.App.UI"
+      mc:Ignorable="d">
+    <Page.Resources>
+
+    </Page.Resources>
+    <Grid>
+        <Border Background="{StaticResource CBackground2}" Padding="10">
+            <ui:SpacedStackPanel Spacing="10" Orientation="Vertical">
+                <Border Background="{StaticResource CBackground3}" CornerRadius="5" Height="55" Padding="5">
+                    <Grid>
+                        <TextBlock Text="Use Legacy Ports" FontSize="20" Foreground="{StaticResource CForeground1}" />
+                        <TextBlock VerticalAlignment="Bottom" Text="Should VRCOSC use the legacy OSC ports to connect to VRChat?" FontSize="15" Foreground="{StaticResource CForeground2}"/>
+                        <CheckBox HorizontalAlignment="Right" VerticalAlignment="Center" IsChecked="{Binding UseLegacyPorts}" Height="40" Width="40"/>
+                    </Grid>
+                </Border>
+                <Border Background="{StaticResource CBackground3}" CornerRadius="5" Height="55" Padding="5">
+                    <Grid>
+                        <TextBlock Text="Allow Pre-release Packages" FontSize="20" Foreground="{StaticResource CForeground1}" />
+                        <TextBlock VerticalAlignment="Bottom" Text="Should VRCOSC allow installing pre-releases of module packages?" FontSize="15" Foreground="{StaticResource CForeground2}"/>
+                        <CheckBox HorizontalAlignment="Right" VerticalAlignment="Center" IsChecked="{Binding AllowPreReleasePackages}" Height="40" Width="40"/>
+                    </Grid>
+                </Border>
+            </ui:SpacedStackPanel>
+        </Border>
+    </Grid>
+</Page>
