@@ -25,6 +25,13 @@ public partial class ModuleParametersWindow
         SizeChanged += OnSizeChanged;
     }
 
+    protected override void OnActivated(EventArgs e)
+    {
+        base.OnActivated(e);
+
+        evaluateContentHeight();
+    }
+
     private void OnSizeChanged(object sender, SizeChangedEventArgs e) => evaluateContentHeight();
 
     private void evaluateContentHeight()
