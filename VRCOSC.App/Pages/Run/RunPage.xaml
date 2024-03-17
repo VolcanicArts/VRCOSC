@@ -5,9 +5,11 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:ui="clr-namespace:VRCOSC.App.UI"
       xmlns:fa5="http://schemas.fontawesome.com/icons/"
+      xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+      xmlns:utils="clr-namespace:VRCOSC.App.Utils"
       mc:Ignorable="d">
     <Grid>
-        <Border Background="{StaticResource CBackground2}" Padding="10">
+        <Border Name="RunContent" Background="{StaticResource CBackground2}" Padding="10">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="3*" />
@@ -16,7 +18,8 @@
                 </Grid.ColumnDefinitions>
                 <Border Grid.Column="0" Background="{StaticResource CBackground5}" HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch" Padding="5" CornerRadius="5">
-                    <ScrollViewer Name="LogScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <ScrollViewer Name="LogScrollViewer" VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled">
                         <StackPanel Name="LogStackPanel" Orientation="Vertical" />
                     </ScrollViewer>
                 </Border>
@@ -28,7 +31,7 @@
                     </Grid.RowDefinitions>
                     <Border Grid.Row="0" Background="{StaticResource CBackground5}" HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch" Padding="5" CornerRadius="5">
-                        <Frame Source="OSCView.xaml"/>
+                        <Frame Source="OSCView.xaml" />
                     </Border>
                     <Border Grid.Row="2" Background="{StaticResource CBackground5}" HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch" Padding="10" CornerRadius="5">
@@ -57,6 +60,46 @@
                 </Grid>
             </Grid>
         </Border>
-
+        <Grid Name="WaitingOverlay" Visibility="Collapsed" Opacity="0">
+            <Rectangle ClipToBounds="True">
+                <b:Interaction.Behaviors>
+                    <utils:BlurBackgroundBehavior BlurContainer="{Binding ElementName=RunContent}" />
+                </b:Interaction.Behaviors>
+            </Rectangle>
+            <Border Width="500" HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="3" BorderBrush="Black" CornerRadius="5">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="50" />
+                        <RowDefinition Height="200" />
+                        <RowDefinition Height="50" />
+                    </Grid.RowDefinitions>
+                    <Border Grid.Row="0" Background="{StaticResource CBackground3}" CornerRadius="5 5 0 0">
+                        <TextBlock Text="Waiting for VRChat/Unity" FontSize="25" HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Foreground="{StaticResource CForeground1}" />
+                    </Border>
+                    <Border Grid.Row="1" Background="{StaticResource CBackground2}">
+                        <TextBlock Text="Sit tight!&#x0a;We're waiting for a connection to VRChat or Unity...&#x0a;"
+                                   TextWrapping="Wrap" FontSize="20" HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Foreground="{StaticResource CForeground1}" Padding="100 0" TextAlignment="Center" />
+                    </Border>
+                    <Border Grid.Row="2" Background="{StaticResource CBackground3}" CornerRadius="0 0 5 5" Padding="10">
+                        <Grid>
+                            <ui:VRCOSCButton HorizontalAlignment="Left" ButtonColour="Red" Width="150"
+                                             Click="CancelButton_OnClick">
+                                <TextBlock Text="Cancel" FontSize="20" Foreground="{StaticResource CForeground1}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </ui:VRCOSCButton>
+                            <ui:VRCOSCButton HorizontalAlignment="Right" ButtonColour="Blue" Width="150"
+                                             Click="ForceStartButton_OnClick">
+                                <TextBlock Text="Start Anyway" FontSize="20" Foreground="{StaticResource CForeground1}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </ui:VRCOSCButton>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
     </Grid>
 </Page>
