@@ -35,6 +35,12 @@ public partial class PackagePage : IVRCOSCPage
     {
         var packageManager = PackageManager.GetInstance();
 
+        if (itemsCount == 0)
+        {
+            packageManager.PackageScrollViewerHeight = 0;
+            return;
+        }
+
         var contentHeight = itemsCount * 50;
         var targetHeight = GridContainer.ActualHeight - 55;
         packageManager.PackageScrollViewerHeight = contentHeight >= targetHeight ? targetHeight : double.NaN;
@@ -51,12 +57,6 @@ public partial class PackagePage : IVRCOSCPage
         }
 
         var filteredItems = packageManager.Sources.Where(item => item.DisplayName.Contains(filterText, StringComparison.InvariantCultureIgnoreCase)).ToList();
-
-        if (!filteredItems.Any())
-        {
-            showDefaultItemsSource();
-            return;
-        }
 
         PackageList.ItemsSource = filteredItems;
         itemsCount = filteredItems.Count;
