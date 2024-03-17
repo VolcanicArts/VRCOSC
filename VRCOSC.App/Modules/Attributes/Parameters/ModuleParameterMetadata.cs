@@ -19,6 +19,14 @@ public class ModuleParameterMetadata : ModuleAttributeMetadata
     /// </summary>
     public Type Type { get; }
 
+    public string UIMode => Mode switch
+    {
+        ParameterMode.Read => "Receive",
+        ParameterMode.Write => "Send",
+        ParameterMode.ReadWrite => "Send/Receive",
+        _ => throw new ArgumentOutOfRangeException()
+    };
+
     public string ReadableType => Type.ToReadableName();
 
     /// <summary>

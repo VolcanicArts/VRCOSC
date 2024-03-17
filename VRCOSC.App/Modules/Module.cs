@@ -512,6 +512,13 @@ public abstract class Module : INotifyPropertyChanged
         }
     }
 
+    public ICommand UIResetParameters => new RelayCommand(_ => OnResetParametersButtonClicked());
+
+    private void OnResetParametersButtonClicked()
+    {
+        Parameters.Values.ForEach(parameter => parameter.SetDefault());
+    }
+
     private double parameterScrollViewerHeight = double.NaN;
 
     public double ParameterScrollViewerHeight

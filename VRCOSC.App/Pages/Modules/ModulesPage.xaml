@@ -11,7 +11,7 @@
         <modules:BackgroundConverter x:Key="BackgroundConverter" />
     </Page.Resources>
     <Grid>
-        <Border Background="{StaticResource CBackground2}">
+        <Border Background="{StaticResource CBackground2}" Padding="10">
             <ScrollViewer HorizontalScrollBarVisibility="Auto"
                           VerticalScrollBarVisibility="Auto">
                 <ListView ItemsSource="{Binding UIModules, Mode=OneWay}"
@@ -23,7 +23,7 @@
                             <Setter Property="Template">
                                 <Setter.Value>
                                     <ControlTemplate>
-                                        <Border Background="Transparent" Padding="10">
+                                        <Border Background="Transparent">
                                             <Grid>
                                                 <Grid.RowDefinitions>
                                                     <RowDefinition Height="50" />
