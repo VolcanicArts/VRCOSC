@@ -32,7 +32,7 @@ public abstract class Module : INotifyPropertyChanged
 
     internal string SerialisedName => $"{PackageId}.{GetType().Name.ToLowerInvariant()}";
 
-    public Observable<bool> Enabled { get; } = new(true);
+    public Observable<bool> Enabled { get; } = new();
     public Observable<ModuleState> State { get; } = new(ModuleState.Stopped);
 
     public string Title => GetType().GetCustomAttribute<ModuleTitleAttribute>()?.Title ?? "PLACEHOLDER";
@@ -89,8 +89,6 @@ public abstract class Module : INotifyPropertyChanged
 
     protected Module()
     {
-        Application.Current.MainWindow!.Closed += MainWindowOnClosed;
-
         State.Subscribe(newState => Log(newState.ToString()));
     }
 
@@ -459,12 +457,6 @@ public abstract class Module : INotifyPropertyChanged
 
     private ModuleSettingsWindow? moduleSettingsWindow;
     private ModuleParametersWindow? moduleParametersWindow;
-
-    private void MainWindowOnClosed(object? sender, EventArgs e)
-    {
-        moduleSettingsWindow?.Close();
-        moduleParametersWindow?.Close();
-    }
 
     public ICommand UISettingsButton => new RelayCommand(_ => OnSettingsButtonClick());
 

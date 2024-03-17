@@ -263,16 +263,18 @@ public class PackageSource
     public ICommand UIUnInstallButton => new RelayCommand(_ => OnUnInstallButtonClick());
     public ICommand UIInfoButton => new RelayCommand(_ => OnInfoButtonClick());
 
-    private async void OnInstallButtonClick()
+    private void OnInstallButtonClick()
     {
-        await packageManager.InstallPackage(this).Execute();
-        AppManager.GetInstance().Refresh(PageLookup.Packages | PageLookup.Modules);
+        var action = packageManager.InstallPackage(this);
+        action.OnComplete += () => AppManager.GetInstance().Refresh(PageLookup.Packages);
+        AppManager.GetInstance().ProgressAction = action;
     }
 
-    private async void OnUnInstallButtonClick()
+    private void OnUnInstallButtonClick()
     {
-        await packageManager.UninstallPackage(this).Execute();
-        AppManager.GetInstance().Refresh(PageLookup.Packages | PageLookup.Modules);
+        var action = packageManager.UninstallPackage(this);
+        action.OnComplete += () => AppManager.GetInstance().Refresh(PageLookup.Packages);
+        AppManager.GetInstance().ProgressAction = action;
     }
 
     private void OnInfoButtonClick()

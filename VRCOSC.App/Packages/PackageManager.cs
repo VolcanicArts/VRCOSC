@@ -7,7 +7,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using VRCOSC.App.Actions;
@@ -161,19 +160,19 @@ public class PackageManager : INotifyPropertyChanged
 
     private void OnRefreshButtonClick()
     {
-        _ = RefreshAllSources(true).Execute();
+        AppManager.GetInstance().ProgressAction = RefreshAllSources(true);
     }
 
     private void OnUpdateAllButtonClick()
     {
-        // TODO: This probably needs to be its own refresh action
-        _ = Task.Run(async () =>
+        var updateAllPackagesAction = new UpdateAllPackagesAction();
+
+        foreach (var packageSource in Sources.Where(packageSource => packageSource.IsUpdateAvailable()))
         {
-            foreach (var packageSource in Sources.Where(packageSource => packageSource.IsUpdateAvailable()))
-            {
-                await InstallPackage(packageSource).Execute();
-            }
-        });
+            updateAllPackagesAction.AddAction(InstallPackage(packageSource));
+        }
+
+        AppManager.GetInstance().ProgressAction = updateAllPackagesAction;
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

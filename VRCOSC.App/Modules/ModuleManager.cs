@@ -1,10 +1,12 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
 using System.Threading.Tasks;
 using VRCOSC.App.Modules.Serialisation;
@@ -16,7 +18,7 @@ using Logger = VRCOSC.App.Utils.Logger;
 
 namespace VRCOSC.App.Modules;
 
-public class ModuleManager
+public class ModuleManager : INotifyPropertyChanged
 {
     private static ModuleManager? instance;
     public static ModuleManager GetInstance() => instance ??= new ModuleManager();
@@ -111,7 +113,7 @@ public class ModuleManager
                     moduleSerialisationManager.RegisterSerialiser(1, new ModuleSerialiser(storage, module, ProfileManager.GetInstance().ActiveProfile));
 
                     var modulePersistenceSerialisationManager = new SerialisationManager();
-                    modulePersistenceSerialisationManager.RegisterSerialiser(1, new ModulePersistenceSerialiser(storage, module, ProfileManager.GetInstance().ActiveProfile, new Observable<bool>(false)));
+                    modulePersistenceSerialisationManager.RegisterSerialiser(1, new ModulePersistenceSerialiser(storage, module, ProfileManager.GetInstance().ActiveProfile, new Observable<bool>()));
 
                     module.InjectDependencies(moduleSerialisationManager, modulePersistenceSerialisationManager);
                     module.Load();
@@ -121,6 +123,8 @@ public class ModuleManager
                     Logger.Error(e, $"{module.SerialisedName} failed to load");
                 }
             });
+
+            OnPropertyChanged(nameof(UIModules));
         }
         catch (Exception e)
         {
@@ -266,4 +270,11 @@ public class ModuleManager
     }
 
     #endregion
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
 }

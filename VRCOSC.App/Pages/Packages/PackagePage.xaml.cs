@@ -72,11 +72,11 @@ public partial class PackagePage : IVRCOSCPage
         evaluateContentHeight();
     }
 
-    public void Refresh()
+    public void Refresh() => Dispatcher.Invoke(() =>
     {
         PackageList.ItemsSource = null;
         filterDataGrid(SearchTextBox.Text);
-    }
+    });
 }
 
 public class BackgroundConverter : IValueConverter

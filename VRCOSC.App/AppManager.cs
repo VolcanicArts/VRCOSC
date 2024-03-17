@@ -8,6 +8,8 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
+using VRCOSC.App.Actions;
 using VRCOSC.App.Modules;
 using VRCOSC.App.OSC;
 using VRCOSC.App.OSC.VRChat;
@@ -20,6 +22,28 @@ public class AppManager
 {
     private static AppManager? instance;
     public static AppManager GetInstance() => instance ??= new AppManager();
+
+    private ProgressAction? progressAction;
+
+    public ProgressAction? ProgressAction
+    {
+        get => progressAction;
+        set
+        {
+            progressAction = value;
+
+            if (progressAction is not null)
+            {
+                progressAction.OnComplete += () => ProgressAction = null;
+                ((MainWindow)Application.Current.MainWindow).ShowLoadingOverlay(progressAction);
+                _ = progressAction?.Execute();
+            }
+            else
+            {
+                ((MainWindow)Application.Current.MainWindow).HideLoadingOverlay();
+            }
+        }
+    }
 
     public Observable<AppManagerState> State = new(AppManagerState.Stopped);
 
@@ -129,7 +153,7 @@ public class AppManager
         requestStartCancellationSource = new CancellationTokenSource();
 
         //if (configManager.Get<bool>(VRCOSCSetting.UseLegacyPorts))
-        if (false)
+        if (true)
         {
             initialiseOSCClient(9000, 9001);
             await startAsync();
@@ -146,11 +170,10 @@ public class AppManager
 
         var waitingCancellationSource = new CancellationTokenSource();
 
-        await Task.WhenAny(new[]
-        {
+        await Task.WhenAny([
             Task.Run(() => waitForUnity(waitingCancellationSource), requestStartCancellationSource.Token),
             Task.Run(() => waitForVRChat(waitingCancellationSource), requestStartCancellationSource.Token)
-        });
+        ]);
 
         waitingCancellationSource.Cancel();
 

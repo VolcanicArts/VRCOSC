@@ -55,7 +55,7 @@
                         <ListView ItemsSource="{Binding Profiles, Mode=OneWay}"
                                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                   Background="Transparent"
-                                  BorderThickness="0" AlternationCount="2">
+                                  BorderThickness="0" AlternationCount="2" Padding="-1">
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="ListViewItem">
                                     <Setter Property="Template">
