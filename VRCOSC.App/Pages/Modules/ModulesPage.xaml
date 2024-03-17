@@ -48,6 +48,7 @@
                                                                        HorizontalAlignment="Center" />
                                                         </Border>
                                                     </ui:SpacedStackPanel>
+
                                                 </Border>
                                                 <ListView Grid.Row="1" ItemsSource="{Binding Value, Mode=OneWay}"
                                                           HorizontalAlignment="Stretch"

@@ -4,211 +4,129 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:fa5="http://schemas.fontawesome.com/icons/"
-      xmlns:vrcosc="clr-namespace:VRCOSC"
       xmlns:ui="clr-namespace:VRCOSC.App.UI"
-      xmlns:packages="clr-namespace:VRCOSC.App.Packages"
+      xmlns:packages="clr-namespace:VRCOSC.App.Pages.Packages"
       mc:Ignorable="d">
-    <Page.DataContext>
-        <packages:PackageManager/>
-    </Page.DataContext>
     <Page.Resources>
-        <Style x:Key="DataGridHeaderStyle" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}"
-               TargetType="{x:Type DataGridColumnHeader}">
-            <Setter Property="FontSize" Value="20" />
-            <Setter Property="FontWeight" Value="Bold" />
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="Foreground" Value="{StaticResource CForeground2}" />
-            <Setter Property="Padding" Value="10" />
-        </Style>
-        <Style x:Key="DataGridHeaderStyleCenterAligned" BasedOn="{StaticResource DataGridHeaderStyle}"
-               TargetType="{x:Type DataGridColumnHeader}">
-            <Setter Property="HorizontalContentAlignment" Value="Center" />
-        </Style>
-        <Style x:Key="ColumnHeadersPresenterStyle" TargetType="DataGridColumnHeadersPresenter">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate>
-                        <Border Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="5 5 0 0">
-                            <ItemsPresenter />
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style x:Key="DataGridCellStyle" BasedOn="{StaticResource {x:Type DataGridCell}}" TargetType="DataGridCell">
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Padding" Value="10" />
-            <Setter Property="FontSize" Value="20"></Setter>
-            <Setter Property="Background" Value="Transparent"></Setter>
-            <Setter Property="Foreground" Value="White"></Setter>
-            <Setter Property="HorizontalAlignment" Value="Left"></Setter>
-            <Setter Property="Height" Value="50"></Setter>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type DataGridCell}">
-                        <Border Padding="{TemplateBinding Padding}" Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}" SnapsToDevicePixels="True">
-                            <ContentPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="DataGridCell.IsSelected" Value="True">
-                    <Setter Property="BorderBrush">
-                        <Setter.Value>
-                            <SolidColorBrush Color="Transparent" />
-                        </Setter.Value>
-                    </Setter>
-                    <Setter Property="Foreground" Value="{StaticResource CForeground1}" />
-                    <Setter Property="Background">
-                        <Setter.Value>
-                            <SolidColorBrush Color="Transparent" />
-                        </Setter.Value>
-                    </Setter>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-        <Style x:Key="DataGridCellStyleCenterAligned" BasedOn="{StaticResource DataGridCellStyle}"
-               TargetType="DataGridCell">
-            <Setter Property="HorizontalAlignment" Value="Center"></Setter>
-        </Style>
-        <Style x:Key="DataGridCellStyleRightAligned" BasedOn="{StaticResource DataGridCellStyle}"
-               TargetType="DataGridCell">
-            <Setter Property="HorizontalAlignment" Value="Right"></Setter>
-        </Style>
+        <packages:BackgroundConverter x:Key="BackgroundConverter" />
     </Page.Resources>
-    <Border Padding="10" Background="{StaticResource CBackground2}">
-        <Grid VerticalAlignment="Stretch">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="36" />
-                <RowDefinition Height="8" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-            <ui:SpacedStackPanel Grid.Row="0" Spacing="7" Orientation="Horizontal">
-                <Border Background="{StaticResource CBackground3}" Width="570" CornerRadius="5">
-                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Center">
+    <Grid>
+        <Border Padding="10" Background="{StaticResource CBackground2}">
+            <Grid VerticalAlignment="Stretch">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="36" />
+                    <RowDefinition Height="8" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <ui:SpacedStackPanel Grid.Row="0" Spacing="7" Orientation="Horizontal">
+                    <Border Background="{StaticResource CBackground3}" Width="570" CornerRadius="5">
+                        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="36" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <fa5:FontAwesome Grid.Row="0" Grid.Column="0" Icon="Solid_Search" FontSize="22"
+                                             Foreground="{StaticResource CForeground3}" VerticalAlignment="Center" />
+                            <TextBox x:Name="SearchTextBox" Grid.Row="0" Grid.Column="1"
+                                     Style="{StaticResource VRCOSCTextBoxStyle}" FontSize="20"
+                                     Foreground="{StaticResource CForeground3}" VerticalContentAlignment="Center"
+                                     Background="Transparent" CaretBrush="{StaticResource CForeground3}"
+                                     BorderBrush="Transparent" SelectionBrush="{StaticResource CForeground2}" />
+                        </Grid>
+                    </Border>
+                    <ui:VRCOSCButton Width="200" ButtonColour="Blue" Command="{Binding Path=UIRefreshButton}">
+                        <TextBlock Text="Refresh" FontSize="20" Foreground="{StaticResource CForeground1}" />
+                    </ui:VRCOSCButton>
+                    <ui:VRCOSCButton Width="200" ButtonColour="Blue" Command="{Binding Path=UIUpdateAllButton}"
+                                     Visibility="{Binding UpdateAllButtonVisibility, Mode=OneWay}">
+                        <TextBlock Text="Update All" FontSize="20" Foreground="{StaticResource CForeground1}" />
+                    </ui:VRCOSCButton>
+                </ui:SpacedStackPanel>
+                <Border Name="GridContainer" Background="Transparent" HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch" Grid.Row="2">
+                    <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="50" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="5" />
                         </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="36"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <fa5:FontAwesome Grid.Row="0" Grid.Column="0"  Icon="Solid_Search" FontSize="22" Foreground="{StaticResource CForeground3}" VerticalAlignment="Center"/>
-                        <TextBox x:Name="SearchTextBox" Grid.Row="0" Grid.Column="1" Style="{StaticResource VRCOSCTextBoxStyle}" FontSize="20" Foreground="{StaticResource CForeground3}" VerticalContentAlignment="Center" Background="Transparent" CaretBrush="{StaticResource CForeground3}" BorderBrush="Transparent" SelectionBrush="{StaticResource CForeground2}"/>
+                        <Border Grid.Row="0" Background="{StaticResource CBackground1}" CornerRadius="5 5 0 0">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="15" />
+                                    <ColumnDefinition Width="330" />
+                                    <ColumnDefinition Width="240" />
+                                    <ColumnDefinition Width="240" />
+                                    <ColumnDefinition Width="140" />
+                                    <ColumnDefinition Width="140" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Foreground="{StaticResource CForeground2}" FontSize="20" FontWeight="Bold" Text="Name" />
+                                <TextBlock Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="{StaticResource CForeground2}" FontSize="20" FontWeight="Bold" Text="Latest" />
+                                <TextBlock Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="{StaticResource CForeground2}" FontSize="20" FontWeight="Bold" Text="Installed"/>
+                                <TextBlock Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Left" Foreground="{StaticResource CForeground2}" FontSize="20" FontWeight="Bold" Text="Type"/>
+                                <TextBlock Grid.Column="5" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="{StaticResource CForeground2}" FontSize="20" FontWeight="Bold" Text="Action"/>
+                            </Grid>
+                        </Border>
+                        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto"
+                                      VerticalScrollBarVisibility="Auto"
+                                      Height="{Binding PackageScrollViewerHeight, Mode=OneWay}">
+                            <ListView Name="PackageList"
+                                      Background="Transparent"
+                                      BorderThickness="0" AlternationCount="2" Padding="-1">
+                                <ListView.ItemContainerStyle>
+                                    <Style TargetType="ListViewItem">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate>
+                                                    <Border Height="50" Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource BackgroundConverter}}">
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="15" />
+                                                                <ColumnDefinition Width="330" />
+                                                                <ColumnDefinition Width="240" />
+                                                                <ColumnDefinition Width="240" />
+                                                                <ColumnDefinition Width="140" />
+                                                                <ColumnDefinition Width="140" />
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="7" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBlock Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Foreground="{StaticResource CForeground1}" FontSize="20" Text="{Binding DisplayName, Mode=OneTime}" />
+                                                            <TextBlock Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="{Binding UILatestVersionColour, Mode=OneTime}" FontSize="20" Text="{Binding UILatestVersion, Mode=OneTime}" />
+                                                            <TextBlock Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="{StaticResource CForeground1}" FontSize="20" Text="{Binding InstalledVersion, Mode=OneTime}"/>
+                                                            <TextBlock Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Left" Foreground="{StaticResource CForeground1}" FontSize="20" Text="{Binding PackageType, Mode=OneTime}"/>
+                                                            <ui:SpacedStackPanel Grid.Column="5" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                                                <ui:VRCOSCButton ButtonColour="Blue" Command="{Binding UIInstallButton}" Visibility="{Binding UIUpgradeVisible}" Width="36" Height="36">
+                                                                    <fa5:FontAwesome Icon="Solid_Redo" Foreground="{StaticResource CForeground1}" FontSize="25"/>
+                                                                </ui:VRCOSCButton>
+                                                                <ui:VRCOSCButton ButtonColour="Green" Command="{Binding UIInstallButton}" Visibility="{Binding UIInstallVisible}" Width="36" Height="36">
+                                                                    <fa5:FontAwesome Icon="Solid_Plus" Foreground="{StaticResource CForeground1}" FontSize="25"/>
+                                                                </ui:VRCOSCButton>
+                                                                <ui:VRCOSCButton ButtonColour="Red" Command="{Binding UIUnInstallButton}" Visibility="{Binding UIUnInstallVisible}" Width="36" Height="36">
+                                                                    <fa5:FontAwesome Icon="Solid_Minus" Foreground="{StaticResource CForeground1}" FontSize="25"/>
+                                                                </ui:VRCOSCButton>
+                                                            </ui:SpacedStackPanel>
+                                                            <ui:SpacedStackPanel Grid.Column="6" Orientation="Horizontal" FlowDirection="RightToLeft" HorizontalAlignment="Right">
+                                                                <ui:VRCOSCButton ButtonColour="Blue" Command="{Binding UIInfoButton}" Width="36" Height="36">
+                                                                    <fa5:FontAwesome Icon="Solid_Info" Foreground="{StaticResource CForeground1}" FontSize="25"/>
+                                                                </ui:VRCOSCButton>
+                                                            </ui:SpacedStackPanel>
+                                                        </Grid>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ListView.ItemContainerStyle>
+                            </ListView>
+                        </ScrollViewer>
+                        <Border Grid.Row="2" Background="{StaticResource CBackground1}" CornerRadius="0 0 5 5" />
                     </Grid>
                 </Border>
-                <ui:VRCOSCButton Width="200" ButtonColour="Blue" Command="{Binding Path=UIRefreshButton}">
-                    <TextBlock Text="Refresh" FontSize="20" Foreground="{StaticResource CForeground1}"/>
-                </ui:VRCOSCButton>
-                <ui:VRCOSCButton Width="200" ButtonColour="Blue" Command="{Binding Path=UIUpdateAllButton}" Visibility="{Binding UpdateAllButtonVisibility, Mode=OneWay}">
-                    <TextBlock Text="Update All" FontSize="20" Foreground="{StaticResource CForeground1}"/>
-                </ui:VRCOSCButton>
-            </ui:SpacedStackPanel>
-            <Border Name="GridContainer" Background="Transparent" HorizontalAlignment="Stretch"
-                    VerticalAlignment="Stretch" Grid.Row="2">
-                <DataGrid Name="PackageGrid" ItemsSource="{Binding Sources}" AutoGenerateColumns="False"
-                          RowHeaderWidth="0" CanUserAddRows="False"
-                          CanUserDeleteRows="False" AlternationCount="2"
-                          CanUserResizeColumns="False"
-                          CanUserReorderColumns="False" HeadersVisibility="Column" MinColumnWidth="150"
-                          GridLinesVisibility="None" Background="Transparent" HorizontalScrollBarVisibility="Hidden">
-                    <DataGrid.DataContext>
-                        <packages:PackageManager />
-                    </DataGrid.DataContext>
-                    <DataGrid.Template>
-                        <ControlTemplate>
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="50" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="5" />
-                                </Grid.RowDefinitions>
-                                <DataGridColumnHeadersPresenter Grid.Row="0"
-                                                                Style="{StaticResource ColumnHeadersPresenterStyle}"
-                                                                Background="{StaticResource CBackground1}" />
-                                <ScrollViewer Grid.Row="1" Focusable="false" CanContentScroll="False"
-                                              VerticalScrollBarVisibility="Hidden"
-                                              Height="{Binding PackageScrollViewerHeight}" >
-                                    <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
-                                </ScrollViewer>
-                                <Border Grid.Row="2" Background="{StaticResource CBackground1}" CornerRadius="0 0 5 5" />
-                            </Grid>
-                        </ControlTemplate>
-                    </DataGrid.Template>
-                    <DataGrid.Resources>
-                        <Style BasedOn="{StaticResource {x:Type DataGridRow}}" TargetType="DataGridRow">
-                            <Setter Property="Background" Value="{StaticResource CBackground3}" />
-                            <Setter Property="BorderThickness" Value="0" />
-                            <Setter Property="BorderBrush" Value="Transparent" />
-                            <Style.Triggers>
-                                <Trigger Property="ItemsControl.AlternationIndex" Value="1">
-                                    <Setter Property="Background" Value="{StaticResource CBackground4}" />
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </DataGrid.Resources>
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Binding="{Binding DisplayName, Mode=OneWay}" Header="Name"
-                                            HeaderStyle="{StaticResource DataGridHeaderStyle}" MinWidth="200"
-                                            CellStyle="{StaticResource DataGridCellStyle}" />
-                        <DataGridTextColumn Binding="{Binding LatestVersion, Mode=OneWay}" Header="Latest"
-                                            HeaderStyle="{StaticResource DataGridHeaderStyleCenterAligned}"
-                                            CellStyle="{StaticResource DataGridCellStyleCenterAligned}" />
-                        <DataGridTextColumn Binding="{Binding InstalledVersion, Mode=OneWay}" Header="Installed"
-                                            HeaderStyle="{StaticResource DataGridHeaderStyleCenterAligned}"
-                                            CellStyle="{StaticResource DataGridCellStyleCenterAligned}" />
-                        <DataGridTextColumn Binding="{Binding PackageType, Mode=OneWay}" Header="Type"
-                                            HeaderStyle="{StaticResource DataGridHeaderStyle}"
-                                            CellStyle="{StaticResource DataGridCellStyle}" />
-                        <DataGridTemplateColumn Header="Action"
-                                                HeaderStyle="{StaticResource DataGridHeaderStyleCenterAligned}"
-                                                CellStyle="{StaticResource DataGridCellStyleCenterAligned}">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <ui:SpacedStackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                        <ui:VRCOSCButton ButtonColour="Blue"
-                                                Command="{Binding Path=UIInstallButton, Mode=OneWay}" MaxWidth="30"
-                                                MaxHeight="30" Visibility="{Binding UIUpgradeVisible}">
-                                            <fa5:ImageAwesome Icon="Solid_Redo" Foreground="White" Margin="4" />
-                                        </ui:VRCOSCButton>
-                                        <ui:VRCOSCButton ButtonColour="Green"
-                                                Command="{Binding Path=UIInstallButton, Mode=OneWay}" MaxWidth="30"
-                                                MaxHeight="30" Visibility="{Binding UIInstallVisible}">
-                                            <fa5:ImageAwesome Icon="Solid_Plus" Foreground="White" Margin="4" />
-                                        </ui:VRCOSCButton>
-                                        <ui:VRCOSCButton ButtonColour="Red"
-                                                Command="{Binding Path=UIUnInstallButton, Mode=OneWay}" MaxWidth="30"
-                                                MaxHeight="30" Visibility="{Binding UIUnInstallVisible}">
-                                            <fa5:ImageAwesome Icon="Solid_Minus" Foreground="White" Margin="4" />
-                                        </ui:VRCOSCButton>
-                                    </ui:SpacedStackPanel>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <DataGridTemplateColumn HeaderStyle="{StaticResource DataGridHeaderStyle}"
-                                                CellStyle="{StaticResource DataGridCellStyleRightAligned}" Width="*">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <ui:SpacedStackPanel Orientation="Horizontal" HorizontalAlignment="Right"
-                                                             FlowDirection="RightToLeft">
-                                        <ui:VRCOSCButton ButtonColour="Blue"
-                                                Command="{Binding Path=UIInfoButton, Mode=OneWay}" Width="30"
-                                                Height="30">
-                                            <fa5:ImageAwesome Icon="Solid_Info" Foreground="White" Margin="4" />
-                                        </ui:VRCOSCButton>
-                                    </ui:SpacedStackPanel>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </Border>
-        </Grid>
-    </Border>
+            </Grid>
+        </Border>
+    </Grid>
 </Page>

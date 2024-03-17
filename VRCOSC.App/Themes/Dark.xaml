@@ -19,4 +19,5 @@
     <Brush x:Key="CGray">#FF4D4D4D</Brush>
     <Brush x:Key="CGrayL">#FF666666</Brush>
     <Brush x:Key="CYellow">#FFF1C40F</Brush>
+    <Brush x:Key="COrange">#FFE67E22</Brush>
 </ResourceDictionary>

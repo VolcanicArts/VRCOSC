@@ -10,9 +10,12 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using Newtonsoft.Json;
 using Octokit;
 using Semver;
+using VRCOSC.App.Utils;
+using Application = System.Windows.Application;
 
 namespace VRCOSC.App.Packages;
 
@@ -40,13 +43,12 @@ public class PackageSource
     public string? LatestVersion => LatestRelease?.Version;
 
     public bool IsInstalled() => packageManager.IsInstalled(this);
-    public string GetInstalledVersion() => packageManager.GetInstalledVersion(this);
 
     public bool IsUpdateAvailable()
     {
         if (IsUnavailable() || IsIncompatible() || !IsInstalled()) return false;
 
-        var installedVersion = SemVersion.Parse(GetInstalledVersion(), SemVersionStyles.Any);
+        var installedVersion = SemVersion.Parse(InstalledVersion, SemVersionStyles.Any);
         var latestVersion = SemVersion.Parse(LatestVersion, SemVersionStyles.Any);
         return installedVersion.ComparePrecedenceTo(latestVersion) < 0;
     }
@@ -72,7 +74,7 @@ public class PackageSource
 
     public async Task Refresh(bool forceRemoteGrab, bool allowPreRelease)
     {
-        //Logger<>.Log($"Checking {InternalReference}");
+        Logger.Log($"Checking {InternalReference}");
 
         State = PackageSourceState.Unknown;
 
@@ -83,7 +85,7 @@ public class PackageSource
 
         if (State is PackageSourceState.Unknown) State = PackageSourceState.Valid;
 
-        //Logger.Log($"{InternalReference} resulted in {State}");
+        Logger.Log($"{InternalReference} resulted in {State}");
     }
 
     public List<string> GetAssets() => LatestRelease!.AssetNames.Where(assetName => PackageFile!.Files.Contains(assetName)).ToList();
@@ -225,9 +227,37 @@ public class PackageSource
 
     #region UI
 
-    public Visibility UIInstallVisible => !IsInstalled() && IsAvailable() ? Visibility.Visible : Visibility.Collapsed;
+    public string UILatestVersion
+    {
+        get
+        {
+            if (IsUnavailable())
+                return "Unavailable";
+
+            if (IsIncompatible())
+                return "Incompatible";
+
+            return LatestVersion!;
+        }
+    }
+
+    public Brush UILatestVersionColour
+    {
+        get
+        {
+            if (IsUnavailable())
+                return (Brush)Application.Current.FindResource("CRedL");
+
+            if (IsIncompatible())
+                return (Brush)Application.Current.FindResource("COrange");
+
+            return (Brush)Application.Current.FindResource("CForeground1");
+        }
+    }
+
+    public Visibility UIInstallVisible => !IsInstalled() && IsAvailable() && !IsIncompatible() ? Visibility.Visible : Visibility.Collapsed;
     public Visibility UIUnInstallVisible => IsInstalled() && IsAvailable() ? Visibility.Visible : Visibility.Collapsed;
-    public Visibility UIUpgradeVisible => IsUpdateAvailable() && IsAvailable() ? Visibility.Visible : Visibility.Collapsed;
+    public Visibility UIUpgradeVisible => IsUpdateAvailable() && IsAvailable() && !IsIncompatible() ? Visibility.Visible : Visibility.Collapsed;
 
     public ICommand UIInstallButton => new RelayCommand(_ => OnInstallButtonClick());
     public ICommand UIUnInstallButton => new RelayCommand(_ => OnUnInstallButtonClick());
