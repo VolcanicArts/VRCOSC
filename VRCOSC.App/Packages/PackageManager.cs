@@ -66,7 +66,8 @@ public class PackageManager : INotifyPropertyChanged
             packageLoadAction.AddAction(loadCommunityPackages());
         }
 
-        packageLoadAction.AddAction(new PackagesRefreshAction(Sources, forceRemoteGrab, true));
+        var allowPreRelease = true;
+        packageLoadAction.AddAction(new PackagesRefreshAction(Sources, forceRemoteGrab, allowPreRelease));
 
         packageLoadAction.OnComplete += () =>
         {
