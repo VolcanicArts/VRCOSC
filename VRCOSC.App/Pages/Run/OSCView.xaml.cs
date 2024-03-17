@@ -2,21 +2,49 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.ComponentModel;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Data;
 using VRCOSC.App.OSC.VRChat;
 
 namespace VRCOSC.App.Pages.Run;
 
-public partial class OSCView
+public partial class OSCView : INotifyPropertyChanged
 {
     public ObservableDictionary<string, object> OutgoingMessages { get; } = new();
     public ObservableDictionary<string, object> IncomingMessages { get; } = new();
 
+    private double outgoingScrollViewerHeight;
+
+    public double OutgoingScrollViewerHeight
+    {
+        get => outgoingScrollViewerHeight;
+        set
+        {
+            outgoingScrollViewerHeight = value;
+            OnPropertyChanged();
+        }
+    }
+
+    private double incomingScrollViewerHeight;
+
+    public double IncomingScrollViewerHeight
+    {
+        get => incomingScrollViewerHeight;
+        set
+        {
+            incomingScrollViewerHeight = value;
+            OnPropertyChanged();
+        }
+    }
+
     public OSCView()
     {
         InitializeComponent();
+
+        SizeChanged += OnSizeChanged;
 
         AppManager.GetInstance().VRChatOscClient.OnParameterSent += OnParameterSent;
         AppManager.GetInstance().VRChatOscClient.OnParameterReceived += OnParameterReceived;
@@ -25,24 +53,85 @@ public partial class OSCView
         DataContext = this;
     }
 
-    private void OnParameterSent(VRChatOscMessage e) => Dispatcher.Invoke(() => OutgoingMessages[e.ParameterName] = e.ParameterValue);
+    private void OnSizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        evaluateOutgoingContentHeight();
+        evaluateIncomingContentHeight();
+    }
+
+    private void evaluateOutgoingContentHeight()
+    {
+        if (OutgoingMessages.Count == 0)
+        {
+            OutgoingScrollViewerHeight = 0;
+            return;
+        }
+
+        var contentHeight = OutgoingMessages.Count * 30;
+        var targetHeight = OutgoingGridContainer.ActualHeight - 45;
+        OutgoingScrollViewerHeight = contentHeight >= targetHeight ? targetHeight : double.NaN;
+    }
+
+    private void evaluateIncomingContentHeight()
+    {
+        if (IncomingMessages.Count == 0)
+        {
+            IncomingScrollViewerHeight = 0;
+            return;
+        }
+
+        var contentHeight = IncomingMessages.Count * 30;
+        var targetHeight = IncomingGridContainer.ActualHeight - 45;
+        IncomingScrollViewerHeight = contentHeight >= targetHeight ? targetHeight : double.NaN;
+    }
+
+    private void OnParameterSent(VRChatOscMessage e)
+    {
+        Dispatcher.Invoke(() =>
+        {
+            OutgoingMessages[e.ParameterName] = e.ParameterValue;
+            evaluateOutgoingContentHeight();
+        });
+    }
 
     private void OnParameterReceived(VRChatOscMessage e)
     {
         if (e.IsAvatarParameter)
         {
-            Dispatcher.Invoke(() => IncomingMessages[e.ParameterName] = e.ParameterValue);
+            Dispatcher.Invoke(() =>
+            {
+                IncomingMessages[e.ParameterName] = e.ParameterValue;
+                evaluateIncomingContentHeight();
+            });
         }
         else
         {
-            Dispatcher.Invoke(() => IncomingMessages[e.Address] = e.ParameterValue);
+            Dispatcher.Invoke(() =>
+            {
+                IncomingMessages[e.Address] = e.ParameterValue;
+                evaluateIncomingContentHeight();
+            });
         }
     }
 
     private void OnAppManagerStateChange(AppManagerState newState) => Dispatcher.Invoke(() =>
     {
-        if (newState == AppManagerState.Starting) OutgoingMessages.Clear();
+        if (newState == AppManagerState.Starting)
+        {
+            OutgoingMessages.Clear();
+            IncomingMessages.Clear();
+        }
+
+        evaluateOutgoingContentHeight();
+        evaluateIncomingContentHeight();
     });
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
 }
 
 public class BackgroundConverter : IValueConverter

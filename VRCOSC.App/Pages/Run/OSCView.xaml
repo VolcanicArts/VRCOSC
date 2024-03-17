@@ -16,21 +16,26 @@
                     <ColumnDefinition Width="10" />
                     <ColumnDefinition Width="5*" />
                 </Grid.ColumnDefinitions>
-                <Border Grid.Column="0" CornerRadius="5" Background="{StaticResource CBackground1}">
+                <Border Name="OutgoingGridContainer" Grid.Column="0" Background="Transparent" HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="40" />
-                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="5" />
                         </Grid.RowDefinitions>
-                        <TextBlock Grid.Row="0" Text="Outgoing" Foreground="{StaticResource CForeground2}"
-                                   FontSize="25" TextAlignment="Center" VerticalAlignment="Center"
-                                   HorizontalAlignment="Stretch" />
+                        <Border Grid.Row="0" Background="{StaticResource CBackground1}" CornerRadius="5 5 0 0">
+                            <TextBlock Text="Outgoing" Foreground="{StaticResource CForeground2}"
+                                       FontSize="25" TextAlignment="Center" VerticalAlignment="Center"
+                                       HorizontalAlignment="Stretch" />
+                        </Border>
                         <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto"
-                                      VerticalScrollBarVisibility="Auto">
+                                      VerticalScrollBarVisibility="Auto"
+                                      Height="{Binding OutgoingScrollViewerHeight}">
                             <ListView ItemsSource="{Binding OutgoingMessages, Mode=OneWay}"
                                       HorizontalAlignment="Stretch"
                                       Background="Transparent"
-                                      BorderThickness="0" AlternationCount="2">
+                                      BorderThickness="0" AlternationCount="2" Padding="-1">
                                 <ListView.ItemContainerStyle>
                                     <Style TargetType="ListViewItem">
                                         <Setter Property="Template">
@@ -38,56 +43,7 @@
                                                 <ControlTemplate>
                                                     <Border
                                                         Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource BackgroundConverter}}"
-                                                        Padding="7 2">
-                                                        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                                                            <Grid.ColumnDefinitions>
-                                                                <ColumnDefinition Width="*" />
-                                                                <ColumnDefinition Width="10"/>
-                                                                <ColumnDefinition Width="*" />
-                                                            </Grid.ColumnDefinitions>
-                                                            <TextBlock Grid.Column="0" Text="{Binding Key}"
-                                                                       Foreground="{StaticResource CForeground2}"
-                                                                       FontSize="17" VerticalAlignment="Center" />
-                                                            <TextBlock x:Name="ValueTextBlock" Grid.Column="2"
-                                                                       Text="{Binding Value}"
-                                                                       Foreground="{StaticResource CForeground2}"
-                                                                       FontSize="17" VerticalAlignment="Center"
-                                                                       HorizontalAlignment="Right" />
-                                                        </Grid>
-                                                    </Border>
-                                                </ControlTemplate>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </ListView.ItemContainerStyle>
-                            </ListView>
-                        </ScrollViewer>
-                    </Grid>
-                </Border>
-                <Border Grid.Column="2" CornerRadius="5" Background="{StaticResource CBackground1}"
-                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="40" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-                        <TextBlock Grid.Row="0" Text="Incoming" Foreground="{StaticResource CForeground2}"
-                                   FontSize="25" TextAlignment="Center" VerticalAlignment="Center"
-                                   HorizontalAlignment="Stretch" />
-                        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto"
-                                      VerticalScrollBarVisibility="Auto">
-                            <ListView ItemsSource="{Binding IncomingMessages, Mode=OneWay}"
-                                      HorizontalAlignment="Stretch"
-                                      Background="Transparent"
-                                      BorderThickness="0" AlternationCount="2">
-                                <ListView.ItemContainerStyle>
-                                    <Style TargetType="ListViewItem">
-                                        <Setter Property="Template">
-                                            <Setter.Value>
-                                                <ControlTemplate>
-                                                    <Border
-                                                        Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource BackgroundConverter}}"
-                                                        Padding="7 2">
+                                                        Padding="7 2" Height="30">
                                                         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                                                             <Grid.ColumnDefinitions>
                                                                 <ColumnDefinition Width="*" />
@@ -111,6 +67,61 @@
                                 </ListView.ItemContainerStyle>
                             </ListView>
                         </ScrollViewer>
+                        <Border Grid.Row="2" Background="{StaticResource CBackground1}" CornerRadius="0 0 5 5"/>
+                    </Grid>
+                </Border>
+                <Border Name="IncomingGridContainer" Grid.Column="2" Background="Transparent" HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="40" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="5" />
+                        </Grid.RowDefinitions>
+                        <Border Grid.Row="0" Background="{StaticResource CBackground1}" CornerRadius="5 5 0 0">
+                            <TextBlock Text="Incoming" Foreground="{StaticResource CForeground2}"
+                                       FontSize="25" TextAlignment="Center" VerticalAlignment="Center"
+                                       HorizontalAlignment="Stretch" />
+                        </Border>
+                        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto"
+                                      VerticalScrollBarVisibility="Auto"
+                                      Height="{Binding IncomingScrollViewerHeight, Mode=OneWay}">
+                            <ListView ItemsSource="{Binding IncomingMessages, Mode=OneWay}"
+                                      HorizontalAlignment="Stretch"
+                                      Background="Transparent"
+                                      BorderThickness="0" AlternationCount="2" Padding="-1">
+                                <ListView.ItemContainerStyle>
+                                    <Style TargetType="ListViewItem">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate>
+                                                    <Border
+                                                        Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource BackgroundConverter}}"
+                                                        Padding="7 2" Height="30">
+                                                        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="10" />
+                                                                <ColumnDefinition Width="*" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBlock Grid.Column="0" Text="{Binding Key}"
+                                                                       Foreground="{StaticResource CForeground2}"
+                                                                       FontSize="17" VerticalAlignment="Center" />
+                                                            <TextBlock x:Name="ValueTextBlock" Grid.Column="2"
+                                                                       Text="{Binding Value}"
+                                                                       Foreground="{StaticResource CForeground2}"
+                                                                       FontSize="17" VerticalAlignment="Center"
+                                                                       HorizontalAlignment="Right" />
+                                                        </Grid>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ListView.ItemContainerStyle>
+                            </ListView>
+                        </ScrollViewer>
+                        <Border Grid.Row="2" Background="{StaticResource CBackground1}" CornerRadius="0 0 5 5"/>
                     </Grid>
                 </Border>
             </Grid>
