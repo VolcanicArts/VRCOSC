@@ -5,6 +5,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:ui="clr-namespace:VRCOSC.App.UI"
         xmlns:parameters="clr-namespace:VRCOSC.App.Pages.Modules.Parameters"
+        xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d" Height="1080" Width="1920">
     <Window.Resources>
         <parameters:BackgroundConverter x:Key="BackgroundConverter" />
@@ -57,10 +58,13 @@
                                            Text="Name" />
                             </Grid>
                         </Border>
-                        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto"
+                        <ui:MouseScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto"
                                       VerticalScrollBarVisibility="Auto"
                                       Height="{Binding ParameterScrollViewerHeight, Mode=OneWay}">
                             <ListView Name="ParameterListView" Background="Transparent" BorderThickness="0" AlternationCount="2" Padding="-1" ItemsSource="{Binding UIParameters}">
+                                <b:Interaction.Behaviors>
+                                    <ui:IgnoreMouseWheelBehavior />
+                                </b:Interaction.Behaviors>
                                 <ListView.ItemContainerStyle>
                                     <Style TargetType="ListViewItem">
                                         <Setter Property="Template">
@@ -125,7 +129,7 @@
                                     </Style>
                                 </ListView.ItemContainerStyle>
                             </ListView>
-                        </ScrollViewer>
+                        </ui:MouseScrollViewer>
                         <Border Grid.Row="2" Background="{StaticResource CBackground1}" CornerRadius="0 0 5 5" />
                     </Grid>
                 </Border>

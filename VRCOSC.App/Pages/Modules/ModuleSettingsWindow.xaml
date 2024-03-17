@@ -14,7 +14,7 @@
                          HorizontalContentAlignment="Stretch" MaxWidth="900" Margin="10" BorderThickness="0"
                          Background="Transparent">
                     <b:Interaction.Behaviors>
-                        <ui:BubbleScrollEvent />
+                        <ui:IgnoreMouseWheelBehavior />
                     </b:Interaction.Behaviors>
                     <ListBox.ItemContainerStyle>
                         <Style TargetType="ListBoxItem">
@@ -32,7 +32,7 @@
                                                          BorderThickness="0"
                                                          Background="Transparent" Padding="0 0 0 5">
                                                     <b:Interaction.Behaviors>
-                                                        <ui:BubbleScrollEvent />
+                                                        <ui:IgnoreMouseWheelBehavior />
                                                     </b:Interaction.Behaviors>
                                                     <ListBox.ItemContainerStyle>
                                                         <Style TargetType="ListBoxItem">

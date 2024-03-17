@@ -7,6 +7,6 @@
       Title="BoolSettingPage"
       Width="{Binding ActualWidth, ElementName=SettingPageFrame}">
     <Grid>
-        <ToggleButton IsChecked="{Binding Attribute.Value}" Width="50" Height="50"/>
+        <CheckBox IsChecked="{Binding Attribute.Value}" Width="50" Height="50"/>
     </Grid>
 </Page>

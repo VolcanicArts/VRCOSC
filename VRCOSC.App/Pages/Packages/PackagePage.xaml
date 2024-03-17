@@ -6,6 +6,7 @@
       xmlns:fa5="http://schemas.fontawesome.com/icons/"
       xmlns:ui="clr-namespace:VRCOSC.App.UI"
       xmlns:packages="clr-namespace:VRCOSC.App.Pages.Packages"
+      xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
       mc:Ignorable="d">
     <Page.Resources>
         <packages:BackgroundConverter x:Key="BackgroundConverter" />
@@ -71,12 +72,15 @@
                                 <TextBlock Grid.Column="5" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="{StaticResource CForeground2}" FontSize="20" FontWeight="Bold" Text="Action"/>
                             </Grid>
                         </Border>
-                        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto"
+                        <ui:MouseScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto"
                                       VerticalScrollBarVisibility="Auto"
                                       Height="{Binding PackageScrollViewerHeight, Mode=OneWay}">
                             <ListView Name="PackageList"
                                       Background="Transparent"
                                       BorderThickness="0" AlternationCount="2" Padding="-1">
+                                <b:Interaction.Behaviors>
+                                    <ui:IgnoreMouseWheelBehavior />
+                                </b:Interaction.Behaviors>
                                 <ListView.ItemContainerStyle>
                                     <Style TargetType="ListViewItem">
                                         <Setter Property="Template">
@@ -122,7 +126,7 @@
                                     </Style>
                                 </ListView.ItemContainerStyle>
                             </ListView>
-                        </ScrollViewer>
+                        </ui:MouseScrollViewer>
                         <Border Grid.Row="2" Background="{StaticResource CBackground1}" CornerRadius="0 0 5 5" />
                     </Grid>
                 </Border>

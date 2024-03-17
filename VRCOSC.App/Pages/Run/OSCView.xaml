@@ -4,6 +4,8 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:run="clr-namespace:VRCOSC.App.Pages.Run"
+      xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+      xmlns:ui="clr-namespace:VRCOSC.App.UI"
       mc:Ignorable="d">
     <Page.Resources>
         <run:BackgroundConverter x:Key="BackgroundConverter" />
@@ -29,13 +31,16 @@
                                        FontSize="25" TextAlignment="Center" VerticalAlignment="Center"
                                        HorizontalAlignment="Stretch" />
                         </Border>
-                        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto"
+                        <ui:MouseScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto"
                                       VerticalScrollBarVisibility="Auto"
                                       Height="{Binding OutgoingScrollViewerHeight}">
                             <ListView ItemsSource="{Binding OutgoingMessages, Mode=OneWay}"
                                       HorizontalAlignment="Stretch"
                                       Background="Transparent"
                                       BorderThickness="0" AlternationCount="2" Padding="-1">
+                                <b:Interaction.Behaviors>
+                                    <ui:IgnoreMouseWheelBehavior />
+                                </b:Interaction.Behaviors>
                                 <ListView.ItemContainerStyle>
                                     <Style TargetType="ListViewItem">
                                         <Setter Property="Template">
@@ -66,7 +71,7 @@
                                     </Style>
                                 </ListView.ItemContainerStyle>
                             </ListView>
-                        </ScrollViewer>
+                        </ui:MouseScrollViewer>
                         <Border Grid.Row="2" Background="{StaticResource CBackground1}" CornerRadius="0 0 5 5"/>
                     </Grid>
                 </Border>
@@ -83,13 +88,16 @@
                                        FontSize="25" TextAlignment="Center" VerticalAlignment="Center"
                                        HorizontalAlignment="Stretch" />
                         </Border>
-                        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto"
+                        <ui:MouseScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto"
                                       VerticalScrollBarVisibility="Auto"
                                       Height="{Binding IncomingScrollViewerHeight, Mode=OneWay}">
                             <ListView ItemsSource="{Binding IncomingMessages, Mode=OneWay}"
                                       HorizontalAlignment="Stretch"
                                       Background="Transparent"
                                       BorderThickness="0" AlternationCount="2" Padding="-1">
+                                <b:Interaction.Behaviors>
+                                    <ui:IgnoreMouseWheelBehavior />
+                                </b:Interaction.Behaviors>
                                 <ListView.ItemContainerStyle>
                                     <Style TargetType="ListViewItem">
                                         <Setter Property="Template">
@@ -120,7 +128,7 @@
                                     </Style>
                                 </ListView.ItemContainerStyle>
                             </ListView>
-                        </ScrollViewer>
+                        </ui:MouseScrollViewer>
                         <Border Grid.Row="2" Background="{StaticResource CBackground1}" CornerRadius="0 0 5 5"/>
                     </Grid>
                 </Border>

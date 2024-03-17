@@ -31,7 +31,7 @@ public class MouseScrollViewer : ScrollViewer
     }
 }
 
-public sealed class BubbleScrollEvent : Behavior<UIElement>
+public sealed class IgnoreMouseWheelBehavior : Behavior<UIElement>
 {
     protected override void OnAttached()
     {
@@ -48,6 +48,7 @@ public sealed class BubbleScrollEvent : Behavior<UIElement>
     private void AssociatedObject_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
     {
         e.Handled = true;
+
         var e2 = new MouseWheelEventArgs(e.MouseDevice, e.Timestamp, e.Delta)
         {
             RoutedEvent = UIElement.MouseWheelEvent
