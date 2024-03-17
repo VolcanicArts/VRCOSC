@@ -61,7 +61,7 @@ public class AppManager
     public VRChatClient VRChatClient;
     public OVRClient OVRClient;
 
-    private Repeater updateTask;
+    private Repeater? updateTask;
     private Repeater vrchatCheckTask;
     private Repeater openvrCheckTask;
 
@@ -95,6 +95,7 @@ public class AppManager
         ConnectionManager = new ConnectionManager();
         VRChatOscClient = new VRChatOscClient();
         VRChatClient = new VRChatClient(VRChatOscClient);
+        OVRClient = new OVRClient();
 
         VRChatOscClient.Init(ConnectionManager);
         ConnectionManager.Init();
@@ -104,8 +105,6 @@ public class AppManager
 
         openvrCheckTask = new Repeater(checkForOpenVR);
         openvrCheckTask.Start(TimeSpan.FromSeconds(1));
-
-        return;
 
         OVRClient.SetMetadata(new OVRMetadata
         {
@@ -129,7 +128,6 @@ public class AppManager
 
     private void checkForOpenVR() => Task.Run(() =>
     {
-        return;
         OVRClient.Init();
         OVRClient.SetAutoLaunch(SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.OVRAutoOpen));
     });
@@ -314,7 +312,7 @@ public class AppManager
     public async Task RestartAsync()
     {
         await StopAsync();
-        await Task.Delay(100);
+        await Task.Delay(200);
         RequestStart();
     }
 
@@ -334,7 +332,10 @@ public class AppManager
 
         await VRChatOscClient.DisableReceive();
         VRChatOscClient.OnParameterReceived -= onParameterReceived;
-        await updateTask.StopAsync();
+
+        if (updateTask is not null)
+            await updateTask.StopAsync();
+
         await ModuleManager.GetInstance().StopAsync();
         VRChatClient.Teardown();
         VRChatOscClient.DisableSend();

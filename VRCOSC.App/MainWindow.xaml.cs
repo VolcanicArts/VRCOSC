@@ -132,11 +132,16 @@ public partial class MainWindow
     {
         var appManager = AppManager.GetInstance();
 
-        if (appManager.State.Value is AppManagerState.Started or AppManagerState.Waiting)
+        if (appManager.State.Value is AppManagerState.Started)
         {
             e.Cancel = true;
             await appManager.StopAsync();
             Close();
+        }
+
+        if (appManager.State.Value is AppManagerState.Waiting)
+        {
+            appManager.CancelStartRequest();
         }
     }
 

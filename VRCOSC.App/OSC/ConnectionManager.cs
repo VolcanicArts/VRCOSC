@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
 using System.Threading.Tasks;
 using MeaMod.DNS.Model;
 using MeaMod.DNS.Multicast;
@@ -31,13 +30,12 @@ public class ConnectionManager
     private HttpListener queryServer = null!;
     private int vrcoscQueryPort;
 
-    private CancellationTokenSource? refreshTaskCancellationSource;
-    private Task? refreshTask;
+    private Repeater? refreshTask;
 
     public void Init()
     {
-        refreshTaskCancellationSource = new CancellationTokenSource();
-        refreshTask = Task.Run(refreshServices);
+        refreshTask = new Repeater(refreshServices);
+        refreshTask.Start(TimeSpan.FromMilliseconds(refresh_interval));
 
         VRCOSCReceivePort = getAvailableUdpPort();
         vrcoscQueryPort = getAvailableTcpPort();
@@ -141,14 +139,12 @@ public class ConnectionManager
 
     #endregion
 
-    private async Task refreshServices()
+    private void refreshServices()
     {
-        if (IsConnected || refreshTaskCancellationSource!.IsCancellationRequested) return;
+        if (IsConnected) return;
 
         mdns.SendQuery("_osc._udp.local");
         mdns.SendQuery("_oscjson._tcp.local");
-
-        await Task.Delay(refresh_interval);
     }
 
     private static readonly IPEndPoint default_loopback_endpoint = new(IPAddress.Loopback, 0);
