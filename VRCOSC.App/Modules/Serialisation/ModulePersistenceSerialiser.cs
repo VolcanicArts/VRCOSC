@@ -5,17 +5,18 @@ using System.IO;
 using Newtonsoft.Json;
 using VRCOSC.App.Profiles;
 using VRCOSC.App.Serialisation;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Modules.Serialisation;
 
 public class ModulePersistenceSerialiser : ProfiledSerialiser<Module, SerialisableModulePersistence>
 {
-    private readonly Utils.Observable<bool> globalPersistence;
+    private readonly Observable<object> globalPersistence;
 
     protected override string FileName => $"{Reference.SerialisedName}.json";
-    protected override string Directory => globalPersistence.Value ? "persistence" : Path.Join(base.Directory, "persistence");
+    protected override string Directory => (bool)globalPersistence.Value ? "persistence" : Path.Join(base.Directory, "persistence");
 
-    public ModulePersistenceSerialiser(Storage storage, Module reference, Utils.Observable<Profile> activeProfile, Utils.Observable<bool> globalPersistence)
+    public ModulePersistenceSerialiser(Storage storage, Module reference, Observable<Profile> activeProfile, Observable<object> globalPersistence)
         : base(storage, reference, activeProfile)
     {
         this.globalPersistence = globalPersistence;

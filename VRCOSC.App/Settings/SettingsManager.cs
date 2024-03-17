@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using VRCOSC.App.Packages;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Settings.Serialisation;
 using VRCOSC.App.Utils;
@@ -36,8 +37,19 @@ public class SettingsManager
 
     private void writeDefaults()
     {
+        Settings[VRCOSCSetting.FirstTimeSetupComplete] = new Observable<object>(false);
+        Settings[VRCOSCSetting.StartInTray] = new Observable<object>(false);
+        Settings[VRCOSCSetting.PackageFilter] = new Observable<object>((int)(PackageListingFilter.Type_Official | PackageListingFilter.Type_Curated | PackageListingFilter.Type_Community)); // TODO: Remove community on release
+        Settings[VRCOSCSetting.AutomaticProfileSwitching] = new Observable<object>(false);
+        Settings[VRCOSCSetting.ModuleLogDebug] = new Observable<object>(false);
+        Settings[VRCOSCSetting.VRCAutoStart] = new Observable<object>(false);
+        Settings[VRCOSCSetting.VRCAutoStop] = new Observable<object>(false);
+        Settings[VRCOSCSetting.OVRAutoOpen] = new Observable<object>(false);
+        Settings[VRCOSCSetting.OVRAutoClose] = new Observable<object>(false);
         Settings[VRCOSCSetting.AllowPreReleasePackages] = new Observable<object>(true); // TODO: Change on app release
         Settings[VRCOSCSetting.UseLegacyPorts] = new Observable<object>(false);
+        Settings[VRCOSCSetting.TrayOnClose] = new Observable<object>(false);
+        Settings[VRCOSCSetting.GlobalPersistence] = new Observable<object>(false);
     }
 
     public Observable<object> GetObservable(VRCOSCSetting lookup)
@@ -58,6 +70,17 @@ public class SettingsManager
 
 public enum VRCOSCSetting
 {
+    FirstTimeSetupComplete,
+    StartInTray,
+    PackageFilter,
+    AutomaticProfileSwitching,
+    ModuleLogDebug,
+    VRCAutoStart,
+    VRCAutoStop,
+    OVRAutoOpen,
+    OVRAutoClose,
     AllowPreReleasePackages,
-    UseLegacyPorts
+    UseLegacyPorts,
+    TrayOnClose,
+    GlobalPersistence
 }

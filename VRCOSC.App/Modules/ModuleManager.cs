@@ -13,6 +13,7 @@ using VRCOSC.App.Modules.Serialisation;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.Profiles;
 using VRCOSC.App.Serialisation;
+using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;
 using Logger = VRCOSC.App.Utils.Logger;
 
@@ -113,7 +114,7 @@ public class ModuleManager : INotifyPropertyChanged
                     moduleSerialisationManager.RegisterSerialiser(1, new ModuleSerialiser(storage, module, ProfileManager.GetInstance().ActiveProfile));
 
                     var modulePersistenceSerialisationManager = new SerialisationManager();
-                    modulePersistenceSerialisationManager.RegisterSerialiser(1, new ModulePersistenceSerialiser(storage, module, ProfileManager.GetInstance().ActiveProfile, new Observable<bool>()));
+                    modulePersistenceSerialisationManager.RegisterSerialiser(1, new ModulePersistenceSerialiser(storage, module, ProfileManager.GetInstance().ActiveProfile, SettingsManager.GetInstance().GetObservable(VRCOSCSetting.GlobalPersistence)));
 
                     module.InjectDependencies(moduleSerialisationManager, modulePersistenceSerialisationManager);
                     module.Load();

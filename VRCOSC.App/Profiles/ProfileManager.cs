@@ -10,6 +10,7 @@ using System.Windows.Input;
 using VRCOSC.App.Pages.Profiles;
 using VRCOSC.App.Profiles.Serialisation;
 using VRCOSC.App.Serialisation;
+using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Profiles;
@@ -132,7 +133,7 @@ public class ProfileManager
     /// <returns>True if the profile was changed, otherwise false</returns>
     public bool AvatarChange(string avatarId)
     {
-        //if (!configManager.Get<bool>(VRCOSCSetting.AutomaticProfileSwitching)) return false;
+        if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AutomaticProfileSwitching)) return false;
 
         var avatarBoundProfile = Profiles.FirstOrDefault(profile => profile.LinkedAvatars.Select(linkedAvatar => linkedAvatar.Value).Contains(avatarId));
         var newProfile = avatarBoundProfile ?? DefaultProfile.Value;

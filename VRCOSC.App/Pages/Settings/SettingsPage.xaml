@@ -6,7 +6,9 @@
       xmlns:ui="clr-namespace:VRCOSC.App.UI"
       mc:Ignorable="d">
     <Page.Resources>
-
+        <Style TargetType="TextBlock">
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
     </Page.Resources>
     <Grid>
         <Border Background="{StaticResource CBackground2}" Padding="10">
@@ -14,15 +16,55 @@
                 <Border Background="{StaticResource CBackground3}" CornerRadius="5" Height="55" Padding="5">
                     <Grid>
                         <TextBlock Text="Use Legacy Ports" FontSize="20" Foreground="{StaticResource CForeground1}" />
-                        <TextBlock VerticalAlignment="Bottom" Text="Should VRCOSC use the legacy OSC ports to connect to VRChat?" FontSize="15" Foreground="{StaticResource CForeground2}"/>
-                        <CheckBox HorizontalAlignment="Right" VerticalAlignment="Center" IsChecked="{Binding UseLegacyPorts}" Height="40" Width="40"/>
+                        <TextBlock VerticalAlignment="Bottom"
+                                   Text="Should VRCOSC use the legacy OSC ports to connect to VRChat?" FontSize="15"
+                                   Foreground="{StaticResource CForeground2}" />
+                        <CheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+                                  IsChecked="{Binding UseLegacyPorts}" Height="40" Width="40" />
                     </Grid>
                 </Border>
                 <Border Background="{StaticResource CBackground3}" CornerRadius="5" Height="55" Padding="5">
                     <Grid>
-                        <TextBlock Text="Allow Pre-release Packages" FontSize="20" Foreground="{StaticResource CForeground1}" />
-                        <TextBlock VerticalAlignment="Bottom" Text="Should VRCOSC allow installing pre-releases of module packages?" FontSize="15" Foreground="{StaticResource CForeground2}"/>
-                        <CheckBox HorizontalAlignment="Right" VerticalAlignment="Center" IsChecked="{Binding AllowPreReleasePackages}" Height="40" Width="40"/>
+                        <TextBlock Text="Allow Pre-release Packages" FontSize="20"
+                                   Foreground="{StaticResource CForeground1}" />
+                        <TextBlock VerticalAlignment="Bottom"
+                                   Text="Should VRCOSC allow installing pre-releases of module packages?" FontSize="15"
+                                   Foreground="{StaticResource CForeground2}" />
+                        <CheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+                                  IsChecked="{Binding AllowPreReleasePackages}" Height="40" Width="40" />
+                    </Grid>
+                </Border>
+                <Border Background="{StaticResource CBackground3}" CornerRadius="5" Height="55" Padding="5">
+                    <Grid>
+                        <TextBlock Text="Auto-start with VRChat" FontSize="20"
+                                   Foreground="{StaticResource CForeground1}" />
+                        <TextBlock VerticalAlignment="Bottom"
+                                   Text="Allows VRCOSC to automatically start the modules when VRChat opens"
+                                   FontSize="15" Foreground="{StaticResource CForeground2}" />
+                        <CheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+                                  IsChecked="{Binding VRCAutoStart}" Height="40" Width="40" />
+                    </Grid>
+                </Border>
+                <Border Background="{StaticResource CBackground3}" CornerRadius="5" Height="55" Padding="5">
+                    <Grid>
+                        <TextBlock Text="Auto-stop with VRChat" FontSize="20"
+                                   Foreground="{StaticResource CForeground1}" />
+                        <TextBlock VerticalAlignment="Bottom"
+                                   Text="Allows VRCOSC to automatically stop the modules when VRChat closes"
+                                   FontSize="15" Foreground="{StaticResource CForeground2}" />
+                        <CheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+                                  IsChecked="{Binding VRCAutoStop}" Height="40" Width="40" />
+                    </Grid>
+                </Border>
+                <Border Background="{StaticResource CBackground3}" CornerRadius="5" Height="55" Padding="5">
+                    <Grid>
+                        <TextBlock Text="Enable Debug Mode" FontSize="20"
+                                   Foreground="{StaticResource CForeground1}" />
+                        <TextBlock VerticalAlignment="Bottom"
+                                   Text="Debug mode allows modules to log detailed events for more granularity, but it can produce a big log file"
+                                   FontSize="15" Foreground="{StaticResource CForeground2}" />
+                        <CheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+                                  IsChecked="{Binding ModuleLogDebug}" Height="40" Width="40" />
                     </Grid>
                 </Border>
             </ui:SpacedStackPanel>
