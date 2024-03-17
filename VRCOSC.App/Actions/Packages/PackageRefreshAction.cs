@@ -10,9 +10,21 @@ namespace VRCOSC.App.Actions.Packages;
 
 public class PackagesRefreshAction : CompositeProgressAction
 {
+    private readonly ObservableCollection<PackageSource> sources;
+    private readonly bool forceRemoteGrab;
+    private readonly bool allowPreRelease;
+
     public PackagesRefreshAction(ObservableCollection<PackageSource> sources, bool forceRemoteGrab, bool allowPreRelease)
     {
+        this.sources = sources;
+        this.forceRemoteGrab = forceRemoteGrab;
+        this.allowPreRelease = allowPreRelease;
+    }
+
+    protected override async Task Perform()
+    {
         sources.ForEach(source => AddAction(new PackageSourceRefreshAction(source, forceRemoteGrab, allowPreRelease)));
+        await base.Perform();
     }
 }
 

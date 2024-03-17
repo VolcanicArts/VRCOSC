@@ -118,8 +118,6 @@ public class PackageManager : INotifyPropertyChanged
     {
         var findCommunityPackages = new FindCommunityPackagesAction();
 
-        var packageSources = new List<PackageSource>();
-
         var searchProgressAction = new SearchRepositoriesAction(community_tag);
         findCommunityPackages.AddAction(searchProgressAction);
 
@@ -132,7 +130,7 @@ public class PackageManager : INotifyPropertyChanged
                 var packageSource = new PackageSource(this, repo.Owner.HtmlUrl.Split('/').Last(), repo.Name);
                 if (builtinSources.Any(comparedSource => comparedSource.InternalReference == packageSource.InternalReference)) return;
 
-                packageSources.Add(packageSource);
+                Sources.Add(packageSource);
             });
         }));
 
