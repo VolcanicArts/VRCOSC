@@ -9,13 +9,17 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using Valve.VR;
 using VRCOSC.App.Actions;
 using VRCOSC.App.Modules;
 using VRCOSC.App.OSC;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.Profiles;
+using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;
+using VRCOSC.OVR;
+using VRCOSC.OVR.Metadata;
 
 namespace VRCOSC.App;
 
@@ -23,6 +27,8 @@ public class AppManager
 {
     private static AppManager? instance;
     public static AppManager GetInstance() => instance ??= new AppManager();
+
+    private readonly Storage storage = new NativeStorage($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}/VRCOSC-V2-WPF");
 
     private ProgressAction? progressAction;
 
@@ -52,8 +58,12 @@ public class AppManager
 
     public ConnectionManager ConnectionManager;
     public VRChatOscClient VRChatOscClient;
+    public VRChatClient VRChatClient;
+    public OVRClient OVRClient;
 
     private Repeater updateTask;
+    private Repeater vrchatCheckTask;
+    private Repeater openvrCheckTask;
 
     private readonly Queue<VRChatOscMessage> oscMessageQueue = new();
     private readonly object oscMessageQueueLock = new();
@@ -84,9 +94,27 @@ public class AppManager
     {
         ConnectionManager = new ConnectionManager();
         VRChatOscClient = new VRChatOscClient();
+        VRChatClient = new VRChatClient(VRChatOscClient);
 
         VRChatOscClient.Init(ConnectionManager);
         ConnectionManager.Init();
+
+        vrchatCheckTask = new Repeater(checkForVRChatAutoStart);
+        vrchatCheckTask.Start(TimeSpan.FromSeconds(1));
+
+        openvrCheckTask = new Repeater(checkForOpenVR);
+        openvrCheckTask.Start(TimeSpan.FromSeconds(1));
+
+        return;
+
+        OVRClient.SetMetadata(new OVRMetadata
+        {
+            ApplicationType = EVRApplicationType.VRApplication_Background,
+            ApplicationManifest = storage.GetFullPath("openvr/app.vrmanifest"),
+            ActionManifest = storage.GetFullPath("openvr/action_manifest.json")
+        });
+
+        OVRHelper.OnError += m => Logger.Log($"[OpenVR] {m}");
     }
 
     private void update()
@@ -97,6 +125,21 @@ public class AppManager
         {
             processOscMessageQueue();
         }
+    }
+
+    private void checkForOpenVR() => Task.Run(() =>
+    {
+        return;
+        OVRClient.Init();
+        OVRClient.SetAutoLaunch(SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.OVRAutoOpen));
+    });
+
+    private void checkForVRChatAutoStart()
+    {
+        if (!VRChatClient.HasOpenStateChanged(out var clientOpenState)) return;
+
+        if (clientOpenState && State.Value == AppManagerState.Stopped && SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.VRCAutoStart)) RequestStart();
+        if (!clientOpenState && State.Value == AppManagerState.Started && SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.VRCAutoStop)) Stop();
     }
 
     #region OSC
@@ -120,8 +163,8 @@ public class AppManager
 
             if (message.IsAvatarParameter)
             {
-                // var wasPlayerUpdated = VRChatClient.Player.Update(message.ParameterName, message.ParameterValue);
-                // if (wasPlayerUpdated) ModuleManager.PlayerUpdate();
+                var wasPlayerUpdated = VRChatClient.Player.Update(message.ParameterName, message.ParameterValue);
+                if (wasPlayerUpdated) ModuleManager.GetInstance().PlayerUpdate();
             }
 
             ModuleManager.GetInstance().ParameterReceived(message);
@@ -293,7 +336,7 @@ public class AppManager
         VRChatOscClient.OnParameterReceived -= onParameterReceived;
         await updateTask.StopAsync();
         await ModuleManager.GetInstance().StopAsync();
-        //VRChatClient.Teardown();
+        VRChatClient.Teardown();
         VRChatOscClient.DisableSend();
 
         lock (oscMessageQueueLock)

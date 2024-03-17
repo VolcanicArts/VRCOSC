@@ -1,11 +1,15 @@
 ﻿using System;
 using System.ComponentModel;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using Newtonsoft.Json;
 using VRCOSC.App.Actions;
 using VRCOSC.App.Actions.Game;
 using VRCOSC.App.Modules;
@@ -18,6 +22,7 @@ using VRCOSC.App.Pages.Run;
 using VRCOSC.App.Pages.Settings;
 using VRCOSC.App.Profiles;
 using VRCOSC.App.Settings;
+using VRCOSC.OVR.Metadata;
 
 namespace VRCOSC.App;
 
@@ -30,6 +35,8 @@ public partial class MainWindow
     private readonly ProfilesPage profilesPage;
     private readonly SettingsPage settingsPage;
 
+    private readonly Storage storage = new NativeStorage($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}/VRCOSC-V2-WPF");
+
     public MainWindow()
     {
         InitializeComponent();
@@ -40,6 +47,8 @@ public partial class MainWindow
 
         AppManager.GetInstance().Initialise();
         SettingsManager.GetInstance().Load();
+
+        copyOpenVrFiles();
 
         homePage = new HomePage();
         packagePage = new PackagePage();
@@ -65,6 +74,48 @@ public partial class MainWindow
         loadingAction.OnComplete += HideLoadingOverlay;
         ShowLoadingOverlay(loadingAction);
         await loadingAction.Execute();
+    }
+
+    private void copyOpenVrFiles()
+    {
+        var runtimeOVRStorage = storage.GetStorageForDirectory("runtime/openvr");
+        var runtimeOVRPath = runtimeOVRStorage.GetFullPath(string.Empty);
+
+        var ovrFiles = Assembly.GetExecutingAssembly().GetManifestResourceNames().Where(file => file.Contains("OpenVR"));
+
+        foreach (var file in ovrFiles)
+        {
+            File.WriteAllBytes(Path.Combine(runtimeOVRPath, getOriginalFileName(file)), getResourceBytes(file));
+        }
+
+        var manifest = new OVRManifest();
+        manifest.Applications[0].ActionManifestPath = runtimeOVRStorage.GetFullPath("action_manifest.json");
+        manifest.Applications[0].ImagePath = runtimeOVRStorage.GetFullPath("SteamImage.png");
+
+        File.WriteAllText(Path.Combine(runtimeOVRPath, "app.vrmanifest"), JsonConvert.SerializeObject(manifest));
+    }
+
+    private static string getOriginalFileName(string fullResourceName)
+    {
+        var parts = fullResourceName.Split('.');
+        return parts[^2] + "." + parts[^1];
+    }
+
+    private static byte[] getResourceBytes(string resourceName)
+    {
+        var assembly = Assembly.GetExecutingAssembly();
+
+        using Stream? stream = assembly.GetManifestResourceStream(resourceName);
+
+        if (stream == null)
+        {
+            throw new InvalidOperationException($"{resourceName} does not exist");
+        }
+
+        using MemoryStream memoryStream = new MemoryStream();
+
+        stream.CopyTo(memoryStream);
+        return memoryStream.ToArray();
     }
 
     private void MainWindow_OnPreviewMouseDown(object sender, MouseButtonEventArgs e)

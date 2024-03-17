@@ -22,6 +22,7 @@ using VRCOSC.App.Pages.Modules.Parameters;
 using VRCOSC.App.Pages.Modules.Settings;
 using VRCOSC.App.Parameters;
 using VRCOSC.App.Serialisation;
+using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Modules;
@@ -261,6 +262,17 @@ public abstract class Module : INotifyPropertyChanged
     protected void Log(string message)
     {
         Logger.Log($"[{Title}]: {message}", "terminal");
+    }
+
+    /// <summary>
+    /// Logs to a module debug file when enabled in the settings
+    /// </summary>
+    /// <param name="message">The message to log to the file</param>
+    protected void LogDebug(string message)
+    {
+        if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.ModuleLogDebug)) return;
+
+        Logger.Log($"[{Title}]: {message}", "module-debug");
     }
 
     /// <summary>

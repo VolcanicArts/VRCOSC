@@ -33,8 +33,24 @@
         <PackageReference Include="PInvoke.User32" Version="0.7.124" />
         <PackageReference Include="Semver" Version="2.3.0" />
         <PackageReference Include="Velopack" Version="0.0.292" />
+        <PackageReference Include="VolcanicArts.Libs.OpenVR" Version="2.2.3" />
         <PackageReference Include="VRChat.OSCQuery" Version="0.0.7" />
         <PackageReference Include="WebSocket4Net" Version="0.15.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Resources\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Resources\OpenVR\action_manifest.json" />
+      <EmbeddedResource Include="Resources\OpenVR\action_manifest.json" />
+      <None Remove="Resources\OpenVR\knuckles_bindings.json" />
+      <EmbeddedResource Include="Resources\OpenVR\knuckles_bindings.json" />
+      <None Remove="Resources\OpenVR\oculus_touch_bindings.json" />
+      <EmbeddedResource Include="Resources\OpenVR\oculus_touch_bindings.json" />
+      <None Remove="Resources\OpenVR\SteamImage.png" />
+      <EmbeddedResource Include="Resources\OpenVR\SteamImage.png" />
     </ItemGroup>
 
 </Project>
