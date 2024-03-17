@@ -49,7 +49,7 @@ public class PackageManager : INotifyPropertyChanged
     {
         builtinSources.ForEach(source => Sources.Add(source));
         serialisationManager.Deserialise();
-        return RefreshAllSources(CacheExpireTime + TimeSpan.FromDays(1) <= DateTime.Now);
+        return RefreshAllSources(CacheExpireTime <= DateTime.Now);
     }
 
     public PackageLoadAction RefreshAllSources(bool forceRemoteGrab)
@@ -70,7 +70,7 @@ public class PackageManager : INotifyPropertyChanged
 
         packageLoadAction.OnComplete += () =>
         {
-            CacheExpireTime = DateTime.Now + TimeSpan.FromDays(1);
+            if (forceRemoteGrab) CacheExpireTime = DateTime.Now + TimeSpan.FromDays(1);
             serialisationManager.Serialise();
             AppManager.GetInstance().Refresh(PageLookup.Packages);
         };
