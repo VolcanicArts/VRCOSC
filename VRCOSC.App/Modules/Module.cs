@@ -21,9 +21,11 @@ using VRCOSC.App.Pages.Modules;
 using VRCOSC.App.Pages.Modules.Parameters;
 using VRCOSC.App.Pages.Modules.Settings;
 using VRCOSC.App.Parameters;
+using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;
+using VRCOSC.OVR;
 
 namespace VRCOSC.App.Modules;
 
@@ -35,6 +37,9 @@ public abstract class Module : INotifyPropertyChanged
 
     public Observable<bool> Enabled { get; } = new();
     public Observable<ModuleState> State { get; } = new(ModuleState.Stopped);
+
+    protected Player Player => AppManager.GetInstance().VRChatClient.Player;
+    protected OVRClient OVRClient => AppManager.GetInstance().OVRClient;
 
     public string Title => GetType().GetCustomAttribute<ModuleTitleAttribute>()?.Title ?? "PLACEHOLDER";
     public string ShortDescription => GetType().GetCustomAttribute<ModuleDescriptionAttribute>()?.ShortDescription ?? string.Empty;
@@ -56,8 +61,8 @@ public abstract class Module : INotifyPropertyChanged
 
     private readonly List<Repeater> updateTasks = new();
 
-    private SerialisationManager moduleSerialisationManager;
-    private SerialisationManager persistenceSerialisationManager;
+    private SerialisationManager moduleSerialisationManager = null!;
+    private SerialisationManager persistenceSerialisationManager = null!;
 
     protected virtual bool ShouldUsePersistence => true;
 
