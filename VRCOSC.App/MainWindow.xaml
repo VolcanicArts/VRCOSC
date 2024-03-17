@@ -7,8 +7,9 @@
         xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:utils="clr-namespace:VRCOSC.App.Utils"
         mc:Ignorable="d"
-        Title="VRCOSC" Width="1920" Height="1080" WindowState="Maximized" MinWidth="960" MinHeight="540"
+        Title="VRCOSC" Width="1920" Height="1080" MinWidth="960" MinHeight="540"
         PreviewMouseDown="MainWindow_OnPreviewMouseDown"
+        Closing="MainWindow_OnClosing"
         Closed="MainWindow_OnClosed">
     <Window.Resources>
         <Style TargetType="TabControl">

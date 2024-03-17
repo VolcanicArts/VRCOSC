@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -46,6 +47,18 @@ public partial class MainWindow
         if (e.OriginalSource is not TextBox && focusedElement is TextBox)
         {
             Keyboard.ClearFocus();
+        }
+    }
+
+    private async void MainWindow_OnClosing(object? sender, CancelEventArgs e)
+    {
+        var appManager = AppManager.GetInstance();
+
+        if (appManager.State.Value is AppManagerState.Started or AppManagerState.Waiting)
+        {
+            e.Cancel = true;
+            await appManager.StopAsync();
+            Close();
         }
     }
 
