@@ -6,6 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 using Newtonsoft.Json;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Serialisation;
 
@@ -81,8 +82,9 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
                 return DeserialisationResult.Success;
             }
         }
-        catch (Exception)
+        catch (Exception e)
         {
+            Logger.Error(e, GetType().Name);
             return DeserialisationResult.GenericError;
         }
     }
@@ -101,8 +103,9 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
 
             return SerialisationResult.Success;
         }
-        catch (Exception)
+        catch (Exception e)
         {
+            Logger.Error(e, GetType().Name);
             return SerialisationResult.GenericError;
         }
     }

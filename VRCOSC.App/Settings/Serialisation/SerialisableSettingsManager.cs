@@ -13,6 +13,11 @@ public class SerialisableSettingsManager : SerialisableVersion
     [JsonProperty("settings")]
     public Dictionary<VRCOSCSetting, object> Settings = new();
 
+    [JsonConstructor]
+    public SerialisableSettingsManager()
+    {
+    }
+
     public SerialisableSettingsManager(SettingsManager settingsManager)
     {
         Version = 1;

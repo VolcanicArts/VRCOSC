@@ -18,7 +18,12 @@ public class SettingsManagerSerialiser : Serialiser<SettingsManager, Serialisabl
 
     protected override bool ExecuteAfterDeserialisation(SerialisableSettingsManager data)
     {
-        data.Settings.ForEach(pair => Reference.Settings.Add(pair.Key, new Observable<object>(pair.Value)));
+        data.Settings.ForEach(pair =>
+        {
+            if (Reference.Settings.TryGetValue(pair.Key, out var setting))
+                setting.Value = pair.Value;
+        });
+
         return false;
     }
 }
