@@ -31,14 +31,16 @@ public class PackagesRefreshAction : CompositeProgressAction
 public class PackageSourceRefreshAction : ProgressAction
 {
     private readonly PackageSource source;
+    private readonly string packageSourceDisplayName;
     private readonly bool forceRemoteGrab;
     private readonly bool allowPreRelease;
 
-    public override string Title => $"Refreshing {source.RepoName}";
+    public override string Title => $"Refreshing {packageSourceDisplayName}";
 
     public PackageSourceRefreshAction(PackageSource source, bool forceRemoteGrab, bool allowPreRelease)
     {
         this.source = source;
+        packageSourceDisplayName = source.DisplayName;
         this.forceRemoteGrab = forceRemoteGrab;
         this.allowPreRelease = allowPreRelease;
     }
