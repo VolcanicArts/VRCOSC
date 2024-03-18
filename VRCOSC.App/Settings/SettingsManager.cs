@@ -17,7 +17,7 @@ public class SettingsManager
 
     public readonly Dictionary<VRCOSCSetting, Observable<object>> Settings = new();
 
-    private readonly Storage storage = new NativeStorage($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}/VRCOSC-V2-WPF");
+    private readonly Storage storage = AppManager.GetInstance().Storage;
     private readonly SerialisationManager serialisationManager;
 
     private SettingsManager()

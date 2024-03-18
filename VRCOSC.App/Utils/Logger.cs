@@ -59,7 +59,7 @@ public class Logger
     /// </summary>
     public static string VersionIdentifier = "unknown";
 
-    private static Storage storage = new NativeStorage($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}/VRCOSC-V2-WPF/logs");
+    private static Storage storage = AppManager.GetInstance().Storage.GetStorageForDirectory("logs");
 
     /// <summary>
     /// The storage to place logs inside.

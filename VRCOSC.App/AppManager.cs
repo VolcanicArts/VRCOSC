@@ -23,10 +23,16 @@ namespace VRCOSC.App;
 
 public class AppManager
 {
+#if DEBUG
+    public static string AppName = "VRCOSC-V2-Dev";
+#else
+    public static string AppName = "VRCOSC-V2";
+#endif
+
     private static AppManager? instance;
     public static AppManager GetInstance() => instance ??= new AppManager();
 
-    private readonly Storage storage = new NativeStorage($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}/VRCOSC-V2-WPF");
+    public readonly Storage Storage = new NativeStorage($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}/{AppName}");
 
     public Observable<AppManagerState> State = new(AppManagerState.Stopped);
 
@@ -85,8 +91,8 @@ public class AppManager
         OVRClient.SetMetadata(new OVRMetadata
         {
             ApplicationType = EVRApplicationType.VRApplication_Background,
-            ApplicationManifest = storage.GetFullPath("openvr/app.vrmanifest"),
-            ActionManifest = storage.GetFullPath("openvr/action_manifest.json")
+            ApplicationManifest = Storage.GetFullPath("openvr/app.vrmanifest"),
+            ActionManifest = Storage.GetFullPath("openvr/action_manifest.json")
         });
 
         OVRHelper.OnError += m => Logger.Log($"[OpenVR] {m}");

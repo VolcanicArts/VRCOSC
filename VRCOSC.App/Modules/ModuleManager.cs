@@ -25,7 +25,7 @@ public class ModuleManager : INotifyPropertyChanged
     private static ModuleManager? instance;
     public static ModuleManager GetInstance() => instance ??= new ModuleManager();
 
-    private readonly Storage storage = new NativeStorage($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}/VRCOSC-V2-WPF");
+    private readonly Storage storage = AppManager.GetInstance().Storage;
 
     private AssemblyLoadContext? localModulesContext;
     private Dictionary<string, AssemblyLoadContext>? remoteModulesContexts;

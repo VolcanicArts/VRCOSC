@@ -22,7 +22,7 @@ namespace VRCOSC.App.Packages;
 public class PackageManager : INotifyPropertyChanged
 {
     private static PackageManager? instance;
-    public static PackageManager GetInstance() => instance ??= new PackageManager(new NativeStorage($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}/VRCOSC-V2-WPF"));
+    public static PackageManager GetInstance() => instance ??= new PackageManager();
 
     private const string community_tag = "vrcosc-package";
 
@@ -36,8 +36,9 @@ public class PackageManager : INotifyPropertyChanged
 
     public DateTime CacheExpireTime = DateTime.UnixEpoch;
 
-    public PackageManager(Storage baseStorage)
+    public PackageManager()
     {
+        var baseStorage = AppManager.GetInstance().Storage;
         storage = baseStorage.GetStorageForDirectory("packages/remote");
 
         builtinSources.Add(new PackageSource(this, "VolcanicArts", "VRCOSC-Modules", PackageType.Official));

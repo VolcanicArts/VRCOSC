@@ -38,7 +38,7 @@ public partial class MainWindow
     private readonly ProfilesPage profilesPage;
     private readonly SettingsPage settingsPage;
 
-    private readonly Storage storage = new NativeStorage($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}/VRCOSC-V2-WPF");
+    private readonly Storage storage = AppManager.GetInstance().Storage;
 
     private static Version assemblyVersion => Assembly.GetEntryAssembly()?.GetName().Version ?? new Version();
     private string version => $"{assemblyVersion.Major}.{assemblyVersion.Minor}.{assemblyVersion.Build}";
@@ -49,7 +49,7 @@ public partial class MainWindow
 
         DataContext = this;
 
-        Title = $"VRCOSC {version}";
+        Title = $"{AppManager.AppName} {version}";
 
         AppManager.GetInstance().Initialise();
         SettingsManager.GetInstance().Load();

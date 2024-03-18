@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
 using System.Collections;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -19,7 +18,7 @@ public class ProfileManager
     private static ProfileManager? instance;
     public static ProfileManager GetInstance() => instance ??= new ProfileManager();
 
-    private readonly Storage storage = new NativeStorage($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}/VRCOSC-V2-WPF");
+    private readonly Storage storage = AppManager.GetInstance().Storage;
 
     public ObservableCollection<Profile> Profiles { get; } = new();
 
