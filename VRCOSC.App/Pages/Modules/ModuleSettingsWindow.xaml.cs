@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using VRCOSC.App.Modules;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.Utils;
 
@@ -10,7 +9,6 @@ namespace VRCOSC.App.Pages.Modules;
 
 public partial class ModuleSettingsWindow
 {
-    private readonly Module module;
     private readonly Repeater updateTask;
 
     public ModuleSettingsWindow(Module module)
@@ -19,7 +17,6 @@ public partial class ModuleSettingsWindow
 
         Title = $"{module.Title}'s Settings";
 
-        this.module = module;
         DataContext = module;
 
         updateTask = new Repeater(() => module.Settings.ForEach(pair => pair.Value.CheckIsEnabled()));
