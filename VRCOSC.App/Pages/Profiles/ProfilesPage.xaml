@@ -42,7 +42,7 @@
                             Text="Automatic switching changes your selected profile to one that is linked to the avatar you’re wearing when you change avatar. If none is found, the default profile is used"
                             FontSize="15" Foreground="{StaticResource CForeground2}"
                             HorizontalAlignment="Left" VerticalAlignment="Bottom" />
-                        <CheckBox HorizontalAlignment="Right" VerticalAlignment="Center" Height="42" Width="42" />
+                        <CheckBox HorizontalAlignment="Right" VerticalAlignment="Center" Height="42" Width="42" IsChecked="{Binding EnableAutomaticSwitching}" />
                     </Grid>
                 </Border>
 

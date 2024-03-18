@@ -32,6 +32,12 @@ public class ProfileManager
     /// </summary>
     public Observable<Profile> DefaultProfile { get; } = new();
 
+    public bool EnableAutomaticSwitching
+    {
+        get => (bool)SettingsManager.GetInstance().GetObservable(VRCOSCSetting.AutomaticProfileSwitching).Value;
+        set => SettingsManager.GetInstance().GetObservable(VRCOSCSetting.AutomaticProfileSwitching).Value = value;
+    }
+
     private readonly SerialisationManager serialisationManager;
 
     public ProfileManager()
