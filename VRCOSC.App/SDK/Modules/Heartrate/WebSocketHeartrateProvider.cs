@@ -4,7 +4,7 @@
 using System;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using VRCOSC.App.Utils;
+using VRCOSC.App.SDK.Utils;
 
 namespace VRCOSC.App.SDK.Modules.Heartrate;
 
