@@ -12,9 +12,9 @@
         <modules:BackgroundConverter x:Key="BackgroundConverter" />
     </Page.Resources>
     <Grid>
-        <Border Background="{StaticResource CBackground2}" Padding="10">
-            <ui:MouseScrollViewer HorizontalScrollBarVisibility="Auto"
-                          VerticalScrollBarVisibility="Auto">
+        <ui:MouseScrollViewer HorizontalScrollBarVisibility="Auto"
+                              VerticalScrollBarVisibility="Auto">
+            <Border Background="{StaticResource CBackground2}" Padding="5">
                 <ListView ItemsSource="{Binding UIModules, Mode=OneWay}"
                           HorizontalAlignment="Stretch"
                           Background="Transparent"
@@ -24,7 +24,7 @@
                     </b:Interaction.Behaviors>
                     <ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem">
-                            <Setter Property="Margin" Value="0 0 0 10" />
+                            <Setter Property="Margin" Value="5" />
                             <Setter Property="Template">
                                 <Setter.Value>
                                     <ControlTemplate>
@@ -175,7 +175,7 @@
                         </Style>
                     </ListView.ItemContainerStyle>
                 </ListView>
-            </ui:MouseScrollViewer>
-        </Border>
+            </Border>
+        </ui:MouseScrollViewer>
     </Grid>
 </Page>
