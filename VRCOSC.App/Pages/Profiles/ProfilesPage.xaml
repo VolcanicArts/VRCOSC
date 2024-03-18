@@ -6,110 +6,122 @@
       xmlns:ui="clr-namespace:VRCOSC.App.UI"
       xmlns:profiles="clr-namespace:VRCOSC.App.Pages.Profiles"
       xmlns:fa5="http://schemas.fontawesome.com/icons/"
+      xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
       mc:Ignorable="d">
     <Page.Resources>
         <profiles:BackgroundConverter x:Key="BackgroundConverter" />
     </Page.Resources>
     <Grid>
-        <Border Background="{StaticResource CBackground2}" Padding="10">
-            <ui:SpacedStackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Spacing="10"
-                                 FlowDirection="LeftToRight" Orientation="Vertical">
-                <Border Background="{StaticResource CBackground1}" Padding="9" Height="60" CornerRadius="5">
-                    <Grid>
-                        <TextBlock Text="Active Profile" FontSize="20" Foreground="{StaticResource CForeground1}"
-                                   HorizontalAlignment="Left" VerticalAlignment="Center" />
-                        <ComboBox ItemsSource="{Binding Profiles}" SelectedValuePath="Name.Value"
-                                  DisplayMemberPath="Name.Value" SelectedItem="{Binding UIActiveProfile.Value}"
-                                  HorizontalAlignment="Right" Width="200" VerticalContentAlignment="Center"
-                                  FontSize="20" Background="{StaticResource CBackground3}" />
-                    </Grid>
-                </Border>
-                <Border Background="{StaticResource CBackground1}" Padding="9" Height="60" CornerRadius="5">
-                    <Grid>
-                        <TextBlock Text="Default Profile" FontSize="20" Foreground="{StaticResource CForeground1}"
-                                   HorizontalAlignment="Left" VerticalAlignment="Center" />
-                        <ComboBox ItemsSource="{Binding Profiles}" SelectedValuePath="Name.Value"
-                                  DisplayMemberPath="Name.Value" SelectedItem="{Binding DefaultProfile.Value}"
-                                  HorizontalAlignment="Right" Width="200" VerticalContentAlignment="Center"
-                                  FontSize="20" Background="{StaticResource CBackground3}" />
-                    </Grid>
-                </Border>
-                <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="60" CornerRadius="5">
-                    <Grid>
-                        <TextBlock Text="Automatic Switching" FontSize="20" Foreground="{StaticResource CForeground1}"
-                                   HorizontalAlignment="Left" VerticalAlignment="Top" />
-                        <TextBlock
-                            Text="Automatic switching changes your selected profile to one that is linked to the avatar you’re wearing when you change avatar. If none is found, the default profile is used"
-                            FontSize="15" Foreground="{StaticResource CForeground2}"
-                            HorizontalAlignment="Left" VerticalAlignment="Bottom" />
-                        <CheckBox HorizontalAlignment="Right" VerticalAlignment="Center" Height="42" Width="42" IsChecked="{Binding EnableAutomaticSwitching}" />
-                    </Grid>
-                </Border>
-
-                <Border Background="{StaticResource CBackground1}" CornerRadius="5">
-                    <StackPanel>
-                        <Border Height="50" Padding="9">
-                            <TextBlock Text="Profiles" FontSize="20" Foreground="{StaticResource CForeground1}"
-                                       HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" />
-                        </Border>
-                        <ListView ItemsSource="{Binding Profiles, Mode=OneWay}"
-                                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                  Background="Transparent"
-                                  BorderThickness="0" AlternationCount="2" Padding="-1">
-                            <ListView.ItemContainerStyle>
-                                <Style TargetType="ListViewItem">
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate>
-                                                <Border
-                                                    Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource BackgroundConverter}}"
-                                                    Padding="7 2">
-                                                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                                          Height="50">
-                                                        <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="*" />
-                                                            <ColumnDefinition Width="*" />
-                                                        </Grid.ColumnDefinitions>
-                                                        <TextBlock Grid.Column="0" Text="{Binding Name.Value}"
-                                                                   Foreground="{StaticResource CForeground1}"
-                                                                   FontSize="20" HorizontalAlignment="Left"
-                                                                   VerticalAlignment="Center" />
-                                                        <ui:SpacedStackPanel Grid.Column="1"
-                                                                             FlowDirection="RightToLeft"
-                                                                             Orientation="Horizontal" Spacing="8">
-                                                            <ui:VRCOSCButton ButtonColour="Red"
-                                                                             Click="RemoveProfile_ButtonClick"
-                                                                             Visibility="{Binding UIRemoveProfileButtonVisibility}"
-                                                                             Width="36" Height="36"
-                                                                             Tag="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=DataContext}">
-                                                                <fa5:ImageAwesome Icon="Solid_Minus" Foreground="White"
-                                                                    Margin="5" />
-                                                            </ui:VRCOSCButton>
-                                                            <ui:VRCOSCButton ButtonColour="Blue"
-                                                                             Click="EditProfile_ButtonClick"
-                                                                             Width="36" Height="36"
-                                                                             Tag="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=DataContext}">
-                                                                <fa5:ImageAwesome Icon="Solid_Edit" Foreground="White"
-                                                                    Margin="5" />
-                                                            </ui:VRCOSCButton>
-                                                        </ui:SpacedStackPanel>
-                                                    </Grid>
-                                                </Border>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Style>
-                            </ListView.ItemContainerStyle>
-                        </ListView>
-                        <Border Height="50" Padding="5">
-                            <ui:VRCOSCButton ButtonColour="Green" Width="140" Height="36"
-                                             Click="AddProfile_ButtonClick">
-                                <fa5:ImageAwesome Icon="Solid_Plus" Foreground="White" Margin="5" />
-                            </ui:VRCOSCButton>
-                        </Border>
-                    </StackPanel>
-                </Border>
-            </ui:SpacedStackPanel>
-        </Border>
+        <ui:MouseScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
+            <Border Background="{StaticResource CBackground2}" Padding="10">
+                <ui:SpacedStackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Spacing="5"
+                                     FlowDirection="LeftToRight" Orientation="Vertical">
+                    <Border Background="{StaticResource CBackground1}" Padding="9" Height="45" CornerRadius="5">
+                        <Grid>
+                            <TextBlock Text="Active Profile" FontSize="18" FontWeight="Bold"
+                                       Foreground="{StaticResource CForeground1}"
+                                       HorizontalAlignment="Left" VerticalAlignment="Center" />
+                            <ComboBox ItemsSource="{Binding Profiles}" SelectedValuePath="Name.Value"
+                                      DisplayMemberPath="Name.Value" SelectedItem="{Binding UIActiveProfile.Value}"
+                                      HorizontalAlignment="Right" Width="200" VerticalContentAlignment="Center"
+                                      FontSize="18" />
+                        </Grid>
+                    </Border>
+                    <Border Background="{StaticResource CBackground1}" Padding="9" Height="45" CornerRadius="5">
+                        <Grid>
+                            <TextBlock Text="Default Profile" FontSize="18" FontWeight="Bold"
+                                       Foreground="{StaticResource CForeground1}"
+                                       HorizontalAlignment="Left" VerticalAlignment="Center" />
+                            <ComboBox ItemsSource="{Binding Profiles}" SelectedValuePath="Name.Value"
+                                      DisplayMemberPath="Name.Value" SelectedItem="{Binding DefaultProfile.Value}"
+                                      HorizontalAlignment="Right" Width="200" VerticalContentAlignment="Center"
+                                      FontSize="18" />
+                        </Grid>
+                    </Border>
+                    <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50" CornerRadius="5">
+                        <Grid>
+                            <TextBlock Text="Automatic Switching" FontSize="18" FontWeight="Bold"
+                                       Foreground="{StaticResource CForeground1}"
+                                       HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0 -3" />
+                            <TextBlock
+                                Text="Automatic switching changes your selected profile to one that is linked to the avatar you’re wearing when you change avatar. If none is found, the default profile is used"
+                                FontSize="13" Foreground="{StaticResource CForeground2}"
+                                HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="0 -1" />
+                            <CheckBox HorizontalAlignment="Right" VerticalAlignment="Center" Height="32" Width="32"
+                                      IsChecked="{Binding EnableAutomaticSwitching}" />
+                        </Grid>
+                    </Border>
+                    <Border Background="{StaticResource CBackground1}" CornerRadius="5">
+                        <StackPanel>
+                            <Border Height="45" Padding="9">
+                                <TextBlock Text="Profiles" FontSize="18" FontWeight="Bold"
+                                           Foreground="{StaticResource CForeground1}"
+                                           HorizontalAlignment="Left" VerticalAlignment="Center" />
+                            </Border>
+                            <ListView ItemsSource="{Binding Profiles, Mode=OneWay}"
+                                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                      Background="Transparent"
+                                      BorderThickness="0" AlternationCount="2" Padding="-1">
+                                <b:Interaction.Behaviors>
+                                    <ui:IgnoreMouseWheelBehavior />
+                                </b:Interaction.Behaviors>
+                                <ListView.ItemContainerStyle>
+                                    <Style TargetType="ListViewItem">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate>
+                                                    <Border
+                                                        Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource BackgroundConverter}}"
+                                                        Padding="7 2">
+                                                        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                                              Height="40">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="*" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBlock Grid.Column="0" Text="{Binding Name.Value}"
+                                                                       Foreground="{StaticResource CForeground1}"
+                                                                       FontSize="18" HorizontalAlignment="Left"
+                                                                       VerticalAlignment="Center" Margin="2 0" />
+                                                            <ui:SpacedStackPanel Grid.Column="1"
+                                                                FlowDirection="RightToLeft"
+                                                                Orientation="Horizontal" Spacing="8">
+                                                                <ui:VRCOSCButton ButtonColour="Red"
+                                                                    Click="RemoveProfile_ButtonClick"
+                                                                    Visibility="{Binding UIRemoveProfileButtonVisibility}"
+                                                                    Width="30" Height="30"
+                                                                    Tag="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=DataContext}">
+                                                                    <fa5:ImageAwesome Icon="Solid_Minus"
+                                                                        Foreground="White"
+                                                                        Margin="5" />
+                                                                </ui:VRCOSCButton>
+                                                                <ui:VRCOSCButton ButtonColour="Blue"
+                                                                    Click="EditProfile_ButtonClick"
+                                                                    Width="30" Height="30"
+                                                                    Tag="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=DataContext}">
+                                                                    <fa5:ImageAwesome Icon="Solid_Edit"
+                                                                        Foreground="White"
+                                                                        Margin="5" />
+                                                                </ui:VRCOSCButton>
+                                                            </ui:SpacedStackPanel>
+                                                        </Grid>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ListView.ItemContainerStyle>
+                            </ListView>
+                            <Border Height="45" Padding="5">
+                                <ui:VRCOSCButton ButtonColour="Green" Width="30" Height="30"
+                                                 Click="AddProfile_ButtonClick">
+                                    <fa5:ImageAwesome Icon="Solid_Plus" Foreground="White" Margin="5" />
+                                </ui:VRCOSCButton>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                </ui:SpacedStackPanel>
+            </Border>
+        </ui:MouseScrollViewer>
     </Grid>
 </Page>

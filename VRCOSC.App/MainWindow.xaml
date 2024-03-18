@@ -46,7 +46,7 @@
                 <Border Grid.Column="0" Background="{StaticResource CBackground1}">
                     <Grid>
                         <StackPanel Orientation="Vertical" VerticalAlignment="Top">
-                            <Button Name="HomeButton" Command="{Binding HomeButtonClick}">
+                            <Button Name="HomeButton" Command="{Binding HomeButtonClick}" Visibility="Collapsed">
                                 <fa5:FontAwesome Icon="Solid_Home" />
                             </Button>
                             <Button Name="PackagesButton" Command="{Binding PackagesButtonClick}">

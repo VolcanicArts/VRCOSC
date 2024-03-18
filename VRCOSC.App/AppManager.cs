@@ -26,15 +26,15 @@ namespace VRCOSC.App;
 public class AppManager
 {
 #if DEBUG
-    public static string AppName = "VRCOSC-V2-Dev";
+    public const string APP_NAME = "VRCOSC-V2-Dev";
 #else
-    public static string AppName = "VRCOSC-V2";
+    public const string APP_NAME = "VRCOSC-V2";
 #endif
 
     private static AppManager? instance;
     public static AppManager GetInstance() => instance ??= new AppManager();
 
-    public readonly Storage Storage = new NativeStorage($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}/{AppName}");
+    public readonly Storage Storage = new NativeStorage($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}/{APP_NAME}");
 
     public Observable<AppManagerState> State = new(AppManagerState.Stopped);
 

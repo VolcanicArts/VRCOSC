@@ -49,7 +49,7 @@ public partial class MainWindow
 
         DataContext = this;
 
-        Title = $"{AppManager.AppName} {version}";
+        Title = $"{AppManager.APP_NAME} {version}";
 
         AppManager.GetInstance().Initialise();
         SettingsManager.GetInstance().Load();
@@ -63,7 +63,7 @@ public partial class MainWindow
         profilesPage = new ProfilesPage();
         settingsPage = new SettingsPage();
 
-        setPageContents(homePage, HomeButton);
+        setPageContents(packagePage, PackagesButton);
 
         load();
     }
