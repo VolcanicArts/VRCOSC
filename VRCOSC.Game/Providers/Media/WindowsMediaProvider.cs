@@ -10,6 +10,7 @@ using Windows.Media;
 using Windows.Media.Control;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using VRCOSC.Game.Processes;
+using System.IO;
 
 namespace VRCOSC.Game.Providers.Media;
 
@@ -119,6 +120,7 @@ public class WindowsMediaProvider : MediaProvider
 
         try { onAnyMediaPropertyChanged(controller, await controller.TryGetMediaPropertiesAsync()); }
         catch (COMException) { }
+        catch (FileNotFoundException) { }
 
         onAnyTimelinePropertiesChanged(controller, controller.GetTimelineProperties());
     }
