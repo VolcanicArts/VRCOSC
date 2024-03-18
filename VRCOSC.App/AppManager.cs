@@ -8,6 +8,8 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Interop;
+using System.Windows.Media;
 using Valve.VR;
 using VRCOSC.App.Modules;
 using VRCOSC.App.OSC;
@@ -112,6 +114,8 @@ public class AppManager
     {
         OVRClient.Init();
         OVRClient.SetAutoLaunch(SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.OVRAutoOpen));
+
+        RenderOptions.ProcessRenderMode = OVRClient.HasInitialised ? RenderMode.SoftwareOnly : RenderMode.Default;
     });
 
     private void checkForVRChatAutoStart()
