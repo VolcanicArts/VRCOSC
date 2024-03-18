@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using VRCOSC.App.Packages;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Settings.Serialisation;
+using VRCOSC.App.Updater;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Settings;
@@ -50,6 +51,7 @@ public class SettingsManager
         Settings[VRCOSCSetting.UseLegacyPorts] = new Observable<object>(false);
         Settings[VRCOSCSetting.TrayOnClose] = new Observable<object>(false);
         Settings[VRCOSCSetting.GlobalPersistence] = new Observable<object>(false);
+        Settings[VRCOSCSetting.ReleaseChannel] = new Observable<object>(UpdaterReleaseChannel.Beta); // TODO: Change on app release
     }
 
     public Observable<object> GetObservable(VRCOSCSetting lookup)
@@ -82,5 +84,6 @@ public enum VRCOSCSetting
     AllowPreReleasePackages,
     UseLegacyPorts,
     TrayOnClose,
-    GlobalPersistence
+    GlobalPersistence,
+    ReleaseChannel
 }
