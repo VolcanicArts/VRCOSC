@@ -74,7 +74,15 @@ public partial class MainWindow
         loadingAction.AddAction(new DynamicProgressAction("Loading modules", () => ModuleManager.GetInstance().LoadAllModules()));
         //loadingAction.AddAction(new DynamicProgressAction("Loading routes", () => appManager.RouterManager.Load()));
 
-        loadingAction.OnComplete += HideLoadingOverlay;
+        loadingAction.OnComplete += () =>
+        {
+            Dispatcher.Invoke(() =>
+            {
+                fadeIn(MainWindowContent, 500);
+                fadeOut(LoadingOverlay, 500);
+            });
+        };
+
         ShowLoadingOverlay(loadingAction);
         await loadingAction.Execute();
     }
@@ -162,15 +170,17 @@ public partial class MainWindow
         {
             while (!progressAction.IsComplete)
             {
-                Dispatcher.Invoke(() => { ProgressBar.Value = progressAction.GetProgress(); });
+                Dispatcher.Invoke(() => ProgressBar.Value = progressAction.GetProgress());
                 await Task.Delay(TimeSpan.FromSeconds(1d / 30d));
             }
+
+            Dispatcher.Invoke(() => ProgressBar.Value = 1);
         });
 
         fadeIn(LoadingOverlay, 150);
     });
 
-    public void HideLoadingOverlay() => Dispatcher.Invoke(() => { fadeOut(LoadingOverlay, 150); });
+    public void HideLoadingOverlay() => Dispatcher.Invoke(() => fadeOut(LoadingOverlay, 150));
 
     private static void fadeIn(FrameworkElement grid, double fadeInTimeMilli)
     {

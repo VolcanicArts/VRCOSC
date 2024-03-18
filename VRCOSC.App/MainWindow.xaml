@@ -36,7 +36,8 @@
         </Style>
     </Window.Resources>
     <Grid>
-        <Border x:Name="MainWindowContent">
+        <Border Background="Black"/>
+        <Border x:Name="MainWindowContent" Visibility="Collapsed" Opacity="0">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="75" />
