@@ -3,6 +3,7 @@
 
 using System.Threading.Tasks;
 using VRCOSC.App.Packages;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Actions.Packages;
 

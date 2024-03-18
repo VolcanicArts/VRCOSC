@@ -3,6 +3,7 @@
 
 using System;
 using VRCOSC.App.Modules;
+using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Pages.Modules;

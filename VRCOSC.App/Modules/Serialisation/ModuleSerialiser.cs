@@ -2,8 +2,9 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.IO;
-using VRCOSC.App.Modules.Attributes.Settings;
 using VRCOSC.App.Profiles;
+using VRCOSC.App.SDK.Modules;
+using VRCOSC.App.SDK.Modules.Attributes.Settings;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
 

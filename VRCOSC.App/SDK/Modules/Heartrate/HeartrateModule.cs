@@ -8,7 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using VRCOSC.App.Modules;
-using VRCOSC.App.Parameters;
+using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.Modules.Heartrate;

@@ -13,11 +13,11 @@ using VRCOSC.App.Modules;
 using VRCOSC.App.OSC;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.Profiles;
+using VRCOSC.App.SDK.OVR;
+using VRCOSC.App.SDK.OVR.Metadata;
 using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;
-using VRCOSC.OVR;
-using VRCOSC.OVR.Metadata;
 
 namespace VRCOSC.App;
 

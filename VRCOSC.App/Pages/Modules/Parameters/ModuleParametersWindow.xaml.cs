@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 using VRCOSC.App.Modules;
+using VRCOSC.App.SDK.Modules;
 
 namespace VRCOSC.App.Pages.Modules.Parameters;
 

@@ -3,6 +3,7 @@
 
 using System.Linq;
 using VRCOSC.App.Serialisation;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Packages.Serialisation;
 

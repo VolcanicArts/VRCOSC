@@ -21,8 +21,9 @@ using VRCOSC.App.Pages.Profiles;
 using VRCOSC.App.Pages.Run;
 using VRCOSC.App.Pages.Settings;
 using VRCOSC.App.Profiles;
+using VRCOSC.App.SDK.OVR.Metadata;
 using VRCOSC.App.Settings;
-using VRCOSC.OVR.Metadata;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App;
 

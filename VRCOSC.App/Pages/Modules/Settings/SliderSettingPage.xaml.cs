@@ -2,7 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Globalization;
-using VRCOSC.App.Modules.Attributes.Settings;
+using VRCOSC.App.SDK.Modules.Attributes.Settings;
 
 namespace VRCOSC.App.Pages.Modules.Settings;
 

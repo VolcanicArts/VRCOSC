@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using VRCOSC.App.Modules.Serialisation;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.Profiles;
+using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;

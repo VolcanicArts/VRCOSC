@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
+using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
 

@@ -15,6 +15,7 @@ using VRCOSC.App.Modules;
 using VRCOSC.App.Packages.Serialisation;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Settings;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Packages;
 

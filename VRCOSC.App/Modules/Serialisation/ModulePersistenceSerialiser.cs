@@ -4,6 +4,7 @@
 using System.IO;
 using Newtonsoft.Json;
 using VRCOSC.App.Profiles;
+using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
 
