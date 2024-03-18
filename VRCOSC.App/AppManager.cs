@@ -8,9 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
 using Valve.VR;
-using VRCOSC.App.Actions;
 using VRCOSC.App.Modules;
 using VRCOSC.App.OSC;
 using VRCOSC.App.OSC.VRChat;
@@ -29,28 +27,6 @@ public class AppManager
     public static AppManager GetInstance() => instance ??= new AppManager();
 
     private readonly Storage storage = new NativeStorage($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}/VRCOSC-V2-WPF");
-
-    private ProgressAction? progressAction;
-
-    public ProgressAction? ProgressAction
-    {
-        get => progressAction;
-        set
-        {
-            progressAction = value;
-
-            if (progressAction is not null)
-            {
-                progressAction.OnComplete += () => ProgressAction = null;
-                ((MainWindow)Application.Current.MainWindow).ShowLoadingOverlay(progressAction);
-                _ = progressAction?.Execute();
-            }
-            else
-            {
-                ((MainWindow)Application.Current.MainWindow).HideLoadingOverlay();
-            }
-        }
-    }
 
     public Observable<AppManagerState> State = new(AppManagerState.Stopped);
 

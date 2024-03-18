@@ -267,14 +267,14 @@ public class PackageSource
     {
         var action = packageManager.InstallPackage(this);
         action.OnComplete += () => AppManager.GetInstance().Refresh(PageLookup.Packages);
-        AppManager.GetInstance().ProgressAction = action;
+        _ = MainWindow.GetInstance().ShowLoadingOverlay($"Installing {DisplayName}", action);
     }
 
     private void OnUnInstallButtonClick()
     {
         var action = packageManager.UninstallPackage(this);
         action.OnComplete += () => AppManager.GetInstance().Refresh(PageLookup.Packages);
-        AppManager.GetInstance().ProgressAction = action;
+        _ = MainWindow.GetInstance().ShowLoadingOverlay($"Uninstalling {DisplayName}", action);
     }
 
     private void OnInfoButtonClick()

@@ -28,6 +28,8 @@ namespace VRCOSC.App;
 
 public partial class MainWindow
 {
+    public static MainWindow GetInstance() => (MainWindow)Application.Current.MainWindow;
+
     private readonly HomePage homePage;
     private readonly PackagePage packagePage;
     private readonly ModulesPage modulesPage;
@@ -83,8 +85,7 @@ public partial class MainWindow
             });
         };
 
-        ShowLoadingOverlay(loadingAction);
-        await loadingAction.Execute();
+        await ShowLoadingOverlay("Welcome to VRCOSC", loadingAction);
     }
 
     private void copyOpenVrFiles()
@@ -116,14 +117,14 @@ public partial class MainWindow
     {
         var assembly = Assembly.GetExecutingAssembly();
 
-        using Stream? stream = assembly.GetManifestResourceStream(resourceName);
+        using var stream = assembly.GetManifestResourceStream(resourceName);
 
         if (stream == null)
         {
             throw new InvalidOperationException($"{resourceName} does not exist");
         }
 
-        using MemoryStream memoryStream = new MemoryStream();
+        using var memoryStream = new MemoryStream();
 
         stream.CopyTo(memoryStream);
         return memoryStream.ToArray();
@@ -164,30 +165,44 @@ public partial class MainWindow
         }
     }
 
-    public void ShowLoadingOverlay(ProgressAction progressAction) => Dispatcher.Invoke(() =>
+    public async Task ShowLoadingOverlay(string title, ProgressAction progressAction)
     {
+        Dispatcher.Invoke(() => LoadingTitle.Text = title);
+
+        progressAction.OnComplete += HideLoadingOverlay;
+
         _ = Task.Run(async () =>
         {
             while (!progressAction.IsComplete)
             {
-                Dispatcher.Invoke(() => ProgressBar.Value = progressAction.GetProgress());
-                await Task.Delay(TimeSpan.FromSeconds(1d / 30d));
+                Dispatcher.Invoke(() =>
+                {
+                    LoadingDescription.Text = progressAction.Title;
+                    ProgressBar.Value = progressAction.GetProgress();
+                });
+                await Task.Delay(TimeSpan.FromSeconds(1d / 10d));
             }
 
-            Dispatcher.Invoke(() => ProgressBar.Value = 1);
+            Dispatcher.Invoke(() =>
+            {
+                LoadingDescription.Text = "Finished!";
+                ProgressBar.Value = 1;
+            });
         });
 
         fadeIn(LoadingOverlay, 150);
-    });
 
-    public void HideLoadingOverlay() => Dispatcher.Invoke(() => fadeOut(LoadingOverlay, 150));
+        await progressAction.Execute();
+    }
 
-    private static void fadeIn(FrameworkElement grid, double fadeInTimeMilli)
+    public void HideLoadingOverlay() => fadeOut(LoadingOverlay, 150);
+
+    private void fadeIn(FrameworkElement grid, double fadeInTimeMilli) => Dispatcher.Invoke(() =>
     {
         grid.Visibility = Visibility.Visible;
         grid.Opacity = 0;
 
-        DoubleAnimation fadeInAnimation = new DoubleAnimation
+        var fadeInAnimation = new DoubleAnimation
         {
             From = 0,
             To = 1,
@@ -196,16 +211,16 @@ public partial class MainWindow
 
         Storyboard.SetTargetProperty(fadeInAnimation, new PropertyPath(OpacityProperty));
 
-        Storyboard storyboard = new Storyboard();
+        var storyboard = new Storyboard();
         storyboard.Children.Add(fadeInAnimation);
         storyboard.Begin(grid);
-    }
+    });
 
-    private static void fadeOut(FrameworkElement grid, double fadeOutTime)
+    private void fadeOut(FrameworkElement grid, double fadeOutTime) => Dispatcher.Invoke(() =>
     {
         grid.Opacity = 1;
 
-        DoubleAnimation fadeOutAnimation = new DoubleAnimation
+        var fadeOutAnimation = new DoubleAnimation
         {
             To = 0,
             Duration = TimeSpan.FromMilliseconds(fadeOutTime)
@@ -213,11 +228,11 @@ public partial class MainWindow
 
         Storyboard.SetTargetProperty(fadeOutAnimation, new PropertyPath(OpacityProperty));
 
-        Storyboard storyboard = new Storyboard();
+        var storyboard = new Storyboard();
         storyboard.Children.Add(fadeOutAnimation);
         storyboard.Completed += (_, _) => grid.Visibility = Visibility.Collapsed;
         storyboard.Begin(grid);
-    }
+    });
 
     public ICommand HomeButtonClick => new RelayCommand(_ => setPageContents(homePage, HomeButton));
     public ICommand PackagesButtonClick => new RelayCommand(_ => setPageContents(packagePage, PackagesButton));

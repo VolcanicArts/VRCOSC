@@ -160,7 +160,7 @@ public class PackageManager : INotifyPropertyChanged
 
     private void OnRefreshButtonClick()
     {
-        AppManager.GetInstance().ProgressAction = RefreshAllSources(true);
+        _ = MainWindow.GetInstance().ShowLoadingOverlay("Refreshing All Packages", RefreshAllSources(true));
     }
 
     private void OnUpdateAllButtonClick()
@@ -172,7 +172,7 @@ public class PackageManager : INotifyPropertyChanged
             updateAllPackagesAction.AddAction(InstallPackage(packageSource));
         }
 
-        AppManager.GetInstance().ProgressAction = updateAllPackagesAction;
+        _ = MainWindow.GetInstance().ShowLoadingOverlay("Updating All Packages", updateAllPackagesAction);
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

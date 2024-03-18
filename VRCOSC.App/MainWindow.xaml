@@ -36,7 +36,7 @@
         </Style>
     </Window.Resources>
     <Grid>
-        <Border Background="Black"/>
+        <Border Background="Black" />
         <Border x:Name="MainWindowContent" Visibility="Collapsed" Opacity="0">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -72,18 +72,30 @@
                 <Frame Grid.Column="1" Name="ContentFrame" NavigationUIVisibility="Hidden" />
             </Grid>
         </Border>
-        <Grid Name="LoadingOverlay" Visibility="Collapsed" Opacity="0">
+        <Grid Name="LoadingOverlay" Visibility="Visible" Opacity="1" IsHitTestVisible="False">
             <Rectangle ClipToBounds="True">
                 <b:Interaction.Behaviors>
                     <utils:BlurBackgroundBehavior BlurContainer="{Binding ElementName=MainWindowContent}" />
                 </b:Interaction.Behaviors>
             </Rectangle>
-            <Border Background="Black" Opacity="0.5">
-                <ProgressBar Name="ProgressBar" Width="300" Height="30" VerticalAlignment="Center"
+            <Border Background="Black" Opacity="0.5" />
+            <Grid Width="500" Height="125">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="3*" />
+                    <RowDefinition Height="3*" />
+                    <RowDefinition Height="3*" />
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Name="LoadingTitle" FontSize="30" Text="PLACEHOLDER"
+                           Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center"
+                           VerticalAlignment="Center" FontWeight="Medium"/>
+                <TextBlock Grid.Row="1" Name="LoadingDescription" FontSize="20" Text="PLACEHOLDER"
+                           Foreground="{StaticResource CForeground1}" TextWrapping="Wrap" HorizontalAlignment="Center"
+                           VerticalAlignment="Center" />
+                <ProgressBar Grid.Row="2" Name="ProgressBar" Width="500" Height="30" VerticalAlignment="Center"
                              HorizontalAlignment="Center"
                              Minimum="0" Maximum="1" Value="0">
                 </ProgressBar>
-            </Border>
+            </Grid>
         </Grid>
     </Grid>
 </Window>
