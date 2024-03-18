@@ -44,7 +44,7 @@ public partial class ModuleParametersWindow
         }
 
         var contentHeight = ParameterListView.ActualHeight;
-        var targetHeight = GridContainer.ActualHeight - 55;
+        var targetHeight = GridContainer.ActualHeight - 50;
         module.ParameterScrollViewerHeight = contentHeight >= targetHeight ? targetHeight : double.NaN;
     }
 }

@@ -6,7 +6,7 @@
         xmlns:ui="clr-namespace:VRCOSC.App.UI"
         xmlns:parameters="clr-namespace:VRCOSC.App.Pages.Modules.Parameters"
         xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
-        mc:Ignorable="d" Height="1080" Width="1920">
+        mc:Ignorable="d" Width="1366" Height="768" MinWidth="1200" MinHeight="540">
     <Window.Resources>
         <parameters:BackgroundConverter x:Key="BackgroundConverter" />
     </Window.Resources>
@@ -27,7 +27,7 @@
                         VerticalAlignment="Stretch" Grid.Row="2">
                     <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="50" />
+                            <RowDefinition Height="40" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="5" />
                         </Grid.RowDefinitions>
@@ -35,26 +35,27 @@
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="15" />
-                                    <ColumnDefinition Width="330" />
-                                    <ColumnDefinition Width="450" />
-                                    <ColumnDefinition Width="240" />
-                                    <ColumnDefinition Width="240" />
+                                    <ColumnDefinition Width="170" />
+                                    <ColumnDefinition Width="400" />
+                                    <ColumnDefinition Width="130" />
+                                    <ColumnDefinition Width="130" />
                                     <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="7" />
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left"
-                                           Foreground="{StaticResource CForeground2}" FontSize="20" FontWeight="Bold"
+                                           Foreground="{StaticResource CForeground2}" FontSize="16" FontWeight="Bold"
                                            Text="Title" />
                                 <TextBlock Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Left"
-                                           Foreground="{StaticResource CForeground2}" FontSize="20" FontWeight="Bold"
+                                           Foreground="{StaticResource CForeground2}" FontSize="16" FontWeight="Bold"
                                            Text="Description" />
                                 <TextBlock Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Center"
-                                           Foreground="{StaticResource CForeground2}" FontSize="20" FontWeight="Bold"
+                                           Foreground="{StaticResource CForeground2}" FontSize="16" FontWeight="Bold"
                                            Text="Type" />
                                 <TextBlock Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Center"
-                                           Foreground="{StaticResource CForeground2}" FontSize="20" FontWeight="Bold"
+                                           Foreground="{StaticResource CForeground2}" FontSize="16" FontWeight="Bold"
                                            Text="Send/Receive" />
                                 <TextBlock Grid.Column="5" VerticalAlignment="Center" HorizontalAlignment="Center"
-                                           Foreground="{StaticResource CForeground2}" FontSize="20" FontWeight="Bold"
+                                           Foreground="{StaticResource CForeground2}" FontSize="16" FontWeight="Bold"
                                            Text="Name" />
                             </Grid>
                         </Border>
@@ -72,43 +73,45 @@
                                         <Setter Property="Template">
                                             <Setter.Value>
                                                 <ControlTemplate>
-                                                    <Border MinHeight="50"
+                                                    <Border MinHeight="40"
                                                             Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource BackgroundConverter}}">
                                                         <Grid>
                                                             <Grid.ColumnDefinitions>
                                                                 <ColumnDefinition Width="15" />
-                                                                <ColumnDefinition Width="330" />
-                                                                <ColumnDefinition Width="450" />
-                                                                <ColumnDefinition Width="240" />
-                                                                <ColumnDefinition Width="240" />
+                                                                <ColumnDefinition Width="170" />
+                                                                <ColumnDefinition Width="400" />
+                                                                <ColumnDefinition Width="130" />
+                                                                <ColumnDefinition Width="130" />
                                                                 <ColumnDefinition Width="*" />
                                                                 <ColumnDefinition Width="7" />
                                                             </Grid.ColumnDefinitions>
                                                             <TextBlock Grid.Column="1" VerticalAlignment="Center"
                                                                        HorizontalAlignment="Left"
                                                                        Foreground="{StaticResource CForeground1}"
-                                                                       FontSize="20"
+                                                                       FontSize="16"
                                                                        Text="{Binding Metadata.Title, Mode=OneTime}" />
                                                             <TextBlock Grid.Column="2" VerticalAlignment="Center"
                                                                        HorizontalAlignment="Left"
                                                                        Foreground="{StaticResource CForeground1}"
-                                                                       FontSize="20"
+                                                                       FontSize="16"
                                                                        Text="{Binding Metadata.Description, Mode=OneTime}"
                                                                        TextWrapping="Wrap" Padding="0 5" />
                                                             <TextBlock Grid.Column="3" VerticalAlignment="Center"
                                                                        HorizontalAlignment="Center"
                                                                        Foreground="{StaticResource CForeground1}"
-                                                                       FontSize="20"
+                                                                       FontSize="16"
                                                                        Text="{Binding Metadata.ReadableType, Mode=OneTime}" />
                                                             <TextBlock Grid.Column="4" VerticalAlignment="Center"
                                                                        HorizontalAlignment="Center"
                                                                        Foreground="{StaticResource CForeground1}"
-                                                                       FontSize="20"
+                                                                       FontSize="16"
                                                                        Text="{Binding Metadata.UIMode, Mode=OneTime}" />
                                                             <TextBox Grid.Column="5"
                                                                      Text="{Binding Name.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                                      Foreground="{StaticResource CForeground2}"
-                                                                     FontSize="20" VerticalAlignment="Center"
+                                                                     FontSize="14" VerticalAlignment="Center"
+                                                                     Height="30"
+                                                                     Margin="10 0 0 0"
                                                                      Padding="0 5"
                                                                      HorizontalAlignment="Stretch"
                                                                      Background="{StaticResource CBackground1}"
