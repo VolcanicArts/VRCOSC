@@ -96,22 +96,13 @@ public partial class OSCView : INotifyPropertyChanged
 
     private void OnParameterReceived(VRChatOscMessage e)
     {
-        if (e.IsAvatarParameter)
+        if (!e.IsAvatarParameter) return;
+
+        Dispatcher.Invoke(() =>
         {
-            Dispatcher.Invoke(() =>
-            {
-                IncomingMessages[e.ParameterName] = e.ParameterValue;
-                evaluateIncomingContentHeight();
-            });
-        }
-        else
-        {
-            Dispatcher.Invoke(() =>
-            {
-                IncomingMessages[e.Address] = e.ParameterValue;
-                evaluateIncomingContentHeight();
-            });
-        }
+            IncomingMessages[e.ParameterName] = e.ParameterValue;
+            evaluateIncomingContentHeight();
+        });
     }
 
     private void OnAppManagerStateChange(AppManagerState newState) => Dispatcher.Invoke(() =>
