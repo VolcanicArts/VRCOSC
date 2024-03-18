@@ -8,6 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using VRCOSC.App.Profiles;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Pages.Profiles;
 
@@ -74,5 +75,17 @@ public partial class ProfileEditWindow
         {
             e.Cancel = true;
         }
+    }
+
+    private void RemoveButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        var removeButton = (Button)sender;
+        var itemToRemove = (Observable<string>)removeButton.Tag;
+        Profile.LinkedAvatars.Remove(itemToRemove);
+    }
+
+    private void CancelEdit_ButtonClick(object sender, RoutedEventArgs e)
+    {
+        ProfileManager.GetInstance().ExitProfileEditWindow();
     }
 }

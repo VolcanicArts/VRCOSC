@@ -94,13 +94,6 @@ public class Profile : INotifyPropertyChanged
         LinkedAvatars.Add(new Observable<string>(string.Empty));
     }
 
-    public ICommand UICancelEditProfile => new RelayCommand(_ => OnCancelEditProfileButtonClick());
-
-    private void OnCancelEditProfileButtonClick()
-    {
-        ProfileManager.GetInstance().ExitProfileEditWindow();
-    }
-
     public ICommand UISaveEditProfile => new RelayCommand(_ => OnSaveEditProfileButtonClick());
 
     private void OnSaveEditProfileButtonClick()

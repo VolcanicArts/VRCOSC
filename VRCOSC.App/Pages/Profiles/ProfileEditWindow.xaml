@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:VRCOSC.App.Pages.Profiles"
         xmlns:ui="clr-namespace:VRCOSC.App.UI"
         xmlns:fa5="http://schemas.fontawesome.com/icons/"
+        xmlns:utils="clr-namespace:VRCOSC.App.Utils"
         mc:Ignorable="d"
         Height="900" Width="1600"
         PreviewMouseDown="ProfileEditWindow_OnPreviewMouseDown"
@@ -78,25 +79,36 @@
                                                 <ControlTemplate>
                                                     <Border
                                                         Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource BackgroundConverter}}"
-                                                        Padding="5">
-                                                        <TextBox Text="{Binding Value}"
-                                                                 Foreground="{StaticResource CForeground2}"
-                                                                 FontSize="20" VerticalContentAlignment="Center"
-                                                                 VerticalAlignment="Center"
-                                                                 Background="{StaticResource CBackground5}"
-                                                                 BorderThickness="0">
-                                                            <TextBox.Template>
-                                                                <ControlTemplate TargetType="TextBox">
-                                                                    <Border Background="{TemplateBinding Background}"
+                                                        Padding="5" Height="40">
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="5" />
+                                                                <ColumnDefinition Width="30" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBox Grid.Column="0"
+                                                                     Text="{Binding Value}"
+                                                                     Foreground="{StaticResource CForeground2}"
+                                                                     FontSize="20" VerticalAlignment="Stretch"
+                                                                     Background="{StaticResource CBackground5}"
+                                                                     BorderThickness="0">
+                                                                <TextBox.Template>
+                                                                    <ControlTemplate TargetType="TextBox">
+                                                                        <Border
+                                                                            Background="{TemplateBinding Background}"
                                                                             BorderBrush="{TemplateBinding BorderBrush}"
                                                                             BorderThickness="{TemplateBinding BorderThickness}"
                                                                             CornerRadius="5" Padding="5 0">
-                                                                        <ScrollViewer x:Name="PART_ContentHost"
-                                                                            FontSize="{TemplateBinding FontSize}" />
-                                                                    </Border>
-                                                                </ControlTemplate>
-                                                            </TextBox.Template>
-                                                        </TextBox>
+                                                                            <ScrollViewer x:Name="PART_ContentHost"
+                                                                                FontSize="{TemplateBinding FontSize}" VerticalAlignment="Center"/>
+                                                                        </Border>
+                                                                    </ControlTemplate>
+                                                                </TextBox.Template>
+                                                            </TextBox>
+                                                            <ui:VRCOSCButton Grid.Column="2" ButtonColour="Red" Click="RemoveButton_OnClick" Tag="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=DataContext}">
+                                                                <fa5:ImageAwesome Icon="Solid_Minus" Foreground="{StaticResource CForeground1}" Margin="4"/>
+                                                            </ui:VRCOSCButton>
+                                                        </Grid>
                                                     </Border>
                                                 </ControlTemplate>
                                             </Setter.Value>
@@ -119,15 +131,17 @@
                 <ui:SpacedStackPanel FlowDirection="LeftToRight" Orientation="Horizontal" HorizontalAlignment="Stretch"
                                      VerticalAlignment="Stretch">
                     <ui:VRCOSCButton ButtonColour="Red" Width="200" Height="34" CornerRadius="17"
-                                     Command="{Binding UICancelEditProfile}">
-                        <TextBlock Text="Cancel" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource CForeground1}"/>
+                                     Click="CancelEdit_ButtonClick">
+                        <TextBlock Text="Cancel" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   Foreground="{StaticResource CForeground1}" />
                     </ui:VRCOSCButton>
                 </ui:SpacedStackPanel>
                 <ui:SpacedStackPanel FlowDirection="RightToLeft" Orientation="Horizontal" HorizontalAlignment="Stretch"
                                      VerticalAlignment="Stretch">
                     <ui:VRCOSCButton ButtonColour="Blue" Width="200" Height="34" CornerRadius="17"
                                      Command="{Binding UISaveEditProfile}">
-                        <TextBlock Text="Save" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource CForeground1}"/>
+                        <TextBlock Text="Save" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   Foreground="{StaticResource CForeground1}" />
                     </ui:VRCOSCButton>
                 </ui:SpacedStackPanel>
             </Grid>
