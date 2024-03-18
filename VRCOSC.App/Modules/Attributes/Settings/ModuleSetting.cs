@@ -2,11 +2,14 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace VRCOSC.App.Modules.Attributes.Settings;
 
-public abstract class ModuleSetting : ModuleAttribute
+public abstract class ModuleSetting : ModuleAttribute, INotifyPropertyChanged
 {
     /// <summary>
     /// The metadata for this <see cref="ModuleSetting"/>
@@ -23,8 +26,34 @@ public abstract class ModuleSetting : ModuleAttribute
     /// </summary>
     public Func<bool> IsEnabled = () => true;
 
+    private Visibility uiIsEnabled;
+
+    public Visibility UIIsEnabled
+    {
+        get => uiIsEnabled;
+        set
+        {
+            if (value == uiIsEnabled) return;
+
+            uiIsEnabled = value;
+            OnPropertyChanged();
+        }
+    }
+
     protected ModuleSetting(ModuleSettingMetadata metadata)
         : base(metadata)
     {
+    }
+
+    public void CheckIsEnabled()
+    {
+        UIIsEnabled = IsEnabled.Invoke() ? Visibility.Collapsed : Visibility.Visible;
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

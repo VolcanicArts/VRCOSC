@@ -6,19 +6,19 @@
         xmlns:ui="clr-namespace:VRCOSC.App.UI"
         xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d"
-        Title="ModuleSettingsWindow" Width="1200" Height="600">
+        Title="ModuleSettingsWindow" Width="900" Height="1000">
     <Grid>
         <Border Background="{StaticResource CBackground2}">
             <ui:MouseScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
                 <ListBox ItemsSource="{Binding GroupsFormatted}" HorizontalAlignment="Stretch"
-                         HorizontalContentAlignment="Stretch" MaxWidth="900" Margin="10" BorderThickness="0"
+                         HorizontalContentAlignment="Stretch" Margin="5" BorderThickness="0"
                          Background="Transparent">
                     <b:Interaction.Behaviors>
                         <ui:IgnoreMouseWheelBehavior />
                     </b:Interaction.Behaviors>
                     <ListBox.ItemContainerStyle>
                         <Style TargetType="ListBoxItem">
-                            <Setter Property="Margin" Value="0 0 0 10" />
+                            <Setter Property="Margin" Value="5" />
                             <Setter Property="Template">
                                 <Setter.Value>
                                     <ControlTemplate TargetType="ListBoxItem">
@@ -28,7 +28,7 @@
                                                 <TextBlock HorizontalAlignment="Center" Text="{Binding Key}"
                                                            FontSize="25" Foreground="{StaticResource CForeground1}" />
                                                 <ListBox ItemsSource="{Binding Value}" HorizontalAlignment="Stretch"
-                                                         HorizontalContentAlignment="Stretch" MaxWidth="880"
+                                                         HorizontalContentAlignment="Stretch"
                                                          BorderThickness="0"
                                                          Background="Transparent" Padding="0 0 0 5">
                                                     <b:Interaction.Behaviors>
@@ -40,25 +40,34 @@
                                                             <Setter Property="Template">
                                                                 <Setter.Value>
                                                                     <ControlTemplate TargetType="ListBoxItem">
-                                                                        <Border
-                                                                            Background="{StaticResource CBackground2}"
-                                                                            Padding="10 5 10 5"
-                                                                            CornerRadius="5">
-                                                                            <ui:SpacedStackPanel Orientation="Vertical"
-                                                                                Spacing="5">
-                                                                                <TextBlock
-                                                                                    Text="{Binding Metadata.Title}"
-                                                                                    FontSize="20"
-                                                                                    Foreground="{StaticResource CForeground1}"
-                                                                                    TextWrapping="Wrap"/>
-                                                                                <TextBlock
-                                                                                    Text="{Binding Metadata.Description}"
-                                                                                    FontSize="15"
-                                                                                    Foreground="{StaticResource CForeground2}"
-                                                                                    TextWrapping="Wrap"/>
-                                                                                <Frame Name="SettingPageFrame" Content="{Binding PageInstance}" NavigationUIVisibility="Hidden"/>
-                                                                            </ui:SpacedStackPanel>
-                                                                        </Border>
+                                                                        <Grid>
+                                                                            <Border
+                                                                                Background="{StaticResource CBackground2}"
+                                                                                Padding="10 5 10 5"
+                                                                                CornerRadius="5">
+                                                                                <ui:SpacedStackPanel
+                                                                                    Orientation="Vertical"
+                                                                                    Spacing="5">
+                                                                                    <TextBlock
+                                                                                        Text="{Binding Metadata.Title}"
+                                                                                        FontSize="20"
+                                                                                        Foreground="{StaticResource CForeground1}"
+                                                                                        TextWrapping="Wrap" />
+                                                                                    <TextBlock
+                                                                                        Text="{Binding Metadata.Description}"
+                                                                                        FontSize="15"
+                                                                                        Foreground="{StaticResource CForeground2}"
+                                                                                        TextWrapping="Wrap" />
+                                                                                    <Frame Name="SettingPageFrame"
+                                                                                        Content="{Binding PageInstance}"
+                                                                                        NavigationUIVisibility="Hidden" />
+                                                                                </ui:SpacedStackPanel>
+                                                                            </Border>
+                                                                            <Border
+                                                                                Background="{StaticResource CBackground1}"
+                                                                                Opacity="0.5"
+                                                                                Visibility="{Binding UIIsEnabled}"/>
+                                                                        </Grid>
                                                                     </ControlTemplate>
                                                                 </Setter.Value>
                                                             </Setter>
