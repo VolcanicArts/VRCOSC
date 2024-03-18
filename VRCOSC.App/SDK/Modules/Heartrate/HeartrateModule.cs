@@ -155,7 +155,11 @@ public abstract class HeartrateModule<T> : AvatarModule where T : HeartrateProvi
     {
         while (!beatParameterSource!.IsCancellationRequested)
         {
-            if (targetValue == 0f) continue;
+            if (targetValue == 0f)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(1));
+                continue;
+            }
 
             var delay = (int)MathF.Round(60f * 1000f / targetValue);
             await Task.Delay(delay);
