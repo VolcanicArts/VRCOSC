@@ -13,9 +13,9 @@
     <Grid>
         <Border Background="{StaticResource CBackground2}" Padding="10">
             <ui:SpacedStackPanel Spacing="10" Orientation="Vertical">
-                <Border Background="{StaticResource CBackground3}" CornerRadius="5" Height="55" Padding="5">
+                <Border Background="{StaticResource CBackground1}" CornerRadius="5" Height="55" Padding="5">
                     <Grid>
-                        <TextBlock Text="Use Legacy Ports" FontSize="20" Foreground="{StaticResource CForeground1}" />
+                        <TextBlock Text="Use Legacy Ports" FontSize="20" Foreground="{StaticResource CForeground1}" FontWeight="Medium"/>
                         <TextBlock VerticalAlignment="Bottom"
                                    Text="Should VRCOSC use the legacy OSC ports to connect to VRChat?" FontSize="15"
                                    Foreground="{StaticResource CForeground2}" />
@@ -23,9 +23,9 @@
                                   IsChecked="{Binding UseLegacyPorts}" Height="40" Width="40" />
                     </Grid>
                 </Border>
-                <Border Background="{StaticResource CBackground3}" CornerRadius="5" Height="55" Padding="5">
+                <Border Background="{StaticResource CBackground1}" CornerRadius="5" Height="55" Padding="5">
                     <Grid>
-                        <TextBlock Text="Allow Pre-release Packages" FontSize="20"
+                        <TextBlock Text="Allow Pre-release Packages" FontSize="20" FontWeight="Medium"
                                    Foreground="{StaticResource CForeground1}" />
                         <TextBlock VerticalAlignment="Bottom"
                                    Text="Should VRCOSC allow installing pre-releases of module packages?" FontSize="15"
@@ -34,9 +34,9 @@
                                   IsChecked="{Binding AllowPreReleasePackages}" Height="40" Width="40" />
                     </Grid>
                 </Border>
-                <Border Background="{StaticResource CBackground3}" CornerRadius="5" Height="55" Padding="5">
+                <Border Background="{StaticResource CBackground1}" CornerRadius="5" Height="55" Padding="5">
                     <Grid>
-                        <TextBlock Text="Auto-start with VRChat" FontSize="20"
+                        <TextBlock Text="Auto-start with VRChat" FontSize="20" FontWeight="Medium"
                                    Foreground="{StaticResource CForeground1}" />
                         <TextBlock VerticalAlignment="Bottom"
                                    Text="Allows VRCOSC to automatically start the modules when VRChat opens"
@@ -45,9 +45,9 @@
                                   IsChecked="{Binding VRCAutoStart}" Height="40" Width="40" />
                     </Grid>
                 </Border>
-                <Border Background="{StaticResource CBackground3}" CornerRadius="5" Height="55" Padding="5">
+                <Border Background="{StaticResource CBackground1}" CornerRadius="5" Height="55" Padding="5">
                     <Grid>
-                        <TextBlock Text="Auto-stop with VRChat" FontSize="20"
+                        <TextBlock Text="Auto-stop with VRChat" FontSize="20" FontWeight="Medium"
                                    Foreground="{StaticResource CForeground1}" />
                         <TextBlock VerticalAlignment="Bottom"
                                    Text="Allows VRCOSC to automatically stop the modules when VRChat closes"
@@ -56,9 +56,9 @@
                                   IsChecked="{Binding VRCAutoStop}" Height="40" Width="40" />
                     </Grid>
                 </Border>
-                <Border Background="{StaticResource CBackground3}" CornerRadius="5" Height="55" Padding="5">
+                <Border Background="{StaticResource CBackground1}" CornerRadius="5" Height="55" Padding="5">
                     <Grid>
-                        <TextBlock Text="Enable Debug Mode" FontSize="20"
+                        <TextBlock Text="Enable Debug Mode" FontSize="20" FontWeight="Medium"
                                    Foreground="{StaticResource CForeground1}" />
                         <TextBlock VerticalAlignment="Bottom"
                                    Text="Debug mode allows modules to log detailed events for more granularity, but it can produce a big log file"

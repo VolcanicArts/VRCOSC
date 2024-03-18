@@ -89,10 +89,10 @@
                                                                                         <TextBlock
                                                                                             Text="{Binding Title}"
                                                                                             Foreground="{StaticResource CForeground1}"
-                                                                                            FontSize="20"
+                                                                                            FontSize="19"
                                                                                             VerticalAlignment="Top"
                                                                                             FontWeight="DemiBold"
-                                                                                            Padding="2 -5" />
+                                                                                            Padding="2 -4" />
                                                                                         <TextBlock
                                                                                             Text="{Binding ShortDescription}"
                                                                                             Foreground="{StaticResource CForeground2}"
@@ -108,7 +108,7 @@
                                                                                     HorizontalAlignment="Right">
                                                                                     <ui:VRCOSCButton
                                                                                         ButtonColour="Blue"
-                                                                                        Width="36" Height="36">
+                                                                                        Width="36" Height="36" Visibility="Collapsed">
                                                                                         <fa5:ImageAwesome
                                                                                             Icon="Solid_Info"
                                                                                             Foreground="White"
@@ -116,7 +116,7 @@
                                                                                     </ui:VRCOSCButton>
                                                                                     <ui:VRCOSCButton
                                                                                         ButtonColour="Gray"
-                                                                                        Width="36" Height="36">
+                                                                                        Width="36" Height="36" Visibility="Collapsed">
                                                                                         <fa5:ImageAwesome
                                                                                             Icon="Solid_Upload"
                                                                                             Foreground="White"
@@ -124,7 +124,7 @@
                                                                                     </ui:VRCOSCButton>
                                                                                     <ui:VRCOSCButton
                                                                                         ButtonColour="Gray"
-                                                                                        Width="36" Height="36">
+                                                                                        Width="36" Height="36" Visibility="Collapsed">
                                                                                         <fa5:ImageAwesome
                                                                                             Icon="Solid_Download"
                                                                                             Foreground="White"
@@ -132,7 +132,7 @@
                                                                                     </ui:VRCOSCButton>
                                                                                     <ui:VRCOSCButton
                                                                                         ButtonColour="Gray"
-                                                                                        Width="36" Height="36">
+                                                                                        Width="36" Height="36" Visibility="Collapsed">
                                                                                         <fa5:ImageAwesome
                                                                                             Icon="Solid_Cube"
                                                                                             Foreground="White"
