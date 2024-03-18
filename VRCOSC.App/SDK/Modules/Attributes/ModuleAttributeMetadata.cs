@@ -8,7 +8,7 @@ public class ModuleAttributeMetadata
     /// <summary>
     /// The title for this <see cref="ModuleAttribute"/>
     /// </summary>
-    public string Title { get; }
+    public virtual string Title { get; }
 
     /// <summary>
     /// The description for this <see cref="ModuleAttribute"/>

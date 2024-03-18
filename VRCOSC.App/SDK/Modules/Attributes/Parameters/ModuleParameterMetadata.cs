@@ -9,6 +9,8 @@ namespace VRCOSC.App.SDK.Modules.Attributes.Parameters;
 
 public class ModuleParameterMetadata : ModuleAttributeMetadata
 {
+    public override string Title => Legacy ? $"Legacy: {base.Title}" : base.Title;
+
     /// <summary>
     /// The mode for this <see cref="ModuleParameter"/>
     /// </summary>

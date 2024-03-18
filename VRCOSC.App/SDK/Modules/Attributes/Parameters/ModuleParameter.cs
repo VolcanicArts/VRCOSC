@@ -24,7 +24,7 @@ public class ModuleParameter : ModuleAttribute
 
     internal override bool IsDefault() => Name.IsDefault;
     internal override void SetDefault() => Name.SetDefault();
-    internal override object GetRawValue() => Name.Value ?? string.Empty;
+    internal override object GetRawValue() => Name.Value;
 
     internal override bool Deserialise(object ingestValue)
     {
