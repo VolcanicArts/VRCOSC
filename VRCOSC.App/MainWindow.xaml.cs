@@ -37,13 +37,16 @@ public partial class MainWindow
 
     private readonly Storage storage = new NativeStorage($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}/VRCOSC-V2-WPF");
 
+    private static Version assemblyVersion => Assembly.GetEntryAssembly()?.GetName().Version ?? new Version();
+    private string version => $"{assemblyVersion.Major}.{assemblyVersion.Minor}.{assemblyVersion.Build}";
+
     public MainWindow()
     {
         InitializeComponent();
 
         DataContext = this;
 
-        Title = "VRCOSC 2024.209.0";
+        Title = $"VRCOSC {version}";
 
         AppManager.GetInstance().Initialise();
         SettingsManager.GetInstance().Load();

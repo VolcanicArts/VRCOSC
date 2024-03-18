@@ -141,7 +141,8 @@
                                                                                     <ui:VRCOSCButton
                                                                                         ButtonColour="Gray"
                                                                                         Width="36" Height="36"
-                                                                                        Command="{Binding UIParametersButton}">
+                                                                                        Command="{Binding UIParametersButton}"
+                                                                                        IsEnabled="{Binding UIParametersButtonEnabled}">
                                                                                         <fa5:ImageAwesome
                                                                                             Icon="Solid_Link"
                                                                                             Foreground="White"
@@ -150,7 +151,8 @@
                                                                                     <ui:VRCOSCButton
                                                                                         ButtonColour="Gray"
                                                                                         Width="36" Height="36"
-                                                                                        Command="{Binding UISettingsButton}">
+                                                                                        Command="{Binding UISettingsButton}"
+                                                                                        IsEnabled="{Binding UISettingsButtonEnabled}">
                                                                                         <fa5:ImageAwesome
                                                                                             Icon="Solid_Cog"
                                                                                             Foreground="White"

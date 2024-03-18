@@ -477,6 +477,8 @@ public abstract class Module : INotifyPropertyChanged
 
     public ICommand UISettingsButton => new RelayCommand(_ => OnSettingsButtonClick());
 
+    public bool UISettingsButtonEnabled => Settings.Any();
+
     private void OnSettingsButtonClick()
     {
         if (moduleSettingsWindow is null)
@@ -503,6 +505,8 @@ public abstract class Module : INotifyPropertyChanged
     }
 
     public ICommand UIParametersButton => new RelayCommand(_ => OnParametersButtonClicked());
+
+    public bool UIParametersButtonEnabled => Parameters.Any();
 
     private void OnParametersButtonClicked()
     {
