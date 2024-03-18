@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using VRCOSC.App.Modules;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.Utils;
 
