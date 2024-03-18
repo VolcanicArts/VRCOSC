@@ -15,7 +15,7 @@ public partial class ModuleSettingsWindow
     {
         InitializeComponent();
 
-        Title = $"{module.Title}'s Settings";
+        Title = $"{module.Title.Pluralise()} Settings";
 
         DataContext = module;
 

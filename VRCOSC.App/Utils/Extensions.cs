@@ -28,6 +28,11 @@ public static class CollectionExtensions
     }
 }
 
+public static class StringExtensions
+{
+    public static string Pluralise(this string str) => str + (str.EndsWith("s") ? "'" : "'s");
+}
+
 public static class EnumExtensions
 {
     public static string ToLookup(this Enum @enum) => @enum.ToString().ToLowerInvariant();

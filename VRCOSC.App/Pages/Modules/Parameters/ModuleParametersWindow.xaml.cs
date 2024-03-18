@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 using VRCOSC.App.SDK.Modules;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Pages.Modules.Parameters;
 
@@ -17,7 +18,7 @@ public partial class ModuleParametersWindow
     {
         InitializeComponent();
 
-        Title = module.Title + "'s Parameters";
+        Title = $"{module.Title.Pluralise()} Parameters";
 
         this.module = module;
         DataContext = module;
