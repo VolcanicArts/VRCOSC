@@ -23,6 +23,7 @@
 
     <ItemGroup>
         <PackageReference Include="FontAwesome5" Version="2.1.11" />
+        <PackageReference Include="FontAwesome6.Fonts" Version="2.5.1" />
         <PackageReference Include="JetBrains.Annotations" Version="2023.3.0" />
         <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.3" />
         <PackageReference Include="MaterialDesignThemes" Version="5.0.0" />

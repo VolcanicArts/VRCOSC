@@ -68,8 +68,8 @@ public partial class OSCView : INotifyPropertyChanged
             return;
         }
 
-        var contentHeight = OutgoingMessages.Count * 30;
-        var targetHeight = OutgoingGridContainer.ActualHeight - 45;
+        var contentHeight = OutgoingMessagesList.ActualHeight;
+        var targetHeight = OutgoingGridContainer.ActualHeight - 40;
         OutgoingScrollViewerHeight = contentHeight >= targetHeight ? targetHeight : double.NaN;
     }
 
@@ -81,8 +81,8 @@ public partial class OSCView : INotifyPropertyChanged
             return;
         }
 
-        var contentHeight = IncomingMessages.Count * 30;
-        var targetHeight = IncomingGridContainer.ActualHeight - 45;
+        var contentHeight = IncomingMessagesList.ActualHeight;
+        var targetHeight = IncomingGridContainer.ActualHeight - 40;
         IncomingScrollViewerHeight = contentHeight >= targetHeight ? targetHeight : double.NaN;
     }
 

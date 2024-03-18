@@ -7,17 +7,17 @@
         xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:utils="clr-namespace:VRCOSC.App.Utils"
         mc:Ignorable="d"
-        Title="VRCOSC" Width="1920" Height="1080" MinWidth="960" MinHeight="540"
+        Title="VRCOSC" Width="1366" Height="768" MinWidth="960" MinHeight="540"
         PreviewMouseDown="MainWindow_OnPreviewMouseDown"
         Closing="MainWindow_OnClosing"
         Closed="MainWindow_OnClosed">
     <Window.Resources>
         <Style TargetType="fa5:FontAwesome">
             <Setter Property="Foreground" Value="{StaticResource CForeground1}" />
-            <Setter Property="FontSize" Value="25" />
+            <Setter Property="FontSize" Value="22" />
         </Style>
         <Style TargetType="Button">
-            <Setter Property="Height" Value="75" />
+            <Setter Property="Height" Value="70" />
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Padding" Value="10" />
@@ -40,7 +40,7 @@
         <Border x:Name="MainWindowContent" Visibility="Collapsed" Opacity="0">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="75" />
+                    <ColumnDefinition Width="70" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <Border Grid.Column="0" Background="{StaticResource CBackground1}">

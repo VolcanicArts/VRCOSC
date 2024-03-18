@@ -11,30 +11,30 @@
         <run:BackgroundConverter x:Key="BackgroundConverter" />
     </Page.Resources>
     <Grid>
-        <Border Padding="10">
+        <Border Padding="5">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="5*" />
-                    <ColumnDefinition Width="10" />
+                    <ColumnDefinition Width="5" />
                     <ColumnDefinition Width="5*" />
                 </Grid.ColumnDefinitions>
                 <Border Name="OutgoingGridContainer" Grid.Column="0" Background="Transparent" HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch">
                     <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="40" />
+                            <RowDefinition Height="35" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="5" />
                         </Grid.RowDefinitions>
                         <Border Grid.Row="0" Background="{StaticResource CBackground1}" CornerRadius="5 5 0 0">
                             <TextBlock Text="Outgoing" Foreground="{StaticResource CForeground2}"
-                                       FontSize="25" TextAlignment="Center" VerticalAlignment="Center"
-                                       HorizontalAlignment="Stretch" />
+                                       FontSize="22" TextAlignment="Center" VerticalAlignment="Center"
+                                       HorizontalAlignment="Stretch" FontWeight="Bold"  Margin="0 -5 0 0"/>
                         </Border>
                         <ui:MouseScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto"
                                       VerticalScrollBarVisibility="Auto"
                                       Height="{Binding OutgoingScrollViewerHeight}">
-                            <ListView ItemsSource="{Binding OutgoingMessages, Mode=OneWay}"
+                            <ListView Name="OutgoingMessagesList" ItemsSource="{Binding OutgoingMessages, Mode=OneWay}"
                                       HorizontalAlignment="Stretch"
                                       Background="Transparent"
                                       BorderThickness="0" AlternationCount="2" Padding="-1">
@@ -48,7 +48,7 @@
                                                 <ControlTemplate>
                                                     <Border
                                                         Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource BackgroundConverter}}"
-                                                        Padding="7 2" Height="30">
+                                                        Padding="7 2" Height="25">
                                                         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                                                             <Grid.ColumnDefinitions>
                                                                 <ColumnDefinition Width="*" />
@@ -57,11 +57,11 @@
                                                             </Grid.ColumnDefinitions>
                                                             <TextBlock Grid.Column="0" Text="{Binding Key}"
                                                                        Foreground="{StaticResource CForeground2}"
-                                                                       FontSize="17" VerticalAlignment="Center" />
+                                                                       FontSize="14" VerticalAlignment="Center" />
                                                             <TextBlock x:Name="ValueTextBlock" Grid.Column="2"
                                                                        Text="{Binding Value}"
                                                                        Foreground="{StaticResource CForeground2}"
-                                                                       FontSize="17" VerticalAlignment="Center"
+                                                                       FontSize="14" VerticalAlignment="Center"
                                                                        HorizontalAlignment="Right" />
                                                         </Grid>
                                                     </Border>
@@ -79,19 +79,19 @@
                         VerticalAlignment="Stretch">
                     <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="40" />
+                            <RowDefinition Height="35" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="5" />
                         </Grid.RowDefinitions>
                         <Border Grid.Row="0" Background="{StaticResource CBackground1}" CornerRadius="5 5 0 0">
                             <TextBlock Text="Incoming" Foreground="{StaticResource CForeground2}"
-                                       FontSize="25" TextAlignment="Center" VerticalAlignment="Center"
-                                       HorizontalAlignment="Stretch" />
+                                       FontSize="22" TextAlignment="Center" VerticalAlignment="Center"
+                                       HorizontalAlignment="Stretch" FontWeight="Bold" Margin="0 -5 0 0" />
                         </Border>
                         <ui:MouseScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto"
                                       VerticalScrollBarVisibility="Auto"
                                       Height="{Binding IncomingScrollViewerHeight, Mode=OneWay}">
-                            <ListView ItemsSource="{Binding IncomingMessages, Mode=OneWay}"
+                            <ListView Name="IncomingMessagesList" ItemsSource="{Binding IncomingMessages, Mode=OneWay}"
                                       HorizontalAlignment="Stretch"
                                       Background="Transparent"
                                       BorderThickness="0" AlternationCount="2" Padding="-1">
@@ -105,7 +105,7 @@
                                                 <ControlTemplate>
                                                     <Border
                                                         Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource BackgroundConverter}}"
-                                                        Padding="7 2" Height="30">
+                                                        Padding="7 2" Height="25">
                                                         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                                                             <Grid.ColumnDefinitions>
                                                                 <ColumnDefinition Width="*" />
@@ -114,11 +114,11 @@
                                                             </Grid.ColumnDefinitions>
                                                             <TextBlock Grid.Column="0" Text="{Binding Key}"
                                                                        Foreground="{StaticResource CForeground2}"
-                                                                       FontSize="17" VerticalAlignment="Center" />
+                                                                       FontSize="14" VerticalAlignment="Center" />
                                                             <TextBlock x:Name="ValueTextBlock" Grid.Column="2"
                                                                        Text="{Binding Value}"
                                                                        Foreground="{StaticResource CForeground2}"
-                                                                       FontSize="17" VerticalAlignment="Center"
+                                                                       FontSize="14" VerticalAlignment="Center"
                                                                        HorizontalAlignment="Right" />
                                                         </Grid>
                                                     </Border>

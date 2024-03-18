@@ -45,8 +45,8 @@ public partial class PackagePage : IVRCOSCPage
             return;
         }
 
-        var contentHeight = itemsCount * 50;
-        var targetHeight = GridContainer.ActualHeight - 55;
+        var contentHeight = PackageList.ActualHeight;
+        var targetHeight = GridContainer.ActualHeight - 45;
         packageManager.PackageScrollViewerHeight = contentHeight >= targetHeight ? targetHeight : double.NaN;
     }
 

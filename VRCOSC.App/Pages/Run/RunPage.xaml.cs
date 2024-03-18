@@ -79,12 +79,12 @@ public partial class RunPage
         LogStackPanel.Children.Add(new TextBlock
         {
             Text = dateTimeText,
-            FontSize = 15,
+            FontSize = 14,
             Foreground = (Brush)FindResource("CForeground3"),
             TextWrapping = TextWrapping.Wrap
         });
 
-        if (LogStackPanel.Children.Count >= 100)
+        while (LogStackPanel.Children.Count > 100)
         {
             LogStackPanel.Children.RemoveAt(0);
         }

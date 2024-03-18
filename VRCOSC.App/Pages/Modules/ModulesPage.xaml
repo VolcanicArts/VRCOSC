@@ -31,23 +31,23 @@
                                         <Border Background="Transparent">
                                             <Grid>
                                                 <Grid.RowDefinitions>
-                                                    <RowDefinition Height="50" />
+                                                    <RowDefinition Height="40" />
                                                     <RowDefinition Height="Auto" />
                                                     <RowDefinition Height="5" />
                                                 </Grid.RowDefinitions>
                                                 <Border Grid.Row="0" Background="{StaticResource CBackground1}"
-                                                        Padding="10" CornerRadius="5 5 0 0">
+                                                        Padding="7" CornerRadius="5 5 0 0">
                                                     <ui:SpacedStackPanel FlowDirection="LeftToRight"
                                                                          Orientation="Horizontal" Spacing="10">
                                                         <TextBlock Text="{Binding Key.DisplayName, Mode=OneWay}"
-                                                                   FontSize="25"
+                                                                   FontSize="20"
                                                                    FontWeight="Bold"
                                                                    Foreground="{StaticResource CForeground2}"
-                                                                   Padding="0 -3" />
-                                                        <Border Background="{StaticResource CBlue}" CornerRadius="5"
+                                                                   Padding="3 -2" />
+                                                        <Border Background="{StaticResource CBlue}" CornerRadius="3"
                                                                 Padding="20 0"
                                                                 Visibility="{Binding Key.LocalVisibility, Mode=OneWay}">
-                                                            <TextBlock Text="LOCAL" FontSize="17" FontWeight="Medium"
+                                                            <TextBlock Text="LOCAL" FontSize="14" FontWeight="Medium"
                                                                        Foreground="{StaticResource CForeground1}"
                                                                        VerticalAlignment="Center"
                                                                        HorizontalAlignment="Center" />
@@ -68,7 +68,7 @@
                                                                     <ControlTemplate>
                                                                         <Border
                                                                             Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource BackgroundConverter}}"
-                                                                            Padding="7" Height="50">
+                                                                            Padding="5" Height="40">
                                                                             <Grid>
                                                                                 <ui:SpacedStackPanel
                                                                                     Orientation="Horizontal"
@@ -77,26 +77,26 @@
                                                                                     VerticalAlignment="Stretch">
                                                                                     <Border
                                                                                         Background="{Binding Colour}"
-                                                                                        Width="3" Height="22"
+                                                                                        Width="3" Height="18"
                                                                                         CornerRadius="2" />
                                                                                     <CheckBox
                                                                                         VerticalAlignment="Center"
                                                                                         IsChecked="{Binding Enabled.Value}"
-                                                                                        Width="36"
-                                                                                        Height="36">
+                                                                                        Width="30"
+                                                                                        Height="30">
                                                                                     </CheckBox>
                                                                                     <Grid>
                                                                                         <TextBlock
                                                                                             Text="{Binding Title}"
                                                                                             Foreground="{StaticResource CForeground1}"
-                                                                                            FontSize="19"
+                                                                                            FontSize="16"
                                                                                             VerticalAlignment="Top"
                                                                                             FontWeight="DemiBold"
                                                                                             Padding="2 -4" />
                                                                                         <TextBlock
                                                                                             Text="{Binding ShortDescription}"
                                                                                             Foreground="{StaticResource CForeground2}"
-                                                                                            FontSize="14"
+                                                                                            FontSize="12"
                                                                                             VerticalAlignment="Bottom"
                                                                                             Padding="2 -2" />
                                                                                     </Grid>
@@ -108,7 +108,7 @@
                                                                                     HorizontalAlignment="Right">
                                                                                     <ui:VRCOSCButton
                                                                                         ButtonColour="Blue"
-                                                                                        Width="36" Height="36" Visibility="Collapsed">
+                                                                                        Width="30" Height="30" Visibility="Collapsed">
                                                                                         <fa5:ImageAwesome
                                                                                             Icon="Solid_Info"
                                                                                             Foreground="White"
@@ -116,7 +116,7 @@
                                                                                     </ui:VRCOSCButton>
                                                                                     <ui:VRCOSCButton
                                                                                         ButtonColour="Gray"
-                                                                                        Width="36" Height="36" Visibility="Collapsed">
+                                                                                        Width="30" Height="30" Visibility="Collapsed">
                                                                                         <fa5:ImageAwesome
                                                                                             Icon="Solid_Upload"
                                                                                             Foreground="White"
@@ -124,7 +124,7 @@
                                                                                     </ui:VRCOSCButton>
                                                                                     <ui:VRCOSCButton
                                                                                         ButtonColour="Gray"
-                                                                                        Width="36" Height="36" Visibility="Collapsed">
+                                                                                        Width="30" Height="30" Visibility="Collapsed">
                                                                                         <fa5:ImageAwesome
                                                                                             Icon="Solid_Download"
                                                                                             Foreground="White"
@@ -132,7 +132,7 @@
                                                                                     </ui:VRCOSCButton>
                                                                                     <ui:VRCOSCButton
                                                                                         ButtonColour="Gray"
-                                                                                        Width="36" Height="36" Visibility="Collapsed">
+                                                                                        Width="30" Height="30" Visibility="Collapsed">
                                                                                         <fa5:ImageAwesome
                                                                                             Icon="Solid_Cube"
                                                                                             Foreground="White"
@@ -140,7 +140,7 @@
                                                                                     </ui:VRCOSCButton>
                                                                                     <ui:VRCOSCButton
                                                                                         ButtonColour="Gray"
-                                                                                        Width="36" Height="36"
+                                                                                        Width="30" Height="30"
                                                                                         Command="{Binding UIParametersButton}"
                                                                                         IsEnabled="{Binding UIParametersButtonEnabled}">
                                                                                         <fa5:ImageAwesome
@@ -150,7 +150,7 @@
                                                                                     </ui:VRCOSCButton>
                                                                                     <ui:VRCOSCButton
                                                                                         ButtonColour="Gray"
-                                                                                        Width="36" Height="36"
+                                                                                        Width="30" Height="30"
                                                                                         Command="{Binding UISettingsButton}"
                                                                                         IsEnabled="{Binding UISettingsButtonEnabled}">
                                                                                         <fa5:ImageAwesome
