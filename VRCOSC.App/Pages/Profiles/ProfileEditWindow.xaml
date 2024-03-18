@@ -120,7 +120,7 @@
                         </Grid>
                     </Border>
                     <ui:VRCOSCButton Grid.Row="1" ButtonColour="Green" Width="100" Height="34"
-                                     CornerRadius="17" Command="{Binding UIAddNewLinkedAvatar}">
+                                     CornerRadius="17" Click="AddLinkedAvatar_ButtonClick">
                         <fa5:ImageAwesome Icon="Solid_Plus" Foreground="White" Margin="5" />
                     </ui:VRCOSCButton>
                 </Grid>
@@ -139,7 +139,7 @@
                 <ui:SpacedStackPanel FlowDirection="RightToLeft" Orientation="Horizontal" HorizontalAlignment="Stretch"
                                      VerticalAlignment="Stretch">
                     <ui:VRCOSCButton ButtonColour="Blue" Width="200" Height="34" CornerRadius="17"
-                                     Command="{Binding UISaveEditProfile}">
+                                     Click="SaveEdit_ButtonClick">
                         <TextBlock Text="Save" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"
                                    Foreground="{StaticResource CForeground1}" />
                     </ui:VRCOSCButton>

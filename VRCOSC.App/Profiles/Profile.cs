@@ -7,7 +7,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
-using System.Windows.Input;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Profiles;
@@ -63,56 +62,12 @@ public class Profile : INotifyPropertyChanged
         return !profileNameDuplication && !isEmpty;
     }
 
-    #region UI
+    public Visibility UIRemoveProfileButtonVisibility => ProfileManager.GetInstance().Profiles.Count > 1 ? Visibility.Visible : Visibility.Collapsed;
 
-    public void Update()
+    public void UpdateUI()
     {
         OnPropertyChanged(nameof(UIRemoveProfileButtonVisibility));
     }
-
-    public Visibility UIRemoveProfileButtonVisibility => ProfileManager.GetInstance().Profiles.Count > 1 ? Visibility.Visible : Visibility.Collapsed;
-
-    public ICommand UIEditProfileButton => new RelayCommand(_ => OnEditProfileButtonClick());
-
-    private void OnEditProfileButtonClick()
-    {
-        ProfileManager.GetInstance().SpawnProfileEditWindow(this);
-    }
-
-    public ICommand UIRemoveProfileButton => new RelayCommand(_ => OnRemoveProfileButtonClick());
-
-    private void OnRemoveProfileButtonClick()
-    {
-        ProfileManager.GetInstance().ExitProfileEditWindow();
-        ProfileManager.GetInstance().Profiles.Remove(this);
-    }
-
-    public ICommand UIAddNewLinkedAvatar => new RelayCommand(_ => OnNewLinkedAvatarButtonClick());
-
-    private void OnNewLinkedAvatarButtonClick()
-    {
-        LinkedAvatars.Add(new Observable<string>(string.Empty));
-    }
-
-    public ICommand UISaveEditProfile => new RelayCommand(_ => OnSaveEditProfileButtonClick());
-
-    private void OnSaveEditProfileButtonClick()
-    {
-        if (!IsValidForSave()) return;
-
-        if (ProfileManager.GetInstance().ProfileEditWindow!.OriginalProfile is null)
-        {
-            ProfileManager.GetInstance().Profiles.Add(this);
-        }
-        else
-        {
-            CopyTo(ProfileManager.GetInstance().ProfileEditWindow!.OriginalProfile!);
-        }
-
-        ProfileManager.GetInstance().ExitProfileEditWindow();
-    }
-
-    #endregion
 
     public event PropertyChangedEventHandler? PropertyChanged;
 

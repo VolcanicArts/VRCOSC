@@ -78,15 +78,17 @@
                                                                              FlowDirection="RightToLeft"
                                                                              Orientation="Horizontal" Spacing="8">
                                                             <ui:VRCOSCButton ButtonColour="Red"
-                                                                             Command="{Binding UIRemoveProfileButton}"
+                                                                             Click="RemoveProfile_ButtonClick"
                                                                              Visibility="{Binding UIRemoveProfileButtonVisibility}"
-                                                                             Width="36" Height="36">
+                                                                             Width="36" Height="36"
+                                                                             Tag="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=DataContext}">
                                                                 <fa5:ImageAwesome Icon="Solid_Minus" Foreground="White"
                                                                     Margin="5" />
                                                             </ui:VRCOSCButton>
                                                             <ui:VRCOSCButton ButtonColour="Blue"
-                                                                             Command="{Binding UIEditProfileButton}"
-                                                                             Width="36" Height="36">
+                                                                             Click="EditProfile_ButtonClick"
+                                                                             Width="36" Height="36"
+                                                                             Tag="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=DataContext}">
                                                                 <fa5:ImageAwesome Icon="Solid_Edit" Foreground="White"
                                                                     Margin="5" />
                                                             </ui:VRCOSCButton>
@@ -101,7 +103,7 @@
                         </ListView>
                         <Border Height="50" Padding="5">
                             <ui:VRCOSCButton ButtonColour="Green" Width="140" Height="36"
-                                             Command="{Binding UICreateProfileButton}">
+                                             Click="AddProfile_ButtonClick">
                                 <fa5:ImageAwesome Icon="Solid_Plus" Foreground="White" Margin="5" />
                             </ui:VRCOSCButton>
                         </Border>

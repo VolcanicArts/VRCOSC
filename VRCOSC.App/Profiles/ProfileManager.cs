@@ -6,7 +6,6 @@ using System.Collections;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
-using System.Windows.Input;
 using VRCOSC.App.Pages.Profiles;
 using VRCOSC.App.Profiles.Serialisation;
 using VRCOSC.App.Serialisation;
@@ -21,7 +20,6 @@ public class ProfileManager
     public static ProfileManager GetInstance() => instance ??= new ProfileManager();
 
     private readonly Storage storage = new NativeStorage($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}/VRCOSC-V2-WPF");
-    //private readonly VRCOSCConfigManager configManager;
 
     public ObservableCollection<Profile> Profiles { get; } = new();
 
@@ -39,7 +37,6 @@ public class ProfileManager
 
     public ProfileManager()
     {
-        //this.configManager = configManager;
         serialisationManager = new SerialisationManager();
         serialisationManager.RegisterSerialiser(1, new ProfileManagerSerialiser(storage, this));
 
@@ -97,7 +94,7 @@ public class ProfileManager
             }
         }
 
-        Profiles.ForEach(profile => profile.Update());
+        Profiles.ForEach(profile => profile.UpdateUI());
 
         Serialise();
     }
@@ -180,9 +177,6 @@ public class ProfileManager
     }
 
     public ProfileEditWindow? ProfileEditWindow { get; private set; }
-
-    public ICommand UICreateProfileButton => new RelayCommand(_ => OnCreateProfileButtonClick());
-    private void OnCreateProfileButtonClick() => SpawnProfileEditWindow();
 
     public Observable<Profile> UIActiveProfile { get; } = new();
 

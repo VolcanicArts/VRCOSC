@@ -4,6 +4,7 @@
 using System;
 using System.Globalization;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
 using VRCOSC.App.Profiles;
 
@@ -16,6 +17,28 @@ public partial class ProfilesPage
         InitializeComponent();
 
         DataContext = ProfileManager.GetInstance();
+    }
+
+    private void RemoveProfile_ButtonClick(object sender, RoutedEventArgs e)
+    {
+        var button = (Button)sender;
+        var profile = (Profile)button.Tag;
+
+        ProfileManager.GetInstance().ExitProfileEditWindow();
+        ProfileManager.GetInstance().Profiles.Remove(profile);
+    }
+
+    private void EditProfile_ButtonClick(object sender, RoutedEventArgs e)
+    {
+        var button = (Button)sender;
+        var profile = (Profile)button.Tag;
+
+        ProfileManager.GetInstance().SpawnProfileEditWindow(profile);
+    }
+
+    private void AddProfile_ButtonClick(object sender, RoutedEventArgs e)
+    {
+        ProfileManager.GetInstance().SpawnProfileEditWindow();
     }
 }
 

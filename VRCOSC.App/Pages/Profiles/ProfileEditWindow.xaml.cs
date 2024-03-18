@@ -88,4 +88,25 @@ public partial class ProfileEditWindow
     {
         ProfileManager.GetInstance().ExitProfileEditWindow();
     }
+
+    private void SaveEdit_ButtonClick(object sender, RoutedEventArgs e)
+    {
+        if (!Profile.IsValidForSave()) return;
+
+        if (OriginalProfile is null)
+        {
+            ProfileManager.GetInstance().Profiles.Add(Profile);
+        }
+        else
+        {
+            Profile.CopyTo(OriginalProfile);
+        }
+
+        ProfileManager.GetInstance().ExitProfileEditWindow();
+    }
+
+    private void AddLinkedAvatar_ButtonClick(object sender, RoutedEventArgs e)
+    {
+        Profile.LinkedAvatars.Add(new Observable<string>(string.Empty));
+    }
 }
