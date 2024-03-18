@@ -90,7 +90,7 @@ public class PackageSource
 
     public List<string> GetAssets() => LatestRelease!.AssetNames.Where(assetName => PackageFile!.Files.Contains(assetName)).ToList();
     public string DisplayName => PackageFile?.DisplayName ?? RepoName;
-    public string Author => RepoOwner;
+    public string Author => $"Created by {RepoOwner}";
     public string Description => Repository?.Description ?? "How did you find this";
     public string CoverURL => PackageFile?.CoverImageUrl ?? "https://wallpapercave.com/wp/Zs1bPI9.jpg";
 
@@ -261,7 +261,6 @@ public class PackageSource
 
     public ICommand UIInstallButton => new RelayCommand(_ => OnInstallButtonClick());
     public ICommand UIUnInstallButton => new RelayCommand(_ => OnUnInstallButtonClick());
-    public ICommand UIInfoButton => new RelayCommand(_ => OnInfoButtonClick());
 
     private void OnInstallButtonClick()
     {
@@ -275,11 +274,6 @@ public class PackageSource
         var action = packageManager.UninstallPackage(this);
         action.OnComplete += () => AppManager.GetInstance().Refresh(PageLookup.Packages);
         _ = MainWindow.GetInstance().ShowLoadingOverlay($"Uninstalling {DisplayName}", action);
-    }
-
-    private void OnInfoButtonClick()
-    {
-        MessageBox.Show(State.ToString());
     }
 
     #endregion

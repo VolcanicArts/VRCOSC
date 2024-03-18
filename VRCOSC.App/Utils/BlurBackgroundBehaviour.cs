@@ -30,6 +30,16 @@ public class BlurBackgroundBehavior : Behavior<Shape>
             typeof(BlurBackgroundBehavior),
             new PropertyMetadata());
 
+    private static readonly DependencyProperty BlurProperty
+        = DependencyProperty.Register(
+            nameof(BlurRadius),
+            typeof(double),
+            typeof(BlurBackgroundBehavior),
+            new PropertyMetadata
+            {
+                DefaultValue = 15d
+            });
+
     private VisualBrush? Brush
     {
         get => (VisualBrush)GetValue(BrushProperty);
@@ -42,11 +52,17 @@ public class BlurBackgroundBehavior : Behavior<Shape>
         set => SetValue(BlurContainerProperty, value);
     }
 
+    public double BlurRadius
+    {
+        get => (double)GetValue(BlurProperty);
+        set => SetValue(BlurProperty, value);
+    }
+
     protected override void OnAttached()
     {
         AssociatedObject.Effect = new BlurEffect
         {
-            Radius = 15,
+            Radius = BlurRadius,
             KernelType = KernelType.Gaussian,
             RenderingBias = RenderingBias.Quality
         };
