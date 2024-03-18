@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Windows.Media;
 using Windows.Media.Control;
@@ -116,8 +115,13 @@ public class WindowsMediaProvider : MediaProvider
 
         onAnyPlaybackStateChanged(controller, controller.GetPlaybackInfo());
 
-        try { onAnyMediaPropertyChanged(controller, await controller.TryGetMediaPropertiesAsync()); }
-        catch (COMException) { }
+        try
+        {
+            onAnyMediaPropertyChanged(controller, await controller.TryGetMediaPropertiesAsync());
+        }
+        catch (Exception)
+        {
+        }
 
         onAnyTimelinePropertiesChanged(controller, controller.GetTimelineProperties());
     }
@@ -135,8 +139,13 @@ public class WindowsMediaProvider : MediaProvider
 
         controlSession.MediaPropertiesChanged += async (_, _) =>
         {
-            try { onAnyMediaPropertyChanged(controlSession, await controlSession.TryGetMediaPropertiesAsync()); }
-            catch (COMException) { }
+            try
+            {
+                onAnyMediaPropertyChanged(controlSession, await controlSession.TryGetMediaPropertiesAsync());
+            }
+            catch (Exception)
+            {
+            }
         };
 
         controlSession.TimelinePropertiesChanged += (_, _) => onAnyTimelinePropertiesChanged(controlSession, controlSession.GetTimelineProperties());
