@@ -3,12 +3,17 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:ui="clr-namespace:VRCOSC.App.UI"
+      xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
       mc:Ignorable="d"
       Title="ListTextBoxSettingPage"
       Width="{Binding ActualWidth, ElementName=SettingPageFrame}">
     <Grid>
         <ListView ItemsSource="{Binding Attribute}" VerticalAlignment="Stretch" Background="Transparent" Padding="0"
                   BorderThickness="0">
+            <b:Interaction.Behaviors>
+                <ui:IgnoreMouseWheelBehavior />
+            </b:Interaction.Behaviors>
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <Grid Margin="5">
@@ -18,12 +23,12 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0"
                                    Text="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=(ItemsControl.AlternationIndex)}"
-                                   VerticalAlignment="Center" Margin="0,0,10,0"
+                                   VerticalAlignment="Center" Margin="0 0 10 0"
                                    Foreground="{StaticResource CForeground1}"
                                    Visibility="{Binding Path=DataContext.RowNumberVisibility, RelativeSource={RelativeSource AncestorType=Page}}">
                         </TextBlock>
                         <TextBox Grid.Column="1" Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" Background="{StaticResource CBackground3}"
-                                 Foreground="{StaticResource CForeground1}" FontSize="20" HorizontalAlignment="Stretch"
+                                 Foreground="{StaticResource CForeground1}" FontSize="16" HorizontalAlignment="Stretch"
                                  VerticalContentAlignment="Center" />
                     </Grid>
                 </DataTemplate>
