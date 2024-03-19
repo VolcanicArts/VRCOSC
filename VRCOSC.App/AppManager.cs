@@ -85,10 +85,10 @@ public class AppManager
         ConnectionManager.Init();
 
         vrchatCheckTask = new Repeater(checkForVRChatAutoStart);
-        vrchatCheckTask.Start(TimeSpan.FromSeconds(1));
+        vrchatCheckTask.Start(TimeSpan.FromSeconds(2));
 
         openvrCheckTask = new Repeater(checkForOpenVR);
-        openvrCheckTask.Start(TimeSpan.FromSeconds(1));
+        openvrCheckTask.Start(TimeSpan.FromSeconds(2));
 
         OVRClient.SetMetadata(new OVRMetadata
         {
