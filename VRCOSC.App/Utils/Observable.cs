@@ -3,13 +3,36 @@
 
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Newtonsoft.Json;
 
 namespace VRCOSC.App.Utils;
 
 using System;
 using System.Collections.Generic;
 
-public sealed class Observable<T> : IObservable<T>, INotifyPropertyChanged
+[JsonConverter(typeof(ObservableConverter))]
+public interface ISerialisableObservable
+{
+    void SerializeTo(JsonWriter writer, JsonSerializer serializer);
+    void DeserializeFrom(JsonReader reader, JsonSerializer serializer);
+}
+
+public class ObservableConverter : JsonConverter<ISerialisableObservable>
+{
+    public override void WriteJson(JsonWriter writer, ISerialisableObservable? value, JsonSerializer serializer)
+    {
+        value?.SerializeTo(writer, serializer);
+    }
+
+    public override ISerialisableObservable ReadJson(JsonReader reader, Type objectType, ISerialisableObservable? existingValue, bool hasExistingValue, JsonSerializer serializer)
+    {
+        var observable = existingValue ?? (ISerialisableObservable)Activator.CreateInstance(objectType, true)!;
+        observable.DeserializeFrom(reader, serializer);
+        return observable;
+    }
+}
+
+public sealed class Observable<T> : IObservable<T>, INotifyPropertyChanged, ISerialisableObservable
 {
     private T value;
 
@@ -102,5 +125,15 @@ public sealed class Observable<T> : IObservable<T>, INotifyPropertyChanged
             if (observers.Contains(observer))
                 observers.Remove(observer);
         }
+    }
+
+    public void SerializeTo(JsonWriter writer, JsonSerializer serializer)
+    {
+        serializer.Serialize(writer, value);
+    }
+
+    public void DeserializeFrom(JsonReader reader, JsonSerializer serializer)
+    {
+        Value = serializer.Deserialize<T>(reader);
     }
 }

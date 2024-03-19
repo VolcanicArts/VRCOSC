@@ -21,6 +21,7 @@ using VRCOSC.App.Pages.Modules.Settings;
 using VRCOSC.App.SDK.Modules.Attributes;
 using VRCOSC.App.SDK.Modules.Attributes.Parameters;
 using VRCOSC.App.SDK.Modules.Attributes.Settings;
+using VRCOSC.App.SDK.Modules.Attributes.Types;
 using VRCOSC.App.SDK.OVR;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.Serialisation;
@@ -304,6 +305,15 @@ public abstract class Module : INotifyPropertyChanged
         Groups.Add(title, lookups.Select(lookup => lookup.ToLookup()).ToList());
     }
 
+    /// <summary>
+    /// Allows you to create custom module settings to be listed in the module
+    /// </summary>
+    protected void CreateCustom(Enum lookup, ModuleSetting moduleSetting)
+    {
+        validateSettingsLookup(lookup);
+        Settings.Add(lookup.ToLookup(), moduleSetting);
+    }
+
     protected void CreateToggle(Enum lookup, string title, string description, bool defaultValue)
     {
         validateSettingsLookup(lookup);
@@ -338,6 +348,12 @@ public abstract class Module : INotifyPropertyChanged
     {
         validateSettingsLookup(lookup);
         Settings.Add(lookup.ToLookup(), new StringListModuleSetting(new ModuleSettingMetadata(title, description, typeof(ListTextBoxSettingPage)), defaultValues, rowNumberVisible));
+    }
+
+    protected void CreateKeyValuePairList(Enum lookup, string title, string description, List<MutableKeyValuePair> defaultValues, string keyTitle, string valueTitle, bool rowNumberVisible = false)
+    {
+        validateSettingsLookup(lookup);
+        Settings.Add(lookup.ToLookup(), new MutableKeyValuePairListModuleSetting(new MutableKeyValuePairSettingMetadata(title, description, typeof(MutableKeyValuePairSettingPage), keyTitle, valueTitle), defaultValues, rowNumberVisible));
     }
 
     private void validateSettingsLookup(Enum lookup)

@@ -51,6 +51,7 @@ public abstract class ListModuleSetting<T> : ModuleSetting
 
     internal override bool Deserialise(object value)
     {
+        Attribute.Clear();
         jArrayToEnumerable((JArray)value).ForEach(item => Attribute.Add(item));
         return true;
     }
