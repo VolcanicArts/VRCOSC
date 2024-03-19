@@ -256,7 +256,7 @@ public class PackageSource
     }
 
     public Visibility UIInstallVisible => !IsInstalled() && IsAvailable() && !IsIncompatible() ? Visibility.Visible : Visibility.Collapsed;
-    public Visibility UIUnInstallVisible => IsInstalled() && IsAvailable() ? Visibility.Visible : Visibility.Collapsed;
+    public Visibility UIUnInstallVisible => IsInstalled() ? Visibility.Visible : Visibility.Collapsed;
     public Visibility UIUpgradeVisible => IsUpdateAvailable() && IsAvailable() && !IsIncompatible() ? Visibility.Visible : Visibility.Collapsed;
 
     public ICommand UIInstallButton => new RelayCommand(_ => OnInstallButtonClick());
