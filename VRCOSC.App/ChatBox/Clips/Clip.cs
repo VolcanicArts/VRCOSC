@@ -8,6 +8,8 @@ namespace VRCOSC.App.ChatBox.Clips;
 public class Clip
 {
     public Observable<bool> Enabled { get; } = new(true);
+    public Observable<string> Name { get; } = new("New Clip");
+
     public Observable<int> Start { get; } = new();
     public Observable<int> End { get; } = new();
 }

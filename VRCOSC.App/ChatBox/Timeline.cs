@@ -3,6 +3,8 @@
 
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
+using VRCOSC.App.ChatBox.Clips;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.ChatBox;
@@ -14,5 +16,13 @@ public class Timeline
     public Observable<int> LayerCount { get; } = new(default_layer_count);
     public Observable<TimeSpan> Length { get; } = new(TimeSpan.FromSeconds(default_length_seconds));
 
+    public int TimelineLengthSeconds => (int)Length.Value.TotalSeconds;
+    public float TimelineResolution => 1f / (float)Length.Value.TotalSeconds;
+
     public ObservableCollection<Layer> Layers { get; } = new();
+
+    public Layer FindLayerOfClip(Clip clip)
+    {
+        return Layers.First(layer => layer.Clips.Contains(clip));
+    }
 }

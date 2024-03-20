@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -41,21 +41,25 @@ public class ChatBoxManager
 
         Timeline.Layers[0].Clips.Add(new Clip
         {
+            Name = { Value = "Media" },
             Start = { Value = 0 },
             End = { Value = 20 }
         });
         Timeline.Layers[0].Clips.Add(new Clip
         {
+            Name = { Value = "Time" },
             Start = { Value = 40 },
             End = { Value = 60 }
         });
         Timeline.Layers[1].Clips.Add(new Clip
         {
+            Name = { Value = "AFK" },
             Start = { Value = 0 },
             End = { Value = 40 }
         });
         Timeline.Layers[2].Clips.Add(new Clip
         {
+            Name = { Value = "Weather" },
             Start = { Value = 0 },
             End = { Value = 30 }
         });
