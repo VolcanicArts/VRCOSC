@@ -52,6 +52,7 @@ public class SettingsManager
         Settings[VRCOSCSetting.TrayOnClose] = new Observable<object>(false);
         Settings[VRCOSCSetting.GlobalPersistence] = new Observable<object>(false);
         Settings[VRCOSCSetting.ReleaseChannel] = new Observable<object>(UpdaterReleaseChannel.Beta); // TODO: Change on app release
+        Settings[VRCOSCSetting.ChatBoxSendInterval] = new Observable<object>(1500);
     }
 
     public Observable<object> GetObservable(VRCOSCSetting lookup)
@@ -85,5 +86,6 @@ public enum VRCOSCSetting
     UseLegacyPorts,
     TrayOnClose,
     GlobalPersistence,
-    ReleaseChannel
+    ReleaseChannel,
+    ChatBoxSendInterval
 }

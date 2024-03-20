@@ -1,0 +1,24 @@
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// See the LICENSE file in the repository root for full license text.
+
+using System.Collections.Generic;
+using VRCOSC.App.ChatBox.Clips.Variables;
+using VRCOSC.App.Utils;
+
+namespace VRCOSC.App.ChatBox.Clips;
+
+public class ClipElement
+{
+    public Observable<string> Format = new();
+    public Observable<bool> Enabled = new();
+
+    public List<ClipVariable> Variables = new();
+
+    public virtual bool IsDefault => Format.IsDefault && Enabled.IsDefault;
+
+    public string RunFormatting()
+    {
+        // go through each variable and format it
+        return string.Empty;
+    }
+}
