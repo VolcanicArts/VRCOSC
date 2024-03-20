@@ -36,9 +36,9 @@ public class ClipState : ClipElement
 /// </summary>
 public class ClipStateReference
 {
-    public required string ModuleID { get; init; }
-    public required string StateID { get; init; }
-    public required string DefaultFormat { get; init; }
+    internal string ModuleID { get; init; }
+    internal string StateID { get; init; }
+    internal string DefaultFormat { get; init; }
 
     public Observable<string> DisplayName { get; } = new("INVALID");
 }

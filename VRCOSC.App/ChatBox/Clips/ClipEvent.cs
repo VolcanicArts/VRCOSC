@@ -34,10 +34,10 @@ public class ClipEvent : ClipElement
 /// </summary>
 public class ClipEventReference
 {
-    public required string ModuleID { get; init; }
-    public required string EventID { get; init; }
-    public required string DefaultFormat { get; init; }
-    public required float DefaultLength { get; init; }
+    internal string ModuleID { get; init; }
+    internal string EventID { get; init; }
+    internal string DefaultFormat { get; init; }
+    internal float DefaultLength { get; init; }
 
     public Observable<string> DisplayName { get; } = new("INVALID");
 }

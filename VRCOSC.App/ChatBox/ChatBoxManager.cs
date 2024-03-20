@@ -17,17 +17,11 @@ public class ChatBoxManager
     private static ChatBoxManager? instance;
     internal static ChatBoxManager GetInstance() => instance ??= new ChatBoxManager();
 
-    private const int default_timeline_layer_count = 8;
-    private const int default_timeline_length_seconds = 60;
-
     public ObservableCollection<ClipStateReference> StateReferences = new();
     public ObservableCollection<ClipEventReference> EventReferences = new();
     public ObservableCollection<ClipVariableReference> VariableReferences = new();
 
-    public ObservableCollection<Clip> Clips { get; } = new();
-
-    public Observable<int> TimelineLayerCount { get; } = new(default_timeline_layer_count);
-    public Observable<TimeSpan> TimelineLength { get; } = new(TimeSpan.FromSeconds(default_timeline_length_seconds));
+    public Timeline Timeline = new();
 
     private DateTimeOffset startTime;
     private Repeater? sendTask;
