@@ -17,7 +17,7 @@ public class ClipState : ClipElement
     {
     }
 
-    public ClipState(ModuleChatBoxState reference)
+    public ClipState(ClipStateReference reference)
     {
         States = new Dictionary<string, string> { { reference.ModuleID, reference.StateID } };
         Format = new Observable<string>(reference.DefaultFormat);
@@ -34,7 +34,7 @@ public class ClipState : ClipElement
 /// <summary>
 /// Used as a reference for what states a module has created.
 /// </summary>
-public class ModuleChatBoxState
+public class ClipStateReference
 {
     public required string ModuleID { get; init; }
     public required string StateID { get; init; }

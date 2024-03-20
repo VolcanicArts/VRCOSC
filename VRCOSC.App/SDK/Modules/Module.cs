@@ -14,6 +14,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using VRCOSC.App.ChatBox;
+using VRCOSC.App.ChatBox.Clips;
 using VRCOSC.App.ChatBox.Clips.Variables;
 using VRCOSC.App.ChatBox.Clips.Variables.Instances;
 using VRCOSC.App.Modules;
@@ -367,6 +368,87 @@ public abstract class Module : INotifyPropertyChanged
     }
 
     #region ChatBox
+
+    #region States
+
+    protected void CreateState(Enum lookup, string displayName, string defaultFormat = "")
+    {
+        CreateState(lookup.ToLookup(), displayName, defaultFormat);
+    }
+
+    protected void CreateState(string lookup, string displayName, string defaultFormat = "")
+    {
+        ChatBoxManager.GetInstance().CreateState(new ClipStateReference
+        {
+            ModuleID = SerialisedName,
+            StateID = lookup,
+            DefaultFormat = defaultFormat,
+            DisplayName = { Value = displayName }
+        });
+    }
+
+    protected void DeleteState(Enum lookup)
+    {
+        DeleteState(lookup.ToLookup());
+    }
+
+    protected void DeleteState(string lookup)
+    {
+        ChatBoxManager.GetInstance().DeleteState(SerialisedName, lookup);
+    }
+
+    protected ClipStateReference? GetState(Enum lookup)
+    {
+        return GetState(lookup.ToLookup());
+    }
+
+    protected ClipStateReference? GetState(string lookup)
+    {
+        return ChatBoxManager.GetInstance().GetState(SerialisedName, lookup);
+    }
+
+    #endregion
+
+    #region Events
+
+    protected void CreateEvent(Enum lookup, string displayName, string defaultFormat = "", float defaultLength = 5)
+    {
+        CreateEvent(lookup.ToLookup(), displayName, defaultFormat, defaultLength);
+    }
+
+    protected void CreateEvent(string lookup, string displayName, string defaultFormat = "", float defaultLength = 5)
+    {
+        ChatBoxManager.GetInstance().CreateEvent(new ClipEventReference
+        {
+            ModuleID = SerialisedName,
+            EventID = lookup,
+            DefaultFormat = defaultFormat,
+            DefaultLength = defaultLength,
+            DisplayName = { Value = displayName }
+        });
+    }
+
+    protected void DeleteEvent(Enum lookup)
+    {
+        DeleteEvent(lookup.ToLookup());
+    }
+
+    protected void DeleteEvent(string lookup)
+    {
+        ChatBoxManager.GetInstance().DeleteEvent(SerialisedName, lookup);
+    }
+
+    protected ClipEventReference? GetEvent(Enum lookup)
+    {
+        return GetEvent(lookup.ToLookup());
+    }
+
+    protected ClipEventReference? GetEvent(string lookup)
+    {
+        return ChatBoxManager.GetInstance().GetEvent(SerialisedName, lookup);
+    }
+
+    #endregion
 
     #region Variables
 

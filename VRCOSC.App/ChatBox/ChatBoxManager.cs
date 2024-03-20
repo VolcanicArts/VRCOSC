@@ -20,6 +20,8 @@ public class ChatBoxManager
     private const int default_timeline_layer_count = 8;
     private const int default_timeline_length_seconds = 60;
 
+    public ObservableCollection<ClipStateReference> StateReferences = new();
+    public ObservableCollection<ClipEventReference> EventReferences = new();
     public ObservableCollection<ClipVariableReference> VariableReferences = new();
 
     public ObservableCollection<Clip> Clips { get; } = new();
@@ -60,7 +62,51 @@ public class ChatBoxManager
     {
     }
 
-    #region References
+    #region States
+
+    public void CreateState(ClipStateReference reference)
+    {
+        StateReferences.Add(reference);
+    }
+
+    public void DeleteState(string moduleID, string stateID)
+    {
+        var stateToDelete = GetState(moduleID, stateID);
+        if (stateToDelete is null) return;
+
+        StateReferences.Remove(stateToDelete);
+    }
+
+    public ClipStateReference? GetState(string moduleID, string stateID)
+    {
+        return StateReferences.FirstOrDefault(reference => reference.ModuleID == moduleID && reference.StateID == stateID);
+    }
+
+    #endregion
+
+    #region Events
+
+    public void CreateEvent(ClipEventReference reference)
+    {
+        EventReferences.Add(reference);
+    }
+
+    public void DeleteEvent(string moduleID, string eventID)
+    {
+        var eventToDelete = GetEvent(moduleID, eventID);
+        if (eventToDelete is null) return;
+
+        EventReferences.Remove(eventToDelete);
+    }
+
+    public ClipEventReference? GetEvent(string moduleID, string eventID)
+    {
+        return EventReferences.FirstOrDefault(reference => reference.ModuleID == moduleID && reference.EventID == eventID);
+    }
+
+    #endregion
+
+    #region Variables
 
     public void CreateVariable(ClipVariableReference reference)
     {
@@ -69,7 +115,7 @@ public class ChatBoxManager
 
     public void DeleteVariable(string moduleID, string variableID)
     {
-        var variableToDelete = VariableReferences.FirstOrDefault(reference => reference.ModuleID == moduleID && reference.VariableID == variableID);
+        var variableToDelete = GetVariable(moduleID, variableID);
         if (variableToDelete is null) return;
 
         VariableReferences.Remove(variableToDelete);

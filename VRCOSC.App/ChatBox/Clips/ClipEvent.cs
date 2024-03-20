@@ -20,7 +20,7 @@ public class ClipEvent : ClipElement
     {
     }
 
-    public ClipEvent(ModuleChatBoxEvent reference)
+    public ClipEvent(ClipEventReference reference)
     {
         ModuleID = reference.ModuleID;
         EventID = reference.EventID;
@@ -32,7 +32,7 @@ public class ClipEvent : ClipElement
 /// <summary>
 /// Used as a reference for what events a module has created.
 /// </summary>
-public class ModuleChatBoxEvent
+public class ClipEventReference
 {
     public required string ModuleID { get; init; }
     public required string EventID { get; init; }
