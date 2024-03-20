@@ -8,5 +8,5 @@ namespace VRCOSC.App.ChatBox;
 
 public class Layer
 {
-    public ObservableCollection<Clip> Clips = new();
+    public ObservableCollection<Clip> Clips { get; } = new();
 }

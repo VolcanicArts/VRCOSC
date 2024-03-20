@@ -15,6 +15,7 @@ using VRCOSC.App.Actions.Game;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Packages;
 using VRCOSC.App.Pages;
+using VRCOSC.App.Pages.ChatBox;
 using VRCOSC.App.Pages.Modules;
 using VRCOSC.App.Pages.Packages;
 using VRCOSC.App.Pages.Profiles;
@@ -34,6 +35,7 @@ public partial class MainWindow
     private readonly HomePage homePage;
     private readonly PackagePage packagePage;
     private readonly ModulesPage modulesPage;
+    private readonly ChatBoxPage chatBoxPage;
     private readonly RunPage runPage;
     private readonly ProfilesPage profilesPage;
     private readonly SettingsPage settingsPage;
@@ -59,6 +61,7 @@ public partial class MainWindow
         homePage = new HomePage();
         packagePage = new PackagePage();
         modulesPage = new ModulesPage();
+        chatBoxPage = new ChatBoxPage();
         runPage = new RunPage();
         profilesPage = new ProfilesPage();
         settingsPage = new SettingsPage();
@@ -238,6 +241,7 @@ public partial class MainWindow
     public ICommand HomeButtonClick => new RelayCommand(_ => setPageContents(homePage, HomeButton));
     public ICommand PackagesButtonClick => new RelayCommand(_ => setPageContents(packagePage, PackagesButton));
     public ICommand ModulesButtonClick => new RelayCommand(_ => setPageContents(modulesPage, ModulesButton));
+    public ICommand ChatBoxButtonClick => new RelayCommand(_ => setPageContents(chatBoxPage, ChatBoxButton));
     public ICommand RunButtonClick => new RelayCommand(_ => setPageContents(runPage, RunButton));
     public ICommand ProfilesButtonClick => new RelayCommand(_ => setPageContents(profilesPage, ProfilesButton));
     public ICommand SettingsButtonClick => new RelayCommand(_ => setPageContents(settingsPage, SettingsButton));
@@ -247,6 +251,7 @@ public partial class MainWindow
         HomeButton.Background = Brushes.Transparent;
         PackagesButton.Background = Brushes.Transparent;
         ModulesButton.Background = Brushes.Transparent;
+        ChatBoxButton.Background = Brushes.Transparent;
         RunButton.Background = Brushes.Transparent;
         ProfilesButton.Background = Brushes.Transparent;
         SettingsButton.Background = Brushes.Transparent;

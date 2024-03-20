@@ -6,6 +6,7 @@
         xmlns:fa5="http://schemas.fontawesome.com/icons/"
         xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:utils="clr-namespace:VRCOSC.App.Utils"
+        xmlns:fa6="http://schemas.fontawesome.com/icons/fonts"
         mc:Ignorable="d"
         Title="VRCOSC" Width="1366" Height="768" MinWidth="960" MinHeight="540"
         PreviewMouseDown="MainWindow_OnPreviewMouseDown"
@@ -13,6 +14,10 @@
         Closed="MainWindow_OnClosed">
     <Window.Resources>
         <Style TargetType="fa5:FontAwesome">
+            <Setter Property="Foreground" Value="{StaticResource CForeground1}" />
+            <Setter Property="FontSize" Value="22" />
+        </Style>
+        <Style TargetType="fa6:FontAwesome">
             <Setter Property="Foreground" Value="{StaticResource CForeground1}" />
             <Setter Property="FontSize" Value="22" />
         </Style>
@@ -54,6 +59,9 @@
                             </Button>
                             <Button Name="ModulesButton" Command="{Binding ModulesButtonClick}">
                                 <fa5:FontAwesome Icon="Solid_List" />
+                            </Button>
+                            <Button Name="ChatBoxButton" Command="{Binding ChatBoxButtonClick}">
+                                <fa6:FontAwesome Icon="Solid_Message" />
                             </Button>
                             <Button Name="RunButton" Command="{Binding RunButtonClick}">
                                 <fa5:FontAwesome Icon="Solid_Play" />

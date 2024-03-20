@@ -21,12 +21,45 @@ public class ChatBoxManager
     public ObservableCollection<ClipEventReference> EventReferences = new();
     public ObservableCollection<ClipVariableReference> VariableReferences = new();
 
-    public Timeline Timeline = new();
+    public Timeline Timeline { get; } = new();
 
     private DateTimeOffset startTime;
     private Repeater? sendTask;
 
     public bool SendEnabled { get; set; }
+
+    public ChatBoxManager()
+    {
+        Timeline.Layers.Add(new Layer());
+        Timeline.Layers.Add(new Layer());
+        Timeline.Layers.Add(new Layer());
+        Timeline.Layers.Add(new Layer());
+        Timeline.Layers.Add(new Layer());
+        Timeline.Layers.Add(new Layer());
+        Timeline.Layers.Add(new Layer());
+        Timeline.Layers.Add(new Layer());
+
+        Timeline.Layers[0].Clips.Add(new Clip
+        {
+            Start = { Value = 0 },
+            End = { Value = 20 }
+        });
+        Timeline.Layers[0].Clips.Add(new Clip
+        {
+            Start = { Value = 40 },
+            End = { Value = 60 }
+        });
+        Timeline.Layers[1].Clips.Add(new Clip
+        {
+            Start = { Value = 0 },
+            End = { Value = 40 }
+        });
+        Timeline.Layers[2].Clips.Add(new Clip
+        {
+            Start = { Value = 0 },
+            End = { Value = 30 }
+        });
+    }
 
     public void Start()
     {

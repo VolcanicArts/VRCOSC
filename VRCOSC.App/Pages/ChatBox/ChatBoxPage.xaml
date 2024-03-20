@@ -1,0 +1,88 @@
+﻿<Page x:Class="VRCOSC.App.Pages.ChatBox.ChatBoxPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:ui="clr-namespace:VRCOSC.App.UI"
+      xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+      xmlns:local="clr-namespace:VRCOSC.App.Pages.ChatBox"
+      mc:Ignorable="d">
+    <Page.Resources>
+        <local:ClipPositionConverter x:Key="ClipPositionConverter" />
+        <local:ClipWidthConverter x:Key="ClipWidthConverter" />
+    </Page.Resources>
+    <Grid>
+        <Border Background="{StaticResource CBackground2}" Padding="10">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="240" />
+                    <RowDefinition Height="10" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Border Grid.Row="0" Background="{StaticResource CBackground3}" CornerRadius="5" />
+                <Border Grid.Row="2" Background="{StaticResource CBackground3}" CornerRadius="5" Padding="5">
+                    <Border Background="{StaticResource CBackground2}" CornerRadius="5">
+                        <ui:MouseScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
+                            <ListView Background="Transparent"
+                                      BorderThickness="0"
+                                      AlternationCount="2" Padding="-1" ItemsSource="{Binding Timeline.Layers, Mode=OneWay}">
+                                <b:Interaction.Behaviors>
+                                    <ui:IgnoreMouseWheelBehavior />
+                                </b:Interaction.Behaviors>
+                                <ListView.ItemContainerStyle>
+                                    <Style TargetType="ListViewItem">
+                                        <Setter Property="Height" Value="50" />
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate>
+                                                    <ItemsControl ItemsSource="{Binding Clips, Mode=OneWay}">
+                                                        <ItemsControl.ItemsPanel>
+                                                            <ItemsPanelTemplate>
+                                                                <Grid />
+                                                            </ItemsPanelTemplate>
+                                                        </ItemsControl.ItemsPanel>
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <Border Background="LightGray"
+                                                                        CornerRadius="5"
+                                                                        HorizontalAlignment="Left"
+                                                                        VerticalAlignment="Stretch">
+                                                                    <Border.RenderTransform>
+                                                                        <TranslateTransform>
+                                                                            <TranslateTransform.X>
+                                                                                <MultiBinding
+                                                                                    Converter="{StaticResource ClipPositionConverter}">
+                                                                                    <Binding Path="Start.Value" Mode="OneWay" />
+                                                                                    <Binding Path="ActualWidth"
+                                                                                        RelativeSource="{RelativeSource AncestorType={x:Type ListViewItem}}" Mode="OneWay" />
+                                                                                </MultiBinding>
+                                                                            </TranslateTransform.X>
+                                                                        </TranslateTransform>
+                                                                    </Border.RenderTransform>
+                                                                    <Border.Width>
+                                                                        <MultiBinding
+                                                                            Converter="{StaticResource ClipWidthConverter}">
+                                                                            <Binding Path="Start.Value" Mode="OneWay" />
+                                                                            <Binding Path="End.Value" Mode="OneWay" />
+                                                                            <Binding
+                                                                                RelativeSource="{RelativeSource AncestorType=ListViewItem}"
+                                                                                Path="ActualWidth" Mode="OneWay" />
+                                                                        </MultiBinding>
+                                                                    </Border.Width>
+                                                                </Border>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ListView.ItemContainerStyle>
+                            </ListView>
+                        </ui:MouseScrollViewer>
+                    </Border>
+                </Border>
+            </Grid>
+        </Border>
+    </Grid>
+</Page>

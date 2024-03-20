@@ -14,5 +14,5 @@ public class Timeline
     public Observable<int> LayerCount { get; } = new(default_layer_count);
     public Observable<TimeSpan> Length { get; } = new(TimeSpan.FromSeconds(default_length_seconds));
 
-    public ObservableCollection<Layer> Layers = new();
+    public ObservableCollection<Layer> Layers { get; } = new();
 }
