@@ -28,7 +28,7 @@ public partial class ChatBoxPage
         InitializeComponent();
 
         DataContext = ChatBoxManager.GetInstance();
-        SizeChanged += (_, _) => drawVerticalLines();
+        SizeChanged += (_, _) => drawLines();
     }
 
     private Clip? selectedClip;
@@ -54,26 +54,47 @@ public partial class ChatBoxPage
 
     private void ChatBoxPage_OnLoaded(object sender, RoutedEventArgs e)
     {
-        ChatBoxManager.GetInstance().Timeline.Length.Subscribe(_ => drawVerticalLines(), true);
+        ChatBoxManager.GetInstance().Timeline.Length.Subscribe(_ => drawLines());
+        ChatBoxManager.GetInstance().Timeline.LayerCount.Subscribe(_ => drawLines());
+        drawLines();
     }
 
-    private void drawVerticalLines()
+    private void drawLines()
     {
         LineCanvas.Children.Clear();
 
-        var numberOfLines = ChatBoxManager.GetInstance().Timeline.LengthSeconds - 1;
+        var verticalLineCount = ChatBoxManager.GetInstance().Timeline.LengthSeconds - 1;
         var resolution = ChatBoxManager.GetInstance().Timeline.Resolution;
 
-        for (int i = 0; i < numberOfLines; i++)
+        for (var i = 0; i < verticalLineCount; i++)
         {
             var x = (i + 1) * (resolution * LineCanvas.ActualWidth);
 
-            Line line = new Line
+            var line = new Line
             {
                 X1 = x,
                 Y1 = 0,
                 X2 = x,
                 Y2 = LineCanvas.ActualHeight,
+                Stroke = (Brush)FindResource("CBackground1"),
+                StrokeThickness = 1
+            };
+
+            LineCanvas.Children.Add(line);
+        }
+
+        var horizontalLineCount = ChatBoxManager.GetInstance().Timeline.LayerCount.Value - 1;
+
+        for (var i = 0; i < horizontalLineCount; i++)
+        {
+            var y = (i + 1) * 50;
+
+            var line = new Line
+            {
+                X1 = 0,
+                Y1 = y,
+                X2 = LineCanvas.ActualWidth,
+                Y2 = y,
                 Stroke = (Brush)FindResource("CBackground1"),
                 StrokeThickness = 1
             };
@@ -256,6 +277,14 @@ public partial class ChatBoxPage
         storyboard.Completed += (_, _) => grid.Visibility = Visibility.Collapsed;
         storyboard.Begin(grid);
     });
+
+    private void Layer_OnMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        var layerElement = (FrameworkElement)sender;
+        var layer = (Layer)layerElement.Tag;
+
+        Console.WriteLine(ChatBoxManager.GetInstance().Timeline.Layers.IndexOf(layer));
+    }
 }
 
 public enum ClipDragPoint
