@@ -126,9 +126,9 @@
                                                                 </Grid>
                                                                 <TextBox
                                                                     Text="{Binding Format.Value, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TextBoxParsingConverter}}"
-                                                                    MinHeight="28" FontSize="16"
+                                                                    MinHeight="24" FontSize="16"
                                                                     PreviewKeyDown="TextBox_PreviewKeyDown"
-                                                                    DataObject.Pasting="TextBox_Pasting"/>
+                                                                    DataObject.Pasting="TextBox_Pasting" />
                                                             </ui:SpacedStackPanel>
                                                         </Border>
                                                     </ControlTemplate>
@@ -152,19 +152,26 @@
                                             <Setter Property="Template">
                                                 <Setter.Value>
                                                     <ControlTemplate>
-                                                        <Border Height="40" Background="{StaticResource CBackground4}"
+                                                        <Border Background="{StaticResource CBackground4}"
                                                                 CornerRadius="5" Padding="5">
-                                                            <Grid>
-                                                                <Grid.ColumnDefinitions>
-                                                                    <ColumnDefinition Width="*" />
-                                                                    <ColumnDefinition Width="*" />
-                                                                </Grid.ColumnDefinitions>
-                                                                <TextBlock Grid.Column="0" FontSize="16"
-                                                                           Foreground="{StaticResource CForeground1}"
-                                                                           Text="{Binding DisplayName, Mode=OneWay}"
-                                                                           VerticalAlignment="Center"
-                                                                           HorizontalAlignment="Left" />
-                                                            </Grid>
+                                                            <ui:SpacedStackPanel Orientation="Vertical" Spacing="5">
+                                                                <Grid>
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="*" />
+                                                                        <ColumnDefinition Width="*" />
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <TextBlock Grid.Column="0" FontSize="16"
+                                                                               Foreground="{StaticResource CForeground1}"
+                                                                               Text="{Binding DisplayName, Mode=OneWay}"
+                                                                               VerticalAlignment="Center"
+                                                                               HorizontalAlignment="Left" />
+                                                                </Grid>
+                                                                <TextBox
+                                                                    Text="{Binding Format.Value, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TextBoxParsingConverter}}"
+                                                                    MinHeight="24" FontSize="16"
+                                                                    PreviewKeyDown="TextBox_PreviewKeyDown"
+                                                                    DataObject.Pasting="TextBox_Pasting" />
+                                                            </ui:SpacedStackPanel>
                                                         </Border>
                                                     </ControlTemplate>
                                                 </Setter.Value>
