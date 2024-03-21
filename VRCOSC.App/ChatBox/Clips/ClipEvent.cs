@@ -2,8 +2,10 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Diagnostics;
+using System.Linq;
 using Newtonsoft.Json;
 using VRCOSC.App.Modules;
+using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.ChatBox.Clips;
@@ -24,6 +26,20 @@ public class ClipEvent : ClipElement
             Debug.Assert(eventReference is not null);
 
             return module.Title + " - " + eventReference.DisplayName.Value;
+        }
+    }
+
+    public override bool ShouldBeVisible
+    {
+        get
+        {
+            if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.ShowRelevantModules)) return true;
+
+            var selectedClip = MainWindow.GetInstance().ChatBoxPage.SelectedClip;
+            Debug.Assert(selectedClip is not null);
+
+            var enabledModuleIDs = ModuleManager.GetInstance().GetEnabledModuleIDs().Where(moduleID => selectedClip.LinkedModules.Contains(moduleID)).OrderBy(moduleID => moduleID);
+            return enabledModuleIDs.Contains(ModuleID);
         }
     }
 

@@ -1,16 +1,17 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.ChatBox.Clips;
 
-public class Clip
+public class Clip : INotifyPropertyChanged
 {
     public Observable<bool> Enabled { get; } = new(true);
     public Observable<string> Name { get; } = new("New Clip");
@@ -20,6 +21,13 @@ public class Clip
     public ObservableCollection<string> LinkedModules { get; } = new();
     public ObservableCollection<ClipState> States { get; } = new();
     public ObservableCollection<ClipEvent> Events { get; } = new();
+
+    public IEnumerable<ClipState> UIStates => States.OrderBy(clipState => clipState.States.Count)
+                                                    .ThenBy(state => string.Join(",", state.States.Keys.OrderBy(k => k)))
+                                                    .ThenBy(state => string.Join(",", state.States.Values.OrderBy(v => v)));
+
+    public IEnumerable<ClipEvent> UIEvents => Events.OrderBy(clipEvent => clipEvent.ModuleID)
+                                                    .ThenBy(clipEvent => clipEvent.EventID);
 
     public Clip()
     {
@@ -32,16 +40,8 @@ public class Clip
         populateStates(e);
         populateEvents(e);
 
-        States.OrderBy(clipState => clipState.States.Count)
-              .ThenBy(state => string.Join(",", state.States.Keys.OrderBy(k => k)))
-              .ThenBy(state => string.Join(",", state.States.Values.OrderBy(v => v)))
-              .ForEach(clipState => Console.WriteLine(clipState.DisplayName));
-
-        Events.OrderBy(clipEvent => clipEvent.ModuleID)
-              .ThenBy(clipEvent => clipEvent.EventID)
-              .ForEach(clipState => Console.WriteLine(clipState.DisplayName));
-
-        Console.WriteLine("----");
+        OnPropertyChanged(nameof(UIStates));
+        OnPropertyChanged(nameof(UIEvents));
     }
 
     private void populateStates(NotifyCollectionChangedEventArgs e)
@@ -122,5 +122,12 @@ public class Clip
                 Events.Add(new ClipEvent(eventReference));
             }
         }
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

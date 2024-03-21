@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using Newtonsoft.Json;
 using VRCOSC.App.Modules;
+using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.ChatBox.Clips;
@@ -37,6 +38,21 @@ public class ClipState : ClipElement
             });
 
             return string.Join(" & ", names);
+        }
+    }
+
+    public override bool ShouldBeVisible
+    {
+        get
+        {
+            if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.ShowRelevantModules)) return true;
+
+            var selectedClip = MainWindow.GetInstance().ChatBoxPage.SelectedClip;
+            Debug.Assert(selectedClip is not null);
+
+            var enabledModuleIDs = ModuleManager.GetInstance().GetEnabledModuleIDs().Where(moduleID => selectedClip.LinkedModules.Contains(moduleID)).OrderBy(moduleID => moduleID);
+            var clipStateModuleIDs = States.Select(pair => pair.Key).OrderBy(s => s);
+            return enabledModuleIDs.SequenceEqual(clipStateModuleIDs);
         }
     }
 

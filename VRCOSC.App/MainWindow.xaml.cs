@@ -32,13 +32,13 @@ public partial class MainWindow
 {
     public static MainWindow GetInstance() => (MainWindow)Application.Current.MainWindow;
 
-    private readonly HomePage homePage;
-    private readonly PackagePage packagePage;
-    private readonly ModulesPage modulesPage;
-    private readonly ChatBoxPage chatBoxPage;
-    private readonly RunPage runPage;
-    private readonly ProfilesPage profilesPage;
-    private readonly SettingsPage settingsPage;
+    public readonly HomePage HomePage;
+    public readonly PackagePage PackagePage;
+    public readonly ModulesPage ModulesPage;
+    public readonly ChatBoxPage ChatBoxPage;
+    public readonly RunPage RunPage;
+    public readonly ProfilesPage ProfilesPage;
+    public readonly SettingsPage SettingsPage;
 
     private readonly Storage storage = AppManager.GetInstance().Storage;
 
@@ -58,15 +58,15 @@ public partial class MainWindow
 
         copyOpenVrFiles();
 
-        homePage = new HomePage();
-        packagePage = new PackagePage();
-        modulesPage = new ModulesPage();
-        chatBoxPage = new ChatBoxPage();
-        runPage = new RunPage();
-        profilesPage = new ProfilesPage();
-        settingsPage = new SettingsPage();
+        HomePage = new HomePage();
+        PackagePage = new PackagePage();
+        ModulesPage = new ModulesPage();
+        ChatBoxPage = new ChatBoxPage();
+        RunPage = new RunPage();
+        ProfilesPage = new ProfilesPage();
+        SettingsPage = new SettingsPage();
 
-        setPageContents(packagePage, PackagesButton);
+        setPageContents(PackagePage, PackagesButton);
 
         load();
     }
@@ -238,13 +238,13 @@ public partial class MainWindow
         storyboard.Begin(grid);
     });
 
-    public ICommand HomeButtonClick => new RelayCommand(_ => setPageContents(homePage, HomeButton));
-    public ICommand PackagesButtonClick => new RelayCommand(_ => setPageContents(packagePage, PackagesButton));
-    public ICommand ModulesButtonClick => new RelayCommand(_ => setPageContents(modulesPage, ModulesButton));
-    public ICommand ChatBoxButtonClick => new RelayCommand(_ => setPageContents(chatBoxPage, ChatBoxButton));
-    public ICommand RunButtonClick => new RelayCommand(_ => setPageContents(runPage, RunButton));
-    public ICommand ProfilesButtonClick => new RelayCommand(_ => setPageContents(profilesPage, ProfilesButton));
-    public ICommand SettingsButtonClick => new RelayCommand(_ => setPageContents(settingsPage, SettingsButton));
+    public ICommand HomeButtonClick => new RelayCommand(_ => setPageContents(HomePage, HomeButton));
+    public ICommand PackagesButtonClick => new RelayCommand(_ => setPageContents(PackagePage, PackagesButton));
+    public ICommand ModulesButtonClick => new RelayCommand(_ => setPageContents(ModulesPage, ModulesButton));
+    public ICommand ChatBoxButtonClick => new RelayCommand(_ => setPageContents(ChatBoxPage, ChatBoxButton));
+    public ICommand RunButtonClick => new RelayCommand(_ => setPageContents(RunPage, RunButton));
+    public ICommand ProfilesButtonClick => new RelayCommand(_ => setPageContents(ProfilesPage, ProfilesButton));
+    public ICommand SettingsButtonClick => new RelayCommand(_ => setPageContents(SettingsPage, SettingsButton));
 
     private void setPageContents(object page, Button button)
     {

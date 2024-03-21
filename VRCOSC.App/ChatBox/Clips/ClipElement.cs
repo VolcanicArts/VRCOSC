@@ -16,6 +16,7 @@ public class ClipElement
 
     public virtual string DisplayName => string.Empty;
     public virtual bool IsDefault => Format.IsDefault && Enabled.IsDefault;
+    public virtual bool ShouldBeVisible => true;
 
     public string RunFormatting()
     {

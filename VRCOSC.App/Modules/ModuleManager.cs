@@ -76,6 +76,8 @@ public class ModuleManager : INotifyPropertyChanged
 
     public Module GetModuleOfID(string moduleID) => modules.First(module => module.SerialisedName == moduleID);
 
+    public IEnumerable<string> GetEnabledModuleIDs() => modules.Where(module => module.Enabled.Value).Select(module => module.SerialisedName);
+
     /// <summary>
     /// Reloads all local and remote modules by unloading their assembly contexts and calling <see cref="LoadAllModules"/>
     /// </summary>

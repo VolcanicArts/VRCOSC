@@ -5,9 +5,13 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:ui="clr-namespace:VRCOSC.App.UI"
         xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:local="clr-namespace:VRCOSC.App.Pages.ChatBox"
         mc:Ignorable="d"
         Width="1366" Height="768" MinWidth="1200" MinHeight="540"
         Loaded="OnLoaded">
+    <Window.Resources>
+        <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+    </Window.Resources>
     <Grid>
         <Border Padding="10" Background="{StaticResource CBackground2}">
             <Grid>
@@ -77,6 +81,81 @@
                 </Grid>
                 <!--> Clip element list <-->
                 <Border Grid.Column="2" Background="{StaticResource CBackground3}" CornerRadius="5">
+                    <ui:MouseScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto"
+                                          Padding="5">
+                        <ui:SpacedStackPanel Orientation="Vertical" Spacing="20">
+                            <ListView ItemsSource="{Binding UIStates}"
+                                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                      Background="Transparent"
+                                      BorderThickness="0" Padding="-1">
+                                <b:Interaction.Behaviors>
+                                    <ui:IgnoreMouseWheelBehavior />
+                                </b:Interaction.Behaviors>
+                                <ListView.ItemContainerStyle>
+                                    <Style TargetType="ListViewItem">
+                                        <Setter Property="Margin" Value="0 0 0 5" />
+                                        <Setter Property="Visibility"
+                                                Value="{Binding ShouldBeVisible, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate>
+                                                    <Border Height="40" Background="{StaticResource CBackground4}"
+                                                            CornerRadius="5" Padding="5">
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="*" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBlock Grid.Column="0" FontSize="16"
+                                                                       Foreground="{StaticResource CForeground1}"
+                                                                       Text="{Binding DisplayName, Mode=OneWay}"
+                                                                       VerticalAlignment="Center"
+                                                                       HorizontalAlignment="Left" />
+                                                        </Grid>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ListView.ItemContainerStyle>
+                            </ListView>
+                            <ListView ItemsSource="{Binding UIEvents}"
+                                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                      Background="Transparent"
+                                      BorderThickness="0" Padding="-1">
+                                <b:Interaction.Behaviors>
+                                    <ui:IgnoreMouseWheelBehavior />
+                                </b:Interaction.Behaviors>
+                                <ListView.ItemContainerStyle>
+                                    <Style TargetType="ListViewItem">
+                                        <Setter Property="Margin" Value="0 0 0 5" />
+                                        <Setter Property="Visibility"
+                                                Value="{Binding ShouldBeVisible, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate>
+                                                    <Border Height="40" Background="{StaticResource CBackground4}"
+                                                            CornerRadius="5" Padding="5">
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="*" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBlock Grid.Column="0" FontSize="16"
+                                                                       Foreground="{StaticResource CForeground1}"
+                                                                       Text="{Binding DisplayName, Mode=OneWay}"
+                                                                       VerticalAlignment="Center"
+                                                                       HorizontalAlignment="Left" />
+                                                        </Grid>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ListView.ItemContainerStyle>
+                            </ListView>
+                        </ui:SpacedStackPanel>
+                    </ui:MouseScrollViewer>
                 </Border>
             </Grid>
         </Border>
