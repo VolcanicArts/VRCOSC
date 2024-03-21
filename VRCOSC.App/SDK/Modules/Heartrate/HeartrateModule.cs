@@ -72,6 +72,9 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
 
     protected override void OnPostLoad()
     {
+        CreateState(HeartrateState.Connected, "Connected", "FEJIFHUEIAFIEDA");
+        CreateState(HeartrateState.Disconnected, "Disconnected", "DKSDHFGIUEDAHGUFEAOF");
+
         GetSetting(HeartrateSetting.SmoothValueLength)!.IsEnabled = () => GetSettingValue<bool>(HeartrateSetting.SmoothValue);
         GetSetting(HeartrateSetting.SmoothAverageLength)!.IsEnabled = () => GetSettingValue<bool>(HeartrateSetting.SmoothAverage);
     }
@@ -302,5 +305,11 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
         LegacyUnits,
         LegacyTens,
         LegacyHundreds
+    }
+
+    private enum HeartrateState
+    {
+        Connected,
+        Disconnected
     }
 }

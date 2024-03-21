@@ -1,8 +1,12 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using Newtonsoft.Json;
+using VRCOSC.App.Modules;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.ChatBox.Clips;
@@ -11,6 +15,30 @@ public class ClipState : ClipElement
 {
     // ModuleID, StateID
     public Dictionary<string, string> States { get; } = new();
+
+    public override string DisplayName
+    {
+        get
+        {
+            var names = new List<string>();
+
+            States.OrderBy(pair => pair.Key).ThenBy(pair => pair.Value).ForEach(pair =>
+            {
+                var module = ModuleManager.GetInstance().GetModuleOfID(pair.Key);
+                var stateReference = ChatBoxManager.GetInstance().GetState(pair.Key, pair.Value);
+                Debug.Assert(stateReference is not null);
+
+                var name = module.Title;
+
+                if (!string.Equals(stateReference.StateID, "default", StringComparison.InvariantCultureIgnoreCase))
+                    name += $" ({stateReference.DisplayName.Value})";
+
+                names.Add(name);
+            });
+
+            return string.Join(" & ", names);
+        }
+    }
 
     [JsonConstructor]
     public ClipState()

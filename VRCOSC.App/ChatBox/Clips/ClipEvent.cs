@@ -1,7 +1,9 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Diagnostics;
 using Newtonsoft.Json;
+using VRCOSC.App.Modules;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.ChatBox.Clips;
@@ -12,6 +14,18 @@ public class ClipEvent : ClipElement
     public string EventID { get; } = null!;
 
     public Observable<float> Length = new();
+
+    public override string DisplayName
+    {
+        get
+        {
+            var module = ModuleManager.GetInstance().GetModuleOfID(ModuleID);
+            var eventReference = ChatBoxManager.GetInstance().GetEvent(ModuleID, EventID);
+            Debug.Assert(eventReference is not null);
+
+            return module.Title + " - " + eventReference.DisplayName.Value;
+        }
+    }
 
     public override bool IsDefault => base.IsDefault && Length.IsDefault;
 

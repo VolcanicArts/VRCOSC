@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -47,7 +46,6 @@ public partial class ChatBoxClipEditWindow
         if (Clip.LinkedModules.Contains(module.SerialisedName)) return;
 
         Clip.LinkedModules.Add(module.SerialisedName);
-        Console.WriteLine($"Added {module.SerialisedName}");
     }
 
     private void ModuleSelectionCheckBox_UnChecked(object sender, RoutedEventArgs e)
@@ -58,7 +56,6 @@ public partial class ChatBoxClipEditWindow
         if (!Clip.LinkedModules.Contains(module.SerialisedName)) return;
 
         Clip.LinkedModules.Remove(module.SerialisedName);
-        Console.WriteLine($"Removed {module.SerialisedName}");
     }
 
     private T? findVisualChild<T>(DependencyObject parent, string name) where T : DependencyObject

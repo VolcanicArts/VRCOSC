@@ -14,6 +14,7 @@ public class ClipElement
 
     public List<ClipVariable> Variables = new();
 
+    public virtual string DisplayName => string.Empty;
     public virtual bool IsDefault => Format.IsDefault && Enabled.IsDefault;
 
     public string RunFormatting()

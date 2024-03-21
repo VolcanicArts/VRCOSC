@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -70,6 +71,10 @@ public class ModuleManager : INotifyPropertyChanged
     #endregion
 
     #region Management
+
+    public IEnumerable GetModulesOfType<T>() => modules.Where(module => module.GetType().IsAssignableTo(typeof(T)));
+
+    public Module GetModuleOfID(string moduleID) => modules.First(module => module.SerialisedName == moduleID);
 
     /// <summary>
     /// Reloads all local and remote modules by unloading their assembly contexts and calling <see cref="LoadAllModules"/>
