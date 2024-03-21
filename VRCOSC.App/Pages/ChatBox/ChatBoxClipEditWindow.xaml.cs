@@ -78,6 +78,8 @@ public partial class ChatBoxClipEditWindow
         ReferenceClip.LinkedModules.Remove(module.SerialisedName);
     }
 
+    private const int max_lines = 9;
+
     private void TextBox_PreviewKeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key == Key.Enter)
@@ -85,7 +87,7 @@ public partial class ChatBoxClipEditWindow
             var textBox = (sender as TextBox)!;
             var selectionStart = textBox.SelectionStart;
 
-            if (textBox.Text.Split(Environment.NewLine).Length < 9)
+            if (textBox.Text.Split(Environment.NewLine).Length < max_lines)
             {
                 textBox.Text = textBox.Text.Insert(selectionStart, Environment.NewLine);
                 textBox.SelectionStart = selectionStart + Environment.NewLine.Length;
@@ -98,13 +100,13 @@ public partial class ChatBoxClipEditWindow
 
     private void TextBox_Pasting(object sender, DataObjectPastingEventArgs e)
     {
-        if (!e.DataObject.GetDataPresent(DataFormats.Text)) return;
+        if (!e.DataObject.GetDataPresent(DataFormats.UnicodeText)) return;
 
         var textBox = (sender as TextBox)!;
         var selectionStart = textBox.SelectionStart;
         var selectionLength = textBox.SelectionLength;
 
-        var pastedText = e.DataObject.GetData(DataFormats.Text) as string ?? string.Empty;
+        var pastedText = e.DataObject.GetData(DataFormats.UnicodeText) as string ?? string.Empty;
 
         var newlineCount = pastedText.Split([Environment.NewLine], StringSplitOptions.None).Length - 1;
         var currentLineCount = textBox.LineCount;
@@ -112,7 +114,7 @@ public partial class ChatBoxClipEditWindow
         var selectedText = textBox.Text.Substring(selectionStart, selectionLength);
         var selectedLineCount = selectedText.Split([Environment.NewLine], StringSplitOptions.None).Length;
 
-        var remainingLines = Math.Max(9 - (currentLineCount - selectedLineCount), 0);
+        var remainingLines = Math.Max(max_lines - (currentLineCount - selectedLineCount), 0);
         var linesToAdd = Math.Min(remainingLines, newlineCount + 1); // Add one to account for the first line
         var lines = pastedText.Split([Environment.NewLine], StringSplitOptions.None);
 
