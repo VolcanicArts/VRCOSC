@@ -4,7 +4,6 @@
 using System.Collections;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Windows;
 using VRCOSC.App.Pages.Profiles;
 using VRCOSC.App.Profiles.Serialisation;
 using VRCOSC.App.Serialisation;
@@ -150,27 +149,8 @@ public class ProfileManager
 
     public void SpawnProfileEditWindow(Profile? profile = null)
     {
-        if (ProfileEditWindow is null)
-        {
-            ProfileEditWindow = new ProfileEditWindow(profile);
-
-            ProfileEditWindow!.Closed += (_, _) =>
-            {
-                var mainWindow = Application.Current.MainWindow;
-                if (mainWindow is null) return;
-
-                mainWindow.WindowState = WindowState.Normal;
-                mainWindow.Focus();
-
-                ProfileEditWindow = null;
-            };
-
-            ProfileEditWindow.Show();
-        }
-        else
-        {
-            ProfileEditWindow.Focus();
-        }
+        ProfileEditWindow = new ProfileEditWindow(profile);
+        ProfileEditWindow.ShowDialog();
     }
 
     public void ExitProfileEditWindow()
