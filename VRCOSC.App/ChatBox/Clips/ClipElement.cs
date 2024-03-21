@@ -9,8 +9,8 @@ namespace VRCOSC.App.ChatBox.Clips;
 
 public class ClipElement
 {
-    public Observable<string> Format = new();
-    public Observable<bool> Enabled = new();
+    public Observable<string> Format { get; set; } = new();
+    public Observable<bool> Enabled { get; set; } = new();
 
     public List<ClipVariable> Variables = new();
 
