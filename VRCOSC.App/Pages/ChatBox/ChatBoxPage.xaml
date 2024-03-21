@@ -12,6 +12,7 @@
     <Page.Resources>
         <local:ClipPositionConverter x:Key="ClipPositionConverter" />
         <local:ClipWidthConverter x:Key="ClipWidthConverter" />
+        <local:ClipEnabledToOpacityConverter x:Key="ClipEnabledToOpacityConverter" />
     </Page.Resources>
     <Grid>
         <Border Background="{StaticResource CBackground2}" Padding="10">
@@ -21,10 +22,50 @@
                     <RowDefinition Height="10" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <Border Grid.Row="0" Background="{StaticResource CBackground3}" CornerRadius="5" />
+                <Border Grid.Row="0" Background="{StaticResource CBackground3}" CornerRadius="5" Padding="5">
+                    <!--> Selected Clip <-->
+                    <Grid x:Name="SelectedClipGrid" Visibility="Collapsed">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="200" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Background="{StaticResource CBackground1}" Padding="10"
+                                CornerRadius="5">
+                            <ui:SpacedStackPanel Spacing="5" Orientation="Vertical">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Enabled:" FontSize="18"
+                                               Foreground="{StaticResource CForeground2}" VerticalAlignment="Center" />
+                                    <CheckBox Grid.Column="1" IsChecked="{Binding Enabled.Value}" Width="30"
+                                              Height="30" />
+                                </Grid>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Name:" FontSize="18"
+                                               Foreground="{StaticResource CForeground2}" VerticalAlignment="Center" />
+                                    <TextBox Grid.Column="1"
+                                             Text="{Binding Name.Value, UpdateSourceTrigger=PropertyChanged}"
+                                             FontSize="15" />
+                                </Grid>
+                            </ui:SpacedStackPanel>
+                        </Border>
+                        <ui:VRCOSCButton Grid.Column="1" Click="EditClip_ButtonClick" Width="200" Height="40" ButtonColour="Blue">
+                            <TextBlock Text="Edit Clip" Foreground="{StaticResource CForeground1}" FontSize="25"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </ui:VRCOSCButton>
+                    </Grid>
+                </Border>
                 <Border Grid.Row="2" Background="{StaticResource CBackground3}" CornerRadius="5" Padding="5">
+                    <!--> Timeline <-->
                     <Border x:Name="Timeline" Background="{StaticResource CBackground2}" CornerRadius="5"
-                            MouseMove="Timeline_MouseMove" MouseLeftButtonUp="Timeline_MouseLeftButtonUp">
+                            MouseMove="Timeline_MouseMove"
+                            MouseLeftButtonUp="Timeline_MouseLeftButtonUp">
                         <Grid>
                             <Canvas x:Name="LineCanvas" />
                             <ui:MouseScrollViewer HorizontalScrollBarVisibility="Hidden"
@@ -57,7 +98,8 @@
                                                                             HorizontalAlignment="Left"
                                                                             VerticalAlignment="Stretch"
                                                                             BorderThickness="1"
-                                                                            BorderBrush="{StaticResource CBackground1}">
+                                                                            BorderBrush="{StaticResource CBackground1}"
+                                                                            Opacity="{Binding Enabled.Value, Mode=OneWay, Converter={StaticResource ClipEnabledToOpacityConverter}}">
                                                                         <Border.RenderTransform>
                                                                             <TranslateTransform>
                                                                                 <TranslateTransform.X>

@@ -14,7 +14,7 @@ namespace VRCOSC.App.SDK.Modules.Heartrate;
 
 [ModuleType(ModuleType.Health)]
 [ModulePrefab("VRCOSC-Heartrate", "https://github.com/VolcanicArts/VRCOSC/releases/download/latest/VRCOSC-Heartrate.unitypackage")]
-public abstract class HeartrateModule<T> : AvatarModule where T : HeartrateProvider
+public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProvider
 {
     protected T? HeartrateProvider;
 

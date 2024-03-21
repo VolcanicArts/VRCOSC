@@ -2,12 +2,14 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using VRCOSC.App.ChatBox;
 using VRCOSC.App.ChatBox.Clips;
@@ -27,6 +29,27 @@ public partial class ChatBoxPage
 
         DataContext = ChatBoxManager.GetInstance();
         SizeChanged += (_, _) => drawVerticalLines();
+    }
+
+    private Clip? selectedClip;
+
+    public Clip? SelectedClip
+    {
+        get => selectedClip;
+        set
+        {
+            if (selectedClip == value) return;
+
+            var selectedClipBefore = selectedClip;
+            selectedClip = value;
+            SelectedClipGrid.DataContext = selectedClip;
+
+            if (selectedClip is null && selectedClipBefore is not null)
+                fadeOut(SelectedClipGrid, 150);
+
+            if (selectedClip is not null && selectedClipBefore is null)
+                fadeIn(SelectedClipGrid, 150);
+        }
     }
 
     private void ChatBoxPage_OnLoaded(object sender, RoutedEventArgs e)
@@ -64,7 +87,7 @@ public partial class ChatBoxPage
         var clipGrid = (Grid)sender;
         var clip = (Clip)clipGrid.Tag;
 
-        Console.WriteLine("Click " + clip.Name.Value);
+        SelectedClip = clip;
     }
 
     private void ClipMain_OnLeftMouseButtonDown(object sender, MouseButtonEventArgs e)
@@ -189,6 +212,50 @@ public partial class ChatBoxPage
             }
         }
     }
+
+    private void EditClip_ButtonClick(object sender, RoutedEventArgs e)
+    {
+        Debug.Assert(SelectedClip is not null);
+        var clipEditWindow = new ChatBoxClipEditWindow(SelectedClip);
+        clipEditWindow.ShowDialog();
+    }
+
+    private void fadeIn(FrameworkElement grid, double fadeInTimeMilli) => Dispatcher.Invoke(() =>
+    {
+        grid.Visibility = Visibility.Visible;
+        grid.Opacity = 0;
+
+        var fadeInAnimation = new DoubleAnimation
+        {
+            From = 0,
+            To = 1,
+            Duration = TimeSpan.FromMilliseconds(fadeInTimeMilli)
+        };
+
+        Storyboard.SetTargetProperty(fadeInAnimation, new PropertyPath(OpacityProperty));
+
+        var storyboard = new Storyboard();
+        storyboard.Children.Add(fadeInAnimation);
+        storyboard.Begin(grid);
+    });
+
+    private void fadeOut(FrameworkElement grid, double fadeOutTime) => Dispatcher.Invoke(() =>
+    {
+        grid.Opacity = 1;
+
+        var fadeOutAnimation = new DoubleAnimation
+        {
+            To = 0,
+            Duration = TimeSpan.FromMilliseconds(fadeOutTime)
+        };
+
+        Storyboard.SetTargetProperty(fadeOutAnimation, new PropertyPath(OpacityProperty));
+
+        var storyboard = new Storyboard();
+        storyboard.Children.Add(fadeOutAnimation);
+        storyboard.Completed += (_, _) => grid.Visibility = Visibility.Collapsed;
+        storyboard.Begin(grid);
+    });
 }
 
 public enum ClipDragPoint
@@ -211,10 +278,7 @@ public class ClipPositionConverter : IMultiValueConverter
         return 0d;
     }
 
-    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
-    {
-        throw new NotImplementedException();
-    }
+    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) => throw new NotImplementedException();
 }
 
 public class ClipWidthConverter : IMultiValueConverter
@@ -232,8 +296,20 @@ public class ClipWidthConverter : IMultiValueConverter
         return 0d;
     }
 
-    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) => throw new NotImplementedException();
+}
+
+public class ClipEnabledToOpacityConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        throw new NotImplementedException();
+        if (value is bool enabled)
+        {
+            return enabled ? 1f : 0.6f;
+        }
+
+        return 1f;
     }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
 }
