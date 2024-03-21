@@ -12,7 +12,29 @@ namespace VRCOSC.App.SDK.Modules;
 
 public class ChatBoxModule : AvatarModule
 {
-    #region ChatBox
+    #region Runtime
+
+    protected void ChangeState(Enum lookup)
+    {
+        ChangeState(lookup.ToLookup());
+    }
+
+    protected void ChangeState(string lookup)
+    {
+        ChatBoxManager.GetInstance().ChangeStateTo(SerialisedName, lookup);
+    }
+
+    protected void TriggerEvent(Enum lookup)
+    {
+        TriggerEvent(lookup.ToLookup());
+    }
+
+    protected void TriggerEvent(string lookup)
+    {
+        ChatBoxManager.GetInstance().TriggerEvent(SerialisedName, lookup);
+    }
+
+    #endregion
 
     #region States
 
@@ -209,8 +231,6 @@ public class ChatBoxModule : AvatarModule
     {
         return ChatBoxManager.GetInstance().GetVariable(SerialisedName, lookup);
     }
-
-    #endregion
 
     #endregion
 }

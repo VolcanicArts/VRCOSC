@@ -123,6 +123,7 @@
                                                                                Text="{Binding DisplayName, Mode=OneWay}"
                                                                                VerticalAlignment="Center"
                                                                                HorizontalAlignment="Left" />
+                                                                    <CheckBox Grid.Column="1" IsChecked="{Binding Enabled.Value}" Width="25" Height="25"/>
                                                                 </Grid>
                                                                 <TextBox
                                                                     Text="{Binding Format.Value, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TextBoxParsingConverter}}"
@@ -165,6 +166,7 @@
                                                                                Text="{Binding DisplayName, Mode=OneWay}"
                                                                                VerticalAlignment="Center"
                                                                                HorizontalAlignment="Left" />
+                                                                    <CheckBox Grid.Column="1" IsChecked="{Binding Enabled.Value}" Width="25" Height="25"/>
                                                                 </Grid>
                                                                 <TextBox
                                                                     Text="{Binding Format.Value, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TextBoxParsingConverter}}"

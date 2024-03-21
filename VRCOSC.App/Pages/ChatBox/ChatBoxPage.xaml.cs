@@ -61,8 +61,8 @@ public partial class ChatBoxPage
     {
         LineCanvas.Children.Clear();
 
-        var numberOfLines = ChatBoxManager.GetInstance().Timeline.TimelineLengthSeconds - 1;
-        var resolution = ChatBoxManager.GetInstance().Timeline.TimelineResolution;
+        var numberOfLines = ChatBoxManager.GetInstance().Timeline.LengthSeconds - 1;
+        var resolution = ChatBoxManager.GetInstance().Timeline.Resolution;
 
         for (int i = 0; i < numberOfLines; i++)
         {
@@ -162,7 +162,7 @@ public partial class ChatBoxPage
         {
             var clipLayer = ChatBoxManager.GetInstance().Timeline.FindLayerOfClip(draggingClip);
 
-            if (clipDragPoint == ClipDragPoint.Center && MathF.Abs(cumulativeDrag) >= ChatBoxManager.GetInstance().Timeline.TimelineResolution)
+            if (clipDragPoint == ClipDragPoint.Center && MathF.Abs(cumulativeDrag) >= ChatBoxManager.GetInstance().Timeline.Resolution)
             {
                 var newStart = draggingClip.Start.Value + MathF.Sign(cumulativeDrag);
                 var newEnd = draggingClip.End.Value + MathF.Sign(cumulativeDrag);
@@ -182,7 +182,7 @@ public partial class ChatBoxPage
             if (clipDragPoint == ClipDragPoint.Left)
             {
                 var mousePosNormalised = mouseX / Timeline.ActualWidth;
-                var newStart = (int)Math.Floor(mousePosNormalised * ChatBoxManager.GetInstance().Timeline.TimelineLengthSeconds);
+                var newStart = (int)Math.Floor(mousePosNormalised * ChatBoxManager.GetInstance().Timeline.LengthSeconds);
 
                 if (newStart != draggingClip.Start.Value && newStart < draggingClip.End.Value)
                 {
@@ -198,7 +198,7 @@ public partial class ChatBoxPage
             if (clipDragPoint == ClipDragPoint.Right)
             {
                 var mousePosNormalised = mouseX / Timeline.ActualWidth;
-                var newEnd = (int)Math.Ceiling(mousePosNormalised * ChatBoxManager.GetInstance().Timeline.TimelineLengthSeconds);
+                var newEnd = (int)Math.Ceiling(mousePosNormalised * ChatBoxManager.GetInstance().Timeline.LengthSeconds);
 
                 if (newEnd != draggingClip.End.Value && newEnd > draggingClip.Start.Value)
                 {

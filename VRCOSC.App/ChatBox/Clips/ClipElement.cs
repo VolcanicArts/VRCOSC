@@ -27,8 +27,8 @@ public class ClipElement : INotifyPropertyChanged
 
     public string RunFormatting()
     {
-        // go through each variable and format it
-        return string.Empty;
+        // TODO: Variables
+        return Format.Value;
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

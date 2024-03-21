@@ -31,6 +31,8 @@ public class ModuleManager : INotifyPropertyChanged
     private AssemblyLoadContext? localModulesContext;
     private Dictionary<string, AssemblyLoadContext>? remoteModulesContexts;
 
+    private IEnumerable<AssemblyLoadContext> joinedAssemblyLoadContexts => remoteModulesContexts?.Values.Concat([localModulesContext]) ?? [localModulesContext];
+
     public ObservableDictionary<ModulePackage, List<Module>> Modules { get; } = new();
 
     public Dictionary<ModulePackage, List<Module>> UIModules
@@ -77,6 +79,23 @@ public class ModuleManager : INotifyPropertyChanged
     public Module GetModuleOfID(string moduleID) => modules.First(module => module.SerialisedName == moduleID);
 
     public IEnumerable<string> GetEnabledModuleIDs() => modules.Where(module => module.Enabled.Value).Select(module => module.SerialisedName);
+
+    internal bool DoesModuleExist(string moduleID)
+    {
+        try
+        {
+            return joinedAssemblyLoadContexts
+                .Any(context => context.Assemblies.Any(assembly => assembly.ExportedTypes.Where(type => type.IsSubclassOf(typeof(Module)) && !type.IsAbstract).Any(type => moduleID.EndsWith(type.Name.ToLowerInvariant()))));
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    internal bool IsModuleLoaded(string moduleID) => DoesModuleExist(moduleID) && getModule(moduleID) is not null;
+
+    private Module? getModule(string moduleID) => modules.SingleOrDefault(module => module.SerialisedName == moduleID);
 
     /// <summary>
     /// Reloads all local and remote modules by unloading their assembly contexts and calling <see cref="LoadAllModules"/>

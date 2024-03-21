@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Interop;
 using System.Windows.Media;
 using Valve.VR;
+using VRCOSC.App.ChatBox;
 using VRCOSC.App.Modules;
 using VRCOSC.App.OSC;
 using VRCOSC.App.OSC.VRChat;
@@ -261,6 +262,7 @@ public class AppManager
         //RouterManager.Start();
 
         VRChatOscClient.EnableSend();
+        ChatBoxManager.GetInstance().Start();
         await ModuleManager.GetInstance().StartAsync();
 
         updateTask = new Repeater(update);
@@ -323,6 +325,7 @@ public class AppManager
             await updateTask.StopAsync();
 
         await ModuleManager.GetInstance().StopAsync();
+        ChatBoxManager.GetInstance().Stop();
         VRChatClient.Teardown();
         VRChatOscClient.DisableSend();
 

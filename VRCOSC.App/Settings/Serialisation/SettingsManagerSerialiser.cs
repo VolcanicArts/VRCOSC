@@ -21,7 +21,17 @@ public class SettingsManagerSerialiser : Serialiser<SettingsManager, Serialisabl
         data.Settings.ForEach(pair =>
         {
             if (Reference.Settings.TryGetValue(pair.Key, out var setting))
-                setting.Value = pair.Value;
+            {
+                var value = pair.Value;
+
+                if (value is long longValue)
+                    value = (int)longValue;
+
+                if (value is double doubleValue)
+                    value = (float)doubleValue;
+
+                setting.Value = value;
+            }
         });
 
         return false;

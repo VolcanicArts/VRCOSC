@@ -16,7 +16,7 @@ public class Layer
 
     public (int, int) GetBoundsNearestTo(int value, bool end, bool isCreating = false)
     {
-        value = Math.Clamp(value, 0, ChatBoxManager.GetInstance().Timeline.TimelineLengthSeconds);
+        value = Math.Clamp(value, 0, ChatBoxManager.GetInstance().Timeline.LengthSeconds);
 
         var boundsList = new List<int>();
 
@@ -35,7 +35,7 @@ public class Layer
         });
 
         boundsList.Add(0);
-        boundsList.Add(ChatBoxManager.GetInstance().Timeline.TimelineLengthSeconds);
+        boundsList.Add(ChatBoxManager.GetInstance().Timeline.LengthSeconds);
         boundsList.Sort();
 
         var lowerBound = boundsList.Last(bound => bound <= value);
