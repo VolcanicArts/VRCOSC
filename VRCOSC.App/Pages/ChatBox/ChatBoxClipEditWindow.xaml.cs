@@ -3,6 +3,7 @@
 
 using System;
 using System.Globalization;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -11,24 +12,38 @@ using System.Windows.Media;
 using VRCOSC.App.ChatBox.Clips;
 using VRCOSC.App.Modules;
 using VRCOSC.App.SDK.Modules;
+using VRCOSC.App.Settings;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Pages.ChatBox;
 
 public partial class ChatBoxClipEditWindow
 {
-    public Clip Clip { get; }
+    public Clip ReferenceClip { get; }
 
-    public ChatBoxClipEditWindow(Clip clip)
+    public bool ShowRelevantModules
+    {
+        get => SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.ShowRelevantModules);
+        set
+        {
+            SettingsManager.GetInstance().GetObservable(VRCOSCSetting.ShowRelevantModules).Value = value;
+            ReferenceClip.States.ForEach(clipState => clipState.UpdateVisibility());
+            ReferenceClip.Events.ForEach(clipEvent => clipEvent.UpdateVisibility());
+        }
+    }
+
+    public ChatBoxClipEditWindow(Clip referenceClip)
     {
         InitializeComponent();
 
-        DataContext = clip;
-        Clip = clip;
+        DataContext = referenceClip;
+        ReferenceClip = referenceClip;
 
         // TODO: Filter out the ones without states or events
         ModulesList.ItemsSource = ModuleManager.GetInstance().GetModulesOfType<ChatBoxModule>();
+        ShowRelevantModulesCheckBox.DataContext = this;
 
-        Title = $"Editing {Clip.Name.Value} Clip";
+        Title = $"Editing {ReferenceClip.Name.Value} Clip";
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e)
@@ -39,7 +54,7 @@ public partial class ChatBoxClipEditWindow
             var module = (Module)ModulesList.Items[index];
 
             var isLinkedCheckBox = findVisualChild<CheckBox>(listViewItem, "IsLinkedCheckBox")!;
-            isLinkedCheckBox.IsChecked = Clip.LinkedModules.Contains(module.SerialisedName);
+            isLinkedCheckBox.IsChecked = ReferenceClip.LinkedModules.Contains(module.SerialisedName);
         }
     }
 
@@ -48,9 +63,9 @@ public partial class ChatBoxClipEditWindow
         var element = (FrameworkElement)sender;
         var module = (Module)element.Tag;
 
-        if (Clip.LinkedModules.Contains(module.SerialisedName)) return;
+        if (ReferenceClip.LinkedModules.Contains(module.SerialisedName)) return;
 
-        Clip.LinkedModules.Add(module.SerialisedName);
+        ReferenceClip.LinkedModules.Add(module.SerialisedName);
     }
 
     private void ModuleSelectionCheckBox_UnChecked(object sender, RoutedEventArgs e)
@@ -58,16 +73,16 @@ public partial class ChatBoxClipEditWindow
         var element = (FrameworkElement)sender;
         var module = (Module)element.Tag;
 
-        if (!Clip.LinkedModules.Contains(module.SerialisedName)) return;
+        if (!ReferenceClip.LinkedModules.Contains(module.SerialisedName)) return;
 
-        Clip.LinkedModules.Remove(module.SerialisedName);
+        ReferenceClip.LinkedModules.Remove(module.SerialisedName);
     }
 
     private void TextBox_PreviewKeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key == Key.Enter)
         {
-            var textBox = sender as TextBox;
+            var textBox = (sender as TextBox)!;
             var selectionStart = textBox.SelectionStart;
 
             if (textBox.Text.Split(Environment.NewLine).Length < 9)
@@ -79,6 +94,37 @@ public partial class ChatBoxClipEditWindow
 
             e.Handled = true;
         }
+    }
+
+    private void TextBox_Pasting(object sender, DataObjectPastingEventArgs e)
+    {
+        if (!e.DataObject.GetDataPresent(DataFormats.Text)) return;
+
+        var textBox = (sender as TextBox)!;
+        var selectionStart = textBox.SelectionStart;
+        var selectionLength = textBox.SelectionLength;
+
+        var pastedText = e.DataObject.GetData(DataFormats.Text) as string ?? string.Empty;
+
+        var newlineCount = pastedText.Split([Environment.NewLine], StringSplitOptions.None).Length - 1;
+        var currentLineCount = textBox.LineCount;
+
+        var selectedText = textBox.Text.Substring(selectionStart, selectionLength);
+        var selectedLineCount = selectedText.Split([Environment.NewLine], StringSplitOptions.None).Length;
+
+        var remainingLines = Math.Max(9 - (currentLineCount - selectedLineCount), 0);
+        var linesToAdd = Math.Min(remainingLines, newlineCount + 1); // Add one to account for the first line
+        var lines = pastedText.Split([Environment.NewLine], StringSplitOptions.None);
+
+        var newTextToAdd = string.Join(Environment.NewLine, lines.Take(linesToAdd));
+        var newText = textBox.Text.Remove(selectionStart, selectionLength).Insert(selectionStart, newTextToAdd);
+
+        textBox.Text = newText;
+
+        textBox.SelectionStart = selectionStart + newTextToAdd.Length;
+        textBox.SelectionLength = 0;
+
+        e.CancelCommand();
     }
 
     private T? findVisualChild<T>(DependencyObject parent, string name) where T : DependencyObject
