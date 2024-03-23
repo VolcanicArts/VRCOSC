@@ -140,13 +140,13 @@ public class PackageSource
 
                 if (allowPreRelease)
                 {
-                    var latestPreRelease = releases.Where(release => release.Prerelease).MaxBy(release => release.CreatedAt);
+                    var latestPreRelease = releases.MaxBy(release => release.CreatedAt);
                     if (latestPreRelease is not null) localLatestRelease = new PackageLatestRelease(latestPreRelease);
                 }
 
                 if (localLatestRelease is null)
                 {
-                    var latestRelease = releases.MaxBy(release => release.CreatedAt);
+                    var latestRelease = releases.Where(release => !release.Prerelease).MaxBy(release => release.CreatedAt);
                     if (latestRelease is not null) localLatestRelease = new PackageLatestRelease(latestRelease);
                 }
 
