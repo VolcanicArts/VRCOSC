@@ -70,6 +70,11 @@ public class ModuleManager : INotifyPropertyChanged
         runningModules.ForEach(module => module.OnParameterReceived(vrChatOscMessage));
     }
 
+    public void ChatBoxUpdate()
+    {
+        runningModules.OfType<ChatBoxModule>().ForEach(module => module.ChatBoxUpdate());
+    }
+
     #endregion
 
     #region Management

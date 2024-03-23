@@ -20,7 +20,7 @@ public class ClipVariableReference
     public void SetValue<T>(T value)
     {
         if (typeof(T) != ValueType)
-            throw new InvalidOperationException($"The provided value type `{typeof(T).Name}` doesn't match the expected value type `{ValueType.Name}`");
+            throw new InvalidOperationException($"The provided value type `{typeof(T).Name}` doesn't match the expected value type `{ValueType.Name}` for variable {ModuleID} - {VariableID}");
 
         Value.Value = value;
     }

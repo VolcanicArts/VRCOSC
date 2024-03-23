@@ -21,5 +21,11 @@ public abstract class ClipVariable
         VariableID = reference.VariableID;
     }
 
-    public abstract string Format(object value);
+    public string GetFormattedValue()
+    {
+        var variableValue = ChatBoxManager.GetInstance().GetVariable(ModuleID, VariableID)!.Value.Value;
+        return variableValue is not null ? Format(variableValue) : string.Empty;
+    }
+
+    protected abstract string Format(object value);
 }

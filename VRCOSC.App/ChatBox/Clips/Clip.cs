@@ -7,6 +7,7 @@ using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using VRCOSC.App.Modules;
@@ -96,33 +97,20 @@ public class Clip : INotifyPropertyChanged
     {
         if (!Enabled.Value) return false;
 
-        Console.WriteLine("Is Enabled");
         if (Start.Value > ChatBoxManager.GetInstance().CurrentSecond || End.Value <= ChatBoxManager.GetInstance().CurrentSecond) return false;
-
-        Console.WriteLine("Is in time");
 
         if (currentEvent is not null) return true;
 
-        Console.WriteLine("Checking states");
         var localStates = States.Select(state => state.Clone(true)).ToList();
-        Console.WriteLine("1: " + localStates.Count);
         removeAbsentModules(localStates);
-        Console.WriteLine("2: " + localStates.Count);
         removeDisabledModules(localStates);
-        Console.WriteLine("3: " + localStates.Count);
         removeLessCompoundedStates(localStates);
-        Console.WriteLine("4: " + localStates.Count);
         removeInvalidStates(localStates);
 
-        Console.WriteLine("Final state count: " + localStates.Count);
-
-        if (localStates.Count != 1) return false;
+        Debug.Assert(localStates.Count == 1);
 
         var chosenState = localStates.Single();
-        Console.WriteLine("Chosen state: " + chosenState.DisplayName);
         if (!chosenState.Enabled.Value) return false;
-
-        Console.WriteLine("Setting current state");
 
         currentState = chosenState;
         return true;
@@ -165,8 +153,6 @@ public class Clip : INotifyPropertyChanged
         var currentStates = LinkedModules.Where(moduleID => ModuleManager.GetInstance().GetModuleOfID(moduleID).Enabled.Value && ChatBoxManager.GetInstance().StateValues.ContainsKey(moduleID) && ChatBoxManager.GetInstance().StateValues[moduleID] is not null).Select(moduleName => ChatBoxManager.GetInstance().StateValues[moduleName]).ToList();
         currentStates.Sort();
 
-        Console.WriteLine("Invalid states after sort: " + currentStates.Count);
-
         foreach (var clipState in localStates.ToImmutableList())
         {
             var clipStateStates = clipState.States.Values.ToList();
@@ -180,19 +166,7 @@ public class Clip : INotifyPropertyChanged
 
     private string formatText(ClipElement element)
     {
-        var returnText = element.RunFormatting();
-
-        // AvailableVariables.ForEach(clipVariable =>
-        // {
-        //     if (!appManager.ModuleManager.GetModule(clipVariable.Module)!.Enabled.Value) return;
-        //
-        //     chatBoxManager.VariableValues.TryGetValue((clipVariable.Module, clipVariable.Lookup), out var variableValue);
-        //     returnText = returnText.Replace(clipVariable.DisplayableFormat, variableValue ?? string.Empty);
-        //
-        //     chatBoxManager.VariableValues.Where(pair => pair.Key.Item2.StartsWith($"{clipVariable.Lookup}_")).ForEach(pair => { returnText = returnText.Replace(clipVariable.DisplayableFormatWithSuffix(pair.Key.Item2.Split('_').Last()), pair.Value); });
-        // });
-
-        return returnText;
+        return element.RunFormatting();
     }
 
     #endregion

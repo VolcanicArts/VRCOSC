@@ -7,11 +7,16 @@ namespace VRCOSC.App.ChatBox.Clips.Variables.Instances;
 
 public class BoolClipVariable : ClipVariable
 {
+    public BoolClipVariable(ClipVariableReference reference)
+        : base(reference)
+    {
+    }
+
     [ClipVariableOption("Format As String")]
     [JsonProperty("format_as_string")]
     public bool FormatAsString { get; set; }
 
-    public override string Format(object value)
+    protected override string Format(object value)
     {
         if (FormatAsString)
         {

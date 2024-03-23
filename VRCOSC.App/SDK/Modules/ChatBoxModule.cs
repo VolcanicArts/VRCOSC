@@ -151,6 +151,8 @@ public class ChatBoxModule : AvatarModule
             clipVariableType = typeof(StringClipVariable);
         else if (typeof(T) == typeof(DateTime))
             clipVariableType = typeof(DateTimeClipVariable);
+        else if (typeof(T) == typeof(TimeSpan))
+            clipVariableType = typeof(TimeSpanClipVariable);
 
         if (clipVariableType is null)
             throw new InvalidOperationException("No clip variable exists for that type. Request it is added to the SDK or make a custom clip variable");

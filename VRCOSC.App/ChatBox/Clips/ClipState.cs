@@ -77,6 +77,7 @@ public class ClipState : ClipElement
         {
             Format.Value = original.Format.Value;
             Enabled.Value = original.Enabled.Value;
+            Variables.AddRange(original.Variables);
         }
 
         Format.Subscribe(Console.WriteLine);

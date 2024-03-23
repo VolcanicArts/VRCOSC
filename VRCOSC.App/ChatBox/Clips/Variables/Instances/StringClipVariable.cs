@@ -5,7 +5,12 @@ namespace VRCOSC.App.ChatBox.Clips.Variables.Instances;
 
 public class StringClipVariable : ClipVariable
 {
-    public override string Format(object value)
+    public StringClipVariable(ClipVariableReference reference)
+        : base(reference)
+    {
+    }
+
+    protected override string Format(object? value)
     {
         return (string)value;
     }

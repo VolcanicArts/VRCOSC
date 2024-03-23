@@ -7,7 +7,12 @@ namespace VRCOSC.App.ChatBox.Clips.Variables.Instances;
 
 public class IntClipVariable : ClipVariable
 {
-    public override string Format(object value)
+    public IntClipVariable(ClipVariableReference reference)
+        : base(reference)
+    {
+    }
+
+    protected override string Format(object value)
     {
         return ((int)value).ToString(CultureInfo.CurrentCulture);
     }

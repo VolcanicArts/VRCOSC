@@ -5,10 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using VRCOSC.App.ChatBox.Clips;
 using VRCOSC.App.ChatBox.Clips.Variables;
+using VRCOSC.App.ChatBox.Clips.Variables.Instances;
+using VRCOSC.App.Modules;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;
@@ -47,15 +48,47 @@ public class ChatBoxManager
 
     public ChatBoxManager()
     {
-        Timeline.Layers.Add(new Layer());
-        Timeline.Layers.Add(new Layer());
+        Timeline.LayerCount.Value = 9;
 
-        Timeline.Layers[0].Clips.Add(new Clip
+        Timeline.Layers.Add(new Layer());
+        Timeline.Layers.Add(new Layer());
+        Timeline.Layers.Add(new Layer());
+        Timeline.Layers.Add(new Layer());
+        Timeline.Layers.Add(new Layer());
+        Timeline.Layers.Add(new Layer());
+        Timeline.Layers.Add(new Layer());
+        Timeline.Layers.Add(new Layer());
+        Timeline.Layers.Add(new Layer());
+    }
+
+    private ClipState playingClipState;
+
+    public void AddTestClip()
+    {
+        var mediaClip = new Clip
         {
             Name = { Value = "Media" },
             Start = { Value = 0 },
             End = { Value = 60 }
-        });
+        };
+
+        var timeRef = VariableReferences.First(reference => reference.ModuleID == "local.mediamodule" && reference.VariableID == "time");
+        var durationRef = VariableReferences.First(reference => reference.ModuleID == "local.mediamodule" && reference.VariableID == "duration");
+        var artistRef = VariableReferences.First(reference => reference.ModuleID == "local.mediamodule" && reference.VariableID == "artist");
+        var titleRef = VariableReferences.First(reference => reference.ModuleID == "local.mediamodule" && reference.VariableID == "title");
+        var progressVisualRef = VariableReferences.First(reference => reference.ModuleID == "local.mediamodule" && reference.VariableID == "progressvisual");
+
+        mediaClip.LinkedModules.Add("local.mediamodule");
+        playingClipState = mediaClip.States.First(clipState => clipState.States["local.mediamodule"] == "playing");
+        playingClipState.Enabled.Value = true;
+        playingClipState.Format.Value = "[{0}/{1}]\n{2} - {3}\n{4}";
+        playingClipState.Variables.Add(new TimeSpanClipVariable(timeRef));
+        playingClipState.Variables.Add(new TimeSpanClipVariable(durationRef));
+        playingClipState.Variables.Add(new StringClipVariable(artistRef));
+        playingClipState.Variables.Add(new StringClipVariable(titleRef));
+        playingClipState.Variables.Add(new StringClipVariable(progressVisualRef));
+
+        Timeline.Layers[0].Clips.Add(mediaClip);
     }
 
     public void Start()
@@ -86,9 +119,7 @@ public class ChatBoxManager
 
     private void update()
     {
-        // TODO: Chatbox update event
-
-        Console.WriteLine("Updating chatbox");
+        ModuleManager.GetInstance().ChatBoxUpdate();
 
         allClips.ForEach(clip => clip.Update());
         TriggeredEvents.Clear();
@@ -99,7 +130,6 @@ public class ChatBoxManager
     private void evaluateClips()
     {
         var validClip = getValidClip();
-        Console.WriteLine(validClip?.Name.Value ?? "NOTHING");
         handleClip(validClip);
 
         // if (CurrentWorldExtractor.IsCurrentWorldBlacklisted && configManager.Get<bool>(VRCOSCSetting.ChatboxWorldBlock) && validClip is not null)
@@ -134,7 +164,6 @@ public class ChatBoxManager
 
     private void sendText(string text)
     {
-        Console.WriteLine("Final text: " + text);
         var finalText = convertSpecialCharacters(text);
         AppManager.GetInstance().VRChatOscClient.SendValues(VRChatOscConstants.ADDRESS_CHATBOX_INPUT, [finalText, true, false]);
     }
@@ -142,7 +171,7 @@ public class ChatBoxManager
     private static string convertSpecialCharacters(string input)
     {
         // Convert new line to vertical tab
-        return Regex.Replace(input, Environment.NewLine, "\v");
+        return input.Replace("\\n", "\v");
     }
 
     private void clearChatBox()

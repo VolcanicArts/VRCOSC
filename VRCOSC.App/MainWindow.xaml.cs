@@ -12,6 +12,7 @@ using System.Windows.Media.Animation;
 using Newtonsoft.Json;
 using VRCOSC.App.Actions;
 using VRCOSC.App.Actions.Game;
+using VRCOSC.App.ChatBox;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Packages;
 using VRCOSC.App.Pages;
@@ -87,6 +88,8 @@ public partial class MainWindow
                 fadeIn(MainWindowContent, 500);
                 fadeOut(LoadingOverlay, 500);
             });
+
+            ChatBoxManager.GetInstance().AddTestClip();
         };
 
         await ShowLoadingOverlay("Welcome to VRCOSC", loadingAction);

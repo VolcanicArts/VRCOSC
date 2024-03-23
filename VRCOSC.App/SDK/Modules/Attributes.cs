@@ -117,5 +117,10 @@ public enum ModuleUpdateMode
     /// <summary>
     /// A custom update rate as marked by <see cref="ModuleUpdateAttribute.DeltaMilliseconds"/>
     /// </summary>
-    Custom
+    Custom,
+
+    /// <summary>
+    /// Updates before the ChatBox does to allow for setting variables efficiently
+    /// </summary>
+    ChatBox
 }

@@ -60,6 +60,7 @@ public abstract class Module : INotifyPropertyChanged
     internal readonly Dictionary<ModulePersistentAttribute, PropertyInfo> PersistentProperties = new();
 
     private readonly List<Repeater> updateTasks = new();
+    internal readonly List<MethodInfo> ChatBoxUpdateMethods = new();
 
     private SerialisationManager moduleSerialisationManager = null!;
     private SerialisationManager persistenceSerialisationManager = null!;
@@ -242,9 +243,37 @@ public abstract class Module : INotifyPropertyChanged
                         updateTasks.Add(updateTask);
                         if (updateAttribute.UpdateImmediately) updateMethod(method);
                         break;
+
+                    case ModuleUpdateMode.ChatBox:
+                        ChatBoxUpdateMethods.Add(method);
+                        break;
                 }
             });
     }
+
+    #region Update
+
+    // TODO: Limit this and the list to ChatBoxModule
+
+    internal void ChatBoxUpdate()
+    {
+        ChatBoxUpdateMethods.ForEach(UpdateMethod);
+    }
+
+    protected void UpdateMethod(MethodBase method)
+    {
+        try
+        {
+            method.Invoke(this, null);
+        }
+        catch (Exception e)
+        {
+            Logger.Error(e, nameof(Module));
+            //PushException(new Exception($"{className} experienced an exception calling method {method.Name}", e));
+        }
+    }
+
+    #endregion
 
     #region SDK
 

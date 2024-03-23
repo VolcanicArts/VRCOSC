@@ -8,11 +8,16 @@ namespace VRCOSC.App.ChatBox.Clips.Variables.Instances;
 
 public class FloatClipVariable : ClipVariable
 {
+    public FloatClipVariable(ClipVariableReference reference)
+        : base(reference)
+    {
+    }
+
     [ClipVariableOption("Float Format")]
     [JsonProperty("float_format")]
     public string FloatFormat { get; set; } = string.Empty;
 
-    public override string Format(object value)
+    protected override string Format(object value)
     {
         if (string.IsNullOrEmpty(FloatFormat))
         {

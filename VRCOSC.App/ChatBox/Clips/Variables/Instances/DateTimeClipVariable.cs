@@ -9,11 +9,16 @@ namespace VRCOSC.App.ChatBox.Clips.Variables.Instances;
 
 public class DateTimeClipVariable : ClipVariable
 {
+    public DateTimeClipVariable(ClipVariableReference reference)
+        : base(reference)
+    {
+    }
+
     [ClipVariableOption("Date/Time Format")]
     [JsonProperty("datetime_format")]
     public string DateTimeFormat { get; set; } = string.Empty;
 
-    public override string Format(object value)
+    protected override string Format(object value)
     {
         if (string.IsNullOrEmpty(DateTimeFormat))
         {
