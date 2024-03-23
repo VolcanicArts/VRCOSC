@@ -89,10 +89,11 @@ public partial class ChatBoxClipEditWindow
 
     private void dropTarget_Drop(object sender, DragEventArgs e)
     {
-        var element = (Border)sender;
+        var element = (FrameworkElement)sender;
+        var clipElement = (ClipElement)element.Tag;
 
         var variableReference = (ClipVariableReference)e.Data.GetData(typeof(ClipVariableReference));
-        element.Child = new TextBlock { Text = variableReference.DisplayName.Value };
+        clipElement.Variables.Add((ClipVariable)Activator.CreateInstance(variableReference.ClipVariableType, variableReference)!);
     }
 
     private const int max_lines = 9;

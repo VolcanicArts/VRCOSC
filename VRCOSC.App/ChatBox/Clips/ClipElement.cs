@@ -1,7 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using VRCOSC.App.ChatBox.Clips.Variables;
@@ -14,7 +14,7 @@ public class ClipElement : INotifyPropertyChanged
     public Observable<string> Format { get; set; } = new();
     public Observable<bool> Enabled { get; set; } = new();
 
-    public List<ClipVariable> Variables = new();
+    public ObservableCollection<ClipVariable> Variables { get; } = new();
 
     public virtual string DisplayName => string.Empty;
     public virtual bool IsDefault => Format.IsDefault && Enabled.IsDefault;

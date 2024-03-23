@@ -172,10 +172,35 @@
                                                                     MinHeight="24" FontSize="16"
                                                                     PreviewKeyDown="TextBox_PreviewKeyDown"
                                                                     DataObject.Pasting="TextBox_Pasting" />
-                                                                <Border x:Name="dropTarget" Height="100" Background="LightGray"
+                                                                <ItemsControl
+                                                                    ItemsSource="{Binding Variables}">
+                                                                    <ItemsControl.ItemsPanel>
+                                                                        <ItemsPanelTemplate>
+                                                                            <WrapPanel Orientation="Horizontal" />
+                                                                        </ItemsPanelTemplate>
+                                                                    </ItemsControl.ItemsPanel>
+                                                                    <ItemsControl.ItemTemplate>
+                                                                        <DataTemplate>
+                                                                            <Border Height="30" Width="100"
+                                                                                Background="{StaticResource CBackground6}">
+                                                                                <TextBlock FontSize="10"
+                                                                                    Foreground="{StaticResource CForeground1}"
+                                                                                    Text="{Binding VariableID}" />
+                                                                            </Border>
+                                                                        </DataTemplate>
+                                                                    </ItemsControl.ItemTemplate>
+                                                                </ItemsControl>
+                                                                <Border x:Name="dropTarget" Height="30" Width="100"
+                                                                        Background="{StaticResource CBackground6}"
+                                                                        CornerRadius="5"
                                                                         AllowDrop="True"
                                                                         Drop="dropTarget_Drop">
-                                                                    <TextBlock Text="Drop here" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                    <Border.Tag>
+                                                                        <Binding />
+                                                                    </Border.Tag>
+                                                                    <TextBlock Text="Drop here"
+                                                                               HorizontalAlignment="Center"
+                                                                               VerticalAlignment="Center" />
                                                                 </Border>
                                                             </ui:SpacedStackPanel>
                                                         </Border>
