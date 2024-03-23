@@ -10,6 +10,7 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using VRCOSC.App.ChatBox.Clips;
+using VRCOSC.App.ChatBox.Clips.Variables;
 using VRCOSC.App.Modules;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.Settings;
@@ -76,6 +77,22 @@ public partial class ChatBoxClipEditWindow
         if (!ReferenceClip.LinkedModules.Contains(module.SerialisedName)) return;
 
         ReferenceClip.LinkedModules.Remove(module.SerialisedName);
+    }
+
+    private void dragSource_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        var variableReference = (ClipVariableReference)element.Tag;
+
+        DragDrop.DoDragDrop(element, variableReference, DragDropEffects.Copy);
+    }
+
+    private void dropTarget_Drop(object sender, DragEventArgs e)
+    {
+        var element = (Border)sender;
+
+        var variableReference = (ClipVariableReference)e.Data.GetData(typeof(ClipVariableReference));
+        element.Child = new TextBlock { Text = variableReference.DisplayName.Value };
     }
 
     private const int max_lines = 9;

@@ -10,6 +10,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using VRCOSC.App.ChatBox.Clips.Variables;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Utils;
 
@@ -32,6 +33,18 @@ public class Clip : INotifyPropertyChanged
 
     public IEnumerable<ClipEvent> UIEvents => Events.OrderBy(clipEvent => clipEvent.ModuleID)
                                                     .ThenBy(clipEvent => clipEvent.EventID);
+
+    public IEnumerable<ClipVariableReference> UIVariables
+    {
+        get
+        {
+            var variablesList = new List<ClipVariableReference>();
+            LinkedModules.ForEach(moduleID => variablesList.AddRange(ChatBoxManager.GetInstance().VariableReferences.Where(reference => reference.ModuleID == moduleID)));
+
+            return variablesList.OrderBy(reference => reference.ModuleID)
+                                .ThenBy(reference => reference.VariableID);
+        }
+    }
 
     private readonly Queue<ClipEvent> eventQueue = new();
     private (ClipEvent, DateTimeOffset)? currentEvent;
@@ -180,6 +193,7 @@ public class Clip : INotifyPropertyChanged
 
         OnPropertyChanged(nameof(UIStates));
         OnPropertyChanged(nameof(UIEvents));
+        OnPropertyChanged(nameof(UIVariables));
     }
 
     private void populateStates(NotifyCollectionChangedEventArgs e)

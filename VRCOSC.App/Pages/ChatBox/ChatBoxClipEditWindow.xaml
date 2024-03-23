@@ -78,6 +78,46 @@
                     </Border>
                     <!--> Variables View <-->
                     <Border Grid.Row="2" Background="{StaticResource CBackground3}" CornerRadius="5">
+                        <ui:MouseScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto"
+                                              Padding="5">
+                            <ListView ItemsSource="{Binding UIVariables}"
+                                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                      Background="Transparent"
+                                      BorderThickness="0" Padding="-1">
+                                <b:Interaction.Behaviors>
+                                    <ui:IgnoreMouseWheelBehavior />
+                                </b:Interaction.Behaviors>
+                                <ListView.ItemContainerStyle>
+                                    <Style TargetType="ListViewItem">
+                                        <Setter Property="Margin" Value="0 0 0 5" />
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate>
+                                                    <Border Height="40" Background="{StaticResource CBackground4}"
+                                                            CornerRadius="5" Padding="5"
+                                                            MouseLeftButtonDown="dragSource_MouseLeftButtonDown">
+                                                        <Border.Tag>
+                                                            <Binding />
+                                                        </Border.Tag>
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="*" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBlock Grid.Column="0" FontSize="16"
+                                                                       Foreground="{StaticResource CForeground1}"
+                                                                       Text="{Binding DisplayName.Value, Mode=OneWay}"
+                                                                       VerticalAlignment="Center"
+                                                                       HorizontalAlignment="Left" />
+                                                        </Grid>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ListView.ItemContainerStyle>
+                            </ListView>
+                        </ui:MouseScrollViewer>
                     </Border>
                 </Grid>
                 <!--> Clip element list <-->
@@ -123,13 +163,20 @@
                                                                                Text="{Binding DisplayName, Mode=OneWay}"
                                                                                VerticalAlignment="Center"
                                                                                HorizontalAlignment="Left" />
-                                                                    <CheckBox Grid.Column="1" IsChecked="{Binding Enabled.Value}" Width="25" Height="25"/>
+                                                                    <CheckBox Grid.Column="1"
+                                                                              IsChecked="{Binding Enabled.Value}"
+                                                                              Width="25" Height="25" />
                                                                 </Grid>
                                                                 <TextBox
                                                                     Text="{Binding Format.Value, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TextBoxParsingConverter}}"
                                                                     MinHeight="24" FontSize="16"
                                                                     PreviewKeyDown="TextBox_PreviewKeyDown"
                                                                     DataObject.Pasting="TextBox_Pasting" />
+                                                                <Border x:Name="dropTarget" Height="100" Background="LightGray"
+                                                                        AllowDrop="True"
+                                                                        Drop="dropTarget_Drop">
+                                                                    <TextBlock Text="Drop here" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                </Border>
                                                             </ui:SpacedStackPanel>
                                                         </Border>
                                                     </ControlTemplate>
@@ -166,7 +213,9 @@
                                                                                Text="{Binding DisplayName, Mode=OneWay}"
                                                                                VerticalAlignment="Center"
                                                                                HorizontalAlignment="Left" />
-                                                                    <CheckBox Grid.Column="1" IsChecked="{Binding Enabled.Value}" Width="25" Height="25"/>
+                                                                    <CheckBox Grid.Column="1"
+                                                                              IsChecked="{Binding Enabled.Value}"
+                                                                              Width="25" Height="25" />
                                                                 </Grid>
                                                                 <TextBox
                                                                     Text="{Binding Format.Value, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TextBoxParsingConverter}}"
