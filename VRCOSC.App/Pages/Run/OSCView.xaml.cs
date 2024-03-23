@@ -88,6 +88,8 @@ public partial class OSCView : INotifyPropertyChanged
 
     private void OnParameterSent(VRChatOscMessage e)
     {
+        if (!e.IsAvatarParameter) return;
+
         Dispatcher.Invoke(() =>
         {
             OutgoingMessages[e.ParameterName] = e.ParameterValue;
