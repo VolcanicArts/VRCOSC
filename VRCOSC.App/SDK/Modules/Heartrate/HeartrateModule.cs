@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -95,7 +94,7 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
         HeartrateProvider = CreateProvider();
         HeartrateProvider.OnHeartrateUpdate += newHeartrate =>
         {
-            connectionCount = 0;
+            connectionCount = 1;
             targetValue = newHeartrate;
 
             lock (valuesLock)
@@ -112,29 +111,35 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
 
     private async void attemptReconnection()
     {
-        Debug.Assert(HeartrateProvider is not null);
+        if (HeartrateProvider is null) return;
 
         Log($"{typeof(T).Name} disconnected");
         Log("Attempting reconnection...");
 
         await Task.Delay(ReconnectionDelay);
 
+        if (HeartrateProvider is null) return;
+
         if (connectionCount >= ReconnectionLimit)
         {
             Log("Connection cannot be established");
             Log("Restart the module to attempt a full reconnection");
-            await teardownProvider();
+            await stopAll();
             return;
         }
 
         connectionCount++;
 
         await HeartrateProvider.Teardown();
-        await Task.Delay(100);
         await HeartrateProvider.Initialise();
     }
 
     protected override async Task OnModuleStop()
+    {
+        await stopAll();
+    }
+
+    private async Task stopAll()
     {
         beatParameterSource?.Cancel();
         await (beatParameterTask ?? Task.CompletedTask);

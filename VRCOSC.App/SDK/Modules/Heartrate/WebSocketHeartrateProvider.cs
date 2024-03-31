@@ -61,7 +61,7 @@ public abstract class WebSocketHeartrateProvider : HeartrateProvider
     {
         if (client is null) return;
 
-        if (IsConnected) await client.Disconnect();
+        await client.Disconnect();
 
         client = null;
     }
