@@ -181,16 +181,18 @@
                                                                     </ItemsControl.ItemsPanel>
                                                                     <ItemsControl.ItemTemplate>
                                                                         <DataTemplate>
-                                                                            <Border Height="30" Width="100"
+                                                                            <Border Height="30" Width="100" Margin="0 0 5 0"
                                                                                 Background="{StaticResource CBackground6}">
                                                                                 <TextBlock FontSize="10"
                                                                                     Foreground="{StaticResource CForeground1}"
-                                                                                    Text="{Binding VariableID}" />
+                                                                                    TextAlignment="Center"
+                                                                                    VerticalAlignment="Center"
+                                                                                    Text="{Binding DisplayName}" />
                                                                             </Border>
                                                                         </DataTemplate>
                                                                     </ItemsControl.ItemTemplate>
                                                                 </ItemsControl>
-                                                                <Border x:Name="dropTarget" Height="30" Width="100"
+                                                                <Border x:Name="dropTarget" Height="30" Width="150"
                                                                         Background="{StaticResource CBackground6}"
                                                                         CornerRadius="5"
                                                                         AllowDrop="True"
@@ -198,7 +200,8 @@
                                                                     <Border.Tag>
                                                                         <Binding />
                                                                     </Border.Tag>
-                                                                    <TextBlock Text="Drop here"
+                                                                    <TextBlock Text="Drop Variables Here"
+                                                                               Foreground="{StaticResource CForeground1}"
                                                                                HorizontalAlignment="Center"
                                                                                VerticalAlignment="Center" />
                                                                 </Border>

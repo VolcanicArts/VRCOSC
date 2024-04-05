@@ -8,7 +8,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using VRCOSC.App.ChatBox.Clips;
 using VRCOSC.App.ChatBox.Clips.Variables;
-using VRCOSC.App.ChatBox.Clips.Variables.Instances;
 using VRCOSC.App.Modules;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.Settings;
@@ -46,21 +45,6 @@ public class ChatBoxManager
 
     private IEnumerable<Clip> allClips => Timeline.Layers.SelectMany(layer => layer.Clips);
 
-    public ChatBoxManager()
-    {
-        Timeline.LayerCount.Value = 9;
-
-        Timeline.Layers.Add(new Layer());
-        Timeline.Layers.Add(new Layer());
-        Timeline.Layers.Add(new Layer());
-        Timeline.Layers.Add(new Layer());
-        Timeline.Layers.Add(new Layer());
-        Timeline.Layers.Add(new Layer());
-        Timeline.Layers.Add(new Layer());
-        Timeline.Layers.Add(new Layer());
-        Timeline.Layers.Add(new Layer());
-    }
-
     private ClipState playingClipState;
 
     public void AddTestClip()
@@ -82,11 +66,11 @@ public class ChatBoxManager
         playingClipState = mediaClip.States.First(clipState => clipState.States["local.mediamodule"] == "playing");
         playingClipState.Enabled.Value = true;
         playingClipState.Format.Value = "[{0}/{1}]\n{2} - {3}\n{4}";
-        playingClipState.Variables.Add(new TimeSpanClipVariable(timeRef));
-        playingClipState.Variables.Add(new TimeSpanClipVariable(durationRef));
-        playingClipState.Variables.Add(new StringClipVariable(artistRef));
-        playingClipState.Variables.Add(new StringClipVariable(titleRef));
-        playingClipState.Variables.Add(new StringClipVariable(progressVisualRef));
+        playingClipState.Variables.Add((ClipVariable)Activator.CreateInstance(timeRef.ClipVariableType, timeRef)!);
+        playingClipState.Variables.Add((ClipVariable)Activator.CreateInstance(durationRef.ClipVariableType, durationRef)!);
+        playingClipState.Variables.Add((ClipVariable)Activator.CreateInstance(artistRef.ClipVariableType, artistRef)!);
+        playingClipState.Variables.Add((ClipVariable)Activator.CreateInstance(titleRef.ClipVariableType, titleRef)!);
+        playingClipState.Variables.Add((ClipVariable)Activator.CreateInstance(progressVisualRef.ClipVariableType, progressVisualRef)!);
 
         Timeline.Layers[0].Clips.Add(mediaClip);
     }

@@ -55,7 +55,6 @@ public partial class ChatBoxPage
     private void ChatBoxPage_OnLoaded(object sender, RoutedEventArgs e)
     {
         ChatBoxManager.GetInstance().Timeline.Length.Subscribe(_ => drawLines());
-        ChatBoxManager.GetInstance().Timeline.LayerCount.Subscribe(_ => drawLines());
         drawLines();
     }
 
@@ -83,7 +82,7 @@ public partial class ChatBoxPage
             LineCanvas.Children.Add(line);
         }
 
-        var horizontalLineCount = ChatBoxManager.GetInstance().Timeline.LayerCount.Value - 1;
+        var horizontalLineCount = ChatBoxManager.GetInstance().Timeline.LayerCount - 1;
 
         for (var i = 0; i < horizontalLineCount; i++)
         {

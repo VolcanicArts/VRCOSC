@@ -11,15 +11,24 @@ namespace VRCOSC.App.ChatBox;
 
 public class Timeline
 {
-    private const int default_layer_count = 8;
+    private const int default_layer_count = 32;
     private const int default_length_seconds = 60;
-    public Observable<int> LayerCount { get; } = new(default_layer_count);
+
+    public int LayerCount { get; } = default_layer_count;
     public Observable<TimeSpan> Length { get; } = new(TimeSpan.FromSeconds(default_length_seconds));
 
     public int LengthSeconds => (int)Length.Value.TotalSeconds;
     public float Resolution => 1f / (float)Length.Value.TotalSeconds;
 
     public ObservableCollection<Layer> Layers { get; } = new();
+
+    public Timeline()
+    {
+        for (var i = 0; i < LayerCount; i++)
+        {
+            Layers.Add(new Layer());
+        }
+    }
 
     public Layer FindLayerOfClip(Clip clip)
     {

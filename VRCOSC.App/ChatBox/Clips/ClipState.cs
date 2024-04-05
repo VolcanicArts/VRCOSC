@@ -65,11 +65,9 @@ public class ClipState : ClipElement
     {
         States = new Dictionary<string, string> { { reference.ModuleID, reference.StateID } };
         Format = new Observable<string>(reference.DefaultFormat);
-
-        Format.Subscribe(Console.WriteLine);
     }
 
-    public ClipState(ClipState original, bool includeUserData)
+    private ClipState(ClipState original, bool includeUserData)
     {
         States.AddRange(original.States);
 
@@ -79,8 +77,6 @@ public class ClipState : ClipElement
             Enabled.Value = original.Enabled.Value;
             Variables.AddRange(original.Variables);
         }
-
-        Format.Subscribe(Console.WriteLine);
     }
 
     public ClipState Clone(bool includeUserData = false) => new(this, includeUserData);

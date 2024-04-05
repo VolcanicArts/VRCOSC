@@ -10,6 +10,8 @@ public abstract class ClipVariable
     public string ModuleID { get; } = null!;
     public string VariableID { get; } = null!;
 
+    public string DisplayName => ChatBoxManager.GetInstance().GetVariable(ModuleID, VariableID)!.DisplayName.Value;
+
     [JsonConstructor]
     internal ClipVariable()
     {
