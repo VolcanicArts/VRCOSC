@@ -35,7 +35,7 @@
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="15" />
-                                    <ColumnDefinition Width="170" />
+                                    <ColumnDefinition Width="300" />
                                     <ColumnDefinition Width="400" />
                                     <ColumnDefinition Width="130" />
                                     <ColumnDefinition Width="130" />
@@ -78,7 +78,7 @@
                                                         <Grid>
                                                             <Grid.ColumnDefinitions>
                                                                 <ColumnDefinition Width="15" />
-                                                                <ColumnDefinition Width="170" />
+                                                                <ColumnDefinition Width="300" />
                                                                 <ColumnDefinition Width="400" />
                                                                 <ColumnDefinition Width="130" />
                                                                 <ColumnDefinition Width="130" />
