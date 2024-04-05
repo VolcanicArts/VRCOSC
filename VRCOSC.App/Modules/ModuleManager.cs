@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -39,8 +39,10 @@ public class ModuleManager : INotifyPropertyChanged
     {
         get
         {
+            // TODO: Order packages so that local is always at the bottom and official modules are always at the top
+
             var orderedModules = new Dictionary<ModulePackage, List<Module>>();
-            foreach (var pair in Modules) orderedModules.Add(pair.Key, pair.Value.OrderByDescending(module => module.Type).ThenBy(module => module.SerialisedName).ToList());
+            foreach (var pair in Modules) orderedModules.Add(pair.Key, pair.Value.OrderByDescending(module => module.Type).ThenBy(module => module.Title).ToList());
             return orderedModules;
         }
     }
