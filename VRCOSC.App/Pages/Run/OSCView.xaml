@@ -11,7 +11,7 @@
         <run:BackgroundConverter x:Key="BackgroundConverter" />
     </Page.Resources>
     <Grid>
-        <Border Padding="5">
+        <Border>
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="5*" />

@@ -10,6 +10,7 @@ public class VRChatOscMessage : OscMessage
 {
     public bool IsAvatarChangeEvent => Address == VRChatOscConstants.ADDRESS_AVATAR_CHANGE;
     public bool IsAvatarParameter => Address.StartsWith(VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX);
+    public bool IsChatboxInput => Address == VRChatOscConstants.ADDRESS_CHATBOX_INPUT;
 
     private string? parameterName;
 

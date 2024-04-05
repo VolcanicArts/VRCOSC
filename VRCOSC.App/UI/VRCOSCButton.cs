@@ -15,7 +15,8 @@ public enum ButtonColour
     Green,
     Blue,
     Red,
-    Gray
+    Gray,
+    None
 }
 
 public class VRCOSCButton : Button
@@ -24,7 +25,7 @@ public class VRCOSCButton : Button
         DependencyProperty.Register(nameof(CornerRadius), typeof(CornerRadius), typeof(VRCOSCButton), new PropertyMetadata(new CornerRadius(5)));
 
     public static readonly DependencyProperty ButtonColourProperty =
-        DependencyProperty.Register(nameof(ButtonColour), typeof(ButtonColour), typeof(VRCOSCButton), new PropertyMetadata(ButtonColour.Gray));
+        DependencyProperty.Register(nameof(ButtonColour), typeof(ButtonColour), typeof(VRCOSCButton), new PropertyMetadata(ButtonColour.None));
 
     public CornerRadius CornerRadius
     {
@@ -63,6 +64,7 @@ public class VRCOSCButton : Button
         ButtonColour.Blue => isLight ? (Brush)FindResource("CBlueL") : (Brush)FindResource("CBlue"),
         ButtonColour.Red => isLight ? (Brush)FindResource("CRedL") : (Brush)FindResource("CRed"),
         ButtonColour.Gray => isLight ? (Brush)FindResource("CGrayL") : (Brush)FindResource("CGray"),
+        ButtonColour.None => Brushes.Transparent,
         _ => throw new ArgumentOutOfRangeException(nameof(ButtonColour), ButtonColour, null)
     };
 }

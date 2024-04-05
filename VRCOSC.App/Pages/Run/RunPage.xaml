@@ -31,7 +31,55 @@
                     </Grid.RowDefinitions>
                     <Border Grid.Row="0" Background="{StaticResource CBackground5}" HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch" Padding="5" CornerRadius="5">
-                        <Frame Source="OSCView.xaml" />
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="5" />
+                                <RowDefinition Height="40" />
+                            </Grid.RowDefinitions>
+                            <Frame Name="ViewFrame" Grid.Row="0" />
+                            <Grid Grid.Row="2" HorizontalAlignment="Center">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Border Background="{StaticResource CBackground1}" CornerRadius="5">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <!--> View Selector Visual <-->
+                                        <Border Name="ViewSelector" Height="40" Width="160" Padding="5"
+                                                HorizontalAlignment="Left">
+                                            <Border.RenderTransform>
+                                                <TranslateTransform />
+                                            </Border.RenderTransform>
+                                            <Border Background="{StaticResource CBackground6}"
+                                                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                                    CornerRadius="5" />
+                                        </Border>
+                                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                    Orientation="Horizontal">
+                                            <ui:VRCOSCButton Click="AvatarOSCViewButton_Click">
+                                                <Border Height="30" Width="160">
+                                                    <TextBlock Text="Avatar OSC" TextAlignment="Center"
+                                                               VerticalAlignment="Center"
+                                                               Foreground="{StaticResource CForeground1}" FontSize="16"
+                                                               FontWeight="Bold" />
+                                                </Border>
+                                            </ui:VRCOSCButton>
+                                            <ui:VRCOSCButton Click="MiscOSCViewButton_Click">
+                                                <Border Height="30" Width="160">
+                                                    <TextBlock Text="Misc OSC" TextAlignment="Center"
+                                                               VerticalAlignment="Center"
+                                                               Foreground="{StaticResource CForeground1}" FontSize="16"
+                                                               FontWeight="Bold" />
+                                                </Border>
+                                            </ui:VRCOSCButton>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </Grid>
                     </Border>
                     <Border Grid.Row="2" Background="{StaticResource CBackground5}" HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch" Padding="10" CornerRadius="5">
@@ -47,7 +95,7 @@
                                 <ui:VRCOSCButton x:Name="StopButton" Width="120" VerticalAlignment="Stretch"
                                                  CornerRadius="5" ButtonColour="Red" Click="StopButtonOnClick">
                                     <fa5:ImageAwesome Icon="Solid_Stop" Foreground="{StaticResource CForeground1}"
-                                                      Margin="5"/>
+                                                      Margin="5" />
                                 </ui:VRCOSCButton>
                                 <ui:VRCOSCButton x:Name="RestartButton" Width="120" VerticalAlignment="Stretch"
                                                  CornerRadius="5" ButtonColour="Blue" Click="RestartButtonOnClick">
@@ -66,7 +114,8 @@
                     <utils:BlurBackgroundBehavior BlurContainer="{Binding ElementName=RunContent}" BlurRadius="10" />
                 </b:Interaction.Behaviors>
             </Rectangle>
-            <Border Width="500" HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="3" BorderBrush="Black" CornerRadius="5">
+            <Border Width="500" HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="3"
+                    BorderBrush="Black" CornerRadius="5">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="50" />

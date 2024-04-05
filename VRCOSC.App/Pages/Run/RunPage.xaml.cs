@@ -12,6 +12,23 @@ namespace VRCOSC.App.Pages.Run;
 
 public partial class RunPage
 {
+    private const int view_button_width = 160;
+
+    private int chosenView;
+
+    public int ChosenView
+    {
+        get => chosenView;
+        set
+        {
+            chosenView = value;
+            setChosenView();
+        }
+    }
+
+    private readonly OSCView oscView;
+    private readonly MiscView miscView;
+
     public RunPage()
     {
         InitializeComponent();
@@ -20,6 +37,28 @@ public partial class RunPage
 
         AppManager.GetInstance().State.Subscribe(onAppManagerStateChange, true);
         Logger.NewEntry += onLogEntry;
+
+        oscView = new OSCView();
+        miscView = new MiscView();
+
+        setChosenView();
+    }
+
+    private void setChosenView()
+    {
+        ViewFrame.Content = ChosenView switch
+        {
+            0 => oscView,
+            1 => miscView,
+            _ => ViewFrame.Content
+        };
+
+        var moveAnimation = new DoubleAnimation(ChosenView * view_button_width, TimeSpan.FromSeconds(0.15f))
+        {
+            EasingFunction = new QuarticEase()
+        };
+
+        ViewSelector.RenderTransform.BeginAnimation(TranslateTransform.XProperty, moveAnimation);
     }
 
     private void onAppManagerStateChange(AppManagerState newState) => Dispatcher.Invoke(() =>
@@ -155,5 +194,15 @@ public partial class RunPage
     private void ForceStartButton_OnClick(object sender, RoutedEventArgs e)
     {
         AppManager.GetInstance().ForceStart();
+    }
+
+    private void AvatarOSCViewButton_Click(object sender, RoutedEventArgs e)
+    {
+        ChosenView = 0;
+    }
+
+    private void MiscOSCViewButton_Click(object sender, RoutedEventArgs e)
+    {
+        ChosenView = 1;
     }
 }
