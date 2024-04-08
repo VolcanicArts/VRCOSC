@@ -39,6 +39,16 @@ public class OVRSystem
         updateDevices();
     }
 
+    /// <summary>
+    /// Checks to see if the user is wearing their headset
+    /// </summary>
+    public bool IsUserPresent()
+    {
+        if (!HMD.IsConnected) return false;
+
+        return OpenVR.System.GetTrackedDeviceActivityLevel(HMD.Id) == EDeviceActivityLevel.k_EDeviceActivityLevel_UserInteraction;
+    }
+
     private void auditDevices()
     {
         HMD.BindTo(getHmdIndex());

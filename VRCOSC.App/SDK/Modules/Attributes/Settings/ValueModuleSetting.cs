@@ -89,6 +89,39 @@ public class IntModuleSetting : ValueModuleSetting<int>
     }
 }
 
+public class EnumModuleSetting : ValueModuleSetting<int>
+{
+    protected override Observable<int> CreateObservable() => new(DefaultValue);
+
+    internal override bool Deserialise(object ingestValue)
+    {
+        if (ingestValue is not long intIngestValue) return false;
+
+        Attribute.Value = (int)intIngestValue;
+        return true;
+    }
+
+    internal override bool GetValue<TValueType>(out TValueType? outValue) where TValueType : default
+    {
+        if (typeof(TValueType) == EnumType)
+        {
+            outValue = (TValueType)Enum.Parse(EnumType, Attribute.Value.ToString());
+            return true;
+        }
+
+        outValue = default;
+        return false;
+    }
+
+    public Type EnumType { get; }
+
+    internal EnumModuleSetting(ModuleSettingMetadata metadata, int defaultValue, Type enumType)
+        : base(metadata, defaultValue)
+    {
+        EnumType = enumType;
+    }
+}
+
 public class SliderModuleSetting : ValueModuleSetting<float>
 {
     public Type ValueType;

@@ -373,6 +373,12 @@ public abstract class Module : INotifyPropertyChanged
         Settings.Add(lookup.ToLookup(), new SliderModuleSetting(new ModuleSettingMetadata(title, description, typeof(SliderSettingPage)), defaultValue, minValue, maxValue, tickFrequency));
     }
 
+    protected void CreateDropdown<T>(Enum lookup, string title, string description, T defaultValue) where T : Enum
+    {
+        validateSettingsLookup(lookup);
+        Settings.Add(lookup.ToLookup(), new EnumModuleSetting(new ModuleSettingMetadata(title, description, typeof(DropdownSettingPage)), Convert.ToInt32(defaultValue), typeof(T)));
+    }
+
     protected void CreateTextBoxList(Enum lookup, string title, string description, IEnumerable<string> defaultValues, bool rowNumberVisible = false)
     {
         validateSettingsLookup(lookup);
