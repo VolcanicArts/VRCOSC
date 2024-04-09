@@ -116,65 +116,68 @@
             <!--> Selected Clip <-->
             <Border Grid.Row="0" Grid.Column="2" Background="{StaticResource CBackground3}" CornerRadius="5"
                     Padding="5">
-                <Grid x:Name="SelectedClipGrid" Visibility="Collapsed">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="3*" />
-                        <ColumnDefinition Width="5" />
-                        <ColumnDefinition Width="7*" />
-                    </Grid.ColumnDefinitions>
-                    <Border Grid.Column="0" Background="{StaticResource CBackground1}" Padding="6"
-                            CornerRadius="5">
-                        <ui:SpacedStackPanel Spacing="5" Orientation="Vertical">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Enabled" FontSize="15" FontWeight="Bold"
-                                           Foreground="{StaticResource CForeground2}" VerticalAlignment="Center" />
-                                <CheckBox Grid.Column="1" IsChecked="{Binding Enabled.Value}" Width="25"
-                                          HorizontalAlignment="Left"
-                                          Height="25" />
-                            </Grid>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Name" FontSize="15" FontWeight="Bold"
-                                           Foreground="{StaticResource CForeground2}" VerticalAlignment="Center" />
-                                <TextBox Grid.Column="1"
-                                         Text="{Binding Name.Value, UpdateSourceTrigger=PropertyChanged}"
-                                         Foreground="{StaticResource CForeground2}"
-                                         FontSize="15" VerticalAlignment="Stretch"
-                                         Background="{StaticResource CBackground3}"
-                                         BorderThickness="0"
-                                         Height="25">
-                                    <TextBox.Template>
-                                        <ControlTemplate TargetType="TextBox">
-                                            <Border
-                                                Background="{TemplateBinding Background}"
-                                                BorderBrush="{TemplateBinding BorderBrush}"
-                                                BorderThickness="{TemplateBinding BorderThickness}"
-                                                CornerRadius="5" Padding="5 0">
-                                                <ScrollViewer x:Name="PART_ContentHost"
-                                                              FontSize="{TemplateBinding FontSize}"
-                                                              VerticalAlignment="Center" />
-                                            </Border>
-                                        </ControlTemplate>
-                                    </TextBox.Template>
-                                </TextBox>
-                            </Grid>
-                        </ui:SpacedStackPanel>
-                    </Border>
-                    <Border Grid.Column="2" Background="{StaticResource CBackground1}"
-                            CornerRadius="5">
-                        <ui:VRCOSCButton Click="EditClip_ButtonClick" Width="150" Height="30"
-                                         ButtonColour="Blue">
-                            <TextBlock Text="Edit Clip" Foreground="{StaticResource CForeground1}" FontSize="20"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </ui:VRCOSCButton>
-                    </Border>
+                <Grid>
+                    <TextBlock Text="Select A Clip" FontSize="30" TextAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource CForeground1}"/>
+                    <Grid x:Name="SelectedClipGrid" Visibility="Collapsed">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="3*" />
+                            <ColumnDefinition Width="5" />
+                            <ColumnDefinition Width="7*" />
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Background="{StaticResource CBackground1}" Padding="6"
+                                CornerRadius="5">
+                            <ui:SpacedStackPanel Spacing="5" Orientation="Vertical">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Enabled" FontSize="15" FontWeight="Bold"
+                                               Foreground="{StaticResource CForeground2}" VerticalAlignment="Center" />
+                                    <CheckBox Grid.Column="1" IsChecked="{Binding Enabled.Value}" Width="25"
+                                              HorizontalAlignment="Left"
+                                              Height="25" />
+                                </Grid>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Name" FontSize="15" FontWeight="Bold"
+                                               Foreground="{StaticResource CForeground2}" VerticalAlignment="Center" />
+                                    <TextBox Grid.Column="1"
+                                             Text="{Binding Name.Value, UpdateSourceTrigger=PropertyChanged}"
+                                             Foreground="{StaticResource CForeground2}"
+                                             FontSize="15" VerticalAlignment="Stretch"
+                                             Background="{StaticResource CBackground3}"
+                                             BorderThickness="0"
+                                             Height="25">
+                                        <TextBox.Template>
+                                            <ControlTemplate TargetType="TextBox">
+                                                <Border
+                                                    Background="{TemplateBinding Background}"
+                                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                                    CornerRadius="5" Padding="5 0">
+                                                    <ScrollViewer x:Name="PART_ContentHost"
+                                                                  FontSize="{TemplateBinding FontSize}"
+                                                                  VerticalAlignment="Center" />
+                                                </Border>
+                                            </ControlTemplate>
+                                        </TextBox.Template>
+                                    </TextBox>
+                                </Grid>
+                            </ui:SpacedStackPanel>
+                        </Border>
+                        <Border Grid.Column="2" Background="{StaticResource CBackground1}"
+                                CornerRadius="5">
+                            <ui:VRCOSCButton Click="EditClip_ButtonClick" Width="150" Height="30"
+                                             ButtonColour="Blue">
+                                <TextBlock Text="Edit Clip" Foreground="{StaticResource CForeground1}" FontSize="20"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </ui:VRCOSCButton>
+                        </Border>
+                    </Grid>
                 </Grid>
             </Border>
             <!--> Timeline <-->

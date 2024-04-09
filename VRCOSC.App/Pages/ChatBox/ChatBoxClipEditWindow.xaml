@@ -13,6 +13,132 @@
     <Window.Resources>
         <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <local:TextBoxParsingConverter x:Key="TextBoxParsingConverter" />
+        <Style x:Key="ClipElementStyle" TargetType="ListViewItem">
+            <Setter Property="Margin" Value="0 0 0 10" />
+            <Setter Property="Visibility"
+                    Value="{Binding ShouldBeVisible, Converter={StaticResource BoolToVisibilityConverter}}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Border Background="{StaticResource CBackground3}"
+                                CornerRadius="5" Padding="5"
+                                HorizontalAlignment="Stretch">
+                            <ui:SpacedStackPanel Orientation="Vertical" Spacing="5"
+                                                 HorizontalAlignment="Stretch">
+                                <ui:SpacedStackPanel Orientation="Horizontal"
+                                                     Spacing="5">
+                                    <CheckBox
+                                        IsChecked="{Binding Enabled.Value}"
+                                        Width="25" Height="25" />
+                                    <TextBlock FontSize="16"
+                                               Foreground="{StaticResource CForeground1}"
+                                               Text="{Binding DisplayName, Mode=OneWay}"
+                                               VerticalAlignment="Center"
+                                               HorizontalAlignment="Left" />
+                                </ui:SpacedStackPanel>
+                                <TextBox
+                                    Text="{Binding Format.Value, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TextBoxParsingConverter}}"
+                                    Foreground="{StaticResource CForeground1}"
+                                    FontSize="16"
+                                    VerticalAlignment="Center"
+                                    TextAlignment="Center"
+                                    MinHeight="30"
+                                    Padding="0 5"
+                                    HorizontalAlignment="Stretch"
+                                    Background="{StaticResource CBackground1}"
+                                    BorderBrush="Transparent"
+                                    PreviewKeyDown="TextBox_PreviewKeyDown"
+                                    DataObject.Pasting="TextBox_Pasting">
+                                    <TextBox.Template>
+                                        <ControlTemplate
+                                            TargetType="TextBox">
+                                            <Border
+                                                Background="{TemplateBinding Background}"
+                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                CornerRadius="5"
+                                                Padding="2 0">
+                                                <ScrollViewer
+                                                    x:Name="PART_ContentHost" />
+                                            </Border>
+                                        </ControlTemplate>
+                                    </TextBox.Template>
+                                </TextBox>
+                                <ItemsControl
+                                    ItemsSource="{Binding Variables}"
+                                    VerticalAlignment="Top">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Height="30"
+                                                    HorizontalAlignment="Stretch"
+                                                    Margin="0 0 0 5"
+                                                    Background="{StaticResource CBackground5}"
+                                                    CornerRadius="5">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0"
+                                                               FontSize="15"
+                                                               Foreground="{StaticResource CForeground1}"
+                                                               TextAlignment="Left"
+                                                               HorizontalAlignment="Left"
+                                                               VerticalAlignment="Center"
+                                                               Text="{Binding DisplayNameWithModule}"
+                                                               Margin="5 0 0 0" />
+                                                    <ui:VRCOSCButton Grid.Column="2"
+                                                                     ButtonColour="Gray"
+                                                                     Click="VariableSettingButton_OnClick"
+                                                                     Width="20" Height="20"
+                                                                     Margin="0 0 5 0">
+                                                        <ui:VRCOSCButton.Tag>
+                                                            <Binding />
+                                                        </ui:VRCOSCButton.Tag>
+                                                        <fa5:ImageAwesome
+                                                            Icon="Solid_Cog"
+                                                            Foreground="White"
+                                                            Margin="3" />
+                                                    </ui:VRCOSCButton>
+                                                    <ui:VRCOSCButton Grid.Column="3"
+                                                                     ButtonColour="Red"
+                                                                     Click="VariableRemoveButton_OnClick"
+                                                                     Width="20" Height="20"
+                                                                     Margin="0 0 5 0">
+                                                        <ui:VRCOSCButton.Tag>
+                                                            <Binding />
+                                                        </ui:VRCOSCButton.Tag>
+                                                        <fa5:ImageAwesome
+                                                            Icon="Solid_Minus"
+                                                            Foreground="White"
+                                                            Margin="3" />
+                                                    </ui:VRCOSCButton>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <Border x:Name="dropTarget" Height="30" Width="150"
+                                        Background="{StaticResource CBackground5}"
+                                        CornerRadius="5"
+                                        AllowDrop="True"
+                                        Drop="dropTarget_Drop">
+                                    <Border.Tag>
+                                        <Binding />
+                                    </Border.Tag>
+                                    <TextBlock Text="Drop Variable"
+                                               Foreground="{StaticResource CForeground2}"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center" />
+                                </Border>
+                            </ui:SpacedStackPanel>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
     <Grid>
         <Border Padding="10" Background="{StaticResource CBackground2}">
@@ -79,6 +205,62 @@
                         </ui:SpacedStackPanel>
                     </ui:MouseScrollViewer>
                 </Border>
+                <!--> Center <-->
+                <Grid Grid.Column="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="5" />
+                        <RowDefinition Height="40" />
+                    </Grid.RowDefinitions>
+                    <!--> Clip element list <-->
+                    <Border Grid.Row="0" Background="{StaticResource CBackground5}" CornerRadius="5">
+                        <ui:MouseScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto"
+                                              Padding="10">
+                            <ui:SpacedStackPanel Orientation="Vertical" Spacing="7">
+                                <TextBlock Text="States" FontWeight="Bold" FontSize="30"
+                                           Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center" />
+                                <ListView ItemsSource="{Binding UIStates}"
+                                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                          Background="Transparent"
+                                          BorderThickness="0" Padding="-1"
+                                          ItemContainerStyle="{StaticResource ClipElementStyle}">
+                                    <b:Interaction.Behaviors>
+                                        <ui:IgnoreMouseWheelBehavior />
+                                    </b:Interaction.Behaviors>
+                                </ListView>
+                                <TextBlock Text="Events" FontWeight="Bold" FontSize="30"
+                                           Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center" />
+                                <ListView ItemsSource="{Binding UIEvents}"
+                                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                          Background="Transparent"
+                                          BorderThickness="0" Padding="-1"
+                                          ItemContainerStyle="{StaticResource ClipElementStyle}">
+                                    <b:Interaction.Behaviors>
+                                        <ui:IgnoreMouseWheelBehavior />
+                                    </b:Interaction.Behaviors>
+                                </ListView>
+                            </ui:SpacedStackPanel>
+                        </ui:MouseScrollViewer>
+                    </Border>
+                    <!--> Footer <-->
+                    <Border Grid.Row="2" Background="{StaticResource CBackground5}" CornerRadius="5" Padding="5">
+                        <Border Background="{StaticResource CBackground3}" CornerRadius="5" HorizontalAlignment="Left">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="15" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" HorizontalAlignment="Left"
+                                           Text="Show Relevant Elements Only" FontSize="15" Padding="5"
+                                           Foreground="{StaticResource CForeground1}" />
+                                <CheckBox Grid.Column="2" x:Name="ShowRelevantModulesCheckBox"
+                                          IsChecked="{Binding ShowRelevantModules}"
+                                          Width="25" Height="25" HorizontalAlignment="Right" Margin="0 0 2.5 0" />
+                            </Grid>
+                        </Border>
+                    </Border>
+                </Grid>
                 <!--> Variables View <-->
                 <Border Grid.Column="4" Background="{StaticResource CBackground5}" CornerRadius="5">
                     <ui:MouseScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto"
@@ -154,314 +336,6 @@
                         </ui:SpacedStackPanel>
                     </ui:MouseScrollViewer>
                 </Border>
-                <!--> Clip element list <-->
-                <Grid Grid.Column="2">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="5" />
-                        <RowDefinition Height="40" />
-                    </Grid.RowDefinitions>
-                    <Border Grid.Row="0" Background="{StaticResource CBackground5}" CornerRadius="5">
-                        <ui:MouseScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto"
-                                              Padding="10">
-                            <ui:SpacedStackPanel Orientation="Vertical" Spacing="7">
-                                <TextBlock Text="States" FontWeight="Bold" FontSize="30"
-                                           Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center" />
-                                <ListView ItemsSource="{Binding UIStates}"
-                                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                          Background="Transparent"
-                                          BorderThickness="0" Padding="-1">
-                                    <b:Interaction.Behaviors>
-                                        <ui:IgnoreMouseWheelBehavior />
-                                    </b:Interaction.Behaviors>
-                                    <ListView.ItemContainerStyle>
-                                        <Style TargetType="ListViewItem">
-                                            <Setter Property="Margin" Value="0 0 0 10" />
-                                            <Setter Property="Visibility"
-                                                    Value="{Binding ShouldBeVisible, Converter={StaticResource BoolToVisibilityConverter}}" />
-                                            <Setter Property="Template">
-                                                <Setter.Value>
-                                                    <ControlTemplate>
-                                                        <Border Background="{StaticResource CBackground3}"
-                                                                CornerRadius="5" Padding="5"
-                                                                HorizontalAlignment="Stretch">
-                                                            <ui:SpacedStackPanel Orientation="Vertical" Spacing="5"
-                                                                HorizontalAlignment="Stretch">
-                                                                <ui:SpacedStackPanel Orientation="Horizontal"
-                                                                    Spacing="5">
-                                                                    <CheckBox
-                                                                        IsChecked="{Binding Enabled.Value}"
-                                                                        Width="25" Height="25" />
-                                                                    <TextBlock FontSize="16"
-                                                                               Foreground="{StaticResource CForeground1}"
-                                                                               Text="{Binding DisplayName, Mode=OneWay}"
-                                                                               VerticalAlignment="Center"
-                                                                               HorizontalAlignment="Left" />
-                                                                </ui:SpacedStackPanel>
-                                                                <TextBox
-                                                                    Text="{Binding Format.Value, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TextBoxParsingConverter}}"
-                                                                    Foreground="{StaticResource CForeground1}"
-                                                                    FontSize="16"
-                                                                    VerticalAlignment="Center"
-                                                                    TextAlignment="Center"
-                                                                    MinHeight="30"
-                                                                    Padding="0 5"
-                                                                    HorizontalAlignment="Stretch"
-                                                                    Background="{StaticResource CBackground1}"
-                                                                    BorderBrush="Transparent"
-                                                                    PreviewKeyDown="TextBox_PreviewKeyDown"
-                                                                    DataObject.Pasting="TextBox_Pasting">
-                                                                    <TextBox.Template>
-                                                                        <ControlTemplate
-                                                                            TargetType="TextBox">
-                                                                            <Border
-                                                                                Background="{TemplateBinding Background}"
-                                                                                BorderBrush="{TemplateBinding BorderBrush}"
-                                                                                BorderThickness="{TemplateBinding BorderThickness}"
-                                                                                CornerRadius="5"
-                                                                                Padding="2 0">
-                                                                                <ScrollViewer
-                                                                                    x:Name="PART_ContentHost" />
-                                                                            </Border>
-                                                                        </ControlTemplate>
-                                                                    </TextBox.Template>
-                                                                </TextBox>
-                                                                <ItemsControl
-                                                                    ItemsSource="{Binding Variables}"
-                                                                    VerticalAlignment="Top">
-                                                                    <ItemsControl.ItemTemplate>
-                                                                        <DataTemplate>
-                                                                            <Border Height="30"
-                                                                                HorizontalAlignment="Stretch"
-                                                                                Margin="0 0 0 5"
-                                                                                Background="{StaticResource CBackground5}"
-                                                                                CornerRadius="5">
-                                                                                <Grid>
-                                                                                    <Grid.ColumnDefinitions>
-                                                                                        <ColumnDefinition Width="Auto" />
-                                                                                        <ColumnDefinition Width="*" />
-                                                                                        <ColumnDefinition Width="Auto" />
-                                                                                        <ColumnDefinition Width="Auto" />
-                                                                                    </Grid.ColumnDefinitions>
-                                                                                    <TextBlock Grid.Column="0"
-                                                                                        FontSize="15"
-                                                                                        Foreground="{StaticResource CForeground1}"
-                                                                                        TextAlignment="Left"
-                                                                                        HorizontalAlignment="Left"
-                                                                                        VerticalAlignment="Center"
-                                                                                        Text="{Binding DisplayNameWithModule}"
-                                                                                        Margin="5 0 0 0" />
-                                                                                    <ui:VRCOSCButton Grid.Column="2"
-                                                                                        ButtonColour="Gray"
-                                                                                        Click="VariableSettingButton_OnClick"
-                                                                                        Width="20" Height="20"
-                                                                                        Margin="0 0 5 0">
-                                                                                        <ui:VRCOSCButton.Tag>
-                                                                                            <Binding />
-                                                                                        </ui:VRCOSCButton.Tag>
-                                                                                        <fa5:ImageAwesome
-                                                                                            Icon="Solid_Cog"
-                                                                                            Foreground="White"
-                                                                                            Margin="3" />
-                                                                                    </ui:VRCOSCButton>
-                                                                                    <ui:VRCOSCButton Grid.Column="3"
-                                                                                        ButtonColour="Red"
-                                                                                        Click="VariableRemoveButton_OnClick"
-                                                                                        Width="20" Height="20"
-                                                                                        Margin="0 0 5 0">
-                                                                                        <ui:VRCOSCButton.Tag>
-                                                                                            <Binding />
-                                                                                        </ui:VRCOSCButton.Tag>
-                                                                                        <fa5:ImageAwesome
-                                                                                            Icon="Solid_Minus"
-                                                                                            Foreground="White"
-                                                                                            Margin="3" />
-                                                                                    </ui:VRCOSCButton>
-                                                                                </Grid>
-                                                                            </Border>
-                                                                        </DataTemplate>
-                                                                    </ItemsControl.ItemTemplate>
-                                                                </ItemsControl>
-                                                                <Border x:Name="dropTarget" Height="30" Width="150"
-                                                                        Background="{StaticResource CBackground5}"
-                                                                        CornerRadius="5"
-                                                                        AllowDrop="True"
-                                                                        Drop="dropTarget_Drop">
-                                                                    <Border.Tag>
-                                                                        <Binding />
-                                                                    </Border.Tag>
-                                                                    <TextBlock Text="Drop Variable"
-                                                                               Foreground="{StaticResource CForeground2}"
-                                                                               HorizontalAlignment="Center"
-                                                                               VerticalAlignment="Center" />
-                                                                </Border>
-                                                            </ui:SpacedStackPanel>
-                                                        </Border>
-                                                    </ControlTemplate>
-                                                </Setter.Value>
-                                            </Setter>
-                                        </Style>
-                                    </ListView.ItemContainerStyle>
-                                </ListView>
-                                <TextBlock Text="Events" FontWeight="Bold" FontSize="30"
-                                           Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center" />
-                                <ListView ItemsSource="{Binding UIEvents}"
-                                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                          Background="Transparent"
-                                          BorderThickness="0" Padding="-1">
-                                    <b:Interaction.Behaviors>
-                                        <ui:IgnoreMouseWheelBehavior />
-                                    </b:Interaction.Behaviors>
-                                    <ListView.ItemContainerStyle>
-                                        <Style TargetType="ListViewItem">
-                                            <Setter Property="Margin" Value="0 0 0 10" />
-                                            <Setter Property="Visibility"
-                                                    Value="{Binding ShouldBeVisible, Converter={StaticResource BoolToVisibilityConverter}}" />
-                                            <Setter Property="Template">
-                                                <Setter.Value>
-                                                    <ControlTemplate>
-                                                        <Border Background="{StaticResource CBackground3}"
-                                                                CornerRadius="5" Padding="5"
-                                                                HorizontalAlignment="Stretch">
-                                                            <ui:SpacedStackPanel Orientation="Vertical" Spacing="5"
-                                                                HorizontalAlignment="Stretch">
-                                                                <ui:SpacedStackPanel Orientation="Horizontal"
-                                                                    Spacing="5">
-                                                                    <CheckBox
-                                                                        IsChecked="{Binding Enabled.Value}"
-                                                                        Width="25" Height="25" />
-                                                                    <TextBlock FontSize="16"
-                                                                               Foreground="{StaticResource CForeground1}"
-                                                                               Text="{Binding DisplayName, Mode=OneWay}"
-                                                                               VerticalAlignment="Center"
-                                                                               HorizontalAlignment="Left" />
-                                                                </ui:SpacedStackPanel>
-                                                                <TextBox
-                                                                    Text="{Binding Format.Value, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TextBoxParsingConverter}}"
-                                                                    Foreground="{StaticResource CForeground1}"
-                                                                    FontSize="16"
-                                                                    VerticalAlignment="Center"
-                                                                    TextAlignment="Center"
-                                                                    MinHeight="30"
-                                                                    Padding="0 5"
-                                                                    HorizontalAlignment="Stretch"
-                                                                    Background="{StaticResource CBackground1}"
-                                                                    BorderBrush="Transparent"
-                                                                    PreviewKeyDown="TextBox_PreviewKeyDown"
-                                                                    DataObject.Pasting="TextBox_Pasting">
-                                                                    <TextBox.Template>
-                                                                        <ControlTemplate
-                                                                            TargetType="TextBox">
-                                                                            <Border
-                                                                                Background="{TemplateBinding Background}"
-                                                                                BorderBrush="{TemplateBinding BorderBrush}"
-                                                                                BorderThickness="{TemplateBinding BorderThickness}"
-                                                                                CornerRadius="5"
-                                                                                Padding="2 0">
-                                                                                <ScrollViewer
-                                                                                    x:Name="PART_ContentHost" />
-                                                                            </Border>
-                                                                        </ControlTemplate>
-                                                                    </TextBox.Template>
-                                                                </TextBox>
-                                                                <ItemsControl
-                                                                    ItemsSource="{Binding Variables}"
-                                                                    VerticalAlignment="Top">
-                                                                    <ItemsControl.ItemTemplate>
-                                                                        <DataTemplate>
-                                                                            <Border Height="30"
-                                                                                HorizontalAlignment="Stretch"
-                                                                                Margin="0 0 0 5"
-                                                                                Background="{StaticResource CBackground5}"
-                                                                                CornerRadius="5">
-                                                                                <Grid>
-                                                                                    <Grid.ColumnDefinitions>
-                                                                                        <ColumnDefinition Width="Auto" />
-                                                                                        <ColumnDefinition Width="*" />
-                                                                                        <ColumnDefinition Width="Auto" />
-                                                                                        <ColumnDefinition Width="Auto" />
-                                                                                    </Grid.ColumnDefinitions>
-                                                                                    <TextBlock Grid.Column="0"
-                                                                                        FontSize="15"
-                                                                                        Foreground="{StaticResource CForeground1}"
-                                                                                        TextAlignment="Left"
-                                                                                        HorizontalAlignment="Left"
-                                                                                        VerticalAlignment="Center"
-                                                                                        Text="{Binding DisplayNameWithModule}"
-                                                                                        Margin="5 0 0 0" />
-                                                                                    <ui:VRCOSCButton Grid.Column="2"
-                                                                                        ButtonColour="Gray"
-                                                                                        Click="VariableSettingButton_OnClick"
-                                                                                        Width="20" Height="20"
-                                                                                        Margin="0 0 5 0">
-                                                                                        <ui:VRCOSCButton.Tag>
-                                                                                            <Binding />
-                                                                                        </ui:VRCOSCButton.Tag>
-                                                                                        <fa5:ImageAwesome
-                                                                                            Icon="Solid_Cog"
-                                                                                            Foreground="White"
-                                                                                            Margin="3" />
-                                                                                    </ui:VRCOSCButton>
-                                                                                    <ui:VRCOSCButton Grid.Column="3"
-                                                                                        ButtonColour="Red"
-                                                                                        Click="VariableRemoveButton_OnClick"
-                                                                                        Width="20" Height="20"
-                                                                                        Margin="0 0 5 0">
-                                                                                        <ui:VRCOSCButton.Tag>
-                                                                                            <Binding />
-                                                                                        </ui:VRCOSCButton.Tag>
-                                                                                        <fa5:ImageAwesome
-                                                                                            Icon="Solid_Minus"
-                                                                                            Foreground="White"
-                                                                                            Margin="3" />
-                                                                                    </ui:VRCOSCButton>
-                                                                                </Grid>
-                                                                            </Border>
-                                                                        </DataTemplate>
-                                                                    </ItemsControl.ItemTemplate>
-                                                                </ItemsControl>
-                                                                <Border x:Name="dropTarget" Height="30" Width="150"
-                                                                        Background="{StaticResource CBackground5}"
-                                                                        CornerRadius="5"
-                                                                        AllowDrop="True"
-                                                                        Drop="dropTarget_Drop">
-                                                                    <Border.Tag>
-                                                                        <Binding />
-                                                                    </Border.Tag>
-                                                                    <TextBlock Text="Drop Variable"
-                                                                               Foreground="{StaticResource CForeground2}"
-                                                                               HorizontalAlignment="Center"
-                                                                               VerticalAlignment="Center" />
-                                                                </Border>
-                                                            </ui:SpacedStackPanel>
-                                                        </Border>
-                                                    </ControlTemplate>
-                                                </Setter.Value>
-                                            </Setter>
-                                        </Style>
-                                    </ListView.ItemContainerStyle>
-                                </ListView>
-                            </ui:SpacedStackPanel>
-                        </ui:MouseScrollViewer>
-                    </Border>
-                    <Border Grid.Row="2" Background="{StaticResource CBackground5}" CornerRadius="5" Padding="5">
-                        <Border Background="{StaticResource CBackground3}" CornerRadius="5" HorizontalAlignment="Left">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="15" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" HorizontalAlignment="Left"
-                                           Text="Show Relevant Elements Only" FontSize="15" Padding="5"
-                                           Foreground="{StaticResource CForeground1}" />
-                                <CheckBox Grid.Column="2" x:Name="ShowRelevantModulesCheckBox"
-                                          IsChecked="{Binding ShowRelevantModules}"
-                                          Width="25" Height="25" HorizontalAlignment="Right" Margin="0 0 2.5 0" />
-                            </Grid>
-                        </Border>
-                    </Border>
-                </Grid>
             </Grid>
         </Border>
     </Grid>
