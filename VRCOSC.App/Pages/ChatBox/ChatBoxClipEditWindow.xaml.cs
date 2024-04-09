@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -103,7 +103,7 @@ public partial class ChatBoxClipEditWindow
         if (e.Key == Key.Enter)
         {
             var textBox = (sender as TextBox)!;
-            var selectionStart = textBox.SelectionStart;
+            var selectionStart = textBox.SelectionLength == 0 ? textBox.CaretIndex : textBox.SelectionStart;
 
             if (textBox.Text.Split(Environment.NewLine).Length < max_lines)
             {
@@ -133,7 +133,7 @@ public partial class ChatBoxClipEditWindow
         var selectedLineCount = selectedText.Split([Environment.NewLine], StringSplitOptions.None).Length;
 
         var remainingLines = Math.Max(max_lines - (currentLineCount - selectedLineCount), 0);
-        var linesToAdd = Math.Min(remainingLines, newlineCount + 1); // Add one to account for the first line
+        var linesToAdd = Math.Min(remainingLines, newlineCount + 1);
         var lines = pastedText.Split([Environment.NewLine], StringSplitOptions.None);
 
         var newTextToAdd = string.Join(Environment.NewLine, lines.Take(linesToAdd));
