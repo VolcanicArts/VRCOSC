@@ -8,7 +8,8 @@
       xmlns:local="clr-namespace:VRCOSC.App.Pages.ChatBox"
       xmlns:fa5="http://schemas.fontawesome.com/icons/"
       mc:Ignorable="d"
-      Loaded="ChatBoxPage_OnLoaded">
+      Loaded="ChatBoxPage_OnLoaded"
+      MouseLeftButtonUp="ChatBoxPage_OnMouseLeftButtonUp">
     <Page.Resources>
         <local:ClipPositionConverter x:Key="ClipPositionConverter" />
         <local:ClipWidthConverter x:Key="ClipWidthConverter" />
@@ -22,23 +23,106 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="240" />
+                <ColumnDefinition Width="250" />
                 <ColumnDefinition Width="10" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
+            <!--> Actions <-->
+            <Border Grid.Row="0" Grid.Column="0" Background="{StaticResource CBackground3}" CornerRadius="5"
+                    Padding="5">
+                <Border Background="{StaticResource CBackground5}" CornerRadius="5" Padding="5">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="30" />
+                            <RowDefinition Height="5" />
+                            <RowDefinition Height="30" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="5" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <ui:VRCOSCButton
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            ButtonColour="Blue">
+                            <fa5:ImageAwesome
+                                Icon="Solid_Download"
+                                Foreground="White"
+                                Margin="5" />
+                        </ui:VRCOSCButton>
+                        <ui:VRCOSCButton
+                            Grid.Row="0"
+                            Grid.Column="2"
+                            ButtonColour="Blue">
+                            <fa5:ImageAwesome
+                                Icon="Solid_Upload"
+                                Foreground="White"
+                                Margin="5" />
+                        </ui:VRCOSCButton>
+                        <ui:VRCOSCButton
+                            Grid.Row="2"
+                            Grid.Column="0"
+                            ButtonColour="Red">
+                            <fa5:ImageAwesome
+                                Icon="Solid_TrashAlt"
+                                Foreground="White"
+                                Margin="5" />
+                        </ui:VRCOSCButton>
+                    </Grid>
+                </Border>
+            </Border>
+            <!--> Settings <-->
             <Border Grid.Row="2" Grid.Column="0" Background="{StaticResource CBackground3}" CornerRadius="5"
                     Padding="5">
-
+                <Border Background="{StaticResource CBackground5}" CornerRadius="5" Padding="5">
+                    <ui:SpacedStackPanel Orientation="Vertical" Spacing="5">
+                        <TextBlock Text="Timeline Settings" FontWeight="Bold" FontSize="20" TextAlignment="Center"
+                                   Foreground="{StaticResource CForeground1}" Margin="0 0 0 5" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Length" FontSize="15" FontWeight="Bold"
+                                       Foreground="{StaticResource CForeground2}" VerticalAlignment="Center" />
+                            <TextBox Grid.Column="1"
+                                     Text="{Binding Timeline.LengthSeconds}"
+                                     Foreground="{StaticResource CForeground2}"
+                                     FontSize="15" VerticalAlignment="Stretch"
+                                     Background="{StaticResource CBackground3}"
+                                     BorderThickness="0"
+                                     Height="30"
+                                     LostKeyboardFocus="TextBox_OnLostKeyboardFocus"
+                                     PreviewKeyDown="TextBox_OnPreviewKeyDown">
+                                <TextBox.Template>
+                                    <ControlTemplate TargetType="TextBox">
+                                        <Border
+                                            Background="{TemplateBinding Background}"
+                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                            CornerRadius="5" Padding="5 0">
+                                            <ScrollViewer x:Name="PART_ContentHost"
+                                                          FontSize="{TemplateBinding FontSize}"
+                                                          VerticalAlignment="Center" />
+                                        </Border>
+                                    </ControlTemplate>
+                                </TextBox.Template>
+                            </TextBox>
+                        </Grid>
+                    </ui:SpacedStackPanel>
+                </Border>
             </Border>
+            <!--> Selected Clip <-->
             <Border Grid.Row="0" Grid.Column="2" Background="{StaticResource CBackground3}" CornerRadius="5"
                     Padding="5">
-                <!--> Selected Clip <-->
                 <Grid x:Name="SelectedClipGrid" Visibility="Collapsed">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="200" />
-                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="3*" />
+                        <ColumnDefinition Width="5" />
+                        <ColumnDefinition Width="7*" />
                     </Grid.ColumnDefinitions>
-                    <Border Grid.Column="0" Background="{StaticResource CBackground1}" Padding="10"
+                    <Border Grid.Column="0" Background="{StaticResource CBackground1}" Padding="6"
                             CornerRadius="5">
                         <ui:SpacedStackPanel Spacing="5" Orientation="Vertical">
                             <Grid>
@@ -46,180 +130,230 @@
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Enabled:" FontSize="18"
+                                <TextBlock Grid.Column="0" Text="Enabled" FontSize="15" FontWeight="Bold"
                                            Foreground="{StaticResource CForeground2}" VerticalAlignment="Center" />
-                                <CheckBox Grid.Column="1" IsChecked="{Binding Enabled.Value}" Width="30"
-                                          Height="30" />
+                                <CheckBox Grid.Column="1" IsChecked="{Binding Enabled.Value}" Width="25"
+                                          HorizontalAlignment="Left"
+                                          Height="25" />
                             </Grid>
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Name:" FontSize="18"
+                                <TextBlock Grid.Column="0" Text="Name" FontSize="15" FontWeight="Bold"
                                            Foreground="{StaticResource CForeground2}" VerticalAlignment="Center" />
                                 <TextBox Grid.Column="1"
                                          Text="{Binding Name.Value, UpdateSourceTrigger=PropertyChanged}"
-                                         FontSize="15" />
+                                         Foreground="{StaticResource CForeground2}"
+                                         FontSize="15" VerticalAlignment="Stretch"
+                                         Background="{StaticResource CBackground3}"
+                                         BorderThickness="0"
+                                         Height="25">
+                                    <TextBox.Template>
+                                        <ControlTemplate TargetType="TextBox">
+                                            <Border
+                                                Background="{TemplateBinding Background}"
+                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                CornerRadius="5" Padding="5 0">
+                                                <ScrollViewer x:Name="PART_ContentHost"
+                                                              FontSize="{TemplateBinding FontSize}"
+                                                              VerticalAlignment="Center" />
+                                            </Border>
+                                        </ControlTemplate>
+                                    </TextBox.Template>
+                                </TextBox>
                             </Grid>
                         </ui:SpacedStackPanel>
                     </Border>
-                    <ui:VRCOSCButton Grid.Column="1" Click="EditClip_ButtonClick" Width="200" Height="40"
-                                     ButtonColour="Blue">
-                        <TextBlock Text="Edit Clip" Foreground="{StaticResource CForeground1}" FontSize="25"
-                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
-                    </ui:VRCOSCButton>
+                    <Border Grid.Column="2" Background="{StaticResource CBackground1}"
+                            CornerRadius="5">
+                        <ui:VRCOSCButton Click="EditClip_ButtonClick" Width="150" Height="30"
+                                         ButtonColour="Blue">
+                            <TextBlock Text="Edit Clip" Foreground="{StaticResource CForeground1}" FontSize="20"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </ui:VRCOSCButton>
+                    </Border>
                 </Grid>
             </Border>
+            <!--> Timeline <-->
             <Border Grid.Row="2" Grid.Column="2" Background="{StaticResource CBackground3}" CornerRadius="5"
                     Padding="5">
-                <!--> Timeline <-->
                 <Border Background="{StaticResource CBackground2}" CornerRadius="5"
                         MouseMove="Timeline_MouseMove"
                         MouseLeftButtonUp="Timeline_MouseLeftButtonUp" HorizontalAlignment="Stretch">
-                    <ui:MouseScrollViewer HorizontalScrollBarVisibility="Disabled"
-                                          VerticalScrollBarVisibility="Auto">
-                        <Grid x:Name="Timeline">
-                            <Canvas x:Name="LineCanvas" />
-                            <ListView Background="Transparent"
-                                      BorderThickness="0"
-                                      AlternationCount="2" Padding="-1"
-                                      ItemsSource="{Binding Timeline.Layers, Mode=OneWay}"
-                                      ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                                <b:Interaction.Behaviors>
-                                    <ui:IgnoreMouseWheelBehavior />
-                                </b:Interaction.Behaviors>
-                                <ListView.ItemContainerStyle>
-                                    <Style TargetType="ListViewItem">
-                                        <Setter Property="Height" Value="50" />
-                                        <Setter Property="Template">
-                                            <Setter.Value>
-                                                <ControlTemplate>
-                                                    <Border Background="Transparent"
-                                                            HorizontalAlignment="Stretch"
-                                                            VerticalAlignment="Stretch"
-                                                            MouseRightButtonDown="Layer_OnMouseRightButtonDown">
-                                                        <Border.Tag>
-                                                            <Binding />
-                                                        </Border.Tag>
-                                                        <ItemsControl
-                                                            ItemsSource="{Binding Clips, Mode=OneWay}">
-                                                            <ItemsControl.ItemsPanel>
-                                                                <ItemsPanelTemplate>
-                                                                    <Grid />
-                                                                </ItemsPanelTemplate>
-                                                            </ItemsControl.ItemsPanel>
-                                                            <ItemsControl.ItemTemplate>
-                                                                <DataTemplate>
-                                                                    <!--> Clip <-->
-                                                                    <Border
-                                                                        Background="{StaticResource CBackground4}"
-                                                                        CornerRadius="5"
-                                                                        HorizontalAlignment="Left"
-                                                                        VerticalAlignment="Stretch"
-                                                                        BorderThickness="1"
-                                                                        BorderBrush="{StaticResource CBackground1}"
-                                                                        Opacity="{Binding Enabled.Value, Mode=OneWay, Converter={StaticResource ClipEnabledToOpacityConverter}}">
-                                                                        <Border.RenderTransform>
-                                                                            <TranslateTransform>
-                                                                                <TranslateTransform.X>
-                                                                                    <MultiBinding
-                                                                                        Converter="{StaticResource ClipPositionConverter}">
-                                                                                        <Binding
-                                                                                            Path="Start.Value"
-                                                                                            Mode="OneWay" />
-                                                                                        <Binding
-                                                                                            Path="ActualWidth"
-                                                                                            RelativeSource="{RelativeSource AncestorType={x:Type ListViewItem}}"
-                                                                                            Mode="OneWay" />
-                                                                                    </MultiBinding>
-                                                                                </TranslateTransform.X>
-                                                                            </TranslateTransform>
-                                                                        </Border.RenderTransform>
-                                                                        <Border.Width>
-                                                                            <MultiBinding
-                                                                                Converter="{StaticResource ClipWidthConverter}">
-                                                                                <Binding Path="Start.Value"
-                                                                                    Mode="OneWay" />
-                                                                                <Binding Path="End.Value"
-                                                                                    Mode="OneWay" />
-                                                                                <Binding
-                                                                                    RelativeSource="{RelativeSource AncestorType=ListViewItem}"
-                                                                                    Path="ActualWidth"
-                                                                                    Mode="OneWay" />
-                                                                            </MultiBinding>
-                                                                        </Border.Width>
-                                                                        <!--> Clip Contents <-->
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="25" />
+                            <RowDefinition Height="1" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <!--> Timeline Header <-->
+                        <Grid Grid.Row="0">
+                            <Canvas x:Name="HeaderLineCanvas" />
+                            <Grid Name="HeaderGrid" />
+                        </Grid>
+                        <Border Grid.Row="1" Background="{StaticResource CBackground1}" />
+                        <ui:MouseScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Disabled"
+                                              VerticalScrollBarVisibility="Auto">
+                            <Grid x:Name="Timeline">
+                                <Canvas x:Name="LineCanvas" />
+                                <ListView Background="Transparent"
+                                          BorderThickness="0"
+                                          AlternationCount="2" Padding="-1"
+                                          ItemsSource="{Binding Timeline.Layers, Mode=OneWay}"
+                                          ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                    <b:Interaction.Behaviors>
+                                        <ui:IgnoreMouseWheelBehavior />
+                                    </b:Interaction.Behaviors>
+                                    <ListView.ItemContainerStyle>
+                                        <Style TargetType="ListViewItem">
+                                            <Setter Property="Height" Value="50" />
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate>
+                                                        <Border Background="Transparent"
+                                                                HorizontalAlignment="Stretch"
+                                                                VerticalAlignment="Stretch"
+                                                                MouseRightButtonDown="Layer_OnMouseRightButtonDown"
+                                                                MouseLeftButtonDown="Layer_OnMouseLeftButtonDown">
+                                                            <Border.Tag>
+                                                                <Binding />
+                                                            </Border.Tag>
+                                                            <ItemsControl
+                                                                ItemsSource="{Binding Clips, Mode=OneWay}">
+                                                                <ItemsControl.ItemsPanel>
+                                                                    <ItemsPanelTemplate>
+                                                                        <Grid />
+                                                                    </ItemsPanelTemplate>
+                                                                </ItemsControl.ItemsPanel>
+                                                                <ItemsControl.ItemTemplate>
+                                                                    <DataTemplate>
+                                                                        <!--> Clip <-->
                                                                         <Grid
-                                                                            MouseLeftButtonDown="Clip_OnMouseLeftButtonDown">
+                                                                            MouseRightButtonDown="Clip_OnMouseRightButtonDown"
+                                                                            HorizontalAlignment="Stretch"
+                                                                            VerticalAlignment="Stretch">
+                                                                            <Grid.ColumnDefinitions>
+                                                                                <ColumnDefinition Width="*" />
+                                                                            </Grid.ColumnDefinitions>
+                                                                            <Grid.RowDefinitions>
+                                                                                <RowDefinition Height="*" />
+                                                                            </Grid.RowDefinitions>
                                                                             <Grid.Tag>
                                                                                 <Binding />
                                                                             </Grid.Tag>
-                                                                            <Grid.ColumnDefinitions>
-                                                                                <ColumnDefinition Width="15" />
-                                                                                <ColumnDefinition Width="*" />
-                                                                                <ColumnDefinition Width="15" />
-                                                                            </Grid.ColumnDefinitions>
-                                                                            <Border Grid.Column="0"
-                                                                                MouseLeftButtonDown="ClipLeft_OnLeftMouseButtonDown"
-                                                                                MouseLeftButtonUp="ClipLeft_OnLeftMouseButtonUp"
-                                                                                Background="{StaticResource CBackground1}"
-                                                                                CornerRadius="5 0 0 5">
-                                                                                <Border.Tag>
-                                                                                    <Binding />
-                                                                                </Border.Tag>
-                                                                                <fa5:FontAwesome
-                                                                                    Icon="Solid_Bars"
-                                                                                    Rotation="90"
-                                                                                    HorizontalAlignment="Center"
-                                                                                    VerticalAlignment="Center"
-                                                                                    Foreground="{StaticResource CForeground3}"
-                                                                                    Margin="3 0" />
-                                                                            </Border>
-                                                                            <Border Grid.Column="1"
-                                                                                MouseLeftButtonDown="ClipMain_OnLeftMouseButtonDown"
-                                                                                MouseLeftButtonUp="ClipMain_OnLeftMouseButtonUp">
-                                                                                <Border.Tag>
-                                                                                    <Binding />
-                                                                                </Border.Tag>
-                                                                                <TextBlock
-                                                                                    Text="{Binding Name.Value}"
-                                                                                    HorizontalAlignment="Stretch"
-                                                                                    VerticalAlignment="Stretch"
-                                                                                    TextAlignment="Center"
-                                                                                    FontSize="20"
-                                                                                    Foreground="{StaticResource CForeground1}" />
-                                                                            </Border>
-                                                                            <Border Grid.Column="2"
-                                                                                Background="{StaticResource CBackground1}"
-                                                                                CornerRadius="0 5 5 0"
-                                                                                MouseLeftButtonDown="ClipRight_OnLeftMouseButtonDown"
-                                                                                MouseLeftButtonUp="ClipRight_OnLeftMouseButtonUp">
-                                                                                <Border.Tag>
-                                                                                    <Binding />
-                                                                                </Border.Tag>
-                                                                                <fa5:FontAwesome
-                                                                                    Icon="Solid_Bars"
-                                                                                    Rotation="90"
-                                                                                    HorizontalAlignment="Center"
-                                                                                    VerticalAlignment="Center"
-                                                                                    Foreground="{StaticResource CForeground3}"
-                                                                                    Margin="3 0" />
+                                                                            <Border
+                                                                                Background="{StaticResource CBackground4}"
+                                                                                CornerRadius="5"
+                                                                                HorizontalAlignment="Left"
+                                                                                VerticalAlignment="Stretch"
+                                                                                BorderThickness="1"
+                                                                                BorderBrush="{StaticResource CBackground1}"
+                                                                                Opacity="{Binding Enabled.Value, Mode=OneWay, Converter={StaticResource ClipEnabledToOpacityConverter}}">
+                                                                                <Border.RenderTransform>
+                                                                                    <TranslateTransform>
+                                                                                        <TranslateTransform.X>
+                                                                                            <MultiBinding
+                                                                                                Converter="{StaticResource ClipPositionConverter}">
+                                                                                                <Binding
+                                                                                                    Path="Start.Value"
+                                                                                                    Mode="OneWay" />
+                                                                                                <Binding
+                                                                                                    Path="ActualWidth"
+                                                                                                    RelativeSource="{RelativeSource AncestorType={x:Type ListViewItem}}"
+                                                                                                    Mode="OneWay" />
+                                                                                            </MultiBinding>
+                                                                                        </TranslateTransform.X>
+                                                                                    </TranslateTransform>
+                                                                                </Border.RenderTransform>
+                                                                                <Border.Width>
+                                                                                    <MultiBinding
+                                                                                        Converter="{StaticResource ClipWidthConverter}">
+                                                                                        <Binding Path="Start.Value"
+                                                                                            Mode="OneWay" />
+                                                                                        <Binding Path="End.Value"
+                                                                                            Mode="OneWay" />
+                                                                                        <Binding
+                                                                                            RelativeSource="{RelativeSource AncestorType=ListViewItem}"
+                                                                                            Path="ActualWidth"
+                                                                                            Mode="OneWay" />
+                                                                                    </MultiBinding>
+                                                                                </Border.Width>
+                                                                                <!--> Clip Contents <-->
+                                                                                <Grid
+                                                                                    MouseLeftButtonDown="Clip_OnMouseLeftButtonDown">
+                                                                                    <Grid.Tag>
+                                                                                        <Binding />
+                                                                                    </Grid.Tag>
+                                                                                    <Grid.ColumnDefinitions>
+                                                                                        <ColumnDefinition Width="15" />
+                                                                                        <ColumnDefinition Width="*" />
+                                                                                        <ColumnDefinition Width="15" />
+                                                                                    </Grid.ColumnDefinitions>
+                                                                                    <Border Grid.Column="0"
+                                                                                        MouseLeftButtonDown="ClipLeft_OnLeftMouseButtonDown"
+                                                                                        MouseLeftButtonUp="ClipLeft_OnLeftMouseButtonUp"
+                                                                                        Background="{StaticResource CBackground1}"
+                                                                                        CornerRadius="5 0 0 5">
+                                                                                        <Border.Tag>
+                                                                                            <Binding />
+                                                                                        </Border.Tag>
+                                                                                        <fa5:FontAwesome
+                                                                                            Icon="Solid_GripLines"
+                                                                                            Rotation="90"
+                                                                                            HorizontalAlignment="Center"
+                                                                                            VerticalAlignment="Center"
+                                                                                            Foreground="{StaticResource CForeground3}"
+                                                                                            Margin="3 0" />
+                                                                                    </Border>
+                                                                                    <Border Grid.Column="1"
+                                                                                        MouseLeftButtonDown="ClipMain_OnLeftMouseButtonDown"
+                                                                                        MouseLeftButtonUp="ClipMain_OnLeftMouseButtonUp">
+                                                                                        <Border.Tag>
+                                                                                            <Binding />
+                                                                                        </Border.Tag>
+                                                                                        <TextBlock
+                                                                                            Text="{Binding Name.Value}"
+                                                                                            HorizontalAlignment="Stretch"
+                                                                                            VerticalAlignment="Stretch"
+                                                                                            TextAlignment="Center"
+                                                                                            FontSize="20"
+                                                                                            Foreground="{StaticResource CForeground1}" />
+                                                                                    </Border>
+                                                                                    <Border Grid.Column="2"
+                                                                                        Background="{StaticResource CBackground1}"
+                                                                                        CornerRadius="0 5 5 0"
+                                                                                        MouseLeftButtonDown="ClipRight_OnLeftMouseButtonDown"
+                                                                                        MouseLeftButtonUp="ClipRight_OnLeftMouseButtonUp">
+                                                                                        <Border.Tag>
+                                                                                            <Binding />
+                                                                                        </Border.Tag>
+                                                                                        <fa5:FontAwesome
+                                                                                            Icon="Solid_GripLines"
+                                                                                            Rotation="90"
+                                                                                            HorizontalAlignment="Center"
+                                                                                            VerticalAlignment="Center"
+                                                                                            Foreground="{StaticResource CForeground3}"
+                                                                                            Margin="3 0" />
+                                                                                    </Border>
+                                                                                </Grid>
                                                                             </Border>
                                                                         </Grid>
-                                                                    </Border>
-                                                                </DataTemplate>
-                                                            </ItemsControl.ItemTemplate>
-                                                        </ItemsControl>
-                                                    </Border>
-                                                </ControlTemplate>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </ListView.ItemContainerStyle>
-                            </ListView>
-                        </Grid>
-                    </ui:MouseScrollViewer>
+                                                                    </DataTemplate>
+                                                                </ItemsControl.ItemTemplate>
+                                                            </ItemsControl>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </ListView.ItemContainerStyle>
+                                </ListView>
+                            </Grid>
+                        </ui:MouseScrollViewer>
+                    </Grid>
                 </Border>
             </Border>
         </Grid>

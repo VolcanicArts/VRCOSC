@@ -17,13 +17,25 @@ public class Timeline
     public int LayerCount { get; } = default_layer_count;
     public Observable<TimeSpan> Length { get; } = new(TimeSpan.FromSeconds(default_length_seconds));
 
-    public int LengthSeconds => (int)Length.Value.TotalSeconds;
+    public int LengthSeconds
+    {
+        set
+        {
+            var secondsValue = value;
+            secondsValue = Math.Clamp(secondsValue, 1, 60 * 4);
+            Length.Value = TimeSpan.FromSeconds(secondsValue);
+        }
+        get => (int)Length.Value.TotalSeconds;
+    }
+
     public float Resolution => 1f / (float)Length.Value.TotalSeconds;
 
     public ObservableCollection<Layer> Layers { get; } = new();
 
     public Timeline()
     {
+        Length.Subscribe(_ => Layers.ForEach(layer => layer.UpdateUIBinds()));
+
         for (var i = 0; i < LayerCount; i++)
         {
             Layers.Add(new Layer());

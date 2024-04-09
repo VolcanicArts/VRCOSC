@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -51,6 +51,17 @@ public class Clip : INotifyPropertyChanged
     {
         // TODO: This will go AFTER deserialistion
         LinkedModules.CollectionChanged += linkedModulesOnCollectionChanged;
+
+        ChatBoxManager.GetInstance().Timeline.Length.Subscribe(_ =>
+        {
+            if (ChatBoxManager.GetInstance().Timeline.LengthSeconds <= Start.Value)
+            {
+                ChatBoxManager.GetInstance().Timeline.FindLayerOfClip(this).Clips.Remove(this);
+                return;
+            }
+
+            if (ChatBoxManager.GetInstance().Timeline.LengthSeconds < End.Value) End.Value = ChatBoxManager.GetInstance().Timeline.LengthSeconds;
+        });
     }
 
     public void Initialise()
@@ -61,6 +72,12 @@ public class Clip : INotifyPropertyChanged
     }
 
     #region Update
+
+    public void UpdateUIBinds()
+    {
+        OnPropertyChanged(nameof(Start));
+        OnPropertyChanged(nameof(End));
+    }
 
     public void Update()
     {

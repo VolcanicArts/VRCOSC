@@ -171,6 +171,18 @@ public partial class ChatBoxClipEditWindow
         var clipVariableWindow = new ClipVariableEditWindow(variableInstance);
         clipVariableWindow.ShowDialog();
     }
+
+    private void VariableRemoveButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        var variableInstance = (ClipVariable)element.Tag;
+
+        var clipState = ReferenceClip.States.FirstOrDefault(clipState => clipState.Variables.Contains(variableInstance));
+        clipState?.Variables.Remove(variableInstance);
+
+        var clipEvent = ReferenceClip.Events.FirstOrDefault(clipEvent => clipEvent.Variables.Contains(variableInstance));
+        clipEvent?.Variables.Remove(variableInstance);
+    }
 }
 
 public class BoolToVisibilityConverter : IValueConverter

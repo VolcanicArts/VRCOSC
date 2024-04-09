@@ -43,4 +43,9 @@ public class Layer
 
         return (lowerBound, upperBound);
     }
+
+    public void UpdateUIBinds()
+    {
+        Clips.ForEach(clip => clip.UpdateUIBinds());
+    }
 }

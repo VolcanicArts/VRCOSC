@@ -58,16 +58,24 @@ public partial class ChatBoxPage
         drawLines();
     }
 
+    private void ChatBoxPage_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        draggingClip = null;
+    }
+
     private void drawLines()
     {
+        HeaderGrid.Children.Clear();
+        HeaderLineCanvas.Children.Clear();
         LineCanvas.Children.Clear();
 
         var verticalLineCount = ChatBoxManager.GetInstance().Timeline.LengthSeconds - 1;
         var resolution = ChatBoxManager.GetInstance().Timeline.Resolution;
 
-        for (var i = 0; i < verticalLineCount; i++)
+        for (var i = 1; i <= verticalLineCount; i++)
         {
-            var x = (i + 1) * (resolution * LineCanvas.ActualWidth);
+            var significant = i % 5 == 0;
+            var x = i * (resolution * LineCanvas.ActualWidth);
 
             var line = new Line
             {
@@ -75,11 +83,28 @@ public partial class ChatBoxPage
                 Y1 = 0,
                 X2 = x,
                 Y2 = LineCanvas.ActualHeight,
-                Stroke = (Brush)FindResource("CBackground1"),
+                Stroke = significant ? (Brush)FindResource("CForeground2") : (Brush)FindResource("CBackground1"),
                 StrokeThickness = 1
             };
 
             LineCanvas.Children.Add(line);
+
+            if (significant)
+            {
+                var headerLine = new Line
+                {
+                    X1 = x,
+                    Y1 = HeaderLineCanvas.ActualHeight * 0.75f,
+                    X2 = x,
+                    Y2 = HeaderLineCanvas.ActualHeight,
+                    Stroke = (Brush)FindResource("CForeground2"),
+                    StrokeThickness = 1
+                };
+
+                HeaderLineCanvas.Children.Add(headerLine);
+
+                drawTimelineHeaderText(i.ToString(), x);
+            }
         }
 
         var horizontalLineCount = ChatBoxManager.GetInstance().Timeline.LayerCount - 1;
@@ -102,10 +127,30 @@ public partial class ChatBoxPage
         }
     }
 
+    private void drawTimelineHeaderText(string text, double xPos)
+    {
+        var centeredText = new TextBlock
+        {
+            Text = text,
+            FontSize = 12,
+            Foreground = (Brush)FindResource("CForeground2")
+        };
+
+        centeredText.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+
+        var xPosCentered = xPos - centeredText.DesiredSize.Width / 2f;
+        var yPos = (HeaderGrid.ActualHeight - centeredText.DesiredSize.Height) * 0.25f;
+
+        centeredText.Margin = new Thickness(xPosCentered, yPos, 0, 0);
+
+        HeaderGrid.Children.Add(centeredText);
+    }
+
     private void Clip_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
         var clipGrid = (Grid)sender;
         var clip = (Clip)clipGrid.Tag;
+        e.Handled = true;
 
         SelectedClip = clip;
     }
@@ -159,10 +204,12 @@ public partial class ChatBoxPage
     {
         draggingClip = null;
         cumulativeDrag = 0f;
+        e.Handled = true;
     }
 
     private void Timeline_MouseMove(object sender, MouseEventArgs e)
     {
+        e.Handled = true;
         var newMouseX = e.GetPosition((FrameworkElement)sender).X;
         var xDelta = newMouseX - mouseX;
         mouseX = newMouseX;
@@ -281,8 +328,43 @@ public partial class ChatBoxPage
     {
         var layerElement = (FrameworkElement)sender;
         var layer = (Layer)layerElement.Tag;
+        e.Handled = true;
+
+        SelectedClip = null;
 
         Console.WriteLine(ChatBoxManager.GetInstance().Timeline.Layers.IndexOf(layer));
+        Console.WriteLine(e.GetPosition(layerElement).X / layerElement.ActualWidth);
+
+        // TODO: Show menu to add clip
+    }
+
+    private void Layer_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        SelectedClip = null;
+        e.Handled = true;
+    }
+
+    private void Clip_OnMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        var clipElement = (FrameworkElement)sender;
+        var clip = (Clip)clipElement.Tag;
+        e.Handled = true;
+
+        Console.WriteLine(clip.Name.Value);
+
+        // TODO: Show menu to delete clip
+    }
+
+    private void TextBox_OnLostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+    {
+        var textBox = (TextBox)sender;
+        textBox.GetBindingExpression(TextBox.TextProperty)!.UpdateSource();
+    }
+
+    private void TextBox_OnPreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Return)
+            Keyboard.ClearFocus();
     }
 }
 
