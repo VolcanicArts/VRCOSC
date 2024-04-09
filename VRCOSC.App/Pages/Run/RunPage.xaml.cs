@@ -28,6 +28,7 @@ public partial class RunPage
 
     private readonly OSCView oscView;
     private readonly MiscView miscView;
+    private readonly ModuleView moduleView;
 
     public RunPage()
     {
@@ -40,6 +41,7 @@ public partial class RunPage
 
         oscView = new OSCView();
         miscView = new MiscView();
+        moduleView = new ModuleView();
 
         setChosenView();
     }
@@ -50,6 +52,7 @@ public partial class RunPage
         {
             0 => oscView,
             1 => miscView,
+            2 => moduleView,
             _ => ViewFrame.Content
         };
 
@@ -204,5 +207,10 @@ public partial class RunPage
     private void MiscOSCViewButton_Click(object sender, RoutedEventArgs e)
     {
         ChosenView = 1;
+    }
+
+    private void ModuleViewButton_Click(object sender, RoutedEventArgs e)
+    {
+        ChosenView = 2;
     }
 }
