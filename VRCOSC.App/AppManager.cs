@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
 using Valve.VR;
@@ -346,6 +347,11 @@ public class AppManager
         if (ProfileManager.GetInstance().ActiveProfile.Value == newProfile) return;
 
         Logger.Log($"Changing profile from {ProfileManager.GetInstance().ActiveProfile.Value.Name.Value} to {newProfile.Name.Value}");
+
+        foreach (Window window in Application.Current.Windows)
+        {
+            if (window != MainWindow.GetInstance()) window.Close();
+        }
 
         var beforeState = State.Value;
 
