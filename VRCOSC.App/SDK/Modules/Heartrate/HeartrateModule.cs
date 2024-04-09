@@ -94,6 +94,7 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
         HeartrateProvider = CreateProvider();
         HeartrateProvider.OnHeartrateUpdate += newHeartrate =>
         {
+            ChangeState(HeartrateState.Connected);
             connectionCount = 1;
             targetValue = newHeartrate;
 
@@ -105,6 +106,8 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
         HeartrateProvider.OnDisconnected += attemptReconnection;
         HeartrateProvider.OnLog += Log;
         await HeartrateProvider.Initialise();
+
+        ChangeState(HeartrateState.Disconnected);
 
         return true;
     }
@@ -157,6 +160,8 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
 
         SendParameter(HeartrateParameter.Connected, false);
         SendParameter(HeartrateParameter.LegacyEnabled, false);
+
+        ChangeState(HeartrateState.Disconnected);
     }
 
     private async Task handleBeatParameter()
