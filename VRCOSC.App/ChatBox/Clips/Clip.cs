@@ -7,7 +7,6 @@ using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using VRCOSC.App.ChatBox.Clips.Variables;
@@ -34,15 +33,12 @@ public class Clip : INotifyPropertyChanged
     public IEnumerable<ClipEvent> UIEvents => Events.OrderBy(clipEvent => clipEvent.ModuleID)
                                                     .ThenBy(clipEvent => clipEvent.EventID);
 
-    public IEnumerable<ClipVariableReference> UIVariables
+    public Dictionary<string, List<ClipVariableReference>> UIVariables
     {
         get
         {
-            var variablesList = new List<ClipVariableReference>();
-            LinkedModules.ForEach(moduleID => variablesList.AddRange(ChatBoxManager.GetInstance().VariableReferences.Where(reference => reference.ModuleID == moduleID)));
-
-            return variablesList.OrderBy(reference => reference.ModuleID)
-                                .ThenBy(reference => reference.VariableID);
+            var modules = LinkedModules.Select(moduleID => ModuleManager.GetInstance().GetModuleOfID(moduleID)).OrderBy(module => module.Title);
+            return modules.ToDictionary(module => module.Title, module => ChatBoxManager.GetInstance().VariableReferences.Where(reference => reference.ModuleID == module.SerialisedName).OrderBy(reference => reference.DisplayName.Value).ToList());
         }
     }
 
@@ -115,12 +111,13 @@ public class Clip : INotifyPropertyChanged
         if (currentEvent is not null) return true;
 
         var localStates = States.Select(state => state.Clone(true)).ToList();
+
         removeAbsentModules(localStates);
         removeDisabledModules(localStates);
         removeLessCompoundedStates(localStates);
         removeInvalidStates(localStates);
 
-        Debug.Assert(localStates.Count == 1);
+        if (localStates.Count != 1) return false;
 
         var chosenState = localStates.Single();
         if (!chosenState.Enabled.Value) return false;
@@ -190,6 +187,9 @@ public class Clip : INotifyPropertyChanged
     {
         populateStates(e);
         populateEvents(e);
+
+        // TODO: When modules are removed, remove all variable instances of that module
+        // evaluateVariables(e);
 
         OnPropertyChanged(nameof(UIStates));
         OnPropertyChanged(nameof(UIEvents));

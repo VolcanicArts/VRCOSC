@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -161,6 +161,15 @@ public partial class ChatBoxClipEditWindow
         }
 
         return null;
+    }
+
+    private void VariableSettingButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        var variableInstance = (ClipVariable)element.Tag;
+
+        var clipVariableWindow = new ClipVariableEditWindow(variableInstance);
+        clipVariableWindow.ShowDialog();
     }
 }
 
