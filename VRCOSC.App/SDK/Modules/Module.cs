@@ -101,8 +101,10 @@ public abstract class Module : INotifyPropertyChanged
 
     private static Regex parameterToRegex(string parameterName)
     {
-        var pattern = parameterName.Replace("/", @"\/").Replace("*", @"(\S*)");
-        pattern += "$";
+        var pattern = "^"; // start of string
+        pattern += parameterName.Replace("/", @"\/").Replace("*", @"(\S*)");
+        pattern += "$"; // end of string
+
         return new Regex(pattern);
     }
 
