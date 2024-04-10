@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Globalization;
 using Newtonsoft.Json;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Utils;
@@ -27,6 +28,10 @@ public abstract class ClipVariable
         ModuleID = reference.ModuleID;
         VariableID = reference.VariableID;
     }
+
+    [ClipVariableOption("Case Mode")]
+    [JsonProperty("case_mode")]
+    public ClipVariableCaseMode CaseMode { get; set; } = ClipVariableCaseMode.Default;
 
     [ClipVariableOption("Truncate Length")]
     [JsonProperty("truncate_length")]
@@ -79,6 +84,14 @@ public abstract class ClipVariable
                 throw new ArgumentOutOfRangeException();
         }
 
+        formattedValue = CaseMode switch
+        {
+            ClipVariableCaseMode.Default => formattedValue,
+            ClipVariableCaseMode.Lower => formattedValue.ToLower(CultureInfo.CurrentCulture),
+            ClipVariableCaseMode.Upper => formattedValue.ToUpper(CultureInfo.CurrentCulture),
+            _ => throw new ArgumentOutOfRangeException()
+        };
+
         return formattedValue;
     }
 
@@ -98,4 +111,11 @@ public enum ClipVariableScrollDirection
     Right
 
     // Bounce
+}
+
+public enum ClipVariableCaseMode
+{
+    Default,
+    Lower,
+    Upper
 }
