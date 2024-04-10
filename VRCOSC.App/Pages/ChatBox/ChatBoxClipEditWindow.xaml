@@ -92,8 +92,14 @@
                                                                 <Border Height="30"
                                                                         Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource BackgroundConverter}}"
                                                                         MouseLeftButtonDown="VariableInstance_MouseLeftButtonDown"
+                                                                        MouseLeftButtonUp="VariableInstance_MouseLeftButtonUp"
+                                                                        MouseMove="VariableInstance_MouseMove"
                                                                         AllowDrop="True"
-                                                                        Drop="VariableInstance_DropTarget">
+                                                                        BorderBrush="{StaticResource CBackground1}"
+                                                                        BorderThickness="0"
+                                                                        Drop="VariableInstance_DropTarget"
+                                                                        DragEnter="VariableInstance_DragEnter"
+                                                                        DragLeave="VariableInstance_DragLeave">
                                                                     <Border.Tag>
                                                                         <Binding/>
                                                                     </Border.Tag>
@@ -125,7 +131,7 @@
                                                                             <ui:VRCOSCButton Grid.Column="0"
                                                                                 ButtonColour="Gray"
                                                                                 Click="VariableSettingButton_OnClick"
-                                                                                Width="20" Height="20"
+                                                                                Width="22" Height="22"
                                                                                 Margin="0 0 5 0">
                                                                                 <ui:VRCOSCButton.Tag>
                                                                                     <Binding />
@@ -138,7 +144,7 @@
                                                                             <ui:VRCOSCButton Grid.Column="1"
                                                                                 ButtonColour="Red"
                                                                                 Click="VariableRemoveButton_OnClick"
-                                                                                Width="20" Height="20"
+                                                                                Width="22" Height="22"
                                                                                 Margin="0 0 5 0">
                                                                                 <ui:VRCOSCButton.Tag>
                                                                                     <Binding />
@@ -163,7 +169,8 @@
                                                     Background="{StaticResource CBackground7}"
                                                     CornerRadius="5"
                                                     AllowDrop="True"
-                                                    Drop="VariableReference_DropTarget">
+                                                    Drop="VariableReference_DropTarget"
+                                                    DragEnter="VariableReference_DragEnter">
                                                 <Border.Tag>
                                                     <Binding />
                                                 </Border.Tag>
@@ -257,7 +264,7 @@
                     <!--> Clip element list <-->
                     <Border Grid.Row="0" Background="{StaticResource CBackground5}" CornerRadius="5">
                         <ui:MouseScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto"
-                                              Padding="10">
+                                              Padding="10 0">
                             <ui:SpacedStackPanel Orientation="Vertical" Spacing="7">
                                 <TextBlock Text="States" FontWeight="Bold" FontSize="30"
                                            Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center" />

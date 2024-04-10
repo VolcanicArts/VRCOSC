@@ -98,6 +98,11 @@ public partial class ChatBoxClipEditWindow
         clipElement.UpdateUI();
     }
 
+    private void VariableReference_DragEnter(object sender, DragEventArgs e)
+    {
+        e.Effects = e.Data.GetDataPresent(typeof(ClipVariableReference)) ? DragDropEffects.Copy : DragDropEffects.None;
+    }
+
     private const int max_lines = 9;
 
     private void TextBox_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -176,31 +181,94 @@ public partial class ChatBoxClipEditWindow
 
     private void VariableInstance_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
+        var border = (Border)sender;
+        var variableInstance = (ClipVariable)border.Tag;
+
+        draggedInstance = variableInstance;
+        border.BorderThickness = new Thickness(1);
+    }
+
+    private void VariableInstance_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        var border = (Border)sender;
+
+        draggedInstance = null;
+        border.BorderThickness = new Thickness(0);
+    }
+
+    private void VariableInstance_MouseMove(object sender, MouseEventArgs e)
+    {
         var element = (FrameworkElement)sender;
         var variableInstance = (ClipVariable)element.Tag;
 
-        draggedInstance = variableInstance;
-        DragDrop.DoDragDrop(element, new object(), DragDropEffects.Copy);
+        if (draggedInstance is not null && e.LeftButton == MouseButtonState.Pressed)
+        {
+            DragDrop.DoDragDrop(element, variableInstance, DragDropEffects.Move);
+        }
     }
 
     private void VariableInstance_DropTarget(object sender, DragEventArgs e)
     {
-        var element = (FrameworkElement)sender;
-        var droppedInstance = (ClipVariable)element.Tag;
+        var border = (Border)sender;
+        var droppedInstance = (ClipVariable)border.Tag;
 
-        if (draggedInstance is null) return;
+        // dragging from reference
+        // if (e.Data.GetDataPresent(typeof(ClipVariableReference)))
+        // {
+        //     var variableReference = (ClipVariableReference)e.Data.GetData(typeof(ClipVariableReference));
+        //     var clipElement = ReferenceClip.FindElementFromVariable(droppedInstance)!;
+        //     var insertIndex = clipElement.Variables.IndexOf(droppedInstance);
+        //     clipElement.Variables.Insert(insertIndex, (ClipVariable)Activator.CreateInstance(variableReference.ClipVariableType, variableReference)!);
+        //     clipElement.UpdateUI();
+        //     return;
+        // }
 
-        var draggedClipElement = ReferenceClip.FindElementFromVariable(draggedInstance)!;
-        var droppedClipElement = ReferenceClip.FindElementFromVariable(droppedInstance)!;
+        // dragging from inside list
+        if (draggedInstance is not null)
+        {
+            var draggedClipElement = ReferenceClip.FindElementFromVariable(draggedInstance)!;
+            var droppedClipElement = ReferenceClip.FindElementFromVariable(droppedInstance)!;
 
-        if (draggedClipElement != droppedClipElement) return;
+            if (draggedClipElement != droppedClipElement) return;
 
-        var newIndex = draggedClipElement.Variables.IndexOf(droppedInstance);
+            var newIndex = draggedClipElement.Variables.IndexOf(droppedInstance);
 
-        draggedClipElement.Variables.Remove(draggedInstance);
-        draggedClipElement.Variables.Insert(newIndex, draggedInstance);
+            draggedClipElement.Variables.Remove(draggedInstance);
+            draggedClipElement.Variables.Insert(newIndex, draggedInstance);
 
-        draggedInstance = null;
+            draggedInstance = null;
+            border.BorderThickness = new Thickness(0);
+        }
+    }
+
+    private void VariableInstance_DragEnter(object sender, DragEventArgs e)
+    {
+        var border = (Border)sender;
+
+        if (draggedInstance is not null)
+        {
+            e.Effects = DragDropEffects.Move;
+            border.BorderThickness = new Thickness(1);
+        }
+        else
+        {
+            e.Effects = DragDropEffects.None;
+        }
+    }
+
+    private void VariableInstance_DragLeave(object sender, DragEventArgs e)
+    {
+        var border = (Border)sender;
+
+        if (draggedInstance is not null)
+        {
+            e.Effects = DragDropEffects.Move;
+            border.BorderThickness = new Thickness(0);
+        }
+        else
+        {
+            e.Effects = DragDropEffects.None;
+        }
     }
 }
 
