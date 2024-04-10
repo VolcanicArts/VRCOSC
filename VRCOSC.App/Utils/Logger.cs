@@ -302,7 +302,7 @@ public class Logger
 
         if (exception != null)
             // add exception output to console / logfile output (but not the LogEntry's message).
-            logOutput += $"\n{ApplyFilters(exception.ToString())}";
+            logOutput += $"\n{ApplyFilters(exception.ToString())}\n{ApplyFilters(exception.StackTrace ?? string.Empty)}";
 
         IEnumerable<string> lines = logOutput
                                     .Replace(@"\r\n", @"\n")

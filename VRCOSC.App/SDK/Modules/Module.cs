@@ -155,7 +155,7 @@ public abstract class Module : INotifyPropertyChanged
         }
         catch (Exception e)
         {
-            //PushException(e);
+            ExceptionHandler.Handle(e, $"{SerialisedName} encountered an error while trying to cache the persistent properties");
         }
     }
 
@@ -221,7 +221,7 @@ public abstract class Module : INotifyPropertyChanged
         }
         catch (Exception e)
         {
-            //PushException(new Exception($"{Title} ({className}) experienced an exception calling method {method.Name}", e));
+            ExceptionHandler.Handle(e, $"{SerialisedName} experienced an exception calling method {method.Name}");
         }
     }
 
@@ -270,8 +270,7 @@ public abstract class Module : INotifyPropertyChanged
         }
         catch (Exception e)
         {
-            Logger.Error(e, nameof(Module));
-            //PushException(new Exception($"{className} experienced an exception calling method {method.Name}", e));
+            ExceptionHandler.Handle(e, $"{SerialisedName} experienced an exception calling method {method.Name}");
         }
     }
 
@@ -425,7 +424,7 @@ public abstract class Module : INotifyPropertyChanged
     {
         if (!Parameters.TryGetValue(lookup, out var moduleParameter))
         {
-            //PushException(new InvalidOperationException($"Lookup `{lookup}` has not been registered. Please register it using `RegisterParameter<T>(Enum,object)`"));
+            ExceptionHandler.Handle(new InvalidOperationException($"Lookup `{lookup}` has not been registered. Please register it by calling RegisterParameter in OnPreLoad"));
             return;
         }
 
@@ -484,7 +483,7 @@ public abstract class Module : INotifyPropertyChanged
         }
         catch (Exception e)
         {
-            //PushException(e);
+            ExceptionHandler.Handle(e, $"{nameof(OnAnyParameterReceived)} experienced an exception");
         }
 
         var parameterName = Parameters.Values.FirstOrDefault(moduleParameter => parameterNameRegex[moduleParameter.Name.Value].IsMatch(receivedParameter.Name))?.Name.Value;
@@ -510,7 +509,7 @@ public abstract class Module : INotifyPropertyChanged
         }
         catch (Exception e)
         {
-            //PushException(e);
+            ExceptionHandler.Handle(e, $"{nameof(InternalOnRegisteredParameterReceived)} experienced an exception");
         }
     }
 
