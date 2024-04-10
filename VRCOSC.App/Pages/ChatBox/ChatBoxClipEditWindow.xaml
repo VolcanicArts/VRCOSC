@@ -263,7 +263,7 @@
                     </Grid.RowDefinitions>
                     <!--> Clip element list <-->
                     <Border Grid.Row="0" Background="{StaticResource CBackground5}" CornerRadius="5">
-                        <ui:MouseScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto"
+                        <ui:MouseScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
                                               Padding="10 0">
                             <ui:SpacedStackPanel Orientation="Vertical" Spacing="7">
                                 <TextBlock Text="States" FontWeight="Bold" FontSize="30"

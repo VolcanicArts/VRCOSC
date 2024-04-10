@@ -40,7 +40,7 @@ public partial class ChatBoxClipEditWindow
         ReferenceClip = referenceClip;
 
         // TODO: Filter out the ones without states or events
-        ModulesList.ItemsSource = ModuleManager.GetInstance().GetModulesOfType<ChatBoxModule>();
+        ModulesList.ItemsSource = ModuleManager.GetInstance().GetModulesOfType<ChatBoxModule>().OrderBy(module => module.Title);
         ShowRelevantModulesCheckBox.DataContext = this;
 
         Title = $"Editing {ReferenceClip.Name.Value} Clip";
