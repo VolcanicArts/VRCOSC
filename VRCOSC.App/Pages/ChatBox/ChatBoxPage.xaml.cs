@@ -346,7 +346,9 @@ public partial class ChatBoxPage
 
     private void Layer_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
-        clipBorder!.Background = (Brush)FindResource("CBackground4");
+        if (clipBorder is not null)
+            clipBorder.Background = (Brush)FindResource("CBackground4");
+
         SelectedClip = null;
         e.Handled = true;
     }

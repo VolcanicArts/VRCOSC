@@ -6,6 +6,7 @@
     <Brush x:Key="CBackground4">#FF1A1A1A</Brush>
     <Brush x:Key="CBackground5">#FF141414</Brush>
     <Brush x:Key="CBackground6">#FF4D4D4D</Brush>
+    <Brush x:Key="CBackground7">#FF333333</Brush>
     <Brush x:Key="CForeground1">#FFFFFFFF</Brush>
     <Brush x:Key="CForeground2">#FFBFBFBF</Brush>
     <Brush x:Key="CForeground3">#FF808080</Brush>

@@ -3,7 +3,9 @@
 
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using VRCOSC.App.ChatBox.Clips.Variables;
 using VRCOSC.App.Utils;
 
@@ -19,10 +21,13 @@ public class ClipElement : INotifyPropertyChanged
     public virtual string DisplayName => string.Empty;
     public virtual bool IsDefault => Format.IsDefault && Enabled.IsDefault;
     public virtual bool ShouldBeVisible => true;
+    public Visibility HasVariables => Variables.Any() ? Visibility.Visible : Visibility.Collapsed;
 
-    public virtual void UpdateVisibility()
+    public virtual void UpdateUI()
     {
+        OnPropertyChanged(nameof(IsDefault));
         OnPropertyChanged(nameof(ShouldBeVisible));
+        OnPropertyChanged(nameof(HasVariables));
     }
 
     public string RunFormatting()

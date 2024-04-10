@@ -71,6 +71,17 @@ public class Clip : INotifyPropertyChanged
         currentEvent = null;
     }
 
+    public ClipElement? FindElementFromVariable(ClipVariable variable)
+    {
+        var clipState = States.FirstOrDefault(clipState => clipState.Variables.Contains(variable));
+        if (clipState is not null) return clipState;
+
+        var clipEvent = Events.FirstOrDefault(clipEvent => clipEvent.Variables.Contains(variable));
+        if (clipEvent is not null) return clipEvent;
+
+        return null;
+    }
+
     #region Update
 
     public void UpdateUIBinds()

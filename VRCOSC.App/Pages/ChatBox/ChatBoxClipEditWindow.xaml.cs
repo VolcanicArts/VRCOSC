@@ -27,8 +27,8 @@ public partial class ChatBoxClipEditWindow
         set
         {
             SettingsManager.GetInstance().GetObservable(VRCOSCSetting.ShowRelevantModules).Value = value;
-            ReferenceClip.States.ForEach(clipState => clipState.UpdateVisibility());
-            ReferenceClip.Events.ForEach(clipEvent => clipEvent.UpdateVisibility());
+            ReferenceClip.States.ForEach(clipState => clipState.UpdateUI());
+            ReferenceClip.Events.ForEach(clipEvent => clipEvent.UpdateUI());
         }
     }
 
@@ -78,7 +78,7 @@ public partial class ChatBoxClipEditWindow
         ReferenceClip.LinkedModules.Remove(module.SerialisedName);
     }
 
-    private void dragSource_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    private void VariableReferenceDragSource_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
         var element = (FrameworkElement)sender;
         var variableReference = (ClipVariableReference)element.Tag;
@@ -86,13 +86,16 @@ public partial class ChatBoxClipEditWindow
         DragDrop.DoDragDrop(element, variableReference, DragDropEffects.Copy);
     }
 
-    private void dropTarget_Drop(object sender, DragEventArgs e)
+    private void VariableReference_DropTarget(object sender, DragEventArgs e)
     {
         var element = (FrameworkElement)sender;
         var clipElement = (ClipElement)element.Tag;
 
+        if (!e.Data.GetDataPresent(typeof(ClipVariableReference))) return;
+
         var variableReference = (ClipVariableReference)e.Data.GetData(typeof(ClipVariableReference));
         clipElement.Variables.Add((ClipVariable)Activator.CreateInstance(variableReference.ClipVariableType, variableReference)!);
+        clipElement.UpdateUI();
     }
 
     private const int max_lines = 9;
@@ -162,9 +165,42 @@ public partial class ChatBoxClipEditWindow
 
         var clipState = ReferenceClip.States.FirstOrDefault(clipState => clipState.Variables.Contains(variableInstance));
         clipState?.Variables.Remove(variableInstance);
+        clipState?.UpdateUI();
 
         var clipEvent = ReferenceClip.Events.FirstOrDefault(clipEvent => clipEvent.Variables.Contains(variableInstance));
         clipEvent?.Variables.Remove(variableInstance);
+        clipEvent?.UpdateUI();
+    }
+
+    private ClipVariable? draggedInstance;
+
+    private void VariableInstance_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        var variableInstance = (ClipVariable)element.Tag;
+
+        draggedInstance = variableInstance;
+        DragDrop.DoDragDrop(element, new object(), DragDropEffects.Copy);
+    }
+
+    private void VariableInstance_DropTarget(object sender, DragEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        var droppedInstance = (ClipVariable)element.Tag;
+
+        if (draggedInstance is null) return;
+
+        var draggedClipElement = ReferenceClip.FindElementFromVariable(draggedInstance)!;
+        var droppedClipElement = ReferenceClip.FindElementFromVariable(droppedInstance)!;
+
+        if (draggedClipElement != droppedClipElement) return;
+
+        var newIndex = draggedClipElement.Variables.IndexOf(droppedInstance);
+
+        draggedClipElement.Variables.Remove(draggedInstance);
+        draggedClipElement.Variables.Insert(newIndex, draggedInstance);
+
+        draggedInstance = null;
     }
 }
 
@@ -204,4 +240,15 @@ public class TextBoxParsingConverter : IValueConverter
 
         return value;
     }
+}
+
+public class BackgroundConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        var index = System.Convert.ToInt32(value);
+        return index % 2 == 0 ? Application.Current.Resources["CBackground3"] : Application.Current.Resources["CBackground2"];
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
 }
