@@ -39,6 +39,7 @@ public class ChatBoxManager
     private DateTimeOffset startTime;
 
     private Repeater? sendTask;
+    private Repeater? updateTask;
     private bool isClear;
 
     public bool SendEnabled { get; set; }
@@ -46,6 +47,8 @@ public class ChatBoxManager
     private IEnumerable<Clip> allClips => Timeline.Layers.SelectMany(layer => layer.Clips);
 
     private ClipState playingClipState;
+
+    public Visibility ShowIndicator => AppManager.GetInstance().State.Value == AppManagerState.Started ? Visibility.Visible : Visibility.Collapsed;
 
     public void AddTestClip()
     {
@@ -80,11 +83,13 @@ public class ChatBoxManager
         var sendInterval = SettingsManager.GetInstance().GetValue<int>(VRCOSCSetting.ChatBoxSendInterval);
 
         startTime = DateTimeOffset.Now;
-        sendTask = new Repeater(update);
+        sendTask = new Repeater(chatboxUpdate);
+        updateTask = new Repeater(update);
         SendEnabled = true;
         isClear = true;
 
         sendTask.Start(TimeSpan.FromMilliseconds(sendInterval));
+        updateTask.Start(TimeSpan.FromSeconds(1f / 60f));
 
         allClips.ForEach(clip => clip.Initialise());
 
@@ -99,9 +104,19 @@ public class ChatBoxManager
     public async void Stop()
     {
         await (sendTask?.StopAsync() ?? Task.CompletedTask);
+        await (updateTask?.StopAsync() ?? Task.CompletedTask);
+        sendTask = null;
+        updateTask = null;
+        clearChatBox();
     }
 
     private void update()
+    {
+        OnPropertyChanged(nameof(CurrentPercentage));
+        OnPropertyChanged(nameof(ShowIndicator));
+    }
+
+    private void chatboxUpdate()
     {
         ModuleManager.GetInstance().ChatBoxUpdate();
 
@@ -248,4 +263,11 @@ public class ChatBoxManager
     }
 
     #endregion
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
 }

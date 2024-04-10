@@ -13,6 +13,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using VRCOSC.App.ChatBox;
 using VRCOSC.App.ChatBox.Clips;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Pages.ChatBox;
 
@@ -31,6 +32,7 @@ public partial class ChatBoxPage
         SizeChanged += (_, _) => drawLines();
     }
 
+    private Border? clipBorder;
     private Clip? selectedClip;
 
     public Clip? SelectedClip
@@ -84,7 +86,8 @@ public partial class ChatBoxPage
                 X2 = x,
                 Y2 = LineCanvas.ActualHeight,
                 Stroke = significant ? (Brush)FindResource("CForeground2") : (Brush)FindResource("CBackground1"),
-                StrokeThickness = 1
+                StrokeThickness = 1,
+                Opacity = significant ? 0.5f : 1f
             };
 
             LineCanvas.Children.Add(line);
@@ -152,6 +155,8 @@ public partial class ChatBoxPage
         var clip = (Clip)clipGrid.Tag;
         e.Handled = true;
 
+        clipBorder = clipGrid.FindVisualParent<Border>("ClipBorder");
+        clipBorder!.Background = (Brush)FindResource("CBackground6");
         SelectedClip = clip;
     }
 
@@ -330,6 +335,7 @@ public partial class ChatBoxPage
         var layer = (Layer)layerElement.Tag;
         e.Handled = true;
 
+        clipBorder!.Background = (Brush)FindResource("CBackground4");
         SelectedClip = null;
 
         Console.WriteLine(ChatBoxManager.GetInstance().Timeline.Layers.IndexOf(layer));
@@ -340,6 +346,7 @@ public partial class ChatBoxPage
 
     private void Layer_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
+        clipBorder!.Background = (Brush)FindResource("CBackground4");
         SelectedClip = null;
         e.Handled = true;
     }
@@ -373,6 +380,21 @@ public enum ClipDragPoint
     Left,
     Center,
     Right
+}
+
+public class IndicatorPositionConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is float percentage)
+        {
+            return (percentage * MainWindow.GetInstance().ChatBoxPage.Timeline.ActualWidth) - 2.5f;
+        }
+
+        return 0d;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
 }
 
 public class ClipPositionConverter : IMultiValueConverter

@@ -8,7 +8,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
-using System.Windows.Media;
 using VRCOSC.App.ChatBox.Clips;
 using VRCOSC.App.ChatBox.Clips.Variables;
 using VRCOSC.App.Modules;
@@ -54,7 +53,7 @@ public partial class ChatBoxClipEditWindow
             var listViewItem = ModulesList.ItemContainerGenerator.ContainerFromIndex(index);
             var module = (Module)ModulesList.Items[index];
 
-            var isLinkedCheckBox = findVisualChild<CheckBox>(listViewItem, "IsLinkedCheckBox")!;
+            var isLinkedCheckBox = listViewItem.FindVisualChild<CheckBox>("IsLinkedCheckBox")!;
             isLinkedCheckBox.IsChecked = ReferenceClip.LinkedModules.Contains(module.SerialisedName);
         }
     }
@@ -145,22 +144,6 @@ public partial class ChatBoxClipEditWindow
         textBox.SelectionLength = 0;
 
         e.CancelCommand();
-    }
-
-    private T? findVisualChild<T>(DependencyObject parent, string name) where T : DependencyObject
-    {
-        for (var i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
-        {
-            var child = VisualTreeHelper.GetChild(parent, i);
-            if (child != null && child is T && ((FrameworkElement)child).Name == name)
-                return (T)child;
-
-            var childOfChild = findVisualChild<T>(child, name);
-            if (childOfChild != null)
-                return childOfChild;
-        }
-
-        return null;
     }
 
     private void VariableSettingButton_OnClick(object sender, RoutedEventArgs e)
