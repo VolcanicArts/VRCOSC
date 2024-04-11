@@ -167,14 +167,14 @@ public class Clip : INotifyPropertyChanged
     {
         foreach (var clipState in localStates.ToImmutableList())
         {
-            var stateValid = clipState.States.Keys.All(moduleID => ModuleManager.GetInstance().GetModuleOfID(moduleID).Enabled.Value);
+            var stateValid = clipState.States.Keys.All(moduleID => ModuleManager.GetInstance().IsModuleRunning(moduleID));
             if (!stateValid) localStates.Remove(clipState);
         }
     }
 
     private void removeLessCompoundedStates(List<ClipState> localStates)
     {
-        var enabledAndLinkedModules = LinkedModules.Where(moduleID => ModuleManager.GetInstance().GetModuleOfID(moduleID).Enabled.Value).ToList();
+        var enabledAndLinkedModules = LinkedModules.Where(moduleID => ModuleManager.GetInstance().IsModuleRunning(moduleID)).ToList();
         enabledAndLinkedModules.Sort();
 
         foreach (var clipState in localStates.ToImmutableList())
@@ -188,7 +188,7 @@ public class Clip : INotifyPropertyChanged
 
     private void removeInvalidStates(List<ClipState> localStates)
     {
-        var currentStates = LinkedModules.Where(moduleID => ModuleManager.GetInstance().GetModuleOfID(moduleID).Enabled.Value && ChatBoxManager.GetInstance().StateValues.ContainsKey(moduleID) && ChatBoxManager.GetInstance().StateValues[moduleID] is not null).Select(moduleName => ChatBoxManager.GetInstance().StateValues[moduleName]).ToList();
+        var currentStates = LinkedModules.Where(moduleID => ModuleManager.GetInstance().IsModuleRunning(moduleID) && ChatBoxManager.GetInstance().StateValues.ContainsKey(moduleID) && ChatBoxManager.GetInstance().StateValues[moduleID] is not null).Select(moduleName => ChatBoxManager.GetInstance().StateValues[moduleName]).ToList();
         currentStates.Sort();
 
         foreach (var clipState in localStates.ToImmutableList())

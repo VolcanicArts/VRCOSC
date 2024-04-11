@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -86,6 +86,8 @@ public class ModuleManager : INotifyPropertyChanged
     public Module GetModuleOfID(string moduleID) => modules.First(module => module.SerialisedName == moduleID);
 
     public IEnumerable<string> GetEnabledModuleIDs() => modules.Where(module => module.Enabled.Value).Select(module => module.SerialisedName);
+
+    public bool IsModuleRunning(string moduleID) => runningModules.Any(module => module.SerialisedName == moduleID);
 
     internal bool DoesModuleExist(string moduleID)
     {
