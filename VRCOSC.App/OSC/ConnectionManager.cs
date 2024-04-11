@@ -18,17 +18,21 @@ namespace VRCOSC.App.OSC;
 public class ConnectionManager
 {
     private const int refresh_interval = 2500;
+    private const string osc_service_name = "_osc._udp";
+    private const string osc_query_service_name = "_oscjson._tcp";
+    private const string vrchat_client_name = "VRChat-Client";
 
-    public bool IsConnected => VRChatQueryPort is not null && VRChatSendPort is not null;
+    public bool IsConnected => VRChatQueryPort is not null && VRChatReceivePort is not null;
 
-    public int? VRChatQueryPort;
-    public int? VRChatSendPort;
-    public int VRCOSCReceivePort;
+    public int? VRChatQueryPort { get; private set; }
+    public int? VRChatReceivePort { get; private set; }
+
+    public int VRCOSCQueryPort { get; private set; }
+    public int VRCOSCReceivePort { get; private set; }
 
     private MulticastService mdns = null!;
     private ServiceDiscovery serviceDiscovery = null!;
     private HttpListener queryServer = null!;
-    private int vrcoscQueryPort;
 
     private Repeater? refreshTask;
 
@@ -37,18 +41,17 @@ public class ConnectionManager
         refreshTask = new Repeater(refreshServices);
         refreshTask.Start(TimeSpan.FromMilliseconds(refresh_interval));
 
-        VRCOSCReceivePort = getAvailableUdpPort();
-        vrcoscQueryPort = getAvailableTcpPort();
+        VRCOSCReceivePort = getAvailableUDPPort();
+        VRCOSCQueryPort = getAvailableTCPPort();
         queryServer = new HttpListener();
 
-        string prefix = $"http://{IPAddress.Loopback}:{vrcoscQueryPort}/";
-        queryServer.Prefixes.Add(prefix);
+        queryServer.Prefixes.Add($"http://{IPAddress.Loopback}:{VRCOSCQueryPort}/");
         queryServer.Start();
         queryServer.BeginGetContext(httpListenerLoop, queryServer);
 
         mdns = new MulticastService
         {
-            UseIpv6 = false,
+            UseIpv6 = false
         };
 
         serviceDiscovery = new ServiceDiscovery(mdns);
@@ -56,18 +59,18 @@ public class ConnectionManager
         mdns.AnswerReceived += onRemoteServiceInfo;
         mdns.Start();
 
-        var serviceOscQ = new ServiceProfile("VRCOSC", "_oscjson._tcp", (ushort)vrcoscQueryPort, new[] { IPAddress.Loopback });
+        var serviceOscQ = new ServiceProfile(AppManager.APP_NAME, osc_query_service_name, (ushort)VRCOSCQueryPort, new[] { IPAddress.Loopback });
         serviceDiscovery.Advertise(serviceOscQ);
 
-        Logger.Log($"Listening for OSC on {VRCOSCReceivePort}");
-        Logger.Log($"Listening for OSCQ on {vrcoscQueryPort}");
+        Logger.Log($"Receiving OSC on {VRCOSCReceivePort}");
+        Logger.Log($"Hosting OSCQuery on {VRCOSCQueryPort}");
     }
 
     public void Reset()
     {
         refreshTask = null;
         VRChatQueryPort = null;
-        VRChatSendPort = null;
+        VRChatReceivePort = null;
     }
 
     #region OSCQuery Server
@@ -90,14 +93,14 @@ public class ConnectionManager
             var serialisedHostInfo = JsonConvert.SerializeObject(new HostInfo(VRCOSCReceivePort));
             context.Response.Headers.Add("pragma:no-cache");
             context.Response.ContentType = "application/json";
-            context.Response.ContentLength64 = serialisedHostInfo.Length;
 
             using var sw = new StreamWriter(context.Response.OutputStream);
             await sw.WriteAsync(serialisedHostInfo);
             await sw.FlushAsync();
         }
-        catch (Exception)
+        catch (Exception e)
         {
+            ExceptionHandler.Handle(e, "Error handling host info response");
         }
     }
 
@@ -115,7 +118,7 @@ public class ConnectionManager
             {
                 OscType = "s",
                 Access = OSCQueryNodeAccess.Write,
-                Value = new object[] { string.Empty }
+                Value = [string.Empty]
             });
 
             var stringResponse = JsonConvert.SerializeObject(rootNode, new JsonSerializerSettings
@@ -125,15 +128,15 @@ public class ConnectionManager
 
             context.Response.Headers.Add("pragma:no-cache");
             context.Response.ContentType = "application/json";
-            context.Response.ContentLength64 = stringResponse.Length;
 
             using var sw = new StreamWriter(context.Response.OutputStream);
 
             await sw.WriteAsync(stringResponse);
             await sw.FlushAsync();
         }
-        catch (Exception)
+        catch (Exception e)
         {
+            ExceptionHandler.Handle(e, "Error handling root node response");
         }
     }
 
@@ -143,20 +146,20 @@ public class ConnectionManager
     {
         if (IsConnected) return;
 
-        mdns.SendQuery("_osc._udp.local");
-        mdns.SendQuery("_oscjson._tcp.local");
+        mdns.SendQuery($"{osc_service_name}.local");
+        mdns.SendQuery($"{osc_query_service_name}.local");
     }
 
     private static readonly IPEndPoint default_loopback_endpoint = new(IPAddress.Loopback, 0);
 
-    private static int getAvailableUdpPort()
+    private static int getAvailableUDPPort()
     {
         using var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
         socket.Bind(default_loopback_endpoint);
         return ((IPEndPoint)socket.LocalEndPoint!).Port;
     }
 
-    private static int getAvailableTcpPort()
+    private static int getAvailableTCPPort()
     {
         using var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         socket.Bind(default_loopback_endpoint);
@@ -167,36 +170,42 @@ public class ConnectionManager
     {
         var response = eventArgs.Message;
 
-        if (response.Answers.All(a => !a.CanonicalName.Contains("_osc._udp") && !a.CanonicalName.Contains("_oscjson._tcp"))) return;
+        if (response.Answers.All(a => !a.CanonicalName.Contains(osc_service_name) && !a.CanonicalName.Contains(osc_query_service_name))) return;
 
         try
         {
             foreach (var record in response.AdditionalRecords.OfType<SRVRecord>())
             {
-                addMatchedService(record);
+                handleMatchedService(record);
             }
         }
         catch (Exception e)
         {
-            Logger.Log($"Could not parse answer from {eventArgs.RemoteEndPoint}: {e.Message}");
+            ExceptionHandler.Handle(e, $"Could not parse answer from {eventArgs.RemoteEndPoint}: {e.Message}");
         }
     }
 
-    private void addMatchedService(SRVRecord srvRecord)
+    private void handleMatchedService(SRVRecord srvRecord)
     {
         var port = srvRecord.Port;
         var domainName = srvRecord.Name.Labels;
         var instanceName = domainName[0];
         var serviceName = string.Join(".", domainName.Skip(1));
 
-        if (instanceName.Contains("VRChat-Client") && serviceName.Contains("_osc._udp"))
+        if (instanceName.Contains(vrchat_client_name) && serviceName.Contains(osc_service_name))
         {
-            VRChatSendPort = port;
+            if (port == VRChatReceivePort) return;
+
+            VRChatReceivePort = port;
+            Logger.Log($"Found VRChat's OSC port: {VRChatReceivePort}");
         }
 
-        if (instanceName.Contains("VRChat-Client") && serviceName.Contains("_oscjson._tcp"))
+        if (instanceName.Contains(vrchat_client_name) && serviceName.Contains(osc_query_service_name))
         {
+            if (port == VRChatQueryPort) return;
+
             VRChatQueryPort = port;
+            Logger.Log($"Found VRChat's OSCQuery port: {VRChatQueryPort}");
         }
     }
 }
