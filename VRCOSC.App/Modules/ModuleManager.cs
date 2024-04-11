@@ -24,7 +24,7 @@ namespace VRCOSC.App.Modules;
 public class ModuleManager : INotifyPropertyChanged
 {
     private static ModuleManager? instance;
-    public static ModuleManager GetInstance() => instance ??= new ModuleManager();
+    internal static ModuleManager GetInstance() => instance ??= new ModuleManager();
 
     private readonly Storage storage = AppManager.GetInstance().Storage;
 

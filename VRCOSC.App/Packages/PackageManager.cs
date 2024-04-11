@@ -22,7 +22,7 @@ namespace VRCOSC.App.Packages;
 public class PackageManager : INotifyPropertyChanged
 {
     private static PackageManager? instance;
-    public static PackageManager GetInstance() => instance ??= new PackageManager();
+    internal static PackageManager GetInstance() => instance ??= new PackageManager();
 
     private const string community_tag = "vrcosc-package";
 

@@ -34,7 +34,7 @@ public class AppManager
 #endif
 
     private static AppManager? instance;
-    public static AppManager GetInstance() => instance ??= new AppManager();
+    internal static AppManager GetInstance() => instance ??= new AppManager();
 
     public readonly Storage Storage = new NativeStorage($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}/{APP_NAME}");
 

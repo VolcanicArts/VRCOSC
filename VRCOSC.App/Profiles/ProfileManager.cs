@@ -15,7 +15,7 @@ namespace VRCOSC.App.Profiles;
 public class ProfileManager
 {
     private static ProfileManager? instance;
-    public static ProfileManager GetInstance() => instance ??= new ProfileManager();
+    internal static ProfileManager GetInstance() => instance ??= new ProfileManager();
 
     private readonly Storage storage = AppManager.GetInstance().Storage;
 
