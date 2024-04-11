@@ -32,4 +32,10 @@ public static class ExceptionHandler
 
         if (isCritical) Application.Current.Shutdown(-1);
     }
+
+    public static void Handle(string message)
+    {
+        Logger.Log($"Message: {message}");
+        MessageBox.Show(message, "VRCOSC has experienced a error", MessageBoxButton.OK, MessageBoxImage.Error);
+    }
 }

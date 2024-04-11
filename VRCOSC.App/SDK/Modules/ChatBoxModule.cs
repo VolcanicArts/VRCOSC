@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -45,6 +45,12 @@ public class ChatBoxModule : AvatarModule
 
     protected void CreateState(string lookup, string displayName, string defaultFormat = "")
     {
+        if (GetState(lookup) is not null)
+        {
+            ExceptionHandler.Handle($"[{SerialisedName}]: You cannot add the same lookup ({lookup}) for a state more than once");
+            return;
+        }
+
         ChatBoxManager.GetInstance().CreateState(new ClipStateReference
         {
             ModuleID = SerialisedName,
@@ -85,6 +91,12 @@ public class ChatBoxModule : AvatarModule
 
     protected void CreateEvent(string lookup, string displayName, string defaultFormat = "", float defaultLength = 5)
     {
+        if (GetEvent(lookup) is not null)
+        {
+            ExceptionHandler.Handle($"[{SerialisedName}]: You cannot add the same lookup ({lookup}) for an event more than once");
+            return;
+        }
+
         ChatBoxManager.GetInstance().CreateEvent(new ClipEventReference
         {
             ModuleID = SerialisedName,
@@ -182,6 +194,12 @@ public class ChatBoxModule : AvatarModule
     /// <typeparam name="T">The type of this variable's value</typeparam>
     protected void CreateVariable<T>(string lookup, string displayName, Type clipVariableType)
     {
+        if (GetVariable(lookup) is not null)
+        {
+            ExceptionHandler.Handle($"[{SerialisedName}]: You cannot add the same lookup ({lookup}) for a variable more than once");
+            return;
+        }
+
         ChatBoxManager.GetInstance().CreateVariable(new ClipVariableReference
         {
             ModuleID = SerialisedName,
