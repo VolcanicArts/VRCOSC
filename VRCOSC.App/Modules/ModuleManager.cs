@@ -157,7 +157,8 @@ public class ModuleManager : INotifyPropertyChanged
                 }
                 catch (Exception e)
                 {
-                    Logger.Error(e, $"{module.SerialisedName} failed to load");
+                    // TODO: Instead of handling by showing an exception, these should be collated into a single window that says "modules might need an update, blah blah?"
+                    ExceptionHandler.Handle(e, $"{module.SerialisedName} failed to load");
                 }
             });
 
@@ -165,7 +166,7 @@ public class ModuleManager : INotifyPropertyChanged
         }
         catch (Exception e)
         {
-            Logger.Error(e, $"{nameof(ModuleManager)} has experienced an exception");
+            ExceptionHandler.Handle(e, $"{nameof(ModuleManager)} has experienced an exception");
         }
     }
 
@@ -248,7 +249,7 @@ public class ModuleManager : INotifyPropertyChanged
         }
         catch (Exception e)
         {
-            Logger.Error(e, "Error in ModuleManager");
+            ExceptionHandler.Handle(e, $"Error in {nameof(ModuleManager)}");
         }
 
         return moduleInstanceList;
@@ -290,7 +291,7 @@ public class ModuleManager : INotifyPropertyChanged
         }
         catch (Exception e)
         {
-            Logger.Error(e, "ModuleManager experienced an exception");
+            ExceptionHandler.Handle(e, $"{nameof(ModuleManager)} experienced an exception");
         }
     }
 
@@ -302,7 +303,7 @@ public class ModuleManager : INotifyPropertyChanged
         }
         catch (Exception e)
         {
-            Logger.Error(e, "ModuleManager experienced an exception");
+            ExceptionHandler.Handle(e, $"{nameof(ModuleManager)} experienced an exception");
         }
     }
 

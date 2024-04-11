@@ -9,9 +9,9 @@ namespace VRCOSC.App.Utils;
 
 public static class ExceptionHandler
 {
-    public static void Handle(Exception e, string message = "")
+    public static void Handle(Exception e, string message = "", bool isCritical = false)
     {
-        Logger.Error(e, message);
+        Logger.Error(e, message, LoggingTarget.Runtime, true);
 
         var sb = new StringBuilder();
 
@@ -28,6 +28,8 @@ public static class ExceptionHandler
         sb.AppendLine(e.GetType().FullName);
         sb.AppendLine(e.StackTrace);
 
-        MessageBox.Show(sb.ToString(), "VRCOSC has experienced an exception", MessageBoxButton.OK, MessageBoxImage.Error);
+        MessageBox.Show(sb.ToString(), $"VRCOSC has experienced a {(isCritical ? "critical" : "non-critical")} exception", MessageBoxButton.OK, MessageBoxImage.Error);
+
+        if (isCritical) Application.Current.Shutdown(-1);
     }
 }

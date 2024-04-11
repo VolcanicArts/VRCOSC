@@ -9,6 +9,6 @@ public partial class MainApp
     {
         InitializeComponent();
 
-        AppDomain.CurrentDomain.UnhandledException += (_, e) => Logger.Error((Exception)e.ExceptionObject, "An unhandled error has occured");
+        AppDomain.CurrentDomain.UnhandledException += (_, e) => ExceptionHandler.Handle((Exception)e.ExceptionObject, "An unhandled exception has occured", true);
     }
 }

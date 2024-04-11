@@ -84,7 +84,7 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
         }
         catch (Exception e)
         {
-            Logger.Error(e, GetType().Name);
+            ExceptionHandler.Handle(e, $"{GetType().Name} experienced an issue");
             return DeserialisationResult.GenericError;
         }
     }
@@ -105,7 +105,7 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
         }
         catch (Exception e)
         {
-            Logger.Error(e, GetType().Name);
+            ExceptionHandler.Handle(e, $"{GetType().Name} experienced an issue");
             return SerialisationResult.GenericError;
         }
     }

@@ -96,7 +96,7 @@ public class WeatherProvider
         }
         catch (Exception e)
         {
-            Logger.Error(e, $"{nameof(WeatherProvider)} experienced an issue");
+            ExceptionHandler.Handle(e, $"{nameof(WeatherProvider)} experienced an issue");
             weather = null;
         }
 
@@ -131,7 +131,7 @@ public class WeatherProvider
         }
         catch (Exception e)
         {
-            Logger.Error(e, $"{nameof(WeatherProvider)} experienced an issue");
+            ExceptionHandler.Handle(e, $"{nameof(WeatherProvider)} experienced an issue");
             conditions = null;
         }
     }

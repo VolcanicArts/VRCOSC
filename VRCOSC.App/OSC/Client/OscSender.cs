@@ -29,7 +29,7 @@ public class OscSender
         }
         catch (Exception e)
         {
-            Logger.Error(e, $"{nameof(OscSender)} experienced an exception");
+            ExceptionHandler.Handle(e, $"{nameof(OscSender)} experienced an exception");
             return false;
         }
     }

@@ -39,7 +39,7 @@ public class OscReceiver
         }
         catch (Exception e)
         {
-            Logger.Error(e, $"{nameof(OscReceiver)} experienced an exception");
+            ExceptionHandler.Handle(e, $"{nameof(OscReceiver)} experienced an exception");
             return false;
         }
     }

@@ -288,7 +288,7 @@ public class AppManager
         }
         catch (Exception e)
         {
-            Logger.Error(e, $"{nameof(AppManager)} experienced an exception");
+            ExceptionHandler.Handle(e, $"{nameof(AppManager)} experienced an exception", true);
         }
     }
 
