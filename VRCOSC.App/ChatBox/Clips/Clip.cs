@@ -30,8 +30,8 @@ public class Clip : INotifyPropertyChanged
                                                     .ThenBy(state => string.Join(",", state.States.Keys.OrderBy(k => k)))
                                                     .ThenBy(state => string.Join(",", state.States.Values.OrderBy(v => v)));
 
-    public IEnumerable<ClipEvent> UIEvents => Events.OrderBy(clipEvent => clipEvent.ModuleID)
-                                                    .ThenBy(clipEvent => clipEvent.EventID);
+    public IEnumerable<ClipEvent> UIEvents => Events.OrderByDescending(clipEvent => clipEvent.ModuleID)
+                                                    .ThenByDescending(clipEvent => clipEvent.EventID);
 
     public Dictionary<string, List<ClipVariableReference>> UIVariables
     {
