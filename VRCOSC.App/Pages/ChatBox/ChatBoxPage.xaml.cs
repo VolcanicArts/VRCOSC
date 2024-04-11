@@ -335,7 +335,9 @@ public partial class ChatBoxPage
         var layer = (Layer)layerElement.Tag;
         e.Handled = true;
 
-        clipBorder!.Background = (Brush)FindResource("CBackground4");
+        if (clipBorder is not null)
+            clipBorder.Background = (Brush)FindResource("CBackground4");
+
         SelectedClip = null;
 
         Console.WriteLine(ChatBoxManager.GetInstance().Timeline.Layers.IndexOf(layer));

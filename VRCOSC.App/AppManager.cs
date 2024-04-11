@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -42,14 +42,14 @@ public class AppManager
 
     private readonly Dictionary<PageLookup, IVRCOSCPage> pageInstances = new();
 
-    public ConnectionManager ConnectionManager;
-    public VRChatOscClient VRChatOscClient;
-    public VRChatClient VRChatClient;
-    public OVRClient OVRClient;
+    public ConnectionManager ConnectionManager = null!;
+    public VRChatOscClient VRChatOscClient = null!;
+    public VRChatClient VRChatClient = null!;
+    public OVRClient OVRClient = null!;
 
     private Repeater? updateTask;
-    private Repeater vrchatCheckTask;
-    private Repeater openvrCheckTask;
+    private Repeater vrchatCheckTask = null!;
+    private Repeater openvrCheckTask = null!;
 
     private readonly Queue<VRChatOscMessage> oscMessageQueue = new();
     private readonly object oscMessageQueueLock = new();

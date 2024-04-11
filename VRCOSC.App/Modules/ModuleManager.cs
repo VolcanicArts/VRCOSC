@@ -1,8 +1,7 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -81,7 +80,7 @@ public class ModuleManager : INotifyPropertyChanged
 
     #region Management
 
-    public IEnumerable GetModulesOfType<T>() => modules.Where(module => module.GetType().IsAssignableTo(typeof(T)));
+    public IEnumerable<ChatBoxModule> GetModulesOfType<T>() => modules.Where(module => module.GetType().IsAssignableTo(typeof(T))).Select(module => (ChatBoxModule)module);
 
     public Module GetModuleOfID(string moduleID) => modules.First(module => module.SerialisedName == moduleID);
 

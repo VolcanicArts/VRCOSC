@@ -4,8 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Windows;
 using VRCOSC.App.ChatBox.Clips;
 using VRCOSC.App.ChatBox.Clips.Variables;
 using VRCOSC.App.Modules;
@@ -15,7 +18,7 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.ChatBox;
 
-public class ChatBoxManager
+public class ChatBoxManager : INotifyPropertyChanged
 {
     private static ChatBoxManager? instance;
     internal static ChatBoxManager GetInstance() => instance ??= new ChatBoxManager();
