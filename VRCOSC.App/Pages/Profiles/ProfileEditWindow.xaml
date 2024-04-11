@@ -6,9 +6,8 @@
         xmlns:local="clr-namespace:VRCOSC.App.Pages.Profiles"
         xmlns:ui="clr-namespace:VRCOSC.App.UI"
         xmlns:fa5="http://schemas.fontawesome.com/icons/"
-        xmlns:utils="clr-namespace:VRCOSC.App.Utils"
         mc:Ignorable="d"
-        Height="900" Width="1600"
+        Width="1366" Height="768" MinWidth="1200" MinHeight="540"
         PreviewMouseDown="ProfileEditWindow_OnPreviewMouseDown"
         Closing="ProfileEditWindow_OnClosing">
     <Window.Resources>
