@@ -24,7 +24,7 @@ public class SerialisableModulePersistence
 
     public SerialisableModulePersistence(Module reference)
     {
-        Version = 2;
+        Version = 1;
 
         reference.PersistentProperties.ForEach(pair =>
         {

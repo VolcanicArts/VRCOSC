@@ -16,17 +16,17 @@ public class ModuleParameter : ModuleAttribute
 
     private readonly string defaultName;
 
-    internal override void Load()
+    public override void Load()
     {
         Name = new Observable<string>(defaultName);
         Name.Subscribe(_ => RequestSerialisation?.Invoke());
     }
 
-    internal override bool IsDefault() => Name.IsDefault;
-    internal override void SetDefault() => Name.SetDefault();
-    internal override object GetRawValue() => Name.Value;
+    public override bool IsDefault() => Name.IsDefault;
+    public override void SetDefault() => Name.SetDefault();
+    public override object GetRawValue() => Name.Value;
 
-    internal override bool Deserialise(object ingestValue)
+    public override bool Deserialise(object ingestValue)
     {
         if (ingestValue is not string stringIngestValue) return false;
 

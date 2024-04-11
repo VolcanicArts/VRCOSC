@@ -15,32 +15,32 @@ public abstract class ModuleAttribute
     /// <summary>
     /// Initialises this <see cref="ModuleAttribute"/>
     /// </summary>
-    internal abstract void Load();
+    public abstract void Load();
 
     /// <summary>
     /// Resets this <see cref="ModuleAttribute"/>'s value to its default value
     /// </summary>
-    internal abstract void SetDefault();
+    public abstract void SetDefault();
 
     /// <summary>
     /// If this <see cref="ModuleAttribute"/>'s value is currently the default value
     /// </summary>
     /// <returns></returns>
-    internal abstract bool IsDefault();
+    public abstract bool IsDefault();
 
     /// <summary>
     /// Attempts to deserialise an object into this <see cref="ModuleAttribute"/>'s value's type
     /// </summary>
     /// <param name="ingestValue">The value to attempt to deserialise</param>
     /// <returns>True if the deserialisation was successful, otherwise false</returns>
-    internal abstract bool Deserialise(object ingestValue);
+    public abstract bool Deserialise(object ingestValue);
 
     /// <summary>
     /// Retrieves the value for this <see cref="ModuleAttribute"/> using a provided expected type
     /// </summary>
     /// <typeparam name="TValueType">The type to attempt to convert the value to</typeparam>
     /// <returns>True if the value was converted successfully, otherwise false</returns>
-    internal virtual bool GetValue<TValueType>(out TValueType? outValue)
+    public virtual bool GetValue<TValueType>(out TValueType? outValue)
     {
         var value = GetRawValue();
 
@@ -57,12 +57,12 @@ public abstract class ModuleAttribute
     /// <summary>
     /// Retrieves the unknown raw typed value for this <see cref="ModuleAttribute"/>.
     /// </summary>
-    internal abstract object GetRawValue();
+    public abstract object GetRawValue();
 
     /// <summary>
     /// Call to request serialisation of this <see cref="ModuleAttribute"/>
     /// </summary>
-    internal Action? RequestSerialisation;
+    public Action? RequestSerialisation;
 
     protected ModuleAttribute(ModuleAttributeMetadata metadata)
     {

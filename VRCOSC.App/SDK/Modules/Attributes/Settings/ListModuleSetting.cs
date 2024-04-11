@@ -24,17 +24,17 @@ public abstract class ListModuleSetting<T> : ModuleSetting
     public ObservableCollection<T> Attribute { get; private set; } = null!;
     protected readonly IEnumerable<T> DefaultValues;
 
-    internal override object GetRawValue() => Attribute.ToList();
+    public override object GetRawValue() => Attribute.ToList();
 
-    internal override void Load()
+    public override void Load()
     {
         Attribute = new ObservableCollection<T>(getClonedDefaults());
         Attribute.CollectionChanged += (_, _) => RequestSerialisation?.Invoke();
     }
 
-    internal override bool IsDefault() => Attribute.SequenceEqual(DefaultValues);
+    public override bool IsDefault() => Attribute.SequenceEqual(DefaultValues);
 
-    internal override void SetDefault()
+    public override void SetDefault()
     {
         Attribute.Clear();
         getClonedDefaults().ForEach(item => Attribute.Add(item));
@@ -49,7 +49,7 @@ public abstract class ListModuleSetting<T> : ModuleSetting
     internal void AddItem() => Attribute.Add(CreateNewItem());
     protected abstract T CreateNewItem();
 
-    internal override bool Deserialise(object value)
+    public override bool Deserialise(object value)
     {
         Attribute.Clear();
         jArrayToEnumerable((JArray)value).ForEach(item => Attribute.Add(item));
@@ -66,10 +66,10 @@ public abstract class ListModuleSetting<T> : ModuleSetting
 
 public abstract class ValueListModuleSetting<T> : ListModuleSetting<Observable<T>>
 {
-    internal override object GetRawValue() => Attribute.Select(observable => observable.Value).ToList();
-    internal override bool IsDefault() => Attribute.Select(observable => observable.Value).SequenceEqual(DefaultValues.Select(defaultObservable => defaultObservable.Value));
+    public override object GetRawValue() => Attribute.Select(observable => observable.Value).ToList();
+    public override bool IsDefault() => Attribute.Select(observable => observable.Value).SequenceEqual(DefaultValues.Select(defaultObservable => defaultObservable.Value));
 
-    internal override void Load()
+    public override void Load()
     {
         base.Load();
 

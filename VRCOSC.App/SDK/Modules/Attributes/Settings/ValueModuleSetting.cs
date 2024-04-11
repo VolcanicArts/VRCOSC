@@ -17,16 +17,16 @@ public abstract class ValueModuleSetting<T> : ModuleSetting
 
     protected abstract Observable<T> CreateObservable();
 
-    internal override void Load()
+    public override void Load()
     {
         Attribute = CreateObservable();
         Attribute.Subscribe(_ => RequestSerialisation?.Invoke());
     }
 
-    internal override bool IsDefault() => Attribute.IsDefault;
-    internal override void SetDefault() => Attribute.SetDefault();
+    public override bool IsDefault() => Attribute.IsDefault;
+    public override void SetDefault() => Attribute.SetDefault();
 
-    internal override object GetRawValue() => Attribute.Value!;
+    public override object GetRawValue() => Attribute.Value!;
 
     protected ValueModuleSetting(ModuleSettingMetadata metadata, T defaultValue)
         : base(metadata)
@@ -39,7 +39,7 @@ public class BoolModuleSetting : ValueModuleSetting<bool>
 {
     protected override Observable<bool> CreateObservable() => new(DefaultValue);
 
-    internal override bool Deserialise(object ingestValue)
+    public override bool Deserialise(object ingestValue)
     {
         if (ingestValue is not bool boolIngestValue) return false;
 
@@ -57,7 +57,7 @@ public class StringModuleSetting : ValueModuleSetting<string>
 {
     protected override Observable<string> CreateObservable() => new(DefaultValue);
 
-    internal override bool Deserialise(object ingestValue)
+    public override bool Deserialise(object ingestValue)
     {
         if (ingestValue is not string stringIngestValue) return false;
 
@@ -75,7 +75,7 @@ public class IntModuleSetting : ValueModuleSetting<int>
 {
     protected override Observable<int> CreateObservable() => new(DefaultValue);
 
-    internal override bool Deserialise(object ingestValue)
+    public override bool Deserialise(object ingestValue)
     {
         if (ingestValue is not long intIngestValue) return false;
 
@@ -93,7 +93,7 @@ public class EnumModuleSetting : ValueModuleSetting<int>
 {
     protected override Observable<int> CreateObservable() => new(DefaultValue);
 
-    internal override bool Deserialise(object ingestValue)
+    public override bool Deserialise(object ingestValue)
     {
         if (ingestValue is not long intIngestValue) return false;
 
@@ -101,7 +101,7 @@ public class EnumModuleSetting : ValueModuleSetting<int>
         return true;
     }
 
-    internal override bool GetValue<TValueType>(out TValueType? outValue) where TValueType : default
+    public override bool GetValue<TValueType>(out TValueType? outValue) where TValueType : default
     {
         if (typeof(TValueType) == EnumType)
         {
@@ -132,7 +132,7 @@ public class SliderModuleSetting : ValueModuleSetting<float>
 
     protected override Observable<float> CreateObservable() => new(DefaultValue);
 
-    internal override bool Deserialise(object ingestValue)
+    public override bool Deserialise(object ingestValue)
     {
         if (ingestValue is not double floatIngestValue) return false;
 
@@ -140,7 +140,7 @@ public class SliderModuleSetting : ValueModuleSetting<float>
         return true;
     }
 
-    internal override bool GetValue<TValueType>(out TValueType? outValue) where TValueType : default
+    public override bool GetValue<TValueType>(out TValueType? outValue) where TValueType : default
     {
         var value = GetRawValue();
 
