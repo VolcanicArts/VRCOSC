@@ -112,10 +112,10 @@ public partial class ChatBoxClipEditWindow
             var textBox = (sender as TextBox)!;
             var selectionStart = textBox.SelectionLength == 0 ? textBox.CaretIndex : textBox.SelectionStart;
 
-            if (textBox.Text.Split(Environment.NewLine).Length < max_lines)
+            if (textBox.Text.Split("\n").Length < max_lines)
             {
-                textBox.Text = textBox.Text.Insert(selectionStart, Environment.NewLine);
-                textBox.SelectionStart = selectionStart + Environment.NewLine.Length;
+                textBox.Text = textBox.Text.Insert(selectionStart, "\n");
+                textBox.SelectionStart = selectionStart + "\n".Length;
                 textBox.SelectionLength = 0;
             }
 
@@ -133,17 +133,17 @@ public partial class ChatBoxClipEditWindow
 
         var pastedText = e.DataObject.GetData(DataFormats.UnicodeText) as string ?? string.Empty;
 
-        var newlineCount = pastedText.Split([Environment.NewLine], StringSplitOptions.None).Length - 1;
+        var newlineCount = pastedText.Split(["\n"], StringSplitOptions.None).Length - 1;
         var currentLineCount = textBox.LineCount;
 
         var selectedText = textBox.Text.Substring(selectionStart, selectionLength);
-        var selectedLineCount = selectedText.Split([Environment.NewLine], StringSplitOptions.None).Length;
+        var selectedLineCount = selectedText.Split(["\n"], StringSplitOptions.None).Length;
 
         var remainingLines = Math.Max(max_lines - (currentLineCount - selectedLineCount), 0);
         var linesToAdd = Math.Min(remainingLines, newlineCount + 1);
-        var lines = pastedText.Split([Environment.NewLine], StringSplitOptions.None);
+        var lines = pastedText.Split(["\n"], StringSplitOptions.None);
 
-        var newTextToAdd = string.Join(Environment.NewLine, lines.Take(linesToAdd));
+        var newTextToAdd = string.Join("\n", lines.Take(linesToAdd));
         var newText = textBox.Text.Remove(selectionStart, selectionLength).Insert(selectionStart, newTextToAdd);
 
         textBox.Text = newText;
