@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.IO;
 using Newtonsoft.Json;
 using VRCOSC.App.Profiles;
@@ -27,11 +28,18 @@ public class ModulePersistenceSerialiser : ProfiledSerialiser<Module, Serialisab
     {
         data.Properties.ForEach(propertyData =>
         {
-            if (!Reference.TryGetPersistentProperty(propertyData.Key, out var propertyInfo)) return;
+            try
+            {
+                if (!Reference.TryGetPersistentProperty(propertyData.Key, out var propertyInfo)) return;
 
-            var targetType = propertyInfo.PropertyType;
-            var propertyValue = JsonConvert.DeserializeObject(propertyData.Value.ToString(), targetType);
-            propertyInfo.SetValue(Reference, propertyValue);
+                var targetType = propertyInfo.PropertyType;
+                var propertyValue = JsonConvert.DeserializeObject(propertyData.Value.ToString(), targetType);
+                propertyInfo.SetValue(Reference, propertyValue);
+            }
+            catch (Exception)
+            {
+                // probably fine to ignore since it's corrupted anyway
+            }
         });
 
         return false;
