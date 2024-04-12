@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using Newtonsoft.Json;
 
 namespace VRCOSC.App.ChatBox.Clips.Variables.Instances;
 
@@ -13,8 +12,7 @@ public class TimeSpanClipVariable : ClipVariable
     {
     }
 
-    [ClipVariableOption("Time Format")]
-    [JsonProperty("time_format")]
+    [ClipVariableOption("Time Format", "time_format")]
     public string TimeFormat { get; set; } = string.Empty;
 
     protected override string Format(object value)

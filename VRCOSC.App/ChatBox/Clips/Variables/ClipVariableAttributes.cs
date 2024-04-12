@@ -8,9 +8,11 @@ namespace VRCOSC.App.ChatBox.Clips.Variables;
 public class ClipVariableOptionAttribute : Attribute
 {
     public string DisplayName { get; }
+    public string SerialisedName { get; }
 
-    public ClipVariableOptionAttribute(string displayName)
+    public ClipVariableOptionAttribute(string displayName, string serialisedName)
     {
         DisplayName = displayName;
+        SerialisedName = serialisedName;
     }
 }

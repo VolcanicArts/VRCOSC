@@ -49,9 +49,6 @@ public class Clip : INotifyPropertyChanged
 
     public Clip()
     {
-        // TODO: This will go AFTER deserialistion
-        LinkedModules.CollectionChanged += linkedModulesOnCollectionChanged;
-
         ChatBoxManager.GetInstance().Timeline.Length.Subscribe(_ =>
         {
             if (ChatBoxManager.GetInstance().Timeline.LengthSeconds <= Start.Value)
@@ -64,7 +61,12 @@ public class Clip : INotifyPropertyChanged
         });
     }
 
-    public void Initialise()
+    public void Init()
+    {
+        LinkedModules.CollectionChanged += linkedModulesOnCollectionChanged;
+    }
+
+    public void ChatBoxStart()
     {
         eventQueue.Clear();
         currentState = null;
@@ -259,7 +261,12 @@ public class Clip : INotifyPropertyChanged
             {
                 var innerStatesCopy = statesCopy.Select(clipState => clipState.Clone()).ToList();
 
-                innerStatesCopy.ForEach(innerClipStateCopy => innerClipStateCopy.States.Add(stateReference.ModuleID, stateReference.StateID));
+                innerStatesCopy.ForEach(innerClipStateCopy =>
+                {
+                    Console.WriteLine("Trying to add " + stateReference.ModuleID + " - " + stateReference.StateID);
+                    innerClipStateCopy.States.ForEach(pair => Console.WriteLine(pair.Key + " - " + pair.Value));
+                    innerClipStateCopy.States.Add(stateReference.ModuleID, stateReference.StateID);
+                });
 
                 States.AddRange(innerStatesCopy);
                 States.Add(new ClipState(stateReference));

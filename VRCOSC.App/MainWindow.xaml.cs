@@ -79,6 +79,7 @@ public partial class MainWindow
         loadingAction.AddAction(new DynamicProgressAction("Loading profiles", () => ProfileManager.GetInstance().Load()));
         loadingAction.AddAction(PackageManager.GetInstance().Load());
         loadingAction.AddAction(new DynamicProgressAction("Loading modules", () => ModuleManager.GetInstance().LoadAllModules()));
+        loadingAction.AddAction(new DynamicProgressAction("Loading chatbox", () => ChatBoxManager.GetInstance().Load()));
         //loadingAction.AddAction(new DynamicProgressAction("Loading routes", () => appManager.RouterManager.Load()));
 
         loadingAction.OnComplete += () =>
@@ -88,8 +89,6 @@ public partial class MainWindow
                 fadeIn(MainWindowContent, 500);
                 fadeOut(LoadingOverlay, 500);
             });
-
-            ChatBoxManager.GetInstance().AddTestClip();
         };
 
         await ShowLoadingOverlay("Welcome to VRCOSC", loadingAction);
@@ -162,6 +161,9 @@ public partial class MainWindow
         {
             appManager.CancelStartRequest();
         }
+
+        // TODO: Change from here eventually
+        ChatBoxManager.GetInstance().Serialise();
     }
 
     private void MainWindow_OnClosed(object? sender, EventArgs e)
@@ -172,9 +174,9 @@ public partial class MainWindow
         }
     }
 
-    public async Task ShowLoadingOverlay(string title, ProgressAction progressAction)
+    public async Task ShowLoadingOverlay(string title, ProgressAction progressAction) => await Dispatcher.Invoke(async () =>
     {
-        Dispatcher.Invoke(() => LoadingTitle.Text = title);
+        LoadingTitle.Text = title;
 
         progressAction.OnComplete += HideLoadingOverlay;
 
@@ -200,7 +202,7 @@ public partial class MainWindow
         fadeIn(LoadingOverlay, 150);
 
         await progressAction.Execute();
-    }
+    });
 
     public void HideLoadingOverlay() => fadeOut(LoadingOverlay, 150);
 

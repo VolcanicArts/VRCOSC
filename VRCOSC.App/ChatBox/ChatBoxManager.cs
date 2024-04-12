@@ -11,8 +11,11 @@ using System.Threading.Tasks;
 using System.Windows;
 using VRCOSC.App.ChatBox.Clips;
 using VRCOSC.App.ChatBox.Clips.Variables;
+using VRCOSC.App.ChatBox.Serialisation;
 using VRCOSC.App.Modules;
 using VRCOSC.App.OSC.VRChat;
+using VRCOSC.App.Profiles;
+using VRCOSC.App.Serialisation;
 using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;
 
@@ -53,32 +56,30 @@ public class ChatBoxManager : INotifyPropertyChanged
 
     public Visibility ShowIndicator => AppManager.GetInstance().State.Value == AppManagerState.Started ? Visibility.Visible : Visibility.Collapsed;
 
-    public void AddTestClip()
+    private SerialisationManager serialisationManager;
+
+    public ChatBoxManager()
     {
-        var mediaClip = new Clip
-        {
-            Name = { Value = "Media" },
-            Start = { Value = 0 },
-            End = { Value = 60 }
-        };
+        serialisationManager = new SerialisationManager();
+        serialisationManager.RegisterSerialiser(1, new ChatBoxSerialiser(AppManager.GetInstance().Storage, this, ProfileManager.GetInstance().ActiveProfile));
+    }
 
-        var timeRef = VariableReferences.First(reference => reference.ModuleID == "local.mediamodule" && reference.VariableID == "time");
-        var durationRef = VariableReferences.First(reference => reference.ModuleID == "local.mediamodule" && reference.VariableID == "duration");
-        var artistRef = VariableReferences.First(reference => reference.ModuleID == "local.mediamodule" && reference.VariableID == "artist");
-        var titleRef = VariableReferences.First(reference => reference.ModuleID == "local.mediamodule" && reference.VariableID == "title");
-        var progressVisualRef = VariableReferences.First(reference => reference.ModuleID == "local.mediamodule" && reference.VariableID == "progressvisual");
+    public void Load()
+    {
+        Deserialise();
 
-        mediaClip.LinkedModules.Add("local.mediamodule");
-        playingClipState = mediaClip.States.First(clipState => clipState.States["local.mediamodule"] == "playing");
-        playingClipState.Enabled.Value = true;
-        playingClipState.Format.Value = "[{0}/{1}]\n{2} - {3}\n{4}";
-        playingClipState.Variables.Add((ClipVariable)Activator.CreateInstance(timeRef.ClipVariableType, timeRef)!);
-        playingClipState.Variables.Add((ClipVariable)Activator.CreateInstance(durationRef.ClipVariableType, durationRef)!);
-        playingClipState.Variables.Add((ClipVariable)Activator.CreateInstance(artistRef.ClipVariableType, artistRef)!);
-        playingClipState.Variables.Add((ClipVariable)Activator.CreateInstance(titleRef.ClipVariableType, titleRef)!);
-        playingClipState.Variables.Add((ClipVariable)Activator.CreateInstance(progressVisualRef.ClipVariableType, progressVisualRef)!);
+        Timeline.Layers.ForEach(layer => layer.Init());
+    }
 
-        Timeline.Layers[0].Clips.Add(mediaClip);
+    public void Serialise()
+    {
+        serialisationManager.Serialise();
+    }
+
+    public void Deserialise()
+    {
+        Timeline.Layers.ForEach(layer => layer.Clips.Clear());
+        serialisationManager.Deserialise();
     }
 
     public void Start()
@@ -94,7 +95,7 @@ public class ChatBoxManager : INotifyPropertyChanged
         sendTask.Start(TimeSpan.FromMilliseconds(sendInterval));
         updateTask.Start(TimeSpan.FromSeconds(1f / 60f));
 
-        allClips.ForEach(clip => clip.Initialise());
+        allClips.ForEach(clip => clip.ChatBoxStart());
 
         foreach (var pair in StateValues)
         {

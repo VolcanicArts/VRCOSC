@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Globalization;
-using Newtonsoft.Json;
 
 namespace VRCOSC.App.ChatBox.Clips.Variables.Instances;
 
@@ -13,8 +12,7 @@ public class FloatClipVariable : ClipVariable
     {
     }
 
-    [ClipVariableOption("Float Format")]
-    [JsonProperty("float_format")]
+    [ClipVariableOption("Float Format", "float_format")]
     public string FloatFormat { get; set; } = string.Empty;
 
     protected override string Format(object value)

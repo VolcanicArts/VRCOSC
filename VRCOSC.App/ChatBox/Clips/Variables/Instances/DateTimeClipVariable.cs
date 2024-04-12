@@ -3,7 +3,6 @@
 
 using System;
 using System.Globalization;
-using Newtonsoft.Json;
 
 namespace VRCOSC.App.ChatBox.Clips.Variables.Instances;
 
@@ -14,8 +13,7 @@ public class DateTimeClipVariable : ClipVariable
     {
     }
 
-    [ClipVariableOption("Date/Time Format")]
-    [JsonProperty("datetime_format")]
+    [ClipVariableOption("Date/Time Format", "datetime_format")]
     public string DateTimeFormat { get; set; } = string.Empty;
 
     protected override string Format(object value)

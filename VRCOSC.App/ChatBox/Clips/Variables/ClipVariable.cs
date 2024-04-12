@@ -29,28 +29,22 @@ public abstract class ClipVariable
         VariableID = reference.VariableID;
     }
 
-    [ClipVariableOption("Case Mode")]
-    [JsonProperty("case_mode")]
+    [ClipVariableOption("Case Mode", "case_mode")]
     public ClipVariableCaseMode CaseMode { get; set; } = ClipVariableCaseMode.Default;
 
-    [ClipVariableOption("Truncate Length")]
-    [JsonProperty("truncate_length")]
+    [ClipVariableOption("Truncate Length", "truncate_length")]
     public int TruncateLength { get; set; } = -1;
 
-    [ClipVariableOption("Include Ellipses")]
-    [JsonProperty("include_ellipses")]
+    [ClipVariableOption("Include Ellipses", "include_ellipses")]
     public bool IncludeEllipses { get; set; }
 
-    [ClipVariableOption("Scroll Direction")]
-    [JsonProperty("scroll_direction")]
+    [ClipVariableOption("Scroll Direction", "scroll_direction")]
     public ClipVariableScrollDirection ScrollDirection { get; set; } = ClipVariableScrollDirection.Left;
 
-    [ClipVariableOption("Scroll Speed")]
-    [JsonProperty("scroll_speed")]
+    [ClipVariableOption("Scroll Speed", "scroll_speed")]
     public int ScrollSpeed { get; set; }
 
-    [ClipVariableOption("Join String")]
-    [JsonProperty("join_string")]
+    [ClipVariableOption("Join String", "join_string")]
     public string JoinString { get; set; }
 
     private int currentIndex;

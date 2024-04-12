@@ -1,8 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using Newtonsoft.Json;
-
 namespace VRCOSC.App.ChatBox.Clips.Variables.Instances;
 
 public class BoolClipVariable : ClipVariable
@@ -12,8 +10,7 @@ public class BoolClipVariable : ClipVariable
     {
     }
 
-    [ClipVariableOption("Format As String")]
-    [JsonProperty("format_as_string")]
+    [ClipVariableOption("Format As String", "format_as_string")]
     public bool FormatAsString { get; set; }
 
     protected override string Format(object value)

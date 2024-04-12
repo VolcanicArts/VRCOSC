@@ -12,9 +12,10 @@ namespace VRCOSC.App.ChatBox.Clips;
 
 public class ClipEvent : ClipElement
 {
-    public string ModuleID { get; } = null!;
-    public string EventID { get; } = null!;
+    public string ModuleID { get; init; } = null!;
+    public string EventID { get; init; } = null!;
 
+    // TODO: Convert to TimeSpan?
     public Observable<float> Length = new();
 
     public override string DisplayName
