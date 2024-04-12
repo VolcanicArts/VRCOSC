@@ -75,7 +75,7 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
         CreateVariable<int>(HeartrateVariable.Average, "Average");
 
         CreateState(HeartrateState.Connected, "Connected", "Heartrate: {0}", new[] { currentReference });
-        CreateState(HeartrateState.Disconnected, "Disconnected", "DKSDHFGIUEDAHGUFEAOF");
+        CreateState(HeartrateState.Disconnected, "Disconnected", string.Empty);
 
         GetSetting(HeartrateSetting.SmoothValueLength)!.IsEnabled = () => GetSettingValue<bool>(HeartrateSetting.SmoothValue);
         GetSetting(HeartrateSetting.SmoothAverageLength)!.IsEnabled = () => GetSettingValue<bool>(HeartrateSetting.SmoothAverage);
