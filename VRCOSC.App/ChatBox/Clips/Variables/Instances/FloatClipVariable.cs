@@ -19,7 +19,7 @@ public class FloatClipVariable : ClipVariable
     {
         if (string.IsNullOrEmpty(FloatFormat))
         {
-            return ((float)value).ToString(CultureInfo.CurrentCulture);
+            return ((float)value).ToString("F1", CultureInfo.CurrentCulture);
         }
         else
         {

@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -17,7 +17,7 @@ public class ClipVariableReference
 
     internal Observable<object?> Value = new();
 
-    public void SetValue<T>(T value)
+    internal void SetValue<T>(T value)
     {
         if (typeof(T) != ValueType)
             throw new InvalidOperationException($"The provided value type `{typeof(T).Name}` doesn't match the expected value type `{ValueType.Name}` for variable {ModuleID} - {VariableID}");

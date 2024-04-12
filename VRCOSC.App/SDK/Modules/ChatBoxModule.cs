@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using VRCOSC.App.ChatBox;
 using VRCOSC.App.ChatBox.Clips;
 using VRCOSC.App.ChatBox.Clips.Variables;
@@ -22,6 +23,8 @@ public class ChatBoxModule : AvatarModule
 
     protected void ChangeState(string lookup)
     {
+        if (GetState(lookup) is null) throw new InvalidOperationException($"State with lookup {lookup} does not exist");
+
         ChatBoxManager.GetInstance().ChangeStateTo(SerialisedName, lookup);
     }
 
@@ -32,19 +35,34 @@ public class ChatBoxModule : AvatarModule
 
     protected void TriggerEvent(string lookup)
     {
+        if (GetEvent(lookup) is null) throw new InvalidOperationException($"Event with lookup {lookup} does not exist");
+
         ChatBoxManager.GetInstance().TriggerEvent(SerialisedName, lookup);
+    }
+
+    protected void SetVariableValue<T>(Enum lookup, T value)
+    {
+        SetVariableValue(lookup.ToLookup(), value);
+    }
+
+    protected void SetVariableValue<T>(string lookup, T value)
+    {
+        var variable = GetVariable(lookup);
+        if (variable is null) throw new InvalidOperationException($"Variable with lookup {lookup} does not exist");
+
+        variable.SetValue(value);
     }
 
     #endregion
 
     #region States
 
-    protected ClipStateReference? CreateState(Enum lookup, string displayName, string defaultFormat = "", List<ClipVariableReference>? defaultVariables = null)
+    protected ClipStateReference? CreateState(Enum lookup, string displayName, string defaultFormat = "", IEnumerable<ClipVariableReference>? defaultVariables = null)
     {
         return CreateState(lookup.ToLookup(), displayName, defaultFormat, defaultVariables);
     }
 
-    protected ClipStateReference? CreateState(string lookup, string displayName, string defaultFormat = "", List<ClipVariableReference>? defaultVariables = null)
+    protected ClipStateReference? CreateState(string lookup, string displayName, string defaultFormat = "", IEnumerable<ClipVariableReference>? defaultVariables = null)
     {
         if (GetState(lookup) is not null)
         {
@@ -57,7 +75,7 @@ public class ChatBoxModule : AvatarModule
             ModuleID = SerialisedName,
             StateID = lookup,
             DefaultFormat = defaultFormat,
-            DefaultVariables = defaultVariables ?? [],
+            DefaultVariables = defaultVariables?.ToList() ?? [],
             DisplayName = { Value = displayName }
         };
 
@@ -89,12 +107,12 @@ public class ChatBoxModule : AvatarModule
 
     #region Events
 
-    protected ClipEventReference? CreateEvent(Enum lookup, string displayName, string defaultFormat = "", List<ClipVariableReference>? defaultVariables = null, float defaultLength = 5, ClipEventBehaviour defaultBehaviour = ClipEventBehaviour.Override)
+    protected ClipEventReference? CreateEvent(Enum lookup, string displayName, string defaultFormat = "", IEnumerable<ClipVariableReference>? defaultVariables = null, float defaultLength = 5, ClipEventBehaviour defaultBehaviour = ClipEventBehaviour.Override)
     {
         return CreateEvent(lookup.ToLookup(), displayName, defaultFormat, defaultVariables, defaultLength, defaultBehaviour);
     }
 
-    protected ClipEventReference? CreateEvent(string lookup, string displayName, string defaultFormat = "", List<ClipVariableReference>? defaultVariables = null, float defaultLength = 5, ClipEventBehaviour defaultBehaviour = ClipEventBehaviour.Override)
+    protected ClipEventReference? CreateEvent(string lookup, string displayName, string defaultFormat = "", IEnumerable<ClipVariableReference>? defaultVariables = null, float defaultLength = 5, ClipEventBehaviour defaultBehaviour = ClipEventBehaviour.Override)
     {
         if (GetEvent(lookup) is not null)
         {
@@ -107,7 +125,7 @@ public class ChatBoxModule : AvatarModule
             ModuleID = SerialisedName,
             EventID = lookup,
             DefaultFormat = defaultFormat,
-            DefaultVariables = defaultVariables ?? [],
+            DefaultVariables = defaultVariables?.ToList() ?? [],
             DefaultLength = defaultLength,
             DefaultBehaviour = defaultBehaviour,
             DisplayName = { Value = displayName }

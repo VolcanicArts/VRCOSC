@@ -67,14 +67,14 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
         CreateGroup("Average", HeartrateSetting.AveragePeriod, HeartrateSetting.SmoothAverage, HeartrateSetting.SmoothAverageLength);
         CreateGroup("Beat", HeartrateSetting.BeatMode);
         CreateGroup("Normalised Parameter", HeartrateSetting.NormalisedLowerbound, HeartrateSetting.NormalisedUpperbound);
-
-        CreateVariable<int>(HeartrateVariable.Current, "Current");
-        CreateVariable<int>(HeartrateVariable.Average, "Average");
     }
 
     protected override void OnPostLoad()
     {
-        CreateState(HeartrateState.Connected, "Connected", "FEJIFHUEIAFIEDA");
+        var currentReference = CreateVariable<int>(HeartrateVariable.Current, "Current")!;
+        CreateVariable<int>(HeartrateVariable.Average, "Average");
+
+        CreateState(HeartrateState.Connected, "Connected", "Heartrate: {0}", new[] { currentReference });
         CreateState(HeartrateState.Disconnected, "Disconnected", "DKSDHFGIUEDAHGUFEAOF");
 
         GetSetting(HeartrateSetting.SmoothValueLength)!.IsEnabled = () => GetSettingValue<bool>(HeartrateSetting.SmoothValue);
@@ -166,8 +166,8 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
 
         ChangeState(HeartrateState.Disconnected);
 
-        GetVariable(HeartrateVariable.Current)!.SetValue(0);
-        GetVariable(HeartrateVariable.Average)!.SetValue(0);
+        SetVariableValue(HeartrateVariable.Current, 0);
+        SetVariableValue(HeartrateVariable.Average, 0);
     }
 
     private async Task handleBeatParameter()
@@ -215,8 +215,8 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
     [ModuleUpdate(ModuleUpdateMode.ChatBox)]
     private void updateChatBox()
     {
-        GetVariable(HeartrateVariable.Current)!.SetValue((int)currentValue);
-        GetVariable(HeartrateVariable.Average)!.SetValue((int)currentAverage);
+        SetVariableValue(HeartrateVariable.Current, (int)currentValue);
+        SetVariableValue(HeartrateVariable.Average, (int)currentAverage);
     }
 
     [ModuleUpdate(ModuleUpdateMode.Custom)]

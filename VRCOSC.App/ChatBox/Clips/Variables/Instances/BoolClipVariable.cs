@@ -10,18 +10,17 @@ public class BoolClipVariable : ClipVariable
     {
     }
 
-    [ClipVariableOption("Format As String", "format_as_string")]
-    public bool FormatAsString { get; set; }
+    [ClipVariableOption("When True", "when_true")]
+    public string WhenTrue = "True";
+
+    [ClipVariableOption("When False", "when_false")]
+    public string WhenFalse = "False";
 
     protected override string Format(object value)
     {
-        if (FormatAsString)
-        {
-            return ((bool)value).ToString();
-        }
-        else
-        {
-            return ((bool)value) ? "1" : "0";
-        }
+        var trueString = string.IsNullOrEmpty(WhenTrue) ? "1" : WhenTrue;
+        var falseString = string.IsNullOrEmpty(WhenFalse) ? "0" : WhenFalse;
+
+        return (bool)value ? trueString : falseString;
     }
 }
