@@ -68,7 +68,14 @@ public class ChatBoxManager : INotifyPropertyChanged
     {
         Deserialise();
 
-        Timeline.Layers.ForEach(layer => layer.Init());
+        Timeline.Init();
+    }
+
+    public void ClearAllReferences()
+    {
+        StateReferences.Clear();
+        EventReferences.Clear();
+        VariableReferences.Clear();
     }
 
     public void Serialise()

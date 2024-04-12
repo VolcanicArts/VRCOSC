@@ -3,13 +3,15 @@
 
 using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using VRCOSC.App.ChatBox.Clips;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.ChatBox;
 
-public class Timeline
+public class Timeline : INotifyPropertyChanged
 {
     private const int default_layer_count = 32;
     private const int default_length_seconds = 60;
@@ -42,8 +44,21 @@ public class Timeline
         }
     }
 
+    public void Init()
+    {
+        Layers.ForEach(layer => layer.Init());
+        OnPropertyChanged(nameof(LengthSeconds));
+    }
+
     public Layer FindLayerOfClip(Clip clip)
     {
         return Layers.First(layer => layer.Clips.Contains(clip));
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }
