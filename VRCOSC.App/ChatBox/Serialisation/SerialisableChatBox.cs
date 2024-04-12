@@ -158,6 +158,9 @@ public class SerialisableClipEvent : SerialisableClipElement
     [JsonProperty("length")]
     public float Length;
 
+    [JsonProperty("behaviour")]
+    public ClipEventBehaviour Behaviour;
+
     [JsonConstructor]
     public SerialisableClipEvent()
     {
@@ -169,6 +172,7 @@ public class SerialisableClipEvent : SerialisableClipElement
         ModuleID = clipEvent.ModuleID;
         EventID = clipEvent.EventID;
         Length = clipEvent.Length.Value;
+        Behaviour = clipEvent.Behaviour.Value;
     }
 }
 

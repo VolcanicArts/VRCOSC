@@ -103,7 +103,8 @@ public class ChatBoxSerialiser : ProfiledSerialiser<ChatBoxManager, Serialisable
                         Enabled = { Value = serialisableEvent.Enabled },
                         ModuleID = serialisableEvent.ModuleID,
                         EventID = serialisableEvent.EventID,
-                        Length = { Value = serialisableEvent.Length }
+                        Length = { Value = serialisableEvent.Length },
+                        Behaviour = { Value = serialisableEvent.Behaviour }
                     };
 
                     clipEvent.Variables.AddRange(serialisableEvent.Variables.Select(serialisableClipVariable =>

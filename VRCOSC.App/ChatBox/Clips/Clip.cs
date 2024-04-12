@@ -102,18 +102,28 @@ public class Clip : INotifyPropertyChanged
     {
         ChatBoxManager.GetInstance().TriggeredEvents.ForEach(moduleEvent =>
         {
-            var (module, lookup) = moduleEvent;
+            var (moduleID, eventID) = moduleEvent;
 
-            var clipEvent = Events.SingleOrDefault(clipEvent => clipEvent.ModuleID == module && clipEvent.EventID == lookup);
+            var clipEvent = Events.SingleOrDefault(clipEvent => clipEvent.ModuleID == moduleID && clipEvent.EventID == eventID);
             if (clipEvent is null || !clipEvent.Enabled.Value) return;
 
-            // TODO: Change to allow a clip to choose whether to override all the time, override if same module otherwise queue, or just queue
-            if (currentEvent?.Item1.ModuleID == module)
-                // If the new event and current event are from the same module, overwrite the current event
-                currentEvent = (clipEvent, DateTimeOffset.Now + TimeSpan.FromSeconds(clipEvent.Length.Value));
-            else
-                // If the new event and current event are from different modules, queue the new event
-                eventQueue.Enqueue(clipEvent);
+            switch (clipEvent.Behaviour.Value)
+            {
+                case ClipEventBehaviour.Override:
+                    currentEvent = (clipEvent, DateTimeOffset.Now + TimeSpan.FromSeconds(clipEvent.Length.Value));
+                    break;
+
+                case ClipEventBehaviour.Queue:
+                    eventQueue.Enqueue(clipEvent);
+                    break;
+
+                case ClipEventBehaviour.Ignore:
+                    currentEvent ??= (clipEvent, DateTimeOffset.Now + TimeSpan.FromSeconds(clipEvent.Length.Value));
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(clipEvent.Behaviour));
+            }
         });
     }
 

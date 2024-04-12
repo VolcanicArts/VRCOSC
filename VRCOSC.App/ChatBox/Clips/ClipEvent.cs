@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System.Diagnostics;
@@ -17,6 +17,8 @@ public class ClipEvent : ClipElement
 
     // TODO: Convert to TimeSpan?
     public Observable<float> Length = new();
+
+    public Observable<ClipEventBehaviour> Behaviour = new();
 
     public override string DisplayName
     {
@@ -58,6 +60,25 @@ public class ClipEvent : ClipElement
         Format = new Observable<string>(reference.DefaultFormat);
         Length = new Observable<float>(reference.DefaultLength);
     }
+}
+
+public enum ClipEventBehaviour
+{
+    /// <summary>
+    /// Always override the current event with this one
+    /// </summary>
+    Override,
+
+    /// <summary>
+    /// Queue this event to run after the current event has finished.
+    /// The current event includes any overrides that may occur while the queue is waiting
+    /// </summary>
+    Queue,
+
+    /// <summary>
+    /// Ignore this event if there is already a current event
+    /// </summary>
+    Ignore
 }
 
 /// <summary>
