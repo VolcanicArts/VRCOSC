@@ -289,7 +289,7 @@ public partial class ChatBoxPage
     {
         Debug.Assert(SelectedClip is not null);
         var clipEditWindow = new ChatBoxClipEditWindow(SelectedClip);
-        clipEditWindow.ShowDialog();
+        clipEditWindow.Show();
     }
 
     private void fadeIn(FrameworkElement grid, double fadeInTimeMilli) => Dispatcher.Invoke(() =>
