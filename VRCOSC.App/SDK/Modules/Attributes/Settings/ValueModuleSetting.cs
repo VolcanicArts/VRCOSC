@@ -174,3 +174,21 @@ public class SliderModuleSetting : ValueModuleSetting<float>
         TickFrequency = tickFrequency;
     }
 }
+
+public class DateTimeModuleSetting : ValueModuleSetting<DateTime>
+{
+    public DateTimeModuleSetting(ModuleSettingMetadata metadata, DateTime defaultValue)
+        : base(metadata, defaultValue)
+    {
+    }
+
+    public override bool Deserialise(object ingestValue)
+    {
+        if (ingestValue is not DateTime dateTimeValue) return false;
+
+        Attribute.Value = dateTimeValue;
+        return true;
+    }
+
+    protected override Observable<DateTime> CreateObservable() => new(DefaultValue);
+}

@@ -383,6 +383,12 @@ public abstract class Module : INotifyPropertyChanged
         Settings.Add(lookup.ToLookup(), new EnumModuleSetting(new ModuleSettingMetadata(title, description, typeof(DropdownSettingPage)), Convert.ToInt32(defaultValue), typeof(T)));
     }
 
+    protected void CreateDateTime(Enum lookup, string title, string description, DateTime defaultValue)
+    {
+        validateSettingsLookup(lookup);
+        Settings.Add(lookup.ToLookup(), new DateTimeModuleSetting(new ModuleSettingMetadata(title, description, typeof(DateTimeSettingPage)), defaultValue));
+    }
+
     protected void CreateTextBoxList(Enum lookup, string title, string description, IEnumerable<string> defaultValues, bool rowNumberVisible = false)
     {
         validateSettingsLookup(lookup);

@@ -23,7 +23,7 @@ public class TimeSpanClipVariable : ClipVariable
         }
         else
         {
-            return ((TimeSpan)value).ToString(TimeFormat);
+            return ((TimeSpan)value).ToString(TimeFormat).Replace("-", string.Empty);
         }
     }
 }
