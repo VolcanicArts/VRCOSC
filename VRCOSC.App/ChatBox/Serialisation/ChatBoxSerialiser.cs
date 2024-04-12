@@ -113,7 +113,7 @@ public class ChatBoxSerialiser : ProfiledSerialiser<ChatBoxManager, Serialisable
 
                         Debug.Assert(clipVariableReference is not null);
 
-                        var clipVariable = (ClipVariable)Activator.CreateInstance(clipVariableReference.ClipVariableType, clipVariableReference)!;
+                        var clipVariable = clipVariableReference.CreateInstance();
 
                         var optionAttributes = getVariableOptionAttributes(clipVariable.GetType());
 
@@ -127,7 +127,14 @@ public class ChatBoxSerialiser : ProfiledSerialiser<ChatBoxManager, Serialisable
 
                             if (propertyInfo.PropertyType.IsEnum)
                             {
-                                value = Enum.ToObject(propertyInfo.PropertyType, pair.Value!);
+                                try
+                                {
+                                    value = Enum.ToObject(propertyInfo.PropertyType, pair.Value!);
+                                }
+                                catch (Exception)
+                                {
+                                    value = Enum.ToObject(propertyInfo.PropertyType, 0);
+                                }
                             }
                             else
                             {
