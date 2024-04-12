@@ -1,7 +1,8 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections.Generic;
 using VRCOSC.App.ChatBox;
 using VRCOSC.App.ChatBox.Clips;
 using VRCOSC.App.ChatBox.Clips.Variables;
@@ -38,26 +39,30 @@ public class ChatBoxModule : AvatarModule
 
     #region States
 
-    protected void CreateState(Enum lookup, string displayName, string defaultFormat = "")
+    protected ClipStateReference? CreateState(Enum lookup, string displayName, string defaultFormat = "", List<ClipVariableReference>? defaultVariables = null)
     {
-        CreateState(lookup.ToLookup(), displayName, defaultFormat);
+        return CreateState(lookup.ToLookup(), displayName, defaultFormat, defaultVariables);
     }
 
-    protected void CreateState(string lookup, string displayName, string defaultFormat = "")
+    protected ClipStateReference? CreateState(string lookup, string displayName, string defaultFormat = "", List<ClipVariableReference>? defaultVariables = null)
     {
         if (GetState(lookup) is not null)
         {
             ExceptionHandler.Handle($"[{SerialisedName}]: You cannot add the same lookup ({lookup}) for a state more than once");
-            return;
+            return null;
         }
 
-        ChatBoxManager.GetInstance().CreateState(new ClipStateReference
+        var clipStateReference = new ClipStateReference
         {
             ModuleID = SerialisedName,
             StateID = lookup,
             DefaultFormat = defaultFormat,
+            DefaultVariables = defaultVariables ?? [],
             DisplayName = { Value = displayName }
-        });
+        };
+
+        ChatBoxManager.GetInstance().CreateState(clipStateReference);
+        return clipStateReference;
     }
 
     protected void DeleteState(Enum lookup)
@@ -84,27 +89,32 @@ public class ChatBoxModule : AvatarModule
 
     #region Events
 
-    protected void CreateEvent(Enum lookup, string displayName, string defaultFormat = "", float defaultLength = 5)
+    protected ClipEventReference? CreateEvent(Enum lookup, string displayName, string defaultFormat = "", List<ClipVariableReference>? defaultVariables = null, float defaultLength = 5, ClipEventBehaviour defaultBehaviour = ClipEventBehaviour.Override)
     {
-        CreateEvent(lookup.ToLookup(), displayName, defaultFormat, defaultLength);
+        return CreateEvent(lookup.ToLookup(), displayName, defaultFormat, defaultVariables, defaultLength, defaultBehaviour);
     }
 
-    protected void CreateEvent(string lookup, string displayName, string defaultFormat = "", float defaultLength = 5)
+    protected ClipEventReference? CreateEvent(string lookup, string displayName, string defaultFormat = "", List<ClipVariableReference>? defaultVariables = null, float defaultLength = 5, ClipEventBehaviour defaultBehaviour = ClipEventBehaviour.Override)
     {
         if (GetEvent(lookup) is not null)
         {
             ExceptionHandler.Handle($"[{SerialisedName}]: You cannot add the same lookup ({lookup}) for an event more than once");
-            return;
+            return null;
         }
 
-        ChatBoxManager.GetInstance().CreateEvent(new ClipEventReference
+        var clipEventReference = new ClipEventReference
         {
             ModuleID = SerialisedName,
             EventID = lookup,
             DefaultFormat = defaultFormat,
+            DefaultVariables = defaultVariables ?? [],
             DefaultLength = defaultLength,
+            DefaultBehaviour = defaultBehaviour,
             DisplayName = { Value = displayName }
-        });
+        };
+
+        ChatBoxManager.GetInstance().CreateEvent(clipEventReference);
+        return clipEventReference;
     }
 
     protected void DeleteEvent(Enum lookup)
@@ -138,9 +148,9 @@ public class ChatBoxModule : AvatarModule
     /// <param name="displayName">The display name to show the user</param>
     /// <typeparam name="T">The type of this variable's value</typeparam>
     /// <remarks><paramref name="lookup"/> is turned into a string internally, and is only an enum to allow for easier referencing in your code</remarks>
-    protected void CreateVariable<T>(Enum lookup, string displayName)
+    protected ClipVariableReference? CreateVariable<T>(Enum lookup, string displayName)
     {
-        CreateVariable<T>(lookup.ToLookup(), displayName);
+        return CreateVariable<T>(lookup.ToLookup(), displayName);
     }
 
     /// <summary>
@@ -149,7 +159,7 @@ public class ChatBoxModule : AvatarModule
     /// <param name="lookup">The lookup to retrieve this variable</param>
     /// <param name="displayName">The display name to show the user</param>
     /// <typeparam name="T">The type of this variable's value</typeparam>
-    protected void CreateVariable<T>(string lookup, string displayName)
+    protected ClipVariableReference? CreateVariable<T>(string lookup, string displayName)
     {
         Type? clipVariableType = null;
 
@@ -169,7 +179,7 @@ public class ChatBoxModule : AvatarModule
         if (clipVariableType is null)
             throw new InvalidOperationException("No clip variable exists for that type. Request it is added to the SDK or make a custom clip variable");
 
-        CreateVariable<T>(lookup, displayName, clipVariableType);
+        return CreateVariable<T>(lookup, displayName, clipVariableType);
     }
 
     /// <summary>
@@ -180,9 +190,9 @@ public class ChatBoxModule : AvatarModule
     /// <param name="clipVariableType">The type of <see cref="ClipVariable"/> to create when instancing this variable</param>
     /// <typeparam name="T">The type of this variable's value</typeparam>
     /// <remarks><paramref name="lookup"/> is turned into a string internally, and is only an enum to allow for easier referencing in your code</remarks>
-    protected void CreateVariable<T>(Enum lookup, string displayName, Type clipVariableType)
+    protected ClipVariableReference? CreateVariable<T>(Enum lookup, string displayName, Type clipVariableType)
     {
-        CreateVariable<T>(lookup.ToLookup(), displayName, clipVariableType);
+        return CreateVariable<T>(lookup.ToLookup(), displayName, clipVariableType);
     }
 
     /// <summary>
@@ -192,22 +202,25 @@ public class ChatBoxModule : AvatarModule
     /// <param name="displayName">The display name to show the user</param>
     /// <param name="clipVariableType">The type of <see cref="ClipVariable"/> to create when instancing this variable</param>
     /// <typeparam name="T">The type of this variable's value</typeparam>
-    protected void CreateVariable<T>(string lookup, string displayName, Type clipVariableType)
+    protected ClipVariableReference? CreateVariable<T>(string lookup, string displayName, Type clipVariableType)
     {
         if (GetVariable(lookup) is not null)
         {
             ExceptionHandler.Handle($"[{SerialisedName}]: You cannot add the same lookup ({lookup}) for a variable more than once");
-            return;
+            return null;
         }
 
-        ChatBoxManager.GetInstance().CreateVariable(new ClipVariableReference
+        var clipVariableReference = new ClipVariableReference
         {
             ModuleID = SerialisedName,
             VariableID = lookup,
             ClipVariableType = clipVariableType,
             ValueType = typeof(T),
             DisplayName = { Value = displayName }
-        });
+        };
+
+        ChatBoxManager.GetInstance().CreateVariable(clipVariableReference);
+        return clipVariableReference;
     }
 
     /// <summary>

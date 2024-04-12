@@ -94,7 +94,7 @@ public partial class ChatBoxClipEditWindow
         if (!e.Data.GetDataPresent(typeof(ClipVariableReference))) return;
 
         var variableReference = (ClipVariableReference)e.Data.GetData(typeof(ClipVariableReference));
-        clipElement.Variables.Add((ClipVariable)Activator.CreateInstance(variableReference.ClipVariableType, variableReference)!);
+        clipElement.Variables.Add(variableReference.CreateInstance());
         clipElement.UpdateUI();
     }
 

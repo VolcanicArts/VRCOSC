@@ -3,9 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using Newtonsoft.Json;
+using VRCOSC.App.ChatBox.Clips.Variables;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;
@@ -65,6 +67,7 @@ public class ClipState : ClipElement
     {
         States = new Dictionary<string, string> { { reference.ModuleID, reference.StateID } };
         Format = new Observable<string>(reference.DefaultFormat);
+        Variables = new ObservableCollection<ClipVariable>(reference.DefaultVariables.Select(clipVariableReference => clipVariableReference.CreateInstance()));
     }
 
     private ClipState(ClipState original, bool includeUserData)
@@ -90,6 +93,7 @@ public class ClipStateReference
     internal string ModuleID { get; init; }
     internal string StateID { get; init; }
     internal string DefaultFormat { get; init; }
+    internal List<ClipVariableReference> DefaultVariables { get; init; }
 
     public Observable<string> DisplayName { get; } = new("INVALID");
 }

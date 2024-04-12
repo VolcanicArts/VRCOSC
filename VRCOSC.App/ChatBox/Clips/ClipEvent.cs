@@ -1,9 +1,12 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using Newtonsoft.Json;
+using VRCOSC.App.ChatBox.Clips.Variables;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;
@@ -58,7 +61,9 @@ public class ClipEvent : ClipElement
         ModuleID = reference.ModuleID;
         EventID = reference.EventID;
         Format = new Observable<string>(reference.DefaultFormat);
+        Variables = new ObservableCollection<ClipVariable>(reference.DefaultVariables.Select(clipVariableReference => clipVariableReference.CreateInstance()));
         Length = new Observable<float>(reference.DefaultLength);
+        Behaviour = new Observable<ClipEventBehaviour>(reference.DefaultBehaviour);
     }
 }
 
@@ -89,7 +94,9 @@ public class ClipEventReference
     internal string ModuleID { get; init; }
     internal string EventID { get; init; }
     internal string DefaultFormat { get; init; }
+    internal List<ClipVariableReference> DefaultVariables { get; init; }
     internal float DefaultLength { get; init; }
+    internal ClipEventBehaviour DefaultBehaviour { get; init; }
 
     public Observable<string> DisplayName { get; } = new("INVALID");
 }

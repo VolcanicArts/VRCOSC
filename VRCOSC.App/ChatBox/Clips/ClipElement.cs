@@ -16,7 +16,7 @@ public class ClipElement : INotifyPropertyChanged
     public Observable<string> Format { get; set; } = new();
     public Observable<bool> Enabled { get; set; } = new();
 
-    public ObservableCollection<ClipVariable> Variables { get; } = new();
+    public ObservableCollection<ClipVariable> Variables { get; init; } = new();
 
     public virtual string DisplayName => string.Empty;
     public virtual bool IsDefault => Format.IsDefault && Enabled.IsDefault;

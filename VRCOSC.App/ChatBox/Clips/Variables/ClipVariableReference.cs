@@ -24,4 +24,6 @@ public class ClipVariableReference
 
         Value.Value = value;
     }
+
+    internal ClipVariable CreateInstance() => (ClipVariable)Activator.CreateInstance(ClipVariableType, this)!;
 }
