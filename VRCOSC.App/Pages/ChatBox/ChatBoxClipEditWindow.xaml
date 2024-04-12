@@ -228,7 +228,7 @@
                                                             </Grid.ColumnDefinitions>
                                                             <TextBlock Grid.Column="0" FontSize="15"
                                                                        Foreground="{StaticResource CForeground1}"
-                                                                       Text="{Binding Title, Mode=OneWay}"
+                                                                       Text="{Binding TitleWithPackage, Mode=OneWay}"
                                                                        VerticalAlignment="Center"
                                                                        HorizontalAlignment="Left"
                                                                        Padding="5" />

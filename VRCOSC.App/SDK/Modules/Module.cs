@@ -15,6 +15,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using VRCOSC.App.Modules;
 using VRCOSC.App.OSC.VRChat;
+using VRCOSC.App.Packages;
 using VRCOSC.App.Pages.Modules;
 using VRCOSC.App.Pages.Modules.Parameters;
 using VRCOSC.App.Pages.Modules.Settings;
@@ -45,6 +46,8 @@ public abstract class Module : INotifyPropertyChanged
     public string ShortDescription => GetType().GetCustomAttribute<ModuleDescriptionAttribute>()?.ShortDescription ?? string.Empty;
     public ModuleType Type => GetType().GetCustomAttribute<ModuleTypeAttribute>()?.Type ?? ModuleType.Generic;
     public Brush Colour => Type.ToColour();
+
+    public string TitleWithPackage => PackageManager.GetInstance().GetPackage(PackageId) is null ? $"(Local) {Title}" : Title;
 
     // Cached pre-computed lookups
     private readonly Dictionary<string, Enum> parameterNameEnum = new();

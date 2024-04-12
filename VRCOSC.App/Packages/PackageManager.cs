@@ -32,6 +32,8 @@ public class PackageManager : INotifyPropertyChanged
     private readonly List<PackageSource> builtinSources = new();
 
     public ObservableCollection<PackageSource> Sources { get; } = new();
+
+    // id - latest version
     public readonly Dictionary<string, string> InstalledPackages = new();
 
     public DateTime CacheExpireTime = DateTime.UnixEpoch;
@@ -48,6 +50,8 @@ public class PackageManager : INotifyPropertyChanged
         serialisationManager = new SerialisationManager();
         serialisationManager.RegisterSerialiser(1, new PackageManagerSerialiser(baseStorage, this));
     }
+
+    public PackageSource? GetPackage(string packageID) => Sources.FirstOrDefault(packageSource => packageSource.PackageID == packageID);
 
     public PackageLoadAction Load()
     {
