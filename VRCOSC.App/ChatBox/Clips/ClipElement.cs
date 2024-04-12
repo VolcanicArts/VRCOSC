@@ -33,14 +33,7 @@ public class ClipElement : INotifyPropertyChanged
     public string RunFormatting()
     {
         var localFormat = Format.Value;
-
-        for (var i = 0; i < Variables.Count; i++)
-        {
-            var variable = Variables[i];
-            localFormat = localFormat.Replace("{" + i + "}", variable.GetFormattedValue());
-        }
-
-        return localFormat;
+        return string.Format(localFormat, Variables.Select(clipVariable => (object)clipVariable.GetFormattedValue()).ToArray());
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
