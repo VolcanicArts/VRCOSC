@@ -71,6 +71,9 @@ public class Clip : INotifyPropertyChanged
         eventQueue.Clear();
         currentState = null;
         currentEvent = null;
+
+        States.ForEach(clipState => clipState.Variables.ForEach(clipVariable => clipVariable.Start()));
+        Events.ForEach(clipEvent => clipEvent.Variables.ForEach(clipVariable => clipVariable.Start()));
     }
 
     public ClipElement? FindElementFromVariable(ClipVariable variable)

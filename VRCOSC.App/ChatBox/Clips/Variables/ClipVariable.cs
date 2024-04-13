@@ -72,6 +72,14 @@ public abstract class ClipVariable
         VariableID = reference.VariableID;
     }
 
+    /// <summary>
+    /// Called when the modules start. Good for resetting properties between module restarts
+    /// </summary>
+    public virtual void Start()
+    {
+        currentIndex = 0;
+    }
+
     [ClipVariableOption("case_mode", "Case Mode", "Should the final string be made upper or lowercase, or be not changed?")]
     public ClipVariableCaseMode CaseMode { get; set; } = ClipVariableCaseMode.Default;
 
