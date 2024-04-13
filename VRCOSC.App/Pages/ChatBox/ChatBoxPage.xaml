@@ -46,7 +46,8 @@
                         <ui:VRCOSCButton
                             Grid.Row="0"
                             Grid.Column="0"
-                            ButtonColour="Blue">
+                            ButtonColour="Blue"
+                            Click="ImportButton_OnClick">
                             <fa5:ImageAwesome
                                 Icon="Solid_Download"
                                 Foreground="White"
@@ -55,7 +56,8 @@
                         <ui:VRCOSCButton
                             Grid.Row="0"
                             Grid.Column="2"
-                            ButtonColour="Blue">
+                            ButtonColour="Blue"
+                            Click="ExportButton_OnClick">
                             <fa5:ImageAwesome
                                 Icon="Solid_Upload"
                                 Foreground="White"
@@ -64,7 +66,8 @@
                         <ui:VRCOSCButton
                             Grid.Row="2"
                             Grid.Column="0"
-                            ButtonColour="Red">
+                            ButtonColour="Red"
+                            Click="ClearButton_OnClick">
                             <fa5:ImageAwesome
                                 Icon="Solid_TrashAlt"
                                 Foreground="White"

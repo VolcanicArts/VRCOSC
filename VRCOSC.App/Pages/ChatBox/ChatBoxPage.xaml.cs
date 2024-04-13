@@ -13,6 +13,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using VRCOSC.App.ChatBox;
 using VRCOSC.App.ChatBox.Clips;
+using VRCOSC.App.Profiles;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Pages.ChatBox;
@@ -376,6 +377,27 @@ public partial class ChatBoxPage
     {
         if (e.Key == Key.Return)
             Keyboard.ClearFocus();
+    }
+
+    private void ImportButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        WinForms.OpenFile("chatbox.json|*.json", filePath => Dispatcher.Invoke(() => ChatBoxManager.GetInstance().Deserialise(filePath)));
+    }
+
+    private void ExportButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        var filePath = AppManager.GetInstance().Storage.GetFullPath($"profiles/{ProfileManager.GetInstance().ActiveProfile.Value.ID}/chatbox.json");
+        WinForms.PresentFile(filePath);
+    }
+
+    private void ClearButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        var result = MessageBox.Show(MainWindow.GetInstance(), "Warning. This will erase your entire timeline. Are you sure?", "Erase Timeline?", MessageBoxButton.YesNo);
+
+        if (result != MessageBoxResult.Yes) return;
+
+        ChatBoxManager.GetInstance().Timeline.SetupLayers();
+        ChatBoxManager.GetInstance().Serialise();
     }
 }
 

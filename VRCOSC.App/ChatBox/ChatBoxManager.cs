@@ -52,11 +52,9 @@ public class ChatBoxManager : INotifyPropertyChanged
 
     private IEnumerable<Clip> allClips => Timeline.Layers.SelectMany(layer => layer.Clips);
 
-    private ClipState playingClipState;
-
     public Visibility ShowIndicator => AppManager.GetInstance().State.Value == AppManagerState.Started ? Visibility.Visible : Visibility.Collapsed;
 
-    private SerialisationManager serialisationManager;
+    private readonly SerialisationManager serialisationManager;
 
     public ChatBoxManager()
     {
@@ -67,8 +65,6 @@ public class ChatBoxManager : INotifyPropertyChanged
     public void Load()
     {
         Deserialise();
-
-        Timeline.Init();
     }
 
     public void ClearAllReferences()
@@ -83,10 +79,15 @@ public class ChatBoxManager : INotifyPropertyChanged
         serialisationManager.Serialise();
     }
 
-    public void Deserialise()
+    public void Deserialise(string filePathOverride = "")
     {
         Timeline.Layers.ForEach(layer => layer.Clips.Clear());
-        serialisationManager.Deserialise();
+
+        serialisationManager.Deserialise(string.IsNullOrEmpty(filePathOverride), filePathOverride);
+
+        Timeline.Init();
+
+        if (!string.IsNullOrEmpty(filePathOverride)) Serialise();
     }
 
     public void Start()
@@ -94,7 +95,7 @@ public class ChatBoxManager : INotifyPropertyChanged
         var sendInterval = SettingsManager.GetInstance().GetValue<int>(VRCOSCSetting.ChatBoxSendInterval);
 
         startTime = DateTimeOffset.Now;
-        sendTask = new Repeater(chatboxUpdate);
+        sendTask = new Repeater(chatBoxUpdate);
         updateTask = new Repeater(update);
         SendEnabled = true;
         isClear = true;
@@ -127,7 +128,7 @@ public class ChatBoxManager : INotifyPropertyChanged
         OnPropertyChanged(nameof(ShowIndicator));
     }
 
-    private void chatboxUpdate()
+    private void chatBoxUpdate()
     {
         ModuleManager.GetInstance().ChatBoxUpdate();
 
@@ -181,7 +182,7 @@ public class ChatBoxManager : INotifyPropertyChanged
     private static string convertSpecialCharacters(string input)
     {
         // Convert new line to vertical tab
-        return input.Replace("\\n", "\v");
+        return input.Replace("\n", "\v");
     }
 
     private void clearChatBox()

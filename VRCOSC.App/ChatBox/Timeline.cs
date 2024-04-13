@@ -36,6 +36,13 @@ public class Timeline : INotifyPropertyChanged
 
     public Timeline()
     {
+        SetupLayers();
+    }
+
+    public void SetupLayers()
+    {
+        Layers.Clear();
+
         Length.Subscribe(_ => Layers.ForEach(layer => layer.UpdateUIBinds()));
 
         for (var i = 0; i < LayerCount; i++)
