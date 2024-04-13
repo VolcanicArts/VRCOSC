@@ -146,7 +146,7 @@ public abstract class Module : INotifyPropertyChanged
     {
         try
         {
-            GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).ForEach(info =>
+            GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy).ForEach(info =>
             {
                 var isDefined = info.IsDefined(typeof(ModulePersistentAttribute));
                 if (!isDefined) return;
