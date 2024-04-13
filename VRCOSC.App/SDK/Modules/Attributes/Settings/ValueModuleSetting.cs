@@ -175,20 +175,20 @@ public class SliderModuleSetting : ValueModuleSetting<float>
     }
 }
 
-public class DateTimeModuleSetting : ValueModuleSetting<DateTime>
+public class DateTimeModuleSetting : ValueModuleSetting<DateTimeOffset>
 {
-    public DateTimeModuleSetting(ModuleSettingMetadata metadata, DateTime defaultValue)
+    public DateTimeModuleSetting(ModuleSettingMetadata metadata, DateTimeOffset defaultValue)
         : base(metadata, defaultValue)
     {
     }
 
     public override bool Deserialise(object ingestValue)
     {
-        if (ingestValue is not DateTime dateTimeValue) return false;
+        if (ingestValue is not DateTimeOffset dateTimeValue) return false;
 
         Attribute.Value = dateTimeValue;
         return true;
     }
 
-    protected override Observable<DateTime> CreateObservable() => new(DefaultValue);
+    protected override Observable<DateTimeOffset> CreateObservable() => new(DefaultValue);
 }

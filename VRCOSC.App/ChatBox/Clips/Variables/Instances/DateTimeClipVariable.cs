@@ -16,15 +16,23 @@ public class DateTimeClipVariable : ClipVariable
     [ClipVariableOption("Date/Time Format", "datetime_format")]
     public string DateTimeFormat { get; set; } = string.Empty;
 
+    [ClipVariableOption("Time Zone ID", "timezone_id")]
+    public string TimeZoneID { get; set; } = TimeZoneInfo.Local.Id;
+
     protected override string Format(object value)
     {
+        var dateTimeValue = (DateTimeOffset)value;
+
+        var timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(TimeZoneID);
+        var convertedDateTime = TimeZoneInfo.ConvertTimeFromUtc(dateTimeValue.UtcDateTime, timeZoneInfo);
+
         if (string.IsNullOrEmpty(DateTimeFormat))
         {
-            return ((DateTime)value).ToString(CultureInfo.CurrentCulture);
+            return convertedDateTime.ToString(CultureInfo.CurrentCulture);
         }
         else
         {
-            return ((DateTime)value).ToString(DateTimeFormat, CultureInfo.CurrentCulture);
+            return convertedDateTime.ToString(DateTimeFormat, CultureInfo.CurrentCulture);
         }
     }
 }

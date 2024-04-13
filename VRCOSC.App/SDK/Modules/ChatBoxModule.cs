@@ -189,7 +189,7 @@ public class ChatBoxModule : AvatarModule
             clipVariableType = typeof(FloatClipVariable);
         else if (typeof(T) == typeof(string))
             clipVariableType = typeof(StringClipVariable);
-        else if (typeof(T) == typeof(DateTime))
+        else if (typeof(T) == typeof(DateTimeOffset))
             clipVariableType = typeof(DateTimeClipVariable);
         else if (typeof(T) == typeof(TimeSpan))
             clipVariableType = typeof(TimeSpanClipVariable);
