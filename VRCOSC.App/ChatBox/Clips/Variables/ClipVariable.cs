@@ -2,9 +2,13 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Reflection;
+using System.Windows.Controls;
 using Newtonsoft.Json;
 using VRCOSC.App.Modules;
+using VRCOSC.App.Pages.ChatBox.Options;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.ChatBox.Clips.Variables;
@@ -17,6 +21,39 @@ public abstract class ClipVariable
 
     public string DisplayName => ChatBoxManager.GetInstance().GetVariable(ModuleID, VariableID)!.DisplayName.Value;
     public string DisplayNameWithModule => $"{ModuleManager.GetInstance().GetModuleOfID(ModuleID).Title} - {DisplayName}";
+
+    public List<RenderableClipVariableOption> UIOptions
+    {
+        get
+        {
+            var optionsList = new List<RenderableClipVariableOption>();
+
+            GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy).ForEach(propertyInfo =>
+            {
+                if (!propertyInfo.IsDefined(typeof(ClipVariableOptionAttribute))) return;
+
+                if (!propertyInfo.CanRead || !propertyInfo.CanWrite) throw new InvalidOperationException($"Property '{propertyInfo.Name}' must be declared with get/set to be used as a variable option");
+
+                var displayName = propertyInfo.GetCustomAttribute<ClipVariableOptionAttribute>()!.DisplayName;
+
+                Page? pageInstance = null;
+
+                if (propertyInfo.PropertyType == typeof(bool))
+                {
+                    pageInstance = new ToggleVariableOptionPage(this, propertyInfo);
+                }
+                else if (propertyInfo.PropertyType == typeof(int))
+                {
+                    pageInstance = new TextBoxVariableOptionPage(this, propertyInfo);
+                }
+
+                var renderableClipVariableOption = new RenderableClipVariableOption(propertyInfo, displayName, pageInstance);
+                optionsList.Add(renderableClipVariableOption);
+            });
+
+            return optionsList;
+        }
+    }
 
     [JsonConstructor]
     internal ClipVariable()
@@ -33,7 +70,7 @@ public abstract class ClipVariable
     public ClipVariableCaseMode CaseMode { get; set; } = ClipVariableCaseMode.Default;
 
     [ClipVariableOption("Truncate Length", "truncate_length")]
-    public int TruncateLength { get; set; } = -1;
+    public int TruncateLength { get; set; } = int.MaxValue;
 
     [ClipVariableOption("Include Ellipses", "include_ellipses")]
     public bool IncludeEllipses { get; set; }
@@ -45,7 +82,7 @@ public abstract class ClipVariable
     public int ScrollSpeed { get; set; }
 
     [ClipVariableOption("Join String", "join_string")]
-    public string JoinString { get; set; }
+    public string JoinString { get; set; } = string.Empty;
 
     private int currentIndex;
 
@@ -112,4 +149,18 @@ public enum ClipVariableCaseMode
     Default,
     Lower,
     Upper
+}
+
+public class RenderableClipVariableOption
+{
+    public PropertyInfo PropertyInfo { get; }
+    public string DisplayName { get; }
+    public Page? PageInstance { get; }
+
+    public RenderableClipVariableOption(PropertyInfo propertyInfo, string displayName, Page? pageInstance)
+    {
+        PropertyInfo = propertyInfo;
+        DisplayName = displayName;
+        PageInstance = pageInstance;
+    }
 }
