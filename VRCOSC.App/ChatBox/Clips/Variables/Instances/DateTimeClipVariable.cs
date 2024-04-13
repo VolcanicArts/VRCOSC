@@ -13,10 +13,10 @@ public class DateTimeClipVariable : ClipVariable
     {
     }
 
-    [ClipVariableOption("Date/Time Format", "datetime_format")]
-    public string DateTimeFormat { get; set; } = string.Empty;
+    [ClipVariableOption("datetime_format", "Date/Time Format", "How should the date/time be formatted?")]
+    public string DateTimeFormat { get; set; } = "yyyy/MM/dd HH:mm:ss";
 
-    [ClipVariableOption("Time Zone ID", "timezone_id")]
+    [ClipVariableOption("timezone_id", "Time Zone ID", "What timezone should this date/time be converted to?")]
     public string TimeZoneID { get; set; } = TimeZoneInfo.Local.Id;
 
     protected override string Format(object value)
@@ -28,13 +28,13 @@ public class DateTimeClipVariable : ClipVariable
             var timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(TimeZoneID);
             var convertedDateTime = TimeZoneInfo.ConvertTimeFromUtc(dateTimeValue.UtcDateTime, timeZoneInfo);
 
-            if (string.IsNullOrEmpty(DateTimeFormat))
-            {
-                return convertedDateTime.ToString(CultureInfo.CurrentCulture);
-            }
-            else
+            try
             {
                 return convertedDateTime.ToString(DateTimeFormat, CultureInfo.CurrentCulture);
+            }
+            catch (Exception)
+            {
+                return "INVALID FORMAT";
             }
         }
         catch (Exception)

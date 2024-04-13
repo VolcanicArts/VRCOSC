@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Globalization;
 
 namespace VRCOSC.App.ChatBox.Clips.Variables.Instances;
@@ -12,18 +13,18 @@ public class FloatClipVariable : ClipVariable
     {
     }
 
-    [ClipVariableOption("Float Format", "float_format")]
-    public string FloatFormat { get; set; } = string.Empty;
+    [ClipVariableOption("float_format", "Float Format", "How should the float be formatted?")]
+    public string FloatFormat { get; set; } = "F1";
 
     protected override string Format(object value)
     {
-        if (string.IsNullOrEmpty(FloatFormat))
-        {
-            return ((float)value).ToString("F1", CultureInfo.CurrentCulture);
-        }
-        else
+        try
         {
             return ((float)value).ToString(FloatFormat, CultureInfo.CurrentCulture);
+        }
+        catch (Exception)
+        {
+            return "INVALID FORMAT";
         }
     }
 }

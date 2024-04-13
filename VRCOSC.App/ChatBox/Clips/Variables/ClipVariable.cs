@@ -35,6 +35,7 @@ public abstract class ClipVariable
                 if (!propertyInfo.CanRead || !propertyInfo.CanWrite) throw new InvalidOperationException($"Property '{propertyInfo.Name}' must be declared with get/set to be used as a variable option");
 
                 var displayName = propertyInfo.GetCustomAttribute<ClipVariableOptionAttribute>()!.DisplayName;
+                var description = propertyInfo.GetCustomAttribute<ClipVariableOptionAttribute>()!.Description;
 
                 // TODO: Move this inside the ClipVariableOptionAttribute?
                 Page? pageInstance = null;
@@ -52,7 +53,7 @@ public abstract class ClipVariable
                     pageInstance = new DropdownVariableOptionPage(this, propertyInfo);
                 }
 
-                var renderableClipVariableOption = new RenderableClipVariableOption(propertyInfo, displayName, pageInstance);
+                var renderableClipVariableOption = new RenderableClipVariableOption(propertyInfo, displayName, description, pageInstance);
                 optionsList.Add(renderableClipVariableOption);
             });
 
@@ -71,22 +72,22 @@ public abstract class ClipVariable
         VariableID = reference.VariableID;
     }
 
-    [ClipVariableOption("Case Mode", "case_mode")]
+    [ClipVariableOption("case_mode", "Case Mode", "Should the final string be made upper or lowercase, or be not changed?")]
     public ClipVariableCaseMode CaseMode { get; set; } = ClipVariableCaseMode.Default;
 
-    [ClipVariableOption("Truncate Length", "truncate_length")]
+    [ClipVariableOption("truncate_length", "Truncate Length", "What's the longest length this variable can be?\nSet to -1 for unlimited length")]
     public int TruncateLength { get; set; } = -1;
 
-    [ClipVariableOption("Include Ellipses", "include_ellipses")]
+    [ClipVariableOption("include_ellipses", "Include Ellipses", "When truncating, should we include an ellipses (...) at the end?")]
     public bool IncludeEllipses { get; set; }
 
-    [ClipVariableOption("Scroll Direction", "scroll_direction")]
+    [ClipVariableOption("scroll_direction", "Scroll Direction", "What direction should this variable scroll in?\nSet Scroll Speed to 0 for no scrolling")]
     public ClipVariableScrollDirection ScrollDirection { get; set; } = ClipVariableScrollDirection.Left;
 
-    [ClipVariableOption("Scroll Speed", "scroll_speed")]
+    [ClipVariableOption("scroll_speed", "Scroll Speed", "How fast, in terms of characters per ChatBox update, should this variable scroll?")]
     public int ScrollSpeed { get; set; }
 
-    [ClipVariableOption("Join String", "join_string")]
+    [ClipVariableOption("join_string", "Join String", "When scrolling, what string should join the ends of the variable?")]
     public string JoinString { get; set; } = string.Empty;
 
     private int currentIndex;
@@ -160,12 +161,14 @@ public class RenderableClipVariableOption
 {
     public PropertyInfo PropertyInfo { get; }
     public string DisplayName { get; }
+    public string Description { get; }
     public Page? PageInstance { get; }
 
-    public RenderableClipVariableOption(PropertyInfo propertyInfo, string displayName, Page? pageInstance)
+    public RenderableClipVariableOption(PropertyInfo propertyInfo, string displayName, string description, Page? pageInstance)
     {
         PropertyInfo = propertyInfo;
         DisplayName = displayName;
+        Description = description;
         PageInstance = pageInstance;
     }
 }

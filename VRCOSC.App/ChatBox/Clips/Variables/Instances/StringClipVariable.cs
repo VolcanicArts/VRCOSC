@@ -10,7 +10,7 @@ public class StringClipVariable : ClipVariable
     {
     }
 
-    protected override string Format(object? value)
+    protected override string Format(object value)
     {
         return (string)value;
     }

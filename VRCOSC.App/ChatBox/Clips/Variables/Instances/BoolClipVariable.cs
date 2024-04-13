@@ -10,10 +10,10 @@ public class BoolClipVariable : ClipVariable
     {
     }
 
-    [ClipVariableOption("When True", "when_true")]
+    [ClipVariableOption("when_true", "When True", "What string should be used when this variable is true?")]
     public string WhenTrue = "True";
 
-    [ClipVariableOption("When False", "when_false")]
+    [ClipVariableOption("when_false", "When False", "What string should be used when this variable is false?")]
     public string WhenFalse = "False";
 
     protected override string Format(object value)

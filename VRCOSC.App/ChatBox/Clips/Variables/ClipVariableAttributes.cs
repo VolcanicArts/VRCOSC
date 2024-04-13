@@ -7,12 +7,14 @@ namespace VRCOSC.App.ChatBox.Clips.Variables;
 
 public class ClipVariableOptionAttribute : Attribute
 {
-    public string DisplayName { get; }
     public string SerialisedName { get; }
+    public string DisplayName { get; }
+    public string Description { get; }
 
-    public ClipVariableOptionAttribute(string displayName, string serialisedName)
+    public ClipVariableOptionAttribute(string serialisedName, string displayName, string description)
     {
-        DisplayName = displayName;
         SerialisedName = serialisedName;
+        DisplayName = displayName;
+        Description = description;
     }
 }

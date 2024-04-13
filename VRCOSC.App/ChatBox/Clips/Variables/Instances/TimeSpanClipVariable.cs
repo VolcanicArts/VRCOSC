@@ -12,18 +12,11 @@ public class TimeSpanClipVariable : ClipVariable
     {
     }
 
-    [ClipVariableOption("Time Format", "time_format")]
-    public string TimeFormat { get; set; } = string.Empty;
+    [ClipVariableOption("time_format", "Time Format", "How should the time be formatted?")]
+    public string TimeFormat { get; set; } = @"mm\:ss";
 
     protected override string Format(object value)
     {
-        if (string.IsNullOrEmpty(TimeFormat))
-        {
-            return $"{(TimeSpan)value:mm\\:ss}".Replace("-", string.Empty);
-        }
-        else
-        {
-            return ((TimeSpan)value).ToString(TimeFormat).Replace("-", string.Empty);
-        }
+        return ((TimeSpan)value).ToString(TimeFormat).Replace("-", string.Empty);
     }
 }
