@@ -16,7 +16,8 @@ public partial class TextBoxVariableOptionPage
 
         var textBoxBinding = new Binding(propertyInfo.Name)
         {
-            Source = instance
+            Source = instance,
+            UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
         };
 
         ValueTextBox.SetBinding(TextBox.TextProperty, textBoxBinding);

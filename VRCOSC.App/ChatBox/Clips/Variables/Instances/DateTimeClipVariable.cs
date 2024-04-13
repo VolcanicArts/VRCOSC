@@ -23,16 +23,23 @@ public class DateTimeClipVariable : ClipVariable
     {
         var dateTimeValue = (DateTimeOffset)value;
 
-        var timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(TimeZoneID);
-        var convertedDateTime = TimeZoneInfo.ConvertTimeFromUtc(dateTimeValue.UtcDateTime, timeZoneInfo);
+        try
+        {
+            var timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(TimeZoneID);
+            var convertedDateTime = TimeZoneInfo.ConvertTimeFromUtc(dateTimeValue.UtcDateTime, timeZoneInfo);
 
-        if (string.IsNullOrEmpty(DateTimeFormat))
-        {
-            return convertedDateTime.ToString(CultureInfo.CurrentCulture);
+            if (string.IsNullOrEmpty(DateTimeFormat))
+            {
+                return convertedDateTime.ToString(CultureInfo.CurrentCulture);
+            }
+            else
+            {
+                return convertedDateTime.ToString(DateTimeFormat, CultureInfo.CurrentCulture);
+            }
         }
-        else
+        catch (Exception)
         {
-            return convertedDateTime.ToString(DateTimeFormat, CultureInfo.CurrentCulture);
+            return "INVALID TIMEZONE";
         }
     }
 }

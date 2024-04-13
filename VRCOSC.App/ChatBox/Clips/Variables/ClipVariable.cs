@@ -36,15 +36,20 @@ public abstract class ClipVariable
 
                 var displayName = propertyInfo.GetCustomAttribute<ClipVariableOptionAttribute>()!.DisplayName;
 
+                // TODO: Move this inside the ClipVariableOptionAttribute?
                 Page? pageInstance = null;
 
                 if (propertyInfo.PropertyType == typeof(bool))
                 {
                     pageInstance = new ToggleVariableOptionPage(this, propertyInfo);
                 }
-                else if (propertyInfo.PropertyType == typeof(int))
+                else if (propertyInfo.PropertyType == typeof(int) || propertyInfo.PropertyType == typeof(float) || propertyInfo.PropertyType == typeof(string))
                 {
                     pageInstance = new TextBoxVariableOptionPage(this, propertyInfo);
+                }
+                else if (propertyInfo.PropertyType.IsEnum)
+                {
+                    pageInstance = new DropdownVariableOptionPage(this, propertyInfo);
                 }
 
                 var renderableClipVariableOption = new RenderableClipVariableOption(propertyInfo, displayName, pageInstance);
@@ -70,7 +75,7 @@ public abstract class ClipVariable
     public ClipVariableCaseMode CaseMode { get; set; } = ClipVariableCaseMode.Default;
 
     [ClipVariableOption("Truncate Length", "truncate_length")]
-    public int TruncateLength { get; set; } = int.MaxValue;
+    public int TruncateLength { get; set; } = -1;
 
     [ClipVariableOption("Include Ellipses", "include_ellipses")]
     public bool IncludeEllipses { get; set; }
@@ -96,7 +101,7 @@ public abstract class ClipVariable
         if (!string.IsNullOrEmpty(JoinString)) formattedValue += JoinString;
 
         var position = currentIndex.Modulo(formattedValue.Length);
-        formattedValue = cropAndWrapText(formattedValue, position, TruncateLength == -1 ? TruncateLength = int.MaxValue : TruncateLength);
+        formattedValue = cropAndWrapText(formattedValue, position, TruncateLength == -1 ? int.MaxValue : TruncateLength);
 
         if (IncludeEllipses)
             formattedValue += "...";

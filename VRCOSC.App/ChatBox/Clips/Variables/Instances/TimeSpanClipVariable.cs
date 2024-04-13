@@ -19,7 +19,7 @@ public class TimeSpanClipVariable : ClipVariable
     {
         if (string.IsNullOrEmpty(TimeFormat))
         {
-            return $"{(TimeSpan)value:mm\\:ss}";
+            return $"{(TimeSpan)value:mm\\:ss}".Replace("-", string.Empty);
         }
         else
         {
