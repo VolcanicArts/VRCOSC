@@ -207,6 +207,17 @@ public class ChatBoxManager : INotifyPropertyChanged
     public void CreateState(ClipStateReference reference)
     {
         StateReferences.Add(reference);
+
+        Timeline.Layers.ForEach(layer =>
+        {
+            layer.Clips.ForEach(clip =>
+            {
+                if (clip.LinkedModules.Contains(reference.ModuleID))
+                {
+                    clip.States.Add(new ClipState(reference));
+                }
+            });
+        });
     }
 
     public void DeleteState(string moduleID, string stateID)
@@ -244,6 +255,17 @@ public class ChatBoxManager : INotifyPropertyChanged
     public void CreateEvent(ClipEventReference reference)
     {
         EventReferences.Add(reference);
+
+        Timeline.Layers.ForEach(layer =>
+        {
+            layer.Clips.ForEach(clip =>
+            {
+                if (clip.LinkedModules.Contains(reference.ModuleID))
+                {
+                    clip.Events.Add(new ClipEvent(reference));
+                }
+            });
+        });
     }
 
     public void DeleteEvent(string moduleID, string eventID)
