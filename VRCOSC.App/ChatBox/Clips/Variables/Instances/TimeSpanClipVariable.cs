@@ -15,6 +15,8 @@ public class TimeSpanClipVariable : ClipVariable
     [ClipVariableOption("time_format", "Time Format", "How should the time be formatted?")]
     public string TimeFormat { get; set; } = @"mm\:ss";
 
+    public override bool IsDefault() => base.IsDefault() && TimeFormat == @"mm\:ss";
+
     protected override string Format(object value)
     {
         return ((TimeSpan)value).ToString(TimeFormat).Replace("-", string.Empty);

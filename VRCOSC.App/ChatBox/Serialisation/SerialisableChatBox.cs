@@ -200,7 +200,9 @@ public class SerialisableClipVariable
     {
         ModuleID = clipVariable.ModuleID;
         VariableID = clipVariable.VariableID;
-        Options = getVariableOptionAttributes(clipVariable, clipVariable.GetType());
+
+        if (!clipVariable.IsDefault())
+            Options = getVariableOptionAttributes(clipVariable, clipVariable.GetType());
     }
 
     private Dictionary<string, object?> getVariableOptionAttributes(ClipVariable instance, Type? type)

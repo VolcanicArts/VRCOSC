@@ -19,7 +19,8 @@ public class ClipElement : INotifyPropertyChanged
     public ObservableCollection<ClipVariable> Variables { get; init; } = new();
 
     public virtual string DisplayName => string.Empty;
-    public virtual bool IsDefault => Format.IsDefault && Enabled.IsDefault;
+
+    public virtual bool IsDefault => Format.IsDefault && Enabled.IsDefault && Variables.All(clipVariable => clipVariable.IsDefault());
     public virtual bool ShouldBeVisible => true;
     public Visibility HasVariables => Variables.Any() ? Visibility.Visible : Visibility.Collapsed;
 

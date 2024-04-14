@@ -100,6 +100,13 @@ public abstract class ClipVariable
 
     private int currentIndex;
 
+    public virtual bool IsDefault() => CaseMode == ClipVariableCaseMode.Default &&
+                                       TruncateLength == -1 &&
+                                       IncludeEllipses == false &&
+                                       ScrollDirection == ClipVariableScrollDirection.Left &&
+                                       ScrollSpeed == 0 &&
+                                       JoinString == string.Empty;
+
     public string GetFormattedValue()
     {
         var variableValue = ChatBoxManager.GetInstance().GetVariable(ModuleID, VariableID)!.Value.Value;

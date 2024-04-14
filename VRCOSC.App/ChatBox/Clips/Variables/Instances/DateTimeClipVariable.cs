@@ -19,6 +19,10 @@ public class DateTimeClipVariable : ClipVariable
     [ClipVariableOption("timezone_id", "Time Zone ID", "What timezone should this date/time be converted to?\nNote: Daylight savings is handled automatically")]
     public string TimeZoneID { get; set; } = TimeZoneInfo.Local.Id;
 
+    public override bool IsDefault() => base.IsDefault() &&
+                                        DateTimeFormat == "yyyy/MM/dd HH:mm:ss" &&
+                                        TimeZoneID == TimeZoneInfo.Local.Id;
+
     protected override string Format(object value)
     {
         var dateTimeValue = (DateTimeOffset)value;

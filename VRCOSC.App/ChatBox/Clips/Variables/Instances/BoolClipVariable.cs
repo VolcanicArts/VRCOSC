@@ -16,6 +16,10 @@ public class BoolClipVariable : ClipVariable
     [ClipVariableOption("when_false", "When False", "What string should be used when this variable is false?")]
     public string WhenFalse = "False";
 
+    public override bool IsDefault() => base.IsDefault() &&
+                                        WhenTrue == "True" &&
+                                        WhenFalse == "False";
+
     protected override string Format(object value)
     {
         var trueString = string.IsNullOrEmpty(WhenTrue) ? "1" : WhenTrue;

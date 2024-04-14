@@ -16,6 +16,8 @@ public class FloatClipVariable : ClipVariable
     [ClipVariableOption("float_format", "Float Format", "How should the float be formatted?")]
     public string FloatFormat { get; set; } = "F1";
 
+    public override bool IsDefault() => base.IsDefault() && FloatFormat == "F1";
+
     protected override string Format(object value)
     {
         try
