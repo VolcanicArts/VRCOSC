@@ -292,7 +292,25 @@ public class ChatBoxManager : INotifyPropertyChanged
 
         VariableReferences.Remove(variableToDelete);
 
-        // TODO: Delete variable references from VariableReferences and State/EventReferences
+        Timeline.Layers.ForEach(layer =>
+        {
+            layer.Clips.ForEach(clip =>
+            {
+                clip.States.ForEach(clipState =>
+                {
+                    var variableInstances = new List<ClipVariable>();
+                    variableInstances.AddRange(clipState.Variables.Where(clipVariable => clipVariable.ModuleID == moduleID && clipVariable.VariableID == variableID));
+                    variableInstances.ForEach(clipVariable => clipState.Variables.Remove(clipVariable));
+                });
+
+                clip.Events.ForEach(clipEvent =>
+                {
+                    var variableInstances = new List<ClipVariable>();
+                    variableInstances.AddRange(clipEvent.Variables.Where(clipVariable => clipVariable.ModuleID == moduleID && clipVariable.VariableID == variableID));
+                    variableInstances.ForEach(clipVariable => clipEvent.Variables.Remove(clipVariable));
+                });
+            });
+        });
     }
 
     public ClipVariableReference? GetVariable(string moduleID, string variableID)
