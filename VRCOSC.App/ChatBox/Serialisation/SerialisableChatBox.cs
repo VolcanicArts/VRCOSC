@@ -53,6 +53,9 @@ public class SerialisableTimeline
 
 public class SerialisableLayer
 {
+    [JsonProperty("enabled")]
+    public bool Enabled;
+
     [JsonProperty("clips")]
     public List<SerialisableClip> Clips = new();
 
@@ -63,6 +66,7 @@ public class SerialisableLayer
 
     public SerialisableLayer(Layer layer)
     {
+        Enabled = layer.Enabled.Value;
         Clips = layer.Clips.Select(clip => new SerialisableClip(clip)).ToList();
     }
 }

@@ -12,6 +12,8 @@ namespace VRCOSC.App.ChatBox;
 
 public class Layer
 {
+    public Observable<bool> Enabled = new(true);
+
     public ObservableCollection<Clip> Clips { get; } = new();
 
     public void Init()
