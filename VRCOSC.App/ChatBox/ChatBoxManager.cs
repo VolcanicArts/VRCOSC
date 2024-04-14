@@ -216,7 +216,15 @@ public class ChatBoxManager : INotifyPropertyChanged
 
         StateReferences.Remove(stateToDelete);
 
-        // TODO: Delete state instances
+        Timeline.Layers.ForEach(layer =>
+        {
+            layer.Clips.ForEach(clip =>
+            {
+                var stateInstances = new List<ClipState>();
+                stateInstances.AddRange(clip.States.Where(clipState => clipState.States.ContainsKey(moduleID) && clipState.States[moduleID] == stateID));
+                stateInstances.ForEach(clipState => clip.States.Remove(clipState));
+            });
+        });
     }
 
     public ClipStateReference? GetState(string moduleID, string stateID)
@@ -245,7 +253,15 @@ public class ChatBoxManager : INotifyPropertyChanged
 
         EventReferences.Remove(eventToDelete);
 
-        // TODO: Delete event instances
+        Timeline.Layers.ForEach(layer =>
+        {
+            layer.Clips.ForEach(clip =>
+            {
+                var eventInstances = new List<ClipEvent>();
+                eventInstances.AddRange(clip.Events.Where(clipEvent => clipEvent.ModuleID == moduleID && clipEvent.EventID == eventID));
+                eventInstances.ForEach(clipEvent => clip.Events.Remove(clipEvent));
+            });
+        });
     }
 
     public ClipEventReference? GetEvent(string moduleID, string eventID)
@@ -255,7 +271,6 @@ public class ChatBoxManager : INotifyPropertyChanged
 
     public void TriggerEvent(string moduleID, string eventID)
     {
-        // TODO: If the event is triggered again before the current event is up, it shouldn't be blocked, but rather updated with the new end time
         if (TriggeredEvents.Contains((moduleID, eventID))) return;
 
         TriggeredEvents.Add((moduleID, eventID));
