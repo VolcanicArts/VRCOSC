@@ -49,7 +49,7 @@ public class ClipEvent : ClipElement
         }
     }
 
-    public override bool IsDefault => base.IsDefault && Length.IsDefault;
+    public override bool IsDefault => base.IsDefault && Length.IsDefault && Behaviour.IsDefault;
 
     [JsonConstructor]
     public ClipEvent()

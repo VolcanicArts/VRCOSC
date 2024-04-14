@@ -106,8 +106,8 @@ public class SerialisableClip
         Start = clip.Start.Value;
         End = clip.End.Value;
         LinkedModules = clip.LinkedModules.ToList();
-        States = clip.States.Select(clipState => new SerialisableClipState(clipState)).ToList();
-        Events = clip.Events.Select(clipEvent => new SerialisableClipEvent(clipEvent)).ToList();
+        States = clip.States.Where(clipState => !clipState.IsDefault).Select(clipState => new SerialisableClipState(clipState)).ToList();
+        Events = clip.Events.Where(clipEvent => !clipEvent.IsDefault).Select(clipEvent => new SerialisableClipEvent(clipEvent)).ToList();
     }
 }
 
