@@ -52,6 +52,8 @@ public class Clip : INotifyPropertyChanged
 
     public Clip()
     {
+        LinkedModules.CollectionChanged += linkedModulesOnCollectionChanged;
+
         ChatBoxManager.GetInstance().Timeline.Length.Subscribe(_ =>
         {
             if (ChatBoxManager.GetInstance().Timeline.LengthSeconds <= Start.Value)
@@ -67,7 +69,7 @@ public class Clip : INotifyPropertyChanged
     public void Init()
     {
         // TODO: If we're not writing any data until we've validated the ChatBox deserialisation for invalid data, this can probably go BEFORE deserialistion to make adding data easier
-        LinkedModules.CollectionChanged += linkedModulesOnCollectionChanged;
+        // LinkedModules.CollectionChanged += linkedModulesOnCollectionChanged;
     }
 
     public void ChatBoxStart()

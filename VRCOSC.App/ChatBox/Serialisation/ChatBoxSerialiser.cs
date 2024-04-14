@@ -51,15 +51,21 @@ public class ChatBoxSerialiser : ProfiledSerialiser<ChatBoxManager, Serialisable
 
                 clip.LinkedModules.AddRange(serialisableClip.LinkedModules);
 
-                clip.States.AddRange(serialisableClip.States.Select(serialisableState =>
+                serialisableClip.States.ForEach(serialisableState =>
                 {
-                    var clipState = new ClipState
-                    {
-                        Format = { Value = serialisableState.Format },
-                        Enabled = { Value = serialisableState.Enabled }
-                    };
+                    var clipState = clip.States.FirstOrDefault(clipState => clipState.States.SequenceEqual(serialisableState.States));
 
-                    clipState.States.AddRange(serialisableState.States);
+                    if (clipState is null)
+                    {
+                        // missing
+                        return;
+                    }
+
+                    clipState.Format.Value = serialisableState.Format;
+                    clipState.Enabled.Value = serialisableState.Enabled;
+
+                    clipState.Variables.Clear();
+
                     clipState.Variables.AddRange(serialisableState.Variables.Select(serialisableClipVariable =>
                     {
                         var clipVariableReference = Reference.VariableReferences.FirstOrDefault(clipVariableReference => clipVariableReference.ModuleID == serialisableClipVariable.ModuleID && clipVariableReference.VariableID == serialisableClipVariable.VariableID);
@@ -67,8 +73,7 @@ public class ChatBoxSerialiser : ProfiledSerialiser<ChatBoxManager, Serialisable
                         // TODO: This is what would be null if a module hadn't loaded, or a variable hadn't been correctly defined
                         Debug.Assert(clipVariableReference is not null);
 
-                        var clipVariable = (ClipVariable)Activator.CreateInstance(clipVariableReference.ClipVariableType, clipVariableReference)!;
-
+                        var clipVariable = clipVariableReference.CreateInstance();
                         var optionAttributes = getVariableOptionAttributes(clipVariable.GetType());
 
                         foreach (var pair in serialisableClipVariable.Options)
@@ -93,21 +98,24 @@ public class ChatBoxSerialiser : ProfiledSerialiser<ChatBoxManager, Serialisable
 
                         return clipVariable;
                     }));
+                });
 
-                    return clipState;
-                }));
-
-                clip.Events.AddRange(serialisableClip.Events.Select(serialisableEvent =>
+                serialisableClip.Events.ForEach(serialisableEvent =>
                 {
-                    var clipEvent = new ClipEvent
+                    var clipEvent = clip.Events.FirstOrDefault(clipEvent => clipEvent.ModuleID == serialisableEvent.ModuleID && clipEvent.EventID == serialisableEvent.EventID);
+
+                    if (clipEvent is null)
                     {
-                        Format = { Value = serialisableEvent.Format },
-                        Enabled = { Value = serialisableEvent.Enabled },
-                        ModuleID = serialisableEvent.ModuleID,
-                        EventID = serialisableEvent.EventID,
-                        Length = { Value = serialisableEvent.Length },
-                        Behaviour = { Value = serialisableEvent.Behaviour }
-                    };
+                        // missing
+                        return;
+                    }
+
+                    clipEvent.Format.Value = serialisableEvent.Format;
+                    clipEvent.Enabled.Value = serialisableEvent.Enabled;
+                    clipEvent.Length.Value = serialisableEvent.Length;
+                    clipEvent.Behaviour.Value = serialisableEvent.Behaviour;
+
+                    clipEvent.Variables.Clear();
 
                     clipEvent.Variables.AddRange(serialisableEvent.Variables.Select(serialisableClipVariable =>
                     {
@@ -116,7 +124,6 @@ public class ChatBoxSerialiser : ProfiledSerialiser<ChatBoxManager, Serialisable
                         Debug.Assert(clipVariableReference is not null);
 
                         var clipVariable = clipVariableReference.CreateInstance();
-
                         var optionAttributes = getVariableOptionAttributes(clipVariable.GetType());
 
                         foreach (var pair in serialisableClipVariable.Options)
@@ -148,9 +155,7 @@ public class ChatBoxSerialiser : ProfiledSerialiser<ChatBoxManager, Serialisable
 
                         return clipVariable;
                     }));
-
-                    return clipEvent;
-                }));
+                });
 
                 return clip;
             }));
