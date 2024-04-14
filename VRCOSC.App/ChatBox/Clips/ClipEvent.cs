@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -19,9 +20,17 @@ public class ClipEvent : ClipElement
     public string EventID { get; init; } = null!;
 
     // TODO: Convert to TimeSpan?
-    public Observable<float> Length = new();
+    public Observable<float> Length { get; } = new();
 
     public Observable<ClipEventBehaviour> Behaviour = new();
+
+    public int BehaviourIndex
+    {
+        get => (int)Behaviour.Value;
+        set => Behaviour.Value = (ClipEventBehaviour)value;
+    }
+
+    public Array BehaviourSource => typeof(ClipEventBehaviour).GetEnumValues();
 
     public override string DisplayName
     {
