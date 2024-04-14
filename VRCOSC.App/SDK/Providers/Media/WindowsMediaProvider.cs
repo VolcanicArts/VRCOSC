@@ -105,25 +105,23 @@ public class WindowsMediaProvider : MediaProvider
 
     private async void onCurrentSessionChanged(GlobalSystemMediaTransportControlsSessionManager? _, CurrentSessionChangedEventArgs? _2)
     {
-        if (controller is null)
-        {
-            State = new MediaState();
-            return;
-        }
-
-        State.Identifier = controller.SourceAppUserModelId;
-
-        onAnyPlaybackStateChanged(controller, controller.GetPlaybackInfo());
-
         try
         {
+            if (controller is null)
+            {
+                State = new MediaState();
+                return;
+            }
+
+            State.Identifier = controller.SourceAppUserModelId;
+
+            onAnyPlaybackStateChanged(controller, controller.GetPlaybackInfo());
             onAnyMediaPropertyChanged(controller, await controller.TryGetMediaPropertiesAsync());
+            onAnyTimelinePropertiesChanged(controller, controller.GetTimelineProperties());
         }
         catch (Exception)
         {
         }
-
-        onAnyTimelinePropertiesChanged(controller, controller.GetTimelineProperties());
     }
 
     private void sessionsChanged(GlobalSystemMediaTransportControlsSessionManager? _, SessionsChangedEventArgs? _2)
