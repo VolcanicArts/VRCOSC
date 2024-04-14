@@ -19,6 +19,7 @@ using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.Profiles;
 using VRCOSC.App.SDK.OVR;
 using VRCOSC.App.SDK.OVR.Metadata;
+using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;
@@ -144,17 +145,38 @@ public class AppManager
         {
             if (message.IsAvatarChangeEvent)
             {
+                VRChatClient.HandleAvatarChange(message);
+
                 if (ProfileManager.GetInstance().AvatarChange((string)message.ParameterValue)) continue;
+
+                sendControlParameters();
             }
 
             if (message.IsAvatarParameter)
             {
                 var wasPlayerUpdated = VRChatClient.Player.Update(message.ParameterName, message.ParameterValue);
                 if (wasPlayerUpdated) ModuleManager.GetInstance().PlayerUpdate();
+
+                if (message.ParameterName.StartsWith("VRCOSC/Controls")) handleControlParameter(new ReceivedParameter(message.ParameterName, message.ParameterValue));
             }
 
             ModuleManager.GetInstance().ParameterReceived(message);
         }
+    }
+
+    private void handleControlParameter(ReceivedParameter parameter)
+    {
+        switch (parameter.Name)
+        {
+            case "VRCOSC/Controls/ChatBox/Enabled" when parameter.IsValueType<bool>():
+                ChatBoxManager.GetInstance().SendEnabled = parameter.GetValue<bool>();
+                break;
+        }
+    }
+
+    private void sendControlParameters()
+    {
+        VRChatOscClient.SendValue($"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}VRCOSC/Controls/ChatBox/Enabled", ChatBoxManager.GetInstance().SendEnabled);
     }
 
     #endregion
@@ -273,6 +295,8 @@ public class AppManager
         VRChatOscClient.EnableReceive();
 
         State.Value = AppManagerState.Started;
+
+        sendControlParameters();
     }
 
     private void initialiseOSCClient(int sendPort, int receivePort)

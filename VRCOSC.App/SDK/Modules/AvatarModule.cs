@@ -4,14 +4,11 @@
 using System;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.SDK.Parameters;
-using VRCOSC.App.SDK.VRChat;
 
 namespace VRCOSC.App.SDK.Modules;
 
 public class AvatarModule : Module
 {
-    protected Player Player => AppManager.GetInstance().VRChatClient.Player;
-
     private void avatarChange()
     {
         try

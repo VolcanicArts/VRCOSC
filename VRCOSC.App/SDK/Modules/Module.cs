@@ -25,6 +25,7 @@ using VRCOSC.App.SDK.Modules.Attributes.Settings;
 using VRCOSC.App.SDK.Modules.Attributes.Types;
 using VRCOSC.App.SDK.OVR;
 using VRCOSC.App.SDK.Parameters;
+using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;
@@ -41,6 +42,7 @@ public abstract class Module : INotifyPropertyChanged
     internal Observable<ModuleState> State { get; } = new(ModuleState.Stopped);
 
     protected OVRClient OVRClient => AppManager.GetInstance().OVRClient;
+    protected VRChatClient VRChatClient => AppManager.GetInstance().VRChatClient;
 
     public string Title => GetType().GetCustomAttribute<ModuleTitleAttribute>()?.Title ?? "PLACEHOLDER";
     public string ShortDescription => GetType().GetCustomAttribute<ModuleDescriptionAttribute>()?.ShortDescription ?? string.Empty;
