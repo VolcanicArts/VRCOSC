@@ -87,6 +87,15 @@ public class Clip : INotifyPropertyChanged
         return null;
     }
 
+    public bool Intersects(Clip other)
+    {
+        if (Start.Value >= other.Start.Value && Start.Value < other.End.Value) return true;
+        if (End.Value <= other.End.Value && End.Value > other.Start.Value) return true;
+        if (Start.Value < other.Start.Value && End.Value > other.End.Value) return true;
+
+        return false;
+    }
+
     #region Update
 
     public void UpdateUIBinds()

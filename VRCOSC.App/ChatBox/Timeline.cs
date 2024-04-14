@@ -47,7 +47,7 @@ public class Timeline : INotifyPropertyChanged
 
         for (var i = 0; i < LayerCount; i++)
         {
-            Layers.Add(new Layer());
+            Layers.Add(new Layer(i));
         }
     }
 

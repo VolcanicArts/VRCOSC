@@ -9,6 +9,7 @@
       xmlns:fa5="http://schemas.fontawesome.com/icons/"
       mc:Ignorable="d"
       Loaded="ChatBoxPage_OnLoaded"
+      MouseLeftButtonDown="ChatBoxPage_OnMouseLeftButtonDown"
       MouseLeftButtonUp="ChatBoxPage_OnMouseLeftButtonUp">
     <Page.Resources>
         <local:IndicatorPositionConverter x:Key="IndicatorPositionConverter" />
@@ -186,12 +187,13 @@
                 </Grid>
             </Border>
             <!--> Timeline <-->
-            <Border Grid.Row="2" Grid.Column="2" Background="{StaticResource CBackground3}" CornerRadius="5"
+            <Border Grid.Row="2" Grid.Column="2" Background="{StaticResource CBackground3}"
+                    CornerRadius="5"
                     Padding="5">
                 <Border Background="{StaticResource CBackground2}" CornerRadius="5"
                         MouseMove="Timeline_MouseMove"
                         MouseLeftButtonUp="Timeline_MouseLeftButtonUp" HorizontalAlignment="Stretch">
-                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <Grid Name="TimelineContainer" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
@@ -332,13 +334,15 @@
                                                                                             <Border.Tag>
                                                                                                 <Binding />
                                                                                             </Border.Tag>
-                                                                                            <TextBlock
-                                                                                                Text="{Binding Name.Value}"
-                                                                                                HorizontalAlignment="Stretch"
-                                                                                                VerticalAlignment="Stretch"
-                                                                                                TextAlignment="Center"
-                                                                                                FontSize="20"
-                                                                                                Foreground="{StaticResource CForeground1}" />
+                                                                                            <Border Background="Transparent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                                                                                <TextBlock
+                                                                                                    Text="{Binding Name.Value}"
+                                                                                                    HorizontalAlignment="Stretch"
+                                                                                                    VerticalAlignment="Center"
+                                                                                                    TextAlignment="Center"
+                                                                                                    FontSize="20"
+                                                                                                    Foreground="{StaticResource CForeground1}" />
+                                                                                            </Border>
                                                                                         </Border>
                                                                                         <Border Grid.Column="2"
                                                                                             Background="{StaticResource CBackground1}"
@@ -385,6 +389,45 @@
                                     X="{Binding CurrentPercentage, Converter={StaticResource IndicatorPositionConverter}}" />
                             </Border.RenderTransform>
                         </Border>
+                        <!--> Right Click Menu <-->
+                        <Grid Name="RightClickMenu" Width="150" HorizontalAlignment="Left" VerticalAlignment="Top"
+                              Visibility="Collapsed"
+                              MouseDown="RightClickMenu_OnMouseDown">
+                            <Border Background="{StaticResource CBackground5}" CornerRadius="5" Padding="5">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+                                    <ui:SpacedStackPanel x:Name="RightClickMenuClipOptions" Spacing="5">
+                                        <ui:VRCOSCButton ButtonColour="Red" Click="DeleteClip_OnClick">
+                                            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                       Text="Delete Clip" Foreground="{StaticResource CForeground1}"
+                                                       FontSize="15" />
+                                        </ui:VRCOSCButton>
+                                        <ui:VRCOSCButton ButtonColour="Blue" Click="MoveClipUp_OnClick">
+                                            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                       Text="Move Up" Foreground="{StaticResource CForeground1}"
+                                                       FontSize="15" />
+                                        </ui:VRCOSCButton>
+                                        <ui:VRCOSCButton ButtonColour="Blue" Click="MoveClipDown_OnClick">
+                                            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                       Text="Move Down" Foreground="{StaticResource CForeground1}"
+                                                       FontSize="15" />
+                                        </ui:VRCOSCButton>
+                                    </ui:SpacedStackPanel>
+                                    <ui:SpacedStackPanel x:Name="RightClickMenuLayerOptions" Spacing="5">
+                                        <ui:VRCOSCButton ButtonColour="Green" Click="CreateClipOnLayer_OnClick">
+                                            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                       Text="Create Clip" Foreground="{StaticResource CForeground1}"
+                                                       FontSize="15" />
+                                        </ui:VRCOSCButton>
+                                    </ui:SpacedStackPanel>
+                                </Grid>
+                            </Border>
+                        </Grid>
                     </Grid>
                 </Border>
             </Border>

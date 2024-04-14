@@ -4,6 +4,7 @@
 using System;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -59,6 +60,11 @@ public partial class ChatBoxPage
     {
         ChatBoxManager.GetInstance().Timeline.Length.Subscribe(_ => drawLines());
         drawLines();
+    }
+
+    private void ChatBoxPage_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        fadeOut(RightClickMenu, 50);
     }
 
     private void ChatBoxPage_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -156,9 +162,13 @@ public partial class ChatBoxPage
         var clip = (Clip)clipGrid.Tag;
         e.Handled = true;
 
+        if (clipBorder is not null)
+            clipBorder!.Background = (Brush)FindResource("CBackground4");
+
         clipBorder = clipGrid.FindVisualParent<Border>("ClipBorder");
         clipBorder!.Background = (Brush)FindResource("CBackground6");
         SelectedClip = clip;
+        fadeOut(RightClickMenu, 50);
     }
 
     private void ClipMain_OnLeftMouseButtonDown(object sender, MouseButtonEventArgs e)
@@ -295,6 +305,8 @@ public partial class ChatBoxPage
 
     private void fadeIn(FrameworkElement grid, double fadeInTimeMilli) => Dispatcher.Invoke(() =>
     {
+        if (grid.Visibility == Visibility.Visible) return;
+
         grid.Visibility = Visibility.Visible;
         grid.Opacity = 0;
 
@@ -314,6 +326,8 @@ public partial class ChatBoxPage
 
     private void fadeOut(FrameworkElement grid, double fadeOutTime) => Dispatcher.Invoke(() =>
     {
+        if (grid.Visibility == Visibility.Collapsed) return;
+
         grid.Opacity = 1;
 
         var fadeOutAnimation = new DoubleAnimation
@@ -340,11 +354,7 @@ public partial class ChatBoxPage
             clipBorder.Background = (Brush)FindResource("CBackground4");
 
         SelectedClip = null;
-
-        Console.WriteLine(ChatBoxManager.GetInstance().Timeline.Layers.IndexOf(layer));
-        Console.WriteLine(e.GetPosition(layerElement).X / layerElement.ActualWidth);
-
-        // TODO: Show menu to add clip
+        showRightClickMenu(layer, null);
     }
 
     private void Layer_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -354,6 +364,7 @@ public partial class ChatBoxPage
 
         SelectedClip = null;
         e.Handled = true;
+        fadeOut(RightClickMenu, 50);
     }
 
     private void Clip_OnMouseRightButtonDown(object sender, MouseButtonEventArgs e)
@@ -362,9 +373,7 @@ public partial class ChatBoxPage
         var clip = (Clip)clipElement.Tag;
         e.Handled = true;
 
-        Console.WriteLine(clip.Name.Value);
-
-        // TODO: Show menu to delete clip
+        showRightClickMenu(null, clip);
     }
 
     private void TextBox_OnLostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
@@ -398,6 +407,105 @@ public partial class ChatBoxPage
 
         ChatBoxManager.GetInstance().Timeline.SetupLayers();
         ChatBoxManager.GetInstance().Serialise();
+    }
+
+    private void showRightClickMenu(Layer? layer, Clip? clip)
+    {
+        RightClickMenu.Visibility = Visibility.Collapsed;
+
+        RightClickMenuLayerOptions.Visibility = layer is not null ? Visibility.Visible : Visibility.Collapsed;
+        RightClickMenuClipOptions.Visibility = clip is not null ? Visibility.Visible : Visibility.Collapsed;
+
+        RightClickMenu.Tag = layer is not null ? layer : clip;
+
+        var mousePos = Mouse.GetPosition(TimelineContainer);
+        RightClickMenu.RenderTransform = new TranslateTransform(mousePos.X, mousePos.Y);
+
+        fadeIn(RightClickMenu, 50);
+    }
+
+    private void RightClickMenu_OnMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        e.Handled = true;
+    }
+
+    private void createClip()
+    {
+        var layer = (Layer)RightClickMenu.Tag;
+
+        var xPos = ((TranslateTransform)RightClickMenu.RenderTransform).X;
+        var xPosNormalised = xPos / TimelineContainer.ActualWidth;
+        var closestSecond = (int)Math.Floor(xPosNormalised * ChatBoxManager.GetInstance().Timeline.LengthSeconds);
+
+        var (lowerBound, upperBound) = layer.GetBoundsNearestTo(closestSecond, false, true);
+
+        var clip = new Clip
+        {
+            Start = { Value = lowerBound },
+            End = { Value = upperBound }
+        };
+
+        layer.Clips.Add(clip);
+
+        fadeOut(RightClickMenu, 50);
+    }
+
+    private void CreateClipOnLayer_OnClick(object sender, RoutedEventArgs e)
+    {
+        createClip();
+    }
+
+    private void DeleteClip_OnClick(object sender, RoutedEventArgs e)
+    {
+        var clip = (Clip)RightClickMenu.Tag;
+
+        if (clipBorder is not null)
+            clipBorder.Background = (Brush)FindResource("CBackground4");
+
+        SelectedClip = null;
+
+        ChatBoxManager.GetInstance().Timeline.FindLayerOfClip(clip).Clips.Remove(clip);
+        fadeOut(RightClickMenu, 50);
+    }
+
+    private void moveUp(Clip clip)
+    {
+        var layer = ChatBoxManager.GetInstance().Timeline.FindLayerOfClip(clip);
+
+        if (layer.ID == 0) return;
+
+        var newLayer = ChatBoxManager.GetInstance().Timeline.Layers[layer.ID - 1];
+
+        if (newLayer.Clips.Any(clip.Intersects)) return;
+
+        layer.Clips.Remove(clip);
+        newLayer.Clips.Add(clip);
+    }
+
+    private void moveDown(Clip clip)
+    {
+        var layer = ChatBoxManager.GetInstance().Timeline.FindLayerOfClip(clip);
+
+        if (layer.ID == ChatBoxManager.GetInstance().Timeline.LayerCount - 1) return;
+
+        var newLayer = ChatBoxManager.GetInstance().Timeline.Layers[layer.ID + 1];
+
+        if (newLayer.Clips.Any(clip.Intersects)) return;
+
+        layer.Clips.Remove(clip);
+        newLayer.Clips.Add(clip);
+    }
+
+    private void MoveClipUp_OnClick(object sender, RoutedEventArgs e)
+    {
+        var clip = (Clip)RightClickMenu.Tag;
+        moveUp(clip);
+    }
+
+    private void MoveClipDown_OnClick(object sender, RoutedEventArgs e)
+    {
+        var clip = (Clip)RightClickMenu.Tag;
+        moveDown(clip);
     }
 }
 

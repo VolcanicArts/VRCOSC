@@ -12,9 +12,16 @@ namespace VRCOSC.App.ChatBox;
 
 public class Layer
 {
+    public readonly int ID;
+
     public Observable<bool> Enabled = new(true);
 
     public ObservableCollection<Clip> Clips { get; } = new();
+
+    public Layer(int id)
+    {
+        ID = id;
+    }
 
     public void Init()
     {
