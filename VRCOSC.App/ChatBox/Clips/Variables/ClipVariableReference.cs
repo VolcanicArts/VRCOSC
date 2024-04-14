@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -6,6 +6,7 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.ChatBox.Clips.Variables;
 
+// TODO: Should this extend so I can have default values for variable options?
 public class ClipVariableReference
 {
     internal string ModuleID { get; init; } = null!;

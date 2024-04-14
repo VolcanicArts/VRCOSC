@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -23,6 +23,9 @@ public class Clip : INotifyPropertyChanged
     public Observable<int> Start { get; } = new();
     public Observable<int> End { get; } = new();
     public ObservableCollection<string> LinkedModules { get; } = new();
+
+    // TODO: When there's no linked modules there should be a single state letting people type text
+
     public ObservableCollection<ClipState> States { get; } = new();
     public ObservableCollection<ClipEvent> Events { get; } = new();
 
@@ -63,6 +66,7 @@ public class Clip : INotifyPropertyChanged
 
     public void Init()
     {
+        // TODO: If we're not writing any data until we've validated the ChatBox deserialisation for invalid data, this can probably go BEFORE deserialistion to make adding data easier
         LinkedModules.CollectionChanged += linkedModulesOnCollectionChanged;
     }
 

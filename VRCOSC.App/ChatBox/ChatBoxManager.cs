@@ -28,6 +28,10 @@ public class ChatBoxManager : INotifyPropertyChanged
 
     public ObservableCollection<ClipStateReference> StateReferences = new();
     public ObservableCollection<ClipEventReference> EventReferences = new();
+
+    // TODO: Create a default string variable reference that's always available
+    // TODO: Create global variables (focused window)
+
     public ObservableCollection<ClipVariableReference> VariableReferences = new();
 
     //public readonly Dictionary<(string, string), string?> VariableValues = new();
@@ -211,6 +215,8 @@ public class ChatBoxManager : INotifyPropertyChanged
         if (stateToDelete is null) return;
 
         StateReferences.Remove(stateToDelete);
+
+        // TODO: Delete state instances
     }
 
     public ClipStateReference? GetState(string moduleID, string stateID)
@@ -238,6 +244,8 @@ public class ChatBoxManager : INotifyPropertyChanged
         if (eventToDelete is null) return;
 
         EventReferences.Remove(eventToDelete);
+
+        // TODO: Delete event instances
     }
 
     public ClipEventReference? GetEvent(string moduleID, string eventID)
@@ -247,6 +255,7 @@ public class ChatBoxManager : INotifyPropertyChanged
 
     public void TriggerEvent(string moduleID, string eventID)
     {
+        // TODO: If the event is triggered again before the current event is up, it shouldn't be blocked, but rather updated with the new end time
         if (TriggeredEvents.Contains((moduleID, eventID))) return;
 
         TriggeredEvents.Add((moduleID, eventID));
@@ -267,6 +276,8 @@ public class ChatBoxManager : INotifyPropertyChanged
         if (variableToDelete is null) return;
 
         VariableReferences.Remove(variableToDelete);
+
+        // TODO: Delete variable references from VariableReferences and State/EventReferences
     }
 
     public ClipVariableReference? GetVariable(string moduleID, string variableID)

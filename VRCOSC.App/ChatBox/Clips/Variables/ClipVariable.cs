@@ -80,7 +80,7 @@ public abstract class ClipVariable
         currentIndex = 0;
     }
 
-    [ClipVariableOption("case_mode", "Case Mode", "Should the final string be made upper or lowercase, or be not changed?")]
+    [ClipVariableOption("case_mode", "Case Mode", "Should the final string be made upper or lowercase, or not be changed?")]
     public ClipVariableCaseMode CaseMode { get; set; } = ClipVariableCaseMode.Default;
 
     [ClipVariableOption("truncate_length", "Truncate Length", "What's the longest length this variable can be?\nSet to -1 for unlimited length")]

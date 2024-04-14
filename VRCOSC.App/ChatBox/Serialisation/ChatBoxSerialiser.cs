@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -64,6 +64,7 @@ public class ChatBoxSerialiser : ProfiledSerialiser<ChatBoxManager, Serialisable
                     {
                         var clipVariableReference = Reference.VariableReferences.FirstOrDefault(clipVariableReference => clipVariableReference.ModuleID == serialisableClipVariable.ModuleID && clipVariableReference.VariableID == serialisableClipVariable.VariableID);
 
+                        // TODO: This is what would be null if a module hadn't loaded, or a variable hadn't been correctly defined
                         Debug.Assert(clipVariableReference is not null);
 
                         var clipVariable = (ClipVariable)Activator.CreateInstance(clipVariableReference.ClipVariableType, clipVariableReference)!;
