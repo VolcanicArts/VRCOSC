@@ -71,7 +71,7 @@ public class ChatBoxManager : INotifyPropertyChanged
         Deserialise();
     }
 
-    public void ClearAllReferences()
+    public void Unload()
     {
         StateReferences.Clear();
         EventReferences.Clear();

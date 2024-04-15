@@ -9,6 +9,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
 using System.Threading.Tasks;
+using VRCOSC.App.ChatBox;
 using VRCOSC.App.Modules.Serialisation;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.Profiles;
@@ -113,7 +114,13 @@ public class ModuleManager : INotifyPropertyChanged
         Logger.Log("Module reload requested");
 
         UnloadAllModules();
+
+        ChatBoxManager.GetInstance().Serialise();
+        ChatBoxManager.GetInstance().Unload();
+
         LoadAllModules();
+
+        ChatBoxManager.GetInstance().Load();
     }
 
     public void UnloadAllModules()

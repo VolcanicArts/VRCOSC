@@ -386,7 +386,7 @@ public class AppManager
 
         ModuleManager.GetInstance().UnloadAllModules();
         ChatBoxManager.GetInstance().Serialise();
-        ChatBoxManager.GetInstance().ClearAllReferences();
+        ChatBoxManager.GetInstance().Unload();
 
         ProfileManager.GetInstance().ActiveProfile.Value = newProfile;
 
