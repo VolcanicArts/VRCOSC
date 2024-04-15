@@ -385,6 +385,9 @@ public class AppManager
         }
 
         ModuleManager.GetInstance().UnloadAllModules();
+
+        MainWindow.GetInstance().ChatBoxPage.SelectedClip = null;
+
         ChatBoxManager.GetInstance().Serialise();
         ChatBoxManager.GetInstance().Unload();
 
