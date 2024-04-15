@@ -11,7 +11,7 @@ public class ModulePackage
     public Assembly Assembly { get; }
     public bool Remote { get; }
 
-    public string DisplayName => Assembly.GetCustomAttribute<AssemblyProductAttribute>()?.Product ?? "UNKNOWN";
+    public string DisplayName => Assembly.GetCustomAttribute<AssemblyTitleAttribute>()?.Title ?? "UNKNOWN";
     public Visibility LocalVisibility => Remote ? Visibility.Collapsed : Visibility.Visible;
 
     public ModulePackage(Assembly assembly, bool remote)
