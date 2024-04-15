@@ -19,7 +19,7 @@
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
                 <ui:SpacedStackPanel Grid.Row="0" Spacing="7" Orientation="Horizontal">
-                    <ui:VRCOSCButton Width="200" ButtonColour="Blue" Command="{Binding UIResetParameters}">
+                    <ui:VRCOSCButton Width="200" ButtonColour="Blue" Click="ResetParameters_OnClick">
                         <TextBlock Text="Reset To Default" FontSize="20" Foreground="{StaticResource CForeground1}" />
                     </ui:VRCOSCButton>
                 </ui:SpacedStackPanel>

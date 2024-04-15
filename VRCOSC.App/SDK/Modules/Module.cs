@@ -3,22 +3,16 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Input;
 using System.Windows.Media;
 using VRCOSC.App.ChatBox;
 using VRCOSC.App.Modules;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.Packages;
-using VRCOSC.App.Pages.Modules;
-using VRCOSC.App.Pages.Modules.Parameters;
 using VRCOSC.App.Pages.Modules.Settings;
 using VRCOSC.App.SDK.Modules.Attributes;
 using VRCOSC.App.SDK.Modules.Attributes.Parameters;
@@ -33,7 +27,7 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.Modules;
 
-public abstract class Module : INotifyPropertyChanged
+public abstract class Module
 {
     public string PackageId { get; set; } = null!;
 
@@ -57,10 +51,7 @@ public abstract class Module : INotifyPropertyChanged
     private readonly Dictionary<string, Regex> parameterNameRegex = new();
 
     internal readonly Dictionary<Enum, ModuleParameter> Parameters = new();
-    public List<ModuleParameter> UIParameters => Parameters.Select(pair => pair.Value).ToList();
-
     internal readonly Dictionary<string, ModuleSetting> Settings = new();
-    public List<ModuleSetting> UISettings => Settings.Select(pair => pair.Value).ToList();
 
     internal readonly Dictionary<string, List<string>> Groups = new();
     internal readonly Dictionary<ModulePersistentAttribute, PropertyInfo> PersistentProperties = new();
@@ -71,36 +62,12 @@ public abstract class Module : INotifyPropertyChanged
     private SerialisationManager moduleSerialisationManager = null!;
     private SerialisationManager persistenceSerialisationManager = null!;
 
-    private object loadLock = new();
+    private readonly object loadLock = new();
+
+    public bool HasSettings => Settings.Any();
+    public bool HasParameters => Parameters.Any();
 
     protected virtual bool ShouldUsePersistence => true;
-
-    public Dictionary<string, List<ModuleSetting>> GroupsFormatted
-    {
-        get
-        {
-            var settingsInGroup = new List<string>();
-
-            var groupsFormatted = new Dictionary<string, List<ModuleSetting>>();
-
-            Groups.ForEach(pair =>
-            {
-                var moduleSettings = new List<ModuleSetting>();
-                pair.Value.ForEach(moduleSettingLookup =>
-                {
-                    moduleSettings.Add(Settings[moduleSettingLookup]);
-                    settingsInGroup.Add(moduleSettingLookup);
-                });
-                groupsFormatted.Add(pair.Key, moduleSettings);
-            });
-
-            var miscModuleSettings = new List<ModuleSetting>();
-            Settings.Where(pair => !settingsInGroup.Contains(pair.Key)).ForEach(pair => miscModuleSettings.Add(pair.Value));
-            if (miscModuleSettings.Any()) groupsFormatted.Add("Miscellaneous", miscModuleSettings);
-
-            return groupsFormatted;
-        }
-    }
 
     protected Module()
     {
@@ -202,7 +169,7 @@ public abstract class Module : INotifyPropertyChanged
 
     #endregion
 
-    public async Task Start()
+    internal async Task Start()
     {
         State.Value = ModuleState.Starting;
 
@@ -227,7 +194,7 @@ public abstract class Module : INotifyPropertyChanged
         initialiseUpdateAttributes(GetType());
     }
 
-    public async Task Stop()
+    internal async Task Stop()
     {
         State.Value = ModuleState.Stopping;
 
@@ -580,97 +547,6 @@ public abstract class Module : INotifyPropertyChanged
 
     protected virtual void OnAnyParameterReceived(ReceivedParameter receivedParameter)
     {
-    }
-
-    #endregion
-
-    #region UI
-
-    private ModuleSettingsWindow? moduleSettingsWindow;
-    private ModuleParametersWindow? moduleParametersWindow;
-
-    public ICommand UISettingsButton => new RelayCommand(_ => OnSettingsButtonClick());
-
-    public bool UISettingsButtonEnabled => Settings.Any();
-
-    private void OnSettingsButtonClick()
-    {
-        if (moduleSettingsWindow is null)
-        {
-            moduleSettingsWindow = new ModuleSettingsWindow(this);
-
-            moduleSettingsWindow.Closed += (_, _) =>
-            {
-                var mainWindow = Application.Current.MainWindow;
-                if (mainWindow is null) return;
-
-                mainWindow.WindowState = WindowState.Normal;
-                mainWindow.Focus();
-
-                moduleSettingsWindow = null;
-            };
-
-            moduleSettingsWindow.Show();
-        }
-        else
-        {
-            moduleSettingsWindow.Focus();
-        }
-    }
-
-    public ICommand UIParametersButton => new RelayCommand(_ => OnParametersButtonClicked());
-
-    public bool UIParametersButtonEnabled => Parameters.Any();
-
-    private void OnParametersButtonClicked()
-    {
-        if (moduleParametersWindow is null)
-        {
-            moduleParametersWindow = new ModuleParametersWindow(this);
-
-            moduleParametersWindow.Closed += (_, _) =>
-            {
-                var mainWindow = Application.Current.MainWindow;
-                if (mainWindow is null) return;
-
-                mainWindow.WindowState = WindowState.Normal;
-                mainWindow.Focus();
-
-                moduleParametersWindow = null;
-            };
-
-            moduleParametersWindow.Show();
-        }
-        else
-        {
-            moduleParametersWindow.Focus();
-        }
-    }
-
-    public ICommand UIResetParameters => new RelayCommand(_ => OnResetParametersButtonClicked());
-
-    private void OnResetParametersButtonClicked()
-    {
-        Parameters.Values.ForEach(parameter => parameter.SetDefault());
-    }
-
-    private double parameterScrollViewerHeight = double.NaN;
-
-    public double ParameterScrollViewerHeight
-    {
-        get => parameterScrollViewerHeight;
-        set
-        {
-            parameterScrollViewerHeight = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
     #endregion

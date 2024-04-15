@@ -72,9 +72,6 @@ public class AppManager
 
         if ((flags & PageLookup.Packages) == PageLookup.Packages && pageInstances.TryGetValue(PageLookup.Packages, out var packagePage))
             packagePage.Refresh();
-
-        if ((flags & PageLookup.Modules) == PageLookup.Modules && pageInstances.TryGetValue(PageLookup.Modules, out var modulesPage))
-            modulesPage.Refresh();
     }
 
     public void Initialise()
@@ -411,8 +408,7 @@ public class AppManager
 public enum PageLookup
 {
     Home = 1 << 0,
-    Packages = 1 << 1,
-    Modules = 1 << 2
+    Packages = 1 << 1
 }
 
 public enum AppManagerState

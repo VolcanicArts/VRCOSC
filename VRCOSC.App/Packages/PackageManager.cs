@@ -98,7 +98,7 @@ public class PackageManager : INotifyPropertyChanged
             serialisationManager.Serialise();
             OnPropertyChanged(nameof(UpdateAllButtonVisibility));
             ModuleManager.GetInstance().ReloadAllModules();
-            AppManager.GetInstance().Refresh(PageLookup.Packages | PageLookup.Modules);
+            AppManager.GetInstance().Refresh(PageLookup.Packages);
         };
 
         return installAction;
@@ -114,7 +114,7 @@ public class PackageManager : INotifyPropertyChanged
             serialisationManager.Serialise();
             OnPropertyChanged(nameof(UpdateAllButtonVisibility));
             ModuleManager.GetInstance().ReloadAllModules();
-            AppManager.GetInstance().Refresh(PageLookup.Packages | PageLookup.Modules);
+            AppManager.GetInstance().Refresh(PageLookup.Packages);
         };
 
         return uninstallAction;

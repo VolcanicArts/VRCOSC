@@ -151,8 +151,11 @@
                                                                                     <ui:VRCOSCButton
                                                                                         ButtonColour="Gray"
                                                                                         Width="30" Height="30"
-                                                                                        Command="{Binding UIParametersButton}"
-                                                                                        IsEnabled="{Binding UIParametersButtonEnabled}">
+                                                                                        Click="ParametersButton_OnClick"
+                                                                                        IsEnabled="{Binding HasParameters}">
+                                                                                        <ui:VRCOSCButton.Tag>
+                                                                                            <Binding />
+                                                                                        </ui:VRCOSCButton.Tag>
                                                                                         <fa5:ImageAwesome
                                                                                             Icon="Solid_Link"
                                                                                             Foreground="White"
@@ -161,8 +164,11 @@
                                                                                     <ui:VRCOSCButton
                                                                                         ButtonColour="Gray"
                                                                                         Width="30" Height="30"
-                                                                                        Command="{Binding UISettingsButton}"
-                                                                                        IsEnabled="{Binding UISettingsButtonEnabled}">
+                                                                                        Click="SettingsButton_OnClick"
+                                                                                        IsEnabled="{Binding HasSettings}">
+                                                                                        <ui:VRCOSCButton.Tag>
+                                                                                            <Binding />
+                                                                                        </ui:VRCOSCButton.Tag>
                                                                                         <fa5:ImageAwesome
                                                                                             Icon="Solid_Cog"
                                                                                             Foreground="White"
