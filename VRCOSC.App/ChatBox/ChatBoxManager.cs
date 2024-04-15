@@ -59,11 +59,18 @@ public class ChatBoxManager : INotifyPropertyChanged
     public Visibility ShowIndicator => AppManager.GetInstance().State.Value == AppManagerState.Started ? Visibility.Visible : Visibility.Collapsed;
 
     private readonly SerialisationManager serialisationManager;
+    private readonly SerialisationManager validationSerialisationManager;
+    private readonly ChatBoxValidationSerialiser chatBoxValidationSerialiser;
+
+    public Observable<bool> IsLoaded = new();
 
     public ChatBoxManager()
     {
         serialisationManager = new SerialisationManager();
         serialisationManager.RegisterSerialiser(1, new ChatBoxSerialiser(AppManager.GetInstance().Storage, this, ProfileManager.GetInstance().ActiveProfile));
+
+        validationSerialisationManager = new SerialisationManager();
+        validationSerialisationManager.RegisterSerialiser(1, chatBoxValidationSerialiser = new ChatBoxValidationSerialiser(AppManager.GetInstance().Storage, this, ProfileManager.GetInstance().ActiveProfile));
     }
 
     public void Load()
@@ -76,10 +83,13 @@ public class ChatBoxManager : INotifyPropertyChanged
         StateReferences.Clear();
         EventReferences.Clear();
         VariableReferences.Clear();
+        IsLoaded.Value = false;
     }
 
     public void Serialise()
     {
+        if (!IsLoaded.Value) return;
+
         serialisationManager.Serialise();
     }
 
@@ -87,11 +97,36 @@ public class ChatBoxManager : INotifyPropertyChanged
     {
         Timeline.Layers.ForEach(layer => layer.Clips.Clear());
 
-        serialisationManager.Deserialise(string.IsNullOrEmpty(filePathOverride), filePathOverride);
+        chatBoxValidationSerialiser.Reset();
+        var validationDeserialisationSuccess = validationSerialisationManager.Deserialise();
+
+        if (validationDeserialisationSuccess != DeserialisationResult.Success)
+        {
+            Logger.Log($"ChatBox validation deserialisation ended in {validationDeserialisationSuccess}");
+            return;
+        }
+
+        if (!chatBoxValidationSerialiser.IsValid)
+        {
+            // TODO: This needs to be replaced with an overlay
+            Logger.Log("ChatBox could not validate all data");
+            ExceptionHandler.Handle("ChatBox could not load all data.\nThis is usually the fault of a module not loading correctly.\nPlease update all modules.");
+            return;
+        }
+
+        var deserialisationSuccess = serialisationManager.Deserialise(string.IsNullOrEmpty(filePathOverride), filePathOverride);
+
+        if (deserialisationSuccess != DeserialisationResult.Success)
+        {
+            Logger.Log($"ChatBox deserialisation ended in {deserialisationSuccess}");
+            return;
+        }
 
         Timeline.Init();
 
         if (!string.IsNullOrEmpty(filePathOverride)) Serialise();
+
+        IsLoaded.Value = true;
     }
 
     public void Start()

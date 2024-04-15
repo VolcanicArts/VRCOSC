@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using VRCOSC.App.ChatBox.Clips;
@@ -17,12 +16,6 @@ namespace VRCOSC.App.ChatBox.Serialisation;
 public class ChatBoxSerialiser : ProfiledSerialiser<ChatBoxManager, SerialisableChatBox>
 {
     protected override string FileName => "chatbox.json";
-
-    // TODO: Come up with a good system for handling this
-    // It's probably best to first check to see if all the deserialised data is valid before writing it to the ChatBoxManager
-    // If any data is invalid, prompt the user to fix the broken modules, and in the meantime the ChatBox won't work
-    // If the user wants the ChatBox to work without fixing the broken modules, VRCOSC will remove all the invalid data and serialise
-    public bool LastDeserialiseHadMissingData { get; private set; }
 
     public ChatBoxSerialiser(Storage storage, ChatBoxManager reference, Observable<Profile> activeProfile)
         : base(storage, reference, activeProfile)
@@ -54,24 +47,18 @@ public class ChatBoxSerialiser : ProfiledSerialiser<ChatBoxManager, Serialisable
                 serialisableClip.States.ForEach(serialisableState =>
                 {
                     var clipState = clip.States.FirstOrDefault(clipState => clipState.States.SequenceEqual(serialisableState.States));
-
-                    if (clipState is null)
-                    {
-                        // missing
-                        return;
-                    }
+                    if (clipState is null) return;
 
                     clipState.Format.Value = serialisableState.Format;
                     clipState.Enabled.Value = serialisableState.Enabled;
 
                     clipState.Variables.Clear();
 
-                    clipState.Variables.AddRange(serialisableState.Variables.Select(serialisableClipVariable =>
+                    serialisableState.Variables.ForEach(serialisableClipVariable =>
                     {
                         var clipVariableReference = Reference.VariableReferences.FirstOrDefault(clipVariableReference => clipVariableReference.ModuleID == serialisableClipVariable.ModuleID && clipVariableReference.VariableID == serialisableClipVariable.VariableID);
 
-                        // TODO: This is what would be null if a module hadn't loaded, or a variable hadn't been correctly defined
-                        Debug.Assert(clipVariableReference is not null);
+                        if (clipVariableReference is null) return;
 
                         var clipVariable = clipVariableReference.CreateInstance();
                         var optionAttributes = getVariableOptionAttributes(clipVariable.GetType());
@@ -79,36 +66,44 @@ public class ChatBoxSerialiser : ProfiledSerialiser<ChatBoxManager, Serialisable
                         foreach (var pair in serialisableClipVariable.Options)
                         {
                             var propertyInfo = optionAttributes.FirstOrDefault(optionAttribute => optionAttribute.Key.SerialisedName == pair.Key).Value;
-
                             if (propertyInfo is null) continue;
 
-                            object value;
-
-                            if (propertyInfo.PropertyType.IsEnum)
+                            try
                             {
-                                value = Enum.ToObject(propertyInfo.PropertyType, pair.Value!);
-                            }
-                            else
-                            {
-                                value = Convert.ChangeType(pair.Value, propertyInfo.PropertyType)!;
-                            }
+                                object value;
 
-                            propertyInfo.SetValue(clipVariable, value);
+                                if (propertyInfo.PropertyType.IsEnum)
+                                {
+                                    try
+                                    {
+                                        value = Enum.ToObject(propertyInfo.PropertyType, pair.Value!);
+                                    }
+                                    catch (Exception)
+                                    {
+                                        value = Enum.ToObject(propertyInfo.PropertyType, 0);
+                                    }
+                                }
+                                else
+                                {
+                                    value = Convert.ChangeType(pair.Value, propertyInfo.PropertyType)!;
+                                }
+
+                                propertyInfo.SetValue(clipVariable, value);
+                            }
+                            catch (Exception)
+                            {
+                                // if we can't convert the type, just set it to default
+                            }
                         }
 
-                        return clipVariable;
-                    }));
+                        clipState.Variables.Add(clipVariable);
+                    });
                 });
 
                 serialisableClip.Events.ForEach(serialisableEvent =>
                 {
                     var clipEvent = clip.Events.FirstOrDefault(clipEvent => clipEvent.ModuleID == serialisableEvent.ModuleID && clipEvent.EventID == serialisableEvent.EventID);
-
-                    if (clipEvent is null)
-                    {
-                        // missing
-                        return;
-                    }
+                    if (clipEvent is null) return;
 
                     clipEvent.Format.Value = serialisableEvent.Format;
                     clipEvent.Enabled.Value = serialisableEvent.Enabled;
@@ -117,11 +112,11 @@ public class ChatBoxSerialiser : ProfiledSerialiser<ChatBoxManager, Serialisable
 
                     clipEvent.Variables.Clear();
 
-                    clipEvent.Variables.AddRange(serialisableEvent.Variables.Select(serialisableClipVariable =>
+                    serialisableEvent.Variables.ForEach(serialisableClipVariable =>
                     {
                         var clipVariableReference = Reference.VariableReferences.FirstOrDefault(clipVariableReference => clipVariableReference.ModuleID == serialisableClipVariable.ModuleID && clipVariableReference.VariableID == serialisableClipVariable.VariableID);
 
-                        Debug.Assert(clipVariableReference is not null);
+                        if (clipVariableReference is null) return;
 
                         var clipVariable = clipVariableReference.CreateInstance();
                         var optionAttributes = getVariableOptionAttributes(clipVariable.GetType());
@@ -129,32 +124,38 @@ public class ChatBoxSerialiser : ProfiledSerialiser<ChatBoxManager, Serialisable
                         foreach (var pair in serialisableClipVariable.Options)
                         {
                             var propertyInfo = optionAttributes.FirstOrDefault(optionAttribute => optionAttribute.Key.SerialisedName == pair.Key).Value;
-
                             if (propertyInfo is null) continue;
 
-                            object value;
-
-                            if (propertyInfo.PropertyType.IsEnum)
+                            try
                             {
-                                try
-                                {
-                                    value = Enum.ToObject(propertyInfo.PropertyType, pair.Value!);
-                                }
-                                catch (Exception)
-                                {
-                                    value = Enum.ToObject(propertyInfo.PropertyType, 0);
-                                }
-                            }
-                            else
-                            {
-                                value = Convert.ChangeType(pair.Value, propertyInfo.PropertyType)!;
-                            }
+                                object value;
 
-                            propertyInfo.SetValue(clipVariable, value);
+                                if (propertyInfo.PropertyType.IsEnum)
+                                {
+                                    try
+                                    {
+                                        value = Enum.ToObject(propertyInfo.PropertyType, pair.Value!);
+                                    }
+                                    catch (Exception)
+                                    {
+                                        value = Enum.ToObject(propertyInfo.PropertyType, 0);
+                                    }
+                                }
+                                else
+                                {
+                                    value = Convert.ChangeType(pair.Value, propertyInfo.PropertyType)!;
+                                }
+
+                                propertyInfo.SetValue(clipVariable, value);
+                            }
+                            catch (Exception)
+                            {
+                                // if we can't convert the type, just set it to default
+                            }
                         }
 
-                        return clipVariable;
-                    }));
+                        clipEvent.Variables.Add(clipVariable);
+                    });
                 });
 
                 return clip;
