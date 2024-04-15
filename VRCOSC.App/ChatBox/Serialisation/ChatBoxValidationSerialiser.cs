@@ -43,7 +43,7 @@ public class ChatBoxValidationSerialiser : ProfiledSerialiser<ChatBoxManager, Se
                 {
                     foreach (var serialisableClipStateState in serialisableClipState.States)
                     {
-                        var doesStateReferencesExist = ChatBoxManager.GetInstance().StateReferences.Any(clipStateReference => clipStateReference.ModuleID == serialisableClipStateState.Key && clipStateReference.StateID == serialisableClipStateState.Value);
+                        var doesStateReferencesExist = Reference.GetState(serialisableClipStateState.Key, serialisableClipStateState.Value) is not null;
 
                         if (!doesStateReferencesExist)
                         {
@@ -54,9 +54,9 @@ public class ChatBoxValidationSerialiser : ProfiledSerialiser<ChatBoxManager, Se
 
                     foreach (var serialisableClipVariable in serialisableClipState.Variables)
                     {
-                        var clipVariableReference = Reference.VariableReferences.FirstOrDefault(clipVariableReference => clipVariableReference.ModuleID == serialisableClipVariable.ModuleID && clipVariableReference.VariableID == serialisableClipVariable.VariableID);
+                        var doesClipVariableExist = Reference.GetVariable(serialisableClipVariable.ModuleID, serialisableClipVariable.VariableID) is not null;
 
-                        if (clipVariableReference is null)
+                        if (!doesClipVariableExist)
                         {
                             IsValid = false;
                             return false;
@@ -66,7 +66,7 @@ public class ChatBoxValidationSerialiser : ProfiledSerialiser<ChatBoxManager, Se
 
                 foreach (var serialisableClipEvent in serialisableClip.Events)
                 {
-                    var doesEventReferencesExist = ChatBoxManager.GetInstance().EventReferences.Any(clipEventReference => clipEventReference.ModuleID == serialisableClipEvent.ModuleID && clipEventReference.EventID == serialisableClipEvent.EventID);
+                    var doesEventReferencesExist = Reference.GetEvent(serialisableClipEvent.ModuleID, serialisableClipEvent.EventID) is not null;
 
                     if (!doesEventReferencesExist)
                     {
@@ -76,9 +76,9 @@ public class ChatBoxValidationSerialiser : ProfiledSerialiser<ChatBoxManager, Se
 
                     foreach (var serialisableClipVariable in serialisableClipEvent.Variables)
                     {
-                        var clipVariableReference = Reference.VariableReferences.FirstOrDefault(clipVariableReference => clipVariableReference.ModuleID == serialisableClipVariable.ModuleID && clipVariableReference.VariableID == serialisableClipVariable.VariableID);
+                        var doesClipVariableExist = Reference.GetVariable(serialisableClipVariable.ModuleID, serialisableClipVariable.VariableID) is not null;
 
-                        if (clipVariableReference is null)
+                        if (!doesClipVariableExist)
                         {
                             IsValid = false;
                             return false;

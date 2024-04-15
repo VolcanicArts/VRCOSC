@@ -56,8 +56,7 @@ public class ChatBoxSerialiser : ProfiledSerialiser<ChatBoxManager, Serialisable
 
                     serialisableState.Variables.ForEach(serialisableClipVariable =>
                     {
-                        var clipVariableReference = Reference.VariableReferences.FirstOrDefault(clipVariableReference => clipVariableReference.ModuleID == serialisableClipVariable.ModuleID && clipVariableReference.VariableID == serialisableClipVariable.VariableID);
-
+                        var clipVariableReference = Reference.GetVariable(serialisableClipVariable.ModuleID, serialisableClipVariable.VariableID);
                         if (clipVariableReference is null) return;
 
                         var clipVariable = clipVariableReference.CreateInstance();
@@ -114,8 +113,7 @@ public class ChatBoxSerialiser : ProfiledSerialiser<ChatBoxManager, Serialisable
 
                     serialisableEvent.Variables.ForEach(serialisableClipVariable =>
                     {
-                        var clipVariableReference = Reference.VariableReferences.FirstOrDefault(clipVariableReference => clipVariableReference.ModuleID == serialisableClipVariable.ModuleID && clipVariableReference.VariableID == serialisableClipVariable.VariableID);
-
+                        var clipVariableReference = Reference.GetVariable(serialisableClipVariable.ModuleID, serialisableClipVariable.VariableID);
                         if (clipVariableReference is null) return;
 
                         var clipVariable = clipVariableReference.CreateInstance();
