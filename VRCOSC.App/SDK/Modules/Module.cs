@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using VRCOSC.App.ChatBox;
 using VRCOSC.App.Modules;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.Packages;
@@ -113,20 +114,24 @@ public abstract class Module : INotifyPropertyChanged
         return new Regex(pattern);
     }
 
-    public void InjectDependencies(SerialisationManager moduleSerialisationManager, SerialisationManager persistenceSerialisationManager)
+    internal void InjectDependencies(SerialisationManager moduleSerialisationManager, SerialisationManager persistenceSerialisationManager)
     {
         this.moduleSerialisationManager = moduleSerialisationManager;
         this.persistenceSerialisationManager = persistenceSerialisationManager;
     }
 
-    public void Load()
+    internal void Load(string filePathOverride = "")
     {
+        Settings.Clear();
+        Parameters.Clear();
+        Groups.Clear();
+
         OnPreLoad();
 
         Settings.Values.ForEach(moduleSetting => moduleSetting.Load());
         Parameters.Values.ForEach(moduleParameter => moduleParameter.Load());
 
-        moduleSerialisationManager.Deserialise();
+        moduleSerialisationManager.Deserialise(string.IsNullOrEmpty(filePathOverride), filePathOverride);
         cachePersistentProperties();
 
         Enabled.Subscribe(_ => moduleSerialisationManager.Serialise());
@@ -134,6 +139,16 @@ public abstract class Module : INotifyPropertyChanged
         Parameters.Values.ForEach(moduleParameter => moduleParameter.RequestSerialisation = () => moduleSerialisationManager.Serialise());
 
         OnPostLoad();
+    }
+
+    internal void ImportConfig(string filePathOverride)
+    {
+        ChatBoxManager.GetInstance().Serialise();
+        ChatBoxManager.GetInstance().Unload(SerialisedName);
+
+        Load(filePathOverride);
+
+        ChatBoxManager.GetInstance().Load();
     }
 
     #region Persistence
@@ -148,6 +163,8 @@ public abstract class Module : INotifyPropertyChanged
     {
         try
         {
+            PersistentProperties.Clear();
+
             GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy).ForEach(info =>
             {
                 var isDefined = info.IsDefined(typeof(ModulePersistentAttribute));

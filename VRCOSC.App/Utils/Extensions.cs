@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using NAudio.CoreAudioApi;
 using PInvoke;
@@ -25,6 +26,16 @@ public static class CollectionExtensions
     {
         foreach (var item in items)
             collection.Add(item);
+    }
+
+    public static void RemoveIf<T>(this ICollection<T> collection, Func<T, bool> callback)
+    {
+        var itemsToRemove = collection.Where(callback.Invoke).ToList();
+
+        foreach (var itemToRemove in itemsToRemove)
+        {
+            collection.Remove(itemToRemove);
+        }
     }
 }
 

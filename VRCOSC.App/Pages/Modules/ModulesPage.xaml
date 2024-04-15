@@ -108,7 +108,8 @@
                                                                                     HorizontalAlignment="Right">
                                                                                     <ui:VRCOSCButton
                                                                                         ButtonColour="Blue"
-                                                                                        Width="30" Height="30" Visibility="Collapsed">
+                                                                                        Width="30" Height="30"
+                                                                                        Visibility="Collapsed">
                                                                                         <fa5:ImageAwesome
                                                                                             Icon="Solid_Info"
                                                                                             Foreground="White"
@@ -116,7 +117,11 @@
                                                                                     </ui:VRCOSCButton>
                                                                                     <ui:VRCOSCButton
                                                                                         ButtonColour="Gray"
-                                                                                        Width="30" Height="30" Visibility="Collapsed">
+                                                                                        Width="30" Height="30"
+                                                                                        Click="ExportButton_OnClick">
+                                                                                        <ui:VRCOSCButton.Tag>
+                                                                                            <Binding />
+                                                                                        </ui:VRCOSCButton.Tag>
                                                                                         <fa5:ImageAwesome
                                                                                             Icon="Solid_Upload"
                                                                                             Foreground="White"
@@ -124,7 +129,11 @@
                                                                                     </ui:VRCOSCButton>
                                                                                     <ui:VRCOSCButton
                                                                                         ButtonColour="Gray"
-                                                                                        Width="30" Height="30" Visibility="Collapsed">
+                                                                                        Width="30" Height="30"
+                                                                                        Click="ImportButton_OnClick">
+                                                                                        <ui:VRCOSCButton.Tag>
+                                                                                            <Binding />
+                                                                                        </ui:VRCOSCButton.Tag>
                                                                                         <fa5:ImageAwesome
                                                                                             Icon="Solid_Download"
                                                                                             Foreground="White"
@@ -132,7 +141,8 @@
                                                                                     </ui:VRCOSCButton>
                                                                                     <ui:VRCOSCButton
                                                                                         ButtonColour="Gray"
-                                                                                        Width="30" Height="30" Visibility="Collapsed">
+                                                                                        Width="30" Height="30"
+                                                                                        Visibility="Collapsed">
                                                                                         <fa5:ImageAwesome
                                                                                             Icon="Solid_Cube"
                                                                                             Foreground="White"

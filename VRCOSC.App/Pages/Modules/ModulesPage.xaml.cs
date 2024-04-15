@@ -6,6 +6,9 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 using VRCOSC.App.Modules;
+using VRCOSC.App.Profiles;
+using VRCOSC.App.SDK.Modules;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Pages.Modules;
 
@@ -22,6 +25,23 @@ public partial class ModulesPage : IVRCOSCPage
 
     public void Refresh()
     {
+    }
+
+    private void ImportButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        var module = (Module)element.Tag;
+
+        WinForms.OpenFile("module.json|*.json", filePath => Dispatcher.Invoke(() => module.ImportConfig(filePath)));
+    }
+
+    private void ExportButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        var module = (Module)element.Tag;
+
+        var filePath = AppManager.GetInstance().Storage.GetFullPath($"profiles/{ProfileManager.GetInstance().ActiveProfile.Value.ID}/modules/{module.SerialisedName}.json");
+        WinForms.PresentFile(filePath);
     }
 }
 

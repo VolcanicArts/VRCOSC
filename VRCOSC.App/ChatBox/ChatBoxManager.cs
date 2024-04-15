@@ -64,7 +64,7 @@ public class ChatBoxManager : INotifyPropertyChanged
 
     public Observable<bool> IsLoaded = new();
 
-    public ChatBoxManager()
+    private ChatBoxManager()
     {
         serialisationManager = new SerialisationManager();
         serialisationManager.RegisterSerialiser(1, new ChatBoxSerialiser(AppManager.GetInstance().Storage, this, ProfileManager.GetInstance().ActiveProfile));
@@ -78,11 +78,21 @@ public class ChatBoxManager : INotifyPropertyChanged
         Deserialise();
     }
 
-    public void Unload()
+    public void Unload(string moduleID = "")
     {
-        StateReferences.Clear();
-        EventReferences.Clear();
-        VariableReferences.Clear();
+        if (string.IsNullOrEmpty(moduleID))
+        {
+            StateReferences.Clear();
+            EventReferences.Clear();
+            VariableReferences.Clear();
+        }
+        else
+        {
+            StateReferences.RemoveIf(clipStateReference => clipStateReference.ModuleID == moduleID);
+            EventReferences.RemoveIf(clipEventReference => clipEventReference.ModuleID == moduleID);
+            VariableReferences.RemoveIf(clipVariableReference => clipVariableReference.ModuleID == moduleID);
+        }
+
         IsLoaded.Value = false;
     }
 
@@ -110,7 +120,7 @@ public class ChatBoxManager : INotifyPropertyChanged
         {
             // TODO: This needs to be replaced with an overlay
             Logger.Log("ChatBox could not validate all data");
-            ExceptionHandler.Handle("ChatBox could not load all data.\nThis is usually the fault of a module not loading correctly.\nPlease update all modules.");
+            ExceptionHandler.Handle("ChatBox could not load all data.\nThis is usually the fault of a module not loading correctly or a missing config.\nPlease make sure all your modules are up-to-date and have correct configs.");
             return;
         }
 
