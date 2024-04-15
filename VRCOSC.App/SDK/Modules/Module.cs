@@ -71,6 +71,8 @@ public abstract class Module : INotifyPropertyChanged
     private SerialisationManager moduleSerialisationManager = null!;
     private SerialisationManager persistenceSerialisationManager = null!;
 
+    private object loadLock = new();
+
     protected virtual bool ShouldUsePersistence => true;
 
     public Dictionary<string, List<ModuleSetting>> GroupsFormatted
@@ -122,23 +124,26 @@ public abstract class Module : INotifyPropertyChanged
 
     internal void Load(string filePathOverride = "")
     {
-        Settings.Clear();
-        Parameters.Clear();
-        Groups.Clear();
+        lock (loadLock)
+        {
+            Settings.Clear();
+            Parameters.Clear();
+            Groups.Clear();
 
-        OnPreLoad();
+            OnPreLoad();
 
-        Settings.Values.ForEach(moduleSetting => moduleSetting.Load());
-        Parameters.Values.ForEach(moduleParameter => moduleParameter.Load());
+            Settings.Values.ForEach(moduleSetting => moduleSetting.Load());
+            Parameters.Values.ForEach(moduleParameter => moduleParameter.Load());
 
-        moduleSerialisationManager.Deserialise(string.IsNullOrEmpty(filePathOverride), filePathOverride);
-        cachePersistentProperties();
+            moduleSerialisationManager.Deserialise(string.IsNullOrEmpty(filePathOverride), filePathOverride);
+            cachePersistentProperties();
 
-        Enabled.Subscribe(_ => moduleSerialisationManager.Serialise());
-        Settings.Values.ForEach(moduleSetting => moduleSetting.RequestSerialisation = () => moduleSerialisationManager.Serialise());
-        Parameters.Values.ForEach(moduleParameter => moduleParameter.RequestSerialisation = () => moduleSerialisationManager.Serialise());
+            Enabled.Subscribe(_ => moduleSerialisationManager.Serialise());
+            Settings.Values.ForEach(moduleSetting => moduleSetting.RequestSerialisation = () => moduleSerialisationManager.Serialise());
+            Parameters.Values.ForEach(moduleParameter => moduleParameter.RequestSerialisation = () => moduleSerialisationManager.Serialise());
 
-        OnPostLoad();
+            OnPostLoad();
+        }
     }
 
     internal void ImportConfig(string filePathOverride)
@@ -496,14 +501,20 @@ public abstract class Module : INotifyPropertyChanged
 
     internal T? GetSetting<T>(string lookup) where T : ModuleSetting
     {
-        if (Settings.TryGetValue(lookup, out var setting)) return (T)setting;
+        lock (loadLock)
+        {
+            if (Settings.TryGetValue(lookup, out var setting)) return (T)setting;
 
-        return default;
+            return default;
+        }
     }
 
     internal ModuleParameter? GetParameter(string lookup)
     {
-        return Parameters.SingleOrDefault(pair => pair.Key.ToLookup() == lookup).Value;
+        lock (loadLock)
+        {
+            return Parameters.SingleOrDefault(pair => pair.Key.ToLookup() == lookup).Value;
+        }
     }
 
     /// <summary>
@@ -514,48 +525,54 @@ public abstract class Module : INotifyPropertyChanged
     /// <returns>The value if successful, otherwise pushes an exception and returns default</returns>
     protected T? GetSettingValue<T>(Enum lookup)
     {
-        if (!Settings.ContainsKey(lookup.ToLookup())) return default;
+        lock (loadLock)
+        {
+            if (!Settings.ContainsKey(lookup.ToLookup())) return default;
 
-        return Settings[lookup.ToLookup()].GetValue<T>(out var value) ? value : default;
+            return Settings[lookup.ToLookup()].GetValue<T>(out var value) ? value : default;
+        }
     }
 
     internal virtual void OnParameterReceived(VRChatOscMessage message)
     {
-        var receivedParameter = new ReceivedParameter(message.ParameterName, message.ParameterValue);
-
-        try
+        lock (loadLock)
         {
-            OnAnyParameterReceived(receivedParameter);
-        }
-        catch (Exception e)
-        {
-            ExceptionHandler.Handle(e, $"{nameof(OnAnyParameterReceived)} experienced an exception");
-        }
+            var receivedParameter = new ReceivedParameter(message.ParameterName, message.ParameterValue);
 
-        var parameterName = Parameters.Values.FirstOrDefault(moduleParameter => parameterNameRegex[moduleParameter.Name.Value].IsMatch(receivedParameter.Name))?.Name.Value;
-        if (parameterName is null) return;
+            try
+            {
+                OnAnyParameterReceived(receivedParameter);
+            }
+            catch (Exception e)
+            {
+                ExceptionHandler.Handle(e, $"{nameof(OnAnyParameterReceived)} experienced an exception");
+            }
 
-        if (!parameterNameEnum.TryGetValue(parameterName, out var lookup)) return;
+            var parameterName = Parameters.Values.FirstOrDefault(moduleParameter => parameterNameRegex[moduleParameter.Name.Value].IsMatch(receivedParameter.Name))?.Name.Value;
+            if (parameterName is null) return;
 
-        var parameterData = Parameters[lookup];
+            if (!parameterNameEnum.TryGetValue(parameterName, out var lookup)) return;
 
-        if (!parameterData.Metadata.Mode.HasFlagFast(ParameterMode.Read)) return;
+            var parameterData = Parameters[lookup];
 
-        if (!receivedParameter.IsValueType(parameterData.Metadata.Type))
-        {
-            Log($"Cannot accept input parameter. `{lookup}` expects type `{parameterData.Metadata.Type.ToReadableName()}` but received type `{receivedParameter.Value.GetType().ToReadableName()}`");
-            return;
-        }
+            if (!parameterData.Metadata.Mode.HasFlagFast(ParameterMode.Read)) return;
 
-        var registeredParameter = new RegisteredParameter(receivedParameter, lookup, parameterData);
+            if (!receivedParameter.IsValueType(parameterData.Metadata.Type))
+            {
+                Log($"Cannot accept input parameter. `{lookup}` expects type `{parameterData.Metadata.Type.ToReadableName()}` but received type `{receivedParameter.Value.GetType().ToReadableName()}`");
+                return;
+            }
 
-        try
-        {
-            InternalOnRegisteredParameterReceived(registeredParameter);
-        }
-        catch (Exception e)
-        {
-            ExceptionHandler.Handle(e, $"{nameof(InternalOnRegisteredParameterReceived)} experienced an exception");
+            var registeredParameter = new RegisteredParameter(receivedParameter, lookup, parameterData);
+
+            try
+            {
+                InternalOnRegisteredParameterReceived(registeredParameter);
+            }
+            catch (Exception e)
+            {
+                ExceptionHandler.Handle(e, $"{nameof(InternalOnRegisteredParameterReceived)} experienced an exception");
+            }
         }
     }
 
