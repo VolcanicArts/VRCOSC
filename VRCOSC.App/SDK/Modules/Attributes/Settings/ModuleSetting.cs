@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.Modules.Attributes.Settings;
 
@@ -19,7 +20,21 @@ public abstract class ModuleSetting : ModuleAttribute, INotifyPropertyChanged
     /// <summary>
     /// Creates a new <see cref="Page"/> instance as set in the <see cref="Metadata"/>
     /// </summary>
-    public Page PageInstance => (Page)Activator.CreateInstance(Metadata.PageType, this)!;
+    public Page? PageInstance
+    {
+        get
+        {
+            try
+            {
+                return (Page)Activator.CreateInstance(Metadata.PageType, this)!;
+            }
+            catch (Exception e)
+            {
+                ExceptionHandler.Handle(e, $"Page instance creation failed for module setting {Metadata.Title}\nThis is usually caused by version mismatch");
+                return null;
+            }
+        }
+    }
 
     /// <summary>
     /// A callback for checking to see if this <see cref="ModuleSetting"/> should be enabled
