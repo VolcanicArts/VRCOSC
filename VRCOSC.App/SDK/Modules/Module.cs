@@ -367,6 +367,12 @@ public abstract class Module : INotifyPropertyChanged
         Settings.Add(lookup.ToLookup(), new IntModuleSetting(new ModuleSettingMetadata(title, description, typeof(TextBoxSettingPage)), defaultValue));
     }
 
+    protected void CreateTextBox(Enum lookup, string title, string description, float defaultValue)
+    {
+        validateSettingsLookup(lookup);
+        Settings.Add(lookup.ToLookup(), new FloatModuleSetting(new ModuleSettingMetadata(title, description, typeof(TextBoxSettingPage)), defaultValue));
+    }
+
     protected void CreateSlider(Enum lookup, string title, string description, int defaultValue, int minValue, int maxValue, int tickFrequency = 1)
     {
         validateSettingsLookup(lookup);
@@ -397,7 +403,19 @@ public abstract class Module : INotifyPropertyChanged
         Settings.Add(lookup.ToLookup(), new StringListModuleSetting(new ModuleSettingMetadata(title, description, typeof(ListTextBoxSettingPage)), defaultValues, rowNumberVisible));
     }
 
-    protected void CreateKeyValuePairList(Enum lookup, string title, string description, List<MutableKeyValuePair> defaultValues, string keyTitle, string valueTitle, bool rowNumberVisible = false)
+    protected void CreateTextBoxList(Enum lookup, string title, string description, IEnumerable<int> defaultValues, bool rowNumberVisible = false)
+    {
+        validateSettingsLookup(lookup);
+        Settings.Add(lookup.ToLookup(), new IntListModuleSetting(new ModuleSettingMetadata(title, description, typeof(ListTextBoxSettingPage)), defaultValues, rowNumberVisible));
+    }
+
+    protected void CreateTextBoxList(Enum lookup, string title, string description, IEnumerable<float> defaultValues, bool rowNumberVisible = false)
+    {
+        validateSettingsLookup(lookup);
+        Settings.Add(lookup.ToLookup(), new FloatListModuleSetting(new ModuleSettingMetadata(title, description, typeof(ListTextBoxSettingPage)), defaultValues, rowNumberVisible));
+    }
+
+    protected void CreateKeyValuePairList(Enum lookup, string title, string description, IEnumerable<MutableKeyValuePair> defaultValues, string keyTitle, string valueTitle, bool rowNumberVisible = false)
     {
         validateSettingsLookup(lookup);
         Settings.Add(lookup.ToLookup(), new MutableKeyValuePairListModuleSetting(new MutableKeyValuePairSettingMetadata(title, description, typeof(MutableKeyValuePairSettingPage), keyTitle, valueTitle), defaultValues, rowNumberVisible));
@@ -407,7 +425,7 @@ public abstract class Module : INotifyPropertyChanged
     {
         if (!Settings.ContainsKey(lookup.ToLookup())) return;
 
-        //PushException(new InvalidOperationException("Cannot add multiple of the same key for settings"));
+        ExceptionHandler.Handle(new InvalidOperationException($"{SerialisedName} attempted to add an already existing lookup ({lookup.ToLookup()}) to its settings"));
     }
 
     /// <summary>

@@ -89,6 +89,24 @@ public class IntModuleSetting : ValueModuleSetting<int>
     }
 }
 
+public class FloatModuleSetting : ValueModuleSetting<float>
+{
+    protected override Observable<float> CreateObservable() => new(DefaultValue);
+
+    public override bool Deserialise(object ingestValue)
+    {
+        if (ingestValue is not double floatIngestValue) return false;
+
+        Attribute.Value = (float)floatIngestValue;
+        return true;
+    }
+
+    internal FloatModuleSetting(ModuleSettingMetadata metadata, float defaultValue)
+        : base(metadata, defaultValue)
+    {
+    }
+}
+
 public class EnumModuleSetting : ValueModuleSetting<int>
 {
     protected override Observable<int> CreateObservable() => new(DefaultValue);

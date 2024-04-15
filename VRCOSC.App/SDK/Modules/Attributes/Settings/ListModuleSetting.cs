@@ -105,3 +105,23 @@ public class StringListModuleSetting : ValueListModuleSetting<string>
 
     protected override Observable<string> CreateNewItem() => new(string.Empty);
 }
+
+public class IntListModuleSetting : ValueListModuleSetting<int>
+{
+    public IntListModuleSetting(ModuleSettingMetadata metadata, IEnumerable<int> defaultValues, bool rowNumberVisible)
+        : base(metadata, defaultValues.Select(value => new Observable<int>(value)), rowNumberVisible)
+    {
+    }
+
+    protected override Observable<int> CreateNewItem() => new();
+}
+
+public class FloatListModuleSetting : ValueListModuleSetting<float>
+{
+    public FloatListModuleSetting(ModuleSettingMetadata metadata, IEnumerable<float> defaultValues, bool rowNumberVisible)
+        : base(metadata, defaultValues.Select(value => new Observable<float>(value)), rowNumberVisible)
+    {
+    }
+
+    protected override Observable<float> CreateNewItem() => new();
+}
