@@ -7,9 +7,9 @@
       Title="FloatSliderSettingPage"
       Width="{Binding ActualWidth, ElementName=SettingPageFrame}">
     <Grid Height="50">
-        <Slider Value="{Binding Attribute.Value}" Minimum="{Binding MinValue, Mode=OneTime}" Maximum="{Binding MaxValue, Mode=OneTime}" TickFrequency="{Binding TickFrequency, Mode=OneTime}" TickPlacement="BottomRight" IsSnapToTickEnabled="True"/>
-        <TextBlock Text="{Binding MinValue, Mode=OneTime}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Foreground="{StaticResource CForeground1}" FontSize="16"/>
-        <TextBlock Text="{Binding Attribute.Value, Mode=OneWay, StringFormat='F2'}" HorizontalAlignment="Center" VerticalAlignment="Bottom" Foreground="{StaticResource CForeground1}" FontSize="16"/>
-        <TextBlock Text="{Binding MaxValue, Mode=OneTime}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Foreground="{StaticResource CForeground1}" FontSize="16"/>
+        <Slider Value="{Binding SliderValue.Value}" Minimum="{Binding SliderModuleSetting.MinValue, Mode=OneTime}" Maximum="{Binding SliderModuleSetting.MaxValue, Mode=OneTime}" TickFrequency="{Binding SliderModuleSetting.TickFrequency, Mode=OneTime}" TickPlacement="BottomRight" IsSnapToTickEnabled="True" LostMouseCapture="Slider_LostMouseCapture"/>
+        <TextBlock Text="{Binding SliderModuleSetting.MinValue, Mode=OneTime}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Foreground="{StaticResource CForeground1}" FontSize="16"/>
+        <TextBlock Text="{Binding SliderValue.Value, Mode=OneWay, StringFormat='F2'}" HorizontalAlignment="Center" VerticalAlignment="Bottom" Foreground="{StaticResource CForeground1}" FontSize="16"/>
+        <TextBlock Text="{Binding SliderModuleSetting.MaxValue, Mode=OneTime}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Foreground="{StaticResource CForeground1}" FontSize="16"/>
     </Grid>
 </Page>
