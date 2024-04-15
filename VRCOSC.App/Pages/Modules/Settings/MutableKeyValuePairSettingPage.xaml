@@ -20,13 +20,25 @@
         </Grid.ColumnDefinitions>
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="5" />
+                <RowDefinition Height="30" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="30" />
             </Grid.RowDefinitions>
             <!--> Header <-->
             <Border Grid.Row="0" Background="{StaticResource CBackground1}" CornerRadius="5 5 0 0">
-
+                <Grid Margin="5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="5" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="{Binding ModuleSetting.Metadata.KeyTitle}"
+                               Foreground="{StaticResource CForeground1}" FontSize="16" TextAlignment="Center"
+                               VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="2" Text="{Binding ModuleSetting.Metadata.ValueTitle}"
+                               Foreground="{StaticResource CForeground1}" FontSize="16" TextAlignment="Center"
+                               VerticalAlignment="Center" />
+                </Grid>
             </Border>
             <!--> Contents <-->
             <ListView Grid.Row="1"
