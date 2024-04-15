@@ -41,7 +41,7 @@
                                                                     <ControlTemplate TargetType="ListViewItem">
                                                                         <Grid>
                                                                             <Border
-                                                                                Background="{StaticResource CBackground2}"
+                                                                                Background="{StaticResource CBackground7}"
                                                                                 Padding="10 5 10 5"
                                                                                 CornerRadius="5">
                                                                                 <ui:SpacedStackPanel

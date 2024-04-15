@@ -5,47 +5,122 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:ui="clr-namespace:VRCOSC.App.UI"
       xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
-      mc:Ignorable="d"
-      Title="MutableKeyValuePairSettingPage"
-      Width="{Binding ActualWidth, ElementName=SettingPageFrame}">
+      xmlns:fa5="http://schemas.fontawesome.com/icons/"
+      xmlns:packages="clr-namespace:VRCOSC.App.Pages.Packages"
+      mc:Ignorable="d">
+    <Page.Resources>
+        <packages:BackgroundConverter x:Key="BackgroundConverter" />
+    </Page.Resources>
     <Grid>
-        <ListView ItemsSource="{Binding Attribute}" VerticalAlignment="Stretch" Background="Transparent" Padding="0"
-                  BorderThickness="0">
-            <b:Interaction.Behaviors>
-                <ui:IgnoreMouseWheelBehavior />
-            </b:Interaction.Behaviors>
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <Grid Margin="5">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="5" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0"
-                                   Text="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=(ItemsControl.AlternationIndex)}"
-                                   VerticalAlignment="Center" Margin="0 0 10 0"
-                                   Foreground="{StaticResource CForeground1}"
-                                   Visibility="{Binding Path=DataContext.RowNumberVisibility, RelativeSource={RelativeSource AncestorType=Page}}">
-                        </TextBlock>
-                        <TextBox Grid.Column="1" Text="{Binding Key.Value, UpdateSourceTrigger=PropertyChanged}" Background="{StaticResource CBackground3}"
-                                 Foreground="{StaticResource CForeground1}" FontSize="16" HorizontalAlignment="Stretch"
-                                 VerticalContentAlignment="Center" />
-                        <TextBox Grid.Column="3" Text="{Binding Value.Value, UpdateSourceTrigger=PropertyChanged}" Background="{StaticResource CBackground3}"
-                                 Foreground="{StaticResource CForeground1}" FontSize="16" HorizontalAlignment="Stretch"
-                                 VerticalContentAlignment="Center" />
-                    </Grid>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-            <ListView.ItemContainerStyle>
-                <Style TargetType="ListViewItem">
-                    <Setter Property="HorizontalAlignment" Value="Stretch" />
-                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                    <Setter Property="Padding" Value="0" />
-                    <Setter Property="Margin" Value="0" />
-                </Style>
-            </ListView.ItemContainerStyle>
-        </ListView>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="5" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="30" />
+            </Grid.RowDefinitions>
+            <!--> Header <-->
+            <Border Grid.Row="0" Background="{StaticResource CBackground1}" CornerRadius="5 5 0 0">
+
+            </Border>
+            <!--> Contents <-->
+            <ListView Grid.Row="1"
+                      Background="Transparent"
+                      BorderThickness="0" AlternationCount="2" Padding="-1"
+                      ItemsSource="{Binding ModuleSetting.Attribute}"
+                      Visibility="{Binding ContentVisibility}">
+                <b:Interaction.Behaviors>
+                    <ui:IgnoreMouseWheelBehavior />
+                </b:Interaction.Behaviors>
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate>
+                                    <Border
+                                        Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource BackgroundConverter}}"
+                                        Padding="2">
+                                        <Grid Margin="5">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="5" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="5" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBox Grid.Column="0"
+                                                     Text="{Binding Key.Value, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{StaticResource CBackground5}"
+                                                     Foreground="{StaticResource CForeground1}" FontSize="16"
+                                                     HorizontalAlignment="Stretch"
+                                                     VerticalContentAlignment="Center"
+                                                     BorderThickness="0">
+                                                <TextBox.Template>
+                                                    <ControlTemplate TargetType="TextBox">
+                                                        <Border
+                                                            Background="{TemplateBinding Background}"
+                                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                                            CornerRadius="5" Padding="5 2">
+                                                            <ScrollViewer x:Name="PART_ContentHost"
+                                                                          FontSize="{TemplateBinding FontSize}"
+                                                                          VerticalAlignment="Center" />
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </TextBox.Template>
+                                            </TextBox>
+                                            <TextBox Grid.Column="2"
+                                                     Text="{Binding Value.Value, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{StaticResource CBackground5}"
+                                                     Foreground="{StaticResource CForeground1}" FontSize="16"
+                                                     HorizontalAlignment="Stretch"
+                                                     VerticalContentAlignment="Center"
+                                                     BorderThickness="0">
+                                                <TextBox.Template>
+                                                    <ControlTemplate TargetType="TextBox">
+                                                        <Border
+                                                            Background="{TemplateBinding Background}"
+                                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                                            CornerRadius="5" Padding="5 2">
+                                                            <ScrollViewer x:Name="PART_ContentHost"
+                                                                          FontSize="{TemplateBinding FontSize}"
+                                                                          VerticalAlignment="Center" />
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </TextBox.Template>
+                                            </TextBox>
+                                            <ui:VRCOSCButton Grid.Column="4" ButtonColour="Red"
+                                                             Click="RemoveButton_OnClick"
+                                                             Height="25" Width="25">
+                                                <ui:VRCOSCButton.Tag>
+                                                    <Binding />
+                                                </ui:VRCOSCButton.Tag>
+                                                <fa5:ImageAwesome Icon="Solid_Minus"
+                                                                  Foreground="{StaticResource CForeground1}"
+                                                                  Margin="4" />
+                                            </ui:VRCOSCButton>
+                                        </Grid>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListView.ItemContainerStyle>
+            </ListView>
+            <!--> Footer <-->
+            <Border Grid.Row="2" Background="{StaticResource CBackground1}" CornerRadius="0 0 5 5">
+                <ui:VRCOSCButton Width="90" Height="20" Click="AddButton_OnClick" ButtonColour="Green">
+                    <fa5:ImageAwesome Icon="Solid_Plus"
+                                      Foreground="{StaticResource CForeground1}"
+                                      Margin="3" />
+                </ui:VRCOSCButton>
+            </Border>
+        </Grid>
     </Grid>
 </Page>

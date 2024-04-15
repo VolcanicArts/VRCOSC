@@ -5,22 +5,20 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
-using System.Windows;
 using Newtonsoft.Json.Linq;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.Modules.Attributes.Settings;
 
-public abstract class ListModuleSetting<T> : ModuleSetting
+public interface IListModuleSetting
 {
-    #region UI
+    public int Count();
+    public void Add();
+    public void Remove(object instance);
+}
 
-    public Visibility RowNumberVisibility => rowNumberVisible ? Visibility.Visible : Visibility.Collapsed;
-
-    #endregion
-
-    private readonly bool rowNumberVisible;
-
+public abstract class ListModuleSetting<T> : ModuleSetting, IListModuleSetting
+{
     public ObservableCollection<T> Attribute { get; private set; } = null!;
     protected readonly IEnumerable<T> DefaultValues;
 
@@ -46,7 +44,6 @@ public abstract class ListModuleSetting<T> : ModuleSetting
     protected abstract T CloneValue(T value);
     protected abstract T ConstructValue(JToken token);
 
-    internal void AddItem() => Attribute.Add(CreateNewItem());
     protected abstract T CreateNewItem();
 
     public override bool Deserialise(object value)
@@ -56,11 +53,22 @@ public abstract class ListModuleSetting<T> : ModuleSetting
         return true;
     }
 
-    protected ListModuleSetting(ModuleSettingMetadata metadata, IEnumerable<T> defaultValues, bool rowNumberVisible)
+    protected ListModuleSetting(ModuleSettingMetadata metadata, IEnumerable<T> defaultValues)
         : base(metadata)
     {
         DefaultValues = defaultValues;
-        this.rowNumberVisible = rowNumberVisible;
+    }
+
+    public int Count() => Attribute.Count;
+
+    public void Add()
+    {
+        Attribute.Add(CreateNewItem());
+    }
+
+    public void Remove(object instance)
+    {
+        Attribute.Remove((T)instance);
     }
 }
 
@@ -90,16 +98,16 @@ public abstract class ValueListModuleSetting<T> : ListModuleSetting<Observable<T
     protected override Observable<T> CloneValue(Observable<T> value) => new(value.Value!);
     protected override Observable<T> ConstructValue(JToken token) => new(token.Value<T>()!);
 
-    protected ValueListModuleSetting(ModuleSettingMetadata metadata, IEnumerable<Observable<T>> defaultValues, bool rowNumberVisible)
-        : base(metadata, defaultValues, rowNumberVisible)
+    protected ValueListModuleSetting(ModuleSettingMetadata metadata, IEnumerable<Observable<T>> defaultValues)
+        : base(metadata, defaultValues)
     {
     }
 }
 
 public class StringListModuleSetting : ValueListModuleSetting<string>
 {
-    public StringListModuleSetting(ModuleSettingMetadata metadata, IEnumerable<string> defaultValues, bool rowNumberVisible)
-        : base(metadata, defaultValues.Select(value => new Observable<string>(value)), rowNumberVisible)
+    public StringListModuleSetting(ModuleSettingMetadata metadata, IEnumerable<string> defaultValues)
+        : base(metadata, defaultValues.Select(value => new Observable<string>(value)))
     {
     }
 
@@ -108,8 +116,8 @@ public class StringListModuleSetting : ValueListModuleSetting<string>
 
 public class IntListModuleSetting : ValueListModuleSetting<int>
 {
-    public IntListModuleSetting(ModuleSettingMetadata metadata, IEnumerable<int> defaultValues, bool rowNumberVisible)
-        : base(metadata, defaultValues.Select(value => new Observable<int>(value)), rowNumberVisible)
+    public IntListModuleSetting(ModuleSettingMetadata metadata, IEnumerable<int> defaultValues)
+        : base(metadata, defaultValues.Select(value => new Observable<int>(value)))
     {
     }
 
@@ -118,8 +126,8 @@ public class IntListModuleSetting : ValueListModuleSetting<int>
 
 public class FloatListModuleSetting : ValueListModuleSetting<float>
 {
-    public FloatListModuleSetting(ModuleSettingMetadata metadata, IEnumerable<float> defaultValues, bool rowNumberVisible)
-        : base(metadata, defaultValues.Select(value => new Observable<float>(value)), rowNumberVisible)
+    public FloatListModuleSetting(ModuleSettingMetadata metadata, IEnumerable<float> defaultValues)
+        : base(metadata, defaultValues.Select(value => new Observable<float>(value)))
     {
     }
 

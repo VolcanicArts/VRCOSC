@@ -397,28 +397,28 @@ public abstract class Module : INotifyPropertyChanged
         Settings.Add(lookup.ToLookup(), new DateTimeModuleSetting(new ModuleSettingMetadata(title, description, typeof(DateTimeSettingPage)), defaultValue));
     }
 
-    protected void CreateTextBoxList(Enum lookup, string title, string description, IEnumerable<string> defaultValues, bool rowNumberVisible = false)
+    protected void CreateTextBoxList(Enum lookup, string title, string description, IEnumerable<string> defaultValues)
     {
         validateSettingsLookup(lookup);
-        Settings.Add(lookup.ToLookup(), new StringListModuleSetting(new ModuleSettingMetadata(title, description, typeof(ListTextBoxSettingPage)), defaultValues, rowNumberVisible));
+        Settings.Add(lookup.ToLookup(), new StringListModuleSetting(new ModuleSettingMetadata(title, description, typeof(ListTextBoxSettingPage)), defaultValues));
     }
 
-    protected void CreateTextBoxList(Enum lookup, string title, string description, IEnumerable<int> defaultValues, bool rowNumberVisible = false)
+    protected void CreateTextBoxList(Enum lookup, string title, string description, IEnumerable<int> defaultValues)
     {
         validateSettingsLookup(lookup);
-        Settings.Add(lookup.ToLookup(), new IntListModuleSetting(new ModuleSettingMetadata(title, description, typeof(ListTextBoxSettingPage)), defaultValues, rowNumberVisible));
+        Settings.Add(lookup.ToLookup(), new IntListModuleSetting(new ModuleSettingMetadata(title, description, typeof(ListTextBoxSettingPage)), defaultValues));
     }
 
-    protected void CreateTextBoxList(Enum lookup, string title, string description, IEnumerable<float> defaultValues, bool rowNumberVisible = false)
+    protected void CreateTextBoxList(Enum lookup, string title, string description, IEnumerable<float> defaultValues)
     {
         validateSettingsLookup(lookup);
-        Settings.Add(lookup.ToLookup(), new FloatListModuleSetting(new ModuleSettingMetadata(title, description, typeof(ListTextBoxSettingPage)), defaultValues, rowNumberVisible));
+        Settings.Add(lookup.ToLookup(), new FloatListModuleSetting(new ModuleSettingMetadata(title, description, typeof(ListTextBoxSettingPage)), defaultValues));
     }
 
-    protected void CreateKeyValuePairList(Enum lookup, string title, string description, IEnumerable<MutableKeyValuePair> defaultValues, string keyTitle, string valueTitle, bool rowNumberVisible = false)
+    protected void CreateKeyValuePairList(Enum lookup, string title, string description, IEnumerable<MutableKeyValuePair> defaultValues, string keyTitle, string valueTitle)
     {
         validateSettingsLookup(lookup);
-        Settings.Add(lookup.ToLookup(), new MutableKeyValuePairListModuleSetting(new MutableKeyValuePairSettingMetadata(title, description, typeof(MutableKeyValuePairSettingPage), keyTitle, valueTitle), defaultValues, rowNumberVisible));
+        Settings.Add(lookup.ToLookup(), new MutableKeyValuePairListModuleSetting(new MutableKeyValuePairSettingMetadata(title, description, typeof(MutableKeyValuePairSettingPage), keyTitle, valueTitle), defaultValues));
     }
 
     private void validateSettingsLookup(Enum lookup)

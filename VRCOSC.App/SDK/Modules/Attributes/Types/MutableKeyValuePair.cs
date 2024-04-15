@@ -53,8 +53,8 @@ public class MutableKeyValuePairListModuleSetting : ListModuleSetting<MutableKey
 {
     public new MutableKeyValuePairSettingMetadata Metadata => (MutableKeyValuePairSettingMetadata)base.Metadata;
 
-    public MutableKeyValuePairListModuleSetting(MutableKeyValuePairSettingMetadata metadata, IEnumerable<MutableKeyValuePair> defaultValues, bool rowNumberVisible)
-        : base(metadata, defaultValues, rowNumberVisible)
+    public MutableKeyValuePairListModuleSetting(MutableKeyValuePairSettingMetadata metadata, IEnumerable<MutableKeyValuePair> defaultValues)
+        : base(metadata, defaultValues)
     {
     }
 
