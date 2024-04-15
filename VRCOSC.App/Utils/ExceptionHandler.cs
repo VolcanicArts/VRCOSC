@@ -54,6 +54,6 @@ public static class ExceptionHandler
     public static void Handle(string message)
     {
         Logger.Log($"Message: {message}");
-        MessageBox.Show(message, "VRCOSC has experienced a error", MessageBoxButton.OK, MessageBoxImage.Error);
+        MessageBox.Show(message, "VRCOSC has experienced an error", MessageBoxButton.OK, MessageBoxImage.Error);
     }
 }

@@ -148,6 +148,8 @@ public class ModuleManager : INotifyPropertyChanged
             loadLocalModules();
             loadRemoteModules();
 
+            var failedModulesList = new List<(Module, Exception)>();
+
             modules.ForEach(module =>
             {
                 try
@@ -163,10 +165,29 @@ public class ModuleManager : INotifyPropertyChanged
                 }
                 catch (Exception e)
                 {
-                    // TODO: Instead of handling by showing an exception, these should be collated into a single window that says "modules might need an update, blah blah?"
-                    ExceptionHandler.Handle(e, $"{module.SerialisedName} failed to load");
+                    failedModulesList.Add((module, e));
                 }
             });
+
+            failedModulesList.ForEach(instance =>
+            {
+                var module = instance.Item1;
+
+                foreach (var pair in Modules)
+                {
+                    if (pair.Value.Contains(module))
+                    {
+                        pair.Value.Remove(module);
+                    }
+                }
+            });
+
+            if (failedModulesList.Any())
+            {
+                var message = "The following modules failed to load\n";
+                failedModulesList.ForEach(instance => message += $"\n{instance.Item1.SerialisedName} - {instance.Item1.Title}\n{instance.Item2.Message}\n");
+                ExceptionHandler.Handle(message);
+            }
 
             OnPropertyChanged(nameof(UIModules));
         }
