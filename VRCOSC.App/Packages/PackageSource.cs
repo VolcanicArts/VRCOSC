@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -271,6 +271,10 @@ public class PackageSource
 
     private void OnUnInstallButtonClick()
     {
+        var result = MessageBox.Show("Are you sure you want to uninstall this package?\nUninstalling will remove all saved module data, and all ChatBox data containing modules provided by this package.", "Uninstall Warning", MessageBoxButton.YesNo);
+
+        if (result != MessageBoxResult.Yes) return;
+
         var action = packageManager.UninstallPackage(this);
         action.OnComplete += () => AppManager.GetInstance().Refresh(PageLookup.Packages);
         _ = MainWindow.GetInstance().ShowLoadingOverlay($"Uninstalling {DisplayName}", action);
