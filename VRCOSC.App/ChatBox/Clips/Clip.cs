@@ -66,12 +66,6 @@ public class Clip : INotifyPropertyChanged
         });
     }
 
-    public void Init()
-    {
-        // TODO: If we're not writing any data until we've validated the ChatBox deserialisation for invalid data, this can probably go BEFORE deserialistion to make adding data easier
-        // LinkedModules.CollectionChanged += linkedModulesOnCollectionChanged;
-    }
-
     public void ChatBoxStart()
     {
         eventQueue.Clear();

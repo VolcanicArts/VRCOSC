@@ -23,22 +23,6 @@ public class Layer
         ID = id;
     }
 
-    public void Init()
-    {
-        Clips.ForEach(clip => clip.Init());
-
-        Clips.CollectionChanged += (_, e) =>
-        {
-            if (e.NewItems is not null)
-            {
-                foreach (Clip newClip in e.NewItems)
-                {
-                    newClip.Init();
-                }
-            }
-        };
-    }
-
     public (int, int) GetBoundsNearestTo(int value, bool end, bool isCreating = false)
     {
         value = Math.Clamp(value, 0, ChatBoxManager.GetInstance().Timeline.LengthSeconds);

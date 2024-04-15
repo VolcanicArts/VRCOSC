@@ -53,7 +53,6 @@ public class Timeline : INotifyPropertyChanged
 
     public void Init()
     {
-        Layers.ForEach(layer => layer.Init());
         OnPropertyChanged(nameof(LengthSeconds));
     }
 
