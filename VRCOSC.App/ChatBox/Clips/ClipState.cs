@@ -19,10 +19,14 @@ public class ClipState : ClipElement
     // ModuleID, StateID
     public Dictionary<string, string> States { get; } = new();
 
+    internal bool IsBuiltIn { get; }
+
     public override string DisplayName
     {
         get
         {
+            if (IsBuiltIn) return "Built-In - Text";
+
             var names = new List<string>();
 
             States.OrderBy(pair => pair.Key).ThenBy(pair => pair.Value).ForEach(pair =>
@@ -47,6 +51,8 @@ public class ClipState : ClipElement
     {
         get
         {
+            if (IsBuiltIn) return true;
+
             if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.ShowRelevantModules)) return true;
 
             var selectedClip = MainWindow.GetInstance().ChatBoxPage.SelectedClip;
@@ -65,6 +71,9 @@ public class ClipState : ClipElement
 
     public ClipState(ClipStateReference reference)
     {
+        IsBuiltIn = reference.IsBuiltIn;
+        if (IsBuiltIn) return;
+
         States = new Dictionary<string, string> { { reference.ModuleID, reference.StateID } };
         Format = new Observable<string>(reference.DefaultFormat);
         Variables = new ObservableCollection<ClipVariable>(reference.DefaultVariables.Select(clipVariableReference => clipVariableReference.CreateInstance()));
@@ -90,10 +99,12 @@ public class ClipState : ClipElement
 /// </summary>
 public class ClipStateReference
 {
-    internal string ModuleID { get; init; }
-    internal string StateID { get; init; }
-    internal string DefaultFormat { get; init; }
-    internal List<ClipVariableReference> DefaultVariables { get; init; }
+    internal string ModuleID { get; init; } = null!;
+    internal string StateID { get; init; } = null!;
+    internal string DefaultFormat { get; init; } = string.Empty;
+    internal List<ClipVariableReference> DefaultVariables { get; init; } = new();
+
+    internal bool IsBuiltIn { get; init; }
 
     public Observable<string> DisplayName { get; } = new("INVALID");
 }

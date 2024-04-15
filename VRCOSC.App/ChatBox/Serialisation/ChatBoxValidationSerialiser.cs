@@ -41,14 +41,17 @@ public class ChatBoxValidationSerialiser : ProfiledSerialiser<ChatBoxManager, Se
 
                 foreach (var serialisableClipState in serialisableClip.States)
                 {
-                    foreach (var serialisableClipStateState in serialisableClipState.States)
+                    if (serialisableClipState.States is not null)
                     {
-                        var doesStateReferencesExist = Reference.GetState(serialisableClipStateState.Key, serialisableClipStateState.Value) is not null;
-
-                        if (!doesStateReferencesExist)
+                        foreach (var serialisableClipStateState in serialisableClipState.States)
                         {
-                            IsValid = false;
-                            return false;
+                            var doesStateReferencesExist = Reference.GetState(serialisableClipStateState.Key, serialisableClipStateState.Value) is not null;
+
+                            if (!doesStateReferencesExist)
+                            {
+                                IsValid = false;
+                                return false;
+                            }
                         }
                     }
 

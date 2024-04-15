@@ -65,6 +65,11 @@ public class Clip : INotifyPropertyChanged
 
     public Clip()
     {
+        States.Add(new ClipState(new ClipStateReference
+        {
+            IsBuiltIn = true
+        }));
+
         LinkedModules.CollectionChanged += linkedModulesOnCollectionChanged;
 
         ChatBoxManager.GetInstance().Timeline.Length.Subscribe(_ =>
@@ -263,8 +268,18 @@ public class Clip : INotifyPropertyChanged
 
     private void populateStates(NotifyCollectionChangedEventArgs e)
     {
+        States.RemoveIf(clipState => clipState.IsBuiltIn);
+
         if (e.OldItems is not null) removeStatesOfRemovedModules(e);
         if (e.NewItems is not null) addStatesOfAddedModules(e);
+
+        if (!States.Any())
+        {
+            States.Add(new ClipState(new ClipStateReference
+            {
+                IsBuiltIn = true
+            }));
+        }
     }
 
     private void removeStatesOfRemovedModules(NotifyCollectionChangedEventArgs e)

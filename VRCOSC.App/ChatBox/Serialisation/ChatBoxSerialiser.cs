@@ -46,7 +46,7 @@ public class ChatBoxSerialiser : ProfiledSerialiser<ChatBoxManager, Serialisable
 
                 serialisableClip.States.ForEach(serialisableState =>
                 {
-                    var clipState = clip.States.FirstOrDefault(clipState => clipState.States.SequenceEqual(serialisableState.States));
+                    var clipState = serialisableState.States is null ? clip.States.FirstOrDefault(clipState => clipState.IsBuiltIn) : clip.States.FirstOrDefault(clipState => clipState.States.SequenceEqual(serialisableState.States));
                     if (clipState is null) return;
 
                     clipState.Format.Value = serialisableState.Format;

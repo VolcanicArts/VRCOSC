@@ -137,7 +137,7 @@ public abstract class SerialisableClipElement
 public class SerialisableClipState : SerialisableClipElement
 {
     [JsonProperty("states")]
-    public Dictionary<string, string> States = new();
+    public Dictionary<string, string>? States;
 
     [JsonConstructor]
     public SerialisableClipState()
@@ -147,7 +147,7 @@ public class SerialisableClipState : SerialisableClipElement
     public SerialisableClipState(ClipState clipState)
         : base(clipState)
     {
-        States = clipState.States;
+        States = clipState.IsBuiltIn ? null : clipState.States;
     }
 }
 
