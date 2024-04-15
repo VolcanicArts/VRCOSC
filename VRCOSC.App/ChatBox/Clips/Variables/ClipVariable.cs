@@ -16,11 +16,19 @@ namespace VRCOSC.App.ChatBox.Clips.Variables;
 [JsonObject(MemberSerialization.OptIn)]
 public abstract class ClipVariable
 {
-    public string ModuleID { get; } = null!;
+    public string? ModuleID { get; }
     public string VariableID { get; } = null!;
 
     public string DisplayName => ChatBoxManager.GetInstance().GetVariable(ModuleID, VariableID)!.DisplayName.Value;
-    public string DisplayNameWithModule => $"{ModuleManager.GetInstance().GetModuleOfID(ModuleID).Title} - {DisplayName}";
+
+    public string DisplayNameWithModule
+    {
+        get
+        {
+            var moduleName = ModuleID is null ? "Built-In" : ModuleManager.GetInstance().GetModuleOfID(ModuleID).Title;
+            return $"{moduleName} - {DisplayName}";
+        }
+    }
 
     public List<RenderableClipVariableOption> UIOptions
     {

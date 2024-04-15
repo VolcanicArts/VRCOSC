@@ -9,7 +9,7 @@ namespace VRCOSC.App.ChatBox.Clips.Variables;
 // TODO: Should this extend so I can have default values for variable options?
 public class ClipVariableReference
 {
-    internal string ModuleID { get; init; } = null!;
+    internal string? ModuleID { get; init; }
     internal string VariableID { get; init; } = null!;
     internal Type ClipVariableType { get; init; } = null!;
     internal Type ValueType { get; init; } = null!;

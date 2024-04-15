@@ -183,7 +183,7 @@ public class SerialisableClipEvent : SerialisableClipElement
 public class SerialisableClipVariable
 {
     [JsonProperty("module_id")]
-    public string ModuleID = string.Empty;
+    public string? ModuleID;
 
     [JsonProperty("variable_id")]
     public string VariableID = string.Empty;

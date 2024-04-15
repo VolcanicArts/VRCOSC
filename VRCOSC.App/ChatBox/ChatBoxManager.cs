@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using VRCOSC.App.ChatBox.Clips;
 using VRCOSC.App.ChatBox.Clips.Variables;
+using VRCOSC.App.ChatBox.Clips.Variables.Instances;
 using VRCOSC.App.ChatBox.Serialisation;
 using VRCOSC.App.Modules;
 using VRCOSC.App.OSC.VRChat;
@@ -75,7 +76,20 @@ public class ChatBoxManager : INotifyPropertyChanged
 
     public void Load()
     {
+        addBuiltInVariables();
+
         Deserialise();
+    }
+
+    private void addBuiltInVariables()
+    {
+        VariableReferences.Add(new ClipVariableReference
+        {
+            VariableID = BuiltInVariables.FocusedWindow.ToLookup(),
+            DisplayName = { Value = "Focused Window" },
+            ClipVariableType = typeof(StringClipVariable),
+            ValueType = typeof(string)
+        });
     }
 
     public void Unload(string moduleID = "")
@@ -179,12 +193,18 @@ public class ChatBoxManager : INotifyPropertyChanged
 
     private void chatBoxUpdate()
     {
+        updateBuiltInVariables();
         ModuleManager.GetInstance().ChatBoxUpdate();
 
         allClips.ForEach(clip => clip.Update());
         TriggeredEvents.Clear();
 
         evaluateClips();
+    }
+
+    private void updateBuiltInVariables()
+    {
+        GetVariable(null, BuiltInVariables.FocusedWindow.ToLookup())!.SetValue(ProcessExtensions.GetActiveWindowTitle());
     }
 
     private void evaluateClips()
@@ -380,7 +400,7 @@ public class ChatBoxManager : INotifyPropertyChanged
         });
     }
 
-    public ClipVariableReference? GetVariable(string moduleID, string variableID)
+    public ClipVariableReference? GetVariable(string? moduleID, string variableID)
     {
         return VariableReferences.FirstOrDefault(reference => reference.ModuleID == moduleID && reference.VariableID == variableID);
     }
@@ -393,4 +413,9 @@ public class ChatBoxManager : INotifyPropertyChanged
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
+}
+
+public enum BuiltInVariables
+{
+    FocusedWindow
 }

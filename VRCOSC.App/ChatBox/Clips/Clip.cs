@@ -36,12 +36,25 @@ public class Clip : INotifyPropertyChanged
     public IEnumerable<ClipEvent> UIEvents => Events.OrderByDescending(clipEvent => clipEvent.ModuleID)
                                                     .ThenByDescending(clipEvent => clipEvent.EventID);
 
+    // TODO: Does this update when counter module instance names update?
     public Dictionary<string, List<ClipVariableReference>> UIVariables
     {
         get
         {
+            var finalDict = new Dictionary<string, List<ClipVariableReference>>();
+
+            var builtInVariables = new List<ClipVariableReference>();
+            ChatBoxManager.GetInstance().VariableReferences.Where(clipVariableReference => clipVariableReference.ModuleID is null).OrderBy(reference => reference.DisplayName.Value).ForEach(clipVariableReference => builtInVariables.Add(clipVariableReference));
+            finalDict.Add("Built-In", builtInVariables);
+
             var modules = LinkedModules.Select(moduleID => ModuleManager.GetInstance().GetModuleOfID(moduleID)).OrderBy(module => module.Title);
-            return modules.ToDictionary(module => module.Title, module => ChatBoxManager.GetInstance().VariableReferences.Where(reference => reference.ModuleID == module.SerialisedName).OrderBy(reference => reference.DisplayName.Value).ToList());
+
+            foreach (var module in modules)
+            {
+                finalDict.Add(module.Title, ChatBoxManager.GetInstance().VariableReferences.Where(reference => reference.ModuleID is not null && reference.ModuleID == module.SerialisedName).OrderBy(reference => reference.DisplayName.Value).ToList());
+            }
+
+            return finalDict;
         }
     }
 
