@@ -85,8 +85,6 @@ public class AppManager
         VRChatOscClient.Init(ConnectionManager);
         ConnectionManager.Init();
 
-        VRChatLogReader.Init();
-
         vrchatCheckTask = new Repeater(checkForVRChatAutoStart);
         vrchatCheckTask.Start(TimeSpan.FromSeconds(2));
 
@@ -282,7 +280,7 @@ public class AppManager
     {
         State.Value = AppManagerState.Starting;
 
-        VRChatLogReader.Reset();
+        VRChatLogReader.Start();
 
         //RouterManager.Start();
 
@@ -342,6 +340,8 @@ public class AppManager
         if (State.Value is AppManagerState.Stopping or AppManagerState.Stopped) return;
 
         State.Value = AppManagerState.Stopping;
+
+        VRChatLogReader.Stop();
 
         //RouterManager.Stop();
 

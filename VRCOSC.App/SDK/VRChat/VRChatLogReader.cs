@@ -28,14 +28,16 @@ internal class VRChatLogReader
     public static Action? OnWorldExit;
     public static Action<string>? OnWorldEnter;
 
-    internal static void Init()
+    internal static void Start()
     {
         processTask = new Repeater(process);
         processTask.Start(TimeSpan.FromMilliseconds(200));
     }
 
-    public static void Reset()
+    internal static async void Stop()
     {
+        await processTask.StopAsync();
+
         line_buffer.Clear();
         logFile = null;
         lineNumber = 0;
@@ -118,12 +120,13 @@ internal class VRChatLogReader
 
     private static void checkWorldEnter()
     {
-        foreach (var line in line_buffer)
+        foreach (var line in line_buffer.AsEnumerable().Reverse())
         {
             if (world_enter_regex.IsMatch(line))
             {
                 Logger.Log($"Detected world enter to '{CurrentWorldID}'");
                 OnWorldEnter?.Invoke(CurrentWorldID!);
+                break;
             }
         }
     }
