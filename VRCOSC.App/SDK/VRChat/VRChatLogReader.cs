@@ -10,7 +10,7 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.VRChat;
 
-public class VRChatLogReader
+internal class VRChatLogReader
 {
     private static readonly string logfile_location = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData).Replace("Roaming", "LocalLow"), "VRChat", "VRChat");
     private const string logfile_pattern = "output_log_*";
@@ -22,9 +22,12 @@ public class VRChatLogReader
     private static Repeater processTask = null!;
     private static readonly object process_lock = new();
 
-    private static string? currentWorldID;
+    public static string? CurrentWorldID { get; private set; }
 
-    public static void Init()
+    public static Action? OnWorldExit;
+    public static Action<string>? OnWorldEnter;
+
+    internal static void Init()
     {
         processTask = new Repeater(process);
         processTask.Start(TimeSpan.FromMilliseconds(200));
@@ -35,7 +38,7 @@ public class VRChatLogReader
         line_buffer.Clear();
         logFile = null;
         lineNumber = 0;
-        currentWorldID = null;
+        CurrentWorldID = null;
     }
 
     private static void process()
@@ -47,12 +50,14 @@ public class VRChatLogReader
             readLinesFromFile();
             if (!line_buffer.Any()) return;
 
-            var newCurrentWorldID = findCurrentWorldChange();
+            var newCurrentWorldID = findWorldExitEvent();
 
-            if (newCurrentWorldID is not null && newCurrentWorldID != currentWorldID)
+            if (newCurrentWorldID is not null && newCurrentWorldID != CurrentWorldID)
             {
-                currentWorldID = newCurrentWorldID;
-                Logger.Log($"Detected current world change to '{currentWorldID}'");
+                CurrentWorldID = newCurrentWorldID;
+                Logger.Log($"Detected current world change to '{CurrentWorldID}'");
+
+                OnWorldExit?.Invoke();
             }
         }
     }
@@ -93,7 +98,7 @@ public class VRChatLogReader
         }
     }
 
-    private static string? findCurrentWorldChange()
+    private static string? findWorldExitEvent()
     {
         foreach (var line in line_buffer)
         {
