@@ -74,13 +74,21 @@ internal class VRChatLogReader
             if (logFile is null) return;
 
             using var fileStream = new FileStream(logFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-            using var streamReader = new StreamReader(fileStream);
-            streamReader.BaseStream.Seek(0, SeekOrigin.Begin);
 
-            for (var i = 0; i < lineNumber; i++)
+            var currentLineNumber = 1;
+            int currentChar;
+
+            while ((currentChar = fileStream.ReadByte()) != -1)
             {
-                if (streamReader.ReadLine() == null) return;
+                if (currentLineNumber > lineNumber)
+                {
+                    break;
+                }
+
+                if (currentChar == '\n') currentLineNumber++;
             }
+
+            using var streamReader = new StreamReader(fileStream);
 
             while (streamReader.ReadLine() is { } line)
             {
