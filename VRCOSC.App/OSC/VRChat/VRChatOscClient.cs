@@ -39,13 +39,17 @@ public class VRChatOscClient : OscClient
         this.connectionManager = connectionManager;
     }
 
-    private async Task<OSCQueryNode?> findParameter(string parameterName)
+    private Task<OSCQueryNode?> findParameter(string parameterName) => findAddress(VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX + parameterName);
+
+    private async Task<OSCQueryNode?> findAddress(string address)
     {
+        Console.WriteLine($"Querying address: {address}");
+
         try
         {
             if (connectionManager.VRChatQueryPort is null) return null;
 
-            var url = $"http://127.0.0.1:{connectionManager.VRChatQueryPort}/avatar/parameters/{parameterName}";
+            var url = $"http://127.0.0.1:{connectionManager.VRChatQueryPort}/{address}";
 
             var response = await client.GetAsync(new Uri(url));
             if (!response.IsSuccessStatusCode) return null;
@@ -57,14 +61,14 @@ public class VRChatOscClient : OscClient
         }
         catch (Exception e)
         {
-            ExceptionHandler.Handle(e, $"Exception when trying to find parameter: {parameterName}");
+            ExceptionHandler.Handle(e, $"Exception when trying to find parameter: {address}");
             return null;
         }
     }
 
     public async Task<object?> FindParameterValue(string parameterName)
     {
-        var node = await findParameter(parameterName);
+        var node = await findAddress(parameterName);
         if (node is null) return null;
 
         return node.OscType switch
@@ -79,7 +83,7 @@ public class VRChatOscClient : OscClient
 
     public async Task<TypeCode?> FindParameterType(string parameterName)
     {
-        var node = await findParameter(parameterName);
+        var node = await findAddress(parameterName);
         if (node is null) return null;
 
         return node.OscType switch
