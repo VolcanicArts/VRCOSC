@@ -191,18 +191,12 @@ public abstract class Module
 
         State.Value = ModuleState.Started;
 
-        VRChatLogReader.OnWorldExit += Client_OnWorldExit;
-        VRChatLogReader.OnWorldEnter += Client_OnWorldEnter;
-
         initialiseUpdateAttributes(GetType());
     }
 
     internal async Task Stop()
     {
         State.Value = ModuleState.Stopping;
-
-        VRChatLogReader.OnWorldExit -= Client_OnWorldExit;
-        VRChatLogReader.OnWorldEnter -= Client_OnWorldEnter;
 
         foreach (var updateTask in updateTasks) await updateTask.StopAsync();
         updateTasks.Clear();
@@ -554,18 +548,6 @@ public abstract class Module
     protected virtual void OnAnyParameterReceived(ReceivedParameter receivedParameter)
     {
     }
-
-    #region Client Events
-
-    protected virtual void Client_OnWorldExit()
-    {
-    }
-
-    protected virtual void Client_OnWorldEnter(string worldID)
-    {
-    }
-
-    #endregion
 
     #endregion
 }

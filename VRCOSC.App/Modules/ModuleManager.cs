@@ -81,7 +81,7 @@ public class ModuleManager : INotifyPropertyChanged
 
     #region Management
 
-    public IEnumerable<ChatBoxModule> GetModulesOfType<T>() => modules.Where(module => module.GetType().IsAssignableTo(typeof(T))).Select(module => (ChatBoxModule)module);
+    public IEnumerable<T> GetModulesOfType<T>() => modules.Where(module => module.GetType().IsAssignableTo(typeof(T))).Cast<T>();
 
     public Module GetModuleOfID(string moduleID) => modules.First(module => module.SerialisedName == moduleID);
 

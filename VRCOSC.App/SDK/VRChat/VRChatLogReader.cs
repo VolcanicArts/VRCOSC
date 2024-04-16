@@ -7,6 +7,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using VRCOSC.App.Modules;
+using VRCOSC.App.SDK.Handlers;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.VRChat;
@@ -26,7 +28,6 @@ internal class VRChatLogReader
 
     public static string? CurrentWorldID { get; private set; }
 
-    public static Action? OnWorldExit;
     public static Action<string>? OnWorldEnter;
 
     internal static void Start()
@@ -118,7 +119,7 @@ internal class VRChatLogReader
             CurrentWorldID = newWorldID;
             Logger.Log("Detected world leave");
 
-            OnWorldExit?.Invoke();
+            ModuleManager.GetInstance().GetModulesOfType<IVRCClientEventHandler>().ForEach(handler => handler.OnWorldExit());
         }
     }
 
@@ -130,6 +131,7 @@ internal class VRChatLogReader
             {
                 Logger.Log($"Detected world enter to '{CurrentWorldID}'");
                 OnWorldEnter?.Invoke(CurrentWorldID!);
+                ModuleManager.GetInstance().GetModulesOfType<IVRCClientEventHandler>().ForEach(handler => handler.OnWorldEnter(CurrentWorldID!));
                 break;
             }
         }
