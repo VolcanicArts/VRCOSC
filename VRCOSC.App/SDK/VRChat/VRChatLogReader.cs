@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using VRCOSC.App.Utils;
 
@@ -19,7 +20,7 @@ internal class VRChatLogReader
 
     private static readonly List<string> line_buffer = new();
     private static string? logFile;
-    private static int lineNumber;
+    private static long byteOffset;
     private static Repeater processTask = null!;
     private static readonly object process_lock = new();
 
@@ -47,7 +48,7 @@ internal class VRChatLogReader
     {
         line_buffer.Clear();
         logFile = null;
-        lineNumber = 1;
+        byteOffset = 0;
         CurrentWorldID = null;
     }
 
@@ -73,8 +74,8 @@ internal class VRChatLogReader
 
             if (localLogFile != logFile)
             {
+                reset();
                 logFile = localLogFile;
-                lineNumber = 1;
                 Logger.Log($"Reading log file: {logFile}");
             }
 
@@ -83,20 +84,12 @@ internal class VRChatLogReader
             using var fileStream = new FileStream(logFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             using var streamReader = new StreamReader(fileStream);
 
-            var currentLineNumber = 1;
-
-            while (currentLineNumber < lineNumber)
-            {
-                var currentChar = streamReader.Read();
-                if (currentChar == -1) break;
-
-                if (currentChar == '\n') currentLineNumber++;
-            }
+            streamReader.BaseStream.Seek(byteOffset, SeekOrigin.Begin);
 
             while (streamReader.ReadLine() is { } line)
             {
                 line_buffer.Add(line);
-                lineNumber++;
+                byteOffset += Encoding.UTF8.GetBytes(line).Length;
             }
         }
         catch (Exception e)
