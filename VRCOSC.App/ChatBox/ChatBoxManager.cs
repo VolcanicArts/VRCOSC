@@ -85,6 +85,14 @@ public class ChatBoxManager : INotifyPropertyChanged
     {
         VariableReferences.Add(new ClipVariableReference
         {
+            VariableID = BuiltInVariables.Text.ToLookup(),
+            DisplayName = { Value = "Text" },
+            ClipVariableType = typeof(TextClipVariable),
+            ValueType = typeof(string)
+        });
+
+        VariableReferences.Add(new ClipVariableReference
+        {
             VariableID = BuiltInVariables.FocusedWindow.ToLookup(),
             DisplayName = { Value = "Focused Window" },
             ClipVariableType = typeof(StringClipVariable),
@@ -205,6 +213,7 @@ public class ChatBoxManager : INotifyPropertyChanged
     private void updateBuiltInVariables()
     {
         GetVariable(null, BuiltInVariables.FocusedWindow.ToLookup())!.SetValue(ProcessExtensions.GetActiveWindowTitle());
+        GetVariable(null, BuiltInVariables.Text.ToLookup())!.SetValue(string.Empty);
     }
 
     private void evaluateClips()
@@ -417,5 +426,6 @@ public class ChatBoxManager : INotifyPropertyChanged
 
 public enum BuiltInVariables
 {
+    Text,
     FocusedWindow
 }

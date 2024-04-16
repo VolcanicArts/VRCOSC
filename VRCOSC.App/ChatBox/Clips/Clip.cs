@@ -180,6 +180,12 @@ public class Clip : INotifyPropertyChanged
 
         if (currentEvent is not null) return true;
 
+        if (States.All(clipState => clipState.IsBuiltIn && clipState.Enabled.Value))
+        {
+            currentState = States.First(clipState => clipState.IsBuiltIn);
+            return true;
+        }
+
         var localStates = States.Select(state => state.Clone(true)).ToList();
 
         removeAbsentModules(localStates);
@@ -244,10 +250,7 @@ public class Clip : INotifyPropertyChanged
 
     public string GetFormattedText() => currentEvent is not null ? formatText(currentEvent.Value.Item1) : formatText(currentState!);
 
-    private string formatText(ClipElement element)
-    {
-        return element.RunFormatting();
-    }
+    private string formatText(ClipElement element) => element.RunFormatting();
 
     #endregion
 
