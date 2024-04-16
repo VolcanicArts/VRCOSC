@@ -125,7 +125,7 @@ public abstract class ClipVariable
         if (!string.IsNullOrEmpty(JoinString)) formattedValue += JoinString;
 
         var position = currentIndex.Modulo(formattedValue.Length);
-        formattedValue = cropAndWrapText(formattedValue, position, TruncateLength == -1 ? int.MaxValue : TruncateLength);
+        formattedValue = cropAndWrapText(formattedValue, position, TruncateLength == -1 ? formattedValue.Length : TruncateLength);
 
         if (IncludeEllipses)
             formattedValue += "...";
