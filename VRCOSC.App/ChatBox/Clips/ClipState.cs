@@ -79,19 +79,12 @@ public class ClipState : ClipElement
         Variables = new ObservableCollection<ClipVariable>(reference.DefaultVariables.Select(clipVariableReference => clipVariableReference.CreateInstance()));
     }
 
-    private ClipState(ClipState original, bool includeUserData)
+    private ClipState(ClipState original)
     {
         States.AddRange(original.States);
-
-        if (includeUserData)
-        {
-            Format.Value = original.Format.Value;
-            Enabled.Value = original.Enabled.Value;
-            Variables.AddRange(original.Variables);
-        }
     }
 
-    public ClipState Clone(bool includeUserData = false) => new(this, includeUserData);
+    public ClipState Clone() => new(this);
 }
 
 /// <summary>

@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -24,10 +23,10 @@ public class Clip : INotifyPropertyChanged
     public Observable<int> End { get; } = new();
     public ObservableCollection<string> LinkedModules { get; } = new();
 
-    // TODO: When there's no linked modules there should be a single state letting people type text
-
     public ObservableCollection<ClipState> States { get; } = new();
     public ObservableCollection<ClipEvent> Events { get; } = new();
+
+    public IEnumerable<ClipElement> Elements => States.Cast<ClipElement>().Concat(Events);
 
     public IEnumerable<ClipState> UIStates => States.OrderBy(clipState => clipState.States.Count)
                                                     .ThenBy(state => string.Join(",", state.States.Keys.OrderBy(k => k)))
@@ -90,8 +89,7 @@ public class Clip : INotifyPropertyChanged
         currentState = null;
         currentEvent = null;
 
-        States.ForEach(clipState => clipState.Variables.ForEach(clipVariable => clipVariable.Start()));
-        Events.ForEach(clipEvent => clipEvent.Variables.ForEach(clipVariable => clipVariable.Start()));
+        Elements.ForEach(clipElement => clipElement.Variables.ForEach(clipVariable => clipVariable.Start()));
     }
 
     public ClipElement? FindElementFromVariable(ClipVariable variable)
@@ -180,71 +178,46 @@ public class Clip : INotifyPropertyChanged
 
         if (currentEvent is not null) return true;
 
-        if (States.All(clipState => clipState.IsBuiltIn && clipState.Enabled.Value))
+        if (States.Count == 1 && States[0].IsBuiltIn)
         {
-            currentState = States.First(clipState => clipState.IsBuiltIn);
+            if (!States[0].Enabled.Value)
+            {
+                currentState = null;
+                return false;
+            }
+
+            currentState = States[0];
             return true;
         }
 
-        var localStates = States.Select(state => state.Clone(true)).ToList();
+        var chosenState = calculateValidClipState();
 
-        removeAbsentModules(localStates);
-        removeDisabledModules(localStates);
-        removeLessCompoundedStates(localStates);
-        removeInvalidStates(localStates);
-
-        if (localStates.Count != 1) return false;
-
-        var chosenState = localStates.Single();
-        if (!chosenState.Enabled.Value) return false;
+        if (chosenState is null || !chosenState.Enabled.Value)
+        {
+            currentState = null;
+            return false;
+        }
 
         currentState = chosenState;
         return true;
     }
 
-    private void removeAbsentModules(List<ClipState> localStates)
+    private ClipState? calculateValidClipState()
     {
-        foreach (var clipState in localStates.ToImmutableList())
+        try
         {
-            var stateValid = clipState.States.Keys.All(moduleID => ModuleManager.GetInstance().IsModuleLoaded(moduleID));
-            if (!stateValid) localStates.Remove(clipState);
+            var runningLinkedModules = LinkedModules.Where(moduleID => ModuleManager.GetInstance().IsModuleRunning(moduleID)).ToList();
+            var activeStateIDs = runningLinkedModules.Select(moduleID => ChatBoxManager.GetInstance().StateValues.GetValueOrDefault(moduleID)).ToList().RemoveIf(stateID => stateID is null);
+
+            // takes a copy of the states to not remove from the original collection
+            // first removes if a state has non-running modules or less/more compounded states compared to the running modules
+            // second removes if a state has invalid module states compared to the active module states
+            return States.ToList().RemoveIf(clipState => !clipState.States.Keys.ContainsSame(runningLinkedModules) || !clipState.States.Values.ContainsSame(activeStateIDs)).SingleOrDefault();
         }
-    }
-
-    private void removeDisabledModules(List<ClipState> localStates)
-    {
-        foreach (var clipState in localStates.ToImmutableList())
+        catch (Exception e)
         {
-            var stateValid = clipState.States.Keys.All(moduleID => ModuleManager.GetInstance().IsModuleRunning(moduleID));
-            if (!stateValid) localStates.Remove(clipState);
-        }
-    }
-
-    private void removeLessCompoundedStates(List<ClipState> localStates)
-    {
-        var enabledAndLinkedModules = LinkedModules.Where(moduleID => ModuleManager.GetInstance().IsModuleRunning(moduleID)).ToList();
-        enabledAndLinkedModules.Sort();
-
-        foreach (var clipState in localStates.ToImmutableList())
-        {
-            var clipStateModules = clipState.States.Keys.ToList();
-            clipStateModules.Sort();
-
-            if (!clipStateModules.SequenceEqual(enabledAndLinkedModules)) localStates.Remove(clipState);
-        }
-    }
-
-    private void removeInvalidStates(List<ClipState> localStates)
-    {
-        var currentStates = LinkedModules.Where(moduleID => ModuleManager.GetInstance().IsModuleRunning(moduleID) && ChatBoxManager.GetInstance().StateValues.ContainsKey(moduleID) && ChatBoxManager.GetInstance().StateValues[moduleID] is not null).Select(moduleName => ChatBoxManager.GetInstance().StateValues[moduleName]).ToList();
-        currentStates.Sort();
-
-        foreach (var clipState in localStates.ToImmutableList())
-        {
-            var clipStateStates = clipState.States.Values.ToList();
-            clipStateStates.Sort();
-
-            if (!clipStateStates.SequenceEqual(currentStates)) localStates.Remove(clipState);
+            ExceptionHandler.Handle(e, "More than 1 clip state was chosen which isn't possible");
+            return null;
         }
     }
 
@@ -261,22 +234,26 @@ public class Clip : INotifyPropertyChanged
         populateStates(e);
         populateEvents(e);
 
-        // TODO: When modules are removed, remove all variable instances of that module
-        // evaluateVariables(e);
+        if (e.Action == NotifyCollectionChangedAction.Remove) removeAbsentVariables();
 
         OnPropertyChanged(nameof(UIStates));
         OnPropertyChanged(nameof(UIEvents));
         OnPropertyChanged(nameof(UIVariables));
     }
 
+    private void removeAbsentVariables()
+    {
+        Elements.ForEach(clipElement => clipElement.Variables.RemoveIf(clipVariable => clipVariable.ModuleID is not null && !LinkedModules.Contains(clipVariable.ModuleID)));
+    }
+
     private void populateStates(NotifyCollectionChangedEventArgs e)
     {
-        States.RemoveIf(clipState => clipState.IsBuiltIn);
+        if (e.Action == NotifyCollectionChangedAction.Add) States.RemoveIf(clipState => clipState.IsBuiltIn);
 
         if (e.OldItems is not null) removeStatesOfRemovedModules(e);
         if (e.NewItems is not null) addStatesOfAddedModules(e);
 
-        if (!States.Any())
+        if (e.Action == NotifyCollectionChangedAction.Remove && !States.Any())
         {
             States.Add(new ClipState(new ClipStateReference
             {
@@ -287,20 +264,10 @@ public class Clip : INotifyPropertyChanged
 
     private void removeStatesOfRemovedModules(NotifyCollectionChangedEventArgs e)
     {
-        var statesToRemove = new List<ClipState>();
-
         foreach (string oldModuleID in e.OldItems!)
         {
-            foreach (var clipState in States)
-            {
-                if (clipState.States.ContainsKey(oldModuleID))
-                {
-                    statesToRemove.Add(clipState);
-                }
-            }
+            States.RemoveIf(clipState => clipState.States.ContainsKey(oldModuleID));
         }
-
-        statesToRemove.ForEach(clipState => States.Remove(clipState));
     }
 
     private void addStatesOfAddedModules(NotifyCollectionChangedEventArgs e)
@@ -330,20 +297,10 @@ public class Clip : INotifyPropertyChanged
 
     private void removeEventsOfRemovedModules(NotifyCollectionChangedEventArgs e)
     {
-        var eventsToRemove = new List<ClipEvent>();
-
         foreach (string oldModuleID in e.OldItems!)
         {
-            foreach (var clipEvent in Events)
-            {
-                if (clipEvent.ModuleID == oldModuleID)
-                {
-                    eventsToRemove.Add(clipEvent);
-                }
-            }
+            Events.RemoveIf(clipEvent => clipEvent.ModuleID == oldModuleID);
         }
-
-        eventsToRemove.ForEach(clipEvent => Events.Remove(clipEvent));
     }
 
     private void addEventsOfAddedModules(NotifyCollectionChangedEventArgs e)

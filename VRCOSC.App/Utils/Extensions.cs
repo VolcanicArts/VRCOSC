@@ -13,10 +13,21 @@ namespace VRCOSC.App.Utils;
 
 public static class EnumerableExtensions
 {
-    public static void ForEach<T>(this IEnumerable<T> collection, Action<T> action)
+    public static void ForEach<T>(this IEnumerable<T> enumerable, Action<T> action)
     {
-        foreach (var item in collection)
+        foreach (var item in enumerable)
             action(item);
+    }
+
+    /// <summary>
+    /// Checks to see if source contains the same contents as other without having to sort and call SequenceEquals
+    /// </summary>
+    public static bool ContainsSame<T>(this IEnumerable<T> source, IEnumerable<T> other)
+    {
+        var sourceList = source.ToList();
+        var otherList = other.ToList();
+
+        return sourceList.Count == otherList.Count && sourceList.All(otherList.Contains);
     }
 }
 
@@ -28,14 +39,19 @@ public static class CollectionExtensions
             collection.Add(item);
     }
 
-    public static void RemoveIf<T>(this ICollection<T> collection, Func<T, bool> callback)
+    /// <summary>
+    /// Removes elements based on a predicate
+    /// </summary>
+    public static ICollection<T> RemoveIf<T>(this ICollection<T> collection, Func<T, bool> predicate)
     {
-        var itemsToRemove = collection.Where(callback.Invoke).ToList();
+        var itemsToRemove = collection.Where(predicate.Invoke).ToList();
 
         foreach (var itemToRemove in itemsToRemove)
         {
             collection.Remove(itemToRemove);
         }
+
+        return collection;
     }
 }
 
@@ -141,7 +157,7 @@ public static class ProcessExtensions
         var foregroundWindowHandle = User32.GetForegroundWindow();
         if (foregroundWindowHandle == IntPtr.Zero) return null;
 
-        User32.GetWindowThreadProcessId(foregroundWindowHandle, out int processId);
+        _ = User32.GetWindowThreadProcessId(foregroundWindowHandle, out int processId);
 
         if (processId <= 0) return null;
 
