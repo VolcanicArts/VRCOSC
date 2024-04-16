@@ -80,6 +80,7 @@ public class AppManager
         VRChatOscClient = new VRChatOscClient();
         VRChatClient = new VRChatClient(VRChatOscClient);
         OVRClient = new OVRClient();
+        ChatBoxWorldBlacklist.Init();
 
         VRChatOscClient.Init(ConnectionManager);
         ConnectionManager.Init();

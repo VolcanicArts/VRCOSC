@@ -219,19 +219,14 @@ public class ChatBoxManager : INotifyPropertyChanged
     private void evaluateClips()
     {
         var validClip = getValidClip();
-        handleClip(validClip);
 
-        // if (CurrentWorldExtractor.IsCurrentWorldBlacklisted && configManager.Get<bool>(VRCOSCSetting.ChatboxWorldBlock) && validClip is not null)
-        // {
-        //     var blockedFromSending = validClip.AssociatedModules.Any(moduleId => worldBlacklistModuleBlocklist.Contains(moduleId));
-        //
-        //     if (blockedFromSending)
-        //     {
-        //         handleClip(null);
-        //         nextValidTime += TimeSpan.FromMilliseconds(SendDelay.Value);
-        //         return;
-        //     }
-        // }
+        if (ChatBoxWorldBlacklist.IsCurrentWorldBlacklisted && SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.ChatBoxWorldBlacklist) && validClip is not null)
+        {
+            handleClip(null);
+            return;
+        }
+
+        handleClip(validClip);
     }
 
     private Clip? getValidClip()

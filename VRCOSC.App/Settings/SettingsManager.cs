@@ -53,6 +53,7 @@ public class SettingsManager
         Settings[VRCOSCSetting.GlobalPersistence] = new Observable<object>(false);
         Settings[VRCOSCSetting.ReleaseChannel] = new Observable<object>(UpdaterReleaseChannel.Beta); // TODO: Change on app release
         Settings[VRCOSCSetting.ChatBoxSendInterval] = new Observable<object>(1500);
+        Settings[VRCOSCSetting.ChatBoxWorldBlacklist] = new Observable<object>(true);
         Settings[VRCOSCSetting.ShowRelevantModules] = new Observable<object>(true);
     }
 
@@ -89,5 +90,6 @@ public enum VRCOSCSetting
     GlobalPersistence,
     ReleaseChannel,
     ChatBoxSendInterval,
+    ChatBoxWorldBlacklist,
     ShowRelevantModules
 }
