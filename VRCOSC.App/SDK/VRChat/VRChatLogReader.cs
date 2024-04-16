@@ -30,6 +30,8 @@ internal class VRChatLogReader
 
     internal static void Start()
     {
+        reset();
+
         processTask = new Repeater(process);
         processTask.Start(TimeSpan.FromMilliseconds(200));
     }
@@ -38,9 +40,14 @@ internal class VRChatLogReader
     {
         await processTask.StopAsync();
 
+        reset();
+    }
+
+    private static void reset()
+    {
         line_buffer.Clear();
         logFile = null;
-        lineNumber = 0;
+        lineNumber = 1;
         CurrentWorldID = null;
     }
 
@@ -67,28 +74,24 @@ internal class VRChatLogReader
             if (localLogFile != logFile)
             {
                 logFile = localLogFile;
-                lineNumber = 0;
+                lineNumber = 1;
                 Logger.Log($"Reading log file: {logFile}");
             }
 
             if (logFile is null) return;
 
             using var fileStream = new FileStream(logFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            using var streamReader = new StreamReader(fileStream);
 
             var currentLineNumber = 1;
-            int currentChar;
 
-            while ((currentChar = fileStream.ReadByte()) != -1)
+            while (currentLineNumber < lineNumber)
             {
-                if (currentLineNumber > lineNumber)
-                {
-                    break;
-                }
+                var currentChar = streamReader.Read();
+                if (currentChar == -1) break;
 
                 if (currentChar == '\n') currentLineNumber++;
             }
-
-            using var streamReader = new StreamReader(fileStream);
 
             while (streamReader.ReadLine() is { } line)
             {
