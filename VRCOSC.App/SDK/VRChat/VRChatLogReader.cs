@@ -14,7 +14,8 @@ internal class VRChatLogReader
 {
     private static readonly string logfile_location = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData).Replace("Roaming", "LocalLow"), "VRChat", "VRChat");
     private const string logfile_pattern = "output_log_*";
-    private static readonly Regex world_regex = new("^.+Fetching world information for (wrld_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$");
+    private static readonly Regex world_exit_regex = new("^.+Fetching world information for (wrld_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$");
+    private static readonly Regex world_enter_regex = new("^.+Finished entering world\\.$");
 
     private static readonly List<string> line_buffer = new();
     private static string? logFile;
@@ -50,15 +51,8 @@ internal class VRChatLogReader
             readLinesFromFile();
             if (!line_buffer.Any()) return;
 
-            var newCurrentWorldID = findWorldExitEvent();
-
-            if (newCurrentWorldID is not null && newCurrentWorldID != CurrentWorldID)
-            {
-                CurrentWorldID = newCurrentWorldID;
-                Logger.Log($"Detected current world change to '{CurrentWorldID}'");
-
-                OnWorldExit?.Invoke();
-            }
+            checkWorldExit();
+            checkWorldEnter();
         }
     }
 
@@ -98,19 +92,39 @@ internal class VRChatLogReader
         }
     }
 
-    private static string? findWorldExitEvent()
+    private static void checkWorldExit()
+    {
+        string? newWorldID = null;
+
+        foreach (var line in line_buffer)
+        {
+            var worldIDGroup = world_exit_regex.Matches(line).LastOrDefault()?.Groups.Values.LastOrDefault();
+            if (worldIDGroup is null) continue;
+
+            var worldIDCapture = worldIDGroup.Captures.FirstOrDefault();
+            if (worldIDCapture is null) continue;
+
+            newWorldID = worldIDCapture.Value;
+        }
+
+        if (newWorldID is not null && newWorldID != CurrentWorldID)
+        {
+            CurrentWorldID = newWorldID;
+            Logger.Log("Detected world leave");
+
+            OnWorldExit?.Invoke();
+        }
+    }
+
+    private static void checkWorldEnter()
     {
         foreach (var line in line_buffer)
         {
-            var latestWorld = world_regex.Matches(line).LastOrDefault()?.Groups.Values.LastOrDefault();
-            if (latestWorld is null) continue;
-
-            var latestWorldId = latestWorld.Captures.FirstOrDefault();
-            if (latestWorldId is null) continue;
-
-            return latestWorldId.Value;
+            if (world_enter_regex.IsMatch(line))
+            {
+                Logger.Log($"Detected world enter to '{CurrentWorldID}'");
+                OnWorldEnter?.Invoke(CurrentWorldID!);
+            }
         }
-
-        return null;
     }
 }
