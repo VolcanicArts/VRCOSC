@@ -26,7 +26,8 @@
                                   IsChecked="{Binding UseLegacyPorts}" />
                     </Grid>
                 </Border>
-                <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50" CornerRadius="5" Visibility="Collapsed">
+                <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50" CornerRadius="5"
+                        Visibility="Collapsed">
                     <Grid>
                         <TextBlock Text="Allow Pre-release Packages" FontSize="18" FontWeight="Bold"
                                    Foreground="{StaticResource CForeground1}"
@@ -76,6 +77,18 @@
                             HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="0 -1" />
                         <CheckBox HorizontalAlignment="Right" VerticalAlignment="Center" Height="32" Width="32"
                                   IsChecked="{Binding ModuleLogDebug}" />
+                    </Grid>
+                </Border>
+                <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50" CornerRadius="5">
+                    <Grid>
+                        <TextBlock Text="Theme" FontSize="18" FontWeight="Bold"
+                                   Foreground="{StaticResource CForeground1}"
+                                   HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0 -3" />
+                        <TextBlock
+                            Text="What theme should the app be in?"
+                            FontSize="13" Foreground="{StaticResource CForeground2}"
+                            HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="0 -1" />
+                        <ComboBox ItemsSource="{Binding ThemeSource}" SelectedIndex="{Binding Theme}" HorizontalAlignment="Right" Height="32" Width="96" FontSize="18"/>
                     </Grid>
                 </Border>
             </ui:SpacedStackPanel>

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using VRCOSC.App.Packages;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Settings.Serialisation;
+using VRCOSC.App.Themes;
 using VRCOSC.App.Updater;
 using VRCOSC.App.Utils;
 
@@ -55,6 +56,7 @@ public class SettingsManager
         Settings[VRCOSCSetting.ChatBoxSendInterval] = new Observable<object>(1500);
         Settings[VRCOSCSetting.ChatBoxWorldBlacklist] = new Observable<object>(true);
         Settings[VRCOSCSetting.ShowRelevantModules] = new Observable<object>(true);
+        Settings[VRCOSCSetting.Theme] = new Observable<object>((int)Theme.Dark);
     }
 
     public Observable<object> GetObservable(VRCOSCSetting lookup)
@@ -91,5 +93,6 @@ public enum VRCOSCSetting
     ReleaseChannel,
     ChatBoxSendInterval,
     ChatBoxWorldBlacklist,
-    ShowRelevantModules
+    ShowRelevantModules,
+    Theme
 }

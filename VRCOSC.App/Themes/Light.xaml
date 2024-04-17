@@ -1,0 +1,24 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Brush x:Key="CBackground1">#FFF0F0F0</Brush>
+    <Brush x:Key="CBackground2">#FFE0E0E0</Brush>
+    <Brush x:Key="CBackground3">#FFD6D6D6</Brush>
+    <Brush x:Key="CBackground4">#FFE5E5E5</Brush>
+    <Brush x:Key="CBackground5">#FFEBEBEB</Brush>
+    <Brush x:Key="CBackground6">#FFB2B2B2</Brush>
+    <Brush x:Key="CBackground7">#FFCCCCCC</Brush>
+    <Brush x:Key="CForeground1">#FF000000</Brush>
+    <Brush x:Key="CForeground2">#FF404040</Brush>
+    <Brush x:Key="CForeground3">#FF7F7F7F</Brush>
+    <Brush x:Key="CForeground4">#FF262626</Brush>
+    <Brush x:Key="CGreen">#FF27AE60</Brush>
+    <Brush x:Key="CGreenL">#FF37D279</Brush>
+    <Brush x:Key="CRed">#FFC0392B</Brush>
+    <Brush x:Key="CRedL">#FFD65548</Brush>
+    <Brush x:Key="CBlue">#FF2980B9</Brush>
+    <Brush x:Key="CBlueL">#FF3F99D4</Brush>
+    <Brush x:Key="CGray">#FF4D4D4D</Brush>
+    <Brush x:Key="CGrayL">#FF666666</Brush>
+    <Brush x:Key="CYellow">#FFF1C40F</Brush>
+    <Brush x:Key="COrange">#FFE67E22</Brush>
+</ResourceDictionary>

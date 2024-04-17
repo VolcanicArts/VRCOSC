@@ -48,14 +48,14 @@ public partial class MainWindow
 
     public MainWindow()
     {
+        SettingsManager.GetInstance().Load();
+        AppManager.GetInstance().Initialise();
+
         InitializeComponent();
 
         DataContext = this;
 
         Title = $"{AppManager.APP_NAME} {version}";
-
-        AppManager.GetInstance().Initialise();
-        SettingsManager.GetInstance().Load();
 
         copyOpenVrFiles();
 

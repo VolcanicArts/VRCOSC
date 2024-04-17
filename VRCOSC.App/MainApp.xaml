@@ -68,7 +68,7 @@
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
                                     Visibility="Collapsed"
-                                    Margin="6"/>
+                                    Margin="6" />
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger
@@ -113,7 +113,8 @@
                 </Style.Triggers>
             </Style>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Themes/Dark.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="Themes/Dark.xaml" />
+                <ResourceDictionary Source="Themes/Light.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

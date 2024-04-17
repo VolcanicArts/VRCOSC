@@ -1,7 +1,10 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
+using System.Collections.Generic;
 using VRCOSC.App.Settings;
+using VRCOSC.App.Themes;
 
 // ReSharper disable UnusedMember.Global
 
@@ -37,6 +40,14 @@ public partial class SettingsPage
     {
         get => (bool)SettingsManager.GetInstance().GetObservable(VRCOSCSetting.ModuleLogDebug).Value;
         set => SettingsManager.GetInstance().GetObservable(VRCOSCSetting.ModuleLogDebug).Value = value;
+    }
+
+    public IEnumerable<Theme> ThemeSource => Enum.GetValues<Theme>();
+
+    public int Theme
+    {
+        get => (int)SettingsManager.GetInstance().GetObservable(VRCOSCSetting.Theme).Value;
+        set => SettingsManager.GetInstance().GetObservable(VRCOSCSetting.Theme).Value = value;
     }
 
     public SettingsPage()

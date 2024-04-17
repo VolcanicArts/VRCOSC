@@ -22,6 +22,7 @@ using VRCOSC.App.SDK.OVR.Metadata;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Settings;
+using VRCOSC.App.Themes;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App;
@@ -76,6 +77,8 @@ public class AppManager
 
     public void Initialise()
     {
+        ChangeTheme((Theme)SettingsManager.GetInstance().GetValue<int>(VRCOSCSetting.Theme));
+
         ConnectionManager = new ConnectionManager();
         VRChatOscClient = new VRChatOscClient();
         VRChatClient = new VRChatClient(VRChatOscClient);
@@ -403,6 +406,30 @@ public class AppManager
         {
             await Task.Delay(100);
             await startAsync();
+        }
+    }
+
+    #endregion
+
+    #region Themes
+
+    public void ChangeTheme(Theme theme)
+    {
+        var mergedDictionaries = Application.Current.Resources.MergedDictionaries;
+        mergedDictionaries.Clear();
+
+        switch (theme)
+        {
+            case Theme.Dark:
+                mergedDictionaries.Add(new ResourceDictionary { Source = new Uri("pack://application:,,,/VRCOSC.App;component/Themes/Dark.xaml") });
+                break;
+
+            case Theme.Light:
+                mergedDictionaries.Add(new ResourceDictionary { Source = new Uri("pack://application:,,,/VRCOSC.App;component/Themes/Light.xaml") });
+                break;
+
+            default:
+                throw new ArgumentOutOfRangeException(nameof(theme), theme, null);
         }
     }
 
