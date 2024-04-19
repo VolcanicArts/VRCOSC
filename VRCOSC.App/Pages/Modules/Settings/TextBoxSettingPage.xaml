@@ -3,9 +3,7 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-      mc:Ignorable="d"
-      Title="StringSettingPage"
-      Width="{Binding ActualWidth, ElementName=SettingPageFrame}">
+      mc:Ignorable="d">
     <Grid>
         <TextBox Text="{Binding Attribute.Value, UpdateSourceTrigger=PropertyChanged}" Background="{StaticResource CBackground3}" Foreground="{StaticResource CForeground1}" FontSize="16" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" Margin="0 5" />
     </Grid>

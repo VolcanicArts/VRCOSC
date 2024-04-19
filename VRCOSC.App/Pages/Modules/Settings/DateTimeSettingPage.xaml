@@ -4,9 +4,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
-      mc:Ignorable="d"
-      Title="DateTimeSettingPage"
-      Width="{Binding ActualWidth, ElementName=SettingPageFrame}">
+      mc:Ignorable="d">
     <Grid Height="50">
         <xctk:DateTimePicker Value="{Binding Attribute.Value}" FormatString="yyyy-MM-dd HH:mm:ss"
                              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />

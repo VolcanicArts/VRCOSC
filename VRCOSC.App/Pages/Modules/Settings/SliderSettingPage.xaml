@@ -3,9 +3,7 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-      mc:Ignorable="d"
-      Title="FloatSliderSettingPage"
-      Width="{Binding ActualWidth, ElementName=SettingPageFrame}">
+      mc:Ignorable="d">
     <Grid Height="50">
         <Slider Value="{Binding SliderValue.Value}" Minimum="{Binding SliderModuleSetting.MinValue, Mode=OneTime}" Maximum="{Binding SliderModuleSetting.MaxValue, Mode=OneTime}" TickFrequency="{Binding SliderModuleSetting.TickFrequency, Mode=OneTime}" TickPlacement="BottomRight" IsSnapToTickEnabled="True" LostMouseCapture="Slider_LostMouseCapture"/>
         <TextBlock Text="{Binding SliderModuleSetting.MinValue, Mode=OneTime}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Foreground="{StaticResource CForeground1}" FontSize="16"/>
