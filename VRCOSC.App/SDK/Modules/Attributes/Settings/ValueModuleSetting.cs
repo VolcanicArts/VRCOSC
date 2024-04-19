@@ -17,7 +17,7 @@ public abstract class ValueModuleSetting<T> : ModuleSetting
 
     protected abstract Observable<T> CreateObservable();
 
-    public override void Load()
+    public override void PreDeserialise()
     {
         Attribute = CreateObservable();
         Attribute.Subscribe(_ => RequestSerialisation?.Invoke());

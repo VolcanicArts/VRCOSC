@@ -99,10 +99,14 @@ public abstract class Module
 
             OnPreLoad();
 
-            Settings.Values.ForEach(moduleSetting => moduleSetting.Load());
-            Parameters.Values.ForEach(moduleParameter => moduleParameter.Load());
+            Settings.Values.ForEach(moduleSetting => moduleSetting.PreDeserialise());
+            Parameters.Values.ForEach(moduleParameter => moduleParameter.PreDeserialise());
 
             moduleSerialisationManager.Deserialise(string.IsNullOrEmpty(filePathOverride), filePathOverride);
+
+            Settings.Values.ForEach(moduleSetting => moduleSetting.PostDeserialise());
+            Parameters.Values.ForEach(moduleParameter => moduleParameter.PostDeserialise());
+
             cachePersistentProperties();
 
             Enabled.Subscribe(_ => moduleSerialisationManager.Serialise());

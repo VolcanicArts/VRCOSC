@@ -13,9 +13,18 @@ public abstract class ModuleAttribute
     public ModuleAttributeMetadata Metadata;
 
     /// <summary>
-    /// Initialises this <see cref="ModuleAttribute"/>
+    /// Called before this <see cref="ModuleAttribute"/> deserialises
     /// </summary>
-    public abstract void Load();
+    public virtual void PreDeserialise()
+    {
+    }
+
+    /// <summary>
+    /// Called after this <see cref="ModuleAttribute"/> deserialises
+    /// </summary>
+    public virtual void PostDeserialise()
+    {
+    }
 
     /// <summary>
     /// Resets this <see cref="ModuleAttribute"/>'s value to its default value

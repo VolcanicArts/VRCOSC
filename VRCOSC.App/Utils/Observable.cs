@@ -54,6 +54,11 @@ public sealed class Observable<T> : IObservable<T>, INotifyPropertyChanged, ISer
     private readonly List<IObserver<T?>> observers = new();
     private readonly List<Action<T?>> actions = new();
 
+    private Observable()
+    {
+        DefaultValue = default;
+    }
+
     public Observable(T initialValue = default)
     {
         value = initialValue;

@@ -24,7 +24,7 @@ public abstract class ListModuleSetting<T> : ModuleSetting, IListModuleSetting
 
     public override object GetRawValue() => Attribute.ToList();
 
-    public override void Load()
+    public override void PreDeserialise()
     {
         Attribute = new ObservableCollection<T>(getClonedDefaults());
         Attribute.CollectionChanged += (_, _) => RequestSerialisation?.Invoke();
@@ -77,9 +77,9 @@ public abstract class ValueListModuleSetting<T> : ListModuleSetting<Observable<T
     public override object GetRawValue() => Attribute.Select(observable => observable.Value).ToList();
     public override bool IsDefault() => Attribute.Select(observable => observable.Value).SequenceEqual(DefaultValues.Select(defaultObservable => defaultObservable.Value));
 
-    public override void Load()
+    public override void PreDeserialise()
     {
-        base.Load();
+        base.PreDeserialise();
 
         Attribute.CollectionChanged += (_, e) => subscribeToNewItems(e);
         return;

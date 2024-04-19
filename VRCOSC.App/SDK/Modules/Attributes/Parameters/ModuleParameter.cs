@@ -16,7 +16,7 @@ public class ModuleParameter : ModuleAttribute
 
     private readonly string defaultName;
 
-    public override void Load()
+    public override void PreDeserialise()
     {
         Name = new Observable<string>(defaultName);
         Name.Subscribe(_ => RequestSerialisation?.Invoke());
