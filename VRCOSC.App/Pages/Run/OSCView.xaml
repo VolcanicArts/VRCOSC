@@ -33,7 +33,7 @@
                         </Border>
                         <ui:MouseScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto"
                                       VerticalScrollBarVisibility="Auto"
-                                      Height="{Binding OutgoingScrollViewerHeight}">
+                                      Height="{Binding OutgoingScrollViewerHeight, Mode=OneWay}">
                             <ListView Name="OutgoingMessagesList" ItemsSource="{Binding OutgoingMessages, Mode=OneWay}"
                                       HorizontalAlignment="Stretch"
                                       Background="Transparent"
@@ -55,11 +55,11 @@
                                                                 <ColumnDefinition Width="10" />
                                                                 <ColumnDefinition Width="*" />
                                                             </Grid.ColumnDefinitions>
-                                                            <TextBlock Grid.Column="0" Text="{Binding Key}"
+                                                            <TextBlock Grid.Column="0" Text="{Binding Key, Mode=OneTime}"
                                                                        Foreground="{StaticResource CForeground2}"
                                                                        FontSize="14" VerticalAlignment="Center" />
                                                             <TextBlock x:Name="ValueTextBlock" Grid.Column="2"
-                                                                       Text="{Binding Value}"
+                                                                       Text="{Binding Value, Mode=OneWay}"
                                                                        Foreground="{StaticResource CForeground2}"
                                                                        FontSize="14" VerticalAlignment="Center"
                                                                        HorizontalAlignment="Right" />
@@ -112,11 +112,11 @@
                                                                 <ColumnDefinition Width="10" />
                                                                 <ColumnDefinition Width="*" />
                                                             </Grid.ColumnDefinitions>
-                                                            <TextBlock Grid.Column="0" Text="{Binding Key}"
+                                                            <TextBlock Grid.Column="0" Text="{Binding Key, Mode=OneTime}"
                                                                        Foreground="{StaticResource CForeground2}"
                                                                        FontSize="14" VerticalAlignment="Center" />
                                                             <TextBlock x:Name="ValueTextBlock" Grid.Column="2"
-                                                                       Text="{Binding Value}"
+                                                                       Text="{Binding Value, Mode=OneWay}"
                                                                        Foreground="{StaticResource CForeground2}"
                                                                        FontSize="14" VerticalAlignment="Center"
                                                                        HorizontalAlignment="Right" />
