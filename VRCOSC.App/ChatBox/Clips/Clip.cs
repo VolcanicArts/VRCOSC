@@ -28,12 +28,8 @@ public class Clip : INotifyPropertyChanged
 
     public IEnumerable<ClipElement> Elements => States.Cast<ClipElement>().Concat(Events);
 
-    public IEnumerable<ClipState> UIStates => States.OrderBy(clipState => clipState.States.Count)
-                                                    .ThenBy(state => string.Join(",", state.States.Keys.OrderBy(k => k)))
-                                                    .ThenBy(state => string.Join(",", state.States.Values.OrderBy(v => v)));
-
-    public IEnumerable<ClipEvent> UIEvents => Events.OrderByDescending(clipEvent => clipEvent.ModuleID)
-                                                    .ThenByDescending(clipEvent => clipEvent.EventID);
+    public IEnumerable<ClipState> UIStates => States.OrderBy(clipState => clipState.States.Count).ThenBy(clipState => clipState.DisplayName);
+    public IEnumerable<ClipEvent> UIEvents => Events.OrderBy(clipEvent => clipEvent.DisplayName);
 
     // TODO: Does this update when counter module instance names update?
     public Dictionary<string, List<ClipVariableReference>> UIVariables
