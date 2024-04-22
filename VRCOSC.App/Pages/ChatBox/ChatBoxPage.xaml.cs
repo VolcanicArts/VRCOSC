@@ -10,11 +10,11 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using VRCOSC.App.ChatBox;
 using VRCOSC.App.ChatBox.Clips;
 using VRCOSC.App.Profiles;
+using VRCOSC.App.UI;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Pages.ChatBox;
@@ -49,10 +49,10 @@ public partial class ChatBoxPage
             SelectedClipGrid.DataContext = selectedClip;
 
             if (selectedClip is null && selectedClipBefore is not null)
-                fadeOut(SelectedClipGrid, 150);
+                SelectedClipGrid.FadeOutFromOne(150);
 
             if (selectedClip is not null && selectedClipBefore is null)
-                fadeIn(SelectedClipGrid, 150);
+                SelectedClipGrid.FadeInFromZero(150);
         }
     }
 
@@ -64,7 +64,7 @@ public partial class ChatBoxPage
 
     private void ChatBoxPage_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
-        fadeOut(RightClickMenu, 50);
+        RightClickMenu.FadeOutFromOne(50);
     }
 
     private void ChatBoxPage_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -168,7 +168,7 @@ public partial class ChatBoxPage
         clipBorder = clipGrid.FindVisualParent<Border>("ClipBorder");
         clipBorder!.Background = (Brush)FindResource("CBackground6");
         SelectedClip = clip;
-        fadeOut(RightClickMenu, 50);
+        RightClickMenu.FadeOutFromOne(50);
     }
 
     private void ClipMain_OnLeftMouseButtonDown(object sender, MouseButtonEventArgs e)
@@ -303,47 +303,6 @@ public partial class ChatBoxPage
         clipEditWindow.Show();
     }
 
-    private void fadeIn(FrameworkElement grid, double fadeInTimeMilli) => Dispatcher.Invoke(() =>
-    {
-        if (grid.Visibility == Visibility.Visible) return;
-
-        grid.Visibility = Visibility.Visible;
-        grid.Opacity = 0;
-
-        var fadeInAnimation = new DoubleAnimation
-        {
-            From = 0,
-            To = 1,
-            Duration = TimeSpan.FromMilliseconds(fadeInTimeMilli)
-        };
-
-        Storyboard.SetTargetProperty(fadeInAnimation, new PropertyPath(OpacityProperty));
-
-        var storyboard = new Storyboard();
-        storyboard.Children.Add(fadeInAnimation);
-        storyboard.Begin(grid);
-    });
-
-    private void fadeOut(FrameworkElement grid, double fadeOutTime) => Dispatcher.Invoke(() =>
-    {
-        if (grid.Visibility == Visibility.Collapsed) return;
-
-        grid.Opacity = 1;
-
-        var fadeOutAnimation = new DoubleAnimation
-        {
-            To = 0,
-            Duration = TimeSpan.FromMilliseconds(fadeOutTime)
-        };
-
-        Storyboard.SetTargetProperty(fadeOutAnimation, new PropertyPath(OpacityProperty));
-
-        var storyboard = new Storyboard();
-        storyboard.Children.Add(fadeOutAnimation);
-        storyboard.Completed += (_, _) => grid.Visibility = Visibility.Collapsed;
-        storyboard.Begin(grid);
-    });
-
     private void Layer_OnMouseRightButtonDown(object sender, MouseButtonEventArgs e)
     {
         var layerElement = (FrameworkElement)sender;
@@ -364,7 +323,7 @@ public partial class ChatBoxPage
 
         SelectedClip = null;
         e.Handled = true;
-        fadeOut(RightClickMenu, 50);
+        RightClickMenu.FadeOutFromOne(50);
     }
 
     private void Clip_OnMouseRightButtonDown(object sender, MouseButtonEventArgs e)
@@ -421,7 +380,7 @@ public partial class ChatBoxPage
         var mousePos = Mouse.GetPosition(TimelineContainer);
         RightClickMenu.RenderTransform = new TranslateTransform(mousePos.X, mousePos.Y);
 
-        fadeIn(RightClickMenu, 50);
+        RightClickMenu.FadeInFromZero(50);
     }
 
     private void RightClickMenu_OnMouseDown(object sender, MouseButtonEventArgs e)
@@ -447,7 +406,7 @@ public partial class ChatBoxPage
 
         layer.Clips.Add(clip);
 
-        fadeOut(RightClickMenu, 50);
+        RightClickMenu.FadeOutFromOne(50);
     }
 
     private void CreateClipOnLayer_OnClick(object sender, RoutedEventArgs e)
@@ -465,7 +424,7 @@ public partial class ChatBoxPage
         SelectedClip = null;
 
         ChatBoxManager.GetInstance().Timeline.FindLayerOfClip(clip).Clips.Remove(clip);
-        fadeOut(RightClickMenu, 50);
+        RightClickMenu.FadeOutFromOne(50);
     }
 
     private void moveUp(Clip clip)

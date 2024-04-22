@@ -8,8 +8,8 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Media.Animation;
 using VRCOSC.App.Packages;
+using VRCOSC.App.UI;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Pages.Packages;
@@ -90,11 +90,11 @@ public partial class PackagePage
         ImageLoader.RetrieveFromURL(packageSource.CoverURL, (bitmapImage, cached) =>
         {
             InfoImage.ImageSource = bitmapImage;
-            fadeIn(InfoImageContainer, cached ? 0 : 150);
+            InfoImageContainer.FadeInFromZero(cached ? 0 : 150);
         });
 
         InfoOverlay.DataContext = packageSource;
-        fadeIn(InfoOverlay, 150);
+        InfoOverlay.FadeInFromZero(150);
     }
 
     private void PackageGithub_ButtonClick(object sender, RoutedEventArgs e)
@@ -107,45 +107,8 @@ public partial class PackagePage
 
     private void InfoOverlayExit_ButtonClick(object sender, RoutedEventArgs e)
     {
-        fadeOut(InfoOverlay, 150);
+        InfoOverlay.FadeOutFromOne(150);
     }
-
-    private void fadeIn(FrameworkElement grid, double fadeInTimeMilli) => Dispatcher.Invoke(() =>
-    {
-        grid.Visibility = Visibility.Visible;
-        grid.Opacity = 0;
-
-        var fadeInAnimation = new DoubleAnimation
-        {
-            From = 0,
-            To = 1,
-            Duration = TimeSpan.FromMilliseconds(fadeInTimeMilli)
-        };
-
-        Storyboard.SetTargetProperty(fadeInAnimation, new PropertyPath(OpacityProperty));
-
-        var storyboard = new Storyboard();
-        storyboard.Children.Add(fadeInAnimation);
-        storyboard.Begin(grid);
-    });
-
-    private void fadeOut(FrameworkElement grid, double fadeOutTime) => Dispatcher.Invoke(() =>
-    {
-        grid.Opacity = 1;
-
-        var fadeOutAnimation = new DoubleAnimation
-        {
-            To = 0,
-            Duration = TimeSpan.FromMilliseconds(fadeOutTime)
-        };
-
-        Storyboard.SetTargetProperty(fadeOutAnimation, new PropertyPath(OpacityProperty));
-
-        var storyboard = new Storyboard();
-        storyboard.Children.Add(fadeOutAnimation);
-        storyboard.Completed += (_, _) => grid.Visibility = Visibility.Collapsed;
-        storyboard.Begin(grid);
-    });
 }
 
 public class BackgroundConverter : IValueConverter

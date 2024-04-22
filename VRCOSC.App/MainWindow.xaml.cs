@@ -8,7 +8,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
 using Newtonsoft.Json;
 using VRCOSC.App.Actions;
 using VRCOSC.App.Actions.Game;
@@ -25,6 +24,7 @@ using VRCOSC.App.Pages.Run;
 using VRCOSC.App.Profiles;
 using VRCOSC.App.SDK.OVR.Metadata;
 using VRCOSC.App.Settings;
+using VRCOSC.App.UI;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App;
@@ -86,8 +86,8 @@ public partial class MainWindow
         {
             Dispatcher.Invoke(() =>
             {
-                fadeIn(MainWindowContent, 500);
-                fadeOut(LoadingOverlay, 500);
+                MainWindowContent.FadeInFromZero(500);
+                LoadingOverlay.FadeOutFromOne(500);
             });
         };
 
@@ -199,49 +199,12 @@ public partial class MainWindow
             });
         });
 
-        fadeIn(LoadingOverlay, 150);
+        LoadingOverlay.FadeIn(150);
 
         await progressAction.Execute();
     });
 
-    public void HideLoadingOverlay() => fadeOut(LoadingOverlay, 150);
-
-    private void fadeIn(FrameworkElement grid, double fadeInTimeMilli) => Dispatcher.Invoke(() =>
-    {
-        grid.Visibility = Visibility.Visible;
-        grid.Opacity = 0;
-
-        var fadeInAnimation = new DoubleAnimation
-        {
-            From = 0,
-            To = 1,
-            Duration = TimeSpan.FromMilliseconds(fadeInTimeMilli)
-        };
-
-        Storyboard.SetTargetProperty(fadeInAnimation, new PropertyPath(OpacityProperty));
-
-        var storyboard = new Storyboard();
-        storyboard.Children.Add(fadeInAnimation);
-        storyboard.Begin(grid);
-    });
-
-    private void fadeOut(FrameworkElement grid, double fadeOutTime) => Dispatcher.Invoke(() =>
-    {
-        grid.Opacity = 1;
-
-        var fadeOutAnimation = new DoubleAnimation
-        {
-            To = 0,
-            Duration = TimeSpan.FromMilliseconds(fadeOutTime)
-        };
-
-        Storyboard.SetTargetProperty(fadeOutAnimation, new PropertyPath(OpacityProperty));
-
-        var storyboard = new Storyboard();
-        storyboard.Children.Add(fadeOutAnimation);
-        storyboard.Completed += (_, _) => grid.Visibility = Visibility.Collapsed;
-        storyboard.Begin(grid);
-    });
+    public void HideLoadingOverlay() => Dispatcher.Invoke(() => LoadingOverlay.FadeOut(150));
 
     private void setPageContents(object page, Button button)
     {
