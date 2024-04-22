@@ -3,11 +3,9 @@
 
 using System;
 using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using VRCOSC.App.Packages;
 using VRCOSC.App.UI;
 using VRCOSC.App.Utils;
@@ -109,15 +107,4 @@ public partial class PackagePage
     {
         InfoOverlay.FadeOutFromOne(150);
     }
-}
-
-public class BackgroundConverter : IValueConverter
-{
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-    {
-        var index = System.Convert.ToInt32(value);
-        return index % 2 == 0 ? Application.Current.Resources["CBackground3"] : Application.Current.Resources["CBackground4"];
-    }
-
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
 }

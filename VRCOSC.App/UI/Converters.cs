@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Globalization;
 using System.Windows.Data;
+using System.Windows.Media;
 
 namespace VRCOSC.App.UI;
 
@@ -27,4 +28,19 @@ public class IndexOfConverter : IMultiValueConverter
     {
         throw new NotSupportedException();
     }
+}
+
+public class AlternatingColourConverter : IValueConverter
+{
+    public Brush? Colour1 { get; init; }
+    public Brush? Colour2 { get; init; }
+
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is not int intValue) return Brushes.Black;
+
+        return intValue % 2 == 0 ? Colour1 ?? Brushes.Black : Colour2 ?? Brushes.White;
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
 }

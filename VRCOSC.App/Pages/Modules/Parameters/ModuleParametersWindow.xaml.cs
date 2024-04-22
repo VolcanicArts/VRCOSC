@@ -4,12 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
-using System.Windows.Data;
-using System.Windows.Media;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.Modules.Attributes.Parameters;
 using VRCOSC.App.SDK.Modules.Attributes.Settings;
@@ -83,16 +80,4 @@ public sealed partial class ModuleParametersWindow : INotifyPropertyChanged
     {
         Module.Parameters.Values.ForEach(parameter => parameter.SetDefault());
     }
-}
-
-public class BackgroundConverter : IValueConverter
-{
-    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-    {
-        if (value is not int intValue) return Brushes.Black;
-
-        return intValue % 2 == 0 ? (Brush)Application.Current.Resources["CBackground3"] : (Brush)Application.Current.Resources["CBackground4"];
-    }
-
-    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => throw new NotImplementedException();
 }

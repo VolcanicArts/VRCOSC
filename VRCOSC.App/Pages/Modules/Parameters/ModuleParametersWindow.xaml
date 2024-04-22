@@ -4,11 +4,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:ui="clr-namespace:VRCOSC.App.UI"
-        xmlns:parameters="clr-namespace:VRCOSC.App.Pages.Modules.Parameters"
         xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d" Width="1366" Height="768" MinWidth="1200" MinHeight="540">
     <Window.Resources>
-        <parameters:BackgroundConverter x:Key="BackgroundConverter" />
+        <ui:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}" Colour2="{StaticResource CBackground4}" />
     </Window.Resources>
     <Grid>
         <Border Padding="10" Background="{StaticResource CBackground2}">
@@ -74,7 +73,7 @@
                                             <Setter.Value>
                                                 <ControlTemplate>
                                                     <Border MinHeight="40"
-                                                            Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource BackgroundConverter}}">
+                                                            Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}">
                                                         <Grid>
                                                             <Grid.ColumnDefinitions>
                                                                 <ColumnDefinition Width="15" />

@@ -3,12 +3,12 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-      xmlns:run="clr-namespace:VRCOSC.App.Pages.Run"
       xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
       xmlns:ui="clr-namespace:VRCOSC.App.UI"
       mc:Ignorable="d">
     <Page.Resources>
-        <run:BackgroundConverter x:Key="BackgroundConverter" />
+        <ui:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
+                                       Colour2="{StaticResource CBackground2}" />
     </Page.Resources>
     <Grid>
         <Border>
@@ -18,7 +18,8 @@
                     <ColumnDefinition Width="5" />
                     <ColumnDefinition Width="5*" />
                 </Grid.ColumnDefinitions>
-                <Border Name="OutgoingGridContainer" Grid.Column="0" Background="Transparent" HorizontalAlignment="Stretch"
+                <Border Name="OutgoingGridContainer" Grid.Column="0" Background="Transparent"
+                        HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch">
                     <Grid>
                         <Grid.RowDefinitions>
@@ -29,11 +30,11 @@
                         <Border Grid.Row="0" Background="{StaticResource CBackground1}" CornerRadius="5 5 0 0">
                             <TextBlock Text="Outgoing" Foreground="{StaticResource CForeground2}"
                                        FontSize="22" TextAlignment="Center" VerticalAlignment="Center"
-                                       HorizontalAlignment="Stretch" FontWeight="Bold"  Margin="0 -5 0 0"/>
+                                       HorizontalAlignment="Stretch" FontWeight="Bold" Margin="0 -5 0 0" />
                         </Border>
                         <ui:MouseScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto"
-                                      VerticalScrollBarVisibility="Auto"
-                                      Height="{Binding OutgoingScrollViewerHeight, Mode=OneWay}">
+                                              VerticalScrollBarVisibility="Auto"
+                                              Height="{Binding OutgoingScrollViewerHeight, Mode=OneWay}">
                             <ListView Name="OutgoingMessagesList" ItemsSource="{Binding OutgoingMessages, Mode=OneWay}"
                                       HorizontalAlignment="Stretch"
                                       Background="Transparent"
@@ -47,7 +48,7 @@
                                             <Setter.Value>
                                                 <ControlTemplate>
                                                     <Border
-                                                        Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource BackgroundConverter}}"
+                                                        Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}"
                                                         Padding="7 2" Height="25">
                                                         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                                                             <Grid.ColumnDefinitions>
@@ -55,7 +56,8 @@
                                                                 <ColumnDefinition Width="10" />
                                                                 <ColumnDefinition Width="*" />
                                                             </Grid.ColumnDefinitions>
-                                                            <TextBlock Grid.Column="0" Text="{Binding Key, Mode=OneTime}"
+                                                            <TextBlock Grid.Column="0"
+                                                                       Text="{Binding Key, Mode=OneTime}"
                                                                        Foreground="{StaticResource CForeground2}"
                                                                        FontSize="14" VerticalAlignment="Center" />
                                                             <TextBlock x:Name="ValueTextBlock" Grid.Column="2"
@@ -72,10 +74,11 @@
                                 </ListView.ItemContainerStyle>
                             </ListView>
                         </ui:MouseScrollViewer>
-                        <Border Grid.Row="2" Background="{StaticResource CBackground1}" CornerRadius="0 0 5 5"/>
+                        <Border Grid.Row="2" Background="{StaticResource CBackground1}" CornerRadius="0 0 5 5" />
                     </Grid>
                 </Border>
-                <Border Name="IncomingGridContainer" Grid.Column="2" Background="Transparent" HorizontalAlignment="Stretch"
+                <Border Name="IncomingGridContainer" Grid.Column="2" Background="Transparent"
+                        HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch">
                     <Grid>
                         <Grid.RowDefinitions>
@@ -89,8 +92,8 @@
                                        HorizontalAlignment="Stretch" FontWeight="Bold" Margin="0 -5 0 0" />
                         </Border>
                         <ui:MouseScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto"
-                                      VerticalScrollBarVisibility="Auto"
-                                      Height="{Binding IncomingScrollViewerHeight, Mode=OneWay}">
+                                              VerticalScrollBarVisibility="Auto"
+                                              Height="{Binding IncomingScrollViewerHeight, Mode=OneWay}">
                             <ListView Name="IncomingMessagesList" ItemsSource="{Binding IncomingMessages, Mode=OneWay}"
                                       HorizontalAlignment="Stretch"
                                       Background="Transparent"
@@ -104,7 +107,7 @@
                                             <Setter.Value>
                                                 <ControlTemplate>
                                                     <Border
-                                                        Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource BackgroundConverter}}"
+                                                        Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}"
                                                         Padding="7 2" Height="25">
                                                         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                                                             <Grid.ColumnDefinitions>
@@ -112,7 +115,8 @@
                                                                 <ColumnDefinition Width="10" />
                                                                 <ColumnDefinition Width="*" />
                                                             </Grid.ColumnDefinitions>
-                                                            <TextBlock Grid.Column="0" Text="{Binding Key, Mode=OneTime}"
+                                                            <TextBlock Grid.Column="0"
+                                                                       Text="{Binding Key, Mode=OneTime}"
                                                                        Foreground="{StaticResource CForeground2}"
                                                                        FontSize="14" VerticalAlignment="Center" />
                                                             <TextBlock x:Name="ValueTextBlock" Grid.Column="2"
@@ -129,7 +133,7 @@
                                 </ListView.ItemContainerStyle>
                             </ListView>
                         </ui:MouseScrollViewer>
-                        <Border Grid.Row="2" Background="{StaticResource CBackground1}" CornerRadius="0 0 5 5"/>
+                        <Border Grid.Row="2" Background="{StaticResource CBackground1}" CornerRadius="0 0 5 5" />
                     </Grid>
                 </Border>
             </Grid>

@@ -6,10 +6,10 @@
       xmlns:ui="clr-namespace:VRCOSC.App.UI"
       xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
       xmlns:fa5="http://schemas.fontawesome.com/icons/"
-      xmlns:packages="clr-namespace:VRCOSC.App.Pages.Packages"
       mc:Ignorable="d">
     <Page.Resources>
-        <packages:BackgroundConverter x:Key="BackgroundConverter" />
+        <ui:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
+                                       Colour2="{StaticResource CBackground4}" />
     </Page.Resources>
     <Grid>
         <Grid>
@@ -49,7 +49,7 @@
                             <Setter.Value>
                                 <ControlTemplate>
                                     <Border
-                                        Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource BackgroundConverter}}"
+                                        Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}"
                                         Padding="2">
                                         <Grid Margin="5">
                                             <Grid.ColumnDefinitions>

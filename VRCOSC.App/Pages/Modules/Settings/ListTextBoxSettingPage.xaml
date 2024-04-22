@@ -5,11 +5,11 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:ui="clr-namespace:VRCOSC.App.UI"
       xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
-      xmlns:packages="clr-namespace:VRCOSC.App.Pages.Packages"
       xmlns:fa5="http://schemas.fontawesome.com/icons/"
       mc:Ignorable="d">
     <Page.Resources>
-        <packages:BackgroundConverter x:Key="BackgroundConverter" />
+        <ui:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
+                                       Colour2="{StaticResource CBackground4}" />
     </Page.Resources>
     <Grid>
         <Border Background="Transparent" HorizontalAlignment="Stretch"
@@ -39,7 +39,7 @@
                                 <Setter.Value>
                                     <ControlTemplate>
                                         <Border
-                                            Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource BackgroundConverter}}"
+                                            Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}"
                                             Padding="2">
                                             <Grid Margin="5">
                                                 <Grid.ColumnDefinitions>

@@ -13,7 +13,7 @@
     <Window.Resources>
         <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <local:TextBoxParsingConverter x:Key="TextBoxParsingConverter" />
-        <local:BackgroundConverter x:Key="BackgroundConverter" />
+        <ui:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}" Colour2="{StaticResource CBackground2}"/>
     </Window.Resources>
     <Grid>
         <Border Padding="10" Background="{StaticResource CBackground2}">
@@ -181,7 +181,7 @@
                                                                                         <Setter.Value>
                                                                                             <ControlTemplate>
                                                                                                 <Border Height="30"
-                                                                                                    Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource BackgroundConverter}}"
+                                                                                                    Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}"
                                                                                                     MouseLeftButtonDown="VariableInstance_MouseLeftButtonDown"
                                                                                                     MouseLeftButtonUp="VariableInstance_MouseLeftButtonUp"
                                                                                                     MouseMove="VariableInstance_MouseMove"
@@ -444,7 +444,7 @@
                                                                                         <Setter.Value>
                                                                                             <ControlTemplate>
                                                                                                 <Border Height="30"
-                                                                                                    Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource BackgroundConverter}}"
+                                                                                                    Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}"
                                                                                                     MouseLeftButtonDown="VariableInstance_MouseLeftButtonDown"
                                                                                                     MouseLeftButtonUp="VariableInstance_MouseLeftButtonUp"
                                                                                                     MouseMove="VariableInstance_MouseMove"

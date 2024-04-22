@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:local="clr-namespace:VRCOSC.App.Pages.Profiles"
         xmlns:ui="clr-namespace:VRCOSC.App.UI"
         xmlns:fa5="http://schemas.fontawesome.com/icons/"
         mc:Ignorable="d"
@@ -11,7 +10,8 @@
         PreviewMouseDown="ProfileEditWindow_OnPreviewMouseDown"
         Closing="ProfileEditWindow_OnClosing">
     <Window.Resources>
-        <local:BackgroundConverter x:Key="BackgroundConverter" />
+        <ui:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
+                                       Colour2="{StaticResource CBackground4}" />
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -77,7 +77,7 @@
                                             <Setter.Value>
                                                 <ControlTemplate>
                                                     <Border
-                                                        Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource BackgroundConverter}}"
+                                                        Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}"
                                                         Padding="5" Height="40">
                                                         <Grid>
                                                             <Grid.ColumnDefinitions>
