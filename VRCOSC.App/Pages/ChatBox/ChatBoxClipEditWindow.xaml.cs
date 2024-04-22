@@ -54,7 +54,7 @@ public partial class ChatBoxClipEditWindow
             var module = (Module)ModulesList.Items[index];
 
             var isLinkedCheckBox = listViewItem.FindVisualChild<CheckBox>("IsLinkedCheckBox")!;
-            isLinkedCheckBox.IsChecked = ReferenceClip.LinkedModules.Contains(module.SerialisedName);
+            isLinkedCheckBox.IsChecked = ReferenceClip.LinkedModules.Contains(module.FullID);
         }
     }
 
@@ -63,9 +63,9 @@ public partial class ChatBoxClipEditWindow
         var element = (FrameworkElement)sender;
         var module = (Module)element.Tag;
 
-        if (ReferenceClip.LinkedModules.Contains(module.SerialisedName)) return;
+        if (ReferenceClip.LinkedModules.Contains(module.FullID)) return;
 
-        ReferenceClip.LinkedModules.Add(module.SerialisedName);
+        ReferenceClip.LinkedModules.Add(module.FullID);
     }
 
     private void ModuleSelectionCheckBox_UnChecked(object sender, RoutedEventArgs e)
@@ -73,9 +73,9 @@ public partial class ChatBoxClipEditWindow
         var element = (FrameworkElement)sender;
         var module = (Module)element.Tag;
 
-        if (!ReferenceClip.LinkedModules.Contains(module.SerialisedName)) return;
+        if (!ReferenceClip.LinkedModules.Contains(module.FullID)) return;
 
-        ReferenceClip.LinkedModules.Remove(module.SerialisedName);
+        ReferenceClip.LinkedModules.Remove(module.FullID);
     }
 
     private void VariableReferenceDragSource_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)

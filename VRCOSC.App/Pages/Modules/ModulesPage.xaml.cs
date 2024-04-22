@@ -38,7 +38,7 @@ public partial class ModulesPage
         var element = (FrameworkElement)sender;
         var module = (Module)element.Tag;
 
-        var filePath = AppManager.GetInstance().Storage.GetFullPath($"profiles/{ProfileManager.GetInstance().ActiveProfile.Value.ID}/modules/{module.SerialisedName}.json");
+        var filePath = AppManager.GetInstance().Storage.GetFullPath($"profiles/{ProfileManager.GetInstance().ActiveProfile.Value.ID}/modules/{module.FullID}.json");
         WinForms.PresentFile(filePath);
     }
 

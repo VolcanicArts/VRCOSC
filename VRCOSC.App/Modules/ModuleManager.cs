@@ -83,11 +83,11 @@ public class ModuleManager : INotifyPropertyChanged
 
     public IEnumerable<T> GetModulesOfType<T>() => modules.Where(module => module.GetType().IsAssignableTo(typeof(T))).Cast<T>();
 
-    public Module GetModuleOfID(string moduleID) => modules.First(module => module.SerialisedName == moduleID);
+    public Module GetModuleOfID(string moduleID) => modules.First(module => module.FullID == moduleID);
 
-    public IEnumerable<string> GetEnabledModuleIDs() => modules.Where(module => module.Enabled.Value).Select(module => module.SerialisedName);
+    public IEnumerable<string> GetEnabledModuleIDs() => modules.Where(module => module.Enabled.Value).Select(module => module.FullID);
 
-    public bool IsModuleRunning(string moduleID) => runningModules.Any(module => module.SerialisedName == moduleID);
+    public bool IsModuleRunning(string moduleID) => runningModules.Any(module => module.FullID == moduleID);
 
     internal bool DoesModuleExist(string moduleID)
     {
@@ -104,7 +104,7 @@ public class ModuleManager : INotifyPropertyChanged
 
     internal bool IsModuleLoaded(string moduleID) => DoesModuleExist(moduleID) && getModule(moduleID) is not null;
 
-    private Module? getModule(string moduleID) => modules.SingleOrDefault(module => module.SerialisedName == moduleID);
+    private Module? getModule(string moduleID) => modules.SingleOrDefault(module => module.FullID == moduleID);
 
     /// <summary>
     /// Reloads all local and remote modules by unloading their assembly contexts and calling <see cref="LoadAllModules"/>
@@ -184,7 +184,7 @@ public class ModuleManager : INotifyPropertyChanged
             if (failedModulesList.Any())
             {
                 var message = "The following modules failed to load\n";
-                failedModulesList.ForEach(instance => message += $"\n{instance.Item1.SerialisedName} - {instance.Item1.Title}\n{instance.Item2.Message}\n");
+                failedModulesList.ForEach(instance => message += $"\n{instance.Item1.FullID} - {instance.Item1.Title}\n{instance.Item2.Message}\n");
                 ExceptionHandler.Handle(message);
             }
 
@@ -269,7 +269,7 @@ public class ModuleManager : INotifyPropertyChanged
             assemblyLoadContext.Assemblies.ForEach(assembly => moduleInstanceList.AddRange(assembly.ExportedTypes.Where(type => type.IsSubclassOf(typeof(Module)) && !type.IsAbstract).Select(type =>
             {
                 var module = (Module)Activator.CreateInstance(type)!;
-                module.PackageId = packageId;
+                module.PackageID = packageId;
                 return module;
             })));
         }

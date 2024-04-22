@@ -46,7 +46,7 @@ public class Clip : INotifyPropertyChanged
 
             foreach (var module in modules)
             {
-                finalDict.Add(module.Title, ChatBoxManager.GetInstance().VariableReferences.Where(reference => reference.ModuleID is not null && reference.ModuleID == module.SerialisedName).OrderBy(reference => reference.DisplayName.Value).ToList());
+                finalDict.Add(module.Title, ChatBoxManager.GetInstance().VariableReferences.Where(reference => reference.ModuleID is not null && reference.ModuleID == module.FullID).OrderBy(reference => reference.DisplayName.Value).ToList());
             }
 
             return finalDict;

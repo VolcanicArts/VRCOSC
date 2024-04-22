@@ -15,7 +15,7 @@ public class ModulePersistenceSerialiser : ProfiledSerialiser<Module, Serialisab
 {
     private readonly Observable<object> globalPersistence;
 
-    protected override string FileName => $"{Reference.SerialisedName}.json";
+    protected override string FileName => $"{Reference.FullID}.json";
     protected override string Directory => (bool)globalPersistence.Value ? "persistence" : Path.Join(base.Directory, "persistence");
 
     public ModulePersistenceSerialiser(Storage storage, Module reference, Observable<Profile> activeProfile, Observable<object> globalPersistence)

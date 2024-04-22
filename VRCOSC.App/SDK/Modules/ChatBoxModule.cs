@@ -25,7 +25,7 @@ public class ChatBoxModule : AvatarModule
     {
         if (GetState(lookup) is null) throw new InvalidOperationException($"State with lookup {lookup} does not exist");
 
-        ChatBoxManager.GetInstance().ChangeStateTo(SerialisedName, lookup);
+        ChatBoxManager.GetInstance().ChangeStateTo(FullID, lookup);
     }
 
     protected void TriggerEvent(Enum lookup)
@@ -37,7 +37,7 @@ public class ChatBoxModule : AvatarModule
     {
         if (GetEvent(lookup) is null) throw new InvalidOperationException($"Event with lookup {lookup} does not exist");
 
-        ChatBoxManager.GetInstance().TriggerEvent(SerialisedName, lookup);
+        ChatBoxManager.GetInstance().TriggerEvent(FullID, lookup);
     }
 
     protected void SetVariableValue<T>(Enum lookup, T value)
@@ -66,13 +66,13 @@ public class ChatBoxModule : AvatarModule
     {
         if (GetState(lookup) is not null)
         {
-            ExceptionHandler.Handle($"[{SerialisedName}]: You cannot add the same lookup ({lookup}) for a state more than once");
+            ExceptionHandler.Handle($"[{FullID}]: You cannot add the same lookup ({lookup}) for a state more than once");
             return null;
         }
 
         var clipStateReference = new ClipStateReference
         {
-            ModuleID = SerialisedName,
+            ModuleID = FullID,
             StateID = lookup,
             DefaultFormat = defaultFormat,
             DefaultVariables = defaultVariables?.ToList() ?? [],
@@ -90,7 +90,7 @@ public class ChatBoxModule : AvatarModule
 
     protected void DeleteState(string lookup)
     {
-        ChatBoxManager.GetInstance().DeleteState(SerialisedName, lookup);
+        ChatBoxManager.GetInstance().DeleteState(FullID, lookup);
     }
 
     protected ClipStateReference? GetState(Enum lookup)
@@ -100,7 +100,7 @@ public class ChatBoxModule : AvatarModule
 
     protected ClipStateReference? GetState(string lookup)
     {
-        return ChatBoxManager.GetInstance().GetState(SerialisedName, lookup);
+        return ChatBoxManager.GetInstance().GetState(FullID, lookup);
     }
 
     #endregion
@@ -116,13 +116,13 @@ public class ChatBoxModule : AvatarModule
     {
         if (GetEvent(lookup) is not null)
         {
-            ExceptionHandler.Handle($"[{SerialisedName}]: You cannot add the same lookup ({lookup}) for an event more than once");
+            ExceptionHandler.Handle($"[{FullID}]: You cannot add the same lookup ({lookup}) for an event more than once");
             return null;
         }
 
         var clipEventReference = new ClipEventReference
         {
-            ModuleID = SerialisedName,
+            ModuleID = FullID,
             EventID = lookup,
             DefaultFormat = defaultFormat,
             DefaultVariables = defaultVariables?.ToList() ?? [],
@@ -142,7 +142,7 @@ public class ChatBoxModule : AvatarModule
 
     protected void DeleteEvent(string lookup)
     {
-        ChatBoxManager.GetInstance().DeleteEvent(SerialisedName, lookup);
+        ChatBoxManager.GetInstance().DeleteEvent(FullID, lookup);
     }
 
     protected ClipEventReference? GetEvent(Enum lookup)
@@ -152,7 +152,7 @@ public class ChatBoxModule : AvatarModule
 
     protected ClipEventReference? GetEvent(string lookup)
     {
-        return ChatBoxManager.GetInstance().GetEvent(SerialisedName, lookup);
+        return ChatBoxManager.GetInstance().GetEvent(FullID, lookup);
     }
 
     #endregion
@@ -224,13 +224,13 @@ public class ChatBoxModule : AvatarModule
     {
         if (GetVariable(lookup) is not null)
         {
-            ExceptionHandler.Handle($"[{SerialisedName}]: You cannot add the same lookup ({lookup}) for a variable more than once");
+            ExceptionHandler.Handle($"[{FullID}]: You cannot add the same lookup ({lookup}) for a variable more than once");
             return null;
         }
 
         var clipVariableReference = new ClipVariableReference
         {
-            ModuleID = SerialisedName,
+            ModuleID = FullID,
             VariableID = lookup,
             ClipVariableType = clipVariableType,
             ValueType = typeof(T),
@@ -261,7 +261,7 @@ public class ChatBoxModule : AvatarModule
     /// <param name="lookup">The lookup to retrieve this variable</param>
     protected void DeleteVariable(string lookup)
     {
-        ChatBoxManager.GetInstance().DeleteVariable(SerialisedName, lookup);
+        ChatBoxManager.GetInstance().DeleteVariable(FullID, lookup);
     }
 
     /// <summary>
@@ -280,7 +280,7 @@ public class ChatBoxModule : AvatarModule
     /// <param name="lookup">The lookup to retrieve this variable</param>
     protected ClipVariableReference? GetVariable(string lookup)
     {
-        return ChatBoxManager.GetInstance().GetVariable(SerialisedName, lookup);
+        return ChatBoxManager.GetInstance().GetVariable(FullID, lookup);
     }
 
     #endregion

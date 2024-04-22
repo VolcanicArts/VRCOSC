@@ -29,9 +29,9 @@ namespace VRCOSC.App.SDK.Modules;
 
 public abstract class Module
 {
-    public string PackageId { get; set; } = null!;
-
-    internal string SerialisedName => $"{PackageId}.{GetType().Name.ToLowerInvariant()}";
+    internal string PackageID { get; set; } = null!;
+    internal string ID => GetType().Name.ToLowerInvariant();
+    internal string FullID => $"{PackageID}.{ID}";
 
     public Observable<bool> Enabled { get; } = new();
     internal Observable<ModuleState> State { get; } = new(ModuleState.Stopped);
@@ -44,7 +44,7 @@ public abstract class Module
     public ModuleType Type => GetType().GetCustomAttribute<ModuleTypeAttribute>()?.Type ?? ModuleType.Generic;
     public Brush Colour => Type.ToColour();
 
-    public string TitleWithPackage => PackageManager.GetInstance().GetPackage(PackageId) is null ? $"(Local) {Title}" : Title;
+    public string TitleWithPackage => PackageManager.GetInstance().GetPackage(PackageID) is null ? $"(Local) {Title}" : Title;
 
     // Cached pre-computed lookups
     private readonly Dictionary<string, Enum> parameterNameEnum = new();
@@ -119,7 +119,7 @@ public abstract class Module
 
     internal void ImportConfig(string filePathOverride)
     {
-        ChatBoxManager.GetInstance().Unload(SerialisedName);
+        ChatBoxManager.GetInstance().Unload(FullID);
 
         Load(filePathOverride);
 
@@ -152,7 +152,7 @@ public abstract class Module
         }
         catch (Exception e)
         {
-            ExceptionHandler.Handle(e, $"{SerialisedName} encountered an error while trying to cache the persistent properties");
+            ExceptionHandler.Handle(e, $"{FullID} encountered an error while trying to cache the persistent properties");
         }
     }
 
@@ -218,7 +218,7 @@ public abstract class Module
         }
         catch (Exception e)
         {
-            ExceptionHandler.Handle(e, $"{SerialisedName} experienced an exception calling method {method.Name}");
+            ExceptionHandler.Handle(e, $"{FullID} experienced an exception calling method {method.Name}");
         }
     }
 
@@ -267,7 +267,7 @@ public abstract class Module
         }
         catch (Exception e)
         {
-            ExceptionHandler.Handle(e, $"{SerialisedName} experienced an exception calling method {method.Name}");
+            ExceptionHandler.Handle(e, $"{FullID} experienced an exception calling method {method.Name}");
         }
     }
 
@@ -417,7 +417,7 @@ public abstract class Module
     {
         if (!Settings.ContainsKey(lookup.ToLookup())) return;
 
-        ExceptionHandler.Handle(new InvalidOperationException($"{SerialisedName} attempted to add an already existing lookup ({lookup.ToLookup()}) to its settings"));
+        ExceptionHandler.Handle(new InvalidOperationException($"{FullID} attempted to add an already existing lookup ({lookup.ToLookup()}) to its settings"));
     }
 
     /// <summary>

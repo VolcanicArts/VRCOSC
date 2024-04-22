@@ -13,7 +13,7 @@ namespace VRCOSC.App.Modules.Serialisation;
 public class ModuleSerialiser : ProfiledSerialiser<Module, SerialisableModule>
 {
     protected override string Directory => Path.Join(base.Directory, "modules");
-    protected override string FileName => $"{Reference.SerialisedName}.json";
+    protected override string FileName => $"{Reference.FullID}.json";
 
     public ModuleSerialiser(Storage storage, Module reference, Observable<Profile> activeProfile)
         : base(storage, reference, activeProfile)
