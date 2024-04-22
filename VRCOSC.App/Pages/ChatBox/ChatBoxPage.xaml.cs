@@ -2,9 +2,12 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -19,19 +22,34 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Pages.ChatBox;
 
-public partial class ChatBoxPage
+public record ClipDroppableArea(int Layer, int Start, int End);
+
+public partial class ChatBoxPage : INotifyPropertyChanged
 {
     private double mouseX;
     private Clip? draggingClip;
     private ClipDragPoint clipDragPoint;
     private float cumulativeDrag;
 
+    public ChatBoxManager ChatBoxManager => ChatBoxManager.GetInstance();
+
+    public IEnumerable<ClipDroppableArea> DroppableAreas => constructDroppableAreas();
+
     public ChatBoxPage()
     {
         InitializeComponent();
 
-        DataContext = ChatBoxManager.GetInstance();
+        DataContext = this;
         SizeChanged += (_, _) => drawLines();
+
+        AppManager.GetInstance().State.Subscribe(newState => Dispatcher.Invoke(() => Indicator.Visibility = newState == AppManagerState.Started ? Visibility.Visible : Visibility.Collapsed), true);
+    }
+
+    private IEnumerable<ClipDroppableArea> constructDroppableAreas()
+    {
+        var droppableAreas = new List<ClipDroppableArea>();
+        ChatBoxManager.Timeline.Layers.ForEach(layer => layer.GetAllBounds().ForEach(bound => droppableAreas.Add(new ClipDroppableArea(layer.ID, bound.Item1, bound.Item2))));
+        return droppableAreas;
     }
 
     private Border? clipBorder;
@@ -471,6 +489,13 @@ public partial class ChatBoxPage
     {
         var clip = (Clip)RightClickMenu.Tag;
         moveDown(clip);
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }
 

@@ -8,7 +8,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Windows;
 using VRCOSC.App.ChatBox.Clips;
 using VRCOSC.App.ChatBox.Clips.Variables;
 using VRCOSC.App.ChatBox.Clips.Variables.Instances;
@@ -56,8 +55,6 @@ public class ChatBoxManager : INotifyPropertyChanged
     public bool SendEnabled { get; set; }
 
     private IEnumerable<Clip> allClips => Timeline.Layers.SelectMany(layer => layer.Clips);
-
-    public Visibility ShowIndicator => AppManager.GetInstance().State.Value == AppManagerState.Started ? Visibility.Visible : Visibility.Collapsed;
 
     private readonly SerialisationManager serialisationManager;
     private readonly SerialisationManager validationSerialisationManager;
@@ -200,7 +197,6 @@ public class ChatBoxManager : INotifyPropertyChanged
     private void update()
     {
         OnPropertyChanged(nameof(CurrentPercentage));
-        OnPropertyChanged(nameof(ShowIndicator));
     }
 
     private void chatBoxUpdate()
