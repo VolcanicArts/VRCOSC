@@ -21,7 +21,6 @@ namespace VRCOSC.App.Pages.ChatBox;
 public partial class ChatBoxPage
 {
     private double mouseX;
-    private double mouseY;
     private Clip? draggingClip;
     private ClipDragPoint clipDragPoint;
     private float cumulativeDrag;
@@ -73,7 +72,6 @@ public partial class ChatBoxPage
     private void ChatBoxPage_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
         draggingClip = null;
-        sideDragging = null;
     }
 
     private void drawLines()
@@ -227,7 +225,7 @@ public partial class ChatBoxPage
         e.Handled = true;
     }
 
-    private bool? sideDragging;
+    private bool draggingBetweenLayers;
 
     private void Timeline_MouseMove(object sender, MouseEventArgs e)
     {
@@ -240,18 +238,14 @@ public partial class ChatBoxPage
 
         var senderElement = (FrameworkElement)sender;
         var newMouseX = e.GetPosition(senderElement).X;
-        var newMouseY = e.GetPosition(senderElement).Y;
 
         var xDelta = newMouseX - mouseX;
-        var yDelta = newMouseY - mouseY;
 
         mouseX = newMouseX;
-        mouseY = newMouseY;
 
         if (draggingClip is null)
         {
             cumulativeDrag = 0f;
-            sideDragging = null;
             return;
         }
 
@@ -264,28 +258,13 @@ public partial class ChatBoxPage
         {
             var clipLayer = ChatBoxManager.GetInstance().Timeline.FindLayerOfClip(draggingClip);
 
-            if (clipDragPoint == ClipDragPoint.Center && Math.Abs(yDelta) > Math.Abs(xDelta) && sideDragging is null)
+            if (clipDragPoint == ClipDragPoint.Center && MathF.Abs(cumulativeDrag) >= ChatBoxManager.GetInstance().Timeline.Resolution && !draggingBetweenLayers)
             {
-                sideDragging = false;
-                DragDrop.DoDragDrop(this, new object(), DragDropEffects.Move);
-                return;
-            }
-
-            if (clipDragPoint == ClipDragPoint.Center && MathF.Abs(cumulativeDrag) >= ChatBoxManager.GetInstance().Timeline.Resolution && (sideDragging is null || sideDragging.Value))
-            {
-                sideDragging = true;
                 var newStart = draggingClip.Start.Value + MathF.Sign(cumulativeDrag);
                 var newEnd = draggingClip.End.Value + MathF.Sign(cumulativeDrag);
 
                 var (lowerBound, _) = clipLayer.GetBoundsNearestTo(draggingClip.Start.Value, false);
                 var (_, upperBound) = clipLayer.GetBoundsNearestTo(draggingClip.End.Value, true);
-
-                if (lowerBound == draggingClip.Start.Value && upperBound == draggingClip.End.Value)
-                {
-                    sideDragging = false;
-                    DragDrop.DoDragDrop(this, new object(), DragDropEffects.Move);
-                    return;
-                }
 
                 if (newStart >= lowerBound && newEnd <= upperBound)
                 {
@@ -358,6 +337,18 @@ public partial class ChatBoxPage
         SelectedClip = null;
         e.Handled = true;
         RightClickMenu.FadeOutFromOne(50);
+    }
+
+    private void Layer_OnMouseEnter(object sender, MouseEventArgs mouseEventArgs)
+    {
+        var layerElement = (FrameworkElement)sender;
+        var layer = (Layer)layerElement.Tag;
+
+        if (draggingClip is null) return;
+
+        if (ChatBoxManager.GetInstance().Timeline.FindLayerOfClip(draggingClip) == layer) return;
+
+        DragDrop.DoDragDrop(this, new object(), DragDropEffects.Move);
     }
 
     private void Clip_OnMouseRightButtonDown(object sender, MouseButtonEventArgs e)
@@ -471,10 +462,13 @@ public partial class ChatBoxPage
         var beforeLayer = ChatBoxManager.GetInstance().Timeline.FindLayerOfClip(draggingClip);
         var afterLayer = ChatBoxManager.GetInstance().Timeline.Layers[droppableArea.Layer];
 
-        beforeLayer.Clips.Remove(draggingClip);
-
         var clipWidth = draggingClip.End.Value - draggingClip.Start.Value;
         var areaWidth = droppableArea.End - droppableArea.Start;
+
+        if (droppableArea.Start == draggingClip.End.Value) return;
+        if (droppableArea.End == draggingClip.Start.Value) return;
+
+        beforeLayer.Clips.Remove(draggingClip);
 
         if (areaWidth >= clipWidth)
         {
@@ -489,7 +483,6 @@ public partial class ChatBoxPage
 
         afterLayer.Clips.Add(draggingClip);
 
-        sideDragging = null;
         draggingClip = null;
     }
 }

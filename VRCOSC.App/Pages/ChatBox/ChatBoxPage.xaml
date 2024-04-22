@@ -199,7 +199,8 @@
                                                                     HorizontalAlignment="Stretch"
                                                                     VerticalAlignment="Stretch"
                                                                     MouseRightButtonDown="Layer_OnMouseRightButtonDown"
-                                                                    MouseLeftButtonDown="Layer_OnMouseLeftButtonDown">
+                                                                    MouseLeftButtonDown="Layer_OnMouseLeftButtonDown"
+                                                                    MouseEnter="Layer_OnMouseEnter">
                                                                 <Border.Tag>
                                                                     <Binding />
                                                                 </Border.Tag>
