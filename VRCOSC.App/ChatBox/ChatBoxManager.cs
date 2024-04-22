@@ -102,6 +102,8 @@ public class ChatBoxManager : INotifyPropertyChanged
 
     public void Unload(string moduleID = "")
     {
+        MainWindow.GetInstance().ChatBoxPage.SelectedClip = null;
+
         Serialise();
 
         if (string.IsNullOrEmpty(moduleID))
