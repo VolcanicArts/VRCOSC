@@ -37,6 +37,8 @@ public class Timeline : INotifyPropertyChanged
     public Timeline()
     {
         SetupLayers();
+
+        Length.Subscribe(_ => ChatBoxManager.GetInstance().Serialise());
     }
 
     public void SetupLayers()

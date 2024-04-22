@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
+using VRCOSC.App.ChatBox;
 using VRCOSC.App.ChatBox.Clips;
 using VRCOSC.App.ChatBox.Clips.Variables;
 using VRCOSC.App.Modules;
@@ -56,6 +57,11 @@ public partial class ChatBoxClipEditWindow
             var isLinkedCheckBox = listViewItem.FindVisualChild<CheckBox>("IsLinkedCheckBox")!;
             isLinkedCheckBox.IsChecked = ReferenceClip.LinkedModules.Contains(module.FullID);
         }
+    }
+
+    private void OnClosed(object? sender, EventArgs e)
+    {
+        ChatBoxManager.GetInstance().Serialise();
     }
 
     private void ModuleSelectionCheckBox_Checked(object sender, RoutedEventArgs e)

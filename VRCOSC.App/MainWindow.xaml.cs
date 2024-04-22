@@ -161,9 +161,6 @@ public partial class MainWindow
         {
             appManager.CancelStartRequest();
         }
-
-        // TODO: Change from here eventually
-        ChatBoxManager.GetInstance().Serialise();
     }
 
     private void MainWindow_OnClosed(object? sender, EventArgs e)

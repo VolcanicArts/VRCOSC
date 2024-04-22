@@ -9,7 +9,8 @@
         xmlns:fa5="http://schemas.fontawesome.com/icons/"
         mc:Ignorable="d"
         Width="1366" Height="768" MinWidth="1200" MinHeight="540"
-        Loaded="OnLoaded">
+        Loaded="OnLoaded"
+        Closed="OnClosed">
     <Window.Resources>
         <ui:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <local:TextBoxParsingConverter x:Key="TextBoxParsingConverter" />
