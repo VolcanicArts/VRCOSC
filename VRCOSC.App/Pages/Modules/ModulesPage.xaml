@@ -79,12 +79,13 @@
                                                                                         Background="{Binding Colour}"
                                                                                         Width="3" Height="18"
                                                                                         CornerRadius="2" />
-                                                                                    <CheckBox
+                                                                                    <ui:VRCOSCCheckBox
                                                                                         VerticalAlignment="Center"
                                                                                         IsChecked="{Binding Enabled.Value}"
                                                                                         Width="30"
-                                                                                        Height="30">
-                                                                                    </CheckBox>
+                                                                                        Height="30"
+                                                                                        IconMargin="4">
+                                                                                    </ui:VRCOSCCheckBox>
                                                                                     <Grid>
                                                                                         <TextBlock
                                                                                             Text="{Binding Title}"

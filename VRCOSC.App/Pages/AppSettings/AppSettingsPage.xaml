@@ -22,7 +22,7 @@
                             Text="Should VRCOSC use the legacy OSC ports to connect to VRChat?"
                             FontSize="13" Foreground="{StaticResource CForeground2}"
                             HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="0 -1" />
-                        <CheckBox HorizontalAlignment="Right" VerticalAlignment="Center" Height="32" Width="32"
+                        <ui:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center" Height="32" Width="32"
                                   IsChecked="{Binding UseLegacyPorts}" />
                     </Grid>
                 </Border>
@@ -36,8 +36,8 @@
                             Text="Should VRCOSC allow installing pre-releases of module packages?"
                             FontSize="13" Foreground="{StaticResource CForeground2}"
                             HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="0 -1" />
-                        <CheckBox HorizontalAlignment="Right" VerticalAlignment="Center" Height="32" Width="32"
-                                  IsChecked="{Binding AllowPreReleasePackages}" />
+                        <ui:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center" Height="32" Width="32"
+                                           IsChecked="{Binding AllowPreReleasePackages}" />
                     </Grid>
                 </Border>
                 <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50" CornerRadius="5">
@@ -49,8 +49,8 @@
                             Text="Allows VRCOSC to automatically start the modules when VRChat opens"
                             FontSize="13" Foreground="{StaticResource CForeground2}"
                             HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="0 -1" />
-                        <CheckBox HorizontalAlignment="Right" VerticalAlignment="Center" Height="32" Width="32"
-                                  IsChecked="{Binding VRCAutoStart}" />
+                        <ui:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center" Height="32" Width="32"
+                                           IsChecked="{Binding VRCAutoStart}" />
                     </Grid>
                 </Border>
                 <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50" CornerRadius="5">
@@ -62,8 +62,8 @@
                             Text="Allows VRCOSC to automatically stop the modules when VRChat closes"
                             FontSize="13" Foreground="{StaticResource CForeground2}"
                             HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="0 -1" />
-                        <CheckBox HorizontalAlignment="Right" VerticalAlignment="Center" Height="32" Width="32"
-                                  IsChecked="{Binding VRCAutoStop}" />
+                        <ui:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center" Height="32" Width="32"
+                                           IsChecked="{Binding VRCAutoStop}" />
                     </Grid>
                 </Border>
                 <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50" CornerRadius="5">
@@ -75,8 +75,8 @@
                             Text="Debug mode allows modules to log detailed events, but it can produce a big log file"
                             FontSize="13" Foreground="{StaticResource CForeground2}"
                             HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="0 -1" />
-                        <CheckBox HorizontalAlignment="Right" VerticalAlignment="Center" Height="32" Width="32"
-                                  IsChecked="{Binding ModuleLogDebug}" />
+                        <ui:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center" Height="32" Width="32"
+                                           IsChecked="{Binding ModuleLogDebug}" />
                     </Grid>
                 </Border>
                 <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50" CornerRadius="5">

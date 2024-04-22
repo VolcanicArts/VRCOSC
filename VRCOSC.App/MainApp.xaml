@@ -48,18 +48,18 @@
                     </Setter.Value>
                 </Setter>
             </Style>
-            <Style TargetType="CheckBox">
+            <Style TargetType="ui:VRCOSCCheckBox">
                 <Setter
                     Property="Template">
                     <Setter.Value>
                         <ControlTemplate
-                            TargetType="{x:Type CheckBox}">
+                            TargetType="{x:Type ui:VRCOSCCheckBox}">
                             <Border
                                 x:Name="border"
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="5"
+                                CornerRadius="{TemplateBinding CornerRadius}"
                                 Padding="0">
                                 <fa5:ImageAwesome
                                     Name="CheckIcon"
@@ -68,7 +68,7 @@
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
                                     Visibility="Collapsed"
-                                    Margin="6" />
+                                    Margin="{TemplateBinding IconMargin}" />
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger
