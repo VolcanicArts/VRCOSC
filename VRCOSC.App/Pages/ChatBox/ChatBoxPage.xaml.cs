@@ -226,6 +226,12 @@ public partial class ChatBoxPage
     private void Timeline_MouseMove(object sender, MouseEventArgs e)
     {
         e.Handled = true;
+
+        if (e.LeftButton == MouseButtonState.Released)
+        {
+            draggingClip = null;
+        }
+
         var newMouseX = e.GetPosition((FrameworkElement)sender).X;
         var xDelta = newMouseX - mouseX;
         mouseX = newMouseX;
