@@ -35,6 +35,8 @@ public static class OVRHelper
         return err == EVRInitError.None;
     }
 
+    internal static bool IsDashboardVisible() => Valve.VR.OpenVR.Overlay.IsDashboardVisible();
+
     internal static float GetFrameTimeMilli()
     {
         var frameTiming = new Compositor_FrameTiming

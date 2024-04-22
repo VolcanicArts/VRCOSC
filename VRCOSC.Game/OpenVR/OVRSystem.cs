@@ -18,6 +18,7 @@ public class OVRSystem
     public Controller RightController { get; private set; } = null!;
     public List<Tracker> Trackers = new();
     public float FPS => 1000.0f / OVRHelper.GetFrameTimeMilli();
+    public bool DashboardOpen => OVRHelper.IsDashboardVisible();
 
     public void Init()
     {

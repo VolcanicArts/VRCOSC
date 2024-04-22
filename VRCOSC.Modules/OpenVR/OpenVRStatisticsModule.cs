@@ -16,6 +16,7 @@ public class OpenVRStatisticsModule : ChatBoxModule
 {
     protected override void CreateAttributes()
     {
+        CreateParameter<bool>(OpenVrParameter.Dashboard_Open, ParameterMode.Write, "VRCOSC/OpenVR/Dashboard", "Dashboard open", "Whether the SteamVR dashboard is open");
         CreateParameter<float>(OpenVrParameter.FPS, ParameterMode.Write, "VRCOSC/OpenVR/FPS", "FPS", "The current FPS normalised to 240 FPS");
 
         CreateParameter<bool>(OpenVrParameter.HMD_Connected, ParameterMode.Write, "VRCOSC/OpenVR/HMD/Connected", "HMD Connected", "Whether your headset is connected");
@@ -36,6 +37,7 @@ public class OpenVRStatisticsModule : ChatBoxModule
             CreateParameter<bool>(OpenVrParameter.Tracker1_Charging + i, ParameterMode.Write, $"VRCOSC/OpenVR/Trackers/{i + 1}/Charging", $"Tracker {i + 1} Charging", $"Whether tracker {i + 1} is currently charging");
         }
 
+        CreateVariable(OpenVrVariable.Dashboard_Open, "Dashboard Open", "dashboardopen");
         CreateVariable(OpenVrVariable.FPS, "FPS", "fps");
         CreateVariable(OpenVrVariable.HMDCharging, "HMD Charging", "hmdcharging");
         CreateVariable(OpenVrVariable.HMDBattery, "HMD Battery (%)", "hmdbattery");
@@ -58,6 +60,7 @@ public class OpenVRStatisticsModule : ChatBoxModule
     {
         if (OVRClient.HasInitialised)
         {
+            SendParameter(OpenVrParameter.Dashboard_Open, OVRClient.System.DashboardOpen);
             SendParameter(OpenVrParameter.FPS, OVRClient.System.FPS / 240.0f);
             updateHmd();
             updateLeftController();
@@ -73,6 +76,7 @@ public class OpenVRStatisticsModule : ChatBoxModule
                 trackerBatteryAverage = activeTrackers.Sum(tracker => tracker.BatteryPercentage) / activeTrackers.Count;
             }
 
+            SetVariableValue(OpenVrVariable.Dashboard_Open, OVRClient.System.DashboardOpen ? "Open" : "Closed");
             SetVariableValue(OpenVrVariable.FPS, OVRClient.System.FPS.ToString("##0"));
             SetVariableValue(OpenVrVariable.HMDCharging, OVRClient.HMD.IsCharging ? "Charging" : "Uncharging");
             SetVariableValue(OpenVrVariable.HMDBattery, ((int)(OVRClient.HMD.BatteryPercentage * 100)).ToString("##0"));
@@ -84,6 +88,7 @@ public class OpenVRStatisticsModule : ChatBoxModule
         }
         else
         {
+            SetVariableValue(OpenVrVariable.Dashboard_Open, "Unknown");
             SetVariableValue(OpenVrVariable.FPS, "0");
             SetVariableValue(OpenVrVariable.HMDCharging, "Unknown");
             SetVariableValue(OpenVrVariable.HMDBattery, "0");
@@ -93,6 +98,7 @@ public class OpenVRStatisticsModule : ChatBoxModule
             SetVariableValue(OpenVrVariable.RightControllerBattery, "0");
             SetVariableValue(OpenVrVariable.AverageTrackerBattery, "0");
 
+            SendParameter(OpenVrParameter.Dashboard_Open, false);
             SendParameter(OpenVrParameter.HMD_Connected, false);
             SendParameter(OpenVrParameter.HMD_Battery, 0f);
             SendParameter(OpenVrParameter.HMD_Charging, false);
@@ -182,6 +188,7 @@ public class OpenVRStatisticsModule : ChatBoxModule
 
     private enum OpenVrParameter
     {
+        Dashboard_Open,
         FPS,
         HMD_Connected,
         LeftController_Connected,
@@ -225,6 +232,7 @@ public class OpenVRStatisticsModule : ChatBoxModule
 
     private enum OpenVrVariable
     {
+        Dashboard_Open,
         FPS,
         HMDBattery,
         LeftControllerBattery,
