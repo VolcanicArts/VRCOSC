@@ -23,123 +23,112 @@
             <TextBlock Name="TitleText" Foreground="{StaticResource CForeground4}" HorizontalAlignment="Center"
                        VerticalAlignment="Center" FontSize="30" FontWeight="Bold" />
         </Border>
-        <Border Grid.Row="1" Background="{StaticResource CBackground4}" Padding="10">
-            <ui:SpacedStackPanel Spacing="10">
-                <Border Background="{StaticResource CBackground1}" CornerRadius="5" Padding="8" Height="50">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="5*" />
-                            <ColumnDefinition Width="5*" />
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Text="Name:"
-                                   Foreground="{StaticResource CForeground2}" FontSize="25" />
-                        <TextBox Name="NameTextBox" Grid.Column="1"
-                                 Text="{Binding Name.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                 Foreground="{StaticResource CForeground2}"
-                                 FontSize="22" VerticalContentAlignment="Center"
-                                 Background="{StaticResource CBackground3}"
-                                 BorderBrush="Transparent">
-                            <TextBox.Template>
-                                <ControlTemplate TargetType="TextBox">
-                                    <Border Background="{TemplateBinding Background}"
-                                            BorderBrush="{TemplateBinding BorderBrush}"
-                                            BorderThickness="{TemplateBinding BorderThickness}"
-                                            CornerRadius="5" Padding="2 0">
-                                        <ScrollViewer x:Name="PART_ContentHost" />
-                                    </Border>
-                                </ControlTemplate>
-                            </TextBox.Template>
-                        </TextBox>
-                    </Grid>
-                </Border>
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="45" />
-                    </Grid.RowDefinitions>
-                    <Border Grid.Row="0" Background="{StaticResource CBackground1}" CornerRadius="5">
+        <ui:MouseScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
+            <Border Background="{StaticResource CBackground4}" Padding="10">
+                <ui:SpacedStackPanel Spacing="10">
+                    <Border Background="{StaticResource CBackground1}" CornerRadius="5" Padding="8" Height="50">
                         <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="50" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="5" />
-                            </Grid.RowDefinitions>
-                            <TextBlock Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center"
-                                       Text="Avatar Link:" Padding="8"
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="5*" />
+                                <ColumnDefinition Width="5*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                       Text="Name:"
                                        Foreground="{StaticResource CForeground2}" FontSize="25" />
-                            <ListView Grid.Row="1" ItemsSource="{Binding LinkedAvatars, Mode=OneWay}"
-                                      HorizontalAlignment="Stretch"
-                                      Background="Transparent"
-                                      BorderThickness="0" AlternationCount="2">
-                                <ListView.ItemContainerStyle>
-                                    <Style TargetType="ListViewItem">
-                                        <Setter Property="Template">
-                                            <Setter.Value>
-                                                <ControlTemplate>
-                                                    <Border
-                                                        Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}"
-                                                        Padding="5" Height="40">
-                                                        <Grid>
-                                                            <Grid.ColumnDefinitions>
-                                                                <ColumnDefinition Width="*" />
-                                                                <ColumnDefinition Width="5" />
-                                                                <ColumnDefinition Width="30" />
-                                                            </Grid.ColumnDefinitions>
-                                                            <TextBox Grid.Column="0"
-                                                                     Text="{Binding Value}"
-                                                                     Foreground="{StaticResource CForeground2}"
-                                                                     FontSize="20" VerticalAlignment="Stretch"
-                                                                     Background="{StaticResource CBackground5}"
-                                                                     BorderThickness="0">
-                                                                <TextBox.Template>
-                                                                    <ControlTemplate TargetType="TextBox">
-                                                                        <Border
-                                                                            Background="{TemplateBinding Background}"
-                                                                            BorderBrush="{TemplateBinding BorderBrush}"
-                                                                            BorderThickness="{TemplateBinding BorderThickness}"
-                                                                            CornerRadius="5" Padding="5 0">
-                                                                            <ScrollViewer x:Name="PART_ContentHost"
-                                                                                FontSize="{TemplateBinding FontSize}" VerticalAlignment="Center"/>
-                                                                        </Border>
-                                                                    </ControlTemplate>
-                                                                </TextBox.Template>
-                                                            </TextBox>
-                                                            <ui:VRCOSCButton Grid.Column="2" ButtonColour="Red" Click="RemoveButton_OnClick" Tag="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=DataContext}">
-                                                                <fa5:ImageAwesome Icon="Solid_Minus" Foreground="{StaticResource CForeground1}" Margin="4"/>
-                                                            </ui:VRCOSCButton>
-                                                        </Grid>
-                                                    </Border>
-                                                </ControlTemplate>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </ListView.ItemContainerStyle>
-                            </ListView>
-                            <Border Grid.Row="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+                            <TextBox Name="NameTextBox" Grid.Column="1"
+                                     Text="{Binding Name.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     Foreground="{StaticResource CForeground2}"
+                                     FontSize="22" VerticalAlignment="Center"
+                                     VerticalContentAlignment="Center"
+                                     Background="{StaticResource CBackground3}">
+                            </TextBox>
                         </Grid>
                     </Border>
-                    <ui:VRCOSCButton Grid.Row="1" ButtonColour="Green" Width="100" Height="34"
-                                     CornerRadius="17" Click="AddLinkedAvatar_ButtonClick">
-                        <fa5:ImageAwesome Icon="Solid_Plus" Foreground="White" Margin="5" />
-                    </ui:VRCOSCButton>
-                </Grid>
-            </ui:SpacedStackPanel>
-        </Border>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="45" />
+                        </Grid.RowDefinitions>
+                        <Border Grid.Row="0" Background="{StaticResource CBackground1}" CornerRadius="5">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="5" />
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                           Text="Avatar Link:" Padding="8"
+                                           Foreground="{StaticResource CForeground2}" FontSize="25" />
+                                <ListView Grid.Row="1" ItemsSource="{Binding LinkedAvatars, Mode=OneWay}"
+                                          HorizontalAlignment="Stretch"
+                                          Background="Transparent"
+                                          BorderThickness="0" AlternationCount="2">
+                                    <ListView.ItemContainerStyle>
+                                        <Style TargetType="ListViewItem">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate>
+                                                        <Border
+                                                            Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}"
+                                                            Padding="5" Height="40">
+                                                            <Grid>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="*" />
+                                                                    <ColumnDefinition Width="5" />
+                                                                    <ColumnDefinition Width="30" />
+                                                                </Grid.ColumnDefinitions>
+                                                                <TextBox Grid.Column="0"
+                                                                         Text="{Binding Value}"
+                                                                         Foreground="{StaticResource CForeground2}"
+                                                                         FontSize="20" VerticalAlignment="Center"
+                                                                         VerticalContentAlignment="Center"
+                                                                         Background="{StaticResource CBackground5}">
+                                                                </TextBox>
+                                                                <ui:VRCOSCButton Grid.Column="2" ButtonColour="Red"
+                                                                    Click="RemoveButton_OnClick"
+                                                                    Tag="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=DataContext}">
+                                                                    <fa5:ImageAwesome Icon="Solid_Minus"
+                                                                        Foreground="{StaticResource CForeground1}"
+                                                                        Margin="4" />
+                                                                </ui:VRCOSCButton>
+                                                            </Grid>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </ListView.ItemContainerStyle>
+                                </ListView>
+                                <Border Grid.Row="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+                            </Grid>
+                        </Border>
+                        <ui:VRCOSCButton Grid.Row="1" ButtonColour="Green" Width="100" Height="34"
+                                         CornerRadius="17" Click="AddLinkedAvatar_ButtonClick">
+                            <fa5:ImageAwesome Icon="Solid_Plus" Foreground="White" Margin="5" />
+                        </ui:VRCOSCButton>
+                    </Grid>
+                </ui:SpacedStackPanel>
+            </Border>
+        </ui:MouseScrollViewer>
         <Border Grid.Row="2" Background="{StaticResource CBackground1}" Padding="10">
             <Grid>
-                <ui:SpacedStackPanel FlowDirection="LeftToRight" Orientation="Horizontal" HorizontalAlignment="Stretch"
+                <ui:SpacedStackPanel FlowDirection="LeftToRight" Orientation="Horizontal"
+                                     HorizontalAlignment="Stretch"
                                      VerticalAlignment="Stretch">
                     <ui:VRCOSCButton ButtonColour="Red" Width="200" Height="34" CornerRadius="17"
                                      Click="CancelEdit_ButtonClick">
-                        <TextBlock Text="Cancel" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"
+                        <TextBlock Text="Cancel" FontSize="20" HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
                                    Foreground="{StaticResource CForeground1}" />
                     </ui:VRCOSCButton>
                 </ui:SpacedStackPanel>
-                <ui:SpacedStackPanel FlowDirection="RightToLeft" Orientation="Horizontal" HorizontalAlignment="Stretch"
+                <ui:SpacedStackPanel FlowDirection="RightToLeft" Orientation="Horizontal"
+                                     HorizontalAlignment="Stretch"
                                      VerticalAlignment="Stretch">
                     <ui:VRCOSCButton ButtonColour="Blue" Width="200" Height="34" CornerRadius="17"
                                      Click="SaveEdit_ButtonClick">
-                        <TextBlock Text="Save" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"
+                        <TextBlock Text="Save" FontSize="20" HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
                                    Foreground="{StaticResource CForeground1}" />
                     </ui:VRCOSCButton>
                 </ui:SpacedStackPanel>

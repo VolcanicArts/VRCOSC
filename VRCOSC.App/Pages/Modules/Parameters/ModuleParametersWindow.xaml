@@ -107,25 +107,12 @@
                                                                        Text="{Binding Metadata.UIMode, Mode=OneTime}" />
                                                             <TextBox Grid.Column="5"
                                                                      Text="{Binding Name.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                                     Foreground="{StaticResource CForeground2}"
                                                                      FontSize="14" VerticalAlignment="Center"
+                                                                     Background="{StaticResource CBackground2}"
                                                                      Height="30"
                                                                      Margin="10 0 0 0"
                                                                      Padding="0 5"
-                                                                     HorizontalAlignment="Stretch"
-                                                                     Background="{StaticResource CBackground1}"
-                                                                     BorderBrush="Transparent">
-                                                                <TextBox.Template>
-                                                                    <ControlTemplate TargetType="TextBox">
-                                                                        <Border
-                                                                            Background="{TemplateBinding Background}"
-                                                                            BorderBrush="{TemplateBinding BorderBrush}"
-                                                                            BorderThickness="{TemplateBinding BorderThickness}"
-                                                                            CornerRadius="5" Padding="2 0">
-                                                                            <ScrollViewer x:Name="PART_ContentHost" />
-                                                                        </Border>
-                                                                    </ControlTemplate>
-                                                                </TextBox.Template>
+                                                                     HorizontalAlignment="Stretch">
                                                             </TextBox>
                                                         </Grid>
                                                     </Border>

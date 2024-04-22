@@ -7,27 +7,9 @@
     <Grid>
         <TextBox
             Name="ValueTextBox"
-            Foreground="{StaticResource CForeground1}"
+            Background="{StaticResource CBackground2}"
             FontSize="16"
-            VerticalAlignment="Top"
-            TextAlignment="Left"
-            Margin="-1"
-            HorizontalAlignment="Stretch"
-            Background="{StaticResource CBackground4}"
-            BorderBrush="Transparent">
-            <TextBox.Template>
-                <ControlTemplate
-                    TargetType="TextBox">
-                    <Border
-                        Background="{TemplateBinding Background}"
-                        BorderBrush="{TemplateBinding BorderBrush}"
-                        BorderThickness="{TemplateBinding BorderThickness}"
-                        CornerRadius="5">
-                        <ScrollViewer
-                            x:Name="PART_ContentHost" />
-                    </Border>
-                </ControlTemplate>
-            </TextBox.Template>
+            Margin="-1">
         </TextBox>
     </Grid>
 </Page>

@@ -60,23 +60,11 @@
                     </Setter.Value>
                 </Setter>
             </Style>
-            <Style x:Key="VRCOSCTextBoxStyle" TargetType="TextBox">
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="TextBox">
-                            <Border Background="{TemplateBinding Background}"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="{TemplateBinding BorderThickness}">
-                                <ScrollViewer x:Name="PART_ContentHost" />
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsEnabled" Value="False">
-                                    <Setter Property="Opacity" Value="0.5" />
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
+            <Style TargetType="TextBox">
+                <Setter Property="Background" Value="{StaticResource CBackground3}" />
+                <Setter Property="Foreground" Value="{StaticResource CForeground1}" />
+                <Setter Property="CaretBrush" Value="{StaticResource CForeground3}" />
+                <Setter Property="SelectionBrush" Value="{StaticResource CForeground2}" />
             </Style>
             <Style TargetType="ui:VRCOSCCheckBox">
                 <Setter

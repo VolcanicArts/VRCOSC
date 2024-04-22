@@ -34,14 +34,8 @@
                             <fa5:FontAwesome Grid.Row="0" Grid.Column="0" Icon="Solid_Search" FontSize="22"
                                              Foreground="{StaticResource CForeground3}" VerticalAlignment="Center" />
                             <Grid Grid.Column="1">
-                                <TextBox x:Name="SearchTextBox" Grid.Row="0"
-                                         Style="{StaticResource VRCOSCTextBoxStyle}" FontSize="20"
-                                         Foreground="{StaticResource CForeground2}" VerticalContentAlignment="Center"
-                                         Background="Transparent" CaretBrush="{StaticResource CForeground3}"
-                                         BorderBrush="Transparent" SelectionBrush="{StaticResource CForeground2}">
-                                </TextBox>
                                 <TextBlock Foreground="{StaticResource CForeground3}" Text="Search" FontSize="20"
-                                           VerticalAlignment="Top" HorizontalAlignment="Left" Margin="2 0">
+                                           VerticalAlignment="Center" Margin="2 -3 2 0">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Visibility" Value="Collapsed" />
@@ -60,6 +54,9 @@
                                         </Style>
                                     </TextBlock.Style>
                                 </TextBlock>
+                                <TextBox x:Name="SearchTextBox" Grid.Row="0" FontSize="20" BorderThickness="0" Background="Transparent" VerticalAlignment="Center"
+                                         Foreground="{StaticResource CForeground2}" VerticalContentAlignment="Center">
+                                </TextBox>
                             </Grid>
                         </Grid>
                     </Border>

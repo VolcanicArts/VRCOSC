@@ -85,25 +85,12 @@
                             <TextBox Grid.Column="1"
                                      Text="{Binding Timeline.LengthSeconds}"
                                      Foreground="{StaticResource CForeground2}"
-                                     FontSize="15" VerticalAlignment="Stretch"
+                                     FontSize="15" VerticalAlignment="Center"
+                                     VerticalContentAlignment="Center"
                                      Background="{StaticResource CBackground3}"
-                                     BorderThickness="0"
                                      Height="30"
                                      LostKeyboardFocus="TextBox_OnLostKeyboardFocus"
                                      PreviewKeyDown="TextBox_OnPreviewKeyDown">
-                                <TextBox.Template>
-                                    <ControlTemplate TargetType="TextBox">
-                                        <Border
-                                            Background="{TemplateBinding Background}"
-                                            BorderBrush="{TemplateBinding BorderBrush}"
-                                            BorderThickness="{TemplateBinding BorderThickness}"
-                                            CornerRadius="5" Padding="5 0">
-                                            <ScrollViewer x:Name="PART_ContentHost"
-                                                          FontSize="{TemplateBinding FontSize}"
-                                                          VerticalAlignment="Center" />
-                                        </Border>
-                                    </ControlTemplate>
-                                </TextBox.Template>
                             </TextBox>
                         </Grid>
                     </ui:SpacedStackPanel>
@@ -145,23 +132,10 @@
                                     <TextBox Grid.Column="1"
                                              Text="{Binding Name.Value, UpdateSourceTrigger=PropertyChanged}"
                                              Foreground="{StaticResource CForeground2}"
-                                             FontSize="15" VerticalAlignment="Stretch"
+                                             FontSize="15" VerticalAlignment="Center"
+                                             VerticalContentAlignment="Center"
                                              Background="{StaticResource CBackground3}"
-                                             BorderThickness="0"
                                              Height="25">
-                                        <TextBox.Template>
-                                            <ControlTemplate TargetType="TextBox">
-                                                <Border
-                                                    Background="{TemplateBinding Background}"
-                                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                                    CornerRadius="5" Padding="5 0">
-                                                    <ScrollViewer x:Name="PART_ContentHost"
-                                                                  FontSize="{TemplateBinding FontSize}"
-                                                                  VerticalAlignment="Center" />
-                                                </Border>
-                                            </ControlTemplate>
-                                        </TextBox.Template>
                                     </TextBox>
                                 </Grid>
                             </ui:SpacedStackPanel>
