@@ -393,7 +393,6 @@ public class AppManager
 
         MainWindow.GetInstance().ChatBoxPage.SelectedClip = null;
 
-        ChatBoxManager.GetInstance().Serialise();
         ChatBoxManager.GetInstance().Unload();
 
         ProfileManager.GetInstance().ActiveProfile.Value = newProfile;

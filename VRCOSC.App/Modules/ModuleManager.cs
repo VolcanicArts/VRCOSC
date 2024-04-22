@@ -115,7 +115,6 @@ public class ModuleManager : INotifyPropertyChanged
 
         UnloadAllModules();
 
-        ChatBoxManager.GetInstance().Serialise();
         ChatBoxManager.GetInstance().Unload();
 
         LoadAllModules();

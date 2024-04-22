@@ -119,7 +119,6 @@ public abstract class Module
 
     internal void ImportConfig(string filePathOverride)
     {
-        ChatBoxManager.GetInstance().Serialise();
         ChatBoxManager.GetInstance().Unload(SerialisedName);
 
         Load(filePathOverride);

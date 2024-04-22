@@ -102,6 +102,8 @@ public class ChatBoxManager : INotifyPropertyChanged
 
     public void Unload(string moduleID = "")
     {
+        Serialise();
+
         if (string.IsNullOrEmpty(moduleID))
         {
             StateReferences.Clear();
