@@ -234,6 +234,7 @@
                                                                                                                 Grid.Column="0"
                                                                                                                 ButtonColour="Gray"
                                                                                                                 Icon="Solid_Cog"
+                                                                                                                IconMargin="4"
                                                                                                                 Click="VariableSettingButton_OnClick"
                                                                                                                 Width="22"
                                                                                                                 Height="22"
@@ -246,6 +247,7 @@
                                                                                                                 Grid.Column="1"
                                                                                                                 ButtonColour="Red"
                                                                                                                 Icon="Solid_Minus"
+                                                                                                                IconMargin="4"
                                                                                                                 Click="VariableRemoveButton_OnClick"
                                                                                                                 Width="22"
                                                                                                                 Height="22"
@@ -491,6 +493,7 @@
                                                                                                                 Grid.Column="0"
                                                                                                                 ButtonColour="Gray"
                                                                                                                 Icon="Solid_Cog"
+                                                                                                                IconMargin="4"
                                                                                                                 Click="VariableSettingButton_OnClick"
                                                                                                                 Width="22"
                                                                                                                 Height="22"
@@ -503,6 +506,7 @@
                                                                                                                 Grid.Column="1"
                                                                                                                 ButtonColour="Red"
                                                                                                                 Icon="Solid_Minus"
+                                                                                                                IconMargin="4"
                                                                                                                 Click="VariableRemoveButton_OnClick"
                                                                                                                 Width="22"
                                                                                                                 Height="22"
@@ -564,7 +568,7 @@
                                 <TextBlock Grid.Column="0" HorizontalAlignment="Left"
                                            Text="Show Relevant Elements Only" FontSize="15" Padding="5"
                                            Foreground="{StaticResource CForeground1}" />
-                                <CheckBox Grid.Column="2" x:Name="ShowRelevantModulesCheckBox"
+                                <ui:VRCOSCCheckBox Grid.Column="2" x:Name="ShowRelevantModulesCheckBox"
                                           IsChecked="{Binding ShowRelevantModules}"
                                           Width="25" Height="25" HorizontalAlignment="Right" Margin="0 0 2.5 0" />
                             </Grid>

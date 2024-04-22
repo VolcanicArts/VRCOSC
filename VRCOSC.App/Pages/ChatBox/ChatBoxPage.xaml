@@ -393,11 +393,6 @@
                                         <RowDefinition Height="*" />
                                     </Grid.RowDefinitions>
                                     <ui:SpacedStackPanel x:Name="RightClickMenuClipOptions" Spacing="5">
-                                        <ui:VRCOSCButton ButtonColour="Red" Click="DeleteClip_OnClick">
-                                            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
-                                                       Text="Delete Clip" Foreground="{StaticResource CForeground1}"
-                                                       FontSize="15" />
-                                        </ui:VRCOSCButton>
                                         <ui:VRCOSCButton ButtonColour="Blue" Click="MoveClipUp_OnClick">
                                             <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
                                                        Text="Move Up" Foreground="{StaticResource CForeground1}"
@@ -406,6 +401,11 @@
                                         <ui:VRCOSCButton ButtonColour="Blue" Click="MoveClipDown_OnClick">
                                             <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
                                                        Text="Move Down" Foreground="{StaticResource CForeground1}"
+                                                       FontSize="15" />
+                                        </ui:VRCOSCButton>
+                                        <ui:VRCOSCButton ButtonColour="Red" Click="DeleteClip_OnClick">
+                                            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                       Text="Delete Clip" Foreground="{StaticResource CForeground1}"
                                                        FontSize="15" />
                                         </ui:VRCOSCButton>
                                     </ui:SpacedStackPanel>
