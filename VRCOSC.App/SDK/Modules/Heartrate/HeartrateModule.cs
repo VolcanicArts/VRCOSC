@@ -77,8 +77,8 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
         CreateState(HeartrateState.Connected, "Connected", "Heartrate: {0}", new[] { currentReference });
         CreateState(HeartrateState.Disconnected, "Disconnected", string.Empty);
 
-        GetSetting(HeartrateSetting.SmoothValueLength)!.IsEnabled = () => GetSettingValue<bool>(HeartrateSetting.SmoothValue);
-        GetSetting(HeartrateSetting.SmoothAverageLength)!.IsEnabled = () => GetSettingValue<bool>(HeartrateSetting.SmoothAverage);
+        GetSetting(HeartrateSetting.SmoothValue)!.OnSettingChange += () => GetSetting(HeartrateSetting.SmoothValueLength)!.IsEnabled = GetSettingValue<bool>(HeartrateSetting.SmoothValue);
+        GetSetting(HeartrateSetting.SmoothAverage)!.OnSettingChange += () => GetSetting(HeartrateSetting.SmoothAverageLength)!.IsEnabled = GetSettingValue<bool>(HeartrateSetting.SmoothAverage);
     }
 
     protected override async Task<bool> OnModuleStart()

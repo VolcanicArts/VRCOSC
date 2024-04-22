@@ -20,7 +20,11 @@ public abstract class ValueModuleSetting<T> : ModuleSetting
     public override void PreDeserialise()
     {
         Attribute = CreateObservable();
-        Attribute.Subscribe(_ => RequestSerialisation?.Invoke());
+        Attribute.Subscribe(_ =>
+        {
+            OnSettingChange?.Invoke();
+            RequestSerialisation?.Invoke();
+        });
     }
 
     public override bool IsDefault() => Attribute.IsDefault;

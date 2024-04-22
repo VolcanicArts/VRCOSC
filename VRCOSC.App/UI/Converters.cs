@@ -33,13 +33,21 @@ public class IndexOfConverter : IMultiValueConverter
 
 public class BoolToVisibilityConverter : IValueConverter
 {
+    public bool Invert { get; init; } = false;
     public Visibility InvisibleMode { get; init; } = Visibility.Collapsed;
 
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value is not bool boolValue) return Visibility.Visible;
 
-        return boolValue ? Visibility.Visible : InvisibleMode;
+        if (Invert)
+        {
+            return !boolValue ? Visibility.Visible : InvisibleMode;
+        }
+        else
+        {
+            return boolValue ? Visibility.Visible : InvisibleMode;
+        }
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;

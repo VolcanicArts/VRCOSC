@@ -4,7 +4,6 @@
 using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Windows;
 using System.Windows.Controls;
 using VRCOSC.App.Utils;
 
@@ -16,6 +15,8 @@ public abstract class ModuleSetting : ModuleAttribute, INotifyPropertyChanged
     /// The metadata for this <see cref="ModuleSetting"/>
     /// </summary>
     public new ModuleSettingMetadata Metadata => (ModuleSettingMetadata)base.Metadata;
+
+    public Action? OnSettingChange;
 
     /// <summary>
     /// Creates a new <see cref="Page"/> instance as set in the <see cref="Metadata"/>
@@ -36,21 +37,17 @@ public abstract class ModuleSetting : ModuleAttribute, INotifyPropertyChanged
         }
     }
 
+    private bool isEnabled = true;
+
     /// <summary>
-    /// A callback for checking to see if this <see cref="ModuleSetting"/> should be enabled
+    /// When true, the user can edit this <see cref="ModuleSetting"/>, otherwise, the UI prevents the user from editing this <see cref="ModuleSetting"/>
     /// </summary>
-    public Func<bool> IsEnabled = () => true;
-
-    private Visibility uiIsEnabled;
-
-    public Visibility UIIsEnabled
+    public bool IsEnabled
     {
-        get => uiIsEnabled;
+        get => isEnabled;
         set
         {
-            if (value == uiIsEnabled) return;
-
-            uiIsEnabled = value;
+            isEnabled = value;
             OnPropertyChanged();
         }
     }
@@ -58,11 +55,6 @@ public abstract class ModuleSetting : ModuleAttribute, INotifyPropertyChanged
     protected ModuleSetting(ModuleSettingMetadata metadata)
         : base(metadata)
     {
-    }
-
-    public void CheckIsEnabled()
-    {
-        UIIsEnabled = IsEnabled.Invoke() ? Visibility.Collapsed : Visibility.Visible;
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

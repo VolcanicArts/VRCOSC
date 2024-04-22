@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using VRCOSC.App.SDK.Modules;
@@ -14,8 +13,6 @@ public partial class ModuleSettingsWindow
 {
     public Module Module { get; }
 
-    private readonly Repeater updateTask;
-
     public ModuleSettingsWindow(Module module)
     {
         InitializeComponent();
@@ -24,9 +21,6 @@ public partial class ModuleSettingsWindow
 
         Module = module;
         DataContext = this;
-
-        updateTask = new Repeater(() => module.Settings.ForEach(pair => pair.Value.CheckIsEnabled()));
-        updateTask.Start(TimeSpan.FromSeconds(1d / 10d));
     }
 
     public Dictionary<string, List<ModuleSetting>> GroupsFormatted
@@ -54,12 +48,5 @@ public partial class ModuleSettingsWindow
 
             return groupsFormatted;
         }
-    }
-
-    protected override void OnClosed(EventArgs e)
-    {
-        base.OnClosed(e);
-
-        _ = updateTask.StopAsync();
     }
 }
