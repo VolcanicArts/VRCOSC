@@ -4,13 +4,18 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using VRCOSC.App.ChatBox.Clips;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.ChatBox;
 
-public class Layer
+public record ClipDroppableArea(int Layer, int Start, int End);
+
+public class Layer : INotifyPropertyChanged
 {
     public readonly int ID;
 
@@ -18,9 +23,43 @@ public class Layer
 
     public ObservableCollection<Clip> Clips { get; } = new();
 
+    /// <summary>
+    /// Areas that don't have clips; basically inverted bounds calculation
+    /// </summary>
+    public IEnumerable<ClipDroppableArea> DroppableAreas => constructDroppableAreas();
+
     public Layer(int id)
     {
         ID = id;
+    }
+
+    public void Init()
+    {
+        ChatBoxManager.GetInstance().Timeline.Length.Subscribe(_ => OnPropertyChanged(nameof(DroppableAreas)));
+
+        Clips.CollectionChanged += ClipsOnCollectionChanged;
+        ClipsOnCollectionChanged(null, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, Clips));
+    }
+
+    private void ClipsOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (e.NewItems is not null)
+        {
+            foreach (Clip newClip in e.NewItems)
+            {
+                newClip.Start.Subscribe(_ => OnPropertyChanged(nameof(DroppableAreas)));
+                newClip.End.Subscribe(_ => OnPropertyChanged(nameof(DroppableAreas)));
+            }
+        }
+
+        OnPropertyChanged(nameof(DroppableAreas));
+    }
+
+    private IEnumerable<ClipDroppableArea> constructDroppableAreas()
+    {
+        var droppableAreas = new List<ClipDroppableArea>();
+        GetAllBounds().ForEach(bound => droppableAreas.Add(new ClipDroppableArea(ID, bound.Item1, bound.Item2)));
+        return droppableAreas;
     }
 
     public (int, int) GetBoundsNearestTo(int value, bool end, bool isCreating = false)
@@ -53,8 +92,45 @@ public class Layer
         return (lowerBound, upperBound);
     }
 
+    public List<(int, int)> GetAllBounds()
+    {
+        var boundsList = new List<int>();
+
+        boundsList.Add(0);
+
+        Clips.ForEach(clip =>
+        {
+            boundsList.Add(clip.Start.Value);
+            boundsList.Add(clip.End.Value);
+        });
+
+        boundsList.Add(ChatBoxManager.GetInstance().Timeline.LengthSeconds);
+        boundsList.Sort();
+
+        var pairedBoundsList = new List<(int, int)>();
+
+        for (var i = 0; i < Clips.Count * 2 + 2; i += 2)
+        {
+            var lowerBound = boundsList[i];
+            var upperBound = boundsList[i + 1];
+
+            if (lowerBound == upperBound) continue;
+
+            pairedBoundsList.Add((lowerBound, upperBound));
+        }
+
+        return pairedBoundsList;
+    }
+
     public void UpdateUIBinds()
     {
         Clips.ForEach(clip => clip.UpdateUIBinds());
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

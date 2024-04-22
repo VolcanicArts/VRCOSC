@@ -54,6 +54,7 @@ public class Timeline : INotifyPropertyChanged
     public void Init()
     {
         OnPropertyChanged(nameof(LengthSeconds));
+        Layers.ForEach(layer => layer.Init());
     }
 
     public Layer FindLayerOfClip(Clip clip)

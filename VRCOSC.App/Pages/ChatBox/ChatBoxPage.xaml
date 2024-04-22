@@ -344,6 +344,70 @@
                                                                             </DataTemplate>
                                                                         </ItemsControl.ItemTemplate>
                                                                     </ItemsControl>
+                                                                    <ItemsControl
+                                                                        ItemsSource="{Binding DroppableAreas, Mode=OneWay}">
+                                                                        <ItemsControl.ItemsPanel>
+                                                                            <ItemsPanelTemplate>
+                                                                                <Grid />
+                                                                            </ItemsPanelTemplate>
+                                                                        </ItemsControl.ItemsPanel>
+                                                                        <ItemsControl.ItemTemplate>
+                                                                            <DataTemplate>
+                                                                                <!--> Droppable Area <-->
+                                                                                <Grid
+                                                                                    HorizontalAlignment="Stretch"
+                                                                                    VerticalAlignment="Stretch">
+                                                                                    <Grid.ColumnDefinitions>
+                                                                                        <ColumnDefinition Width="*" />
+                                                                                    </Grid.ColumnDefinitions>
+                                                                                    <Grid.RowDefinitions>
+                                                                                        <RowDefinition Height="*" />
+                                                                                    </Grid.RowDefinitions>
+                                                                                    <Border
+                                                                                        Name="ClipBorder"
+                                                                                        Background="Transparent"
+                                                                                        CornerRadius="5"
+                                                                                        HorizontalAlignment="Left"
+                                                                                        VerticalAlignment="Stretch"
+                                                                                        AllowDrop="True"
+                                                                                        Drop="DroppableArea_OnDrop"
+                                                                                        Tag="{Binding}">
+                                                                                        <Border.RenderTransform>
+                                                                                            <TranslateTransform>
+                                                                                                <TranslateTransform.X>
+                                                                                                    <MultiBinding
+                                                                                                        Converter="{StaticResource ClipPositionConverter}">
+                                                                                                        <Binding
+                                                                                                            Path="Start"
+                                                                                                            Mode="OneWay" />
+                                                                                                        <Binding
+                                                                                                            Path="ActualWidth"
+                                                                                                            RelativeSource="{RelativeSource AncestorType={x:Type ListViewItem}}"
+                                                                                                            Mode="OneWay" />
+                                                                                                    </MultiBinding>
+                                                                                                </TranslateTransform.X>
+                                                                                            </TranslateTransform>
+                                                                                        </Border.RenderTransform>
+                                                                                        <Border.Width>
+                                                                                            <MultiBinding
+                                                                                                Converter="{StaticResource ClipWidthConverter}">
+                                                                                                <Binding
+                                                                                                    Path="Start"
+                                                                                                    Mode="OneWay" />
+                                                                                                <Binding
+                                                                                                    Path="End"
+                                                                                                    Mode="OneWay" />
+                                                                                                <Binding
+                                                                                                    RelativeSource="{RelativeSource AncestorType=ListViewItem}"
+                                                                                                    Path="ActualWidth"
+                                                                                                    Mode="OneWay" />
+                                                                                            </MultiBinding>
+                                                                                        </Border.Width>
+                                                                                    </Border>
+                                                                                </Grid>
+                                                                            </DataTemplate>
+                                                                        </ItemsControl.ItemTemplate>
+                                                                    </ItemsControl>
                                                                 </Grid>
                                                             </Border>
                                                         </ControlTemplate>
@@ -381,16 +445,6 @@
                                         <RowDefinition Height="*" />
                                     </Grid.RowDefinitions>
                                     <ui:SpacedStackPanel x:Name="RightClickMenuClipOptions" Spacing="5">
-                                        <ui:VRCOSCButton ButtonColour="Blue" Click="MoveClipUp_OnClick">
-                                            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
-                                                       Text="Move Up" Foreground="{StaticResource CForeground1}"
-                                                       FontSize="15" />
-                                        </ui:VRCOSCButton>
-                                        <ui:VRCOSCButton ButtonColour="Blue" Click="MoveClipDown_OnClick">
-                                            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
-                                                       Text="Move Down" Foreground="{StaticResource CForeground1}"
-                                                       FontSize="15" />
-                                        </ui:VRCOSCButton>
                                         <ui:VRCOSCButton ButtonColour="Red" Click="DeleteClip_OnClick">
                                             <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
                                                        Text="Delete Clip" Foreground="{StaticResource CForeground1}"
