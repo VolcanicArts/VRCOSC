@@ -93,7 +93,8 @@
                                               Padding="10 0">
                             <ui:SpacedStackPanel Orientation="Vertical" Spacing="7">
                                 <TextBlock Text="States" FontWeight="Bold" FontSize="30"
-                                           Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center" />
+                                           Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center"
+                                           Visibility="{Binding HasStates, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                 <ListView ItemsSource="{Binding UIStates}"
                                           HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                           Background="Transparent"
@@ -295,7 +296,8 @@
                                     </ListView.ItemContainerStyle>
                                 </ListView>
                                 <TextBlock Text="Events" FontWeight="Bold" FontSize="30"
-                                           Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center" />
+                                           Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center"
+                                           Visibility="{Binding HasEvents, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                 <ListView ItemsSource="{Binding UIEvents}"
                                           HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                           Background="Transparent"
@@ -372,24 +374,10 @@
                                                                              Foreground="{StaticResource CForeground1}"
                                                                              FontSize="16"
                                                                              VerticalAlignment="Center"
+                                                                             VerticalContentAlignment="Center"
                                                                              Margin="-1"
                                                                              HorizontalAlignment="Stretch"
-                                                                             Background="{StaticResource CBackground4}"
-                                                                             Padding="2"
-                                                                             BorderBrush="Transparent">
-                                                                        <TextBox.Template>
-                                                                            <ControlTemplate
-                                                                                TargetType="TextBox">
-                                                                                <Border
-                                                                                    Background="{TemplateBinding Background}"
-                                                                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                                                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                                                                    CornerRadius="5">
-                                                                                    <ScrollViewer
-                                                                                        x:Name="PART_ContentHost" />
-                                                                                </Border>
-                                                                            </ControlTemplate>
-                                                                        </TextBox.Template>
+                                                                             Background="{StaticResource CBackground4}">
                                                                     </TextBox>
                                                                 </Grid>
                                                                 <Grid>

@@ -53,6 +53,9 @@ public class Clip : INotifyPropertyChanged
         }
     }
 
+    public bool HasStates => States.Any();
+    public bool HasEvents => Events.Any();
+
     private readonly Queue<ClipEvent> eventQueue = new();
     private (ClipEvent, DateTimeOffset)? currentEvent;
 
@@ -235,6 +238,8 @@ public class Clip : INotifyPropertyChanged
         OnPropertyChanged(nameof(UIStates));
         OnPropertyChanged(nameof(UIEvents));
         OnPropertyChanged(nameof(UIVariables));
+        OnPropertyChanged(nameof(HasStates));
+        OnPropertyChanged(nameof(HasEvents));
     }
 
     private void removeAbsentVariables()
