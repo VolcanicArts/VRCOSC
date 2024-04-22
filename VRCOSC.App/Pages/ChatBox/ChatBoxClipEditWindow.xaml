@@ -11,7 +11,7 @@
         Width="1366" Height="768" MinWidth="1200" MinHeight="540"
         Loaded="OnLoaded">
     <Window.Resources>
-        <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <ui:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <local:TextBoxParsingConverter x:Key="TextBoxParsingConverter" />
         <ui:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}" Colour2="{StaticResource CBackground2}"/>
     </Window.Resources>

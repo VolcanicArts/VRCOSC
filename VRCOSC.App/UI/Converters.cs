@@ -4,6 +4,7 @@
 using System;
 using System.Collections;
 using System.Globalization;
+using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
 
@@ -28,6 +29,20 @@ public class IndexOfConverter : IMultiValueConverter
     {
         throw new NotSupportedException();
     }
+}
+
+public class BoolToVisibilityConverter : IValueConverter
+{
+    public Visibility InvisibleMode { get; init; } = Visibility.Collapsed;
+
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is not bool boolValue) return Visibility.Visible;
+
+        return boolValue ? Visibility.Visible : InvisibleMode;
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
 }
 
 public class AlternatingColourConverter : IValueConverter
