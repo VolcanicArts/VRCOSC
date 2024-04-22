@@ -267,7 +267,7 @@ public class PackageSource
     private void OnInstallButtonClick()
     {
         var action = packageManager.InstallPackage(this);
-        action.OnComplete += () => AppManager.GetInstance().Refresh(PageLookup.Packages);
+        action.OnComplete += () => MainWindow.GetInstance().PackagePage.Refresh();
         _ = MainWindow.GetInstance().ShowLoadingOverlay($"Installing {DisplayName}", action);
     }
 
@@ -278,7 +278,7 @@ public class PackageSource
         if (result != MessageBoxResult.Yes) return;
 
         var action = packageManager.UninstallPackage(this);
-        action.OnComplete += () => AppManager.GetInstance().Refresh(PageLookup.Packages);
+        action.OnComplete += () => MainWindow.GetInstance().PackagePage.Refresh();
         _ = MainWindow.GetInstance().ShowLoadingOverlay($"Uninstalling {DisplayName}", action);
     }
 

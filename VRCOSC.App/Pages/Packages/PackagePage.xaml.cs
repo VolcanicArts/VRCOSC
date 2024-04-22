@@ -14,7 +14,7 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Pages.Packages;
 
-public partial class PackagePage : IVRCOSCPage
+public partial class PackagePage
 {
     public PackagePage()
     {
@@ -27,8 +27,6 @@ public partial class PackagePage : IVRCOSCPage
 
         SearchTextBox.TextChanged += (_, _) => filterDataGrid(SearchTextBox.Text);
         filterDataGrid(string.Empty);
-
-        AppManager.GetInstance().RegisterPage(PageLookup.Packages, this);
     }
 
     private void OnSizeChanged(object sender, SizeChangedEventArgs e) => evaluateContentHeight();

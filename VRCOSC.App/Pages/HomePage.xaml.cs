@@ -6,15 +6,13 @@ using Microsoft.Win32;
 
 namespace VRCOSC.App.Pages;
 
-public partial class HomePage : IVRCOSCPage
+public partial class HomePage
 {
     public HomePage()
     {
         InitializeComponent();
 
         Title.Text = $"Welcome {getUserName()}!";
-
-        AppManager.GetInstance().RegisterPage(PageLookup.Home, this);
     }
 
     private static string getUserName()
@@ -31,9 +29,5 @@ public partial class HomePage : IVRCOSCPage
         {
             return Environment.UserName;
         }
-    }
-
-    public void Refresh()
-    {
     }
 }

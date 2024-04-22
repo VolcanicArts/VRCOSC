@@ -81,7 +81,7 @@ public class PackageManager : INotifyPropertyChanged
         {
             if (forceRemoteGrab) CacheExpireTime = DateTime.Now + TimeSpan.FromDays(1);
             serialisationManager.Serialise();
-            AppManager.GetInstance().Refresh(PageLookup.Packages);
+            MainWindow.GetInstance().PackagePage.Refresh();
         };
 
         return packageLoadAction;
@@ -98,7 +98,7 @@ public class PackageManager : INotifyPropertyChanged
             serialisationManager.Serialise();
             OnPropertyChanged(nameof(UpdateAllButtonVisibility));
             ModuleManager.GetInstance().ReloadAllModules();
-            AppManager.GetInstance().Refresh(PageLookup.Packages);
+            MainWindow.GetInstance().PackagePage.Refresh();
         };
 
         return installAction;
@@ -114,7 +114,7 @@ public class PackageManager : INotifyPropertyChanged
             serialisationManager.Serialise();
             OnPropertyChanged(nameof(UpdateAllButtonVisibility));
             ModuleManager.GetInstance().ReloadAllModules();
-            AppManager.GetInstance().Refresh(PageLookup.Packages);
+            MainWindow.GetInstance().PackagePage.Refresh();
         };
 
         return uninstallAction;

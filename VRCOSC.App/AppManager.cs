@@ -42,8 +42,6 @@ public class AppManager
 
     public Observable<AppManagerState> State = new(AppManagerState.Stopped);
 
-    private readonly Dictionary<PageLookup, IVRCOSCPage> pageInstances = new();
-
     public ConnectionManager ConnectionManager = null!;
     public VRChatOscClient VRChatOscClient = null!;
     public VRChatClient VRChatClient = null!;
@@ -59,20 +57,6 @@ public class AppManager
     public AppManager()
     {
         State.Subscribe(newState => Logger.Log("AppManager changed state to " + newState));
-    }
-
-    public void RegisterPage(PageLookup pageLookup, IVRCOSCPage instance)
-    {
-        pageInstances[pageLookup] = instance;
-    }
-
-    public void Refresh(PageLookup flags)
-    {
-        if ((flags & PageLookup.Home) == PageLookup.Home && pageInstances.TryGetValue(PageLookup.Home, out var homePage))
-            homePage.Refresh();
-
-        if ((flags & PageLookup.Packages) == PageLookup.Packages && pageInstances.TryGetValue(PageLookup.Packages, out var packagePage))
-            packagePage.Refresh();
     }
 
     public void Initialise()
@@ -373,9 +357,10 @@ public class AppManager
 
     public async void ChangeProfile(Profile newProfile)
     {
-        if (ProfileManager.GetInstance().ActiveProfile.Value == newProfile) return;
+        var currentProfile = ProfileManager.GetInstance().ActiveProfile.Value;
+        if (currentProfile == newProfile) return;
 
-        Logger.Log($"Changing profile from {ProfileManager.GetInstance().ActiveProfile.Value.Name.Value} to {newProfile.Name.Value}");
+        Logger.Log($"Changing profile from {currentProfile.Name.Value} ({currentProfile.ID}) to {newProfile.Name.Value} ({newProfile.ID})");
 
         foreach (Window window in Application.Current.Windows)
         {
@@ -389,11 +374,8 @@ public class AppManager
             await StopAsync();
         }
 
-        ModuleManager.GetInstance().UnloadAllModules();
-
-        MainWindow.GetInstance().ChatBoxPage.SelectedClip = null;
-
         ChatBoxManager.GetInstance().Unload();
+        ModuleManager.GetInstance().UnloadAllModules();
 
         ProfileManager.GetInstance().ActiveProfile.Value = newProfile;
 
