@@ -8,9 +8,9 @@ using VRCOSC.App.Themes;
 
 // ReSharper disable UnusedMember.Global
 
-namespace VRCOSC.App.Pages.Settings;
+namespace VRCOSC.App.Pages.AppSettings;
 
-public partial class SettingsPage
+public partial class AppSettingsPage
 {
     public bool UseLegacyPorts
     {
@@ -50,7 +50,7 @@ public partial class SettingsPage
         set => SettingsManager.GetInstance().GetObservable(VRCOSCSetting.Theme).Value = value;
     }
 
-    public SettingsPage()
+    public AppSettingsPage()
     {
         InitializeComponent();
 

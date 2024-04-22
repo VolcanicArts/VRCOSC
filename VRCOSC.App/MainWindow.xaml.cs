@@ -16,12 +16,12 @@ using VRCOSC.App.ChatBox;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Packages;
 using VRCOSC.App.Pages;
+using VRCOSC.App.Pages.AppSettings;
 using VRCOSC.App.Pages.ChatBox;
 using VRCOSC.App.Pages.Modules;
 using VRCOSC.App.Pages.Packages;
 using VRCOSC.App.Pages.Profiles;
 using VRCOSC.App.Pages.Run;
-using VRCOSC.App.Pages.Settings;
 using VRCOSC.App.Profiles;
 using VRCOSC.App.SDK.OVR.Metadata;
 using VRCOSC.App.Settings;
@@ -39,7 +39,7 @@ public partial class MainWindow
     public readonly ChatBoxPage ChatBoxPage;
     public readonly RunPage RunPage;
     public readonly ProfilesPage ProfilesPage;
-    public readonly SettingsPage SettingsPage;
+    public readonly AppSettingsPage AppSettingsPage;
 
     private readonly Storage storage = AppManager.GetInstance().Storage;
 
@@ -65,7 +65,7 @@ public partial class MainWindow
         ChatBoxPage = new ChatBoxPage();
         RunPage = new RunPage();
         ProfilesPage = new ProfilesPage();
-        SettingsPage = new SettingsPage();
+        AppSettingsPage = new AppSettingsPage();
 
         setPageContents(PackagePage, PackagesButton);
 
@@ -243,14 +243,6 @@ public partial class MainWindow
         storyboard.Begin(grid);
     });
 
-    public ICommand HomeButtonClick => new RelayCommand(_ => setPageContents(HomePage, HomeButton));
-    public ICommand PackagesButtonClick => new RelayCommand(_ => setPageContents(PackagePage, PackagesButton));
-    public ICommand ModulesButtonClick => new RelayCommand(_ => setPageContents(ModulesPage, ModulesButton));
-    public ICommand ChatBoxButtonClick => new RelayCommand(_ => setPageContents(ChatBoxPage, ChatBoxButton));
-    public ICommand RunButtonClick => new RelayCommand(_ => setPageContents(RunPage, RunButton));
-    public ICommand ProfilesButtonClick => new RelayCommand(_ => setPageContents(ProfilesPage, ProfilesButton));
-    public ICommand SettingsButtonClick => new RelayCommand(_ => setPageContents(SettingsPage, SettingsButton));
-
     private void setPageContents(object page, Button button)
     {
         HomeButton.Background = Brushes.Transparent;
@@ -259,9 +251,44 @@ public partial class MainWindow
         ChatBoxButton.Background = Brushes.Transparent;
         RunButton.Background = Brushes.Transparent;
         ProfilesButton.Background = Brushes.Transparent;
-        SettingsButton.Background = Brushes.Transparent;
+        AppSettingsButton.Background = Brushes.Transparent;
 
         ContentFrame.Content = page;
         button.Background = (Brush)FindResource("CBackground2");
+    }
+
+    private void HomeButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        setPageContents(HomePage, HomeButton);
+    }
+
+    private void PackagesButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        setPageContents(PackagePage, PackagesButton);
+    }
+
+    private void ModulesButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        setPageContents(ModulesPage, ModulesButton);
+    }
+
+    private void ChatBoxButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        setPageContents(ChatBoxPage, ChatBoxButton);
+    }
+
+    private void RunButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        setPageContents(RunPage, RunButton);
+    }
+
+    private void ProfilesButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        setPageContents(ProfilesPage, ProfilesButton);
+    }
+
+    private void AppSettingsButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        setPageContents(AppSettingsPage, AppSettingsButton);
     }
 }

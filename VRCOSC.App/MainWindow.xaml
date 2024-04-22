@@ -51,27 +51,27 @@
                 <Border Grid.Column="0" Background="{StaticResource CBackground1}">
                     <Grid>
                         <StackPanel Orientation="Vertical" VerticalAlignment="Top">
-                            <Button Name="HomeButton" Command="{Binding HomeButtonClick}" Visibility="Collapsed">
+                            <Button Name="HomeButton" Click="HomeButton_OnClick" Visibility="Collapsed">
                                 <fa5:FontAwesome Icon="Solid_Home" />
                             </Button>
-                            <Button Name="PackagesButton" Command="{Binding PackagesButtonClick}">
+                            <Button Name="PackagesButton" Click="PackagesButton_OnClick">
                                 <fa5:FontAwesome Icon="Solid_Download" />
                             </Button>
-                            <Button Name="ModulesButton" Command="{Binding ModulesButtonClick}">
+                            <Button Name="ModulesButton" Click="ModulesButton_OnClick">
                                 <fa5:FontAwesome Icon="Solid_List" />
                             </Button>
-                            <Button Name="ChatBoxButton" Command="{Binding ChatBoxButtonClick}">
+                            <Button Name="ChatBoxButton" Click="ChatBoxButton_OnClick">
                                 <fa6:FontAwesome Icon="Solid_Message" />
                             </Button>
-                            <Button Name="RunButton" Command="{Binding RunButtonClick}">
+                            <Button Name="RunButton" Click="RunButton_OnClick">
                                 <fa5:FontAwesome Icon="Solid_Play" />
                             </Button>
                         </StackPanel>
                         <StackPanel Orientation="Vertical" VerticalAlignment="Bottom">
-                            <Button Name="ProfilesButton" Command="{Binding ProfilesButtonClick}">
+                            <Button Name="ProfilesButton" Click="ProfilesButton_OnClick">
                                 <fa5:FontAwesome Icon="Solid_User" />
                             </Button>
-                            <Button Name="SettingsButton" Command="{Binding SettingsButtonClick}">
+                            <Button Name="AppSettingsButton" Click="AppSettingsButton_OnClick">
                                 <fa5:FontAwesome Icon="Solid_Cog" />
                             </Button>
                         </StackPanel>
