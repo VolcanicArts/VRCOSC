@@ -1,16 +1,14 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Windows;
 using VRCOSC.App.OSC.VRChat;
-using VRCOSC.App.Pages.ChatBox;
 using VRCOSC.App.UI;
 
-namespace VRCOSC.App.Pages.Run;
+namespace VRCOSC.App.Pages.ChatBox;
 
-public partial class MiscView
+public partial class ChatBoxPreviewWindow
 {
-    public MiscView()
+    public ChatBoxPreviewWindow()
     {
         InitializeComponent();
 
@@ -51,9 +49,4 @@ public partial class MiscView
 
         ChatBoxText.Text = text;
     });
-
-    private void PopoutChatBox_OnClick(object sender, RoutedEventArgs e)
-    {
-        new ChatBoxPreviewWindow().Show();
-    }
 }

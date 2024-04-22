@@ -3,19 +3,16 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:ui="clr-namespace:VRCOSC.App.UI"
       mc:Ignorable="d">
     <Grid>
-        <Grid HorizontalAlignment="Center">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            <Border Padding="30 10" CornerRadius="15" Background="#27272c">
-                <TextBlock Name="ChatBoxText" FontSize="30" Foreground="{StaticResource CForeground1}"
-                           TextAlignment="Center" TextWrapping="Wrap" MaxWidth="435"/>
-            </Border>
-        </Grid>
+        <Border Name="ChatBoxContainer" Padding="30 10" CornerRadius="15" Background="#27272c" HorizontalAlignment="Center"
+                VerticalAlignment="Top" Visibility="Collapsed">
+            <TextBlock Name="ChatBoxText" FontSize="30" Foreground="{StaticResource CForeground1}"
+                       TextAlignment="Center" TextWrapping="Wrap" MaxWidth="435" />
+        </Border>
+        <ui:IconButton Icon="Solid_ExternalLinkAlt" Width="35" Height="35" HorizontalAlignment="Right"
+                       ButtonColour="Gray"
+                       VerticalAlignment="Top" Margin="10" Click="PopoutChatBox_OnClick"/>
     </Grid>
 </Page>

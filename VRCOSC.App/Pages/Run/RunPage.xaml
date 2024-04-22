@@ -61,7 +61,7 @@
                                                     Orientation="Horizontal">
                                             <ui:VRCOSCButton Click="AvatarOSCViewButton_Click">
                                                 <Border Height="30" Width="160">
-                                                    <TextBlock Text="Avatar OSC" TextAlignment="Center"
+                                                    <TextBlock Text="Avatar" TextAlignment="Center"
                                                                VerticalAlignment="Center"
                                                                Foreground="{StaticResource CForeground1}" FontSize="16"
                                                                FontWeight="Bold" />
@@ -69,7 +69,7 @@
                                             </ui:VRCOSCButton>
                                             <ui:VRCOSCButton Click="MiscOSCViewButton_Click">
                                                 <Border Height="30" Width="160">
-                                                    <TextBlock Text="Misc OSC" TextAlignment="Center"
+                                                    <TextBlock Text="ChatBox" TextAlignment="Center"
                                                                VerticalAlignment="Center"
                                                                Foreground="{StaticResource CForeground1}" FontSize="16"
                                                                FontWeight="Bold" />
