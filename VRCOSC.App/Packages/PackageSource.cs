@@ -9,7 +9,6 @@ using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Input;
 using System.Windows.Media;
 using Newtonsoft.Json;
 using Octokit;
@@ -260,27 +259,6 @@ public class PackageSource
     public Visibility UIInstallVisible => !IsInstalled() && IsAvailable() && !IsIncompatible() ? Visibility.Visible : Visibility.Collapsed;
     public Visibility UIUnInstallVisible => IsInstalled() ? Visibility.Visible : Visibility.Collapsed;
     public Visibility UIUpgradeVisible => IsUpdateAvailable() && IsAvailable() && !IsIncompatible() ? Visibility.Visible : Visibility.Collapsed;
-
-    public ICommand UIInstallButton => new RelayCommand(_ => OnInstallButtonClick());
-    public ICommand UIUnInstallButton => new RelayCommand(_ => OnUnInstallButtonClick());
-
-    private void OnInstallButtonClick()
-    {
-        var action = packageManager.InstallPackage(this);
-        action.OnComplete += () => MainWindow.GetInstance().PackagePage.Refresh();
-        _ = MainWindow.GetInstance().ShowLoadingOverlay($"Installing {DisplayName}", action);
-    }
-
-    private void OnUnInstallButtonClick()
-    {
-        var result = MessageBox.Show("Are you sure you want to uninstall this package?\nUninstalling will remove all saved module data, and all ChatBox data containing modules provided by this package.", "Uninstall Warning", MessageBoxButton.YesNo);
-
-        if (result != MessageBoxResult.Yes) return;
-
-        var action = packageManager.UninstallPackage(this);
-        action.OnComplete += () => MainWindow.GetInstance().PackagePage.Refresh();
-        _ = MainWindow.GetInstance().ShowLoadingOverlay($"Uninstalling {DisplayName}", action);
-    }
 
     #endregion
 }

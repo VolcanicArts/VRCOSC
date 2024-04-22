@@ -4,11 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Windows;
-using System.Windows.Input;
 using VRCOSC.App.Actions;
 using VRCOSC.App.Actions.Packages;
 using VRCOSC.App.Modules;
@@ -19,7 +15,7 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Packages;
 
-public class PackageManager : INotifyPropertyChanged
+public class PackageManager
 {
     private static PackageManager? instance;
     internal static PackageManager GetInstance() => instance ??= new PackageManager();
@@ -96,7 +92,6 @@ public class PackageManager : INotifyPropertyChanged
         {
             InstalledPackages[packageSource.PackageID!] = packageSource.LatestVersion!;
             serialisationManager.Serialise();
-            OnPropertyChanged(nameof(UpdateAllButtonVisibility));
             ModuleManager.GetInstance().ReloadAllModules();
             MainWindow.GetInstance().PackagePage.Refresh();
         };
@@ -112,7 +107,6 @@ public class PackageManager : INotifyPropertyChanged
         {
             InstalledPackages.Remove(packageSource.PackageID!);
             serialisationManager.Serialise();
-            OnPropertyChanged(nameof(UpdateAllButtonVisibility));
             ModuleManager.GetInstance().ReloadAllModules();
             MainWindow.GetInstance().PackagePage.Refresh();
         };
@@ -145,49 +139,4 @@ public class PackageManager : INotifyPropertyChanged
 
         return findCommunityPackages;
     }
-
-    #region UI
-
-    private double packageScrollViewerHeight = double.NaN;
-
-    public double PackageScrollViewerHeight
-    {
-        get => packageScrollViewerHeight;
-        set
-        {
-            packageScrollViewerHeight = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Visibility UpdateAllButtonVisibility => Sources.Any(packageSource => packageSource.IsUpdateAvailable()) ? Visibility.Visible : Visibility.Collapsed;
-
-    public ICommand UIRefreshButton => new RelayCommand(_ => OnRefreshButtonClick());
-    public ICommand UIUpdateAllButton => new RelayCommand(_ => OnUpdateAllButtonClick());
-
-    private void OnRefreshButtonClick()
-    {
-        _ = MainWindow.GetInstance().ShowLoadingOverlay("Refreshing All Packages", RefreshAllSources(true));
-    }
-
-    private void OnUpdateAllButtonClick()
-    {
-        var updateAllPackagesAction = new UpdateAllPackagesAction();
-
-        foreach (var packageSource in Sources.Where(packageSource => packageSource.IsUpdateAvailable()))
-        {
-            updateAllPackagesAction.AddAction(InstallPackage(packageSource));
-        }
-
-        _ = MainWindow.GetInstance().ShowLoadingOverlay("Updating All Packages", updateAllPackagesAction);
-    }
-
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-
-    #endregion
 }

@@ -63,17 +63,17 @@
                             </Grid>
                         </Grid>
                     </Border>
-                    <ui:IconButton Width="36" ButtonColour="Blue" Command="{Binding Path=UIRefreshButton}">
+                    <ui:VRCOSCButton Width="36" ButtonColour="Blue" Click="RefreshButton_OnClick">
                         <fa6:ImageAwesome Icon="Solid_Rotate"
                                           PrimaryColor="{StaticResource CForeground1}"
                                           Margin="6" />
-                    </ui:IconButton>
-                    <ui:IconButton Width="36" ButtonColour="Blue" Command="{Binding Path=UIUpdateAllButton}"
-                                   Visibility="{Binding UpdateAllButtonVisibility, Mode=OneWay}">
+                    </ui:VRCOSCButton>
+                    <ui:VRCOSCButton Width="36" ButtonColour="Blue" Click="UpdateAllButton_OnClick"
+                                     Visibility="{Binding UpdateAllButtonVisibility, Mode=OneWay}">
                         <fa6:ImageAwesome Icon="Regular_CircleDown"
                                           PrimaryColor="{StaticResource CForeground1}"
                                           Margin="5" />
-                    </ui:IconButton>
+                    </ui:VRCOSCButton>
                 </ui:SpacedStackPanel>
                 <Border Name="GridContainer" Background="Transparent" HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch" Grid.Row="2">
@@ -163,25 +163,34 @@
                                                                 Orientation="Horizontal" VerticalAlignment="Center"
                                                                 HorizontalAlignment="Center">
                                                                 <ui:VRCOSCButton ButtonColour="Blue"
-                                                                    Command="{Binding UIInstallButton}"
+                                                                    Click="InstallButton_OnClick"
                                                                     Visibility="{Binding UIUpgradeVisible}" Width="30"
                                                                     Height="30">
+                                                                    <ui:VRCOSCButton.Tag>
+                                                                        <Binding />
+                                                                    </ui:VRCOSCButton.Tag>
                                                                     <fa6:ImageAwesome Icon="Regular_CircleDown"
                                                                         PrimaryColor="{StaticResource CForeground1}"
                                                                         Margin="3 4 3 3" />
                                                                 </ui:VRCOSCButton>
                                                                 <ui:VRCOSCButton ButtonColour="Green"
-                                                                    Command="{Binding UIInstallButton}"
+                                                                    Click="InstallButton_OnClick"
                                                                     Visibility="{Binding UIInstallVisible}" Width="30"
                                                                     Height="30">
+                                                                    <ui:VRCOSCButton.Tag>
+                                                                        <Binding />
+                                                                    </ui:VRCOSCButton.Tag>
                                                                     <fa5:ImageAwesome Icon="Solid_Plus"
                                                                         Foreground="{StaticResource CForeground1}"
                                                                         Margin="5" />
                                                                 </ui:VRCOSCButton>
                                                                 <ui:VRCOSCButton ButtonColour="Red"
-                                                                    Command="{Binding UIUnInstallButton}"
+                                                                    Click="UninstallButton_OnClick"
                                                                     Visibility="{Binding UIUnInstallVisible}"
                                                                     Width="30" Height="30">
+                                                                    <ui:VRCOSCButton.Tag>
+                                                                        <Binding />
+                                                                    </ui:VRCOSCButton.Tag>
                                                                     <fa5:ImageAwesome Icon="Solid_Minus"
                                                                         Foreground="{StaticResource CForeground1}"
                                                                         Margin="5" />
