@@ -44,36 +44,27 @@
                             <ColumnDefinition Width="5" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <ui:VRCOSCButton
+                        <ui:IconButton
                             Grid.Row="0"
                             Grid.Column="0"
                             ButtonColour="Blue"
+                            Icon="Solid_Download"
                             Click="ImportButton_OnClick">
-                            <fa5:ImageAwesome
-                                Icon="Solid_Download"
-                                Foreground="White"
-                                Margin="5" />
-                        </ui:VRCOSCButton>
-                        <ui:VRCOSCButton
+                        </ui:IconButton>
+                        <ui:IconButton
                             Grid.Row="0"
                             Grid.Column="2"
                             ButtonColour="Blue"
+                            Icon="Solid_Upload"
                             Click="ExportButton_OnClick">
-                            <fa5:ImageAwesome
-                                Icon="Solid_Upload"
-                                Foreground="White"
-                                Margin="5" />
-                        </ui:VRCOSCButton>
-                        <ui:VRCOSCButton
+                        </ui:IconButton>
+                        <ui:IconButton
                             Grid.Row="2"
                             Grid.Column="0"
                             ButtonColour="Red"
+                            Icon="Solid_TrashAlt"
                             Click="ClearButton_OnClick">
-                            <fa5:ImageAwesome
-                                Icon="Solid_TrashAlt"
-                                Foreground="White"
-                                Margin="5" />
-                        </ui:VRCOSCButton>
+                        </ui:IconButton>
                     </Grid>
                 </Border>
             </Border>

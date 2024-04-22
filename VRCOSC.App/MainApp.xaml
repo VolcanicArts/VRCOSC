@@ -9,15 +9,45 @@
             <Style TargetType="Control">
                 <Setter Property="FontFamily" Value="Noto Sans" />
             </Style>
-            <Style TargetType="ui:VRCOSCButton" x:Key="VRCOSCButtonStyle">
+            <Style TargetType="ui:VRCOSCButton">
                 <Setter Property="OverridesDefaultStyle" Value="True" />
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="ui:VRCOSCButton">
                             <Border Name="border"
                                     Background="{Binding ButtonBackgroundNormal, RelativeSource={RelativeSource TemplatedParent}}"
-                                    CornerRadius="{Binding CornerRadius, RelativeSource={RelativeSource TemplatedParent}}">
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="{TemplateBinding CornerRadius}">
                                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="border" Property="BorderThickness" Value="0" />
+                                    <Setter TargetName="border" Property="Background"
+                                            Value="{Binding ButtonBackgroundLight, RelativeSource={RelativeSource TemplatedParent}}" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <Style TargetType="ui:IconButton">
+                <Setter Property="OverridesDefaultStyle" Value="True" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ui:IconButton">
+                            <Border Name="border"
+                                    Background="{Binding ButtonBackgroundNormal, RelativeSource={RelativeSource TemplatedParent}}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="{TemplateBinding CornerRadius}">
+                                <fa5:ImageAwesome
+                                    Icon="{TemplateBinding Icon}"
+                                    Foreground="{StaticResource CForeground1}"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Margin="{TemplateBinding IconMargin}" />
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">

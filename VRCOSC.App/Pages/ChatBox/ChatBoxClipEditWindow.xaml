@@ -230,9 +230,10 @@
                                                                                                                 <ColumnDefinition
                                                                                                                     Width="Auto" />
                                                                                                             </Grid.ColumnDefinitions>
-                                                                                                            <ui:VRCOSCButton
+                                                                                                            <ui:IconButton
                                                                                                                 Grid.Column="0"
                                                                                                                 ButtonColour="Gray"
+                                                                                                                Icon="Solid_Cog"
                                                                                                                 Click="VariableSettingButton_OnClick"
                                                                                                                 Width="22"
                                                                                                                 Height="22"
@@ -240,14 +241,11 @@
                                                                                                                 <ui:VRCOSCButton.Tag>
                                                                                                                     <Binding />
                                                                                                                 </ui:VRCOSCButton.Tag>
-                                                                                                                <fa5:ImageAwesome
-                                                                                                                    Icon="Solid_Cog"
-                                                                                                                    Foreground="White"
-                                                                                                                    Margin="3" />
-                                                                                                            </ui:VRCOSCButton>
-                                                                                                            <ui:VRCOSCButton
+                                                                                                            </ui:IconButton>
+                                                                                                            <ui:IconButton
                                                                                                                 Grid.Column="1"
                                                                                                                 ButtonColour="Red"
+                                                                                                                Icon="Solid_Minus"
                                                                                                                 Click="VariableRemoveButton_OnClick"
                                                                                                                 Width="22"
                                                                                                                 Height="22"
@@ -255,11 +253,7 @@
                                                                                                                 <ui:VRCOSCButton.Tag>
                                                                                                                     <Binding />
                                                                                                                 </ui:VRCOSCButton.Tag>
-                                                                                                                <fa5:ImageAwesome
-                                                                                                                    Icon="Solid_Minus"
-                                                                                                                    Foreground="White"
-                                                                                                                    Margin="3" />
-                                                                                                            </ui:VRCOSCButton>
+                                                                                                            </ui:IconButton>
                                                                                                         </Grid>
                                                                                                     </Grid>
                                                                                                 </Border>
@@ -493,9 +487,10 @@
                                                                                                                 <ColumnDefinition
                                                                                                                     Width="Auto" />
                                                                                                             </Grid.ColumnDefinitions>
-                                                                                                            <ui:VRCOSCButton
+                                                                                                            <ui:IconButton
                                                                                                                 Grid.Column="0"
                                                                                                                 ButtonColour="Gray"
+                                                                                                                Icon="Solid_Cog"
                                                                                                                 Click="VariableSettingButton_OnClick"
                                                                                                                 Width="22"
                                                                                                                 Height="22"
@@ -503,14 +498,11 @@
                                                                                                                 <ui:VRCOSCButton.Tag>
                                                                                                                     <Binding />
                                                                                                                 </ui:VRCOSCButton.Tag>
-                                                                                                                <fa5:ImageAwesome
-                                                                                                                    Icon="Solid_Cog"
-                                                                                                                    Foreground="White"
-                                                                                                                    Margin="3" />
-                                                                                                            </ui:VRCOSCButton>
-                                                                                                            <ui:VRCOSCButton
+                                                                                                            </ui:IconButton>
+                                                                                                            <ui:IconButton
                                                                                                                 Grid.Column="1"
                                                                                                                 ButtonColour="Red"
+                                                                                                                Icon="Solid_Minus"
                                                                                                                 Click="VariableRemoveButton_OnClick"
                                                                                                                 Width="22"
                                                                                                                 Height="22"
@@ -518,11 +510,7 @@
                                                                                                                 <ui:VRCOSCButton.Tag>
                                                                                                                     <Binding />
                                                                                                                 </ui:VRCOSCButton.Tag>
-                                                                                                                <fa5:ImageAwesome
-                                                                                                                    Icon="Solid_Minus"
-                                                                                                                    Foreground="White"
-                                                                                                                    Margin="3" />
-                                                                                                            </ui:VRCOSCButton>
+                                                                                                            </ui:IconButton>
                                                                                                         </Grid>
                                                                                                     </Grid>
                                                                                                 </Border>

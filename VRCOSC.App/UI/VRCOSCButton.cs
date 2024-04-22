@@ -24,14 +24,14 @@ public class VRCOSCButton : Button
     public static readonly DependencyProperty CornerRadiusProperty =
         DependencyProperty.Register(nameof(CornerRadius), typeof(CornerRadius), typeof(VRCOSCButton), new PropertyMetadata(new CornerRadius(5)));
 
-    public static readonly DependencyProperty ButtonColourProperty =
-        DependencyProperty.Register(nameof(ButtonColour), typeof(ButtonColour), typeof(VRCOSCButton), new PropertyMetadata(ButtonColour.None));
-
     public CornerRadius CornerRadius
     {
         get => (CornerRadius)GetValue(CornerRadiusProperty);
         set => SetValue(CornerRadiusProperty, value);
     }
+
+    public static readonly DependencyProperty ButtonColourProperty =
+        DependencyProperty.Register(nameof(ButtonColour), typeof(ButtonColour), typeof(VRCOSCButton), new PropertyMetadata(ButtonColour.None));
 
     public ButtonColour ButtonColour
     {
@@ -42,14 +42,8 @@ public class VRCOSCButton : Button
     public object ButtonBackgroundNormal => buttonColourToBrush(false);
     public object ButtonBackgroundLight => buttonColourToBrush(true);
 
-    static VRCOSCButton()
-    {
-        DefaultStyleKeyProperty.OverrideMetadata(typeof(VRCOSCButton), new FrameworkPropertyMetadata(typeof(VRCOSCButton)));
-    }
-
     public VRCOSCButton()
     {
-        Style = (Style)FindResource("VRCOSCButtonStyle");
         IsEnabledChanged += OnIsEnabledChanged;
     }
 

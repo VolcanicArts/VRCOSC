@@ -63,17 +63,17 @@
                             </Grid>
                         </Grid>
                     </Border>
-                    <ui:VRCOSCButton Width="36" ButtonColour="Blue" Command="{Binding Path=UIRefreshButton}">
+                    <ui:IconButton Width="36" ButtonColour="Blue" Command="{Binding Path=UIRefreshButton}">
                         <fa6:ImageAwesome Icon="Solid_Rotate"
                                           PrimaryColor="{StaticResource CForeground1}"
                                           Margin="6" />
-                    </ui:VRCOSCButton>
-                    <ui:VRCOSCButton Width="36" ButtonColour="Blue" Command="{Binding Path=UIUpdateAllButton}"
-                                     Visibility="{Binding UpdateAllButtonVisibility, Mode=OneWay}">
+                    </ui:IconButton>
+                    <ui:IconButton Width="36" ButtonColour="Blue" Command="{Binding Path=UIUpdateAllButton}"
+                                   Visibility="{Binding UpdateAllButtonVisibility, Mode=OneWay}">
                         <fa6:ImageAwesome Icon="Regular_CircleDown"
                                           PrimaryColor="{StaticResource CForeground1}"
                                           Margin="5" />
-                    </ui:VRCOSCButton>
+                    </ui:IconButton>
                 </ui:SpacedStackPanel>
                 <Border Name="GridContainer" Background="Transparent" HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch" Grid.Row="2">

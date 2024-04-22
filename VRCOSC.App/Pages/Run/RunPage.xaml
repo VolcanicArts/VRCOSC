@@ -93,23 +93,20 @@
                             VerticalAlignment="Stretch" Padding="10" CornerRadius="5">
                         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                             <ui:SpacedStackPanel FlowDirection="LeftToRight" Orientation="Horizontal" Spacing="10">
-                                <ui:VRCOSCButton x:Name="StartButton" Width="120" VerticalAlignment="Stretch"
-                                                 CornerRadius="5" ButtonColour="Green" Click="PlayButtonOnClick">
-                                    <fa5:ImageAwesome Icon="Solid_Play" Foreground="{StaticResource CForeground1}"
-                                                      Margin="5" />
-                                </ui:VRCOSCButton>
+                                <ui:IconButton x:Name="StartButton" Width="120" VerticalAlignment="Stretch"
+                                                 CornerRadius="5" ButtonColour="Green" Click="PlayButtonOnClick"
+                                                 Icon="Solid_Play">
+                                </ui:IconButton>
                             </ui:SpacedStackPanel>
                             <ui:SpacedStackPanel FlowDirection="RightToLeft" Orientation="Horizontal" Spacing="10">
-                                <ui:VRCOSCButton x:Name="StopButton" Width="120" VerticalAlignment="Stretch"
-                                                 CornerRadius="5" ButtonColour="Red" Click="StopButtonOnClick">
-                                    <fa5:ImageAwesome Icon="Solid_Stop" Foreground="{StaticResource CForeground1}"
-                                                      Margin="5" />
-                                </ui:VRCOSCButton>
-                                <ui:VRCOSCButton x:Name="RestartButton" Width="120" VerticalAlignment="Stretch"
-                                                 CornerRadius="5" ButtonColour="Blue" Click="RestartButtonOnClick">
-                                    <fa5:ImageAwesome Icon="Solid_Redo" Foreground="{StaticResource CForeground1}"
-                                                      Margin="5" />
-                                </ui:VRCOSCButton>
+                                <ui:IconButton x:Name="StopButton" Width="120" VerticalAlignment="Stretch"
+                                               CornerRadius="5" ButtonColour="Red" Click="StopButtonOnClick"
+                                               Icon="Solid_Stop">
+                                </ui:IconButton>
+                                <ui:IconButton x:Name="RestartButton" Width="120" VerticalAlignment="Stretch"
+                                               CornerRadius="5" ButtonColour="Blue" Click="RestartButtonOnClick"
+                                               Icon="Solid_Redo">
+                                </ui:IconButton>
                             </ui:SpacedStackPanel>
                         </Grid>
                     </Border>
