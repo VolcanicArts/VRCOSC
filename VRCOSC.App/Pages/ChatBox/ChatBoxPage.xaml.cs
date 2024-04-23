@@ -4,6 +4,7 @@
 using System;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -259,7 +260,13 @@ public partial class ChatBoxPage
                 var (lowerBound, _) = clipLayer.GetBoundsNearestTo(draggingClip.Start.Value, false);
                 var (_, upperBound) = clipLayer.GetBoundsNearestTo(draggingClip.End.Value, true);
 
-                if (newStart >= lowerBound && newEnd <= upperBound)
+                var noneIntersect = clipLayer.Clips.Where(clip => clip != draggingClip).All(clip => !clip.Intersects(new Clip
+                {
+                    Start = { Value = newStart },
+                    End = { Value = newEnd }
+                }));
+
+                if ((newStart >= lowerBound && newEnd <= upperBound) || (noneIntersect && newStart >= 0 && newEnd <= ChatBoxManager.GetInstance().Timeline.LengthSeconds))
                 {
                     draggingClip.Start.Value = newStart;
                     draggingClip.End.Value = newEnd;
