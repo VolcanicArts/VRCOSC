@@ -14,7 +14,8 @@
     <Window.Resources>
         <ui:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <local:TextBoxParsingConverter x:Key="TextBoxParsingConverter" />
-        <ui:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}" Colour2="{StaticResource CBackground2}"/>
+        <ui:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
+                                       Colour2="{StaticResource CBackground2}" />
     </Window.Resources>
     <Grid>
         <Border Padding="10" Background="{StaticResource CBackground2}">
@@ -60,12 +61,12 @@
                                                                        HorizontalAlignment="Left"
                                                                        Padding="5" />
                                                             <ui:VRCOSCCheckBox Name="IsLinkedCheckBox" Grid.Column="1"
-                                                                      Width="25" Height="25"
-                                                                      Margin="2.5"
-                                                                      HorizontalAlignment="Right"
-                                                                      VerticalAlignment="Center"
-                                                                      Checked="ModuleSelectionCheckBox_Checked"
-                                                                      Unchecked="ModuleSelectionCheckBox_UnChecked">
+                                                                               Width="25" Height="25"
+                                                                               Margin="2.5"
+                                                                               HorizontalAlignment="Right"
+                                                                               VerticalAlignment="Center"
+                                                                               Checked="ModuleSelectionCheckBox_Checked"
+                                                                               Unchecked="ModuleSelectionCheckBox_UnChecked">
                                                                 <CheckBox.Tag>
                                                                     <Binding />
                                                                 </CheckBox.Tag>
@@ -95,7 +96,7 @@
                             <ui:SpacedStackPanel Orientation="Vertical" Spacing="7">
                                 <TextBlock Text="States" FontWeight="Bold" FontSize="30"
                                            Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center"
-                                           Visibility="{Binding HasStates, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                           Visibility="{Binding HasStates, Converter={StaticResource BoolToVisibilityConverter}}" />
                                 <ListView ItemsSource="{Binding UIStates}"
                                           HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                           Background="Transparent"
@@ -128,7 +129,6 @@
                                                                                HorizontalAlignment="Left" />
                                                                 </ui:SpacedStackPanel>
                                                                 <TextBox
-                                                                    x:Name="FormatTextBox"
                                                                     Text="{Binding Format.Value, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TextBoxParsingConverter}}"
                                                                     Foreground="{StaticResource CForeground1}"
                                                                     FontSize="16"
@@ -138,6 +138,7 @@
                                                                     HorizontalAlignment="Stretch"
                                                                     Background="{StaticResource CBackground4}"
                                                                     BorderBrush="Transparent"
+                                                                    SizeChanged="FormatTextBox_SizeChanged"
                                                                     PreviewKeyDown="TextBox_PreviewKeyDown"
                                                                     DataObject.Pasting="TextBox_Pasting">
                                                                     <TextBox.Template>
@@ -298,7 +299,7 @@
                                 </ListView>
                                 <TextBlock Text="Events" FontWeight="Bold" FontSize="30"
                                            Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center"
-                                           Visibility="{Binding HasEvents, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                           Visibility="{Binding HasEvents, Converter={StaticResource BoolToVisibilityConverter}}" />
                                 <ListView ItemsSource="{Binding UIEvents}"
                                           HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                           Background="Transparent"
@@ -331,7 +332,6 @@
                                                                                HorizontalAlignment="Left" />
                                                                 </ui:SpacedStackPanel>
                                                                 <TextBox
-                                                                    x:Name="FormatTextBox"
                                                                     Text="{Binding Format.Value, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TextBoxParsingConverter}}"
                                                                     Foreground="{StaticResource CForeground1}"
                                                                     FontSize="16"
@@ -341,6 +341,7 @@
                                                                     HorizontalAlignment="Stretch"
                                                                     Background="{StaticResource CBackground4}"
                                                                     BorderBrush="Transparent"
+                                                                    SizeChanged="FormatTextBox_SizeChanged"
                                                                     PreviewKeyDown="TextBox_PreviewKeyDown"
                                                                     DataObject.Pasting="TextBox_Pasting">
                                                                     <TextBox.Template>
@@ -558,8 +559,9 @@
                                            Text="Show Relevant Elements Only" FontSize="15" Padding="5"
                                            Foreground="{StaticResource CForeground1}" />
                                 <ui:VRCOSCCheckBox Grid.Column="2" x:Name="ShowRelevantModulesCheckBox"
-                                          IsChecked="{Binding ShowRelevantModules}"
-                                          Width="25" Height="25" HorizontalAlignment="Right" Margin="0 0 2.5 0" />
+                                                   IsChecked="{Binding ShowRelevantModules}"
+                                                   Width="25" Height="25" HorizontalAlignment="Right"
+                                                   Margin="0 0 2.5 0" />
                             </Grid>
                         </Border>
                     </Border>

@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -275,6 +275,15 @@ public partial class ChatBoxClipEditWindow
         {
             e.Effects = DragDropEffects.None;
         }
+    }
+
+    private void FormatTextBox_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        var textBox = (TextBox)sender;
+
+        // I hate this, but it forces horizontal text position to be recalculated
+        textBox.TextAlignment = TextAlignment.Left;
+        textBox.TextAlignment = TextAlignment.Center;
     }
 }
 
