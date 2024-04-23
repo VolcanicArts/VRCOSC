@@ -41,7 +41,8 @@ public static class OVRHelper
         {
             m_nSize = compositor_frametiming_size
         };
-        OpenVR.Compositor.GetFrameTiming(ref frameTiming, 60);
+
+        OpenVR.Compositor.GetFrameTiming(ref frameTiming, 0);
         return frameTiming.m_flTotalRenderGpuMs;
     }
 
