@@ -57,13 +57,13 @@ internal class VRChatLogReader
     {
         lock (process_lock)
         {
-            line_buffer.Clear();
-
             readLinesFromFile();
             if (!line_buffer.Any()) return;
 
             checkWorldExit();
             checkWorldEnter();
+
+            line_buffer.Clear();
         }
     }
 
@@ -87,10 +87,15 @@ internal class VRChatLogReader
 
             streamReader.BaseStream.Seek(byteOffset, SeekOrigin.Begin);
 
-            while (streamReader.ReadLine() is { } line)
+            var linesRead = 0;
+
+            while (linesRead < 100 && streamReader.ReadLine() is { } line)
             {
-                line_buffer.Add(line);
+                if (!string.IsNullOrWhiteSpace(line))
+                    line_buffer.Add(line);
+
                 byteOffset += Encoding.UTF8.GetBytes(line).Length;
+                linesRead++;
             }
         }
         catch (Exception e)
