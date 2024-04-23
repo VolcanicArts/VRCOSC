@@ -75,7 +75,7 @@
                                                                FontWeight="Bold" />
                                                 </Border>
                                             </ui:VRCOSCButton>
-                                            <ui:VRCOSCButton Click="ModuleViewButton_Click">
+                                            <ui:VRCOSCButton Click="ModuleViewButton_Click" Visibility="Collapsed">
                                                 <Border Height="30" Width="160">
                                                     <TextBlock Text="Runtime Settings" TextAlignment="Center"
                                                                VerticalAlignment="Center"
