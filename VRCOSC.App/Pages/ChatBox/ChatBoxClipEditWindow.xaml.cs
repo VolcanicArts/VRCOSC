@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -158,6 +158,22 @@ public partial class ChatBoxClipEditWindow
         textBox.SelectionLength = 0;
 
         e.CancelCommand();
+
+        textBox.Text = trimLinesToMax(textBox.Text);
+    }
+
+    private string trimLinesToMax(string text)
+    {
+        var lines = text.Split(["\r\n", "\r", "\n"], StringSplitOptions.None);
+
+        var trimmedLines = lines.Take(max_lines);
+
+        if (trimmedLines.Count() == max_lines && trimmedLines.Last().EndsWith("\n"))
+        {
+            trimmedLines = trimmedLines.Take(max_lines - 1).Concat(new[] { trimmedLines.Last().TrimEnd('\n') });
+        }
+
+        return string.Join("\n", trimmedLines);
     }
 
     private void VariableSettingButton_OnClick(object sender, RoutedEventArgs e)
