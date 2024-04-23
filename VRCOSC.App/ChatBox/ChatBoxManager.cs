@@ -58,7 +58,7 @@ public class ChatBoxManager : INotifyPropertyChanged
     private readonly SerialisationManager validationSerialisationManager;
     private readonly ChatBoxValidationSerialiser chatBoxValidationSerialiser;
 
-    public Observable<bool> IsLoaded = new();
+    public Observable<bool> IsLoaded { get; } = new();
 
     private ChatBoxManager()
     {
@@ -124,25 +124,28 @@ public class ChatBoxManager : INotifyPropertyChanged
         serialisationManager.Serialise();
     }
 
-    public void Deserialise(string filePathOverride = "")
+    public void Deserialise(string filePathOverride = "", bool bypassValidation = false)
     {
         Timeline.Clips.Clear();
 
         chatBoxValidationSerialiser.Reset();
-        var validationDeserialisationSuccess = validationSerialisationManager.Deserialise();
 
-        if (validationDeserialisationSuccess != DeserialisationResult.Success)
+        if (!bypassValidation)
         {
-            Logger.Log($"ChatBox validation deserialisation ended in {validationDeserialisationSuccess}");
-            return;
-        }
+            var validationDeserialisationSuccess = validationSerialisationManager.Deserialise();
 
-        if (!chatBoxValidationSerialiser.IsValid)
-        {
-            // TODO: This needs to be replaced with an overlay
-            Logger.Log("ChatBox could not validate all data");
-            ExceptionHandler.Handle("ChatBox could not load all data.\nThis is usually the fault of a module not loading correctly or a missing config.\nPlease make sure all your modules are up-to-date and have correct configs.");
-            return;
+            if (validationDeserialisationSuccess != DeserialisationResult.Success)
+            {
+                Logger.Log($"ChatBox validation deserialisation ended in {validationDeserialisationSuccess}");
+                return;
+            }
+
+            if (!chatBoxValidationSerialiser.IsValid)
+            {
+                Logger.Log("ChatBox could not validate all data");
+                ExceptionHandler.Handle("ChatBox could not load all data.\nThis is usually the fault of a module not loading correctly or a missing config.\nPlease make sure all your modules are up-to-date and have correct configs.");
+                return;
+            }
         }
 
         var deserialisationSuccess = serialisationManager.Deserialise(string.IsNullOrEmpty(filePathOverride), filePathOverride);
@@ -153,10 +156,11 @@ public class ChatBoxManager : INotifyPropertyChanged
             return;
         }
 
-        if (!string.IsNullOrEmpty(filePathOverride)) Serialise();
-
         for (var i = 0; i < Timeline.LayerCount; i++) Timeline.GenerateDroppableAreas(i);
+
         IsLoaded.Value = true;
+
+        if (!string.IsNullOrEmpty(filePathOverride) || bypassValidation) Serialise();
     }
 
     public void Start()

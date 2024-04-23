@@ -505,6 +505,11 @@ public partial class ChatBoxPage
 
         draggingClip = null;
     }
+
+    private void IgnoreErrors_ButtonClick(object sender, RoutedEventArgs e)
+    {
+        ChatBoxManager.GetInstance().Deserialise(string.Empty, true);
+    }
 }
 
 public enum ClipDragPoint
