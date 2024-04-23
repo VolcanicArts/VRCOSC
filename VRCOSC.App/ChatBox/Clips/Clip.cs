@@ -16,6 +16,8 @@ namespace VRCOSC.App.ChatBox.Clips;
 
 public class Clip : INotifyPropertyChanged
 {
+    public bool SubscriptionComplete;
+
     public Observable<bool> Enabled { get; } = new(true);
     public Observable<string> Name { get; } = new("New Clip");
 

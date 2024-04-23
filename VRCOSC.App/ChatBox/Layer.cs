@@ -47,6 +47,8 @@ public class Layer : INotifyPropertyChanged
         {
             foreach (Clip newClip in e.NewItems)
             {
+                if (newClip.SubscriptionComplete) continue;
+
                 newClip.Enabled.Subscribe(_ => ChatBoxManager.GetInstance().Serialise());
 
                 newClip.Name.Subscribe(_ => ChatBoxManager.GetInstance().Serialise());
@@ -62,6 +64,8 @@ public class Layer : INotifyPropertyChanged
                     OnPropertyChanged(nameof(DroppableAreas));
                     ChatBoxManager.GetInstance().Serialise();
                 });
+
+                newClip.SubscriptionComplete = true;
             }
         }
 
