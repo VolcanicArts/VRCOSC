@@ -139,6 +139,8 @@ public partial class ChatBoxClipEditWindow
 
         var pastedText = e.DataObject.GetData(DataFormats.UnicodeText) as string ?? string.Empty;
 
+        pastedText = pastedText.Replace(Environment.NewLine, "\n");
+
         var newlineCount = pastedText.Split(["\n"], StringSplitOptions.None).Length - 1;
         var currentLineCount = textBox.LineCount;
 
