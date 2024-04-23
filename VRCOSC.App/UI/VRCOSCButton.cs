@@ -57,7 +57,7 @@ public class VRCOSCButton : Button
         ButtonColour.Green => isLight ? (Brush)FindResource("CGreenL") : (Brush)FindResource("CGreen"),
         ButtonColour.Blue => isLight ? (Brush)FindResource("CBlueL") : (Brush)FindResource("CBlue"),
         ButtonColour.Red => isLight ? (Brush)FindResource("CRedL") : (Brush)FindResource("CRed"),
-        ButtonColour.Gray => isLight ? (Brush)FindResource("CGrayL") : (Brush)FindResource("CGray"),
+        ButtonColour.Gray => isLight ? (Brush)FindResource("CBackground8") : (Brush)FindResource("CBackground6"),
         ButtonColour.None => Brushes.Transparent,
         _ => throw new ArgumentOutOfRangeException(nameof(ButtonColour), ButtonColour, null)
     };

@@ -113,7 +113,7 @@
                                                                                         Visibility="Collapsed">
                                                                                         <fa5:ImageAwesome
                                                                                             Icon="Solid_Info"
-                                                                                            Foreground="White"
+                                                                                            Foreground="{StaticResource CForeground1}"
                                                                                             Margin="5" />
                                                                                     </ui:VRCOSCButton>
                                                                                     <ui:VRCOSCButton
@@ -125,7 +125,7 @@
                                                                                         </ui:VRCOSCButton.Tag>
                                                                                         <fa5:ImageAwesome
                                                                                             Icon="Solid_Upload"
-                                                                                            Foreground="White"
+                                                                                            Foreground="{StaticResource CForeground1}"
                                                                                             Margin="5" />
                                                                                     </ui:VRCOSCButton>
                                                                                     <ui:VRCOSCButton
@@ -137,7 +137,7 @@
                                                                                         </ui:VRCOSCButton.Tag>
                                                                                         <fa5:ImageAwesome
                                                                                             Icon="Solid_Download"
-                                                                                            Foreground="White"
+                                                                                            Foreground="{StaticResource CForeground1}"
                                                                                             Margin="5" />
                                                                                     </ui:VRCOSCButton>
                                                                                     <ui:VRCOSCButton
@@ -146,7 +146,7 @@
                                                                                         Visibility="Collapsed">
                                                                                         <fa5:ImageAwesome
                                                                                             Icon="Solid_Cube"
-                                                                                            Foreground="White"
+                                                                                            Foreground="{StaticResource CForeground1}"
                                                                                             Margin="5" />
                                                                                     </ui:VRCOSCButton>
                                                                                     <ui:VRCOSCButton
@@ -159,7 +159,7 @@
                                                                                         </ui:VRCOSCButton.Tag>
                                                                                         <fa5:ImageAwesome
                                                                                             Icon="Solid_Link"
-                                                                                            Foreground="White"
+                                                                                            Foreground="{StaticResource CForeground1}"
                                                                                             Margin="5" />
                                                                                     </ui:VRCOSCButton>
                                                                                     <ui:VRCOSCButton
@@ -172,7 +172,7 @@
                                                                                         </ui:VRCOSCButton.Tag>
                                                                                         <fa5:ImageAwesome
                                                                                             Icon="Solid_Cog"
-                                                                                            Foreground="White"
+                                                                                            Foreground="{StaticResource CForeground1}"
                                                                                             Margin="5" />
                                                                                     </ui:VRCOSCButton>
                                                                                 </ui:SpacedStackPanel>

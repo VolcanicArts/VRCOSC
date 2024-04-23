@@ -261,7 +261,7 @@
                                        TextAlignment="Center" />
                         </StackPanel>
                     </Grid>
-                    <Border Grid.Row="3" Background="{StaticResource CBackground1}" Padding="5" Margin="-1">
+                    <Border Grid.Row="3" Background="{StaticResource CBackground1}" Padding="5" CornerRadius="0 0 10 10">
                         <ui:SpacedStackPanel Orientation="Horizontal" HorizontalAlignment="Stretch"
                                              VerticalAlignment="Stretch">
                             <ui:VRCOSCButton ButtonColour="Gray" Width="50" Height="50" CornerRadius="5"

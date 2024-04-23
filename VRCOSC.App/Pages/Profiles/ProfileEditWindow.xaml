@@ -104,7 +104,7 @@
                         </Border>
                         <ui:VRCOSCButton Grid.Row="1" ButtonColour="Green" Width="100" Height="34"
                                          CornerRadius="17" Click="AddLinkedAvatar_ButtonClick">
-                            <fa5:ImageAwesome Icon="Solid_Plus" Foreground="White" Margin="5" />
+                            <fa5:ImageAwesome Icon="Solid_Plus" Foreground="{StaticResource CForeground1}" Margin="5" />
                         </ui:VRCOSCButton>
                     </Grid>
                 </ui:SpacedStackPanel>
