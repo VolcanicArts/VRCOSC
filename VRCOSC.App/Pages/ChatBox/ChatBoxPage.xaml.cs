@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
@@ -315,11 +316,26 @@ public partial class ChatBoxPage
         }
     }
 
+    private readonly List<ChatBoxClipEditWindow> clipEditWindowCache = new();
+
     private void EditClip_ButtonClick(object sender, RoutedEventArgs e)
     {
         Debug.Assert(SelectedClip is not null);
-        var clipEditWindow = new ChatBoxClipEditWindow(SelectedClip);
-        clipEditWindow.Show();
+
+        var clipEditWindow = clipEditWindowCache.FirstOrDefault(clipEditWindow => clipEditWindow.ReferenceClip == SelectedClip);
+
+        if (clipEditWindow is null)
+        {
+            clipEditWindow = new ChatBoxClipEditWindow(SelectedClip);
+            clipEditWindow.Closed += (_, _) => clipEditWindowCache.Remove(clipEditWindow);
+            clipEditWindowCache.Add(clipEditWindow);
+            clipEditWindow.Show();
+        }
+        else
+        {
+            clipEditWindow.WindowState = WindowState.Normal;
+            clipEditWindow.Focus();
+        }
     }
 
     private void TimelineContent_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
