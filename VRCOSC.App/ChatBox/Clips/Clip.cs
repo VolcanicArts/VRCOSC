@@ -115,7 +115,7 @@ public class Clip : INotifyPropertyChanged
 
     #region Update
 
-    public void UpdateUIBinds()
+    public void UpdateUI()
     {
         OnPropertyChanged(nameof(Start));
         OnPropertyChanged(nameof(End));

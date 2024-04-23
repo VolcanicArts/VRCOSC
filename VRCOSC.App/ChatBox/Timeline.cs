@@ -37,15 +37,18 @@ public class Timeline : INotifyPropertyChanged
     public Timeline()
     {
         SetupLayers();
-
-        Length.Subscribe(_ => ChatBoxManager.GetInstance().Serialise());
     }
 
     public void SetupLayers()
     {
         Layers.Clear();
 
-        Length.Subscribe(_ => Layers.ForEach(layer => layer.UpdateUIBinds()));
+        Length.Subscribe(_ => Layers.ForEach(layer =>
+        {
+            layer.UpdateUI();
+            layer.Clips.ForEach(clip => clip.UpdateUI());
+            ChatBoxManager.GetInstance().Serialise();
+        }));
 
         for (var i = 0; i < LayerCount; i++)
         {

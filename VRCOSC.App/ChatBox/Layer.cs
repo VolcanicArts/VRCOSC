@@ -35,7 +35,7 @@ public class Layer : INotifyPropertyChanged
 
     public void Init()
     {
-        ChatBoxManager.GetInstance().Timeline.Length.Subscribe(_ => OnPropertyChanged(nameof(DroppableAreas)));
+        ChatBoxManager.GetInstance().Timeline.Length.Subscribe(_ => UpdateUI());
 
         Clips.CollectionChanged += ClipsOnCollectionChanged;
         ClipsOnCollectionChanged(null, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, Clips));
@@ -55,6 +55,8 @@ public class Layer : INotifyPropertyChanged
                 newClip.SubscriptionComplete = true;
             }
         }
+
+        UpdateUI();
     }
 
     public void UpdateUI()
@@ -127,11 +129,6 @@ public class Layer : INotifyPropertyChanged
         }
 
         return pairedBoundsList;
-    }
-
-    public void UpdateUIBinds()
-    {
-        Clips.ForEach(clip => clip.UpdateUIBinds());
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

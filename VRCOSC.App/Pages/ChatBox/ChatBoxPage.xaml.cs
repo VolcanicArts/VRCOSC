@@ -490,6 +490,9 @@ public partial class ChatBoxPage
 
         afterLayer.Clips.Add(draggingClip);
 
+        beforeLayer.UpdateUI();
+        afterLayer.UpdateUI();
+
         draggingClip = null;
     }
 }
