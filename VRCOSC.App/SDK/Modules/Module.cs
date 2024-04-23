@@ -123,7 +123,7 @@ public abstract class Module
 
         Load(filePathOverride);
 
-        ChatBoxManager.GetInstance().Load();
+        ChatBoxManager.GetInstance().Deserialise();
     }
 
     #region Persistence
