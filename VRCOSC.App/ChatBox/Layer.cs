@@ -50,28 +50,16 @@ public class Layer : INotifyPropertyChanged
                 if (newClip.SubscriptionComplete) continue;
 
                 newClip.Enabled.Subscribe(_ => ChatBoxManager.GetInstance().Serialise());
-
                 newClip.Name.Subscribe(_ => ChatBoxManager.GetInstance().Serialise());
-
-                newClip.Start.Subscribe(_ =>
-                {
-                    OnPropertyChanged(nameof(DroppableAreas));
-                    ChatBoxManager.GetInstance().Serialise();
-                });
-
-                newClip.End.Subscribe(_ =>
-                {
-                    OnPropertyChanged(nameof(DroppableAreas));
-                    ChatBoxManager.GetInstance().Serialise();
-                });
 
                 newClip.SubscriptionComplete = true;
             }
         }
+    }
 
+    public void UpdateUI()
+    {
         OnPropertyChanged(nameof(DroppableAreas));
-
-        ChatBoxManager.GetInstance().Serialise();
     }
 
     private IEnumerable<ClipDroppableArea> constructDroppableAreas()

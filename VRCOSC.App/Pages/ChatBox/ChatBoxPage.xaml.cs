@@ -217,6 +217,7 @@ public partial class ChatBoxPage
 
     private void Timeline_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
+        ChatBoxManager.GetInstance().Serialise();
         draggingClip = null;
         e.Handled = true;
     }
@@ -243,7 +244,7 @@ public partial class ChatBoxPage
 
         if (draggingClip is not null)
         {
-            var mouseXPercentage = (mouseX / Timeline.ActualWidth);
+            var mouseXPercentage = mouseX / Timeline.ActualWidth;
 
             if (mouseXPercentageOffset == -1)
             {
@@ -271,6 +272,8 @@ public partial class ChatBoxPage
                     draggingClip.Start.Value = newStart;
                     draggingClip.End.Value = newEnd;
                 }
+
+                clipLayer.UpdateUI();
             }
 
             if (clipDragPoint == ClipDragPoint.Left)
@@ -288,6 +291,8 @@ public partial class ChatBoxPage
                         draggingClip.Start.Value = newStart;
                     }
                 }
+
+                clipLayer.UpdateUI();
             }
 
             if (clipDragPoint == ClipDragPoint.Right)
@@ -305,6 +310,8 @@ public partial class ChatBoxPage
                         draggingClip.End.Value = newEnd;
                     }
                 }
+
+                clipLayer.UpdateUI();
             }
         }
     }
