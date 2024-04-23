@@ -80,7 +80,7 @@ public partial class ChatBoxPage
         HeaderLineCanvas.Children.Clear();
         LineCanvas.Children.Clear();
 
-        var verticalLineCount = ChatBoxManager.GetInstance().Timeline.LengthSeconds - 1;
+        var verticalLineCount = ChatBoxManager.GetInstance().Timeline.Length.Value - 1;
         var resolution = ChatBoxManager.GetInstance().Timeline.Resolution;
 
         for (var i = 1; i <= verticalLineCount; i++)
@@ -246,72 +246,71 @@ public partial class ChatBoxPage
         {
             var mouseXPercentage = mouseX / Timeline.ActualWidth;
 
+            var timelineLength = ChatBoxManager.GetInstance().Timeline.Length.Value;
+
             if (mouseXPercentageOffset == -1)
             {
-                mouseXPercentageOffset = mouseXPercentage - ((double)draggingClip.Start.Value / ChatBoxManager.GetInstance().Timeline.LengthSeconds);
+                mouseXPercentageOffset = mouseXPercentage - ((double)draggingClip.Start.Value / timelineLength);
             }
 
-            var clipLayer = ChatBoxManager.GetInstance().Timeline.FindLayerOfClip(draggingClip);
+            var clipLayer = draggingClip.Layer.Value;
 
             if (clipDragPoint == ClipDragPoint.Center)
             {
-                var newStart = (int)Math.Floor((mouseXPercentage - mouseXPercentageOffset) * ChatBoxManager.GetInstance().Timeline.LengthSeconds);
+                var newStart = (int)Math.Floor((mouseXPercentage - mouseXPercentageOffset) * timelineLength);
                 var newEnd = draggingClip.End.Value + (newStart - draggingClip.Start.Value);
 
-                var (lowerBound, _) = clipLayer.GetBoundsNearestTo(draggingClip.Start.Value, false);
-                var (_, upperBound) = clipLayer.GetBoundsNearestTo(draggingClip.End.Value, true);
+                var (lowerBound, _) = ChatBoxManager.GetInstance().Timeline.GetBoundsNearestTo(draggingClip.Start.Value, clipLayer, false);
+                var (_, upperBound) = ChatBoxManager.GetInstance().Timeline.GetBoundsNearestTo(draggingClip.End.Value, clipLayer, true);
 
-                var noneIntersect = clipLayer.Clips.Where(clip => clip != draggingClip).All(clip => !clip.Intersects(new Clip
+                var noneIntersect = ChatBoxManager.GetInstance().Timeline.Clips.Where(clip => clip.Layer.Value == clipLayer && clip != draggingClip).All(clip => !clip.Intersects(new Clip
                 {
                     Start = { Value = newStart },
                     End = { Value = newEnd }
                 }));
 
-                if ((newStart >= lowerBound && newEnd <= upperBound) || (noneIntersect && newStart >= 0 && newEnd <= ChatBoxManager.GetInstance().Timeline.LengthSeconds))
+                if ((newStart >= lowerBound && newEnd <= upperBound) || (noneIntersect && newStart >= 0 && newEnd <= timelineLength))
                 {
                     draggingClip.Start.Value = newStart;
                     draggingClip.End.Value = newEnd;
+                    ChatBoxManager.GetInstance().Timeline.GenerateDroppableAreas(clipLayer);
                 }
-
-                clipLayer.UpdateUI();
             }
 
             if (clipDragPoint == ClipDragPoint.Left)
             {
-                var newStart = (int)Math.Floor(mouseXPercentage * ChatBoxManager.GetInstance().Timeline.LengthSeconds);
+                var newStart = (int)Math.Floor(mouseXPercentage * timelineLength);
 
                 if (draggingClip.End.Value - newStart < 2) return;
 
                 if (newStart != draggingClip.Start.Value && newStart < draggingClip.End.Value)
                 {
-                    var (lowerBound, upperBound) = clipLayer.GetBoundsNearestTo(newStart < draggingClip.Start.Value ? draggingClip.Start.Value : newStart, false);
+                    var (lowerBound, upperBound) = ChatBoxManager.GetInstance().Timeline.GetBoundsNearestTo(newStart < draggingClip.Start.Value ? draggingClip.Start.Value : newStart, clipLayer, false);
 
                     if (newStart >= lowerBound && newStart < upperBound)
                     {
                         draggingClip.Start.Value = newStart;
+                        ChatBoxManager.GetInstance().Timeline.GenerateDroppableAreas(clipLayer);
                     }
                 }
-
-                clipLayer.UpdateUI();
             }
 
             if (clipDragPoint == ClipDragPoint.Right)
             {
-                var newEnd = (int)Math.Ceiling(mouseXPercentage * ChatBoxManager.GetInstance().Timeline.LengthSeconds);
+                var newEnd = (int)Math.Ceiling(mouseXPercentage * timelineLength);
 
                 if (newEnd - draggingClip.Start.Value < 2) return;
 
                 if (newEnd != draggingClip.End.Value && newEnd > draggingClip.Start.Value)
                 {
-                    var (lowerBound, upperBound) = clipLayer.GetBoundsNearestTo(newEnd < draggingClip.End.Value ? newEnd : draggingClip.End.Value, true);
+                    var (lowerBound, upperBound) = ChatBoxManager.GetInstance().Timeline.GetBoundsNearestTo(newEnd < draggingClip.End.Value ? newEnd : draggingClip.End.Value, clipLayer, true);
 
                     if (newEnd > lowerBound && newEnd <= upperBound)
                     {
                         draggingClip.End.Value = newEnd;
+                        ChatBoxManager.GetInstance().Timeline.GenerateDroppableAreas(clipLayer);
                     }
                 }
-
-                clipLayer.UpdateUI();
             }
         }
     }
@@ -323,20 +322,7 @@ public partial class ChatBoxPage
         clipEditWindow.Show();
     }
 
-    private void Layer_OnMouseRightButtonDown(object sender, MouseButtonEventArgs e)
-    {
-        var layerElement = (FrameworkElement)sender;
-        var layer = (Layer)layerElement.Tag;
-        e.Handled = true;
-
-        if (clipBorder is not null)
-            clipBorder.Background = (Brush)FindResource("CBackground4");
-
-        SelectedClip = null;
-        showRightClickMenu(layer, null);
-    }
-
-    private void Layer_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    private void TimelineContent_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
         if (clipBorder is not null)
             clipBorder.Background = (Brush)FindResource("CBackground4");
@@ -346,14 +332,25 @@ public partial class ChatBoxPage
         RightClickMenu.FadeOutFromOne(50);
     }
 
-    private void Layer_OnMouseEnter(object sender, MouseEventArgs mouseEventArgs)
+    private void TimelineContent_OnMouseRightButtonDown(object sender, MouseButtonEventArgs e)
     {
-        var layerElement = (FrameworkElement)sender;
-        var layer = (Layer)layerElement.Tag;
+        e.Handled = true;
 
+        var layer = (int)Math.Floor(e.GetPosition(Timeline).Y / 50d);
+
+        if (clipBorder is not null)
+            clipBorder.Background = (Brush)FindResource("CBackground4");
+
+        SelectedClip = null;
+        showRightClickMenu(layer, null);
+    }
+
+    private void TimelineContent_OnMouseMove(object sender, MouseEventArgs e)
+    {
         if (draggingClip is null) return;
 
-        if (ChatBoxManager.GetInstance().Timeline.FindLayerOfClip(draggingClip) == layer) return;
+        var layer = (int)Math.Floor(e.GetPosition(Timeline).Y / 50d);
+        if (draggingClip.Layer.Value == layer) return;
 
         DragDrop.DoDragDrop(this, new object(), DragDropEffects.Move);
     }
@@ -396,11 +393,11 @@ public partial class ChatBoxPage
 
         if (result != MessageBoxResult.Yes) return;
 
-        ChatBoxManager.GetInstance().Timeline.SetupLayers();
+        ChatBoxManager.GetInstance().Timeline.Clips.Clear();
         ChatBoxManager.GetInstance().Serialise();
     }
 
-    private void showRightClickMenu(Layer? layer, Clip? clip)
+    private void showRightClickMenu(int? layer, Clip? clip)
     {
         RightClickMenu.Visibility = Visibility.Collapsed;
 
@@ -422,21 +419,22 @@ public partial class ChatBoxPage
 
     private void createClip()
     {
-        var layer = (Layer)RightClickMenu.Tag;
+        var layer = (int)RightClickMenu.Tag;
 
         var xPos = ((TranslateTransform)RightClickMenu.RenderTransform).X;
         var xPosNormalised = xPos / TimelineContainer.ActualWidth;
-        var closestSecond = (int)Math.Floor(xPosNormalised * ChatBoxManager.GetInstance().Timeline.LengthSeconds);
+        var closestSecond = (int)Math.Floor(xPosNormalised * ChatBoxManager.GetInstance().Timeline.Length.Value);
 
-        var (lowerBound, upperBound) = layer.GetBoundsNearestTo(closestSecond, false, true);
+        var (lowerBound, upperBound) = ChatBoxManager.GetInstance().Timeline.GetBoundsNearestTo(closestSecond, layer, false, true);
 
         var clip = new Clip
         {
+            Layer = { Value = layer },
             Start = { Value = lowerBound },
             End = { Value = upperBound }
         };
 
-        layer.Clips.Add(clip);
+        ChatBoxManager.GetInstance().Timeline.Clips.Add(clip);
 
         RightClickMenu.FadeOutFromOne(50);
     }
@@ -455,19 +453,16 @@ public partial class ChatBoxPage
 
         SelectedClip = null;
 
-        ChatBoxManager.GetInstance().Timeline.FindLayerOfClip(clip).Clips.Remove(clip);
+        ChatBoxManager.GetInstance().Timeline.Clips.Remove(clip);
         RightClickMenu.FadeOutFromOne(50);
     }
 
     private void DroppableArea_OnDrop(object sender, DragEventArgs e)
     {
         var element = (FrameworkElement)sender;
-        var droppableArea = (ClipDroppableArea)element.Tag;
+        var droppableArea = (DroppableArea)element.Tag;
 
         Debug.Assert(draggingClip is not null);
-
-        var beforeLayer = ChatBoxManager.GetInstance().Timeline.FindLayerOfClip(draggingClip);
-        var afterLayer = ChatBoxManager.GetInstance().Timeline.Layers[droppableArea.Layer];
 
         var clipWidth = draggingClip.End.Value - draggingClip.Start.Value;
         var areaWidth = droppableArea.End - droppableArea.Start;
@@ -475,7 +470,8 @@ public partial class ChatBoxPage
         if (droppableArea.Start == draggingClip.End.Value) return;
         if (droppableArea.End == draggingClip.Start.Value) return;
 
-        beforeLayer.Clips.Remove(draggingClip);
+        var previousLayer = draggingClip.Layer.Value;
+        draggingClip.Layer.Value = droppableArea.Layer;
 
         if (areaWidth >= clipWidth)
         {
@@ -488,10 +484,8 @@ public partial class ChatBoxPage
             draggingClip.End.Value = droppableArea.End;
         }
 
-        afterLayer.Clips.Add(draggingClip);
-
-        beforeLayer.UpdateUI();
-        afterLayer.UpdateUI();
+        ChatBoxManager.GetInstance().Timeline.GenerateDroppableAreas(previousLayer);
+        ChatBoxManager.GetInstance().Timeline.GenerateDroppableAreas(draggingClip.Layer.Value);
 
         draggingClip = null;
     }
@@ -504,29 +498,44 @@ public enum ClipDragPoint
     Right
 }
 
-public class IndicatorPositionConverter : IValueConverter
+public class IndicatorPositionConverter : IMultiValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public object Convert(object[] value, Type targetType, object parameter, CultureInfo culture)
     {
-        if (value is float percentage)
+        if (value is [double percentage, double timelineWidth])
         {
-            return (percentage * MainWindow.GetInstance().ChatBoxPage.Timeline.ActualWidth) - 2.5f;
+            return percentage * timelineWidth - 2.5f;
         }
 
         return 0d;
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+    public object[] ConvertBack(object value, Type[] targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
 }
 
-public class ClipPositionConverter : IMultiValueConverter
+public class ClipXPositionConverter : IMultiValueConverter
 {
     public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
     {
         if (values is [int start, double parentWidth])
         {
-            var percentageStart = start / (float)ChatBoxManager.GetInstance().Timeline.Length.Value.TotalSeconds;
+            var percentageStart = start / (double)ChatBoxManager.GetInstance().Timeline.Length.Value;
             return percentageStart * parentWidth;
+        }
+
+        return 0d;
+    }
+
+    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) => throw new NotImplementedException();
+}
+
+public class ClipYPositionConverter : IMultiValueConverter
+{
+    public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (values is [int layer, double layerHeight])
+        {
+            return layer * layerHeight;
         }
 
         return 0d;
@@ -541,8 +550,8 @@ public class ClipWidthConverter : IMultiValueConverter
     {
         if (values is [int start, int end, double parentWidth])
         {
-            var percentageStart = start / (float)ChatBoxManager.GetInstance().Timeline.Length.Value.TotalSeconds;
-            var percentageEnd = end / (float)ChatBoxManager.GetInstance().Timeline.Length.Value.TotalSeconds;
+            var percentageStart = start / (double)ChatBoxManager.GetInstance().Timeline.Length.Value;
+            var percentageEnd = end / (double)ChatBoxManager.GetInstance().Timeline.Length.Value;
 
             return (percentageEnd - percentageStart) * parentWidth;
         }

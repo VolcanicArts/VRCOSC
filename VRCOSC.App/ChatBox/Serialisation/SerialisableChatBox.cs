@@ -36,8 +36,8 @@ public class SerialisableTimeline
     [JsonProperty("length")]
     public int Length;
 
-    [JsonProperty("layers")]
-    public List<SerialisableLayer> Layers = new();
+    [JsonProperty("clips")]
+    public List<SerialisableClip> Clips = new();
 
     [JsonConstructor]
     public SerialisableTimeline()
@@ -46,33 +46,16 @@ public class SerialisableTimeline
 
     public SerialisableTimeline(Timeline timeline)
     {
-        Length = timeline.LengthSeconds;
-        Layers = timeline.Layers.Where(layer => layer.Clips.Any()).Select(layer => new SerialisableLayer(layer)).ToList();
-    }
-}
-
-public class SerialisableLayer
-{
-    [JsonProperty("enabled")]
-    public bool Enabled;
-
-    [JsonProperty("clips")]
-    public List<SerialisableClip> Clips = new();
-
-    [JsonConstructor]
-    public SerialisableLayer()
-    {
-    }
-
-    public SerialisableLayer(Layer layer)
-    {
-        Enabled = layer.Enabled.Value;
-        Clips = layer.Clips.Select(clip => new SerialisableClip(clip)).ToList();
+        Length = timeline.Length.Value;
+        Clips = timeline.Clips.Select(clip => new SerialisableClip(clip)).ToList();
     }
 }
 
 public class SerialisableClip
 {
+    [JsonProperty("layer")]
+    public int Layer;
+
     [JsonProperty("enabled")]
     public bool Enabled;
 
@@ -101,6 +84,7 @@ public class SerialisableClip
 
     public SerialisableClip(Clip clip)
     {
+        Layer = clip.Layer.Value;
         Enabled = clip.Enabled.Value;
         Name = clip.Name.Value;
         Start = clip.Start.Value;

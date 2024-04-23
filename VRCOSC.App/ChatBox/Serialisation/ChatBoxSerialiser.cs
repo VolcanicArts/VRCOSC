@@ -24,141 +24,135 @@ public class ChatBoxSerialiser : ProfiledSerialiser<ChatBoxManager, Serialisable
 
     protected override bool ExecuteAfterDeserialisation(SerialisableChatBox data)
     {
-        Reference.Timeline.Length.Value = TimeSpan.FromSeconds(data.Timeline.Length);
+        Reference.Timeline.Length.Value = data.Timeline.Length;
 
-        for (var index = 0; index < data.Timeline.Layers.Count; index++)
+        Reference.Timeline.Clips.AddRange(data.Timeline.Clips.Select(serialisableClip =>
         {
-            var layer = Reference.Timeline.Layers[index];
-            var serialisableLayer = data.Timeline.Layers[index];
-
-            layer.Enabled.Value = serialisableLayer.Enabled;
-            layer.Clips.AddRange(serialisableLayer.Clips.Select(serialisableClip =>
+            var clip = new Clip
             {
-                var clip = new Clip
+                Layer = { Value = serialisableClip.Layer },
+                Enabled = { Value = serialisableClip.Enabled },
+                Name = { Value = serialisableClip.Name },
+                Start = { Value = serialisableClip.Start },
+                End = { Value = serialisableClip.End }
+            };
+
+            clip.LinkedModules.AddRange(serialisableClip.LinkedModules);
+
+            serialisableClip.States.ForEach(serialisableState =>
+            {
+                var clipState = serialisableState.States is null ? clip.States.FirstOrDefault(clipState => clipState.IsBuiltIn) : clip.States.FirstOrDefault(clipState => clipState.States.SequenceEqual(serialisableState.States));
+                if (clipState is null) return;
+
+                clipState.Format.Value = serialisableState.Format;
+                clipState.Enabled.Value = serialisableState.Enabled;
+
+                clipState.Variables.Clear();
+
+                serialisableState.Variables.ForEach(serialisableClipVariable =>
                 {
-                    Enabled = { Value = serialisableClip.Enabled },
-                    Name = { Value = serialisableClip.Name },
-                    Start = { Value = serialisableClip.Start },
-                    End = { Value = serialisableClip.End }
-                };
+                    var clipVariableReference = Reference.GetVariable(serialisableClipVariable.ModuleID, serialisableClipVariable.VariableID);
+                    if (clipVariableReference is null) return;
 
-                clip.LinkedModules.AddRange(serialisableClip.LinkedModules);
+                    var clipVariable = clipVariableReference.CreateInstance();
+                    var optionAttributes = getVariableOptionAttributes(clipVariable.GetType());
 
-                serialisableClip.States.ForEach(serialisableState =>
-                {
-                    var clipState = serialisableState.States is null ? clip.States.FirstOrDefault(clipState => clipState.IsBuiltIn) : clip.States.FirstOrDefault(clipState => clipState.States.SequenceEqual(serialisableState.States));
-                    if (clipState is null) return;
-
-                    clipState.Format.Value = serialisableState.Format;
-                    clipState.Enabled.Value = serialisableState.Enabled;
-
-                    clipState.Variables.Clear();
-
-                    serialisableState.Variables.ForEach(serialisableClipVariable =>
+                    foreach (var pair in serialisableClipVariable.Options)
                     {
-                        var clipVariableReference = Reference.GetVariable(serialisableClipVariable.ModuleID, serialisableClipVariable.VariableID);
-                        if (clipVariableReference is null) return;
+                        var propertyInfo = optionAttributes.FirstOrDefault(optionAttribute => optionAttribute.Key.SerialisedName == pair.Key).Value;
+                        if (propertyInfo is null) continue;
 
-                        var clipVariable = clipVariableReference.CreateInstance();
-                        var optionAttributes = getVariableOptionAttributes(clipVariable.GetType());
-
-                        foreach (var pair in serialisableClipVariable.Options)
+                        try
                         {
-                            var propertyInfo = optionAttributes.FirstOrDefault(optionAttribute => optionAttribute.Key.SerialisedName == pair.Key).Value;
-                            if (propertyInfo is null) continue;
+                            object value;
 
-                            try
+                            if (propertyInfo.PropertyType.IsEnum)
                             {
-                                object value;
-
-                                if (propertyInfo.PropertyType.IsEnum)
+                                try
                                 {
-                                    try
-                                    {
-                                        value = Enum.ToObject(propertyInfo.PropertyType, pair.Value!);
-                                    }
-                                    catch (Exception)
-                                    {
-                                        value = Enum.ToObject(propertyInfo.PropertyType, 0);
-                                    }
+                                    value = Enum.ToObject(propertyInfo.PropertyType, pair.Value!);
                                 }
-                                else
+                                catch (Exception)
                                 {
-                                    value = Convert.ChangeType(pair.Value, propertyInfo.PropertyType)!;
+                                    value = Enum.ToObject(propertyInfo.PropertyType, 0);
                                 }
-
-                                propertyInfo.SetValue(clipVariable, value);
                             }
-                            catch (Exception)
+                            else
                             {
-                                // if we can't convert the type, just set it to default
+                                value = Convert.ChangeType(pair.Value, propertyInfo.PropertyType)!;
                             }
+
+                            propertyInfo.SetValue(clipVariable, value);
                         }
+                        catch (Exception)
+                        {
+                            // if we can't convert the type, just set it to default
+                        }
+                    }
 
-                        clipState.Variables.Add(clipVariable);
-                    });
+                    clipState.Variables.Add(clipVariable);
                 });
+            });
 
-                serialisableClip.Events.ForEach(serialisableEvent =>
+            serialisableClip.Events.ForEach(serialisableEvent =>
+            {
+                var clipEvent = clip.Events.FirstOrDefault(clipEvent => clipEvent.ModuleID == serialisableEvent.ModuleID && clipEvent.EventID == serialisableEvent.EventID);
+                if (clipEvent is null) return;
+
+                clipEvent.Format.Value = serialisableEvent.Format;
+                clipEvent.Enabled.Value = serialisableEvent.Enabled;
+                clipEvent.Length.Value = serialisableEvent.Length;
+                clipEvent.Behaviour.Value = serialisableEvent.Behaviour;
+
+                clipEvent.Variables.Clear();
+
+                serialisableEvent.Variables.ForEach(serialisableClipVariable =>
                 {
-                    var clipEvent = clip.Events.FirstOrDefault(clipEvent => clipEvent.ModuleID == serialisableEvent.ModuleID && clipEvent.EventID == serialisableEvent.EventID);
-                    if (clipEvent is null) return;
+                    var clipVariableReference = Reference.GetVariable(serialisableClipVariable.ModuleID, serialisableClipVariable.VariableID);
+                    if (clipVariableReference is null) return;
 
-                    clipEvent.Format.Value = serialisableEvent.Format;
-                    clipEvent.Enabled.Value = serialisableEvent.Enabled;
-                    clipEvent.Length.Value = serialisableEvent.Length;
-                    clipEvent.Behaviour.Value = serialisableEvent.Behaviour;
+                    var clipVariable = clipVariableReference.CreateInstance();
+                    var optionAttributes = getVariableOptionAttributes(clipVariable.GetType());
 
-                    clipEvent.Variables.Clear();
-
-                    serialisableEvent.Variables.ForEach(serialisableClipVariable =>
+                    foreach (var pair in serialisableClipVariable.Options)
                     {
-                        var clipVariableReference = Reference.GetVariable(serialisableClipVariable.ModuleID, serialisableClipVariable.VariableID);
-                        if (clipVariableReference is null) return;
+                        var propertyInfo = optionAttributes.FirstOrDefault(optionAttribute => optionAttribute.Key.SerialisedName == pair.Key).Value;
+                        if (propertyInfo is null) continue;
 
-                        var clipVariable = clipVariableReference.CreateInstance();
-                        var optionAttributes = getVariableOptionAttributes(clipVariable.GetType());
-
-                        foreach (var pair in serialisableClipVariable.Options)
+                        try
                         {
-                            var propertyInfo = optionAttributes.FirstOrDefault(optionAttribute => optionAttribute.Key.SerialisedName == pair.Key).Value;
-                            if (propertyInfo is null) continue;
+                            object value;
 
-                            try
+                            if (propertyInfo.PropertyType.IsEnum)
                             {
-                                object value;
-
-                                if (propertyInfo.PropertyType.IsEnum)
+                                try
                                 {
-                                    try
-                                    {
-                                        value = Enum.ToObject(propertyInfo.PropertyType, pair.Value!);
-                                    }
-                                    catch (Exception)
-                                    {
-                                        value = Enum.ToObject(propertyInfo.PropertyType, 0);
-                                    }
+                                    value = Enum.ToObject(propertyInfo.PropertyType, pair.Value!);
                                 }
-                                else
+                                catch (Exception)
                                 {
-                                    value = Convert.ChangeType(pair.Value, propertyInfo.PropertyType)!;
+                                    value = Enum.ToObject(propertyInfo.PropertyType, 0);
                                 }
-
-                                propertyInfo.SetValue(clipVariable, value);
                             }
-                            catch (Exception)
+                            else
                             {
-                                // if we can't convert the type, just set it to default
+                                value = Convert.ChangeType(pair.Value, propertyInfo.PropertyType)!;
                             }
+
+                            propertyInfo.SetValue(clipVariable, value);
                         }
+                        catch (Exception)
+                        {
+                            // if we can't convert the type, just set it to default
+                        }
+                    }
 
-                        clipEvent.Variables.Add(clipVariable);
-                    });
+                    clipEvent.Variables.Add(clipVariable);
                 });
+            });
 
-                return clip;
-            }));
-        }
+            return clip;
+        }));
 
         return false;
     }

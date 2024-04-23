@@ -16,11 +16,10 @@ namespace VRCOSC.App.ChatBox.Clips;
 
 public class Clip : INotifyPropertyChanged
 {
-    public bool SubscriptionComplete;
-
     public Observable<bool> Enabled { get; } = new(true);
     public Observable<string> Name { get; } = new("New Clip");
 
+    public Observable<int> Layer { get; } = new();
     public Observable<int> Start { get; } = new();
     public Observable<int> End { get; } = new();
     public ObservableCollection<string> LinkedModules { get; } = new();
@@ -71,17 +70,6 @@ public class Clip : INotifyPropertyChanged
         }));
 
         LinkedModules.CollectionChanged += linkedModulesOnCollectionChanged;
-
-        ChatBoxManager.GetInstance().Timeline.Length.Subscribe(_ =>
-        {
-            if (ChatBoxManager.GetInstance().Timeline.LengthSeconds <= Start.Value)
-            {
-                ChatBoxManager.GetInstance().Timeline.FindLayerOfClip(this).Clips.Remove(this);
-                return;
-            }
-
-            if (ChatBoxManager.GetInstance().Timeline.LengthSeconds < End.Value) End.Value = ChatBoxManager.GetInstance().Timeline.LengthSeconds;
-        });
     }
 
     public void ChatBoxStart()
@@ -91,6 +79,22 @@ public class Clip : INotifyPropertyChanged
         currentEvent = null;
 
         Elements.ForEach(clipElement => clipElement.Variables.ForEach(clipVariable => clipVariable.Start()));
+    }
+
+    public void ChatBoxLengthChange()
+    {
+        var timelineLength = ChatBoxManager.GetInstance().Timeline.Length.Value;
+
+        if (timelineLength <= Start.Value)
+        {
+            ChatBoxManager.GetInstance().Timeline.Clips.Remove(this);
+            return;
+        }
+
+        if (timelineLength < End.Value) End.Value = timelineLength;
+
+        OnPropertyChanged(nameof(Start));
+        OnPropertyChanged(nameof(End));
     }
 
     public ClipElement? FindElementFromVariable(ClipVariable variable)
@@ -114,12 +118,6 @@ public class Clip : INotifyPropertyChanged
     }
 
     #region Update
-
-    public void UpdateUI()
-    {
-        OnPropertyChanged(nameof(Start));
-        OnPropertyChanged(nameof(End));
-    }
 
     public void Update()
     {

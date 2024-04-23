@@ -44,8 +44,8 @@ public class ChatBoxManager : INotifyPropertyChanged
 
     public Timeline Timeline { get; } = new();
 
-    public float CurrentPercentage => ((DateTimeOffset.Now - startTime).Ticks % Timeline.Length.Value.Ticks) / (float)Timeline.Length.Value.Ticks;
-    public int CurrentSecond => (int)Math.Floor((DateTimeOffset.Now - startTime).TotalSeconds) % Timeline.LengthSeconds;
+    public double CurrentPercentage => ((DateTimeOffset.Now - startTime).TotalSeconds % Timeline.Length.Value) / Timeline.Length.Value;
+    public int CurrentSecond => (int)Math.Floor((DateTimeOffset.Now - startTime).TotalSeconds) % Timeline.Length.Value;
     private DateTimeOffset startTime;
 
     private Repeater? sendTask;
@@ -53,8 +53,6 @@ public class ChatBoxManager : INotifyPropertyChanged
     private bool isClear;
 
     public bool SendEnabled { get; set; }
-
-    private IEnumerable<Clip> allClips => Timeline.Layers.SelectMany(layer => layer.Clips);
 
     private readonly SerialisationManager serialisationManager;
     private readonly SerialisationManager validationSerialisationManager;
@@ -128,7 +126,7 @@ public class ChatBoxManager : INotifyPropertyChanged
 
     public void Deserialise(string filePathOverride = "")
     {
-        Timeline.Layers.ForEach(layer => layer.Clips.Clear());
+        Timeline.Clips.Clear();
 
         chatBoxValidationSerialiser.Reset();
         var validationDeserialisationSuccess = validationSerialisationManager.Deserialise();
@@ -155,10 +153,9 @@ public class ChatBoxManager : INotifyPropertyChanged
             return;
         }
 
-        Timeline.Init();
-
         if (!string.IsNullOrEmpty(filePathOverride)) Serialise();
 
+        for (var i = 0; i < Timeline.LayerCount; i++) Timeline.GenerateDroppableAreas(i);
         IsLoaded.Value = true;
     }
 
@@ -175,7 +172,7 @@ public class ChatBoxManager : INotifyPropertyChanged
         sendTask.Start(TimeSpan.FromMilliseconds(sendInterval));
         updateTask.Start(TimeSpan.FromSeconds(1f / 60f));
 
-        allClips.ForEach(clip => clip.ChatBoxStart());
+        Timeline.Clips.ForEach(clip => clip.ChatBoxStart());
 
         foreach (var pair in StateValues)
         {
@@ -204,7 +201,7 @@ public class ChatBoxManager : INotifyPropertyChanged
         updateBuiltInVariables();
         ModuleManager.GetInstance().ChatBoxUpdate();
 
-        allClips.ForEach(clip => clip.Update());
+        Timeline.Clips.ForEach(clip => clip.Update());
         TriggeredEvents.Clear();
 
         evaluateClips();
@@ -231,7 +228,7 @@ public class ChatBoxManager : INotifyPropertyChanged
 
     private Clip? getValidClip()
     {
-        return allClips.FirstOrDefault(clip => clip.Evaluate());
+        return Timeline.Clips.OrderBy(clip => clip.Layer.Value).FirstOrDefault(clip => clip.Evaluate());
     }
 
     private void handleClip(Clip? clip)
@@ -277,15 +274,12 @@ public class ChatBoxManager : INotifyPropertyChanged
     {
         StateReferences.Add(reference);
 
-        Timeline.Layers.ForEach(layer =>
+        Timeline.Clips.ForEach(clip =>
         {
-            layer.Clips.ForEach(clip =>
+            if (clip.LinkedModules.Contains(reference.ModuleID))
             {
-                if (clip.LinkedModules.Contains(reference.ModuleID))
-                {
-                    clip.States.Add(new ClipState(reference));
-                }
-            });
+                clip.States.Add(new ClipState(reference));
+            }
         });
     }
 
@@ -296,14 +290,11 @@ public class ChatBoxManager : INotifyPropertyChanged
 
         StateReferences.Remove(stateToDelete);
 
-        Timeline.Layers.ForEach(layer =>
+        Timeline.Clips.ForEach(clip =>
         {
-            layer.Clips.ForEach(clip =>
-            {
-                var stateInstances = new List<ClipState>();
-                stateInstances.AddRange(clip.States.Where(clipState => clipState.States.ContainsKey(moduleID) && clipState.States[moduleID] == stateID));
-                stateInstances.ForEach(clipState => clip.States.Remove(clipState));
-            });
+            var stateInstances = new List<ClipState>();
+            stateInstances.AddRange(clip.States.Where(clipState => clipState.States.ContainsKey(moduleID) && clipState.States[moduleID] == stateID));
+            stateInstances.ForEach(clipState => clip.States.Remove(clipState));
         });
     }
 
@@ -325,15 +316,12 @@ public class ChatBoxManager : INotifyPropertyChanged
     {
         EventReferences.Add(reference);
 
-        Timeline.Layers.ForEach(layer =>
+        Timeline.Clips.ForEach(clip =>
         {
-            layer.Clips.ForEach(clip =>
+            if (clip.LinkedModules.Contains(reference.ModuleID))
             {
-                if (clip.LinkedModules.Contains(reference.ModuleID))
-                {
-                    clip.Events.Add(new ClipEvent(reference));
-                }
-            });
+                clip.Events.Add(new ClipEvent(reference));
+            }
         });
     }
 
@@ -344,14 +332,11 @@ public class ChatBoxManager : INotifyPropertyChanged
 
         EventReferences.Remove(eventToDelete);
 
-        Timeline.Layers.ForEach(layer =>
+        Timeline.Clips.ForEach(clip =>
         {
-            layer.Clips.ForEach(clip =>
-            {
-                var eventInstances = new List<ClipEvent>();
-                eventInstances.AddRange(clip.Events.Where(clipEvent => clipEvent.ModuleID == moduleID && clipEvent.EventID == eventID));
-                eventInstances.ForEach(clipEvent => clip.Events.Remove(clipEvent));
-            });
+            var eventInstances = new List<ClipEvent>();
+            eventInstances.AddRange(clip.Events.Where(clipEvent => clipEvent.ModuleID == moduleID && clipEvent.EventID == eventID));
+            eventInstances.ForEach(clipEvent => clip.Events.Remove(clipEvent));
         });
     }
 
@@ -383,23 +368,20 @@ public class ChatBoxManager : INotifyPropertyChanged
 
         VariableReferences.Remove(variableToDelete);
 
-        Timeline.Layers.ForEach(layer =>
+        Timeline.Clips.ForEach(clip =>
         {
-            layer.Clips.ForEach(clip =>
+            clip.States.ForEach(clipState =>
             {
-                clip.States.ForEach(clipState =>
-                {
-                    var variableInstances = new List<ClipVariable>();
-                    variableInstances.AddRange(clipState.Variables.Where(clipVariable => clipVariable.ModuleID == moduleID && clipVariable.VariableID == variableID));
-                    variableInstances.ForEach(clipVariable => clipState.Variables.Remove(clipVariable));
-                });
+                var variableInstances = new List<ClipVariable>();
+                variableInstances.AddRange(clipState.Variables.Where(clipVariable => clipVariable.ModuleID == moduleID && clipVariable.VariableID == variableID));
+                variableInstances.ForEach(clipVariable => clipState.Variables.Remove(clipVariable));
+            });
 
-                clip.Events.ForEach(clipEvent =>
-                {
-                    var variableInstances = new List<ClipVariable>();
-                    variableInstances.AddRange(clipEvent.Variables.Where(clipVariable => clipVariable.ModuleID == moduleID && clipVariable.VariableID == variableID));
-                    variableInstances.ForEach(clipVariable => clipEvent.Variables.Remove(clipVariable));
-                });
+            clip.Events.ForEach(clipEvent =>
+            {
+                var variableInstances = new List<ClipVariable>();
+                variableInstances.AddRange(clipEvent.Variables.Where(clipVariable => clipVariable.ModuleID == moduleID && clipVariable.VariableID == variableID));
+                variableInstances.ForEach(clipVariable => clipEvent.Variables.Remove(clipVariable));
             });
         });
     }
