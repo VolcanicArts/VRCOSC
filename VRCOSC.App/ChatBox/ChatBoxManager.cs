@@ -132,7 +132,7 @@ public class ChatBoxManager : INotifyPropertyChanged
 
         if (!bypassValidation)
         {
-            var validationDeserialisationSuccess = validationSerialisationManager.Deserialise();
+            var validationDeserialisationSuccess = validationSerialisationManager.Deserialise(string.IsNullOrEmpty(filePathOverride), filePathOverride);
 
             if (validationDeserialisationSuccess != DeserialisationResult.Success)
             {
