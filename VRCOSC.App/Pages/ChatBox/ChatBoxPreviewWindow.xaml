@@ -15,7 +15,7 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Border Name="ChatBoxContainer" Padding="30 10" CornerRadius="15" Background="#27272c" Visibility="Collapsed">
-                    <TextBlock Name="ChatBoxText" FontSize="30" Foreground="{StaticResource CForeground1}"
+                    <TextBlock Name="ChatBoxText" FontSize="30" Foreground="White"
                                TextAlignment="Center" TextWrapping="Wrap" MaxWidth="435" />
                 </Border>
             </Grid>
