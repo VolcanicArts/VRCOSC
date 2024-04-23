@@ -50,6 +50,7 @@ public class AppManager
     private Repeater? updateTask;
     private Repeater vrchatCheckTask = null!;
     private Repeater openvrCheckTask = null!;
+    private Repeater openvrUpdateTask = null!;
 
     private readonly Queue<VRChatOscMessage> oscMessageQueue = new();
     private readonly object oscMessageQueueLock = new();
@@ -77,6 +78,9 @@ public class AppManager
 
         openvrCheckTask = new Repeater(checkForOpenVR);
         openvrCheckTask.Start(TimeSpan.FromSeconds(2));
+
+        openvrUpdateTask = new Repeater(() => OVRClient.Update());
+        openvrUpdateTask.Start(TimeSpan.FromSeconds(1d / 60d));
 
         OVRClient.SetMetadata(new OVRMetadata
         {
