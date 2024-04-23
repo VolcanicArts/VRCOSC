@@ -23,7 +23,6 @@ public partial class ChatBoxPage
     private double mouseX;
     private Clip? draggingClip;
     private ClipDragPoint clipDragPoint;
-    private float cumulativeDrag;
 
     public ChatBoxManager ChatBoxManager => ChatBoxManager.GetInstance();
 
@@ -185,7 +184,6 @@ public partial class ChatBoxPage
     private void ClipMain_OnLeftMouseButtonUp(object sender, MouseButtonEventArgs e)
     {
         draggingClip = null;
-        cumulativeDrag = 0f;
     }
 
     private void ClipLeft_OnLeftMouseButtonDown(object sender, MouseButtonEventArgs e)
@@ -200,7 +198,6 @@ public partial class ChatBoxPage
     private void ClipLeft_OnLeftMouseButtonUp(object sender, MouseButtonEventArgs e)
     {
         draggingClip = null;
-        cumulativeDrag = 0f;
     }
 
     private void ClipRight_OnLeftMouseButtonDown(object sender, MouseButtonEventArgs e)
@@ -215,17 +212,15 @@ public partial class ChatBoxPage
     private void ClipRight_OnLeftMouseButtonUp(object sender, MouseButtonEventArgs e)
     {
         draggingClip = null;
-        cumulativeDrag = 0f;
     }
 
     private void Timeline_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
         draggingClip = null;
-        cumulativeDrag = 0f;
         e.Handled = true;
     }
 
-    private bool draggingBetweenLayers;
+    private double mouseXPercentageOffset = -1;
 
     private void Timeline_MouseMove(object sender, MouseEventArgs e)
     {
@@ -237,31 +232,29 @@ public partial class ChatBoxPage
         }
 
         var senderElement = (FrameworkElement)sender;
-        var newMouseX = e.GetPosition(senderElement).X;
-
-        var xDelta = newMouseX - mouseX;
-
-        mouseX = newMouseX;
+        mouseX = e.GetPosition(senderElement).X;
 
         if (draggingClip is null)
         {
-            cumulativeDrag = 0f;
+            mouseXPercentageOffset = -1;
             return;
         }
 
-        var timelineWidth = Timeline.ActualWidth;
-        var percentage = (float)xDelta / (float)timelineWidth;
-
-        cumulativeDrag += percentage;
-
         if (draggingClip is not null)
         {
+            var mouseXPercentage = (mouseX / Timeline.ActualWidth);
+
+            if (mouseXPercentageOffset == -1)
+            {
+                mouseXPercentageOffset = mouseXPercentage - ((double)draggingClip.Start.Value / ChatBoxManager.GetInstance().Timeline.LengthSeconds);
+            }
+
             var clipLayer = ChatBoxManager.GetInstance().Timeline.FindLayerOfClip(draggingClip);
 
-            if (clipDragPoint == ClipDragPoint.Center && MathF.Abs(cumulativeDrag) >= ChatBoxManager.GetInstance().Timeline.Resolution && !draggingBetweenLayers)
+            if (clipDragPoint == ClipDragPoint.Center)
             {
-                var newStart = draggingClip.Start.Value + MathF.Sign(cumulativeDrag);
-                var newEnd = draggingClip.End.Value + MathF.Sign(cumulativeDrag);
+                var newStart = (int)Math.Floor((mouseXPercentage - mouseXPercentageOffset) * ChatBoxManager.GetInstance().Timeline.LengthSeconds);
+                var newEnd = draggingClip.End.Value + (newStart - draggingClip.Start.Value);
 
                 var (lowerBound, _) = clipLayer.GetBoundsNearestTo(draggingClip.Start.Value, false);
                 var (_, upperBound) = clipLayer.GetBoundsNearestTo(draggingClip.End.Value, true);
@@ -271,14 +264,13 @@ public partial class ChatBoxPage
                     draggingClip.Start.Value = newStart;
                     draggingClip.End.Value = newEnd;
                 }
-
-                cumulativeDrag = 0f;
             }
 
             if (clipDragPoint == ClipDragPoint.Left)
             {
-                var mousePosNormalised = mouseX / Timeline.ActualWidth;
-                var newStart = (int)Math.Floor(mousePosNormalised * ChatBoxManager.GetInstance().Timeline.LengthSeconds);
+                var newStart = (int)Math.Floor(mouseXPercentage * ChatBoxManager.GetInstance().Timeline.LengthSeconds);
+
+                if (draggingClip.End.Value - newStart < 2) return;
 
                 if (newStart != draggingClip.Start.Value && newStart < draggingClip.End.Value)
                 {
@@ -293,8 +285,9 @@ public partial class ChatBoxPage
 
             if (clipDragPoint == ClipDragPoint.Right)
             {
-                var mousePosNormalised = mouseX / Timeline.ActualWidth;
-                var newEnd = (int)Math.Ceiling(mousePosNormalised * ChatBoxManager.GetInstance().Timeline.LengthSeconds);
+                var newEnd = (int)Math.Ceiling(mouseXPercentage * ChatBoxManager.GetInstance().Timeline.LengthSeconds);
+
+                if (newEnd - draggingClip.Start.Value < 2) return;
 
                 if (newEnd != draggingClip.End.Value && newEnd > draggingClip.Start.Value)
                 {
