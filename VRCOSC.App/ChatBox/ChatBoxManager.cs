@@ -188,12 +188,17 @@ public class ChatBoxManager : INotifyPropertyChanged
 
     public async void Stop()
     {
-        Timeline.Clips.ForEach(clip => clip.IsChosenClip.Value = false);
-
         await (sendTask?.StopAsync() ?? Task.CompletedTask);
         await (updateTask?.StopAsync() ?? Task.CompletedTask);
         sendTask = null;
         updateTask = null;
+
+        Timeline.Clips.ForEach(clip =>
+        {
+            clip.IsChosenClip.Value = false;
+            clip.Elements.ForEach(clipElement => clipElement.IsChosenElement.Value = false);
+        });
+
         clearChatBox();
     }
 
@@ -211,7 +216,9 @@ public class ChatBoxManager : INotifyPropertyChanged
         {
             clip.Update();
             clip.IsChosenClip.Value = false;
+            clip.Elements.ForEach(clipElement => clipElement.IsChosenElement.Value = false);
         });
+
         TriggeredEvents.Clear();
 
         evaluateClips();
