@@ -197,6 +197,9 @@ public class SliderModuleSetting : ValueModuleSetting<float>
     }
 }
 
+/// <summary>
+/// Serialises the time directly in UTC and converts to a local timezone's DateTimeOffset on deserialise
+/// </summary>
 public class DateTimeModuleSetting : ValueModuleSetting<DateTimeOffset>
 {
     public DateTimeModuleSetting(ModuleSettingMetadata metadata, DateTimeOffset defaultValue)
@@ -204,11 +207,24 @@ public class DateTimeModuleSetting : ValueModuleSetting<DateTimeOffset>
     {
     }
 
+    public override object GetRawValue() => Attribute.Value.UtcDateTime.ToString("O");
+
     public override bool Deserialise(object ingestValue)
     {
-        if (ingestValue is not DateTime dateTimeValue) return false;
+        if (ingestValue is not DateTime ingestDateTime) return false;
 
-        Attribute.Value = new DateTimeOffset(dateTimeValue, TimeZoneInfo.Local.GetUtcOffset(dateTimeValue));
+        // JSON deserialisation loads the stored UTC string as a local timezone string
+        // Do some weird conversions to adjust it to actual local time on load
+        // This allows people to share configs and have it automatically adjust to their timezones
+
+        var proxyDateTimeOffset = new DateTimeOffset(ingestDateTime, TimeSpan.Zero);
+        var utcDateTime = proxyDateTimeOffset.DateTime;
+
+        var localDateTime = TimeZoneInfo.ConvertTimeFromUtc(utcDateTime, TimeZoneInfo.Local);
+        var dateTimeOffset = new DateTimeOffset(localDateTime, TimeZoneInfo.Local.GetUtcOffset(localDateTime));
+
+        Attribute.Value = dateTimeOffset;
+
         return true;
     }
 
