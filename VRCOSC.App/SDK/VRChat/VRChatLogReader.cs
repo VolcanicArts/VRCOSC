@@ -26,7 +26,7 @@ internal class VRChatLogReader
     private static Repeater processTask = null!;
     private static readonly object process_lock = new();
 
-    public static string? CurrentWorldID { get; private set; }
+    private static string? currentWorldID { get; set; }
 
     public static Action<string>? OnWorldEnter;
 
@@ -50,7 +50,7 @@ internal class VRChatLogReader
         line_buffer.Clear();
         logFile = null;
         byteOffset = 0;
-        CurrentWorldID = null;
+        currentWorldID = null;
     }
 
     private static void process()
@@ -119,9 +119,9 @@ internal class VRChatLogReader
             newWorldID = worldIDCapture.Value;
         }
 
-        if (newWorldID is not null && newWorldID != CurrentWorldID)
+        if (newWorldID is not null && newWorldID != currentWorldID)
         {
-            CurrentWorldID = newWorldID;
+            currentWorldID = newWorldID;
             Logger.Log("Detected world leave");
 
             ModuleManager.GetInstance().GetModulesOfType<IVRCClientEventHandler>().ForEach(handler => handler.OnWorldExit());
@@ -134,9 +134,11 @@ internal class VRChatLogReader
         {
             if (world_enter_regex.IsMatch(line))
             {
-                Logger.Log($"Detected world enter to '{CurrentWorldID}'");
-                OnWorldEnter?.Invoke(CurrentWorldID!);
-                ModuleManager.GetInstance().GetModulesOfType<IVRCClientEventHandler>().ForEach(handler => handler.OnWorldEnter(CurrentWorldID!));
+                Logger.Log($"Detected world enter to '{currentWorldID}'");
+                OnWorldEnter?.Invoke(currentWorldID!);
+                ModuleManager.GetInstance().GetModulesOfType<IVRCClientEventHandler>().ForEach(handler => handler.OnWorldEnter(currentWorldID!));
+
+                currentWorldID = null;
                 break;
             }
         }
