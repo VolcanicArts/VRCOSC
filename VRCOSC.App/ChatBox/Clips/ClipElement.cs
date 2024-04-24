@@ -15,8 +15,9 @@ public class ClipElement : INotifyPropertyChanged
 {
     public Observable<string> Format { get; set; } = new(string.Empty);
     public Observable<bool> Enabled { get; set; } = new();
-
     public ObservableCollection<ClipVariable> Variables { get; init; } = new();
+
+    public Observable<bool> IsChosenElement { get; } = new();
 
     public virtual string DisplayName => string.Empty;
 
@@ -33,6 +34,8 @@ public class ClipElement : INotifyPropertyChanged
 
     public string RunFormatting()
     {
+        IsChosenElement.Value = true;
+
         var localFormat = Format.Value;
 
         for (var i = 0; i < Variables.Count; i++)

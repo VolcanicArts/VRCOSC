@@ -16,6 +16,7 @@
         <local:TextBoxParsingConverter x:Key="TextBoxParsingConverter" />
         <ui:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
                                        Colour2="{StaticResource CBackground2}" />
+        <local:BoolToThicknessConverter x:Key="BoolToThicknessConverter" />
     </Window.Resources>
     <Grid>
         <Border Padding="10" Background="{StaticResource CBackground2}">
@@ -114,6 +115,8 @@
                                                     <ControlTemplate>
                                                         <Border Background="{StaticResource CBackground7}"
                                                                 CornerRadius="5" Padding="5"
+                                                                BorderBrush="Yellow"
+                                                                BorderThickness="{Binding IsChosenElement.Value, Mode=OneWay, Converter={StaticResource BoolToThicknessConverter}}"
                                                                 HorizontalAlignment="Stretch">
                                                             <ui:SpacedStackPanel Orientation="Vertical" Spacing="5"
                                                                 HorizontalAlignment="Stretch">
@@ -317,6 +320,8 @@
                                                     <ControlTemplate>
                                                         <Border Background="{StaticResource CBackground7}"
                                                                 CornerRadius="5" Padding="5"
+                                                                BorderBrush="Yellow"
+                                                                BorderThickness="{Binding IsChosenElement.Value, Mode=OneWay, Converter={StaticResource BoolToThicknessConverter}}"
                                                                 HorizontalAlignment="Stretch">
                                                             <ui:SpacedStackPanel Orientation="Vertical" Spacing="5"
                                                                 HorizontalAlignment="Stretch">

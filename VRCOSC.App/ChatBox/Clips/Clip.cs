@@ -173,6 +173,8 @@ public class Clip : INotifyPropertyChanged
 
     public bool Evaluate()
     {
+        Elements.ForEach(clipElement => clipElement.IsChosenElement.Value = false);
+
         if (!Enabled.Value) return false;
 
         if (Start.Value > ChatBoxManager.GetInstance().CurrentSecond || End.Value <= ChatBoxManager.GetInstance().CurrentSecond) return false;
