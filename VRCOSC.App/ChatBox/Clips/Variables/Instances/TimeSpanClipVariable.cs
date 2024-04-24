@@ -15,10 +15,25 @@ public class TimeSpanClipVariable : ClipVariable
     [ClipVariableOption("time_format", "Time Format", "How should the time be formatted?")]
     public string TimeFormat { get; set; } = @"mm\:ss";
 
+    [ClipVariableOption("include_negative_sign", "Include Negative Sign", "When a time span is negative, should we include a '-' sign?")]
+    public bool IncludeNegativeSign { get; set; } = true;
+
     public override bool IsDefault() => base.IsDefault() && TimeFormat == @"mm\:ss";
 
     protected override string Format(object value)
     {
-        return ((TimeSpan)value).ToString(TimeFormat).Replace("-", string.Empty);
+        var timeSpan = (TimeSpan)value;
+
+        try
+        {
+            if (IncludeNegativeSign && timeSpan < TimeSpan.Zero)
+                return $"-{timeSpan.ToString(TimeFormat)}";
+            else
+                return timeSpan.ToString(TimeFormat);
+        }
+        catch (Exception)
+        {
+            return "INCORRECT FORMAT";
+        }
     }
 }
