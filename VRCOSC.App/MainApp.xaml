@@ -4,11 +4,8 @@
              xmlns:ui="clr-namespace:VRCOSC.App.UI"
              xmlns:fa5="http://schemas.fontawesome.com/icons/">
     <Application.Resources>
-        <ResourceDictionary x:Key="ThemeRd">
+        <ResourceDictionary>
             <FontFamily x:Key="FontAwesome">/WPFTest;component/Fonts/FontAwesome.otf#Font Awesome 5 Free Solid</FontFamily>
-            <Style TargetType="Control">
-                <Setter Property="FontFamily" Value="Noto Sans" />
-            </Style>
             <Style TargetType="ui:VRCOSCButton">
                 <Setter Property="OverridesDefaultStyle" Value="True" />
                 <Setter Property="Template">
