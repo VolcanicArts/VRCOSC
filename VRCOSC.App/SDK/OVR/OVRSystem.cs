@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -39,16 +39,6 @@ public class OVRSystem
 
         auditDevices();
         updateDevices();
-    }
-
-    /// <summary>
-    /// Checks to see if the user is wearing their headset
-    /// </summary>
-    public bool IsUserPresent()
-    {
-        if (!HMD.IsConnected) return false;
-
-        return OpenVR.System.GetTrackedDeviceActivityLevel(HMD.Id) == EDeviceActivityLevel.k_EDeviceActivityLevel_UserInteraction;
     }
 
     private void auditDevices()

@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -83,6 +83,26 @@ public class OVRClient
 
     public void TriggerLeftControllerHaptic(float durationSeconds, float frequency, float amplitude) => OVRHelper.TriggerHaptic(Input.LeftControllerHapticActionHandle, System.LeftController.Id, durationSeconds, frequency, amplitude);
     public void TriggerRightControllerHaptic(float durationSeconds, float frequency, float amplitude) => OVRHelper.TriggerHaptic(Input.RightControllerHapticActionHandle, System.RightController.Id, durationSeconds, frequency, amplitude);
+
+    /// <summary>
+    /// Checks to see if the user is wearing their headset
+    /// </summary>
+    public bool IsUserPresent()
+    {
+        if (!HasInitialised || !HMD.IsConnected) return false;
+
+        return OpenVR.System.GetTrackedDeviceActivityLevel(HMD.Id) == EDeviceActivityLevel.k_EDeviceActivityLevel_UserInteraction;
+    }
+
+    /// <summary>
+    /// Checks to see if the dashboard is visible
+    /// </summary>
+    public bool IsDashboardVisible()
+    {
+        if (!HasInitialised) return false;
+
+        return OpenVR.Overlay.IsDashboardVisible();
+    }
 
     private void shutdown()
     {
