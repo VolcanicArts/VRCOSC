@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -14,31 +14,31 @@ public class OVRClient
 {
     private static readonly uint vrevent_t_size = (uint)Unsafe.SizeOf<VREvent_t>();
 
-    public Action? OnShutdown;
+    internal Action? OnShutdown;
 
     public bool HasInitialised { get; private set; }
 
     public readonly OVRSystem System;
     public readonly OVRInput Input;
-    public OVRMetadata? Metadata;
+    internal OVRMetadata? Metadata;
 
     public HMD HMD => System.HMD;
     public Controller LeftController => System.LeftController;
     public Controller RightController => System.RightController;
     public IEnumerable<Tracker> Trackers => System.Trackers;
 
-    public OVRClient()
+    internal OVRClient()
     {
         System = new OVRSystem();
         Input = new OVRInput(this);
     }
 
-    public void SetMetadata(OVRMetadata metadata)
+    internal void SetMetadata(OVRMetadata metadata)
     {
         Metadata = metadata;
     }
 
-    public void Init()
+    internal void Init()
     {
         if (HasInitialised || Metadata is null) return;
 
@@ -51,7 +51,7 @@ public class OVRClient
         HasInitialised = true;
     }
 
-    public void Update()
+    internal void Update()
     {
         if (!HasInitialised) return;
 
@@ -91,7 +91,7 @@ public class OVRClient
         OnShutdown?.Invoke();
     }
 
-    public void SetAutoLaunch(bool value)
+    internal void SetAutoLaunch(bool value)
     {
         if (!HasInitialised) return;
 

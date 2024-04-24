@@ -5,7 +5,7 @@ using Valve.VR;
 
 namespace VRCOSC.App.SDK.OVR.Metadata;
 
-public class OVRMetadata
+internal class OVRMetadata
 {
     public EVRApplicationType ApplicationType { get; init; }
     public string ApplicationManifest { get; init; } = null!;

@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace VRCOSC.App.SDK.OVR.Metadata;
 
-public class OVRManifest
+internal class OVRManifest
 {
     [JsonProperty("source")]
     public string Source = "builtin";
@@ -18,7 +18,7 @@ public class OVRManifest
     };
 }
 
-public class OVRApplication
+internal class OVRApplication
 {
     [JsonProperty("app_key")]
     public string AppKey = "volcanicarts.vrcosc";
@@ -42,13 +42,13 @@ public class OVRApplication
     public OVRStrings Strings = new();
 }
 
-public class OVRStrings
+internal class OVRStrings
 {
     [JsonProperty("en_us")]
     public OVRLocalisation Localisation = new();
 }
 
-public class OVRLocalisation
+internal class OVRLocalisation
 {
     [JsonProperty("name")]
     public string Name = "VRCOSC";

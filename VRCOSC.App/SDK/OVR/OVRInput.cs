@@ -18,15 +18,15 @@ public class OVRInput
     private readonly ulong[] rightControllerActions = new ulong[8];
     private readonly ulong[] hapticActions = new ulong[2];
 
-    public ulong LeftControllerHapticActionHandle => hapticActions[0];
-    public ulong RightControllerHapticActionHandle => hapticActions[1];
+    internal ulong LeftControllerHapticActionHandle => hapticActions[0];
+    internal ulong RightControllerHapticActionHandle => hapticActions[1];
 
-    public OVRInput(OVRClient client)
+    internal OVRInput(OVRClient client)
     {
         this.client = client;
     }
 
-    public void Init()
+    internal void Init()
     {
         OpenVR.Input.SetActionManifestPath(client.Metadata.ActionManifest);
         getActionHandles();
@@ -59,7 +59,7 @@ public class OVRInput
         OpenVR.Input.GetActionSetHandle("/actions/haptic", ref hapticActionSetHandle);
     }
 
-    public void Update()
+    internal void Update()
     {
         updateActionSet();
         updateDevices();

@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -13,13 +13,13 @@ public class OVRSystem
 {
     public const int MAX_TRACKER_COUNT = 8;
 
-    public HMD HMD { get; private set; } = null!;
-    public Controller LeftController { get; private set; } = null!;
-    public Controller RightController { get; private set; } = null!;
-    public List<Tracker> Trackers = new();
+    internal HMD HMD { get; private set; } = null!;
+    internal Controller LeftController { get; private set; } = null!;
+    internal Controller RightController { get; private set; } = null!;
+    internal readonly List<Tracker> Trackers = new();
     public float FPS { get; private set; }
 
-    public void Init()
+    internal void Init()
     {
         HMD = new HMD();
         LeftController = new Controller();
@@ -33,7 +33,7 @@ public class OVRSystem
         }
     }
 
-    public void Update()
+    internal void Update()
     {
         FPS = 1000.0f / OVRHelper.GetFrameTimeMilli();
 

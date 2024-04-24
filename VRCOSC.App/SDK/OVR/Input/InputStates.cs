@@ -5,17 +5,16 @@ namespace VRCOSC.App.SDK.OVR.Input;
 
 public class InputStates
 {
-    public Button A = new();
-    public Button B = new();
+    public readonly Button A = new();
+    public readonly Button B = new();
 
-    public bool StickTouched;
+    public bool StickTouched { get; internal set; }
+    public bool PadTouched { get; internal set; }
 
-    public bool PadTouched;
-
-    public float IndexFinger;
-    public float MiddleFinger;
-    public float RingFinger;
-    public float PinkyFinger;
+    public float IndexFinger { get; internal set; }
+    public float MiddleFinger { get; internal set; }
+    public float RingFinger { get; internal set; }
+    public float PinkyFinger { get; internal set; }
 
     public bool ThumbUp => !ThumbDown;
     public bool ThumbDown => A.Touched || B.Touched || StickTouched || PadTouched;

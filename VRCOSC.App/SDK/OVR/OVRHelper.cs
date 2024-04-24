@@ -12,9 +12,9 @@ using Valve.VR;
 namespace VRCOSC.App.SDK.OVR;
 
 [SuppressMessage("Usage", "CA2211:Non-constant fields should not be visible")]
-public static class OVRHelper
+internal static class OVRHelper
 {
-    public static Action<string>? OnError;
+    internal static Action<string>? OnError;
 
     private static void error(string methodName, ETrackedDeviceProperty property, ETrackedPropertyError error, uint index)
     {
@@ -162,7 +162,7 @@ public static class OVRHelper
         return string.Empty;
     }
 
-    public static void TriggerHaptic(ulong action, uint device, float durationSeconds, float frequency, float amplitude)
+    internal static void TriggerHaptic(ulong action, uint device, float durationSeconds, float frequency, float amplitude)
     {
         if (device == OpenVR.k_unTrackedDeviceIndexInvalid) return;
 
