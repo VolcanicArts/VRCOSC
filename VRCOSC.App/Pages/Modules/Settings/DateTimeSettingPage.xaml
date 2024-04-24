@@ -5,8 +5,9 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
       mc:Ignorable="d">
-    <Grid Height="50">
+    <Grid Height="30">
         <xctk:DateTimePicker Value="{Binding ProxyValue}" FormatString="yyyy-MM-dd HH:mm:ss"
-                             HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                             FontSize="18" VerticalContentAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                             ShowButtonSpinner="False"/>
     </Grid>
 </Page>
