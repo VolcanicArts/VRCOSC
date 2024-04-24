@@ -31,7 +31,7 @@ public class SerialisableModule : SerialisableVersion
         Version = 1;
 
         Enabled = module.Enabled.Value;
-        module.Settings.Where(pair => !pair.Value.IsDefault()).ForEach(pair => Settings.Add(pair.Key, pair.Value.GetRawValue()));
-        module.Parameters.Where(pair => !pair.Value.IsDefault()).ForEach(pair => Parameters.Add(pair.Key.ToLookup(), pair.Value.GetRawValue()));
+        module.Settings.Where(pair => !pair.Value.IsDefault()).ForEach(pair => Settings.Add(pair.Key, pair.Value.GetSerialisableValue()));
+        module.Parameters.Where(pair => !pair.Value.IsDefault()).ForEach(pair => Parameters.Add(pair.Key.ToLookup(), pair.Value.GetSerialisableValue()));
     }
 }

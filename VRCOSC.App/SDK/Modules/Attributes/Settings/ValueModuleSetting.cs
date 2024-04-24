@@ -207,7 +207,7 @@ public class DateTimeModuleSetting : ValueModuleSetting<DateTimeOffset>
     {
     }
 
-    public override object GetRawValue() => Attribute.Value.UtcDateTime.ToString("O");
+    public override object GetSerialisableValue() => Attribute.Value.UtcDateTime.ToString("O");
 
     public override bool Deserialise(object ingestValue)
     {

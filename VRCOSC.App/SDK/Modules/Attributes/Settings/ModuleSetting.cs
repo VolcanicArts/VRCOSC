@@ -52,6 +52,8 @@ public abstract class ModuleSetting : ModuleAttribute, INotifyPropertyChanged
         }
     }
 
+    public override object GetSerialisableValue() => GetRawValue();
+
     protected ModuleSetting(ModuleSettingMetadata metadata)
         : base(metadata)
     {

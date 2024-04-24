@@ -69,6 +69,11 @@ public abstract class ModuleAttribute
     public abstract object GetRawValue();
 
     /// <summary>
+    /// Retrieves the unknown serialisable value for this <see cref="ModuleAttribute"/>
+    /// </summary>
+    public abstract object GetSerialisableValue();
+
+    /// <summary>
     /// Call to request serialisation of this <see cref="ModuleAttribute"/>
     /// </summary>
     public Action? RequestSerialisation;
