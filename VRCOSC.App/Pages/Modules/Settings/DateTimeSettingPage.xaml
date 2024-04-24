@@ -6,7 +6,7 @@
       xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
       mc:Ignorable="d">
     <Grid Height="50">
-        <xctk:DateTimePicker Value="{Binding Attribute.Value}" FormatString="yyyy-MM-dd HH:mm:ss"
+        <xctk:DateTimePicker Value="{Binding ProxyValue}" FormatString="yyyy-MM-dd HH:mm:ss"
                              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
     </Grid>
 </Page>
