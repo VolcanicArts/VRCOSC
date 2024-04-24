@@ -206,9 +206,9 @@ public class DateTimeModuleSetting : ValueModuleSetting<DateTimeOffset>
 
     public override bool Deserialise(object ingestValue)
     {
-        if (ingestValue is not DateTimeOffset dateTimeValue) return false;
+        if (ingestValue is not DateTime dateTimeValue) return false;
 
-        Attribute.Value = dateTimeValue;
+        Attribute.Value = new DateTimeOffset(dateTimeValue, TimeZoneInfo.Local.GetUtcOffset(dateTimeValue));
         return true;
     }
 
