@@ -113,12 +113,9 @@ public class ModuleManager : INotifyPropertyChanged
     {
         Logger.Log("Module reload requested");
 
-        UnloadAllModules();
-
         ChatBoxManager.GetInstance().Unload();
-
+        UnloadAllModules();
         LoadAllModules();
-
         ChatBoxManager.GetInstance().Load();
     }
 
