@@ -204,13 +204,11 @@ public class DateTimeModuleSetting : ValueModuleSetting<DateTimeOffset>
     {
     }
 
-    public override object GetRawValue() => Attribute.Value.ToUnixTimeMilliseconds();
-
     public override bool Deserialise(object ingestValue)
     {
-        if (ingestValue is not long unixTimeMilliseconds) return false;
+        if (ingestValue is not DateTime dateTimeValue) return false;
 
-        Attribute.Value = DateTimeOffset.FromUnixTimeMilliseconds(unixTimeMilliseconds);
+        Attribute.Value = new DateTimeOffset(dateTimeValue, TimeZoneInfo.Local.GetUtcOffset(dateTimeValue));
         return true;
     }
 
