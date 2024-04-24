@@ -188,6 +188,8 @@ public class ChatBoxManager : INotifyPropertyChanged
 
     public async void Stop()
     {
+        Timeline.Clips.ForEach(clip => clip.IsChosenClip.Value = false);
+
         await (sendTask?.StopAsync() ?? Task.CompletedTask);
         await (updateTask?.StopAsync() ?? Task.CompletedTask);
         sendTask = null;
@@ -205,7 +207,11 @@ public class ChatBoxManager : INotifyPropertyChanged
         updateBuiltInVariables();
         ModuleManager.GetInstance().ChatBoxUpdate();
 
-        Timeline.Clips.ForEach(clip => clip.Update());
+        Timeline.Clips.ForEach(clip =>
+        {
+            clip.Update();
+            clip.IsChosenClip.Value = false;
+        });
         TriggeredEvents.Clear();
 
         evaluateClips();
@@ -244,6 +250,8 @@ public class ChatBoxManager : INotifyPropertyChanged
         }
 
         isClear = false;
+
+        clip.IsChosenClip.Value = true;
         sendText(clip.GetFormattedText());
     }
 

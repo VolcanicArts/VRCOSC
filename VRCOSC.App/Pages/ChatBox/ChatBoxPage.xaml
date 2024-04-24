@@ -11,12 +11,13 @@
       MouseLeftButtonDown="ChatBoxPage_OnMouseLeftButtonDown"
       MouseLeftButtonUp="ChatBoxPage_OnMouseLeftButtonUp">
     <Page.Resources>
-        <ui:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" Invert="True"/>
+        <ui:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" Invert="True" />
         <local:IndicatorPositionConverter x:Key="IndicatorPositionConverter" />
         <local:ClipXPositionConverter x:Key="ClipXPositionConverter" />
         <local:ClipYPositionConverter x:Key="ClipYPositionConverter" />
         <local:ClipWidthConverter x:Key="ClipWidthConverter" />
         <local:ClipEnabledToOpacityConverter x:Key="ClipEnabledToOpacityConverter" />
+        <local:BoolToThicknessConverter x:Key="BoolToThicknessConverter" />
     </Page.Resources>
     <Grid>
         <Border Background="{StaticResource CBackground2}" Padding="10">
@@ -264,71 +265,79 @@
                                                             BorderBrush="{StaticResource CBackground1}"
                                                             Opacity="{Binding Enabled.Value, Mode=OneWay, Converter={StaticResource ClipEnabledToOpacityConverter}}">
                                                             <!--> Clip Contents <-->
-                                                            <Grid
-                                                                MouseLeftButtonDown="Clip_OnMouseLeftButtonDown">
-                                                                <Grid.Tag>
-                                                                    <Binding />
-                                                                </Grid.Tag>
-                                                                <Grid.ColumnDefinitions>
-                                                                    <ColumnDefinition
-                                                                        Width="15" />
-                                                                    <ColumnDefinition
-                                                                        Width="*" />
-                                                                    <ColumnDefinition
-                                                                        Width="15" />
-                                                                </Grid.ColumnDefinitions>
-                                                                <Border Grid.Column="0"
-                                                                        MouseLeftButtonDown="ClipLeft_OnLeftMouseButtonDown"
-                                                                        MouseLeftButtonUp="ClipLeft_OnLeftMouseButtonUp"
-                                                                        Background="{StaticResource CBackground1}"
-                                                                        CornerRadius="3 0 0 3">
-                                                                    <Border.Tag>
+                                                            <Border
+                                                                Background="Transparent"
+                                                                HorizontalAlignment="Stretch"
+                                                                VerticalAlignment="Stretch"
+                                                                BorderBrush="Yellow"
+                                                                BorderThickness="{Binding IsChosenClip.Value, Mode=OneWay, Converter={StaticResource BoolToThicknessConverter}}"
+                                                                CornerRadius="5">
+                                                                <Grid
+                                                                    MouseLeftButtonDown="Clip_OnMouseLeftButtonDown">
+                                                                    <Grid.Tag>
                                                                         <Binding />
-                                                                    </Border.Tag>
-                                                                    <fa5:FontAwesome
-                                                                        Icon="Solid_GripLines"
-                                                                        Rotation="90"
-                                                                        HorizontalAlignment="Center"
-                                                                        VerticalAlignment="Center"
-                                                                        Foreground="{StaticResource CForeground3}"
-                                                                        Margin="3 0" />
-                                                                </Border>
-                                                                <Border Grid.Column="1"
-                                                                        MouseLeftButtonDown="ClipMain_OnLeftMouseButtonDown"
-                                                                        MouseLeftButtonUp="ClipMain_OnLeftMouseButtonUp">
-                                                                    <Border.Tag>
-                                                                        <Binding />
-                                                                    </Border.Tag>
-                                                                    <Border
-                                                                        Background="Transparent"
-                                                                        HorizontalAlignment="Stretch"
-                                                                        VerticalAlignment="Stretch">
-                                                                        <TextBlock
-                                                                            Text="{Binding Name.Value}"
-                                                                            HorizontalAlignment="Stretch"
+                                                                    </Grid.Tag>
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition
+                                                                            Width="15" />
+                                                                        <ColumnDefinition
+                                                                            Width="*" />
+                                                                        <ColumnDefinition
+                                                                            Width="15" />
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <Border Grid.Column="0"
+                                                                            MouseLeftButtonDown="ClipLeft_OnLeftMouseButtonDown"
+                                                                            MouseLeftButtonUp="ClipLeft_OnLeftMouseButtonUp"
+                                                                            Background="{StaticResource CBackground1}"
+                                                                            CornerRadius="3 0 0 3">
+                                                                        <Border.Tag>
+                                                                            <Binding />
+                                                                        </Border.Tag>
+                                                                        <fa5:FontAwesome
+                                                                            Icon="Solid_GripLines"
+                                                                            Rotation="90"
+                                                                            HorizontalAlignment="Center"
                                                                             VerticalAlignment="Center"
-                                                                            TextAlignment="Center"
-                                                                            FontSize="20"
-                                                                            Foreground="{StaticResource CForeground1}" />
+                                                                            Foreground="{StaticResource CForeground3}"
+                                                                            Margin="3 0" />
                                                                     </Border>
-                                                                </Border>
-                                                                <Border Grid.Column="2"
-                                                                        Background="{StaticResource CBackground1}"
-                                                                        CornerRadius="0 3 3 0"
-                                                                        MouseLeftButtonDown="ClipRight_OnLeftMouseButtonDown"
-                                                                        MouseLeftButtonUp="ClipRight_OnLeftMouseButtonUp">
-                                                                    <Border.Tag>
-                                                                        <Binding />
-                                                                    </Border.Tag>
-                                                                    <fa5:FontAwesome
-                                                                        Icon="Solid_GripLines"
-                                                                        Rotation="90"
-                                                                        HorizontalAlignment="Center"
-                                                                        VerticalAlignment="Center"
-                                                                        Foreground="{StaticResource CForeground3}"
-                                                                        Margin="3 0" />
-                                                                </Border>
-                                                            </Grid>
+                                                                    <Border Grid.Column="1"
+                                                                            MouseLeftButtonDown="ClipMain_OnLeftMouseButtonDown"
+                                                                            MouseLeftButtonUp="ClipMain_OnLeftMouseButtonUp">
+                                                                        <Border.Tag>
+                                                                            <Binding />
+                                                                        </Border.Tag>
+                                                                        <Border
+                                                                            Background="Transparent"
+                                                                            HorizontalAlignment="Stretch"
+                                                                            VerticalAlignment="Stretch">
+                                                                            <TextBlock
+                                                                                Text="{Binding Name.Value}"
+                                                                                HorizontalAlignment="Stretch"
+                                                                                VerticalAlignment="Center"
+                                                                                TextAlignment="Center"
+                                                                                FontSize="20"
+                                                                                Foreground="{StaticResource CForeground1}" />
+                                                                        </Border>
+                                                                    </Border>
+                                                                    <Border Grid.Column="2"
+                                                                            Background="{StaticResource CBackground1}"
+                                                                            CornerRadius="0 3 3 0"
+                                                                            MouseLeftButtonDown="ClipRight_OnLeftMouseButtonDown"
+                                                                            MouseLeftButtonUp="ClipRight_OnLeftMouseButtonUp">
+                                                                        <Border.Tag>
+                                                                            <Binding />
+                                                                        </Border.Tag>
+                                                                        <fa5:FontAwesome
+                                                                            Icon="Solid_GripLines"
+                                                                            Rotation="90"
+                                                                            HorizontalAlignment="Center"
+                                                                            VerticalAlignment="Center"
+                                                                            Foreground="{StaticResource CForeground3}"
+                                                                            Margin="3 0" />
+                                                                    </Border>
+                                                                </Grid>
+                                                            </Border>
                                                         </Border>
                                                     </Border>
                                                 </DataTemplate>
@@ -472,7 +481,8 @@
                            HorizontalAlignment="Center" TextWrapping="Wrap" Foreground="{StaticResource CForeground1}"
                            Text="ChatBox editing is disabled due to bad deserialisation. Fix any module errors and update any module packages, or click the button to ignore the errors if you know what you're doing" />
                 <ui:VRCOSCButton Width="150" Height="35" ButtonColour="Red" Click="IgnoreErrors_ButtonClick">
-                    <TextBlock VerticalAlignment="Center" Foreground="{StaticResource CForeground1}" FontSize="20" Text="Ignore Errors" />
+                    <TextBlock VerticalAlignment="Center" Foreground="{StaticResource CForeground1}" FontSize="20"
+                               Text="Ignore Errors" />
                 </ui:VRCOSCButton>
             </ui:SpacedStackPanel>
         </Border>

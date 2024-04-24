@@ -32,6 +32,8 @@ public class Clip : INotifyPropertyChanged
     public IEnumerable<ClipState> UIStates => States.OrderBy(clipState => clipState.States.Count).ThenBy(clipState => clipState.DisplayName);
     public IEnumerable<ClipEvent> UIEvents => Events.OrderBy(clipEvent => clipEvent.DisplayName);
 
+    public Observable<bool> IsChosenClip { get; } = new();
+
     // TODO: Does this update when counter module instance names update?
     public Dictionary<string, List<ClipVariableReference>> UIVariables
     {
