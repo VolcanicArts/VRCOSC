@@ -17,7 +17,7 @@ public class OVRSystem
     public Controller LeftController { get; private set; } = null!;
     public Controller RightController { get; private set; } = null!;
     public List<Tracker> Trackers = new();
-    public float FPS => 1000.0f / OVRHelper.GetFrameTimeMilli();
+    public float FPS { get; private set; }
 
     public void Init()
     {
@@ -35,6 +35,8 @@ public class OVRSystem
 
     public void Update()
     {
+        FPS = 1000.0f / OVRHelper.GetFrameTimeMilli();
+
         auditDevices();
         updateDevices();
     }
