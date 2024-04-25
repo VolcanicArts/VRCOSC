@@ -34,6 +34,12 @@ internal class VRChatLogReader
     {
         reset();
 
+        if (!Directory.Exists(logfile_location))
+        {
+            Logger.Log("Cancelling log scanning. Cannot find the default VRChat directory");
+            return;
+        }
+
         processTask = new Repeater(process);
         processTask.Start(TimeSpan.FromMilliseconds(200));
     }
