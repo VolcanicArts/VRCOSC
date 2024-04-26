@@ -207,19 +207,16 @@ public class DateTimeModuleSetting : ValueModuleSetting<DateTimeOffset>
     {
     }
 
-    public override object GetSerialisableValue() => Attribute.Value.UtcDateTime.ToString("O");
+    public override object GetSerialisableValue() => Attribute.Value.UtcTicks;
 
     public override bool Deserialise(object ingestValue)
     {
-        if (ingestValue is not DateTime ingestDateTime) return false;
+        if (ingestValue is not long ingestUtcTicks) return false;
 
-        // JSON deserialisation loads the stored UTC string as a local timezone string
-        // Do some weird conversions to adjust it to actual local time on load
+        // Since we're storing the UTC ticks we have to do some conversions to adjust it to local time on load
         // This allows people to share configs and have it automatically adjust to their timezones
 
-        var proxyDateTimeOffset = new DateTimeOffset(ingestDateTime, TimeSpan.Zero);
-        var utcDateTime = proxyDateTimeOffset.DateTime;
-
+        var utcDateTime = new DateTime(ingestUtcTicks, DateTimeKind.Utc);
         var localDateTime = TimeZoneInfo.ConvertTimeFromUtc(utcDateTime, TimeZoneInfo.Local);
         var dateTimeOffset = new DateTimeOffset(localDateTime, TimeZoneInfo.Local.GetUtcOffset(localDateTime));
 
