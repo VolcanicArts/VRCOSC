@@ -83,6 +83,8 @@ public class ModuleManager : INotifyPropertyChanged
 
     public IEnumerable<T> GetModulesOfType<T>() => modules.Where(module => module.GetType().IsAssignableTo(typeof(T))).Cast<T>();
 
+    public IEnumerable<T> GetRunningModulesOfType<T>() => modules.Where(module => runningModules.Contains(module) && module.GetType().IsAssignableTo(typeof(T))).Cast<T>();
+
     public Module GetModuleOfID(string moduleID) => modules.First(module => module.FullID == moduleID);
 
     public IEnumerable<string> GetEnabledModuleIDs() => modules.Where(module => module.Enabled.Value).Select(module => module.FullID);

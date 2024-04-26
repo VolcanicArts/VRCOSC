@@ -130,7 +130,7 @@ internal class VRChatLogReader
             currentWorldID = newWorldID;
             Logger.Log("Detected world leave");
 
-            ModuleManager.GetInstance().GetModulesOfType<IVRCClientEventHandler>().ForEach(handler => handler.OnWorldExit());
+            ModuleManager.GetInstance().GetRunningModulesOfType<IVRCClientEventHandler>().ForEach(handler => handler.OnWorldExit());
         }
     }
 
@@ -142,7 +142,7 @@ internal class VRChatLogReader
             {
                 Logger.Log($"Detected world enter to '{currentWorldID}'");
                 OnWorldEnter?.Invoke(currentWorldID!);
-                ModuleManager.GetInstance().GetModulesOfType<IVRCClientEventHandler>().ForEach(handler => handler.OnWorldEnter(currentWorldID!));
+                ModuleManager.GetInstance().GetRunningModulesOfType<IVRCClientEventHandler>().ForEach(handler => handler.OnWorldEnter(currentWorldID!));
 
                 currentWorldID = null;
                 break;
