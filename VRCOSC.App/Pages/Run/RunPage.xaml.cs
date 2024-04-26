@@ -150,16 +150,24 @@ public partial class RunPage
         AppManager.GetInstance().Restart();
     }
 
-    public void ShowWaitingOverlay() => Dispatcher.Invoke(() => WaitingOverlay.FadeInFromZero(150));
+    public void ShowWaitingOverlay() => Dispatcher.Invoke(() =>
+    {
+        WaitingOverlay.FadeInFromZero(150);
+        CancelButton.IsEnabled = true;
+        ForceStartButton.IsEnabled = true;
+    });
+
     public void HideWaitingOverlay() => Dispatcher.Invoke(() => WaitingOverlay.FadeOutFromOne(150));
 
     private void CancelButton_OnClick(object sender, RoutedEventArgs e)
     {
+        CancelButton.IsEnabled = false;
         AppManager.GetInstance().CancelStartRequest();
     }
 
     private void ForceStartButton_OnClick(object sender, RoutedEventArgs e)
     {
+        ForceStartButton.IsEnabled = false;
         AppManager.GetInstance().ForceStart();
     }
 

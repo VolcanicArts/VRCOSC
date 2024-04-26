@@ -140,12 +140,12 @@
                     </Border>
                     <Border Grid.Row="2" Background="{StaticResource CBackground3}" CornerRadius="0 0 5 5" Padding="10">
                         <Grid>
-                            <ui:VRCOSCButton HorizontalAlignment="Left" ButtonColour="Red" Width="150"
+                            <ui:VRCOSCButton x:Name="CancelButton" HorizontalAlignment="Left" ButtonColour="Red" Width="150"
                                              Click="CancelButton_OnClick">
                                 <TextBlock Text="Cancel" FontSize="20" Foreground="{StaticResource CForeground1}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center" />
                             </ui:VRCOSCButton>
-                            <ui:VRCOSCButton HorizontalAlignment="Right" ButtonColour="Blue" Width="150"
+                            <ui:VRCOSCButton x:Name="ForceStartButton" HorizontalAlignment="Right" ButtonColour="Blue" Width="150"
                                              Click="ForceStartButton_OnClick">
                                 <TextBlock Text="Start Anyway" FontSize="20" Foreground="{StaticResource CForeground1}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center" />
