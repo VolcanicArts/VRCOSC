@@ -34,9 +34,9 @@ public class Repeater
                 {
                     action.Invoke();
                 }
-                catch (Exception ex)
+                catch (Exception e)
                 {
-                    Console.WriteLine($"Error occurred: {ex.Message}");
+                    ExceptionHandler.Handle(e, $"{nameof(Repeater)} has experienced an exception");
                 }
             }
         }, cancellationTokenSource.Token);
