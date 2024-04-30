@@ -69,15 +69,16 @@ public class VRChatOscClient : OscClient
     public async Task<object?> FindParameterValue(string parameterName)
     {
         var node = await findAddress(parameterName);
-        if (node is null) return null;
+        if (node?.Value is null || !node.Value.Any()) return null;
 
         return node.OscType switch
         {
+            "s" => Convert.ToString(node.Value[0]),
             "f" => Convert.ToSingle(node.Value[0]),
             "i" => Convert.ToInt32(node.Value[0]),
             "T" => Convert.ToBoolean(node.Value[0]),
             "F" => Convert.ToBoolean(node.Value[0]),
-            _ => throw new InvalidOperationException($"Unknown type {node.OscType}")
+            _ => throw new InvalidOperationException($"Unknown type '{node.OscType}'")
         };
     }
 
@@ -88,11 +89,12 @@ public class VRChatOscClient : OscClient
 
         return node.OscType switch
         {
+            "s" => TypeCode.String,
             "f" => TypeCode.Single,
             "i" => TypeCode.Int32,
             "T" => TypeCode.Boolean,
             "F" => TypeCode.Boolean,
-            _ => throw new InvalidOperationException($"Unknown type {node.OscType}")
+            _ => throw new InvalidOperationException($"Unknown type '{node.OscType}'")
         };
     }
 }
