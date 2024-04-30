@@ -70,6 +70,18 @@ public class AppManager
         OVRClient = new OVRClient();
         ChatBoxWorldBlacklist.Init();
 
+        OVRClient.SetMetadata(new OVRMetadata
+        {
+            ApplicationType = EVRApplicationType.VRApplication_Background,
+            ApplicationManifest = Storage.GetFullPath("openvr/app.vrmanifest"),
+            ActionManifest = Storage.GetFullPath("openvr/action_manifest.json")
+        });
+
+        OVRHelper.OnError += m => Logger.Log($"[OpenVR] {m}");
+    }
+
+    public void InitialLoadComplete()
+    {
         VRChatOscClient.Init(ConnectionManager);
         ConnectionManager.Init();
 
@@ -81,15 +93,6 @@ public class AppManager
 
         openvrUpdateTask = new Repeater(() => OVRClient.Update());
         openvrUpdateTask.Start(TimeSpan.FromSeconds(1d / 60d));
-
-        OVRClient.SetMetadata(new OVRMetadata
-        {
-            ApplicationType = EVRApplicationType.VRApplication_Background,
-            ApplicationManifest = Storage.GetFullPath("openvr/app.vrmanifest"),
-            ActionManifest = Storage.GetFullPath("openvr/action_manifest.json")
-        });
-
-        OVRHelper.OnError += m => Logger.Log($"[OpenVR] {m}");
     }
 
     private void update()

@@ -88,6 +88,7 @@ public partial class MainWindow
             {
                 MainWindowContent.FadeInFromZero(500);
                 LoadingOverlay.FadeOutFromOne(500);
+                AppManager.GetInstance().InitialLoadComplete();
             });
         };
 
