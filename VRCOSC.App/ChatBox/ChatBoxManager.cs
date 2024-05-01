@@ -289,6 +289,8 @@ public class ChatBoxManager : INotifyPropertyChanged
 
     #region States
 
+    public bool DoesModuleHaveStates(string moduleID) => StateReferences.Any(item => item.ModuleID == moduleID);
+
     public void CreateState(ClipStateReference reference)
     {
         StateReferences.Add(reference);
@@ -330,6 +332,8 @@ public class ChatBoxManager : INotifyPropertyChanged
     #endregion
 
     #region Events
+
+    public bool DoesModuleHaveEvents(string moduleID) => EventReferences.Any(item => item.ModuleID == moduleID);
 
     public void CreateEvent(ClipEventReference reference)
     {
