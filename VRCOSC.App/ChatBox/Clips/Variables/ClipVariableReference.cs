@@ -6,7 +6,6 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.ChatBox.Clips.Variables;
 
-// TODO: Should this extend so I can have default values for variable options?
 public class ClipVariableReference
 {
     internal string? ModuleID { get; init; }

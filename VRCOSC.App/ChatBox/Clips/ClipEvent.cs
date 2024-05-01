@@ -19,9 +19,7 @@ public class ClipEvent : ClipElement
     public string ModuleID { get; init; } = null!;
     public string EventID { get; init; } = null!;
 
-    // TODO: Convert to TimeSpan?
     public Observable<float> Length { get; } = new();
-
     public Observable<ClipEventBehaviour> Behaviour = new();
 
     public int BehaviourIndex

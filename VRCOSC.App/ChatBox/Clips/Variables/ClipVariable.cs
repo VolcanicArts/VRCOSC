@@ -45,7 +45,6 @@ public abstract class ClipVariable
                 var displayName = propertyInfo.GetCustomAttribute<ClipVariableOptionAttribute>()!.DisplayName;
                 var description = propertyInfo.GetCustomAttribute<ClipVariableOptionAttribute>()!.Description;
 
-                // TODO: Move this inside the ClipVariableOptionAttribute?
                 Page? pageInstance = null;
 
                 if (propertyInfo.PropertyType == typeof(bool))

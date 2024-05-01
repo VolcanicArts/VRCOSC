@@ -13,7 +13,7 @@ public class OVRDevice
     public uint Id { get; private set; } = OpenVR.k_unTrackedDeviceIndexInvalid;
 
     /// <summary>
-    /// Whether the device has been registed in this OVR session
+    /// Whether the device has been registered in this OVR session
     /// </summary>
     public bool IsPresent { get; private set; }
 
@@ -48,11 +48,9 @@ public class OVRDevice
 
         if (!IsPresent) return;
 
-        IsConnected = IsPresent && IsTrackedDeviceConnected();
+        IsConnected = OpenVR.System.IsTrackedDeviceConnected(Id);
         ProvidesBatteryStatus = OVRHelper.GetBoolTrackedDeviceProperty(Id, ETrackedDeviceProperty.Prop_DeviceProvidesBatteryStatus_Bool);
         IsCharging = OVRHelper.GetBoolTrackedDeviceProperty(Id, ETrackedDeviceProperty.Prop_DeviceIsCharging_Bool);
         BatteryPercentage = OVRHelper.GetFloatTrackedDeviceProperty(Id, ETrackedDeviceProperty.Prop_DeviceBatteryPercentage_Float);
     }
-
-    protected virtual bool IsTrackedDeviceConnected() => OpenVR.System.IsTrackedDeviceConnected(Id);
 }

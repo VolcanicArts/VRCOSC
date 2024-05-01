@@ -21,11 +21,11 @@ public class SensorInfo
 
 public abstract class HardwareComponent
 {
-    protected virtual SensorInfo LoadInfo => throw new NotImplementedException();
+    protected virtual SensorInfo? LoadInfo => null;
 
     public float Usage { get; private set; }
 
-    protected static bool GetIntValue(ISensor sensor, SensorInfo info, out int value)
+    protected static bool GetIntValue(ISensor sensor, SensorInfo? info, out int value)
     {
         if (GetFloatValue(sensor, info, out var floatValue))
         {
@@ -37,8 +37,14 @@ public abstract class HardwareComponent
         return false;
     }
 
-    protected static bool GetFloatValue(ISensor sensor, SensorInfo info, out float value)
+    protected static bool GetFloatValue(ISensor sensor, SensorInfo? info, out float value)
     {
+        if (info is null)
+        {
+            value = 0f;
+            return false;
+        }
+
         foreach (var pair in info.Pairs)
         {
             var innerValue = sensor.Value.GetValueOrDefault(0f);
@@ -62,8 +68,8 @@ public abstract class HardwareComponent
 public abstract class CPU : HardwareComponent
 {
     protected override SensorInfo LoadInfo => new(SensorType.Load, "CPU Total");
-    protected virtual SensorInfo PowerInfo => throw new NotImplementedException();
-    protected virtual SensorInfo TemperatureInfo => throw new NotImplementedException();
+    protected virtual SensorInfo? PowerInfo => null;
+    protected virtual SensorInfo? TemperatureInfo => null;
 
     public int Power { get; private set; }
     public int Temperature { get; private set; }
