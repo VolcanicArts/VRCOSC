@@ -34,7 +34,9 @@ public class Clip : INotifyPropertyChanged
 
     public Observable<bool> IsChosenClip { get; } = new();
 
-    // TODO: Does this update when counter module instance names update?
+    // TODO: This doesn't update when, for example, the counter module updates
+    // This can be solved by listening to when an attribute attempts to serialise and then update this
+    // Same for UIStates and UIEvents
     public Dictionary<string, List<ClipVariableReference>> UIVariables
     {
         get

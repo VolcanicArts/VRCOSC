@@ -29,9 +29,6 @@ public class ChatBoxManager : INotifyPropertyChanged
     public ObservableCollection<ClipStateReference> StateReferences = new();
     public ObservableCollection<ClipEventReference> EventReferences = new();
 
-    // TODO: Create a default string variable reference that's always available
-    // TODO: Create global variables (focused window)
-
     public ObservableCollection<ClipVariableReference> VariableReferences = new();
 
     //public readonly Dictionary<(string, string), string?> VariableValues = new();

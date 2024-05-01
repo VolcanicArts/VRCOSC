@@ -531,7 +531,7 @@ public class IndicatorPositionConverter : IMultiValueConverter
         return 0d;
     }
 
-    public object[] ConvertBack(object value, Type[] targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+    public object[]? ConvertBack(object value, Type[] targetType, object parameter, CultureInfo culture) => null;
 }
 
 public class ClipXPositionConverter : IMultiValueConverter
@@ -547,7 +547,7 @@ public class ClipXPositionConverter : IMultiValueConverter
         return 0d;
     }
 
-    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) => throw new NotImplementedException();
+    public object[]? ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) => null;
 }
 
 public class ClipYPositionConverter : IMultiValueConverter
@@ -562,7 +562,7 @@ public class ClipYPositionConverter : IMultiValueConverter
         return 0d;
     }
 
-    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) => throw new NotImplementedException();
+    public object[]? ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) => null;
 }
 
 public class ClipWidthConverter : IMultiValueConverter
@@ -580,7 +580,7 @@ public class ClipWidthConverter : IMultiValueConverter
         return 0d;
     }
 
-    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) => throw new NotImplementedException();
+    public object[]? ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) => null;
 }
 
 public class ClipEnabledToOpacityConverter : IValueConverter
@@ -595,7 +595,7 @@ public class ClipEnabledToOpacityConverter : IValueConverter
         return 1f;
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+    public object? ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => null;
 }
 
 public class BoolToThicknessConverter : IValueConverter
@@ -610,5 +610,5 @@ public class BoolToThicknessConverter : IValueConverter
         return new Thickness(0);
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+    public object? ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => null;
 }
