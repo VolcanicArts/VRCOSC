@@ -31,7 +31,7 @@ public class ModuleManager : INotifyPropertyChanged
     private AssemblyLoadContext? localModulesContext;
     private Dictionary<string, AssemblyLoadContext>? remoteModulesContexts;
 
-    private IEnumerable<AssemblyLoadContext> joinedAssemblyLoadContexts => remoteModulesContexts?.Values.Concat([localModulesContext!]) ?? [localModulesContext!];
+    private IEnumerable<AssemblyLoadContext?> joinedAssemblyLoadContexts => remoteModulesContexts?.Values.Concat([localModulesContext]) ?? [localModulesContext];
 
     public ObservableDictionary<ModulePackage, List<Module>> Modules { get; } = new();
 
@@ -95,8 +95,7 @@ public class ModuleManager : INotifyPropertyChanged
     {
         try
         {
-            return joinedAssemblyLoadContexts
-                .Any(context => context.Assemblies.Any(assembly => assembly.ExportedTypes.Where(type => type.IsSubclassOf(typeof(Module)) && !type.IsAbstract).Any(type => moduleID.EndsWith(type.Name.ToLowerInvariant()))));
+            return joinedAssemblyLoadContexts.Where(context => context is not null).Any(context => context!.Assemblies.Any(assembly => assembly.ExportedTypes.Where(type => type.IsSubclassOf(typeof(Module)) && !type.IsAbstract).Any(type => moduleID.EndsWith(type.Name.ToLowerInvariant()))));
         }
         catch (Exception)
         {
