@@ -4,13 +4,15 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using VRCOSC.App.ChatBox.Clips;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.ChatBox;
 
-public class Timeline
+public class Timeline : INotifyPropertyChanged
 {
     private const int layer_count = 32;
     private const int default_length = 60;
@@ -41,6 +43,7 @@ public class Timeline
         {
             Clips.ForEach(clip => clip.ChatBoxLengthChange());
             ChatBoxManager.GetInstance().Serialise();
+            OnPropertyChanged(nameof(UILength));
         });
 
         Clips.CollectionChanged += (_, e) =>
@@ -129,6 +132,13 @@ public class Timeline
         var upperBound = boundsList.First(bound => bound >= value && (!isCreating || bound > lowerBound));
 
         return (lowerBound, upperBound);
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }
 
