@@ -5,21 +5,17 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using VRCOSC.App.Packages;
+using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Actions.Packages;
 
 public class PackageInstallAction : CompositeProgressAction
 {
-    private readonly PackageSource packageSource;
-
-    public override string Title => $"Installing {packageSource.DisplayName}";
-
     public PackageInstallAction(Storage storage, PackageSource packageSource, bool shouldUninstall)
     {
-        this.packageSource = packageSource;
-
         if (shouldUninstall) AddAction(new PackageUninstallAction(storage, packageSource));
+        AddAction(new PackageSourceRefreshAction(packageSource, true, SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AllowPreReleasePackages)));
         AddAction(new PackageDownloadAction(storage, packageSource));
     }
 
