@@ -31,7 +31,7 @@ public class ModuleManager : INotifyPropertyChanged
     private AssemblyLoadContext? localModulesContext;
     private Dictionary<string, AssemblyLoadContext>? remoteModulesContexts;
 
-    private IEnumerable<AssemblyLoadContext> joinedAssemblyLoadContexts => remoteModulesContexts?.Values.Concat([localModulesContext]) ?? [localModulesContext];
+    private IEnumerable<AssemblyLoadContext> joinedAssemblyLoadContexts => remoteModulesContexts?.Values.Concat([localModulesContext!]) ?? [localModulesContext!];
 
     public ObservableDictionary<ModulePackage, List<Module>> Modules { get; } = new();
 
@@ -274,7 +274,7 @@ public class ModuleManager : INotifyPropertyChanged
         }
         catch (Exception e)
         {
-            ExceptionHandler.Handle(e, $"Error in {nameof(ModuleManager)}");
+            ExceptionHandler.Handle(e, $"Error in {nameof(ModuleManager)} when attempting to load a module package with ID '{packageId}'");
         }
 
         return moduleInstanceList;
@@ -316,7 +316,7 @@ public class ModuleManager : INotifyPropertyChanged
         }
         catch (Exception e)
         {
-            ExceptionHandler.Handle(e, $"{nameof(ModuleManager)} experienced an exception");
+            ExceptionHandler.Handle(e, $"{nameof(ModuleManager)} experienced an exception when attempting to load the assembly from path '{path}'");
         }
     }
 
