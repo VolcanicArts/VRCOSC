@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Diagnostics;
 using System.Text;
 using System.Windows;
 
@@ -29,10 +30,13 @@ public static class ExceptionHandler
         sb.AppendLine();
         sb.AppendLine("Please report this on the Discord server or ask for help if you're developing a module");
         sb.AppendLine();
+        sb.AppendLine("Press OK to join Discord server and report the issue");
+        sb.AppendLine("Press cancel to ignore the error");
+        sb.AppendLine();
         sb.AppendLine(e.GetType().FullName);
         sb.AppendLine(e.StackTrace);
 
-        Exception? innerException = e.InnerException;
+        var innerException = e.InnerException;
 
         while (innerException is not null)
         {
@@ -44,7 +48,17 @@ public static class ExceptionHandler
 
         isWindowShowing = true;
 
-        MessageBox.Show(sb.ToString(), $"VRCOSC has experienced a {(isCritical ? "critical" : "non-critical")} exception", MessageBoxButton.OK, MessageBoxImage.Error);
+        var result = MessageBox.Show(sb.ToString(), $"VRCOSC has experienced a {(isCritical ? "critical" : "non-critical")} exception", MessageBoxButton.OKCancel, MessageBoxImage.Error);
+
+        if (result == MessageBoxResult.OK)
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = VRCOSCLinks.DISCORD_INVITE,
+                UseShellExecute = true,
+                WorkingDirectory = Environment.CurrentDirectory
+            });
+        }
 
         isWindowShowing = false;
 
