@@ -159,6 +159,24 @@
                                                                         </ControlTemplate>
                                                                     </TextBox.Template>
                                                                 </TextBox>
+                                                                <!--> Options <-->
+                                                                <Grid>
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="*" />
+                                                                        <ColumnDefinition Width="*" />
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <TextBlock Grid.Column="0"
+                                                                               Foreground="{StaticResource CForeground1}"
+                                                                               Text="Show Typing Indicator"
+                                                                               Margin="4 0 0 0"
+                                                                               VerticalAlignment="Center"
+                                                                               FontSize="16" />
+                                                                    <ui:VRCOSCCheckBox Grid.Column="1"
+                                                                        HorizontalAlignment="Center"
+                                                                        VerticalAlignment="Center"
+                                                                        IsChecked="{Binding ShowTyping.Value}"
+                                                                        Width="25" Height="25" />
+                                                                </Grid>
                                                                 <!--> Variables List <-->
                                                                 <Border Background="Transparent"
                                                                         HorizontalAlignment="Stretch"
@@ -364,6 +382,24 @@
                                                                         </ControlTemplate>
                                                                     </TextBox.Template>
                                                                 </TextBox>
+                                                                <!--> Options <-->
+                                                                <Grid>
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="*" />
+                                                                        <ColumnDefinition Width="*" />
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <TextBlock Grid.Column="0"
+                                                                               Foreground="{StaticResource CForeground1}"
+                                                                               Text="Show Typing Indicator"
+                                                                               Margin="4 0 0 0"
+                                                                               VerticalAlignment="Center"
+                                                                               FontSize="16" />
+                                                                    <ui:VRCOSCCheckBox Grid.Column="1"
+                                                                        HorizontalAlignment="Center"
+                                                                        VerticalAlignment="Center"
+                                                                        IsChecked="{Binding ShowTyping.Value}"
+                                                                        Width="25" Height="25" />
+                                                                </Grid>
                                                                 <!--> Event-specific Options <-->
                                                                 <Grid>
                                                                     <Grid.ColumnDefinitions>

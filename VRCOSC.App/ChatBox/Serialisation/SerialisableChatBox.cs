@@ -103,6 +103,9 @@ public abstract class SerialisableClipElement
     [JsonProperty("format")]
     public string Format = string.Empty;
 
+    [JsonProperty("show_typing")]
+    public bool ShowTyping;
+
     [JsonProperty("variables")]
     public List<SerialisableClipVariable> Variables = new();
 
@@ -114,6 +117,7 @@ public abstract class SerialisableClipElement
     {
         Enabled = clipElement.Enabled.Value;
         Format = clipElement.Format.Value;
+        ShowTyping = clipElement.ShowTyping.Value;
         Variables = clipElement.Variables.Select(clipVariable => new SerialisableClipVariable(clipVariable)).ToList();
     }
 }
