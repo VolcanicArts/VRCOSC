@@ -225,6 +225,7 @@ public class Clip : INotifyPropertyChanged
     }
 
     public string GetFormattedText() => currentEvent is not null ? formatText(currentEvent.Value.Item1) : formatText(currentState!);
+    public bool ShouldShowTyping() => currentEvent is not null ? currentEvent.Value.Item1.ShowTyping.Value : currentState!.ShowTyping.Value;
 
     private string formatText(ClipElement element) => element.RunFormatting();
 

@@ -48,6 +48,9 @@ public class ChatBoxManager : INotifyPropertyChanged
     private Repeater? sendTask;
     private Repeater? updateTask;
     private bool isClear;
+    private Clip? currentClip;
+    private string? currentText;
+    private bool currentIsTyping;
 
     public bool SendEnabled { get; set; }
 
@@ -169,6 +172,8 @@ public class ChatBoxManager : INotifyPropertyChanged
         updateTask = new Repeater(update);
         SendEnabled = true;
         isClear = true;
+        currentIsTyping = false;
+        currentClip = null;
 
         sendTask.Start(TimeSpan.FromMilliseconds(sendInterval));
         updateTask.Start(TimeSpan.FromSeconds(1f / 60f));
@@ -245,9 +250,9 @@ public class ChatBoxManager : INotifyPropertyChanged
         return Timeline.Clips.OrderBy(clip => clip.Layer.Value).FirstOrDefault(clip => clip.Evaluate());
     }
 
-    private void handleClip(Clip? clip)
+    private void handleClip(Clip? newClip)
     {
-        if (!SendEnabled || clip is null)
+        if (!SendEnabled || newClip is null)
         {
             clearChatBox();
             return;
@@ -255,8 +260,19 @@ public class ChatBoxManager : INotifyPropertyChanged
 
         isClear = false;
 
-        clip.IsChosenClip.Value = true;
-        sendText(clip.GetFormattedText());
+        var newText = newClip.GetFormattedText();
+        var newIsTyping = newClip.ShouldShowTyping();
+
+        if (newClip == currentClip && newText == currentText && newIsTyping == currentIsTyping) return;
+
+        currentClip = newClip;
+        currentText = newText;
+        currentIsTyping = newIsTyping;
+
+        newClip.IsChosenClip.Value = true;
+
+        sendText(newText);
+        setTyping(newIsTyping);
     }
 
     private void sendText(string text)
@@ -279,7 +295,7 @@ public class ChatBoxManager : INotifyPropertyChanged
         isClear = true;
     }
 
-    public void SetTyping(bool typing)
+    private void setTyping(bool typing)
     {
         AppManager.GetInstance().VRChatOscClient.SendValue(VRChatOscConstants.ADDRESS_CHATBOX_TYPING, typing);
     }

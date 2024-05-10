@@ -57,12 +57,12 @@ public class ChatBoxModule : AvatarModule
 
     #region States
 
-    protected ClipStateReference? CreateState(Enum lookup, string displayName, string defaultFormat = "", IEnumerable<ClipVariableReference>? defaultVariables = null)
+    protected ClipStateReference? CreateState(Enum lookup, string displayName, string defaultFormat = "", IEnumerable<ClipVariableReference>? defaultVariables = null, bool defaultShowTyping = false)
     {
-        return CreateState(lookup.ToLookup(), displayName, defaultFormat, defaultVariables);
+        return CreateState(lookup.ToLookup(), displayName, defaultFormat, defaultVariables, defaultShowTyping);
     }
 
-    protected ClipStateReference? CreateState(string lookup, string displayName, string defaultFormat = "", IEnumerable<ClipVariableReference>? defaultVariables = null)
+    protected ClipStateReference? CreateState(string lookup, string displayName, string defaultFormat = "", IEnumerable<ClipVariableReference>? defaultVariables = null, bool defaultShowTyping = false)
     {
         if (GetState(lookup) is not null)
         {
@@ -75,6 +75,7 @@ public class ChatBoxModule : AvatarModule
             ModuleID = FullID,
             StateID = lookup,
             DefaultFormat = defaultFormat,
+            DefaultShowTyping = defaultShowTyping,
             DefaultVariables = defaultVariables?.ToList() ?? [],
             DisplayName = { Value = displayName }
         };
@@ -107,12 +108,12 @@ public class ChatBoxModule : AvatarModule
 
     #region Events
 
-    protected ClipEventReference? CreateEvent(Enum lookup, string displayName, string defaultFormat = "", IEnumerable<ClipVariableReference>? defaultVariables = null, float defaultLength = 5, ClipEventBehaviour defaultBehaviour = ClipEventBehaviour.Override)
+    protected ClipEventReference? CreateEvent(Enum lookup, string displayName, string defaultFormat = "", IEnumerable<ClipVariableReference>? defaultVariables = null, bool defaultShowTyping = false, float defaultLength = 5, ClipEventBehaviour defaultBehaviour = ClipEventBehaviour.Override)
     {
-        return CreateEvent(lookup.ToLookup(), displayName, defaultFormat, defaultVariables, defaultLength, defaultBehaviour);
+        return CreateEvent(lookup.ToLookup(), displayName, defaultFormat, defaultVariables, defaultShowTyping, defaultLength, defaultBehaviour);
     }
 
-    protected ClipEventReference? CreateEvent(string lookup, string displayName, string defaultFormat = "", IEnumerable<ClipVariableReference>? defaultVariables = null, float defaultLength = 5, ClipEventBehaviour defaultBehaviour = ClipEventBehaviour.Override)
+    protected ClipEventReference? CreateEvent(string lookup, string displayName, string defaultFormat = "", IEnumerable<ClipVariableReference>? defaultVariables = null, bool defaultShowTyping = false, float defaultLength = 5, ClipEventBehaviour defaultBehaviour = ClipEventBehaviour.Override)
     {
         if (GetEvent(lookup) is not null)
         {
@@ -125,6 +126,7 @@ public class ChatBoxModule : AvatarModule
             ModuleID = FullID,
             EventID = lookup,
             DefaultFormat = defaultFormat,
+            DefaultShowTyping = defaultShowTyping,
             DefaultVariables = defaultVariables?.ToList() ?? [],
             DefaultLength = defaultLength,
             DefaultBehaviour = defaultBehaviour,

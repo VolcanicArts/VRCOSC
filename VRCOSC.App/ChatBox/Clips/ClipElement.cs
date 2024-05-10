@@ -15,6 +15,8 @@ public class ClipElement : INotifyPropertyChanged
 {
     public Observable<string> Format { get; set; } = new(string.Empty);
     public Observable<bool> Enabled { get; set; } = new();
+    public Observable<bool> ShowTyping { get; set; } = new();
+
     public ObservableCollection<ClipVariable> Variables { get; init; } = new();
 
     public Observable<bool> IsChosenElement { get; } = new();

@@ -68,6 +68,7 @@ public class ClipEvent : ClipElement
         ModuleID = reference.ModuleID;
         EventID = reference.EventID;
         Format = new Observable<string>(reference.DefaultFormat);
+        ShowTyping = new Observable<bool>(reference.DefaultShowTyping);
         Variables = new ObservableCollection<ClipVariable>(reference.DefaultVariables.Select(clipVariableReference => clipVariableReference.CreateInstance()));
         Length = new Observable<float>(reference.DefaultLength);
         Behaviour = new Observable<ClipEventBehaviour>(reference.DefaultBehaviour);
@@ -98,10 +99,11 @@ public enum ClipEventBehaviour
 /// </summary>
 public class ClipEventReference
 {
-    internal string ModuleID { get; init; }
-    internal string EventID { get; init; }
-    internal string DefaultFormat { get; init; }
-    internal List<ClipVariableReference> DefaultVariables { get; init; }
+    internal string ModuleID { get; init; } = null!;
+    internal string EventID { get; init; } = null!;
+    internal string DefaultFormat { get; init; } = string.Empty;
+    internal bool DefaultShowTyping { get; init; } = false;
+    internal List<ClipVariableReference> DefaultVariables { get; init; } = new();
     internal float DefaultLength { get; init; }
     internal ClipEventBehaviour DefaultBehaviour { get; init; }
 

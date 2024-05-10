@@ -76,6 +76,7 @@ public class ClipState : ClipElement
 
         States = new Dictionary<string, string> { { reference.ModuleID, reference.StateID } };
         Format = new Observable<string>(reference.DefaultFormat);
+        ShowTyping = new Observable<bool>(reference.DefaultShowTyping);
         Variables = new ObservableCollection<ClipVariable>(reference.DefaultVariables.Select(clipVariableReference => clipVariableReference.CreateInstance()));
     }
 
@@ -95,6 +96,7 @@ public class ClipStateReference
     internal string ModuleID { get; init; } = null!;
     internal string StateID { get; init; } = null!;
     internal string DefaultFormat { get; init; } = string.Empty;
+    internal bool DefaultShowTyping { get; init; } = false;
     internal List<ClipVariableReference> DefaultVariables { get; init; } = new();
 
     internal bool IsBuiltIn { get; init; }
