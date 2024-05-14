@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using VRCOSC.App.Pages.Run.Tabs;
 using VRCOSC.App.UI;
 using VRCOSC.App.Utils;
 
@@ -27,9 +28,9 @@ public partial class RunPage
         }
     }
 
-    private readonly OSCView oscView;
-    private readonly MiscView miscView;
-    private readonly ModuleView moduleView;
+    private readonly AvatarParameterView avatarParameterView;
+    private readonly ChatBoxView chatBoxView;
+    private readonly RuntimeView runtimeView;
 
     public RunPage()
     {
@@ -40,9 +41,9 @@ public partial class RunPage
         AppManager.GetInstance().State.Subscribe(onAppManagerStateChange, true);
         Logger.NewEntry += onLogEntry;
 
-        oscView = new OSCView();
-        miscView = new MiscView();
-        moduleView = new ModuleView();
+        avatarParameterView = new AvatarParameterView();
+        chatBoxView = new ChatBoxView();
+        runtimeView = new RuntimeView();
 
         setChosenView();
     }
@@ -51,9 +52,9 @@ public partial class RunPage
     {
         ViewFrame.Content = ChosenView switch
         {
-            0 => oscView,
-            1 => miscView,
-            2 => moduleView,
+            0 => runtimeView,
+            1 => avatarParameterView,
+            2 => chatBoxView,
             _ => ViewFrame.Content
         };
 
@@ -171,18 +172,18 @@ public partial class RunPage
         AppManager.GetInstance().ForceStart();
     }
 
-    private void AvatarOSCViewButton_Click(object sender, RoutedEventArgs e)
-    {
-        ChosenView = 0;
-    }
-
-    private void MiscOSCViewButton_Click(object sender, RoutedEventArgs e)
+    private void AvatarParameterViewButton_Click(object sender, RoutedEventArgs e)
     {
         ChosenView = 1;
     }
 
-    private void ModuleViewButton_Click(object sender, RoutedEventArgs e)
+    private void ChatBoxViewButton_Click(object sender, RoutedEventArgs e)
     {
         ChosenView = 2;
+    }
+
+    private void RuntimeViewButton_Click(object sender, RoutedEventArgs e)
+    {
+        ChosenView = 0;
     }
 }

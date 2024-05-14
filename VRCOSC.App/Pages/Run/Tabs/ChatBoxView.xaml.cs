@@ -6,11 +6,11 @@ using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.Pages.ChatBox;
 using VRCOSC.App.UI;
 
-namespace VRCOSC.App.Pages.Run;
+namespace VRCOSC.App.Pages.Run.Tabs;
 
-public partial class MiscView
+public partial class ChatBoxView
 {
-    public MiscView()
+    public ChatBoxView()
     {
         InitializeComponent();
 

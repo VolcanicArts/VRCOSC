@@ -7,9 +7,9 @@ using System.Windows;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.Utils;
 
-namespace VRCOSC.App.Pages.Run;
+namespace VRCOSC.App.Pages.Run.Tabs;
 
-public partial class OSCView : INotifyPropertyChanged
+public partial class AvatarParameterView : INotifyPropertyChanged
 {
     public ObservableDictionary<string, object> OutgoingMessages { get; } = new();
     public ObservableDictionary<string, object> IncomingMessages { get; } = new();
@@ -38,7 +38,7 @@ public partial class OSCView : INotifyPropertyChanged
         }
     }
 
-    public OSCView()
+    public AvatarParameterView()
     {
         InitializeComponent();
 

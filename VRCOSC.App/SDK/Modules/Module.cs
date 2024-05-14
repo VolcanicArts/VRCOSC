@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 using System.Windows.Media;
 using VRCOSC.App.ChatBox;
 using VRCOSC.App.Modules;
@@ -61,6 +62,8 @@ public abstract class Module
 
     private SerialisationManager moduleSerialisationManager = null!;
     private SerialisationManager persistenceSerialisationManager = null!;
+
+    internal Page? RuntimePage;
 
     private readonly object loadLock = new();
 
@@ -418,6 +421,16 @@ public abstract class Module
         if (!Settings.ContainsKey(lookup.ToLookup())) return;
 
         ExceptionHandler.Handle(new InvalidOperationException($"{FullID} attempted to add an already existing lookup ({lookup.ToLookup()}) to its settings"));
+    }
+
+    /// <summary>
+    /// Allows you to set the page that shows up in the `runtime` tab of the run screen
+    /// </summary>
+    /// <param name="page">This should be the instance of your page</param>
+    /// <remarks>You are required to manage your runtime page based on what your module is doing. If you want to remove the runtime page, pass null</remarks>
+    protected void SetRuntimePage(Page? page)
+    {
+        RuntimePage = page;
     }
 
     /// <summary>

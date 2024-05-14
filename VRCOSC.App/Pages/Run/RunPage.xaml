@@ -59,7 +59,15 @@
                                         </Border>
                                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
                                                     Orientation="Horizontal">
-                                            <ui:VRCOSCButton Click="AvatarOSCViewButton_Click">
+                                            <ui:VRCOSCButton Click="RuntimeViewButton_Click">
+                                                <Border Height="30" Width="160">
+                                                    <TextBlock Text="Runtime" TextAlignment="Center"
+                                                               VerticalAlignment="Center"
+                                                               Foreground="{StaticResource CForeground1}" FontSize="16"
+                                                               FontWeight="Bold" />
+                                                </Border>
+                                            </ui:VRCOSCButton>
+                                            <ui:VRCOSCButton Click="AvatarParameterViewButton_Click">
                                                 <Border Height="30" Width="160">
                                                     <TextBlock Text="Avatar" TextAlignment="Center"
                                                                VerticalAlignment="Center"
@@ -67,17 +75,9 @@
                                                                FontWeight="Bold" />
                                                 </Border>
                                             </ui:VRCOSCButton>
-                                            <ui:VRCOSCButton Click="MiscOSCViewButton_Click">
+                                            <ui:VRCOSCButton Click="ChatBoxViewButton_Click">
                                                 <Border Height="30" Width="160">
                                                     <TextBlock Text="ChatBox" TextAlignment="Center"
-                                                               VerticalAlignment="Center"
-                                                               Foreground="{StaticResource CForeground1}" FontSize="16"
-                                                               FontWeight="Bold" />
-                                                </Border>
-                                            </ui:VRCOSCButton>
-                                            <ui:VRCOSCButton Click="ModuleViewButton_Click" Visibility="Collapsed">
-                                                <Border Height="30" Width="160">
-                                                    <TextBlock Text="Runtime Settings" TextAlignment="Center"
                                                                VerticalAlignment="Center"
                                                                Foreground="{StaticResource CForeground1}" FontSize="16"
                                                                FontWeight="Bold" />
