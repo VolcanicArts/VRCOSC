@@ -159,24 +159,6 @@
                                                                         </ControlTemplate>
                                                                     </TextBox.Template>
                                                                 </TextBox>
-                                                                <!--> Options <-->
-                                                                <Grid>
-                                                                    <Grid.ColumnDefinitions>
-                                                                        <ColumnDefinition Width="*" />
-                                                                        <ColumnDefinition Width="*" />
-                                                                    </Grid.ColumnDefinitions>
-                                                                    <TextBlock Grid.Column="0"
-                                                                               Foreground="{StaticResource CForeground1}"
-                                                                               Text="Show Typing Indicator"
-                                                                               Margin="4 0 0 0"
-                                                                               VerticalAlignment="Center"
-                                                                               FontSize="16" />
-                                                                    <ui:VRCOSCCheckBox Grid.Column="1"
-                                                                        HorizontalAlignment="Center"
-                                                                        VerticalAlignment="Center"
-                                                                        IsChecked="{Binding ShowTyping.Value}"
-                                                                        Width="25" Height="25" />
-                                                                </Grid>
                                                                 <!--> Variables List <-->
                                                                 <Border Background="Transparent"
                                                                         HorizontalAlignment="Stretch"
@@ -310,6 +292,24 @@
                                                                         </Border>
                                                                     </Grid>
                                                                 </Border>
+                                                                <!--> Options <-->
+                                                                <Grid>
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="*" />
+                                                                        <ColumnDefinition Width="*" />
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <TextBlock Grid.Column="0"
+                                                                               Foreground="{StaticResource CForeground1}"
+                                                                               Text="Show Typing Indicator"
+                                                                               Margin="4 0 0 0"
+                                                                               VerticalAlignment="Center"
+                                                                               FontSize="16" />
+                                                                    <ui:VRCOSCCheckBox Grid.Column="1"
+                                                                        HorizontalAlignment="Center"
+                                                                        VerticalAlignment="Center"
+                                                                        IsChecked="{Binding ShowTyping.Value}"
+                                                                        Width="25" Height="25" />
+                                                                </Grid>
                                                             </ui:SpacedStackPanel>
                                                         </Border>
                                                     </ControlTemplate>
@@ -382,67 +382,6 @@
                                                                         </ControlTemplate>
                                                                     </TextBox.Template>
                                                                 </TextBox>
-                                                                <!--> Options <-->
-                                                                <Grid>
-                                                                    <Grid.ColumnDefinitions>
-                                                                        <ColumnDefinition Width="*" />
-                                                                        <ColumnDefinition Width="*" />
-                                                                    </Grid.ColumnDefinitions>
-                                                                    <TextBlock Grid.Column="0"
-                                                                               Foreground="{StaticResource CForeground1}"
-                                                                               Text="Show Typing Indicator"
-                                                                               Margin="4 0 0 0"
-                                                                               VerticalAlignment="Center"
-                                                                               FontSize="16" />
-                                                                    <ui:VRCOSCCheckBox Grid.Column="1"
-                                                                        HorizontalAlignment="Center"
-                                                                        VerticalAlignment="Center"
-                                                                        IsChecked="{Binding ShowTyping.Value}"
-                                                                        Width="25" Height="25" />
-                                                                </Grid>
-                                                                <!--> Event-specific Options <-->
-                                                                <Grid>
-                                                                    <Grid.ColumnDefinitions>
-                                                                        <ColumnDefinition Width="*" />
-                                                                        <ColumnDefinition Width="*" />
-                                                                    </Grid.ColumnDefinitions>
-                                                                    <TextBlock Grid.Column="0"
-                                                                               Foreground="{StaticResource CForeground1}"
-                                                                               Text="Length (Seconds)"
-                                                                               VerticalAlignment="Center"
-                                                                               Margin="4 0 0 0"
-                                                                               FontSize="16" />
-                                                                    <TextBox Grid.Column="1"
-                                                                             Text="{Binding Length.Value, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TextBoxParsingConverter}}"
-                                                                             Foreground="{StaticResource CForeground1}"
-                                                                             FontSize="16"
-                                                                             VerticalAlignment="Center"
-                                                                             VerticalContentAlignment="Center"
-                                                                             Margin="-1"
-                                                                             HorizontalAlignment="Stretch"
-                                                                             Background="{StaticResource CBackground4}">
-                                                                    </TextBox>
-                                                                </Grid>
-                                                                <Grid>
-                                                                    <Grid.ColumnDefinitions>
-                                                                        <ColumnDefinition Width="*" />
-                                                                        <ColumnDefinition Width="*" />
-                                                                    </Grid.ColumnDefinitions>
-                                                                    <TextBlock Grid.Column="0"
-                                                                               Foreground="{StaticResource CForeground1}"
-                                                                               Text="Behaviour"
-                                                                               VerticalAlignment="Center"
-                                                                               Margin="4 0 0 0"
-                                                                               FontSize="16" />
-                                                                    <ComboBox Grid.Column="1"
-                                                                              SelectedIndex="{Binding BehaviourIndex}"
-                                                                              ItemsSource="{Binding BehaviourSource}"
-                                                                              Background="{StaticResource CBackground3}"
-                                                                              FontSize="16"
-                                                                              HorizontalAlignment="Stretch"
-                                                                              VerticalContentAlignment="Center"
-                                                                              Margin="0 5" />
-                                                                </Grid>
                                                                 <!--> Variables List <-->
                                                                 <Border Background="Transparent"
                                                                         HorizontalAlignment="Stretch"
@@ -576,6 +515,67 @@
                                                                         </Border>
                                                                     </Grid>
                                                                 </Border>
+                                                                <!--> Options <-->
+                                                                <Grid>
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="*" />
+                                                                        <ColumnDefinition Width="*" />
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <TextBlock Grid.Column="0"
+                                                                               Foreground="{StaticResource CForeground1}"
+                                                                               Text="Show Typing Indicator"
+                                                                               Margin="4 0 0 0"
+                                                                               VerticalAlignment="Center"
+                                                                               FontSize="16" />
+                                                                    <ui:VRCOSCCheckBox Grid.Column="1"
+                                                                        HorizontalAlignment="Center"
+                                                                        VerticalAlignment="Center"
+                                                                        IsChecked="{Binding ShowTyping.Value}"
+                                                                        Width="25" Height="25" />
+                                                                </Grid>
+                                                                <!--> Event-specific Options <-->
+                                                                <Grid>
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="*" />
+                                                                        <ColumnDefinition Width="*" />
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <TextBlock Grid.Column="0"
+                                                                               Foreground="{StaticResource CForeground1}"
+                                                                               Text="Length (Seconds)"
+                                                                               VerticalAlignment="Center"
+                                                                               Margin="4 0 0 0"
+                                                                               FontSize="16" />
+                                                                    <TextBox Grid.Column="1"
+                                                                             Text="{Binding Length.Value, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TextBoxParsingConverter}}"
+                                                                             Foreground="{StaticResource CForeground1}"
+                                                                             FontSize="16"
+                                                                             VerticalAlignment="Center"
+                                                                             VerticalContentAlignment="Center"
+                                                                             Margin="-1"
+                                                                             HorizontalAlignment="Stretch"
+                                                                             Background="{StaticResource CBackground4}">
+                                                                    </TextBox>
+                                                                </Grid>
+                                                                <Grid>
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="*" />
+                                                                        <ColumnDefinition Width="*" />
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <TextBlock Grid.Column="0"
+                                                                               Foreground="{StaticResource CForeground1}"
+                                                                               Text="Behaviour"
+                                                                               VerticalAlignment="Center"
+                                                                               Margin="4 0 0 0"
+                                                                               FontSize="16" />
+                                                                    <ComboBox Grid.Column="1"
+                                                                              SelectedIndex="{Binding BehaviourIndex}"
+                                                                              ItemsSource="{Binding BehaviourSource}"
+                                                                              Background="{StaticResource CBackground3}"
+                                                                              FontSize="16"
+                                                                              HorizontalAlignment="Stretch"
+                                                                              VerticalContentAlignment="Center"
+                                                                              Margin="0 5" />
+                                                                </Grid>
                                                             </ui:SpacedStackPanel>
                                                         </Border>
                                                     </ControlTemplate>

@@ -424,13 +424,6 @@ public class AppManager
     #endregion
 }
 
-[Flags]
-public enum PageLookup
-{
-    Home = 1 << 0,
-    Packages = 1 << 1
-}
-
 public enum AppManagerState
 {
     Waiting,

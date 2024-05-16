@@ -181,8 +181,8 @@ public class ModuleManager : INotifyPropertyChanged
 
             if (failedModulesList.Any())
             {
-                var message = "The following modules failed to load\n";
-                failedModulesList.ForEach(instance => message += $"\n{instance.Item1.FullID} - {instance.Item1.Title}\n{instance.Item2.Message}\n");
+                var message = "The following modules failed to load:\n";
+                message += string.Join("\n", failedModulesList.Select(instance => instance.Item1.FullID));
                 ExceptionHandler.Handle(message);
             }
 
