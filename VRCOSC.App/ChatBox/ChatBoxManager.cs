@@ -263,13 +263,13 @@ public class ChatBoxManager : INotifyPropertyChanged
         var newText = newClip.GetFormattedText();
         var newIsTyping = newClip.ShouldShowTyping();
 
+        newClip.IsChosenClip.Value = true;
+
         if (newClip == currentClip && newText == currentText && newIsTyping == currentIsTyping) return;
 
         currentClip = newClip;
         currentText = newText;
         currentIsTyping = newIsTyping;
-
-        newClip.IsChosenClip.Value = true;
 
         sendText(newText);
         setTyping(newIsTyping);
