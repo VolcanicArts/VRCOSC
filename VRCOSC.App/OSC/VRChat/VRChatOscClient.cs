@@ -43,8 +43,6 @@ public class VRChatOscClient : OscClient
 
     private async Task<OSCQueryNode?> findAddress(string address)
     {
-        Console.WriteLine($"Querying address: {address}");
-
         try
         {
             if (connectionManager.VRChatQueryPort is null) return null;
