@@ -24,6 +24,7 @@ using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Settings;
 using VRCOSC.App.Themes;
 using VRCOSC.App.Utils;
+using VRCOSC.App.VRChatAPI;
 
 namespace VRCOSC.App;
 
@@ -45,6 +46,7 @@ public class AppManager
     public ConnectionManager ConnectionManager = null!;
     public VRChatOscClient VRChatOscClient = null!;
     public VRChatClient VRChatClient = null!;
+    public VRChatAPIClient VRChatAPIClient = null!;
     public OVRClient OVRClient = null!;
 
     private Repeater? updateTask;
@@ -67,6 +69,7 @@ public class AppManager
         ConnectionManager = new ConnectionManager();
         VRChatOscClient = new VRChatOscClient();
         VRChatClient = new VRChatClient(VRChatOscClient);
+        VRChatAPIClient = new VRChatAPIClient();
         OVRClient = new OVRClient();
         ChatBoxWorldBlacklist.Init();
 
