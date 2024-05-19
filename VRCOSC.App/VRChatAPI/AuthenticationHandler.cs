@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -53,8 +53,8 @@ public class AuthenticationHandler
             return;
         }
 
-        State.Value = AuthenticationState.LoggedIn;
         AuthToken = authToken;
+        State.Value = AuthenticationState.LoggedIn;
     }
 
     public void LoginWithCredentials(string username, string password)
@@ -87,8 +87,8 @@ public class AuthenticationHandler
             return;
         }
 
-        State.Value = AuthenticationState.LoggedIn;
         AuthToken = AuthAPI.VerifyAuthToken().Token;
+        State.Value = AuthenticationState.LoggedIn;
     }
 
     public void Verify2FACode(string code, bool isEmail)
@@ -119,8 +119,8 @@ public class AuthenticationHandler
             }
         }
 
-        State.Value = AuthenticationState.LoggedIn;
         AuthToken = AuthAPI.VerifyAuthToken().Token;
+        State.Value = AuthenticationState.LoggedIn;
     }
 
     private Configuration makeConfigurationWithAuthToken(string authKey)

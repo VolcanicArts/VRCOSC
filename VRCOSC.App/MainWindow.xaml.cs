@@ -21,6 +21,7 @@ using VRCOSC.App.Pages.Modules;
 using VRCOSC.App.Pages.Packages;
 using VRCOSC.App.Pages.Profiles;
 using VRCOSC.App.Pages.Run;
+using VRCOSC.App.Pages.Settings;
 using VRCOSC.App.Profiles;
 using VRCOSC.App.SDK.OVR.Metadata;
 using VRCOSC.App.Settings;
@@ -36,6 +37,7 @@ public partial class MainWindow
     public readonly HomePage HomePage;
     public readonly PackagePage PackagePage;
     public readonly ModulesPage ModulesPage;
+    public readonly SettingsPage SettingsPage;
     public readonly ChatBoxPage ChatBoxPage;
     public readonly RunPage RunPage;
     public readonly ProfilesPage ProfilesPage;
@@ -62,6 +64,7 @@ public partial class MainWindow
         HomePage = new HomePage();
         PackagePage = new PackagePage();
         ModulesPage = new ModulesPage();
+        SettingsPage = new SettingsPage();
         ChatBoxPage = new ChatBoxPage();
         RunPage = new RunPage();
         ProfilesPage = new ProfilesPage();
@@ -209,6 +212,7 @@ public partial class MainWindow
         HomeButton.Background = Brushes.Transparent;
         PackagesButton.Background = Brushes.Transparent;
         ModulesButton.Background = Brushes.Transparent;
+        SettingsButton.Background = Brushes.Transparent;
         ChatBoxButton.Background = Brushes.Transparent;
         RunButton.Background = Brushes.Transparent;
         ProfilesButton.Background = Brushes.Transparent;
@@ -231,6 +235,11 @@ public partial class MainWindow
     private void ModulesButton_OnClick(object sender, RoutedEventArgs e)
     {
         setPageContents(ModulesPage, ModulesButton);
+    }
+
+    private void SettingsButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        setPageContents(SettingsPage, SettingsButton);
     }
 
     private void ChatBoxButton_OnClick(object sender, RoutedEventArgs e)
