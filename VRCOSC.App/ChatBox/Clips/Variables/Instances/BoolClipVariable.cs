@@ -20,11 +20,5 @@ public class BoolClipVariable : ClipVariable
                                         WhenTrue == "True" &&
                                         WhenFalse == "False";
 
-    protected override string Format(object value)
-    {
-        var trueString = string.IsNullOrEmpty(WhenTrue) ? "1" : WhenTrue;
-        var falseString = string.IsNullOrEmpty(WhenFalse) ? "0" : WhenFalse;
-
-        return (bool)value ? trueString : falseString;
-    }
+    protected override string Format(object value) => (bool)value ? WhenTrue : WhenFalse;
 }
