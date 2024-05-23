@@ -83,8 +83,9 @@ public class PackageManager
         return packageLoadAction;
     }
 
-    public PackageInstallAction InstallPackage(PackageSource packageSource, PackageRelease packageRelease)
+    public PackageInstallAction InstallPackage(PackageSource packageSource, PackageRelease? packageRelease = null)
     {
+        packageRelease ??= packageSource.LatestRelease;
         var isInstalled = InstalledPackages.ContainsKey(packageSource.PackageID!);
         var installAction = new PackageInstallAction(storage, packageSource, packageRelease, isInstalled);
 

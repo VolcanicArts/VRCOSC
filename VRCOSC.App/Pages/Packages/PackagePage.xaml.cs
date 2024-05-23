@@ -53,8 +53,7 @@ public partial class PackagePage : INotifyPropertyChanged
 
         foreach (var packageSource in PackageManager.GetInstance().Sources.Where(packageSource => packageSource.IsUpdateAvailable()))
         {
-            var packageRelease = packageSource.Repository!.Releases.First();
-            updateAllPackagesAction.AddAction(PackageManager.GetInstance().InstallPackage(packageSource, packageRelease));
+            updateAllPackagesAction.AddAction(PackageManager.GetInstance().InstallPackage(packageSource));
         }
 
         _ = MainWindow.GetInstance().ShowLoadingOverlay("Updating All Packages", updateAllPackagesAction);
@@ -145,8 +144,7 @@ public partial class PackagePage : INotifyPropertyChanged
         var element = (FrameworkElement)sender;
         var packageSource = (PackageSource)element.Tag;
 
-        var packageRelease = packageSource.Repository!.Releases.First();
-        var action = PackageManager.GetInstance().InstallPackage(packageSource, packageRelease);
+        var action = PackageManager.GetInstance().InstallPackage(packageSource);
         action.OnComplete += () => MainWindow.GetInstance().PackagePage.Refresh();
         _ = MainWindow.GetInstance().ShowLoadingOverlay($"Installing {packageSource.DisplayName}", action);
     }

@@ -101,7 +101,7 @@
                                 <TextBlock Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Center"
                                            Foreground="{StaticResource CForeground2}" FontSize="16" FontWeight="Bold"
                                            Text="Installed" />
-                                <TextBlock Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Left"
+                                <TextBlock Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Center"
                                            Foreground="{StaticResource CForeground2}" FontSize="16" FontWeight="Bold"
                                            Text="Type" />
                                 <TextBlock Grid.Column="5" VerticalAlignment="Center" HorizontalAlignment="Center"
@@ -152,7 +152,7 @@
                                                                        FontSize="16"
                                                                        Text="{Binding InstalledVersion, Mode=OneTime}" />
                                                             <TextBlock Grid.Column="4" VerticalAlignment="Center"
-                                                                       HorizontalAlignment="Left"
+                                                                       HorizontalAlignment="Center"
                                                                        Foreground="{StaticResource CForeground1}"
                                                                        FontSize="16"
                                                                        Text="{Binding PackageType, Mode=OneTime}" />

@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
@@ -11,6 +12,7 @@ using System.Windows.Media;
 using Newtonsoft.Json;
 using Octokit;
 using Semver;
+using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;
 using Application = System.Windows.Application;
 
@@ -34,6 +36,8 @@ public class PackageSource
     public PackageSourceState State { get; private set; } = PackageSourceState.Unknown;
     public string? PackageID => Repository?.PackageFile?.PackageID;
     public string? LatestVersion => Repository?.Releases.FirstOrDefault()?.Version;
+    public IEnumerable<PackageRelease> FilteredReleases => Repository!.Releases.Where(packageRelease => (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AllowPreReleasePackages) && packageRelease.IsPrerelease) || !packageRelease.IsPrerelease)!;
+    public PackageRelease LatestRelease => FilteredReleases.First();
 
     public bool IsInstalled() => packageManager.IsInstalled(this);
 
