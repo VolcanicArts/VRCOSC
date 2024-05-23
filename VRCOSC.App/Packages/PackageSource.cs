@@ -44,15 +44,14 @@ public class PackageSource
 
     public bool IsUpdateAvailable()
     {
-        if (IsUnavailable() || IsIncompatible() || !IsInstalled()) return false;
+        if (IsUnavailable() || !IsInstalled()) return false;
 
         var installedVersion = SemVersion.Parse(InstalledVersion, SemVersionStyles.Any);
         var latestVersion = SemVersion.Parse(LatestVersion, SemVersionStyles.Any);
         return installedVersion.ComparePrecedenceTo(latestVersion) < 0;
     }
 
-    public bool IsIncompatible() => State is PackageSourceState.InvalidPackageFile;
-    public bool IsUnavailable() => State is PackageSourceState.MissingRepo or PackageSourceState.NoReleases or PackageSourceState.Unknown;
+    public bool IsUnavailable() => State is PackageSourceState.MissingRepo or PackageSourceState.NoReleases or PackageSourceState.InvalidPackageFile or PackageSourceState.Unknown;
     public bool IsAvailable() => State is PackageSourceState.Valid;
 
     public PackageSource(PackageManager packageManager, string repoOwner, string repoName, PackageType packageType = PackageType.Community)
@@ -175,9 +174,6 @@ public class PackageSource
             if (IsUnavailable())
                 return "Unavailable";
 
-            if (IsIncompatible())
-                return "Incompatible";
-
             return LatestVersion!;
         }
     }
@@ -189,17 +185,14 @@ public class PackageSource
             if (IsUnavailable())
                 return (Brush)Application.Current.FindResource("CRedL");
 
-            if (IsIncompatible())
-                return (Brush)Application.Current.FindResource("COrange");
-
             return (Brush)Application.Current.FindResource("CForeground1");
         }
     }
 
-    public Visibility UIInstallDropdownVisible => !IsUnavailable() && !IsIncompatible() ? Visibility.Visible : Visibility.Collapsed;
-    public Visibility UIInstallVisible => !IsInstalled() && IsAvailable() && !IsIncompatible() ? Visibility.Visible : Visibility.Collapsed;
+    public Visibility UIInstallDropdownVisible => !IsUnavailable() ? Visibility.Visible : Visibility.Collapsed;
+    public Visibility UIInstallVisible => !IsInstalled() && IsAvailable() ? Visibility.Visible : Visibility.Collapsed;
     public Visibility UIUnInstallVisible => IsInstalled() ? Visibility.Visible : Visibility.Collapsed;
-    public Visibility UIUpgradeVisible => IsUpdateAvailable() && IsAvailable() && !IsIncompatible() ? Visibility.Visible : Visibility.Collapsed;
+    public Visibility UIUpgradeVisible => IsUpdateAvailable() && IsAvailable() ? Visibility.Visible : Visibility.Collapsed;
 
     #endregion
 }
