@@ -8,6 +8,7 @@
       xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
       xmlns:utils="clr-namespace:VRCOSC.App.Utils"
       xmlns:fa6="http://schemas.fontawesome.com/icons/fonts"
+      xmlns:xceed="http://schemas.xceed.com/wpf/xaml/toolkit"
       mc:Ignorable="d">
     <Page.Resources>
         <ui:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
@@ -15,6 +16,12 @@
         <ui:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
     </Page.Resources>
     <Grid>
+        <Button x:Name="FocusTaker"
+                Width="0"
+                Height="0"
+                Opacity="0"
+                Focusable="True"
+                IsTabStop="False" />
         <Border Name="PageContent" Padding="10" Background="{StaticResource CBackground2}">
             <Grid VerticalAlignment="Stretch">
                 <Grid.RowDefinitions>
@@ -148,18 +155,20 @@
                                                                        Foreground="{Binding UILatestVersionColour, Mode=OneTime}"
                                                                        FontSize="16"
                                                                        Text="{Binding UILatestVersion, Mode=OneTime}" />
-                                                            <ComboBox Grid.Column="3" VerticalAlignment="Center"
+                                                            <xceed:WatermarkComboBox Grid.Column="3" VerticalAlignment="Center"
                                                                       HorizontalAlignment="Stretch"
                                                                       HorizontalContentAlignment="Center"
                                                                       Foreground="Black"
                                                                       MaxDropDownHeight="150"
                                                                       FontSize="16"
+                                                                      Watermark="Not Installed"
                                                                       ItemsSource="{Binding FilteredReleases, Mode=OneWay}"
                                                                       DisplayMemberPath="Version"
                                                                       SelectionChanged="InstalledVersion_OnSelectionChanged"
+                                                                      LostMouseCapture="InstalledVersion_LostMouseCapture"
                                                                       SelectedItem="{Binding InstalledRelease, Mode=OneWay}"
                                                                       Tag="{Binding Mode=OneWay}"
-                                                                      Visibility="{Binding UIInstallVisibility, Mode=OneWay}" />
+                                                                      Visibility="{Binding UIInstallDropdownVisible, Mode=OneWay}" />
                                                             <TextBlock Grid.Column="4" VerticalAlignment="Center"
                                                                        HorizontalAlignment="Center"
                                                                        Foreground="{StaticResource CForeground1}"

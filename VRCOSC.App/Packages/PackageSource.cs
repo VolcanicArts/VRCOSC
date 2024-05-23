@@ -196,6 +196,7 @@ public class PackageSource
         }
     }
 
+    public Visibility UIInstallDropdownVisible => !IsUnavailable() && !IsIncompatible() ? Visibility.Visible : Visibility.Collapsed;
     public Visibility UIInstallVisible => !IsInstalled() && IsAvailable() && !IsIncompatible() ? Visibility.Visible : Visibility.Collapsed;
     public Visibility UIUnInstallVisible => IsInstalled() ? Visibility.Visible : Visibility.Collapsed;
     public Visibility UIUpgradeVisible => IsUpdateAvailable() && IsAvailable() && !IsIncompatible() ? Visibility.Visible : Visibility.Collapsed;

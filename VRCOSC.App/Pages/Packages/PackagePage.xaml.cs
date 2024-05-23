@@ -8,10 +8,13 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using VRCOSC.App.Actions.Packages;
 using VRCOSC.App.Packages;
 using VRCOSC.App.UI;
 using VRCOSC.App.Utils;
+using Xceed.Wpf.Toolkit;
+using MessageBox = System.Windows.MessageBox;
 
 namespace VRCOSC.App.Pages.Packages;
 
@@ -145,8 +148,8 @@ public partial class PackagePage : INotifyPropertyChanged
         var packageSource = (PackageSource)element.Tag;
 
         var action = PackageManager.GetInstance().InstallPackage(packageSource);
-        action.OnComplete += () => MainWindow.GetInstance().PackagePage.Refresh();
-        _ = MainWindow.GetInstance().ShowLoadingOverlay($"Installing {packageSource.DisplayName}", action);
+        action.OnComplete += Refresh;
+        _ = MainWindow.GetInstance().ShowLoadingOverlay($"Installing {packageSource.DisplayName} - {packageSource.LatestVersion}", action);
     }
 
     private void UninstallButton_OnClick(object sender, RoutedEventArgs e)
@@ -154,12 +157,12 @@ public partial class PackagePage : INotifyPropertyChanged
         var element = (FrameworkElement)sender;
         var package = (PackageSource)element.Tag;
 
-        var result = MessageBox.Show($"Are you sure you want to uninstall {package.DisplayName}?\nUninstalling will remove all saved module data, and all ChatBox data containing modules provided by this package.", "Uninstall Warning", MessageBoxButton.YesNo);
+        var result = MessageBox.Show($"Are you sure you want to uninstall {package.DisplayName}?\nUninstalling will cause the ChatBox to not load if you were using modules that are a part of this package", "Uninstall Warning", MessageBoxButton.YesNo);
 
         if (result != MessageBoxResult.Yes) return;
 
         var action = PackageManager.GetInstance().UninstallPackage(package);
-        action.OnComplete += () => MainWindow.GetInstance().PackagePage.Refresh();
+        action.OnComplete += Refresh;
         _ = MainWindow.GetInstance().ShowLoadingOverlay($"Uninstalling {package.DisplayName}", action);
     }
 
@@ -177,7 +180,15 @@ public partial class PackagePage : INotifyPropertyChanged
         var packageRelease = packageSource.FilteredReleases[element.SelectedIndex];
 
         var action = PackageManager.GetInstance().InstallPackage(packageSource, packageRelease);
-        action.OnComplete += () => MainWindow.GetInstance().PackagePage.Refresh();
+        action.OnComplete += Refresh;
         _ = MainWindow.GetInstance().ShowLoadingOverlay($"Installing {packageSource.DisplayName} - {packageRelease.Version}", action);
+    }
+
+    private void InstalledVersion_LostMouseCapture(object sender, MouseEventArgs e)
+    {
+        var comboBox = (WatermarkComboBox)sender;
+
+        if (!comboBox.IsDropDownOpen)
+            FocusTaker.Focus();
     }
 }
