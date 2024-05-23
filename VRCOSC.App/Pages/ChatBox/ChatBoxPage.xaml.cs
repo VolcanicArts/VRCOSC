@@ -406,11 +406,10 @@ public partial class ChatBoxPage
     private void ClearButton_OnClick(object sender, RoutedEventArgs e)
     {
         var result = MessageBox.Show(MainWindow.GetInstance(), "Warning. This will erase your entire timeline. Are you sure?", "Erase Timeline?", MessageBoxButton.YesNo);
-
         if (result != MessageBoxResult.Yes) return;
 
-        ChatBoxManager.GetInstance().Timeline.Clips.Clear();
-        ChatBoxManager.GetInstance().Serialise();
+        // Clearing the clips doesn't fire the collection changed event. This fixes it
+        ChatBoxManager.GetInstance().Timeline.Clips.RemoveIf(_ => true);
     }
 
     private void showRightClickMenu(int? layer, Clip? clip)
