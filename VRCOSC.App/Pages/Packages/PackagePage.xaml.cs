@@ -169,4 +169,15 @@ public partial class PackagePage : INotifyPropertyChanged
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
+
+    private void InstalledVersion_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        var element = (ComboBox)sender;
+        var packageSource = (PackageSource)element.Tag;
+        var packageRelease = packageSource.FilteredReleases[element.SelectedIndex];
+
+        var action = PackageManager.GetInstance().InstallPackage(packageSource, packageRelease);
+        action.OnComplete += () => MainWindow.GetInstance().PackagePage.Refresh();
+        _ = MainWindow.GetInstance().ShowLoadingOverlay($"Installing {packageSource.DisplayName} - {packageRelease.Version}", action);
+    }
 }

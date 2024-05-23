@@ -12,6 +12,7 @@
     <Page.Resources>
         <ui:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
                                        Colour2="{StaticResource CBackground4}" />
+        <ui:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
     </Page.Resources>
     <Grid>
         <Border Name="PageContent" Padding="10" Background="{StaticResource CBackground2}">
@@ -54,7 +55,8 @@
                                         </Style>
                                     </TextBlock.Style>
                                 </TextBlock>
-                                <TextBox x:Name="SearchTextBox" Grid.Row="0" FontSize="20" BorderThickness="0" Background="Transparent" VerticalAlignment="Center"
+                                <TextBox x:Name="SearchTextBox" Grid.Row="0" FontSize="20" BorderThickness="0"
+                                         Background="Transparent" VerticalAlignment="Center"
                                          Foreground="{StaticResource CForeground2}" VerticalContentAlignment="Center">
                                 </TextBox>
                             </Grid>
@@ -146,11 +148,18 @@
                                                                        Foreground="{Binding UILatestVersionColour, Mode=OneTime}"
                                                                        FontSize="16"
                                                                        Text="{Binding UILatestVersion, Mode=OneTime}" />
-                                                            <TextBlock Grid.Column="3" VerticalAlignment="Center"
-                                                                       HorizontalAlignment="Center"
-                                                                       Foreground="{StaticResource CForeground1}"
-                                                                       FontSize="16"
-                                                                       Text="{Binding InstalledVersion, Mode=OneTime}" />
+                                                            <ComboBox Grid.Column="3" VerticalAlignment="Center"
+                                                                      HorizontalAlignment="Stretch"
+                                                                      HorizontalContentAlignment="Center"
+                                                                      Foreground="Black"
+                                                                      MaxDropDownHeight="150"
+                                                                      FontSize="16"
+                                                                      ItemsSource="{Binding FilteredReleases, Mode=OneWay}"
+                                                                      DisplayMemberPath="Version"
+                                                                      SelectionChanged="InstalledVersion_OnSelectionChanged"
+                                                                      SelectedItem="{Binding InstalledRelease, Mode=OneWay}"
+                                                                      Tag="{Binding Mode=OneWay}"
+                                                                      Visibility="{Binding UIInstallVisibility, Mode=OneWay}" />
                                                             <TextBlock Grid.Column="4" VerticalAlignment="Center"
                                                                        HorizontalAlignment="Center"
                                                                        Foreground="{StaticResource CForeground1}"
@@ -261,7 +270,8 @@
                                        TextAlignment="Center" />
                         </StackPanel>
                     </Grid>
-                    <Border Grid.Row="3" Background="{StaticResource CBackground1}" Padding="5" CornerRadius="0 0 10 10">
+                    <Border Grid.Row="3" Background="{StaticResource CBackground1}" Padding="5"
+                            CornerRadius="0 0 10 10">
                         <ui:SpacedStackPanel Orientation="Horizontal" HorizontalAlignment="Stretch"
                                              VerticalAlignment="Stretch">
                             <ui:VRCOSCButton ButtonColour="Gray" Width="50" Height="50" CornerRadius="5"

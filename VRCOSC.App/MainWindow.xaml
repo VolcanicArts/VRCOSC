@@ -90,15 +90,18 @@
                 </b:Interaction.Behaviors>
             </Rectangle>
             <Border Background="Black" Opacity="0.5" />
-            <Grid Width="500" Height="125">
+            <Grid Height="125">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="3*" />
                     <RowDefinition Height="3*" />
                     <RowDefinition Height="3*" />
                 </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
                 <TextBlock Grid.Row="0" Name="LoadingTitle" FontSize="30" Text="PLACEHOLDER"
                            Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center"
-                           VerticalAlignment="Center" FontWeight="Medium"/>
+                           VerticalAlignment="Center" FontWeight="Medium" />
                 <TextBlock Grid.Row="1" Name="LoadingDescription" FontSize="20" Text="PLACEHOLDER"
                            Foreground="{StaticResource CForeground1}" TextWrapping="Wrap" HorizontalAlignment="Center"
                            VerticalAlignment="Center" />

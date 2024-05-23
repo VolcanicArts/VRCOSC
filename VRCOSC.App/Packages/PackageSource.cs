@@ -36,8 +36,9 @@ public class PackageSource
     public PackageSourceState State { get; private set; } = PackageSourceState.Unknown;
     public string? PackageID => Repository?.PackageFile?.PackageID;
     public string? LatestVersion => Repository?.Releases.FirstOrDefault()?.Version;
-    public IEnumerable<PackageRelease> FilteredReleases => Repository!.Releases.Where(packageRelease => (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AllowPreReleasePackages) && packageRelease.IsPrerelease) || !packageRelease.IsPrerelease)!;
+    public List<PackageRelease> FilteredReleases => Repository!.Releases.Where(packageRelease => (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AllowPreReleasePackages) && packageRelease.IsPrerelease) || !packageRelease.IsPrerelease)!.ToList();
     public PackageRelease LatestRelease => FilteredReleases.First();
+    public PackageRelease? InstalledRelease => FilteredReleases.SingleOrDefault(packageRelease => packageRelease.Version == InstalledVersion);
 
     public bool IsInstalled() => packageManager.IsInstalled(this);
 
@@ -142,13 +143,17 @@ public class PackageSource
 
             var releases = await GitHubProxy.Client.Repository.Release.GetAll(RepoOwner, RepoName);
 
+            var sortedDictionary = new SortedDictionary<SemVersion, PackageRelease>();
+
             foreach (Release release in releases)
             {
-                // TODO: Check release's tag is semver compatible
+                if (!SemVersion.TryParse(release.TagName, SemVersionStyles.Any, out var version)) continue;
 
                 var packageRelease = new PackageRelease(release);
-                Repository.Releases.Add(packageRelease);
+                sortedDictionary.Add(version, packageRelease);
             }
+
+            Repository.Releases.AddRange(sortedDictionary.Values.Reverse());
 
             if (!Repository.Releases.Any())
             {

@@ -49,10 +49,10 @@ public class PackageFile
 public class PackageRelease
 {
     [JsonProperty("version")]
-    public string Version = null!;
+    public string Version { get; set; } = null!;
 
     [JsonProperty("is_prerelease")]
-    public bool IsPrerelease;
+    public bool IsPrerelease { get; set; }
 
     [JsonProperty("dll_files")]
     public List<string> DllFiles = new();
