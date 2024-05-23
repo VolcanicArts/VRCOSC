@@ -7,8 +7,7 @@ public enum PackageSourceState
 {
     Unknown,
     MissingRepo,
-    MissingLatestRelease,
+    NoReleases,
     InvalidPackageFile,
-    SDKIncompatible,
     Valid
 }

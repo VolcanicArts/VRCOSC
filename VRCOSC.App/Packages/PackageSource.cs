@@ -2,11 +2,9 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
-using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
@@ -28,18 +26,14 @@ public class PackageSource
     public PackageType PackageType { get; }
 
     public PackageRepository? Repository { get; private set; }
-    public PackageLatestRelease? LatestRelease { get; private set; }
-    public PackageFile? PackageFile { get; private set; }
-    public string InstalledVersion => packageManager.GetInstalledVersion(this);
 
+    public string InstalledVersion => packageManager.GetInstalledVersion(this);
     public string InternalReference => $"{RepoOwner}#{RepoName}";
     public string URL => $"https://github.com/{RepoOwner}/{RepoName}";
-    public string DownloadURL => $"{URL}/releases/download/{LatestRelease!.Version}";
-    private string packageFileURL => $"{DownloadURL}/vrcosc.json";
 
     public PackageSourceState State { get; private set; } = PackageSourceState.Unknown;
-    public string? PackageID => PackageFile?.PackageID;
-    public string? LatestVersion => LatestRelease?.Version;
+    public string? PackageID => Repository?.PackageFile?.PackageID;
+    public string? LatestVersion => Repository?.Releases.FirstOrDefault()?.Version;
 
     public bool IsInstalled() => packageManager.IsInstalled(this);
 
@@ -52,8 +46,8 @@ public class PackageSource
         return installedVersion.ComparePrecedenceTo(latestVersion) < 0;
     }
 
-    public bool IsIncompatible() => State is PackageSourceState.InvalidPackageFile or PackageSourceState.SDKIncompatible;
-    public bool IsUnavailable() => State is PackageSourceState.MissingRepo or PackageSourceState.MissingLatestRelease or PackageSourceState.Unknown;
+    public bool IsIncompatible() => State is PackageSourceState.InvalidPackageFile;
+    public bool IsUnavailable() => State is PackageSourceState.MissingRepo or PackageSourceState.NoReleases or PackageSourceState.Unknown;
     public bool IsAvailable() => State is PackageSourceState.Valid;
 
     public PackageSource(PackageManager packageManager, string repoOwner, string repoName, PackageType packageType = PackageType.Community)
@@ -64,55 +58,38 @@ public class PackageSource
         PackageType = packageType;
     }
 
-    public void InjectCachedData(PackageRepository? repository, PackageLatestRelease? latestRelease, PackageFile? packageFile)
+    public void InjectCachedData(PackageRepository repository)
     {
         Repository = repository;
-        LatestRelease = latestRelease;
-        PackageFile = packageFile;
     }
 
-    public async Task Refresh(bool forceRemoteGrab, bool allowPreRelease)
+    public async Task Refresh(bool forceRemoteGrab)
     {
         Logger.Log($"Checking {InternalReference}");
 
         State = PackageSourceState.Unknown;
 
         await loadRepository(forceRemoteGrab);
-        await loadLatestRelease(forceRemoteGrab, allowPreRelease);
-        await loadPackageFile(forceRemoteGrab);
-        checkSDKCompatibility();
+        await loadPackageFile();
+        await cacheAllReleases(forceRemoteGrab);
 
         if (State is PackageSourceState.Unknown) State = PackageSourceState.Valid;
 
         Logger.Log($"{InternalReference} resulted in {State}");
     }
 
-    public List<string> GetAssets() => LatestRelease!.AssetNames.Where(assetName => PackageFile!.Files.Contains(assetName)).ToList();
-    public string DisplayName => PackageFile?.DisplayName ?? RepoName;
+    public string DisplayName => Repository?.PackageFile?.DisplayName ?? RepoName;
     public string Author => $"Created by {RepoOwner}";
     public string Description => Repository?.Description ?? "How did you find this";
-    public string CoverURL => PackageFile?.CoverImageUrl ?? "https://wallpapercave.com/wp/Zs1bPI9.jpg";
-
-    private static SemVersion getCurrentSDKVersion()
-    {
-        var version = Assembly.GetExecutingAssembly().GetName().Version ?? new Version();
-        return new SemVersion(version.Major, version.Minor, version.Build);
-    }
+    public string CoverURL => Repository?.PackageFile?.CoverImageUrl ?? "https://wallpapercave.com/wp/Zs1bPI9.jpg";
 
     private async Task loadRepository(bool forceRemoteGrab)
     {
         try
         {
-            if (Repository is null || forceRemoteGrab)
-            {
-                Repository = null;
-                Repository = new PackageRepository(await GitHubProxy.Client.Repository.Get(RepoOwner, RepoName));
-            }
+            if (!forceRemoteGrab) return;
 
-            if (Repository is null)
-            {
-                State = PackageSourceState.MissingRepo;
-            }
+            Repository = new PackageRepository(await GitHubProxy.Client.Repository.Get(RepoOwner, RepoName));
         }
         catch (ApiException)
         {
@@ -120,109 +97,63 @@ public class PackageSource
         }
     }
 
-    // TODO: If latest isn't compatible, work backwards through 5 latest releases to find one that is then cache that instead of the latest
-
-    private async Task loadLatestRelease(bool forceRemoteGrab, bool allowPreRelease)
+    private async Task loadPackageFile()
     {
-        if (State is PackageSourceState.MissingRepo) return;
+        if (State == PackageSourceState.MissingRepo) return;
 
         Debug.Assert(Repository is not null);
 
-        try
+        if (Repository.PackageFile is null)
         {
-            if (LatestRelease is null || forceRemoteGrab)
-            {
-                LatestRelease = null;
-                LatestRelease = new PackageLatestRelease(await GitHubProxy.Client.Repository.Release.GetLatest(RepoOwner, RepoName));
-
-                var releases = await GitHubProxy.Client.Repository.Release.GetAll(RepoOwner, RepoName);
-
-                PackageLatestRelease? localLatestRelease = null;
-
-                if (allowPreRelease)
-                {
-                    var latestPreRelease = releases.MaxBy(release => release.CreatedAt);
-                    if (latestPreRelease is not null) localLatestRelease = new PackageLatestRelease(latestPreRelease);
-                }
-
-                if (localLatestRelease is null)
-                {
-                    var latestRelease = releases.Where(release => !release.Prerelease).MaxBy(release => release.CreatedAt);
-                    if (latestRelease is not null) localLatestRelease = new PackageLatestRelease(latestRelease);
-                }
-
-                LatestRelease = localLatestRelease;
-            }
-
-            if (LatestRelease is null)
-            {
-                State = PackageSourceState.MissingLatestRelease;
-            }
-        }
-        catch (ApiException)
-        {
-            State = PackageSourceState.MissingLatestRelease;
-        }
-    }
-
-    private async Task loadPackageFile(bool forceRemoteGrab)
-    {
-        if (State is PackageSourceState.MissingRepo or PackageSourceState.MissingLatestRelease) return;
-
-        Debug.Assert(Repository is not null);
-        Debug.Assert(LatestRelease is not null);
-
-        if (PackageFile is null || forceRemoteGrab)
-        {
-            PackageFile = null;
-
-            if (!LatestRelease.AssetNames.Contains("vrcosc.json"))
-            {
-                State = PackageSourceState.InvalidPackageFile;
-                return;
-            }
-
-            var packageFileContents = await (await httpClient.GetAsync(packageFileURL)).Content.ReadAsStringAsync();
-
             try
             {
-                PackageFile = JsonConvert.DeserializeObject<PackageFile>(packageFileContents);
+                var packageFileURL = $"https://raw.githubusercontent.com/{RepoOwner}/{RepoName}/{Repository.DefaultBranch}/vrcosc.json";
+                var packageFileContents = await (await httpClient.GetAsync(packageFileURL)).Content.ReadAsStringAsync();
+                Repository.PackageFile = JsonConvert.DeserializeObject<PackageFile>(packageFileContents);
             }
-            catch (JsonException)
-            {
-                State = PackageSourceState.InvalidPackageFile;
-                return;
-            }
-
-            if (PackageFile is null || string.IsNullOrEmpty(PackageFile.PackageID))
+            catch (Exception)
             {
                 State = PackageSourceState.InvalidPackageFile;
             }
         }
 
-        if (PackageFile is null)
+        if (Repository.PackageFile is null || string.IsNullOrEmpty(Repository.PackageFile.PackageID))
         {
             State = PackageSourceState.InvalidPackageFile;
         }
     }
 
-    private void checkSDKCompatibility()
+    private async Task cacheAllReleases(bool forceRemoteGrab)
     {
-        if (State is PackageSourceState.MissingRepo or PackageSourceState.MissingLatestRelease or PackageSourceState.InvalidPackageFile) return;
+        if (State is PackageSourceState.MissingRepo or PackageSourceState.InvalidPackageFile) return;
+
+        Debug.Assert(Repository is not null);
+        Debug.Assert(Repository.PackageFile is not null);
 
         try
         {
-            var currentSDKVersion = getCurrentSDKVersion();
-            var remoteModuleVersion = SemVersionRange.Parse(PackageFile!.SDKVersionRange, SemVersionRangeOptions.Loose);
+            if (!forceRemoteGrab) return;
 
-            if (!currentSDKVersion.Satisfies(remoteModuleVersion))
+            Repository.Releases.Clear();
+
+            var releases = await GitHubProxy.Client.Repository.Release.GetAll(RepoOwner, RepoName);
+
+            foreach (Release release in releases)
             {
-                State = PackageSourceState.SDKIncompatible;
+                // TODO: Check release's tag is semver compatible
+
+                var packageRelease = new PackageRelease(release);
+                Repository.Releases.Add(packageRelease);
+            }
+
+            if (!Repository.Releases.Any())
+            {
+                State = PackageSourceState.NoReleases;
             }
         }
-        catch (Exception)
+        catch (ApiException)
         {
-            State = PackageSourceState.SDKIncompatible;
+            State = PackageSourceState.NoReleases;
         }
     }
 

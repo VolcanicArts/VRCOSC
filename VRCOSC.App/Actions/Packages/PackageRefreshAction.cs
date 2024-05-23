@@ -47,7 +47,7 @@ public class PackageSourceRefreshAction : ProgressAction
 
     protected override Task Perform()
     {
-        return source.Refresh(forceRemoteGrab, allowPreRelease);
+        return source.Refresh(forceRemoteGrab);
     }
 
     public override float GetProgress() => 0f;

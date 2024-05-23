@@ -30,12 +30,12 @@ public class PackageManagerSerialiser : Serialiser<PackageManager, SerialisableP
             if (packageSource is null)
             {
                 var newPackageSource = new PackageSource(Reference, serialisablePackageSource.Owner, serialisablePackageSource.Name);
-                newPackageSource.InjectCachedData(serialisablePackageSource.Repository, serialisablePackageSource.LatestRelease, serialisablePackageSource.PackageFile);
+                newPackageSource.InjectCachedData(serialisablePackageSource.Repository!);
                 Reference.Sources.Add(newPackageSource);
             }
             else
             {
-                packageSource.InjectCachedData(serialisablePackageSource.Repository, serialisablePackageSource.LatestRelease, serialisablePackageSource.PackageFile);
+                packageSource.InjectCachedData(serialisablePackageSource.Repository!);
             }
         });
 

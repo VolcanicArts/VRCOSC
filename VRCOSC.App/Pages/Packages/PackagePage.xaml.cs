@@ -53,7 +53,8 @@ public partial class PackagePage : INotifyPropertyChanged
 
         foreach (var packageSource in PackageManager.GetInstance().Sources.Where(packageSource => packageSource.IsUpdateAvailable()))
         {
-            updateAllPackagesAction.AddAction(PackageManager.GetInstance().InstallPackage(packageSource));
+            var packageRelease = packageSource.Repository!.Releases.First();
+            updateAllPackagesAction.AddAction(PackageManager.GetInstance().InstallPackage(packageSource, packageRelease));
         }
 
         _ = MainWindow.GetInstance().ShowLoadingOverlay("Updating All Packages", updateAllPackagesAction);
@@ -142,11 +143,12 @@ public partial class PackagePage : INotifyPropertyChanged
     private void InstallButton_OnClick(object sender, RoutedEventArgs e)
     {
         var element = (FrameworkElement)sender;
-        var package = (PackageSource)element.Tag;
+        var packageSource = (PackageSource)element.Tag;
 
-        var action = PackageManager.GetInstance().InstallPackage(package);
+        var packageRelease = packageSource.Repository!.Releases.First();
+        var action = PackageManager.GetInstance().InstallPackage(packageSource, packageRelease);
         action.OnComplete += () => MainWindow.GetInstance().PackagePage.Refresh();
-        _ = MainWindow.GetInstance().ShowLoadingOverlay($"Installing {package.DisplayName}", action);
+        _ = MainWindow.GetInstance().ShowLoadingOverlay($"Installing {packageSource.DisplayName}", action);
     }
 
     private void UninstallButton_OnClick(object sender, RoutedEventArgs e)

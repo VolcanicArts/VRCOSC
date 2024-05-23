@@ -68,12 +68,6 @@ public class SerialisablePackageSource
     [JsonProperty("repository")]
     public PackageRepository? Repository;
 
-    [JsonProperty("latest_release")]
-    public PackageLatestRelease? LatestRelease;
-
-    [JsonProperty("package_file")]
-    public PackageFile? PackageFile;
-
     [JsonConstructor]
     public SerialisablePackageSource()
     {
@@ -84,7 +78,5 @@ public class SerialisablePackageSource
         Owner = packageSource.RepoOwner;
         Name = packageSource.RepoName;
         Repository = packageSource.Repository;
-        LatestRelease = packageSource.LatestRelease;
-        PackageFile = packageSource.PackageFile;
     }
 }

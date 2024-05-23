@@ -29,7 +29,7 @@ public class PackageManager
 
     public ObservableCollection<PackageSource> Sources { get; } = new();
 
-    // id - latest version
+    // id - version
     public readonly Dictionary<string, string> InstalledPackages = new();
 
     public DateTime CacheExpireTime = DateTime.UnixEpoch;
@@ -83,14 +83,14 @@ public class PackageManager
         return packageLoadAction;
     }
 
-    public PackageInstallAction InstallPackage(PackageSource packageSource)
+    public PackageInstallAction InstallPackage(PackageSource packageSource, PackageRelease packageRelease)
     {
         var isInstalled = InstalledPackages.ContainsKey(packageSource.PackageID!);
-        var installAction = new PackageInstallAction(storage, packageSource, isInstalled);
+        var installAction = new PackageInstallAction(storage, packageSource, packageRelease, isInstalled);
 
         installAction.OnComplete += () =>
         {
-            InstalledPackages[packageSource.PackageID!] = packageSource.LatestVersion!;
+            InstalledPackages[packageSource.PackageID!] = packageRelease.Version;
             serialisationManager.Serialise();
             ModuleManager.GetInstance().ReloadAllModules();
             MainWindow.GetInstance().PackagePage.Refresh();
