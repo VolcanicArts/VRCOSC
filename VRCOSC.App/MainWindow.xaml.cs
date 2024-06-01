@@ -5,10 +5,11 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
+using System.Windows.Forms;
 using System.Windows.Input;
-using System.Windows.Media;
+using System.Windows.Interop;
 using Newtonsoft.Json;
+using PInvoke;
 using VRCOSC.App.Actions;
 using VRCOSC.App.Actions.Game;
 using VRCOSC.App.ChatBox;
@@ -27,6 +28,11 @@ using VRCOSC.App.SDK.OVR.Metadata;
 using VRCOSC.App.Settings;
 using VRCOSC.App.UI;
 using VRCOSC.App.Utils;
+using Application = System.Windows.Application;
+using Brush = System.Windows.Media.Brush;
+using Brushes = System.Windows.Media.Brushes;
+using Button = System.Windows.Controls.Button;
+using TextBox = System.Windows.Controls.TextBox;
 
 namespace VRCOSC.App;
 
@@ -59,6 +65,7 @@ public partial class MainWindow
 
         Title = $"{AppManager.APP_NAME} {version}";
 
+        setupTrayIcon();
         copyOpenVrFiles();
 
         HomePage = new HomePage();
@@ -152,6 +159,14 @@ public partial class MainWindow
 
     private async void MainWindow_OnClosing(object? sender, CancelEventArgs e)
     {
+        if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.TrayOnClose))
+        {
+            e.Cancel = true;
+            inTray = true;
+            handleTrayTransition();
+            return;
+        }
+
         var appManager = AppManager.GetInstance();
 
         if (appManager.State.Value is AppManagerState.Started)
@@ -169,11 +184,73 @@ public partial class MainWindow
 
     private void MainWindow_OnClosed(object? sender, EventArgs e)
     {
+        trayIcon.Dispose();
+
         foreach (Window window in Application.Current.Windows)
         {
             if (window != this) window.Close();
         }
     }
+
+    #region Tray
+
+    private bool inTray;
+    private readonly NotifyIcon trayIcon = new();
+
+    private void setupTrayIcon()
+    {
+        trayIcon.DoubleClick += (_, _) =>
+        {
+            inTray = !inTray;
+            handleTrayTransition();
+        };
+
+        trayIcon.Icon = System.Drawing.Icon.ExtractAssociatedIcon(Assembly.GetEntryAssembly()!.Location)!;
+        trayIcon.Visible = true;
+        trayIcon.Text = AppManager.APP_NAME;
+
+        var contextMenu = new ContextMenuStrip
+        {
+            Items =
+            {
+                {
+                    AppManager.APP_NAME, null, (_, _) =>
+                    {
+                        inTray = false;
+                        handleTrayTransition();
+                    }
+                },
+                new ToolStripSeparator(),
+                {
+                    "Exit", null, (_, _) => Dispatcher.Invoke(() => Application.Current.Shutdown())
+                }
+            }
+        };
+
+        trayIcon.ContextMenuStrip = contextMenu;
+    }
+
+    private void handleTrayTransition()
+    {
+        if (inTray)
+        {
+            foreach (Window window in Application.Current.Windows)
+            {
+                User32.ShowWindow(new WindowInteropHelper(window).Handle, User32.WindowShowStyle.SW_HIDE);
+            }
+        }
+        else
+        {
+            foreach (Window window in Application.Current.Windows)
+            {
+                User32.ShowWindow(new WindowInteropHelper(window).Handle, User32.WindowShowStyle.SW_SHOWDEFAULT);
+                window.Show();
+                window.Activate();
+            }
+        }
+    }
+
+    #endregion
 
     public async Task ShowLoadingOverlay(string title, ProgressAction progressAction) => await Dispatcher.Invoke(async () =>
     {

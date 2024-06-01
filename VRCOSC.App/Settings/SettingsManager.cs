@@ -34,7 +34,9 @@ public class SettingsManager
 
         Settings.ForEach(pair => pair.Value.Subscribe(_ => serialisationManager.Serialise()));
 
+        ExceptionHandler.SilenceWindow = true;
         serialisationManager.Deserialise();
+        ExceptionHandler.SilenceWindow = false;
     }
 
     private void writeDefaults()
@@ -49,7 +51,6 @@ public class SettingsManager
         Settings[VRCOSCSetting.OVRAutoOpen] = new Observable<object>(false);
         Settings[VRCOSCSetting.OVRAutoClose] = new Observable<object>(false);
         Settings[VRCOSCSetting.AllowPreReleasePackages] = new Observable<object>(true); // TODO: Change on app release
-        Settings[VRCOSCSetting.UseLegacyPorts] = new Observable<object>(false);
         Settings[VRCOSCSetting.TrayOnClose] = new Observable<object>(false);
         Settings[VRCOSCSetting.GlobalPersistence] = new Observable<object>(false);
         Settings[VRCOSCSetting.ReleaseChannel] = new Observable<object>(UpdaterReleaseChannel.Beta); // TODO: Change on app release
@@ -57,13 +58,16 @@ public class SettingsManager
         Settings[VRCOSCSetting.ChatBoxWorldBlacklist] = new Observable<object>(true);
         Settings[VRCOSCSetting.ShowRelevantModules] = new Observable<object>(true);
         Settings[VRCOSCSetting.Theme] = new Observable<object>((int)Theme.Dark);
+        Settings[VRCOSCSetting.OutgoingEndpoint] = new Observable<object>("127.0.0.1:9000");
+        Settings[VRCOSCSetting.IncomingEndpoint] = new Observable<object>("127.0.0.1:9001");
+        Settings[VRCOSCSetting.UseCustomEndpoints] = new Observable<object>(false);
     }
 
     public Observable<object> GetObservable(VRCOSCSetting lookup)
     {
-        if (!Settings.ContainsKey(lookup)) throw new InvalidOperationException("Setting doesn't exist");
+        if (!Settings.TryGetValue(lookup, out var observable)) throw new InvalidOperationException("Setting doesn't exist");
 
-        return Settings[lookup];
+        return observable;
     }
 
     public T GetValue<T>(VRCOSCSetting lookup)
@@ -87,12 +91,14 @@ public enum VRCOSCSetting
     OVRAutoOpen,
     OVRAutoClose,
     AllowPreReleasePackages,
-    UseLegacyPorts,
     TrayOnClose,
     GlobalPersistence,
     ReleaseChannel,
     ChatBoxSendInterval,
     ChatBoxWorldBlacklist,
     ShowRelevantModules,
-    Theme
+    Theme,
+    OutgoingEndpoint,
+    IncomingEndpoint,
+    UseCustomEndpoints
 }

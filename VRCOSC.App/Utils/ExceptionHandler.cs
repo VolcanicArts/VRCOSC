@@ -10,13 +10,15 @@ namespace VRCOSC.App.Utils;
 
 public static class ExceptionHandler
 {
+    public static bool SilenceWindow = false;
+
     private static bool isWindowShowing;
 
     public static void Handle(Exception e, string message = "", bool isCritical = false)
     {
         Logger.Error(e, message, LoggingTarget.Runtime, true);
 
-        if (isWindowShowing) return;
+        if (isWindowShowing || SilenceWindow) return;
 
         var sb = new StringBuilder();
 

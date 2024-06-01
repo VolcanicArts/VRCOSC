@@ -80,6 +80,14 @@ public class AppManager
             ActionManifest = Storage.GetFullPath("openvr/action_manifest.json")
         });
 
+        OVRClient.OnShutdown += () =>
+        {
+            if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.OVRAutoClose))
+            {
+                Application.Current.Shutdown();
+            }
+        };
+
         OVRHelper.OnError += m => Logger.Log($"[OpenVR] {m}");
     }
 
@@ -183,7 +191,7 @@ public class AppManager
     public async void ForceStart()
     {
         CancelStartRequest();
-        initialiseOSCClient(9000, 9001);
+        initialiseOSCClient(IPAddress.Loopback, 9000, IPAddress.Loopback, 9001);
         await startAsync();
     }
 
@@ -199,9 +207,17 @@ public class AppManager
 
         requestStartCancellationSource = new CancellationTokenSource();
 
-        if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.UseLegacyPorts))
+        if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.UseCustomEndpoints))
         {
-            initialiseOSCClient(9000, 9001);
+            var outgoingEndpoint = SettingsManager.GetInstance().GetValue<string>(VRCOSCSetting.OutgoingEndpoint);
+            var outgoingAddress = IPAddress.Parse(outgoingEndpoint.Split(':')[0]);
+            var outgoingPort = int.Parse(outgoingEndpoint.Split(':')[1]);
+
+            var incomingEndpoint = SettingsManager.GetInstance().GetValue<string>(VRCOSCSetting.IncomingEndpoint);
+            var incomingAddress = IPAddress.Parse(incomingEndpoint.Split(':')[0]);
+            var incomingPort = int.Parse(incomingEndpoint.Split(':')[1]);
+
+            initialiseOSCClient(outgoingAddress, outgoingPort, incomingAddress, incomingPort);
             await startAsync();
             return;
         }
@@ -232,14 +248,14 @@ public class AppManager
             await waitForOSCQuery();
             if (requestStartCancellationSource.IsCancellationRequested) return;
 
-            initialiseOSCClient(ConnectionManager.VRChatReceivePort!.Value, ConnectionManager.VRCOSCReceivePort);
+            initialiseOSCClient(IPAddress.Loopback, ConnectionManager.VRChatReceivePort!.Value, IPAddress.Loopback, ConnectionManager.VRCOSCReceivePort);
         }
         else
         {
             if (isUnityOpen())
             {
                 Logger.Log("Found Unity");
-                initialiseOSCClient(9000, 9001);
+                initialiseOSCClient(IPAddress.Loopback, 9000, IPAddress.Loopback, 9001);
             }
         }
 
@@ -296,14 +312,14 @@ public class AppManager
         sendControlParameters();
     }
 
-    private void initialiseOSCClient(int sendPort, int receivePort)
+    private void initialiseOSCClient(IPAddress sendAddress, int sendPort, IPAddress receiveAddress, int receivePort)
     {
         try
         {
-            Logger.Log($"Initialising OSC with send ({sendPort}) and receive ({receivePort})");
+            Logger.Log($"Initialising OSC with send ({sendAddress}:{sendPort}) and receive ({receiveAddress}:{receivePort})");
 
-            var sendEndpoint = new IPEndPoint(IPAddress.Loopback, sendPort);
-            var receiveEndpoint = new IPEndPoint(IPAddress.Loopback, receivePort);
+            var sendEndpoint = new IPEndPoint(sendAddress, sendPort);
+            var receiveEndpoint = new IPEndPoint(receiveAddress, receivePort);
 
             VRChatOscClient.Initialise(sendEndpoint, receiveEndpoint);
         }
