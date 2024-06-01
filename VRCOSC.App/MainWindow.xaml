@@ -60,7 +60,7 @@
                             <Button Name="ModulesButton" Click="ModulesButton_OnClick">
                                 <fa5:FontAwesome Icon="Solid_List" />
                             </Button>
-                            <Button Name="SettingsButton" Click="SettingsButton_OnClick">
+                            <Button Name="SettingsButton" Click="SettingsButton_OnClick" Visibility="Collapsed">
                                 <fa5:FontAwesome Icon="Solid_UserCog" />
                             </Button>
                             <Button Name="ChatBoxButton" Click="ChatBoxButton_OnClick">
