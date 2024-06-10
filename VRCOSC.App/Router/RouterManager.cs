@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Net;
@@ -23,24 +24,45 @@ public class RouterManager
         Routes.Add(new RouterInstance
         {
             Name = "Test",
-            Address = IPAddress.Loopback,
+            Address = IPAddress.Loopback.ToString(),
+            Port = 9003
+        });
+
+        Routes.Add(new RouterInstance
+        {
+            Name = "Test",
+            Address = IPAddress.Loopback.ToString(),
+            Port = 9003
+        });
+
+        Routes.Add(new RouterInstance
+        {
+            Name = "Test",
+            Address = IPAddress.Loopback.ToString(),
             Port = 9003
         });
     }
 
     public void Start()
     {
-        foreach (var routerInstance in Routes)
+        foreach (var route in Routes)
         {
-            var endpoint = new IPEndPoint(routerInstance.Address, routerInstance.Port);
+            try
+            {
+                var endpoint = new IPEndPoint(IPAddress.Parse(route.Address), route.Port);
 
-            Logger.Log($"Starting router instance on {endpoint}");
+                Logger.Log($"Starting router instance `{route.Name}` on {endpoint}");
 
-            var sender = new OscSender();
-            sender.Initialise(endpoint);
-            sender.Enable();
+                var sender = new OscSender();
+                sender.Initialise(endpoint);
+                sender.Enable();
 
-            senders.Add(sender);
+                senders.Add(sender);
+            }
+            catch (Exception e)
+            {
+                ExceptionHandler.Handle(e, $"Failed to start router instance named {route.Name}");
+            }
         }
 
         AppManager.GetInstance().VRChatOscClient.OnDataReceived += onDataReceived;
@@ -48,12 +70,12 @@ public class RouterManager
 
     public void Stop()
     {
+        Logger.Log("Stopping router instances");
+
         AppManager.GetInstance().VRChatOscClient.OnDataReceived -= onDataReceived;
 
         foreach (var sender in senders)
         {
-            Logger.Log($"Stopping router instance on {sender.EndPoint}");
-
             sender.Disable();
         }
 

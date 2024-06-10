@@ -12,7 +12,7 @@ public class RouterInstance
     public string Name { get; set; } = string.Empty;
 
     [JsonProperty("address")]
-    public IPAddress Address { get; set; } = IPAddress.Loopback;
+    public string Address { get; set; } = IPAddress.Loopback.ToString();
 
     [JsonProperty("port")]
     public int Port { get; set; }

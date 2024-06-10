@@ -316,10 +316,10 @@ public class AppManager
     {
         try
         {
-            Logger.Log($"Initialising OSC with send ({sendAddress}:{sendPort}) and receive ({receiveAddress}:{receivePort})");
-
             var sendEndpoint = new IPEndPoint(sendAddress, sendPort);
             var receiveEndpoint = new IPEndPoint(receiveAddress, receivePort);
+
+            Logger.Log($"Initialising OSC with send {sendEndpoint} and receive {receiveEndpoint}");
 
             VRChatOscClient.Initialise(sendEndpoint, receiveEndpoint);
         }

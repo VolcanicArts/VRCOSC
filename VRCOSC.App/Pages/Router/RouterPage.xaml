@@ -4,10 +4,114 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:ui="clr-namespace:VRCOSC.App.UI"
+      xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+      xmlns:fa5="http://schemas.fontawesome.com/icons/"
       mc:Ignorable="d">
+    <Page.Resources>
+        <ui:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
+                                       Colour2="{StaticResource CBackground4}" />
+    </Page.Resources>
     <Grid>
         <ui:MouseScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
             <Border Background="{StaticResource CBackground2}" Padding="10">
+                <Border Background="Transparent">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="40" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="40" />
+                        </Grid.RowDefinitions>
+                        <Border Grid.Row="0" Background="{StaticResource CBackground1}"
+                                Padding="7 5" CornerRadius="5 5 0 0">
+                            <TextBlock Text="Router"
+                                       FontSize="20"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center"
+                                       Foreground="{StaticResource CForeground1}"
+                                       Padding="3 0" />
+                        </Border>
+                        <ListView Grid.Row="1" ItemsSource="{Binding RouterManager.Routes, Mode=OneWay}"
+                                  HorizontalAlignment="Stretch"
+                                  Background="Transparent"
+                                  BorderThickness="0" AlternationCount="2" Padding="-1">
+                            <b:Interaction.Behaviors>
+                                <ui:IgnoreMouseWheelBehavior />
+                            </b:Interaction.Behaviors>
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate>
+                                                <Grid>
+                                                    <Border
+                                                        Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}"
+                                                        Padding="5" Height="40">
+                                                        <Grid>
+                                                            <ui:SpacedStackPanel
+                                                                Orientation="Horizontal"
+                                                                Spacing="5"
+                                                                HorizontalAlignment="Left"
+                                                                VerticalAlignment="Stretch">
+                                                                <TextBox
+                                                                    Text="{Binding Name}"
+                                                                    Foreground="{StaticResource CForeground1}"
+                                                                    Height="20"
+                                                                    Width="100"
+                                                                    FontSize="16"
+                                                                    VerticalAlignment="Center"
+                                                                    VerticalContentAlignment="Center" />
+                                                                <TextBox
+                                                                    Text="{Binding Address}"
+                                                                    Foreground="{StaticResource CForeground1}"
+                                                                    Height="20"
+                                                                    Width="100"
+                                                                    FontSize="16"
+                                                                    VerticalAlignment="Center"
+                                                                    VerticalContentAlignment="Center" />
+                                                                <TextBox
+                                                                    Text="{Binding Port}"
+                                                                    Foreground="{StaticResource CForeground1}"
+                                                                    Height="20"
+                                                                    Width="100"
+                                                                    FontSize="16"
+                                                                    VerticalAlignment="Center"
+                                                                    VerticalContentAlignment="Center" />
+                                                            </ui:SpacedStackPanel>
+                                                            <ui:SpacedStackPanel
+                                                                Orientation="Horizontal"
+                                                                FlowDirection="RightToLeft"
+                                                                Spacing="7"
+                                                                HorizontalAlignment="Right">
+                                                                <ui:VRCOSCButton
+                                                                    ButtonColour="Red"
+                                                                    Width="30" Height="30"
+                                                                    Tag="{Binding}"
+                                                                    Click="RemoveInstance_OnClick">
+                                                                    <fa5:ImageAwesome
+                                                                        Icon="Solid_Minus"
+                                                                        Foreground="{StaticResource CForeground1}"
+                                                                        Margin="5"/>
+                                                                </ui:VRCOSCButton>
+                                                            </ui:SpacedStackPanel>
+                                                        </Grid>
+                                                    </Border>
+                                                </Grid>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                        </ListView>
+                        <Border Grid.Row="2" Background="{StaticResource CBackground1}"
+                                CornerRadius="0 0 5 5">
+                            <ui:VRCOSCButton ButtonColour="Green" Height="25" Width="100" CornerRadius="5"
+                                             Click="AddInstance_OnClick">
+                                <fa5:FontAwesome Icon="Solid_Plus" FontSize="20"
+                                                 Foreground="{StaticResource CForeground1}" />
+                            </ui:VRCOSCButton>
+                        </Border>
+                    </Grid>
+                </Border>
             </Border>
         </ui:MouseScrollViewer>
     </Grid>
