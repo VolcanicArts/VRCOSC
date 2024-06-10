@@ -1,0 +1,14 @@
+﻿<Page x:Class="VRCOSC.App.Pages.Router.RouterPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:ui="clr-namespace:VRCOSC.App.UI"
+      mc:Ignorable="d">
+    <Grid>
+        <ui:MouseScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
+            <Border Background="{StaticResource CBackground2}" Padding="10">
+            </Border>
+        </ui:MouseScrollViewer>
+    </Grid>
+</Page>

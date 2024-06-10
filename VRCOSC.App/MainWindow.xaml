@@ -60,6 +60,9 @@
                             <Button Name="ModulesButton" Click="ModulesButton_OnClick">
                                 <fa5:FontAwesome Icon="Solid_List" />
                             </Button>
+                            <Button Name="RouterButton" Click="RouterButton_OnClick">
+                                <fa5:FontAwesome Icon="Solid_ShareAlt" />
+                            </Button>
                             <Button Name="SettingsButton" Click="SettingsButton_OnClick" Visibility="Collapsed">
                                 <fa5:FontAwesome Icon="Solid_UserCog" />
                             </Button>

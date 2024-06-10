@@ -17,6 +17,7 @@ using VRCOSC.App.Modules;
 using VRCOSC.App.OSC;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.Profiles;
+using VRCOSC.App.Router;
 using VRCOSC.App.SDK.OVR;
 using VRCOSC.App.SDK.OVR.Metadata;
 using VRCOSC.App.SDK.Parameters;
@@ -190,6 +191,7 @@ public class AppManager
 
     public async void ForceStart()
     {
+        Logger.Log("Force starting");
         CancelStartRequest();
         initialiseOSCClient(IPAddress.Loopback, 9000, IPAddress.Loopback, 9001);
         await startAsync();
@@ -294,9 +296,7 @@ public class AppManager
         State.Value = AppManagerState.Starting;
 
         VRChatLogReader.Start();
-
-        //RouterManager.Start();
-
+        RouterManager.GetInstance().Start();
         VRChatOscClient.EnableSend();
         ChatBoxManager.GetInstance().Start();
         await ModuleManager.GetInstance().StartAsync();
@@ -355,9 +355,6 @@ public class AppManager
         State.Value = AppManagerState.Stopping;
 
         VRChatLogReader.Stop();
-
-        //RouterManager.Stop();
-
         await VRChatOscClient.DisableReceive();
         VRChatOscClient.OnParameterReceived -= onParameterReceived;
 
@@ -368,6 +365,7 @@ public class AppManager
         ChatBoxManager.GetInstance().Stop();
         VRChatClient.Teardown();
         VRChatOscClient.DisableSend();
+        RouterManager.GetInstance().Stop();
 
         lock (oscMessageQueueLock)
         {

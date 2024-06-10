@@ -21,9 +21,11 @@ using VRCOSC.App.Pages.ChatBox;
 using VRCOSC.App.Pages.Modules;
 using VRCOSC.App.Pages.Packages;
 using VRCOSC.App.Pages.Profiles;
+using VRCOSC.App.Pages.Router;
 using VRCOSC.App.Pages.Run;
 using VRCOSC.App.Pages.Settings;
 using VRCOSC.App.Profiles;
+using VRCOSC.App.Router;
 using VRCOSC.App.SDK.OVR.Metadata;
 using VRCOSC.App.Settings;
 using VRCOSC.App.UI;
@@ -43,6 +45,7 @@ public partial class MainWindow
     public readonly HomePage HomePage;
     public readonly PackagePage PackagePage;
     public readonly ModulesPage ModulesPage;
+    public readonly RouterPage RouterPage;
     public readonly SettingsPage SettingsPage;
     public readonly ChatBoxPage ChatBoxPage;
     public readonly RunPage RunPage;
@@ -71,6 +74,7 @@ public partial class MainWindow
         HomePage = new HomePage();
         PackagePage = new PackagePage();
         ModulesPage = new ModulesPage();
+        RouterPage = new RouterPage();
         SettingsPage = new SettingsPage();
         ChatBoxPage = new ChatBoxPage();
         RunPage = new RunPage();
@@ -90,7 +94,7 @@ public partial class MainWindow
         loadingAction.AddAction(PackageManager.GetInstance().Load());
         loadingAction.AddAction(new DynamicProgressAction("Loading modules", () => ModuleManager.GetInstance().LoadAllModules()));
         loadingAction.AddAction(new DynamicProgressAction("Loading chatbox", () => ChatBoxManager.GetInstance().Load()));
-        //loadingAction.AddAction(new DynamicProgressAction("Loading routes", () => appManager.RouterManager.Load()));
+        loadingAction.AddAction(new DynamicProgressAction("Loading routes", () => RouterManager.GetInstance().Load()));
 
         loadingAction.OnComplete += () =>
         {
@@ -289,6 +293,7 @@ public partial class MainWindow
         HomeButton.Background = Brushes.Transparent;
         PackagesButton.Background = Brushes.Transparent;
         ModulesButton.Background = Brushes.Transparent;
+        RouterButton.Background = Brushes.Transparent;
         SettingsButton.Background = Brushes.Transparent;
         ChatBoxButton.Background = Brushes.Transparent;
         RunButton.Background = Brushes.Transparent;
@@ -312,6 +317,11 @@ public partial class MainWindow
     private void ModulesButton_OnClick(object sender, RoutedEventArgs e)
     {
         setPageContents(ModulesPage, ModulesButton);
+    }
+
+    private void RouterButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        setPageContents(RouterPage, RouterButton);
     }
 
     private void SettingsButton_OnClick(object sender, RoutedEventArgs e)

@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using VRCOSC.App.Utils;
@@ -11,20 +12,22 @@ namespace VRCOSC.App.OSC.Client;
 public class OscSender
 {
     private Socket? socket;
-    private IPEndPoint endPoint = null!;
+    public IPEndPoint? EndPoint { get; private set; }
 
     public void Initialise(IPEndPoint endPoint)
     {
-        this.endPoint = endPoint;
+        EndPoint = endPoint;
     }
 
     public bool Enable()
     {
+        Debug.Assert(EndPoint is not null);
+
         socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
         try
         {
-            socket.Connect(endPoint);
+            socket.Connect(EndPoint);
             return true;
         }
         catch (Exception e)
