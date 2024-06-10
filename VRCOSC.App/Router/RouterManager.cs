@@ -6,6 +6,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Net;
 using VRCOSC.App.OSC.Client;
+using VRCOSC.App.Profiles;
+using VRCOSC.App.Router.Serialisation;
+using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Router;
@@ -16,31 +19,34 @@ public class RouterManager
     public static RouterManager GetInstance() => instance ??= new RouterManager();
 
     public ObservableCollection<RouterInstance> Routes { get; } = new();
+    private readonly SerialisationManager serialisationManager;
 
     private readonly List<OscSender> senders = new();
 
+    public RouterManager()
+    {
+        serialisationManager = new SerialisationManager();
+        serialisationManager.RegisterSerialiser(1, new RouterManagerSerialiser(AppManager.GetInstance().Storage, this, ProfileManager.GetInstance().ActiveProfile));
+    }
+
     public void Load()
     {
-        Routes.Add(new RouterInstance
+        Routes.CollectionChanged += (_, e) =>
         {
-            Name = "Test",
-            Address = IPAddress.Loopback.ToString(),
-            Port = 9003
-        });
+            if (e.NewItems is not null)
+            {
+                foreach (RouterInstance routerInstance in e.NewItems)
+                {
+                    routerInstance.Name.Subscribe(_ => serialisationManager.Serialise());
+                    routerInstance.Address.Subscribe(_ => serialisationManager.Serialise());
+                    routerInstance.Port.Subscribe(_ => serialisationManager.Serialise());
+                }
+            }
 
-        Routes.Add(new RouterInstance
-        {
-            Name = "Test",
-            Address = IPAddress.Loopback.ToString(),
-            Port = 9003
-        });
+            serialisationManager.Serialise();
+        };
 
-        Routes.Add(new RouterInstance
-        {
-            Name = "Test",
-            Address = IPAddress.Loopback.ToString(),
-            Port = 9003
-        });
+        serialisationManager.Deserialise();
     }
 
     public void Start()
@@ -49,7 +55,7 @@ public class RouterManager
         {
             try
             {
-                var endpoint = new IPEndPoint(IPAddress.Parse(route.Address), route.Port);
+                var endpoint = new IPEndPoint(IPAddress.Parse(route.Address.Value), route.Port.Value);
 
                 Logger.Log($"Starting router instance `{route.Name}` on {endpoint}");
 

@@ -3,17 +3,18 @@
 
 using System.Net;
 using Newtonsoft.Json;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Router;
 
 public class RouterInstance
 {
     [JsonProperty("name")]
-    public string Name { get; set; } = string.Empty;
+    public Observable<string> Name { get; } = new(string.Empty);
 
     [JsonProperty("address")]
-    public string Address { get; set; } = IPAddress.Loopback.ToString();
+    public Observable<string> Address { get; } = new(IPAddress.Loopback.ToString());
 
     [JsonProperty("port")]
-    public int Port { get; set; }
+    public Observable<int> Port { get; } = new();
 }
