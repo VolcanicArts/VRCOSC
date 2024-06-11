@@ -17,12 +17,24 @@ public class Repeater
         this.action = action ?? throw new ArgumentNullException(nameof(action));
     }
 
-    public void Start(TimeSpan interval)
+    public void Start(TimeSpan interval, bool runOnceImmediately = false)
     {
         if (cancellationTokenSource != null)
             throw new InvalidOperationException("Repeater is already started.");
 
         cancellationTokenSource = new CancellationTokenSource();
+
+        if (runOnceImmediately)
+        {
+            try
+            {
+                action.Invoke();
+            }
+            catch (Exception e)
+            {
+                ExceptionHandler.Handle(e, $"{nameof(Repeater)} has experienced an exception");
+            }
+        }
 
         Task.Run(async () =>
         {

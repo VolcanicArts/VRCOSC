@@ -45,7 +45,6 @@ public class SettingsManager
         Settings[VRCOSCSetting.StartInTray] = new Observable<object>(false);
         Settings[VRCOSCSetting.PackageFilter] = new Observable<object>((int)(PackageListingFilter.Type_Official | PackageListingFilter.Type_Curated | PackageListingFilter.Type_Community)); // TODO: Remove community on release
         Settings[VRCOSCSetting.AutomaticProfileSwitching] = new Observable<object>(false);
-        Settings[VRCOSCSetting.ModuleLogDebug] = new Observable<object>(false);
         Settings[VRCOSCSetting.VRCAutoStart] = new Observable<object>(false);
         Settings[VRCOSCSetting.VRCAutoStop] = new Observable<object>(false);
         Settings[VRCOSCSetting.OVRAutoOpen] = new Observable<object>(false);
@@ -61,6 +60,7 @@ public class SettingsManager
         Settings[VRCOSCSetting.OutgoingEndpoint] = new Observable<object>("127.0.0.1:9000");
         Settings[VRCOSCSetting.IncomingEndpoint] = new Observable<object>("127.0.0.1:9001");
         Settings[VRCOSCSetting.UseCustomEndpoints] = new Observable<object>(false);
+        Settings[VRCOSCSetting.EnableAppDebug] = new Observable<object>(false);
     }
 
     public Observable<object> GetObservable(VRCOSCSetting lookup)
@@ -85,7 +85,6 @@ public enum VRCOSCSetting
     StartInTray,
     PackageFilter,
     AutomaticProfileSwitching,
-    ModuleLogDebug,
     VRCAutoStart,
     VRCAutoStop,
     OVRAutoOpen,
@@ -100,5 +99,6 @@ public enum VRCOSCSetting
     Theme,
     OutgoingEndpoint,
     IncomingEndpoint,
-    UseCustomEndpoints
+    UseCustomEndpoints,
+    EnableAppDebug
 }

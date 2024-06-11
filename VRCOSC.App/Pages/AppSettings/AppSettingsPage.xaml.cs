@@ -47,12 +47,6 @@ public partial class AppSettingsPage
         set => SettingsManager.GetInstance().GetObservable(VRCOSCSetting.OVRAutoClose).Value = value;
     }
 
-    public bool ModuleLogDebug
-    {
-        get => (bool)SettingsManager.GetInstance().GetObservable(VRCOSCSetting.ModuleLogDebug).Value;
-        set => SettingsManager.GetInstance().GetObservable(VRCOSCSetting.ModuleLogDebug).Value = value;
-    }
-
     public IEnumerable<Theme> ThemeSource => Enum.GetValues<Theme>();
 
     public int Theme
@@ -95,6 +89,12 @@ public partial class AppSettingsPage
     {
         get => (bool)SettingsManager.GetInstance().GetObservable(VRCOSCSetting.TrayOnClose).Value;
         set => SettingsManager.GetInstance().GetObservable(VRCOSCSetting.TrayOnClose).Value = value;
+    }
+
+    public bool EnableAppDebug
+    {
+        get => (bool)SettingsManager.GetInstance().GetObservable(VRCOSCSetting.EnableAppDebug).Value;
+        set => SettingsManager.GetInstance().GetObservable(VRCOSCSetting.EnableAppDebug).Value = value;
     }
 
     private int selectedPage;

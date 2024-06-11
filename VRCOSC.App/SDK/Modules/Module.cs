@@ -305,7 +305,7 @@ public abstract class Module
     /// <param name="message">The message to log to the file</param>
     protected void LogDebug(string message)
     {
-        if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.ModuleLogDebug)) return;
+        if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.EnableAppDebug)) return;
 
         Logger.Log($"[{Title}]: {message}", "module-debug");
     }

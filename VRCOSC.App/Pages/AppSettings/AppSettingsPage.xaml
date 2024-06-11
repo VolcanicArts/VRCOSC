@@ -8,6 +8,7 @@
       mc:Ignorable="d">
     <Page.Resources>
         <appSettings:IpPortValidationRule x:Key="IpPortValidationRule" />
+        <ui:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <Style TargetType="TextBlock">
             <Setter Property="TextWrapping" Value="Wrap" />
         </Style>
@@ -123,8 +124,9 @@
                                     CornerRadius="5">
                                 <Grid>
                                     <TextBlock Text="Use ChatBox Blacklist" Style="{StaticResource SettingTitle}" />
-                                    <TextBlock Text="This stops VRCOSC from writing to the ChatBox in certain club and event worlds"
-                                               Style="{StaticResource SettingDescription}" />
+                                    <TextBlock
+                                        Text="This stops VRCOSC from writing to the ChatBox in certain club and event worlds"
+                                        Style="{StaticResource SettingDescription}" />
                                     <ui:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
                                                        Height="32"
                                                        Width="32"
@@ -135,8 +137,9 @@
                                     CornerRadius="5">
                                 <Grid>
                                     <TextBlock Text="ChatBox Send Interval" Style="{StaticResource SettingTitle}" />
-                                    <TextBlock Text="The time between writing to the ChatBox in milliseconds. Defaults to 1500"
-                                               Style="{StaticResource SettingDescription}" />
+                                    <TextBlock
+                                        Text="The time between writing to the ChatBox in milliseconds. Defaults to 1500"
+                                        Style="{StaticResource SettingDescription}" />
                                     <TextBox HorizontalAlignment="Right" VerticalAlignment="Stretch"
                                              VerticalContentAlignment="Center"
                                              Width="200"
@@ -299,12 +302,12 @@
                                 <Grid>
                                     <TextBlock Text="Enable Debug Mode" Style="{StaticResource SettingTitle}" />
                                     <TextBlock
-                                        Text="Debug mode allows modules to log detailed events, but it can produce a big log file"
+                                        Text="Gain access to the debug page, detailed module logs, and other information"
                                         Style="{StaticResource SettingDescription}" />
                                     <ui:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
                                                        Height="32"
                                                        Width="32"
-                                                       IsChecked="{Binding ModuleLogDebug}" />
+                                                       IsChecked="{Binding EnableAppDebug}" />
                                 </Grid>
                             </Border>
                         </ui:SpacedStackPanel>

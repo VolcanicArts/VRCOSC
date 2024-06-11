@@ -16,6 +16,7 @@ using VRCOSC.App.ChatBox;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Packages;
 using VRCOSC.App.Pages;
+using VRCOSC.App.Pages.AppDebug;
 using VRCOSC.App.Pages.AppSettings;
 using VRCOSC.App.Pages.ChatBox;
 using VRCOSC.App.Pages.Modules;
@@ -49,6 +50,7 @@ public partial class MainWindow
     public readonly SettingsPage SettingsPage;
     public readonly ChatBoxPage ChatBoxPage;
     public readonly RunPage RunPage;
+    public readonly AppDebugPage DebugPage;
     public readonly ProfilesPage ProfilesPage;
     public readonly AppSettingsPage AppSettingsPage;
 
@@ -57,13 +59,16 @@ public partial class MainWindow
     private static Version assemblyVersion => Assembly.GetEntryAssembly()?.GetName().Version ?? new Version();
     private string version => $"{assemblyVersion.Major}.{assemblyVersion.Minor}.{assemblyVersion.Build}";
 
+    public Observable<bool> ShowAppDebug { get; } = new();
+
     public MainWindow()
     {
         SettingsManager.GetInstance().Load();
+        SettingsManager.GetInstance().GetObservable(VRCOSCSetting.EnableAppDebug).Subscribe(newValue => ShowAppDebug.Value = (bool)newValue, true);
+
         AppManager.GetInstance().Initialise();
 
         InitializeComponent();
-
         DataContext = this;
 
         Title = $"{AppManager.APP_NAME} {version}";
@@ -78,6 +83,7 @@ public partial class MainWindow
         SettingsPage = new SettingsPage();
         ChatBoxPage = new ChatBoxPage();
         RunPage = new RunPage();
+        DebugPage = new AppDebugPage();
         ProfilesPage = new ProfilesPage();
         AppSettingsPage = new AppSettingsPage();
 
@@ -297,6 +303,7 @@ public partial class MainWindow
         SettingsButton.Background = Brushes.Transparent;
         ChatBoxButton.Background = Brushes.Transparent;
         RunButton.Background = Brushes.Transparent;
+        DebugButton.Background = Brushes.Transparent;
         ProfilesButton.Background = Brushes.Transparent;
         AppSettingsButton.Background = Brushes.Transparent;
 
@@ -337,6 +344,11 @@ public partial class MainWindow
     private void RunButton_OnClick(object sender, RoutedEventArgs e)
     {
         setPageContents(RunPage, RunButton);
+    }
+
+    private void DebugButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        setPageContents(DebugPage, DebugButton);
     }
 
     private void ProfilesButton_OnClick(object sender, RoutedEventArgs e)

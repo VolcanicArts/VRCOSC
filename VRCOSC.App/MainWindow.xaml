@@ -13,6 +13,7 @@
         Closing="MainWindow_OnClosing"
         Closed="MainWindow_OnClosed">
     <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <Style TargetType="fa5:FontAwesome">
             <Setter Property="Foreground" Value="{StaticResource CForeground1}" />
             <Setter Property="FontSize" Value="22" />
@@ -71,6 +72,9 @@
                             </Button>
                             <Button Name="RunButton" Click="RunButton_OnClick">
                                 <fa5:FontAwesome Icon="Solid_Play" />
+                            </Button>
+                            <Button Name="DebugButton" Click="DebugButton_OnClick" Visibility="{Binding ShowAppDebug.Value, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <fa5:FontAwesome Icon="Solid_Bug" />
                             </Button>
                         </StackPanel>
                         <StackPanel Orientation="Vertical" VerticalAlignment="Bottom">
