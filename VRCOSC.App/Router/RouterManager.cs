@@ -57,7 +57,7 @@ public class RouterManager
             {
                 var endpoint = new IPEndPoint(IPAddress.Parse(route.Address.Value), route.Port.Value);
 
-                Logger.Log($"Starting router instance `{route.Name}` on {endpoint}");
+                Logger.Log($"Starting router instance `{route.Name.Value}` on {endpoint}");
 
                 var sender = new OscSender();
                 sender.Initialise(endpoint);
@@ -67,7 +67,7 @@ public class RouterManager
             }
             catch (Exception e)
             {
-                ExceptionHandler.Handle(e, $"Failed to start router instance named {route.Name}");
+                ExceptionHandler.Handle(e, $"Failed to start router instance named {route.Name.Value}");
             }
         }
 
