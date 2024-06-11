@@ -53,7 +53,7 @@ public class ProfileManager
 
     public void Load()
     {
-        Deserialise();
+        serialisationManager.Deserialise(false);
 
         checkForDefault();
 
