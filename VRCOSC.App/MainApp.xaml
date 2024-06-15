@@ -63,6 +63,8 @@
                 <Setter Property="CaretBrush" Value="{StaticResource CForeground3}" />
                 <Setter Property="SelectionBrush" Value="{StaticResource CForeground2}" />
             </Style>
+            <Style TargetType="{x:Type ui:IPTextBox}" BasedOn="{StaticResource {x:Type TextBox}}">
+            </Style>
             <Style TargetType="ui:VRCOSCCheckBox">
                 <Setter
                     Property="Template">

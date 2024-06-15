@@ -17,18 +17,25 @@
                 <Border Background="Transparent">
                     <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="40" />
+                            <RowDefinition Height="55" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="40" />
                         </Grid.RowDefinitions>
                         <Border Grid.Row="0" Background="{StaticResource CBackground1}"
                                 Padding="7 5" CornerRadius="5 5 0 0">
-                            <TextBlock Text="Router"
-                                       FontSize="20"
-                                       FontWeight="SemiBold"
-                                       VerticalAlignment="Center"
-                                       Foreground="{StaticResource CForeground1}"
-                                       Padding="3 0" />
+                            <Grid>
+                                <TextBlock
+                                    Text="Router"
+                                    Foreground="{StaticResource CForeground1}"
+                                    FontSize="20"
+                                    VerticalAlignment="Top"
+                                    FontWeight="DemiBold"/>
+                                <TextBlock
+                                    Text="This will forward all VRChat OSC data to the specified address and port for apps to receive on. Apps should still send to port 9000"
+                                    Foreground="{StaticResource CForeground2}"
+                                    FontSize="15"
+                                    VerticalAlignment="Bottom"/>
+                            </Grid>
                         </Border>
                         <ListView Grid.Row="1" ItemsSource="{Binding RouterManager.Routes, Mode=OneWay}"
                                   HorizontalAlignment="Stretch"
@@ -60,7 +67,7 @@
                                                                     FontSize="16"
                                                                     VerticalAlignment="Center"
                                                                     VerticalContentAlignment="Center" />
-                                                                <TextBox
+                                                                <ui:IPTextBox
                                                                     Text="{Binding Address.Value}"
                                                                     Foreground="{StaticResource CForeground1}"
                                                                     Height="20"
