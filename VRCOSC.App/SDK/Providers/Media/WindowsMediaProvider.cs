@@ -2,7 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.Media;
@@ -13,12 +13,29 @@ namespace VRCOSC.App.SDK.Providers.Media;
 
 public class WindowsMediaProvider : MediaProvider
 {
-    private readonly List<GlobalSystemMediaTransportControlsSession> sessions = new();
+    public ObservableCollection<GlobalSystemMediaTransportControlsSession> Sessions { get; } = new();
     private GlobalSystemMediaTransportControlsSessionManager? sessionManager;
-    private GlobalSystemMediaTransportControlsSession? controller => sessionManager?.GetCurrentSession();
+    private GlobalSystemMediaTransportControlsSession? controller => autoSwitch || manualSession is null ? sessionManager?.GetCurrentSession() : manualSession;
+
+    private bool autoSwitch = true;
+    private GlobalSystemMediaTransportControlsSession? manualSession;
+
+    public void SetAutoSwitch(bool autoSwitch)
+    {
+        this.autoSwitch = autoSwitch;
+        onCurrentSessionChanged(null, null);
+    }
+
+    public void SetManualSession(GlobalSystemMediaTransportControlsSession session)
+    {
+        manualSession = session;
+        onCurrentSessionChanged(null, null);
+    }
 
     public override async Task<bool> InitialiseAsync()
     {
+        autoSwitch = true;
+        manualSession = null;
         State = new MediaState();
         sessionManager ??= await GlobalSystemMediaTransportControlsSessionManager.RequestAsync();
 
@@ -44,7 +61,7 @@ public class WindowsMediaProvider : MediaProvider
 
         sessionManager.CurrentSessionChanged -= onCurrentSessionChanged;
         sessionManager.SessionsChanged -= sessionsChanged;
-        sessions.Clear();
+        Sessions.Clear();
 
         return Task.CompletedTask;
     }
@@ -107,13 +124,12 @@ public class WindowsMediaProvider : MediaProvider
     {
         try
         {
-            if (controller is null)
-            {
-                State = new MediaState();
-                return;
-            }
+            if (controller is null) return;
 
-            State.Identifier = controller.SourceAppUserModelId;
+            State = new MediaState
+            {
+                Identifier = controller.SourceAppUserModelId
+            };
 
             onAnyPlaybackStateChanged(controller, controller.GetPlaybackInfo());
             onAnyMediaPropertyChanged(controller, await controller.TryGetMediaPropertiesAsync());
@@ -127,8 +143,13 @@ public class WindowsMediaProvider : MediaProvider
     private void sessionsChanged(GlobalSystemMediaTransportControlsSessionManager? _, SessionsChangedEventArgs? _2)
     {
         var windowsSessions = sessionManager!.GetSessions();
-        windowsSessions.Where(windowsSession => !sessions.Contains(windowsSession)).ForEach(addControlSession);
-        sessions.RemoveAll(session => !windowsSessions.Contains(session));
+        windowsSessions.Where(windowsSession => !Sessions.Contains(windowsSession)).ForEach(addControlSession);
+        Sessions.RemoveIf(session => !windowsSessions.Contains(session));
+
+        if (manualSession is not null && !Sessions.Contains(manualSession))
+        {
+            Sessions.Remove(manualSession);
+        }
     }
 
     private void addControlSession(GlobalSystemMediaTransportControlsSession controlSession)
@@ -148,7 +169,7 @@ public class WindowsMediaProvider : MediaProvider
 
         controlSession.TimelinePropertiesChanged += (_, _) => onAnyTimelinePropertiesChanged(controlSession, controlSession.GetTimelineProperties());
 
-        sessions.Add(controlSession);
+        Sessions.Add(controlSession);
     }
 
     public override async void Play()
