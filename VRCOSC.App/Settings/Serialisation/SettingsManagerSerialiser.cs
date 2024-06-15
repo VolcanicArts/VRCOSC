@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
 
@@ -18,22 +19,29 @@ public class SettingsManagerSerialiser : Serialiser<SettingsManager, Serialisabl
 
     protected override bool ExecuteAfterDeserialisation(SerialisableSettingsManager data)
     {
+        var shouldReserialise = false;
+
         data.Settings.ForEach(pair =>
         {
-            if (Reference.Settings.TryGetValue(pair.Key, out var setting))
+            if (!Enum.TryParse(pair.Key, out VRCOSCSetting key))
             {
-                var value = pair.Value;
-
-                if (value is long longValue)
-                    value = (int)longValue;
-
-                if (value is double doubleValue)
-                    value = (float)doubleValue;
-
-                setting.Value = value;
+                shouldReserialise = true;
+                return;
             }
+
+            if (!Reference.Settings.TryGetValue(key, out var setting)) return;
+
+            var value = pair.Value;
+
+            if (value is long longValue)
+                value = (int)longValue;
+
+            if (value is double doubleValue)
+                value = (float)doubleValue;
+
+            setting.Value = value;
         });
 
-        return false;
+        return shouldReserialise;
     }
 }
