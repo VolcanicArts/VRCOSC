@@ -1,9 +1,12 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using System.Windows.Threading;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.Utils;
 
@@ -13,6 +16,12 @@ public partial class AvatarParameterView : INotifyPropertyChanged
 {
     public ObservableDictionary<string, object> OutgoingMessages { get; } = new();
     public ObservableDictionary<string, object> IncomingMessages { get; } = new();
+
+    private readonly Dictionary<string, object> outgoingLocal = new();
+    private readonly Dictionary<string, object> incomingLocal = new();
+
+    private readonly object incomingLock = new();
+    private readonly object outgoingLock = new();
 
     private double outgoingScrollViewerHeight;
 
@@ -38,6 +47,8 @@ public partial class AvatarParameterView : INotifyPropertyChanged
         }
     }
 
+    private readonly DispatcherTimer timer;
+
     public AvatarParameterView()
     {
         InitializeComponent();
@@ -48,7 +59,40 @@ public partial class AvatarParameterView : INotifyPropertyChanged
         AppManager.GetInstance().VRChatOscClient.OnParameterReceived += OnParameterReceived;
         AppManager.GetInstance().State.Subscribe(OnAppManagerStateChange);
 
+        timer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromMilliseconds(200)
+        };
+        timer.Tick += update;
+        timer.Start();
+
         DataContext = this;
+    }
+
+    private void update(object? sender, EventArgs e)
+    {
+        lock (outgoingLock)
+        {
+            foreach (var pair in outgoingLocal)
+            {
+                OutgoingMessages[pair.Key] = pair.Value;
+            }
+
+            outgoingLocal.Clear();
+        }
+
+        lock (incomingLock)
+        {
+            foreach (var pair in incomingLocal)
+            {
+                IncomingMessages[pair.Key] = pair.Value;
+            }
+
+            incomingLocal.Clear();
+        }
+
+        evaluateOutgoingContentHeight();
+        evaluateIncomingContentHeight();
     }
 
     private void OnSizeChanged(object sender, SizeChangedEventArgs e)
@@ -89,8 +133,10 @@ public partial class AvatarParameterView : INotifyPropertyChanged
 
         Dispatcher.Invoke(() =>
         {
-            OutgoingMessages[e.ParameterName] = e.ParameterValue;
-            evaluateOutgoingContentHeight();
+            lock (outgoingLock)
+            {
+                return outgoingLocal[e.ParameterName] = e.ParameterValue;
+            }
         });
     }
 
@@ -100,8 +146,10 @@ public partial class AvatarParameterView : INotifyPropertyChanged
 
         Dispatcher.Invoke(() =>
         {
-            IncomingMessages[e.ParameterName] = e.ParameterValue;
-            evaluateIncomingContentHeight();
+            lock (incomingLock)
+            {
+                return incomingLocal[e.ParameterName] = e.ParameterValue;
+            }
         });
     }
 
