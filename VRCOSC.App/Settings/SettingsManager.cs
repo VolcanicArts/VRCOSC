@@ -34,9 +34,7 @@ public class SettingsManager
 
         Settings.ForEach(pair => pair.Value.Subscribe(_ => serialisationManager.Serialise()));
 
-        ExceptionHandler.SilenceWindow = true;
         serialisationManager.Deserialise();
-        ExceptionHandler.SilenceWindow = false;
     }
 
     private void writeDefaults()
