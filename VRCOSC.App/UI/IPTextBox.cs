@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace VRCOSC.App.UI;
 
@@ -33,7 +34,7 @@ public class IPTextBox : TextBox
         if (sender is TextBox textBox)
         {
             var text = textBox.Text;
-            textBox.BorderBrush = !isIpAddress(text) ? System.Windows.Media.Brushes.Red : System.Windows.Media.Brushes.White;
+            textBox.BorderBrush = !isIpAddress(text) ? Brushes.Red : Brushes.LightGray;
         }
     }
 

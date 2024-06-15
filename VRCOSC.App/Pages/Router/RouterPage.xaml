@@ -59,6 +59,10 @@
                                                                 Spacing="5"
                                                                 HorizontalAlignment="Left"
                                                                 VerticalAlignment="Stretch">
+                                                                <TextBlock Text="Name:"
+                                                                           Foreground="{StaticResource CForeground1}"
+                                                                           FontSize="16"
+                                                                           VerticalAlignment="Center"/>
                                                                 <TextBox
                                                                     Text="{Binding Name.Value}"
                                                                     Foreground="{StaticResource CForeground1}"
@@ -67,6 +71,10 @@
                                                                     FontSize="16"
                                                                     VerticalAlignment="Center"
                                                                     VerticalContentAlignment="Center" />
+                                                                <TextBlock Text="Address:"
+                                                                           Foreground="{StaticResource CForeground1}"
+                                                                           FontSize="16"
+                                                                           VerticalAlignment="Center"/>
                                                                 <ui:IPTextBox
                                                                     Text="{Binding Address.Value}"
                                                                     Foreground="{StaticResource CForeground1}"
@@ -75,6 +83,10 @@
                                                                     FontSize="16"
                                                                     VerticalAlignment="Center"
                                                                     VerticalContentAlignment="Center" />
+                                                                <TextBlock Text="Port:"
+                                                                           Foreground="{StaticResource CForeground1}"
+                                                                           FontSize="16"
+                                                                           VerticalAlignment="Center"/>
                                                                 <TextBox
                                                                     Text="{Binding Port.Value}"
                                                                     Foreground="{StaticResource CForeground1}"
