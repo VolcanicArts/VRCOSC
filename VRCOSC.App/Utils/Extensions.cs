@@ -55,6 +55,16 @@ public static class CollectionExtensions
     }
 }
 
+public static class ArrayExtensions
+{
+    public static T[] NewCopy<T>(this T[] source, int length)
+    {
+        var destination = new T[length];
+        Array.Copy(source, destination, length);
+        return destination;
+    }
+}
+
 public static class StringExtensions
 {
     public static string Pluralise(this string str) => str + (str.EndsWith("s") ? "'" : "'s");

@@ -64,14 +64,14 @@
                             <Button Name="RouterButton" Click="RouterButton_OnClick">
                                 <fa5:FontAwesome Icon="Solid_ShareAlt" />
                             </Button>
-                            <Button Name="SettingsButton" Click="SettingsButton_OnClick" Visibility="Collapsed">
-                                <fa5:FontAwesome Icon="Solid_UserCog" />
-                            </Button>
                             <Button Name="ChatBoxButton" Click="ChatBoxButton_OnClick">
                                 <fa6:FontAwesome Icon="Solid_Message" />
                             </Button>
                             <Button Name="RunButton" Click="RunButton_OnClick">
                                 <fa5:FontAwesome Icon="Solid_Play" />
+                            </Button>
+                            <Button Name="SettingsButton" Click="SettingsButton_OnClick">
+                                <fa5:FontAwesome Icon="Solid_UserCog" />
                             </Button>
                             <Button Name="DebugButton" Click="DebugButton_OnClick" Visibility="{Binding ShowAppDebug.Value, Converter={StaticResource BoolToVisibilityConverter}}">
                                 <fa5:FontAwesome Icon="Solid_Bug" />

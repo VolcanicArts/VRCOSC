@@ -9,25 +9,37 @@
         <ui:MouseScrollViewer HorizontalScrollBarVisibility="Disabled"
                               VerticalScrollBarVisibility="Auto">
             <Border Background="{StaticResource CBackground2}" Padding="5">
-                <ui:SpacedStackPanel Orientation="Vertical" Spacing="10">
-                    <TextBox Name="Username" Width="300" />
-                    <PasswordBox Name="Password" Width="300" />
-                    <ui:VRCOSCButton ButtonColour="Blue" Width="300" Click="Login_OnClick">
-                        <TextBlock Text="Login" Foreground="{StaticResource CForeground1}" />
-                    </ui:VRCOSCButton>
-                    <TextBox Name="TwoFactorAuth" Width="300" />
-                    <ui:VRCOSCButton ButtonColour="Blue" Width="300" Click="TwoFactorAuth_OnClick">
-                        <TextBlock Text="Send 2FA" Foreground="{StaticResource CForeground1}" />
-                    </ui:VRCOSCButton>
-                    <TextBox Name="TokenInput" Width="300" />
-                    <ui:VRCOSCButton ButtonColour="Blue" Width="300" Click="Token_OnClick">
-                        <TextBlock Text="Login Token" Foreground="{StaticResource CForeground1}" />
-                    </ui:VRCOSCButton>
-                    <Border Height="50" />
-                    <TextBlock Text="Debug" HorizontalAlignment="Center" Foreground="{StaticResource CForeground1}"/>
-                    <TextBox Name="TokenDisplay" Width="300" />
-                    <TextBlock Name="StateDisplay" HorizontalAlignment="Center" Foreground="{StaticResource CForeground1}"/>
-                </ui:SpacedStackPanel>
+                <Grid>
+                    <ui:SpacedStackPanel Orientation="Vertical" Spacing="10" Visibility="Collapsed">
+                        <TextBox Name="Username" Width="300" />
+                        <PasswordBox Name="Password" Width="300" />
+                        <ui:VRCOSCButton ButtonColour="Blue" Width="300" Click="Login_OnClick">
+                            <TextBlock Text="Login" Foreground="{StaticResource CForeground1}" />
+                        </ui:VRCOSCButton>
+                        <TextBox Name="TwoFactorAuth" Width="300" />
+                        <ui:VRCOSCButton ButtonColour="Blue" Width="300" Click="TwoFactorAuth_OnClick">
+                            <TextBlock Text="Send 2FA" Foreground="{StaticResource CForeground1}" />
+                        </ui:VRCOSCButton>
+                        <TextBox Name="TokenInput" Width="300" />
+                        <ui:VRCOSCButton ButtonColour="Blue" Width="300" Click="Token_OnClick">
+                            <TextBlock Text="Login Token" Foreground="{StaticResource CForeground1}" />
+                        </ui:VRCOSCButton>
+                        <Border Height="50" />
+                        <TextBlock Text="Debug" HorizontalAlignment="Center" Foreground="{StaticResource CForeground1}" />
+                        <TextBox Name="TokenDisplay" Width="300" />
+                        <TextBlock Name="StateDisplay" HorizontalAlignment="Center"
+                                   Foreground="{StaticResource CForeground1}" />
+                    </ui:SpacedStackPanel>
+                    <ui:SpacedStackPanel Orientation="Vertical" Spacing="10">
+                        <ComboBox Name="DeviceComboBox"
+                                  SelectedValuePath="ID"
+                                  DisplayMemberPath="Name"
+                                  VerticalAlignment="Center"
+                                  HorizontalAlignment="Center"
+                                  Width="300"
+                                  SelectionChanged="DevicesComboBox_SelectionChanged"/>
+                    </ui:SpacedStackPanel>
+                </Grid>
             </Border>
         </ui:MouseScrollViewer>
     </Grid>

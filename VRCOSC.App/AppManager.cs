@@ -12,6 +12,7 @@ using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
 using Valve.VR;
+using VRCOSC.App.Audio;
 using VRCOSC.App.ChatBox;
 using VRCOSC.App.Modules;
 using VRCOSC.App.OSC;
@@ -50,6 +51,8 @@ public class AppManager
     public VRChatAPIClient VRChatAPIClient = null!;
     public OVRClient OVRClient = null!;
 
+    public SpeechEngine SpeechEngine = null!;
+
     private Repeater? updateTask;
     private Repeater vrchatCheckTask = null!;
     private Repeater openvrCheckTask = null!;
@@ -73,6 +76,11 @@ public class AppManager
         VRChatAPIClient = new VRChatAPIClient();
         OVRClient = new OVRClient();
         ChatBoxWorldBlacklist.Init();
+
+        SpeechEngine = new SpeechEngine();
+        SpeechEngine.OnLog += Console.WriteLine;
+        SpeechEngine.OnPartialResult += Console.WriteLine;
+        SpeechEngine.OnFinalResult += e => Console.WriteLine(e.Success);
 
         OVRClient.SetMetadata(new OVRMetadata
         {
@@ -307,6 +315,8 @@ public class AppManager
         VRChatOscClient.OnParameterReceived += onParameterReceived;
         VRChatOscClient.EnableReceive();
 
+        SpeechEngine.Initialise();
+
         State.Value = AppManagerState.Started;
 
         sendControlParameters();
@@ -353,6 +363,8 @@ public class AppManager
         if (State.Value is AppManagerState.Stopping or AppManagerState.Stopped) return;
 
         State.Value = AppManagerState.Stopping;
+
+        SpeechEngine.Teardown();
 
         VRChatLogReader.Stop();
         await VRChatOscClient.DisableReceive();
