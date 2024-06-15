@@ -140,15 +140,15 @@ public partial class ChatBoxClipEditWindow
 
         pastedText = pastedText.Replace(Environment.NewLine, "\n");
 
-        var newlineCount = pastedText.Split(["\n"], StringSplitOptions.None).Length - 1;
+        var newlineCount = pastedText.Split(new[] { '\n' }, StringSplitOptions.None).Length - 1;
         var currentLineCount = textBox.LineCount;
 
         var selectedText = textBox.Text.Substring(selectionStart, selectionLength);
-        var selectedLineCount = selectedText.Split(["\n"], StringSplitOptions.None).Length;
+        var selectedLineCount = selectedText.Split(new[] { '\n' }, StringSplitOptions.None).Length;
 
         var remainingLines = Math.Max(max_lines - (currentLineCount - selectedLineCount), 0);
         var linesToAdd = Math.Min(remainingLines, newlineCount + 1);
-        var lines = pastedText.Split(["\n"], StringSplitOptions.None);
+        var lines = pastedText.Split(new[] { '\n' }, StringSplitOptions.None);
 
         var newTextToAdd = string.Join("\n", lines.Take(linesToAdd));
         var newText = textBox.Text.Remove(selectionStart, selectionLength).Insert(selectionStart, newTextToAdd);
@@ -165,7 +165,7 @@ public partial class ChatBoxClipEditWindow
 
     private string trimLinesToMax(string text)
     {
-        var lines = text.Split(["\r\n", "\r", "\n"], StringSplitOptions.None);
+        var lines = text.Split(new[] { '\r', '\n' }, StringSplitOptions.None);
 
         var trimmedLines = lines.Take(max_lines);
 

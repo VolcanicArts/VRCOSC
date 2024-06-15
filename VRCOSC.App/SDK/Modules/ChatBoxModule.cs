@@ -76,7 +76,7 @@ public class ChatBoxModule : AvatarModule
             StateID = lookup,
             DefaultFormat = defaultFormat,
             DefaultShowTyping = defaultShowTyping,
-            DefaultVariables = defaultVariables?.ToList() ?? [],
+            DefaultVariables = defaultVariables?.ToList() ?? new List<ClipVariableReference>(),
             DisplayName = { Value = displayName }
         };
 
@@ -127,7 +127,7 @@ public class ChatBoxModule : AvatarModule
             EventID = lookup,
             DefaultFormat = defaultFormat,
             DefaultShowTyping = defaultShowTyping,
-            DefaultVariables = defaultVariables?.ToList() ?? [],
+            DefaultVariables = defaultVariables?.ToList() ?? new List<ClipVariableReference>(),
             DefaultLength = defaultLength,
             DefaultBehaviour = defaultBehaviour,
             DisplayName = { Value = displayName }

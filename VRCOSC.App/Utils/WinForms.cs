@@ -71,12 +71,12 @@ public static class WinForms
 
                 if (filePtr != IntPtr.Zero)
                 {
-                    fileArray = [filePtr];
+                    fileArray = new[] { filePtr };
                 }
                 else
                 {
                     Logger.Log($"Cannot find file for '{filePath}'", level: LogLevel.Debug);
-                    fileArray = [folderPtr];
+                    fileArray = new[] { folderPtr };
                 }
 
                 SHOpenFolderAndSelectItems(folderPtr, (uint)fileArray.Length, fileArray, 0);

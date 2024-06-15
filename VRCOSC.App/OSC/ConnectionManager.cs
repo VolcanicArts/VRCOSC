@@ -118,7 +118,7 @@ public class ConnectionManager
             {
                 OscType = "s",
                 Access = OSCQueryNodeAccess.Write,
-                Value = [string.Empty]
+                Value = new object[] { string.Empty }
             });
 
             var stringResponse = JsonConvert.SerializeObject(rootNode, new JsonSerializerSettings

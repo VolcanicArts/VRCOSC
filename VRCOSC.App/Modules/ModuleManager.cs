@@ -31,7 +31,7 @@ public class ModuleManager : INotifyPropertyChanged
     private AssemblyLoadContext? localModulesContext;
     private Dictionary<string, AssemblyLoadContext>? remoteModulesContexts;
 
-    private IEnumerable<AssemblyLoadContext?> joinedAssemblyLoadContexts => remoteModulesContexts?.Values.Concat([localModulesContext]) ?? [localModulesContext];
+    private IEnumerable<AssemblyLoadContext?> joinedAssemblyLoadContexts => remoteModulesContexts?.Values.Concat(new[] { localModulesContext }) ?? new[] { localModulesContext };
 
     public ObservableDictionary<ModulePackage, List<Module>> Modules { get; } = new();
 

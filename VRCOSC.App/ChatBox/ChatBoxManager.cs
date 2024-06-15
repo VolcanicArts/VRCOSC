@@ -278,7 +278,7 @@ public class ChatBoxManager : INotifyPropertyChanged
     private void sendText(string text)
     {
         var finalText = convertSpecialCharacters(text);
-        AppManager.GetInstance().VRChatOscClient.SendValues(VRChatOscConstants.ADDRESS_CHATBOX_INPUT, [finalText, true, false]);
+        AppManager.GetInstance().VRChatOscClient.SendValues(VRChatOscConstants.ADDRESS_CHATBOX_INPUT, new List<object> { finalText, true, false });
     }
 
     private static string convertSpecialCharacters(string input)

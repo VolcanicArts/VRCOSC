@@ -264,10 +264,11 @@ public class AppManager
 
         var waitingCancellationSource = new CancellationTokenSource();
 
-        await Task.WhenAny([
+        await Task.WhenAny(new[]
+        {
             Task.Run(() => waitForUnity(waitingCancellationSource), requestStartCancellationSource.Token),
             Task.Run(() => waitForVRChat(waitingCancellationSource), requestStartCancellationSource.Token)
-        ]);
+        });
 
         waitingCancellationSource.Cancel();
 
