@@ -164,11 +164,17 @@ public class SliderModuleSetting : ValueModuleSetting<float>
 
     public override bool GetValue<TValueType>(out TValueType? outValue) where TValueType : default
     {
-        var value = GetRawValue();
+        var value = (float)GetRawValue();
 
-        if (typeof(TValueType) == ValueType)
+        if (typeof(TValueType) == typeof(float))
         {
-            outValue = (TValueType)value;
+            outValue = (TValueType)Convert.ChangeType(value, TypeCode.Single);
+            return true;
+        }
+
+        if (typeof(TValueType) == typeof(int))
+        {
+            outValue = (TValueType)Convert.ChangeType(value, TypeCode.Int32);
             return true;
         }
 
