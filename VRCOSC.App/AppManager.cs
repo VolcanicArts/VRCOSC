@@ -19,6 +19,8 @@ using VRCOSC.App.OSC;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.Profiles;
 using VRCOSC.App.Router;
+using VRCOSC.App.SDK.Handlers;
+using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.OVR;
 using VRCOSC.App.SDK.OVR.Metadata;
 using VRCOSC.App.SDK.Parameters;
@@ -51,7 +53,7 @@ public class AppManager
     public VRChatAPIClient VRChatAPIClient = null!;
     public OVRClient OVRClient = null!;
 
-    public SpeechEngine SpeechEngine = null!;
+    public VoskSpeechEngine SpeechEngine = null!;
 
     private Repeater? updateTask;
     private Repeater vrchatCheckTask = null!;
@@ -77,10 +79,30 @@ public class AppManager
         OVRClient = new OVRClient();
         ChatBoxWorldBlacklist.Init();
 
-        SpeechEngine = new SpeechEngine();
-        SpeechEngine.OnLog += Console.WriteLine;
-        SpeechEngine.OnPartialResult += Console.WriteLine;
-        SpeechEngine.OnFinalResult += e => Console.WriteLine(e.Success);
+        SpeechEngine = new VoskSpeechEngine();
+        SpeechEngine.OnLog += message => Logger.Log($"[SpeechEngine]: {message}");
+        SpeechEngine.OnPartialResult += text => ModuleManager.GetInstance().GetRunningModulesOfType<ISpeechHandler>().ForEach(module =>
+        {
+            try
+            {
+                module.OnPartialResult(text);
+            }
+            catch (Exception e)
+            {
+                ExceptionHandler.Handle(e, $"{((Module)module).FullID} experienced an issue calling OnPartialResult");
+            }
+        });
+        SpeechEngine.OnFinalResult += result => ModuleManager.GetInstance().GetRunningModulesOfType<ISpeechHandler>().ForEach(module =>
+        {
+            try
+            {
+                module.OnFinalResult(result);
+            }
+            catch (Exception e)
+            {
+                ExceptionHandler.Handle(e, $"{((Module)module).FullID} experienced an issue calling OnFinalResult");
+            }
+        });
 
         OVRClient.SetMetadata(new OVRMetadata
         {
@@ -315,7 +337,8 @@ public class AppManager
         VRChatOscClient.OnParameterReceived += onParameterReceived;
         VRChatOscClient.EnableReceive();
 
-        SpeechEngine.Initialise();
+        if (ModuleManager.GetInstance().GetRunningModulesOfType<ISpeechHandler>().Any())
+            SpeechEngine.Initialise();
 
         State.Value = AppManagerState.Started;
 
