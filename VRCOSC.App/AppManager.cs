@@ -142,6 +142,7 @@ public class AppManager
             ActionManifest = Storage.GetFullPath("openvr/action_manifest.json")
         });
 
+        // TODO: Still throwing error
         OVRClient.OnShutdown += () => MainWindow.GetInstance().Dispatcher.Invoke(() =>
         {
             if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.OVRAutoClose))
@@ -472,7 +473,7 @@ public class AppManager
 
         ModuleManager.GetInstance().LoadAllModules();
         ChatBoxManager.GetInstance().Load();
-        //RouterManager.Load();
+        RouterManager.GetInstance().Load();
 
         if (beforeState == AppManagerState.Started)
         {

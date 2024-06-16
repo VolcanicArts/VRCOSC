@@ -40,7 +40,7 @@ public class SerialisationManager
             if (!serialisers.Values.Any(serialiser => serialiser.DoesFileExist()) && serialiseOnFail)
             {
                 Serialise();
-                return DeserialisationResult.SafeAbort;
+                return DeserialisationResult.Success;
             }
         }
         else
@@ -78,7 +78,6 @@ public class SerialisationManager
 public enum DeserialisationResult
 {
     Success,
-    SafeAbort,
     MissingFile,
     CorruptFile,
     GenericError

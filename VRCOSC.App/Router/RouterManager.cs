@@ -31,6 +31,8 @@ public class RouterManager
 
     public void Load()
     {
+        Routes.Clear();
+
         Routes.CollectionChanged += (_, e) =>
         {
             if (e.NewItems is not null)
