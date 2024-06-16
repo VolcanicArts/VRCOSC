@@ -70,7 +70,7 @@
                             <Button Name="RunButton" Click="RunButton_OnClick">
                                 <fa5:FontAwesome Icon="Solid_Play" />
                             </Button>
-                            <Button Name="SettingsButton" Click="SettingsButton_OnClick">
+                            <Button Name="SettingsButton" Click="SettingsButton_OnClick" Visibility="Collapsed">
                                 <fa5:FontAwesome Icon="Solid_UserCog" />
                             </Button>
                             <Button Name="DebugButton" Click="DebugButton_OnClick" Visibility="{Binding ShowAppDebug.Value, Converter={StaticResource BoolToVisibilityConverter}}">

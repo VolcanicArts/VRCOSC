@@ -10,8 +10,8 @@
         <Product>VRCOSC</Product>
         <LangVersion>11</LangVersion>
         <AssemblyName>VRCOSC</AssemblyName>
-        <AssemblyVersion>2024.615.6.0</AssemblyVersion>
-        <FileVersion>2024.615.6.0</FileVersion>
+        <AssemblyVersion>2024.616.0.0</AssemblyVersion>
+        <FileVersion>2024.616.0.0</FileVersion>
     </PropertyGroup>
 
     <ItemGroup>
