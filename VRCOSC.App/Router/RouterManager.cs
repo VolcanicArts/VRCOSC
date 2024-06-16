@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Net;
 using VRCOSC.App.OSC.Client;
+using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.Profiles;
 using VRCOSC.App.Router.Serialisation;
 using VRCOSC.App.Serialisation;
@@ -73,14 +74,14 @@ public class RouterManager
             }
         }
 
-        AppManager.GetInstance().VRChatOscClient.OnDataReceived += onDataReceived;
+        AppManager.GetInstance().VRChatOscClient.OnParameterReceived += onParameterReceived;
     }
 
     public void Stop()
     {
         Logger.Log("Stopping router instances");
 
-        AppManager.GetInstance().VRChatOscClient.OnDataReceived -= onDataReceived;
+        AppManager.GetInstance().VRChatOscClient.OnParameterReceived -= onParameterReceived;
 
         foreach (var sender in senders)
         {
@@ -90,11 +91,11 @@ public class RouterManager
         senders.Clear();
     }
 
-    private void onDataReceived(byte[] data)
+    private void onParameterReceived(VRChatOscMessage message)
     {
         foreach (var sender in senders)
         {
-            sender.Send(data);
+            sender.Send(OscEncoder.Encode(message));
         }
     }
 }
