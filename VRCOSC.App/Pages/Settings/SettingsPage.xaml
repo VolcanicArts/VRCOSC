@@ -30,15 +30,6 @@
                         <TextBlock Name="StateDisplay" HorizontalAlignment="Center"
                                    Foreground="{StaticResource CForeground1}" />
                     </ui:SpacedStackPanel>
-                    <ui:SpacedStackPanel Orientation="Vertical" Spacing="10">
-                        <ComboBox Name="DeviceComboBox"
-                                  SelectedValuePath="ID"
-                                  DisplayMemberPath="Name"
-                                  VerticalAlignment="Center"
-                                  HorizontalAlignment="Center"
-                                  Width="300"
-                                  SelectionChanged="DevicesComboBox_SelectionChanged"/>
-                    </ui:SpacedStackPanel>
                 </Grid>
             </Border>
         </ui:MouseScrollViewer>

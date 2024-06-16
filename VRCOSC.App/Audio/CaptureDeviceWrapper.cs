@@ -31,14 +31,13 @@ public class CaptureDeviceWrapper
     public void ChangeDevice(MMDevice newCaptureDevice)
     {
         AudioCapture?.Dispose();
+        AudioCapture = null;
         Initialise(newCaptureDevice);
     }
 
     public void Teardown()
     {
-        if (AudioCapture is null) return;
-
-        AudioCapture.RecordingStopped += (_, _) => AudioCapture?.Dispose();
-        AudioCapture.StopRecording();
+        AudioCapture?.Dispose();
+        AudioCapture = null;
     }
 }

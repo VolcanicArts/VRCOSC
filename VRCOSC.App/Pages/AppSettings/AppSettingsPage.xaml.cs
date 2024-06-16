@@ -4,12 +4,16 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using VRCOSC.App.Audio;
+using VRCOSC.App.Pages.Settings;
 using VRCOSC.App.Settings;
 using VRCOSC.App.Themes;
+using SpeechEngine = VRCOSC.App.Settings.SpeechEngine;
 
 // ReSharper disable UnusedMember.Global
 
@@ -97,7 +101,27 @@ public partial class AppSettingsPage
         set => SettingsManager.GetInstance().GetObservable(VRCOSCSetting.EnableAppDebug).Value = value;
     }
 
+    public bool AutoSwitchMicrophone
+    {
+        get => (bool)SettingsManager.GetInstance().GetObservable(VRCOSCSetting.AutoSwitchMicrophone).Value;
+        set => SettingsManager.GetInstance().GetObservable(VRCOSCSetting.AutoSwitchMicrophone).Value = value;
+    }
+
+    public SpeechEngine SelectedSpeechEngine
+    {
+        get => (SpeechEngine)SettingsManager.GetInstance().GetObservable(VRCOSCSetting.SelectedSpeechEngine).Value;
+        set => SettingsManager.GetInstance().GetObservable(VRCOSCSetting.SelectedSpeechEngine).Value = value;
+    }
+
+    public string VoskModelDirectory
+    {
+        get => (string)SettingsManager.GetInstance().GetObservable(VRCOSCSetting.VOSK_ModelDirectory).Value;
+        set => SettingsManager.GetInstance().GetObservable(VRCOSCSetting.VOSK_ModelDirectory).Value = value;
+    }
+
     private int selectedPage;
+
+    private List<DeviceDisplay> audioInputDevices;
 
     public AppSettingsPage()
     {
@@ -105,7 +129,29 @@ public partial class AppSettingsPage
 
         DataContext = this;
 
+        SettingsManager.GetInstance().GetObservable(VRCOSCSetting.SelectedInputDeviceID).Subscribe(_ => updateDeviceListAndSelection(), true);
+        SpeechEngineComboBox.ItemsSource = Enum.GetValues<SpeechEngine>();
+
         setPage(0);
+    }
+
+    private void updateDeviceListAndSelection() => Dispatcher.Invoke(() =>
+    {
+        MicrophoneComboBox.ItemsSource = audioInputDevices = AudioHelper.GetAllInputDevices().Select(mmDevice => new DeviceDisplay(mmDevice.ID, mmDevice.DeviceFriendlyName)).ToList();
+        MicrophoneComboBox.SelectedItem = audioInputDevices.Single(device => device.ID == SettingsManager.GetInstance().GetValue<string>(VRCOSCSetting.SelectedInputDeviceID));
+    });
+
+    private void MicrophoneComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        var comboBox = (ComboBox)sender;
+        var deviceId = (string)comboBox.SelectedValue;
+
+        SettingsManager.GetInstance().GetObservable(VRCOSCSetting.SelectedInputDeviceID).Value = deviceId;
+    }
+
+    private void SpeechEngineComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        // TODO: If more speech engines are added, swap between engine views
     }
 
     private void setPage(int pageIndex)
@@ -118,6 +164,7 @@ public partial class AppSettingsPage
         UpdatesTabButton.Background = pageIndex == 3 ? (Brush)FindResource("CBackground6") : (Brush)FindResource("CBackground3");
         DeveloperTabButton.Background = pageIndex == 4 ? (Brush)FindResource("CBackground6") : (Brush)FindResource("CBackground3");
         PackagesTabButton.Background = pageIndex == 5 ? (Brush)FindResource("CBackground6") : (Brush)FindResource("CBackground3");
+        SpeechTabButton.Background = pageIndex == 6 ? (Brush)FindResource("CBackground6") : (Brush)FindResource("CBackground3");
 
         GeneralContainer.Visibility = pageIndex == 0 ? Visibility.Visible : Visibility.Collapsed;
         OscContainer.Visibility = pageIndex == 1 ? Visibility.Visible : Visibility.Collapsed;
@@ -125,6 +172,7 @@ public partial class AppSettingsPage
         UpdatesContainer.Visibility = pageIndex == 3 ? Visibility.Visible : Visibility.Collapsed;
         DeveloperContainer.Visibility = pageIndex == 4 ? Visibility.Visible : Visibility.Collapsed;
         PackagesContainer.Visibility = pageIndex == 5 ? Visibility.Visible : Visibility.Collapsed;
+        SpeechContainer.Visibility = pageIndex == 6 ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void GeneralTabButton_OnClick(object sender, RoutedEventArgs e)
@@ -155,6 +203,11 @@ public partial class AppSettingsPage
     private void PackagesTabButton_OnClick(object sender, RoutedEventArgs e)
     {
         setPage(5);
+    }
+
+    private void SpeechTabButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        setPage(6);
     }
 }
 

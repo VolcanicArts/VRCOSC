@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
+using NAudio.CoreAudioApi;
 using Valve.VR;
 using VRCOSC.App.Audio;
 using VRCOSC.App.ChatBox;
@@ -62,6 +63,7 @@ public class AppManager
 
     private readonly Queue<VRChatOscMessage> oscMessageQueue = new();
     private readonly object oscMessageQueueLock = new();
+    private readonly AudioEndpointNotificationClient audioNotificationClient = new();
 
     public AppManager()
     {
@@ -103,6 +105,35 @@ public class AppManager
                 ExceptionHandler.Handle(e, $"{((Module)module).FullID} experienced an issue calling OnFinalResult");
             }
         });
+
+        audioNotificationClient.DeviceChanged += (flow, role, deviceId) =>
+        {
+            try
+            {
+                // TODO: Figure out why this crashes only when modules are running
+                return;
+
+                if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AutoSwitchMicrophone)) return;
+                if (flow != DataFlow.Capture) return;
+                if (role != Role.Multimedia) return;
+
+                Logger.Log("Automatic microphone change detected. Switching to new microphone");
+                SettingsManager.GetInstance().GetObservable(VRCOSCSetting.SelectedInputDeviceID).Value = deviceId;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message + "\n" + e.StackTrace);
+            }
+        };
+
+        var chosenInputDeviceSetting = SettingsManager.GetInstance().GetObservable(VRCOSCSetting.SelectedInputDeviceID);
+
+        if (string.IsNullOrEmpty((string)chosenInputDeviceSetting.Value))
+        {
+            chosenInputDeviceSetting.Value = WasapiCapture.GetDefaultCaptureDevice().ID;
+        }
+
+        AudioHelper.RegisterCallbackClient(audioNotificationClient);
 
         OVRClient.SetMetadata(new OVRMetadata
         {

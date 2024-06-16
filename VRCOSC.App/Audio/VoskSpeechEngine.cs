@@ -8,7 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Vosk;
-using VRCOSC.App.ProfileSettings;
+using VRCOSC.App.Settings;
 
 namespace VRCOSC.App.Audio;
 
@@ -26,12 +26,12 @@ public class VoskSpeechEngine : SpeechEngine
     {
         Vosk.Vosk.SetLogLevel(-1);
 
-        ProfileSettingsManager.GetInstance().ChosenInputDeviceID.Subscribe(newDeviceId => captureDeviceWrapper?.ChangeDevice(AudioHelper.GetDeviceByID(newDeviceId)));
+        SettingsManager.GetInstance().GetObservable(VRCOSCSetting.SelectedInputDeviceID).Subscribe(newDeviceId => captureDeviceWrapper?.ChangeDevice(AudioHelper.GetDeviceByID((string)newDeviceId)));
     }
 
     public override void Initialise()
     {
-        var modelDirectoryPath = ProfileSettingsManager.GetInstance().ModelDirectory.Value;
+        var modelDirectoryPath = SettingsManager.GetInstance().GetValue<string>(VRCOSCSetting.VOSK_ModelDirectory);
 
         if (!Directory.Exists(modelDirectoryPath))
         {
@@ -78,7 +78,7 @@ public class VoskSpeechEngine : SpeechEngine
     {
         captureDeviceWrapper = new CaptureDeviceWrapper();
         captureDeviceWrapper.OnNewData += analyseAudio;
-        captureDeviceWrapper.Initialise(AudioHelper.GetDeviceByID(ProfileSettingsManager.GetInstance().ChosenInputDeviceID.Value));
+        captureDeviceWrapper.Initialise(AudioHelper.GetDeviceByID(SettingsManager.GetInstance().GetValue<string>(VRCOSCSetting.SelectedInputDeviceID)));
     }
 
     private void initialiseVosk(string modelDirectoryPath)

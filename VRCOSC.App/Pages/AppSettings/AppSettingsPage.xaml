@@ -26,6 +26,21 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <Style x:Key="SettingComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="HorizontalAlignment" Value="Right" />
+            <Setter Property="Height" Value="30" />
+            <Setter Property="Width" Value="384" />
+            <Setter Property="FontSize" Value="18" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+        <Style x:Key="SettingTextBoxStyle" TargetType="TextBox">
+            <Setter Property="HorizontalAlignment" Value="Right" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Height" Value="30" />
+            <Setter Property="Width" Value="384" />
+            <Setter Property="FontSize" Value="18" />
+        </Style>
         <Style x:Key="SettingTitle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="18" />
             <Setter Property="FontWeight" Value="SemiBold" />
@@ -82,6 +97,13 @@
                         <TextBlock Text="Updates" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="18"
                                    Foreground="{StaticResource CForeground1}" Margin="7" />
                     </Button>
+                    <Button Name="SpeechTabButton" Click="SpeechTabButton_OnClick"
+                            Style="{StaticResource RoundedButtonStyle}" Background="{StaticResource CBackground3}"
+                            BorderBrush="{StaticResource CBackground5}" BorderThickness="2">
+                        <TextBlock Text="Speech" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   FontSize="18"
+                                   Foreground="{StaticResource CForeground1}" Margin="7" />
+                    </Button>
                     <Button Name="DeveloperTabButton" Click="DeveloperTabButton_OnClick"
                             Style="{StaticResource RoundedButtonStyle}" Background="{StaticResource CBackground3}"
                             BorderBrush="{StaticResource CBackground5}" BorderThickness="2">
@@ -105,7 +127,7 @@
                                     <TextBlock Text="What theme should the app be in?"
                                                Style="{StaticResource SettingDescription}" />
                                     <ComboBox ItemsSource="{Binding ThemeSource}" SelectedIndex="{Binding Theme}"
-                                              HorizontalAlignment="Right" Height="32" Width="96" FontSize="18" />
+                                              Style="{StaticResource SettingComboBoxStyle}" />
                                 </Grid>
                             </Border>
                             <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
@@ -140,10 +162,7 @@
                                     <TextBlock
                                         Text="The time between writing to the ChatBox in milliseconds. Defaults to 1500"
                                         Style="{StaticResource SettingDescription}" />
-                                    <TextBox HorizontalAlignment="Right" VerticalAlignment="Stretch"
-                                             VerticalContentAlignment="Center"
-                                             Width="200"
-                                             FontSize="20"
+                                    <TextBox Style="{StaticResource SettingTextBoxStyle}"
                                              Text="{Binding ChatBoxSendInterval}">
                                     </TextBox>
                                 </Grid>
@@ -195,10 +214,7 @@
                                     <TextBlock
                                         Text="Where should VRCOSC send OSC data to?"
                                         Style="{StaticResource SettingDescription}" />
-                                    <TextBox HorizontalAlignment="Right" VerticalAlignment="Stretch"
-                                             VerticalContentAlignment="Center"
-                                             Width="200"
-                                             FontSize="20">
+                                    <TextBox Style="{StaticResource SettingTextBoxStyle}">
                                         <TextBox.Text>
                                             <Binding Path="OutgoingEndpoint" UpdateSourceTrigger="PropertyChanged">
                                                 <Binding.ValidationRules>
@@ -216,10 +232,7 @@
                                     <TextBlock
                                         Text="Where should VRCOSC receive data from?"
                                         Style="{StaticResource SettingDescription}" />
-                                    <TextBox HorizontalAlignment="Right" VerticalAlignment="Stretch"
-                                             VerticalContentAlignment="Center"
-                                             Width="200"
-                                             FontSize="20">
+                                    <TextBox Style="{StaticResource SettingTextBoxStyle}">
                                         <TextBox.Text>
                                             <Binding Path="IncomingEndpoint" UpdateSourceTrigger="PropertyChanged">
                                                 <Binding.ValidationRules>
@@ -287,6 +300,62 @@
                                                        IsChecked="{Binding OVRAutoClose}" />
                                 </Grid>
                             </Border>
+                        </ui:SpacedStackPanel>
+                    </ui:MouseScrollViewer>
+                </Grid>
+                <Grid Name="SpeechContainer" Visibility="Collapsed">
+                    <ui:MouseScrollViewer Padding="10" HorizontalScrollBarVisibility="Auto"
+                                          VerticalScrollBarVisibility="Auto">
+                        <ui:SpacedStackPanel Orientation="Vertical" Spacing="5">
+                            <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
+                                    CornerRadius="5">
+                                <Grid>
+                                    <TextBlock Text="Microphone" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock Text="Choose which microphone VRCOSC should use"
+                                               Style="{StaticResource SettingDescription}" />
+                                    <ComboBox Name="MicrophoneComboBox"
+                                              SelectionChanged="MicrophoneComboBox_SelectionChanged"
+                                              Style="{StaticResource SettingComboBoxStyle}"
+                                              SelectedValuePath="ID" DisplayMemberPath="Name" />
+                                </Grid>
+                            </Border>
+                            <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
+                                    CornerRadius="5" Visibility="Collapsed">
+                                <Grid>
+                                    <TextBlock Text="Auto-Switch" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock Text="Should VRCOSC auto-switch microphone when Windows does?"
+                                               Style="{StaticResource SettingDescription}" />
+                                    <ui:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                       Height="32"
+                                                       Width="32"
+                                                       IsChecked="{Binding AutoSwitchMicrophone}" />
+                                </Grid>
+                            </Border>
+                            <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
+                                    CornerRadius="5">
+                                <Grid>
+                                    <TextBlock Text="Speech Engine" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock Text="Which speech engine should VRCOSC use?"
+                                               Style="{StaticResource SettingDescription}" />
+                                    <ComboBox Name="SpeechEngineComboBox"
+                                              SelectionChanged="SpeechEngineComboBox_SelectionChanged"
+                                              SelectedItem="{Binding SelectedSpeechEngine}"
+                                              Style="{StaticResource SettingComboBoxStyle}" />
+                                </Grid>
+                            </Border>
+                            <ui:SpacedStackPanel x:Name="VoskEngineContainer" Orientation="Vertical" Spacing="5"
+                                                 Visibility="Visible">
+                                <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
+                                        CornerRadius="5">
+                                    <Grid>
+                                        <TextBlock Text="Model Location" Style="{StaticResource SettingTitle}" />
+                                        <TextBlock Text="The folder path of the model VOSK should use"
+                                                   Style="{StaticResource SettingDescription}" />
+                                        <TextBox Style="{StaticResource SettingTextBoxStyle}"
+                                                 Text="{Binding VoskModelDirectory}" />
+                                    </Grid>
+                                </Border>
+                            </ui:SpacedStackPanel>
                         </ui:SpacedStackPanel>
                     </ui:MouseScrollViewer>
                 </Grid>

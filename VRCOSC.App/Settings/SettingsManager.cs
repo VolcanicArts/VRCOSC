@@ -59,6 +59,10 @@ public class SettingsManager
         Settings[VRCOSCSetting.IncomingEndpoint] = new Observable<object>("127.0.0.1:9001");
         Settings[VRCOSCSetting.UseCustomEndpoints] = new Observable<object>(false);
         Settings[VRCOSCSetting.EnableAppDebug] = new Observable<object>(false);
+        Settings[VRCOSCSetting.AutoSwitchMicrophone] = new Observable<object>(true);
+        Settings[VRCOSCSetting.SelectedInputDeviceID] = new Observable<object>(string.Empty);
+        Settings[VRCOSCSetting.SelectedSpeechEngine] = new Observable<object>(SpeechEngine.VOSK);
+        Settings[VRCOSCSetting.VOSK_ModelDirectory] = new Observable<object>(string.Empty);
     }
 
     public Observable<object> GetObservable(VRCOSCSetting lookup)
@@ -98,5 +102,14 @@ public enum VRCOSCSetting
     OutgoingEndpoint,
     IncomingEndpoint,
     UseCustomEndpoints,
-    EnableAppDebug
+    EnableAppDebug,
+    AutoSwitchMicrophone,
+    SelectedInputDeviceID,
+    SelectedSpeechEngine,
+    VOSK_ModelDirectory
+}
+
+public enum SpeechEngine
+{
+    VOSK
 }
