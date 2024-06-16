@@ -23,7 +23,7 @@ public partial class RuntimeView
 
         AppManager.GetInstance().State.Subscribe(_ =>
         {
-            Pages.Value = ModuleManager.GetInstance().Modules.Values.SelectMany(moduleList => moduleList).Where(module => module.RuntimePage is not null).Select(module => new RuntimePage(module.Title, module.RuntimePage!));
+            Pages.Value = ModuleManager.GetInstance().RunningModules.Where(module => module.RuntimePage is not null).Select(module => new RuntimePage(module.Title, module.RuntimePage!));
             PageListVisibility.Value = AppManager.GetInstance().State.Value == AppManagerState.Started ? Visibility.Visible : Visibility.Collapsed;
         });
     }

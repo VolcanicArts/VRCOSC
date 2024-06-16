@@ -48,7 +48,7 @@ public class ModuleManager : INotifyPropertyChanged
     }
 
     private IEnumerable<Module> modules => Modules.Values.SelectMany(moduleList => moduleList);
-    private IEnumerable<Module> runningModules => modules.Where(module => module.State.Value == ModuleState.Started);
+    public IEnumerable<Module> RunningModules => modules.Where(module => module.State.Value == ModuleState.Started);
 
     #region Runtime
 
@@ -59,22 +59,22 @@ public class ModuleManager : INotifyPropertyChanged
 
     public Task StopAsync()
     {
-        return Task.WhenAll(runningModules.Select(module => module.Stop()));
+        return Task.WhenAll(RunningModules.Select(module => module.Stop()));
     }
 
     public void PlayerUpdate()
     {
-        runningModules.OfType<AvatarModule>().ForEach(module => module.PlayerUpdate());
+        RunningModules.OfType<AvatarModule>().ForEach(module => module.PlayerUpdate());
     }
 
     public void ParameterReceived(VRChatOscMessage vrChatOscMessage)
     {
-        runningModules.ForEach(module => module.OnParameterReceived(vrChatOscMessage));
+        RunningModules.ForEach(module => module.OnParameterReceived(vrChatOscMessage));
     }
 
     public void ChatBoxUpdate()
     {
-        runningModules.OfType<ChatBoxModule>().ForEach(module => module.ChatBoxUpdate());
+        RunningModules.OfType<ChatBoxModule>().ForEach(module => module.ChatBoxUpdate());
     }
 
     #endregion
@@ -83,13 +83,13 @@ public class ModuleManager : INotifyPropertyChanged
 
     public IEnumerable<T> GetModulesOfType<T>() => modules.Where(module => module.GetType().IsAssignableTo(typeof(T))).Cast<T>();
 
-    public IEnumerable<T> GetRunningModulesOfType<T>() => modules.Where(module => runningModules.Contains(module) && module.GetType().IsAssignableTo(typeof(T))).Cast<T>();
+    public IEnumerable<T> GetRunningModulesOfType<T>() => modules.Where(module => RunningModules.Contains(module) && module.GetType().IsAssignableTo(typeof(T))).Cast<T>();
 
     public Module GetModuleOfID(string moduleID) => modules.First(module => module.FullID == moduleID);
 
     public IEnumerable<string> GetEnabledModuleIDs() => modules.Where(module => module.Enabled.Value).Select(module => module.FullID);
 
-    public bool IsModuleRunning(string moduleID) => runningModules.Any(module => module.FullID == moduleID);
+    public bool IsModuleRunning(string moduleID) => RunningModules.Any(module => module.FullID == moduleID);
 
     internal bool DoesModuleExist(string moduleID)
     {
