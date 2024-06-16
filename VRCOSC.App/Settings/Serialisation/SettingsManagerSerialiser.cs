@@ -23,23 +23,30 @@ public class SettingsManagerSerialiser : Serialiser<SettingsManager, Serialisabl
 
         data.Settings.ForEach(pair =>
         {
-            if (!Enum.TryParse(pair.Key, out VRCOSCSetting key))
+            try
             {
-                shouldReserialise = true;
-                return;
+                if (!Enum.TryParse(pair.Key, out VRCOSCSetting key))
+                {
+                    shouldReserialise = true;
+                    return;
+                }
+
+                if (!Reference.Settings.TryGetValue(key, out var setting)) return;
+
+                var value = pair.Value;
+
+                if (value is long longValue)
+                    value = (int)longValue;
+
+                if (value is double doubleValue)
+                    value = (float)doubleValue;
+
+                setting.Value = value;
             }
-
-            if (!Reference.Settings.TryGetValue(key, out var setting)) return;
-
-            var value = pair.Value;
-
-            if (value is long longValue)
-                value = (int)longValue;
-
-            if (value is double doubleValue)
-                value = (float)doubleValue;
-
-            setting.Value = value;
+            catch (Exception)
+            {
+                // ignore errors since it's probably a change in type
+            }
         });
 
         return shouldReserialise;
