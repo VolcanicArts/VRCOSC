@@ -37,6 +37,7 @@ public class WindowsMediaProvider
     public void SetFocusedSession(string? sessionId)
     {
         focusedSessionId = sessionId;
+        currentSessionChanged(null, null);
     }
 
     public async Task<bool> InitialiseAsync()
@@ -52,6 +53,7 @@ public class WindowsMediaProvider
         sessionManager.CurrentSessionChanged += currentSessionChanged;
 
         sessionsChanged(null, null);
+        currentSessionChanged(null, null);
 
         return true;
     }
@@ -127,9 +129,10 @@ public class WindowsMediaProvider
             OnPlaybackPositionChanged?.Invoke();
     }
 
-    private async void currentSessionChanged(GlobalSystemMediaTransportControlsSessionManager sender, CurrentSessionChangedEventArgs args)
+    private async void currentSessionChanged(GlobalSystemMediaTransportControlsSessionManager? sender, CurrentSessionChangedEventArgs? args)
     {
-        var session = sender.GetCurrentSession();
+        var session = currentSession;
+        if (session is null) return;
 
         onAnyPlaybackStateChanged(session, session.GetPlaybackInfo());
         onAnyMediaPropertyChanged(session, await session.TryGetMediaPropertiesAsync());
