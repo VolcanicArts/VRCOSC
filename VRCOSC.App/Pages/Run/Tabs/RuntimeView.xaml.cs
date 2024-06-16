@@ -21,11 +21,11 @@ public partial class RuntimeView
 
         DataContext = this;
 
-        AppManager.GetInstance().State.Subscribe(_ =>
+        AppManager.GetInstance().State.Subscribe(_ => Dispatcher.Invoke(() =>
         {
             Pages.Value = ModuleManager.GetInstance().RunningModules.Where(module => module.RuntimePage is not null).Select(module => new RuntimePage(module.Title, module.RuntimePage!));
             PageListVisibility.Value = AppManager.GetInstance().State.Value == AppManagerState.Started ? Visibility.Visible : Visibility.Collapsed;
-        });
+        }));
     }
 }
 
