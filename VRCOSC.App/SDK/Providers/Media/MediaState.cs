@@ -2,40 +2,28 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using Windows.Media;
+using Windows.Media.Control;
 
 namespace VRCOSC.App.SDK.Providers.Media;
 
 public class MediaState
 {
-    public string? Identifier { get; internal set; }
+    public string ID { get; internal set; } = string.Empty;
     public string Title { get; internal set; } = string.Empty;
     public string Artist { get; internal set; } = string.Empty;
     public int TrackNumber { get; internal set; }
     public string AlbumTitle { get; internal set; } = string.Empty;
     public string AlbumArtist { get; internal set; } = string.Empty;
     public int AlbumTrackCount { get; internal set; }
-    public MediaRepeatMode RepeatMode { get; internal set; }
+    public MediaPlaybackAutoRepeatMode RepeatMode { get; internal set; }
     public bool IsShuffle { get; internal set; }
-    public MediaPlaybackStatus Status { get; internal set; }
+    public GlobalSystemMediaTransportControlsSessionPlaybackStatus Status { get; internal set; } = GlobalSystemMediaTransportControlsSessionPlaybackStatus.Stopped;
     public MediaTimelineProperties Timeline { get; } = new();
 
-    public bool IsStopped => Status == MediaPlaybackStatus.Stopped;
-    public bool IsPlaying => Status == MediaPlaybackStatus.Playing;
-    public bool IsPaused => Status == MediaPlaybackStatus.Paused;
-}
-
-public enum MediaRepeatMode
-{
-    Off,
-    Single,
-    Multiple
-}
-
-public enum MediaPlaybackStatus
-{
-    Stopped,
-    Playing,
-    Paused
+    public bool IsStopped => Status == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Stopped;
+    public bool IsPlaying => Status == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing;
+    public bool IsPaused => Status == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Paused;
 }
 
 public class MediaTimelineProperties

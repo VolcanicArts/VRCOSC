@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,132 +12,134 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.Providers.Media;
 
-public class WindowsMediaProvider : MediaProvider
+public class WindowsMediaProvider
 {
-    public ObservableCollection<GlobalSystemMediaTransportControlsSession> Sessions { get; } = new();
     private GlobalSystemMediaTransportControlsSessionManager? sessionManager;
-    private GlobalSystemMediaTransportControlsSession? controller => autoSwitch || manualSession is null ? sessionManager?.GetCurrentSession() : manualSession;
 
-    private bool autoSwitch = true;
-    private GlobalSystemMediaTransportControlsSession? manualSession;
+    public ObservableCollection<GlobalSystemMediaTransportControlsSession> Sessions { get; } = new();
+    public Dictionary<string, MediaState> States { get; } = new();
 
-    public void SetAutoSwitch(bool autoSwitch)
+    public string? CurrentSessionId => focusedSessionId ?? sessionManager?.GetCurrentSession().SourceAppUserModelId;
+    public MediaState CurrentState => CurrentSessionId is null ? new MediaState() : getStateForSession(currentSession);
+    private GlobalSystemMediaTransportControlsSession? currentSession => Sessions.FirstOrDefault(session => session.SourceAppUserModelId == CurrentSessionId);
+
+    private string? focusedSessionId;
+
+    public Action? OnPlaybackStateChanged;
+    public Action? OnTrackChanged;
+    public Action? OnPlaybackPositionChanged;
+
+    /// <summary>
+    /// Sets a specific session ID to be the focus of this provider
+    /// This is useful for when you don't want Windows auto-switching sources
+    /// </summary>
+    /// <remarks>Set to null to give switch control back to Windows</remarks>
+    public void SetFocusedSession(string? sessionId)
     {
-        this.autoSwitch = autoSwitch;
-        onCurrentSessionChanged(null, null);
+        focusedSessionId = sessionId;
     }
 
-    public void SetManualSession(GlobalSystemMediaTransportControlsSession session)
+    public async Task<bool> InitialiseAsync()
     {
-        manualSession = session;
-        onCurrentSessionChanged(null, null);
-    }
+        focusedSessionId = null;
+        States.Clear();
 
-    public override async Task<bool> InitialiseAsync()
-    {
-        autoSwitch = true;
-        manualSession = null;
-        State = new MediaState();
         sessionManager ??= await GlobalSystemMediaTransportControlsSessionManager.RequestAsync();
 
         if (sessionManager is null) return false;
 
-        sessionManager.CurrentSessionChanged += onCurrentSessionChanged;
         sessionManager.SessionsChanged += sessionsChanged;
+        sessionManager.CurrentSessionChanged += currentSessionChanged;
 
         sessionsChanged(null, null);
-        onCurrentSessionChanged(null, null);
 
         return true;
     }
 
-    public override void Update(TimeSpan delta)
+    public void Update(TimeSpan delta)
     {
-        State.Timeline.Position += delta;
+        States.Values.ForEach(state => state.Timeline.Position += delta);
     }
 
-    public override Task TerminateAsync()
+    public Task TerminateAsync()
     {
         if (sessionManager is null) return Task.CompletedTask;
 
-        sessionManager.CurrentSessionChanged -= onCurrentSessionChanged;
         sessionManager.SessionsChanged -= sessionsChanged;
+        sessionManager.CurrentSessionChanged -= currentSessionChanged;
         Sessions.Clear();
 
         return Task.CompletedTask;
     }
 
-    private bool isFocusedSession(GlobalSystemMediaTransportControlsSession session) => session.SourceAppUserModelId == controller?.SourceAppUserModelId;
+    private MediaState getStateForSession(GlobalSystemMediaTransportControlsSession? session)
+    {
+        if (session is null) return new MediaState();
+
+        if (States.TryGetValue(session.SourceAppUserModelId, out var state)) return state;
+
+        state = new MediaState
+        {
+            ID = session.SourceAppUserModelId
+        };
+
+        States.Add(session.SourceAppUserModelId, state);
+
+        return state;
+    }
 
     private void onAnyPlaybackStateChanged(GlobalSystemMediaTransportControlsSession session, GlobalSystemMediaTransportControlsSessionPlaybackInfo args)
     {
-        if (!isFocusedSession(session)) return;
+        var state = getStateForSession(session);
 
-        State.IsShuffle = args.IsShuffleActive ?? default;
-        State.RepeatMode = convertWindowsRepeatMode(args.AutoRepeatMode);
-        State.Status = convertWindowsPlaybackStatus(args.PlaybackStatus);
+        state.IsShuffle = args.IsShuffleActive ?? default;
+        state.RepeatMode = args.AutoRepeatMode ?? default;
+        state.Status = args.PlaybackStatus;
 
-        OnPlaybackStateChange?.Invoke();
+        if (session.SourceAppUserModelId == CurrentSessionId)
+            OnPlaybackStateChanged?.Invoke();
     }
-
-    private static MediaRepeatMode convertWindowsRepeatMode(MediaPlaybackAutoRepeatMode? mode) => mode switch
-    {
-        MediaPlaybackAutoRepeatMode.None => MediaRepeatMode.Off,
-        MediaPlaybackAutoRepeatMode.Track => MediaRepeatMode.Single,
-        MediaPlaybackAutoRepeatMode.List => MediaRepeatMode.Multiple,
-        _ => MediaRepeatMode.Off
-    };
-
-    private static MediaPlaybackStatus convertWindowsPlaybackStatus(GlobalSystemMediaTransportControlsSessionPlaybackStatus status) => status switch
-    {
-        GlobalSystemMediaTransportControlsSessionPlaybackStatus.Stopped => MediaPlaybackStatus.Stopped,
-        GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing => MediaPlaybackStatus.Playing,
-        GlobalSystemMediaTransportControlsSessionPlaybackStatus.Paused => MediaPlaybackStatus.Paused,
-        _ => MediaPlaybackStatus.Stopped
-    };
 
     private void onAnyMediaPropertyChanged(GlobalSystemMediaTransportControlsSession session, GlobalSystemMediaTransportControlsSessionMediaProperties args)
     {
-        if (!isFocusedSession(session)) return;
+        var state = getStateForSession(session);
 
-        State.Title = args.Title;
-        State.Artist = args.Artist;
-        State.TrackNumber = args.TrackNumber;
-        State.AlbumTitle = args.AlbumTitle;
-        State.AlbumArtist = args.AlbumArtist;
-        State.AlbumTrackCount = args.AlbumTrackCount;
+        state.Title = args.Title;
+        state.Artist = args.Artist;
+        state.TrackNumber = args.TrackNumber;
+        state.AlbumTitle = args.AlbumTitle;
+        state.AlbumArtist = args.AlbumArtist;
+        state.AlbumTrackCount = args.AlbumTrackCount;
 
-        OnTrackChange?.Invoke();
+        if (session.SourceAppUserModelId == CurrentSessionId)
+            OnTrackChanged?.Invoke();
     }
 
     private void onAnyTimelinePropertiesChanged(GlobalSystemMediaTransportControlsSession session, GlobalSystemMediaTransportControlsSessionTimelineProperties args)
     {
-        if (!isFocusedSession(session)) return;
+        var state = getStateForSession(session);
 
-        State.Timeline.Position = args.Position;
-        State.Timeline.End = args.EndTime;
-        State.Timeline.Start = args.StartTime;
+        state.Timeline.Position = args.Position;
+        state.Timeline.End = args.EndTime;
+        state.Timeline.Start = args.StartTime;
 
-        OnPlaybackPositionChange?.Invoke();
+        if (session.SourceAppUserModelId == CurrentSessionId)
+            OnPlaybackPositionChanged?.Invoke();
     }
 
-    private async void onCurrentSessionChanged(GlobalSystemMediaTransportControlsSessionManager? _, CurrentSessionChangedEventArgs? _2)
+    private async void currentSessionChanged(GlobalSystemMediaTransportControlsSessionManager sender, CurrentSessionChangedEventArgs args)
     {
-        try
-        {
-            if (controller is null) return;
+        var session = sender.GetCurrentSession();
 
-            State = new MediaState
-            {
-                Identifier = controller.SourceAppUserModelId
-            };
+        onAnyPlaybackStateChanged(session, session.GetPlaybackInfo());
+        onAnyMediaPropertyChanged(session, await session.TryGetMediaPropertiesAsync());
+        onAnyTimelinePropertiesChanged(session, session.GetTimelineProperties());
 
-            onAnyPlaybackStateChanged(controller, controller.GetPlaybackInfo());
-            onAnyMediaPropertyChanged(controller, await controller.TryGetMediaPropertiesAsync());
-            onAnyTimelinePropertiesChanged(controller, controller.GetTimelineProperties());
-        }
-        catch (Exception)
+        if (session.SourceAppUserModelId == CurrentSessionId)
         {
+            OnPlaybackStateChanged?.Invoke();
+            OnTrackChanged?.Invoke();
+            OnPlaybackPositionChanged?.Invoke();
         }
     }
 
@@ -146,9 +149,9 @@ public class WindowsMediaProvider : MediaProvider
         windowsSessions.Where(windowsSession => !Sessions.Contains(windowsSession)).ForEach(addControlSession);
         Sessions.RemoveIf(session => !windowsSessions.Contains(session));
 
-        if (manualSession is not null && !Sessions.Contains(manualSession))
+        if (focusedSessionId is not null && Sessions.All(session => session.SourceAppUserModelId != focusedSessionId))
         {
-            Sessions.Remove(manualSession);
+            focusedSessionId = null;
         }
     }
 
@@ -172,111 +175,102 @@ public class WindowsMediaProvider : MediaProvider
         Sessions.Add(controlSession);
     }
 
-    public override async void Play()
+    public async void Play()
     {
         try
         {
-            await controller?.TryPlayAsync();
+            await currentSession?.TryPlayAsync();
         }
         catch (Exception)
         {
-            OnLog?.Invoke("'Play' failed to execute");
         }
     }
 
-    public override async void Pause()
+    public async void Pause()
     {
         try
         {
-            await controller?.TryPauseAsync();
+            await currentSession?.TryPauseAsync();
         }
         catch (Exception)
         {
-            OnLog?.Invoke("'Pause' failed to execute");
         }
     }
 
-    public override async void SkipNext()
+    public async void SkipNext()
     {
         try
         {
-            await controller?.TrySkipNextAsync();
+            await currentSession?.TrySkipNextAsync();
         }
         catch (Exception)
         {
-            OnLog?.Invoke("'Next Track' failed to execute");
         }
     }
 
-    public override async void SkipPrevious()
+    public async void SkipPrevious()
     {
         try
         {
-            await controller?.TrySkipPreviousAsync();
+            await currentSession?.TrySkipPreviousAsync();
         }
         catch (Exception)
         {
-            OnLog?.Invoke("'Previous Track' failed to execute");
         }
     }
 
-    public override async void ChangeShuffle(bool active)
+    public async void ChangeShuffle(bool active)
     {
         try
         {
-            await controller?.TryChangeShuffleActiveAsync(active);
+            await currentSession?.TryChangeShuffleActiveAsync(active);
         }
         catch (Exception)
         {
-            OnLog?.Invoke("'Change Shuffle' failed to execute");
         }
     }
 
-    public override async void ChangePlaybackPosition(TimeSpan playbackPosition)
+    public async void ChangePlaybackPosition(TimeSpan playbackPosition)
     {
         try
         {
-            await controller?.TryChangePlaybackPositionAsync(playbackPosition.Ticks);
+            await currentSession?.TryChangePlaybackPositionAsync(playbackPosition.Ticks);
         }
         catch (Exception)
         {
-            OnLog?.Invoke("'Change Position' failed to execute");
         }
     }
 
-    public override async void ChangeRepeatMode(MediaRepeatMode mode)
+    public async void ChangeRepeatMode(MediaPlaybackAutoRepeatMode mode)
     {
         try
         {
-            await controller?.TryChangeAutoRepeatModeAsync((MediaPlaybackAutoRepeatMode)(int)mode);
+            await currentSession?.TryChangeAutoRepeatModeAsync(mode);
         }
         catch (Exception)
         {
-            OnLog?.Invoke("'Change Repeat' failed to execute");
         }
     }
 
-    public override void TryChangeVolume(float percentage)
+    public void TryChangeVolume(float percentage)
     {
         try
         {
-            ProcessExtensions.SetProcessVolume(State.Identifier, percentage);
+            ProcessExtensions.SetProcessVolume(CurrentState.ID, percentage);
         }
         catch (Exception)
         {
-            OnLog?.Invoke("'Change Volume' failed to execute");
         }
     }
 
-    public override float TryGetVolume()
+    public float TryGetVolume()
     {
         try
         {
-            return ProcessExtensions.RetrieveProcessVolume(State.Identifier);
+            return ProcessExtensions.RetrieveProcessVolume(CurrentState.ID);
         }
         catch (Exception)
         {
-            OnLog?.Invoke($"Could not retrieve volume for process: {State.Identifier}");
             return 1f;
         }
     }
