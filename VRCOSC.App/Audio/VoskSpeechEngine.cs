@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,13 +21,12 @@ public class VoskSpeechEngine : SpeechEngine
     private CaptureDeviceWrapper? captureDeviceWrapper;
     private Model? model;
     private VoskRecognizer? recogniser;
-    private bool readyToAccept;
+
+    public bool Running { get; private set; }
 
     public VoskSpeechEngine()
     {
         Vosk.Vosk.SetLogLevel(-1);
-
-        SettingsManager.GetInstance().GetObservable(VRCOSCSetting.SelectedInputDeviceID).Subscribe(newDeviceId => captureDeviceWrapper?.ChangeDevice(AudioHelper.GetDeviceByID((string)newDeviceId)));
     }
 
     public override void Initialise()
@@ -52,18 +52,21 @@ public class VoskSpeechEngine : SpeechEngine
                 initialiseMicrophoneCapture();
                 initialiseVosk(modelDirectoryPath);
 
-                readyToAccept = true;
+                Running = true;
             }
         });
     }
 
     public override void Teardown()
     {
-        if (!readyToAccept) return;
+        if (!Running) return;
 
         lock (analyseLock)
         {
-            readyToAccept = false;
+            Running = false;
+
+            SettingsManager.GetInstance().GetObservable(VRCOSCSetting.SelectedInputDeviceID).PropertyChanged -= handleInputDeviceChange;
+
             captureDeviceWrapper?.Teardown();
             captureDeviceWrapper = null;
 
@@ -78,7 +81,18 @@ public class VoskSpeechEngine : SpeechEngine
     {
         captureDeviceWrapper = new CaptureDeviceWrapper();
         captureDeviceWrapper.OnNewData += analyseAudio;
-        captureDeviceWrapper.Initialise(AudioHelper.GetDeviceByID(SettingsManager.GetInstance().GetValue<string>(VRCOSCSetting.SelectedInputDeviceID)));
+
+        var device = AudioHelper.GetDeviceByID(SettingsManager.GetInstance().GetValue<string>(VRCOSCSetting.SelectedInputDeviceID));
+        captureDeviceWrapper.Initialise(device);
+
+        SettingsManager.GetInstance().GetObservable(VRCOSCSetting.SelectedInputDeviceID).PropertyChanged += handleInputDeviceChange;
+    }
+
+    private void handleInputDeviceChange(object? sender, PropertyChangedEventArgs e)
+    {
+        var newDeviceId = SettingsManager.GetInstance().GetValue<string>(VRCOSCSetting.SelectedInputDeviceID);
+        var device = AudioHelper.GetDeviceByID(newDeviceId);
+        captureDeviceWrapper?.ChangeDevice(device);
     }
 
     private void initialiseVosk(string modelDirectoryPath)
@@ -96,7 +110,7 @@ public class VoskSpeechEngine : SpeechEngine
 
     private void analyseAudio(byte[] buffer, int bytesRecorded)
     {
-        if (!readyToAccept) return;
+        if (!Running) return;
 
         lock (analyseLock)
         {

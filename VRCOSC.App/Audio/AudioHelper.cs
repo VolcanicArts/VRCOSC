@@ -12,28 +12,28 @@ namespace VRCOSC.App.Audio;
 
 public static class AudioHelper
 {
-    private static readonly MMDeviceEnumerator device_enumerator = new();
-
     public static void RegisterCallbackClient(IMMNotificationClient client)
     {
-        device_enumerator.RegisterEndpointNotificationCallback(client);
+        using var deviceEnumerator = new MMDeviceEnumerator();
+        deviceEnumerator.RegisterEndpointNotificationCallback(client);
     }
 
     public static List<MMDevice> GetAllInputDevices()
     {
-        var inputDevices = device_enumerator.EnumerateAudioEndPoints(DataFlow.Capture, DeviceState.Active);
+        using var deviceEnumerator = new MMDeviceEnumerator();
+        var inputDevices = deviceEnumerator.EnumerateAudioEndPoints(DataFlow.Capture, DeviceState.Active);
         return inputDevices.ToList();
     }
 
-    public static MMDevice GetDeviceByID(string id)
+    public static MMDevice? GetDeviceByID(string id)
     {
         try
         {
-            return device_enumerator.GetDevice(id);
+            return GetAllInputDevices().SingleOrDefault(device => device.ID == id);
         }
         catch (Exception e)
         {
-            Logger.Error(e, $"{nameof(AudioHelper)} experienced an exception");
+            ExceptionHandler.Handle(e);
             return null;
         }
     }

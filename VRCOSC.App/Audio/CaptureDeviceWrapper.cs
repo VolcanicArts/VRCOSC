@@ -14,8 +14,10 @@ public class CaptureDeviceWrapper
 
     public Action<byte[], int>? OnNewData;
 
-    public void Initialise(MMDevice device)
+    public void Initialise(MMDevice? device)
     {
+        if (device is null) return;
+
         AudioCapture = new WasapiCapture(device);
         AudioCapture.WaveFormat = new WaveFormat(AudioCapture.WaveFormat.SampleRate, 16, 1);
 
@@ -25,14 +27,17 @@ public class CaptureDeviceWrapper
             OnNewData?.Invoke(copy, e.BytesRecorded);
         };
 
+        AudioCapture.ShareMode = AudioClientShareMode.Shared;
         AudioCapture.StartRecording();
     }
 
-    public void ChangeDevice(MMDevice newCaptureDevice)
+    public void ChangeDevice(MMDevice? newCaptureDevice)
     {
         AudioCapture?.Dispose();
         AudioCapture = null;
-        Initialise(newCaptureDevice);
+
+        if (newCaptureDevice is not null)
+            Initialise(newCaptureDevice);
     }
 
     public void Teardown()

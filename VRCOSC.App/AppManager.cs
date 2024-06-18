@@ -106,11 +106,10 @@ public class AppManager
             }
         });
 
-        audioNotificationClient.DeviceChanged += (flow, role, deviceId) =>
+        audioNotificationClient.DeviceChanged += (flow, role, deviceId) => Application.Current.Dispatcher.Invoke(() =>
         {
             try
             {
-                // TODO: Figure out why this crashes only when modules are running
                 return;
 
                 if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AutoSwitchMicrophone)) return;
@@ -118,13 +117,14 @@ public class AppManager
                 if (role != Role.Multimedia) return;
 
                 Logger.Log("Automatic microphone change detected. Switching to new microphone");
+                // TODO: Figure out why this is erroring only when modules are running
                 SettingsManager.GetInstance().GetObservable(VRCOSCSetting.SelectedInputDeviceID).Value = deviceId;
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message + "\n" + e.StackTrace);
+                ExceptionHandler.Handle(e);
             }
-        };
+        });
 
         var chosenInputDeviceSetting = SettingsManager.GetInstance().GetObservable(VRCOSCSetting.SelectedInputDeviceID);
 
