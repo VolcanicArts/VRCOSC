@@ -28,24 +28,21 @@ public static class ExceptionHandler
             sb.AppendLine();
         }
 
-        sb.AppendLine(e.Message);
-        sb.AppendLine();
         sb.AppendLine("Please report this on the Discord server or ask for help if you're developing a module");
         sb.AppendLine();
-        sb.AppendLine("Press OK to join Discord server and report the issue");
-        sb.AppendLine("Press cancel to ignore the error");
+        sb.AppendLine("Press OK to join Discord server and report the error");
+        sb.AppendLine("Press Cancel to ignore the error");
         sb.AppendLine();
-        sb.AppendLine(e.GetType().FullName);
-        sb.AppendLine(e.StackTrace);
 
-        var innerException = e.InnerException;
+        var proxyException = e;
 
-        while (innerException is not null)
+        while (proxyException is not null)
         {
+            sb.AppendLine(e.ToString());
             sb.AppendLine();
-            sb.AppendLine(e.GetType().FullName);
-            sb.AppendLine(innerException.StackTrace);
-            innerException = innerException.InnerException;
+            sb.AppendLine(e.StackTrace);
+            sb.AppendLine();
+            proxyException = proxyException.InnerException;
         }
 
         isWindowShowing = true;
