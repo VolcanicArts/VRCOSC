@@ -19,7 +19,7 @@ public class WindowsMediaProvider
     public ObservableCollection<GlobalSystemMediaTransportControlsSession> Sessions { get; } = new();
     public Dictionary<string, MediaState> States { get; } = new();
 
-    public string? CurrentSessionId => focusedSessionId ?? sessionManager?.GetCurrentSession().SourceAppUserModelId;
+    public string? CurrentSessionId => focusedSessionId ?? sessionManager?.GetCurrentSession()?.SourceAppUserModelId;
     public MediaState CurrentState => CurrentSessionId is null ? new MediaState() : getStateForSession(currentSession);
     private GlobalSystemMediaTransportControlsSession? currentSession => Sessions.FirstOrDefault(session => session.SourceAppUserModelId == CurrentSessionId);
 
