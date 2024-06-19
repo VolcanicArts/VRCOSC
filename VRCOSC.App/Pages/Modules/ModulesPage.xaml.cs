@@ -47,18 +47,7 @@ public partial class ModulesPage
         if (moduleParametersWindow is null)
         {
             moduleParametersWindow = new ModuleParametersWindow(module);
-
-            moduleParametersWindow.Closed += (_, _) =>
-            {
-                var mainWindow = Application.Current.MainWindow;
-                if (mainWindow is null) return;
-
-                mainWindow.WindowState = WindowState.Normal;
-                mainWindow.Focus();
-
-                moduleParametersWindow = null;
-            };
-
+            moduleParametersWindow.Closed += (_, _) => moduleParametersWindow = null;
             moduleParametersWindow.Show();
         }
         else
@@ -75,18 +64,7 @@ public partial class ModulesPage
         if (moduleSettingsWindow is null)
         {
             moduleSettingsWindow = new ModuleSettingsWindow(module);
-
-            moduleSettingsWindow.Closed += (_, _) =>
-            {
-                var mainWindow = Application.Current.MainWindow;
-                if (mainWindow is null) return;
-
-                mainWindow.WindowState = WindowState.Normal;
-                mainWindow.Focus();
-
-                moduleSettingsWindow = null;
-            };
-
+            moduleSettingsWindow.Closed += (_, _) => moduleSettingsWindow = null;
             moduleSettingsWindow.Show();
         }
         else
