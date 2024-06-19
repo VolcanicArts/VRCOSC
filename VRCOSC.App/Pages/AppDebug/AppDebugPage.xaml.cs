@@ -12,16 +12,15 @@ public partial class AppDebugPage
 {
     public Observable<string> Port9000BoundProcess { get; } = new(string.Empty);
 
-    private readonly Repeater reapeater;
+    private readonly Repeater repeater;
 
     public AppDebugPage()
     {
         InitializeComponent();
         DataContext = this;
 
-        reapeater = new Repeater(() => { Port9000BoundProcess.Value = $"Port 9000 is bound to {executePowerShellCommand("Get-Process -Id (Get-NetUDPEndpoint -LocalPort 9000).OwningProcess | Select-Object -ExpandProperty ProcessName") ?? "Nothing"}"; });
-
-        reapeater.Start(TimeSpan.FromSeconds(5), true);
+        repeater = new Repeater(() => { Port9000BoundProcess.Value = $"Port 9000 is bound to {executePowerShellCommand("Get-Process -Id (Get-NetUDPEndpoint -LocalPort 9000).OwningProcess | Select-Object -ExpandProperty ProcessName") ?? "Nothing"}"; });
+        repeater.Start(TimeSpan.FromSeconds(5), true);
     }
 
     private static string? executePowerShellCommand(string command)

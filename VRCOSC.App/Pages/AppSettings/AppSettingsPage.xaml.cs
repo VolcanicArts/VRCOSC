@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -13,6 +14,7 @@ using VRCOSC.App.Audio;
 using VRCOSC.App.Pages.Settings;
 using VRCOSC.App.Settings;
 using VRCOSC.App.Themes;
+using VRCOSC.App.Utils;
 using SpeechEngine = VRCOSC.App.Settings.SpeechEngine;
 
 // ReSharper disable UnusedMember.Global
@@ -211,6 +213,27 @@ public partial class AppSettingsPage
     private void SpeechTabButton_OnClick(object sender, RoutedEventArgs e)
     {
         setPage(6);
+    }
+
+    private void VOSK_OpenModelList_OnClick(object sender, RoutedEventArgs e)
+    {
+        openUrl("https://alphacephei.com/vosk/models");
+    }
+
+    private static void openUrl(string url)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = url,
+                UseShellExecute = true
+            });
+        }
+        catch (Exception e)
+        {
+            ExceptionHandler.Handle(e);
+        }
     }
 }
 
