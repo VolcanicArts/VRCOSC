@@ -129,16 +129,16 @@ public partial class AppSettingsPage
 
         DataContext = this;
 
-        SettingsManager.GetInstance().GetObservable(VRCOSCSetting.SelectedInputDeviceID).Subscribe(_ => updateDeviceListAndSelection(), true);
+        SettingsManager.GetInstance().GetObservable(VRCOSCSetting.SelectedInputDeviceID).Subscribe(newDeviceId => updateDeviceListAndSelection((string)newDeviceId), true);
         SpeechEngineComboBox.ItemsSource = Enum.GetValues<SpeechEngine>();
 
         setPage(0);
     }
 
-    private void updateDeviceListAndSelection() => Dispatcher.Invoke(() =>
+    private void updateDeviceListAndSelection(string newDeviceId) => Dispatcher.Invoke(() =>
     {
         MicrophoneComboBox.ItemsSource = audioInputDevices = AudioHelper.GetAllInputDevices().Select(mmDevice => new DeviceDisplay(mmDevice.ID, mmDevice.DeviceFriendlyName)).ToList();
-        MicrophoneComboBox.SelectedItem = audioInputDevices.Single(device => device.ID == SettingsManager.GetInstance().GetValue<string>(VRCOSCSetting.SelectedInputDeviceID));
+        MicrophoneComboBox.SelectedItem = audioInputDevices.SingleOrDefault(device => device.ID == newDeviceId);
     });
 
     private void MicrophoneComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
