@@ -2,13 +2,13 @@
 
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFramework>net6.0-windows10.0.22621.0</TargetFramework>
+        <TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
         <Nullable>enable</Nullable>
         <UseWPF>true</UseWPF>
         <ApplicationIcon>app.ico</ApplicationIcon>
         <Company>VRCOSC</Company>
         <Product>VRCOSC</Product>
-        <LangVersion>11</LangVersion>
+        <LangVersion>12</LangVersion>
         <AssemblyName>VRCOSC</AssemblyName>
         <AssemblyVersion>2024.619.0.0</AssemblyVersion>
         <FileVersion>2024.619.0.0</FileVersion>
