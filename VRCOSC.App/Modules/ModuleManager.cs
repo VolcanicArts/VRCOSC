@@ -114,6 +114,9 @@ public class ModuleManager : INotifyPropertyChanged
     {
         Logger.Log("Module reload requested");
 
+        var isRunning = AppManager.GetInstance().State.Value is AppManagerState.Starting or AppManagerState.Started;
+        if (isRunning) AppManager.GetInstance().Stop();
+
         ChatBoxManager.GetInstance().Unload();
         UnloadAllModules();
         LoadAllModules();
