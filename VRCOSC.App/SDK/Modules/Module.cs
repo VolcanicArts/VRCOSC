@@ -180,10 +180,15 @@ public abstract class Module
         State.Value = ModuleState.Starting;
 
         parameterNameEnum.Clear();
-        Parameters.ForEach(pair => parameterNameEnum.Add(pair.Value.Name.Value, pair.Key));
-
         parameterNameRegex.Clear();
-        Parameters.ForEach(pair => parameterNameRegex.Add(pair.Value.Name.Value, parameterToRegex(pair.Value.Name.Value)));
+
+        var validParameters = Parameters.Where(parameter => !string.IsNullOrWhiteSpace(parameter.Value.Name.Value)).ToList();
+
+        validParameters.ForEach(pair =>
+        {
+            parameterNameEnum.Add(pair.Value.Name.Value!, pair.Key);
+            parameterNameRegex.Add(pair.Value.Name.Value!, parameterToRegex(pair.Value.Name.Value!));
+        });
 
         loadPersistentProperties();
 
@@ -462,7 +467,9 @@ public abstract class Module
             return;
         }
 
-        AppManager.GetInstance().VRChatOscClient.SendValue($"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{moduleParameter.Name.Value}", value);
+        if (string.IsNullOrWhiteSpace(moduleParameter.Name.Value)) return;
+
+        SendParameter(moduleParameter.Name.Value!, value);
     }
 
     /// <summary>
