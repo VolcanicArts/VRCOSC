@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -21,15 +22,16 @@ using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.Profiles;
 using VRCOSC.App.Router;
 using VRCOSC.App.SDK.Handlers;
-using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.OVR;
 using VRCOSC.App.SDK.OVR.Metadata;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Settings;
 using VRCOSC.App.Themes;
+using VRCOSC.App.Updater;
 using VRCOSC.App.Utils;
 using VRCOSC.App.VRChatAPI;
+using Module = VRCOSC.App.SDK.Modules.Module;
 
 namespace VRCOSC.App;
 
@@ -48,6 +50,10 @@ public class AppManager
 
     public Observable<AppManagerState> State = new(AppManagerState.Stopped);
 
+    private static Version assemblyVersion => Assembly.GetEntryAssembly()?.GetName().Version ?? new Version();
+    public string Version => $"{assemblyVersion.Major}.{assemblyVersion.Minor}.{assemblyVersion.Build}";
+
+    public VelopackUpdater VelopackUpdater = null!;
     public ConnectionManager ConnectionManager = null!;
     public VRChatOscClient VRChatOscClient = null!;
     public VRChatClient VRChatClient = null!;
@@ -74,6 +80,7 @@ public class AppManager
     {
         ChangeTheme(SettingsManager.GetInstance().GetValue<Theme>(VRCOSCSetting.Theme));
 
+        VelopackUpdater = new VelopackUpdater();
         ConnectionManager = new ConnectionManager();
         VRChatOscClient = new VRChatOscClient();
         VRChatClient = new VRChatClient(VRChatOscClient);
@@ -166,6 +173,9 @@ public class AppManager
 
         openvrUpdateTask = new Repeater(() => OVRClient.Update());
         openvrUpdateTask.Start(TimeSpan.FromSeconds(1d / 60d));
+
+        if (VelopackUpdater.IsUpdateAvailable)
+            VelopackUpdater.ShowUpdate();
     }
 
     private void update()

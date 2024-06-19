@@ -56,9 +56,6 @@ public partial class MainWindow
 
     private readonly Storage storage = AppManager.GetInstance().Storage;
 
-    private static Version assemblyVersion => Assembly.GetEntryAssembly()?.GetName().Version ?? new Version();
-    private string version => $"{assemblyVersion.Major}.{assemblyVersion.Minor}.{assemblyVersion.Build}";
-
     public Observable<bool> ShowAppDebug { get; } = new();
 
     public MainWindow()
@@ -71,7 +68,7 @@ public partial class MainWindow
         InitializeComponent();
         DataContext = this;
 
-        Title = $"{AppManager.APP_NAME} {version}";
+        Title = $"{AppManager.APP_NAME} {AppManager.GetInstance().Version}";
 
         setupTrayIcon();
         copyOpenVrFiles();
@@ -96,6 +93,7 @@ public partial class MainWindow
     {
         var loadingAction = new LoadGameAction();
 
+        loadingAction.AddAction(new DynamicAsyncProgressAction("Checking for updates", () => AppManager.GetInstance().VelopackUpdater.CheckForUpdatesAsync()));
         loadingAction.AddAction(new DynamicProgressAction("Loading profiles", () => ProfileManager.GetInstance().Load()));
         loadingAction.AddAction(PackageManager.GetInstance().Load());
         loadingAction.AddAction(new DynamicProgressAction("Loading modules", () => ModuleManager.GetInstance().LoadAllModules()));

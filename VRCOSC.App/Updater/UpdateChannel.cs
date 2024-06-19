@@ -3,8 +3,8 @@
 
 namespace VRCOSC.App.Updater;
 
-public enum UpdaterReleaseChannel
+public enum UpdateChannel
 {
-    Stable,
-    Beta
+    Live = 0,
+    Beta = 1
 }
