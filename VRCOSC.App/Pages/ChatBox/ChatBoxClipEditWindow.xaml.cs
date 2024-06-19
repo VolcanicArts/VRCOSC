@@ -27,7 +27,7 @@ public partial class ChatBoxClipEditWindow
         get => SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.ShowRelevantModules);
         set
         {
-            SettingsManager.GetInstance().GetObservable(VRCOSCSetting.ShowRelevantModules).Value = value;
+            SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.ShowRelevantModules).Value = value;
             ReferenceClip.States.ForEach(clipState => clipState.UpdateUI());
             ReferenceClip.Events.ForEach(clipEvent => clipEvent.UpdateUI());
         }

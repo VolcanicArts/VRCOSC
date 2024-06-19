@@ -33,8 +33,8 @@ public class ProfileManager
 
     public bool EnableAutomaticSwitching
     {
-        get => (bool)SettingsManager.GetInstance().GetObservable(VRCOSCSetting.AutomaticProfileSwitching).Value;
-        set => SettingsManager.GetInstance().GetObservable(VRCOSCSetting.AutomaticProfileSwitching).Value = value;
+        get => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.AutomaticProfileSwitching).Value;
+        set => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.AutomaticProfileSwitching).Value = value;
     }
 
     private readonly SerialisationManager serialisationManager;

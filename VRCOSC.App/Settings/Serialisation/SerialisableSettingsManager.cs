@@ -11,7 +11,7 @@ namespace VRCOSC.App.Settings.Serialisation;
 public class SerialisableSettingsManager : SerialisableVersion
 {
     [JsonProperty("settings")]
-    public Dictionary<string, object> Settings = new();
+    public Dictionary<string, object?> Settings = new();
 
     [JsonConstructor]
     public SerialisableSettingsManager()
@@ -22,6 +22,6 @@ public class SerialisableSettingsManager : SerialisableVersion
     {
         Version = 1;
 
-        settingsManager.Settings.ForEach(pair => Settings.Add(pair.Key.ToString(), pair.Value.Value));
+        settingsManager.Settings.ForEach(pair => Settings.Add(pair.Key.ToString(), pair.Value.GetValue()));
     }
 }

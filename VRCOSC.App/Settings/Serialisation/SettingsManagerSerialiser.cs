@@ -31,9 +31,15 @@ public class SettingsManagerSerialiser : Serialiser<SettingsManager, Serialisabl
                     return;
                 }
 
-                if (!Reference.Settings.TryGetValue(key, out var setting)) return;
+                if (!Reference.Settings.ContainsKey(key)) return;
 
+                var observable = Reference.GetObservable(key);
                 var value = pair.Value;
+
+                if (value is null) return;
+
+                if (observable.GetValue()!.GetType().IsEnum)
+                    value = Enum.ToObject(observable.GetValue()!.GetType(), (long)value);
 
                 if (value is long longValue)
                     value = (int)longValue;
@@ -41,7 +47,7 @@ public class SettingsManagerSerialiser : Serialiser<SettingsManager, Serialisabl
                 if (value is double doubleValue)
                     value = (float)doubleValue;
 
-                setting.Value = value;
+                observable.SetValue(value);
             }
             catch (Exception)
             {

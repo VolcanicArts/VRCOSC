@@ -41,12 +41,12 @@ public partial class ProfileEditWindow
         DataContext = Profile;
     }
 
-    private void globalProfileNameChanged(string _)
+    private void globalProfileNameChanged()
     {
         NameTextBox.BorderBrush = !Profile.IsValidForSave() ? Brushes.Red : Brushes.Transparent;
     }
 
-    private void profileNameChanged(string newName)
+    private void profileNameChanged(string? newName)
     {
         Title = $"Editing {newName} Profile";
     }

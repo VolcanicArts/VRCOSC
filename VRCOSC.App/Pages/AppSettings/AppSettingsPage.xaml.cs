@@ -23,100 +23,100 @@ public partial class AppSettingsPage
 {
     public bool AllowPreReleasePackages
     {
-        get => (bool)SettingsManager.GetInstance().GetObservable(VRCOSCSetting.AllowPreReleasePackages).Value;
-        set => SettingsManager.GetInstance().GetObservable(VRCOSCSetting.AllowPreReleasePackages).Value = value;
+        get => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.AllowPreReleasePackages).Value;
+        set => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.AllowPreReleasePackages).Value = value;
     }
 
     public bool VRCAutoStart
     {
-        get => (bool)SettingsManager.GetInstance().GetObservable(VRCOSCSetting.VRCAutoStart).Value;
-        set => SettingsManager.GetInstance().GetObservable(VRCOSCSetting.VRCAutoStart).Value = value;
+        get => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.VRCAutoStart).Value;
+        set => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.VRCAutoStart).Value = value;
     }
 
     public bool VRCAutoStop
     {
-        get => (bool)SettingsManager.GetInstance().GetObservable(VRCOSCSetting.VRCAutoStop).Value;
-        set => SettingsManager.GetInstance().GetObservable(VRCOSCSetting.VRCAutoStop).Value = value;
+        get => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.VRCAutoStop).Value;
+        set => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.VRCAutoStop).Value = value;
     }
 
     public bool OVRAutoOpen
     {
-        get => (bool)SettingsManager.GetInstance().GetObservable(VRCOSCSetting.OVRAutoOpen).Value;
-        set => SettingsManager.GetInstance().GetObservable(VRCOSCSetting.OVRAutoOpen).Value = value;
+        get => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.OVRAutoOpen).Value;
+        set => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.OVRAutoOpen).Value = value;
     }
 
     public bool OVRAutoClose
     {
-        get => (bool)SettingsManager.GetInstance().GetObservable(VRCOSCSetting.OVRAutoClose).Value;
-        set => SettingsManager.GetInstance().GetObservable(VRCOSCSetting.OVRAutoClose).Value = value;
+        get => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.OVRAutoClose).Value;
+        set => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.OVRAutoClose).Value = value;
     }
 
     public IEnumerable<Theme> ThemeSource => Enum.GetValues<Theme>();
 
     public int Theme
     {
-        get => (int)SettingsManager.GetInstance().GetObservable(VRCOSCSetting.Theme).Value;
-        set => SettingsManager.GetInstance().GetObservable(VRCOSCSetting.Theme).Value = value;
+        get => (int)SettingsManager.GetInstance().GetObservable<Theme>(VRCOSCSetting.Theme).Value;
+        set => SettingsManager.GetInstance().GetObservable<Theme>(VRCOSCSetting.Theme).Value = (Theme)value;
     }
 
     public bool UseCustomEndpoints
     {
-        get => (bool)SettingsManager.GetInstance().GetObservable(VRCOSCSetting.UseCustomEndpoints).Value;
-        set => SettingsManager.GetInstance().GetObservable(VRCOSCSetting.UseCustomEndpoints).Value = value;
+        get => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.UseCustomEndpoints).Value;
+        set => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.UseCustomEndpoints).Value = value;
     }
 
-    public string OutgoingEndpoint
+    public string? OutgoingEndpoint
     {
-        get => (string)SettingsManager.GetInstance().GetObservable(VRCOSCSetting.OutgoingEndpoint).Value;
-        set => SettingsManager.GetInstance().GetObservable(VRCOSCSetting.OutgoingEndpoint).Value = value;
+        get => SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.OutgoingEndpoint).Value;
+        set => SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.OutgoingEndpoint).Value = value;
     }
 
-    public string IncomingEndpoint
+    public string? IncomingEndpoint
     {
-        get => (string)SettingsManager.GetInstance().GetObservable(VRCOSCSetting.IncomingEndpoint).Value;
-        set => SettingsManager.GetInstance().GetObservable(VRCOSCSetting.IncomingEndpoint).Value = value;
+        get => SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.IncomingEndpoint).Value;
+        set => SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.IncomingEndpoint).Value = value;
     }
 
     public bool UseChatBoxBlacklist
     {
-        get => (bool)SettingsManager.GetInstance().GetObservable(VRCOSCSetting.ChatBoxWorldBlacklist).Value;
-        set => SettingsManager.GetInstance().GetObservable(VRCOSCSetting.ChatBoxWorldBlacklist).Value = value;
+        get => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.ChatBoxWorldBlacklist).Value;
+        set => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.ChatBoxWorldBlacklist).Value = value;
     }
 
     public int ChatBoxSendInterval
     {
-        get => (int)SettingsManager.GetInstance().GetObservable(VRCOSCSetting.ChatBoxSendInterval).Value;
-        set => SettingsManager.GetInstance().GetObservable(VRCOSCSetting.ChatBoxSendInterval).Value = value;
+        get => SettingsManager.GetInstance().GetObservable<int>(VRCOSCSetting.ChatBoxSendInterval).Value;
+        set => SettingsManager.GetInstance().GetObservable<int>(VRCOSCSetting.ChatBoxSendInterval).Value = value;
     }
 
     public bool TrayOnClose
     {
-        get => (bool)SettingsManager.GetInstance().GetObservable(VRCOSCSetting.TrayOnClose).Value;
-        set => SettingsManager.GetInstance().GetObservable(VRCOSCSetting.TrayOnClose).Value = value;
+        get => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.TrayOnClose).Value;
+        set => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.TrayOnClose).Value = value;
     }
 
     public bool EnableAppDebug
     {
-        get => (bool)SettingsManager.GetInstance().GetObservable(VRCOSCSetting.EnableAppDebug).Value;
-        set => SettingsManager.GetInstance().GetObservable(VRCOSCSetting.EnableAppDebug).Value = value;
+        get => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.EnableAppDebug).Value;
+        set => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.EnableAppDebug).Value = value;
     }
 
     public bool AutoSwitchMicrophone
     {
-        get => (bool)SettingsManager.GetInstance().GetObservable(VRCOSCSetting.AutoSwitchMicrophone).Value;
-        set => SettingsManager.GetInstance().GetObservable(VRCOSCSetting.AutoSwitchMicrophone).Value = value;
+        get => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.AutoSwitchMicrophone).Value;
+        set => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.AutoSwitchMicrophone).Value = value;
     }
 
     public SpeechEngine SelectedSpeechEngine
     {
-        get => (SpeechEngine)SettingsManager.GetInstance().GetObservable(VRCOSCSetting.SelectedSpeechEngine).Value;
-        set => SettingsManager.GetInstance().GetObservable(VRCOSCSetting.SelectedSpeechEngine).Value = value;
+        get => SettingsManager.GetInstance().GetObservable<SpeechEngine>(VRCOSCSetting.SelectedSpeechEngine).Value;
+        set => SettingsManager.GetInstance().GetObservable<SpeechEngine>(VRCOSCSetting.SelectedSpeechEngine).Value = value;
     }
 
-    public string VoskModelDirectory
+    public string? VoskModelDirectory
     {
-        get => (string)SettingsManager.GetInstance().GetObservable(VRCOSCSetting.VOSK_ModelDirectory).Value;
-        set => SettingsManager.GetInstance().GetObservable(VRCOSCSetting.VOSK_ModelDirectory).Value = value;
+        get => SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.VOSK_ModelDirectory).Value;
+        set => SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.VOSK_ModelDirectory).Value = value;
     }
 
     private int selectedPage;
@@ -129,15 +129,18 @@ public partial class AppSettingsPage
 
         DataContext = this;
 
-        SettingsManager.GetInstance().GetObservable(VRCOSCSetting.SelectedInputDeviceID).Subscribe(newDeviceId => updateDeviceListAndSelection((string)newDeviceId), true);
+        SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SelectedInputDeviceID).Subscribe(updateDeviceListAndSelection, true);
         SpeechEngineComboBox.ItemsSource = Enum.GetValues<SpeechEngine>();
 
         setPage(0);
     }
 
-    private void updateDeviceListAndSelection(string newDeviceId) => Dispatcher.Invoke(() =>
+    private void updateDeviceListAndSelection(string? newDeviceId) => Dispatcher.Invoke(() =>
     {
         MicrophoneComboBox.ItemsSource = audioInputDevices = AudioHelper.GetAllInputDevices().Select(mmDevice => new DeviceDisplay(mmDevice.ID, mmDevice.DeviceFriendlyName)).ToList();
+
+        if (newDeviceId is null) return;
+
         MicrophoneComboBox.SelectedItem = audioInputDevices.SingleOrDefault(device => device.ID == newDeviceId);
     });
 
@@ -146,7 +149,7 @@ public partial class AppSettingsPage
         var comboBox = (ComboBox)sender;
         var deviceId = (string)comboBox.SelectedValue;
 
-        SettingsManager.GetInstance().GetObservable(VRCOSCSetting.SelectedInputDeviceID).Value = deviceId;
+        SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SelectedInputDeviceID).Value = deviceId;
     }
 
     private void SpeechEngineComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)

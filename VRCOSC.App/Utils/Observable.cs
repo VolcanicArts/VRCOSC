@@ -10,6 +10,13 @@ namespace VRCOSC.App.Utils;
 using System;
 using System.Collections.Generic;
 
+public interface IObservable
+{
+    public object? GetValue();
+    public void SetValue(object value);
+    public void Subscribe(Action noValueAction, bool runOnceImmediately = false);
+}
+
 [JsonConverter(typeof(ObservableConverter))]
 public interface ISerialisableObservable
 {
@@ -32,11 +39,11 @@ public class ObservableConverter : JsonConverter<ISerialisableObservable>
     }
 }
 
-public sealed class Observable<T> : IObservable<T>, INotifyPropertyChanged, ISerialisableObservable
+public sealed class Observable<T> : IObservable, INotifyPropertyChanged, ISerialisableObservable
 {
-    private T value;
+    private T? value;
 
-    public T Value
+    public T? Value
     {
         get => value;
         set
@@ -49,42 +56,51 @@ public sealed class Observable<T> : IObservable<T>, INotifyPropertyChanged, ISer
         }
     }
 
-    public T DefaultValue { get; }
+    public T? DefaultValue { get; }
 
-    private readonly List<IObserver<T?>> observers = new();
+    private readonly List<Action> noValueActions = new();
     private readonly List<Action<T?>> actions = new();
 
+    [JsonConstructor]
     private Observable()
     {
-        DefaultValue = default;
     }
 
-    public Observable(T initialValue = default)
+    public Observable(T? initialValue = default)
     {
         value = initialValue;
         DefaultValue = initialValue;
     }
 
-    public IDisposable Subscribe(IObserver<T> observer)
+    public object? GetValue() => Value;
+
+    public void SetValue(object newValue)
     {
-        if (!observers.Contains(observer))
-            observers.Add(observer);
+        if (newValue is not T castValue) throw new InvalidOperationException($"Attempted to set anonymous value of type {newValue.GetType().ToReadableName()} for type {typeof(T).ToReadableName()}");
 
-        observer.OnNext(value);
-
-        return new Unsubscriber(observers, observer);
+        value = castValue;
     }
 
-    public void Subscribe(Action<T> action, bool runOnceImmediately = false)
+    public void Subscribe(Action noValueAction, bool runOnceImmediately = false)
+    {
+        noValueActions.Add(noValueAction);
+        if (runOnceImmediately) noValueAction.Invoke();
+    }
+
+    public void Subscribe(Action<T?> action, bool runOnceImmediately = false)
     {
         actions.Add(action);
-        if (runOnceImmediately) action(value);
+        if (runOnceImmediately) action.Invoke(value);
     }
 
-    public void Unsubscribe(Action<T> action)
+    public void Unsubscribe(Action noValueAction)
     {
-        if (actions.Contains(action))
-            actions.Remove(action);
+        noValueActions.Remove(noValueAction);
+    }
+
+    public void Unsubscribe(Action<T?> action)
+    {
+        actions.Remove(action);
     }
 
     public bool IsDefault => EqualityComparer<T>.Default.Equals(value, DefaultValue);
@@ -96,14 +112,14 @@ public sealed class Observable<T> : IObservable<T>, INotifyPropertyChanged, ISer
 
     private void notifyObservers()
     {
-        foreach (var observer in observers)
+        foreach (var noValueAction in noValueActions)
         {
-            observer.OnNext(value);
+            noValueAction.Invoke();
         }
 
         foreach (var action in actions)
         {
-            action(value);
+            action.Invoke(value);
         }
     }
 
@@ -114,31 +130,27 @@ public sealed class Observable<T> : IObservable<T>, INotifyPropertyChanged, ISer
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
-    private class Unsubscriber : IDisposable
-    {
-        private readonly List<IObserver<T>> observers;
-        private readonly IObserver<T> observer;
-
-        public Unsubscriber(List<IObserver<T>> observers, IObserver<T> observer)
-        {
-            this.observers = observers;
-            this.observer = observer;
-        }
-
-        public void Dispose()
-        {
-            if (observers.Contains(observer))
-                observers.Remove(observer);
-        }
-    }
-
     public void SerializeTo(JsonWriter writer, JsonSerializer serializer)
     {
-        serializer.Serialize(writer, value);
+        try
+        {
+            serializer.Serialize(writer, value);
+        }
+        catch (Exception e)
+        {
+            Logger.Error(e, "Observable could not serialise value");
+        }
     }
 
     public void DeserializeFrom(JsonReader reader, JsonSerializer serializer)
     {
-        Value = serializer.Deserialize<T>(reader);
+        try
+        {
+            Value = serializer.Deserialize<T>(reader);
+        }
+        catch (Exception e)
+        {
+            Logger.Error(e, "Observable could not deserialise value");
+        }
     }
 }

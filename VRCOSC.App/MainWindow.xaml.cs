@@ -64,7 +64,7 @@ public partial class MainWindow
     public MainWindow()
     {
         SettingsManager.GetInstance().Load();
-        SettingsManager.GetInstance().GetObservable(VRCOSCSetting.EnableAppDebug).Subscribe(newValue => ShowAppDebug.Value = (bool)newValue, true);
+        SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.EnableAppDebug).Subscribe(newValue => ShowAppDebug.Value = newValue, true);
 
         AppManager.GetInstance().Initialise();
 

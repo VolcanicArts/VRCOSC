@@ -72,7 +72,7 @@ public class AppManager
 
     public void Initialise()
     {
-        ChangeTheme((Theme)SettingsManager.GetInstance().GetValue<int>(VRCOSCSetting.Theme));
+        ChangeTheme(SettingsManager.GetInstance().GetValue<Theme>(VRCOSCSetting.Theme));
 
         ConnectionManager = new ConnectionManager();
         VRChatOscClient = new VRChatOscClient();
@@ -118,7 +118,7 @@ public class AppManager
 
                 Logger.Log("Automatic microphone change detected. Switching to new microphone");
                 // TODO: Figure out why this is erroring only when modules are running
-                SettingsManager.GetInstance().GetObservable(VRCOSCSetting.SelectedInputDeviceID).Value = deviceId;
+                SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SelectedInputDeviceID).Value = deviceId;
             }
             catch (Exception e)
             {
@@ -126,9 +126,9 @@ public class AppManager
             }
         });
 
-        var chosenInputDeviceSetting = SettingsManager.GetInstance().GetObservable(VRCOSCSetting.SelectedInputDeviceID);
+        var chosenInputDeviceSetting = SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SelectedInputDeviceID);
 
-        if (string.IsNullOrEmpty((string)chosenInputDeviceSetting.Value))
+        if (string.IsNullOrEmpty(chosenInputDeviceSetting.Value))
         {
             chosenInputDeviceSetting.Value = WasapiCapture.GetDefaultCaptureDevice().ID;
         }

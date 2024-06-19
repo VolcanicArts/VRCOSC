@@ -17,7 +17,7 @@ public class SettingsManager
     private static SettingsManager? instance;
     public static SettingsManager GetInstance() => instance ??= new SettingsManager();
 
-    public readonly Dictionary<VRCOSCSetting, Observable<object>> Settings = new();
+    public readonly Dictionary<VRCOSCSetting, IObservable> Settings = new();
 
     private readonly Storage storage = AppManager.GetInstance().Storage;
     private readonly SerialisationManager serialisationManager;
@@ -32,53 +32,60 @@ public class SettingsManager
     {
         writeDefaults();
 
-        Settings.ForEach(pair => pair.Value.Subscribe(_ => serialisationManager.Serialise()));
+        Settings.ForEach(pair => pair.Value.Subscribe(() => serialisationManager.Serialise()));
 
         serialisationManager.Deserialise();
     }
 
-    private void writeDefaults()
+    private void setDefault<T>(VRCOSCSetting lookup, T? defaultValue)
     {
-        Settings[VRCOSCSetting.FirstTimeSetupComplete] = new Observable<object>(false);
-        Settings[VRCOSCSetting.StartInTray] = new Observable<object>(false);
-        Settings[VRCOSCSetting.PackageFilter] = new Observable<object>((int)(PackageListingFilter.Type_Official | PackageListingFilter.Type_Curated | PackageListingFilter.Type_Community)); // TODO: Remove community on release
-        Settings[VRCOSCSetting.AutomaticProfileSwitching] = new Observable<object>(false);
-        Settings[VRCOSCSetting.VRCAutoStart] = new Observable<object>(false);
-        Settings[VRCOSCSetting.VRCAutoStop] = new Observable<object>(false);
-        Settings[VRCOSCSetting.OVRAutoOpen] = new Observable<object>(false);
-        Settings[VRCOSCSetting.OVRAutoClose] = new Observable<object>(false);
-        Settings[VRCOSCSetting.AllowPreReleasePackages] = new Observable<object>(true); // TODO: Change on app release
-        Settings[VRCOSCSetting.TrayOnClose] = new Observable<object>(false);
-        Settings[VRCOSCSetting.GlobalPersistence] = new Observable<object>(false);
-        Settings[VRCOSCSetting.ReleaseChannel] = new Observable<object>(UpdaterReleaseChannel.Beta); // TODO: Change on app release
-        Settings[VRCOSCSetting.ChatBoxSendInterval] = new Observable<object>(1500);
-        Settings[VRCOSCSetting.ChatBoxWorldBlacklist] = new Observable<object>(true);
-        Settings[VRCOSCSetting.ShowRelevantModules] = new Observable<object>(true);
-        Settings[VRCOSCSetting.Theme] = new Observable<object>((int)Theme.Dark);
-        Settings[VRCOSCSetting.OutgoingEndpoint] = new Observable<object>("127.0.0.1:9000");
-        Settings[VRCOSCSetting.IncomingEndpoint] = new Observable<object>("127.0.0.1:9001");
-        Settings[VRCOSCSetting.UseCustomEndpoints] = new Observable<object>(false);
-        Settings[VRCOSCSetting.EnableAppDebug] = new Observable<object>(false);
-        Settings[VRCOSCSetting.AutoSwitchMicrophone] = new Observable<object>(true);
-        Settings[VRCOSCSetting.SelectedInputDeviceID] = new Observable<object>(string.Empty);
-        Settings[VRCOSCSetting.SelectedSpeechEngine] = new Observable<object>(SpeechEngine.VOSK);
-        Settings[VRCOSCSetting.VOSK_ModelDirectory] = new Observable<object>(string.Empty);
+        Settings[lookup] = (IObservable)Activator.CreateInstance(typeof(Observable<T>), defaultValue)!;
     }
 
-    public Observable<object> GetObservable(VRCOSCSetting lookup)
+    private void writeDefaults()
+    {
+        setDefault(VRCOSCSetting.FirstTimeSetupComplete, false);
+        setDefault(VRCOSCSetting.StartInTray, false);
+        setDefault(VRCOSCSetting.PackageFilter, (int)(PackageListingFilter.Type_Official | PackageListingFilter.Type_Curated | PackageListingFilter.Type_Community)); // TODO: Remove community on release
+        setDefault(VRCOSCSetting.AutomaticProfileSwitching, false);
+        setDefault(VRCOSCSetting.VRCAutoStart, false);
+        setDefault(VRCOSCSetting.VRCAutoStop, false);
+        setDefault(VRCOSCSetting.OVRAutoOpen, false);
+        setDefault(VRCOSCSetting.OVRAutoClose, false);
+        setDefault(VRCOSCSetting.AllowPreReleasePackages, true); // TODO: Change on app release
+        setDefault(VRCOSCSetting.TrayOnClose, false);
+        setDefault(VRCOSCSetting.GlobalPersistence, false);
+        setDefault(VRCOSCSetting.ReleaseChannel, UpdaterReleaseChannel.Beta); // TODO: Change on app release
+        setDefault(VRCOSCSetting.ChatBoxSendInterval, 1500);
+        setDefault(VRCOSCSetting.ChatBoxWorldBlacklist, true);
+        setDefault(VRCOSCSetting.ShowRelevantModules, true);
+        setDefault(VRCOSCSetting.Theme, Theme.Dark);
+        setDefault(VRCOSCSetting.OutgoingEndpoint, "127.0.0.1:9000");
+        setDefault(VRCOSCSetting.IncomingEndpoint, "127.0.0.1:9001");
+        setDefault(VRCOSCSetting.UseCustomEndpoints, false);
+        setDefault(VRCOSCSetting.EnableAppDebug, false);
+        setDefault(VRCOSCSetting.AutoSwitchMicrophone, true);
+        setDefault(VRCOSCSetting.SelectedInputDeviceID, string.Empty);
+        setDefault(VRCOSCSetting.SelectedSpeechEngine, SpeechEngine.VOSK);
+        setDefault(VRCOSCSetting.VOSK_ModelDirectory, string.Empty);
+    }
+
+    public Observable<T> GetObservable<T>(VRCOSCSetting lookup)
+    {
+        if (!Settings.TryGetValue(lookup, out var observable)) throw new InvalidOperationException("Setting doesn't exist");
+        if (observable is not Observable<T> castObservable) throw new InvalidOperationException($"Setting is not of type {typeof(T).ToReadableName()}");
+
+        return castObservable;
+    }
+
+    public IObservable GetObservable(VRCOSCSetting lookup)
     {
         if (!Settings.TryGetValue(lookup, out var observable)) throw new InvalidOperationException("Setting doesn't exist");
 
         return observable;
     }
 
-    public T GetValue<T>(VRCOSCSetting lookup)
-    {
-        var value = GetObservable(lookup).Value;
-        if (value is not T valueType) throw new InvalidOperationException("Requested type doesn't match stored type");
-
-        return valueType;
-    }
+    public T GetValue<T>(VRCOSCSetting lookup) => GetObservable<T>(lookup).Value!;
 }
 
 public enum VRCOSCSetting

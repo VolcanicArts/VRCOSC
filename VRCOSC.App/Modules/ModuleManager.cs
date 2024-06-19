@@ -155,7 +155,7 @@ public class ModuleManager : INotifyPropertyChanged
                     moduleSerialisationManager.RegisterSerialiser(1, new ModuleSerialiser(storage, module, ProfileManager.GetInstance().ActiveProfile));
 
                     var modulePersistenceSerialisationManager = new SerialisationManager();
-                    modulePersistenceSerialisationManager.RegisterSerialiser(1, new ModulePersistenceSerialiser(storage, module, ProfileManager.GetInstance().ActiveProfile, SettingsManager.GetInstance().GetObservable(VRCOSCSetting.GlobalPersistence)));
+                    modulePersistenceSerialisationManager.RegisterSerialiser(1, new ModulePersistenceSerialiser(storage, module, ProfileManager.GetInstance().ActiveProfile, SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.GlobalPersistence)));
 
                     module.InjectDependencies(moduleSerialisationManager, modulePersistenceSerialisationManager);
                     module.Load();
