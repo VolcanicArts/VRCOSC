@@ -7,8 +7,12 @@
       mc:Ignorable="d">
     <Grid>
         <Border Background="{StaticResource CBackground2}" Padding="10">
-            <ui:SpacedStackPanel Spacing="5" Orientation="Horizontal">
-                <TextBlock Text="{Binding Port9000BoundProcess.Value}" FontSize="20" Foreground="{StaticResource CForeground1}" />
+            <ui:SpacedStackPanel Spacing="5" Orientation="Vertical">
+                <TextBlock Text="{Binding Port9000BoundProcess.Value}" FontSize="20"
+                           Foreground="{StaticResource CForeground1}" />
+                <ui:VRCOSCButton Click="ReloadModules_OnClick" Width="400" Height="30" ButtonColour="Gray" HorizontalAlignment="Left">
+                    <TextBlock Text="Reload module packages from disk" FontSize="18" Foreground="{StaticResource CForeground1}"/>
+                </ui:VRCOSCButton>
             </ui:SpacedStackPanel>
         </Border>
     </Grid>

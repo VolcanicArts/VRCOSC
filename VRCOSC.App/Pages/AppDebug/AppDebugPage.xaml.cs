@@ -4,6 +4,8 @@
 using System;
 using System.Diagnostics;
 using System.Text;
+using System.Windows;
+using VRCOSC.App.Modules;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Pages.AppDebug;
@@ -57,5 +59,10 @@ public partial class AppDebugPage
         process.WaitForExit();
 
         return error.Length > 0 ? null : output.ToString();
+    }
+
+    private void ReloadModules_OnClick(object sender, RoutedEventArgs e)
+    {
+        ModuleManager.GetInstance().ReloadAllModules();
     }
 }
