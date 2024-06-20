@@ -15,19 +15,35 @@ namespace VRCOSC.App.SDK.Providers.Media;
 public class WindowsMediaProvider
 {
     private GlobalSystemMediaTransportControlsSessionManager? sessionManager;
+    private readonly object sessionsChangedLock = new();
 
     public ObservableCollection<GlobalSystemMediaTransportControlsSession> Sessions { get; } = new();
     public Dictionary<string, MediaState> States { get; } = new();
 
     public string? CurrentSessionId => focusedSessionId ?? sessionManager?.GetCurrentSession()?.SourceAppUserModelId;
-    public MediaState CurrentState => CurrentSessionId is null ? new MediaState() : getStateForSession(currentSession);
-    private GlobalSystemMediaTransportControlsSession? currentSession => Sessions.FirstOrDefault(session => session.SourceAppUserModelId == CurrentSessionId);
+    public MediaState CurrentState => CurrentSessionId is null ? new MediaState() : getStateForSession(getCurrentSession());
 
     private string? focusedSessionId;
 
     public Action? OnPlaybackStateChanged;
     public Action? OnTrackChanged;
     public Action? OnPlaybackPositionChanged;
+
+    private GlobalSystemMediaTransportControlsSession? getCurrentSession()
+    {
+        lock (sessionsChangedLock)
+        {
+            try
+            {
+                return Sessions.FirstOrDefault(session => session.SourceAppUserModelId == CurrentSessionId);
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "Could not retrieve current session");
+                return null;
+            }
+        }
+    }
 
     /// <summary>
     /// Sets a specific session ID to be the focus of this provider
@@ -131,7 +147,7 @@ public class WindowsMediaProvider
 
     private async void currentSessionChanged(GlobalSystemMediaTransportControlsSessionManager? sender, CurrentSessionChangedEventArgs? args)
     {
-        var session = currentSession;
+        var session = getCurrentSession();
         if (session is null) return;
 
         onAnyPlaybackStateChanged(session, session.GetPlaybackInfo());
@@ -148,13 +164,16 @@ public class WindowsMediaProvider
 
     private void sessionsChanged(GlobalSystemMediaTransportControlsSessionManager? _, SessionsChangedEventArgs? _2)
     {
-        var windowsSessions = sessionManager!.GetSessions();
-        windowsSessions.Where(windowsSession => !Sessions.Contains(windowsSession)).ForEach(addControlSession);
-        Sessions.RemoveIf(session => !windowsSessions.Contains(session));
-
-        if (focusedSessionId is not null && Sessions.All(session => session.SourceAppUserModelId != focusedSessionId))
+        lock (sessionsChangedLock)
         {
-            focusedSessionId = null;
+            var windowsSessions = sessionManager!.GetSessions();
+            windowsSessions.Where(windowsSession => !Sessions.Contains(windowsSession)).ForEach(addControlSession);
+            Sessions.RemoveIf(session => !windowsSessions.Contains(session));
+
+            if (focusedSessionId is not null && Sessions.All(session => session.SourceAppUserModelId != focusedSessionId))
+            {
+                focusedSessionId = null;
+            }
         }
     }
 
@@ -182,7 +201,7 @@ public class WindowsMediaProvider
     {
         try
         {
-            await currentSession?.TryPlayAsync();
+            await getCurrentSession()?.TryPlayAsync();
         }
         catch (Exception)
         {
@@ -193,7 +212,7 @@ public class WindowsMediaProvider
     {
         try
         {
-            await currentSession?.TryPauseAsync();
+            await getCurrentSession()?.TryPauseAsync();
         }
         catch (Exception)
         {
@@ -204,7 +223,7 @@ public class WindowsMediaProvider
     {
         try
         {
-            await currentSession?.TrySkipNextAsync();
+            await getCurrentSession()?.TrySkipNextAsync();
         }
         catch (Exception)
         {
@@ -215,7 +234,7 @@ public class WindowsMediaProvider
     {
         try
         {
-            await currentSession?.TrySkipPreviousAsync();
+            await getCurrentSession()?.TrySkipPreviousAsync();
         }
         catch (Exception)
         {
@@ -226,7 +245,7 @@ public class WindowsMediaProvider
     {
         try
         {
-            await currentSession?.TryChangeShuffleActiveAsync(active);
+            await getCurrentSession()?.TryChangeShuffleActiveAsync(active);
         }
         catch (Exception)
         {
@@ -237,7 +256,7 @@ public class WindowsMediaProvider
     {
         try
         {
-            await currentSession?.TryChangePlaybackPositionAsync(playbackPosition.Ticks);
+            await getCurrentSession()?.TryChangePlaybackPositionAsync(playbackPosition.Ticks);
         }
         catch (Exception)
         {
@@ -248,7 +267,7 @@ public class WindowsMediaProvider
     {
         try
         {
-            await currentSession?.TryChangeAutoRepeatModeAsync(mode);
+            await getCurrentSession()?.TryChangeAutoRepeatModeAsync(mode);
         }
         catch (Exception)
         {
