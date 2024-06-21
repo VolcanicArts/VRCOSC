@@ -130,11 +130,13 @@ public class WindowsMediaProvider
         var state = getStateForSession(session);
 
         state.Title = args.Title;
+        state.Subtitle = args.Subtitle;
         state.Artist = args.Artist;
         state.TrackNumber = args.TrackNumber;
         state.AlbumTitle = args.AlbumTitle;
         state.AlbumArtist = args.AlbumArtist;
         state.AlbumTrackCount = args.AlbumTrackCount;
+        state.Genres = args.Genres.ToList();
 
         OnTrackChanged?.Invoke();
     }
