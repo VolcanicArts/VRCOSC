@@ -21,7 +21,7 @@ public class WindowsMediaProvider
     public Dictionary<string, MediaState> States { get; } = new();
 
     public string? CurrentSessionId => focusedSessionId ?? sessionManager?.GetCurrentSession()?.SourceAppUserModelId;
-    public MediaState CurrentState => CurrentSessionId is null ? new MediaState() : getStateForSession(getCurrentSession());
+    public MediaState CurrentState => getStateForSession(getCurrentSession());
 
     private string? focusedSessionId;
 
@@ -47,23 +47,27 @@ public class WindowsMediaProvider
 
     /// <summary>
     /// Sets a specific session ID to be the focus of this provider
-    /// This is useful for when you don't want Windows auto-switching sources
+    /// This is useful for when you don't want VRCOSC following Windows auto-switching sources
     /// </summary>
     /// <remarks>Set to null to give switch control back to Windows</remarks>
     public void SetFocusedSession(string? sessionId)
     {
         focusedSessionId = sessionId;
+        sessionsChanged(null, null);
         currentSessionChanged(null, null);
     }
 
     public async Task<bool> InitialiseAsync()
     {
-        focusedSessionId = null;
-        States.Clear();
+        if (sessionManager is not null) throw new InvalidOperationException("Cannot initialise without terminating existing instance");
 
-        sessionManager ??= await GlobalSystemMediaTransportControlsSessionManager.RequestAsync();
+        sessionManager = await GlobalSystemMediaTransportControlsSessionManager.RequestAsync();
 
-        if (sessionManager is null) return false;
+        if (sessionManager is null)
+        {
+            Logger.Log($"{nameof(WindowsMediaProvider)} could not get the {nameof(GlobalSystemMediaTransportControlsSessionManager)}");
+            return false;
+        }
 
         sessionManager.SessionsChanged += sessionsChanged;
         sessionManager.CurrentSessionChanged += currentSessionChanged;
@@ -85,7 +89,11 @@ public class WindowsMediaProvider
 
         sessionManager.SessionsChanged -= sessionsChanged;
         sessionManager.CurrentSessionChanged -= currentSessionChanged;
+        sessionManager = null;
+
         Sessions.Clear();
+        States.Clear();
+        focusedSessionId = null;
 
         return Task.CompletedTask;
     }
@@ -114,8 +122,7 @@ public class WindowsMediaProvider
         state.RepeatMode = args.AutoRepeatMode ?? default;
         state.Status = args.PlaybackStatus;
 
-        if (session.SourceAppUserModelId == CurrentSessionId)
-            OnPlaybackStateChanged?.Invoke();
+        OnPlaybackStateChanged?.Invoke();
     }
 
     private void onAnyMediaPropertyChanged(GlobalSystemMediaTransportControlsSession session, GlobalSystemMediaTransportControlsSessionMediaProperties args)
@@ -129,8 +136,7 @@ public class WindowsMediaProvider
         state.AlbumArtist = args.AlbumArtist;
         state.AlbumTrackCount = args.AlbumTrackCount;
 
-        if (session.SourceAppUserModelId == CurrentSessionId)
-            OnTrackChanged?.Invoke();
+        OnTrackChanged?.Invoke();
     }
 
     private void onAnyTimelinePropertiesChanged(GlobalSystemMediaTransportControlsSession session, GlobalSystemMediaTransportControlsSessionTimelineProperties args)
@@ -141,8 +147,7 @@ public class WindowsMediaProvider
         state.Timeline.End = args.EndTime;
         state.Timeline.Start = args.StartTime;
 
-        if (session.SourceAppUserModelId == CurrentSessionId)
-            OnPlaybackPositionChanged?.Invoke();
+        OnPlaybackPositionChanged?.Invoke();
     }
 
     private async void currentSessionChanged(GlobalSystemMediaTransportControlsSessionManager? sender, CurrentSessionChangedEventArgs? args)
@@ -154,12 +159,9 @@ public class WindowsMediaProvider
         onAnyMediaPropertyChanged(session, await session.TryGetMediaPropertiesAsync());
         onAnyTimelinePropertiesChanged(session, session.GetTimelineProperties());
 
-        if (session.SourceAppUserModelId == CurrentSessionId)
-        {
-            OnPlaybackStateChanged?.Invoke();
-            OnTrackChanged?.Invoke();
-            OnPlaybackPositionChanged?.Invoke();
-        }
+        OnPlaybackStateChanged?.Invoke();
+        OnTrackChanged?.Invoke();
+        OnPlaybackPositionChanged?.Invoke();
     }
 
     private void sessionsChanged(GlobalSystemMediaTransportControlsSessionManager? _, SessionsChangedEventArgs? _2)

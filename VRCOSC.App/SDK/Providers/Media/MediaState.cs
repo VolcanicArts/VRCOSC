@@ -9,7 +9,7 @@ namespace VRCOSC.App.SDK.Providers.Media;
 
 public class MediaState
 {
-    public string ID { get; internal set; } = string.Empty;
+    public string ID { get; internal init; } = string.Empty;
     public string Title { get; internal set; } = string.Empty;
     public string Artist { get; internal set; } = string.Empty;
     public int TrackNumber { get; internal set; }
