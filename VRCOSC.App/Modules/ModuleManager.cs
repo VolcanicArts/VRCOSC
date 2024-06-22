@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -17,7 +17,6 @@ using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;
-using Logger = VRCOSC.App.Utils.Logger;
 
 namespace VRCOSC.App.Modules;
 
@@ -149,7 +148,7 @@ public class ModuleManager : INotifyPropertyChanged
             loadLocalModules();
             loadRemoteModules();
 
-            var failedModulesList = new List<(Module, Exception)>();
+            var failedModuleLoad = new List<(Module, Exception)>();
 
             modules.ForEach(module =>
             {
@@ -166,11 +165,13 @@ public class ModuleManager : INotifyPropertyChanged
                 }
                 catch (Exception e)
                 {
-                    failedModulesList.Add((module, e));
+                    failedModuleLoad.Add((module, e));
+                    Logger.Error(e, $"Module '{module.FullID}' failed to load");
                 }
             });
 
-            failedModulesList.ForEach(instance =>
+            // remove failed modules from the loaded list
+            failedModuleLoad.ForEach(instance =>
             {
                 var module = instance.Item1;
 
@@ -183,10 +184,10 @@ public class ModuleManager : INotifyPropertyChanged
                 }
             });
 
-            if (failedModulesList.Any())
+            if (failedModuleLoad.Count != 0)
             {
                 var message = "The following modules failed to load:\n";
-                message += string.Join("\n", failedModulesList.Select(instance => instance.Item1.FullID));
+                message += string.Join("\n", failedModuleLoad.Select(instance => instance.Item1.FullID));
                 ExceptionHandler.Handle(message);
             }
 
@@ -243,10 +244,31 @@ public class ModuleManager : INotifyPropertyChanged
         });
         Logger.Log($"Found {remoteModulesContexts.Values.Sum(remoteModuleContext => remoteModuleContext.Assemblies.Count())} assemblies");
 
-        if (!remoteModulesContexts.Any()) return;
+        if (remoteModulesContexts.Count == 0) return;
 
         var remoteModules = new List<Module>();
-        remoteModulesContexts.ForEach(pair => remoteModules.AddRange(retrieveModuleInstances(pair.Key, pair.Value)));
+        var failedPackageImports = new List<string>();
+
+        foreach (var pair in remoteModulesContexts)
+        {
+            try
+            {
+                var moduleInstances = retrieveModuleInstances(pair.Key, pair.Value);
+                remoteModules.AddRange(moduleInstances);
+            }
+            catch (Exception e)
+            {
+                failedPackageImports.Add(pair.Key);
+                Logger.Error(e, $"Package '{pair.Key}' failed to import");
+            }
+        }
+
+        if (failedPackageImports.Count != 0)
+        {
+            var message = "The following packages failed to import:\n";
+            message += string.Join("\n", failedPackageImports);
+            ExceptionHandler.Handle(message);
+        }
 
         remoteModules.ForEach(remoteModule =>
         {
@@ -265,6 +287,8 @@ public class ModuleManager : INotifyPropertyChanged
     {
         var moduleInstanceList = new List<Module>();
 
+        var failedImportList = new List<Type>();
+
         foreach (var assembly in assemblyLoadContext.Assemblies)
         {
             var moduleTypes = assembly.ExportedTypes.Where(type => type.IsSubclassOf(typeof(Module)) && !type.IsAbstract);
@@ -279,9 +303,17 @@ public class ModuleManager : INotifyPropertyChanged
                 }
                 catch (Exception e)
                 {
-                    ExceptionHandler.Handle(e, $"Error in {nameof(ModuleManager)} when attempting to import module '{moduleType.Name}' from module package '{packageId}'");
+                    failedImportList.Add(moduleType);
+                    Logger.Error(e, $"Module '{packageId}.{moduleType.Name.ToLowerInvariant()}' failed to import");
                 }
             }
+        }
+
+        if (failedImportList.Count != 0)
+        {
+            var message = "The following modules failed to import:\n";
+            message += string.Join("\n", failedImportList.Select(moduleType => $"{packageId}.{moduleType.Name.ToLowerInvariant()}"));
+            ExceptionHandler.Handle(message);
         }
 
         return moduleInstanceList;
