@@ -20,7 +20,7 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Modules;
 
-public class ModuleManager : INotifyPropertyChanged
+internal class ModuleManager : INotifyPropertyChanged
 {
     private static ModuleManager? instance;
     internal static ModuleManager GetInstance() => instance ??= new ModuleManager();
@@ -29,8 +29,6 @@ public class ModuleManager : INotifyPropertyChanged
 
     private AssemblyLoadContext? localModulesContext;
     private Dictionary<string, AssemblyLoadContext>? remoteModulesContexts;
-
-    private IEnumerable<AssemblyLoadContext?> joinedAssemblyLoadContexts => remoteModulesContexts?.Values.Concat(new[] { localModulesContext }) ?? new[] { localModulesContext };
 
     public ObservableDictionary<ModulePackage, List<Module>> Modules { get; } = new();
 
@@ -81,23 +79,14 @@ public class ModuleManager : INotifyPropertyChanged
     #region Management
 
     public IEnumerable<T> GetModulesOfType<T>() => modules.Where(module => module.GetType().IsAssignableTo(typeof(T))).Cast<T>();
-
-    public IEnumerable<T> GetRunningModulesOfType<T>() => modules.Where(module => RunningModules.Contains(module) && module.GetType().IsAssignableTo(typeof(T))).Cast<T>();
+    public IEnumerable<T> GetRunningModulesOfType<T>() => RunningModules.Where(module => module.GetType().IsAssignableTo(typeof(T))).Cast<T>();
 
     public Module GetModuleOfID(string moduleID) => modules.First(module => module.FullID == moduleID);
 
     public IEnumerable<string> GetEnabledModuleIDs() => modules.Where(module => module.Enabled.Value).Select(module => module.FullID);
 
     public bool IsModuleRunning(string moduleID) => RunningModules.Any(module => module.FullID == moduleID);
-
-    private bool doesModuleExist(string moduleID)
-    {
-        return joinedAssemblyLoadContexts.Where(context => context is not null).Any(context => context!.Assemblies.Any(assembly => assembly.ExportedTypes.Where(type => type.IsSubclassOf(typeof(Module)) && !type.IsAbstract).Any(type => moduleID.EndsWith(type.Name.ToLowerInvariant()))));
-    }
-
-    internal bool IsModuleLoaded(string moduleID) => doesModuleExist(moduleID) && getModule(moduleID) is not null;
-
-    private Module? getModule(string moduleID) => modules.SingleOrDefault(module => module.FullID == moduleID);
+    public bool IsModuleLoaded(string moduleID) => modules.Any(module => module.FullID == moduleID);
 
     /// <summary>
     /// Reloads all local and remote modules by unloading their assembly contexts and calling <see cref="LoadAllModules"/>
