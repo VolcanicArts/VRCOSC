@@ -90,19 +90,12 @@ public class ModuleManager : INotifyPropertyChanged
 
     public bool IsModuleRunning(string moduleID) => RunningModules.Any(module => module.FullID == moduleID);
 
-    internal bool DoesModuleExist(string moduleID)
+    private bool doesModuleExist(string moduleID)
     {
-        try
-        {
-            return joinedAssemblyLoadContexts.Where(context => context is not null).Any(context => context!.Assemblies.Any(assembly => assembly.ExportedTypes.Where(type => type.IsSubclassOf(typeof(Module)) && !type.IsAbstract).Any(type => moduleID.EndsWith(type.Name.ToLowerInvariant()))));
-        }
-        catch (Exception)
-        {
-            return false;
-        }
+        return joinedAssemblyLoadContexts.Where(context => context is not null).Any(context => context!.Assemblies.Any(assembly => assembly.ExportedTypes.Where(type => type.IsSubclassOf(typeof(Module)) && !type.IsAbstract).Any(type => moduleID.EndsWith(type.Name.ToLowerInvariant()))));
     }
 
-    internal bool IsModuleLoaded(string moduleID) => DoesModuleExist(moduleID) && getModule(moduleID) is not null;
+    internal bool IsModuleLoaded(string moduleID) => doesModuleExist(moduleID) && getModule(moduleID) is not null;
 
     private Module? getModule(string moduleID) => modules.SingleOrDefault(module => module.FullID == moduleID);
 
@@ -262,6 +255,9 @@ public class ModuleManager : INotifyPropertyChanged
                 Logger.Error(e, $"Package '{pair.Key}' failed to import");
             }
         }
+
+        // remove packages if they've failed to import
+        remoteModulesContexts.RemoveIf(pair => failedPackageImports.Contains(pair.Key));
 
         if (failedPackageImports.Count != 0)
         {
