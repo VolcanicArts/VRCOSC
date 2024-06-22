@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -302,7 +302,7 @@ public class Logger
 
         if (exception != null)
             // add exception output to console / logfile output (but not the LogEntry's message).
-            logOutput += $"\n{ApplyFilters(exception.ToString())}\n{ApplyFilters(exception.StackTrace ?? string.Empty)}";
+            logOutput += $"\n{ApplyFilters(exception.ToString())}";
 
         IEnumerable<string> lines = logOutput
                                     .Replace(@"\r\n", @"\n")
