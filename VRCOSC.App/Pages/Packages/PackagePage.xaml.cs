@@ -157,7 +157,7 @@ public partial class PackagePage : INotifyPropertyChanged
         var element = (FrameworkElement)sender;
         var package = (PackageSource)element.Tag;
 
-        var result = MessageBox.Show($"Are you sure you want to uninstall {package.DisplayName}?\nUninstalling will cause the ChatBox to not load if you were using modules that are a part of this package", "Uninstall Warning", MessageBoxButton.YesNo);
+        var result = MessageBox.Show($"Are you sure you want to uninstall {package.DisplayName}?", "Uninstall Warning", MessageBoxButton.YesNo);
 
         if (result != MessageBoxResult.Yes) return;
 
