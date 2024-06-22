@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
+using System.Text;
 using System.Threading.Tasks;
 using VRCOSC.App.ChatBox;
 using VRCOSC.App.Modules.Serialisation;
@@ -45,6 +46,10 @@ internal class ModuleManager : INotifyPropertyChanged
 
     private IEnumerable<Module> modules => Modules.Values.SelectMany(moduleList => moduleList);
     public IEnumerable<Module> RunningModules => modules.Where(module => module.State.Value == ModuleState.Started);
+
+    private readonly List<string> failedPackageImports = new();
+    private readonly List<string> failedModuleImports = new();
+    private readonly List<string> failedModuleLoads = new();
 
     #region Runtime
 
@@ -126,10 +131,12 @@ internal class ModuleManager : INotifyPropertyChanged
     {
         try
         {
+            failedPackageImports.Clear();
+            failedModuleImports.Clear();
+            failedModuleLoads.Clear();
+
             loadLocalModules();
             loadRemoteModules();
-
-            var failedModuleLoad = new List<(Module, Exception)>();
 
             modules.ForEach(module =>
             {
@@ -146,38 +153,57 @@ internal class ModuleManager : INotifyPropertyChanged
                 }
                 catch (Exception e)
                 {
-                    failedModuleLoad.Add((module, e));
+                    failedModuleLoads.Add(module.FullID);
                     Logger.Error(e, $"Module '{module.FullID}' failed to load");
                 }
             });
 
             // remove failed modules from the loaded list
-            failedModuleLoad.ForEach(instance =>
+            foreach (var pair in Modules)
             {
-                var module = instance.Item1;
-
-                foreach (var pair in Modules)
-                {
-                    if (pair.Value.Contains(module))
-                    {
-                        pair.Value.Remove(module);
-                    }
-                }
-            });
-
-            if (failedModuleLoad.Count != 0)
-            {
-                var message = "The following modules failed to load:\n";
-                message += string.Join("\n", failedModuleLoad.Select(instance => instance.Item1.FullID));
-                ExceptionHandler.Handle(message);
+                pair.Value.RemoveIf(module => failedModuleLoads.Contains(module.FullID));
             }
 
             OnPropertyChanged(nameof(UIModules));
+
+            buildErrorMessageBox();
         }
         catch (Exception e)
         {
             ExceptionHandler.Handle(e, $"{nameof(ModuleManager)} has experienced an exception");
         }
+    }
+
+    private void buildErrorMessageBox()
+    {
+        if (failedPackageImports.Count == 0 && failedModuleImports.Count == 0 && failedModuleLoads.Count == 0) return;
+
+        var errorBuilder = new StringBuilder();
+
+        if (failedPackageImports.Count != 0)
+        {
+            errorBuilder.AppendLine("The following packages failed to import:");
+            failedPackageImports.ForEach(packageId => errorBuilder.AppendLine(packageId));
+            errorBuilder.AppendLine();
+        }
+
+        if (failedModuleImports.Count != 0)
+        {
+            errorBuilder.AppendLine("The following modules failed to import:");
+            failedModuleImports.ForEach(moduleId => errorBuilder.AppendLine(moduleId));
+            errorBuilder.AppendLine();
+        }
+
+        if (failedModuleLoads.Count != 0)
+        {
+            errorBuilder.AppendLine("The following modules failed to load:");
+            failedModuleLoads.ForEach(moduleId => errorBuilder.AppendLine(moduleId));
+            errorBuilder.AppendLine();
+        }
+
+        errorBuilder.Append("This is usually a sign that module packages need to be updated");
+
+        ExceptionHandler.Handle(errorBuilder.ToString());
     }
 
     private void loadLocalModules()
@@ -202,7 +228,7 @@ internal class ModuleManager : INotifyPropertyChanged
         catch (Exception e)
         {
             localModulesContext = null;
-            ExceptionHandler.Handle("Package 'local' failed to import");
+            failedPackageImports.Add("local");
             Logger.Error(e, "Package 'local' failed to import");
             return;
         }
@@ -240,7 +266,6 @@ internal class ModuleManager : INotifyPropertyChanged
         if (remoteModulesContexts.Count == 0) return;
 
         var remoteModules = new List<Module>();
-        var failedPackageImports = new List<string>();
 
         foreach (var pair in remoteModulesContexts)
         {
@@ -258,14 +283,6 @@ internal class ModuleManager : INotifyPropertyChanged
 
         // remove packages if they've failed to import
         remoteModulesContexts.RemoveIf(pair => failedPackageImports.Contains(pair.Key));
-        if (remoteModulesContexts.Count == 0) remoteModulesContexts = null;
-
-        if (failedPackageImports.Count != 0)
-        {
-            var message = "The following packages failed to import:\n";
-            message += string.Join("\n", failedPackageImports);
-            ExceptionHandler.Handle(message);
-        }
 
         remoteModules.ForEach(remoteModule =>
         {
@@ -284,8 +301,6 @@ internal class ModuleManager : INotifyPropertyChanged
     {
         var moduleInstanceList = new List<Module>();
 
-        var failedImportList = new List<Type>();
-
         foreach (var assembly in assemblyLoadContext.Assemblies)
         {
             var moduleTypes = assembly.ExportedTypes.Where(type => type.IsSubclassOf(typeof(Module)) && !type.IsAbstract);
@@ -300,17 +315,10 @@ internal class ModuleManager : INotifyPropertyChanged
                 }
                 catch (Exception e)
                 {
-                    failedImportList.Add(moduleType);
+                    failedModuleImports.Add($"{packageId}.{moduleType.Name.ToLowerInvariant()}");
                     Logger.Error(e, $"Module '{packageId}.{moduleType.Name.ToLowerInvariant()}' failed to import");
                 }
             }
-        }
-
-        if (failedImportList.Count != 0)
-        {
-            var message = "The following modules failed to import:\n";
-            message += string.Join("\n", failedImportList.Select(moduleType => $"{packageId}.{moduleType.Name.ToLowerInvariant()}"));
-            ExceptionHandler.Handle(message);
         }
 
         return moduleInstanceList;

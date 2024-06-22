@@ -474,12 +474,12 @@
                 </Border>
             </Grid>
         </Border>
-        <Border Background="{StaticResource CBackground1}"
+        <Border Background="{StaticResource CBackground2}"
                 Visibility="{Binding ChatBoxManager.IsLoaded.Value, Converter={StaticResource BoolToVisibilityConverter}}">
             <ui:SpacedStackPanel Orientation="Vertical" Spacing="20" VerticalAlignment="Center">
                 <TextBlock MaxWidth="400" FontSize="25" TextAlignment="Center"
                            HorizontalAlignment="Center" TextWrapping="Wrap" Foreground="{StaticResource CForeground1}"
-                           Text="ChatBox editing is disabled due to bad deserialisation. Fix any module errors and update any module packages, or click the button to ignore the errors if you know what you're doing" />
+                           Text="ChatBox editing is disabled. Fix any module errors and update any module packages, or click the button to ignore the errors if you know what you're doing" />
                 <ui:VRCOSCButton Width="150" Height="35" ButtonColour="Red" Click="IgnoreErrors_ButtonClick">
                     <TextBlock VerticalAlignment="Center" Foreground="{StaticResource CForeground1}" FontSize="20"
                                Text="Ignore Errors" />
