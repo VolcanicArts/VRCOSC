@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -201,6 +201,7 @@ internal class ModuleManager : INotifyPropertyChanged
         }
         catch (Exception e)
         {
+            localModulesContext = null;
             ExceptionHandler.Handle("Package 'local' failed to import");
             Logger.Error(e, "Package 'local' failed to import");
             return;
@@ -257,6 +258,7 @@ internal class ModuleManager : INotifyPropertyChanged
 
         // remove packages if they've failed to import
         remoteModulesContexts.RemoveIf(pair => failedPackageImports.Contains(pair.Key));
+        if (remoteModulesContexts.Count == 0) remoteModulesContexts = null;
 
         if (failedPackageImports.Count != 0)
         {
