@@ -205,7 +205,18 @@ public class ModuleManager : INotifyPropertyChanged
 
         if (!localModulesContext.Assemblies.Any()) return;
 
-        var localModules = retrieveModuleInstances("local", localModulesContext);
+        List<Module> localModules;
+
+        try
+        {
+            localModules = retrieveModuleInstances("local", localModulesContext);
+        }
+        catch (Exception e)
+        {
+            ExceptionHandler.Handle("Package 'local' failed to import");
+            Logger.Error(e, "Package 'local' failed to import");
+            return;
+        }
 
         localModules.ForEach(localModule =>
         {
