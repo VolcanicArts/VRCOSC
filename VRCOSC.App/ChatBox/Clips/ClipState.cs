@@ -96,7 +96,7 @@ public class ClipStateReference
     internal string ModuleID { get; init; } = null!;
     internal string StateID { get; init; } = null!;
     internal string DefaultFormat { get; init; } = string.Empty;
-    internal bool DefaultShowTyping { get; init; } = false;
+    internal bool DefaultShowTyping { get; init; }
     internal List<ClipVariableReference> DefaultVariables { get; init; } = new();
 
     internal bool IsBuiltIn { get; init; }

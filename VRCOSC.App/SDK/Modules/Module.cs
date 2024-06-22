@@ -67,8 +67,8 @@ public abstract class Module
 
     private readonly object loadLock = new();
 
-    public bool HasSettings => Settings.Any();
-    public bool HasParameters => Parameters.Any();
+    public bool HasSettings => Settings.Count != 0;
+    public bool HasParameters => Parameters.Count != 0;
 
     protected virtual bool ShouldUsePersistence => true;
 

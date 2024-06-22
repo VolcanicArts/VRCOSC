@@ -162,7 +162,7 @@ public class Clip : INotifyPropertyChanged
     {
         if (currentEvent is not null && currentEvent.Value.Item2 < DateTimeOffset.Now) currentEvent = null;
 
-        if (currentEvent is null && eventQueue.Any())
+        if (currentEvent is null && eventQueue.Count != 0)
         {
             var nextEvent = eventQueue.Dequeue();
             currentEvent = (nextEvent, DateTimeOffset.Now + TimeSpan.FromSeconds(nextEvent.Length.Value));
