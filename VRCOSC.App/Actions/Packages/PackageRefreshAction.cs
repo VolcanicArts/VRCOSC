@@ -12,18 +12,16 @@ public class PackagesRefreshAction : CompositeProgressAction
 {
     private readonly ObservableCollection<PackageSource> sources;
     private readonly bool forceRemoteGrab;
-    private readonly bool allowPreRelease;
 
-    public PackagesRefreshAction(ObservableCollection<PackageSource> sources, bool forceRemoteGrab, bool allowPreRelease)
+    public PackagesRefreshAction(ObservableCollection<PackageSource> sources, bool forceRemoteGrab)
     {
         this.sources = sources;
         this.forceRemoteGrab = forceRemoteGrab;
-        this.allowPreRelease = allowPreRelease;
     }
 
     protected override async Task Perform()
     {
-        sources.ForEach(source => AddAction(new PackageSourceRefreshAction(source, forceRemoteGrab, allowPreRelease)));
+        sources.ForEach(source => AddAction(new PackageSourceRefreshAction(source, forceRemoteGrab)));
         await base.Perform();
     }
 }
@@ -33,16 +31,14 @@ public class PackageSourceRefreshAction : ProgressAction
     private readonly PackageSource source;
     private readonly string packageSourceDisplayName;
     private readonly bool forceRemoteGrab;
-    private readonly bool allowPreRelease;
 
     public override string Title => $"Refreshing {packageSourceDisplayName}";
 
-    public PackageSourceRefreshAction(PackageSource source, bool forceRemoteGrab, bool allowPreRelease)
+    public PackageSourceRefreshAction(PackageSource source, bool forceRemoteGrab)
     {
         this.source = source;
         packageSourceDisplayName = source.DisplayName;
         this.forceRemoteGrab = forceRemoteGrab;
-        this.allowPreRelease = allowPreRelease;
     }
 
     protected override Task Perform()

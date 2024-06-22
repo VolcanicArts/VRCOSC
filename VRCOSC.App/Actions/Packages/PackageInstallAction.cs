@@ -3,7 +3,6 @@
 
 using System.Threading.Tasks;
 using VRCOSC.App.Packages;
-using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Actions.Packages;
@@ -13,7 +12,7 @@ public class PackageInstallAction : CompositeProgressAction
     public PackageInstallAction(Storage storage, PackageSource packageSource, PackageRelease packageRelease, bool shouldUninstall)
     {
         if (shouldUninstall) AddAction(new PackageUninstallAction(storage, packageSource));
-        AddAction(new PackageSourceRefreshAction(packageSource, true, SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AllowPreReleasePackages)));
+        AddAction(new PackageSourceRefreshAction(packageSource, true));
         AddAction(new PackageDownloadAction(storage, packageSource, packageRelease));
     }
 
