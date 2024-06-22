@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -91,8 +91,10 @@ public class PackageSource
     {
         try
         {
-            if (!forceRemoteGrab) return;
+            // Need to check the repository and default branch and force a remote grab if they're null because of an older package cache
+            if (!forceRemoteGrab && Repository?.DefaultBranch is not null) return;
 
+            Repository = null;
             Repository = new PackageRepository(await GitHubProxy.Client.Repository.Get(RepoOwner, RepoName));
         }
         catch (ApiException)
@@ -131,14 +133,13 @@ public class PackageSource
     {
         if (State is PackageSourceState.MissingRepo or PackageSourceState.InvalidPackageFile) return;
 
-        Debug.Assert(Repository is not null);
-        Debug.Assert(Repository.PackageFile is not null);
+        Debug.Assert(Repository?.PackageFile is not null);
 
         try
         {
-            if (!forceRemoteGrab) return;
-
-            Repository.Releases.Clear();
+            // Always check for releases if there are no releases in the cache even if we're not forcing a remote grab
+            // This is also needed for if there is an older package cache
+            if (!forceRemoteGrab && Repository.Releases.Count != 0) return;
 
             var releases = await GitHubProxy.Client.Repository.Release.GetAll(RepoOwner, RepoName);
 
@@ -152,9 +153,10 @@ public class PackageSource
                 sortedDictionary.Add(version, packageRelease);
             }
 
+            Repository.Releases.Clear();
             Repository.Releases.AddRange(sortedDictionary.Values.Reverse());
 
-            if (!Repository.Releases.Any())
+            if (Repository.Releases.Count == 0)
             {
                 State = PackageSourceState.NoReleases;
             }

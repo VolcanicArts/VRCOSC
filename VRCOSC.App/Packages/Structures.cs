@@ -11,10 +11,10 @@ namespace VRCOSC.App.Packages;
 public class PackageRepository
 {
     [JsonProperty("description")]
-    public string Description = null!;
+    public string? Description;
 
     [JsonProperty("default_branch")]
-    public string DefaultBranch = null!;
+    public string? DefaultBranch;
 
     [JsonProperty("package_file")]
     public PackageFile? PackageFile { get; set; }

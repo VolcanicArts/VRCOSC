@@ -264,18 +264,23 @@ public class ModuleManager : INotifyPropertyChanged
     {
         var moduleInstanceList = new List<Module>();
 
-        try
+        foreach (var assembly in assemblyLoadContext.Assemblies)
         {
-            assemblyLoadContext.Assemblies.ForEach(assembly => moduleInstanceList.AddRange(assembly.ExportedTypes.Where(type => type.IsSubclassOf(typeof(Module)) && !type.IsAbstract).Select(type =>
+            var moduleTypes = assembly.ExportedTypes.Where(type => type.IsSubclassOf(typeof(Module)) && !type.IsAbstract);
+
+            foreach (var moduleType in moduleTypes)
             {
-                var module = (Module)Activator.CreateInstance(type)!;
-                module.PackageID = packageId;
-                return module;
-            })));
-        }
-        catch (Exception e)
-        {
-            ExceptionHandler.Handle(e, $"Error in {nameof(ModuleManager)} when attempting to load a module package with ID '{packageId}'");
+                try
+                {
+                    var module = (Module)Activator.CreateInstance(moduleType)!;
+                    module.PackageID = packageId;
+                    moduleInstanceList.Add(module);
+                }
+                catch (Exception e)
+                {
+                    ExceptionHandler.Handle(e, $"Error in {nameof(ModuleManager)} when attempting to import module '{moduleType.Name}' from module package '{packageId}'");
+                }
+            }
         }
 
         return moduleInstanceList;
