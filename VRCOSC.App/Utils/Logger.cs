@@ -10,6 +10,8 @@ using System.Threading;
 
 namespace VRCOSC.App.Utils;
 
+// Taken and modified from https://github.com/ppy/osu-framework
+
 /// <summary>
 /// This class allows statically (globally) configuring and using logging functionality.
 /// </summary>
