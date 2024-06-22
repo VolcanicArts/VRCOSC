@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -128,6 +128,7 @@ public class ModuleManager : INotifyPropertyChanged
         Logger.Log("Unloading all modules");
 
         Modules.Clear();
+        OnPropertyChanged(nameof(UIModules));
 
         localModulesContext?.Unload();
         remoteModulesContexts?.ForEach(remoteModuleContextPair => remoteModuleContextPair.Value.Unload());
