@@ -2,11 +2,11 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using JetBrains.Annotations;
+
+// ReSharper disable ClassNeverInstantiated.Global
 
 namespace VRCOSC.App.SDK.Modules;
 
-[MeansImplicitUse(ImplicitUseKindFlags.InstantiatedNoFixedConstructorSignature)]
 [AttributeUsage(AttributeTargets.Class)]
 public class ModuleTitleAttribute : Attribute
 {
@@ -22,7 +22,6 @@ public class ModuleTitleAttribute : Attribute
     }
 }
 
-[MeansImplicitUse(ImplicitUseKindFlags.InstantiatedNoFixedConstructorSignature)]
 [AttributeUsage(AttributeTargets.Class)]
 public class ModuleDescriptionAttribute : Attribute
 {
@@ -42,7 +41,6 @@ public class ModuleDescriptionAttribute : Attribute
     }
 }
 
-[MeansImplicitUse(ImplicitUseKindFlags.InstantiatedNoFixedConstructorSignature)]
 [AttributeUsage(AttributeTargets.Class)]
 public class ModuleTypeAttribute : Attribute
 {
@@ -58,7 +56,6 @@ public class ModuleTypeAttribute : Attribute
     }
 }
 
-[MeansImplicitUse(ImplicitUseKindFlags.InstantiatedNoFixedConstructorSignature)]
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 public class ModulePrefabAttribute : Attribute
 {
@@ -77,7 +74,6 @@ public class ModulePrefabAttribute : Attribute
     }
 }
 
-[MeansImplicitUse(ImplicitUseKindFlags.InstantiatedNoFixedConstructorSignature)]
 [AttributeUsage(AttributeTargets.Method)]
 public class ModuleUpdateAttribute : Attribute
 {
