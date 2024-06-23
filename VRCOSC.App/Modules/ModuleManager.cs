@@ -138,7 +138,7 @@ internal class ModuleManager : INotifyPropertyChanged
             loadLocalModules();
             loadRemoteModules();
 
-            modules.ForEach(module =>
+            foreach (var module in modules)
             {
                 try
                 {
@@ -156,7 +156,7 @@ internal class ModuleManager : INotifyPropertyChanged
                     failedModuleLoads.Add(module.FullID);
                     Logger.Error(e, $"Module '{module.FullID}' failed to load");
                 }
-            });
+            }
 
             // remove failed modules from the loaded list
             foreach (var pair in Modules)
@@ -214,7 +214,19 @@ internal class ModuleManager : INotifyPropertyChanged
             throw new InvalidOperationException("Cannot load local modules while local modules are already loaded");
 
         var localModulesPath = storage.GetStorageForDirectory("packages/local").GetFullPath(string.Empty, true);
-        localModulesContext = loadContextFromPath(localModulesPath);
+
+        try
+        {
+            localModulesContext = loadContextFromPath(localModulesPath);
+        }
+        catch (Exception e)
+        {
+            localModulesContext = null;
+            failedPackageImports.Add("local");
+            Logger.Error(e, "Package 'local' failed to import");
+            return;
+        }
+
         Logger.Log($"Found {localModulesContext.Assemblies.Count()} assemblies");
 
         if (!localModulesContext.Assemblies.Any()) return;
@@ -233,7 +245,7 @@ internal class ModuleManager : INotifyPropertyChanged
             return;
         }
 
-        localModules.ForEach(localModule =>
+        foreach (var localModule in localModules)
         {
             if (Modules.All<ObservableKeyValuePair<ModulePackage, List<Module>>>(pair => pair.Key.Assembly != localModule.GetType().Assembly))
             {
@@ -241,7 +253,7 @@ internal class ModuleManager : INotifyPropertyChanged
             }
 
             Modules.First<ObservableKeyValuePair<ModulePackage, List<Module>>>(pair => pair.Key.Assembly == localModule.GetType().Assembly).Value.Add(localModule);
-        });
+        }
 
         Logger.Log($"Final local module count: {localModules.Count}");
     }
@@ -256,11 +268,27 @@ internal class ModuleManager : INotifyPropertyChanged
         remoteModulesContexts = new Dictionary<string, AssemblyLoadContext>();
 
         var remoteModulesDirectory = storage.GetStorageForDirectory("packages/remote").GetFullPath(string.Empty, true);
-        Directory.GetDirectories(remoteModulesDirectory).ForEach(moduleDirectory =>
+
+        foreach (var moduleDirectory in Directory.GetDirectories(remoteModulesDirectory))
         {
             var packageId = moduleDirectory.Split('\\').Last();
-            remoteModulesContexts.Add(packageId, loadContextFromPath(moduleDirectory));
-        });
+
+            AssemblyLoadContext assemblyLoadContext;
+
+            try
+            {
+                assemblyLoadContext = loadContextFromPath(moduleDirectory);
+            }
+            catch (Exception e)
+            {
+                failedPackageImports.Add(packageId);
+                Logger.Error(e, $"Package '{packageId}' failed to import");
+                continue;
+            }
+
+            remoteModulesContexts.Add(packageId, assemblyLoadContext);
+        }
+
         Logger.Log($"Found {remoteModulesContexts.Values.Sum(remoteModuleContext => remoteModuleContext.Assemblies.Count())} assemblies");
 
         if (remoteModulesContexts.Count == 0) return;
@@ -284,7 +312,7 @@ internal class ModuleManager : INotifyPropertyChanged
         // remove packages if they've failed to import
         remoteModulesContexts.RemoveIf(pair => failedPackageImports.Contains(pair.Key));
 
-        remoteModules.ForEach(remoteModule =>
+        foreach (var remoteModule in remoteModules)
         {
             if (Modules.All<ObservableKeyValuePair<ModulePackage, List<Module>>>(pair => pair.Key.Assembly != remoteModule.GetType().Assembly))
             {
@@ -292,7 +320,7 @@ internal class ModuleManager : INotifyPropertyChanged
             }
 
             Modules.First<ObservableKeyValuePair<ModulePackage, List<Module>>>(pair => pair.Key.Assembly == remoteModule.GetType().Assembly).Value.Add(remoteModule);
-        });
+        }
 
         Logger.Log($"Final remote module count: {remoteModules.Count}");
     }
@@ -347,33 +375,14 @@ internal class ModuleManager : INotifyPropertyChanged
             return assemblyLoadContext.LoadFromStream(new MemoryStream(File.ReadAllBytes(fallbackAssembly.Location)));
         };
 
-        Directory.GetFiles(path, "*.dll").ForEach(dllPath => loadAssemblyFromPath(assemblyLoadContext, dllPath));
+        foreach (var dllPath in Directory.GetFiles(path, "*.dll")) loadAssemblyFromPath(assemblyLoadContext, dllPath);
         return assemblyLoadContext;
     }
 
     private static void loadAssemblyFromPath(AssemblyLoadContext context, string path)
     {
-        try
-        {
-            using var assemblyStream = new FileStream(path, FileMode.Open);
-            loadAssemblyFromStream(context, assemblyStream);
-        }
-        catch (Exception e)
-        {
-            ExceptionHandler.Handle(e, $"{nameof(ModuleManager)} experienced an exception when attempting to load the assembly from path '{path}'");
-        }
-    }
-
-    private static void loadAssemblyFromStream(AssemblyLoadContext context, Stream assemblyStream)
-    {
-        try
-        {
-            context.LoadFromStream(assemblyStream);
-        }
-        catch (Exception e)
-        {
-            ExceptionHandler.Handle(e, $"{nameof(ModuleManager)} experienced an exception");
-        }
+        using var assemblyStream = new FileStream(path, FileMode.Open, FileAccess.Read);
+        context.LoadFromStream(assemblyStream);
     }
 
     #endregion
