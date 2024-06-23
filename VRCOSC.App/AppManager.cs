@@ -80,7 +80,7 @@ public class AppManager
     {
         ChangeTheme(SettingsManager.GetInstance().GetValue<Theme>(VRCOSCSetting.Theme));
 
-        VelopackUpdater = new VelopackUpdater();
+        //VelopackUpdater = new VelopackUpdater();
         ConnectionManager = new ConnectionManager();
         VRChatOscClient = new VRChatOscClient();
         VRChatClient = new VRChatClient(VRChatOscClient);
@@ -174,8 +174,8 @@ public class AppManager
         openvrUpdateTask = new Repeater(() => OVRClient.Update());
         openvrUpdateTask.Start(TimeSpan.FromSeconds(1d / 60d));
 
-        if (VelopackUpdater.IsUpdateAvailable)
-            VelopackUpdater.ShowUpdate();
+        //if (VelopackUpdater.IsUpdateAvailable)
+        //    VelopackUpdater.ShowUpdate();
     }
 
     private void update()
