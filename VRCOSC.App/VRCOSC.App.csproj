@@ -5,9 +5,9 @@
         <Nullable>enable</Nullable>
         <UseWPF>true</UseWPF>
         <UseWindowsForms>true</UseWindowsForms>
-        <Version>2024.619.0.0</Version>
-        <AssemblyVersion>2024.619.0.0</AssemblyVersion>
-        <FileVersion>2024.619.0.0</FileVersion>
+        <Version>2024.623.0.0</Version>
+        <AssemblyVersion>2024.623.0.0</AssemblyVersion>
+        <FileVersion>2024.623.0.0</FileVersion>
         <AssemblyName>VRCOSC.App</AssemblyName>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageId>VolcanicArts.VRCOSC.SDK</PackageId>
