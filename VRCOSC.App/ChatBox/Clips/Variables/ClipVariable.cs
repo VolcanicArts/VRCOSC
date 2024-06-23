@@ -105,6 +105,9 @@ public abstract class ClipVariable
     [ClipVariableOption("join_string", "Join String", "When scrolling, what string should join the ends of the variable?")]
     public string JoinString { get; set; } = string.Empty;
 
+    [ClipVariableOption("only_scroll_when_truncated", "Only Scroll When Truncated", "Should we only scroll when we've needed to truncate?")]
+    public bool OnlyScrollWhenTruncated { get; set; }
+
     private int currentIndex;
 
     public virtual bool IsDefault() => CaseMode == ClipVariableCaseMode.Default &&
@@ -112,7 +115,8 @@ public abstract class ClipVariable
                                        IncludeEllipses == false &&
                                        ScrollDirection == ClipVariableScrollDirection.Left &&
                                        ScrollSpeed == 0 &&
-                                       JoinString == string.Empty;
+                                       JoinString == string.Empty &&
+                                       OnlyScrollWhenTruncated == false;
 
     public string GetFormattedValue()
     {
@@ -121,26 +125,33 @@ public abstract class ClipVariable
 
         if (string.IsNullOrEmpty(formattedValue)) return string.Empty;
 
-        if (!string.IsNullOrEmpty(JoinString)) formattedValue += JoinString;
+        var willTruncate = TruncateLength >= 0 && formattedValue.Length > TruncateLength;
+        var willScroll = !OnlyScrollWhenTruncated || willTruncate;
+
+        if (!willScroll) currentIndex = 0;
+
+        if (!string.IsNullOrEmpty(JoinString) && willScroll) formattedValue += JoinString;
 
         var position = currentIndex.Modulo(formattedValue.Length);
-        formattedValue = cropAndWrapText(formattedValue, position, TruncateLength == -1 ? formattedValue.Length : TruncateLength);
+        formattedValue = cropAndWrapText(formattedValue, position, TruncateLength < 0 ? formattedValue.Length : TruncateLength);
 
-        if (IncludeEllipses)
-            formattedValue += "...";
+        if (IncludeEllipses && willTruncate) formattedValue += "...";
 
-        switch (ScrollDirection)
+        if (willScroll && ScrollSpeed > 0)
         {
-            case ClipVariableScrollDirection.Right:
-                currentIndex += ScrollSpeed;
-                break;
+            switch (ScrollDirection)
+            {
+                case ClipVariableScrollDirection.Right:
+                    currentIndex += ScrollSpeed;
+                    break;
 
-            case ClipVariableScrollDirection.Left:
-                currentIndex -= ScrollSpeed;
-                break;
+                case ClipVariableScrollDirection.Left:
+                    currentIndex -= ScrollSpeed;
+                    break;
 
-            default:
-                throw new ArgumentOutOfRangeException();
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         formattedValue = CaseMode switch
