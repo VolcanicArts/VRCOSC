@@ -17,10 +17,6 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
 {
     protected T? HeartrateProvider;
 
-    protected virtual int ReconnectionDelay => 2000;
-    protected virtual int ReconnectionLimit => 5;
-    private int connectionCount;
-
     private float currentValue;
     private int targetValue;
 
@@ -88,7 +84,6 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
         targetValue = 0;
         currentAverage = 0;
         targetAverage = 0;
-        connectionCount = 1;
         beatParameterValue = false;
         isReady = false;
         values.Clear();
@@ -97,6 +92,18 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
         beatParameterTask = Task.Run(handleBeatParameter);
 
         HeartrateProvider = CreateProvider();
+        HeartrateProvider.OnLog += Log;
+        HeartrateProvider.OnHeartrateUpdate += newHeartrate =>
+        {
+            ChangeState(HeartrateState.Connected);
+            targetValue = newHeartrate;
+
+            lock (valuesLock)
+            {
+                values.Add(DateTimeOffset.Now, newHeartrate);
+            }
+        };
+
         await HeartrateProvider.Initialise();
 
         if (!HeartrateProvider.IsConnected)
@@ -105,49 +112,10 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
             return false;
         }
 
-        HeartrateProvider.OnDisconnected += attemptReconnection;
-        HeartrateProvider.OnHeartrateUpdate += newHeartrate =>
-        {
-            ChangeState(HeartrateState.Connected);
-            connectionCount = 1;
-            targetValue = newHeartrate;
-
-            lock (valuesLock)
-            {
-                values.Add(DateTimeOffset.Now, newHeartrate);
-            }
-        };
-        HeartrateProvider.OnLog += Log;
-
         ChangeState(HeartrateState.Disconnected);
         isReady = true;
 
         return true;
-    }
-
-    private async void attemptReconnection()
-    {
-        if (HeartrateProvider is null) return;
-
-        Log($"{typeof(T).Name} disconnected");
-        Log("Attempting reconnection...");
-
-        await Task.Delay(ReconnectionDelay);
-
-        if (HeartrateProvider is null) return;
-
-        if (connectionCount >= ReconnectionLimit)
-        {
-            Log("Connection cannot be established");
-            Log("Restart the module to attempt a full reconnection");
-            await stopAll();
-            return;
-        }
-
-        connectionCount++;
-
-        await HeartrateProvider.Teardown();
-        await HeartrateProvider.Initialise();
     }
 
     protected override async Task OnModuleStop()

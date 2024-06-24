@@ -32,7 +32,7 @@ public abstract class WebSocketHeartrateProvider : HeartrateProvider
         if (client is not null) throw new InvalidOperationException("Call Teardown before re-initialising");
         if (WebsocketUri is null) throw new InvalidOperationException("WebsocketUri is null");
 
-        client = new WebSocketClient(WebsocketUri.ToString());
+        client = new WebSocketClient(WebsocketUri.ToString(), 2000, 5);
 
         client.OnWsConnected += () =>
         {

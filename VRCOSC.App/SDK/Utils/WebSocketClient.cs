@@ -6,7 +6,6 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.Utils;
 
@@ -14,17 +13,22 @@ public class WebSocketClient : IDisposable
 {
     private readonly CancellationTokenSource tokenSource = new();
     private readonly ClientWebSocket webSocket = new();
+    private readonly Uri uri;
+    private readonly int reconnectionDelayMilli;
+    private readonly int maxReconnectAttempts;
+    private bool isDisposed;
+    private bool isDisconnecting;
 
     public Action? OnWsConnected;
     public Action? OnWsDisconnected;
     public Action<string>? OnWsMessage;
     public bool IsConnected => webSocket.State == WebSocketState.Open;
 
-    private readonly Uri uri;
-
-    public WebSocketClient(string uri)
+    public WebSocketClient(string uri, int reconnectionDelayMilli, int maxReconnectAttempts)
     {
         this.uri = new Uri(uri);
+        this.reconnectionDelayMilli = reconnectionDelayMilli;
+        this.maxReconnectAttempts = maxReconnectAttempts;
     }
 
     public async Task ConnectAsync()
@@ -32,25 +36,34 @@ public class WebSocketClient : IDisposable
         try
         {
             await webSocket.ConnectAsync(uri, tokenSource.Token);
-            if (!IsConnected) return;
-
             OnWsConnected?.Invoke();
-            _ = receiveAsync();
+            _ = Task.Run(receiveAsync);
         }
-        catch (Exception e)
+        catch
         {
-            Logger.Error(e, "WebSocketClient connection failed");
         }
     }
 
     public async Task DisconnectAsync()
     {
-        await webSocket.CloseAsync(WebSocketCloseStatus.Empty, null, CancellationToken.None);
+        isDisconnecting = true;
         await tokenSource.CancelAsync();
+
+        if (webSocket.State is WebSocketState.Open or WebSocketState.CloseReceived or WebSocketState.CloseSent)
+        {
+            await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Disconnect", CancellationToken.None);
+        }
+
+        OnWsDisconnected?.Invoke();
     }
 
     public async Task SendAsync(string data)
     {
+        if (webSocket.State != WebSocketState.Open)
+        {
+            throw new InvalidOperationException("WebSocket is not connected");
+        }
+
         var buffer = Encoding.UTF8.GetBytes(data);
         await webSocket.SendAsync(new ArraySegment<byte>(buffer), WebSocketMessageType.Text, true, tokenSource.Token);
     }
@@ -59,25 +72,64 @@ public class WebSocketClient : IDisposable
     {
         var buffer = new byte[1024 * 4];
 
-        while (webSocket.State == WebSocketState.Open)
+        while (webSocket.State == WebSocketState.Open && !isDisconnecting)
         {
-            WebSocketReceiveResult result;
             var message = new StringBuilder();
 
-            do
+            try
             {
-                result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), tokenSource.Token);
-                message.Append(Encoding.UTF8.GetString(buffer, 0, result.Count));
-            } while (!result.EndOfMessage);
+                WebSocketReceiveResult result;
 
-            OnWsMessage?.Invoke(message.ToString());
+                do
+                {
+                    result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), tokenSource.Token);
+                    message.Append(Encoding.UTF8.GetString(buffer, 0, result.Count));
+                } while (!result.EndOfMessage);
+
+                OnWsMessage?.Invoke(message.ToString());
+            }
+            catch (WebSocketException)
+            {
+                break;
+            }
+            catch (OperationCanceledException)
+            {
+                break;
+            }
         }
 
-        OnWsDisconnected?.Invoke();
+        if (!isDisconnecting)
+        {
+            OnWsDisconnected?.Invoke();
+            await attemptReconnectAsync();
+        }
+    }
+
+    private async Task attemptReconnectAsync()
+    {
+        if (isDisposed)
+            return;
+
+        var attempts = 0;
+
+        while (!IsConnected && !isDisconnecting && attempts < maxReconnectAttempts)
+        {
+            await Task.Delay(reconnectionDelayMilli);
+            attempts++;
+            await ConnectAsync();
+        }
     }
 
     public virtual void Dispose()
     {
+        isDisposed = true;
+        tokenSource.Cancel();
+
+        if (webSocket.State is WebSocketState.Open or WebSocketState.CloseReceived or WebSocketState.CloseSent)
+        {
+            webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Dispose", CancellationToken.None).GetAwaiter().GetResult();
+        }
+
         webSocket.Dispose();
         tokenSource.Dispose();
         GC.SuppressFinalize(this);
