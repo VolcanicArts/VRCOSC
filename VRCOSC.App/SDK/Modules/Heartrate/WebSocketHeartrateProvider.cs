@@ -25,9 +25,9 @@ public abstract class WebSocketHeartrateProvider : HeartrateProvider
     /// Initialises this <see cref="WebSocketHeartrateProvider"/> and connects to the websocket
     /// <exception cref="InvalidOperationException">If <see cref="Initialise"/> is called while this <see cref="WebSocketHeartrateProvider"/> is already initialised, or if <see cref="WebsocketUri"/> is null</exception>
     /// </summary>
-    public override Task Initialise()
+    public override async Task Initialise()
     {
-        base.Initialise();
+        await base.Initialise();
 
         if (client is not null) throw new InvalidOperationException("Call Teardown before re-initialising");
         if (WebsocketUri is null) throw new InvalidOperationException("WebsocketUri is null");
@@ -48,9 +48,7 @@ public abstract class WebSocketHeartrateProvider : HeartrateProvider
 
         client.OnWsMessage += OnWebSocketMessage;
 
-        client.Connect();
-
-        return Task.CompletedTask;
+        await client.ConnectAsync();
     }
 
     /// <inheritdoc />
@@ -61,7 +59,7 @@ public abstract class WebSocketHeartrateProvider : HeartrateProvider
     {
         if (client is null) return;
 
-        await client.Disconnect();
+        await client.DisconnectAsync();
 
         client = null;
     }
@@ -80,7 +78,7 @@ public abstract class WebSocketHeartrateProvider : HeartrateProvider
     {
         if (!IsConnected) return;
 
-        client?.Send(data);
+        client?.SendAsync(data);
     }
 
     protected virtual void OnWebSocketConnected()

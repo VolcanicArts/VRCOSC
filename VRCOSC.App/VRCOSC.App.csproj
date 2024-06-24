@@ -38,7 +38,6 @@
         <PackageReference Include="VolcanicArts.Libs.OpenVR" Version="2.2.3" />
         <PackageReference Include="Vosk" Version="0.3.38" />
         <PackageReference Include="VRChat.API" Version="1.17.6" />
-        <PackageReference Include="WebSocket4Net" Version="0.15.2" />
     </ItemGroup>
 
     <ItemGroup>

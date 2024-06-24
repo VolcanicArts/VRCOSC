@@ -30,6 +30,7 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
     private bool beatParameterValue;
     private CancellationTokenSource? beatParameterSource;
     private Task? beatParameterTask;
+    private bool isReady;
 
     private readonly object valuesLock = new();
     private readonly Dictionary<DateTimeOffset, int> values = new();
@@ -89,12 +90,22 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
         targetAverage = 0;
         connectionCount = 1;
         beatParameterValue = false;
+        isReady = false;
         values.Clear();
 
         beatParameterSource = new CancellationTokenSource();
         beatParameterTask = Task.Run(handleBeatParameter);
 
         HeartrateProvider = CreateProvider();
+        await HeartrateProvider.Initialise();
+
+        if (!HeartrateProvider.IsConnected)
+        {
+            Log("Could not connect. Please check your credentials and network connection");
+            return false;
+        }
+
+        HeartrateProvider.OnDisconnected += attemptReconnection;
         HeartrateProvider.OnHeartrateUpdate += newHeartrate =>
         {
             ChangeState(HeartrateState.Connected);
@@ -106,11 +117,10 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
                 values.Add(DateTimeOffset.Now, newHeartrate);
             }
         };
-        HeartrateProvider.OnDisconnected += attemptReconnection;
         HeartrateProvider.OnLog += Log;
-        await HeartrateProvider.Initialise();
 
         ChangeState(HeartrateState.Disconnected);
+        isReady = true;
 
         return true;
     }
@@ -147,13 +157,15 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
 
     private async Task stopAll()
     {
-        beatParameterSource?.Cancel();
+        await (beatParameterSource?.CancelAsync() ?? Task.CompletedTask);
         await (beatParameterTask ?? Task.CompletedTask);
         await teardownProvider();
     }
 
     private async Task teardownProvider()
     {
+        if (!isReady) return;
+
         if (HeartrateProvider is not null)
         {
             HeartrateProvider.OnDisconnected = null;
