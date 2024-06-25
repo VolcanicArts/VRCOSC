@@ -7,6 +7,6 @@ namespace VRCOSC.App.SDK.Handlers;
 
 public interface ISpeechHandler
 {
-    public void OnPartialResult(string text);
+    public void OnPartialResult(SpeechResult result);
     public void OnFinalResult(SpeechResult result);
 }

@@ -7,11 +7,11 @@ namespace VRCOSC.App.Audio;
 
 public abstract class SpeechEngine
 {
-    public Action<string>? OnPartialResult;
+    public Action<SpeechResult>? OnPartialResult;
     public Action<SpeechResult>? OnFinalResult;
 
     public abstract void Initialise();
     public abstract void Teardown();
 }
 
-public record SpeechResult(bool Success, float Confidence, string Text);
+public record SpeechResult(string Text, float Confidence);

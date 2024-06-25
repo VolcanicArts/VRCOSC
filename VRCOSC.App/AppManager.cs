@@ -15,6 +15,7 @@ using System.Windows.Media;
 using NAudio.CoreAudioApi;
 using Valve.VR;
 using VRCOSC.App.Audio;
+using VRCOSC.App.Audio.Whisper;
 using VRCOSC.App.ChatBox;
 using VRCOSC.App.Modules;
 using VRCOSC.App.OSC;
@@ -60,7 +61,7 @@ public class AppManager
     public VRChatAPIClient VRChatAPIClient = null!;
     public OVRClient OVRClient = null!;
 
-    public VoskSpeechEngine SpeechEngine = null!;
+    public WhisperSpeechEngine SpeechEngine = null!;
 
     private Repeater? updateTask;
     private Repeater vrchatCheckTask = null!;
@@ -88,13 +89,12 @@ public class AppManager
         OVRClient = new OVRClient();
         ChatBoxWorldBlacklist.Init();
 
-        SpeechEngine = new VoskSpeechEngine();
-        SpeechEngine.OnLog += message => Logger.Log($"[SpeechEngine]: {message}");
-        SpeechEngine.OnPartialResult += text => ModuleManager.GetInstance().GetRunningModulesOfType<ISpeechHandler>().ForEach(module =>
+        SpeechEngine = new WhisperSpeechEngine();
+        SpeechEngine.OnPartialResult += result => ModuleManager.GetInstance().GetRunningModulesOfType<ISpeechHandler>().ForEach(module =>
         {
             try
             {
-                module.OnPartialResult(text);
+                module.OnPartialResult(result);
             }
             catch (Exception e)
             {

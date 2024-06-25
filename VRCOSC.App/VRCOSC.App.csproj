@@ -5,9 +5,9 @@
         <Nullable>enable</Nullable>
         <UseWPF>true</UseWPF>
         <UseWindowsForms>true</UseWindowsForms>
-        <Version>2024.623.0.0</Version>
-        <AssemblyVersion>2024.623.0.0</AssemblyVersion>
-        <FileVersion>2024.623.0.0</FileVersion>
+        <Version>2024.625.0.0</Version>
+        <AssemblyVersion>2024.625.0.0</AssemblyVersion>
+        <FileVersion>2024.625.0.0</FileVersion>
         <AssemblyName>VRCOSC.App</AssemblyName>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageId>VolcanicArts.VRCOSC.SDK</PackageId>
@@ -38,6 +38,8 @@
         <PackageReference Include="VolcanicArts.Libs.OpenVR" Version="2.2.3" />
         <PackageReference Include="Vosk" Version="0.3.38" />
         <PackageReference Include="VRChat.API" Version="1.17.6" />
+        <PackageReference Include="Whisper.net" Version="1.5.0" />
+        <PackageReference Include="Whisper.net.Runtime" Version="1.5.0" />
     </ItemGroup>
 
     <ItemGroup>
