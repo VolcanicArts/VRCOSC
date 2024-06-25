@@ -90,26 +90,15 @@ public class AppManager
         ChatBoxWorldBlacklist.Init();
 
         SpeechEngine = new WhisperSpeechEngine();
-        SpeechEngine.OnPartialResult += result => ModuleManager.GetInstance().GetRunningModulesOfType<ISpeechHandler>().ForEach(module =>
+        SpeechEngine.OnResult += result => ModuleManager.GetInstance().GetRunningModulesOfType<ISpeechHandler>().ForEach(module =>
         {
             try
             {
-                module.OnPartialResult(result);
+                module.OnSpeechResult(result);
             }
             catch (Exception e)
             {
-                ExceptionHandler.Handle(e, $"{((Module)module).FullID} experienced an issue calling OnPartialResult");
-            }
-        });
-        SpeechEngine.OnFinalResult += result => ModuleManager.GetInstance().GetRunningModulesOfType<ISpeechHandler>().ForEach(module =>
-        {
-            try
-            {
-                module.OnFinalResult(result);
-            }
-            catch (Exception e)
-            {
-                ExceptionHandler.Handle(e, $"{((Module)module).FullID} experienced an issue calling OnFinalResult");
+                ExceptionHandler.Handle(e, $"{((Module)module).FullID} experienced an issue calling OnResult");
             }
         });
 

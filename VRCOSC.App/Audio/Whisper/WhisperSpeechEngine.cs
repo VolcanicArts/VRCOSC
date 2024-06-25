@@ -25,7 +25,7 @@ public partial class WhisperSpeechEngine : SpeechEngine
         audioProcessor.Start();
 
         repeater = new Repeater(processResult);
-        repeater.Start(TimeSpan.FromSeconds(1));
+        repeater.Start(TimeSpan.FromSeconds(1.5f));
 
         previousText = null;
     }
@@ -37,25 +37,20 @@ public partial class WhisperSpeechEngine : SpeechEngine
         var result = await audioProcessor.GetResult();
         if (result is null) return;
 
-        // TODO: This is working perfectly, it's just not triggering the final result when it should be. All the other recognition is being filtered correctly though
-
         var isTextBlank = ((result.Text.StartsWith('[') || result.Text.StartsWith('{') || result.Text.StartsWith('(')) && (result.Text.EndsWith(']') || result.Text.EndsWith('}') || result.Text.EndsWith(')')))
                           || result.Text == "*"
                           || result.Text == "("
-                          // Beadaholique has an advert inside for some reason? Probably something to do with the library. I'll try to compile my own version of Whisper at some point
-                          || result.Text.Contains("Beadaholique");
+                          || result.Text.Contains(">>");
 
         if (previousText is null && isTextBlank)
         {
             audioProcessor.ClearBuffer();
         }
 
-        Console.WriteLine(result.Text + " - " + result.Confidence);
-
-        if (!isTextBlank && result.Confidence >= 0.35f)
+        if (!isTextBlank && result.Confidence >= 0.4f)
         {
             var text = result.Text;
-            OnPartialResult?.Invoke(new SpeechResult(text, result.Confidence));
+            OnResult?.Invoke(text);
             previousText = text;
         }
         else
