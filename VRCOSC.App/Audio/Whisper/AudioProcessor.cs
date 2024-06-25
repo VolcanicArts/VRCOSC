@@ -1,7 +1,9 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Text;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using NAudio.CoreAudioApi;
 using Whisper.net;
@@ -54,21 +56,19 @@ internal class AudioProcessor
 
     private async Task<SpeechResult> processWithWhisper(float[] data)
     {
-        var stringBuilder = new StringBuilder();
-
-        var index = 0;
-        var confidence = 0f;
+        var segmentData = new List<SegmentData>();
 
         await foreach (var result in whisper.ProcessAsync(data))
         {
-            index++;
-            stringBuilder.Append(result.Text.Trim());
-            confidence += result.Probability;
+            segmentData.Add(result);
         }
 
-        confidence = index == 0 ? 0f : confidence / index;
+        if (segmentData.Count == 0) return new SpeechResult(string.Empty, 0f);
 
-        return new SpeechResult(stringBuilder.ToString(), confidence);
+        var segment = segmentData.Last();
+        var text = segment.Text.Trim();
+        var confidence = segment.Probability;
+        return new SpeechResult(text, confidence);
     }
 
     public void ClearBuffer()

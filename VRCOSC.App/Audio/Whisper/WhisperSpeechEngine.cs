@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;
@@ -13,6 +12,8 @@ public partial class WhisperSpeechEngine : SpeechEngine
 {
     private AudioProcessor? audioProcessor;
     private Repeater? repeater;
+    private string previousText;
+    private bool triggeredFinal;
 
     public override void Initialise()
     {
@@ -26,6 +27,9 @@ public partial class WhisperSpeechEngine : SpeechEngine
 
         repeater = new Repeater(processResult);
         repeater.Start(TimeSpan.FromSeconds(1));
+
+        previousText = string.Empty;
+        triggeredFinal = false;
     }
 
     private async void processResult()
@@ -33,25 +37,25 @@ public partial class WhisperSpeechEngine : SpeechEngine
         var result = await GetResult();
         if (result is null) return;
 
-        var text = removeBracketsAndExtraSpaces(result.Text);
+        // TODO: This is working perfectly, it's just not triggering the final result when it should be. All the other recognition is being filtered correctly though
+        // TODO: It might also be the case that if a user doesn't talk for a while the buffer becomes too big and causes an error. Look into that
 
-        // TODO: Find a better way to detect when the user has stopped talking
+        var isBlankAudio = ((result.Text.StartsWith('[') || result.Text.StartsWith('{') || result.Text.StartsWith('(')) && (result.Text.EndsWith(']') || result.Text.EndsWith('}') || result.Text.EndsWith(')'))) || result.Text == "*" || result.Text == "(";
 
-        if (result.Text.EndsWith("[BLANK_AUDIO]"))
+        if (!isBlankAudio && result.Confidence < 0.5f && !triggeredFinal)
         {
+            OnFinalResult?.Invoke(new SpeechResult(previousText, result.Confidence));
             audioProcessor?.ClearBuffer();
-            OnFinalResult?.Invoke(new SpeechResult(text, result.Confidence));
+            triggeredFinal = true;
         }
-        else
-        {
-            OnPartialResult?.Invoke(new SpeechResult(text, result.Confidence));
-        }
-    }
 
-    private string removeBracketsAndExtraSpaces(string input)
-    {
-        var output = Regex.Replace(input, @"[\[\{\(][^\[\]\{\}\(\)]*[\]\}\)]", "");
-        return Regex.Replace(output, @"\s{2,}", " ").Trim();
+        if (!isBlankAudio && result.Confidence >= 0.5f)
+        {
+            var text = result.Text;
+            OnPartialResult?.Invoke(new SpeechResult(text, result.Confidence));
+            previousText = text;
+            triggeredFinal = false;
+        }
     }
 
     public async Task<SpeechResult?> GetResult()
