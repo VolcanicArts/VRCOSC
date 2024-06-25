@@ -2,7 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Threading.Tasks;
+using System.Diagnostics;
 using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;
 
@@ -18,7 +18,7 @@ public partial class WhisperSpeechEngine : SpeechEngine
     public override void Initialise()
     {
         var captureDeviceId = SettingsManager.GetInstance().GetValue<string>(VRCOSCSetting.SelectedInputDeviceID);
-        var captureDevice = AudioHelper.GetDeviceByID(captureDeviceId);
+        var captureDevice = AudioDeviceHelper.GetDeviceByID(captureDeviceId);
 
         if (captureDevice is null) throw new InvalidOperationException();
 
@@ -34,11 +34,13 @@ public partial class WhisperSpeechEngine : SpeechEngine
 
     private async void processResult()
     {
-        var result = await GetResult();
+        Debug.Assert(audioProcessor is not null);
+
+        var result = await audioProcessor.GetResult();
         if (result is null) return;
 
         // TODO: This is working perfectly, it's just not triggering the final result when it should be. All the other recognition is being filtered correctly though
-        // TODO: It might also be the case that if a user doesn't talk for a while the buffer becomes too big and causes an error. Look into that
+        // TODO: It might also be the case that if a user doesn't talk for a while the buffer becomes too big it takes ages to process so it's probably a good idea to periodically clear the buffer if nothing is heard
 
         var isBlankAudio = ((result.Text.StartsWith('[') || result.Text.StartsWith('{') || result.Text.StartsWith('(')) && (result.Text.EndsWith(']') || result.Text.EndsWith('}') || result.Text.EndsWith(')'))) || result.Text == "*" || result.Text == "(";
 
@@ -49,21 +51,13 @@ public partial class WhisperSpeechEngine : SpeechEngine
             triggeredFinal = true;
         }
 
-        if (!isBlankAudio && result.Confidence >= 0.5f)
+        if (!isBlankAudio && result.Confidence >= 0.35f)
         {
             var text = result.Text;
             OnPartialResult?.Invoke(new SpeechResult(text, result.Confidence));
             previousText = text;
             triggeredFinal = false;
         }
-    }
-
-    public async Task<SpeechResult?> GetResult()
-    {
-        if (audioProcessor is null || !audioProcessor.IsProcessing) return null;
-
-        var result = await audioProcessor.GetResult();
-        return result;
     }
 
     public override void Teardown()

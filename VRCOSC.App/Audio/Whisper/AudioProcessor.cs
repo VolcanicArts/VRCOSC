@@ -1,7 +1,6 @@
 // Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,8 +13,6 @@ internal class AudioProcessor
 {
     private readonly AudioCapture audioCapture;
     private readonly WhisperProcessor whisper;
-
-    public bool IsProcessing => audioCapture.IsCapturing;
 
     public AudioProcessor(MMDevice device)
     {
@@ -43,15 +40,15 @@ internal class AudioProcessor
         audioCapture.StopCapture();
     }
 
-    public void SaveAudioBufferToFile(string filePath)
+    public async Task<SpeechResult?> GetResult()
     {
-        audioCapture.SaveBufferToFile(filePath);
-    }
+        if (!audioCapture.IsCapturing) return null;
 
-    public async Task<SpeechResult> GetResult()
-    {
         var data = audioCapture.GetBufferedData();
-        return data.Length > 0 ? await processWithWhisper(data) : new SpeechResult(string.Empty, 0f);
+        if (data.Length == 0) return null;
+
+        WaveHelper.ApplyBandPassFilter(data, 16000);
+        return await processWithWhisper(data);
     }
 
     private async Task<SpeechResult> processWithWhisper(float[] data)

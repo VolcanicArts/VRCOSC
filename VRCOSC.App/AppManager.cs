@@ -140,7 +140,7 @@ public class AppManager
             chosenInputDeviceSetting.Value = WasapiCapture.GetDefaultCaptureDevice().ID;
         }
 
-        AudioHelper.RegisterCallbackClient(audioNotificationClient);
+        AudioDeviceHelper.RegisterCallbackClient(audioNotificationClient);
 
         OVRClient.SetMetadata(new OVRMetadata
         {

@@ -139,7 +139,7 @@ public partial class AppSettingsPage
 
     private void updateDeviceListAndSelection(string? newDeviceId) => Dispatcher.Invoke(() =>
     {
-        MicrophoneComboBox.ItemsSource = audioInputDevices = AudioHelper.GetAllInputDevices().Select(mmDevice => new DeviceDisplay(mmDevice.ID, mmDevice.DeviceFriendlyName)).ToList();
+        MicrophoneComboBox.ItemsSource = audioInputDevices = AudioDeviceHelper.GetAllInputDevices().Select(mmDevice => new DeviceDisplay(mmDevice.ID, mmDevice.DeviceFriendlyName)).ToList();
 
         if (newDeviceId is null) return;
 

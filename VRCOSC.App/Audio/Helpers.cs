@@ -10,7 +10,7 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Audio;
 
-public static class AudioHelper
+public static class AudioDeviceHelper
 {
     public static void RegisterCallbackClient(IMMNotificationClient client)
     {
@@ -35,6 +35,53 @@ public static class AudioHelper
         {
             ExceptionHandler.Handle(e);
             return null;
+        }
+    }
+}
+
+public static class WaveHelper
+{
+    public static void ApplyBandPassFilter(float[] waveStream, float sampleRate, float lowCutoffFrequency = 1000f, float highCutoffFrequency = 18000f)
+    {
+        if (waveStream.Length == 0)
+        {
+            throw new ArgumentException("The waveStream array must not be empty");
+        }
+
+        ApplyHighPassFilter(waveStream, lowCutoffFrequency, sampleRate);
+        ApplyLowPassFilter(waveStream, highCutoffFrequency, sampleRate);
+    }
+
+    public static void ApplyHighPassFilter(float[] waveStream, float sampleRate, float cutoffFrequency = 1000f)
+    {
+        float rc = 1.0f / (cutoffFrequency * 2 * MathF.PI);
+        float dt = 1.0f / sampleRate;
+        float alpha = rc / (rc + dt);
+
+        float previousInput = waveStream[0];
+        float previousOutput = waveStream[0];
+
+        for (int i = 1; i < waveStream.Length; i++)
+        {
+            float currentInput = waveStream[i];
+            waveStream[i] = alpha * (previousOutput + currentInput - previousInput);
+            previousInput = currentInput;
+            previousOutput = waveStream[i];
+        }
+    }
+
+    public static void ApplyLowPassFilter(float[] waveStream, float sampleRate, float cutoffFrequency = 18000f)
+    {
+        float rc = 1.0f / (cutoffFrequency * 2 * MathF.PI);
+        float dt = 1.0f / sampleRate;
+        float alpha = dt / (rc + dt);
+
+        float previous = waveStream[0];
+
+        for (int i = 1; i < waveStream.Length; i++)
+        {
+            waveStream[i] = previous + (alpha * (waveStream[i] - previous));
+            previous = waveStream[i];
         }
     }
 }
