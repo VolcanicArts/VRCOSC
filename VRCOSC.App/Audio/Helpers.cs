@@ -41,7 +41,9 @@ public static class AudioDeviceHelper
 
 public static class WaveHelper
 {
-    public static void ApplyBandPassFilter(float[] waveStream, float sampleRate, float lowCutoffFrequency = 1000f, float highCutoffFrequency = 18000f)
+    #region Band Pass Filter
+
+    public static void ApplyBandPassFilter(float[] waveStream, float sampleRate, float lowCutoffFrequency, float highCutoffFrequency)
     {
         if (waveStream.Length == 0)
         {
@@ -52,36 +54,51 @@ public static class WaveHelper
         ApplyLowPassFilter(waveStream, highCutoffFrequency, sampleRate);
     }
 
-    public static void ApplyHighPassFilter(float[] waveStream, float sampleRate, float cutoffFrequency = 1000f)
+    public static void ApplyHighPassFilter(float[] waveStream, float sampleRate, float cutoffFrequency)
     {
-        float rc = 1.0f / (cutoffFrequency * 2 * MathF.PI);
-        float dt = 1.0f / sampleRate;
-        float alpha = rc / (rc + dt);
+        var rc = 1.0f / (cutoffFrequency * 2 * MathF.PI);
+        var dt = 1.0f / sampleRate;
+        var alpha = rc / (rc + dt);
 
-        float previousInput = waveStream[0];
-        float previousOutput = waveStream[0];
+        var previousInput = waveStream[0];
+        var previousOutput = waveStream[0];
 
-        for (int i = 1; i < waveStream.Length; i++)
+        for (var i = 1; i < waveStream.Length; i++)
         {
-            float currentInput = waveStream[i];
+            var currentInput = waveStream[i];
             waveStream[i] = alpha * (previousOutput + currentInput - previousInput);
             previousInput = currentInput;
             previousOutput = waveStream[i];
         }
     }
 
-    public static void ApplyLowPassFilter(float[] waveStream, float sampleRate, float cutoffFrequency = 18000f)
+    public static void ApplyLowPassFilter(float[] waveStream, float sampleRate, float cutoffFrequency)
     {
-        float rc = 1.0f / (cutoffFrequency * 2 * MathF.PI);
-        float dt = 1.0f / sampleRate;
-        float alpha = dt / (rc + dt);
+        var rc = 1.0f / (cutoffFrequency * 2 * MathF.PI);
+        var dt = 1.0f / sampleRate;
+        var alpha = dt / (rc + dt);
 
-        float previous = waveStream[0];
+        var previous = waveStream[0];
 
-        for (int i = 1; i < waveStream.Length; i++)
+        for (var i = 1; i < waveStream.Length; i++)
         {
             waveStream[i] = previous + (alpha * (waveStream[i] - previous));
             previous = waveStream[i];
+        }
+    }
+
+    #endregion
+
+    public static void ApplyCompression(float[] buffer, float threshold, float ratio)
+    {
+        var linearThreshold = (float)Math.Pow(10, threshold / 20.0f); // Convert dB to linear scale
+
+        for (var i = 0; i < buffer.Length; i++)
+        {
+            if (buffer[i] > linearThreshold)
+            {
+                buffer[i] = linearThreshold + (buffer[i] - linearThreshold) / ratio;
+            }
         }
     }
 }

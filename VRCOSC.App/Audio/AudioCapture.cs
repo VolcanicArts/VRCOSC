@@ -68,4 +68,14 @@ internal class AudioCapture
             buffer.Position = 0;
         }
     }
+
+    public void SaveBufferToFile(string filePath)
+    {
+        lock (lockObject)
+        {
+            buffer.Position = 0;
+            using var waveFileWriter = new WaveFileWriter(filePath, capture.WaveFormat);
+            buffer.CopyTo(waveFileWriter);
+        }
+    }
 }

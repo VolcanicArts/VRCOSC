@@ -12,8 +12,7 @@ public partial class WhisperSpeechEngine : SpeechEngine
 {
     private AudioProcessor? audioProcessor;
     private Repeater? repeater;
-    private string previousText;
-    private bool triggeredFinal;
+    private string? previousText;
 
     public override void Initialise()
     {
@@ -28,8 +27,7 @@ public partial class WhisperSpeechEngine : SpeechEngine
         repeater = new Repeater(processResult);
         repeater.Start(TimeSpan.FromSeconds(1));
 
-        previousText = string.Empty;
-        triggeredFinal = false;
+        previousText = null;
     }
 
     private async void processResult()
@@ -40,23 +38,29 @@ public partial class WhisperSpeechEngine : SpeechEngine
         if (result is null) return;
 
         // TODO: This is working perfectly, it's just not triggering the final result when it should be. All the other recognition is being filtered correctly though
-        // TODO: It might also be the case that if a user doesn't talk for a while the buffer becomes too big it takes ages to process so it's probably a good idea to periodically clear the buffer if nothing is heard
 
-        var isBlankAudio = ((result.Text.StartsWith('[') || result.Text.StartsWith('{') || result.Text.StartsWith('(')) && (result.Text.EndsWith(']') || result.Text.EndsWith('}') || result.Text.EndsWith(')'))) || result.Text == "*" || result.Text == "(";
+        var isTextBlank = ((result.Text.StartsWith('[') || result.Text.StartsWith('{') || result.Text.StartsWith('(')) && (result.Text.EndsWith(']') || result.Text.EndsWith('}') || result.Text.EndsWith(')')))
+                          || result.Text == "*"
+                          || result.Text == "("
+                          // Beadaholique has an advert inside for some reason? Probably something to do with the library. I'll try to compile my own version of Whisper at some point
+                          || result.Text.Contains("Beadaholique");
 
-        if (!isBlankAudio && result.Confidence < 0.5f && !triggeredFinal)
+        if (previousText is null && isTextBlank)
         {
-            OnFinalResult?.Invoke(new SpeechResult(previousText, result.Confidence));
-            audioProcessor?.ClearBuffer();
-            triggeredFinal = true;
+            audioProcessor.ClearBuffer();
         }
 
-        if (!isBlankAudio && result.Confidence >= 0.35f)
+        Console.WriteLine(result.Text + " - " + result.Confidence);
+
+        if (!isTextBlank && result.Confidence >= 0.35f)
         {
             var text = result.Text;
             OnPartialResult?.Invoke(new SpeechResult(text, result.Confidence));
             previousText = text;
-            triggeredFinal = false;
+        }
+        else
+        {
+            previousText = null;
         }
     }
 
