@@ -36,7 +36,6 @@
         <PackageReference Include="Semver" Version="2.3.0" />
         <PackageReference Include="Velopack" Version="0.0.359" />
         <PackageReference Include="VolcanicArts.Libs.OpenVR" Version="2.2.3" />
-        <PackageReference Include="Vosk" Version="0.3.38" />
         <PackageReference Include="VRChat.API" Version="1.17.6" />
         <PackageReference Include="Whisper.net" Version="1.5.0" />
         <PackageReference Include="Whisper.net.Runtime" Version="1.5.0" />
