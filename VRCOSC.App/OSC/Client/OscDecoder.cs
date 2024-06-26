@@ -2,13 +2,9 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Buffers.Binary;
 using System.Text;
 using VRCOSC.App.Utils;
-
-// ReSharper disable ParameterTypeCanBeEnumerable.Local
-// ReSharper disable SuggestBaseTypeForParameter
 
 namespace VRCOSC.App.OSC.Client;
 
@@ -36,15 +32,15 @@ internal static class OscDecoder
             return null;
         }
 
-        index = OscUtils.AlignIndex(index);
-
-        var values = getValues(typeTags, data, ref index);
-
-        if (values is null || !values.Any())
+        if (typeTags.Length == 0)
         {
             Logger.Log($"Could not parse values for message {Encoding.UTF8.GetString(data)}");
             return null;
         }
+
+        index = OscUtils.AlignIndex(index);
+
+        var values = getValues(typeTags, data, ref index);
 
         return new OscMessage(address, values);
     }
@@ -56,7 +52,7 @@ internal static class OscDecoder
 
         while (data[index] != 0) index++;
 
-        return Encoding.UTF8.GetString(data[start..index]);
+        return Encoding.UTF8.GetString(data.AsSpan(start, index - start));
     }
 
     private static byte[]? getTypeTags(byte[] data, ref int index)
@@ -69,37 +65,23 @@ internal static class OscDecoder
         return data[(start + 1)..index];
     }
 
-    private static List<object>? getValues(byte[] typeTags, byte[] msg, ref int index)
+    private static object[] getValues(byte[] typeTags, byte[] msg, ref int index)
     {
-        var values = new List<object>();
+        var values = new object[typeTags.Length];
 
-        foreach (var type in typeTags)
+        for (var i = 0; i < typeTags.Length; i++)
         {
-            switch (type)
+            var type = typeTags[i];
+
+            values[i] = type switch
             {
-                case OscChars.CHAR_INT:
-                    values.Add(bytesToInt(msg, ref index));
-                    break;
-
-                case OscChars.CHAR_FLOAT:
-                    values.Add(bytesToFloat(msg, ref index));
-                    break;
-
-                case OscChars.CHAR_STRING:
-                    values.Add(bytesToString(msg, ref index));
-                    break;
-
-                case OscChars.CHAR_TRUE:
-                    values.Add(true);
-                    break;
-
-                case OscChars.CHAR_FALSE:
-                    values.Add(false);
-                    break;
-
-                default:
-                    return null;
-            }
+                OscChars.CHAR_INT => bytesToInt(msg, ref index),
+                OscChars.CHAR_FLOAT => bytesToFloat(msg, ref index),
+                OscChars.CHAR_STRING => bytesToString(msg, ref index),
+                OscChars.CHAR_TRUE => true,
+                OscChars.CHAR_FALSE => false,
+                _ => throw new ArgumentOutOfRangeException()
+            };
         }
 
         return values;
@@ -107,22 +89,16 @@ internal static class OscDecoder
 
     private static int bytesToInt(byte[] data, ref int index)
     {
-        var reversed = new byte[4];
-        reversed[3] = data[index++];
-        reversed[2] = data[index++];
-        reversed[1] = data[index++];
-        reversed[0] = data[index++];
-        return BitConverter.ToInt32(reversed, 0);
+        var value = BinaryPrimitives.ReadInt32BigEndian(data.AsSpan(index, 4));
+        index += 4;
+        return value;
     }
 
     private static float bytesToFloat(byte[] data, ref int index)
     {
-        var reversed = new byte[4];
-        reversed[3] = data[index++];
-        reversed[2] = data[index++];
-        reversed[1] = data[index++];
-        reversed[0] = data[index++];
-        return BitConverter.ToSingle(reversed, 0);
+        var value = BinaryPrimitives.ReadSingleBigEndian(data.AsSpan(index, 4));
+        index += 4;
+        return value;
     }
 
     private static string bytesToString(byte[] data, ref int index)
@@ -130,7 +106,7 @@ internal static class OscDecoder
         var start = index;
         while (data[index] != 0) index++;
 
-        var stringData = Encoding.UTF8.GetString(data[start..index]);
+        var stringData = Encoding.UTF8.GetString(data.AsSpan(start, index - start));
         index = OscUtils.AlignIndex(index);
         return stringData;
     }

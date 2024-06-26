@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -44,8 +43,8 @@ public abstract class OscClient
     public void DisableSend() => sender.Disable();
     public Task DisableReceive() => receiver.Disable();
 
-    public void SendValue(string address, object value) => SendValues(address, new List<object> { value });
-    public void SendValues(string address, List<object> values) => SendMessage(new OscMessage(address, values));
+    public void SendValue(string address, object value) => SendValues(address, new[] { value });
+    public void SendValues(string address, object[] values) => SendMessage(new OscMessage(address, values));
 
     public void SendMessage(OscMessage message)
     {

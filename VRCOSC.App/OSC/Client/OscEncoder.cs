@@ -2,10 +2,9 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Buffers.Binary;
 using System.Linq;
 using System.Text;
-
-// ReSharper disable SuggestBaseTypeForParameter
 
 namespace VRCOSC.App.OSC.Client;
 
@@ -13,8 +12,6 @@ internal static class OscEncoder
 {
     internal static byte[] Encode(OscMessage message)
     {
-        validateValueTypes(message);
-
         var index = 0;
         var data = new byte[calculateMessageLength(message)];
 
@@ -25,16 +22,10 @@ internal static class OscEncoder
         return data;
     }
 
-    private static void validateValueTypes(OscMessage message)
-    {
-        if (message.Values.Any(value => value is not (string or int or float or bool)))
-            throw new InvalidOperationException($"Cannot send value that is not of type string, int, float, or bool to address {message.Address}");
-    }
-
     private static int calculateMessageLength(OscMessage message)
     {
         var addressLength = OscUtils.AlignIndex(Encoding.UTF8.GetByteCount(message.Address));
-        var typeTagsLength = OscUtils.AlignIndex(1 + message.Values.Count);
+        var typeTagsLength = OscUtils.AlignIndex(1 + message.Values.Length);
 
         var valuesLength = message.Values.Sum(value => value switch
         {
@@ -61,15 +52,14 @@ internal static class OscEncoder
 
         foreach (var value in message.Values)
         {
-#pragma warning disable CS8509
             data[index++] = value switch
-#pragma warning restore CS8509
             {
                 string => OscChars.CHAR_STRING,
                 int => OscChars.CHAR_INT,
                 float => OscChars.CHAR_FLOAT,
                 true => OscChars.CHAR_TRUE,
-                false => OscChars.CHAR_FALSE
+                false => OscChars.CHAR_FALSE,
+                _ => throw new ArgumentOutOfRangeException()
             };
         }
 
@@ -99,20 +89,14 @@ internal static class OscEncoder
 
     private static void intToBytes(byte[] data, ref int index, int value)
     {
-        var bytes = BitConverter.GetBytes(value);
-        data[index++] = bytes[3];
-        data[index++] = bytes[2];
-        data[index++] = bytes[1];
-        data[index++] = bytes[0];
+        BinaryPrimitives.WriteInt32BigEndian(data.AsSpan().Slice(index, 4), value);
+        index += 4;
     }
 
     private static void floatToBytes(byte[] data, ref int index, float value)
     {
-        var bytes = BitConverter.GetBytes(value);
-        data[index++] = bytes[3];
-        data[index++] = bytes[2];
-        data[index++] = bytes[1];
-        data[index++] = bytes[0];
+        BinaryPrimitives.WriteSingleBigEndian(data.AsSpan().Slice(index, 4), value);
+        index += 4;
     }
 
     private static void stringToBytes(byte[] data, ref int index, string value)
@@ -120,6 +104,6 @@ internal static class OscEncoder
         var bytes = Encoding.UTF8.GetBytes(value);
 
         bytes.CopyTo(data, index);
-        index = OscUtils.AlignIndex(bytes.Length);
+        index += OscUtils.AlignIndex(bytes.Length);
     }
 }

@@ -28,7 +28,7 @@ public class VRChatOscClient : OscClient
         OnMessageReceived += message =>
         {
             var data = new VRChatOscMessage(message);
-            if (!data.Values.Any()) return;
+            if (data.Values.Length == 0) return;
 
             OnParameterReceived?.Invoke(data);
         };
