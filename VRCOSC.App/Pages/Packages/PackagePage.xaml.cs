@@ -45,8 +45,13 @@ public partial class PackagePage : INotifyPropertyChanged
 
     public Visibility UpdateAllButtonVisibility => PackageManager.GetInstance().Sources.Any(packageSource => packageSource.IsUpdateAvailable()) ? Visibility.Visible : Visibility.Collapsed;
 
-    private void RefreshButton_OnClick(object sender, RoutedEventArgs e)
+    private async void RefreshButton_OnClick(object sender, RoutedEventArgs e)
     {
+        if (AppManager.GetInstance().State.Value is AppManagerState.Starting or AppManagerState.Started)
+        {
+            await AppManager.GetInstance().StopAsync();
+        }
+
         _ = MainWindow.GetInstance().ShowLoadingOverlay("Refreshing All Packages", PackageManager.GetInstance().RefreshAllSources(true));
     }
 

@@ -58,11 +58,6 @@ public class PackageManager
 
     public PackageLoadAction RefreshAllSources(bool forceRemoteGrab)
     {
-        if (AppManager.GetInstance().State.Value != AppManagerState.Stopped)
-        {
-            AppManager.GetInstance().Stop();
-        }
-
         var packageLoadAction = new PackageLoadAction();
 
         if (forceRemoteGrab)

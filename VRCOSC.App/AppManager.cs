@@ -190,7 +190,7 @@ public class AppManager
         if (!VRChatClient.HasOpenStateChanged(out var clientOpenState)) return;
 
         if (clientOpenState && State.Value == AppManagerState.Stopped && SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.VRCAutoStart)) RequestStart();
-        if (!clientOpenState && State.Value == AppManagerState.Started && SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.VRCAutoStop)) Stop();
+        if (!clientOpenState && State.Value == AppManagerState.Started && SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.VRCAutoStop)) _ = StopAsync();
     }
 
     #region OSC
@@ -397,8 +397,6 @@ public class AppManager
 
     #region Restart
 
-    public async void Restart() => await RestartAsync();
-
     public async Task RestartAsync()
     {
         await StopAsync();
@@ -409,8 +407,6 @@ public class AppManager
     #endregion
 
     #region Stop
-
-    public async void Stop() => await StopAsync();
 
     public async Task StopAsync()
     {

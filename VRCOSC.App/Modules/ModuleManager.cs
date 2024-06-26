@@ -95,12 +95,12 @@ internal class ModuleManager : INotifyPropertyChanged
     /// <summary>
     /// Reloads all local and remote modules by unloading their assembly contexts and calling <see cref="LoadAllModules"/>
     /// </summary>
-    public void ReloadAllModules()
+    public async void ReloadAllModules()
     {
         Logger.Log("Module reload requested");
 
         var isRunning = AppManager.GetInstance().State.Value is AppManagerState.Starting or AppManagerState.Started;
-        if (isRunning) AppManager.GetInstance().Stop();
+        if (isRunning) await AppManager.GetInstance().StopAsync();
 
         ChatBoxManager.GetInstance().Unload();
         UnloadAllModules();

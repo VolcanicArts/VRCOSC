@@ -143,12 +143,12 @@ public partial class RunPage
 
     private void StopButtonOnClick(object sender, RoutedEventArgs e)
     {
-        AppManager.GetInstance().Stop();
+        _ = AppManager.GetInstance().StopAsync();
     }
 
     private void RestartButtonOnClick(object sender, RoutedEventArgs e)
     {
-        AppManager.GetInstance().Restart();
+        _ = AppManager.GetInstance().RestartAsync();
     }
 
     public void ShowWaitingOverlay() => Dispatcher.Invoke(() =>
