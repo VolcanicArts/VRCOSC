@@ -83,19 +83,18 @@ public class WindowsMediaProvider
         States.Values.ForEach(state => state.Timeline.Position += delta);
     }
 
-    public Task TerminateAsync()
+    public void Terminate()
     {
-        if (sessionManager is null) return Task.CompletedTask;
-
-        sessionManager.SessionsChanged -= sessionsChanged;
-        sessionManager.CurrentSessionChanged -= currentSessionChanged;
-        sessionManager = null;
+        if (sessionManager is not null)
+        {
+            sessionManager.SessionsChanged -= sessionsChanged;
+            sessionManager.CurrentSessionChanged -= currentSessionChanged;
+            sessionManager = null;
+        }
 
         Sessions.Clear();
         States.Clear();
         focusedSessionId = null;
-
-        return Task.CompletedTask;
     }
 
     private MediaState getStateForSession(GlobalSystemMediaTransportControlsSession? session)
