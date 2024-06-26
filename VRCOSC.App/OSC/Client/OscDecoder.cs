@@ -26,15 +26,9 @@ internal static class OscDecoder
 
         var typeTags = getTypeTags(data, ref index);
 
-        if (typeTags is null)
-        {
-            Logger.Log($"Could not parse type tags for message {Encoding.UTF8.GetString(data)}");
-            return null;
-        }
-
         if (typeTags.Length == 0)
         {
-            Logger.Log($"Could not parse values for message {Encoding.UTF8.GetString(data)}");
+            Logger.Log($"Could not parse type tags for message {Encoding.UTF8.GetString(data)}");
             return null;
         }
 
@@ -55,17 +49,17 @@ internal static class OscDecoder
         return Encoding.UTF8.GetString(data.AsSpan(start, index - start));
     }
 
-    private static byte[]? getTypeTags(byte[] data, ref int index)
+    private static Span<byte> getTypeTags(byte[] data, ref int index)
     {
         var start = index;
-        if (data[start] != OscChars.CHAR_COMMA) return null;
+        if (data[start] != OscChars.CHAR_COMMA) return Array.Empty<byte>();
 
         while (data[index] != 0) index++;
 
-        return data[(start + 1)..index];
+        return data.AsSpan((start + 1)..index);
     }
 
-    private static object[] getValues(byte[] typeTags, byte[] msg, ref int index)
+    private static object[] getValues(Span<byte> typeTags, byte[] msg, ref int index)
     {
         var values = new object[typeTags.Length];
 
