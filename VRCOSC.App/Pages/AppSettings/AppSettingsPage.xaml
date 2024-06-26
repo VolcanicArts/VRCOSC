@@ -332,7 +332,7 @@
                                 </Grid>
                             </Border>
                             <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
-                                    CornerRadius="5">
+                                    CornerRadius="5" Visibility="Collapsed">
                                 <Grid>
                                     <TextBlock Text="Speech Engine" Style="{StaticResource SettingTitle}" />
                                     <TextBlock Text="Which speech engine should VRCOSC use?"
@@ -343,22 +343,47 @@
                                               Style="{StaticResource SettingComboBoxStyle}" />
                                 </Grid>
                             </Border>
-                            <ui:SpacedStackPanel x:Name="VoskEngineContainer" Orientation="Vertical" Spacing="5"
-                                                 Visibility="Visible">
+                            <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
+                                    CornerRadius="5">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="5*"/>
+                                        <ColumnDefinition Width="5*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Speech Confidence" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock Grid.Column="0" Text="How confidence should Whisper be to send a result?"
+                                               Style="{StaticResource SettingDescription}" />
+                                    <Grid Grid.Column="1" HorizontalAlignment="Stretch">
+                                        <Slider Value="{Binding SpeechConfidenceSliderValue}"
+                                                Minimum="0"
+                                                Maximum="100"
+                                                TickFrequency="2"
+                                                TickPlacement="BottomRight" IsSnapToTickEnabled="True" />
+                                        <TextBlock Text="0%"
+                                                   HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                                                   Foreground="{StaticResource CForeground1}" FontSize="14" />
+                                        <TextBlock Text="100%"
+                                                   HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                                                   Foreground="{StaticResource CForeground1}" FontSize="14" />
+                                    </Grid>
+                                </Grid>
+                            </Border>
+                            <ui:SpacedStackPanel x:Name="WhisperEngineContainer" Orientation="Vertical" Spacing="5">
                                 <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
                                         CornerRadius="5">
                                     <Grid>
-                                        <TextBlock Text="Model Location" Style="{StaticResource SettingTitle}" />
-                                        <TextBlock Text="The folder path of the model VOSK should use"
-                                                   Style="{StaticResource SettingDescription}" />
+                                        <TextBlock Text="Model Path" Style="{StaticResource SettingTitle}" />
+                                        <TextBlock
+                                            Text="The path of the model file Whisper should use. Recommended: ggml-tiny.bin"
+                                            Style="{StaticResource SettingDescription}" />
                                         <TextBox Style="{StaticResource SettingTextBoxStyle}"
-                                                 Text="{Binding VoskModelDirectory}" />
+                                                 Text="{Binding WhisperModelFilePath}" />
                                     </Grid>
                                 </Border>
                                 <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
                                         CornerRadius="5">
                                     <Grid>
-                                        <ui:VRCOSCButton ButtonColour="Gray" Click="VOSK_OpenModelList_OnClick">
+                                        <ui:VRCOSCButton ButtonColour="Gray" Click="Whisper_OpenModelList_OnClick">
                                             <TextBlock Text="Open Model List" Style="{StaticResource SettingTitle}" />
                                         </ui:VRCOSCButton>
                                     </Grid>

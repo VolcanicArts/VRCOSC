@@ -47,7 +47,9 @@ public partial class WhisperSpeechEngine : SpeechEngine
             audioProcessor.ClearBuffer();
         }
 
-        if (!isTextBlank && result.Confidence >= 0.4f)
+        var requiredConfidence = SettingsManager.GetInstance().GetValue<float>(VRCOSCSetting.SpeechConfidence);
+
+        if (!isTextBlank && result.Confidence >= requiredConfidence)
         {
             var text = result.Text;
             OnResult?.Invoke(text);

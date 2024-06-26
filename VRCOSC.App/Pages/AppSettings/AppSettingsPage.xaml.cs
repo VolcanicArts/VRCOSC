@@ -115,10 +115,16 @@ public partial class AppSettingsPage
         set => SettingsManager.GetInstance().GetObservable<SpeechEngine>(VRCOSCSetting.SelectedSpeechEngine).Value = value;
     }
 
-    public string? VoskModelDirectory
+    public string? WhisperModelFilePath
     {
-        get => SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.VOSK_ModelDirectory).Value;
-        set => SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.VOSK_ModelDirectory).Value = value;
+        get => SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.Whisper_ModelPath).Value;
+        set => SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.Whisper_ModelPath).Value = value;
+    }
+
+    public int SpeechConfidenceSliderValue
+    {
+        get => (int)(SettingsManager.GetInstance().GetObservable<float>(VRCOSCSetting.SpeechConfidence).Value * 100f);
+        set => SettingsManager.GetInstance().GetObservable<float>(VRCOSCSetting.SpeechConfidence).Value = value / 100f;
     }
 
     private int selectedPage;
@@ -215,9 +221,9 @@ public partial class AppSettingsPage
         setPage(6);
     }
 
-    private void VOSK_OpenModelList_OnClick(object sender, RoutedEventArgs e)
+    private void Whisper_OpenModelList_OnClick(object sender, RoutedEventArgs e)
     {
-        openUrl("https://alphacephei.com/vosk/models");
+        openUrl("https://huggingface.co/ggerganov/whisper.cpp/tree/main");
     }
 
     private static void openUrl(string url)

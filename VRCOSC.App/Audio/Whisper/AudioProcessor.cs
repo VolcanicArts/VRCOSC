@@ -1,10 +1,11 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NAudio.CoreAudioApi;
+using VRCOSC.App.Settings;
 using Whisper.net;
 
 namespace VRCOSC.App.Audio.Whisper;
@@ -16,8 +17,7 @@ internal class AudioProcessor
 
     public AudioProcessor(MMDevice device)
     {
-        // TODO: Replace with runtime/whisper/model.bin file and give the user the option to select a model to download
-        var modelFilePath = @"";
+        var modelFilePath = SettingsManager.GetInstance().GetValue<string>(VRCOSCSetting.Whisper_ModelPath);
 
         var builder = WhisperFactory.FromPath(modelFilePath);
 

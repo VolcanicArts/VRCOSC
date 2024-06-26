@@ -66,8 +66,9 @@ public class SettingsManager
         setDefault(VRCOSCSetting.EnableAppDebug, false);
         setDefault(VRCOSCSetting.AutoSwitchMicrophone, true);
         setDefault(VRCOSCSetting.SelectedInputDeviceID, string.Empty);
-        setDefault(VRCOSCSetting.SelectedSpeechEngine, SpeechEngine.VOSK);
-        setDefault(VRCOSCSetting.VOSK_ModelDirectory, string.Empty);
+        setDefault(VRCOSCSetting.SelectedSpeechEngine, SpeechEngine.Whisper);
+        setDefault(VRCOSCSetting.SpeechConfidence, 0.6f);
+        setDefault(VRCOSCSetting.Whisper_ModelPath, string.Empty);
     }
 
     public Observable<T> GetObservable<T>(VRCOSCSetting lookup)
@@ -113,10 +114,11 @@ public enum VRCOSCSetting
     AutoSwitchMicrophone,
     SelectedInputDeviceID,
     SelectedSpeechEngine,
-    VOSK_ModelDirectory
+    Whisper_ModelPath,
+    SpeechConfidence
 }
 
 public enum SpeechEngine
 {
-    VOSK
+    Whisper
 }
