@@ -94,6 +94,7 @@ internal class ModuleManager : INotifyPropertyChanged
 
     /// <summary>
     /// Reloads all local and remote modules by unloading their assembly contexts and calling <see cref="LoadAllModules"/>
+    /// Ensures the ChatBox is unloaded before unloading the modules, and is loaded after loading the modules
     /// </summary>
     public async void ReloadAllModules()
     {
@@ -129,49 +130,42 @@ internal class ModuleManager : INotifyPropertyChanged
     /// </summary>
     public void LoadAllModules()
     {
-        try
+        failedPackageImports.Clear();
+        failedModuleImports.Clear();
+        failedModuleLoads.Clear();
+
+        loadLocalModules();
+        loadRemoteModules();
+
+        foreach (var module in modules)
         {
-            failedPackageImports.Clear();
-            failedModuleImports.Clear();
-            failedModuleLoads.Clear();
-
-            loadLocalModules();
-            loadRemoteModules();
-
-            foreach (var module in modules)
+            try
             {
-                try
-                {
-                    var moduleSerialisationManager = new SerialisationManager();
-                    moduleSerialisationManager.RegisterSerialiser(1, new ModuleSerialiser(storage, module, ProfileManager.GetInstance().ActiveProfile));
+                var moduleSerialisationManager = new SerialisationManager();
+                moduleSerialisationManager.RegisterSerialiser(1, new ModuleSerialiser(storage, module, ProfileManager.GetInstance().ActiveProfile));
 
-                    var modulePersistenceSerialisationManager = new SerialisationManager();
-                    modulePersistenceSerialisationManager.RegisterSerialiser(1, new ModulePersistenceSerialiser(storage, module, ProfileManager.GetInstance().ActiveProfile, SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.GlobalPersistence)));
+                var modulePersistenceSerialisationManager = new SerialisationManager();
+                modulePersistenceSerialisationManager.RegisterSerialiser(1, new ModulePersistenceSerialiser(storage, module, ProfileManager.GetInstance().ActiveProfile, SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.GlobalPersistence)));
 
-                    module.InjectDependencies(moduleSerialisationManager, modulePersistenceSerialisationManager);
-                    module.Load();
-                }
-                catch (Exception e)
-                {
-                    failedModuleLoads.Add(module.FullID);
-                    Logger.Error(e, $"Module '{module.FullID}' failed to load");
-                }
+                module.InjectDependencies(moduleSerialisationManager, modulePersistenceSerialisationManager);
+                module.Load();
             }
-
-            // remove failed modules from the loaded list
-            foreach (var pair in Modules)
+            catch (Exception e)
             {
-                pair.Value.RemoveIf(module => failedModuleLoads.Contains(module.FullID));
+                failedModuleLoads.Add(module.FullID);
+                Logger.Error(e, $"Module '{module.FullID}' failed to load");
             }
-
-            OnPropertyChanged(nameof(UIModules));
-
-            buildErrorMessageBox();
         }
-        catch (Exception e)
+
+        // remove failed modules from the loaded list
+        foreach (var pair in Modules)
         {
-            ExceptionHandler.Handle(e, $"{nameof(ModuleManager)} has experienced an exception");
+            pair.Value.RemoveIf(module => failedModuleLoads.Contains(module.FullID));
         }
+
+        OnPropertyChanged(nameof(UIModules));
+
+        buildErrorMessageBox();
     }
 
     private void buildErrorMessageBox()
@@ -355,26 +349,6 @@ internal class ModuleManager : INotifyPropertyChanged
     private AssemblyLoadContext loadContextFromPath(string path)
     {
         var assemblyLoadContext = new AssemblyLoadContext(null, true);
-
-        assemblyLoadContext.Resolving += (_, name) =>
-        {
-            Logger.Log($"Could not load assembly {name.Name} - {name.Version}");
-
-            var foundAssemblies = AppDomain.CurrentDomain.GetAssemblies().Where(assembly => assembly.GetName().Name == name.Name && assembly.GetName().Version != name.Version).ToList();
-            foundAssemblies.ForEach(assembly => Logger.Log($"Candidate: {assembly.GetName().Name} - {assembly.GetName().Version}"));
-
-            var fallbackAssembly = foundAssemblies.FirstOrDefault();
-
-            if (fallbackAssembly is null)
-            {
-                Logger.Log("No suitable fallback found");
-                return null;
-            }
-
-            Logger.Log($"Falling back to {fallbackAssembly.GetName().Name} - {fallbackAssembly.GetName().Version}");
-            return assemblyLoadContext.LoadFromStream(new MemoryStream(File.ReadAllBytes(fallbackAssembly.Location)));
-        };
-
         foreach (var dllPath in Directory.GetFiles(path, "*.dll")) loadAssemblyFromPath(assemblyLoadContext, dllPath);
         return assemblyLoadContext;
     }
