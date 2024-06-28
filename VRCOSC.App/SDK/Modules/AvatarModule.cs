@@ -4,6 +4,7 @@
 using System;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.SDK.Parameters;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.Modules;
 
@@ -17,7 +18,7 @@ public class AvatarModule : Module
         }
         catch (Exception e)
         {
-            //PushException(e);
+            ExceptionHandler.Handle(e, $"{FullID} has experienced an exception calling {nameof(OnAvatarChange)}");
         }
     }
 
@@ -29,7 +30,7 @@ public class AvatarModule : Module
         }
         catch (Exception e)
         {
-            //PushException(e);
+            ExceptionHandler.Handle(e, $"{FullID} has experienced an exception calling {nameof(OnPlayerUpdate)}");
         }
     }
 
@@ -54,7 +55,14 @@ public class AvatarModule : Module
 
     protected internal override void InternalOnRegisteredParameterReceived(RegisteredParameter registeredParameter)
     {
-        OnRegisteredParameterReceived(new AvatarParameter(registeredParameter));
+        try
+        {
+            OnRegisteredParameterReceived(new AvatarParameter(registeredParameter));
+        }
+        catch (Exception e)
+        {
+            ExceptionHandler.Handle(e, $"{FullID} has experienced an exception calling {nameof(OnRegisteredParameterReceived)}");
+        }
     }
 
     protected virtual void OnRegisteredParameterReceived(AvatarParameter avatarParameter)

@@ -40,8 +40,6 @@ public static class ExceptionHandler
         {
             sb.AppendLine(e.ToString());
             sb.AppendLine();
-            sb.AppendLine(e.StackTrace);
-            sb.AppendLine();
             proxyException = proxyException.InnerException;
         }
 
