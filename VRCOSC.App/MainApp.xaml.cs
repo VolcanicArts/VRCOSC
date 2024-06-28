@@ -9,6 +9,9 @@ public partial class MainApp
     {
         InitializeComponent();
 
+        Logger.AppIdentifier = AppManager.APP_NAME;
+        Logger.VersionIdentifier = AppManager.Version;
+
         AppDomain.CurrentDomain.UnhandledException += (_, e) => ExceptionHandler.Handle((Exception)e.ExceptionObject, "An unhandled exception has occured", true);
     }
 }

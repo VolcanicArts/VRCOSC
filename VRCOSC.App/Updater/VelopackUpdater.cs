@@ -59,7 +59,7 @@ public partial class VelopackUpdater
 
     public async void ShowUpdate()
     {
-        var result = MessageBox.Show($"A new update is available. Would you like to update?\n\nCurrent Version: {AppManager.GetInstance().Version}\nNew Version: {updateInfo!.TargetFullRelease.Version}", "Update Available", MessageBoxButtons.YesNo);
+        var result = MessageBox.Show($"A new update is available. Would you like to update?\n\nCurrent Version: {AppManager.Version}\nNew Version: {updateInfo!.TargetFullRelease.Version}", "Update Available", MessageBoxButtons.YesNo);
         if (result == DialogResult.No) return;
 
         await executeUpdate();

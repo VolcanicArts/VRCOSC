@@ -47,11 +47,6 @@ public class Logger
 #endif
 
     /// <summary>
-    /// An identifier used in log file headers to figure where the log file came from.
-    /// </summary>
-    public static string UserIdentifier = Environment.UserName;
-
-    /// <summary>
     /// An identifier for the game written to log file headers to indicate where the log file came from.
     /// </summary>
     public static string AppIdentifier = "game";
@@ -380,9 +375,8 @@ public class Logger
             if (!headerAdded)
             {
                 writer.WriteLine("----------------------------------------------------------");
-                writer.WriteLine($"{Name} Log for {UserIdentifier} (LogLevel: {Level})");
-                writer.WriteLine($"Running {AppIdentifier} {VersionIdentifier} on .NET {Environment.Version}");
-                writer.WriteLine($"Environment: ({Environment.OSVersion}), {Environment.ProcessorCount} cores ");
+                writer.WriteLine($"{AppIdentifier} {VersionIdentifier}");
+                writer.WriteLine($"Environment: .NET {Environment.Version} - {Environment.OSVersion}");
                 writer.WriteLine("----------------------------------------------------------");
 
                 headerAdded = true;

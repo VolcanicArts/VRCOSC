@@ -43,6 +43,9 @@ public class AppManager
 #else
     public const string APP_NAME = "VRCOSC-V2";
 #endif
+    
+    private static Version assemblyVersion => Assembly.GetEntryAssembly()?.GetName().Version ?? new Version();
+    public static string Version => $"{assemblyVersion.Major}.{assemblyVersion.Minor}.{assemblyVersion.Build}";
 
     private static AppManager? instance;
     internal static AppManager GetInstance() => instance ??= new AppManager();
@@ -50,9 +53,6 @@ public class AppManager
     public readonly Storage Storage = new NativeStorage($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}/{APP_NAME}");
 
     public Observable<AppManagerState> State = new(AppManagerState.Stopped);
-
-    private static Version assemblyVersion => Assembly.GetEntryAssembly()?.GetName().Version ?? new Version();
-    public string Version => $"{assemblyVersion.Major}.{assemblyVersion.Minor}.{assemblyVersion.Build}";
 
     public VelopackUpdater VelopackUpdater = null!;
     public ConnectionManager ConnectionManager = null!;

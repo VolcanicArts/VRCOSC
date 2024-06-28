@@ -68,7 +68,7 @@ public partial class MainWindow
         InitializeComponent();
         DataContext = this;
 
-        Title = $"{AppManager.APP_NAME} {AppManager.GetInstance().Version}";
+        Title = $"{AppManager.APP_NAME} {AppManager.Version}";
 
         setupTrayIcon();
         copyOpenVrFiles();
