@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
+    
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
         <TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
@@ -10,8 +10,8 @@
         <Product>VRCOSC</Product>
         <LangVersion>12</LangVersion>
         <AssemblyName>VRCOSC</AssemblyName>
-        <AssemblyVersion>2024.625.2.0</AssemblyVersion>
-        <FileVersion>2024.625.2.0</FileVersion>
+        <AssemblyVersion>$(GlobalVersion)</AssemblyVersion>
+        <FileVersion>$(GlobalVersion)</FileVersion>
     </PropertyGroup>
 
     <ItemGroup>
