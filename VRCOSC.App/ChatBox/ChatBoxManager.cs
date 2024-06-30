@@ -271,6 +271,9 @@ public class ChatBoxManager : INotifyPropertyChanged
         currentText = newText;
         currentIsTyping = newIsTyping;
 
+        if (newClip.ShouldUseMinimalBackground)
+            newText += "\u0003\u001f";
+
         sendText(newText);
         setTyping(newIsTyping);
     }

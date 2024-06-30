@@ -310,6 +310,23 @@
                                                                         IsChecked="{Binding ShowTyping.Value}"
                                                                         Width="25" Height="25" />
                                                                 </Grid>
+                                                                <Grid>
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="*" />
+                                                                        <ColumnDefinition Width="*" />
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <TextBlock Grid.Column="0"
+                                                                               Foreground="{StaticResource CForeground1}"
+                                                                               Text="Use Minimal Background"
+                                                                               Margin="4 0 0 0"
+                                                                               VerticalAlignment="Center"
+                                                                               FontSize="16" />
+                                                                    <ui:VRCOSCCheckBox Grid.Column="1"
+                                                                        HorizontalAlignment="Center"
+                                                                        VerticalAlignment="Center"
+                                                                        IsChecked="{Binding UseMinimalBackground.Value}"
+                                                                        Width="25" Height="25" />
+                                                                </Grid>
                                                             </ui:SpacedStackPanel>
                                                         </Border>
                                                     </ControlTemplate>
@@ -531,6 +548,23 @@
                                                                         HorizontalAlignment="Center"
                                                                         VerticalAlignment="Center"
                                                                         IsChecked="{Binding ShowTyping.Value}"
+                                                                        Width="25" Height="25" />
+                                                                </Grid>
+                                                                <Grid>
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="*" />
+                                                                        <ColumnDefinition Width="*" />
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <TextBlock Grid.Column="0"
+                                                                               Foreground="{StaticResource CForeground1}"
+                                                                               Text="Use Minimal Background"
+                                                                               Margin="4 0 0 0"
+                                                                               VerticalAlignment="Center"
+                                                                               FontSize="16" />
+                                                                    <ui:VRCOSCCheckBox Grid.Column="1"
+                                                                        HorizontalAlignment="Center"
+                                                                        VerticalAlignment="Center"
+                                                                        IsChecked="{Binding UseMinimalBackground.Value}"
                                                                         Width="25" Height="25" />
                                                                 </Grid>
                                                                 <!--> Event-specific Options <-->
