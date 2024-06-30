@@ -19,7 +19,11 @@ public partial class WhisperSpeechEngine : SpeechEngine
         var captureDeviceId = SettingsManager.GetInstance().GetValue<string>(VRCOSCSetting.SelectedInputDeviceID);
         var captureDevice = AudioDeviceHelper.GetDeviceByID(captureDeviceId);
 
-        if (captureDevice is null) throw new InvalidOperationException();
+        if (captureDevice is null)
+        {
+            ExceptionHandler.Handle("Chosen microphone isn't available");
+            return;
+        }
 
         audioProcessor = new AudioProcessor(captureDevice);
         audioProcessor.Start();

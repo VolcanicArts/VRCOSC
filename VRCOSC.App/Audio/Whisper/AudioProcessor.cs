@@ -47,9 +47,6 @@ internal class AudioProcessor
         var data = audioCapture.GetBufferedData();
         if (data.Length == 0) return null;
 
-        WaveHelper.ApplyBandPassFilter(data, 16000f, 4000f, 10000f);
-        WaveHelper.ApplyCompression(data, -10f, 8f);
-
         var speechResult = await processWithWhisper(data);
         return speechResult;
     }

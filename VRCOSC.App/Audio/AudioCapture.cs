@@ -19,7 +19,6 @@ internal class AudioCapture
     public AudioCapture(MMDevice device)
     {
         capture = new WasapiCapture(device);
-        capture.WaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(16000, 1);
         buffer = new MemoryStream();
 
         capture.DataAvailable += OnDataAvailable;
@@ -53,9 +52,25 @@ internal class AudioCapture
     {
         lock (lockObject)
         {
-            var byteArray = buffer.ToArray();
-            var floatArray = new float[byteArray.Length / sizeof(float)];
-            Buffer.BlockCopy(byteArray, 0, floatArray, 0, byteArray.Length);
+            var targetWaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(16000, 1);
+            var inputFormat = capture.WaveFormat;
+
+            var bufferArray = buffer.ToArray();
+            var bytesRecorded = bufferArray.Length;
+
+            using var memoryStream = new MemoryStream(bufferArray, 0, bytesRecorded);
+            using var waveStream = new RawSourceWaveStream(memoryStream, inputFormat);
+            using var resampler = new MediaFoundationResampler(waveStream, targetWaveFormat);
+            resampler.ResamplerQuality = 60;
+
+            var maxBytesNeeded = (int)(buffer.Length * (targetWaveFormat.SampleRate / (float)inputFormat.SampleRate) * (targetWaveFormat.BitsPerSample / (float)inputFormat.BitsPerSample) * (targetWaveFormat.Channels / (float)inputFormat.Channels));
+            var resampledBuffer = new byte[maxBytesNeeded];
+            var bytesRead = resampler.Read(resampledBuffer, 0, maxBytesNeeded);
+
+            Array.Resize(ref resampledBuffer, bytesRead);
+
+            var floatArray = new float[resampledBuffer.Length / sizeof(float)];
+            Buffer.BlockCopy(resampledBuffer, 0, floatArray, 0, resampledBuffer.Length);
             return floatArray;
         }
     }
@@ -77,5 +92,15 @@ internal class AudioCapture
             using var waveFileWriter = new WaveFileWriter(filePath, capture.WaveFormat);
             buffer.CopyTo(waveFileWriter);
         }
+    }
+
+    public void SaveConvertedToFile(float[] data, string filePath)
+    {
+        var byteArray = new byte[data.Length * sizeof(float)];
+        Buffer.BlockCopy(data, 0, byteArray, 0, byteArray.Length);
+
+        var waveFormat = WaveFormat.CreateIeeeFloatWaveFormat(16000, 1);
+        using var waveFileWriter = new WaveFileWriter(filePath, waveFormat);
+        waveFileWriter.Write(byteArray, 0, byteArray.Length);
     }
 }
