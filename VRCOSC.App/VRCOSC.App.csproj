@@ -9,7 +9,6 @@
         <AssemblyVersion>$(GlobalVersion)</AssemblyVersion>
         <FileVersion>$(GlobalVersion)</FileVersion>
         <AssemblyName>VRCOSC.App</AssemblyName>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageId>VolcanicArts.VRCOSC.SDK</PackageId>
         <Title>VRCOSC's SDK</Title>
         <Authors>VolcanicArts</Authors>
@@ -34,7 +33,7 @@
         <PackageReference Include="Octokit" Version="13.0.0" />
         <PackageReference Include="PInvoke.User32" Version="0.7.124" />
         <PackageReference Include="Semver" Version="2.3.0" />
-        <PackageReference Include="Velopack" Version="0.0.359" />
+        <PackageReference Include="Velopack" Version="0.0.556" />
         <PackageReference Include="VolcanicArts.Libs.OpenVR" Version="2.5.1" />
         <PackageReference Include="VRChat.API" Version="1.17.6" />
         <PackageReference Include="Whisper.net" Version="1.5.0" />
