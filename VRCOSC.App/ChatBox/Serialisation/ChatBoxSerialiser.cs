@@ -47,6 +47,7 @@ public class ChatBoxSerialiser : ProfiledSerialiser<ChatBoxManager, Serialisable
                 clipState.Format.Value = serialisableState.Format;
                 clipState.Enabled.Value = serialisableState.Enabled;
                 clipState.ShowTyping.Value = serialisableState.ShowTyping;
+                clipState.UseMinimalBackground.Value = serialisableState.UseMinimalBackground;
 
                 clipState.Variables.Clear();
 
@@ -103,6 +104,7 @@ public class ChatBoxSerialiser : ProfiledSerialiser<ChatBoxManager, Serialisable
                 clipEvent.Format.Value = serialisableEvent.Format;
                 clipEvent.Enabled.Value = serialisableEvent.Enabled;
                 clipEvent.ShowTyping.Value = serialisableEvent.ShowTyping;
+                clipEvent.UseMinimalBackground.Value = serialisableEvent.UseMinimalBackground;
                 clipEvent.Length.Value = serialisableEvent.Length;
                 clipEvent.Behaviour.Value = serialisableEvent.Behaviour;
 

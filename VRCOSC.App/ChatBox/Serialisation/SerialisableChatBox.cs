@@ -106,6 +106,9 @@ public abstract class SerialisableClipElement
     [JsonProperty("show_typing")]
     public bool ShowTyping;
 
+    [JsonProperty("use_minimal_background")]
+    public bool UseMinimalBackground;
+
     [JsonProperty("variables")]
     public List<SerialisableClipVariable> Variables = new();
 
@@ -118,6 +121,7 @@ public abstract class SerialisableClipElement
         Enabled = clipElement.Enabled.Value;
         Format = clipElement.Format.Value;
         ShowTyping = clipElement.ShowTyping.Value;
+        UseMinimalBackground = clipElement.UseMinimalBackground.Value;
         Variables = clipElement.Variables.Select(clipVariable => new SerialisableClipVariable(clipVariable)).ToList();
     }
 }
