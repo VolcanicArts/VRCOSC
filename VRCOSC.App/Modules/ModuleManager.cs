@@ -75,7 +75,7 @@ internal class ModuleManager : INotifyPropertyChanged
 
     public void ChatBoxUpdate()
     {
-        RunningModules.ForEach(module => module.ChatBoxUpdate());
+        RunningModules.ForEach(module => module.InvokeChatBoxUpdate());
     }
 
     #endregion

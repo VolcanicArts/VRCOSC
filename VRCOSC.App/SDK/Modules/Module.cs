@@ -73,8 +73,6 @@ public abstract class Module
     public bool HasSettings => Settings.Count != 0;
     public bool HasParameters => Parameters.Count != 0;
 
-    protected virtual bool ShouldUsePersistence => true;
-
     protected Module()
     {
         State.Subscribe(newState => Log(newState.ToString()));
@@ -164,14 +162,14 @@ public abstract class Module
 
     private void loadPersistentProperties()
     {
-        if (!PersistentProperties.Any() || !ShouldUsePersistence) return;
+        if (PersistentProperties.Count == 0) return;
 
         persistenceSerialisationManager.Deserialise();
     }
 
     private void savePersistentProperties()
     {
-        if (!PersistentProperties.Any() || !ShouldUsePersistence) return;
+        if (PersistentProperties.Count == 0) return;
 
         persistenceSerialisationManager.Serialise();
     }
@@ -221,18 +219,6 @@ public abstract class Module
         State.Value = ModuleState.Stopped;
     }
 
-    private void updateMethod(MethodBase method)
-    {
-        try
-        {
-            method.Invoke(this, null);
-        }
-        catch (Exception e)
-        {
-            ExceptionHandler.Handle(e, $"{FullID} experienced an exception calling method {method.Name}");
-        }
-    }
-
     private void initialiseUpdateAttributes(Type? type)
     {
         if (type is null) return;
@@ -248,10 +234,10 @@ public abstract class Module
                 switch (updateAttribute.Mode)
                 {
                     case ModuleUpdateMode.Custom:
-                        var updateTask = new Repeater(() => updateMethod(method));
+                        var updateTask = new Repeater(() => invokeMethod(method));
                         updateTask.Start(TimeSpan.FromMilliseconds(updateAttribute.DeltaMilliseconds));
                         updateTasks.Add(updateTask);
-                        if (updateAttribute.UpdateImmediately) updateMethod(method);
+                        if (updateAttribute.UpdateImmediately) invokeMethod(method);
                         break;
 
                     case ModuleUpdateMode.ChatBox:
@@ -259,13 +245,6 @@ public abstract class Module
                         break;
                 }
             });
-    }
-
-    #region Update
-
-    internal void ChatBoxUpdate()
-    {
-        ChatBoxUpdateMethods.ForEach(invokeMethod);
     }
 
     private void invokeMethod(MethodBase method)
@@ -279,8 +258,6 @@ public abstract class Module
             ExceptionHandler.Handle(e, $"{FullID} experienced an exception calling method {method.Name}");
         }
     }
-
-    #endregion
 
     #region SDK
 
@@ -872,6 +849,11 @@ public abstract class Module
         {
             ExceptionHandler.Handle(e, $"{FullID} has experienced an exception calling {nameof(OnPlayerUpdate)}");
         }
+    }
+
+    internal void InvokeChatBoxUpdate()
+    {
+        ChatBoxUpdateMethods.ForEach(invokeMethod);
     }
 
     protected virtual void OnAnyParameterReceived(ReceivedParameter receivedParameter)
