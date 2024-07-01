@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.Modules.Attributes.Parameters;
 using VRCOSC.App.Utils;
 
@@ -96,7 +95,7 @@ public class RegisteredParameter : ReceivedParameter
     private void decodeWildcards()
     {
         var referenceSections = Name.Split("/");
-        var originalSections = moduleParameter.Name.Value.Split("/");
+        var originalSections = moduleParameter.Name.Value!.Split("/");
 
         for (int i = 0; i < originalSections.Length; i++)
         {
@@ -167,26 +166,4 @@ public class Wildcard
     /// </summary>
     /// <returns>True if the value is exactly the type passed, otherwise false</returns>
     public bool IsValueType(Type type) => value.GetType() == type;
-}
-
-/// <summary>
-/// <see cref="AvatarModule"/> specific <see cref="RegisteredParameter"/>
-/// </summary>
-public class AvatarParameter : RegisteredParameter
-{
-    internal AvatarParameter(RegisteredParameter other)
-        : base(other)
-    {
-    }
-}
-
-/// <summary>
-/// <see cref="WorldModule"/> specific <see cref="RegisteredParameter"/>
-/// </summary>
-public class WorldParameter : RegisteredParameter
-{
-    internal WorldParameter(RegisteredParameter other)
-        : base(other)
-    {
-    }
 }

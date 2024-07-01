@@ -40,7 +40,7 @@ public partial class ChatBoxClipEditWindow
         DataContext = referenceClip;
         ReferenceClip = referenceClip;
 
-        ModulesList.ItemsSource = ModuleManager.GetInstance().GetModulesOfType<ChatBoxModule>().Where(module => ChatBoxManager.GetInstance().DoesModuleHaveStates(module.FullID) || ChatBoxManager.GetInstance().DoesModuleHaveEvents(module.FullID)).OrderBy(module => module.Title);
+        ModulesList.ItemsSource = ModuleManager.GetInstance().Modules.Values.SelectMany(moduleList => moduleList).Where(module => ChatBoxManager.GetInstance().DoesModuleHaveStates(module.FullID) || ChatBoxManager.GetInstance().DoesModuleHaveEvents(module.FullID)).OrderBy(module => module.Title);
         ShowRelevantModulesCheckBox.DataContext = this;
 
         Title = $"Editing {ReferenceClip.Name.Value} Clip";

@@ -3,7 +3,6 @@
 
 using System;
 using System.Buffers.Binary;
-using System.Linq;
 using System.Text;
 
 namespace VRCOSC.App.OSC.Client;
@@ -24,26 +23,29 @@ internal static class OscEncoder
 
     private static int calculateMessageLength(OscMessage message)
     {
-        var addressLength = OscUtils.AlignIndex(Encoding.UTF8.GetByteCount(message.Address));
-        var typeTagsLength = OscUtils.AlignIndex(1 + message.Values.Length);
+        var totalLength = 0;
 
-        var valuesLength = message.Values.Sum(value => value switch
+        totalLength += OscUtils.AlignIndex(Encoding.UTF8.GetByteCount(message.Address));
+        totalLength += OscUtils.AlignIndex(1 + message.Values.Length);
+
+        foreach (var value in message.Values)
         {
-            string valueStr => OscUtils.AlignIndex(Encoding.UTF8.GetByteCount(valueStr)),
-            int => 4,
-            float => 4,
-            bool => 0,
-            _ => 0
-        });
+            totalLength += value switch
+            {
+                string valueStr => OscUtils.AlignIndex(Encoding.UTF8.GetByteCount(valueStr)),
+                int => 4,
+                float => 4,
+                bool => 0,
+                _ => 0
+            };
+        }
 
-        return addressLength + typeTagsLength + valuesLength;
+        return totalLength;
     }
 
     private static void insertAddress(OscMessage message, byte[] data, ref int index)
     {
-        var addressBytes = Encoding.UTF8.GetBytes(message.Address);
-        addressBytes.CopyTo(data, index);
-        index = OscUtils.AlignIndex(addressBytes.Length);
+        stringToBytes(data, ref index, message.Address);
     }
 
     private static void insertTypeTags(OscMessage message, byte[] data, ref int index)
@@ -89,13 +91,13 @@ internal static class OscEncoder
 
     private static void intToBytes(byte[] data, ref int index, int value)
     {
-        BinaryPrimitives.WriteInt32BigEndian(data.AsSpan().Slice(index, 4), value);
+        BinaryPrimitives.WriteInt32BigEndian(data.AsSpan(index, 4), value);
         index += 4;
     }
 
     private static void floatToBytes(byte[] data, ref int index, float value)
     {
-        BinaryPrimitives.WriteSingleBigEndian(data.AsSpan().Slice(index, 4), value);
+        BinaryPrimitives.WriteSingleBigEndian(data.AsSpan(index, 4), value);
         index += 4;
     }
 

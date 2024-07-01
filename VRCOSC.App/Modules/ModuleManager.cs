@@ -65,7 +65,7 @@ internal class ModuleManager : INotifyPropertyChanged
 
     public void PlayerUpdate()
     {
-        RunningModules.OfType<AvatarModule>().ForEach(module => module.PlayerUpdate());
+        RunningModules.ForEach(module => module.InvokePlayerUpdate());
     }
 
     public void ParameterReceived(VRChatOscMessage vrChatOscMessage)
@@ -75,7 +75,7 @@ internal class ModuleManager : INotifyPropertyChanged
 
     public void ChatBoxUpdate()
     {
-        RunningModules.OfType<ChatBoxModule>().ForEach(module => module.ChatBoxUpdate());
+        RunningModules.ForEach(module => module.ChatBoxUpdate());
     }
 
     #endregion

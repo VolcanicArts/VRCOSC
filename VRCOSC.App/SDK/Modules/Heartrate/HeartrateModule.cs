@@ -13,7 +13,7 @@ namespace VRCOSC.App.SDK.Modules.Heartrate;
 
 [ModuleType(ModuleType.Health)]
 [ModulePrefab("VRCOSC-Heartrate", "https://github.com/VolcanicArts/VRCOSC/releases/download/latest/VRCOSC-Heartrate.unitypackage")]
-public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProvider
+public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
 {
     protected T? HeartrateProvider;
 
@@ -93,6 +93,7 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
 
         HeartrateProvider = CreateProvider();
         HeartrateProvider.OnLog += Log;
+
         HeartrateProvider.OnHeartrateUpdate += newHeartrate =>
         {
             ChangeState(HeartrateState.Connected);
@@ -176,12 +177,12 @@ public abstract class HeartrateModule<T> : ChatBoxModule where T : HeartrateProv
         }
     }
 
-    protected override async void OnRegisteredParameterReceived(AvatarParameter avatarParameter)
+    protected override async void OnRegisteredParameterReceived(RegisteredParameter parameter)
     {
-        switch (avatarParameter.Lookup)
+        switch (parameter.Lookup)
         {
             case HeartrateParameter.Beat:
-                if (GetSettingValue<bool>(HeartrateSetting.BeatMode) && avatarParameter.GetValue<bool>())
+                if (GetSettingValue<bool>(HeartrateSetting.BeatMode) && parameter.GetValue<bool>())
                 {
                     await Task.Delay(50);
                     beatParameterValue = false;
