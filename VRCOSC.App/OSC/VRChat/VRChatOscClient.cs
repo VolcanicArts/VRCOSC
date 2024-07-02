@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -47,7 +46,7 @@ public class VRChatOscClient : OscClient
         {
             if (connectionManager.VRChatQueryPort is null) return null;
 
-            var url = $"http://127.0.0.1:{connectionManager.VRChatQueryPort}/{address}";
+            var url = $"http://127.0.0.1:{connectionManager.VRChatQueryPort}{address}";
 
             var response = await client.GetAsync(new Uri(url));
             if (!response.IsSuccessStatusCode) return null;
@@ -66,8 +65,8 @@ public class VRChatOscClient : OscClient
 
     public async Task<object?> FindParameterValue(string parameterName)
     {
-        var node = await findAddress(parameterName);
-        if (node?.Value is null || !node.Value.Any()) return null;
+        var node = await findParameter(parameterName);
+        if (node?.Value is null || node.Value.Length == 0) return null;
 
         return node.OscType switch
         {
@@ -82,7 +81,7 @@ public class VRChatOscClient : OscClient
 
     public async Task<TypeCode?> FindParameterType(string parameterName)
     {
-        var node = await findAddress(parameterName);
+        var node = await findParameter(parameterName);
         if (node is null) return null;
 
         return node.OscType switch

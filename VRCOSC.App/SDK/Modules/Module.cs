@@ -778,6 +778,44 @@ public abstract class Module
         }
     }
 
+    /// <summary>
+    /// Retrieves a parameter's value using OSCQuery
+    /// </summary>
+    /// <param name="lookup">The lookup of the registered parameter</param>
+    protected Task<object?> FindParameterValue(Enum lookup)
+    {
+        var parameterName = Parameters[lookup].Name.Value!;
+        return FindParameterValue(parameterName);
+    }
+
+    /// <summary>
+    /// Retrieves a parameter's value using OSCQuery
+    /// </summary>
+    /// <param name="parameterName">The name of the parameter</param>
+    protected Task<object?> FindParameterValue(string parameterName)
+    {
+        return AppManager.GetInstance().VRChatOscClient.FindParameterValue(parameterName);
+    }
+
+    /// <summary>
+    /// Retrieves a parameter's type using OSCQuery
+    /// </summary>
+    /// <param name="lookup">The lookup of the registered parameter</param>
+    protected Task<TypeCode?> FindParameterType(Enum lookup)
+    {
+        var parameterName = Parameters[lookup].Name.Value!;
+        return FindParameterType(parameterName);
+    }
+
+    /// <summary>
+    /// Retrieves a parameter's type using OSCQuery
+    /// </summary>
+    /// <param name="parameterName">The name of the parameter</param>
+    protected Task<TypeCode?> FindParameterType(string parameterName)
+    {
+        return AppManager.GetInstance().VRChatOscClient.FindParameterType(parameterName);
+    }
+
     internal void OnParameterReceived(VRChatOscMessage message)
     {
         lock (loadLock)
