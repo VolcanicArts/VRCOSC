@@ -806,7 +806,7 @@ public abstract class Module
 
             var parameterData = Parameters[lookup];
 
-            if (!parameterData.Metadata.Mode.HasFlagFast(ParameterMode.Read)) return;
+            if (!parameterData.Metadata.Mode.HasFlag(ParameterMode.Read)) return;
 
             if (!receivedParameter.IsValueType(parameterData.Metadata.Type))
             {
