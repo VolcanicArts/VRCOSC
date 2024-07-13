@@ -310,7 +310,7 @@
                             <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
                                     CornerRadius="5">
                                 <Grid>
-                                    <TextBlock Text="Microphone" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock Text="Input Microphone" Style="{StaticResource SettingTitle}" />
                                     <TextBlock Text="Choose which microphone VRCOSC should use"
                                                Style="{StaticResource SettingDescription}" />
                                     <ComboBox Name="MicrophoneComboBox"
