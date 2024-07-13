@@ -30,7 +30,7 @@ public class ProgressClipVariable : ClipVariable
     [ClipVariableOption("visual_end", "Visual End", "The character to be shown at the end of the visual")]
     public string VisualEnd { get; set; } = "\u252B";
 
-    public override bool IsDefault() => base.IsDefault() && UseVisual;
+    public override bool IsDefault() => base.IsDefault() && UseVisual && VisualResolution == 10 && VisualLine == "\u2501" && VisualPosition == "\u25CF" && VisualStart == "\u2523" && VisualEnd == "\u252B";
 
     protected override string Format(object value)
     {
