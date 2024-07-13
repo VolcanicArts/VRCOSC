@@ -81,7 +81,7 @@ public class ChatBoxManager : INotifyPropertyChanged
         VariableReferences.Add(new ClipVariableReference
         {
             VariableID = BuiltInVariables.Text.ToLookup(),
-            DisplayName = { Value = "Text" },
+            DisplayName = { Value = "Custom Text" },
             ClipVariableType = typeof(TextClipVariable),
             ValueType = typeof(string)
         });
