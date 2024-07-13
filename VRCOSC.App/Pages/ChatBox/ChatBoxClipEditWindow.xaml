@@ -652,10 +652,9 @@
                                                                             SelectedIndex="{Binding BehaviourIndex}"
                                                                             ItemsSource="{Binding BehaviourSource}"
                                                                             Background="{StaticResource CBackground3}"
-                                                                            FontSize="16"
+                                                                            FontSize="14"
                                                                             HorizontalAlignment="Stretch"
-                                                                            VerticalContentAlignment="Center"
-                                                                            Margin="0 5" />
+                                                                            VerticalContentAlignment="Center" />
                                                                     </Grid>
                                                                 </Border>
                                                             </ui:SpacedStackPanel>
