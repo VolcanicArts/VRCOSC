@@ -120,7 +120,7 @@ public sealed class Player
                 break;
 
             default:
-                throw new ArgumentOutOfRangeException(nameof(vrChatInputParameter), vrChatInputParameter, $"Unknown {nameof(VRChatInputParameter)}");
+                throw new ArgumentOutOfRangeException(nameof(vrChatInputParameter), vrChatInputParameter.ToString(), $"Unknown {nameof(VRChatInputParameter)}");
         }
 
         return true;
