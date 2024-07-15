@@ -81,7 +81,8 @@ public abstract class Module
     private static Regex parameterToRegex(string parameterName)
     {
         var pattern = "^"; // start of string
-        pattern += parameterName.Replace("/", @"\/").Replace("*", @"(\S*)");
+        pattern += @"(?:VF\d+_)*"; // VRCFury prefix
+        pattern += $"({parameterName.Replace("/", @"\/").Replace("*", @"(?:\S*)")})";
         pattern += "$"; // end of string
 
         return new Regex(pattern);
@@ -837,7 +838,16 @@ public abstract class Module
                 ExceptionHandler.Handle(e, $"Module {FullID} experienced an exception calling {nameof(OnAnyParameterReceived)}");
             }
 
-            var parameterName = Parameters.Values.FirstOrDefault(moduleParameter => parameterNameRegex[moduleParameter.Name.Value!].IsMatch(receivedParameter.Name))?.Name.Value;
+            string? parameterName = null;
+
+            foreach (var parameter in Parameters.Values)
+            {
+                var match = parameterNameRegex[parameter.Name.Value!].Match(receivedParameter.Name);
+                if (!match.Success) continue;
+
+                parameterName = match.Groups[1].Captures[0].Value;
+            }
+
             if (parameterName is null) return;
 
             if (!parameterNameEnum.TryGetValue(parameterName, out var lookup)) return;
