@@ -16,7 +16,6 @@ using VRCOSC.App.ChatBox.Clips.Variables;
 using VRCOSC.App.ChatBox.Clips.Variables.Instances;
 using VRCOSC.App.Modules;
 using VRCOSC.App.OSC.VRChat;
-using VRCOSC.App.Packages;
 using VRCOSC.App.Pages.Modules.Settings;
 using VRCOSC.App.SDK.Modules.Attributes;
 using VRCOSC.App.SDK.Modules.Attributes.Parameters;
@@ -33,22 +32,27 @@ namespace VRCOSC.App.SDK.Modules;
 
 public abstract class Module
 {
+    private string id => GetType().Name.ToLowerInvariant();
+
+    /// <summary>
+    /// The ID of the package this <see cref="Module"/> belongs to
+    /// </summary>
     internal string PackageID { get; set; } = null!;
-    internal string ID => GetType().Name.ToLowerInvariant();
-    internal string FullID => $"{PackageID}.{ID}";
 
+    /// <summary>
+    /// The package ID this <see cref="Module"/> is from + the <see cref="Module"/>'s ID
+    /// </summary>
+    internal string FullID => $"{PackageID}.{id}";
+
+    /// <summary>
+    /// Whether this <see cref="Module"/> is currently enabled on the module listing page
+    /// </summary>
     public Observable<bool> Enabled { get; } = new();
+
+    /// <summary>
+    /// The current state of this <see cref="Module"/>
+    /// </summary>
     internal Observable<ModuleState> State { get; } = new(ModuleState.Stopped);
-
-    protected OVRClient OVRClient => AppManager.GetInstance().OVRClient;
-    protected VRChatClient VRChatClient => AppManager.GetInstance().VRChatClient;
-
-    public string Title => GetType().GetCustomAttribute<ModuleTitleAttribute>()?.Title ?? "PLACEHOLDER";
-    public string ShortDescription => GetType().GetCustomAttribute<ModuleDescriptionAttribute>()?.ShortDescription ?? string.Empty;
-    public ModuleType Type => GetType().GetCustomAttribute<ModuleTypeAttribute>()?.Type ?? ModuleType.Generic;
-    public Brush Colour => Type.ToColour();
-
-    public string TitleWithPackage => PackageManager.GetInstance().GetPackage(PackageID) is null ? $"(Local) {Title}" : Title;
 
     // Cached pre-computed lookups
     private readonly Dictionary<string, Enum> parameterNameEnum = new();
@@ -61,7 +65,7 @@ public abstract class Module
     internal readonly Dictionary<ModulePersistentAttribute, PropertyInfo> PersistentProperties = new();
 
     private readonly List<Repeater> updateTasks = new();
-    internal readonly List<MethodInfo> ChatBoxUpdateMethods = new();
+    private readonly List<MethodInfo> chatBoxUpdateMethods = new();
 
     private SerialisationManager moduleSerialisationManager = null!;
     private SerialisationManager persistenceSerialisationManager = null!;
@@ -69,6 +73,12 @@ public abstract class Module
     internal Page? RuntimePage;
 
     private readonly object loadLock = new();
+
+    public string Title => GetType().GetCustomAttribute<ModuleTitleAttribute>()?.Title ?? "PLACEHOLDER TITLE";
+    public string TitleWithPackage => PackageID == "local" ? $"(Local) {Title}" : Title;
+    public string ShortDescription => GetType().GetCustomAttribute<ModuleDescriptionAttribute>()?.ShortDescription ?? "PLACEHOLDER DESCRIPTION";
+    public ModuleType Type => GetType().GetCustomAttribute<ModuleTypeAttribute>()?.Type ?? ModuleType.Generic;
+    public Brush Colour => Type.ToColour();
 
     public bool HasSettings => Settings.Count != 0;
     public bool HasParameters => Parameters.Count != 0;
@@ -78,15 +88,7 @@ public abstract class Module
         State.Subscribe(newState => Log(newState.ToString()));
     }
 
-    private static Regex parameterToRegex(string parameterName)
-    {
-        var pattern = "^"; // start of string
-        pattern += @"(?:VF\d+_)*"; // VRCFury prefix
-        pattern += $"({parameterName.Replace("/", @"\/").Replace("*", @"(?:\S*)")})";
-        pattern += "$"; // end of string
-
-        return new Regex(pattern);
-    }
+    #region Management
 
     internal void InjectDependencies(SerialisationManager moduleSerialisationManager, SerialisationManager persistenceSerialisationManager)
     {
@@ -130,6 +132,8 @@ public abstract class Module
 
         ChatBoxManager.GetInstance().Deserialise();
     }
+
+    #endregion
 
     #region Persistence
 
@@ -176,6 +180,18 @@ public abstract class Module
     }
 
     #endregion
+
+    #region Runtime
+
+    private static Regex parameterToRegex(string parameterName)
+    {
+        var pattern = "^"; // start of string
+        pattern += @"(?:VF\d+_)*"; // VRCFury prefix
+        pattern += $"({parameterName.Replace("/", @"\/").Replace("*", @"(?:\S*)")})";
+        pattern += "$"; // end of string
+
+        return new Regex(pattern);
+    }
 
     internal async Task Start()
     {
@@ -242,7 +258,7 @@ public abstract class Module
                         break;
 
                     case ModuleUpdateMode.ChatBox:
-                        ChatBoxUpdateMethods.Add(method);
+                        chatBoxUpdateMethods.Add(method);
                         break;
                 }
             });
@@ -260,7 +276,21 @@ public abstract class Module
         }
     }
 
+    #endregion
+
     #region SDK
+
+    /// <summary>
+    /// Retrieves the player instance that gives you information about the local player, their built-in avatar parameters, and input controls
+    /// </summary>
+    protected Player GetPlayer() => AppManager.GetInstance().VRChatClient.Player;
+
+    /// <summary>
+    /// Allows you to access the current state of SteamVR (or any OpenVR runtime)
+    /// </summary>
+    protected OVRClient GetOVRClient() => AppManager.GetInstance().OVRClient;
+
+    #region Callbacks
 
     protected virtual void OnPreLoad()
     {
@@ -273,6 +303,24 @@ public abstract class Module
     protected virtual Task<bool> OnModuleStart() => Task.FromResult(true);
 
     protected virtual Task OnModuleStop() => Task.CompletedTask;
+
+    protected virtual void OnAnyParameterReceived(ReceivedParameter parameter)
+    {
+    }
+
+    protected virtual void OnRegisteredParameterReceived(RegisteredParameter parameter)
+    {
+    }
+
+    protected virtual void OnAvatarChange(AvatarConfig? avatarConfig)
+    {
+    }
+
+    protected virtual void OnPlayerUpdate()
+    {
+    }
+
+    #endregion
 
     /// <summary>
     /// Logs to the terminal when the module is running
@@ -823,7 +871,8 @@ public abstract class Module
         {
             if (message.IsAvatarChangeEvent)
             {
-                invokeAvatarChange();
+                var avatarConfig = AvatarConfigLoader.LoadConfigFor((string)message.ParameterValue);
+                invokeAvatarChange(avatarConfig);
                 return;
             }
 
@@ -875,11 +924,11 @@ public abstract class Module
         }
     }
 
-    private void invokeAvatarChange()
+    private void invokeAvatarChange(AvatarConfig? avatarConfig)
     {
         try
         {
-            OnAvatarChange();
+            OnAvatarChange(avatarConfig);
         }
         catch (Exception e)
         {
@@ -901,23 +950,7 @@ public abstract class Module
 
     internal void InvokeChatBoxUpdate()
     {
-        ChatBoxUpdateMethods.ForEach(invokeMethod);
-    }
-
-    protected virtual void OnAnyParameterReceived(ReceivedParameter receivedParameter)
-    {
-    }
-
-    protected virtual void OnRegisteredParameterReceived(RegisteredParameter parameter)
-    {
-    }
-
-    protected virtual void OnAvatarChange()
-    {
-    }
-
-    protected virtual void OnPlayerUpdate()
-    {
+        chatBoxUpdateMethods.ForEach(invokeMethod);
     }
 
     #endregion
