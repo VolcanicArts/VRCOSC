@@ -14,7 +14,7 @@ public class OSCQueryRootNode : OSCQueryNode
 
     public OSCQueryRootNode()
     {
-        pathStore = new Dictionary<string, OSCQueryNode>()
+        pathStore = new Dictionary<string, OSCQueryNode>
         {
             { "/", this }
         };

@@ -13,7 +13,6 @@
     <Page.Resources>
         <ui:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
                                        Colour2="{StaticResource CBackground4}" />
-        <ui:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
     </Page.Resources>
     <Grid>
         <Button x:Name="FocusTaker"

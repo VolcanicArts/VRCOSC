@@ -36,7 +36,8 @@ public class PackageSource
     public PackageSourceState State { get; private set; } = PackageSourceState.Unknown;
     public string? PackageID => Repository?.PackageFile?.PackageID;
     public string? LatestVersion => Repository?.Releases.FirstOrDefault()?.Version;
-    public List<PackageRelease> FilteredReleases => Repository!.Releases.Where(packageRelease => (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AllowPreReleasePackages) && packageRelease.IsPrerelease) || !packageRelease.IsPrerelease)!.ToList();
+
+    public List<PackageRelease> FilteredReleases => Repository!.Releases.Where(packageRelease => (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AllowPreReleasePackages) && packageRelease.IsPrerelease) || !packageRelease.IsPrerelease).ToList();
     public PackageRelease LatestRelease => FilteredReleases.First();
     public PackageRelease? InstalledRelease => FilteredReleases.SingleOrDefault(packageRelease => packageRelease.Version == InstalledVersion);
 

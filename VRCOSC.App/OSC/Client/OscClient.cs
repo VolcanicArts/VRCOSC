@@ -18,7 +18,7 @@ public abstract class OscClient
     public Action<byte[]>? OnDataSent;
     public Action<byte[]>? OnDataReceived;
 
-    public OscClient()
+    protected OscClient()
     {
         receiver.OnRawDataReceived += data =>
         {
@@ -37,8 +37,8 @@ public abstract class OscClient
         receiver.Initialise(receiveEndpoint);
     }
 
-    public bool EnableSend() => sender.Enable();
-    public bool EnableReceive() => receiver.Enable();
+    public void EnableSend() => sender.Enable();
+    public void EnableReceive() => receiver.Enable();
 
     public void DisableSend() => sender.Disable();
     public Task DisableReceive() => receiver.Disable();

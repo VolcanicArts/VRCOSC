@@ -27,6 +27,7 @@ public abstract class ListModuleSetting<T> : ModuleSetting, IListModuleSetting
     public override void PreDeserialise()
     {
         Attribute = new ObservableCollection<T>(getClonedDefaults());
+
         Attribute.CollectionChanged += (_, _) =>
         {
             OnSettingChange?.Invoke();

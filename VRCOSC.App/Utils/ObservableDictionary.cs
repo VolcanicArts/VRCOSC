@@ -7,6 +7,8 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+
 namespace VRCOSC.App.Utils;
 
 public class ObservableKeyValuePair<TKey, TValue> : INotifyPropertyChanged
@@ -40,12 +42,12 @@ public class ObservableKeyValuePair<TKey, TValue> : INotifyPropertyChanged
 
     #region INotifyPropertyChanged Members
 
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     public void OnPropertyChanged(string name)
     {
-        PropertyChangedEventHandler handler = PropertyChanged;
-        if (handler != null) handler(this, new PropertyChangedEventArgs(name));
+        var handler = PropertyChanged;
+        handler?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 
     #endregion
@@ -71,7 +73,7 @@ public class ObservableDictionary<TKey, TValue> : ObservableCollection<Observabl
         return !Equals(default, r);
     }
 
-    public bool Equals<TKey>(TKey a, TKey b) => EqualityComparer<TKey>.Default.Equals(a, b);
+    public bool Equals(TKey a, TKey b) => EqualityComparer<TKey>.Default.Equals(a, b);
 
     private ObservableCollection<ObservableKeyValuePair<TKey, TValue>> thisAsCollection() => this;
 
@@ -91,21 +93,19 @@ public class ObservableDictionary<TKey, TValue> : ObservableCollection<Observabl
 
     public bool TryGetValue(TKey key, out TValue value)
     {
-        value = default;
+        value = default!;
         var r = getKvpByTheKey(key);
 
-        if (Equals(r, default))
-        {
+        if (r is null)
             return false;
-        }
 
         value = r.Value;
         return true;
     }
 
-    private ObservableKeyValuePair<TKey, TValue> getKvpByTheKey(TKey key)
+    private ObservableKeyValuePair<TKey, TValue>? getKvpByTheKey(TKey key)
     {
-        return thisAsCollection().FirstOrDefault(i => i.Key.Equals(key));
+        return thisAsCollection().FirstOrDefault(i => i.Key!.Equals(key));
     }
 
     public ICollection<TValue> Values => (from i in thisAsCollection() select i.Value).ToList();
@@ -114,9 +114,7 @@ public class ObservableDictionary<TKey, TValue> : ObservableCollection<Observabl
     {
         get
         {
-            TValue result;
-
-            if (!TryGetValue(key, out result))
+            if (!TryGetValue(key, out var result))
             {
                 throw new ArgumentException("Key not found");
             }
@@ -127,7 +125,7 @@ public class ObservableDictionary<TKey, TValue> : ObservableCollection<Observabl
         {
             if (ContainsKey(key))
             {
-                getKvpByTheKey(key).Value = value;
+                getKvpByTheKey(key)!.Value = value;
             }
             else
             {
@@ -148,13 +146,7 @@ public class ObservableDictionary<TKey, TValue> : ObservableCollection<Observabl
     public bool Contains(KeyValuePair<TKey, TValue> item)
     {
         var r = getKvpByTheKey(item.Key);
-
-        if (Equals(r, default))
-        {
-            return false;
-        }
-
-        return Equals(r.Value, item.Value);
+        return r is not null && Equals(r.Value, item.Value);
     }
 
     public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
@@ -168,17 +160,10 @@ public class ObservableDictionary<TKey, TValue> : ObservableCollection<Observabl
     {
         var r = getKvpByTheKey(item.Key);
 
-        if (Equals(r, default))
-        {
+        if (r is null)
             return false;
-        }
 
-        if (!Equals(r.Value, item.Value))
-        {
-            return false;
-        }
-
-        return thisAsCollection().Remove(r);
+        return Equals(r.Value, item.Value) && thisAsCollection().Remove(r);
     }
 
     #endregion

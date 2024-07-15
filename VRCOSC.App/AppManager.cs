@@ -43,7 +43,7 @@ public class AppManager
 #else
     public const string APP_NAME = "VRCOSC-V2";
 #endif
-    
+
     private static Version assemblyVersion => Assembly.GetEntryAssembly()?.GetName().Version ?? new Version();
     public static string Version => $"{assemblyVersion.Major}.{assemblyVersion.Minor}.{assemblyVersion.Build}";
 
@@ -90,6 +90,7 @@ public class AppManager
         ChatBoxWorldBlacklist.Init();
 
         SpeechEngine = new WhisperSpeechEngine();
+
         SpeechEngine.OnResult += result => ModuleManager.GetInstance().GetRunningModulesOfType<ISpeechHandler>().ForEach(module =>
         {
             try
@@ -445,6 +446,9 @@ public class AppManager
     {
         var currentProfile = ProfileManager.GetInstance().ActiveProfile.Value;
         if (currentProfile == newProfile) return;
+
+        Debug.Assert(currentProfile is not null);
+        Debug.Assert(newProfile is not null);
 
         Logger.Log($"Changing profile from {currentProfile.Name.Value} ({currentProfile.ID}) to {newProfile.Name.Value} ({newProfile.ID})");
 

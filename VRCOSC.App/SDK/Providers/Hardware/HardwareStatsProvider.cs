@@ -52,6 +52,7 @@ public sealed class HardwareStatsProvider
         {
             updateHardware(hardware);
             auditHardware(hardware);
+
             hardware.Sensors.ForEach(sensor =>
             {
                 var identifier = sensor.Identifier.ToString()!;
@@ -76,7 +77,6 @@ public sealed class HardwareStatsProvider
                 if (identifier.Contains("gpu", StringComparison.InvariantCultureIgnoreCase))
                 {
                     GPUs[sensorId].Update(sensor);
-                    return;
                 }
             });
         });
@@ -121,7 +121,6 @@ public sealed class HardwareStatsProvider
         if (identifier.Contains("gpu", StringComparison.InvariantCultureIgnoreCase))
         {
             GPUs.TryAdd(hardwareID, new GPU());
-            return;
         }
     }
 }

@@ -25,7 +25,7 @@ public class PackageUninstallAction : ProgressAction
     protected override Task Perform()
     {
         localProgress = 0f;
-        storage.DeleteDirectory(packageSource.PackageID);
+        storage.DeleteDirectory(packageSource.PackageID!);
         localProgress = 1f;
         return Task.CompletedTask;
     }

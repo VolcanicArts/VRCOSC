@@ -67,13 +67,13 @@ public partial class AppSettingsPage
         set => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.UseCustomEndpoints).Value = value;
     }
 
-    public string? OutgoingEndpoint
+    public string OutgoingEndpoint
     {
         get => SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.OutgoingEndpoint).Value;
         set => SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.OutgoingEndpoint).Value = value;
     }
 
-    public string? IncomingEndpoint
+    public string IncomingEndpoint
     {
         get => SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.IncomingEndpoint).Value;
         set => SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.IncomingEndpoint).Value = value;
@@ -115,7 +115,7 @@ public partial class AppSettingsPage
         set => SettingsManager.GetInstance().GetObservable<SpeechEngine>(VRCOSCSetting.SelectedSpeechEngine).Value = value;
     }
 
-    public string? WhisperModelFilePath
+    public string WhisperModelFilePath
     {
         get => SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.Whisper_ModelPath).Value;
         set => SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.Whisper_ModelPath).Value = value;
@@ -127,9 +127,7 @@ public partial class AppSettingsPage
         set => SettingsManager.GetInstance().GetObservable<float>(VRCOSCSetting.SpeechConfidence).Value = value / 100f;
     }
 
-    private int selectedPage;
-
-    private List<DeviceDisplay> audioInputDevices;
+    private List<DeviceDisplay> audioInputDevices = null!;
 
     public AppSettingsPage()
     {
@@ -167,8 +165,6 @@ public partial class AppSettingsPage
 
     private void setPage(int pageIndex)
     {
-        selectedPage = pageIndex;
-
         GeneralTabButton.Background = pageIndex == 0 ? (Brush)FindResource("CBackground6") : (Brush)FindResource("CBackground3");
         OscTabButton.Background = pageIndex == 1 ? (Brush)FindResource("CBackground6") : (Brush)FindResource("CBackground3");
         AutomationTabButton.Background = pageIndex == 2 ? (Brush)FindResource("CBackground6") : (Brush)FindResource("CBackground3");

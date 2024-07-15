@@ -584,7 +584,7 @@ public class ClipWidthConverter : IMultiValueConverter
 
 public class ClipEnabledToOpacityConverter : IValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value is bool enabled)
         {
@@ -594,12 +594,12 @@ public class ClipEnabledToOpacityConverter : IValueConverter
         return 1f;
     }
 
-    public object? ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => null;
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
 }
 
 public class BoolToThicknessConverter : IValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value is bool boolValue)
         {
@@ -609,5 +609,5 @@ public class BoolToThicknessConverter : IValueConverter
         return new Thickness(0);
     }
 
-    public object? ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => null;
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
 }

@@ -15,15 +15,7 @@ public partial class SettingsPage
         AppManager.GetInstance().VRChatAPIClient.AuthHandler.State.Subscribe(newState =>
         {
             StateDisplay.Text = newState.ToString();
-
-            if (newState == AuthenticationState.LoggedIn)
-            {
-                TokenDisplay.Text = AppManager.GetInstance().VRChatAPIClient.AuthHandler.AuthToken;
-            }
-            else
-            {
-                TokenDisplay.Text = string.Empty;
-            }
+            TokenDisplay.Text = newState == AuthenticationState.LoggedIn ? AppManager.GetInstance().VRChatAPIClient.AuthHandler.AuthToken : string.Empty;
         }, true);
     }
 

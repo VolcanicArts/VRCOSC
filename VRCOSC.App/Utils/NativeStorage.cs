@@ -49,7 +49,8 @@ public class NativeStorage : Storage
 
     private IEnumerable<string> getRelativePaths(IEnumerable<string> paths)
     {
-        string basePath = Path.GetFullPath(GetFullPath(string.Empty));
+        var basePath = Path.GetFullPath(GetFullPath(string.Empty));
+
         return paths.Select(Path.GetFullPath).Select(path =>
         {
             if (!path.StartsWith(basePath, StringComparison.OrdinalIgnoreCase)) throw new ArgumentException($"\"{path}\" does not start with \"{basePath}\" and is probably malformed");
@@ -62,8 +63,8 @@ public class NativeStorage : Storage
     {
         path = path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
 
-        string basePath = Path.GetFullPath(BasePath).TrimEnd(Path.DirectorySeparatorChar);
-        string resolvedPath = Path.GetFullPath(Path.Combine(basePath, path));
+        var basePath = Path.GetFullPath(BasePath).TrimEnd(Path.DirectorySeparatorChar);
+        var resolvedPath = Path.GetFullPath(Path.Combine(basePath, path));
 
         if (!resolvedPath.StartsWith(basePath, StringComparison.OrdinalIgnoreCase)) throw new ArgumentException($"\"{resolvedPath}\" traverses outside of \"{basePath}\" and is probably malformed");
 
@@ -94,7 +95,7 @@ public class NativeStorage : Storage
             path += Path.DirectorySeparatorChar;
 
         // create non-existing path.
-        string fullPath = GetFullPath(path, true);
+        var fullPath = GetFullPath(path, true);
 
         return (Storage)Activator.CreateInstance(GetType(), fullPath)!;
     }

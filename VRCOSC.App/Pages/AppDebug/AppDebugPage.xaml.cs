@@ -48,6 +48,7 @@ public partial class AppDebugPage
         {
             if (e.Data != null) output.AppendLine(e.Data);
         };
+
         process.ErrorDataReceived += (_, e) =>
         {
             if (e.Data != null) error.AppendLine(e.Data);

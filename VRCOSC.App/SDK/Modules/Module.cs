@@ -204,8 +204,8 @@ public abstract class Module
 
         validParameters.ForEach(pair =>
         {
-            parameterNameEnum.Add(pair.Value.Name.Value!, pair.Key);
-            parameterNameRegex.Add(pair.Value.Name.Value!, parameterToRegex(pair.Value.Name.Value!));
+            parameterNameEnum.Add(pair.Value.Name.Value, pair.Key);
+            parameterNameRegex.Add(pair.Value.Name.Value, parameterToRegex(pair.Value.Name.Value));
         });
 
         loadPersistentProperties();
@@ -773,7 +773,7 @@ public abstract class Module
 
         if (string.IsNullOrWhiteSpace(moduleParameter.Name.Value)) return;
 
-        SendParameter(moduleParameter.Name.Value!, value);
+        SendParameter(moduleParameter.Name.Value, value);
     }
 
     /// <summary>
@@ -833,7 +833,7 @@ public abstract class Module
     /// <param name="lookup">The lookup of the registered parameter</param>
     protected Task<object?> FindParameterValue(Enum lookup)
     {
-        var parameterName = Parameters[lookup].Name.Value!;
+        var parameterName = Parameters[lookup].Name.Value;
         return FindParameterValue(parameterName);
     }
 
@@ -852,7 +852,7 @@ public abstract class Module
     /// <param name="lookup">The lookup of the registered parameter</param>
     protected Task<TypeCode?> FindParameterType(Enum lookup)
     {
-        var parameterName = Parameters[lookup].Name.Value!;
+        var parameterName = Parameters[lookup].Name.Value;
         return FindParameterType(parameterName);
     }
 
@@ -891,7 +891,7 @@ public abstract class Module
 
             foreach (var parameter in Parameters.Values)
             {
-                var match = parameterNameRegex[parameter.Name.Value!].Match(receivedParameter.Name);
+                var match = parameterNameRegex[parameter.Name.Value].Match(receivedParameter.Name);
                 if (!match.Success) continue;
 
                 parameterName = match.Groups[1].Captures[0].Value;

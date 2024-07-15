@@ -53,6 +53,7 @@ public static class Extensions
 
         var storyboard = new Storyboard();
         storyboard.Children.Add(fadeOutAnimation);
+
         storyboard.Completed += (_, _) =>
         {
             element.Visibility = Visibility.Collapsed;

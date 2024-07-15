@@ -8,14 +8,12 @@ namespace VRCOSC.App.Actions;
 
 public class DynamicProgressAction : ProgressAction
 {
-    private readonly string title;
+    public override string Title { get; }
     private readonly Action callback;
-
-    public override string Title => title;
 
     public DynamicProgressAction(string title, Action callback)
     {
-        this.title = title;
+        Title = title;
         this.callback = callback;
     }
 
@@ -30,14 +28,12 @@ public class DynamicProgressAction : ProgressAction
 
 public class DynamicAsyncProgressAction : ProgressAction
 {
-    private readonly string title;
+    public override string Title { get; }
     private readonly Func<Task> callback;
-
-    public override string Title => title;
 
     public DynamicAsyncProgressAction(string title, Func<Task> callback)
     {
-        this.title = title;
+        Title = title;
         this.callback = callback;
     }
 

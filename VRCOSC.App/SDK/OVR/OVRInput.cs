@@ -28,7 +28,7 @@ public class OVRInput
 
     internal void Init()
     {
-        OpenVR.Input.SetActionManifestPath(client.Metadata.ActionManifest);
+        OpenVR.Input.SetActionManifestPath(client.Metadata!.ActionManifest);
         getActionHandles();
     }
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Numerics;
 
 namespace VRCOSC.App.Utils;
@@ -53,6 +53,7 @@ public static class Interpolation
             throw new ArgumentException($"{nameof(points)} must contain at least one point");
 
         double sum = 0;
+
         for (int i = 0; i < points.Length; i++)
             sum += points[i].Y * LagrangeBasis(points, i, time);
         return sum;
@@ -112,6 +113,7 @@ public static class Interpolation
     {
         if (points == null || points.Length == 0)
             throw new ArgumentException($"{nameof(points)} must contain at least one point");
+
         if (points.Length != weights.Length)
             throw new ArgumentException($"{nameof(points)} must contain exactly as many items as {nameof(weights)}");
 

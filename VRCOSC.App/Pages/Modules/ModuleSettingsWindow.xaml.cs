@@ -34,6 +34,7 @@ public partial class ModuleSettingsWindow
             Module.Groups.ForEach(pair =>
             {
                 var moduleSettings = new List<ModuleSetting>();
+
                 pair.Value.ForEach(moduleSettingLookup =>
                 {
                     moduleSettings.Add(Module.Settings[moduleSettingLookup]);

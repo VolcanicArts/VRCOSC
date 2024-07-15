@@ -95,7 +95,7 @@ public class RegisteredParameter : ReceivedParameter
     private void decodeWildcards()
     {
         var referenceSections = Name.Split("/");
-        var originalSections = moduleParameter.Name.Value!.Split("/");
+        var originalSections = moduleParameter.Name.Value.Split("/");
 
         for (int i = 0; i < originalSections.Length; i++)
         {

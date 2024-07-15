@@ -4,7 +4,6 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:ui="clr-namespace:VRCOSC.App.UI"
-      xmlns:fa5="http://schemas.fontawesome.com/icons/"
       xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
       xmlns:utils="clr-namespace:VRCOSC.App.Utils"
       mc:Ignorable="d">

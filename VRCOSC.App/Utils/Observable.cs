@@ -1,14 +1,15 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
 
-namespace VRCOSC.App.Utils;
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
-using System;
-using System.Collections.Generic;
+namespace VRCOSC.App.Utils;
 
 public interface IObservable
 {
@@ -41,9 +42,9 @@ public class ObservableConverter : JsonConverter<ISerialisableObservable>
 
 public sealed class Observable<T> : IObservable, INotifyPropertyChanged, ISerialisableObservable
 {
-    private T? value;
+    private T value;
 
-    public T? Value
+    public T Value
     {
         get => value;
         set
@@ -56,17 +57,17 @@ public sealed class Observable<T> : IObservable, INotifyPropertyChanged, ISerial
         }
     }
 
-    public T? DefaultValue { get; }
+    public T DefaultValue { get; }
 
     private readonly List<Action> noValueActions = new();
-    private readonly List<Action<T?>> actions = new();
+    private readonly List<Action<T>> actions = new();
 
     [JsonConstructor]
     private Observable()
     {
     }
 
-    public Observable(T? initialValue = default)
+    public Observable(T initialValue = default(T))
     {
         value = initialValue;
         DefaultValue = initialValue;
@@ -87,7 +88,7 @@ public sealed class Observable<T> : IObservable, INotifyPropertyChanged, ISerial
         if (runOnceImmediately) noValueAction.Invoke();
     }
 
-    public void Subscribe(Action<T?> action, bool runOnceImmediately = false)
+    public void Subscribe(Action<T> action, bool runOnceImmediately = false)
     {
         actions.Add(action);
         if (runOnceImmediately) action.Invoke(value);
@@ -98,7 +99,7 @@ public sealed class Observable<T> : IObservable, INotifyPropertyChanged, ISerial
         noValueActions.Remove(noValueAction);
     }
 
-    public void Unsubscribe(Action<T?> action)
+    public void Unsubscribe(Action<T> action)
     {
         actions.Remove(action);
     }
@@ -146,7 +147,7 @@ public sealed class Observable<T> : IObservable, INotifyPropertyChanged, ISerial
     {
         try
         {
-            Value = serializer.Deserialize<T>(reader);
+            Value = serializer.Deserialize<T>(reader)!;
         }
         catch (Exception e)
         {

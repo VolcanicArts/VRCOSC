@@ -301,10 +301,10 @@ public class Logger
             // add exception output to console / logfile output (but not the LogEntry's message).
             logOutput += $"\n{ApplyFilters(exception.ToString())}";
 
-        IEnumerable<string> lines = logOutput
-                                    .Replace(@"\r\n", @"\n")
-                                    .Split('\n')
-                                    .Select(s => $@"{DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)} [{level.ToString().ToLowerInvariant()}]: {s.Trim()}");
+        var lines = logOutput
+                    .Replace(@"\r\n", @"\n")
+                    .Split('\n')
+                    .Select(s => $@"{DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)} [{level.ToString().ToLowerInvariant()}]: {s.Trim()}");
 
         if (outputToListeners)
         {
@@ -369,7 +369,7 @@ public class Logger
 
         try
         {
-            using var stream = Storage.GetStream(Filename, FileAccess.Write, FileMode.Append);
+            using var stream = Storage.GetStream(Filename, FileAccess.Write, FileMode.Append)!;
             using var writer = new StreamWriter(stream);
 
             if (!headerAdded)

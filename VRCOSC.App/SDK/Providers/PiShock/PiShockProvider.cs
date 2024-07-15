@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.Providers.PiShock;
 
@@ -46,7 +47,7 @@ public class PiShockProvider
         }
         catch (Exception e)
         {
-            //ExceptionScreen.HandleException(e, $"{nameof(PiShockProvider)} has experienced an exception");
+            ExceptionHandler.Handle(e, $"{nameof(PiShockProvider)} has experienced an exception");
             return new PiShockResponse(false, e.Message);
         }
     }
@@ -68,7 +69,7 @@ public class PiShockProvider
         }
         catch (Exception e)
         {
-            //ExceptionScreen.HandleException(e, $"{nameof(PiShockProvider)} has experienced an exception");
+            ExceptionHandler.Handle(e, $"{nameof(PiShockProvider)} has experienced an exception");
             return null;
         }
     }
