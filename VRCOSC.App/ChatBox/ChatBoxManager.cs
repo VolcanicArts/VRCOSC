@@ -51,6 +51,7 @@ public class ChatBoxManager : INotifyPropertyChanged
     private Clip? currentClip;
     private string? currentText;
     private bool currentIsTyping;
+    private bool currentUseMinimalBackground;
 
     public bool SendEnabled { get; set; }
 
@@ -262,16 +263,18 @@ public class ChatBoxManager : INotifyPropertyChanged
 
         var newText = newClip.GetFormattedText();
         var newIsTyping = newClip.ShouldShowTyping();
+        var newUseMinimalBackground = newClip.ShouldUseMinimalBackground();
 
         newClip.IsChosenClip.Value = true;
 
-        if (newClip == currentClip && newText == currentText && newIsTyping == currentIsTyping) return;
+        if (newClip == currentClip && newText == currentText && newIsTyping == currentIsTyping && currentUseMinimalBackground == newUseMinimalBackground) return;
 
         currentClip = newClip;
         currentText = newText;
         currentIsTyping = newIsTyping;
+        currentUseMinimalBackground = newUseMinimalBackground;
 
-        if (newClip.ShouldUseMinimalBackground)
+        if (newClip.ShouldUseMinimalBackground())
             newText += "\u0003\u001f";
 
         sendText(newText);

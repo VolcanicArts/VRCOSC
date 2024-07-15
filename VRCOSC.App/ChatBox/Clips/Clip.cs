@@ -226,7 +226,7 @@ public class Clip : INotifyPropertyChanged
 
     public string GetFormattedText() => currentEvent is not null ? formatText(currentEvent.Value.Item1) : formatText(currentState!);
     public bool ShouldShowTyping() => currentEvent is not null ? currentEvent.Value.Item1.ShowTyping.Value : currentState!.ShowTyping.Value;
-    public bool ShouldUseMinimalBackground => currentEvent is not null ? currentEvent.Value.Item1.UseMinimalBackground.Value : currentState!.UseMinimalBackground.Value;
+    public bool ShouldUseMinimalBackground() => currentEvent is not null ? currentEvent.Value.Item1.UseMinimalBackground.Value : currentState!.UseMinimalBackground.Value;
 
     private string formatText(ClipElement element) => element.RunFormatting();
 
