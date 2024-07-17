@@ -66,5 +66,7 @@ public class OVRSystem
     private static uint getHmdIndex() => OVRHelper.GetIndexForTrackedDeviceClass(ETrackedDeviceClass.HMD);
     private static uint getLeftControllerIndex() => OVRHelper.GetLeftControllerId();
     private static uint getRightControllerIndex() => OVRHelper.GetRightControllerId();
-    private static IEnumerable<uint> getTrackerIndexes() => OVRHelper.GetIndexesForTrackedDeviceClass(ETrackedDeviceClass.GenericTracker);
+
+    // Remove standable trackers as they're virtual
+    private static IEnumerable<uint> getTrackerIndexes() => OVRHelper.GetIndexesForTrackedDeviceClass(ETrackedDeviceClass.GenericTracker).Where(index => !OVRHelper.GetStringTrackedDeviceProperty(index, ETrackedDeviceProperty.Prop_RenderModelName_String).Contains("stndbl", StringComparison.InvariantCultureIgnoreCase));
 }
