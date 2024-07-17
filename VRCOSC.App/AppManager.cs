@@ -161,11 +161,17 @@ public class AppManager
         openvrCheckTask = new Repeater(checkForOpenVR);
         openvrCheckTask.Start(TimeSpan.FromSeconds(2));
 
-        openvrUpdateTask = new Repeater(() => OVRClient.Update());
+        openvrUpdateTask = new Repeater(updateOVRClient);
         openvrUpdateTask.Start(TimeSpan.FromSeconds(1d / 60d));
 
         //if (VelopackUpdater.IsUpdateAvailable)
         //    VelopackUpdater.ShowUpdate();
+    }
+
+    private void updateOVRClient()
+    {
+        if (State.Value == AppManagerState.Started)
+            OVRClient.Update();
     }
 
     private void update()
