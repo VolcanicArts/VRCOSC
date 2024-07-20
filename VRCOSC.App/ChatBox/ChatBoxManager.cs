@@ -49,6 +49,7 @@ public class ChatBoxManager : INotifyPropertyChanged
     private Repeater? updateTask;
     private bool isClear;
     private Clip? currentClip;
+    private DateTimeOffset currentClipChanged;
     private string? currentText;
     private bool currentIsTyping;
     private bool currentUseMinimalBackground;
@@ -267,9 +268,13 @@ public class ChatBoxManager : INotifyPropertyChanged
 
         newClip.IsChosenClip.Value = true;
 
-        if (newClip == currentClip && newText == currentText && newIsTyping == currentIsTyping && currentUseMinimalBackground == newUseMinimalBackground) return;
+        var isClipExactSame = newClip == currentClip && newText == currentText && newIsTyping == currentIsTyping && currentUseMinimalBackground == newUseMinimalBackground;
+        var hasBeen20Seconds = currentClipChanged + TimeSpan.FromSeconds(20) <= DateTimeOffset.Now;
+
+        if (isClipExactSame && !hasBeen20Seconds) return;
 
         currentClip = newClip;
+        currentClipChanged = DateTimeOffset.Now;
         currentText = newText;
         currentIsTyping = newIsTyping;
         currentUseMinimalBackground = newUseMinimalBackground;
