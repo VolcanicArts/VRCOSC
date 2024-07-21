@@ -57,7 +57,7 @@ public abstract class WebSocketHeartrateProvider : HeartrateProvider
     /// </summary>
     public override async Task Teardown()
     {
-        if (client is null) return;
+        if (client is null || !client.IsConnected) return;
 
         await client.DisconnectAsync();
 
