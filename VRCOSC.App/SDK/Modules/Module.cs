@@ -124,15 +124,9 @@ public abstract class Module
         }
     }
 
-    internal async void ImportConfig(string filePathOverride)
+    internal void ImportConfig(string filePathOverride)
     {
-        await AppManager.GetInstance().StopAsync();
-
-        ChatBoxManager.GetInstance().Unload();
-
-        Load(filePathOverride);
-
-        ChatBoxManager.GetInstance().Load();
+        ModuleManager.GetInstance().ReloadAllModules(new Dictionary<string, string> { { FullID, filePathOverride } });
     }
 
     #endregion

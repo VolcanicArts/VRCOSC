@@ -96,16 +96,15 @@ internal class ModuleManager : INotifyPropertyChanged
     /// Reloads all local and remote modules by unloading their assembly contexts and calling <see cref="LoadAllModules"/>
     /// Ensures the ChatBox is unloaded before unloading the modules, and is loaded after loading the modules
     /// </summary>
-    public async void ReloadAllModules()
+    public async void ReloadAllModules(Dictionary<string, string> filePathOverrides)
     {
         Logger.Log("Module reload requested");
 
-        var isRunning = AppManager.GetInstance().State.Value is AppManagerState.Starting or AppManagerState.Started;
-        if (isRunning) await AppManager.GetInstance().StopAsync();
+        await AppManager.GetInstance().StopAsync();
 
         ChatBoxManager.GetInstance().Unload();
         UnloadAllModules();
-        LoadAllModules();
+        LoadAllModules(filePathOverrides);
         ChatBoxManager.GetInstance().Load();
     }
 
@@ -128,7 +127,7 @@ internal class ModuleManager : INotifyPropertyChanged
     /// <summary>
     /// Loads all local and remote modules from file
     /// </summary>
-    public void LoadAllModules()
+    public void LoadAllModules(Dictionary<string, string>? filePathOverrides = null)
     {
         failedPackageImports.Clear();
         failedModuleImports.Clear();
@@ -148,7 +147,15 @@ internal class ModuleManager : INotifyPropertyChanged
                 modulePersistenceSerialisationManager.RegisterSerialiser(1, new ModulePersistenceSerialiser(storage, module, ProfileManager.GetInstance().ActiveProfile, SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.GlobalPersistence)));
 
                 module.InjectDependencies(moduleSerialisationManager, modulePersistenceSerialisationManager);
-                module.Load();
+
+                if (filePathOverrides is not null && filePathOverrides.TryGetValue(module.FullID, out var filePathOverride))
+                {
+                    module.Load(filePathOverride);
+                }
+                else
+                {
+                    module.Load();
+                }
             }
             catch (Exception e)
             {
