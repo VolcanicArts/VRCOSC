@@ -120,7 +120,16 @@ public sealed class HardwareStatsProvider
 
         if (identifier.Contains("gpu", StringComparison.InvariantCultureIgnoreCase))
         {
-            GPUs.TryAdd(hardwareID, new GPU());
+            if (identifier.Contains("nvidia", StringComparison.InvariantCultureIgnoreCase))
+            {
+                GPUs.TryAdd(hardwareID, new NvidiaGPU());
+                return;
+            }
+
+            if (identifier.Contains("amd", StringComparison.InvariantCultureIgnoreCase))
+            {
+                GPUs.TryAdd(hardwareID, new AMDGPU());
+            }
         }
     }
 }

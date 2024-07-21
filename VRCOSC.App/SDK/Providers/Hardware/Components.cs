@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using LibreHardwareMonitor.Hardware;
 
+// ReSharper disable InconsistentNaming
+
 namespace VRCOSC.App.SDK.Providers.Hardware;
 
 public record SensorPair(SensorType Type, string Name);
@@ -95,7 +97,7 @@ public class AMDCPU : CPU
     protected override SensorInfo TemperatureInfo => new(SensorType.Temperature, "Core (Tdie)", "Core (Tctl/Tdie)", "CPU Cores");
 }
 
-public class GPU : HardwareComponent
+public abstract class GPU : HardwareComponent
 {
     protected override SensorInfo LoadInfo => new(SensorType.Load, "GPU Core");
     private readonly SensorInfo powerInfo = new(SensorType.Power, "GPU Package");
@@ -120,6 +122,14 @@ public class GPU : HardwareComponent
         if (GetFloatValue(sensor, memoryUsedInfo, out var memoryUsedValue)) MemoryUsed = memoryUsedValue;
         if (GetFloatValue(sensor, memoryTotalInfo, out var memoryTotalValue)) MemoryTotal = memoryTotalValue;
     }
+}
+
+public class NvidiaGPU : GPU
+{
+}
+
+public class AMDGPU : GPU
+{
 }
 
 public class RAM : HardwareComponent
