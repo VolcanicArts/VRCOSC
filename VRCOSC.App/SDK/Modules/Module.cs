@@ -126,11 +126,11 @@ public abstract class Module
 
     internal void ImportConfig(string filePathOverride)
     {
-        ChatBoxManager.GetInstance().Unload(FullID);
+        ChatBoxManager.GetInstance().Unload();
 
         Load(filePathOverride);
 
-        ChatBoxManager.GetInstance().Deserialise();
+        ChatBoxManager.GetInstance().Load();
     }
 
     #endregion

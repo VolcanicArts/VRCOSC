@@ -97,24 +97,15 @@ public class ChatBoxManager : INotifyPropertyChanged
         });
     }
 
-    public void Unload(string moduleID = "")
+    public void Unload()
     {
         MainWindow.GetInstance().ChatBoxPage.SelectedClip = null;
 
         Serialise();
 
-        if (string.IsNullOrEmpty(moduleID))
-        {
-            StateReferences.Clear();
-            EventReferences.Clear();
-            VariableReferences.Clear();
-        }
-        else
-        {
-            StateReferences.RemoveIf(clipStateReference => clipStateReference.ModuleID == moduleID);
-            EventReferences.RemoveIf(clipEventReference => clipEventReference.ModuleID == moduleID);
-            VariableReferences.RemoveIf(clipVariableReference => clipVariableReference.ModuleID == moduleID);
-        }
+        StateReferences.Clear();
+        EventReferences.Clear();
+        VariableReferences.Clear();
 
         IsLoaded.Value = false;
     }
