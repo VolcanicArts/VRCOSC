@@ -50,7 +50,7 @@ public class AppManager
     private static AppManager? instance;
     internal static AppManager GetInstance() => instance ??= new AppManager();
 
-    public readonly Storage Storage = new NativeStorage($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}/{APP_NAME}");
+    public readonly Storage Storage = new($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}/{APP_NAME}");
 
     public Observable<AppManagerState> State = new(AppManagerState.Stopped);
 

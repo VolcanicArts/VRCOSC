@@ -5,22 +5,16 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.IO;
+using System.Linq;
 
 namespace VRCOSC.App.Utils;
 
-public abstract class Storage
+public class Storage
 {
-    protected string BasePath { get; }
+    public string BasePath { get; }
 
-    protected Storage(string path, string? subfolder = null)
+    public Storage(string path, string? subfolder = null)
     {
-        static string filenameStrip(string entry)
-        {
-            foreach (char c in Path.GetInvalidFileNameChars())
-                entry = entry.Replace(c.ToString(), string.Empty);
-            return entry;
-        }
-
         BasePath = path;
 
         if (BasePath == null)
@@ -28,6 +22,15 @@ public abstract class Storage
 
         if (!string.IsNullOrEmpty(subfolder))
             BasePath = Path.Combine(BasePath, filenameStrip(subfolder));
+
+        return;
+
+        static string filenameStrip(string entry)
+        {
+            foreach (char c in Path.GetInvalidFileNameChars())
+                entry = entry.Replace(c.ToString(), string.Empty);
+            return entry;
+        }
     }
 
     /// <summary>
@@ -36,40 +39,57 @@ public abstract class Storage
     /// <param name="path">An incomplete path, usually provided as user input.</param>
     /// <param name="createIfNotExisting">Create the path if it doesn't already exist.</param>
     /// <returns>A usable filesystem path.</returns>
-    public abstract string GetFullPath(string path, bool createIfNotExisting = false);
+    public string GetFullPath(string path, bool createIfNotExisting = false)
+    {
+        path = path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+
+        var basePath = Path.GetFullPath(BasePath).TrimEnd(Path.DirectorySeparatorChar);
+        var resolvedPath = Path.GetFullPath(Path.Combine(basePath, path));
+
+        if (!resolvedPath.StartsWith(basePath, StringComparison.OrdinalIgnoreCase)) throw new ArgumentException($"\"{resolvedPath}\" traverses outside of \"{basePath}\" and is probably malformed");
+
+        if (createIfNotExisting) Directory.CreateDirectory(Path.GetDirectoryName(resolvedPath)!);
+        return resolvedPath;
+    }
 
     /// <summary>
     /// Check whether a file exists at the specified path.
     /// </summary>
     /// <param name="path">The path to check.</param>
     /// <returns>Whether a file exists.</returns>
-    public abstract bool Exists(string path);
+    public bool Exists(string path) => File.Exists(GetFullPath(path));
 
     /// <summary>
     /// Check whether a directory exists at the specified path.
     /// </summary>
     /// <param name="path">The path to check.</param>
     /// <returns>Whether a directory exists.</returns>
-    public abstract bool ExistsDirectory(string path);
-
-    /// <summary>
-    /// Delete a directory and all its contents recursively.
-    /// </summary>
-    /// <param name="path">The path of the directory to delete.</param>
-    public abstract void DeleteDirectory(string path);
+    public bool ExistsDirectory(string path) => Directory.Exists(GetFullPath(path));
 
     /// <summary>
     /// Delete a file.
     /// </summary>
     /// <param name="path">The path of the file to delete.</param>
-    public abstract void Delete(string path);
+    public void Delete(string path)
+    {
+        path = GetFullPath(path);
+
+        if (File.Exists(path))
+            File.Delete(path);
+    }
 
     /// <summary>
-    /// Retrieve a list of directories at the specified path.
+    /// Delete a directory and all its contents recursively.
     /// </summary>
-    /// <param name="path">The path to list.</param>
-    /// <returns>A list of directories in the path, relative to the path of this storage.</returns>
-    public abstract IEnumerable<string> GetDirectories(string path);
+    /// <param name="path">The path of the directory to delete.</param>
+    public void DeleteDirectory(string path)
+    {
+        path = GetFullPath(path);
+
+        // handles the case where the directory doesn't exist, which will throw a DirectoryNotFoundException.
+        if (Directory.Exists(path))
+            Directory.Delete(path, true);
+    }
 
     /// <summary>
     /// Retrieve a list of files at the specified path.
@@ -77,7 +97,26 @@ public abstract class Storage
     /// <param name="path">The path to list.</param>
     /// <param name="pattern">An optional search pattern. Accepts "*" wildcard.</param>
     /// <returns>A list of files in the path, relative to the path of this storage.</returns>
-    public abstract IEnumerable<string> GetFiles(string path, string pattern = "*");
+    public IEnumerable<string> GetFiles(string path, string pattern = "*") => getRelativePaths(Directory.GetFiles(GetFullPath(path), pattern));
+
+    /// <summary>
+    /// Retrieve a list of directories at the specified path.
+    /// </summary>
+    /// <param name="path">The path to list.</param>
+    /// <returns>A list of directories in the path, relative to the path of this storage.</returns>
+    public IEnumerable<string> GetDirectories(string path) => getRelativePaths(Directory.GetDirectories(GetFullPath(path)));
+
+    private IEnumerable<string> getRelativePaths(IEnumerable<string> paths)
+    {
+        var basePath = Path.GetFullPath(GetFullPath(string.Empty));
+
+        return paths.Select(Path.GetFullPath).Select(path =>
+        {
+            if (!path.StartsWith(basePath, StringComparison.OrdinalIgnoreCase)) throw new ArgumentException($"\"{path}\" does not start with \"{basePath}\" and is probably malformed");
+
+            return path.AsSpan(basePath.Length).TrimStart(Path.DirectorySeparatorChar).ToString();
+        });
+    }
 
     /// <summary>
     /// Retrieve a <see cref="Storage"/> for a contained directory.
@@ -85,18 +124,15 @@ public abstract class Storage
     /// </summary>
     /// <param name="path">The subdirectory to use as a root.</param>
     /// <returns>A more specific storage.</returns>
-    public virtual Storage GetStorageForDirectory(string path)
+    public Storage GetStorageForDirectory(string path)
     {
-        if (string.IsNullOrEmpty(path))
-            throw new ArgumentException("Must be non-null and not empty string", nameof(path));
-
-        if (!path.EndsWith(Path.DirectorySeparatorChar))
+        if (path.Length > 0 && !path.EndsWith(Path.DirectorySeparatorChar))
             path += Path.DirectorySeparatorChar;
 
         // create non-existing path.
-        string fullPath = GetFullPath(path, true);
+        var fullPath = GetFullPath(path, true);
 
-        return (Storage)Activator.CreateInstance(GetType(), fullPath)!;
+        return new Storage(fullPath);
     }
 
     /// <summary>
@@ -104,7 +140,12 @@ public abstract class Storage
     /// </summary>
     /// <param name="from">The file path to move.</param>
     /// <param name="to">The destination path.</param>
-    public abstract void Move(string from, string to);
+    public void Move(string from, string to)
+    {
+        // Retry move operations as it can fail on windows intermittently with IOExceptions:
+        // The process cannot access the file because it is being used by another process.
+        File.Move(GetFullPath(from), GetFullPath(to), true);
+    }
 
     /// <summary>
     /// Create a new file on disk, using a temporary file to write to before moving to the final location to ensure a half-written file cannot exist at the specified location.
@@ -130,7 +171,22 @@ public abstract class Storage
     /// <param name="mode">The mode in which the file should be opened.</param>
     /// <returns>A stream associated with the requested path.</returns>
     [Pure]
-    public abstract Stream? GetStream(string path, FileAccess access = FileAccess.Read, FileMode mode = FileMode.OpenOrCreate);
+    public Stream? GetStream(string path, FileAccess access = FileAccess.Read, FileMode mode = FileMode.OpenOrCreate)
+    {
+        path = GetFullPath(path, access != FileAccess.Read);
+
+        if (string.IsNullOrEmpty(path))
+            throw new ArgumentNullException(nameof(path));
+
+        switch (access)
+        {
+            case FileAccess.Read:
+                return !File.Exists(path) ? null : File.Open(path, FileMode.Open, access, FileShare.Read);
+
+            default:
+                return new FileStream(path, mode, access);
+        }
+    }
 
     /// <summary>
     /// Uses a temporary file to ensure a file is written to completion before existing at its specified location.
