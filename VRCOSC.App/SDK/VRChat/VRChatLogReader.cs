@@ -23,7 +23,7 @@ internal class VRChatLogReader
     private static readonly List<string> line_buffer = new();
     private static string? logFile;
     private static long byteOffset;
-    private static Repeater processTask = null!;
+    private static Repeater? processTask;
     private static readonly object process_lock = new();
 
     private static string? currentWorldID { get; set; }
@@ -46,8 +46,9 @@ internal class VRChatLogReader
 
     internal static async void Stop()
     {
-        await processTask.StopAsync();
+        if (processTask is null) return;
 
+        await processTask.StopAsync();
         reset();
     }
 
