@@ -25,7 +25,7 @@ public class VRChatClient
         AvatarConfig = null;
     }
 
-    public void HandleAvatarChange(VRChatOscMessage message)
+    public async void HandleAvatarChange(VRChatOscMessage message)
     {
         var avatarId = (string)message.ParameterValue;
 
@@ -33,6 +33,8 @@ public class VRChatClient
         {
             AvatarConfig = AvatarConfigLoader.LoadConfigFor(avatarId);
         }
+
+        await Player.RetrieveAll();
     }
 
     public bool HasOpenStateChanged(out bool openState)
