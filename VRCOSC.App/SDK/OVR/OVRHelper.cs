@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -11,7 +10,6 @@ using Valve.VR;
 
 namespace VRCOSC.App.SDK.OVR;
 
-[SuppressMessage("Usage", "CA2211:Non-constant fields should not be visible")]
 internal static class OVRHelper
 {
     internal static Action<string>? OnError;
@@ -30,7 +28,7 @@ internal static class OVRHelper
 
     internal static bool InitialiseOpenVR(EVRApplicationType applicationType)
     {
-        var err = new EVRInitError();
+        var err = EVRInitError.None;
         OpenVR.Init(ref err, applicationType);
         return err == EVRInitError.None;
     }
@@ -78,7 +76,7 @@ internal static class OVRHelper
     {
         var controllerIds = getAllControllersFromHint(controllerHint).ToList();
 
-        if (!controllerIds.Any()) return OpenVR.k_unTrackedDeviceIndexInvalid;
+        if (controllerIds.Count == 0) return OpenVR.k_unTrackedDeviceIndexInvalid;
 
         // prioritise the latest connected controller
         var connectedId = controllerIds.Where(index => OpenVR.System.IsTrackedDeviceConnected(index))
@@ -96,7 +94,7 @@ internal static class OVRHelper
     internal static uint GetIndexForTrackedDeviceClass(ETrackedDeviceClass klass)
     {
         var indexes = GetIndexesForTrackedDeviceClass(klass).ToArray();
-        return indexes.Any() ? indexes[0] : OpenVR.k_unTrackedDeviceIndexInvalid;
+        return indexes.Length != 0 ? indexes[0] : OpenVR.k_unTrackedDeviceIndexInvalid;
     }
 
     internal static IEnumerable<uint> GetIndexesForTrackedDeviceClass(ETrackedDeviceClass klass)
@@ -111,7 +109,7 @@ internal static class OVRHelper
     {
         if (index == OpenVR.k_unTrackedDeviceIndexInvalid) return default;
 
-        var error = new ETrackedPropertyError();
+        var error = ETrackedPropertyError.TrackedProp_Success;
         var value = OpenVR.System.GetBoolTrackedDeviceProperty(index, property, ref error);
 
         if (error == ETrackedPropertyError.TrackedProp_Success) return value;
@@ -124,7 +122,7 @@ internal static class OVRHelper
     {
         if (index == OpenVR.k_unTrackedDeviceIndexInvalid) return default;
 
-        var error = new ETrackedPropertyError();
+        var error = ETrackedPropertyError.TrackedProp_Success;
         var value = OpenVR.System.GetInt32TrackedDeviceProperty(index, property, ref error);
 
         if (error == ETrackedPropertyError.TrackedProp_Success) return value;
@@ -137,7 +135,7 @@ internal static class OVRHelper
     {
         if (index == OpenVR.k_unTrackedDeviceIndexInvalid) return default;
 
-        var error = new ETrackedPropertyError();
+        var error = ETrackedPropertyError.TrackedProp_Success;
         var value = OpenVR.System.GetFloatTrackedDeviceProperty(index, property, ref error);
 
         if (error == ETrackedPropertyError.TrackedProp_Success) return value;
@@ -152,7 +150,7 @@ internal static class OVRHelper
     {
         if (index == OpenVR.k_unTrackedDeviceIndexInvalid) return string.Empty;
 
-        var error = new ETrackedPropertyError();
+        var error = ETrackedPropertyError.TrackedProp_Success;
         sb.Clear();
         OpenVR.System.GetStringTrackedDeviceProperty(index, property, sb, OpenVR.k_unMaxPropertyStringSize, ref error);
 
