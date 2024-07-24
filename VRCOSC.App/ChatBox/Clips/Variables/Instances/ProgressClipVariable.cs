@@ -36,15 +36,14 @@ public class ProgressClipVariable : ClipVariable
     {
         if (UseVisual)
         {
-            var progressPercentage = VisualResolution * (float)value;
-            var dotPosition = (int)(MathF.Floor(progressPercentage * 10f) / 10f);
+            var dotPosition = VisualResolution * (float)value;
 
             var visual = string.Empty;
             visual += VisualStart;
 
             for (var i = 0; i < VisualResolution; i++)
             {
-                visual += i == dotPosition ? VisualPosition : VisualLine;
+                visual += (i <= dotPosition && i + 1 > dotPosition) ? VisualPosition : VisualLine;
             }
 
             visual += VisualEnd;
