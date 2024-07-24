@@ -49,12 +49,12 @@ public class Logger
     /// <summary>
     /// An identifier for the game written to log file headers to indicate where the log file came from.
     /// </summary>
-    public static string AppIdentifier = "game";
+    public static string AppIdentifier = AppManager.APP_NAME;
 
     /// <summary>
     /// An identifier for the version written to log file headers to indicate where the log file came from.
     /// </summary>
-    public static string VersionIdentifier = "unknown";
+    public static string VersionIdentifier = AppManager.Version;
 
     private static Storage storage = AppManager.GetInstance().Storage.GetStorageForDirectory("logs");
 
