@@ -111,7 +111,7 @@ public abstract class GPU : HardwareComponent
     public float MemoryFree { get; private set; }
     public float MemoryUsed { get; private set; }
     public float MemoryTotal { get; private set; }
-    public float MemoryUsage => MemoryUsed / MemoryTotal;
+    public float MemoryUsage => MemoryTotal == 0f ? 0f : MemoryUsed / MemoryTotal;
 
     public override void Update(ISensor sensor)
     {
