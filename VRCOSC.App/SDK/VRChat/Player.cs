@@ -367,12 +367,12 @@ public sealed class Player
         oscClient.SendValue(actionToAddress(VRChatButtonInput.Voice), 0);
     }
 
-    public void Vertical(float value)
+    public void MoveVertical(float value)
     {
         oscClient.SendValue(actionToAddress(VRChatAxesInput.Vertical), value);
     }
 
-    public void Horizontal(float value)
+    public void MoveHorizontal(float value)
     {
         oscClient.SendValue(actionToAddress(VRChatAxesInput.Horizontal), value);
     }
