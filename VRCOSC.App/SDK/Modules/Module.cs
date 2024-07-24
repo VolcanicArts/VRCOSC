@@ -182,7 +182,7 @@ public abstract class Module
     private static Regex parameterToRegex(string parameterName)
     {
         var pattern = "^"; // start of string
-        pattern += @"(?:VF\d+_)*"; // VRCFury prefix
+        pattern += @"(?:VF\d+_)?"; // VRCFury prefix
         pattern += $"({parameterName.Replace("/", @"\/").Replace("*", @"(?:\S*)")})";
         pattern += "$"; // end of string
 
