@@ -83,15 +83,6 @@ public class RegisteredParameter : ReceivedParameter
         decodeWildcards();
     }
 
-    internal RegisteredParameter(RegisteredParameter other)
-        : base(other)
-    {
-        Lookup = other.Lookup;
-        moduleParameter = other.moduleParameter;
-
-        decodeWildcards();
-    }
-
     private void decodeWildcards()
     {
         var referenceSections = Name.Split("/");
