@@ -14,13 +14,12 @@ public class Repeater
 
     public Repeater(Action action)
     {
-        this.action = action ?? throw new ArgumentNullException(nameof(action));
+        this.action = action;
     }
 
     public void Start(TimeSpan interval, bool runOnceImmediately = false)
     {
-        if (cancellationTokenSource != null)
-            throw new InvalidOperationException("Repeater is already started.");
+        if (cancellationTokenSource is not null) throw new InvalidOperationException("Repeater is already started");
 
         cancellationTokenSource = new CancellationTokenSource();
 
@@ -36,15 +35,18 @@ public class Repeater
             }
         }
 
-        Task.Run(async () =>
+        _ = Task.Run(async () =>
         {
             while (!cancellationTokenSource.Token.IsCancellationRequested)
             {
-                await Task.Delay(interval, cancellationTokenSource.Token);
-
                 try
                 {
+                    await Task.Delay(interval, cancellationTokenSource.Token);
                     action.Invoke();
+                }
+                catch (TaskCanceledException)
+                {
+                    // Task was canceled, exit loop gracefully
                 }
                 catch (Exception e)
                 {
@@ -56,15 +58,17 @@ public class Repeater
 
     public async Task StopAsync()
     {
-        if (cancellationTokenSource == null)
+        if (cancellationTokenSource is null)
             return;
 
-        cancellationTokenSource.Cancel();
-
-        var manualResetEvent = new ManualResetEvent(false);
-        cancellationTokenSource.Token.Register(() => manualResetEvent.Set());
-
-        await Task.Run(() => manualResetEvent.WaitOne());
+        try
+        {
+            await cancellationTokenSource.CancelAsync();
+        }
+        catch (TaskCanceledException)
+        {
+            // Task was canceled as expected
+        }
 
         cancellationTokenSource.Dispose();
         cancellationTokenSource = null;
