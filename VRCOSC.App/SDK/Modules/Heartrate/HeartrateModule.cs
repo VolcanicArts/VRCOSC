@@ -249,7 +249,7 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
 
         if (isReceiving)
         {
-            var normalisedHeartRate = Map(currentValue, GetSettingValue<int>(HeartrateSetting.NormalisedLowerbound), GetSettingValue<int>(HeartrateSetting.NormalisedUpperbound), 0, 1);
+            var normalisedHeartRate = (float)Interpolation.Map(currentValue, GetSettingValue<int>(HeartrateSetting.NormalisedLowerbound), GetSettingValue<int>(HeartrateSetting.NormalisedUpperbound), 0, 1);
 
             SendParameter(HeartrateParameter.Normalised, normalisedHeartRate);
             SendParameter(HeartrateParameter.Value, (int)MathF.Round(currentValue));

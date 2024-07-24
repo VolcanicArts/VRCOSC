@@ -739,11 +739,6 @@ public abstract class Module
     }
 
     /// <summary>
-    /// Maps a value <paramref name="source"/> from a source range to a destination range
-    /// </summary>
-    protected static float Map(float source, float sMin, float sMax, float dMin, float dMax) => dMin + (dMax - dMin) * ((source - sMin) / (sMax - sMin));
-
-    /// <summary>
     /// Allows you to send any parameter name and value.
     /// If you want the user to be able to customise the parameter, register a parameter and use <see cref="SendParameter(Enum,object)"/>
     /// </summary>
