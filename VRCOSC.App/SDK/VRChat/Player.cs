@@ -52,7 +52,7 @@ public sealed class Player
 
     private async Task retrieve(string parameterName)
     {
-        var value = await AppManager.GetInstance().VRChatOscClient.FindParameterValue($"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{parameterName}");
+        var value = await AppManager.GetInstance().VRChatOscClient.FindParameterValue(parameterName);
         if (value is null) return;
 
         Update(parameterName, value);
