@@ -6,6 +6,6 @@
       xmlns:ui="clr-namespace:VRCOSC.App.UI"
       mc:Ignorable="d">
     <Grid>
-        <ui:VRCOSCCheckBox x:Name="ValueCheckBox" Width="35" Height="35" />
+        <ui:VRCOSCCheckBox x:Name="ValueCheckBox" Width="35" Height="35" IconMargin="6"/>
     </Grid>
 </Page>

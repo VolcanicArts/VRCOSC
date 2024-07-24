@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:fa5="http://schemas.fontawesome.com/icons/"
         xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:utils="clr-namespace:VRCOSC.App.Utils"
         xmlns:fa6="http://schemas.fontawesome.com/icons/fonts"
@@ -14,13 +13,9 @@
         Closed="MainWindow_OnClosed">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-        <Style TargetType="fa5:FontAwesome">
-            <Setter Property="Foreground" Value="{StaticResource CForeground1}" />
-            <Setter Property="FontSize" Value="22" />
-        </Style>
-        <Style TargetType="fa6:FontAwesome">
-            <Setter Property="Foreground" Value="{StaticResource CForeground1}" />
-            <Setter Property="FontSize" Value="22" />
+        <Style TargetType="fa6:ImageAwesome">
+            <Setter Property="PrimaryColor" Value="{StaticResource CForeground1}" />
+            <Setter Property="Margin" Value="14" />
         </Style>
         <Style TargetType="Button">
             <Setter Property="Height" Value="70" />
@@ -53,36 +48,36 @@
                     <Grid>
                         <StackPanel Orientation="Vertical" VerticalAlignment="Top">
                             <Button Name="HomeButton" Click="HomeButton_OnClick" Visibility="Collapsed">
-                                <fa5:FontAwesome Icon="Solid_Home" />
+                                <fa6:ImageAwesome Icon="Solid_House" />
                             </Button>
                             <Button Name="PackagesButton" Click="PackagesButton_OnClick">
-                                <fa5:FontAwesome Icon="Solid_Download" />
+                                <fa6:ImageAwesome Icon="Solid_Download" />
                             </Button>
                             <Button Name="ModulesButton" Click="ModulesButton_OnClick">
-                                <fa5:FontAwesome Icon="Solid_List" />
+                                <fa6:ImageAwesome Icon="Solid_List" />
                             </Button>
                             <Button Name="RouterButton" Click="RouterButton_OnClick">
-                                <fa5:FontAwesome Icon="Solid_ShareAlt" />
+                                <fa6:ImageAwesome Icon="Solid_ShareNodes" />
                             </Button>
                             <Button Name="ChatBoxButton" Click="ChatBoxButton_OnClick">
-                                <fa6:FontAwesome Icon="Solid_Message" />
+                                <fa6:ImageAwesome Icon="Solid_Message" />
                             </Button>
                             <Button Name="RunButton" Click="RunButton_OnClick">
-                                <fa5:FontAwesome Icon="Solid_Play" />
+                                <fa6:ImageAwesome Icon="Solid_Play" />
                             </Button>
                             <Button Name="SettingsButton" Click="SettingsButton_OnClick" Visibility="Collapsed">
-                                <fa5:FontAwesome Icon="Solid_UserCog" />
+                                <fa6:ImageAwesome Icon="Solid_UserGear" />
                             </Button>
                             <Button Name="DebugButton" Click="DebugButton_OnClick" Visibility="{Binding ShowAppDebug.Value, Converter={StaticResource BoolToVisibilityConverter}}">
-                                <fa5:FontAwesome Icon="Solid_Bug" />
+                                <fa6:ImageAwesome Icon="Solid_Bug" />
                             </Button>
                         </StackPanel>
                         <StackPanel Orientation="Vertical" VerticalAlignment="Bottom">
                             <Button Name="ProfilesButton" Click="ProfilesButton_OnClick">
-                                <fa5:FontAwesome Icon="Solid_User" />
+                                <fa6:ImageAwesome Icon="Solid_User" />
                             </Button>
                             <Button Name="AppSettingsButton" Click="AppSettingsButton_OnClick">
-                                <fa5:FontAwesome Icon="Solid_Cog" />
+                                <fa6:ImageAwesome Icon="Solid_Gear" />
                             </Button>
                         </StackPanel>
                     </Grid>
@@ -114,8 +109,7 @@
                            VerticalAlignment="Center" />
                 <ProgressBar Grid.Row="2" Name="ProgressBar" Width="500" Height="30" VerticalAlignment="Center"
                              HorizontalAlignment="Center"
-                             Minimum="0" Maximum="1" Value="0">
-                </ProgressBar>
+                             Minimum="0" Maximum="1" Value="0" />
             </Grid>
         </Grid>
     </Grid>

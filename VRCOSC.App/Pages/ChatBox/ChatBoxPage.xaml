@@ -5,7 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:ui="clr-namespace:VRCOSC.App.UI"
       xmlns:local="clr-namespace:VRCOSC.App.Pages.ChatBox"
-      xmlns:fa5="http://schemas.fontawesome.com/icons/"
+      xmlns:fa6="http://schemas.fontawesome.com/icons/fonts"
       mc:Ignorable="d"
       Loaded="ChatBoxPage_OnLoaded"
       MouseLeftButtonDown="ChatBoxPage_OnMouseLeftButtonDown"
@@ -52,22 +52,19 @@
                                 Grid.Column="0"
                                 ButtonColour="Blue"
                                 Icon="Solid_Download"
-                                Click="ImportButton_OnClick">
-                            </ui:IconButton>
+                                Click="ImportButton_OnClick" />
                             <ui:IconButton
                                 Grid.Row="0"
                                 Grid.Column="2"
                                 ButtonColour="Blue"
                                 Icon="Solid_Upload"
-                                Click="ExportButton_OnClick">
-                            </ui:IconButton>
+                                Click="ExportButton_OnClick" />
                             <ui:IconButton
                                 Grid.Row="2"
                                 Grid.Column="0"
                                 ButtonColour="Red"
-                                Icon="Solid_TrashAlt"
-                                Click="ClearButton_OnClick">
-                            </ui:IconButton>
+                                Icon="Solid_TrashCan"
+                                Click="ClearButton_OnClick" />
                         </Grid>
                     </Border>
                 </Border>
@@ -93,8 +90,7 @@
                                          Background="{StaticResource CBackground3}"
                                          Height="30"
                                          LostKeyboardFocus="TextBox_OnLostKeyboardFocus"
-                                         PreviewKeyDown="TextBox_OnPreviewKeyDown">
-                                </TextBox>
+                                         PreviewKeyDown="TextBox_OnPreviewKeyDown" />
                             </Grid>
                         </ui:SpacedStackPanel>
                     </Border>
@@ -141,8 +137,7 @@
                                                  FontSize="15" VerticalAlignment="Center"
                                                  VerticalContentAlignment="Center"
                                                  Background="{StaticResource CBackground3}"
-                                                 Height="25">
-                                        </TextBox>
+                                                 Height="25" />
                                     </Grid>
                                 </ui:SpacedStackPanel>
                             </Border>
@@ -293,12 +288,12 @@
                                                                         <Border.Tag>
                                                                             <Binding />
                                                                         </Border.Tag>
-                                                                        <fa5:FontAwesome
+                                                                        <fa6:ImageAwesome
                                                                             Icon="Solid_GripLines"
                                                                             Rotation="90"
                                                                             HorizontalAlignment="Center"
                                                                             VerticalAlignment="Center"
-                                                                            Foreground="{StaticResource CForeground3}"
+                                                                            PrimaryColor="{StaticResource CForeground3}"
                                                                             Margin="3 0" />
                                                                     </Border>
                                                                     <Border Grid.Column="1"
@@ -328,12 +323,12 @@
                                                                         <Border.Tag>
                                                                             <Binding />
                                                                         </Border.Tag>
-                                                                        <fa5:FontAwesome
+                                                                        <fa6:ImageAwesome
                                                                             Icon="Solid_GripLines"
                                                                             Rotation="90"
                                                                             HorizontalAlignment="Center"
                                                                             VerticalAlignment="Center"
-                                                                            Foreground="{StaticResource CForeground3}"
+                                                                            PrimaryColor="{StaticResource CForeground3}"
                                                                             Margin="3 0" />
                                                                     </Border>
                                                                 </Grid>

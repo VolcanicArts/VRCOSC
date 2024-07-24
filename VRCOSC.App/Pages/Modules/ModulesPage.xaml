@@ -4,8 +4,8 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:ui="clr-namespace:VRCOSC.App.UI"
-      xmlns:fa5="http://schemas.fontawesome.com/icons/"
       xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+      xmlns:fa6="http://schemas.fontawesome.com/icons/fonts"
       mc:Ignorable="d">
     <Page.Resources>
         <ui:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
@@ -84,8 +84,7 @@
                                                                                         IsChecked="{Binding Enabled.Value}"
                                                                                         Width="30"
                                                                                         Height="30"
-                                                                                        IconMargin="4">
-                                                                                    </ui:VRCOSCCheckBox>
+                                                                                        IconMargin="5" />
                                                                                     <Grid>
                                                                                         <TextBlock
                                                                                             Text="{Binding Title}"
@@ -111,9 +110,9 @@
                                                                                         ButtonColour="Blue"
                                                                                         Width="30" Height="30"
                                                                                         Visibility="Collapsed">
-                                                                                        <fa5:ImageAwesome
+                                                                                        <fa6:ImageAwesome
                                                                                             Icon="Solid_Info"
-                                                                                            Foreground="{StaticResource CForeground1}"
+                                                                                            PrimaryColor="{StaticResource CForeground1}"
                                                                                             Margin="5" />
                                                                                     </ui:VRCOSCButton>
                                                                                     <ui:VRCOSCButton
@@ -123,9 +122,9 @@
                                                                                         <ui:VRCOSCButton.Tag>
                                                                                             <Binding />
                                                                                         </ui:VRCOSCButton.Tag>
-                                                                                        <fa5:ImageAwesome
+                                                                                        <fa6:ImageAwesome
                                                                                             Icon="Solid_Upload"
-                                                                                            Foreground="{StaticResource CForeground1}"
+                                                                                            PrimaryColor="{StaticResource CForeground1}"
                                                                                             Margin="5" />
                                                                                     </ui:VRCOSCButton>
                                                                                     <ui:VRCOSCButton
@@ -135,18 +134,18 @@
                                                                                         <ui:VRCOSCButton.Tag>
                                                                                             <Binding />
                                                                                         </ui:VRCOSCButton.Tag>
-                                                                                        <fa5:ImageAwesome
+                                                                                        <fa6:ImageAwesome
                                                                                             Icon="Solid_Download"
-                                                                                            Foreground="{StaticResource CForeground1}"
+                                                                                            PrimaryColor="{StaticResource CForeground1}"
                                                                                             Margin="5" />
                                                                                     </ui:VRCOSCButton>
                                                                                     <ui:VRCOSCButton
                                                                                         ButtonColour="Gray"
                                                                                         Width="30" Height="30"
                                                                                         Visibility="Collapsed">
-                                                                                        <fa5:ImageAwesome
+                                                                                        <fa6:ImageAwesome
                                                                                             Icon="Solid_Cube"
-                                                                                            Foreground="{StaticResource CForeground1}"
+                                                                                            PrimaryColor="{StaticResource CForeground1}"
                                                                                             Margin="5" />
                                                                                     </ui:VRCOSCButton>
                                                                                     <ui:VRCOSCButton
@@ -157,9 +156,9 @@
                                                                                         <ui:VRCOSCButton.Tag>
                                                                                             <Binding />
                                                                                         </ui:VRCOSCButton.Tag>
-                                                                                        <fa5:ImageAwesome
+                                                                                        <fa6:ImageAwesome
                                                                                             Icon="Solid_Link"
-                                                                                            Foreground="{StaticResource CForeground1}"
+                                                                                            PrimaryColor="{StaticResource CForeground1}"
                                                                                             Margin="5" />
                                                                                     </ui:VRCOSCButton>
                                                                                     <ui:VRCOSCButton
@@ -170,9 +169,9 @@
                                                                                         <ui:VRCOSCButton.Tag>
                                                                                             <Binding />
                                                                                         </ui:VRCOSCButton.Tag>
-                                                                                        <fa5:ImageAwesome
-                                                                                            Icon="Solid_Cog"
-                                                                                            Foreground="{StaticResource CForeground1}"
+                                                                                        <fa6:ImageAwesome
+                                                                                            Icon="Solid_Gear"
+                                                                                            PrimaryColor="{StaticResource CForeground1}"
                                                                                             Margin="5" />
                                                                                     </ui:VRCOSCButton>
                                                                                 </ui:SpacedStackPanel>

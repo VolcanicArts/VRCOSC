@@ -112,8 +112,7 @@
                                                                      Height="30"
                                                                      Margin="10 0 0 0"
                                                                      Padding="0 5"
-                                                                     HorizontalAlignment="Stretch">
-                                                            </TextBox>
+                                                                     HorizontalAlignment="Stretch" />
                                                         </Grid>
                                                     </Border>
                                                 </ControlTemplate>

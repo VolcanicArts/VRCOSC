@@ -2,7 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Windows;
-using FontAwesome5;
+using FontAwesome6;
 
 // ReSharper disable InconsistentNaming
 

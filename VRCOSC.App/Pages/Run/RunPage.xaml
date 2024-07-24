@@ -94,18 +94,15 @@
                             <ui:SpacedStackPanel FlowDirection="LeftToRight" Orientation="Horizontal" Spacing="10">
                                 <ui:IconButton x:Name="StartButton" Width="120" VerticalAlignment="Stretch"
                                                  CornerRadius="5" ButtonColour="Green" Click="PlayButtonOnClick"
-                                                 Icon="Solid_Play">
-                                </ui:IconButton>
+                                                 Icon="Solid_Play" />
                             </ui:SpacedStackPanel>
                             <ui:SpacedStackPanel FlowDirection="RightToLeft" Orientation="Horizontal" Spacing="10">
                                 <ui:IconButton x:Name="StopButton" Width="120" VerticalAlignment="Stretch"
                                                CornerRadius="5" ButtonColour="Red" Click="StopButtonOnClick"
-                                               Icon="Solid_Stop">
-                                </ui:IconButton>
+                                               Icon="Solid_Stop" />
                                 <ui:IconButton x:Name="RestartButton" Width="120" VerticalAlignment="Stretch"
                                                CornerRadius="5" ButtonColour="Blue" Click="RestartButtonOnClick"
-                                               Icon="Solid_Redo">
-                                </ui:IconButton>
+                                               Icon="Solid_ArrowRotateRight" />
                             </ui:SpacedStackPanel>
                         </Grid>
                     </Border>

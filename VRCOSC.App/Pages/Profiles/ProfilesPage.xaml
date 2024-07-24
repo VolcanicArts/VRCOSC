@@ -4,8 +4,8 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:ui="clr-namespace:VRCOSC.App.UI"
-      xmlns:fa5="http://schemas.fontawesome.com/icons/"
       xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+      xmlns:fa6="http://schemas.fontawesome.com/icons/fonts"
       mc:Ignorable="d">
     <Page.Resources>
         <ui:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
@@ -91,16 +91,16 @@
                                                                     Visibility="{Binding UIRemoveProfileButtonVisibility}"
                                                                     Width="30" Height="30"
                                                                     Tag="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=DataContext}">
-                                                                    <fa5:ImageAwesome Icon="Solid_Minus"
-                                                                        Foreground="White"
+                                                                    <fa6:ImageAwesome Icon="Solid_Minus"
+                                                                        PrimaryColor="{StaticResource CForeground1}"
                                                                         Margin="5" />
                                                                 </ui:VRCOSCButton>
                                                                 <ui:VRCOSCButton ButtonColour="Blue"
                                                                     Click="EditProfile_ButtonClick"
                                                                     Width="30" Height="30"
                                                                     Tag="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=DataContext}">
-                                                                    <fa5:ImageAwesome Icon="Solid_Edit"
-                                                                        Foreground="White"
+                                                                    <fa6:ImageAwesome Icon="Solid_PenToSquare"
+                                                                        PrimaryColor="{StaticResource CForeground1}"
                                                                         Margin="5" />
                                                                 </ui:VRCOSCButton>
                                                             </ui:SpacedStackPanel>
@@ -115,7 +115,7 @@
                             <Border Height="45" Padding="5">
                                 <ui:VRCOSCButton ButtonColour="Green" Width="30" Height="30"
                                                  Click="AddProfile_ButtonClick">
-                                    <fa5:ImageAwesome Icon="Solid_Plus" Foreground="White" Margin="5" />
+                                    <fa6:ImageAwesome Icon="Solid_Plus" PrimaryColor="{StaticResource CForeground1}" Margin="5" />
                                 </ui:VRCOSCButton>
                             </Border>
                         </StackPanel>

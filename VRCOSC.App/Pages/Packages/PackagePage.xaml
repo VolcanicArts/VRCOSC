@@ -3,7 +3,6 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-      xmlns:fa5="http://schemas.fontawesome.com/icons/"
       xmlns:ui="clr-namespace:VRCOSC.App.UI"
       xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
       xmlns:utils="clr-namespace:VRCOSC.App.Utils"
@@ -38,8 +37,8 @@
                                 <ColumnDefinition Width="36" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <fa5:FontAwesome Grid.Row="0" Grid.Column="0" Icon="Solid_Search" FontSize="22"
-                                             Foreground="{StaticResource CForeground3}" VerticalAlignment="Center" />
+                            <fa6:ImageAwesome Grid.Row="0" Grid.Column="0" Icon="Solid_MagnifyingGlass" Margin="6"
+                                             PrimaryColor="{StaticResource CForeground3}" VerticalAlignment="Center" />
                             <Grid Grid.Column="1">
                                 <TextBlock Foreground="{StaticResource CForeground3}" Text="Search" FontSize="20"
                                            VerticalAlignment="Center" Margin="2 -3 2 0">
@@ -63,8 +62,7 @@
                                 </TextBlock>
                                 <TextBox x:Name="SearchTextBox" Grid.Row="0" FontSize="20" BorderThickness="0"
                                          Background="Transparent" VerticalAlignment="Center"
-                                         Foreground="{StaticResource CForeground2}" VerticalContentAlignment="Center">
-                                </TextBox>
+                                         Foreground="{StaticResource CForeground2}" VerticalContentAlignment="Center" />
                             </Grid>
                         </Grid>
                     </Border>
@@ -194,8 +192,8 @@
                                                                     <ui:VRCOSCButton.Tag>
                                                                         <Binding />
                                                                     </ui:VRCOSCButton.Tag>
-                                                                    <fa5:ImageAwesome Icon="Solid_Plus"
-                                                                        Foreground="{StaticResource CForeground1}"
+                                                                    <fa6:ImageAwesome Icon="Solid_Plus"
+                                                                        PrimaryColor="{StaticResource CForeground1}"
                                                                         Margin="5" />
                                                                 </ui:VRCOSCButton>
                                                                 <ui:VRCOSCButton ButtonColour="Red"
@@ -205,8 +203,8 @@
                                                                     <ui:VRCOSCButton.Tag>
                                                                         <Binding />
                                                                     </ui:VRCOSCButton.Tag>
-                                                                    <fa5:ImageAwesome Icon="Solid_Minus"
-                                                                        Foreground="{StaticResource CForeground1}"
+                                                                    <fa6:ImageAwesome Icon="Solid_Minus"
+                                                                        PrimaryColor="{StaticResource CForeground1}"
                                                                         Margin="5" />
                                                                 </ui:VRCOSCButton>
                                                             </ui:SpacedStackPanel>
@@ -217,8 +215,8 @@
                                                                     Click="InfoButton_ButtonClick"
                                                                     Tag="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=DataContext}"
                                                                     Width="30" Height="30">
-                                                                    <fa5:ImageAwesome Icon="Solid_Info"
-                                                                        Foreground="{StaticResource CForeground1}"
+                                                                    <fa6:ImageAwesome Icon="Solid_Info"
+                                                                        PrimaryColor="{StaticResource CForeground1}"
                                                                         Margin="5" />
                                                                 </ui:VRCOSCButton>
                                                             </ui:SpacedStackPanel>
@@ -262,8 +260,8 @@
                         <ui:VRCOSCButton ButtonColour="Red" Width="30" Height="30" Margin="5"
                                          Click="InfoOverlayExit_ButtonClick" HorizontalAlignment="Left"
                                          VerticalAlignment="Top">
-                            <fa5:ImageAwesome Icon="Solid_ChevronCircleLeft"
-                                              Foreground="{StaticResource CForeground1}"
+                            <fa6:ImageAwesome Icon="Solid_ChevronLeft"
+                                              PrimaryColor="{StaticResource CForeground1}"
                                               Margin="4" />
                         </ui:VRCOSCButton>
                         <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Top">
@@ -285,8 +283,8 @@
                             <ui:VRCOSCButton ButtonColour="Gray" Width="50" Height="50" CornerRadius="5"
                                              Click="PackageGithub_ButtonClick"
                                              Tag="{Binding RelativeSource={RelativeSource AncestorType=Grid, AncestorLevel=2}, Path=DataContext}">
-                                <fa5:ImageAwesome Icon="Brands_Github"
-                                                  Foreground="{StaticResource CForeground1}"
+                                <fa6:ImageAwesome Icon="Brands_Github"
+                                                  PrimaryColor="{StaticResource CForeground1}"
                                                   Margin="5" />
                             </ui:VRCOSCButton>
                         </ui:SpacedStackPanel>

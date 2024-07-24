@@ -162,8 +162,7 @@
                                         Text="The time between writing to the ChatBox in milliseconds. Defaults to 1500"
                                         Style="{StaticResource SettingDescription}" />
                                     <TextBox Style="{StaticResource SettingTextBoxStyle}"
-                                             Text="{Binding ChatBoxSendInterval}">
-                                    </TextBox>
+                                             Text="{Binding ChatBoxSendInterval}" />
                                 </Grid>
                             </Border>
                         </ui:SpacedStackPanel>
@@ -391,9 +390,7 @@
                         </ui:SpacedStackPanel>
                     </ui:MouseScrollViewer>
                 </Grid>
-                <Grid Name="UpdatesContainer" Visibility="Collapsed">
-
-                </Grid>
+                <Grid Name="UpdatesContainer" Visibility="Collapsed" />
                 <Grid Name="DeveloperContainer" Visibility="Collapsed">
                     <ui:MouseScrollViewer Padding="10" HorizontalScrollBarVisibility="Auto"
                                           VerticalScrollBarVisibility="Auto">

@@ -5,7 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:ui="clr-namespace:VRCOSC.App.UI"
       xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
-      xmlns:fa5="http://schemas.fontawesome.com/icons/"
+      xmlns:fa6="http://schemas.fontawesome.com/icons/fonts"
       mc:Ignorable="d">
     <Page.Resources>
         <ui:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
@@ -106,9 +106,9 @@
                                                                     Width="30" Height="30"
                                                                     Tag="{Binding}"
                                                                     Click="RemoveInstance_OnClick">
-                                                                    <fa5:ImageAwesome
+                                                                    <fa6:ImageAwesome
                                                                         Icon="Solid_Minus"
-                                                                        Foreground="{StaticResource CForeground1}"
+                                                                        PrimaryColor="{StaticResource CForeground1}"
                                                                         Margin="5"/>
                                                                 </ui:VRCOSCButton>
                                                             </ui:SpacedStackPanel>
@@ -125,8 +125,8 @@
                                 CornerRadius="0 0 5 5">
                             <ui:VRCOSCButton ButtonColour="Green" Height="25" Width="100" CornerRadius="5"
                                              Click="AddInstance_OnClick">
-                                <fa5:FontAwesome Icon="Solid_Plus" FontSize="20"
-                                                 Foreground="{StaticResource CForeground1}" />
+                                <fa6:ImageAwesome Icon="Solid_Plus" Margin="5"
+                                                 PrimaryColor="{StaticResource CForeground1}" />
                             </ui:VRCOSCButton>
                         </Border>
                     </Grid>

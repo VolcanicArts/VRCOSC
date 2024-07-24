@@ -11,7 +11,7 @@
             <TextBlock Name="ChatBoxText" FontSize="30" Foreground="White"
                        TextAlignment="Center" TextWrapping="Wrap" MaxWidth="435" />
         </Border>
-        <ui:IconButton Icon="Solid_ExternalLinkAlt" Width="35" Height="35" HorizontalAlignment="Right"
+        <ui:IconButton Icon="Solid_ArrowUpRightFromSquare" Width="35" Height="35" HorizontalAlignment="Right"
                        ButtonColour="Gray"
                        VerticalAlignment="Top" Margin="10" Click="PopoutChatBox_OnClick"/>
     </Grid>

@@ -5,7 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:ui="clr-namespace:VRCOSC.App.UI"
       xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
-      xmlns:fa5="http://schemas.fontawesome.com/icons/"
+      xmlns:fa6="http://schemas.fontawesome.com/icons/fonts"
       mc:Ignorable="d">
     <Page.Resources>
         <ui:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
@@ -21,9 +21,7 @@
                     <RowDefinition Height="30" />
                 </Grid.RowDefinitions>
                 <!--> Header <-->
-                <Border Grid.Row="0" Background="{StaticResource CBackground1}" CornerRadius="5 5 0 0">
-
-                </Border>
+                <Border Grid.Row="0" Background="{StaticResource CBackground1}" CornerRadius="5 5 0 0" />
                 <!--> Contents <-->
                 <ListView Grid.Row="1"
                           Background="Transparent"
@@ -73,8 +71,8 @@
                                                     <ui:VRCOSCButton.Tag>
                                                         <Binding />
                                                     </ui:VRCOSCButton.Tag>
-                                                    <fa5:ImageAwesome Icon="Solid_Minus"
-                                                                      Foreground="{StaticResource CForeground1}"
+                                                    <fa6:ImageAwesome Icon="Solid_Minus"
+                                                                      PrimaryColor="{StaticResource CForeground1}"
                                                                       Margin="4" />
                                                 </ui:VRCOSCButton>
                                             </Grid>
@@ -88,8 +86,8 @@
                 <!--> Footer <-->
                 <Border Grid.Row="2" Background="{StaticResource CBackground1}" CornerRadius="0 0 5 5">
                     <ui:VRCOSCButton Width="90" Height="20" Click="AddButton_OnClick" ButtonColour="Green">
-                        <fa5:ImageAwesome Icon="Solid_Plus"
-                                          Foreground="{StaticResource CForeground1}"
+                        <fa6:ImageAwesome Icon="Solid_Plus"
+                                          PrimaryColor="{StaticResource CForeground1}"
                                           Margin="3" />
                     </ui:VRCOSCButton>
                 </Border>

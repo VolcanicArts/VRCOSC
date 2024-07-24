@@ -9,7 +9,6 @@
             Name="ValueTextBox"
             Background="{StaticResource CBackground2}"
             FontSize="16"
-            Margin="-1">
-        </TextBox>
+            Margin="-1" />
     </Grid>
 </Page>

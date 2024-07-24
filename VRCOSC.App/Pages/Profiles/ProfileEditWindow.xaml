@@ -4,7 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:ui="clr-namespace:VRCOSC.App.UI"
-        xmlns:fa5="http://schemas.fontawesome.com/icons/"
+        xmlns:fa6="http://schemas.fontawesome.com/icons/fonts"
         mc:Ignorable="d"
         Width="1366" Height="768" MinWidth="1200" MinHeight="540"
         PreviewMouseDown="ProfileEditWindow_OnPreviewMouseDown"
@@ -40,8 +40,7 @@
                                      Foreground="{StaticResource CForeground2}"
                                      FontSize="22" VerticalAlignment="Center"
                                      VerticalContentAlignment="Center"
-                                     Background="{StaticResource CBackground3}">
-                            </TextBox>
+                                     Background="{StaticResource CBackground3}" />
                         </Grid>
                     </Border>
                     <Grid>
@@ -82,13 +81,12 @@
                                                                          Foreground="{StaticResource CForeground2}"
                                                                          FontSize="20" VerticalAlignment="Center"
                                                                          VerticalContentAlignment="Center"
-                                                                         Background="{StaticResource CBackground5}">
-                                                                </TextBox>
+                                                                         Background="{StaticResource CBackground5}" />
                                                                 <ui:VRCOSCButton Grid.Column="2" ButtonColour="Red"
                                                                     Click="RemoveButton_OnClick"
                                                                     Tag="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=DataContext}">
-                                                                    <fa5:ImageAwesome Icon="Solid_Minus"
-                                                                        Foreground="{StaticResource CForeground1}"
+                                                                    <fa6:ImageAwesome Icon="Solid_Minus"
+                                                                        PrimaryColor="{StaticResource CForeground1}"
                                                                         Margin="4" />
                                                                 </ui:VRCOSCButton>
                                                             </Grid>
@@ -104,7 +102,7 @@
                         </Border>
                         <ui:VRCOSCButton Grid.Row="1" ButtonColour="Green" Width="100" Height="34"
                                          CornerRadius="17" Click="AddLinkedAvatar_ButtonClick">
-                            <fa5:ImageAwesome Icon="Solid_Plus" Foreground="{StaticResource CForeground1}" Margin="5" />
+                            <fa6:ImageAwesome Icon="Solid_Plus" PrimaryColor="{StaticResource CForeground1}" Margin="5" />
                         </ui:VRCOSCButton>
                     </Grid>
                 </ui:SpacedStackPanel>

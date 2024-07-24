@@ -6,7 +6,7 @@
         xmlns:ui="clr-namespace:VRCOSC.App.UI"
         xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:local="clr-namespace:VRCOSC.App.Pages.ChatBox"
-        xmlns:fa5="http://schemas.fontawesome.com/icons/"
+        xmlns:fa6="http://schemas.fontawesome.com/icons/fonts"
         mc:Ignorable="d"
         Width="1366" Height="768" MinWidth="1200" MinHeight="540"
         Loaded="OnLoaded"
@@ -222,9 +222,9 @@
                                                                                                             Grid.Column="1"
                                                                                                             HorizontalAlignment="Stretch"
                                                                                                             VerticalAlignment="Stretch">
-                                                                                                            <fa5:ImageAwesome
+                                                                                                            <fa6:ImageAwesome
                                                                                                                 Icon="Solid_GripLines"
-                                                                                                                Foreground="{StaticResource CForeground2}"
+                                                                                                                PrimaryColor="{StaticResource CForeground2}"
                                                                                                                 Margin="11" />
                                                                                                         </Grid>
                                                                                                         <Grid
@@ -239,7 +239,7 @@
                                                                                                             <ui:IconButton
                                                                                                                 Grid.Column="0"
                                                                                                                 ButtonColour="Gray"
-                                                                                                                Icon="Solid_Cog"
+                                                                                                                Icon="Solid_Gear"
                                                                                                                 IconMargin="4"
                                                                                                                 Click="VariableSettingButton_OnClick"
                                                                                                                 Width="22"
@@ -478,9 +478,9 @@
                                                                                                             Grid.Column="1"
                                                                                                             HorizontalAlignment="Stretch"
                                                                                                             VerticalAlignment="Stretch">
-                                                                                                            <fa5:ImageAwesome
+                                                                                                            <fa6:ImageAwesome
                                                                                                                 Icon="Solid_GripLines"
-                                                                                                                Foreground="{StaticResource CForeground2}"
+                                                                                                                PrimaryColor="{StaticResource CForeground2}"
                                                                                                                 Margin="11" />
                                                                                                         </Grid>
                                                                                                         <Grid
@@ -495,7 +495,7 @@
                                                                                                             <ui:IconButton
                                                                                                                 Grid.Column="0"
                                                                                                                 ButtonColour="Gray"
-                                                                                                                Icon="Solid_Cog"
+                                                                                                                Icon="Solid_Gear"
                                                                                                                 IconMargin="4"
                                                                                                                 Click="VariableSettingButton_OnClick"
                                                                                                                 Width="22"
@@ -626,8 +626,7 @@
                                                                             VerticalContentAlignment="Center"
                                                                             Margin="-1"
                                                                             HorizontalAlignment="Stretch"
-                                                                            Background="{StaticResource CBackground4}">
-                                                                        </TextBox>
+                                                                            Background="{StaticResource CBackground4}" />
                                                                     </Grid>
                                                                 </Border>
                                                                 <Border
