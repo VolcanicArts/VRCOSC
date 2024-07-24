@@ -367,6 +367,7 @@ public class AppManager
         RouterManager.GetInstance().Start();
         VRChatOscClient.EnableSend();
         ChatBoxManager.GetInstance().Start();
+        await VRChatClient.Player.RetrieveAll();
         await ModuleManager.GetInstance().StartAsync();
 
         updateTask = new Repeater(update);
