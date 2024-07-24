@@ -109,7 +109,11 @@
                                                                                     <ui:VRCOSCButton
                                                                                         ButtonColour="Blue"
                                                                                         Width="30" Height="30"
-                                                                                        Visibility="Collapsed">
+                                                                                        Click="InfoButton_OnClick"
+                                                                                        IsEnabled="{Binding HasInfo}">
+                                                                                        <ui:VRCOSCButton.Tag>
+                                                                                            <Binding />
+                                                                                        </ui:VRCOSCButton.Tag>
                                                                                         <fa6:ImageAwesome
                                                                                             Icon="Solid_Info"
                                                                                             PrimaryColor="{StaticResource CForeground1}"

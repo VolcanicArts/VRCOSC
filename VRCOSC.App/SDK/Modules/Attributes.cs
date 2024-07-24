@@ -108,6 +108,21 @@ public class ModulePersistentAttribute : Attribute
     }
 }
 
+[AttributeUsage(AttributeTargets.Class)]
+public class ModuleInfoAttribute : Attribute
+{
+    internal readonly string Url;
+
+    /// <summary>
+    /// Used to mark a module with a help page
+    /// </summary>
+    /// <param name="url">The URL of where to send the user for help with this module</param>
+    public ModuleInfoAttribute(string url)
+    {
+        Url = url;
+    }
+}
+
 public enum ModuleUpdateMode
 {
     /// <summary>
