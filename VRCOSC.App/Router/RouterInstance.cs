@@ -12,9 +12,6 @@ public class RouterInstance
     [JsonProperty("name")]
     public Observable<string> Name { get; } = new(string.Empty);
 
-    [JsonProperty("address")]
-    public Observable<string> Address { get; } = new(IPAddress.Loopback.ToString());
-
-    [JsonProperty("port")]
-    public Observable<int> Port { get; } = new();
+    [JsonProperty("endpoint")]
+    public Observable<string> Endpoint { get; } = new($"{IPAddress.Loopback}:9000");
 }

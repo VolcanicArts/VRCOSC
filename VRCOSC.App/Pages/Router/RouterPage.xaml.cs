@@ -8,7 +8,7 @@ namespace VRCOSC.App.Pages.Router;
 
 public partial class RouterPage
 {
-    public RouterManager RouterManager { get; set; }
+    public RouterManager RouterManager { get; }
 
     public RouterPage()
     {
@@ -29,5 +29,10 @@ public partial class RouterPage
         var route = (RouterInstance)element.Tag;
 
         RouterManager.Routes.Remove(route);
+    }
+
+    private void InfoButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        //Process.Start(new ProcessStartInfo(module.InfoUrl) { UseShellExecute = true });
     }
 }

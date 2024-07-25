@@ -17,24 +17,35 @@
                 <Border Background="Transparent">
                     <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="55" />
+                            <RowDefinition Height="40" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="40" />
                         </Grid.RowDefinitions>
                         <Border Grid.Row="0" Background="{StaticResource CBackground1}"
-                                Padding="7 5" CornerRadius="5 5 0 0">
+                                VerticalAlignment="Center"
+                                Padding="10 5 5 5" CornerRadius="5 5 0 0">
                             <Grid>
                                 <TextBlock
                                     Text="Router"
                                     Foreground="{StaticResource CForeground1}"
                                     FontSize="20"
-                                    VerticalAlignment="Top"
-                                    FontWeight="DemiBold"/>
-                                <TextBlock
-                                    Text="This will forward all VRChat OSC data to the specified address and port for apps to receive on. Apps should still send to port 9000"
-                                    Foreground="{StaticResource CForeground2}"
-                                    FontSize="15"
-                                    VerticalAlignment="Bottom"/>
+                                    VerticalAlignment="Center"
+                                    HorizontalAlignment="Left"
+                                    FontWeight="DemiBold" />
+                                <ui:VRCOSCButton
+                                    ButtonColour="Blue"
+                                    Foreground="{StaticResource CForeground1}"
+                                    VerticalAlignment="Center"
+                                    HorizontalAlignment="Right"
+                                    Width="30"
+                                    Click="InfoButton_OnClick">
+                                    <fa6:ImageAwesome
+                                        Icon="Solid_Info"
+                                        PrimaryColor="{StaticResource CForeground1}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Margin="5" />
+                                </ui:VRCOSCButton>
                             </Grid>
                         </Border>
                         <ListView Grid.Row="1" ItemsSource="{Binding RouterManager.Routes, Mode=OneWay}"
@@ -54,64 +65,79 @@
                                                         Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}"
                                                         Padding="5" Height="40">
                                                         <Grid>
-                                                            <ui:SpacedStackPanel
-                                                                Orientation="Horizontal"
-                                                                Spacing="5"
-                                                                HorizontalAlignment="Left"
-                                                                VerticalAlignment="Stretch">
-                                                                <TextBlock Text="Name:"
-                                                                           Foreground="{StaticResource CForeground1}"
-                                                                           FontSize="16"
-                                                                           VerticalAlignment="Center"/>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="5" />
+                                                                <ColumnDefinition Width="Auto" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <Grid Grid.Column="0">
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="*" />
+                                                                    <ColumnDefinition Width="5" />
+                                                                    <ColumnDefinition Width="*" />
+                                                                </Grid.ColumnDefinitions>
                                                                 <TextBox
+                                                                    Grid.Column="0"
                                                                     Text="{Binding Name.Value}"
                                                                     Foreground="{StaticResource CForeground1}"
-                                                                    Height="20"
-                                                                    Width="100"
+                                                                    Background="{StaticResource CBackground1}"
+                                                                    BorderThickness="0"
                                                                     FontSize="16"
+                                                                    HorizontalAlignment="Stretch"
                                                                     VerticalAlignment="Center"
-                                                                    VerticalContentAlignment="Center" />
-                                                                <TextBlock Text="Address:"
-                                                                           Foreground="{StaticResource CForeground1}"
-                                                                           FontSize="16"
-                                                                           VerticalAlignment="Center"/>
-                                                                <ui:IPTextBox
-                                                                    Text="{Binding Address.Value}"
+                                                                    VerticalContentAlignment="Center">
+                                                                    <TextBox.Template>
+                                                                        <ControlTemplate
+                                                                            TargetType="TextBox">
+                                                                            <Border
+                                                                                Background="{TemplateBinding Background}"
+                                                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                                                CornerRadius="5"
+                                                                                Padding="3 5">
+                                                                                <ScrollViewer
+                                                                                    x:Name="PART_ContentHost" />
+                                                                            </Border>
+                                                                        </ControlTemplate>
+                                                                    </TextBox.Template>
+                                                                </TextBox>
+                                                                <ui:IPPortTextBox
+                                                                    Grid.Column="2"
+                                                                    Text="{Binding Endpoint.Value}"
                                                                     Foreground="{StaticResource CForeground1}"
-                                                                    Height="20"
-                                                                    Width="100"
+                                                                    Background="{StaticResource CBackground1}"
+                                                                    BorderThickness="0"
                                                                     FontSize="16"
+                                                                    HorizontalAlignment="Stretch"
                                                                     VerticalAlignment="Center"
-                                                                    VerticalContentAlignment="Center" />
-                                                                <TextBlock Text="Port:"
-                                                                           Foreground="{StaticResource CForeground1}"
-                                                                           FontSize="16"
-                                                                           VerticalAlignment="Center"/>
-                                                                <TextBox
-                                                                    Text="{Binding Port.Value}"
-                                                                    Foreground="{StaticResource CForeground1}"
-                                                                    Height="20"
-                                                                    Width="100"
-                                                                    FontSize="16"
-                                                                    VerticalAlignment="Center"
-                                                                    VerticalContentAlignment="Center" />
-                                                            </ui:SpacedStackPanel>
-                                                            <ui:SpacedStackPanel
-                                                                Orientation="Horizontal"
-                                                                FlowDirection="RightToLeft"
-                                                                Spacing="7"
-                                                                HorizontalAlignment="Right">
-                                                                <ui:VRCOSCButton
-                                                                    ButtonColour="Red"
-                                                                    Width="30" Height="30"
-                                                                    Tag="{Binding}"
-                                                                    Click="RemoveInstance_OnClick">
-                                                                    <fa6:ImageAwesome
-                                                                        Icon="Solid_Minus"
-                                                                        PrimaryColor="{StaticResource CForeground1}"
-                                                                        Margin="5"/>
-                                                                </ui:VRCOSCButton>
-                                                            </ui:SpacedStackPanel>
+                                                                    VerticalContentAlignment="Center">
+                                                                    <TextBox.Template>
+                                                                        <ControlTemplate
+                                                                            TargetType="TextBox">
+                                                                            <Border
+                                                                                Background="{TemplateBinding Background}"
+                                                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                                                CornerRadius="5"
+                                                                                Padding="3 5">
+                                                                                <ScrollViewer
+                                                                                    x:Name="PART_ContentHost" />
+                                                                            </Border>
+                                                                        </ControlTemplate>
+                                                                    </TextBox.Template>
+                                                                </ui:IPPortTextBox>
+                                                            </Grid>
+                                                            <ui:VRCOSCButton
+                                                                Grid.Column="2"
+                                                                ButtonColour="Red"
+                                                                Width="30" Height="30"
+                                                                Tag="{Binding}"
+                                                                Click="RemoveInstance_OnClick">
+                                                                <fa6:ImageAwesome
+                                                                    Icon="Solid_Minus"
+                                                                    PrimaryColor="{StaticResource CForeground1}"
+                                                                    Margin="5" />
+                                                            </ui:VRCOSCButton>
                                                         </Grid>
                                                     </Border>
                                                 </Grid>
@@ -126,7 +152,7 @@
                             <ui:VRCOSCButton ButtonColour="Green" Height="25" Width="100" CornerRadius="5"
                                              Click="AddInstance_OnClick">
                                 <fa6:ImageAwesome Icon="Solid_Plus" Margin="5"
-                                                 PrimaryColor="{StaticResource CForeground1}" />
+                                                  PrimaryColor="{StaticResource CForeground1}" />
                             </ui:VRCOSCButton>
                         </Border>
                     </Grid>

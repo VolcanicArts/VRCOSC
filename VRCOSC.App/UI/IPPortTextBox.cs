@@ -9,14 +9,14 @@ using System.Windows.Media;
 
 namespace VRCOSC.App.UI;
 
-public class IPTextBox : TextBox
+public class IPPortTextBox : TextBox
 {
-    private static readonly Regex sanity_regex = new("[^0-9.]+");
-    private static readonly Regex is_ip_regex = new(@"\b(?:\d{1,3}\.){3}\d{1,3}\b");
+    private static readonly Regex sanity_regex = new("[^0-9.:]+");
+    private static readonly Regex is_ip_with_port_regex = new(@"\b(?:\d{1,3}\.){3}\d{1,3}(:\d{1,5})?\b");
 
-    public IPTextBox()
+    public IPPortTextBox()
     {
-        MaxLength = 15;
+        MaxLength = 21;
         PreviewTextInput += OnPreviewTextInput;
         TextChanged += OnTextChanged;
         DataObject.AddPastingHandler(this, OnPaste);
@@ -34,16 +34,38 @@ public class IPTextBox : TextBox
         if (sender is TextBox textBox)
         {
             var text = textBox.Text;
-            textBox.BorderBrush = !isIpAddress(text) ? Brushes.Red : Brushes.LightGray;
+            textBox.BorderBrush = !isIpAddressWithPort(text) ? Brushes.Red : Brushes.LightGray;
         }
+    }
+
+    private static bool isIpAddressWithPort(string text)
+    {
+        if (!is_ip_with_port_regex.IsMatch(text))
+            return false;
+
+        var parts = text.Split(':');
+
+        if (parts.Length > 2)
+            return false;
+
+        if (!isIpAddress(parts[0]))
+            return false;
+
+        if (parts.Length == 2)
+        {
+            if (!int.TryParse(parts[1], out int port) || port < 0 || port > 65535)
+                return false;
+        }
+
+        return true;
     }
 
     private static bool isIpAddress(string text)
     {
-        if (!is_ip_regex.IsMatch(text))
-            return false;
-
         var parts = text.Split('.');
+
+        if (parts.Length != 4)
+            return false;
 
         foreach (var part in parts)
         {

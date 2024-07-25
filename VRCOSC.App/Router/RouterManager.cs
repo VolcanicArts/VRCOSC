@@ -41,8 +41,7 @@ public class RouterManager
                 foreach (RouterInstance routerInstance in e.NewItems)
                 {
                     routerInstance.Name.Subscribe(_ => serialisationManager.Serialise());
-                    routerInstance.Address.Subscribe(_ => serialisationManager.Serialise());
-                    routerInstance.Port.Subscribe(_ => serialisationManager.Serialise());
+                    routerInstance.Endpoint.Subscribe(_ => serialisationManager.Serialise());
                 }
             }
 
@@ -58,7 +57,10 @@ public class RouterManager
         {
             try
             {
-                var endpoint = new IPEndPoint(IPAddress.Parse(route.Address.Value), route.Port.Value);
+                var address = route.Endpoint.Value.Split(":")[0];
+                var port = int.Parse(route.Endpoint.Value.Split(":")[1]);
+
+                var endpoint = new IPEndPoint(IPAddress.Parse(address), port);
 
                 Logger.Log($"Starting router instance `{route.Name.Value}` on {endpoint}");
 
