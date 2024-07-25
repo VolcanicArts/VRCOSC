@@ -14,7 +14,7 @@
         <Authors>VolcanicArts</Authors>
         <Description>VRCOSC's SDK for developing VRCOSC modules</Description>
         <PackageProjectUrl>https://github.com/VolcanicArts/VRCOSC</PackageProjectUrl>
-        <PackageLicenseUrl>https://github.com/VolcanicArts/VRCOSC/blob/main/LICENSE</PackageLicenseUrl>
+        <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
         <RepositoryUrl>https://github.com/VolcanicArts/VRCOSC</RepositoryUrl>
         <Company>VRCOSC</Company>
         <LangVersion>12</LangVersion>
