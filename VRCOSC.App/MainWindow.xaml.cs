@@ -18,7 +18,6 @@ using VRCOSC.App.Actions.Game;
 using VRCOSC.App.ChatBox;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Packages;
-using VRCOSC.App.Pages;
 using VRCOSC.App.Pages.AppDebug;
 using VRCOSC.App.Pages.AppSettings;
 using VRCOSC.App.Pages.ChatBox;
@@ -46,7 +45,6 @@ public partial class MainWindow
 {
     public static MainWindow GetInstance() => (MainWindow)Application.Current.MainWindow;
 
-    public readonly HomePage HomePage;
     public readonly PackagePage PackagePage;
     public readonly ModulesPage ModulesPage;
     public readonly RouterPage RouterPage;
@@ -76,7 +74,6 @@ public partial class MainWindow
         setupTrayIcon();
         copyOpenVrFiles();
 
-        HomePage = new HomePage();
         PackagePage = new PackagePage();
         ModulesPage = new ModulesPage();
         RouterPage = new RouterPage();
@@ -297,7 +294,6 @@ public partial class MainWindow
 
     private void setPageContents(object page, Button button)
     {
-        HomeButton.Background = Brushes.Transparent;
         PackagesButton.Background = Brushes.Transparent;
         ModulesButton.Background = Brushes.Transparent;
         RouterButton.Background = Brushes.Transparent;
@@ -310,11 +306,6 @@ public partial class MainWindow
 
         ContentFrame.Content = page;
         button.Background = (Brush)FindResource("CBackground2");
-    }
-
-    private void HomeButton_OnClick(object sender, RoutedEventArgs e)
-    {
-        setPageContents(HomePage, HomeButton);
     }
 
     private void PackagesButton_OnClick(object sender, RoutedEventArgs e)

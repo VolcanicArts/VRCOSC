@@ -47,9 +47,6 @@
                 <Border Grid.Column="0" Background="{StaticResource CBackground1}">
                     <Grid>
                         <StackPanel Orientation="Vertical" VerticalAlignment="Top">
-                            <Button Name="HomeButton" Click="HomeButton_OnClick" Visibility="Collapsed">
-                                <fa6:ImageAwesome Icon="Solid_House" />
-                            </Button>
                             <Button Name="PackagesButton" Click="PackagesButton_OnClick">
                                 <fa6:ImageAwesome Icon="Solid_Download" />
                             </Button>
