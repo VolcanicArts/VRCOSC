@@ -62,6 +62,8 @@ public class ChatBoxManager : INotifyPropertyChanged
 
     public Observable<bool> IsLoaded { get; } = new();
 
+    public bool IsManualTextOpen;
+
     private ChatBoxManager()
     {
         serialisationManager = new SerialisationManager();
@@ -215,6 +217,8 @@ public class ChatBoxManager : INotifyPropertyChanged
         });
 
         TriggeredEvents.Clear();
+
+        if (IsManualTextOpen) return;
 
         evaluateClips();
     }

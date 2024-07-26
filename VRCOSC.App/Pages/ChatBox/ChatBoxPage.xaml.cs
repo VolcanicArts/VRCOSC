@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -25,6 +25,7 @@ public partial class ChatBoxPage
     private double mouseX;
     private Clip? draggingClip;
     private ClipDragPoint clipDragPoint;
+    private Window? manualInputWindow;
 
     public ChatBoxManager ChatBoxManager => ChatBoxManager.GetInstance();
 
@@ -508,6 +509,21 @@ public partial class ChatBoxPage
     private void IgnoreErrors_ButtonClick(object sender, RoutedEventArgs e)
     {
         ChatBoxManager.GetInstance().Deserialise(string.Empty, true);
+    }
+
+    private void WriteButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (manualInputWindow is null)
+        {
+            manualInputWindow = new ChatBoxManualInputWindow();
+            manualInputWindow.Closed += (_, _) => manualInputWindow = null;
+            manualInputWindow.Show();
+        }
+        else
+        {
+            manualInputWindow.WindowState = WindowState.Normal;
+            manualInputWindow.Focus();
+        }
     }
 }
 

@@ -64,6 +64,11 @@ public static class ArrayExtensions
     }
 }
 
+public static class UriExtensions
+{
+    public static void OpenExternally(this Uri uri) => Process.Start(new ProcessStartInfo(uri.AbsoluteUri) { UseShellExecute = true });
+}
+
 public static class StringExtensions
 {
     public static string Pluralise(this string str) => str + (str.EndsWith("s") ? "'" : "'s");

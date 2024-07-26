@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Diagnostics;
 using System.Windows;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Pages.Modules.Parameters;
@@ -79,9 +78,14 @@ public partial class ModulesPage
         var element = (FrameworkElement)sender;
         var module = (Module)element.Tag;
 
-        if (!string.IsNullOrEmpty(module.InfoUrl))
-        {
-            Process.Start(new ProcessStartInfo(module.InfoUrl) { UseShellExecute = true });
-        }
+        module.InfoUrl.OpenExternally();
+    }
+
+    private void PrefabButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        var module = (Module)element.Tag;
+
+        new ModulePrefabsWindow(module).Show();
     }
 }

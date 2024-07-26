@@ -146,7 +146,8 @@
                                                                                     <ui:VRCOSCButton
                                                                                         ButtonColour="Gray"
                                                                                         Width="30" Height="30"
-                                                                                        Visibility="Collapsed">
+                                                                                        Click="PrefabButton_OnClick"
+                                                                                        IsEnabled="{Binding HasPrefabs}">
                                                                                         <fa6:ImageAwesome
                                                                                             Icon="Solid_Cube"
                                                                                             PrimaryColor="{StaticResource CForeground1}"

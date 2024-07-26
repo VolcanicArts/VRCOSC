@@ -59,18 +59,29 @@ public class ModuleTypeAttribute : Attribute
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 public class ModulePrefabAttribute : Attribute
 {
-    internal readonly string Name;
-    internal readonly string? Url;
+    internal string Name { get; }
+    internal Uri Url { get; }
 
     /// <summary>
     /// Adds a reference to a prefab for this <see cref="Module"/>
     /// </summary>
     /// <param name="name">The name of the prefab</param>
     /// <param name="url">A download URL for the latest version</param>
-    public ModulePrefabAttribute(string name, string? url = null)
+    public ModulePrefabAttribute(string name, Uri url)
     {
         Name = name;
         Url = url;
+    }
+
+    /// <summary>
+    /// Adds a reference to a prefab for this <see cref="Module"/>
+    /// </summary>
+    /// <param name="name">The name of the prefab</param>
+    /// <param name="url">A download URL for the latest version</param>
+    public ModulePrefabAttribute(string name, string url)
+    {
+        Name = name;
+        Url = new Uri(url);
     }
 }
 
@@ -111,13 +122,13 @@ public class ModulePersistentAttribute : Attribute
 [AttributeUsage(AttributeTargets.Class)]
 public class ModuleInfoAttribute : Attribute
 {
-    internal readonly string Url;
+    internal readonly Uri Url;
 
     /// <summary>
     /// Used to mark a module with a help page
     /// </summary>
     /// <param name="url">The URL of where to send the user for help with this module</param>
-    public ModuleInfoAttribute(string url)
+    public ModuleInfoAttribute(Uri url)
     {
         Url = url;
     }

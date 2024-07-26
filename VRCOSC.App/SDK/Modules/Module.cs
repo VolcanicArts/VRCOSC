@@ -79,11 +79,12 @@ public abstract class Module
     public string ShortDescription => GetType().GetCustomAttribute<ModuleDescriptionAttribute>()?.ShortDescription ?? "PLACEHOLDER DESCRIPTION";
     public ModuleType Type => GetType().GetCustomAttribute<ModuleTypeAttribute>()?.Type ?? ModuleType.Generic;
     public Brush Colour => Type.ToColour();
-    public string InfoUrl => GetType().GetCustomAttribute<ModuleInfoAttribute>()?.Url ?? string.Empty;
+    public Uri InfoUrl => GetType().GetCustomAttribute<ModuleInfoAttribute>()!.Url;
 
     public bool HasSettings => Settings.Count != 0;
     public bool HasParameters => Parameters.Count != 0;
     public bool HasInfo => GetType().GetCustomAttribute<ModuleInfoAttribute>() is not null;
+    public bool HasPrefabs => GetType().GetCustomAttributes<ModulePrefabAttribute>().Any();
 
     protected Module()
     {

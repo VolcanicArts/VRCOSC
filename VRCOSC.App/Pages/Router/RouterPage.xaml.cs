@@ -33,6 +33,6 @@ public partial class RouterPage
 
     private void InfoButton_OnClick(object sender, RoutedEventArgs e)
     {
-        //Process.Start(new ProcessStartInfo(module.InfoUrl) { UseShellExecute = true });
+        // open router docs
     }
 }

@@ -3,7 +3,6 @@
 
 using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
@@ -139,7 +138,7 @@ public partial class PackagePage : INotifyPropertyChanged
         var button = (Button)sender;
         var packageSource = (PackageSource)button.Tag;
 
-        Process.Start(new ProcessStartInfo(packageSource.URL) { UseShellExecute = true });
+        new Uri(packageSource.URL).OpenExternally();
     }
 
     private void InfoOverlayExit_ButtonClick(object sender, RoutedEventArgs e)

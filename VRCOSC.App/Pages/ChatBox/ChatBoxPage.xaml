@@ -62,6 +62,12 @@
                             <ui:IconButton
                                 Grid.Row="2"
                                 Grid.Column="0"
+                                ButtonColour="Blue"
+                                Icon="Solid_PenNib"
+                                Click="WriteButton_OnClick" />
+                            <ui:IconButton
+                                Grid.Row="2"
+                                Grid.Column="2"
                                 ButtonColour="Red"
                                 Icon="Solid_TrashCan"
                                 Click="ClearButton_OnClick" />
