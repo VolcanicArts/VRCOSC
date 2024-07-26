@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.CompilerServices;
 using Valve.VR;
 using VRCOSC.App.SDK.OVR.Device;
@@ -12,6 +13,7 @@ namespace VRCOSC.App.SDK.OVR;
 
 public class OVRClient
 {
+    private static readonly string vrpath_file = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "openvr", "openvrpaths.vrpath");
     private static readonly uint vrevent_t_size = (uint)Unsafe.SizeOf<VREvent_t>();
 
     internal Action? OnShutdown;
@@ -41,6 +43,7 @@ public class OVRClient
     internal void Init()
     {
         if (HasInitialised || Metadata is null) return;
+        if (!File.Exists(vrpath_file)) return;
 
         if (!OVRHelper.InitialiseOpenVR(Metadata.ApplicationType)) return;
 
