@@ -196,7 +196,7 @@ public class ChatBoxManager : INotifyPropertyChanged
             clip.Elements.ForEach(clipElement => clipElement.IsChosenElement.Value = false);
         });
 
-        clearChatBox();
+        ClearText();
     }
 
     private void update()
@@ -251,7 +251,7 @@ public class ChatBoxManager : INotifyPropertyChanged
     {
         if (!SendEnabled || newClip is null)
         {
-            clearChatBox();
+            ClearText();
             return;
         }
 
@@ -277,11 +277,11 @@ public class ChatBoxManager : INotifyPropertyChanged
         if (newClip.ShouldUseMinimalBackground())
             newText += "\u0003\u001f";
 
-        sendText(newText);
+        SendText(newText);
         setTyping(newIsTyping);
     }
 
-    private void sendText(string text)
+    public void SendText(string text)
     {
         var finalText = convertSpecialCharacters(text);
         AppManager.GetInstance().VRChatOscClient.SendValues(VRChatOscConstants.ADDRESS_CHATBOX_INPUT, new object[] { finalText, true, false });
@@ -293,11 +293,11 @@ public class ChatBoxManager : INotifyPropertyChanged
         return input.Replace("\n", "\v");
     }
 
-    private void clearChatBox()
+    public void ClearText()
     {
         if (isClear) return;
 
-        sendText(string.Empty);
+        SendText(string.Empty);
         isClear = true;
     }
 

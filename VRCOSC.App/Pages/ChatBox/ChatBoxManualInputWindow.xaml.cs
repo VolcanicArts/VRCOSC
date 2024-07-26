@@ -1,15 +1,22 @@
 using System;
+using System.Windows;
 using VRCOSC.App.ChatBox;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Pages.ChatBox;
 
 public partial class ChatBoxManualInputWindow
 {
+    public Observable<string> Text { get; } = new(string.Empty);
+
     public ChatBoxManualInputWindow()
     {
         InitializeComponent();
 
         ChatBoxManager.GetInstance().IsManualTextOpen = true;
+        ChatBoxManager.GetInstance().ClearText();
+
+        DataContext = this;
     }
 
     protected override void OnClosed(EventArgs e)
@@ -19,6 +26,9 @@ public partial class ChatBoxManualInputWindow
         ChatBoxManager.GetInstance().IsManualTextOpen = false;
     }
 
-    // have option to choose between send while writing and send button
+    private void SendButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        ChatBoxManager.GetInstance().SendText(Text.Value);
+        Text.Value = string.Empty;
+    }
 }
-

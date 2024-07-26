@@ -132,6 +132,15 @@ public class ModuleInfoAttribute : Attribute
     {
         Url = url;
     }
+
+    /// <summary>
+    /// Used to mark a module with a help page
+    /// </summary>
+    /// <param name="url">The URL of where to send the user for help with this module</param>
+    public ModuleInfoAttribute(string url)
+    {
+        Url = new Uri(url);
+    }
 }
 
 public enum ModuleUpdateMode

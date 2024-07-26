@@ -3,10 +3,42 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:ui="clr-namespace:VRCOSC.App.UI"
         mc:Ignorable="d"
         Title="ChatBox Manual Input" Height="450" Width="800">
     <Grid>
         <Border Background="{StaticResource CBackground2}" Padding="10">
+            <Grid>
+                <TextBox
+                    Text="{Binding Text.Value, UpdateSourceTrigger=PropertyChanged}"
+                    Foreground="{StaticResource CForeground1}"
+                    FontSize="20"
+                    VerticalAlignment="Top"
+                    TextAlignment="Center"
+                    Margin="-1"
+                    HorizontalAlignment="Stretch"
+                    Background="{StaticResource CBackground1}"
+                    BorderBrush="Transparent">
+                    <TextBox.Template>
+                        <ControlTemplate
+                            TargetType="TextBox">
+                            <Border
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="5"
+                                Padding="0 0 0 4">
+                                <ScrollViewer
+                                    x:Name="PART_ContentHost" />
+                            </Border>
+                        </ControlTemplate>
+                    </TextBox.Template>
+                </TextBox>
+                <ui:VRCOSCButton ButtonColour="Green" CornerRadius="5" Width="150" Height="30"
+                                 VerticalAlignment="Bottom" Click="SendButton_OnClick">
+                    <TextBlock FontSize="20" Text="Send" Foreground="{StaticResource CForeground1}" />
+                </ui:VRCOSCButton>
+            </Grid>
         </Border>
     </Grid>
 </Window>
