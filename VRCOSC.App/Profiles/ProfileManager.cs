@@ -155,10 +155,7 @@ public class ProfileManager
 
     public void ExitProfileEditWindow()
     {
-        if (ProfileEditWindow is null) return;
-
-        ProfileEditWindow.ForceClose = true;
-        ProfileEditWindow.Close();
+        ProfileEditWindow?.Close();
     }
 
     public ProfileEditWindow? ProfileEditWindow { get; private set; }

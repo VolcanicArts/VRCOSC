@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -16,7 +15,6 @@ public partial class ProfileEditWindow
 {
     public Profile? OriginalProfile { get; }
     public Profile Profile { get; }
-    public bool ForceClose { get; set; }
 
     public ProfileEditWindow(Profile? profile)
     {
@@ -69,24 +67,11 @@ public partial class ProfileEditWindow
         }
     }
 
-    private void ProfileEditWindow_OnClosing(object? sender, CancelEventArgs e)
-    {
-        if (!Profile.IsValidForSave() && !ForceClose)
-        {
-            e.Cancel = true;
-        }
-    }
-
     private void RemoveButton_OnClick(object sender, RoutedEventArgs e)
     {
         var removeButton = (Button)sender;
         var itemToRemove = (Observable<string>)removeButton.Tag;
         Profile.LinkedAvatars.Remove(itemToRemove);
-    }
-
-    private void CancelEdit_ButtonClick(object sender, RoutedEventArgs e)
-    {
-        ProfileManager.GetInstance().ExitProfileEditWindow();
     }
 
     private void SaveEdit_ButtonClick(object sender, RoutedEventArgs e)
@@ -102,7 +87,7 @@ public partial class ProfileEditWindow
             Profile.CopyTo(OriginalProfile);
         }
 
-        ProfileManager.GetInstance().ExitProfileEditWindow();
+        Close();
     }
 
     private void AddLinkedAvatar_ButtonClick(object sender, RoutedEventArgs e)
