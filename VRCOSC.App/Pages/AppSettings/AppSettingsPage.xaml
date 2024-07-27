@@ -349,7 +349,7 @@
                                         <ColumnDefinition Width="5*"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="Speech Confidence" Style="{StaticResource SettingTitle}" />
-                                    <TextBlock Grid.Column="0" Text="How confidence should Whisper be to send a result?"
+                                    <TextBlock Grid.Column="0" Text="How confident should Whisper be to send a result?"
                                                Style="{StaticResource SettingDescription}" />
                                     <Grid Grid.Column="1" HorizontalAlignment="Stretch">
                                         <Slider Value="{Binding SpeechConfidenceSliderValue}"
