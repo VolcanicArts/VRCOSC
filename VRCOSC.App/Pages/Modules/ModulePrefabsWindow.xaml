@@ -3,10 +3,68 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:local="clr-namespace:VRCOSC.App.Pages.Modules"
+        xmlns:ui="clr-namespace:VRCOSC.App.UI"
+        xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:fa6="http://schemas.fontawesome.com/icons/fonts"
         mc:Ignorable="d"
-        Title="ModulePrefabsWindow" Height="450" Width="800">
+        Height="450" Width="800">
+    <Window.Resources>
+        <ui:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
+                                       Colour2="{StaticResource CBackground4}" />
+    </Window.Resources>
     <Grid>
-        
+        <ui:MouseScrollViewer VerticalScrollBarVisibility="Auto">
+            <Border Background="{StaticResource CBackground2}" Padding="10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="5" />
+                    </Grid.RowDefinitions>
+                    <Border Grid.Row="0" Background="{StaticResource CBackground1}"
+                            Padding="7" CornerRadius="5 5 0 0">
+                        <TextBlock Text="Download Prefabs"
+                                   FontSize="20"
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource CForeground2}" />
+                    </Border>
+                    <ListView Grid.Row="1" ItemsSource="{Binding Prefabs}"
+                              HorizontalAlignment="Stretch"
+                              Background="Transparent"
+                              BorderThickness="0" AlternationCount="2" Padding="-1">
+                        <b:Interaction.Behaviors>
+                            <ui:IgnoreMouseWheelBehavior />
+                        </b:Interaction.Behaviors>
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate>
+                                            <Border
+                                                Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}"
+                                                Padding="5" Height="40">
+                                                <Grid>
+                                                    <TextBlock Text="{Binding Name}" FontSize="15"
+                                                               Foreground="{StaticResource CForeground1}"
+                                                               HorizontalAlignment="Left" VerticalAlignment="Center" />
+                                                    <ui:VRCOSCButton HorizontalAlignment="Right" ButtonColour="Blue"
+                                                                     Click="DownloadButton_OnClick" Tag="{Binding}">
+                                                        <fa6:ImageAwesome Icon="Solid_Download"
+                                                                          PrimaryColor="{StaticResource CForeground1}"
+                                                                          Margin="4" />
+                                                    </ui:VRCOSCButton>
+                                                </Grid>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                    </ListView>
+                    <Border Grid.Row="2" Background="{StaticResource CBackground1}"
+                            CornerRadius="0 0 5 5" />
+                </Grid>
+            </Border>
+        </ui:MouseScrollViewer>
     </Grid>
 </Window>

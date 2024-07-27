@@ -59,8 +59,8 @@ public class ModuleTypeAttribute : Attribute
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 public class ModulePrefabAttribute : Attribute
 {
-    internal string Name { get; }
-    internal Uri Url { get; }
+    public string Name { get; }
+    public Uri Url { get; }
 
     /// <summary>
     /// Adds a reference to a prefab for this <see cref="Module"/>

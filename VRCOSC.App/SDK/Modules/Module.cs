@@ -85,6 +85,7 @@ public abstract class Module
     public bool HasParameters => Parameters.Count != 0;
     public bool HasInfo => GetType().GetCustomAttribute<ModuleInfoAttribute>() is not null;
     public bool HasPrefabs => GetType().GetCustomAttributes<ModulePrefabAttribute>().Any();
+    public IEnumerable<ModulePrefabAttribute> Prefabs => GetType().GetCustomAttributes<ModulePrefabAttribute>();
 
     protected Module()
     {
