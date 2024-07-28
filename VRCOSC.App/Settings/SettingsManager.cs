@@ -54,7 +54,6 @@ public class SettingsManager
         setDefault(VRCOSCSetting.OVRAutoClose, false);
         setDefault(VRCOSCSetting.AllowPreReleasePackages, true); // TODO: Change on app release
         setDefault(VRCOSCSetting.TrayOnClose, false);
-        setDefault(VRCOSCSetting.GlobalPersistence, false);
         setDefault(VRCOSCSetting.UpdateChannel, UpdateChannel.Beta); // TODO: Change on app release
         setDefault(VRCOSCSetting.ChatBoxSendInterval, 1500);
         setDefault(VRCOSCSetting.ChatBoxWorldBlacklist, true);
@@ -101,7 +100,6 @@ public enum VRCOSCSetting
     OVRAutoClose,
     AllowPreReleasePackages,
     TrayOnClose,
-    GlobalPersistence,
     UpdateChannel,
     ChatBoxSendInterval,
     ChatBoxWorldBlacklist,

@@ -7,7 +7,6 @@ using System.Collections.ObjectModel;
 using System.Net;
 using VRCOSC.App.OSC.Client;
 using VRCOSC.App.OSC.VRChat;
-using VRCOSC.App.Profiles;
 using VRCOSC.App.Router.Serialisation;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
@@ -27,7 +26,7 @@ public class RouterManager
     public RouterManager()
     {
         serialisationManager = new SerialisationManager();
-        serialisationManager.RegisterSerialiser(1, new RouterManagerSerialiser(AppManager.GetInstance().Storage, this, ProfileManager.GetInstance().ActiveProfile));
+        serialisationManager.RegisterSerialiser(1, new RouterManagerSerialiser(AppManager.GetInstance().Storage, this));
     }
 
     public void Load()

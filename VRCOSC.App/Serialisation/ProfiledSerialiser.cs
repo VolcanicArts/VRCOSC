@@ -9,13 +9,10 @@ namespace VRCOSC.App.Serialisation;
 
 public abstract class ProfiledSerialiser<TReference, TSerialisable> : Serialiser<TReference, TSerialisable> where TSerialisable : class
 {
-    private readonly Observable<Profile> activeProfile;
+    protected override string Directory => Path.Join("profiles", ProfileManager.GetInstance().ActiveProfile.Value.ID.ToString());
 
-    protected override string Directory => Path.Join("profiles", activeProfile.Value.ID.ToString());
-
-    protected ProfiledSerialiser(Storage storage, TReference reference, Observable<Profile> activeProfile)
+    protected ProfiledSerialiser(Storage storage, TReference reference)
         : base(storage, reference)
     {
-        this.activeProfile = activeProfile;
     }
 }

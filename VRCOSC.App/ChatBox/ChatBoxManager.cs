@@ -14,7 +14,6 @@ using VRCOSC.App.ChatBox.Clips.Variables.Instances;
 using VRCOSC.App.ChatBox.Serialisation;
 using VRCOSC.App.Modules;
 using VRCOSC.App.OSC.VRChat;
-using VRCOSC.App.Profiles;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;
@@ -67,10 +66,10 @@ public class ChatBoxManager : INotifyPropertyChanged
     private ChatBoxManager()
     {
         serialisationManager = new SerialisationManager();
-        serialisationManager.RegisterSerialiser(1, new ChatBoxSerialiser(AppManager.GetInstance().Storage, this, ProfileManager.GetInstance().ActiveProfile));
+        serialisationManager.RegisterSerialiser(1, new ChatBoxSerialiser(AppManager.GetInstance().Storage, this));
 
         validationSerialisationManager = new SerialisationManager();
-        validationSerialisationManager.RegisterSerialiser(1, chatBoxValidationSerialiser = new ChatBoxValidationSerialiser(AppManager.GetInstance().Storage, this, ProfileManager.GetInstance().ActiveProfile));
+        validationSerialisationManager.RegisterSerialiser(1, chatBoxValidationSerialiser = new ChatBoxValidationSerialiser(AppManager.GetInstance().Storage, this));
     }
 
     public void Load()

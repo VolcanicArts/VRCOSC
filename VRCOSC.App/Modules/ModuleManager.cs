@@ -13,10 +13,8 @@ using System.Threading.Tasks;
 using VRCOSC.App.ChatBox;
 using VRCOSC.App.Modules.Serialisation;
 using VRCOSC.App.OSC.VRChat;
-using VRCOSC.App.Profiles;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.Serialisation;
-using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Modules;
@@ -141,10 +139,10 @@ internal class ModuleManager : INotifyPropertyChanged
             try
             {
                 var moduleSerialisationManager = new SerialisationManager();
-                moduleSerialisationManager.RegisterSerialiser(1, new ModuleSerialiser(storage, module, ProfileManager.GetInstance().ActiveProfile));
+                moduleSerialisationManager.RegisterSerialiser(1, new ModuleSerialiser(storage, module));
 
                 var modulePersistenceSerialisationManager = new SerialisationManager();
-                modulePersistenceSerialisationManager.RegisterSerialiser(1, new ModulePersistenceSerialiser(storage, module, ProfileManager.GetInstance().ActiveProfile, SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.GlobalPersistence)));
+                modulePersistenceSerialisationManager.RegisterSerialiser(1, new ModulePersistenceSerialiser(storage, module));
 
                 module.InjectDependencies(moduleSerialisationManager, modulePersistenceSerialisationManager);
 

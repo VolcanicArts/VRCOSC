@@ -3,7 +3,6 @@
 
 using System.Linq;
 using VRCOSC.App.Modules;
-using VRCOSC.App.Profiles;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
 
@@ -15,8 +14,8 @@ public class ChatBoxValidationSerialiser : ProfiledSerialiser<ChatBoxManager, Se
 
     public bool IsValid { get; private set; }
 
-    public ChatBoxValidationSerialiser(Storage storage, ChatBoxManager reference, Observable<Profile> activeProfile)
-        : base(storage, reference, activeProfile)
+    public ChatBoxValidationSerialiser(Storage storage, ChatBoxManager reference)
+        : base(storage, reference)
     {
     }
 

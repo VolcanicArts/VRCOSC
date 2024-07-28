@@ -7,7 +7,6 @@ using System.Linq;
 using System.Reflection;
 using VRCOSC.App.ChatBox.Clips;
 using VRCOSC.App.ChatBox.Clips.Variables;
-using VRCOSC.App.Profiles;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
 
@@ -17,8 +16,8 @@ public class ChatBoxSerialiser : ProfiledSerialiser<ChatBoxManager, Serialisable
 {
     protected override string FileName => "chatbox.json";
 
-    public ChatBoxSerialiser(Storage storage, ChatBoxManager reference, Observable<Profile> activeProfile)
-        : base(storage, reference, activeProfile)
+    public ChatBoxSerialiser(Storage storage, ChatBoxManager reference)
+        : base(storage, reference)
     {
     }
 

@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using VRCOSC.App.Profiles;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
 
@@ -11,8 +10,8 @@ public class RouterManagerSerialiser : ProfiledSerialiser<RouterManager, Seriali
 {
     protected override string FileName => "router.json";
 
-    public RouterManagerSerialiser(Storage storage, RouterManager reference, Observable<Profile> activeProfile)
-        : base(storage, reference, activeProfile)
+    public RouterManagerSerialiser(Storage storage, RouterManager reference)
+        : base(storage, reference)
     {
     }
 
