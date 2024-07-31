@@ -19,7 +19,6 @@ using VRCOSC.App.ChatBox;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Packages;
 using VRCOSC.App.Pages.AppDebug;
-using VRCOSC.App.Pages.AppSettings;
 using VRCOSC.App.Pages.Profiles;
 using VRCOSC.App.Pages.Settings;
 using VRCOSC.App.Profiles;
@@ -27,6 +26,7 @@ using VRCOSC.App.Router;
 using VRCOSC.App.SDK.OVR.Metadata;
 using VRCOSC.App.Settings;
 using VRCOSC.App.UI.Core;
+using VRCOSC.App.UI.Views.AppSettings;
 using VRCOSC.App.UI.Views.ChatBox;
 using VRCOSC.App.UI.Views.Modules;
 using VRCOSC.App.UI.Views.Packages;
@@ -49,7 +49,7 @@ public partial class MainWindow
     public readonly RunView RunView;
     public readonly AppDebugPage DebugPage;
     public readonly ProfilesPage ProfilesPage;
-    public readonly AppSettingsPage AppSettingsPage;
+    public readonly AppSettingsView AppSettingsView;
 
     private readonly Storage storage = AppManager.GetInstance().Storage;
 
@@ -78,7 +78,7 @@ public partial class MainWindow
         RunView = new RunView();
         DebugPage = new AppDebugPage();
         ProfilesPage = new ProfilesPage();
-        AppSettingsPage = new AppSettingsPage();
+        AppSettingsView = new AppSettingsView();
 
         setContent(PackagesView);
 
@@ -335,6 +335,6 @@ public partial class MainWindow
 
     private void AppSettingsButton_OnClick(object sender, RoutedEventArgs e)
     {
-        setContent(AppSettingsPage);
+        setContent(AppSettingsView);
     }
 }

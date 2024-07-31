@@ -17,11 +17,9 @@ using VRCOSC.App.UI.Themes;
 using VRCOSC.App.Utils;
 using SpeechEngine = VRCOSC.App.Settings.SpeechEngine;
 
-// ReSharper disable UnusedMember.Global
+namespace VRCOSC.App.UI.Views.AppSettings;
 
-namespace VRCOSC.App.Pages.AppSettings;
-
-public partial class AppSettingsPage
+public partial class AppSettingsView
 {
     public bool AllowPreReleasePackages
     {
@@ -129,7 +127,7 @@ public partial class AppSettingsPage
 
     private List<DeviceDisplay> audioInputDevices = null!;
 
-    public AppSettingsPage()
+    public AppSettingsView()
     {
         InitializeComponent();
 
