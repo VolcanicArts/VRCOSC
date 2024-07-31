@@ -4,7 +4,6 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
-             xmlns:fa6="http://schemas.fontawesome.com/icons/fonts"
              mc:Ignorable="d"
              d:DesignWidth="1366" d:DesignHeight="748"
              Background="Transparent">
@@ -88,23 +87,19 @@
                                                 <core:SpacedStackPanel Grid.Column="1"
                                                                        FlowDirection="RightToLeft"
                                                                        Orientation="Horizontal" Spacing="8">
-                                                    <core:VRCOSCButton ButtonColour="Red"
-                                                                       Click="RemoveProfile_ButtonClick"
-                                                                       Visibility="{Binding UIRemoveProfileButtonVisibility}"
-                                                                       Width="30" Height="30"
-                                                                       Tag="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=DataContext}">
-                                                        <fa6:ImageAwesome Icon="Solid_Minus"
-                                                                          PrimaryColor="{StaticResource CForeground1}"
-                                                                          Margin="5" />
-                                                    </core:VRCOSCButton>
-                                                    <core:VRCOSCButton ButtonColour="Blue"
-                                                                       Click="EditProfile_ButtonClick"
-                                                                       Width="30" Height="30"
-                                                                       Tag="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=DataContext}">
-                                                        <fa6:ImageAwesome Icon="Solid_PenToSquare"
-                                                                          PrimaryColor="{StaticResource CForeground1}"
-                                                                          Margin="5" />
-                                                    </core:VRCOSCButton>
+                                                    <core:IconButton ButtonColour="Red"
+                                                                     Click="RemoveProfile_ButtonClick"
+                                                                     Visibility="{Binding UIRemoveProfileButtonVisibility}"
+                                                                     Width="30" Height="30"
+                                                                     Icon="Solid_Minus"
+                                                                     Tag="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=DataContext}">
+                                                    </core:IconButton>
+                                                    <core:IconButton ButtonColour="Blue"
+                                                                     Click="EditProfile_ButtonClick"
+                                                                     Width="30" Height="30"
+                                                                     Icon="Solid_PenToSquare"
+                                                                     Tag="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=DataContext}">
+                                                    </core:IconButton>
                                                 </core:SpacedStackPanel>
                                             </Grid>
                                         </Border>
@@ -115,11 +110,10 @@
                     </ListView.ItemContainerStyle>
                     <core:HeaderFooterListView.Footer>
                         <Border Height="45" Padding="5" Background="{StaticResource CBackground1}">
-                            <core:VRCOSCButton ButtonColour="Green" Width="30" Height="30"
-                                               Click="AddProfile_ButtonClick">
-                                <fa6:ImageAwesome Icon="Solid_Plus" PrimaryColor="{StaticResource CForeground1}"
-                                                  Margin="5" />
-                            </core:VRCOSCButton>
+                            <core:IconButton ButtonColour="Green" Width="30" Height="30"
+                                             Icon="Solid_Plus"
+                                             Click="AddProfile_ButtonClick">
+                            </core:IconButton>
                         </Border>
                     </core:HeaderFooterListView.Footer>
                 </core:HeaderFooterListView>

@@ -3,6 +3,7 @@
                     xmlns:core="clr-namespace:VRCOSC.App.UI.Core">
     <core:RectSizeConverter x:Key="RectSizeConverter" />
     <core:HeaderFooterListViewContentHeightConverter x:Key="HeaderFooterListViewContentHeightConverter" />
+    <core:HideFooterWhenEmptyConverter x:Key="HideFooterWhenEmptyConverter" />
     <Style TargetType="{x:Type core:HeaderFooterListView}">
         <Setter Property="Template">
             <Setter.Value>
@@ -44,7 +45,15 @@
                                     </MultiBinding>
                                 </ScrollViewer.Height>
                             </ScrollViewer>
-                            <ContentPresenter x:Name="FooterPresenter" Grid.Row="2" Content="{TemplateBinding Footer}" />
+                            <ContentPresenter x:Name="FooterPresenter" Grid.Row="2" Content="{TemplateBinding Footer}">
+                                <ContentPresenter.Visibility>
+                                    <MultiBinding Converter="{StaticResource HideFooterWhenEmptyConverter}">
+                                        <Binding Path="HideFooterWhenEmpty"
+                                                 RelativeSource="{RelativeSource TemplatedParent}" />
+                                        <Binding Path="Items.IsEmpty" RelativeSource="{RelativeSource TemplatedParent}" />
+                                    </MultiBinding>
+                                </ContentPresenter.Visibility>
+                            </ContentPresenter>
                         </Grid>
                     </Border>
                 </ControlTemplate>

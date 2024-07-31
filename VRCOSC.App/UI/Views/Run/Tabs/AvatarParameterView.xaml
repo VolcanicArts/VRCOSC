@@ -4,7 +4,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
-             mc:Ignorable="d">
+             mc:Ignorable="d"
+             Background="Transparent"
+             d:DesignWidth="900" d:DesignHeight="764">
     <UserControl.Resources>
         <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
                                          Colour2="{StaticResource CBackground2}" />
@@ -50,7 +52,8 @@
                                            HorizontalAlignment="Stretch"
                                            Background="Transparent"
                                            BorderThickness="0"
-                                           AlternationCount="2">
+                                           AlternationCount="2"
+                                           HideFooterWhenEmpty="True">
                     <core:HeaderFooterListView.Header>
                         <Border Background="{StaticResource CBackground1}" Height="35">
                             <TextBlock Text="Outgoing" Foreground="{StaticResource CForeground2}"
@@ -67,7 +70,8 @@
                                            HorizontalAlignment="Stretch"
                                            Background="Transparent"
                                            BorderThickness="0"
-                                           AlternationCount="2">
+                                           AlternationCount="2"
+                                           HideFooterWhenEmpty="True">
                     <core:HeaderFooterListView.Header>
                         <Border Background="{StaticResource CBackground1}" Height="35">
                             <TextBlock Text="Incoming" Foreground="{StaticResource CForeground2}"

@@ -33,7 +33,8 @@
                                         HorizontalAlignment="Stretch"
                                         Background="Transparent"
                                         BorderThickness="0"
-                                        AlternationCount="2">
+                                        AlternationCount="2"
+                                        HideFooterWhenEmpty="True">
                                         <core:HeaderFooterListView.Header>
                                             <Border Background="{StaticResource CBackground1}"
                                                     Padding="7" Height="40">

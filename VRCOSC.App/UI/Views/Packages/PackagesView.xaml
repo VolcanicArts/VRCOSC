@@ -68,19 +68,12 @@
                             </Grid>
                         </Grid>
                     </Border>
-                    <core:VRCOSCButton Width="36" ButtonColour="Blue" Click="RefreshButton_OnClick">
-                        <fa6:ImageAwesome Icon="Solid_Rotate"
-                                          PrimaryColor="{StaticResource CForeground1}"
-                                          Margin="6" />
-                    </core:VRCOSCButton>
-                    <core:VRCOSCButton Width="36" ButtonColour="Blue" Click="UpdateAllButton_OnClick"
-                                       Visibility="{Binding UpdateAllButtonVisibility, Mode=OneWay}">
-                        <fa6:ImageAwesome Icon="Regular_CircleDown"
-                                          PrimaryColor="{StaticResource CForeground1}"
-                                          Margin="5" />
-                    </core:VRCOSCButton>
+                    <core:IconButton Width="36" ButtonColour="Blue" Click="RefreshButton_OnClick" Icon="Solid_Rotate" />
+                    <core:IconButton Width="36" ButtonColour="Blue" Click="UpdateAllButton_OnClick"
+                                     Icon="Regular_CircleDown"
+                                     Visibility="{Binding UpdateAllButtonVisibility, Mode=OneWay}" />
                 </core:SpacedStackPanel>
-                <core:HeaderFooterListView Grid.Row="2" x:Name="PackageList" AlternationCount="2">
+                <core:HeaderFooterListView Grid.Row="2" x:Name="PackageList" AlternationCount="2" HideFooterWhenEmpty="True">
                     <core:HeaderFooterListView.Header>
                         <Border Background="{StaticResource CBackground1}" Height="40">
                             <Grid>
@@ -164,54 +157,46 @@
                                                                        Orientation="Horizontal"
                                                                        VerticalAlignment="Center"
                                                                        HorizontalAlignment="Center">
-                                                    <core:VRCOSCButton ButtonColour="Blue"
-                                                                       Click="InstallButton_OnClick"
-                                                                       Visibility="{Binding UIUpgradeVisible}"
-                                                                       Width="30"
-                                                                       Height="30">
+                                                    <core:IconButton ButtonColour="Blue"
+                                                                     Click="InstallButton_OnClick"
+                                                                     Visibility="{Binding UIUpgradeVisible}"
+                                                                     Icon="Regular_CircleDown"
+                                                                     Width="30"
+                                                                     Height="30">
                                                         <core:VRCOSCButton.Tag>
                                                             <Binding />
                                                         </core:VRCOSCButton.Tag>
-                                                        <fa6:ImageAwesome Icon="Regular_CircleDown"
-                                                                          PrimaryColor="{StaticResource CForeground1}"
-                                                                          Margin="3 4 3 3" />
-                                                    </core:VRCOSCButton>
-                                                    <core:VRCOSCButton ButtonColour="Green"
-                                                                       Click="InstallButton_OnClick"
-                                                                       Visibility="{Binding UIInstallVisible}"
-                                                                       Width="30"
-                                                                       Height="30">
+                                                    </core:IconButton>
+                                                    <core:IconButton ButtonColour="Green"
+                                                                     Click="InstallButton_OnClick"
+                                                                     Visibility="{Binding UIInstallVisible}"
+                                                                     Icon="Solid_Plus"
+                                                                     Width="30"
+                                                                     Height="30">
                                                         <core:VRCOSCButton.Tag>
                                                             <Binding />
                                                         </core:VRCOSCButton.Tag>
-                                                        <fa6:ImageAwesome Icon="Solid_Plus"
-                                                                          PrimaryColor="{StaticResource CForeground1}"
-                                                                          Margin="5" />
-                                                    </core:VRCOSCButton>
-                                                    <core:VRCOSCButton ButtonColour="Red"
-                                                                       Click="UninstallButton_OnClick"
-                                                                       Visibility="{Binding UIUnInstallVisible}"
-                                                                       Width="30" Height="30">
+                                                    </core:IconButton>
+                                                    <core:IconButton ButtonColour="Red"
+                                                                     Click="UninstallButton_OnClick"
+                                                                     Visibility="{Binding UIUnInstallVisible}"
+                                                                     Icon="Solid_Minus"
+                                                                     Width="30" Height="30">
                                                         <core:VRCOSCButton.Tag>
                                                             <Binding />
                                                         </core:VRCOSCButton.Tag>
-                                                        <fa6:ImageAwesome Icon="Solid_Minus"
-                                                                          PrimaryColor="{StaticResource CForeground1}"
-                                                                          Margin="5" />
-                                                    </core:VRCOSCButton>
+                                                    </core:IconButton>
                                                 </core:SpacedStackPanel>
                                                 <core:SpacedStackPanel Grid.Column="6"
                                                                        Orientation="Horizontal"
                                                                        FlowDirection="RightToLeft"
                                                                        HorizontalAlignment="Right">
-                                                    <core:VRCOSCButton ButtonColour="Blue"
-                                                                       Click="InfoButton_ButtonClick"
-                                                                       Tag="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=DataContext}"
-                                                                       Width="30" Height="30">
-                                                        <fa6:ImageAwesome Icon="Solid_Info"
-                                                                          PrimaryColor="{StaticResource CForeground1}"
-                                                                          Margin="5" />
-                                                    </core:VRCOSCButton>
+                                                    <core:IconButton ButtonColour="Blue"
+                                                                     Click="InfoButton_ButtonClick"
+                                                                     Tag="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=DataContext}"
+                                                                     Icon="Solid_Info"
+                                                                     Width="30" Height="30">
+                                                    </core:IconButton>
                                                 </core:SpacedStackPanel>
                                             </Grid>
                                         </Border>
@@ -221,7 +206,7 @@
                         </Style>
                     </ListView.ItemContainerStyle>
                     <core:HeaderFooterListView.Footer>
-                        <Border Background="{StaticResource CBackground1}" Height="5"/>
+                        <Border Background="{StaticResource CBackground1}" Height="5" />
                     </core:HeaderFooterListView.Footer>
                 </core:HeaderFooterListView>
             </Grid>
@@ -249,13 +234,11 @@
                     </Border>
                     <Border Grid.Row="1" Background="Black" Margin="-1 0" />
                     <Grid Grid.Row="2">
-                        <core:VRCOSCButton ButtonColour="Red" Width="30" Height="30" Margin="5"
-                                           Click="InfoOverlayExit_ButtonClick" HorizontalAlignment="Left"
-                                           VerticalAlignment="Top">
-                            <fa6:ImageAwesome Icon="Solid_ChevronLeft"
-                                              PrimaryColor="{StaticResource CForeground1}"
-                                              Margin="4" />
-                        </core:VRCOSCButton>
+                        <core:IconButton ButtonColour="Red" Width="30" Height="30" Margin="5"
+                                         Click="InfoOverlayExit_ButtonClick" HorizontalAlignment="Left"
+                                         Icon="Solid_ChevronLeft"
+                                         VerticalAlignment="Top">
+                        </core:IconButton>
                         <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Top">
                             <TextBlock Text="{Binding DisplayName}" Foreground="{StaticResource CForeground1}"
                                        TextAlignment="Center" TextWrapping="Wrap"
@@ -272,13 +255,11 @@
                             CornerRadius="0 0 10 10">
                         <core:SpacedStackPanel Orientation="Horizontal" HorizontalAlignment="Stretch"
                                                VerticalAlignment="Stretch">
-                            <core:VRCOSCButton ButtonColour="Gray" Width="50" Height="50" CornerRadius="5"
-                                               Click="PackageGithub_ButtonClick"
-                                               Tag="{Binding RelativeSource={RelativeSource AncestorType=Grid, AncestorLevel=2}, Path=DataContext}">
-                                <fa6:ImageAwesome Icon="Brands_Github"
-                                                  PrimaryColor="{StaticResource CForeground1}"
-                                                  Margin="5" />
-                            </core:VRCOSCButton>
+                            <core:IconButton ButtonColour="Gray" Width="50" Height="50" CornerRadius="5"
+                                             Click="PackageGithub_ButtonClick"
+                                             Icon="Brands_Github"
+                                             Tag="{Binding RelativeSource={RelativeSource AncestorType=Grid, AncestorLevel=2}, Path=DataContext}">
+                            </core:IconButton>
                         </core:SpacedStackPanel>
                     </Border>
                 </Grid>
