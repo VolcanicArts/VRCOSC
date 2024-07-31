@@ -56,7 +56,7 @@ public class ClipState : ClipElement
 
             if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.ShowRelevantModules)) return true;
 
-            var selectedClip = MainWindow.GetInstance().ChatBoxPage.SelectedClip;
+            var selectedClip = MainWindow.GetInstance().ChatBoxView.SelectedClip;
             Debug.Assert(selectedClip is not null);
 
             var enabledModuleIDs = ModuleManager.GetInstance().GetEnabledModuleIDs().Where(moduleID => selectedClip.LinkedModules.Contains(moduleID)).OrderBy(moduleID => moduleID);

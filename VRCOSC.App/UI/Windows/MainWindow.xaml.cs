@@ -20,7 +20,6 @@ using VRCOSC.App.Modules;
 using VRCOSC.App.Packages;
 using VRCOSC.App.Pages.AppDebug;
 using VRCOSC.App.Pages.AppSettings;
-using VRCOSC.App.Pages.ChatBox;
 using VRCOSC.App.Pages.Profiles;
 using VRCOSC.App.Pages.Settings;
 using VRCOSC.App.Profiles;
@@ -28,6 +27,7 @@ using VRCOSC.App.Router;
 using VRCOSC.App.SDK.OVR.Metadata;
 using VRCOSC.App.Settings;
 using VRCOSC.App.UI.Core;
+using VRCOSC.App.UI.Views.ChatBox;
 using VRCOSC.App.UI.Views.Modules;
 using VRCOSC.App.UI.Views.Packages;
 using VRCOSC.App.UI.Views.Router;
@@ -45,7 +45,7 @@ public partial class MainWindow
     public readonly ModulesView ModulesView;
     public readonly RouterView RouterView;
     public readonly SettingsPage SettingsPage;
-    public readonly ChatBoxPage ChatBoxPage;
+    public readonly ChatBoxView ChatBoxView;
     public readonly RunView RunView;
     public readonly AppDebugPage DebugPage;
     public readonly ProfilesPage ProfilesPage;
@@ -74,7 +74,7 @@ public partial class MainWindow
         ModulesView = new ModulesView();
         RouterView = new RouterView();
         SettingsPage = new SettingsPage();
-        ChatBoxPage = new ChatBoxPage();
+        ChatBoxView = new ChatBoxView();
         RunView = new RunView();
         DebugPage = new AppDebugPage();
         ProfilesPage = new ProfilesPage();
@@ -315,7 +315,7 @@ public partial class MainWindow
 
     private void ChatBoxButton_OnClick(object sender, RoutedEventArgs e)
     {
-        setContent(ChatBoxPage);
+        setContent(ChatBoxView);
     }
 
     private void RunButton_OnClick(object sender, RoutedEventArgs e)

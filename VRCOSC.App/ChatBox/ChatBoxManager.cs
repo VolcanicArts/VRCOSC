@@ -101,7 +101,7 @@ public class ChatBoxManager : INotifyPropertyChanged
 
     public void Unload()
     {
-        MainWindow.GetInstance().ChatBoxPage.SelectedClip = null;
+        MainWindow.GetInstance().ChatBoxView.SelectedClip = null;
 
         Serialise();
 

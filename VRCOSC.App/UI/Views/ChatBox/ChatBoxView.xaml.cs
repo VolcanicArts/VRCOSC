@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -14,15 +14,15 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using VRCOSC.App.ChatBox;
 using VRCOSC.App.ChatBox.Clips;
+using VRCOSC.App.Pages.ChatBox;
 using VRCOSC.App.Profiles;
-using VRCOSC.App.UI;
 using VRCOSC.App.UI.Core;
 using VRCOSC.App.UI.Windows;
 using VRCOSC.App.Utils;
 
-namespace VRCOSC.App.Pages.ChatBox;
+namespace VRCOSC.App.UI.Views.ChatBox;
 
-public partial class ChatBoxPage
+public partial class ChatBoxView
 {
     private double mouseX;
     private Clip? draggingClip;
@@ -31,7 +31,7 @@ public partial class ChatBoxPage
 
     public ChatBoxManager ChatBoxManager => ChatBoxManager.GetInstance();
 
-    public ChatBoxPage()
+    public ChatBoxView()
     {
         InitializeComponent();
 

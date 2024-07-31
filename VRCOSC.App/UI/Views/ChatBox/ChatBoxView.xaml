@@ -1,17 +1,18 @@
-﻿<Page x:Class="VRCOSC.App.Pages.ChatBox.ChatBoxPage"
-      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-      xmlns:ui="clr-namespace:VRCOSC.App.UI"
-      xmlns:local="clr-namespace:VRCOSC.App.Pages.ChatBox"
-      xmlns:fa6="http://schemas.fontawesome.com/icons/fonts"
-      xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
-      mc:Ignorable="d"
-      Loaded="ChatBoxPage_OnLoaded"
-      MouseLeftButtonDown="ChatBoxPage_OnMouseLeftButtonDown"
-      MouseLeftButtonUp="ChatBoxPage_OnMouseLeftButtonUp">
-    <Page.Resources>
+﻿<UserControl x:Class="VRCOSC.App.UI.Views.ChatBox.ChatBoxView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:VRCOSC.App.UI.Views.ChatBox"
+             xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
+             xmlns:fa6="http://schemas.fontawesome.com/icons/fonts"
+             mc:Ignorable="d"
+             d:DesignWidth="1368" d:DesignHeight="766"
+             Background="Transparent"
+             Loaded="ChatBoxPage_OnLoaded"
+             MouseLeftButtonDown="ChatBoxPage_OnMouseLeftButtonDown"
+             MouseLeftButtonUp="ChatBoxPage_OnMouseLeftButtonUp">
+    <UserControl.Resources>
         <core:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" Invert="True" />
         <local:IndicatorPositionConverter x:Key="IndicatorPositionConverter" />
         <local:ClipXPositionConverter x:Key="ClipXPositionConverter" />
@@ -19,9 +20,9 @@
         <local:ClipWidthConverter x:Key="ClipWidthConverter" />
         <local:ClipEnabledToOpacityConverter x:Key="ClipEnabledToOpacityConverter" />
         <local:BoolToThicknessConverter x:Key="BoolToThicknessConverter" />
-    </Page.Resources>
+    </UserControl.Resources>
     <Grid>
-        <Border Background="{StaticResource CBackground2}" Padding="10">
+        <Border Padding="10">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="200" />
@@ -489,4 +490,4 @@
             </core:SpacedStackPanel>
         </Border>
     </Grid>
-</Page>
+</UserControl>

@@ -8,6 +8,7 @@
         xmlns:local="clr-namespace:VRCOSC.App.Pages.ChatBox"
         xmlns:fa6="http://schemas.fontawesome.com/icons/fonts"
         xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
+        xmlns:chatBox="clr-namespace:VRCOSC.App.UI.Views.ChatBox"
         mc:Ignorable="d"
         Width="1366" Height="768" MinWidth="1200" MinHeight="540"
         Loaded="OnLoaded"
@@ -17,7 +18,7 @@
         <local:TextBoxParsingConverter x:Key="TextBoxParsingConverter" />
         <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
                                        Colour2="{StaticResource CBackground2}" />
-        <local:BoolToThicknessConverter x:Key="BoolToThicknessConverter" />
+        <chatBox:BoolToThicknessConverter x:Key="BoolToThicknessConverter" />
     </Window.Resources>
     <Grid>
         <Border Padding="10" Background="{StaticResource CBackground2}">
