@@ -3,6 +3,7 @@
                     xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
                     xmlns:fa6="http://schemas.fontawesome.com/icons/fonts">
     <Style TargetType="core:VRCOSCCheckBox">
+        <Setter Property="OverridesDefaultStyle" Value="True" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="core:VRCOSCCheckBox">

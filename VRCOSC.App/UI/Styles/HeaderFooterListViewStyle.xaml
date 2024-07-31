@@ -5,6 +5,7 @@
     <core:HeaderFooterListViewContentHeightConverter x:Key="HeaderFooterListViewContentHeightConverter" />
     <core:HideFooterWhenEmptyConverter x:Key="HideFooterWhenEmptyConverter" />
     <Style TargetType="{x:Type core:HeaderFooterListView}">
+        <Setter Property="OverridesDefaultStyle" Value="True" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type core:HeaderFooterListView}">
@@ -42,7 +43,8 @@
                                         <Binding Path="ActualHeight" ElementName="Border" />
                                         <Binding Path="ActualHeight" ElementName="HeaderPresenter" />
                                         <Binding Path="ActualHeight" ElementName="FooterPresenter" />
-                                        <Binding Path="ShouldTruncateHeight" RelativeSource="{RelativeSource TemplatedParent}" />
+                                        <Binding Path="ShouldTruncateHeight"
+                                                 RelativeSource="{RelativeSource TemplatedParent}" />
                                     </MultiBinding>
                                 </ScrollViewer.Height>
                             </ScrollViewer>
