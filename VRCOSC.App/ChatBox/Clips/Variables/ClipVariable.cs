@@ -132,8 +132,10 @@ public abstract class ClipVariable
 
         if (!string.IsNullOrEmpty(JoinString) && willScroll) formattedValue += JoinString;
 
-        var position = currentIndex.Modulo(formattedValue.Length);
-        formattedValue = cropAndWrapText(formattedValue, position, TruncateLength < 0 ? formattedValue.Length : TruncateLength);
+        var stringInfo = new StringInfo(formattedValue);
+
+        var position = currentIndex.Modulo(stringInfo.LengthInTextElements);
+        formattedValue = cropAndWrapText(stringInfo, position, TruncateLength < 0 ? stringInfo.LengthInTextElements : TruncateLength);
 
         if (IncludeEllipses && willTruncate) formattedValue += "...";
 
@@ -165,11 +167,11 @@ public abstract class ClipVariable
         return formattedValue;
     }
 
-    private static string cropAndWrapText(string text, int position, int maxLength)
+    private static string cropAndWrapText(StringInfo text, int position, int maxLength)
     {
-        var endPos = Math.Min(position + maxLength, text.Length);
-        var subText = text.Substring(position, endPos - position);
-        return endPos != text.Length ? subText : subText + text[..Math.Min(maxLength - subText.Length, position)];
+        var endPos = Math.Min(position + maxLength, text.LengthInTextElements);
+        var subText = text.SubstringByTextElements(position, endPos - position);
+        return endPos != text.LengthInTextElements ? subText : subText + text.SubstringByTextElements(0, Math.Min(maxLength - subText.Length, position));
     }
 
     protected abstract string Format(object value);
