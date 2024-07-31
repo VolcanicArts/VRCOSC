@@ -42,6 +42,7 @@
                                         <Binding Path="ActualHeight" ElementName="Border" />
                                         <Binding Path="ActualHeight" ElementName="HeaderPresenter" />
                                         <Binding Path="ActualHeight" ElementName="FooterPresenter" />
+                                        <Binding Path="ShouldTruncateHeight" RelativeSource="{RelativeSource TemplatedParent}" />
                                     </MultiBinding>
                                 </ScrollViewer.Height>
                             </ScrollViewer>

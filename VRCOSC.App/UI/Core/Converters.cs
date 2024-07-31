@@ -58,8 +58,10 @@ public class HeaderFooterListViewContentHeightConverter : IMultiValueConverter
 {
     public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
     {
-        if (values[0] is double listDesiredHeight && values[1] is double totalHeight && values[2] is double headerHeight && values[3] is double footerHeight)
+        if (values[0] is double listDesiredHeight && values[1] is double totalHeight && values[2] is double headerHeight && values[3] is double footerHeight && values[4] is bool shouldTruncateHeight)
         {
+            if (!shouldTruncateHeight) return double.NaN;
+
             var targetHeight = totalHeight - headerHeight - footerHeight;
             var height = listDesiredHeight >= targetHeight ? targetHeight : double.NaN;
             return height;

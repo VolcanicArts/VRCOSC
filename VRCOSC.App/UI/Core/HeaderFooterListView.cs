@@ -41,6 +41,15 @@ public class HeaderFooterListView : ListView
         get => (bool)GetValue(HideFooterWhenEmptyProperty);
         set => SetValue(HideFooterWhenEmptyProperty, value);
     }
+
+    public static readonly DependencyProperty ShouldTruncateHeightProperty =
+        DependencyProperty.Register(nameof(ShouldTruncateHeight), typeof(bool), typeof(HeaderFooterListView), new PropertyMetadata(true));
+
+    public bool ShouldTruncateHeight
+    {
+        get => (bool)GetValue(ShouldTruncateHeightProperty);
+        set => SetValue(ShouldTruncateHeightProperty, value);
+    }
 }
 
 public class HideFooterWhenEmptyConverter : IMultiValueConverter
