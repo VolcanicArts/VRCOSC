@@ -18,18 +18,18 @@ using VRCOSC.App.Actions.Game;
 using VRCOSC.App.ChatBox;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Packages;
-using VRCOSC.App.Pages.AppDebug;
-using VRCOSC.App.Pages.Profiles;
 using VRCOSC.App.Pages.Settings;
 using VRCOSC.App.Profiles;
 using VRCOSC.App.Router;
 using VRCOSC.App.SDK.OVR.Metadata;
 using VRCOSC.App.Settings;
 using VRCOSC.App.UI.Core;
+using VRCOSC.App.UI.Views.AppDebug;
 using VRCOSC.App.UI.Views.AppSettings;
 using VRCOSC.App.UI.Views.ChatBox;
 using VRCOSC.App.UI.Views.Modules;
 using VRCOSC.App.UI.Views.Packages;
+using VRCOSC.App.UI.Views.Profiles;
 using VRCOSC.App.UI.Views.Router;
 using VRCOSC.App.UI.Views.Run;
 using VRCOSC.App.Utils;
@@ -47,8 +47,8 @@ public partial class MainWindow
     public readonly SettingsPage SettingsPage;
     public readonly ChatBoxView ChatBoxView;
     public readonly RunView RunView;
-    public readonly AppDebugPage DebugPage;
-    public readonly ProfilesPage ProfilesPage;
+    public readonly AppDebugView AppDebugView;
+    public readonly ProfilesView ProfilesView;
     public readonly AppSettingsView AppSettingsView;
 
     private readonly Storage storage = AppManager.GetInstance().Storage;
@@ -76,8 +76,8 @@ public partial class MainWindow
         SettingsPage = new SettingsPage();
         ChatBoxView = new ChatBoxView();
         RunView = new RunView();
-        DebugPage = new AppDebugPage();
-        ProfilesPage = new ProfilesPage();
+        AppDebugView = new AppDebugView();
+        ProfilesView = new ProfilesView();
         AppSettingsView = new AppSettingsView();
 
         setContent(PackagesView);
@@ -325,12 +325,12 @@ public partial class MainWindow
 
     private void DebugButton_OnClick(object sender, RoutedEventArgs e)
     {
-        setContent(DebugPage);
+        setContent(AppDebugView);
     }
 
     private void ProfilesButton_OnClick(object sender, RoutedEventArgs e)
     {
-        setContent(ProfilesPage);
+        setContent(ProfilesView);
     }
 
     private void AppSettingsButton_OnClick(object sender, RoutedEventArgs e)

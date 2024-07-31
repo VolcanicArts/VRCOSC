@@ -5,11 +5,11 @@ using System.Windows;
 using System.Windows.Controls;
 using VRCOSC.App.Profiles;
 
-namespace VRCOSC.App.Pages.Profiles;
+namespace VRCOSC.App.UI.Views.Profiles;
 
-public partial class ProfilesPage
+public partial class ProfilesView
 {
-    public ProfilesPage()
+    public ProfilesView()
     {
         InitializeComponent();
 

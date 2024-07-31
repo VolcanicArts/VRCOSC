@@ -8,15 +8,15 @@ using System.Windows;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Utils;
 
-namespace VRCOSC.App.Pages.AppDebug;
+namespace VRCOSC.App.UI.Views.AppDebug;
 
-public partial class AppDebugPage
+public partial class AppDebugView
 {
     public Observable<string> Port9000BoundProcess { get; } = new(string.Empty);
 
     private readonly Repeater repeater;
 
-    public AppDebugPage()
+    public AppDebugView()
     {
         InitializeComponent();
         DataContext = this;
