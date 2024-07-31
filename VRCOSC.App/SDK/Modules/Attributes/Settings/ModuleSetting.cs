@@ -19,19 +19,19 @@ public abstract class ModuleSetting : ModuleAttribute, INotifyPropertyChanged
     public Action? OnSettingChange;
 
     /// <summary>
-    /// Creates a new <see cref="Page"/> instance as set in the <see cref="Metadata"/>
+    /// Creates a new <see cref="UserControl"/> instance as set in the <see cref="Metadata"/>
     /// </summary>
-    public Page? PageInstance
+    public UserControl? ViewInstance
     {
         get
         {
             try
             {
-                return (Page)Activator.CreateInstance(Metadata.PageType, this)!;
+                return (UserControl)Activator.CreateInstance(Metadata.ViewType, this)!;
             }
             catch (Exception e)
             {
-                ExceptionHandler.Handle(e, $"Page instance creation failed for module setting {Metadata.Title}\nThis is usually caused by version mismatch");
+                ExceptionHandler.Handle(e, $"View instance creation failed for module setting {Metadata.Title}\nThis is usually caused by version mismatch");
                 return null;
             }
         }

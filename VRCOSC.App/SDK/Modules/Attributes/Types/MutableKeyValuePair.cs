@@ -41,8 +41,8 @@ public class MutableKeyValuePairSettingMetadata : ModuleSettingMetadata
     public string KeyTitle { get; }
     public string ValueTitle { get; }
 
-    public MutableKeyValuePairSettingMetadata(string title, string description, Type pageType, string keyTitle, string valueTitle)
-        : base(title, description, pageType)
+    public MutableKeyValuePairSettingMetadata(string title, string description, Type viewType, string keyTitle, string valueTitle)
+        : base(title, description, viewType)
     {
         KeyTitle = keyTitle;
         ValueTitle = valueTitle;

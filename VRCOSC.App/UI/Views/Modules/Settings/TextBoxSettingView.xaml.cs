@@ -3,11 +3,11 @@
 
 using VRCOSC.App.SDK.Modules.Attributes.Settings;
 
-namespace VRCOSC.App.Pages.Modules.Settings;
+namespace VRCOSC.App.UI.Views.Modules.Settings;
 
-public partial class TextBoxSettingPage
+public partial class TextBoxSettingView
 {
-    public TextBoxSettingPage(ModuleSetting moduleSetting)
+    public TextBoxSettingView(ModuleSetting moduleSetting)
     {
         InitializeComponent();
 

@@ -7,16 +7,16 @@ using System.Windows;
 using VRCOSC.App.SDK.Modules.Attributes.Settings;
 using VRCOSC.App.SDK.Modules.Attributes.Types;
 
-namespace VRCOSC.App.Pages.Modules.Settings;
+namespace VRCOSC.App.UI.Views.Modules.Settings;
 
-public partial class MutableKeyValuePairSettingPage : INotifyPropertyChanged
+public partial class MutableKeyValuePairListSettingView : INotifyPropertyChanged
 {
     public MutableKeyValuePairListModuleSetting ModuleSetting { get; }
     public Visibility ContentVisibility => listModuleSetting.Count() == 0 ? Visibility.Collapsed : Visibility.Visible;
 
     private readonly IListModuleSetting listModuleSetting;
 
-    public MutableKeyValuePairSettingPage(MutableKeyValuePairListModuleSetting moduleSetting)
+    public MutableKeyValuePairListSettingView(MutableKeyValuePairListModuleSetting moduleSetting)
     {
         ModuleSetting = moduleSetting;
         listModuleSetting = moduleSetting;

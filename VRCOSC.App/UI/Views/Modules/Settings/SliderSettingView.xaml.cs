@@ -8,14 +8,14 @@ using System.Windows.Input;
 using VRCOSC.App.SDK.Modules.Attributes.Settings;
 using VRCOSC.App.Utils;
 
-namespace VRCOSC.App.Pages.Modules.Settings;
+namespace VRCOSC.App.UI.Views.Modules.Settings;
 
-public partial class SliderSettingPage
+public partial class SliderSettingView
 {
     public SliderModuleSetting SliderModuleSetting { get; }
     public Observable<float> SliderValue { get; } = new();
 
-    public SliderSettingPage(SliderModuleSetting sliderModuleSetting)
+    public SliderSettingView(SliderModuleSetting sliderModuleSetting)
     {
         InitializeComponent();
 

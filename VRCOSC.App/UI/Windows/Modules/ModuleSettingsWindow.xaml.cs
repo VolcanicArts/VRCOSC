@@ -7,7 +7,7 @@ using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.Modules.Attributes.Settings;
 using VRCOSC.App.Utils;
 
-namespace VRCOSC.App.Pages.Modules;
+namespace VRCOSC.App.UI.Windows.Modules;
 
 public partial class ModuleSettingsWindow
 {
@@ -45,7 +45,7 @@ public partial class ModuleSettingsWindow
 
             var miscModuleSettings = new List<ModuleSetting>();
             Module.Settings.Where(pair => !settingsInGroup.Contains(pair.Key)).ForEach(pair => miscModuleSettings.Add(pair.Value));
-            if (miscModuleSettings.Any()) groupsFormatted.Add("Miscellaneous", miscModuleSettings);
+            if (miscModuleSettings.Count != 0) groupsFormatted.Add("Miscellaneous", miscModuleSettings);
 
             return groupsFormatted;
         }

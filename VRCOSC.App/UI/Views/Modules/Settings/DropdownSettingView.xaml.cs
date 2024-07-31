@@ -3,11 +3,11 @@
 
 using VRCOSC.App.SDK.Modules.Attributes.Settings;
 
-namespace VRCOSC.App.Pages.Modules.Settings;
+namespace VRCOSC.App.UI.Views.Modules.Settings;
 
-public partial class DropdownSettingPage
+public partial class DropdownSettingView
 {
-    public DropdownSettingPage(EnumModuleSetting enumModuleSetting)
+    public DropdownSettingView(EnumModuleSetting enumModuleSetting)
     {
         InitializeComponent();
 

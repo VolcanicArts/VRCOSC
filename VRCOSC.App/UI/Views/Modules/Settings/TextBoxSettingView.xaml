@@ -1,4 +1,4 @@
-﻿<Page x:Class="VRCOSC.App.Pages.Modules.Settings.TextBoxSettingPage"
+﻿<UserControl x:Class="VRCOSC.App.UI.Views.Modules.Settings.TextBoxSettingView"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -7,4 +7,4 @@
     <Grid>
         <TextBox Text="{Binding Attribute.Value, UpdateSourceTrigger=PropertyChanged}" Background="{StaticResource CBackground3}" Foreground="{StaticResource CForeground1}" FontSize="16" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" Margin="0 5" />
     </Grid>
-</Page>
+</UserControl>

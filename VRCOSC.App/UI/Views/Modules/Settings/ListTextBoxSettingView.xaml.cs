@@ -6,16 +6,16 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using VRCOSC.App.SDK.Modules.Attributes.Settings;
 
-namespace VRCOSC.App.Pages.Modules.Settings;
+namespace VRCOSC.App.UI.Views.Modules.Settings;
 
-public partial class ListTextBoxSettingPage : INotifyPropertyChanged
+public partial class ListTextBoxSettingView : INotifyPropertyChanged
 {
     public ModuleSetting ModuleSetting { get; }
     public Visibility ContentVisibility => listModuleSetting.Count() == 0 ? Visibility.Collapsed : Visibility.Visible;
 
     private readonly IListModuleSetting listModuleSetting;
 
-    public ListTextBoxSettingPage(IListModuleSetting moduleSetting)
+    public ListTextBoxSettingView(IListModuleSetting moduleSetting)
     {
         listModuleSetting = moduleSetting;
         ModuleSetting = (ModuleSetting)moduleSetting;

@@ -9,13 +9,13 @@ namespace VRCOSC.App.SDK.Modules.Attributes.Settings;
 public class ModuleSettingMetadata : ModuleAttributeMetadata
 {
     /// <summary>
-    /// The WPF <see cref="Page"/>'s <see cref="Type"/> associated with this <see cref="ModuleSetting"/>
+    /// The WPF <see cref="UserControl"/>'s <see cref="Type"/> associated with this <see cref="ModuleSetting"/>
     /// </summary>
-    public readonly Type PageType;
+    public readonly Type ViewType;
 
-    public ModuleSettingMetadata(string title, string description, Type pageType)
+    public ModuleSettingMetadata(string title, string description, Type viewType)
         : base(title, description)
     {
-        PageType = pageType;
+        ViewType = viewType;
     }
 }

@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:ui="clr-namespace:VRCOSC.App.UI"
         xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
         mc:Ignorable="d"
         Title="ChatBox Manual Input" Height="120" Width="800">
@@ -34,8 +33,9 @@
                     </TextBox.Template>
                 </TextBox>
                 <core:VRCOSCButton ButtonColour="Blue" CornerRadius="5" Width="150" Height="25"
-                                 VerticalAlignment="Bottom" Click="SendButton_OnClick">
-                    <TextBlock FontSize="20" Text="Send" Foreground="{StaticResource CForeground1}" />
+                                   VerticalAlignment="Bottom" Click="SendButton_OnClick">
+                    <TextBlock FontSize="20" Text="Send" Foreground="{StaticResource CForeground1}"
+                               HorizontalAlignment="Center" VerticalAlignment="Center" />
                 </core:VRCOSCButton>
             </Grid>
         </Border>

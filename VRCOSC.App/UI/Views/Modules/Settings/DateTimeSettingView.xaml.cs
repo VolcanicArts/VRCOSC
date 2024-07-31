@@ -4,9 +4,9 @@
 using System;
 using VRCOSC.App.SDK.Modules.Attributes.Settings;
 
-namespace VRCOSC.App.Pages.Modules.Settings;
+namespace VRCOSC.App.UI.Views.Modules.Settings;
 
-public partial class DateTimeSettingPage
+public partial class DateTimeSettingView
 {
     private readonly DateTimeModuleSetting moduleSetting;
 
@@ -22,7 +22,7 @@ public partial class DateTimeSettingPage
         }
     }
 
-    public DateTimeSettingPage(DateTimeModuleSetting moduleSetting)
+    public DateTimeSettingView(DateTimeModuleSetting moduleSetting)
     {
         this.moduleSetting = moduleSetting;
         ProxyValue = moduleSetting.Attribute.Value.LocalDateTime;

@@ -3,11 +3,11 @@
 
 using VRCOSC.App.SDK.Modules.Attributes.Settings;
 
-namespace VRCOSC.App.Pages.Modules.Settings;
+namespace VRCOSC.App.UI.Views.Modules.Settings;
 
-public partial class ToggleSettingPage
+public partial class ToggleSettingView
 {
-    public ToggleSettingPage(BoolModuleSetting moduleSetting)
+    public ToggleSettingView(BoolModuleSetting moduleSetting)
     {
         InitializeComponent();
 

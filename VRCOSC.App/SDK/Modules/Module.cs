@@ -16,7 +16,6 @@ using VRCOSC.App.ChatBox.Clips.Variables;
 using VRCOSC.App.ChatBox.Clips.Variables.Instances;
 using VRCOSC.App.Modules;
 using VRCOSC.App.OSC.VRChat;
-using VRCOSC.App.Pages.Modules.Settings;
 using VRCOSC.App.SDK.Modules.Attributes;
 using VRCOSC.App.SDK.Modules.Attributes.Parameters;
 using VRCOSC.App.SDK.Modules.Attributes.Settings;
@@ -26,6 +25,7 @@ using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Settings;
+using VRCOSC.App.UI.Views.Modules.Settings;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.Modules;
@@ -379,73 +379,73 @@ public abstract class Module
     protected void CreateToggle(Enum lookup, string title, string description, bool defaultValue)
     {
         validateSettingsLookup(lookup);
-        Settings.Add(lookup.ToLookup(), new BoolModuleSetting(new ModuleSettingMetadata(title, description, typeof(ToggleSettingPage)), defaultValue));
+        Settings.Add(lookup.ToLookup(), new BoolModuleSetting(new ModuleSettingMetadata(title, description, typeof(ToggleSettingView)), defaultValue));
     }
 
     protected void CreateTextBox(Enum lookup, string title, string description, string defaultValue)
     {
         validateSettingsLookup(lookup);
-        Settings.Add(lookup.ToLookup(), new StringModuleSetting(new ModuleSettingMetadata(title, description, typeof(TextBoxSettingPage)), defaultValue));
+        Settings.Add(lookup.ToLookup(), new StringModuleSetting(new ModuleSettingMetadata(title, description, typeof(TextBoxSettingView)), defaultValue));
     }
 
     protected void CreateTextBox(Enum lookup, string title, string description, int defaultValue)
     {
         validateSettingsLookup(lookup);
-        Settings.Add(lookup.ToLookup(), new IntModuleSetting(new ModuleSettingMetadata(title, description, typeof(TextBoxSettingPage)), defaultValue));
+        Settings.Add(lookup.ToLookup(), new IntModuleSetting(new ModuleSettingMetadata(title, description, typeof(TextBoxSettingView)), defaultValue));
     }
 
     protected void CreateTextBox(Enum lookup, string title, string description, float defaultValue)
     {
         validateSettingsLookup(lookup);
-        Settings.Add(lookup.ToLookup(), new FloatModuleSetting(new ModuleSettingMetadata(title, description, typeof(TextBoxSettingPage)), defaultValue));
+        Settings.Add(lookup.ToLookup(), new FloatModuleSetting(new ModuleSettingMetadata(title, description, typeof(TextBoxSettingView)), defaultValue));
     }
 
     protected void CreateSlider(Enum lookup, string title, string description, int defaultValue, int minValue, int maxValue, int tickFrequency = 1)
     {
         validateSettingsLookup(lookup);
-        Settings.Add(lookup.ToLookup(), new SliderModuleSetting(new ModuleSettingMetadata(title, description, typeof(SliderSettingPage)), defaultValue, minValue, maxValue, tickFrequency));
+        Settings.Add(lookup.ToLookup(), new SliderModuleSetting(new ModuleSettingMetadata(title, description, typeof(SliderSettingView)), defaultValue, minValue, maxValue, tickFrequency));
     }
 
     protected void CreateSlider(Enum lookup, string title, string description, float defaultValue, float minValue, float maxValue, float tickFrequency = 0.1f)
     {
         validateSettingsLookup(lookup);
-        Settings.Add(lookup.ToLookup(), new SliderModuleSetting(new ModuleSettingMetadata(title, description, typeof(SliderSettingPage)), defaultValue, minValue, maxValue, tickFrequency));
+        Settings.Add(lookup.ToLookup(), new SliderModuleSetting(new ModuleSettingMetadata(title, description, typeof(SliderSettingView)), defaultValue, minValue, maxValue, tickFrequency));
     }
 
     protected void CreateDropdown<T>(Enum lookup, string title, string description, T defaultValue) where T : Enum
     {
         validateSettingsLookup(lookup);
-        Settings.Add(lookup.ToLookup(), new EnumModuleSetting(new ModuleSettingMetadata(title, description, typeof(DropdownSettingPage)), Convert.ToInt32(defaultValue), typeof(T)));
+        Settings.Add(lookup.ToLookup(), new EnumModuleSetting(new ModuleSettingMetadata(title, description, typeof(DropdownSettingView)), Convert.ToInt32(defaultValue), typeof(T)));
     }
 
     protected void CreateDateTime(Enum lookup, string title, string description, DateTimeOffset defaultValue)
     {
         validateSettingsLookup(lookup);
-        Settings.Add(lookup.ToLookup(), new DateTimeModuleSetting(new ModuleSettingMetadata(title, description, typeof(DateTimeSettingPage)), defaultValue));
+        Settings.Add(lookup.ToLookup(), new DateTimeModuleSetting(new ModuleSettingMetadata(title, description, typeof(DateTimeSettingView)), defaultValue));
     }
 
     protected void CreateTextBoxList(Enum lookup, string title, string description, IEnumerable<string> defaultValues)
     {
         validateSettingsLookup(lookup);
-        Settings.Add(lookup.ToLookup(), new StringListModuleSetting(new ModuleSettingMetadata(title, description, typeof(ListTextBoxSettingPage)), defaultValues));
+        Settings.Add(lookup.ToLookup(), new StringListModuleSetting(new ModuleSettingMetadata(title, description, typeof(ListTextBoxSettingView)), defaultValues));
     }
 
     protected void CreateTextBoxList(Enum lookup, string title, string description, IEnumerable<int> defaultValues)
     {
         validateSettingsLookup(lookup);
-        Settings.Add(lookup.ToLookup(), new IntListModuleSetting(new ModuleSettingMetadata(title, description, typeof(ListTextBoxSettingPage)), defaultValues));
+        Settings.Add(lookup.ToLookup(), new IntListModuleSetting(new ModuleSettingMetadata(title, description, typeof(ListTextBoxSettingView)), defaultValues));
     }
 
     protected void CreateTextBoxList(Enum lookup, string title, string description, IEnumerable<float> defaultValues)
     {
         validateSettingsLookup(lookup);
-        Settings.Add(lookup.ToLookup(), new FloatListModuleSetting(new ModuleSettingMetadata(title, description, typeof(ListTextBoxSettingPage)), defaultValues));
+        Settings.Add(lookup.ToLookup(), new FloatListModuleSetting(new ModuleSettingMetadata(title, description, typeof(ListTextBoxSettingView)), defaultValues));
     }
 
     protected void CreateKeyValuePairList(Enum lookup, string title, string description, IEnumerable<MutableKeyValuePair> defaultValues, string keyTitle, string valueTitle)
     {
         validateSettingsLookup(lookup);
-        Settings.Add(lookup.ToLookup(), new MutableKeyValuePairListModuleSetting(new MutableKeyValuePairSettingMetadata(title, description, typeof(MutableKeyValuePairSettingPage), keyTitle, valueTitle), defaultValues));
+        Settings.Add(lookup.ToLookup(), new MutableKeyValuePairListModuleSetting(new MutableKeyValuePairSettingMetadata(title, description, typeof(MutableKeyValuePairListSettingView), keyTitle, valueTitle), defaultValues));
     }
 
     private void validateSettingsLookup(Enum lookup)

@@ -1,6 +1,5 @@
 using System.Windows;
 using VRCOSC.App.Modules;
-using VRCOSC.App.Pages.Modules;
 using VRCOSC.App.Pages.Modules.Parameters;
 using VRCOSC.App.Profiles;
 using VRCOSC.App.SDK.Modules;
@@ -88,4 +87,3 @@ public partial class ModulesView
         new ModulePrefabsWindow(module).Show();
     }
 }
-
