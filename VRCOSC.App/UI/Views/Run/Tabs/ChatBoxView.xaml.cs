@@ -4,7 +4,7 @@
 using System.Windows;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.Pages.ChatBox;
-using VRCOSC.App.UI;
+using VRCOSC.App.UI.Core;
 
 namespace VRCOSC.App.Pages.Run.Tabs;
 

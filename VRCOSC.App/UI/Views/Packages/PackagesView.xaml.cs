@@ -1,6 +1,3 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
-// See the LICENSE file in the repository root for full license text.
-
 using System;
 using System.ComponentModel;
 using System.Linq;
@@ -10,16 +7,17 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using VRCOSC.App.Actions.Packages;
 using VRCOSC.App.Packages;
-using VRCOSC.App.UI;
+using VRCOSC.App.UI.Core;
+using VRCOSC.App.UI.Windows;
 using VRCOSC.App.Utils;
 using Xceed.Wpf.Toolkit;
 using MessageBox = System.Windows.MessageBox;
 
-namespace VRCOSC.App.Pages.Packages;
+namespace VRCOSC.App.UI.Views.Packages;
 
-public partial class PackagePage : INotifyPropertyChanged
+public sealed partial class PackagesView
 {
-    public PackagePage()
+    public PackagesView()
     {
         InitializeComponent();
 
@@ -172,7 +170,7 @@ public partial class PackagePage : INotifyPropertyChanged
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
@@ -196,3 +194,4 @@ public partial class PackagePage : INotifyPropertyChanged
             FocusTaker.Focus();
     }
 }
+

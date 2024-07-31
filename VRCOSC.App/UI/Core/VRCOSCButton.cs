@@ -8,7 +8,7 @@ using System.Windows.Media;
 
 // ReSharper disable InconsistentNaming
 
-namespace VRCOSC.App.UI;
+namespace VRCOSC.App.UI.Core;
 
 public enum ButtonColour
 {

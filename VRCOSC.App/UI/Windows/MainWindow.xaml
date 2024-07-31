@@ -1,4 +1,4 @@
-﻿<Window x:Class="VRCOSC.App.MainWindow"
+﻿<Window x:Class="VRCOSC.App.UI.Windows.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -12,25 +12,29 @@
         Closing="MainWindow_OnClosing"
         Closed="MainWindow_OnClosed">
     <Window.Resources>
-        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <Style TargetType="fa6:ImageAwesome">
             <Setter Property="PrimaryColor" Value="{StaticResource CForeground1}" />
-            <Setter Property="Margin" Value="14" />
         </Style>
-        <Style TargetType="Button">
+        <Style TargetType="RadioButton">
+            <Setter Property="OverridesDefaultStyle" Value="True" />
             <Setter Property="Height" Value="70" />
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Padding" Value="10" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="Border"
+                                Background="Transparent"
+                                BorderThickness="0">
+                            <Viewbox Stretch="Uniform" Margin="23">
+                                <ContentPresenter />
+                            </Viewbox>
                         </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="{StaticResource CBackground2}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -47,39 +51,42 @@
                 <Border Grid.Column="0" Background="{StaticResource CBackground1}">
                     <Grid>
                         <StackPanel Orientation="Vertical" VerticalAlignment="Top">
-                            <Button Name="PackagesButton" Click="PackagesButton_OnClick">
+                            <RadioButton GroupName="TabBar" Click="PackagesButton_OnClick" IsChecked="True">
                                 <fa6:ImageAwesome Icon="Solid_Download" />
-                            </Button>
-                            <Button Name="ModulesButton" Click="ModulesButton_OnClick">
+                            </RadioButton>
+                            <RadioButton GroupName="TabBar" Click="ModulesButton_OnClick">
                                 <fa6:ImageAwesome Icon="Solid_List" />
-                            </Button>
-                            <Button Name="RouterButton" Click="RouterButton_OnClick">
+                            </RadioButton>
+                            <RadioButton GroupName="TabBar" Click="RouterButton_OnClick">
                                 <fa6:ImageAwesome Icon="Solid_ShareNodes" />
-                            </Button>
-                            <Button Name="ChatBoxButton" Click="ChatBoxButton_OnClick">
+                            </RadioButton>
+                            <RadioButton GroupName="TabBar" Click="ChatBoxButton_OnClick">
                                 <fa6:ImageAwesome Icon="Solid_Message" />
-                            </Button>
-                            <Button Name="RunButton" Click="RunButton_OnClick">
+                            </RadioButton>
+                            <RadioButton GroupName="TabBar" Click="RunButton_OnClick">
                                 <fa6:ImageAwesome Icon="Solid_Play" />
-                            </Button>
-                            <Button Name="SettingsButton" Click="SettingsButton_OnClick" Visibility="Collapsed">
+                            </RadioButton>
+                            <RadioButton GroupName="TabBar" Click="SettingsButton_OnClick" Visibility="Collapsed">
                                 <fa6:ImageAwesome Icon="Solid_UserGear" />
-                            </Button>
-                            <Button Name="DebugButton" Click="DebugButton_OnClick" Visibility="{Binding ShowAppDebug.Value, Converter={StaticResource BoolToVisibilityConverter}}">
+                            </RadioButton>
+                            <RadioButton GroupName="TabBar" Click="DebugButton_OnClick"
+                                         Visibility="{Binding ShowAppDebug.Value, Converter={StaticResource BoolToVisibilityConverter}}">
                                 <fa6:ImageAwesome Icon="Solid_Bug" />
-                            </Button>
+                            </RadioButton>
                         </StackPanel>
                         <StackPanel Orientation="Vertical" VerticalAlignment="Bottom">
-                            <Button Name="ProfilesButton" Click="ProfilesButton_OnClick">
+                            <RadioButton GroupName="TabBar" Click="ProfilesButton_OnClick">
                                 <fa6:ImageAwesome Icon="Solid_User" />
-                            </Button>
-                            <Button Name="AppSettingsButton" Click="AppSettingsButton_OnClick">
+                            </RadioButton>
+                            <RadioButton GroupName="TabBar" Click="AppSettingsButton_OnClick">
                                 <fa6:ImageAwesome Icon="Solid_Gear" />
-                            </Button>
+                            </RadioButton>
                         </StackPanel>
                     </Grid>
                 </Border>
-                <Frame Grid.Column="1" Name="ContentFrame" NavigationUIVisibility="Hidden" />
+                <Border Grid.Column="1" Background="{StaticResource CBackground2}">
+                    <ContentControl Name="ContentControl" />
+                </Border>
             </Grid>
         </Border>
         <Grid Name="LoadingOverlay" Visibility="Visible" Opacity="1" IsHitTestVisible="False">

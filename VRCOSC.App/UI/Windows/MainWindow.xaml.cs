@@ -21,36 +21,32 @@ using VRCOSC.App.Packages;
 using VRCOSC.App.Pages.AppDebug;
 using VRCOSC.App.Pages.AppSettings;
 using VRCOSC.App.Pages.ChatBox;
-using VRCOSC.App.Pages.Modules;
-using VRCOSC.App.Pages.Packages;
 using VRCOSC.App.Pages.Profiles;
 using VRCOSC.App.Pages.Router;
-using VRCOSC.App.Pages.Run;
 using VRCOSC.App.Pages.Settings;
 using VRCOSC.App.Profiles;
 using VRCOSC.App.Router;
 using VRCOSC.App.SDK.OVR.Metadata;
 using VRCOSC.App.Settings;
-using VRCOSC.App.UI;
+using VRCOSC.App.UI.Core;
+using VRCOSC.App.UI.Views.Modules;
+using VRCOSC.App.UI.Views.Packages;
+using VRCOSC.App.UI.Views.Run;
 using VRCOSC.App.Utils;
 using Application = System.Windows.Application;
-using Brush = System.Windows.Media.Brush;
-using Brushes = System.Windows.Media.Brushes;
-using Button = System.Windows.Controls.Button;
-using TextBox = System.Windows.Controls.TextBox;
 
-namespace VRCOSC.App;
+namespace VRCOSC.App.UI.Windows;
 
 public partial class MainWindow
 {
     public static MainWindow GetInstance() => (MainWindow)Application.Current.MainWindow;
 
-    public readonly PackagePage PackagePage;
-    public readonly ModulesPage ModulesPage;
+    public readonly PackagesView PackagesView;
+    public readonly ModulesView ModulesView;
     public readonly RouterPage RouterPage;
     public readonly SettingsPage SettingsPage;
     public readonly ChatBoxPage ChatBoxPage;
-    public readonly RunPage RunPage;
+    public readonly RunView RunView;
     public readonly AppDebugPage DebugPage;
     public readonly ProfilesPage ProfilesPage;
     public readonly AppSettingsPage AppSettingsPage;
@@ -74,17 +70,17 @@ public partial class MainWindow
         setupTrayIcon();
         copyOpenVrFiles();
 
-        PackagePage = new PackagePage();
-        ModulesPage = new ModulesPage();
+        PackagesView = new PackagesView();
+        ModulesView = new ModulesView();
         RouterPage = new RouterPage();
         SettingsPage = new SettingsPage();
         ChatBoxPage = new ChatBoxPage();
-        RunPage = new RunPage();
+        RunView = new RunView();
         DebugPage = new AppDebugPage();
         ProfilesPage = new ProfilesPage();
         AppSettingsPage = new AppSettingsPage();
 
-        setPageContents(PackagePage, PackagesButton);
+        setContent(PackagesView);
 
         load();
     }
@@ -157,7 +153,7 @@ public partial class MainWindow
 
     private void MainWindow_OnPreviewMouseDown(object sender, MouseButtonEventArgs e)
     {
-        var focusedElement = FocusManager.GetFocusedElement(this) as FrameworkElement;
+        var focusedElement = (Control)FocusManager.GetFocusedElement(this);
 
         if (e.OriginalSource is not TextBox && focusedElement is TextBox)
         {
@@ -292,64 +288,53 @@ public partial class MainWindow
 
     public void HideLoadingOverlay() => Dispatcher.Invoke(() => LoadingOverlay.FadeOut(150));
 
-    private void setPageContents(object page, Button button)
+    private void setContent(object userControl)
     {
-        PackagesButton.Background = Brushes.Transparent;
-        ModulesButton.Background = Brushes.Transparent;
-        RouterButton.Background = Brushes.Transparent;
-        SettingsButton.Background = Brushes.Transparent;
-        ChatBoxButton.Background = Brushes.Transparent;
-        RunButton.Background = Brushes.Transparent;
-        DebugButton.Background = Brushes.Transparent;
-        ProfilesButton.Background = Brushes.Transparent;
-        AppSettingsButton.Background = Brushes.Transparent;
-
-        ContentFrame.Content = page;
-        button.Background = (Brush)FindResource("CBackground2");
+        ContentControl.Content = userControl;
     }
 
     private void PackagesButton_OnClick(object sender, RoutedEventArgs e)
     {
-        setPageContents(PackagePage, PackagesButton);
+        setContent(PackagesView);
     }
 
     private void ModulesButton_OnClick(object sender, RoutedEventArgs e)
     {
-        setPageContents(ModulesPage, ModulesButton);
+        setContent(ModulesView);
     }
 
     private void RouterButton_OnClick(object sender, RoutedEventArgs e)
     {
-        setPageContents(RouterPage, RouterButton);
+        setContent(RouterPage);
     }
 
     private void SettingsButton_OnClick(object sender, RoutedEventArgs e)
     {
-        setPageContents(SettingsPage, SettingsButton);
+        setContent(SettingsPage);
     }
 
     private void ChatBoxButton_OnClick(object sender, RoutedEventArgs e)
     {
-        setPageContents(ChatBoxPage, ChatBoxButton);
+        setContent(ChatBoxPage);
     }
 
     private void RunButton_OnClick(object sender, RoutedEventArgs e)
     {
-        setPageContents(RunPage, RunButton);
+        setContent(RunView);
     }
 
     private void DebugButton_OnClick(object sender, RoutedEventArgs e)
     {
-        setPageContents(DebugPage, DebugButton);
+        setContent(DebugPage);
     }
 
     private void ProfilesButton_OnClick(object sender, RoutedEventArgs e)
     {
-        setPageContents(ProfilesPage, ProfilesButton);
+        setContent(ProfilesPage);
     }
 
     private void AppSettingsButton_OnClick(object sender, RoutedEventArgs e)
     {
-        setPageContents(AppSettingsPage, AppSettingsButton);
+        setContent(AppSettingsPage);
     }
 }

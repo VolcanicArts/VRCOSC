@@ -7,7 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 
-namespace VRCOSC.App.UI;
+namespace VRCOSC.App.UI.Core;
 
 public class IPPortTextBox : TextBox
 {

@@ -1,18 +1,21 @@
-﻿<Page x:Class="VRCOSC.App.Pages.Packages.PackagePage"
-      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-      xmlns:ui="clr-namespace:VRCOSC.App.UI"
-      xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
-      xmlns:utils="clr-namespace:VRCOSC.App.Utils"
-      xmlns:fa6="http://schemas.fontawesome.com/icons/fonts"
-      xmlns:xceed="http://schemas.xceed.com/wpf/xaml/toolkit"
-      mc:Ignorable="d">
-    <Page.Resources>
-        <ui:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
+<UserControl x:Class="VRCOSC.App.UI.Views.Packages.PackagesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:ui="clr-namespace:VRCOSC.App.UI"
+             xmlns:fa6="http://schemas.fontawesome.com/icons/fonts"
+             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:utils="clr-namespace:VRCOSC.App.Utils"
+             xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
+             Background="Transparent"
+             mc:Ignorable="d"
+             d:DesignWidth="1366" d:DesignHeight="768">
+    <UserControl.Resources>
+        <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
                                        Colour2="{StaticResource CBackground4}" />
-    </Page.Resources>
+    </UserControl.Resources>
     <Grid>
         <Button x:Name="FocusTaker"
                 Width="0"
@@ -20,14 +23,14 @@
                 Opacity="0"
                 Focusable="True"
                 IsTabStop="False" />
-        <Border Name="PageContent" Padding="10" Background="{StaticResource CBackground2}">
+        <Border Name="PageContent" Padding="10">
             <Grid VerticalAlignment="Stretch">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="36" />
                     <RowDefinition Height="8" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <ui:SpacedStackPanel Grid.Row="0" Spacing="7" Orientation="Horizontal">
+                <core:SpacedStackPanel Grid.Row="0" Spacing="7" Orientation="Horizontal">
                     <Border Background="{StaticResource CBackground3}" Width="570" CornerRadius="5">
                         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Center">
                             <Grid.RowDefinitions>
@@ -66,18 +69,18 @@
                             </Grid>
                         </Grid>
                     </Border>
-                    <ui:VRCOSCButton Width="36" ButtonColour="Blue" Click="RefreshButton_OnClick">
+                    <core:VRCOSCButton Width="36" ButtonColour="Blue" Click="RefreshButton_OnClick">
                         <fa6:ImageAwesome Icon="Solid_Rotate"
                                           PrimaryColor="{StaticResource CForeground1}"
                                           Margin="6" />
-                    </ui:VRCOSCButton>
-                    <ui:VRCOSCButton Width="36" ButtonColour="Blue" Click="UpdateAllButton_OnClick"
+                    </core:VRCOSCButton>
+                    <core:VRCOSCButton Width="36" ButtonColour="Blue" Click="UpdateAllButton_OnClick"
                                      Visibility="{Binding UpdateAllButtonVisibility, Mode=OneWay}">
                         <fa6:ImageAwesome Icon="Regular_CircleDown"
                                           PrimaryColor="{StaticResource CForeground1}"
                                           Margin="5" />
-                    </ui:VRCOSCButton>
-                </ui:SpacedStackPanel>
+                    </core:VRCOSCButton>
+                </core:SpacedStackPanel>
                 <Border Name="GridContainer" Background="Transparent" HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch" Grid.Row="2">
                     <Grid>
@@ -115,14 +118,14 @@
                                            Text="Action" />
                             </Grid>
                         </Border>
-                        <ui:MouseScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Hidden"
+                        <core:MouseScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Hidden"
                                               VerticalScrollBarVisibility="Auto"
                                               Height="{Binding PackageScrollViewerHeight, Mode=OneWay}">
                             <ListView Name="PackageList"
                                       Background="Transparent"
                                       BorderThickness="0" AlternationCount="2" Padding="-1">
                                 <b:Interaction.Behaviors>
-                                    <ui:IgnoreMouseWheelBehavior />
+                                    <core:IgnoreMouseWheelBehavior />
                                 </b:Interaction.Behaviors>
                                 <ListView.ItemContainerStyle>
                                     <Style TargetType="ListViewItem">
@@ -152,7 +155,7 @@
                                                                        Foreground="{Binding UILatestVersionColour, Mode=OneTime}"
                                                                        FontSize="16"
                                                                        Text="{Binding UILatestVersion, Mode=OneTime}" />
-                                                            <xceed:WatermarkComboBox Grid.Column="3" VerticalAlignment="Center"
+                                                            <xctk:WatermarkComboBox Grid.Column="3" VerticalAlignment="Center"
                                                                       HorizontalAlignment="Stretch"
                                                                       HorizontalContentAlignment="Center"
                                                                       Foreground="Black"
@@ -171,55 +174,55 @@
                                                                        Foreground="{StaticResource CForeground1}"
                                                                        FontSize="16"
                                                                        Text="{Binding PackageType, Mode=OneTime}" />
-                                                            <ui:SpacedStackPanel Grid.Column="5"
+                                                            <core:SpacedStackPanel Grid.Column="5"
                                                                 Orientation="Horizontal" VerticalAlignment="Center"
                                                                 HorizontalAlignment="Center">
-                                                                <ui:VRCOSCButton ButtonColour="Blue"
+                                                                <core:VRCOSCButton ButtonColour="Blue"
                                                                     Click="InstallButton_OnClick"
                                                                     Visibility="{Binding UIUpgradeVisible}" Width="30"
                                                                     Height="30">
-                                                                    <ui:VRCOSCButton.Tag>
+                                                                    <core:VRCOSCButton.Tag>
                                                                         <Binding />
-                                                                    </ui:VRCOSCButton.Tag>
+                                                                    </core:VRCOSCButton.Tag>
                                                                     <fa6:ImageAwesome Icon="Regular_CircleDown"
                                                                         PrimaryColor="{StaticResource CForeground1}"
                                                                         Margin="3 4 3 3" />
-                                                                </ui:VRCOSCButton>
-                                                                <ui:VRCOSCButton ButtonColour="Green"
+                                                                </core:VRCOSCButton>
+                                                                <core:VRCOSCButton ButtonColour="Green"
                                                                     Click="InstallButton_OnClick"
                                                                     Visibility="{Binding UIInstallVisible}" Width="30"
                                                                     Height="30">
-                                                                    <ui:VRCOSCButton.Tag>
+                                                                    <core:VRCOSCButton.Tag>
                                                                         <Binding />
-                                                                    </ui:VRCOSCButton.Tag>
+                                                                    </core:VRCOSCButton.Tag>
                                                                     <fa6:ImageAwesome Icon="Solid_Plus"
                                                                         PrimaryColor="{StaticResource CForeground1}"
                                                                         Margin="5" />
-                                                                </ui:VRCOSCButton>
-                                                                <ui:VRCOSCButton ButtonColour="Red"
+                                                                </core:VRCOSCButton>
+                                                                <core:VRCOSCButton ButtonColour="Red"
                                                                     Click="UninstallButton_OnClick"
                                                                     Visibility="{Binding UIUnInstallVisible}"
                                                                     Width="30" Height="30">
-                                                                    <ui:VRCOSCButton.Tag>
+                                                                    <core:VRCOSCButton.Tag>
                                                                         <Binding />
-                                                                    </ui:VRCOSCButton.Tag>
+                                                                    </core:VRCOSCButton.Tag>
                                                                     <fa6:ImageAwesome Icon="Solid_Minus"
                                                                         PrimaryColor="{StaticResource CForeground1}"
                                                                         Margin="5" />
-                                                                </ui:VRCOSCButton>
-                                                            </ui:SpacedStackPanel>
-                                                            <ui:SpacedStackPanel Grid.Column="6"
+                                                                </core:VRCOSCButton>
+                                                            </core:SpacedStackPanel>
+                                                            <core:SpacedStackPanel Grid.Column="6"
                                                                 Orientation="Horizontal" FlowDirection="RightToLeft"
                                                                 HorizontalAlignment="Right">
-                                                                <ui:VRCOSCButton ButtonColour="Blue"
+                                                                <core:VRCOSCButton ButtonColour="Blue"
                                                                     Click="InfoButton_ButtonClick"
                                                                     Tag="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=DataContext}"
                                                                     Width="30" Height="30">
                                                                     <fa6:ImageAwesome Icon="Solid_Info"
                                                                         PrimaryColor="{StaticResource CForeground1}"
                                                                         Margin="5" />
-                                                                </ui:VRCOSCButton>
-                                                            </ui:SpacedStackPanel>
+                                                                </core:VRCOSCButton>
+                                                            </core:SpacedStackPanel>
                                                         </Grid>
                                                     </Border>
                                                 </ControlTemplate>
@@ -228,7 +231,7 @@
                                     </Style>
                                 </ListView.ItemContainerStyle>
                             </ListView>
-                        </ui:MouseScrollViewer>
+                        </core:MouseScrollViewer>
                         <Border Grid.Row="2" Background="{StaticResource CBackground1}" CornerRadius="0 0 5 5" />
                     </Grid>
                 </Border>
@@ -257,13 +260,13 @@
                     </Border>
                     <Border Grid.Row="1" Background="Black" Margin="-1 0" />
                     <Grid Grid.Row="2">
-                        <ui:VRCOSCButton ButtonColour="Red" Width="30" Height="30" Margin="5"
+                        <core:VRCOSCButton ButtonColour="Red" Width="30" Height="30" Margin="5"
                                          Click="InfoOverlayExit_ButtonClick" HorizontalAlignment="Left"
                                          VerticalAlignment="Top">
                             <fa6:ImageAwesome Icon="Solid_ChevronLeft"
                                               PrimaryColor="{StaticResource CForeground1}"
                                               Margin="4" />
-                        </ui:VRCOSCButton>
+                        </core:VRCOSCButton>
                         <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Top">
                             <TextBlock Text="{Binding DisplayName}" Foreground="{StaticResource CForeground1}"
                                        TextAlignment="Center" TextWrapping="Wrap"
@@ -278,20 +281,19 @@
                     </Grid>
                     <Border Grid.Row="3" Background="{StaticResource CBackground1}" Padding="5"
                             CornerRadius="0 0 10 10">
-                        <ui:SpacedStackPanel Orientation="Horizontal" HorizontalAlignment="Stretch"
+                        <core:SpacedStackPanel Orientation="Horizontal" HorizontalAlignment="Stretch"
                                              VerticalAlignment="Stretch">
-                            <ui:VRCOSCButton ButtonColour="Gray" Width="50" Height="50" CornerRadius="5"
+                            <core:VRCOSCButton ButtonColour="Gray" Width="50" Height="50" CornerRadius="5"
                                              Click="PackageGithub_ButtonClick"
                                              Tag="{Binding RelativeSource={RelativeSource AncestorType=Grid, AncestorLevel=2}, Path=DataContext}">
                                 <fa6:ImageAwesome Icon="Brands_Github"
                                                   PrimaryColor="{StaticResource CForeground1}"
                                                   Margin="5" />
-                            </ui:VRCOSCButton>
-                        </ui:SpacedStackPanel>
+                            </core:VRCOSCButton>
+                        </core:SpacedStackPanel>
                     </Border>
                 </Grid>
             </Border>
         </Grid>
-
     </Grid>
-</Page>
+</UserControl>

@@ -6,14 +6,15 @@
         xmlns:ui="clr-namespace:VRCOSC.App.UI"
         xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:fa6="http://schemas.fontawesome.com/icons/fonts"
+        xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
         mc:Ignorable="d"
         Height="450" Width="800">
     <Window.Resources>
-        <ui:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
+        <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
                                        Colour2="{StaticResource CBackground4}" />
     </Window.Resources>
     <Grid>
-        <ui:MouseScrollViewer VerticalScrollBarVisibility="Auto">
+        <core:MouseScrollViewer VerticalScrollBarVisibility="Auto">
             <Border Background="{StaticResource CBackground2}" Padding="10">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -33,7 +34,7 @@
                               Background="Transparent"
                               BorderThickness="0" AlternationCount="2" Padding="-1">
                         <b:Interaction.Behaviors>
-                            <ui:IgnoreMouseWheelBehavior />
+                            <core:IgnoreMouseWheelBehavior />
                         </b:Interaction.Behaviors>
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
@@ -47,12 +48,12 @@
                                                     <TextBlock Text="{Binding Name}" FontSize="15"
                                                                Foreground="{StaticResource CForeground1}"
                                                                HorizontalAlignment="Left" VerticalAlignment="Center" />
-                                                    <ui:VRCOSCButton HorizontalAlignment="Right" ButtonColour="Blue"
+                                                    <core:VRCOSCButton HorizontalAlignment="Right" ButtonColour="Blue"
                                                                      Click="DownloadButton_OnClick" Tag="{Binding}">
                                                         <fa6:ImageAwesome Icon="Solid_Download"
                                                                           PrimaryColor="{StaticResource CForeground1}"
                                                                           Margin="4" />
-                                                    </ui:VRCOSCButton>
+                                                    </core:VRCOSCButton>
                                                 </Grid>
                                             </Border>
                                         </ControlTemplate>
@@ -65,6 +66,6 @@
                             CornerRadius="0 0 5 5" />
                 </Grid>
             </Border>
-        </ui:MouseScrollViewer>
+        </core:MouseScrollViewer>
     </Grid>
 </Window>

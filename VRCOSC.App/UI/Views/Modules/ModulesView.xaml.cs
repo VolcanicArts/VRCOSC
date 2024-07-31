@@ -1,21 +1,19 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
-// See the LICENSE file in the repository root for full license text.
-
 using System.Windows;
 using VRCOSC.App.Modules;
+using VRCOSC.App.Pages.Modules;
 using VRCOSC.App.Pages.Modules.Parameters;
 using VRCOSC.App.Profiles;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.Utils;
 
-namespace VRCOSC.App.Pages.Modules;
+namespace VRCOSC.App.UI.Views.Modules;
 
-public partial class ModulesPage
+public partial class ModulesView
 {
     private ModuleSettingsWindow? moduleSettingsWindow;
     private ModuleParametersWindow? moduleParametersWindow;
 
-    public ModulesPage()
+    public ModulesView()
     {
         InitializeComponent();
 
@@ -89,3 +87,4 @@ public partial class ModulesPage
         new ModulePrefabsWindow(module).Show();
     }
 }
+

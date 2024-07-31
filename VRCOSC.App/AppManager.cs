@@ -28,7 +28,8 @@ using VRCOSC.App.SDK.OVR.Metadata;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Settings;
-using VRCOSC.App.Themes;
+using VRCOSC.App.UI.Themes;
+using VRCOSC.App.UI.Windows;
 using VRCOSC.App.Updater;
 using VRCOSC.App.Utils;
 using VRCOSC.App.VRChatAPI;
@@ -493,17 +494,18 @@ public class AppManager
 
     public void ChangeTheme(Theme theme)
     {
+        return;
+
         var mergedDictionaries = Application.Current.Resources.MergedDictionaries;
-        mergedDictionaries.Clear();
 
         switch (theme)
         {
             case Theme.Dark:
-                mergedDictionaries.Add(new ResourceDictionary { Source = new Uri("pack://application:,,,/VRCOSC.App;component/Themes/Dark.xaml") });
+                mergedDictionaries.Add(new ResourceDictionary { Source = new Uri("pack://application:,,,/VRCOSC.App;component/UI/Themes/Dark.xaml") });
                 break;
 
             case Theme.Light:
-                mergedDictionaries.Add(new ResourceDictionary { Source = new Uri("pack://application:,,,/VRCOSC.App;component/Themes/Light.xaml") });
+                mergedDictionaries.Add(new ResourceDictionary { Source = new Uri("pack://application:,,,/VRCOSC.App;component/UI/Themes/Light.xaml") });
                 break;
 
             default:

@@ -1,38 +1,33 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
-// See the LICENSE file in the repository root for full license text.
-
 using System;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using VRCOSC.App.Pages.Run.Tabs;
-using VRCOSC.App.UI;
+using VRCOSC.App.UI.Core;
 using VRCOSC.App.Utils;
 
-namespace VRCOSC.App.Pages.Run;
+namespace VRCOSC.App.UI.Views.Run;
 
-public partial class RunPage
+public partial class RunView : INotifyPropertyChanged
 {
     private const int view_button_width = 160;
 
-    private int chosenView;
+    private int chosenTab;
 
-    public int ChosenView
+    public int ChosenTab
     {
-        get => chosenView;
+        get => chosenTab;
         set
         {
-            chosenView = value;
+            chosenTab = value;
             setChosenView();
+            OnPropertyChanged();
         }
     }
 
-    private readonly AvatarParameterView avatarParameterView;
-    private readonly ChatBoxView chatBoxView;
-    private readonly RuntimeView runtimeView;
-
-    public RunPage()
+    public RunView()
     {
         InitializeComponent();
 
@@ -41,24 +36,33 @@ public partial class RunPage
         AppManager.GetInstance().State.Subscribe(onAppManagerStateChange, true);
         Logger.NewEntry += onLogEntry;
 
-        avatarParameterView = new AvatarParameterView();
-        chatBoxView = new ChatBoxView();
-        runtimeView = new RuntimeView();
-
         setChosenView();
     }
 
     private void setChosenView()
     {
-        ViewFrame.Content = ChosenView switch
+        switch (ChosenTab)
         {
-            0 => runtimeView,
-            1 => avatarParameterView,
-            2 => chatBoxView,
-            _ => ViewFrame.Content
-        };
+            case 0:
+                RuntimeView.Visibility = Visibility.Visible;
+                ParameterView.Visibility = Visibility.Collapsed;
+                ChatBoxView.Visibility = Visibility.Collapsed;
+                break;
 
-        var moveAnimation = new DoubleAnimation(ChosenView * view_button_width, TimeSpan.FromSeconds(0.15f))
+            case 1:
+                RuntimeView.Visibility = Visibility.Collapsed;
+                ParameterView.Visibility = Visibility.Visible;
+                ChatBoxView.Visibility = Visibility.Collapsed;
+                break;
+
+            case 2:
+                RuntimeView.Visibility = Visibility.Collapsed;
+                ParameterView.Visibility = Visibility.Collapsed;
+                ChatBoxView.Visibility = Visibility.Visible;
+                break;
+        }
+
+        var moveAnimation = new DoubleAnimation(ChosenTab * view_button_width, TimeSpan.FromSeconds(0.15f))
         {
             EasingFunction = new QuarticEase()
         };
@@ -174,16 +178,24 @@ public partial class RunPage
 
     private void AvatarParameterViewButton_Click(object sender, RoutedEventArgs e)
     {
-        ChosenView = 1;
+        ChosenTab = 1;
     }
 
     private void ChatBoxViewButton_Click(object sender, RoutedEventArgs e)
     {
-        ChosenView = 2;
+        ChosenTab = 2;
     }
 
     private void RuntimeViewButton_Click(object sender, RoutedEventArgs e)
     {
-        ChosenView = 0;
+        ChosenTab = 0;
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }
+

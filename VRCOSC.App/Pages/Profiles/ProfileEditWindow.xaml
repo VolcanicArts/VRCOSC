@@ -5,11 +5,12 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:ui="clr-namespace:VRCOSC.App.UI"
         xmlns:fa6="http://schemas.fontawesome.com/icons/fonts"
+        xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
         mc:Ignorable="d"
         Height="450" Width="800" MinHeight="450" MinWidth="800"
         PreviewMouseDown="ProfileEditWindow_OnPreviewMouseDown">
     <Window.Resources>
-        <ui:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
+        <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
                                        Colour2="{StaticResource CBackground4}" />
     </Window.Resources>
     <Grid>
@@ -22,9 +23,9 @@
             <TextBlock Name="TitleText" Foreground="{StaticResource CForeground4}" HorizontalAlignment="Center"
                        VerticalAlignment="Center" FontSize="20" FontWeight="Bold" />
         </Border>
-        <ui:MouseScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
+        <core:MouseScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
             <Border Background="{StaticResource CBackground4}" Padding="10">
-                <ui:SpacedStackPanel Spacing="5">
+                <core:SpacedStackPanel Spacing="5">
                     <Border Background="{StaticResource CBackground1}" CornerRadius="5" Padding="8" Height="40">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -82,13 +83,13 @@
                                                                          FontSize="20" VerticalAlignment="Center"
                                                                          VerticalContentAlignment="Center"
                                                                          Background="{StaticResource CBackground5}" />
-                                                                <ui:VRCOSCButton Grid.Column="2" ButtonColour="Red"
+                                                                <core:VRCOSCButton Grid.Column="2" ButtonColour="Red"
                                                                     Click="RemoveButton_OnClick"
                                                                     Tag="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=DataContext}">
                                                                     <fa6:ImageAwesome Icon="Solid_Minus"
                                                                         PrimaryColor="{StaticResource CForeground1}"
                                                                         Margin="4" />
-                                                                </ui:VRCOSCButton>
+                                                                </core:VRCOSCButton>
                                                             </Grid>
                                                         </Border>
                                                     </ControlTemplate>
@@ -100,21 +101,21 @@
                                 <Border Grid.Row="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
                             </Grid>
                         </Border>
-                        <ui:VRCOSCButton Grid.Row="1" ButtonColour="Green" Width="100" Height="20"
+                        <core:VRCOSCButton Grid.Row="1" ButtonColour="Green" Width="100" Height="20"
                                          CornerRadius="5" Click="AddLinkedAvatar_ButtonClick">
                             <fa6:ImageAwesome Icon="Solid_Plus" PrimaryColor="{StaticResource CForeground1}" Margin="4" />
-                        </ui:VRCOSCButton>
+                        </core:VRCOSCButton>
                     </Grid>
-                </ui:SpacedStackPanel>
+                </core:SpacedStackPanel>
             </Border>
-        </ui:MouseScrollViewer>
+        </core:MouseScrollViewer>
         <Border Grid.Row="2" Background="{StaticResource CBackground1}" Padding="10">
-            <ui:VRCOSCButton ButtonColour="Blue" Width="150" VerticalAlignment="Stretch" CornerRadius="5"
+            <core:VRCOSCButton ButtonColour="Blue" Width="150" VerticalAlignment="Stretch" CornerRadius="5"
                              Click="SaveEdit_ButtonClick">
                 <TextBlock Text="Save" FontSize="15" HorizontalAlignment="Center"
                            VerticalAlignment="Center"
                            Foreground="{StaticResource CForeground1}" />
-            </ui:VRCOSCButton>
+            </core:VRCOSCButton>
         </Border>
     </Grid>
 </Window>

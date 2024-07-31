@@ -5,19 +5,20 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:ui="clr-namespace:VRCOSC.App.UI"
         xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
         mc:Ignorable="d"
         Title="ModuleSettingsWindow" MinWidth="600" MinHeight="600" Width="600" Height="768">
     <Window.Resources>
-        <ui:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" Invert="True"/>
+        <core:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" Invert="True"/>
     </Window.Resources>
     <Grid>
         <Border Background="{StaticResource CBackground2}">
-            <ui:MouseScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+            <core:MouseScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
                 <ListView ItemsSource="{Binding GroupsFormatted}" HorizontalAlignment="Stretch"
                           Margin="5" BorderThickness="0"
                           Background="Transparent">
                     <b:Interaction.Behaviors>
-                        <ui:IgnoreMouseWheelBehavior />
+                        <core:IgnoreMouseWheelBehavior />
                     </b:Interaction.Behaviors>
                     <ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem">
@@ -27,14 +28,14 @@
                                     <ControlTemplate TargetType="ListViewItem">
                                         <Border Background="{StaticResource CBackground1}" Padding="10 5 10 5"
                                                 CornerRadius="5">
-                                            <ui:SpacedStackPanel Orientation="Vertical" Spacing="5">
+                                            <core:SpacedStackPanel Orientation="Vertical" Spacing="5">
                                                 <TextBlock HorizontalAlignment="Center" Text="{Binding Key}"
                                                            FontSize="18" Foreground="{StaticResource CForeground1}" />
                                                 <ListView ItemsSource="{Binding Value}" HorizontalAlignment="Stretch"
                                                           BorderThickness="0"
                                                           Background="Transparent" Padding="0 0 0 5">
                                                     <b:Interaction.Behaviors>
-                                                        <ui:IgnoreMouseWheelBehavior />
+                                                        <core:IgnoreMouseWheelBehavior />
                                                     </b:Interaction.Behaviors>
                                                     <ListView.ItemContainerStyle>
                                                         <Style TargetType="ListViewItem">
@@ -47,7 +48,7 @@
                                                                                 Background="{StaticResource CBackground7}"
                                                                                 Padding="10 5 10 5"
                                                                                 CornerRadius="5">
-                                                                                <ui:SpacedStackPanel
+                                                                                <core:SpacedStackPanel
                                                                                     Orientation="Vertical"
                                                                                     Spacing="5">
                                                                                     <TextBlock
@@ -69,7 +70,7 @@
                                                                                     <Frame Name="SettingPageFrame"
                                                                                         Content="{Binding PageInstance}"
                                                                                         NavigationUIVisibility="Hidden" />
-                                                                                </ui:SpacedStackPanel>
+                                                                                </core:SpacedStackPanel>
                                                                             </Border>
                                                                             <Border
                                                                                 Background="{StaticResource CBackground1}"
@@ -82,7 +83,7 @@
                                                         </Style>
                                                     </ListView.ItemContainerStyle>
                                                 </ListView>
-                                            </ui:SpacedStackPanel>
+                                            </core:SpacedStackPanel>
                                         </Border>
                                     </ControlTemplate>
                                 </Setter.Value>
@@ -90,7 +91,7 @@
                         </Style>
                     </ListView.ItemContainerStyle>
                 </ListView>
-            </ui:MouseScrollViewer>
+            </core:MouseScrollViewer>
         </Border>
     </Grid>
 </Window>

@@ -4,8 +4,9 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:ui="clr-namespace:VRCOSC.App.UI"
+      xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
       mc:Ignorable="d">
     <Grid>
-        <ui:VRCOSCCheckBox x:Name="ValueCheckBox" Width="35" Height="35" IconMargin="6"/>
+        <core:VRCOSCCheckBox x:Name="ValueCheckBox" Width="35" Height="35"/>
     </Grid>
 </Page>

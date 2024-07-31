@@ -6,13 +6,14 @@
       xmlns:ui="clr-namespace:VRCOSC.App.UI"
       xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
       xmlns:fa6="http://schemas.fontawesome.com/icons/fonts"
+      xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
       mc:Ignorable="d">
     <Page.Resources>
-        <ui:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
+        <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
                                        Colour2="{StaticResource CBackground4}" />
     </Page.Resources>
     <Grid>
-        <ui:MouseScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
+        <core:MouseScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
             <Border Background="{StaticResource CBackground2}" Padding="10">
                 <Border Background="Transparent">
                     <Grid>
@@ -32,7 +33,7 @@
                                     VerticalAlignment="Center"
                                     HorizontalAlignment="Left"
                                     FontWeight="DemiBold" />
-                                <ui:VRCOSCButton
+                                <core:VRCOSCButton
                                     ButtonColour="Blue"
                                     Foreground="{StaticResource CForeground1}"
                                     VerticalAlignment="Center"
@@ -45,7 +46,7 @@
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
                                         Margin="5" />
-                                </ui:VRCOSCButton>
+                                </core:VRCOSCButton>
                             </Grid>
                         </Border>
                         <ListView Grid.Row="1" ItemsSource="{Binding RouterManager.Routes, Mode=OneWay}"
@@ -53,7 +54,7 @@
                                   Background="Transparent"
                                   BorderThickness="0" AlternationCount="2" Padding="-1">
                             <b:Interaction.Behaviors>
-                                <ui:IgnoreMouseWheelBehavior />
+                                <core:IgnoreMouseWheelBehavior />
                             </b:Interaction.Behaviors>
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="ListViewItem">
@@ -101,7 +102,7 @@
                                                                         </ControlTemplate>
                                                                     </TextBox.Template>
                                                                 </TextBox>
-                                                                <ui:IPPortTextBox
+                                                                <core:IPPortTextBox
                                                                     Grid.Column="2"
                                                                     Text="{Binding Endpoint.Value}"
                                                                     Foreground="{StaticResource CForeground1}"
@@ -125,9 +126,9 @@
                                                                             </Border>
                                                                         </ControlTemplate>
                                                                     </TextBox.Template>
-                                                                </ui:IPPortTextBox>
+                                                                </core:IPPortTextBox>
                                                             </Grid>
-                                                            <ui:VRCOSCButton
+                                                            <core:VRCOSCButton
                                                                 Grid.Column="2"
                                                                 ButtonColour="Red"
                                                                 Width="30" Height="30"
@@ -137,7 +138,7 @@
                                                                     Icon="Solid_Minus"
                                                                     PrimaryColor="{StaticResource CForeground1}"
                                                                     Margin="5" />
-                                                            </ui:VRCOSCButton>
+                                                            </core:VRCOSCButton>
                                                         </Grid>
                                                     </Border>
                                                 </Grid>
@@ -149,15 +150,15 @@
                         </ListView>
                         <Border Grid.Row="2" Background="{StaticResource CBackground1}"
                                 CornerRadius="0 0 5 5">
-                            <ui:VRCOSCButton ButtonColour="Green" Height="25" Width="100" CornerRadius="5"
+                            <core:VRCOSCButton ButtonColour="Green" Height="25" Width="100" CornerRadius="5"
                                              Click="AddInstance_OnClick">
                                 <fa6:ImageAwesome Icon="Solid_Plus" Margin="5"
                                                   PrimaryColor="{StaticResource CForeground1}" />
-                            </ui:VRCOSCButton>
+                            </core:VRCOSCButton>
                         </Border>
                     </Grid>
                 </Border>
             </Border>
-        </ui:MouseScrollViewer>
+        </core:MouseScrollViewer>
     </Grid>
 </Page>

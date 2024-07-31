@@ -6,7 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using Microsoft.Xaml.Behaviors;
 
-namespace VRCOSC.App.UI;
+namespace VRCOSC.App.UI.Core;
 
 public class MouseScrollViewer : ScrollViewer
 {

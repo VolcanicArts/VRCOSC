@@ -5,7 +5,7 @@ using System;
 using System.Windows;
 using System.Windows.Media.Animation;
 
-namespace VRCOSC.App.UI;
+namespace VRCOSC.App.UI.Core;
 
 public static class Extensions
 {

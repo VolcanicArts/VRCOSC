@@ -5,6 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:ui="clr-namespace:VRCOSC.App.UI"
       xmlns:appSettings="clr-namespace:VRCOSC.App.Pages.AppSettings"
+      xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
       mc:Ignorable="d">
     <Page.Resources>
         <appSettings:IpPortValidationRule x:Key="IpPortValidationRule" />
@@ -62,9 +63,9 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Border Grid.Column="0" Background="{StaticResource CBackground4}">
-            <ui:MouseScrollViewer Padding="10" HorizontalScrollBarVisibility="Disabled"
+            <core:MouseScrollViewer Padding="10" HorizontalScrollBarVisibility="Disabled"
                                   VerticalScrollBarVisibility="Auto">
-                <ui:SpacedStackPanel Orientation="Vertical" Spacing="5">
+                <core:SpacedStackPanel Orientation="Vertical" Spacing="5">
                     <Button Name="GeneralTabButton" Click="GeneralTabButton_OnClick"
                             Style="{StaticResource RoundedButtonStyle}" Background="{StaticResource CBackground3}"
                             BorderBrush="{StaticResource CBackground5}" BorderThickness="2">
@@ -110,15 +111,15 @@
                                    FontSize="18"
                                    Foreground="{StaticResource CForeground1}" Margin="7" />
                     </Button>
-                </ui:SpacedStackPanel>
-            </ui:MouseScrollViewer>
+                </core:SpacedStackPanel>
+            </core:MouseScrollViewer>
         </Border>
         <Border Grid.Column="1" Background="{StaticResource CBackground2}">
             <Grid>
                 <Grid Name="GeneralContainer" Visibility="Collapsed">
-                    <ui:MouseScrollViewer Padding="10" HorizontalScrollBarVisibility="Auto"
+                    <core:MouseScrollViewer Padding="10" HorizontalScrollBarVisibility="Auto"
                                           VerticalScrollBarVisibility="Auto">
-                        <ui:SpacedStackPanel Orientation="Vertical" Spacing="5">
+                        <core:SpacedStackPanel Orientation="Vertical" Spacing="5">
                             <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
                                     CornerRadius="5">
                                 <Grid>
@@ -135,7 +136,7 @@
                                     <TextBlock Text="Tray On Close" Style="{StaticResource SettingTitle}" />
                                     <TextBlock Text="Sends VRCOSC to the tray instead of exiting when closing"
                                                Style="{StaticResource SettingDescription}" />
-                                    <ui:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+                                    <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
                                                        Height="32"
                                                        Width="32"
                                                        IsChecked="{Binding TrayOnClose}" />
@@ -148,7 +149,7 @@
                                     <TextBlock
                                         Text="This stops VRCOSC from writing to the ChatBox in certain club and event worlds"
                                         Style="{StaticResource SettingDescription}" />
-                                    <ui:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+                                    <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
                                                        Height="32"
                                                        Width="32"
                                                        IsChecked="{Binding UseChatBoxBlacklist}" />
@@ -165,13 +166,13 @@
                                              Text="{Binding ChatBoxSendInterval}" />
                                 </Grid>
                             </Border>
-                        </ui:SpacedStackPanel>
-                    </ui:MouseScrollViewer>
+                        </core:SpacedStackPanel>
+                    </core:MouseScrollViewer>
                 </Grid>
                 <Grid Name="PackagesContainer" Visibility="Collapsed">
-                    <ui:MouseScrollViewer Padding="10" HorizontalScrollBarVisibility="Auto"
+                    <core:MouseScrollViewer Padding="10" HorizontalScrollBarVisibility="Auto"
                                           VerticalScrollBarVisibility="Auto">
-                        <ui:SpacedStackPanel Orientation="Vertical" Spacing="5">
+                        <core:SpacedStackPanel Orientation="Vertical" Spacing="5">
 
                             <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
                                     CornerRadius="5">
@@ -179,19 +180,19 @@
                                     <TextBlock Text="Allow Pre-release Packages" Style="{StaticResource SettingTitle}" />
                                     <TextBlock Text="Should the package listing list pre-releases?"
                                                Style="{StaticResource SettingDescription}" />
-                                    <ui:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+                                    <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
                                                        Height="32"
                                                        Width="32"
                                                        IsChecked="{Binding AllowPreReleasePackages}" />
                                 </Grid>
                             </Border>
-                        </ui:SpacedStackPanel>
-                    </ui:MouseScrollViewer>
+                        </core:SpacedStackPanel>
+                    </core:MouseScrollViewer>
                 </Grid>
                 <Grid Name="OscContainer" Visibility="Collapsed">
-                    <ui:MouseScrollViewer Padding="10" HorizontalScrollBarVisibility="Auto"
+                    <core:MouseScrollViewer Padding="10" HorizontalScrollBarVisibility="Auto"
                                           VerticalScrollBarVisibility="Auto">
-                        <ui:SpacedStackPanel Orientation="Vertical" Spacing="5">
+                        <core:SpacedStackPanel Orientation="Vertical" Spacing="5">
                             <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
                                     CornerRadius="5">
                                 <Grid>
@@ -199,7 +200,7 @@
                                     <TextBlock
                                         Text="Should VRCOSC use the defined endpoints below instead of OSCQuery?"
                                         Style="{StaticResource SettingDescription}" />
-                                    <ui:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+                                    <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
                                                        Height="32"
                                                        Width="32"
                                                        IsChecked="{Binding UseCustomEndpoints}" />
@@ -241,13 +242,13 @@
                                     </TextBox>
                                 </Grid>
                             </Border>
-                        </ui:SpacedStackPanel>
-                    </ui:MouseScrollViewer>
+                        </core:SpacedStackPanel>
+                    </core:MouseScrollViewer>
                 </Grid>
                 <Grid Name="AutomationContainer" Visibility="Collapsed">
-                    <ui:MouseScrollViewer Padding="10" HorizontalScrollBarVisibility="Auto"
+                    <core:MouseScrollViewer Padding="10" HorizontalScrollBarVisibility="Auto"
                                           VerticalScrollBarVisibility="Auto">
-                        <ui:SpacedStackPanel Orientation="Vertical" Spacing="5">
+                        <core:SpacedStackPanel Orientation="Vertical" Spacing="5">
                             <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
                                     CornerRadius="5">
                                 <Grid>
@@ -255,7 +256,7 @@
                                     <TextBlock
                                         Text="Allows VRCOSC to automatically start the modules when VRChat opens"
                                         Style="{StaticResource SettingDescription}" />
-                                    <ui:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+                                    <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
                                                        Height="32"
                                                        Width="32"
                                                        IsChecked="{Binding VRCAutoStart}" />
@@ -268,7 +269,7 @@
                                     <TextBlock
                                         Text="Allows VRCOSC to automatically stop the modules when VRChat closes"
                                         Style="{StaticResource SettingDescription}" />
-                                    <ui:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+                                    <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
                                                        Height="32"
                                                        Width="32"
                                                        IsChecked="{Binding VRCAutoStop}" />
@@ -280,7 +281,7 @@
                                     <TextBlock Text="Auto-open with SteamVR" Style="{StaticResource SettingTitle}" />
                                     <TextBlock Text="Tells VRCOSC to open when SteamVR starts"
                                                Style="{StaticResource SettingDescription}" />
-                                    <ui:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+                                    <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
                                                        Height="32"
                                                        Width="32"
                                                        IsChecked="{Binding OVRAutoOpen}" />
@@ -292,19 +293,19 @@
                                     <TextBlock Text="Auto-close with SteamVR" Style="{StaticResource SettingTitle}" />
                                     <TextBlock Text="Tells VRCOSC to close when SteamVR stops"
                                                Style="{StaticResource SettingDescription}" />
-                                    <ui:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+                                    <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
                                                        Height="32"
                                                        Width="32"
                                                        IsChecked="{Binding OVRAutoClose}" />
                                 </Grid>
                             </Border>
-                        </ui:SpacedStackPanel>
-                    </ui:MouseScrollViewer>
+                        </core:SpacedStackPanel>
+                    </core:MouseScrollViewer>
                 </Grid>
                 <Grid Name="SpeechContainer" Visibility="Collapsed">
-                    <ui:MouseScrollViewer Padding="10" HorizontalScrollBarVisibility="Auto"
+                    <core:MouseScrollViewer Padding="10" HorizontalScrollBarVisibility="Auto"
                                           VerticalScrollBarVisibility="Auto">
-                        <ui:SpacedStackPanel Orientation="Vertical" Spacing="5">
+                        <core:SpacedStackPanel Orientation="Vertical" Spacing="5">
                             <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
                                     CornerRadius="5">
                                 <Grid>
@@ -323,7 +324,7 @@
                                     <TextBlock Text="Auto-Switch" Style="{StaticResource SettingTitle}" />
                                     <TextBlock Text="Should VRCOSC auto-switch microphone when Windows does?"
                                                Style="{StaticResource SettingDescription}" />
-                                    <ui:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+                                    <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
                                                        Height="32"
                                                        Width="32"
                                                        IsChecked="{Binding AutoSwitchMicrophone}" />
@@ -366,7 +367,7 @@
                                     </Grid>
                                 </Grid>
                             </Border>
-                            <ui:SpacedStackPanel x:Name="WhisperEngineContainer" Orientation="Vertical" Spacing="5">
+                            <core:SpacedStackPanel x:Name="WhisperEngineContainer" Orientation="Vertical" Spacing="5">
                                 <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
                                         CornerRadius="5">
                                     <Grid>
@@ -381,20 +382,20 @@
                                 <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
                                         CornerRadius="5">
                                     <Grid>
-                                        <ui:VRCOSCButton ButtonColour="Gray" Click="Whisper_OpenModelList_OnClick">
+                                        <core:VRCOSCButton ButtonColour="Gray" Click="Whisper_OpenModelList_OnClick">
                                             <TextBlock Text="Open Model List" Style="{StaticResource SettingTitle}" />
-                                        </ui:VRCOSCButton>
+                                        </core:VRCOSCButton>
                                     </Grid>
                                 </Border>
-                            </ui:SpacedStackPanel>
-                        </ui:SpacedStackPanel>
-                    </ui:MouseScrollViewer>
+                            </core:SpacedStackPanel>
+                        </core:SpacedStackPanel>
+                    </core:MouseScrollViewer>
                 </Grid>
                 <Grid Name="UpdatesContainer" Visibility="Collapsed" />
                 <Grid Name="DeveloperContainer" Visibility="Collapsed">
-                    <ui:MouseScrollViewer Padding="10" HorizontalScrollBarVisibility="Auto"
+                    <core:MouseScrollViewer Padding="10" HorizontalScrollBarVisibility="Auto"
                                           VerticalScrollBarVisibility="Auto">
-                        <ui:SpacedStackPanel Orientation="Vertical" Spacing="5">
+                        <core:SpacedStackPanel Orientation="Vertical" Spacing="5">
                             <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
                                     CornerRadius="5">
                                 <Grid>
@@ -402,14 +403,14 @@
                                     <TextBlock
                                         Text="Gain access to the debug page, detailed module logs, and other information"
                                         Style="{StaticResource SettingDescription}" />
-                                    <ui:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+                                    <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
                                                        Height="32"
                                                        Width="32"
                                                        IsChecked="{Binding EnableAppDebug}" />
                                 </Grid>
                             </Border>
-                        </ui:SpacedStackPanel>
-                    </ui:MouseScrollViewer>
+                        </core:SpacedStackPanel>
+                    </core:MouseScrollViewer>
                 </Grid>
             </Grid>
         </Border>

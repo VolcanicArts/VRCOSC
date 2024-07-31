@@ -2,7 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.App.OSC.VRChat;
-using VRCOSC.App.UI;
+using VRCOSC.App.UI.Core;
 
 namespace VRCOSC.App.Pages.ChatBox;
 

@@ -8,7 +8,7 @@ using System.Windows.Controls;
 
 // ReSharper disable InconsistentNaming
 
-namespace VRCOSC.App.UI;
+namespace VRCOSC.App.UI.Core;
 
 public class SpacedStackPanel : StackPanel
 {
