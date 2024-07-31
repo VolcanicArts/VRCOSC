@@ -120,61 +120,79 @@ public abstract class ClipVariable
                                        JoinString == string.Empty &&
                                        OnlyScrollWhenTruncated == false;
 
+    // I hate all of this code. For the love of god redo this properly at some point so that it doesn't SUCK
+
     public string GetFormattedValue()
     {
         var variableValue = ChatBoxManager.GetInstance().GetVariable(ModuleID, VariableID)!.Value.Value;
         var formattedValue = variableValue is not null ? Format(variableValue) : string.Empty;
-
         if (string.IsNullOrEmpty(formattedValue)) return string.Empty;
 
-        formattedValue = formattedValue.Trim();
-
         var willTruncate = TruncateLength >= 0 && formattedValue.Length > TruncateLength;
-        var willScroll = !OnlyScrollWhenTruncated || willTruncate;
+        var willScroll = (!OnlyScrollWhenTruncated || willTruncate) && ScrollSpeed > 0;
+        var addEllipses = IncludeEllipses && !willScroll && willTruncate;
 
         if (!willScroll) currentIndex = 0;
 
-        if (!string.IsNullOrEmpty(JoinString) && willScroll && ScrollDirection != ClipVariableScrollDirection.Bounce) formattedValue += JoinString;
-
         var stringInfo = new StringInfo(formattedValue);
 
-        var position = currentIndex.Modulo(stringInfo.LengthInTextElements);
-        formattedValue = cropAndWrapText(stringInfo, position, TruncateLength < 0 ? stringInfo.LengthInTextElements : TruncateLength, ScrollDirection != ClipVariableScrollDirection.Bounce);
-
-        if (IncludeEllipses && willTruncate) formattedValue += "...";
-
-        var finalStringInfo = new StringInfo(formattedValue);
-
-        if (willScroll && ScrollSpeed > 0)
+        if (willScroll && ScrollDirection == ClipVariableScrollDirection.Bounce && OnlyScrollWhenTruncated)
         {
-            switch (ScrollDirection)
+            var charsLeft = bounceDirection ? stringInfo.LengthInTextElements - currentIndex - TruncateLength : currentIndex;
+
+            if (charsLeft == 0)
+                bounceDirection = !bounceDirection;
+
+            if (charsLeft < 0)
             {
-                case ClipVariableScrollDirection.Right:
-                    currentIndex += ScrollSpeed;
-                    break;
-
-                case ClipVariableScrollDirection.Left:
-                    currentIndex -= ScrollSpeed;
-                    break;
-
-                case ClipVariableScrollDirection.Bounce:
-                    var localScrollSpeed = ScrollSpeed;
-                    var charsLeft = bounceDirection ? finalStringInfo.LengthInTextElements - currentIndex : currentIndex;
-
-                    var willSwitch = false;
-
-                    if (charsLeft < ScrollSpeed)
-                    {
-                        localScrollSpeed = charsLeft;
-                        willSwitch = true;
-                    }
-
-                    currentIndex += bounceDirection ? localScrollSpeed : -localScrollSpeed;
-
-                    if (willSwitch) bounceDirection = !bounceDirection;
-
-                    break;
+                currentIndex = 0;
+                charsLeft = ScrollSpeed;
             }
+
+            var localScrollSpeed = ScrollSpeed;
+            localScrollSpeed = charsLeft != 0 ? Math.Min(localScrollSpeed, charsLeft) : localScrollSpeed;
+
+            currentIndex += bounceDirection ? localScrollSpeed : -localScrollSpeed;
+
+            try
+            {
+                formattedValue = formattedValue[currentIndex..(currentIndex + TruncateLength)];
+            }
+            catch
+            {
+                currentIndex = 0;
+                formattedValue = formattedValue[currentIndex..(currentIndex + TruncateLength)];
+            }
+        }
+        else
+        {
+            if (willScroll)
+            {
+                if (!string.IsNullOrEmpty(JoinString)) formattedValue += JoinString;
+
+                switch (ScrollDirection)
+                {
+                    case ClipVariableScrollDirection.Right:
+                        currentIndex += ScrollSpeed;
+                        break;
+
+                    case ClipVariableScrollDirection.Left:
+                        currentIndex -= ScrollSpeed;
+                        break;
+                }
+            }
+
+            var localTruncateLength = TruncateLength;
+
+            if (addEllipses && stringInfo.LengthInTextElements > 3)
+            {
+                localTruncateLength -= 3;
+                formattedValue += "...";
+            }
+
+            var localStringInfo = new StringInfo(formattedValue);
+            var position = currentIndex.Modulo(stringInfo.LengthInTextElements);
+            formattedValue = cropAndWrapText(localStringInfo, position, localTruncateLength < 0 ? localStringInfo.LengthInTextElements : localTruncateLength);
         }
 
         formattedValue = CaseMode switch
@@ -188,15 +206,11 @@ public abstract class ClipVariable
         return formattedValue;
     }
 
-    private static string cropAndWrapText(StringInfo text, int position, int maxLength, bool wrap)
+    private static string cropAndWrapText(StringInfo text, int position, int maxLength)
     {
         var endPos = Math.Min(position + maxLength, text.LengthInTextElements);
         var subText = text.SubstringByTextElements(position, endPos - position);
-
-        if (wrap)
-            return endPos != text.LengthInTextElements ? subText : subText + text.SubstringByTextElements(0, Math.Min(maxLength - subText.Length, position));
-
-        return subText;
+        return endPos != text.LengthInTextElements ? subText : subText + text.SubstringByTextElements(0, Math.Min(maxLength - subText.Length, position));
     }
 
     protected abstract string Format(object value);
