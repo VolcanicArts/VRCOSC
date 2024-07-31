@@ -19,12 +19,12 @@
                                 <RectangleGeometry.Rect>
                                     <MultiBinding Converter="{StaticResource RectSizeConverter}">
                                         <Binding Path="ActualWidth" ElementName="Border" />
-                                        <Binding Path="ActualHeight" ElementName="Border" />
+                                        <Binding Path="ActualHeight" ElementName="GridContainer" />
                                     </MultiBinding>
                                 </RectangleGeometry.Rect>
                             </RectangleGeometry>
                         </Border.Clip>
-                        <Grid>
+                        <Grid x:Name="GridContainer" VerticalAlignment="Top">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
