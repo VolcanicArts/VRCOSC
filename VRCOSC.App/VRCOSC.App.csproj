@@ -40,9 +40,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Pages\Run\Tabs\" />
       <Folder Include="Resources\" />
-      <Folder Include="Themes\" />
     </ItemGroup>
 
     <ItemGroup>

@@ -22,22 +22,9 @@ public sealed partial class PackagesView
         InitializeComponent();
 
         DataContext = this;
-        SizeChanged += OnSizeChanged;
 
         SearchTextBox.TextChanged += (_, _) => filterDataGrid(SearchTextBox.Text);
         filterDataGrid(string.Empty);
-    }
-
-    private double packageScrollViewerHeight = double.NaN;
-
-    public double PackageScrollViewerHeight
-    {
-        get => packageScrollViewerHeight;
-        set
-        {
-            packageScrollViewerHeight = value;
-            OnPropertyChanged();
-        }
     }
 
     public Visibility UpdateAllButtonVisibility => PackageManager.GetInstance().Sources.Any(packageSource => packageSource.IsUpdateAvailable()) ? Visibility.Visible : Visibility.Collapsed;
@@ -64,23 +51,6 @@ public sealed partial class PackagesView
         _ = MainWindow.GetInstance().ShowLoadingOverlay("Updating All Packages", updateAllPackagesAction);
     }
 
-    private void OnSizeChanged(object sender, SizeChangedEventArgs e) => evaluateContentHeight();
-
-    private int itemsCount;
-
-    private void evaluateContentHeight()
-    {
-        if (itemsCount == 0)
-        {
-            PackageScrollViewerHeight = 0;
-            return;
-        }
-
-        var contentHeight = PackageList.ActualHeight;
-        var targetHeight = GridContainer.ActualHeight - 45;
-        PackageScrollViewerHeight = contentHeight >= targetHeight ? targetHeight : double.NaN;
-    }
-
     private void filterDataGrid(string filterText)
     {
         var packageManager = PackageManager.GetInstance();
@@ -94,8 +64,6 @@ public sealed partial class PackagesView
         var filteredItems = packageManager.Sources.Where(item => item.DisplayName.Contains(filterText, StringComparison.InvariantCultureIgnoreCase)).ToList();
 
         PackageList.ItemsSource = filteredItems;
-        itemsCount = filteredItems.Count;
-        evaluateContentHeight();
     }
 
     private void showDefaultItemsSource()
@@ -103,8 +71,6 @@ public sealed partial class PackagesView
         var packageManager = PackageManager.GetInstance();
 
         PackageList.ItemsSource = packageManager.Sources;
-        itemsCount = packageManager.Sources.Count;
-        evaluateContentHeight();
     }
 
     public void Refresh() => Dispatcher.Invoke(() =>
@@ -194,4 +160,3 @@ public sealed partial class PackagesView
             FocusTaker.Focus();
     }
 }
-

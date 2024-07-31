@@ -10,7 +10,6 @@ using VRCOSC.App.Actions.Packages;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Packages.Serialisation;
 using VRCOSC.App.Serialisation;
-using VRCOSC.App.UI;
 using VRCOSC.App.UI.Windows;
 using VRCOSC.App.Utils;
 

@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -37,6 +37,7 @@ public class PackageSource
     public string? PackageID => Repository?.PackageFile?.PackageID;
     public string? LatestVersion => Repository?.Releases.FirstOrDefault()?.Version;
 
+    // TODO: Update this when the setting changes
     public List<PackageRelease> FilteredReleases => Repository!.Releases.Where(packageRelease => (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AllowPreReleasePackages) && packageRelease.IsPrerelease) || !packageRelease.IsPrerelease).ToList();
     public PackageRelease LatestRelease => FilteredReleases.First();
     public PackageRelease? InstalledRelease => FilteredReleases.SingleOrDefault(packageRelease => packageRelease.Version == InstalledVersion);

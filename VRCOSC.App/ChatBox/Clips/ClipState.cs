@@ -10,7 +10,6 @@ using Newtonsoft.Json;
 using VRCOSC.App.ChatBox.Clips.Variables;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Settings;
-using VRCOSC.App.UI;
 using VRCOSC.App.UI.Windows;
 using VRCOSC.App.Utils;
 
