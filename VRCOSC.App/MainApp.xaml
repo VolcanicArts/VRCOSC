@@ -11,6 +11,7 @@
                 <ResourceDictionary Source="UI/Styles/VRCOSCButtonStyle.xaml" />
                 <ResourceDictionary Source="UI/Styles/IconButtonStyle.xaml" />
                 <ResourceDictionary Source="UI/Styles/TextBoxStyle.xaml" />
+                <ResourceDictionary Source="UI/Styles/HeaderFooterListViewStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <Style TargetType="{x:Type core:IPPortTextBox}" BasedOn="{StaticResource {x:Type TextBox}}" />
         </ResourceDictionary>

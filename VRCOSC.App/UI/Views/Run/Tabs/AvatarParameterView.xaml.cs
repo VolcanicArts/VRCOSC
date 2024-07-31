@@ -5,14 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Windows;
 using System.Windows.Threading;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.UI.Views.Run.Tabs;
 
-public partial class AvatarParameterView : INotifyPropertyChanged
+public partial class AvatarParameterView
 {
     public ObservableDictionary<string, object> OutgoingMessages { get; } = new();
     public ObservableDictionary<string, object> IncomingMessages { get; } = new();
@@ -23,25 +22,11 @@ public partial class AvatarParameterView : INotifyPropertyChanged
     private readonly object incomingLock = new();
     private readonly object outgoingLock = new();
 
-    private double incomingScrollViewerHeight;
-
-    public double IncomingScrollViewerHeight
-    {
-        get => incomingScrollViewerHeight;
-        set
-        {
-            incomingScrollViewerHeight = value;
-            OnPropertyChanged();
-        }
-    }
-
     private readonly DispatcherTimer timer;
 
     public AvatarParameterView()
     {
         InitializeComponent();
-
-        SizeChanged += OnSizeChanged;
 
         AppManager.GetInstance().VRChatOscClient.OnParameterSent += OnParameterSent;
         AppManager.GetInstance().VRChatOscClient.OnParameterReceived += OnParameterReceived;
@@ -78,26 +63,6 @@ public partial class AvatarParameterView : INotifyPropertyChanged
 
             incomingLocal.Clear();
         }
-
-        evaluateIncomingContentHeight();
-    }
-
-    private void OnSizeChanged(object sender, SizeChangedEventArgs e)
-    {
-        evaluateIncomingContentHeight();
-    }
-
-    private void evaluateIncomingContentHeight()
-    {
-        if (IncomingMessages.Count == 0)
-        {
-            IncomingScrollViewerHeight = 0;
-            return;
-        }
-
-        var contentHeight = IncomingMessagesList.ActualHeight;
-        var targetHeight = IncomingGridContainer.ActualHeight - 40;
-        IncomingScrollViewerHeight = contentHeight >= targetHeight ? targetHeight : double.NaN;
     }
 
     private void OnParameterSent(VRChatOscMessage e)
@@ -133,8 +98,6 @@ public partial class AvatarParameterView : INotifyPropertyChanged
             OutgoingMessages.Clear();
             IncomingMessages.Clear();
         }
-
-        evaluateIncomingContentHeight();
     });
 
     public event PropertyChangedEventHandler? PropertyChanged;
