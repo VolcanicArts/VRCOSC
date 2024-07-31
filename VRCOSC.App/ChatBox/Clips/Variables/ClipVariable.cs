@@ -85,6 +85,7 @@ public abstract class ClipVariable
     public virtual void Start()
     {
         currentIndex = 0;
+        bounceDirection = true;
     }
 
     [ClipVariableOption("case_mode", "Case Mode", "Should the final string be made upper or lowercase, or not be changed?")]
@@ -109,6 +110,7 @@ public abstract class ClipVariable
     public bool OnlyScrollWhenTruncated { get; set; }
 
     private int currentIndex;
+    private bool bounceDirection;
 
     public virtual bool IsDefault() => CaseMode == ClipVariableCaseMode.Default &&
                                        TruncateLength == -1 &&
@@ -125,19 +127,23 @@ public abstract class ClipVariable
 
         if (string.IsNullOrEmpty(formattedValue)) return string.Empty;
 
+        formattedValue = formattedValue.Trim();
+
         var willTruncate = TruncateLength >= 0 && formattedValue.Length > TruncateLength;
         var willScroll = !OnlyScrollWhenTruncated || willTruncate;
 
         if (!willScroll) currentIndex = 0;
 
-        if (!string.IsNullOrEmpty(JoinString) && willScroll) formattedValue += JoinString;
+        if (!string.IsNullOrEmpty(JoinString) && willScroll && ScrollDirection != ClipVariableScrollDirection.Bounce) formattedValue += JoinString;
 
         var stringInfo = new StringInfo(formattedValue);
 
         var position = currentIndex.Modulo(stringInfo.LengthInTextElements);
-        formattedValue = cropAndWrapText(stringInfo, position, TruncateLength < 0 ? stringInfo.LengthInTextElements : TruncateLength);
+        formattedValue = cropAndWrapText(stringInfo, position, TruncateLength < 0 ? stringInfo.LengthInTextElements : TruncateLength, ScrollDirection != ClipVariableScrollDirection.Bounce);
 
         if (IncludeEllipses && willTruncate) formattedValue += "...";
+
+        var finalStringInfo = new StringInfo(formattedValue);
 
         if (willScroll && ScrollSpeed > 0)
         {
@@ -151,8 +157,23 @@ public abstract class ClipVariable
                     currentIndex -= ScrollSpeed;
                     break;
 
-                default:
-                    throw new ArgumentOutOfRangeException();
+                case ClipVariableScrollDirection.Bounce:
+                    var localScrollSpeed = ScrollSpeed;
+                    var charsLeft = bounceDirection ? finalStringInfo.LengthInTextElements - currentIndex : currentIndex;
+
+                    var willSwitch = false;
+
+                    if (charsLeft < ScrollSpeed)
+                    {
+                        localScrollSpeed = charsLeft;
+                        willSwitch = true;
+                    }
+
+                    currentIndex += bounceDirection ? localScrollSpeed : -localScrollSpeed;
+
+                    if (willSwitch) bounceDirection = !bounceDirection;
+
+                    break;
             }
         }
 
@@ -167,11 +188,15 @@ public abstract class ClipVariable
         return formattedValue;
     }
 
-    private static string cropAndWrapText(StringInfo text, int position, int maxLength)
+    private static string cropAndWrapText(StringInfo text, int position, int maxLength, bool wrap)
     {
         var endPos = Math.Min(position + maxLength, text.LengthInTextElements);
         var subText = text.SubstringByTextElements(position, endPos - position);
-        return endPos != text.LengthInTextElements ? subText : subText + text.SubstringByTextElements(0, Math.Min(maxLength - subText.Length, position));
+
+        if (wrap)
+            return endPos != text.LengthInTextElements ? subText : subText + text.SubstringByTextElements(0, Math.Min(maxLength - subText.Length, position));
+
+        return subText;
     }
 
     protected abstract string Format(object value);
@@ -180,9 +205,8 @@ public abstract class ClipVariable
 public enum ClipVariableScrollDirection
 {
     Left,
-    Right
-
-    // Bounce
+    Right,
+    Bounce
 }
 
 public enum ClipVariableCaseMode
