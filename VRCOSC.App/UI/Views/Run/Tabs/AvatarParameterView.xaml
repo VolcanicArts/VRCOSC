@@ -26,7 +26,8 @@
                                 <TextBlock Grid.Column="0"
                                            Text="{Binding Key, Mode=OneTime}"
                                            Foreground="{StaticResource CForeground2}"
-                                           FontSize="14" VerticalAlignment="Center" />
+                                           FontSize="14" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                                           TextWrapping="NoWrap" />
                                 <TextBlock x:Name="ValueTextBlock" Grid.Column="2"
                                            Text="{Binding Value, Mode=OneWay}"
                                            Foreground="{StaticResource CForeground2}"
