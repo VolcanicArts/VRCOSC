@@ -3,7 +3,7 @@ using System.Windows;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.Utils;
 
-namespace VRCOSC.App.Pages.Modules;
+namespace VRCOSC.App.UI.Windows.Modules;
 
 public partial class ModulePrefabsWindow
 {
