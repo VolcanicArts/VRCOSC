@@ -24,15 +24,13 @@
                                            Background="Transparent"
                                            BorderThickness="0"
                                            AlternationCount="2">
-                    <core:HeaderFooterListView.HeaderTemplate>
-                        <DataTemplate>
-                            <Border Background="{StaticResource CBackground1}" Height="35">
-                                <TextBlock Text="Outgoing" Foreground="{StaticResource CForeground2}"
-                                           FontSize="22" TextAlignment="Center" VerticalAlignment="Center"
-                                           HorizontalAlignment="Stretch" FontWeight="Bold" Margin="0 -5 0 0" />
-                            </Border>
-                        </DataTemplate> 
-                    </core:HeaderFooterListView.HeaderTemplate>
+                    <core:HeaderFooterListView.Header>
+                        <Border Background="{StaticResource CBackground1}" Height="35">
+                            <TextBlock Text="Outgoing" Foreground="{StaticResource CForeground2}"
+                                       FontSize="22" TextAlignment="Center" VerticalAlignment="Center"
+                                       HorizontalAlignment="Stretch" FontWeight="Bold" Margin="0 -5 0 0" />
+                        </Border>
+                    </core:HeaderFooterListView.Header>
                     <ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem">
                             <Setter Property="Template">
@@ -63,11 +61,9 @@
                             </Setter>
                         </Style>
                     </ListView.ItemContainerStyle>
-                    <core:HeaderFooterListView.FooterTemplate>
-                        <DataTemplate>
-                            <Border Background="{StaticResource CBackground1}" Height="5" />
-                        </DataTemplate>
-                    </core:HeaderFooterListView.FooterTemplate>
+                    <core:HeaderFooterListView.Footer>
+                        <Border Background="{StaticResource CBackground1}" Height="5" />
+                    </core:HeaderFooterListView.Footer>
                 </core:HeaderFooterListView>
                 <Border Name="IncomingGridContainer" Grid.Column="2" Background="Transparent"
                         HorizontalAlignment="Stretch"

@@ -12,21 +12,21 @@ public class HeaderFooterListView : ListView
         DefaultStyleKeyProperty.OverrideMetadata(typeof(HeaderFooterListView), new FrameworkPropertyMetadata(typeof(HeaderFooterListView)));
     }
 
-    public static readonly DependencyProperty HeaderTemplateProperty =
-        DependencyProperty.Register(nameof(HeaderTemplate), typeof(DataTemplate), typeof(HeaderFooterListView), new PropertyMetadata(null));
+    public static readonly DependencyProperty HeaderProperty =
+        DependencyProperty.Register(nameof(Header), typeof(object), typeof(HeaderFooterListView), new PropertyMetadata(null));
 
-    public DataTemplate HeaderTemplate
+    public object Header
     {
-        get => (DataTemplate)GetValue(HeaderTemplateProperty);
-        set => SetValue(HeaderTemplateProperty, value);
+        get => GetValue(HeaderProperty);
+        set => SetValue(HeaderProperty, value);
     }
 
-    public static readonly DependencyProperty FooterTemplateProperty =
-        DependencyProperty.Register(nameof(FooterTemplate), typeof(DataTemplate), typeof(HeaderFooterListView), new PropertyMetadata(null));
+    public static readonly DependencyProperty FooterProperty =
+        DependencyProperty.Register(nameof(Footer), typeof(object), typeof(HeaderFooterListView), new PropertyMetadata(null));
 
-    public DataTemplate FooterTemplate
+    public object Footer
     {
-        get => (DataTemplate)GetValue(FooterTemplateProperty);
-        set => SetValue(FooterTemplateProperty, value);
+        get => GetValue(FooterProperty);
+        set => SetValue(FooterProperty, value);
     }
 }

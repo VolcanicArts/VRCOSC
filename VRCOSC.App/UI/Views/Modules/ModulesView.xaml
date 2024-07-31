@@ -172,8 +172,7 @@
                                                         </Style>
                                                     </ListView.ItemContainerStyle>
                                                 </ListView>
-                                                <Border Grid.Row="2" Background="{StaticResource CBackground1}"
-                                                        CornerRadius="0 0 5 5" />
+                                                <Border Grid.Row="2" Background="{StaticResource CBackground1}"/>
                                             </Grid>
                                         </Border>
                                     </ControlTemplate>
