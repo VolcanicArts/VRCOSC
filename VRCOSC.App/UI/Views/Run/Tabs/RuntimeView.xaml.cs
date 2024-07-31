@@ -8,7 +8,7 @@ using System.Windows.Controls;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Utils;
 
-namespace VRCOSC.App.Pages.Run.Tabs;
+namespace VRCOSC.App.UI.Views.Run.Tabs;
 
 public partial class RuntimeView
 {

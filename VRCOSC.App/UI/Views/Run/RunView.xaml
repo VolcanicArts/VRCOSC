@@ -6,7 +6,7 @@
              xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
              xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:utils="clr-namespace:VRCOSC.App.Utils"
-             xmlns:tabs="clr-namespace:VRCOSC.App.Pages.Run.Tabs"
+             xmlns:tabs="clr-namespace:VRCOSC.App.UI.Views.Run.Tabs"
              mc:Ignorable="d"
              Background="Transparent"
              d:DesignWidth="1377" d:DesignHeight="764">

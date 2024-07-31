@@ -10,7 +10,7 @@ using System.Windows.Threading;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.Utils;
 
-namespace VRCOSC.App.Pages.Run.Tabs;
+namespace VRCOSC.App.UI.Views.Run.Tabs;
 
 public partial class AvatarParameterView : INotifyPropertyChanged
 {
@@ -22,18 +22,6 @@ public partial class AvatarParameterView : INotifyPropertyChanged
 
     private readonly object incomingLock = new();
     private readonly object outgoingLock = new();
-
-    private double outgoingScrollViewerHeight;
-
-    public double OutgoingScrollViewerHeight
-    {
-        get => outgoingScrollViewerHeight;
-        set
-        {
-            outgoingScrollViewerHeight = value;
-            OnPropertyChanged();
-        }
-    }
 
     private double incomingScrollViewerHeight;
 
@@ -91,27 +79,12 @@ public partial class AvatarParameterView : INotifyPropertyChanged
             incomingLocal.Clear();
         }
 
-        evaluateOutgoingContentHeight();
         evaluateIncomingContentHeight();
     }
 
     private void OnSizeChanged(object sender, SizeChangedEventArgs e)
     {
-        evaluateOutgoingContentHeight();
         evaluateIncomingContentHeight();
-    }
-
-    private void evaluateOutgoingContentHeight()
-    {
-        if (OutgoingMessages.Count == 0)
-        {
-            OutgoingScrollViewerHeight = 0;
-            return;
-        }
-
-        var contentHeight = OutgoingMessagesList.ActualHeight;
-        var targetHeight = OutgoingGridContainer.ActualHeight - 40;
-        OutgoingScrollViewerHeight = contentHeight >= targetHeight ? targetHeight : double.NaN;
     }
 
     private void evaluateIncomingContentHeight()
@@ -161,7 +134,6 @@ public partial class AvatarParameterView : INotifyPropertyChanged
             IncomingMessages.Clear();
         }
 
-        evaluateOutgoingContentHeight();
         evaluateIncomingContentHeight();
     });
 

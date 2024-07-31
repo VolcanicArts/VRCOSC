@@ -42,6 +42,7 @@
     <ItemGroup>
       <Folder Include="Pages\Run\Tabs\" />
       <Folder Include="Resources\" />
+      <Folder Include="Themes\" />
     </ItemGroup>
 
     <ItemGroup>
@@ -62,12 +63,6 @@
       <Page Update="UI\Views\Modules\ModulesView.xaml">
         <Generator>MSBuild:Compile</Generator>
       </Page>
-      <Page Update="UI\Themes\Dark.xaml">
-        <Generator>MSBuild:Compile</Generator>
-      </Page>
-      <Page Update="UI\Themes\Light.xaml">
-        <Generator>MSBuild:Compile</Generator>
-      </Page>
       <Page Update="UI\Views\Run\Tabs\AvatarParameterView.xaml">
         <Generator>MSBuild:Compile</Generator>
         <XamlRuntime>Wpf</XamlRuntime>
@@ -84,6 +79,36 @@
         <SubType>Designer</SubType>
       </Page>
       <Page Update="UI\Windows\MainWindow.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="UI\Styles\IconButtonStyle.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="UI\Styles\TextBoxStyle.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="UI\Styles\VRCOSCButtonStyle.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="UI\Styles\VRCOSCCheckBoxStyle.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="UI\Themes\Dark.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="UI\Themes\Light.xaml">
         <Generator>MSBuild:Compile</Generator>
         <XamlRuntime>Wpf</XamlRuntime>
         <SubType>Designer</SubType>

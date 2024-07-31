@@ -6,7 +6,7 @@ using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.Pages.ChatBox;
 using VRCOSC.App.UI.Core;
 
-namespace VRCOSC.App.Pages.Run.Tabs;
+namespace VRCOSC.App.UI.Views.Run.Tabs;
 
 public partial class ChatBoxView
 {

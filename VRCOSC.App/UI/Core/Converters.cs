@@ -38,3 +38,35 @@ public class AlternatingColourConverter : IValueConverter
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
 }
+
+public class RectSizeConverter : IMultiValueConverter
+{
+    public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (values[0] is double width && values[1] is double height)
+        {
+            return new Rect(0, 0, width, height);
+        }
+
+        return new Rect();
+    }
+
+    public object[]? ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) => null;
+}
+
+public class HeaderFooterListViewContentHeightConverter : IMultiValueConverter
+{
+    public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (values[0] is double listDesiredHeight && values[1] is double totalHeight && values[2] is double headerHeight && values[3] is double footerHeight)
+        {
+            var targetHeight = totalHeight - headerHeight - footerHeight;
+            var height = listDesiredHeight >= targetHeight ? targetHeight : double.NaN;
+            return height;
+        }
+
+        return 0;
+    }
+
+    public object[]? ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) => null;
+}

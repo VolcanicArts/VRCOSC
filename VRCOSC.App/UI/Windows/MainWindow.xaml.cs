@@ -153,7 +153,7 @@ public partial class MainWindow
 
     private void MainWindow_OnPreviewMouseDown(object sender, MouseButtonEventArgs e)
     {
-        var focusedElement = (Control)FocusManager.GetFocusedElement(this);
+        var focusedElement = FocusManager.GetFocusedElement(this);
 
         if (e.OriginalSource is not TextBox && focusedElement is TextBox)
         {
