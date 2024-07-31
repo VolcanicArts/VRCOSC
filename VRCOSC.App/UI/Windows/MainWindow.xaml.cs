@@ -57,6 +57,8 @@ public partial class MainWindow
 
     public MainWindow()
     {
+        backupV1Files();
+
         SettingsManager.GetInstance().Load();
         SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.EnableAppDebug).Subscribe(newValue => ShowAppDebug.Value = newValue, true);
 
@@ -83,6 +85,30 @@ public partial class MainWindow
         setContent(PackagesView);
 
         load();
+    }
+
+    private void backupV1Files()
+    {
+        if (!storage.Exists("framework.ini")) return;
+
+        var sourceDir = storage.GetFullPath(string.Empty);
+        var destinationDir = storage.GetStorageForDirectory("v1-backup").GetFullPath(string.Empty);
+
+        foreach (var file in Directory.GetFiles(sourceDir))
+        {
+            var fileName = Path.GetFileName(file);
+            var destFile = Path.Combine(destinationDir, fileName);
+            File.Move(file, destFile);
+        }
+
+        foreach (var dir in Directory.GetDirectories(sourceDir))
+        {
+            var dirName = Path.GetFileName(dir);
+            if (dirName == "v1-backup") continue;
+
+            var destDir = Path.Combine(destinationDir, dirName);
+            Directory.Move(dir, destDir);
+        }
     }
 
     private async void load()
