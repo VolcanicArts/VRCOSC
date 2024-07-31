@@ -6,15 +6,16 @@
       xmlns:ui="clr-namespace:VRCOSC.App.UI"
       xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
       xmlns:fa6="http://schemas.fontawesome.com/icons/fonts"
+      xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
       mc:Ignorable="d">
     <Page.Resources>
-        <ui:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
+        <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
                                        Colour2="{StaticResource CBackground4}" />
     </Page.Resources>
     <Grid>
-        <ui:MouseScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
+        <core:MouseScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
             <Border Background="{StaticResource CBackground2}" Padding="10">
-                <ui:SpacedStackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Spacing="5"
+                <core:SpacedStackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Spacing="5"
                                      FlowDirection="LeftToRight" Orientation="Vertical">
                     <Border Background="{StaticResource CBackground1}" Padding="9" Height="45" CornerRadius="5">
                         <Grid>
@@ -47,7 +48,7 @@
                                 Text="Automatic switching changes your selected profile to one that is linked to the avatar you’re wearing when you change avatar. If none is found, the default profile is used"
                                 FontSize="13" Foreground="{StaticResource CForeground2}"
                                 HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="0 -1" />
-                            <ui:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center" Height="32" Width="32"
+                            <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center" Height="32" Width="32"
                                       IsChecked="{Binding EnableAutomaticSwitching}" />
                         </Grid>
                     </Border>
@@ -63,7 +64,7 @@
                                       Background="Transparent"
                                       BorderThickness="0" AlternationCount="2" Padding="-1">
                                 <b:Interaction.Behaviors>
-                                    <ui:IgnoreMouseWheelBehavior />
+                                    <core:IgnoreMouseWheelBehavior />
                                 </b:Interaction.Behaviors>
                                 <ListView.ItemContainerStyle>
                                     <Style TargetType="ListViewItem">
@@ -83,10 +84,10 @@
                                                                        Foreground="{StaticResource CForeground1}"
                                                                        FontSize="18" HorizontalAlignment="Left"
                                                                        VerticalAlignment="Center" Margin="2 0" />
-                                                            <ui:SpacedStackPanel Grid.Column="1"
+                                                            <core:SpacedStackPanel Grid.Column="1"
                                                                 FlowDirection="RightToLeft"
                                                                 Orientation="Horizontal" Spacing="8">
-                                                                <ui:VRCOSCButton ButtonColour="Red"
+                                                                <core:VRCOSCButton ButtonColour="Red"
                                                                     Click="RemoveProfile_ButtonClick"
                                                                     Visibility="{Binding UIRemoveProfileButtonVisibility}"
                                                                     Width="30" Height="30"
@@ -94,16 +95,16 @@
                                                                     <fa6:ImageAwesome Icon="Solid_Minus"
                                                                         PrimaryColor="{StaticResource CForeground1}"
                                                                         Margin="5" />
-                                                                </ui:VRCOSCButton>
-                                                                <ui:VRCOSCButton ButtonColour="Blue"
+                                                                </core:VRCOSCButton>
+                                                                <core:VRCOSCButton ButtonColour="Blue"
                                                                     Click="EditProfile_ButtonClick"
                                                                     Width="30" Height="30"
                                                                     Tag="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=DataContext}">
                                                                     <fa6:ImageAwesome Icon="Solid_PenToSquare"
                                                                         PrimaryColor="{StaticResource CForeground1}"
                                                                         Margin="5" />
-                                                                </ui:VRCOSCButton>
-                                                            </ui:SpacedStackPanel>
+                                                                </core:VRCOSCButton>
+                                                            </core:SpacedStackPanel>
                                                         </Grid>
                                                     </Border>
                                                 </ControlTemplate>
@@ -113,15 +114,15 @@
                                 </ListView.ItemContainerStyle>
                             </ListView>
                             <Border Height="45" Padding="5">
-                                <ui:VRCOSCButton ButtonColour="Green" Width="30" Height="30"
+                                <core:VRCOSCButton ButtonColour="Green" Width="30" Height="30"
                                                  Click="AddProfile_ButtonClick">
                                     <fa6:ImageAwesome Icon="Solid_Plus" PrimaryColor="{StaticResource CForeground1}" Margin="5" />
-                                </ui:VRCOSCButton>
+                                </core:VRCOSCButton>
                             </Border>
                         </StackPanel>
                     </Border>
-                </ui:SpacedStackPanel>
+                </core:SpacedStackPanel>
             </Border>
-        </ui:MouseScrollViewer>
+        </core:MouseScrollViewer>
     </Grid>
 </Page>

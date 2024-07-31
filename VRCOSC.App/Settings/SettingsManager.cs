@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using VRCOSC.App.Packages;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Settings.Serialisation;
-using VRCOSC.App.Themes;
+using VRCOSC.App.UI.Themes;
 using VRCOSC.App.Updater;
 using VRCOSC.App.Utils;
 

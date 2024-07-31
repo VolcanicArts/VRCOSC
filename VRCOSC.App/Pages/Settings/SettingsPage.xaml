@@ -4,34 +4,35 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:ui="clr-namespace:VRCOSC.App.UI"
+      xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
       mc:Ignorable="d">
     <Grid>
-        <ui:MouseScrollViewer HorizontalScrollBarVisibility="Disabled"
+        <core:MouseScrollViewer HorizontalScrollBarVisibility="Disabled"
                               VerticalScrollBarVisibility="Auto">
             <Border Background="{StaticResource CBackground2}" Padding="5">
                 <Grid>
-                    <ui:SpacedStackPanel Orientation="Vertical" Spacing="10" Visibility="Collapsed">
+                    <core:SpacedStackPanel Orientation="Vertical" Spacing="10" Visibility="Collapsed">
                         <TextBox Name="Username" Width="300" />
                         <PasswordBox Name="Password" Width="300" />
-                        <ui:VRCOSCButton ButtonColour="Blue" Width="300" Click="Login_OnClick">
+                        <core:VRCOSCButton ButtonColour="Blue" Width="300" Click="Login_OnClick">
                             <TextBlock Text="Login" Foreground="{StaticResource CForeground1}" />
-                        </ui:VRCOSCButton>
+                        </core:VRCOSCButton>
                         <TextBox Name="TwoFactorAuth" Width="300" />
-                        <ui:VRCOSCButton ButtonColour="Blue" Width="300" Click="TwoFactorAuth_OnClick">
+                        <core:VRCOSCButton ButtonColour="Blue" Width="300" Click="TwoFactorAuth_OnClick">
                             <TextBlock Text="Send 2FA" Foreground="{StaticResource CForeground1}" />
-                        </ui:VRCOSCButton>
+                        </core:VRCOSCButton>
                         <TextBox Name="TokenInput" Width="300" />
-                        <ui:VRCOSCButton ButtonColour="Blue" Width="300" Click="Token_OnClick">
+                        <core:VRCOSCButton ButtonColour="Blue" Width="300" Click="Token_OnClick">
                             <TextBlock Text="Login Token" Foreground="{StaticResource CForeground1}" />
-                        </ui:VRCOSCButton>
+                        </core:VRCOSCButton>
                         <Border Height="50" />
                         <TextBlock Text="Debug" HorizontalAlignment="Center" Foreground="{StaticResource CForeground1}" />
                         <TextBox Name="TokenDisplay" Width="300" />
                         <TextBlock Name="StateDisplay" HorizontalAlignment="Center"
                                    Foreground="{StaticResource CForeground1}" />
-                    </ui:SpacedStackPanel>
+                    </core:SpacedStackPanel>
                 </Grid>
             </Border>
-        </ui:MouseScrollViewer>
+        </core:MouseScrollViewer>
     </Grid>
 </Page>

@@ -16,6 +16,8 @@ using VRCOSC.App.Modules;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Settings;
+using VRCOSC.App.UI;
+using VRCOSC.App.UI.Windows;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.ChatBox;

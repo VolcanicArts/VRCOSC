@@ -40,7 +40,9 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Pages\Run\Tabs\" />
       <Folder Include="Resources\" />
+      <Folder Include="Themes\" />
     </ItemGroup>
 
     <ItemGroup>
@@ -52,6 +54,65 @@
       <EmbeddedResource Include="Resources\OpenVR\oculus_touch_bindings.json" />
       <None Remove="Resources\OpenVR\SteamImage.png" />
       <EmbeddedResource Include="Resources\OpenVR\SteamImage.png" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Page Update="UI\Views\Packages\PackagesView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </Page>
+      <Page Update="UI\Views\Modules\ModulesView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </Page>
+      <Page Update="UI\Views\Run\Tabs\AvatarParameterView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="UI\Views\Run\Tabs\ChatBoxView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="UI\Views\Run\Tabs\RuntimeView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="UI\Windows\MainWindow.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="UI\Styles\IconButtonStyle.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="UI\Styles\TextBoxStyle.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="UI\Styles\VRCOSCButtonStyle.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="UI\Styles\VRCOSCCheckBoxStyle.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="UI\Themes\Dark.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="UI\Themes\Light.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
     </ItemGroup>
 
 </Project>

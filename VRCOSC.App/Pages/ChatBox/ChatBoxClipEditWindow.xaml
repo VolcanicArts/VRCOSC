@@ -7,14 +7,15 @@
         xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:local="clr-namespace:VRCOSC.App.Pages.ChatBox"
         xmlns:fa6="http://schemas.fontawesome.com/icons/fonts"
+        xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
         mc:Ignorable="d"
         Width="1366" Height="768" MinWidth="1200" MinHeight="540"
         Loaded="OnLoaded"
         Closed="OnClosed">
     <Window.Resources>
-        <ui:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <core:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <local:TextBoxParsingConverter x:Key="TextBoxParsingConverter" />
-        <ui:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
+        <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
                                        Colour2="{StaticResource CBackground2}" />
         <local:BoolToThicknessConverter x:Key="BoolToThicknessConverter" />
     </Window.Resources>
@@ -30,9 +31,9 @@
                 </Grid.ColumnDefinitions>
                 <!--> Module Selection <-->
                 <Border Grid.Column="0" Background="{StaticResource CBackground5}" CornerRadius="5">
-                    <ui:MouseScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto"
+                    <core:MouseScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto"
                                           Padding="5">
-                        <ui:SpacedStackPanel Spacing="10" Orientation="Vertical">
+                        <core:SpacedStackPanel Spacing="10" Orientation="Vertical">
                             <TextBlock Text="Select Modules" FontWeight="Bold" FontSize="18"
                                        Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center" />
                             <ListView x:Name="ModulesList"
@@ -40,7 +41,7 @@
                                       Background="Transparent"
                                       BorderThickness="0" Padding="-1">
                                 <b:Interaction.Behaviors>
-                                    <ui:IgnoreMouseWheelBehavior />
+                                    <core:IgnoreMouseWheelBehavior />
                                 </b:Interaction.Behaviors>
                                 <ListView.ItemContainerStyle>
                                     <Style TargetType="ListViewItem">
@@ -61,7 +62,7 @@
                                                                        VerticalAlignment="Center"
                                                                        HorizontalAlignment="Left"
                                                                        Padding="5" />
-                                                            <ui:VRCOSCCheckBox Name="IsLinkedCheckBox" Grid.Column="1"
+                                                            <core:VRCOSCCheckBox Name="IsLinkedCheckBox" Grid.Column="1"
                                                                                Width="25" Height="25"
                                                                                Margin="2.5"
                                                                                HorizontalAlignment="Right"
@@ -71,7 +72,7 @@
                                                                 <CheckBox.Tag>
                                                                     <Binding />
                                                                 </CheckBox.Tag>
-                                                            </ui:VRCOSCCheckBox>
+                                                            </core:VRCOSCCheckBox>
                                                         </Grid>
                                                     </Border>
                                                 </ControlTemplate>
@@ -80,8 +81,8 @@
                                     </Style>
                                 </ListView.ItemContainerStyle>
                             </ListView>
-                        </ui:SpacedStackPanel>
-                    </ui:MouseScrollViewer>
+                        </core:SpacedStackPanel>
+                    </core:MouseScrollViewer>
                 </Border>
                 <!--> Center <-->
                 <Grid Grid.Column="2">
@@ -92,9 +93,9 @@
                     </Grid.RowDefinitions>
                     <!--> Clip element list <-->
                     <Border Grid.Row="0" Background="{StaticResource CBackground5}" CornerRadius="5">
-                        <ui:MouseScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
+                        <core:MouseScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
                                               Padding="10 0">
-                            <ui:SpacedStackPanel Orientation="Vertical" Spacing="7">
+                            <core:SpacedStackPanel Orientation="Vertical" Spacing="7">
                                 <TextBlock Text="States" FontWeight="Bold" FontSize="30"
                                            Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center"
                                            Visibility="{Binding HasStates, Converter={StaticResource BoolToVisibilityConverter}}" />
@@ -103,7 +104,7 @@
                                           Background="Transparent"
                                           BorderThickness="0" Padding="-1">
                                     <b:Interaction.Behaviors>
-                                        <ui:IgnoreMouseWheelBehavior />
+                                        <core:IgnoreMouseWheelBehavior />
                                     </b:Interaction.Behaviors>
                                     <ListView.ItemContainerStyle>
                                         <Style TargetType="ListViewItem">
@@ -118,11 +119,11 @@
                                                                 BorderBrush="Yellow"
                                                                 BorderThickness="{Binding IsChosenElement.Value, Mode=OneWay, Converter={StaticResource BoolToThicknessConverter}}"
                                                                 HorizontalAlignment="Stretch">
-                                                            <ui:SpacedStackPanel Orientation="Vertical" Spacing="5"
+                                                            <core:SpacedStackPanel Orientation="Vertical" Spacing="5"
                                                                 HorizontalAlignment="Stretch">
-                                                                <ui:SpacedStackPanel Orientation="Horizontal"
+                                                                <core:SpacedStackPanel Orientation="Horizontal"
                                                                     Spacing="5" Margin="2 0 0 0">
-                                                                    <ui:VRCOSCCheckBox
+                                                                    <core:VRCOSCCheckBox
                                                                         IsChecked="{Binding Enabled.Value}"
                                                                         Width="25" Height="25" />
                                                                     <TextBlock FontSize="16"
@@ -130,7 +131,7 @@
                                                                                Text="{Binding DisplayName, Mode=OneWay}"
                                                                                VerticalAlignment="Center"
                                                                                HorizontalAlignment="Left" />
-                                                                </ui:SpacedStackPanel>
+                                                                </core:SpacedStackPanel>
                                                                 <TextBox
                                                                     Text="{Binding Format.Value, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TextBoxParsingConverter}}"
                                                                     Foreground="{StaticResource CForeground1}"
@@ -179,7 +180,7 @@
                                                                             BorderThickness="0" AlternationCount="2"
                                                                             Padding="-1">
                                                                             <b:Interaction.Behaviors>
-                                                                                <ui:IgnoreMouseWheelBehavior />
+                                                                                <core:IgnoreMouseWheelBehavior />
                                                                             </b:Interaction.Behaviors>
                                                                             <ListView.ItemContainerStyle>
                                                                                 <Style TargetType="ListViewItem">
@@ -236,32 +237,30 @@
                                                                                                                 <ColumnDefinition
                                                                                                                     Width="Auto" />
                                                                                                             </Grid.ColumnDefinitions>
-                                                                                                            <ui:IconButton
+                                                                                                            <core:IconButton
                                                                                                                 Grid.Column="0"
                                                                                                                 ButtonColour="Gray"
                                                                                                                 Icon="Solid_Gear"
-                                                                                                                IconMargin="4"
                                                                                                                 Click="VariableSettingButton_OnClick"
                                                                                                                 Width="22"
                                                                                                                 Height="22"
                                                                                                                 Margin="0 0 5 0">
-                                                                                                                <ui:VRCOSCButton.Tag>
+                                                                                                                <core:VRCOSCButton.Tag>
                                                                                                                     <Binding />
-                                                                                                                </ui:VRCOSCButton.Tag>
-                                                                                                            </ui:IconButton>
-                                                                                                            <ui:IconButton
+                                                                                                                </core:VRCOSCButton.Tag>
+                                                                                                            </core:IconButton>
+                                                                                                            <core:IconButton
                                                                                                                 Grid.Column="1"
                                                                                                                 ButtonColour="Red"
                                                                                                                 Icon="Solid_Minus"
-                                                                                                                IconMargin="4"
                                                                                                                 Click="VariableRemoveButton_OnClick"
                                                                                                                 Width="22"
                                                                                                                 Height="22"
                                                                                                                 Margin="0 0 5 0">
-                                                                                                                <ui:VRCOSCButton.Tag>
+                                                                                                                <core:VRCOSCButton.Tag>
                                                                                                                     <Binding />
-                                                                                                                </ui:VRCOSCButton.Tag>
-                                                                                                            </ui:IconButton>
+                                                                                                                </core:VRCOSCButton.Tag>
+                                                                                                            </core:IconButton>
                                                                                                         </Grid>
                                                                                                     </Grid>
                                                                                                 </Border>
@@ -311,7 +310,7 @@
                                                                             Margin="4 0 0 0"
                                                                             VerticalAlignment="Center"
                                                                             FontSize="16" />
-                                                                        <ui:VRCOSCCheckBox Grid.Column="1"
+                                                                        <core:VRCOSCCheckBox Grid.Column="1"
                                                                             HorizontalAlignment="Center"
                                                                             VerticalAlignment="Center"
                                                                             IsChecked="{Binding ShowTyping.Value}"
@@ -336,14 +335,14 @@
                                                                             Margin="4 0 0 0"
                                                                             VerticalAlignment="Center"
                                                                             FontSize="16" />
-                                                                        <ui:VRCOSCCheckBox Grid.Column="1"
+                                                                        <core:VRCOSCCheckBox Grid.Column="1"
                                                                             HorizontalAlignment="Center"
                                                                             VerticalAlignment="Center"
                                                                             IsChecked="{Binding UseMinimalBackground.Value}"
                                                                             Width="25" Height="25" />
                                                                     </Grid>
                                                                 </Border>
-                                                            </ui:SpacedStackPanel>
+                                                            </core:SpacedStackPanel>
                                                         </Border>
                                                     </ControlTemplate>
                                                 </Setter.Value>
@@ -359,7 +358,7 @@
                                           Background="Transparent"
                                           BorderThickness="0" Padding="-1">
                                     <b:Interaction.Behaviors>
-                                        <ui:IgnoreMouseWheelBehavior />
+                                        <core:IgnoreMouseWheelBehavior />
                                     </b:Interaction.Behaviors>
                                     <ListView.ItemContainerStyle>
                                         <Style TargetType="ListViewItem">
@@ -374,11 +373,11 @@
                                                                 BorderBrush="Yellow"
                                                                 BorderThickness="{Binding IsChosenElement.Value, Mode=OneWay, Converter={StaticResource BoolToThicknessConverter}}"
                                                                 HorizontalAlignment="Stretch">
-                                                            <ui:SpacedStackPanel Orientation="Vertical" Spacing="5"
+                                                            <core:SpacedStackPanel Orientation="Vertical" Spacing="5"
                                                                 HorizontalAlignment="Stretch">
-                                                                <ui:SpacedStackPanel Orientation="Horizontal"
+                                                                <core:SpacedStackPanel Orientation="Horizontal"
                                                                     Spacing="5" Margin="2 0 0 0">
-                                                                    <ui:VRCOSCCheckBox
+                                                                    <core:VRCOSCCheckBox
                                                                         IsChecked="{Binding Enabled.Value}"
                                                                         Width="25" Height="25" />
                                                                     <TextBlock FontSize="16"
@@ -386,7 +385,7 @@
                                                                                Text="{Binding DisplayName, Mode=OneWay}"
                                                                                VerticalAlignment="Center"
                                                                                HorizontalAlignment="Left" />
-                                                                </ui:SpacedStackPanel>
+                                                                </core:SpacedStackPanel>
                                                                 <TextBox
                                                                     Text="{Binding Format.Value, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TextBoxParsingConverter}}"
                                                                     Foreground="{StaticResource CForeground1}"
@@ -435,7 +434,7 @@
                                                                             BorderThickness="0" AlternationCount="2"
                                                                             Padding="-1">
                                                                             <b:Interaction.Behaviors>
-                                                                                <ui:IgnoreMouseWheelBehavior />
+                                                                                <core:IgnoreMouseWheelBehavior />
                                                                             </b:Interaction.Behaviors>
                                                                             <ListView.ItemContainerStyle>
                                                                                 <Style TargetType="ListViewItem">
@@ -492,32 +491,30 @@
                                                                                                                 <ColumnDefinition
                                                                                                                     Width="Auto" />
                                                                                                             </Grid.ColumnDefinitions>
-                                                                                                            <ui:IconButton
+                                                                                                            <core:IconButton
                                                                                                                 Grid.Column="0"
                                                                                                                 ButtonColour="Gray"
                                                                                                                 Icon="Solid_Gear"
-                                                                                                                IconMargin="4"
                                                                                                                 Click="VariableSettingButton_OnClick"
                                                                                                                 Width="22"
                                                                                                                 Height="22"
                                                                                                                 Margin="0 0 5 0">
-                                                                                                                <ui:VRCOSCButton.Tag>
+                                                                                                                <core:VRCOSCButton.Tag>
                                                                                                                     <Binding />
-                                                                                                                </ui:VRCOSCButton.Tag>
-                                                                                                            </ui:IconButton>
-                                                                                                            <ui:IconButton
+                                                                                                                </core:VRCOSCButton.Tag>
+                                                                                                            </core:IconButton>
+                                                                                                            <core:IconButton
                                                                                                                 Grid.Column="1"
                                                                                                                 ButtonColour="Red"
                                                                                                                 Icon="Solid_Minus"
-                                                                                                                IconMargin="4"
                                                                                                                 Click="VariableRemoveButton_OnClick"
                                                                                                                 Width="22"
                                                                                                                 Height="22"
                                                                                                                 Margin="0 0 5 0">
-                                                                                                                <ui:VRCOSCButton.Tag>
+                                                                                                                <core:VRCOSCButton.Tag>
                                                                                                                     <Binding />
-                                                                                                                </ui:VRCOSCButton.Tag>
-                                                                                                            </ui:IconButton>
+                                                                                                                </core:VRCOSCButton.Tag>
+                                                                                                            </core:IconButton>
                                                                                                         </Grid>
                                                                                                     </Grid>
                                                                                                 </Border>
@@ -567,7 +564,7 @@
                                                                             Margin="4 0 0 0"
                                                                             VerticalAlignment="Center"
                                                                             FontSize="16" />
-                                                                        <ui:VRCOSCCheckBox Grid.Column="1"
+                                                                        <core:VRCOSCCheckBox Grid.Column="1"
                                                                             HorizontalAlignment="Center"
                                                                             VerticalAlignment="Center"
                                                                             IsChecked="{Binding ShowTyping.Value}"
@@ -592,7 +589,7 @@
                                                                             Margin="4 0 0 0"
                                                                             VerticalAlignment="Center"
                                                                             FontSize="16" />
-                                                                        <ui:VRCOSCCheckBox Grid.Column="1"
+                                                                        <core:VRCOSCCheckBox Grid.Column="1"
                                                                             HorizontalAlignment="Center"
                                                                             VerticalAlignment="Center"
                                                                             IsChecked="{Binding UseMinimalBackground.Value}"
@@ -656,7 +653,7 @@
                                                                             VerticalContentAlignment="Center" />
                                                                     </Grid>
                                                                 </Border>
-                                                            </ui:SpacedStackPanel>
+                                                            </core:SpacedStackPanel>
                                                         </Border>
                                                     </ControlTemplate>
                                                 </Setter.Value>
@@ -664,8 +661,8 @@
                                         </Style>
                                     </ListView.ItemContainerStyle>
                                 </ListView>
-                            </ui:SpacedStackPanel>
-                        </ui:MouseScrollViewer>
+                            </core:SpacedStackPanel>
+                        </core:MouseScrollViewer>
                     </Border>
                     <!--> Footer <-->
                     <Border Grid.Row="2" Background="{StaticResource CBackground5}" CornerRadius="5" Padding="5">
@@ -679,7 +676,7 @@
                                 <TextBlock Grid.Column="0" HorizontalAlignment="Left"
                                            Text="Show Relevant Elements Only" FontSize="15" Padding="5"
                                            Foreground="{StaticResource CForeground1}" />
-                                <ui:VRCOSCCheckBox Grid.Column="2" x:Name="ShowRelevantModulesCheckBox"
+                                <core:VRCOSCCheckBox Grid.Column="2" x:Name="ShowRelevantModulesCheckBox"
                                                    IsChecked="{Binding ShowRelevantModules}"
                                                    Width="25" Height="25" HorizontalAlignment="Right"
                                                    Margin="0 0 2.5 0" />
@@ -689,9 +686,9 @@
                 </Grid>
                 <!--> Variables View <-->
                 <Border Grid.Column="4" Background="{StaticResource CBackground5}" CornerRadius="5">
-                    <ui:MouseScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto"
+                    <core:MouseScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto"
                                           Padding="5">
-                        <ui:SpacedStackPanel Spacing="10" Orientation="Vertical">
+                        <core:SpacedStackPanel Spacing="10" Orientation="Vertical">
                             <TextBlock Text="Available Variables" FontWeight="Bold" FontSize="18"
                                        Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center" />
                             <ListView ItemsSource="{Binding UIVariables}"
@@ -699,7 +696,7 @@
                                       Background="Transparent"
                                       BorderThickness="0" Padding="-1">
                                 <b:Interaction.Behaviors>
-                                    <ui:IgnoreMouseWheelBehavior />
+                                    <core:IgnoreMouseWheelBehavior />
                                 </b:Interaction.Behaviors>
                                 <ListView.ItemContainerStyle>
                                     <Style TargetType="ListViewItem">
@@ -724,7 +721,7 @@
                                                                   Background="Transparent"
                                                                   BorderThickness="0" Padding="-1">
                                                             <b:Interaction.Behaviors>
-                                                                <ui:IgnoreMouseWheelBehavior />
+                                                                <core:IgnoreMouseWheelBehavior />
                                                             </b:Interaction.Behaviors>
                                                             <ListView.ItemContainerStyle>
                                                                 <Style TargetType="ListViewItem">
@@ -759,8 +756,8 @@
                                     </Style>
                                 </ListView.ItemContainerStyle>
                             </ListView>
-                        </ui:SpacedStackPanel>
-                    </ui:MouseScrollViewer>
+                        </core:SpacedStackPanel>
+                    </core:MouseScrollViewer>
                 </Border>
             </Grid>
         </Border>

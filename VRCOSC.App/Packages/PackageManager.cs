@@ -10,6 +10,8 @@ using VRCOSC.App.Actions.Packages;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Packages.Serialisation;
 using VRCOSC.App.Serialisation;
+using VRCOSC.App.UI;
+using VRCOSC.App.UI.Windows;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Packages;
@@ -76,7 +78,7 @@ public class PackageManager
         {
             if (forceRemoteGrab) CacheExpireTime = DateTime.Now + TimeSpan.FromDays(1);
             serialisationManager.Serialise();
-            MainWindow.GetInstance().PackagePage.Refresh();
+            MainWindow.GetInstance().PackagesView.Refresh();
         };
 
         return packageLoadAction;
@@ -93,7 +95,7 @@ public class PackageManager
             InstalledPackages[packageSource.PackageID!] = packageRelease.Version;
             serialisationManager.Serialise();
             ModuleManager.GetInstance().ReloadAllModules();
-            MainWindow.GetInstance().PackagePage.Refresh();
+            MainWindow.GetInstance().PackagesView.Refresh();
         };
 
         return installAction;
@@ -108,7 +110,7 @@ public class PackageManager
             InstalledPackages.Remove(packageSource.PackageID!);
             serialisationManager.Serialise();
             ModuleManager.GetInstance().ReloadAllModules();
-            MainWindow.GetInstance().PackagePage.Refresh();
+            MainWindow.GetInstance().PackagesView.Refresh();
         };
 
         return uninstallAction;

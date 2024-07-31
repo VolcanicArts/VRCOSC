@@ -6,12 +6,13 @@
       xmlns:ui="clr-namespace:VRCOSC.App.UI"
       xmlns:local="clr-namespace:VRCOSC.App.Pages.ChatBox"
       xmlns:fa6="http://schemas.fontawesome.com/icons/fonts"
+      xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
       mc:Ignorable="d"
       Loaded="ChatBoxPage_OnLoaded"
       MouseLeftButtonDown="ChatBoxPage_OnMouseLeftButtonDown"
       MouseLeftButtonUp="ChatBoxPage_OnMouseLeftButtonUp">
     <Page.Resources>
-        <ui:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" Invert="True" />
+        <core:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" Invert="True" />
         <local:IndicatorPositionConverter x:Key="IndicatorPositionConverter" />
         <local:ClipXPositionConverter x:Key="ClipXPositionConverter" />
         <local:ClipYPositionConverter x:Key="ClipYPositionConverter" />
@@ -47,25 +48,25 @@
                                 <ColumnDefinition Width="5" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <ui:IconButton
+                            <core:IconButton
                                 Grid.Row="0"
                                 Grid.Column="0"
                                 ButtonColour="Blue"
                                 Icon="Solid_Download"
                                 Click="ImportButton_OnClick" />
-                            <ui:IconButton
+                            <core:IconButton
                                 Grid.Row="0"
                                 Grid.Column="2"
                                 ButtonColour="Blue"
                                 Icon="Solid_Upload"
                                 Click="ExportButton_OnClick" />
-                            <ui:IconButton
+                            <core:IconButton
                                 Grid.Row="2"
                                 Grid.Column="0"
                                 ButtonColour="Blue"
                                 Icon="Solid_PenNib"
                                 Click="WriteButton_OnClick" />
-                            <ui:IconButton
+                            <core:IconButton
                                 Grid.Row="2"
                                 Grid.Column="2"
                                 ButtonColour="Red"
@@ -78,7 +79,7 @@
                 <Border Grid.Row="2" Grid.Column="0" Background="{StaticResource CBackground3}" CornerRadius="5"
                         Padding="5">
                     <Border Background="{StaticResource CBackground5}" CornerRadius="5" Padding="5">
-                        <ui:SpacedStackPanel Orientation="Vertical" Spacing="5">
+                        <core:SpacedStackPanel Orientation="Vertical" Spacing="5">
                             <TextBlock Text="Timeline Settings" FontWeight="Bold" FontSize="20" TextAlignment="Center"
                                        Foreground="{StaticResource CForeground1}" Margin="0 0 0 5" />
                             <Grid>
@@ -98,7 +99,7 @@
                                          LostKeyboardFocus="TextBox_OnLostKeyboardFocus"
                                          PreviewKeyDown="TextBox_OnPreviewKeyDown" />
                             </Grid>
-                        </ui:SpacedStackPanel>
+                        </core:SpacedStackPanel>
                     </Border>
                 </Border>
                 <!--> Selected Clip <-->
@@ -115,7 +116,7 @@
                             </Grid.ColumnDefinitions>
                             <Border Grid.Column="0" Background="{StaticResource CBackground1}" Padding="6"
                                     CornerRadius="5">
-                                <ui:SpacedStackPanel Spacing="5" Orientation="Vertical">
+                                <core:SpacedStackPanel Spacing="5" Orientation="Vertical">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
@@ -124,7 +125,7 @@
                                         <TextBlock Grid.Column="0" Text="Enabled" FontSize="15" FontWeight="Bold"
                                                    Foreground="{StaticResource CForeground2}"
                                                    VerticalAlignment="Center" />
-                                        <ui:VRCOSCCheckBox Grid.Column="1" IsChecked="{Binding Enabled.Value}"
+                                        <core:VRCOSCCheckBox Grid.Column="1" IsChecked="{Binding Enabled.Value}"
                                                            Width="25"
                                                            HorizontalAlignment="Left"
                                                            Height="25" />
@@ -145,16 +146,16 @@
                                                  Background="{StaticResource CBackground3}"
                                                  Height="25" />
                                     </Grid>
-                                </ui:SpacedStackPanel>
+                                </core:SpacedStackPanel>
                             </Border>
                             <Border Grid.Column="2" Background="{StaticResource CBackground1}"
                                     CornerRadius="5">
-                                <ui:VRCOSCButton Click="EditClip_ButtonClick" Width="150" Height="30"
+                                <core:VRCOSCButton Click="EditClip_ButtonClick" Width="150" Height="30"
                                                  ButtonColour="Blue">
                                     <TextBlock Text="Edit Clip" Foreground="{StaticResource CForeground1}"
                                                FontSize="20"
                                                HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                </ui:VRCOSCButton>
+                                </core:VRCOSCButton>
                             </Border>
                         </Grid>
                     </Grid>
@@ -185,7 +186,7 @@
                                     <Grid Name="HeaderGrid" />
                                 </Grid>
                                 <Border Grid.Row="1" Background="{StaticResource CBackground1}" />
-                                <ui:MouseScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Disabled"
+                                <core:MouseScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Disabled"
                                                       VerticalScrollBarVisibility="Auto">
                                     <Grid x:Name="Timeline" Height="1600"
                                           MouseLeftButtonDown="TimelineContent_OnMouseLeftButtonDown"
@@ -437,7 +438,7 @@
                                             </Border.RenderTransform>
                                         </Border>
                                     </Grid>
-                                </ui:MouseScrollViewer>
+                                </core:MouseScrollViewer>
                             </Grid>
                             <!--> Right Click Menu <-->
                             <Grid Name="RightClickMenu" Width="150" HorizontalAlignment="Left" VerticalAlignment="Top"
@@ -451,22 +452,22 @@
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="*" />
                                         </Grid.RowDefinitions>
-                                        <ui:SpacedStackPanel x:Name="RightClickMenuClipOptions" Spacing="5">
-                                            <ui:VRCOSCButton ButtonColour="Red" Click="DeleteClip_OnClick">
+                                        <core:SpacedStackPanel x:Name="RightClickMenuClipOptions" Spacing="5">
+                                            <core:VRCOSCButton ButtonColour="Red" Click="DeleteClip_OnClick">
                                                 <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
                                                            Text="Delete Clip"
                                                            Foreground="{StaticResource CForeground1}"
                                                            FontSize="15" />
-                                            </ui:VRCOSCButton>
-                                        </ui:SpacedStackPanel>
-                                        <ui:SpacedStackPanel x:Name="RightClickMenuLayerOptions" Spacing="5">
-                                            <ui:VRCOSCButton ButtonColour="Green" Click="CreateClipOnLayer_OnClick">
+                                            </core:VRCOSCButton>
+                                        </core:SpacedStackPanel>
+                                        <core:SpacedStackPanel x:Name="RightClickMenuLayerOptions" Spacing="5">
+                                            <core:VRCOSCButton ButtonColour="Green" Click="CreateClipOnLayer_OnClick">
                                                 <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
                                                            Text="Create Clip"
                                                            Foreground="{StaticResource CForeground1}"
                                                            FontSize="15" />
-                                            </ui:VRCOSCButton>
-                                        </ui:SpacedStackPanel>
+                                            </core:VRCOSCButton>
+                                        </core:SpacedStackPanel>
                                     </Grid>
                                 </Border>
                             </Grid>
@@ -477,15 +478,15 @@
         </Border>
         <Border Background="{StaticResource CBackground2}"
                 Visibility="{Binding ChatBoxManager.IsLoaded.Value, Converter={StaticResource BoolToVisibilityConverter}}">
-            <ui:SpacedStackPanel Orientation="Vertical" Spacing="20" VerticalAlignment="Center">
+            <core:SpacedStackPanel Orientation="Vertical" Spacing="20" VerticalAlignment="Center">
                 <TextBlock MaxWidth="400" FontSize="25" TextAlignment="Center"
                            HorizontalAlignment="Center" TextWrapping="Wrap" Foreground="{StaticResource CForeground1}"
                            Text="ChatBox editing is disabled. Fix any module errors and update any module packages, or click the button to ignore the errors if you know what you're doing" />
-                <ui:VRCOSCButton Width="150" Height="35" ButtonColour="Red" Click="IgnoreErrors_ButtonClick">
+                <core:VRCOSCButton Width="150" Height="35" ButtonColour="Red" Click="IgnoreErrors_ButtonClick">
                     <TextBlock VerticalAlignment="Center" Foreground="{StaticResource CForeground1}" FontSize="20"
                                Text="Ignore Errors" />
-                </ui:VRCOSCButton>
-            </ui:SpacedStackPanel>
+                </core:VRCOSCButton>
+            </core:SpacedStackPanel>
         </Border>
     </Grid>
 </Page>

@@ -6,9 +6,10 @@
       xmlns:ui="clr-namespace:VRCOSC.App.UI"
       xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
       xmlns:fa6="http://schemas.fontawesome.com/icons/fonts"
+      xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
       mc:Ignorable="d">
     <Page.Resources>
-        <ui:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
+        <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
                                        Colour2="{StaticResource CBackground4}" />
     </Page.Resources>
     <Grid>
@@ -29,7 +30,7 @@
                           ItemsSource="{Binding ModuleSetting.Attribute}"
                           Visibility="{Binding ContentVisibility}">
                     <b:Interaction.Behaviors>
-                        <ui:IgnoreMouseWheelBehavior />
+                        <core:IgnoreMouseWheelBehavior />
                     </b:Interaction.Behaviors>
                     <ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem">
@@ -65,16 +66,16 @@
                                                         </ControlTemplate>
                                                     </TextBox.Template>
                                                 </TextBox>
-                                                <ui:VRCOSCButton Grid.Column="2" ButtonColour="Red"
+                                                <core:VRCOSCButton Grid.Column="2" ButtonColour="Red"
                                                                  Click="RemoveButton_OnClick"
                                                                  Height="25" Width="25">
-                                                    <ui:VRCOSCButton.Tag>
+                                                    <core:VRCOSCButton.Tag>
                                                         <Binding />
-                                                    </ui:VRCOSCButton.Tag>
+                                                    </core:VRCOSCButton.Tag>
                                                     <fa6:ImageAwesome Icon="Solid_Minus"
                                                                       PrimaryColor="{StaticResource CForeground1}"
                                                                       Margin="4" />
-                                                </ui:VRCOSCButton>
+                                                </core:VRCOSCButton>
                                             </Grid>
                                         </Border>
                                     </ControlTemplate>
@@ -85,11 +86,11 @@
                 </ListView>
                 <!--> Footer <-->
                 <Border Grid.Row="2" Background="{StaticResource CBackground1}" CornerRadius="0 0 5 5">
-                    <ui:VRCOSCButton Width="90" Height="20" Click="AddButton_OnClick" ButtonColour="Green">
+                    <core:VRCOSCButton Width="90" Height="20" Click="AddButton_OnClick" ButtonColour="Green">
                         <fa6:ImageAwesome Icon="Solid_Plus"
                                           PrimaryColor="{StaticResource CForeground1}"
                                           Margin="3" />
-                    </ui:VRCOSCButton>
+                    </core:VRCOSCButton>
                 </Border>
             </Grid>
         </Border>

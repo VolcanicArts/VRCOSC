@@ -4,6 +4,9 @@
 using System;
 using Velopack;
 using VRCOSC.App;
+using VRCOSC.App.UI;
+using VRCOSC.App.UI.Views;
+using VRCOSC.App.UI.Windows;
 
 namespace VRCOSC;
 
