@@ -22,7 +22,6 @@ using VRCOSC.App.Pages.AppDebug;
 using VRCOSC.App.Pages.AppSettings;
 using VRCOSC.App.Pages.ChatBox;
 using VRCOSC.App.Pages.Profiles;
-using VRCOSC.App.Pages.Router;
 using VRCOSC.App.Pages.Settings;
 using VRCOSC.App.Profiles;
 using VRCOSC.App.Router;
@@ -31,6 +30,7 @@ using VRCOSC.App.Settings;
 using VRCOSC.App.UI.Core;
 using VRCOSC.App.UI.Views.Modules;
 using VRCOSC.App.UI.Views.Packages;
+using VRCOSC.App.UI.Views.Router;
 using VRCOSC.App.UI.Views.Run;
 using VRCOSC.App.Utils;
 using Application = System.Windows.Application;
@@ -43,7 +43,7 @@ public partial class MainWindow
 
     public readonly PackagesView PackagesView;
     public readonly ModulesView ModulesView;
-    public readonly RouterPage RouterPage;
+    public readonly RouterView RouterView;
     public readonly SettingsPage SettingsPage;
     public readonly ChatBoxPage ChatBoxPage;
     public readonly RunView RunView;
@@ -72,7 +72,7 @@ public partial class MainWindow
 
         PackagesView = new PackagesView();
         ModulesView = new ModulesView();
-        RouterPage = new RouterPage();
+        RouterView = new RouterView();
         SettingsPage = new SettingsPage();
         ChatBoxPage = new ChatBoxPage();
         RunView = new RunView();
@@ -305,7 +305,7 @@ public partial class MainWindow
 
     private void RouterButton_OnClick(object sender, RoutedEventArgs e)
     {
-        setContent(RouterPage);
+        setContent(RouterView);
     }
 
     private void SettingsButton_OnClick(object sender, RoutedEventArgs e)

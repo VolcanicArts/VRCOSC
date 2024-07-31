@@ -4,13 +4,13 @@
 using System.Windows;
 using VRCOSC.App.Router;
 
-namespace VRCOSC.App.Pages.Router;
+namespace VRCOSC.App.UI.Views.Router;
 
-public partial class RouterPage
+public partial class RouterView
 {
     public RouterManager RouterManager { get; }
 
-    public RouterPage()
+    public RouterView()
     {
         RouterManager = RouterManager.GetInstance();
         DataContext = this;
