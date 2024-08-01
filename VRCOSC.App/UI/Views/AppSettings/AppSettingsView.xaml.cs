@@ -9,7 +9,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 using VRCOSC.App.Audio;
 using VRCOSC.App.Pages.Settings;
 using VRCOSC.App.Settings;
@@ -163,14 +162,6 @@ public partial class AppSettingsView
 
     private void setPage(int pageIndex)
     {
-        GeneralTabButton.Background = pageIndex == 0 ? (Brush)FindResource("CBackground6") : (Brush)FindResource("CBackground3");
-        OscTabButton.Background = pageIndex == 1 ? (Brush)FindResource("CBackground6") : (Brush)FindResource("CBackground3");
-        AutomationTabButton.Background = pageIndex == 2 ? (Brush)FindResource("CBackground6") : (Brush)FindResource("CBackground3");
-        UpdatesTabButton.Background = pageIndex == 3 ? (Brush)FindResource("CBackground6") : (Brush)FindResource("CBackground3");
-        DeveloperTabButton.Background = pageIndex == 4 ? (Brush)FindResource("CBackground6") : (Brush)FindResource("CBackground3");
-        PackagesTabButton.Background = pageIndex == 5 ? (Brush)FindResource("CBackground6") : (Brush)FindResource("CBackground3");
-        SpeechTabButton.Background = pageIndex == 6 ? (Brush)FindResource("CBackground6") : (Brush)FindResource("CBackground3");
-
         GeneralContainer.Visibility = pageIndex == 0 ? Visibility.Visible : Visibility.Collapsed;
         OscContainer.Visibility = pageIndex == 1 ? Visibility.Visible : Visibility.Collapsed;
         AutomationContainer.Visibility = pageIndex == 2 ? Visibility.Visible : Visibility.Collapsed;

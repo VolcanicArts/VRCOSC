@@ -12,17 +12,29 @@
         <local:IpPortValidationRule x:Key="IpPortValidationRule" />
         <Style TargetType="TextBlock">
             <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="FontSize" Value="18" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Foreground" Value="{StaticResource CForeground1}" />
+            <Setter Property="Margin" Value="7" />
         </Style>
-        <Style x:Key="RoundedButtonStyle" TargetType="Button">
+        <Style TargetType="RadioButton">
+            <Setter Property="OverridesDefaultStyle" Value="True" />
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="5">
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border Background="{StaticResource CBackground3}"
+                                BorderBrush="{StaticResource CBackground5}"
+                                BorderThickness="2"
+                                CornerRadius="5"
+                                x:Name="Border">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="{StaticResource CBackground6}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -65,61 +77,37 @@
         </Grid.ColumnDefinitions>
         <Border Grid.Column="0" Background="{StaticResource CBackground4}">
             <core:MouseScrollViewer Padding="10" HorizontalScrollBarVisibility="Disabled"
-                                  VerticalScrollBarVisibility="Auto">
+                                    VerticalScrollBarVisibility="Auto">
                 <core:SpacedStackPanel Orientation="Vertical" Spacing="5">
-                    <Button Name="GeneralTabButton" Click="GeneralTabButton_OnClick"
-                            Style="{StaticResource RoundedButtonStyle}" Background="{StaticResource CBackground3}"
-                            BorderBrush="{StaticResource CBackground5}" BorderThickness="2">
-                        <TextBlock Text="General" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="18"
-                                   Foreground="{StaticResource CForeground1}" Margin="7" />
-                    </Button>
-                    <Button Name="PackagesTabButton" Click="PackagesTabButton_OnClick"
-                            Style="{StaticResource RoundedButtonStyle}" Background="{StaticResource CBackground3}"
-                            BorderBrush="{StaticResource CBackground5}" BorderThickness="2">
-                        <TextBlock Text="Packages" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                   FontSize="18"
-                                   Foreground="{StaticResource CForeground1}" Margin="7" />
-                    </Button>
-                    <Button Name="OscTabButton" Click="OscTabButton_OnClick"
-                            Style="{StaticResource RoundedButtonStyle}" Background="{StaticResource CBackground3}"
-                            BorderBrush="{StaticResource CBackground5}" BorderThickness="2">
-                        <TextBlock Text="OSC" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="18"
-                                   Foreground="{StaticResource CForeground1}" Margin="7" />
-                    </Button>
-                    <Button Name="AutomationTabButton" Click="AutomationTabButton_OnClick"
-                            Style="{StaticResource RoundedButtonStyle}" Background="{StaticResource CBackground3}"
-                            BorderBrush="{StaticResource CBackground5}" BorderThickness="2">
-                        <TextBlock Text="Automation" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                   FontSize="18" Foreground="{StaticResource CForeground1}" Margin="7" />
-                    </Button>
-                    <Button Name="UpdatesTabButton" Click="UpdatesTabButton_OnClick"
-                            Style="{StaticResource RoundedButtonStyle}" Background="{StaticResource CBackground3}"
-                            BorderBrush="{StaticResource CBackground5}" BorderThickness="2">
-                        <TextBlock Text="Updates" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="18"
-                                   Foreground="{StaticResource CForeground1}" Margin="7" />
-                    </Button>
-                    <Button Name="SpeechTabButton" Click="SpeechTabButton_OnClick"
-                            Style="{StaticResource RoundedButtonStyle}" Background="{StaticResource CBackground3}"
-                            BorderBrush="{StaticResource CBackground5}" BorderThickness="2">
-                        <TextBlock Text="Speech" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                   FontSize="18"
-                                   Foreground="{StaticResource CForeground1}" Margin="7" />
-                    </Button>
-                    <Button Name="DeveloperTabButton" Click="DeveloperTabButton_OnClick"
-                            Style="{StaticResource RoundedButtonStyle}" Background="{StaticResource CBackground3}"
-                            BorderBrush="{StaticResource CBackground5}" BorderThickness="2">
-                        <TextBlock Text="Developer" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                   FontSize="18"
-                                   Foreground="{StaticResource CForeground1}" Margin="7" />
-                    </Button>
+                    <RadioButton Click="GeneralTabButton_OnClick" IsChecked="True">
+                        <TextBlock Text="General" />
+                    </RadioButton>
+                    <RadioButton Click="PackagesTabButton_OnClick">
+                        <TextBlock Text="Packages" />
+                    </RadioButton>
+                    <RadioButton Click="OscTabButton_OnClick">
+                        <TextBlock Text="OSC" />
+                    </RadioButton>
+                    <RadioButton Click="AutomationTabButton_OnClick">
+                        <TextBlock Text="Automation" />
+                    </RadioButton>
+                    <RadioButton Click="UpdatesTabButton_OnClick">
+                        <TextBlock Text="Updates" />
+                    </RadioButton>
+                    <RadioButton Click="SpeechTabButton_OnClick">
+                        <TextBlock Text="Speech" />
+                    </RadioButton>
+                    <RadioButton Click="DeveloperTabButton_OnClick">
+                        <TextBlock Text="Developer" />
+                    </RadioButton>
                 </core:SpacedStackPanel>
             </core:MouseScrollViewer>
         </Border>
         <Border Grid.Column="1">
-            <Grid>
-                <Grid Name="GeneralContainer" Visibility="Collapsed">
-                    <core:MouseScrollViewer Padding="10" HorizontalScrollBarVisibility="Auto"
-                                          VerticalScrollBarVisibility="Auto">
+            <core:MouseScrollViewer Padding="10" HorizontalScrollBarVisibility="Auto"
+                                    VerticalScrollBarVisibility="Auto">
+                <Grid>
+                    <Grid Name="GeneralContainer" Visibility="Collapsed">
                         <core:SpacedStackPanel Orientation="Vertical" Spacing="5">
                             <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
                                     CornerRadius="5">
@@ -138,9 +126,9 @@
                                     <TextBlock Text="Sends VRCOSC to the tray instead of exiting when closing"
                                                Style="{StaticResource SettingDescription}" />
                                     <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
-                                                       Height="32"
-                                                       Width="32"
-                                                       IsChecked="{Binding TrayOnClose}" />
+                                                         Height="32"
+                                                         Width="32"
+                                                         IsChecked="{Binding TrayOnClose}" />
                                 </Grid>
                             </Border>
                             <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
@@ -151,9 +139,9 @@
                                         Text="This stops VRCOSC from writing to the ChatBox in certain club and event worlds"
                                         Style="{StaticResource SettingDescription}" />
                                     <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
-                                                       Height="32"
-                                                       Width="32"
-                                                       IsChecked="{Binding UseChatBoxBlacklist}" />
+                                                         Height="32"
+                                                         Width="32"
+                                                         IsChecked="{Binding UseChatBoxBlacklist}" />
                                 </Grid>
                             </Border>
                             <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
@@ -168,11 +156,8 @@
                                 </Grid>
                             </Border>
                         </core:SpacedStackPanel>
-                    </core:MouseScrollViewer>
-                </Grid>
-                <Grid Name="PackagesContainer" Visibility="Collapsed">
-                    <core:MouseScrollViewer Padding="10" HorizontalScrollBarVisibility="Auto"
-                                          VerticalScrollBarVisibility="Auto">
+                    </Grid>
+                    <Grid Name="PackagesContainer" Visibility="Collapsed">
                         <core:SpacedStackPanel Orientation="Vertical" Spacing="5">
 
                             <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
@@ -182,17 +167,14 @@
                                     <TextBlock Text="Should the package listing list pre-releases?"
                                                Style="{StaticResource SettingDescription}" />
                                     <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
-                                                       Height="32"
-                                                       Width="32"
-                                                       IsChecked="{Binding AllowPreReleasePackages}" />
+                                                         Height="32"
+                                                         Width="32"
+                                                         IsChecked="{Binding AllowPreReleasePackages}" />
                                 </Grid>
                             </Border>
                         </core:SpacedStackPanel>
-                    </core:MouseScrollViewer>
-                </Grid>
-                <Grid Name="OscContainer" Visibility="Collapsed">
-                    <core:MouseScrollViewer Padding="10" HorizontalScrollBarVisibility="Auto"
-                                          VerticalScrollBarVisibility="Auto">
+                    </Grid>
+                    <Grid Name="OscContainer" Visibility="Collapsed">
                         <core:SpacedStackPanel Orientation="Vertical" Spacing="5">
                             <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
                                     CornerRadius="5">
@@ -202,9 +184,9 @@
                                         Text="Should VRCOSC use the defined endpoints below instead of OSCQuery?"
                                         Style="{StaticResource SettingDescription}" />
                                     <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
-                                                       Height="32"
-                                                       Width="32"
-                                                       IsChecked="{Binding UseCustomEndpoints}" />
+                                                         Height="32"
+                                                         Width="32"
+                                                         IsChecked="{Binding UseCustomEndpoints}" />
                                 </Grid>
                             </Border>
                             <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
@@ -244,11 +226,8 @@
                                 </Grid>
                             </Border>
                         </core:SpacedStackPanel>
-                    </core:MouseScrollViewer>
-                </Grid>
-                <Grid Name="AutomationContainer" Visibility="Collapsed">
-                    <core:MouseScrollViewer Padding="10" HorizontalScrollBarVisibility="Auto"
-                                          VerticalScrollBarVisibility="Auto">
+                    </Grid>
+                    <Grid Name="AutomationContainer" Visibility="Collapsed">
                         <core:SpacedStackPanel Orientation="Vertical" Spacing="5">
                             <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
                                     CornerRadius="5">
@@ -258,9 +237,9 @@
                                         Text="Allows VRCOSC to automatically start the modules when VRChat opens"
                                         Style="{StaticResource SettingDescription}" />
                                     <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
-                                                       Height="32"
-                                                       Width="32"
-                                                       IsChecked="{Binding VRCAutoStart}" />
+                                                         Height="32"
+                                                         Width="32"
+                                                         IsChecked="{Binding VRCAutoStart}" />
                                 </Grid>
                             </Border>
                             <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
@@ -271,9 +250,9 @@
                                         Text="Allows VRCOSC to automatically stop the modules when VRChat closes"
                                         Style="{StaticResource SettingDescription}" />
                                     <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
-                                                       Height="32"
-                                                       Width="32"
-                                                       IsChecked="{Binding VRCAutoStop}" />
+                                                         Height="32"
+                                                         Width="32"
+                                                         IsChecked="{Binding VRCAutoStop}" />
                                 </Grid>
                             </Border>
                             <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
@@ -283,9 +262,9 @@
                                     <TextBlock Text="Tells VRCOSC to open when SteamVR starts"
                                                Style="{StaticResource SettingDescription}" />
                                     <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
-                                                       Height="32"
-                                                       Width="32"
-                                                       IsChecked="{Binding OVRAutoOpen}" />
+                                                         Height="32"
+                                                         Width="32"
+                                                         IsChecked="{Binding OVRAutoOpen}" />
                                 </Grid>
                             </Border>
                             <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
@@ -295,17 +274,14 @@
                                     <TextBlock Text="Tells VRCOSC to close when SteamVR stops"
                                                Style="{StaticResource SettingDescription}" />
                                     <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
-                                                       Height="32"
-                                                       Width="32"
-                                                       IsChecked="{Binding OVRAutoClose}" />
+                                                         Height="32"
+                                                         Width="32"
+                                                         IsChecked="{Binding OVRAutoClose}" />
                                 </Grid>
                             </Border>
                         </core:SpacedStackPanel>
-                    </core:MouseScrollViewer>
-                </Grid>
-                <Grid Name="SpeechContainer" Visibility="Collapsed">
-                    <core:MouseScrollViewer Padding="10" HorizontalScrollBarVisibility="Auto"
-                                          VerticalScrollBarVisibility="Auto">
+                    </Grid>
+                    <Grid Name="SpeechContainer" Visibility="Collapsed">
                         <core:SpacedStackPanel Orientation="Vertical" Spacing="5">
                             <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
                                     CornerRadius="5">
@@ -326,9 +302,9 @@
                                     <TextBlock Text="Should VRCOSC auto-switch microphone when Windows does?"
                                                Style="{StaticResource SettingDescription}" />
                                     <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
-                                                       Height="32"
-                                                       Width="32"
-                                                       IsChecked="{Binding AutoSwitchMicrophone}" />
+                                                         Height="32"
+                                                         Width="32"
+                                                         IsChecked="{Binding AutoSwitchMicrophone}" />
                                 </Grid>
                             </Border>
                             <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
@@ -347,10 +323,11 @@
                                     CornerRadius="5">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="5*"/>
-                                        <ColumnDefinition Width="5*"/>
+                                        <ColumnDefinition Width="5*" />
+                                        <ColumnDefinition Width="5*" />
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Speech Confidence" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock Grid.Column="0" Text="Speech Confidence"
+                                               Style="{StaticResource SettingTitle}" />
                                     <TextBlock Grid.Column="0" Text="How confident should Whisper be to send a result?"
                                                Style="{StaticResource SettingDescription}" />
                                     <Grid Grid.Column="1" HorizontalAlignment="Stretch">
@@ -384,18 +361,16 @@
                                         CornerRadius="5">
                                     <Grid>
                                         <core:VRCOSCButton ButtonColour="Gray" Click="Whisper_OpenModelList_OnClick">
-                                            <TextBlock Text="Open Model List" Style="{StaticResource SettingTitle}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                            <TextBlock Text="Open Model List" Style="{StaticResource SettingTitle}"
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
                                         </core:VRCOSCButton>
                                     </Grid>
                                 </Border>
                             </core:SpacedStackPanel>
                         </core:SpacedStackPanel>
-                    </core:MouseScrollViewer>
-                </Grid>
-                <Grid Name="UpdatesContainer" Visibility="Collapsed" />
-                <Grid Name="DeveloperContainer" Visibility="Collapsed">
-                    <core:MouseScrollViewer Padding="10" HorizontalScrollBarVisibility="Auto"
-                                          VerticalScrollBarVisibility="Auto">
+                    </Grid>
+                    <Grid Name="UpdatesContainer" Visibility="Collapsed" />
+                    <Grid Name="DeveloperContainer" Visibility="Collapsed">
                         <core:SpacedStackPanel Orientation="Vertical" Spacing="5">
                             <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
                                     CornerRadius="5">
@@ -405,15 +380,15 @@
                                         Text="Gain access to the debug page, detailed module logs, and other information"
                                         Style="{StaticResource SettingDescription}" />
                                     <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
-                                                       Height="32"
-                                                       Width="32"
-                                                       IsChecked="{Binding EnableAppDebug}" />
+                                                         Height="32"
+                                                         Width="32"
+                                                         IsChecked="{Binding EnableAppDebug}" />
                                 </Grid>
                             </Border>
                         </core:SpacedStackPanel>
-                    </core:MouseScrollViewer>
+                    </Grid>
                 </Grid>
-            </Grid>
+            </core:MouseScrollViewer>
         </Border>
     </Grid>
 </UserControl>
