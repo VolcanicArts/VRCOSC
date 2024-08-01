@@ -43,7 +43,7 @@
                             </ContentPresenter>
                             <ScrollViewer x:Name="ScrollViewer" Grid.Row="1" Background="{TemplateBinding Background}"
                                           VerticalScrollBarVisibility="Auto">
-                                <ItemsPresenter x:Name="ItemsPresenter" />
+                                <ItemsPresenter x:Name="ItemsPresenter" VerticalAlignment="Top" />
                                 <ScrollViewer.Height>
                                     <MultiBinding
                                         Converter="{StaticResource HeaderFooterListViewContentHeightConverter}">
