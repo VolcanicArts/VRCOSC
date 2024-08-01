@@ -6,7 +6,7 @@ using System.Reflection;
 using VRCOSC.App.ChatBox.Clips.Variables;
 using VRCOSC.App.Utils;
 
-namespace VRCOSC.App.Pages.ChatBox.Options;
+namespace VRCOSC.App.UI.Views.ChatBox.Variables;
 
 public partial class DropdownVariableOptionView
 {

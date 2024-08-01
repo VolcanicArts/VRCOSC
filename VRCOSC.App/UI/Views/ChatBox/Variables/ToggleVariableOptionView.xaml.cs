@@ -6,7 +6,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using VRCOSC.App.ChatBox.Clips.Variables;
 
-namespace VRCOSC.App.Pages.ChatBox.Options;
+namespace VRCOSC.App.UI.Views.ChatBox.Variables;
 
 public partial class ToggleVariableOptionView
 {

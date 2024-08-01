@@ -8,7 +8,7 @@ using System.Reflection;
 using System.Windows.Controls;
 using Newtonsoft.Json;
 using VRCOSC.App.Modules;
-using VRCOSC.App.Pages.ChatBox.Options;
+using VRCOSC.App.UI.Views.ChatBox.Variables;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.ChatBox.Clips.Variables;
