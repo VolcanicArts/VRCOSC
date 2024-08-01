@@ -40,6 +40,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Pages\Profiles\" />
       <Folder Include="Resources\" />
     </ItemGroup>
 
@@ -152,6 +153,11 @@
         <SubType>Designer</SubType>
       </Page>
       <Page Update="UI\Views\Modules\Settings\ToggleSettingView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="UI\Windows\Profiles\ProfileEditWindow.xaml">
         <Generator>MSBuild:Compile</Generator>
         <XamlRuntime>Wpf</XamlRuntime>
         <SubType>Designer</SubType>

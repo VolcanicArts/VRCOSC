@@ -4,10 +4,10 @@
 using System.Collections;
 using System.Collections.ObjectModel;
 using System.Linq;
-using VRCOSC.App.Pages.Profiles;
 using VRCOSC.App.Profiles.Serialisation;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Settings;
+using VRCOSC.App.UI.Windows.Profiles;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Profiles;

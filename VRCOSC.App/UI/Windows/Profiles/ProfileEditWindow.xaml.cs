@@ -9,7 +9,7 @@ using System.Windows.Media;
 using VRCOSC.App.Profiles;
 using VRCOSC.App.Utils;
 
-namespace VRCOSC.App.Pages.Profiles;
+namespace VRCOSC.App.UI.Windows.Profiles;
 
 public partial class ProfileEditWindow
 {
