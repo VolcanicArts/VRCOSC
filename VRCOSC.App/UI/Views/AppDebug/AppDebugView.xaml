@@ -15,9 +15,9 @@
             <Border Padding="10">
                 <Grid x:Name="Grid" VerticalAlignment="Top">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="40" />
-                        <RowDefinition Height="40" />
-                        <RowDefinition Height="40" />
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="35" />
                         <RowDefinition Height="5" />
                     </Grid.RowDefinitions>
                     <Grid.Clip>
@@ -33,13 +33,13 @@
                         </RectangleGeometry>
                     </Grid.Clip>
                     <Border Background="{StaticResource CBackground1}"
-                            Padding="7" Grid.Row="0">
+                            Padding="8 4" Grid.Row="0">
                         <TextBlock Text="Debug Panel"
-                                   FontSize="20"
+                                   FontSize="18"
                                    FontWeight="Bold"
                                    Foreground="{StaticResource CForeground2}" />
                     </Border>
-                    <Border Grid.Row="1" Background="{StaticResource CBackground3}" Padding="8">
+                    <Border Grid.Row="1" Background="{StaticResource CBackground3}" Padding="8 4">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
@@ -47,13 +47,13 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="What port 9000 is currently bound to"
                                        Foreground="{StaticResource CForeground1}"
-                                       VerticalAlignment="Center" FontSize="18" />
-                            <TextBlock Grid.Column="1" Text="{Binding Port9000BoundProcess.Value}" FontSize="20"
+                                       VerticalAlignment="Center" FontSize="16" />
+                            <TextBlock Grid.Column="1" Text="{Binding Port9000BoundProcess.Value}" FontSize="16"
                                        Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center"
                                        VerticalAlignment="Center" />
                         </Grid>
                     </Border>
-                    <Border Grid.Row="2" Background="{StaticResource CBackground4}" Padding="8">
+                    <Border Grid.Row="2" Background="{StaticResource CBackground4}" Padding="8 4">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
@@ -61,14 +61,11 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="Reload the modules from disk"
                                        Foreground="{StaticResource CForeground1}" VerticalAlignment="Center"
-                                       FontSize="18" />
-                            <core:VRCOSCButton Grid.Column="1" Click="ReloadModules_OnClick" Width="200"
-                                               ButtonColour="Blue"
-                                               HorizontalAlignment="Center" CornerRadius="10">
-                                <TextBlock Text="Reload" FontSize="18"
-                                           Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center"
-                                           VerticalAlignment="Center" />
-                            </core:VRCOSCButton>
+                                       FontSize="16" />
+                            <core:IconButton
+                                ButtonColour="Blue" Grid.Column="1" Click="ReloadModules_OnClick" Width="100"
+                                Icon="Solid_Rotate"
+                                ></core:IconButton>
                         </Grid>
                     </Border>
                     <Border Background="{StaticResource CBackground1}"
