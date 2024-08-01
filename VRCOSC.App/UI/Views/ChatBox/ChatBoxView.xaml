@@ -289,19 +289,20 @@
                                                                             MouseLeftButtonDown="ClipLeft_OnLeftMouseButtonDown"
                                                                             MouseLeftButtonUp="ClipLeft_OnLeftMouseButtonUp"
                                                                             Background="{StaticResource CBackground1}"
+                                                                            Cursor="Hand"
                                                                             CornerRadius="3 0 0 3">
                                                                         <Border.Tag>
                                                                             <Binding />
                                                                         </Border.Tag>
                                                                         <fa6:ImageAwesome
-                                                                            Icon="Solid_GripLines"
-                                                                            Rotation="90"
+                                                                            Icon="Solid_GripLinesVertical"
                                                                             HorizontalAlignment="Center"
                                                                             VerticalAlignment="Center"
                                                                             PrimaryColor="{StaticResource CForeground3}"
-                                                                            Margin="3 0" />
+                                                                            Margin="5 0" />
                                                                     </Border>
                                                                     <Border Grid.Column="1"
+                                                                            Cursor="Hand"
                                                                             MouseLeftButtonDown="ClipMain_OnLeftMouseButtonDown"
                                                                             MouseLeftButtonUp="ClipMain_OnLeftMouseButtonUp">
                                                                         <Border.Tag>
@@ -323,18 +324,18 @@
                                                                     <Border Grid.Column="2"
                                                                             Background="{StaticResource CBackground1}"
                                                                             CornerRadius="0 3 3 0"
+                                                                            Cursor="Hand"
                                                                             MouseLeftButtonDown="ClipRight_OnLeftMouseButtonDown"
                                                                             MouseLeftButtonUp="ClipRight_OnLeftMouseButtonUp">
                                                                         <Border.Tag>
                                                                             <Binding />
                                                                         </Border.Tag>
                                                                         <fa6:ImageAwesome
-                                                                            Icon="Solid_GripLines"
-                                                                            Rotation="90"
+                                                                            Icon="Solid_GripLinesVertical"
                                                                             HorizontalAlignment="Center"
                                                                             VerticalAlignment="Center"
                                                                             PrimaryColor="{StaticResource CForeground3}"
-                                                                            Margin="3 0" />
+                                                                            Margin="5 0" />
                                                                     </Border>
                                                                 </Grid>
                                                             </Border>

@@ -18,6 +18,7 @@ using VRCOSC.App.Pages.ChatBox;
 using VRCOSC.App.Profiles;
 using VRCOSC.App.UI.Core;
 using VRCOSC.App.UI.Windows;
+using VRCOSC.App.UI.Windows.ChatBox;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.UI.Views.ChatBox;

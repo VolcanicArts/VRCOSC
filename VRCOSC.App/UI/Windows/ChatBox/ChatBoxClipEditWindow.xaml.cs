@@ -12,11 +12,12 @@ using VRCOSC.App.ChatBox;
 using VRCOSC.App.ChatBox.Clips;
 using VRCOSC.App.ChatBox.Clips.Variables;
 using VRCOSC.App.Modules;
+using VRCOSC.App.Pages.ChatBox;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;
 
-namespace VRCOSC.App.Pages.ChatBox;
+namespace VRCOSC.App.UI.Windows.ChatBox;
 
 public partial class ChatBoxClipEditWindow
 {
@@ -40,7 +41,7 @@ public partial class ChatBoxClipEditWindow
         DataContext = referenceClip;
         ReferenceClip = referenceClip;
 
-        ModulesList.ItemsSource = ModuleManager.GetInstance().Modules.Values.SelectMany(moduleList => moduleList).Where(module => ChatBoxManager.GetInstance().DoesModuleHaveStates(module.FullID) || ChatBoxManager.GetInstance().DoesModuleHaveEvents(module.FullID)).OrderBy(module => module.Title);
+        ModulesList.ItemsSource = ModuleManager.GetInstance().Modules.Values.SelectMany(moduleList => moduleList).Where(module => ChatBoxManager.GetInstance().DoesModuleHaveStates(module.FullID) || ChatBoxManager.GetInstance().DoesModuleHaveEvents(module.FullID)).OrderBy(module => module.PackageID).ThenBy(module => module.Title);
         ShowRelevantModulesCheckBox.DataContext = this;
 
         Title = $"Editing {ReferenceClip.Name.Value} Clip";
