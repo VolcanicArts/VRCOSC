@@ -467,6 +467,9 @@ public partial class ChatBoxView
     {
         var clip = (Clip)RightClickMenu.Tag;
 
+        var editWindow = clipEditWindowCache.FirstOrDefault(window => window.ReferenceClip == clip);
+        editWindow?.Close();
+
         if (clipBorder is not null)
             clipBorder.Background = (Brush)FindResource("CBackground4");
 
