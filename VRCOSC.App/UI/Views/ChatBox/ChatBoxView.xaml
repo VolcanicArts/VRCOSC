@@ -25,7 +25,7 @@
         <Border Padding="10">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="200" />
+                    <RowDefinition Height="150" />
                     <RowDefinition Height="10" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
