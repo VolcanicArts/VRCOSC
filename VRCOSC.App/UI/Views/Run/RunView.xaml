@@ -40,9 +40,9 @@
                                 <RowDefinition Height="40" />
                             </Grid.RowDefinitions>
                             <Grid>
-                                <tabs:RuntimeView x:Name="RuntimeView" />
-                                <tabs:AvatarParameterView x:Name="ParameterView" />
-                                <tabs:ChatBoxView x:Name="ChatBoxView" />
+                                <tabs:RuntimeTabView x:Name="RuntimeView" />
+                                <tabs:AvatarParameterTabView x:Name="ParameterView" />
+                                <tabs:ChatBoxTabView x:Name="ChatBoxView" />
                             </Grid>
                             <Grid Grid.Row="2" HorizontalAlignment="Center">
                                 <Grid.ColumnDefinitions>
