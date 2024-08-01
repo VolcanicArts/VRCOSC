@@ -10,7 +10,7 @@ namespace VRCOSC.App.Router;
 public class RouterInstance
 {
     [JsonProperty("name")]
-    public Observable<string> Name { get; } = new(string.Empty);
+    public Observable<string> Name { get; } = new("My Label");
 
     [JsonProperty("endpoint")]
     public Observable<string> Endpoint { get; } = new($"{IPAddress.Loopback}:9000");
