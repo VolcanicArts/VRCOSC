@@ -44,7 +44,7 @@ public partial class ChatBoxClipEditWindow
         ModulesList.ItemsSource = ModuleManager.GetInstance().Modules.Values.SelectMany(moduleList => moduleList).Where(module => ChatBoxManager.GetInstance().DoesModuleHaveStates(module.FullID) || ChatBoxManager.GetInstance().DoesModuleHaveEvents(module.FullID)).OrderBy(module => module.PackageID).ThenBy(module => module.Title);
         ShowRelevantModulesCheckBox.DataContext = this;
 
-        Title = $"Editing {ReferenceClip.Name.Value} Clip";
+        ReferenceClip.Name.Subscribe(newName => Title = $"Editing {newName} Clip", true);
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e)
