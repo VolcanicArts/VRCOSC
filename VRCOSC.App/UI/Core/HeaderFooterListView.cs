@@ -33,6 +33,15 @@ public class HeaderFooterListView : ListView
         set => SetValue(FooterProperty, value);
     }
 
+    public static readonly DependencyProperty HideHeaderWhenEmptyProperty =
+        DependencyProperty.Register(nameof(HideHeaderWhenEmpty), typeof(bool), typeof(HeaderFooterListView), new PropertyMetadata(false));
+
+    public bool HideHeaderWhenEmpty
+    {
+        get => (bool)GetValue(HideHeaderWhenEmptyProperty);
+        set => SetValue(HideHeaderWhenEmptyProperty, value);
+    }
+
     public static readonly DependencyProperty HideFooterWhenEmptyProperty =
         DependencyProperty.Register(nameof(HideFooterWhenEmpty), typeof(bool), typeof(HeaderFooterListView), new PropertyMetadata(false));
 
@@ -52,13 +61,13 @@ public class HeaderFooterListView : ListView
     }
 }
 
-public class HideFooterWhenEmptyConverter : IMultiValueConverter
+public class CollapseWhenListEmptyConverter : IMultiValueConverter
 {
     public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
     {
-        if (values is [bool hideFooterWhenEmpty, bool isListEmpty])
+        if (values is [bool collapseWhenEmpty, bool isListEmpty])
         {
-            if (hideFooterWhenEmpty && isListEmpty)
+            if (collapseWhenEmpty && isListEmpty)
             {
                 return Visibility.Collapsed;
             }

@@ -3,7 +3,7 @@
                     xmlns:core="clr-namespace:VRCOSC.App.UI.Core">
     <core:RectSizeConverter x:Key="RectSizeConverter" />
     <core:HeaderFooterListViewContentHeightConverter x:Key="HeaderFooterListViewContentHeightConverter" />
-    <core:HideFooterWhenEmptyConverter x:Key="HideFooterWhenEmptyConverter" />
+    <core:CollapseWhenListEmptyConverter x:Key="CollapseWhenListEmptyConverter" />
     <Style TargetType="{x:Type core:HeaderFooterListView}">
         <Setter Property="OverridesDefaultStyle" Value="True" />
         <Setter Property="Template">
@@ -32,7 +32,15 @@
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
-                            <ContentPresenter x:Name="HeaderPresenter" Grid.Row="0" Content="{TemplateBinding Header}" />
+                            <ContentPresenter x:Name="HeaderPresenter" Grid.Row="0" Content="{TemplateBinding Header}">
+                                <ContentPresenter.Visibility>
+                                    <MultiBinding Converter="{StaticResource CollapseWhenListEmptyConverter}">
+                                        <Binding Path="HideHeaderWhenEmpty"
+                                                 RelativeSource="{RelativeSource TemplatedParent}" />
+                                        <Binding Path="Items.IsEmpty" RelativeSource="{RelativeSource TemplatedParent}" />
+                                    </MultiBinding>
+                                </ContentPresenter.Visibility>
+                            </ContentPresenter>
                             <ScrollViewer x:Name="ScrollViewer" Grid.Row="1" Background="{TemplateBinding Background}"
                                           VerticalScrollBarVisibility="Auto">
                                 <ItemsPresenter x:Name="ItemsPresenter" />
@@ -50,7 +58,7 @@
                             </ScrollViewer>
                             <ContentPresenter x:Name="FooterPresenter" Grid.Row="2" Content="{TemplateBinding Footer}">
                                 <ContentPresenter.Visibility>
-                                    <MultiBinding Converter="{StaticResource HideFooterWhenEmptyConverter}">
+                                    <MultiBinding Converter="{StaticResource CollapseWhenListEmptyConverter}">
                                         <Binding Path="HideFooterWhenEmpty"
                                                  RelativeSource="{RelativeSource TemplatedParent}" />
                                         <Binding Path="Items.IsEmpty" RelativeSource="{RelativeSource TemplatedParent}" />
