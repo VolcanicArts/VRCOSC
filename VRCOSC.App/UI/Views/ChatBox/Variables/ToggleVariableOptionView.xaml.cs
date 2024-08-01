@@ -8,9 +8,9 @@ using VRCOSC.App.ChatBox.Clips.Variables;
 
 namespace VRCOSC.App.Pages.ChatBox.Options;
 
-public partial class ToggleVariableOptionPage
+public partial class ToggleVariableOptionView
 {
-    public ToggleVariableOptionPage(ClipVariable instance, PropertyInfo propertyInfo)
+    public ToggleVariableOptionView(ClipVariable instance, PropertyInfo propertyInfo)
     {
         InitializeComponent();
 

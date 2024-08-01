@@ -8,9 +8,9 @@ using VRCOSC.App.ChatBox.Clips.Variables;
 
 namespace VRCOSC.App.Pages.ChatBox.Options;
 
-public partial class TextBoxVariableOptionPage
+public partial class TextBoxVariableOptionView
 {
-    public TextBoxVariableOptionPage(ClipVariable instance, PropertyInfo propertyInfo)
+    public TextBoxVariableOptionView(ClipVariable instance, PropertyInfo propertyInfo)
     {
         InitializeComponent();
 

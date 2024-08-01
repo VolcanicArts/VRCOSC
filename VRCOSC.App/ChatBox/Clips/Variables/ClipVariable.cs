@@ -45,22 +45,22 @@ public abstract class ClipVariable
                 var displayName = propertyInfo.GetCustomAttribute<ClipVariableOptionAttribute>()!.DisplayName;
                 var description = propertyInfo.GetCustomAttribute<ClipVariableOptionAttribute>()!.Description;
 
-                Page? pageInstance = null;
+                UserControl? viewInstance = null;
 
                 if (propertyInfo.PropertyType == typeof(bool))
                 {
-                    pageInstance = new ToggleVariableOptionPage(this, propertyInfo);
+                    viewInstance = new ToggleVariableOptionView(this, propertyInfo);
                 }
                 else if (propertyInfo.PropertyType == typeof(int) || propertyInfo.PropertyType == typeof(float) || propertyInfo.PropertyType == typeof(string))
                 {
-                    pageInstance = new TextBoxVariableOptionPage(this, propertyInfo);
+                    viewInstance = new TextBoxVariableOptionView(this, propertyInfo);
                 }
                 else if (propertyInfo.PropertyType.IsEnum)
                 {
-                    pageInstance = new DropdownVariableOptionPage(this, propertyInfo);
+                    viewInstance = new DropdownVariableOptionView(this, propertyInfo);
                 }
 
-                var renderableClipVariableOption = new RenderableClipVariableOption(propertyInfo, displayName, description, pageInstance);
+                var renderableClipVariableOption = new RenderableClipVariableOption(propertyInfo, displayName, description, viewInstance);
                 optionsList.Add(renderableClipVariableOption);
             });
 
@@ -235,13 +235,13 @@ public class RenderableClipVariableOption
     public PropertyInfo PropertyInfo { get; }
     public string DisplayName { get; }
     public string Description { get; }
-    public Page? PageInstance { get; }
+    public UserControl? ViewInstance { get; }
 
-    public RenderableClipVariableOption(PropertyInfo propertyInfo, string displayName, string description, Page? pageInstance)
+    public RenderableClipVariableOption(PropertyInfo propertyInfo, string displayName, string description, UserControl? viewInstance)
     {
         PropertyInfo = propertyInfo;
         DisplayName = displayName;
         Description = description;
-        PageInstance = pageInstance;
+        ViewInstance = viewInstance;
     }
 }

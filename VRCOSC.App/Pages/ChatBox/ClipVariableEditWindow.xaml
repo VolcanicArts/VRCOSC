@@ -11,8 +11,8 @@
         <Border Background="{StaticResource CBackground2}">
             <core:MouseScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
                 <ListView ItemsSource="{Binding UIOptions}" HorizontalAlignment="Stretch"
-                         Margin="5" BorderThickness="0"
-                         Background="Transparent">
+                          Margin="5" BorderThickness="0"
+                          Background="Transparent">
                     <b:Interaction.Behaviors>
                         <core:IgnoreMouseWheelBehavior />
                     </b:Interaction.Behaviors>
@@ -22,16 +22,26 @@
                             <Setter Property="Template">
                                 <Setter.Value>
                                     <ControlTemplate TargetType="ListViewItem">
-                                        <Border Background="{StaticResource CBackground7}" Padding="10 5 10 5"
+                                        <Border Background="{StaticResource CBackground7}" Padding="10 5 10 10"
                                                 CornerRadius="5">
                                             <core:SpacedStackPanel Orientation="Vertical" Spacing="5">
-                                                <TextBlock HorizontalAlignment="Left" Text="{Binding DisplayName}"
-                                                           FontSize="18" Foreground="{StaticResource CForeground1}" />
-                                                <TextBlock HorizontalAlignment="Left" Text="{Binding Description}"
-                                                           FontSize="15" Foreground="{StaticResource CForeground2}" />
-                                                <Frame Name="OptionPageFrame"
-                                                       Content="{Binding PageInstance}"
-                                                       NavigationUIVisibility="Hidden" />
+                                                <StackPanel>
+                                                    <TextBlock
+                                                        Text="{Binding DisplayName}"
+                                                        Foreground="{StaticResource CForeground1}"
+                                                        FontSize="18"
+                                                        VerticalAlignment="Top"
+                                                        FontWeight="DemiBold"
+                                                        Padding="2 0" />
+                                                    <TextBlock
+                                                        Text="{Binding Description}"
+                                                        Foreground="{StaticResource CForeground2}"
+                                                        FontSize="14"
+                                                        VerticalAlignment="Bottom"
+                                                        Padding="2 0" />
+                                                </StackPanel>
+                                                <ContentControl Name="OptionContentControl"
+                                                                Content="{Binding ViewInstance}" />
                                             </core:SpacedStackPanel>
                                         </Border>
                                     </ControlTemplate>

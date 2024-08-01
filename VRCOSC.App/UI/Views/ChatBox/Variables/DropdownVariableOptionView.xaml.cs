@@ -8,11 +8,11 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Pages.ChatBox.Options;
 
-public partial class DropdownVariableOptionPage
+public partial class DropdownVariableOptionView
 {
     public Observable<int> SelectedIndex { get; } = new();
 
-    public DropdownVariableOptionPage(ClipVariable instance, PropertyInfo propertyInfo)
+    public DropdownVariableOptionView(ClipVariable instance, PropertyInfo propertyInfo)
     {
         InitializeComponent();
 
