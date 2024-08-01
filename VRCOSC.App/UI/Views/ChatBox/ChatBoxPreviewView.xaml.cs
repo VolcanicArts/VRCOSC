@@ -12,19 +12,8 @@ public partial class ChatBoxPreviewView
     {
         InitializeComponent();
 
-        AppManager.GetInstance().State.Subscribe(onAppManagerStateChange, true);
         AppManager.GetInstance().VRChatOscClient.OnParameterSent += OnParameterSent;
     }
-
-    private void onAppManagerStateChange(AppManagerState newState) => Dispatcher.Invoke(() =>
-    {
-        switch (newState)
-        {
-            case AppManagerState.Starting:
-                ChatBoxText.Text = "";
-                break;
-        }
-    });
 
     private void OnParameterSent(VRChatOscMessage message) => Dispatcher.Invoke(() =>
     {
