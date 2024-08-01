@@ -21,7 +21,7 @@ public class RouterManager
     public ObservableCollection<RouterInstance> Routes { get; } = new();
     private readonly SerialisationManager serialisationManager;
 
-    private readonly List<OscSender> senders = new();
+    private readonly List<(RouterInstance, OscSender)> senders = new();
 
     public RouterManager()
     {
@@ -67,7 +67,7 @@ public class RouterManager
                 sender.Initialise(endpoint);
                 sender.Enable();
 
-                senders.Add(sender);
+                senders.Add((route, sender));
             }
             catch (Exception e)
             {
@@ -80,12 +80,11 @@ public class RouterManager
 
     public void Stop()
     {
-        Logger.Log("Stopping router instances");
-
         AppManager.GetInstance().VRChatOscClient.OnParameterReceived -= onParameterReceived;
 
-        foreach (var sender in senders)
+        foreach (var (route, sender) in senders)
         {
+            Logger.Log($"Stopping router instance '{route.Name.Value}'");
             sender.Disable();
         }
 
@@ -94,7 +93,7 @@ public class RouterManager
 
     private void onParameterReceived(VRChatOscMessage message)
     {
-        foreach (var sender in senders)
+        foreach (var (_, sender) in senders)
         {
             sender.Send(OscEncoder.Encode(message));
         }

@@ -120,7 +120,7 @@ public partial class RunView : INotifyPropertyChanged
 
     private void onLogEntry(LogEntry e) => Dispatcher.Invoke(() =>
     {
-        if (e.LoggerName != "terminal") return;
+        if (e.LoggerName != "terminal" && !e.Message!.Contains("router")) return;
 
         var dateTimeText = $"[{DateTime.Now:HH:mm:ss}] {e.Message}";
 
@@ -198,4 +198,3 @@ public partial class RunView : INotifyPropertyChanged
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }
-
