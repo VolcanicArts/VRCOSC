@@ -179,12 +179,7 @@ public partial class MainWindow
 
     private void MainWindow_OnPreviewMouseDown(object sender, MouseButtonEventArgs e)
     {
-        var focusedElement = FocusManager.GetFocusedElement(this);
-
-        if (e.OriginalSource is not TextBox && focusedElement is TextBox)
-        {
-            Keyboard.ClearFocus();
-        }
+        Keyboard.ClearFocus();
     }
 
     private async void MainWindow_OnClosing(object? sender, CancelEventArgs e)
