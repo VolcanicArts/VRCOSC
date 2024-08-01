@@ -23,16 +23,54 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="RadioButton">
-                        <Border x:Name="Border"
-                                Background="Transparent"
-                                BorderThickness="0">
-                            <Viewbox Stretch="Uniform" Margin="23">
-                                <ContentPresenter />
-                            </Viewbox>
-                        </Border>
+                        <Grid>
+                            <Border x:Name="Border"
+                                    Background="Transparent"
+                                    BorderThickness="0">
+                                <Viewbox Stretch="Uniform" Margin="23">
+                                    <ContentPresenter />
+                                </Viewbox>
+                            </Border>
+                            <Border x:Name="Indicator"
+                                    Background="{StaticResource CForeground4}"
+                                    CornerRadius="10"
+                                    Width="8"
+                                    Height="0"
+                                    HorizontalAlignment="Left"
+                                    Margin="-4 0 0 0"
+                                    VerticalAlignment="Center" />
+                        </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
                                 <Setter TargetName="Border" Property="Background" Value="{StaticResource CBackground2}" />
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="Indicator"
+                                                             Storyboard.TargetProperty="Height"
+                                                             To="50"
+                                                             Duration="0:0:0.2">
+                                                <DoubleAnimation.EasingFunction>
+                                                    <QuarticEase EasingMode="EaseInOut" />
+                                                </DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="Indicator"
+                                                             Storyboard.TargetProperty="Height"
+                                                             To="0"
+                                                             Duration="0:0:0.2">
+                                                <DoubleAnimation.EasingFunction>
+                                                    <QuarticEase EasingMode="EaseInOut" />
+                                                </DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
