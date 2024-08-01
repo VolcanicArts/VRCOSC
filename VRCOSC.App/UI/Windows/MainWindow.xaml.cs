@@ -9,7 +9,6 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
-using System.Windows.Input;
 using System.Windows.Interop;
 using Newtonsoft.Json;
 using PInvoke;
@@ -175,11 +174,6 @@ public partial class MainWindow
 
         stream.CopyTo(memoryStream);
         return memoryStream.ToArray();
-    }
-
-    private void MainWindow_OnPreviewMouseDown(object sender, MouseButtonEventArgs e)
-    {
-        Keyboard.ClearFocus();
     }
 
     private async void MainWindow_OnClosing(object? sender, CancelEventArgs e)

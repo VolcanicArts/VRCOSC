@@ -8,7 +8,6 @@
         xmlns:fa6="http://schemas.fontawesome.com/icons/fonts"
         mc:Ignorable="d"
         Title="VRCOSC" Width="1366" Height="768" MinWidth="960" MinHeight="540"
-        PreviewMouseDown="MainWindow_OnPreviewMouseDown"
         Closing="MainWindow_OnClosing"
         Closed="MainWindow_OnClosed">
     <Window.Resources>
