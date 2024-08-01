@@ -510,6 +510,11 @@ public partial class ChatBoxView
 
     private void IgnoreErrors_ButtonClick(object sender, RoutedEventArgs e)
     {
+        var confirmation = MessageBox.Show("Ignoring errors can result in loss of data if you don't know what you're doing. Are you sure you want to ignore the errors?", "Ignore errors?",
+            MessageBoxButton.YesNo);
+
+        if (confirmation != MessageBoxResult.Yes) return;
+
         ChatBoxManager.GetInstance().Deserialise(string.Empty, true);
     }
 

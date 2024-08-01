@@ -151,12 +151,9 @@
                             </Border>
                             <Border Grid.Column="2" Background="{StaticResource CBackground1}"
                                     CornerRadius="5">
-                                <core:VRCOSCButton Click="EditClip_ButtonClick" Width="150" Height="30"
-                                                 ButtonColour="Blue">
-                                    <TextBlock Text="Edit Clip" Foreground="{StaticResource CForeground1}"
-                                               FontSize="20"
-                                               HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                </core:VRCOSCButton>
+                                <core:IconButton Click="EditClip_ButtonClick" Width="100" Height="30"
+                                                 ButtonColour="Blue" Icon="Solid_PenToSquare">
+                                </core:IconButton>
                             </Border>
                         </Grid>
                     </Grid>
@@ -482,10 +479,10 @@
             <core:SpacedStackPanel Orientation="Vertical" Spacing="20" VerticalAlignment="Center">
                 <TextBlock MaxWidth="400" FontSize="25" TextAlignment="Center"
                            HorizontalAlignment="Center" TextWrapping="Wrap" Foreground="{StaticResource CForeground1}"
-                           Text="ChatBox editing is disabled. Fix any module errors and update any module packages, or click the button to ignore the errors if you know what you're doing" />
+                           Text="ChatBox editing is disabled due to errors. Ignoring the errors will skip loading any invalid data." />
                 <core:VRCOSCButton Width="150" Height="35" ButtonColour="Red" Click="IgnoreErrors_ButtonClick">
                     <TextBlock VerticalAlignment="Center" Foreground="{StaticResource CForeground1}" FontSize="20"
-                               Text="Ignore Errors" />
+                               Text="Ignore Errors" HorizontalAlignment="Center" />
                 </core:VRCOSCButton>
             </core:SpacedStackPanel>
         </Border>
