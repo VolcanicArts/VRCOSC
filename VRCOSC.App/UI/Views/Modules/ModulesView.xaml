@@ -44,7 +44,7 @@
                                                                FontSize="20"
                                                                FontWeight="Bold"
                                                                Foreground="{StaticResource CForeground2}"
-                                                               Padding="3 -2" />
+                                                               Padding="3 -1" />
                                                     <Border Background="{StaticResource CBlue}" CornerRadius="3"
                                                             Padding="20 0"
                                                             Visibility="{Binding Key.LocalVisibility, Mode=OneWay}">
@@ -92,7 +92,7 @@
                                                                                 Foreground="{StaticResource CForeground2}"
                                                                                 FontSize="12"
                                                                                 VerticalAlignment="Bottom"
-                                                                                Padding="2 -2" />
+                                                                                Padding="2 -1" />
                                                                         </Grid>
                                                                     </core:SpacedStackPanel>
                                                                     <core:SpacedStackPanel
