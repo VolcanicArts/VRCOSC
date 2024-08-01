@@ -4,15 +4,13 @@
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.UI.Core;
 
-namespace VRCOSC.App.Pages.ChatBox;
+namespace VRCOSC.App.UI.Views.ChatBox;
 
-public partial class ChatBoxPreviewWindow
+public partial class ChatBoxPreviewView
 {
-    public ChatBoxPreviewWindow()
+    public ChatBoxPreviewView()
     {
         InitializeComponent();
-
-        DataContext = this;
 
         AppManager.GetInstance().State.Subscribe(onAppManagerStateChange, true);
         AppManager.GetInstance().VRChatOscClient.OnParameterSent += OnParameterSent;

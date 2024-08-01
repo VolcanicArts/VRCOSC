@@ -10,12 +10,12 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.UI.Views.Run.Tabs;
 
-public partial class RuntimeView
+public partial class RuntimeTabView
 {
     public Observable<IEnumerable<RuntimePage>> Pages { get; } = new(new List<RuntimePage>());
     public Observable<Visibility> PageListVisibility { get; } = new(Visibility.Collapsed);
 
-    public RuntimeView()
+    public RuntimeTabView()
     {
         InitializeComponent();
 

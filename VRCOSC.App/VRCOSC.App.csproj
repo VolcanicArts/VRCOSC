@@ -62,17 +62,17 @@
       <Page Update="UI\Views\Modules\ModulesView.xaml">
         <Generator>MSBuild:Compile</Generator>
       </Page>
-      <Page Update="UI\Views\Run\Tabs\AvatarParameterView.xaml">
+      <Page Update="UI\Views\Run\Tabs\AvatarParameterTabView.xaml">
         <Generator>MSBuild:Compile</Generator>
         <XamlRuntime>Wpf</XamlRuntime>
         <SubType>Designer</SubType>
       </Page>
-      <Page Update="UI\Views\Run\Tabs\ChatBoxView.xaml">
+      <Page Update="UI\Views\Run\Tabs\ChatBoxTabView.xaml">
         <Generator>MSBuild:Compile</Generator>
         <XamlRuntime>Wpf</XamlRuntime>
         <SubType>Designer</SubType>
       </Page>
-      <Page Update="UI\Views\Run\Tabs\RuntimeView.xaml">
+      <Page Update="UI\Views\Run\Tabs\RuntimeTabView.xaml">
         <Generator>MSBuild:Compile</Generator>
         <XamlRuntime>Wpf</XamlRuntime>
         <SubType>Designer</SubType>
@@ -178,6 +178,11 @@
         <SubType>Designer</SubType>
       </Page>
       <Page Update="UI\Views\ChatBox\Variables\ToggleVariableOptionView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="UI\Windows\ChatBox\ChatBoxPreviewWindow.xaml">
         <Generator>MSBuild:Compile</Generator>
         <XamlRuntime>Wpf</XamlRuntime>
         <SubType>Designer</SubType>

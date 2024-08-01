@@ -11,7 +11,7 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.UI.Views.Run.Tabs;
 
-public partial class AvatarParameterView
+public partial class AvatarParameterTabView
 {
     public ObservableDictionary<string, object> OutgoingMessages { get; } = new();
     public ObservableDictionary<string, object> IncomingMessages { get; } = new();
@@ -24,7 +24,7 @@ public partial class AvatarParameterView
 
     private readonly DispatcherTimer timer;
 
-    public AvatarParameterView()
+    public AvatarParameterTabView()
     {
         InitializeComponent();
 
