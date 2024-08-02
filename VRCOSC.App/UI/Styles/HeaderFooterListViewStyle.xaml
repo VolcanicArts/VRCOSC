@@ -3,6 +3,7 @@
                     xmlns:core="clr-namespace:VRCOSC.App.UI.Core">
     <core:RectSizeConverter x:Key="RectSizeConverter" />
     <core:HeaderFooterListViewContentHeightConverter x:Key="HeaderFooterListViewContentHeightConverter" />
+    <core:HeaderFooterListViewPanningModeConverter x:Key="HeaderFooterListViewPanningModeConverter" />
     <core:CollapseWhenListEmptyConverter x:Key="CollapseWhenListEmptyConverter" />
     <Style TargetType="{x:Type core:HeaderFooterListView}">
         <Setter Property="OverridesDefaultStyle" Value="True" />
@@ -42,7 +43,7 @@
                                 </ContentPresenter.Visibility>
                             </ContentPresenter>
                             <ScrollViewer x:Name="ScrollViewer" Grid.Row="1" Background="{TemplateBinding Background}"
-                                          VerticalScrollBarVisibility="Auto">
+                                          VerticalScrollBarVisibility="Auto" CanContentScroll="False">
                                 <ItemsPresenter x:Name="ItemsPresenter" VerticalAlignment="Top" />
                                 <ScrollViewer.Height>
                                     <MultiBinding
@@ -55,6 +56,17 @@
                                                  RelativeSource="{RelativeSource TemplatedParent}" />
                                     </MultiBinding>
                                 </ScrollViewer.Height>
+                                <ScrollViewer.PanningMode>
+                                    <MultiBinding
+                                        Converter="{StaticResource HeaderFooterListViewPanningModeConverter}">
+                                        <Binding Path="ActualHeight" ElementName="ItemsPresenter" />
+                                        <Binding Path="ActualHeight" ElementName="Border" />
+                                        <Binding Path="ActualHeight" ElementName="HeaderPresenter" />
+                                        <Binding Path="ActualHeight" ElementName="FooterPresenter" />
+                                        <Binding Path="ShouldTruncateHeight"
+                                                 RelativeSource="{RelativeSource TemplatedParent}" />
+                                    </MultiBinding>
+                                </ScrollViewer.PanningMode>
                             </ScrollViewer>
                             <ContentPresenter x:Name="FooterPresenter" Grid.Row="2" Content="{TemplateBinding Footer}">
                                 <ContentPresenter.Visibility>

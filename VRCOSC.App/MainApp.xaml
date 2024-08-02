@@ -1,4 +1,4 @@
-﻿<Application x:Class="VRCOSC.App.MainApp"
+<Application x:Class="VRCOSC.App.MainApp"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:core="clr-namespace:VRCOSC.App.UI.Core">
@@ -12,6 +12,7 @@
                 <ResourceDictionary Source="UI/Styles/IconButtonStyle.xaml" />
                 <ResourceDictionary Source="UI/Styles/TextBoxStyle.xaml" />
                 <ResourceDictionary Source="UI/Styles/HeaderFooterListViewStyle.xaml" />
+                <ResourceDictionary Source="UI/Styles/SpacedListView.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <Style TargetType="{x:Type core:IPPortTextBox}" BasedOn="{StaticResource {x:Type TextBox}}" />
         </ResourceDictionary>

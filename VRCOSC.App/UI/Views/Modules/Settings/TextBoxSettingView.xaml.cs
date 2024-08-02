@@ -7,7 +7,21 @@ namespace VRCOSC.App.UI.Views.Modules.Settings;
 
 public partial class TextBoxSettingView
 {
-    public TextBoxSettingView(ModuleSetting moduleSetting)
+    public TextBoxSettingView(StringModuleSetting moduleSetting)
+    {
+        InitializeComponent();
+
+        DataContext = moduleSetting;
+    }
+
+    public TextBoxSettingView(IntModuleSetting moduleSetting)
+    {
+        InitializeComponent();
+
+        DataContext = moduleSetting;
+    }
+
+    public TextBoxSettingView(FloatModuleSetting moduleSetting)
     {
         InitializeComponent();
 

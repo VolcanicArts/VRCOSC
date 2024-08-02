@@ -10,110 +10,108 @@
         <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
                                          Colour2="{StaticResource CBackground4}" />
     </UserControl.Resources>
-    <Grid>
-        <core:HeaderFooterListView Visibility="{Binding ContentVisibility}" AlternationCount="2"
-                                   ItemsSource="{Binding ModuleSetting.Attribute}">
-            <core:HeaderFooterListView.Header>
-                <Border Grid.Row="0" Background="{StaticResource CBackground1}" Height="30">
-                    <Grid Margin="5">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="5" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="{Binding ModuleSetting.Metadata.KeyTitle}"
-                                   Foreground="{StaticResource CForeground1}" FontSize="16" TextAlignment="Center"
-                                   VerticalAlignment="Center" />
-                        <TextBlock Grid.Column="2" Text="{Binding ModuleSetting.Metadata.ValueTitle}"
-                                   Foreground="{StaticResource CForeground1}" FontSize="16" TextAlignment="Center"
-                                   VerticalAlignment="Center" />
-                    </Grid>
-                </Border>
-            </core:HeaderFooterListView.Header>
-            <ListView.ItemContainerStyle>
-                <Style TargetType="ListViewItem">
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate>
-                                <Border
-                                    Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}"
-                                    Padding="2">
-                                    <Grid Margin="5">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="5" />
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="5" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-                                        <TextBox Grid.Column="0"
-                                                 Text="{Binding Key.Value, UpdateSourceTrigger=PropertyChanged}"
-                                                 Background="{StaticResource CBackground5}"
-                                                 Foreground="{StaticResource CForeground1}" FontSize="16"
-                                                 HorizontalAlignment="Stretch"
-                                                 VerticalContentAlignment="Center"
-                                                 BorderThickness="0">
-                                            <TextBox.Template>
-                                                <ControlTemplate TargetType="TextBox">
-                                                    <Border
-                                                        Background="{TemplateBinding Background}"
-                                                        BorderBrush="{TemplateBinding BorderBrush}"
-                                                        BorderThickness="{TemplateBinding BorderThickness}"
-                                                        CornerRadius="5" Padding="5 2">
-                                                        <ScrollViewer x:Name="PART_ContentHost"
-                                                                      FontSize="{TemplateBinding FontSize}"
-                                                                      VerticalAlignment="Center" />
-                                                    </Border>
-                                                </ControlTemplate>
-                                            </TextBox.Template>
-                                        </TextBox>
-                                        <TextBox Grid.Column="2"
-                                                 Text="{Binding Value.Value, UpdateSourceTrigger=PropertyChanged}"
-                                                 Background="{StaticResource CBackground5}"
-                                                 Foreground="{StaticResource CForeground1}" FontSize="16"
-                                                 HorizontalAlignment="Stretch"
-                                                 VerticalContentAlignment="Center"
-                                                 BorderThickness="0">
-                                            <TextBox.Template>
-                                                <ControlTemplate TargetType="TextBox">
-                                                    <Border
-                                                        Background="{TemplateBinding Background}"
-                                                        BorderBrush="{TemplateBinding BorderBrush}"
-                                                        BorderThickness="{TemplateBinding BorderThickness}"
-                                                        CornerRadius="5" Padding="5 2">
-                                                        <ScrollViewer x:Name="PART_ContentHost"
-                                                                      FontSize="{TemplateBinding FontSize}"
-                                                                      VerticalAlignment="Center" />
-                                                    </Border>
-                                                </ControlTemplate>
-                                            </TextBox.Template>
-                                        </TextBox>
-                                        <core:VRCOSCButton Grid.Column="4" ButtonColour="Red"
-                                                           Click="RemoveButton_OnClick"
-                                                           Height="25" Width="25">
-                                            <core:VRCOSCButton.Tag>
-                                                <Binding />
-                                            </core:VRCOSCButton.Tag>
-                                            <fa6:ImageAwesome Icon="Solid_Minus"
-                                                              PrimaryColor="{StaticResource CForeground1}"
-                                                              Margin="4" />
-                                        </core:VRCOSCButton>
-                                    </Grid>
-                                </Border>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                </Style>
-            </ListView.ItemContainerStyle>
-            <core:HeaderFooterListView.Footer>
-                <Border Grid.Row="2" Background="{StaticResource CBackground1}" Height="30">
-                    <core:VRCOSCButton Width="90" Height="20" Click="AddButton_OnClick" ButtonColour="Green">
-                        <fa6:ImageAwesome Icon="Solid_Plus"
-                                          PrimaryColor="{StaticResource CForeground1}"
-                                          Margin="3" />
-                    </core:VRCOSCButton>
-                </Border>
-            </core:HeaderFooterListView.Footer>
-        </core:HeaderFooterListView>
-    </Grid>
+    <core:HeaderFooterListView Visibility="{Binding ContentVisibility}" AlternationCount="2"
+                               ItemsSource="{Binding ModuleSetting.Attribute}" ShouldTruncateHeight="False">
+        <core:HeaderFooterListView.Header>
+            <Border Grid.Row="0" Background="{StaticResource CBackground1}" Height="30">
+                <Grid Margin="5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="5" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="{Binding ModuleSetting.Metadata.KeyTitle}"
+                               Foreground="{StaticResource CForeground1}" FontSize="16" TextAlignment="Center"
+                               VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="2" Text="{Binding ModuleSetting.Metadata.ValueTitle}"
+                               Foreground="{StaticResource CForeground1}" FontSize="16" TextAlignment="Center"
+                               VerticalAlignment="Center" />
+                </Grid>
+            </Border>
+        </core:HeaderFooterListView.Header>
+        <ListView.ItemContainerStyle>
+            <Style TargetType="ListViewItem">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate>
+                            <Border
+                                Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}"
+                                Padding="2">
+                                <Grid Margin="5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="5" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="5" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Grid.Column="0"
+                                             Text="{Binding Key.Value, UpdateSourceTrigger=PropertyChanged}"
+                                             Background="{StaticResource CBackground5}"
+                                             Foreground="{StaticResource CForeground1}" FontSize="16"
+                                             HorizontalAlignment="Stretch"
+                                             VerticalContentAlignment="Center"
+                                             BorderThickness="0">
+                                        <TextBox.Template>
+                                            <ControlTemplate TargetType="TextBox">
+                                                <Border
+                                                    Background="{TemplateBinding Background}"
+                                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                                    CornerRadius="5" Padding="5 2">
+                                                    <ScrollViewer x:Name="PART_ContentHost"
+                                                                  FontSize="{TemplateBinding FontSize}"
+                                                                  VerticalAlignment="Center" />
+                                                </Border>
+                                            </ControlTemplate>
+                                        </TextBox.Template>
+                                    </TextBox>
+                                    <TextBox Grid.Column="2"
+                                             Text="{Binding Value.Value, UpdateSourceTrigger=PropertyChanged}"
+                                             Background="{StaticResource CBackground5}"
+                                             Foreground="{StaticResource CForeground1}" FontSize="16"
+                                             HorizontalAlignment="Stretch"
+                                             VerticalContentAlignment="Center"
+                                             BorderThickness="0">
+                                        <TextBox.Template>
+                                            <ControlTemplate TargetType="TextBox">
+                                                <Border
+                                                    Background="{TemplateBinding Background}"
+                                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                                    CornerRadius="5" Padding="5 2">
+                                                    <ScrollViewer x:Name="PART_ContentHost"
+                                                                  FontSize="{TemplateBinding FontSize}"
+                                                                  VerticalAlignment="Center" />
+                                                </Border>
+                                            </ControlTemplate>
+                                        </TextBox.Template>
+                                    </TextBox>
+                                    <core:VRCOSCButton Grid.Column="4" ButtonColour="Red"
+                                                       Click="RemoveButton_OnClick"
+                                                       Height="25" Width="25">
+                                        <core:VRCOSCButton.Tag>
+                                            <Binding />
+                                        </core:VRCOSCButton.Tag>
+                                        <fa6:ImageAwesome Icon="Solid_Minus"
+                                                          PrimaryColor="{StaticResource CForeground1}"
+                                                          Margin="4" />
+                                    </core:VRCOSCButton>
+                                </Grid>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </ListView.ItemContainerStyle>
+        <core:HeaderFooterListView.Footer>
+            <Border Grid.Row="2" Background="{StaticResource CBackground1}" Height="30">
+                <core:VRCOSCButton Width="90" Height="20" Click="AddButton_OnClick" ButtonColour="Green">
+                    <fa6:ImageAwesome Icon="Solid_Plus"
+                                      PrimaryColor="{StaticResource CForeground1}"
+                                      Margin="3" />
+                </core:VRCOSCButton>
+            </Border>
+        </core:HeaderFooterListView.Footer>
+    </core:HeaderFooterListView>
 </UserControl>

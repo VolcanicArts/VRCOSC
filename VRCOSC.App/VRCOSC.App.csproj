@@ -40,7 +40,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Pages\Profiles\" />
       <Folder Include="Resources\" />
     </ItemGroup>
 

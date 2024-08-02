@@ -59,7 +59,7 @@ public class SpacedStackPanel : StackPanel
 
             totalChildHeight += Spacing * (InternalChildren.Cast<UIElement>().Count(c => c.Visibility == Visibility.Visible) - 1);
 
-            return new Size(sizeAvailable.Width, totalChildHeight);
+            return new Size(Math.Max(sizeAvailable.Width, 0), Math.Max(totalChildHeight, 0));
         }
     }
 

@@ -3,54 +3,45 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
         mc:Ignorable="d"
         MinWidth="600" MinHeight="600" Width="600" Height="768">
-    <Grid>
-        <Border Background="{StaticResource CBackground2}">
-            <core:MouseScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-                <ListView ItemsSource="{Binding UIOptions}" HorizontalAlignment="Stretch"
-                          Margin="5" BorderThickness="0"
-                          Background="Transparent">
-                    <b:Interaction.Behaviors>
-                        <core:IgnoreMouseWheelBehavior />
-                    </b:Interaction.Behaviors>
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="ListViewItem">
-                            <Setter Property="Margin" Value="5" />
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="ListViewItem">
-                                        <Border Background="{StaticResource CBackground7}" Padding="10 5 10 10"
-                                                CornerRadius="5">
-                                            <core:SpacedStackPanel Orientation="Vertical" Spacing="5">
-                                                <StackPanel>
-                                                    <TextBlock
-                                                        Text="{Binding DisplayName}"
-                                                        Foreground="{StaticResource CForeground1}"
-                                                        FontSize="18"
-                                                        VerticalAlignment="Top"
-                                                        FontWeight="DemiBold"
-                                                        Padding="2 0" />
-                                                    <TextBlock
-                                                        Text="{Binding Description}"
-                                                        Foreground="{StaticResource CForeground2}"
-                                                        FontSize="14"
-                                                        VerticalAlignment="Bottom"
-                                                        Padding="2 0" />
-                                                </StackPanel>
-                                                <ContentControl Name="OptionContentControl"
-                                                                Content="{Binding ViewInstance}" />
-                                            </core:SpacedStackPanel>
-                                        </Border>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                    </ListView.ItemContainerStyle>
-                </ListView>
-            </core:MouseScrollViewer>
-        </Border>
-    </Grid>
+    <Border Background="{StaticResource CBackground2}">
+        <core:SpacedListView ItemsSource="{Binding UIOptions}" Padding="10" Spacing="10">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ListViewItem">
+                                <Border Background="{StaticResource CBackground7}" Padding="10 5 10 10"
+                                        CornerRadius="5">
+                                    <core:SpacedStackPanel Orientation="Vertical" Spacing="5">
+                                        <StackPanel>
+                                            <TextBlock
+                                                Text="{Binding DisplayName}"
+                                                Foreground="{StaticResource CForeground1}"
+                                                FontSize="18"
+                                                VerticalAlignment="Top"
+                                                TextWrapping="Wrap"
+                                                FontWeight="DemiBold"
+                                                Padding="2 0" />
+                                            <TextBlock
+                                                Text="{Binding Description}"
+                                                Foreground="{StaticResource CForeground2}"
+                                                FontSize="14"
+                                                VerticalAlignment="Bottom"
+                                                TextWrapping="Wrap"
+                                                Padding="2 0" />
+                                        </StackPanel>
+                                        <ContentControl Name="OptionContentControl"
+                                                        Content="{Binding ViewInstance}" />
+                                    </core:SpacedStackPanel>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ListView.ItemContainerStyle>
+        </core:SpacedListView>
+    </Border>
 </Window>

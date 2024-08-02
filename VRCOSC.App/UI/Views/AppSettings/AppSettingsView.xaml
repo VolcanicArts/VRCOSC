@@ -45,8 +45,12 @@
             <Setter Property="Width" Value="384" />
             <Setter Property="FontSize" Value="18" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Foreground" Value="{StaticResource CForeground1}" />
+            <Setter Property="Background" Value="{StaticResource CBackground3}" />
         </Style>
         <Style x:Key="SettingTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Foreground" Value="{StaticResource CForeground1}" />
+            <Setter Property="Background" Value="{StaticResource CBackground3}" />
             <Setter Property="HorizontalAlignment" Value="Right" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="VerticalAlignment" Value="Center" />
@@ -76,8 +80,7 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Border Grid.Column="0" Background="{StaticResource CBackground4}">
-            <core:MouseScrollViewer Padding="10" HorizontalScrollBarVisibility="Disabled"
-                                    VerticalScrollBarVisibility="Auto">
+            <ScrollViewer Padding="10" VerticalScrollBarVisibility="Auto">
                 <core:SpacedStackPanel Orientation="Vertical" Spacing="5">
                     <RadioButton Click="GeneralTabButton_OnClick" IsChecked="True">
                         <TextBlock Text="General" />
@@ -101,11 +104,10 @@
                         <TextBlock Text="Developer" />
                     </RadioButton>
                 </core:SpacedStackPanel>
-            </core:MouseScrollViewer>
+            </ScrollViewer>
         </Border>
         <Border Grid.Column="1">
-            <core:MouseScrollViewer Padding="10" HorizontalScrollBarVisibility="Auto"
-                                    VerticalScrollBarVisibility="Auto">
+            <ScrollViewer Padding="10" VerticalScrollBarVisibility="Auto">
                 <Grid>
                     <Grid Name="GeneralContainer" Visibility="Collapsed">
                         <core:SpacedStackPanel Orientation="Vertical" Spacing="5">
@@ -388,7 +390,7 @@
                         </core:SpacedStackPanel>
                     </Grid>
                 </Grid>
-            </core:MouseScrollViewer>
+            </ScrollViewer>
         </Border>
     </Grid>
 </UserControl>

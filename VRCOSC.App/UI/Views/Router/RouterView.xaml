@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
              xmlns:fa6="http://schemas.fontawesome.com/icons/fonts"
+             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d"
              Background="Transparent"
              d:DesignWidth="1366" d:DesignHeight="768" >
@@ -75,6 +76,9 @@
                                                     HorizontalAlignment="Stretch"
                                                     VerticalAlignment="Center"
                                                     VerticalContentAlignment="Center">
+                                                    <b:Interaction.Behaviors>
+                                                        <core:InterceptManipulationEventsBehavior />
+                                                    </b:Interaction.Behaviors>
                                                     <TextBox.Template>
                                                         <ControlTemplate
                                                             TargetType="TextBox">
@@ -100,10 +104,13 @@
                                                     HorizontalAlignment="Stretch"
                                                     VerticalAlignment="Center"
                                                     VerticalContentAlignment="Center">
+                                                    <b:Interaction.Behaviors>
+                                                        <core:InterceptManipulationEventsBehavior />
+                                                    </b:Interaction.Behaviors>
                                                     <TextBox.Template>
                                                         <ControlTemplate
                                                             TargetType="TextBox">
-                                                            <Border
+                                                            <Border 
                                                                 Background="{TemplateBinding Background}"
                                                                 BorderBrush="{TemplateBinding BorderBrush}"
                                                                 BorderThickness="{TemplateBinding BorderThickness}"

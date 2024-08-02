@@ -127,9 +127,9 @@
                                                    Foreground="{StaticResource CForeground2}"
                                                    VerticalAlignment="Center" />
                                         <core:VRCOSCCheckBox Grid.Column="1" IsChecked="{Binding Enabled.Value}"
-                                                           Width="25"
-                                                           HorizontalAlignment="Left"
-                                                           Height="25" />
+                                                             Width="25"
+                                                             HorizontalAlignment="Left"
+                                                             Height="25" />
                                     </Grid>
                                     <Grid>
                                         <Grid.ColumnDefinitions>
@@ -152,8 +152,7 @@
                             <Border Grid.Column="2" Background="{StaticResource CBackground1}"
                                     CornerRadius="5">
                                 <core:IconButton Click="EditClip_ButtonClick" Width="100" Height="30"
-                                                 ButtonColour="Blue" Icon="Solid_PenToSquare">
-                                </core:IconButton>
+                                                 ButtonColour="Blue" Icon="Solid_PenToSquare" />
                             </Border>
                         </Grid>
                     </Grid>
@@ -184,8 +183,7 @@
                                     <Grid Name="HeaderGrid" />
                                 </Grid>
                                 <Border Grid.Row="1" Background="{StaticResource CBackground1}" />
-                                <core:MouseScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Disabled"
-                                                      VerticalScrollBarVisibility="Auto">
+                                <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
                                     <Grid x:Name="Timeline" Height="1600"
                                           MouseLeftButtonDown="TimelineContent_OnMouseLeftButtonDown"
                                           MouseRightButtonDown="TimelineContent_OnMouseRightButtonDown"
@@ -437,7 +435,7 @@
                                             </Border.RenderTransform>
                                         </Border>
                                     </Grid>
-                                </core:MouseScrollViewer>
+                                </ScrollViewer>
                             </Grid>
                             <!--> Right Click Menu <-->
                             <Grid Name="RightClickMenu" Width="150" HorizontalAlignment="Left" VerticalAlignment="Top"

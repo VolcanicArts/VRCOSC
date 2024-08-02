@@ -1,11 +1,9 @@
 ﻿<UserControl x:Class="VRCOSC.App.UI.Views.Modules.Settings.ToggleSettingView"
-      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-      xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
-      mc:Ignorable="d">
-    <Grid>
-        <core:VRCOSCCheckBox IsChecked="{Binding Attribute.Value}" Width="35" Height="35"/>
-    </Grid>
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
+             mc:Ignorable="d">
+    <core:VRCOSCCheckBox IsChecked="{Binding Attribute.Value}" Width="35" Height="35" />
 </UserControl>

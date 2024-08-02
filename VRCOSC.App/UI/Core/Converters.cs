@@ -4,6 +4,7 @@
 using System;
 using System.Globalization;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
 
@@ -68,6 +69,24 @@ public class HeaderFooterListViewContentHeightConverter : IMultiValueConverter
         }
 
         return 0;
+    }
+
+    public object[]? ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) => null;
+}
+
+public class HeaderFooterListViewPanningModeConverter : IMultiValueConverter
+{
+    public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (values[0] is double listDesiredHeight && values[1] is double totalHeight && values[2] is double headerHeight && values[3] is double footerHeight && values[4] is bool shouldTruncateHeight)
+        {
+            if (!shouldTruncateHeight) return PanningMode.None;
+
+            var targetHeight = totalHeight - headerHeight - footerHeight;
+            return listDesiredHeight >= targetHeight ? PanningMode.VerticalOnly : PanningMode.None;
+        }
+
+        return PanningMode.None;
     }
 
     public object[]? ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) => null;

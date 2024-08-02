@@ -31,21 +31,16 @@
                 </Grid.ColumnDefinitions>
                 <!--> Module Selection <-->
                 <Border Grid.Column="0" Background="{StaticResource CBackground5}" CornerRadius="5">
-                    <core:MouseScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto"
-                                            Padding="5">
-                        <core:SpacedStackPanel Spacing="10" Orientation="Vertical">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="5">
+                        <core:SpacedStackPanel Spacing="10">
                             <TextBlock Text="Select Modules" FontWeight="Bold" FontSize="18"
                                        Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center" />
-                            <ListView x:Name="ModulesList"
-                                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                      Background="Transparent"
-                                      BorderThickness="0" Padding="-1">
+                            <core:SpacedListView x:Name="ModulesList" Spacing="5">
                                 <b:Interaction.Behaviors>
                                     <core:IgnoreMouseWheelBehavior />
                                 </b:Interaction.Behaviors>
                                 <ListView.ItemContainerStyle>
                                     <Style TargetType="ListViewItem">
-                                        <Setter Property="Margin" Value="0 0 0 5" />
                                         <Setter Property="Template">
                                             <Setter.Value>
                                                 <ControlTemplate>
@@ -54,12 +49,11 @@
                                                         <Grid>
                                                             <Grid.ColumnDefinitions>
                                                                 <ColumnDefinition Width="*" />
-                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="Auto" />
                                                             </Grid.ColumnDefinitions>
                                                             <TextBlock Grid.Column="0" FontSize="15"
                                                                        Foreground="{StaticResource CForeground1}"
                                                                        Text="{Binding TitleWithPackage, Mode=OneWay}"
-                                                                       VerticalAlignment="Center"
                                                                        HorizontalAlignment="Left"
                                                                        Padding="5" />
                                                             <core:VRCOSCCheckBox Name="IsLinkedCheckBox"
@@ -81,9 +75,9 @@
                                         </Setter>
                                     </Style>
                                 </ListView.ItemContainerStyle>
-                            </ListView>
+                            </core:SpacedListView>
                         </core:SpacedStackPanel>
-                    </core:MouseScrollViewer>
+                    </ScrollViewer>
                 </Border>
                 <!--> Center <-->
                 <Grid Grid.Column="2">
@@ -94,22 +88,17 @@
                     </Grid.RowDefinitions>
                     <!--> Clip element list <-->
                     <Border Grid.Row="0" Background="{StaticResource CBackground5}" CornerRadius="5">
-                        <core:MouseScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
-                                                Padding="10 0">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="10 0">
                             <core:SpacedStackPanel Orientation="Vertical" Spacing="7">
                                 <TextBlock Text="States" FontWeight="Bold" FontSize="30"
                                            Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center"
                                            Visibility="{Binding HasStates, Converter={StaticResource BoolToVisibilityConverter}}" />
-                                <ListView ItemsSource="{Binding UIStates}"
-                                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                          Background="Transparent"
-                                          BorderThickness="0" Padding="-1">
+                                <core:SpacedListView ItemsSource="{Binding UIStates}" Spacing="10">
                                     <b:Interaction.Behaviors>
                                         <core:IgnoreMouseWheelBehavior />
                                     </b:Interaction.Behaviors>
                                     <ListView.ItemContainerStyle>
                                         <Style TargetType="ListViewItem">
-                                            <Setter Property="Margin" Value="0 0 0 10" />
                                             <Setter Property="Visibility"
                                                     Value="{Binding ShouldBeVisible, Converter={StaticResource BoolToVisibilityConverter}}" />
                                             <Setter Property="Template">
@@ -340,20 +329,16 @@
                                             </Setter>
                                         </Style>
                                     </ListView.ItemContainerStyle>
-                                </ListView>
+                                </core:SpacedListView>
                                 <TextBlock Text="Events" FontWeight="Bold" FontSize="30"
                                            Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center"
                                            Visibility="{Binding HasEvents, Converter={StaticResource BoolToVisibilityConverter}}" />
-                                <ListView ItemsSource="{Binding UIEvents}"
-                                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                          Background="Transparent"
-                                          BorderThickness="0" Padding="-1">
+                                <core:SpacedListView ItemsSource="{Binding UIEvents}" Spacing="10">
                                     <b:Interaction.Behaviors>
                                         <core:IgnoreMouseWheelBehavior />
                                     </b:Interaction.Behaviors>
                                     <ListView.ItemContainerStyle>
                                         <Style TargetType="ListViewItem">
-                                            <Setter Property="Margin" Value="0 0 0 10" />
                                             <Setter Property="Visibility"
                                                     Value="{Binding ShouldBeVisible, Converter={StaticResource BoolToVisibilityConverter}}" />
                                             <Setter Property="Template">
@@ -641,9 +626,9 @@
                                             </Setter>
                                         </Style>
                                     </ListView.ItemContainerStyle>
-                                </ListView>
+                                </core:SpacedListView>
                             </core:SpacedStackPanel>
-                        </core:MouseScrollViewer>
+                        </ScrollViewer>
                     </Border>
                     <!--> Footer <-->
                     <Border Grid.Row="2" Background="{StaticResource CBackground5}" CornerRadius="5" Padding="5">
@@ -667,15 +652,11 @@
                 </Grid>
                 <!--> Variables View <-->
                 <Border Grid.Column="4" Background="{StaticResource CBackground5}" CornerRadius="5">
-                    <core:MouseScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto"
-                                            Padding="5">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="5">
                         <core:SpacedStackPanel Spacing="10" Orientation="Vertical">
                             <TextBlock Text="Available Variables" FontWeight="Bold" FontSize="18"
                                        Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center" />
-                            <ListView ItemsSource="{Binding UIVariables}"
-                                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                      Background="Transparent"
-                                      BorderThickness="0" Padding="-1">
+                            <core:SpacedListView ItemsSource="{Binding UIVariables}" Spacing="5">
                                 <b:Interaction.Behaviors>
                                     <core:IgnoreMouseWheelBehavior />
                                 </b:Interaction.Behaviors>
@@ -751,9 +732,9 @@
                                         </Setter>
                                     </Style>
                                 </ListView.ItemContainerStyle>
-                            </ListView>
+                            </core:SpacedListView>
                         </core:SpacedStackPanel>
-                    </core:MouseScrollViewer>
+                    </ScrollViewer>
                 </Border>
             </Grid>
         </Border>
