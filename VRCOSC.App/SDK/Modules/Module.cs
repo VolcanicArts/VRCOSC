@@ -81,6 +81,7 @@ public abstract class Module
     public Brush Colour => Type.ToColour();
     public Uri InfoUrl => GetType().GetCustomAttribute<ModuleInfoAttribute>()!.Url;
 
+    public bool IsRemote => PackageID != "local";
     public bool HasSettings => Settings.Count != 0;
     public bool HasParameters => Parameters.Count != 0;
     public bool HasInfo => GetType().GetCustomAttribute<ModuleInfoAttribute>() is not null;
