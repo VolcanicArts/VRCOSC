@@ -205,11 +205,7 @@
                                                         Background="Transparent"
                                                         Height="50"
                                                         HorizontalAlignment="Left"
-                                                        VerticalAlignment="Top"
-                                                        MouseRightButtonDown="Clip_OnMouseRightButtonDown">
-                                                        <Border.Tag>
-                                                            <Binding />
-                                                        </Border.Tag>
+                                                        VerticalAlignment="Top">
                                                         <Border.RenderTransform>
                                                             <TranslateTransform>
                                                                 <TranslateTransform.X>
@@ -271,6 +267,7 @@
                                                                 BorderThickness="{Binding IsChosenClip.Value, Mode=OneWay, Converter={StaticResource BoolToThicknessConverter}}"
                                                                 CornerRadius="5">
                                                                 <Grid
+                                                                    MouseRightButtonDown="Clip_OnMouseRightButtonDown"
                                                                     MouseLeftButtonDown="Clip_OnMouseLeftButtonDown">
                                                                     <Grid.Tag>
                                                                         <Binding />
@@ -450,6 +447,12 @@
                                             <RowDefinition Height="*" />
                                         </Grid.RowDefinitions>
                                         <core:SpacedStackPanel x:Name="RightClickMenuClipOptions" Spacing="5">
+                                            <core:VRCOSCButton ButtonColour="Green" Click="CopyClip_OnClick">
+                                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                           Text="Copy Clip"
+                                                           Foreground="{StaticResource CForeground1}"
+                                                           FontSize="15" />
+                                            </core:VRCOSCButton>
                                             <core:VRCOSCButton ButtonColour="Red" Click="DeleteClip_OnClick">
                                                 <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
                                                            Text="Delete Clip"
@@ -458,6 +461,13 @@
                                             </core:VRCOSCButton>
                                         </core:SpacedStackPanel>
                                         <core:SpacedStackPanel x:Name="RightClickMenuLayerOptions" Spacing="5">
+                                            <core:VRCOSCButton ButtonColour="Green" Click="PasteClipOnLayer_OnClick"
+                                                               Visibility="{Binding PasteClipButtonVisibility.Value, Mode=OneWay}">
+                                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                           Text="Paste Clip"
+                                                           Foreground="{StaticResource CForeground1}"
+                                                           FontSize="15" />
+                                            </core:VRCOSCButton>
                                             <core:VRCOSCButton ButtonColour="Green" Click="CreateClipOnLayer_OnClick">
                                                 <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
                                                            Text="Create Clip"

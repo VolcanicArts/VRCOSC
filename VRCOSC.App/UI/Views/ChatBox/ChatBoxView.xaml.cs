@@ -30,6 +30,9 @@ public partial class ChatBoxView
     private ClipDragPoint clipDragPoint;
     private Window? manualInputWindow;
 
+    public Clip? CopiedClip { get; private set; }
+    public Observable<Visibility> PasteClipButtonVisibility { get; } = new(Visibility.Collapsed);
+
     public ChatBoxManager ChatBoxManager => ChatBoxManager.GetInstance();
 
     public ChatBoxView()
@@ -176,6 +179,22 @@ public partial class ChatBoxView
         clipBorder!.Background = (Brush)FindResource("CBackground6");
         SelectedClip = clip;
         RightClickMenu.FadeOutFromOne(50);
+    }
+
+    private void Clip_OnMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        var clipGrid = (Grid)sender;
+        var clip = (Clip)clipGrid.Tag;
+        e.Handled = true;
+
+        if (clipBorder is not null)
+            clipBorder!.Background = (Brush)FindResource("CBackground4");
+
+        clipBorder = clipGrid.FindVisualParent<Border>("ClipBorder");
+        clipBorder!.Background = (Brush)FindResource("CBackground6");
+        SelectedClip = clip;
+
+        showRightClickMenu(null, clip);
     }
 
     private void ClipMain_OnLeftMouseButtonDown(object sender, MouseButtonEventArgs e)
@@ -375,15 +394,6 @@ public partial class ChatBoxView
         DragDrop.DoDragDrop(this, new object(), DragDropEffects.Move);
     }
 
-    private void Clip_OnMouseRightButtonDown(object sender, MouseButtonEventArgs e)
-    {
-        var clipElement = (FrameworkElement)sender;
-        var clip = (Clip)clipElement.Tag;
-        e.Handled = true;
-
-        showRightClickMenu(null, clip);
-    }
-
     private void TextBox_OnLostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
     {
         var textBox = (TextBox)sender;
@@ -535,6 +545,44 @@ public partial class ChatBoxView
             manualInputWindow.WindowState = WindowState.Normal;
             manualInputWindow.Focus();
         }
+    }
+
+    private void CopyClip_OnClick(object sender, RoutedEventArgs e)
+    {
+        CopiedClip = SelectedClip;
+        PasteClipButtonVisibility.Value = Visibility.Visible;
+        RightClickMenu.FadeOutFromOne(50);
+    }
+
+    private void PasteClipOnLayer_OnClick(object sender, RoutedEventArgs e)
+    {
+        Debug.Assert(CopiedClip is not null);
+
+        var layer = (int)RightClickMenu.Tag;
+
+        var xPos = ((TranslateTransform)RightClickMenu.RenderTransform).X;
+        var xPosNormalised = xPos / TimelineContainer.ActualWidth;
+        var closestSecond = (int)Math.Floor(xPosNormalised * ChatBoxManager.GetInstance().Timeline.Length.Value);
+
+        var (lowerBound, upperBound) = ChatBoxManager.GetInstance().Timeline.GetBoundsNearestTo(closestSecond, layer, false, true);
+
+        var newClipEnd = Math.Min(CopiedClip.End.Value, upperBound);
+
+        var newClip = new Clip
+        {
+            Layer = { Value = layer },
+            Start = { Value = lowerBound },
+            End = { Value = newClipEnd },
+            Name = { Value = CopiedClip.Name.Value }
+        };
+
+        newClip.LinkedModules.AddRange(CopiedClip.LinkedModules);
+
+        ChatBoxManager.GetInstance().Timeline.Clips.Add(newClip);
+
+        CopiedClip = null;
+        PasteClipButtonVisibility.Value = Visibility.Collapsed;
+        RightClickMenu.FadeOutFromOne(50);
     }
 }
 
