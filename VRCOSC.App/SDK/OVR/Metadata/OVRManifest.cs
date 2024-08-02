@@ -27,7 +27,7 @@ internal class OVRApplication
     public string LaunchType = "binary";
 
     [JsonProperty("binary_path_windows")]
-    public string BinaryPathWindows = @$"C:\Users\{Environment.UserName}\AppData\Local\VRCOSC-V2\VRCOSC.exe";
+    public string BinaryPathWindows = @$"C:\Users\{Environment.UserName}\AppData\Local\VRCOSC-V2\current\VRCOSC.exe";
 
     [JsonProperty("is_dashboard_overlay")]
     public bool IsDashboardOverlay = true;
