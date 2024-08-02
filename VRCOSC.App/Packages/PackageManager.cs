@@ -33,13 +33,15 @@ public class PackageManager
     public readonly Dictionary<string, string> InstalledPackages = new();
 
     public DateTime CacheExpireTime = DateTime.UnixEpoch;
+    
+    public PackageSource OfficialModulesSource { get; }
 
     public PackageManager()
     {
         var baseStorage = AppManager.GetInstance().Storage;
         storage = baseStorage.GetStorageForDirectory("packages/remote");
 
-        builtinSources.Add(new PackageSource(this, "VolcanicArts", "VRCOSC-Modules", PackageType.Official));
+        builtinSources.Add(OfficialModulesSource = new PackageSource(this, "VolcanicArts", "VRCOSC-Modules", PackageType.Official));
         builtinSources.Add(new PackageSource(this, "DJDavid98", "VRCOSC-BluetoothHeartrate", PackageType.Curated));
         builtinSources.Add(new PackageSource(this, "TahvoDev", "AxHaptics", PackageType.Curated));
 

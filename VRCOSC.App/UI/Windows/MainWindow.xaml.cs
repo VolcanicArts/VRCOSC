@@ -56,7 +56,8 @@ public partial class MainWindow
 
     public MainWindow()
     {
-        backupV1Files();
+        // TODO: Enable when out of beta
+        // backupV1Files();
 
         SettingsManager.GetInstance().Load();
         SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.EnableAppDebug).Subscribe(newValue => ShowAppDebug.Value = newValue, true);
@@ -121,10 +122,21 @@ public partial class MainWindow
         loadingAction.AddAction(new DynamicProgressAction("Loading chatbox", () => ChatBoxManager.GetInstance().Load()));
         loadingAction.AddAction(new DynamicProgressAction("Loading routes", () => RouterManager.GetInstance().Load()));
 
+        if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.FirstTimeSetupComplete))
+        {
+            loadingAction.AddAction(new DynamicAsyncProgressAction("Performing first time setup", async () =>
+            {
+                var officialModulesPackage = PackageManager.GetInstance().OfficialModulesSource;
+                var packageInstallAction = PackageManager.GetInstance().InstallPackage(officialModulesPackage);
+                await packageInstallAction.Execute();
+            }));
+        }
+
         loadingAction.OnComplete += () =>
         {
             Dispatcher.Invoke(() =>
             {
+                SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.FirstTimeSetupComplete).Value = true;
                 MainWindowContent.FadeInFromZero(500);
                 LoadingOverlay.FadeOutFromOne(500);
                 AppManager.GetInstance().InitialLoadComplete();
