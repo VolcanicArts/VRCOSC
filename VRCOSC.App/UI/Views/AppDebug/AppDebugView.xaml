@@ -11,7 +11,7 @@
         <core:RectSizeConverter x:Key="RectSizeConverter" />
     </UserControl.Resources>
     <ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="False">
-        <Grid x:Name="Grid" Margin="10">
+        <Grid x:Name="Grid" Margin="10" VerticalAlignment="Top">
             <Grid.Clip>
                 <RectangleGeometry
                     RadiusX="5"
