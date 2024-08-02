@@ -49,16 +49,6 @@ public class ModuleParameter : ModuleAttribute
     /// </summary>
     public bool Legacy { get; }
 
-    public string UIMode => Mode switch
-    {
-        ParameterMode.Read => "Receive",
-        ParameterMode.Write => "Send",
-        ParameterMode.ReadWrite => "Send/Receive",
-        _ => throw new ArgumentOutOfRangeException()
-    };
-
-    public string ReadableType => ExpectedType.ToReadableName();
-
     public ModuleParameter(string title, string description, string defaultName, ParameterMode mode, Type expectedType, bool legacy)
         : base(title, description)
     {

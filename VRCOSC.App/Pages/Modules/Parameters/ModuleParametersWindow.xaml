@@ -4,10 +4,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
+        xmlns:parameters="clr-namespace:VRCOSC.App.Pages.Modules.Parameters"
         mc:Ignorable="d" Width="1366" Height="768" MinWidth="1200" MinHeight="540">
     <Window.Resources>
         <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
                                          Colour2="{StaticResource CBackground4}" />
+        <core:TypeToReadableTypeConverter x:Key="TypeToReadableTypeConverter" />
+        <parameters:ParameterModeToStringConverter x:Key="ParameterModeToStringConverter" />
     </Window.Resources>
     <Grid>
         <Border Padding="10" Background="{StaticResource CBackground2}">
@@ -19,7 +22,8 @@
                 </Grid.RowDefinitions>
                 <core:SpacedStackPanel Grid.Row="0" Spacing="7" Orientation="Horizontal">
                     <core:VRCOSCButton Width="200" ButtonColour="Blue" Click="ResetParameters_OnClick">
-                        <TextBlock Text="Reset To Default" FontSize="20" Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBlock Text="Reset To Default" FontSize="20" Foreground="{StaticResource CForeground1}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </core:VRCOSCButton>
                 </core:SpacedStackPanel>
                 <core:HeaderFooterListView Grid.Row="2" ItemsSource="{Binding UIParameters}" AlternationCount="2">
@@ -85,12 +89,12 @@
                                                            HorizontalAlignment="Center"
                                                            Foreground="{StaticResource CForeground1}"
                                                            FontSize="16"
-                                                           Text="{Binding ReadableType, Mode=OneTime}" />
+                                                           Text="{Binding ExpectedType, Mode=OneTime, Converter={StaticResource TypeToReadableTypeConverter}}" />
                                                 <TextBlock Grid.Column="4" VerticalAlignment="Center"
                                                            HorizontalAlignment="Center"
                                                            Foreground="{StaticResource CForeground1}"
                                                            FontSize="16"
-                                                           Text="{Binding UIMode, Mode=OneTime}" />
+                                                           Text="{Binding Mode, Mode=OneTime, Converter={StaticResource ParameterModeToStringConverter}}" />
                                                 <TextBox Grid.Column="5"
                                                          Text="{Binding Name.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                          FontSize="14" VerticalAlignment="Center"

@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.UI.Core;
 
@@ -90,4 +91,19 @@ public class HeaderFooterListViewPanningModeConverter : IMultiValueConverter
     }
 
     public object[]? ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) => null;
+}
+
+public class TypeToReadableTypeConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is Type type)
+        {
+            return type.ToReadableName();
+        }
+
+        return string.Empty;
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
 }

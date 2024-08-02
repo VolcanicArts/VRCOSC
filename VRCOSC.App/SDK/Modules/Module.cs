@@ -902,7 +902,7 @@ public abstract class Module
 
             if (!receivedParameter.IsValueType(parameterData.ExpectedType))
             {
-                Log($"Cannot accept input parameter. `{lookup}` expects type `{parameterData.ReadableType}` but received type `{receivedParameter.Value.GetType().ToReadableName()}`");
+                Log($"Cannot accept input parameter. `{lookup}` expects type `{parameterData.ExpectedType.ToReadableName()}` but received type `{receivedParameter.Value.GetType().ToReadableName()}`");
                 return;
             }
 
