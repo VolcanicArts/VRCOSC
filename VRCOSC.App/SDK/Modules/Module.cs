@@ -354,7 +354,7 @@ public abstract class Module
     /// <param name="legacy">Whether the parameter is legacy and should no longer be used in favour of the other parameters</param>
     protected void RegisterParameter<T>(Enum lookup, string defaultName, ParameterMode mode, string title, string description, bool legacy = false) where T : struct
     {
-        Parameters.Add(lookup, new ModuleParameter(new ModuleParameterMetadata(title, description, mode, typeof(T), legacy), defaultName));
+        Parameters.Add(lookup, new ModuleParameter(title, description, defaultName, mode, typeof(T), legacy));
     }
 
     /// <summary>
@@ -379,73 +379,73 @@ public abstract class Module
     protected void CreateToggle(Enum lookup, string title, string description, bool defaultValue)
     {
         validateSettingsLookup(lookup);
-        Settings.Add(lookup.ToLookup(), new BoolModuleSetting(new ModuleSettingMetadata(title, description, typeof(ToggleSettingView)), defaultValue));
+        Settings.Add(lookup.ToLookup(), new BoolModuleSetting(title, description, typeof(ToggleSettingView), defaultValue));
     }
 
     protected void CreateTextBox(Enum lookup, string title, string description, string defaultValue)
     {
         validateSettingsLookup(lookup);
-        Settings.Add(lookup.ToLookup(), new StringModuleSetting(new ModuleSettingMetadata(title, description, typeof(TextBoxSettingView)), defaultValue));
+        Settings.Add(lookup.ToLookup(), new StringModuleSetting(title, description, typeof(TextBoxSettingView), defaultValue));
     }
 
     protected void CreateTextBox(Enum lookup, string title, string description, int defaultValue)
     {
         validateSettingsLookup(lookup);
-        Settings.Add(lookup.ToLookup(), new IntModuleSetting(new ModuleSettingMetadata(title, description, typeof(TextBoxSettingView)), defaultValue));
+        Settings.Add(lookup.ToLookup(), new IntModuleSetting(title, description, typeof(TextBoxSettingView), defaultValue));
     }
 
     protected void CreateTextBox(Enum lookup, string title, string description, float defaultValue)
     {
         validateSettingsLookup(lookup);
-        Settings.Add(lookup.ToLookup(), new FloatModuleSetting(new ModuleSettingMetadata(title, description, typeof(TextBoxSettingView)), defaultValue));
+        Settings.Add(lookup.ToLookup(), new FloatModuleSetting(title, description, typeof(TextBoxSettingView), defaultValue));
     }
 
     protected void CreateSlider(Enum lookup, string title, string description, int defaultValue, int minValue, int maxValue, int tickFrequency = 1)
     {
         validateSettingsLookup(lookup);
-        Settings.Add(lookup.ToLookup(), new SliderModuleSetting(new ModuleSettingMetadata(title, description, typeof(SliderSettingView)), defaultValue, minValue, maxValue, tickFrequency));
+        Settings.Add(lookup.ToLookup(), new SliderModuleSetting(title, description, typeof(SliderSettingView), defaultValue, minValue, maxValue, tickFrequency));
     }
 
     protected void CreateSlider(Enum lookup, string title, string description, float defaultValue, float minValue, float maxValue, float tickFrequency = 0.1f)
     {
         validateSettingsLookup(lookup);
-        Settings.Add(lookup.ToLookup(), new SliderModuleSetting(new ModuleSettingMetadata(title, description, typeof(SliderSettingView)), defaultValue, minValue, maxValue, tickFrequency));
+        Settings.Add(lookup.ToLookup(), new SliderModuleSetting(title, description, typeof(SliderSettingView), defaultValue, minValue, maxValue, tickFrequency));
     }
 
     protected void CreateDropdown<T>(Enum lookup, string title, string description, T defaultValue) where T : Enum
     {
         validateSettingsLookup(lookup);
-        Settings.Add(lookup.ToLookup(), new EnumModuleSetting(new ModuleSettingMetadata(title, description, typeof(DropdownSettingView)), Convert.ToInt32(defaultValue), typeof(T)));
+        Settings.Add(lookup.ToLookup(), new EnumModuleSetting(title, description, typeof(DropdownSettingView), Convert.ToInt32(defaultValue), typeof(T)));
     }
 
     protected void CreateDateTime(Enum lookup, string title, string description, DateTimeOffset defaultValue)
     {
         validateSettingsLookup(lookup);
-        Settings.Add(lookup.ToLookup(), new DateTimeModuleSetting(new ModuleSettingMetadata(title, description, typeof(DateTimeSettingView)), defaultValue));
+        Settings.Add(lookup.ToLookup(), new DateTimeModuleSetting(title, description, typeof(DateTimeSettingView), defaultValue));
     }
 
     protected void CreateTextBoxList(Enum lookup, string title, string description, IEnumerable<string> defaultValues)
     {
         validateSettingsLookup(lookup);
-        Settings.Add(lookup.ToLookup(), new StringListModuleSetting(new ModuleSettingMetadata(title, description, typeof(ListTextBoxSettingView)), defaultValues));
+        Settings.Add(lookup.ToLookup(), new StringListModuleSetting(title, description, typeof(ListTextBoxSettingView), defaultValues));
     }
 
     protected void CreateTextBoxList(Enum lookup, string title, string description, IEnumerable<int> defaultValues)
     {
         validateSettingsLookup(lookup);
-        Settings.Add(lookup.ToLookup(), new IntListModuleSetting(new ModuleSettingMetadata(title, description, typeof(ListTextBoxSettingView)), defaultValues));
+        Settings.Add(lookup.ToLookup(), new IntListModuleSetting(title, description, typeof(ListTextBoxSettingView), defaultValues));
     }
 
     protected void CreateTextBoxList(Enum lookup, string title, string description, IEnumerable<float> defaultValues)
     {
         validateSettingsLookup(lookup);
-        Settings.Add(lookup.ToLookup(), new FloatListModuleSetting(new ModuleSettingMetadata(title, description, typeof(ListTextBoxSettingView)), defaultValues));
+        Settings.Add(lookup.ToLookup(), new FloatListModuleSetting(title, description, typeof(ListTextBoxSettingView), defaultValues));
     }
 
     protected void CreateKeyValuePairList(Enum lookup, string title, string description, IEnumerable<MutableKeyValuePair> defaultValues, string keyTitle, string valueTitle)
     {
         validateSettingsLookup(lookup);
-        Settings.Add(lookup.ToLookup(), new MutableKeyValuePairListModuleSetting(new MutableKeyValuePairSettingMetadata(title, description, typeof(MutableKeyValuePairListSettingView), keyTitle, valueTitle), defaultValues));
+        Settings.Add(lookup.ToLookup(), new MutableKeyValuePairListModuleSetting(title, description, typeof(MutableKeyValuePairListSettingView), defaultValues, keyTitle, valueTitle));
     }
 
     private void validateSettingsLookup(Enum lookup)
@@ -898,11 +898,11 @@ public abstract class Module
 
             var parameterData = Parameters[lookup];
 
-            if (!parameterData.Metadata.Mode.HasFlag(ParameterMode.Read)) return;
+            if (!parameterData.Mode.HasFlag(ParameterMode.Read)) return;
 
-            if (!receivedParameter.IsValueType(parameterData.Metadata.Type))
+            if (!receivedParameter.IsValueType(parameterData.ExpectedType))
             {
-                Log($"Cannot accept input parameter. `{lookup}` expects type `{parameterData.Metadata.Type.ToReadableName()}` but received type `{receivedParameter.Value.GetType().ToReadableName()}`");
+                Log($"Cannot accept input parameter. `{lookup}` expects type `{parameterData.ReadableType}` but received type `{receivedParameter.Value.GetType().ToReadableName()}`");
                 return;
             }
 

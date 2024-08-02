@@ -36,26 +36,16 @@ public class MutableKeyValuePair : IEquatable<MutableKeyValuePair>
     }
 }
 
-public class MutableKeyValuePairSettingMetadata : ModuleSettingMetadata
+public class MutableKeyValuePairListModuleSetting : ListModuleSetting<MutableKeyValuePair>
 {
     public string KeyTitle { get; }
     public string ValueTitle { get; }
 
-    public MutableKeyValuePairSettingMetadata(string title, string description, Type viewType, string keyTitle, string valueTitle)
-        : base(title, description, viewType)
+    public MutableKeyValuePairListModuleSetting(string title, string description, Type viewType, IEnumerable<MutableKeyValuePair> defaultValues, string keyTitle, string valueTitle)
+        : base(title, description, viewType, defaultValues)
     {
         KeyTitle = keyTitle;
         ValueTitle = valueTitle;
-    }
-}
-
-public class MutableKeyValuePairListModuleSetting : ListModuleSetting<MutableKeyValuePair>
-{
-    public new MutableKeyValuePairSettingMetadata Metadata => (MutableKeyValuePairSettingMetadata)base.Metadata;
-
-    public MutableKeyValuePairListModuleSetting(MutableKeyValuePairSettingMetadata metadata, IEnumerable<MutableKeyValuePair> defaultValues)
-        : base(metadata, defaultValues)
-    {
     }
 
     protected override MutableKeyValuePair CloneValue(MutableKeyValuePair value) => new(value);

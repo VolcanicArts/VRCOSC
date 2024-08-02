@@ -33,8 +33,8 @@ public abstract class ValueModuleSetting<T> : ModuleSetting
 
     public override object GetRawValue() => Attribute.Value!;
 
-    protected ValueModuleSetting(ModuleSettingMetadata metadata, T defaultValue)
-        : base(metadata)
+    protected ValueModuleSetting(string title, string description, Type viewType, T defaultValue)
+        : base(title, description, viewType)
     {
         DefaultValue = defaultValue;
     }
@@ -52,8 +52,8 @@ public class BoolModuleSetting : ValueModuleSetting<bool>
         return true;
     }
 
-    public BoolModuleSetting(ModuleSettingMetadata metadata, bool defaultValue)
-        : base(metadata, defaultValue)
+    public BoolModuleSetting(string title, string description, Type viewType, bool defaultValue)
+        : base(title, description, viewType, defaultValue)
     {
     }
 }
@@ -70,8 +70,8 @@ public class StringModuleSetting : ValueModuleSetting<string>
         return true;
     }
 
-    internal StringModuleSetting(ModuleSettingMetadata metadata, string defaultValue)
-        : base(metadata, defaultValue)
+    public StringModuleSetting(string title, string description, Type viewType, string defaultValue)
+        : base(title, description, viewType, defaultValue)
     {
     }
 }
@@ -88,8 +88,8 @@ public class IntModuleSetting : ValueModuleSetting<int>
         return true;
     }
 
-    internal IntModuleSetting(ModuleSettingMetadata metadata, int defaultValue)
-        : base(metadata, defaultValue)
+    public IntModuleSetting(string title, string description, Type viewType, int defaultValue)
+        : base(title, description, viewType, defaultValue)
     {
     }
 }
@@ -106,8 +106,8 @@ public class FloatModuleSetting : ValueModuleSetting<float>
         return true;
     }
 
-    internal FloatModuleSetting(ModuleSettingMetadata metadata, float defaultValue)
-        : base(metadata, defaultValue)
+    public FloatModuleSetting(string title, string description, Type viewType, float defaultValue)
+        : base(title, description, viewType, defaultValue)
     {
     }
 }
@@ -138,8 +138,8 @@ public class EnumModuleSetting : ValueModuleSetting<int>
 
     public Type EnumType { get; }
 
-    internal EnumModuleSetting(ModuleSettingMetadata metadata, int defaultValue, Type enumType)
-        : base(metadata, defaultValue)
+    public EnumModuleSetting(string title, string description, Type viewType, int defaultValue, Type enumType)
+        : base(title, description, viewType, defaultValue)
     {
         EnumType = enumType;
     }
@@ -183,8 +183,8 @@ public class SliderModuleSetting : ValueModuleSetting<float>
         return false;
     }
 
-    internal SliderModuleSetting(ModuleSettingMetadata metadata, float defaultValue, float minValue, float maxValue, float tickFrequency)
-        : base(metadata, defaultValue)
+    public SliderModuleSetting(string title, string description, Type viewType, float defaultValue, float minValue, float maxValue, float tickFrequency)
+        : base(title, description, viewType, defaultValue)
     {
         ValueType = typeof(float);
 
@@ -193,8 +193,8 @@ public class SliderModuleSetting : ValueModuleSetting<float>
         TickFrequency = tickFrequency;
     }
 
-    internal SliderModuleSetting(ModuleSettingMetadata metadata, int defaultValue, int minValue, int maxValue, int tickFrequency)
-        : base(metadata, defaultValue)
+    public SliderModuleSetting(string title, string description, Type viewType, int defaultValue, int minValue, int maxValue, int tickFrequency)
+        : base(title, description, viewType, defaultValue)
     {
         ValueType = typeof(int);
 
@@ -209,8 +209,8 @@ public class SliderModuleSetting : ValueModuleSetting<float>
 /// </summary>
 public class DateTimeModuleSetting : ValueModuleSetting<DateTimeOffset>
 {
-    public DateTimeModuleSetting(ModuleSettingMetadata metadata, DateTimeOffset defaultValue)
-        : base(metadata, defaultValue)
+    public DateTimeModuleSetting(string title, string description, Type viewType, DateTimeOffset defaultValue)
+        : base(title, description, viewType, defaultValue)
     {
     }
 

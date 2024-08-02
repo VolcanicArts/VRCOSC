@@ -7,10 +7,9 @@ namespace VRCOSC.App.SDK.Modules.Attributes;
 
 public abstract class ModuleAttribute
 {
-    /// <summary>
-    /// The metadata for this <see cref="ModuleAttribute"/>
-    /// </summary>
-    public ModuleAttributeMetadata Metadata;
+    public virtual string Title { get; }
+
+    public virtual string Description { get; }
 
     /// <summary>
     /// Called before this <see cref="ModuleAttribute"/> deserialises
@@ -78,8 +77,9 @@ public abstract class ModuleAttribute
     /// </summary>
     public Action? RequestSerialisation;
 
-    protected ModuleAttribute(ModuleAttributeMetadata metadata)
+    protected ModuleAttribute(string title, string description)
     {
-        Metadata = metadata;
+        Title = title;
+        Description = description;
     }
 }

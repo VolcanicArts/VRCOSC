@@ -12,14 +12,17 @@ namespace VRCOSC.App.SDK.Modules.Attributes.Settings;
 public abstract class ModuleSetting : ModuleAttribute, INotifyPropertyChanged
 {
     /// <summary>
-    /// The metadata for this <see cref="ModuleSetting"/>
+    /// The type of <see cref="UserControl"/> to instance when this <see cref="ModuleSetting"/> needs to be rendered
     /// </summary>
-    public new ModuleSettingMetadata Metadata => (ModuleSettingMetadata)base.Metadata;
+    public Type ViewType { get; }
 
+    /// <summary>
+    /// Called whenever this <see cref="ModuleSetting"/>'s value changed
+    /// </summary>
     public Action? OnSettingChange;
 
     /// <summary>
-    /// Creates a new <see cref="UserControl"/> instance as set in the <see cref="Metadata"/>
+    /// Creates a new <see cref="UserControl"/> instance of <see cref="ViewType"/>
     /// </summary>
     public UserControl? ViewInstance
     {
@@ -27,11 +30,11 @@ public abstract class ModuleSetting : ModuleAttribute, INotifyPropertyChanged
         {
             try
             {
-                return (UserControl)Activator.CreateInstance(Metadata.ViewType, this)!;
+                return (UserControl)Activator.CreateInstance(ViewType, this)!;
             }
             catch (Exception e)
             {
-                ExceptionHandler.Handle(e, $"View instance creation failed for module setting {Metadata.Title}\nThis is usually caused by version mismatch");
+                ExceptionHandler.Handle(e, $"View instance creation failed for module setting {Title}\nThis is usually caused by version mismatch");
                 return null;
             }
         }
@@ -54,9 +57,10 @@ public abstract class ModuleSetting : ModuleAttribute, INotifyPropertyChanged
 
     public override object GetSerialisableValue() => GetRawValue();
 
-    protected ModuleSetting(ModuleSettingMetadata metadata)
-        : base(metadata)
+    protected ModuleSetting(string title, string description, Type viewType)
+        : base(title, description)
     {
+        ViewType = viewType;
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -58,8 +59,8 @@ public abstract class ListModuleSetting<T> : ModuleSetting, IListModuleSetting
         return true;
     }
 
-    protected ListModuleSetting(ModuleSettingMetadata metadata, IEnumerable<T> defaultValues)
-        : base(metadata)
+    protected ListModuleSetting(string title, string description, Type viewType, IEnumerable<T> defaultValues)
+        : base(title, description, viewType)
     {
         DefaultValues = defaultValues;
     }
@@ -107,16 +108,16 @@ public abstract class ValueListModuleSetting<T> : ListModuleSetting<Observable<T
     protected override Observable<T> CloneValue(Observable<T> value) => new(value.Value!);
     protected override Observable<T> ConstructValue(JToken token) => new(token.Value<T>()!);
 
-    protected ValueListModuleSetting(ModuleSettingMetadata metadata, IEnumerable<Observable<T>> defaultValues)
-        : base(metadata, defaultValues)
+    protected ValueListModuleSetting(string title, string description, Type viewType, IEnumerable<Observable<T>> defaultValues)
+        : base(title, description, viewType, defaultValues)
     {
     }
 }
 
 public class StringListModuleSetting : ValueListModuleSetting<string>
 {
-    public StringListModuleSetting(ModuleSettingMetadata metadata, IEnumerable<string> defaultValues)
-        : base(metadata, defaultValues.Select(value => new Observable<string>(value)))
+    public StringListModuleSetting(string title, string description, Type viewType, IEnumerable<string> defaultValues)
+        : base(title, description, viewType, defaultValues.Select(value => new Observable<string>(value)))
     {
     }
 
@@ -125,8 +126,8 @@ public class StringListModuleSetting : ValueListModuleSetting<string>
 
 public class IntListModuleSetting : ValueListModuleSetting<int>
 {
-    public IntListModuleSetting(ModuleSettingMetadata metadata, IEnumerable<int> defaultValues)
-        : base(metadata, defaultValues.Select(value => new Observable<int>(value)))
+    public IntListModuleSetting(string title, string description, Type viewType, IEnumerable<int> defaultValues)
+        : base(title, description, viewType, defaultValues.Select(value => new Observable<int>(value)))
     {
     }
 
@@ -135,8 +136,8 @@ public class IntListModuleSetting : ValueListModuleSetting<int>
 
 public class FloatListModuleSetting : ValueListModuleSetting<float>
 {
-    public FloatListModuleSetting(ModuleSettingMetadata metadata, IEnumerable<float> defaultValues)
-        : base(metadata, defaultValues.Select(value => new Observable<float>(value)))
+    public FloatListModuleSetting(string title, string description, Type viewType, IEnumerable<float> defaultValues)
+        : base(title, description, viewType, defaultValues.Select(value => new Observable<float>(value)))
     {
     }
 

@@ -1,17 +1,14 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
+using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.Modules.Attributes.Parameters;
 
 public class ModuleParameter : ModuleAttribute
 {
-    /// <summary>
-    /// The metadata for this <see cref="ModuleParameter"/>
-    /// </summary>
-    public new ModuleParameterMetadata Metadata => (ModuleParameterMetadata)base.Metadata;
-
     public Observable<string> Name { get; private set; } = null!;
 
     private readonly string defaultName;
@@ -35,9 +32,39 @@ public class ModuleParameter : ModuleAttribute
         return true;
     }
 
-    public ModuleParameter(ModuleParameterMetadata metadata, string defaultName)
-        : base(metadata)
+    public override string Title => Legacy ? $"Legacy: {base.Title}" : base.Title;
+
+    /// <summary>
+    /// The mode for this <see cref="ModuleParameter"/>
+    /// </summary>
+    public ParameterMode Mode { get; }
+
+    /// <summary>
+    /// The expected type for this <see cref="ModuleParameter"/>
+    /// </summary>
+    public Type ExpectedType { get; }
+
+    /// <summary>
+    /// Whether this <see cref="ModuleParameter"/> should be marked as legacy
+    /// </summary>
+    public bool Legacy { get; }
+
+    public string UIMode => Mode switch
+    {
+        ParameterMode.Read => "Receive",
+        ParameterMode.Write => "Send",
+        ParameterMode.ReadWrite => "Send/Receive",
+        _ => throw new ArgumentOutOfRangeException()
+    };
+
+    public string ReadableType => ExpectedType.ToReadableName();
+
+    public ModuleParameter(string title, string description, string defaultName, ParameterMode mode, Type expectedType, bool legacy)
+        : base(title, description)
     {
         this.defaultName = defaultName;
+        Mode = mode;
+        ExpectedType = expectedType;
+        Legacy = legacy;
     }
 }
