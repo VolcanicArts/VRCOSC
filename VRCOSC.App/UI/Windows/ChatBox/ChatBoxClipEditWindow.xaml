@@ -122,34 +122,11 @@
                                                                                VerticalAlignment="Center"
                                                                                HorizontalAlignment="Left" />
                                                                 </core:SpacedStackPanel>
-                                                                <TextBox
-                                                                    Text="{Binding Format.Value, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TextBoxParsingConverter}}"
-                                                                    Foreground="{StaticResource CForeground1}"
+                                                                <core:ChatBoxTextBox
                                                                     FontSize="16"
-                                                                    VerticalAlignment="Center"
-                                                                    TextAlignment="Center"
-                                                                    Margin="-1"
-                                                                    HorizontalAlignment="Stretch"
+                                                                    Foreground="{StaticResource CForeground1}"
                                                                     Background="{StaticResource CBackground4}"
-                                                                    BorderBrush="Transparent"
-                                                                    SizeChanged="FormatTextBox_SizeChanged"
-                                                                    PreviewKeyDown="TextBox_PreviewKeyDown"
-                                                                    DataObject.Pasting="TextBox_Pasting">
-                                                                    <TextBox.Template>
-                                                                        <ControlTemplate
-                                                                            TargetType="TextBox">
-                                                                            <Border
-                                                                                Background="{TemplateBinding Background}"
-                                                                                BorderBrush="{TemplateBinding BorderBrush}"
-                                                                                BorderThickness="{TemplateBinding BorderThickness}"
-                                                                                CornerRadius="5"
-                                                                                Padding="0 0 0 4">
-                                                                                <ScrollViewer
-                                                                                    x:Name="PART_ContentHost" />
-                                                                            </Border>
-                                                                        </ControlTemplate>
-                                                                    </TextBox.Template>
-                                                                </TextBox>
+                                                                    Text="{Binding Format.Value, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TextBoxParsingConverter}}"/>
                                                                 <!--> Variables List <-->
                                                                 <core:HeaderFooterListView
                                                                     ItemsSource="{Binding Variables}"
@@ -362,34 +339,11 @@
                                                                                VerticalAlignment="Center"
                                                                                HorizontalAlignment="Left" />
                                                                 </core:SpacedStackPanel>
-                                                                <TextBox
-                                                                    Text="{Binding Format.Value, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TextBoxParsingConverter}}"
-                                                                    Foreground="{StaticResource CForeground1}"
+                                                                <core:ChatBoxTextBox
                                                                     FontSize="16"
-                                                                    VerticalAlignment="Center"
-                                                                    TextAlignment="Center"
-                                                                    Margin="-1"
-                                                                    HorizontalAlignment="Stretch"
+                                                                    Foreground="{StaticResource CForeground1}"
                                                                     Background="{StaticResource CBackground4}"
-                                                                    BorderBrush="Transparent"
-                                                                    SizeChanged="FormatTextBox_SizeChanged"
-                                                                    PreviewKeyDown="TextBox_PreviewKeyDown"
-                                                                    DataObject.Pasting="TextBox_Pasting">
-                                                                    <TextBox.Template>
-                                                                        <ControlTemplate
-                                                                            TargetType="TextBox">
-                                                                            <Border
-                                                                                Background="{TemplateBinding Background}"
-                                                                                BorderBrush="{TemplateBinding BorderBrush}"
-                                                                                BorderThickness="{TemplateBinding BorderThickness}"
-                                                                                CornerRadius="5"
-                                                                                Padding="0 0 0 4">
-                                                                                <ScrollViewer
-                                                                                    x:Name="PART_ContentHost" />
-                                                                            </Border>
-                                                                        </ControlTemplate>
-                                                                    </TextBox.Template>
-                                                                </TextBox>
+                                                                    Text="{Binding Format.Value, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TextBoxParsingConverter}}"/>
                                                                 <!--> Variables List <-->
                                                                 <core:HeaderFooterListView
                                                                     ItemsSource="{Binding Variables}"

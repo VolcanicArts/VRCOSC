@@ -14,7 +14,6 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using VRCOSC.App.ChatBox;
 using VRCOSC.App.ChatBox.Clips;
-using VRCOSC.App.Pages.ChatBox;
 using VRCOSC.App.Profiles;
 using VRCOSC.App.UI.Core;
 using VRCOSC.App.UI.Windows;
