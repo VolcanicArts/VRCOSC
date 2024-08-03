@@ -3,7 +3,7 @@
 
 namespace VRCOSC.App.ChatBox.Clips.Variables.Instances;
 
-public class TextClipVariable : ClipVariable
+internal class TextClipVariable : ClipVariable
 {
     public override bool IsDefault() => base.IsDefault() && Text == string.Empty;
 
