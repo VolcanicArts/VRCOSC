@@ -88,6 +88,12 @@ public partial class AppSettingsView
         set => SettingsManager.GetInstance().GetObservable<int>(VRCOSCSetting.ChatBoxSendInterval).Value = value;
     }
 
+    public bool StartInTray
+    {
+        get => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.StartInTray).Value;
+        set => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.StartInTray).Value = value;
+    }
+
     public bool TrayOnClose
     {
         get => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.TrayOnClose).Value;

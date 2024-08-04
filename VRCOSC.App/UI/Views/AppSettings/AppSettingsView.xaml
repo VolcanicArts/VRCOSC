@@ -136,6 +136,18 @@
                             <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
                                     CornerRadius="5">
                                 <Grid>
+                                    <TextBlock Text="Start In Tray" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock Text="Sends VRCOSC go into the tray when it's opened?"
+                                               Style="{StaticResource SettingDescription}" />
+                                    <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                         Height="32"
+                                                         Width="32"
+                                                         IsChecked="{Binding StartInTray}" />
+                                </Grid>
+                            </Border>
+                            <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
+                                    CornerRadius="5">
+                                <Grid>
                                     <TextBlock Text="Use ChatBox Blacklist" Style="{StaticResource SettingTitle}" />
                                     <TextBlock
                                         Text="This stops VRCOSC from writing to the ChatBox in certain club and event worlds"

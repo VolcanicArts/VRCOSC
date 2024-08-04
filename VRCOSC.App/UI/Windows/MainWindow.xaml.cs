@@ -140,6 +140,12 @@ public partial class MainWindow
                 MainWindowContent.FadeInFromZero(500);
                 LoadingOverlay.FadeOutFromOne(500);
                 AppManager.GetInstance().InitialLoadComplete();
+
+                if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.StartInTray))
+                {
+                    inTray = true;
+                    handleTrayTransition();
+                }
             });
         };
 
