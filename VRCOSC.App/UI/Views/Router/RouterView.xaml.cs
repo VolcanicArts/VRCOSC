@@ -1,13 +1,17 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Windows;
 using VRCOSC.App.Router;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.UI.Views.Router;
 
 public partial class RouterView
 {
+    private static readonly Uri router_docs_uri = new("https://vrcosc.com/docs/V2/router");
+
     public RouterManager RouterManager { get; }
 
     public RouterView()
@@ -33,6 +37,6 @@ public partial class RouterView
 
     private void InfoButton_OnClick(object sender, RoutedEventArgs e)
     {
-        // open router docs
+        router_docs_uri.OpenExternally();
     }
 }
