@@ -184,7 +184,7 @@ public class ChatBoxManager : INotifyPropertyChanged
         TriggeredEvents.Clear();
     }
 
-    public async void Stop()
+    public async Task Stop()
     {
         await (sendTask?.StopAsync() ?? Task.CompletedTask);
         await (updateTask?.StopAsync() ?? Task.CompletedTask);

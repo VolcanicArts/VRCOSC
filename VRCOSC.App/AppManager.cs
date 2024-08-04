@@ -467,7 +467,7 @@ public class AppManager
             await updateTask.StopAsync();
 
         await ModuleManager.GetInstance().StopAsync();
-        ChatBoxManager.GetInstance().Stop();
+        await ChatBoxManager.GetInstance().Stop();
         VRChatClient.Teardown();
         VRChatOscClient.DisableSend();
         RouterManager.GetInstance().Stop();
