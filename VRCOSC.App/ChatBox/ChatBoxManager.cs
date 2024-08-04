@@ -212,8 +212,6 @@ public class ChatBoxManager : INotifyPropertyChanged
 
         Timeline.Clips.OrderBy(clip => clip.Layer.Value).ThenBy(clip => clip.Start.Value).ForEach(clip =>
         {
-            if (!Timeline.LayerEnabled[clip.Layer.Value]) return;
-
             clip.Update();
             clip.IsChosenClip.Value = false;
             clip.Elements.ForEach(clipElement => clipElement.IsChosenElement.Value = false);
@@ -247,7 +245,7 @@ public class ChatBoxManager : INotifyPropertyChanged
 
     private Clip? getValidClip()
     {
-        return Timeline.Clips.OrderBy(clip => clip.Layer.Value).FirstOrDefault(clip => clip.Evaluate());
+        return Timeline.Clips.Where(clip => Timeline.LayerEnabled[clip.Layer.Value]).OrderBy(clip => clip.Layer.Value).FirstOrDefault(clip => clip.Evaluate());
     }
 
     private void handleClip(Clip? newClip)

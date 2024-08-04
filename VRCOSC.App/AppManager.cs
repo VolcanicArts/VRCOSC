@@ -261,7 +261,7 @@ public class AppManager
         for (var i = 0; i < layerEnabledValues.Length; i++)
         {
             var layerEnabled = layerEnabledValues[i];
-            sendParameter($"VRCOSC/Controls/ChatBox/Layers/{i}", layerEnabled);
+            sendParameter($"VRCOSC/Controls/ChatBox/Layer/{i}", layerEnabled);
         }
     }
 
