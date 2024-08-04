@@ -185,17 +185,23 @@ public class WindowsMediaProvider
 
             Sessions.Add(session.SourceAppUserModelId);
 
-            States.Add(session.SourceAppUserModelId, new MediaState
+            States[session.SourceAppUserModelId] = new MediaState
             {
                 ID = session.SourceAppUserModelId
-            });
+            };
         });
 
         Sessions.RemoveIf(session => !cachedSessions.Select(cachedSession => cachedSession.SourceAppUserModelId).Contains(session));
+        States.RemoveIf(pair => !Sessions.Contains(pair.Key));
 
         if (focusedSessionId is not null && !Sessions.Contains(focusedSessionId))
         {
             SetFocusedSession(null);
+        }
+
+        if (currentSessionId is not null && !Sessions.Contains(currentSessionId))
+        {
+            currentSessionId = null;
         }
     }
 
