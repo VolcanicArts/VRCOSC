@@ -8,6 +8,10 @@ namespace VRCOSC.App.ChatBox.Clips.Variables.Instances;
 
 public class DateTimeClipVariable : ClipVariable
 {
+    public DateTimeClipVariable()
+    {
+    }
+
     public DateTimeClipVariable(ClipVariableReference reference)
         : base(reference)
     {
@@ -22,6 +26,16 @@ public class DateTimeClipVariable : ClipVariable
     public override bool IsDefault() => base.IsDefault() &&
                                         DateTimeFormat == "yyyy/MM/dd HH:mm:ss" &&
                                         TimeZoneID == TimeZoneInfo.Local.Id;
+
+    public override DateTimeClipVariable Clone()
+    {
+        var clone = (DateTimeClipVariable)base.Clone();
+
+        clone.DateTimeFormat = DateTimeFormat;
+        clone.TimeZoneID = TimeZoneID;
+
+        return clone;
+    }
 
     protected override string Format(object value)
     {

@@ -576,6 +576,10 @@ public partial class ChatBoxView
         };
 
         newClip.LinkedModules.AddRange(CopiedClip.LinkedModules);
+        newClip.States.Clear();
+        newClip.Events.Clear();
+        newClip.States.AddRange(CopiedClip.States.Select(clipState => clipState.Clone()));
+        newClip.Events.AddRange(CopiedClip.Events.Select(clipEvent => clipEvent.Clone()));
 
         ChatBoxManager.GetInstance().Timeline.Clips.Add(newClip);
 

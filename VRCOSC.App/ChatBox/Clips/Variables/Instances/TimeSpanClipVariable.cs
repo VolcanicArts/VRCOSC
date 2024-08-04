@@ -7,6 +7,10 @@ namespace VRCOSC.App.ChatBox.Clips.Variables.Instances;
 
 public class TimeSpanClipVariable : ClipVariable
 {
+    public TimeSpanClipVariable()
+    {
+    }
+
     public TimeSpanClipVariable(ClipVariableReference reference)
         : base(reference)
     {
@@ -19,6 +23,16 @@ public class TimeSpanClipVariable : ClipVariable
     public bool IncludeNegativeSign { get; set; } = true;
 
     public override bool IsDefault() => base.IsDefault() && TimeFormat == @"mm\:ss";
+
+    public override TimeSpanClipVariable Clone()
+    {
+        var clone = (TimeSpanClipVariable)base.Clone();
+
+        clone.TimeFormat = TimeFormat;
+        clone.IncludeNegativeSign = IncludeNegativeSign;
+
+        return clone;
+    }
 
     protected override string Format(object value)
     {

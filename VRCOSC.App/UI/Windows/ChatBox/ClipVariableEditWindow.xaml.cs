@@ -3,7 +3,7 @@
 
 using VRCOSC.App.ChatBox.Clips.Variables;
 
-namespace VRCOSC.App.Pages.ChatBox;
+namespace VRCOSC.App.UI.Windows.ChatBox;
 
 public partial class ClipVariableEditWindow
 {

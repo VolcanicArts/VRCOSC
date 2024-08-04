@@ -12,7 +12,6 @@ using VRCOSC.App.ChatBox;
 using VRCOSC.App.ChatBox.Clips;
 using VRCOSC.App.ChatBox.Clips.Variables;
 using VRCOSC.App.Modules;
-using VRCOSC.App.Pages.ChatBox;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;

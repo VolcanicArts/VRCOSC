@@ -13,11 +13,10 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.ChatBox.Clips.Variables;
 
-[JsonObject(MemberSerialization.OptIn)]
 public abstract class ClipVariable
 {
-    public string? ModuleID { get; }
-    public string VariableID { get; } = null!;
+    public string? ModuleID { get; private set; }
+    public string VariableID { get; private set; } = null!;
 
     public string DisplayName => ChatBoxManager.GetInstance().GetVariable(ModuleID, VariableID)!.DisplayName.Value;
 
@@ -69,7 +68,7 @@ public abstract class ClipVariable
     }
 
     [JsonConstructor]
-    internal ClipVariable()
+    protected ClipVariable()
     {
     }
 
@@ -86,6 +85,23 @@ public abstract class ClipVariable
     {
         currentIndex = 0;
         bounceDirection = true;
+    }
+
+    public virtual ClipVariable Clone()
+    {
+        var clone = (ClipVariable)Activator.CreateInstance(GetType())!;
+
+        clone.ModuleID = ModuleID;
+        clone.VariableID = VariableID;
+        clone.CaseMode = CaseMode;
+        clone.TruncateLength = TruncateLength;
+        clone.IncludeEllipses = IncludeEllipses;
+        clone.ScrollDirection = ScrollDirection;
+        clone.ScrollSpeed = ScrollSpeed;
+        clone.JoinString = JoinString;
+        clone.OnlyScrollWhenTruncated = OnlyScrollWhenTruncated;
+
+        return clone;
     }
 
     [ClipVariableOption("case_mode", "Case Mode", "Should the final string be made upper or lowercase, or not be changed?")]

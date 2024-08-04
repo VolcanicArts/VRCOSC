@@ -8,6 +8,10 @@ namespace VRCOSC.App.ChatBox.Clips.Variables.Instances;
 
 public class FloatClipVariable : ClipVariable
 {
+    public FloatClipVariable()
+    {
+    }
+
     public FloatClipVariable(ClipVariableReference reference)
         : base(reference)
     {
@@ -17,6 +21,15 @@ public class FloatClipVariable : ClipVariable
     public string FloatFormat { get; set; } = "F1";
 
     public override bool IsDefault() => base.IsDefault() && FloatFormat == "F1";
+
+    public override FloatClipVariable Clone()
+    {
+        var clone = (FloatClipVariable)base.Clone();
+
+        clone.FloatFormat = FloatFormat;
+
+        return clone;
+    }
 
     protected override string Format(object value)
     {

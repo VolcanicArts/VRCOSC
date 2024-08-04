@@ -7,6 +7,10 @@ namespace VRCOSC.App.ChatBox.Clips.Variables.Instances;
 
 public class IntClipVariable : ClipVariable
 {
+    public IntClipVariable()
+    {
+    }
+
     public IntClipVariable(ClipVariableReference reference)
         : base(reference)
     {

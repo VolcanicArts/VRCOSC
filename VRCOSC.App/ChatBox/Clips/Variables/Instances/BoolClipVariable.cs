@@ -5,6 +5,10 @@ namespace VRCOSC.App.ChatBox.Clips.Variables.Instances;
 
 public class BoolClipVariable : ClipVariable
 {
+    public BoolClipVariable()
+    {
+    }
+
     public BoolClipVariable(ClipVariableReference reference)
         : base(reference)
     {
@@ -19,6 +23,16 @@ public class BoolClipVariable : ClipVariable
     public override bool IsDefault() => base.IsDefault() &&
                                         WhenTrue == "True" &&
                                         WhenFalse == "False";
+
+    public override BoolClipVariable Clone()
+    {
+        var clone = (BoolClipVariable)base.Clone();
+
+        clone.WhenTrue = WhenTrue;
+        clone.WhenFalse = WhenFalse;
+
+        return clone;
+    }
 
     protected override string Format(object value) => (bool)value ? WhenTrue : WhenFalse;
 }

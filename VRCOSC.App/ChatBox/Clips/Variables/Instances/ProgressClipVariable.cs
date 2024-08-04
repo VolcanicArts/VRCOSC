@@ -7,6 +7,10 @@ namespace VRCOSC.App.ChatBox.Clips.Variables.Instances;
 
 public class ProgressClipVariable : ClipVariable
 {
+    public ProgressClipVariable()
+    {
+    }
+
     public ProgressClipVariable(ClipVariableReference reference)
         : base(reference)
     {
@@ -31,6 +35,20 @@ public class ProgressClipVariable : ClipVariable
     public string VisualEnd { get; set; } = "\u252B";
 
     public override bool IsDefault() => base.IsDefault() && UseVisual && VisualResolution == 10 && VisualLine == "\u2501" && VisualPosition == "\u25CF" && VisualStart == "\u2523" && VisualEnd == "\u252B";
+
+    public override ProgressClipVariable Clone()
+    {
+        var clone = (ProgressClipVariable)base.Clone();
+
+        clone.UseVisual = UseVisual;
+        clone.VisualResolution = VisualResolution;
+        clone.VisualLine = VisualLine;
+        clone.VisualPosition = VisualPosition;
+        clone.VisualStart = VisualStart;
+        clone.VisualEnd = VisualEnd;
+
+        return clone;
+    }
 
     protected override string Format(object value)
     {

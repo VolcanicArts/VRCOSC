@@ -17,8 +17,8 @@ namespace VRCOSC.App.ChatBox.Clips;
 
 public class ClipEvent : ClipElement
 {
-    public string ModuleID { get; init; } = null!;
-    public string EventID { get; init; } = null!;
+    public string ModuleID { get; private set; } = null!;
+    public string EventID { get; private set; } = null!;
 
     public Observable<float> Length { get; } = new();
     public Observable<ClipEventBehaviour> Behaviour = new();
@@ -73,6 +73,18 @@ public class ClipEvent : ClipElement
         Variables = new ObservableCollection<ClipVariable>(reference.DefaultVariables.Select(clipVariableReference => clipVariableReference.CreateInstance()));
         Length = new Observable<float>(reference.DefaultLength);
         Behaviour = new Observable<ClipEventBehaviour>(reference.DefaultBehaviour);
+    }
+
+    public override ClipEvent Clone()
+    {
+        var clone = (ClipEvent)base.Clone();
+
+        clone.ModuleID = ModuleID;
+        clone.EventID = EventID;
+        clone.Length.Value = Length.Value;
+        clone.Behaviour.Value = Behaviour.Value;
+
+        return clone;
     }
 }
 

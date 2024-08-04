@@ -20,7 +20,7 @@ public class ClipState : ClipElement
     // ModuleID, StateID
     public Dictionary<string, string> States { get; } = new();
 
-    internal bool IsBuiltIn { get; }
+    internal bool IsBuiltIn { get; private set; }
 
     public override string DisplayName
     {
@@ -86,7 +86,15 @@ public class ClipState : ClipElement
         States.AddRange(original.States);
     }
 
-    public ClipState Clone() => new(this);
+    public override ClipState Clone()
+    {
+        var clone = (ClipState)base.Clone();
+
+        clone.States.AddRange(States);
+        clone.IsBuiltIn = IsBuiltIn;
+
+        return clone;
+    }
 }
 
 /// <summary>

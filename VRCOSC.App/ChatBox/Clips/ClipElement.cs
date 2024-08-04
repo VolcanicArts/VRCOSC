@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -16,7 +17,6 @@ public class ClipElement : INotifyPropertyChanged
     public Observable<bool> Enabled { get; set; } = new();
     public Observable<bool> ShowTyping { get; set; } = new();
     public Observable<bool> UseMinimalBackground { get; set; } = new();
-
     public ObservableCollection<ClipVariable> Variables { get; init; } = new();
 
     public Observable<bool> IsChosenElement { get; } = new();
@@ -44,6 +44,19 @@ public class ClipElement : INotifyPropertyChanged
         }
 
         return localFormat;
+    }
+
+    public virtual ClipElement Clone()
+    {
+        var clone = (ClipElement)Activator.CreateInstance(GetType())!;
+
+        clone.Format.Value = Format.Value;
+        clone.Enabled.Value = Enabled.Value;
+        clone.ShowTyping.Value = ShowTyping.Value;
+        clone.UseMinimalBackground.Value = UseMinimalBackground.Value;
+        clone.Variables.AddRange(Variables.Select(variable => variable.Clone()));
+
+        return clone;
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

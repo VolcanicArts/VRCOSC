@@ -5,14 +5,27 @@ namespace VRCOSC.App.ChatBox.Clips.Variables.Instances;
 
 internal class TextClipVariable : ClipVariable
 {
-    public override bool IsDefault() => base.IsDefault() && Text == string.Empty;
-
-    [ClipVariableOption("text", "Text", "The text to display")]
-    public string Text { get; set; } = string.Empty;
+    public TextClipVariable()
+    {
+    }
 
     public TextClipVariable(ClipVariableReference reference)
         : base(reference)
     {
+    }
+
+    [ClipVariableOption("text", "Text", "The text to display")]
+    public string Text { get; set; } = string.Empty;
+
+    public override bool IsDefault() => base.IsDefault() && Text == string.Empty;
+
+    public override TextClipVariable Clone()
+    {
+        var clone = (TextClipVariable)base.Clone();
+
+        clone.Text = Text;
+
+        return clone;
     }
 
     protected override string Format(object value) => Text;
