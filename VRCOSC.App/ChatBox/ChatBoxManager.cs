@@ -210,7 +210,7 @@ public class ChatBoxManager : INotifyPropertyChanged
         updateBuiltInVariables();
         ModuleManager.GetInstance().ChatBoxUpdate();
 
-        Timeline.Clips.OrderBy(clip => clip.Layer.Value).ThenBy(clip => clip.Start.Value).ForEach(clip =>
+        Timeline.Clips.ForEach(clip =>
         {
             clip.Update();
             clip.IsChosenClip.Value = false;
