@@ -71,6 +71,14 @@ public class Timeline : INotifyPropertyChanged
         };
     }
 
+    public void Start()
+    {
+        for (int i = 0; i < layer_count; i++)
+        {
+            LayerEnabled[i] = true;
+        }
+    }
+
     public void GenerateDroppableAreas(int layer)
     {
         DroppableAreas.RemoveIf(area => area.Layer == layer);

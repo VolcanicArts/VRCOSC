@@ -173,6 +173,7 @@ public class ChatBoxManager : INotifyPropertyChanged
         sendTask.Start(TimeSpan.FromMilliseconds(sendInterval));
         updateTask.Start(TimeSpan.FromSeconds(1f / 60f));
 
+        Timeline.Start();
         Timeline.Clips.ForEach(clip => clip.ChatBoxStart());
 
         foreach (var pair in StateValues)
@@ -211,6 +212,8 @@ public class ChatBoxManager : INotifyPropertyChanged
 
         Timeline.Clips.OrderBy(clip => clip.Layer.Value).ThenBy(clip => clip.Start.Value).ForEach(clip =>
         {
+            if (!Timeline.LayerEnabled[clip.Layer.Value]) return;
+
             clip.Update();
             clip.IsChosenClip.Value = false;
             clip.Elements.ForEach(clipElement => clipElement.IsChosenElement.Value = false);

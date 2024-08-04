@@ -238,17 +238,36 @@ public class AppManager
 
     private void handleControlParameter(ReceivedParameter parameter)
     {
-        switch (parameter.Name)
+        if (parameter.Name == "VRCOSC/Controls/ChatBox/Enabled" && parameter.IsValueType<bool>())
         {
-            case "VRCOSC/Controls/ChatBox/Enabled" when parameter.IsValueType<bool>():
-                ChatBoxManager.GetInstance().SendEnabled = parameter.GetValue<bool>();
-                break;
+            ChatBoxManager.GetInstance().SendEnabled = parameter.GetValue<bool>();
+        }
+
+        if (parameter.Name.StartsWith("VRCOSC/Controls/ChatBox/Layer/"))
+        {
+            var layerId = int.Parse(parameter.Name.Split("/").Last());
+            if (layerId < 0 || layerId > ChatBoxManager.GetInstance().Timeline.LayerCount - 1) return;
+
+            ChatBoxManager.GetInstance().Timeline.LayerEnabled[layerId] = parameter.GetValue<bool>();
         }
     }
 
     private void sendControlParameters()
     {
-        VRChatOscClient.SendValue($"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}VRCOSC/Controls/ChatBox/Enabled", ChatBoxManager.GetInstance().SendEnabled);
+        sendParameter("VRCOSC/Controls/ChatBox/Enabled", ChatBoxManager.GetInstance().SendEnabled);
+
+        var layerEnabledValues = ChatBoxManager.GetInstance().Timeline.LayerEnabled;
+
+        for (var i = 0; i < layerEnabledValues.Length; i++)
+        {
+            var layerEnabled = layerEnabledValues[i];
+            sendParameter($"VRCOSC/Controls/ChatBox/Layers/{i}", layerEnabled);
+        }
+    }
+
+    private void sendParameter(string parameterName, object value)
+    {
+        VRChatOscClient.SendValue($"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{parameterName}", value);
     }
 
     #endregion
