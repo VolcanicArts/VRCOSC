@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
 using Newtonsoft.Json;
 
 namespace VRCOSC.App.SDK.OVR.Metadata;
@@ -27,7 +26,7 @@ internal class OVRApplication
     public string LaunchType = "binary";
 
     [JsonProperty("binary_path_windows")]
-    public string BinaryPathWindows = @$"C:\Users\{Environment.UserName}\AppData\Local\VRCOSC-V2\current\VRCOSC.exe";
+    public string BinaryPathWindows = null!;
 
     [JsonProperty("is_dashboard_overlay")]
     public bool IsDashboardOverlay = true;

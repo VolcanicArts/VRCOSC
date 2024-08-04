@@ -12,6 +12,7 @@ using System.Windows.Forms;
 using System.Windows.Interop;
 using Newtonsoft.Json;
 using PInvoke;
+using Velopack.Locators;
 using VRCOSC.App.Actions;
 using VRCOSC.App.Actions.Game;
 using VRCOSC.App.ChatBox;
@@ -165,6 +166,7 @@ public partial class MainWindow
         }
 
         var manifest = new OVRManifest();
+        manifest.Applications[0].BinaryPathWindows = VelopackLocator.GetDefault(null).IsPortable ? string.Empty : Path.Join(VelopackLocator.GetDefault(null).RootAppDir, "current", "VRCOSC.exe");
         manifest.Applications[0].ActionManifestPath = runtimeOVRStorage.GetFullPath("action_manifest.json");
         manifest.Applications[0].ImagePath = runtimeOVRStorage.GetFullPath("SteamImage.png");
 
