@@ -215,7 +215,7 @@ public class Clip : INotifyPropertyChanged
             // takes a copy of the states to not remove from the original collection
             // first removes if a state has non-running modules or less/more compounded states compared to the running modules
             // second removes if a state has invalid module states compared to the active module states
-            return States.Select(state => state.Clone()).ToList().RemoveIf(clipState => !clipState.States.Keys.ContainsSame(runningLinkedModules) || !clipState.States.Values.ContainsSame(activeStateIDs)).SingleOrDefault();
+            return States.ToList().RemoveIf(clipState => !clipState.States.Keys.ContainsSame(runningLinkedModules) || !clipState.States.Values.ContainsSame(activeStateIDs)).SingleOrDefault();
         }
         catch (Exception e)
         {
