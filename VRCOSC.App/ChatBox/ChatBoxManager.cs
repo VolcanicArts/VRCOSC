@@ -233,20 +233,14 @@ public class ChatBoxManager : INotifyPropertyChanged
 
     private void evaluateClips()
     {
-        var validClip = getValidClip();
-
-        if (ChatBoxWorldBlacklist.IsCurrentWorldBlacklisted && SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.ChatBoxWorldBlacklist) && validClip is not null)
+        if (ChatBoxWorldBlacklist.IsCurrentWorldBlacklisted && SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.ChatBoxWorldBlacklist))
         {
             handleClip(null);
             return;
         }
 
+        var validClip = Timeline.Clips.Where(clip => Timeline.LayerEnabled[clip.Layer.Value]).OrderBy(clip => clip.Layer.Value).FirstOrDefault(clip => clip.Evaluate());
         handleClip(validClip);
-    }
-
-    private Clip? getValidClip()
-    {
-        return Timeline.Clips.Where(clip => Timeline.LayerEnabled[clip.Layer.Value]).OrderBy(clip => clip.Layer.Value).FirstOrDefault(clip => clip.Evaluate());
     }
 
     private void handleClip(Clip? newClip)
