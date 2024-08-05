@@ -62,15 +62,24 @@ public class HeaderFooterListView : ListView
         get => (bool)GetValue(ShouldTruncateHeightProperty);
         set => SetValue(ShouldTruncateHeightProperty, value);
     }
+
+    public static readonly DependencyProperty OverrideCollapseProperty =
+        DependencyProperty.Register(nameof(OverrideCollapse), typeof(bool), typeof(HeaderFooterListView), new PropertyMetadata(false));
+
+    public bool OverrideCollapse
+    {
+        get => (bool)GetValue(OverrideCollapseProperty);
+        set => SetValue(OverrideCollapseProperty, value);
+    }
 }
 
 public class CollapseWhenListEmptyConverter : IMultiValueConverter
 {
     public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
     {
-        if (values is [bool collapseWhenEmpty, bool isListEmpty])
+        if (values is [bool collapseWhenEmpty, bool isListEmpty, bool overrideCollapse])
         {
-            if (collapseWhenEmpty && isListEmpty)
+            if (collapseWhenEmpty && (isListEmpty || overrideCollapse))
             {
                 return Visibility.Collapsed;
             }

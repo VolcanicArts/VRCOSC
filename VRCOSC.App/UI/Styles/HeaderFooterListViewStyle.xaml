@@ -39,6 +39,7 @@
                                         <Binding Path="HideHeaderWhenEmpty"
                                                  RelativeSource="{RelativeSource TemplatedParent}" />
                                         <Binding Path="Items.IsEmpty" RelativeSource="{RelativeSource TemplatedParent}" />
+                                        <Binding Path="OverrideCollapse" RelativeSource="{RelativeSource TemplatedParent}" />
                                     </MultiBinding>
                                 </ContentPresenter.Visibility>
                             </ContentPresenter>
@@ -52,8 +53,8 @@
                                         <Binding Path="ActualHeight" ElementName="Border" />
                                         <Binding Path="ActualHeight" ElementName="HeaderPresenter" />
                                         <Binding Path="ActualHeight" ElementName="FooterPresenter" />
-                                        <Binding Path="ShouldTruncateHeight"
-                                                 RelativeSource="{RelativeSource TemplatedParent}" />
+                                        <Binding Path="ShouldTruncateHeight" RelativeSource="{RelativeSource TemplatedParent}" />
+                                        <Binding Path="OverrideCollapse" RelativeSource="{RelativeSource TemplatedParent}" />
                                     </MultiBinding>
                                 </ScrollViewer.Height>
                                 <ScrollViewer.PanningMode>
@@ -63,8 +64,7 @@
                                         <Binding Path="ActualHeight" ElementName="Border" />
                                         <Binding Path="ActualHeight" ElementName="HeaderPresenter" />
                                         <Binding Path="ActualHeight" ElementName="FooterPresenter" />
-                                        <Binding Path="ShouldTruncateHeight"
-                                                 RelativeSource="{RelativeSource TemplatedParent}" />
+                                        <Binding Path="ShouldTruncateHeight" RelativeSource="{RelativeSource TemplatedParent}" />
                                     </MultiBinding>
                                 </ScrollViewer.PanningMode>
                             </ScrollViewer>
@@ -74,6 +74,7 @@
                                         <Binding Path="HideFooterWhenEmpty"
                                                  RelativeSource="{RelativeSource TemplatedParent}" />
                                         <Binding Path="Items.IsEmpty" RelativeSource="{RelativeSource TemplatedParent}" />
+                                        <Binding Path="OverrideCollapse" RelativeSource="{RelativeSource TemplatedParent}" />
                                     </MultiBinding>
                                 </ContentPresenter.Visibility>
                             </ContentPresenter>
