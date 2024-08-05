@@ -224,11 +224,11 @@ public class Clip : INotifyPropertyChanged
         }
     }
 
-    public string GetFormattedText() => currentEvent is not null ? formatText(currentEvent.Value.Item1) : formatText(currentState!);
-    public bool ShouldShowTyping() => currentEvent is not null ? currentEvent.Value.Item1.ShowTyping.Value : currentState!.ShowTyping.Value;
-    public bool ShouldUseMinimalBackground() => currentEvent is not null ? currentEvent.Value.Item1.UseMinimalBackground.Value : currentState!.UseMinimalBackground.Value;
+    public string GetFormattedText() => currentEvent is not null ? formatText(currentEvent.Value.Item1) : formatText(currentState);
+    public bool ShouldShowTyping() => currentEvent is not null ? currentEvent.Value.Item1.ShowTyping.Value : currentState?.ShowTyping.Value ?? false;
+    public bool ShouldUseMinimalBackground() => currentEvent is not null ? currentEvent.Value.Item1.UseMinimalBackground.Value : currentState?.UseMinimalBackground.Value ?? false;
 
-    private string formatText(ClipElement element) => element.RunFormatting();
+    private string formatText(ClipElement? element) => element?.RunFormatting() ?? string.Empty;
 
     #endregion
 

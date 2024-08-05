@@ -48,7 +48,6 @@ public class ChatBoxManager : INotifyPropertyChanged
     private Repeater? sendTask;
     private Repeater? updateTask;
     private bool isClear;
-    private Clip? currentClip;
     private DateTimeOffset currentClipChanged;
     private string? currentText;
     private bool currentIsTyping;
@@ -63,6 +62,8 @@ public class ChatBoxManager : INotifyPropertyChanged
     public Observable<bool> IsLoaded { get; } = new();
 
     public bool IsManualTextOpen;
+
+    public Clip? CurrentClip { get; private set; }
 
     private ChatBoxManager()
     {
@@ -168,7 +169,7 @@ public class ChatBoxManager : INotifyPropertyChanged
         SendEnabled = true;
         isClear = true;
         currentIsTyping = false;
-        currentClip = null;
+        CurrentClip = null;
 
         sendTask.Start(TimeSpan.FromMilliseconds(sendInterval));
         updateTask.Start(TimeSpan.FromSeconds(1f / 60f));
@@ -253,6 +254,7 @@ public class ChatBoxManager : INotifyPropertyChanged
         if (!SendEnabled || newClip is null)
         {
             ClearText();
+            CurrentClip = null;
             return;
         }
 
@@ -264,12 +266,12 @@ public class ChatBoxManager : INotifyPropertyChanged
 
         newClip.IsChosenClip.Value = true;
 
-        var isClipExactSame = newClip == currentClip && newText == currentText && newIsTyping == currentIsTyping && currentUseMinimalBackground == newUseMinimalBackground;
+        var isClipExactSame = newClip == CurrentClip && newText == currentText && newIsTyping == currentIsTyping && currentUseMinimalBackground == newUseMinimalBackground;
         var hasBeen20Seconds = currentClipChanged + TimeSpan.FromSeconds(20) <= DateTimeOffset.Now;
 
         if (isClipExactSame && !hasBeen20Seconds) return;
 
-        currentClip = newClip;
+        CurrentClip = newClip;
         currentClipChanged = DateTimeOffset.Now;
         currentText = newText;
         currentIsTyping = newIsTyping;
