@@ -32,7 +32,10 @@ namespace VRCOSC.App.SDK.Modules;
 
 public abstract class Module
 {
-    private string id => GetType().Name.ToLowerInvariant();
+    /// <summary>
+    /// The ID of this <see cref="Module"/>
+    /// </summary>
+    internal string ID => GetType().Name.ToLowerInvariant();
 
     /// <summary>
     /// The ID of the package this <see cref="Module"/> belongs to
@@ -42,7 +45,7 @@ public abstract class Module
     /// <summary>
     /// The package ID this <see cref="Module"/> is from + the <see cref="Module"/>'s ID
     /// </summary>
-    internal string FullID => $"{PackageID}.{id}";
+    internal string FullID => $"{PackageID}.{ID}";
 
     /// <summary>
     /// Whether this <see cref="Module"/> is currently enabled on the module listing page

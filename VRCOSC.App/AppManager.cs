@@ -221,6 +221,7 @@ public class AppManager
 
                 if (ProfileManager.GetInstance().AvatarChange((string)message.ParameterValue)) continue;
 
+                sendMetadataParameters();
                 sendControlParameters();
             }
 
@@ -233,6 +234,19 @@ public class AppManager
             }
 
             ModuleManager.GetInstance().ParameterReceived(message);
+        }
+    }
+
+    private void sendMetadataParameters()
+    {
+        foreach (var module in ModuleManager.GetInstance().Modules.Values.SelectMany(moduleList => moduleList))
+        {
+            sendParameter($"VRCOSC/Metadata/Modules/{module.FullID}", false);
+        }
+
+        foreach (var runningModule in ModuleManager.GetInstance().RunningModules)
+        {
+            sendParameter($"VRCOSC/Metadata/Modules/{runningModule.FullID}", true);
         }
     }
 
@@ -401,6 +415,7 @@ public class AppManager
 
         State.Value = AppManagerState.Started;
 
+        sendMetadataParameters();
         sendControlParameters();
     }
 
