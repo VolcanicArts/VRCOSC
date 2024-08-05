@@ -20,15 +20,15 @@
                             <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="10" />
-                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="15" />
+                                    <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0"
                                            Text="{Binding Key, Mode=OneTime}"
                                            Foreground="{StaticResource CForeground2}"
                                            FontSize="14" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
                                            TextWrapping="NoWrap" />
-                                <TextBlock x:Name="ValueTextBlock" Grid.Column="2"
+                                <TextBlock Grid.Column="2"
                                            Text="{Binding Value, Mode=OneWay}"
                                            Foreground="{StaticResource CForeground2}"
                                            FontSize="14" VerticalAlignment="Center"
@@ -41,50 +41,46 @@
         </Style>
     </UserControl.Resources>
     <Grid>
-        <Border>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="5*" />
-                    <ColumnDefinition Width="5" />
-                    <ColumnDefinition Width="5*" />
-                </Grid.ColumnDefinitions>
-                <core:HeaderFooterListView Grid.Column="0"
-                                           ItemsSource="{Binding OutgoingMessages, Mode=OneWay}"
-                                           HorizontalAlignment="Stretch"
-                                           Background="Transparent"
-                                           BorderThickness="0"
-                                           AlternationCount="2"
-                                           HideFooterWhenEmpty="True">
-                    <core:HeaderFooterListView.Header>
-                        <Border Background="{StaticResource CBackground1}" Height="35">
-                            <TextBlock Text="Outgoing" Foreground="{StaticResource CForeground2}"
-                                       FontSize="22" TextAlignment="Center" VerticalAlignment="Center"
-                                       HorizontalAlignment="Stretch" FontWeight="Bold" Margin="0 -5 0 0" />
-                        </Border>
-                    </core:HeaderFooterListView.Header>
-                    <core:HeaderFooterListView.Footer>
-                        <Border Background="{StaticResource CBackground1}" Height="5" />
-                    </core:HeaderFooterListView.Footer>
-                </core:HeaderFooterListView>
-                <core:HeaderFooterListView Grid.Column="2"
-                                           ItemsSource="{Binding IncomingMessages, Mode=OneWay}"
-                                           HorizontalAlignment="Stretch"
-                                           Background="Transparent"
-                                           BorderThickness="0"
-                                           AlternationCount="2"
-                                           HideFooterWhenEmpty="True">
-                    <core:HeaderFooterListView.Header>
-                        <Border Background="{StaticResource CBackground1}" Height="35">
-                            <TextBlock Text="Incoming" Foreground="{StaticResource CForeground2}"
-                                       FontSize="22" TextAlignment="Center" VerticalAlignment="Center"
-                                       HorizontalAlignment="Stretch" FontWeight="Bold" Margin="0 -5 0 0" />
-                        </Border>
-                    </core:HeaderFooterListView.Header>
-                    <core:HeaderFooterListView.Footer>
-                        <Border Background="{StaticResource CBackground1}" Height="5" />
-                    </core:HeaderFooterListView.Footer>
-                </core:HeaderFooterListView>
-            </Grid>
-        </Border>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="5" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <core:HeaderFooterListView Grid.Column="0"
+                                   ItemsSource="{Binding OutgoingMessages, Mode=OneWay}"
+                                   HorizontalAlignment="Stretch"
+                                   Background="Transparent"
+                                   BorderThickness="0"
+                                   AlternationCount="2"
+                                   HideFooterWhenEmpty="True">
+            <core:HeaderFooterListView.Header>
+                <Border Background="{StaticResource CBackground1}" Height="35">
+                    <TextBlock Text="Outgoing" Foreground="{StaticResource CForeground2}"
+                               FontSize="22" TextAlignment="Center" VerticalAlignment="Center" FontWeight="Bold"
+                               Margin="0 -5 0 0" />
+                </Border>
+            </core:HeaderFooterListView.Header>
+            <core:HeaderFooterListView.Footer>
+                <Border Background="{StaticResource CBackground1}" Height="5" />
+            </core:HeaderFooterListView.Footer>
+        </core:HeaderFooterListView>
+        <core:HeaderFooterListView Grid.Column="2"
+                                   ItemsSource="{Binding IncomingMessages, Mode=OneWay}"
+                                   HorizontalAlignment="Stretch"
+                                   Background="Transparent"
+                                   BorderThickness="0"
+                                   AlternationCount="2"
+                                   HideFooterWhenEmpty="True">
+            <core:HeaderFooterListView.Header>
+                <Border Background="{StaticResource CBackground1}" Height="35">
+                    <TextBlock Text="Incoming" Foreground="{StaticResource CForeground2}"
+                               FontSize="22" TextAlignment="Center" VerticalAlignment="Center" FontWeight="Bold"
+                               Margin="0 -5 0 0" />
+                </Border>
+            </core:HeaderFooterListView.Header>
+            <core:HeaderFooterListView.Footer>
+                <Border Background="{StaticResource CBackground1}" Height="5" />
+            </core:HeaderFooterListView.Footer>
+        </core:HeaderFooterListView>
     </Grid>
 </UserControl>
