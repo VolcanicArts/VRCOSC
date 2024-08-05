@@ -10,9 +10,9 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using VRCOSC.App.Audio;
-using VRCOSC.App.Pages.Settings;
 using VRCOSC.App.Settings;
 using VRCOSC.App.UI.Themes;
+using VRCOSC.App.UI.Views.Settings;
 using VRCOSC.App.Utils;
 using SpeechEngine = VRCOSC.App.Settings.SpeechEngine;
 

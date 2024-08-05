@@ -4,7 +4,7 @@
 using System.Windows;
 using VRCOSC.App.VRChatAPI;
 
-namespace VRCOSC.App.Pages.Settings;
+namespace VRCOSC.App.UI.Views.Settings;
 
 public partial class SettingsView
 {

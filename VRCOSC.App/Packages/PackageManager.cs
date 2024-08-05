@@ -33,7 +33,7 @@ public class PackageManager
     public readonly Dictionary<string, string> InstalledPackages = new();
 
     public DateTime CacheExpireTime = DateTime.UnixEpoch;
-    
+
     public PackageSource OfficialModulesSource { get; }
 
     public PackageManager()

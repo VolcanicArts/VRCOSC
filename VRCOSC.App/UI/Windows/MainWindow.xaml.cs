@@ -18,7 +18,6 @@ using VRCOSC.App.Actions.Game;
 using VRCOSC.App.ChatBox;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Packages;
-using VRCOSC.App.Pages.Settings;
 using VRCOSC.App.Profiles;
 using VRCOSC.App.Router;
 using VRCOSC.App.SDK.OVR.Metadata;
@@ -32,6 +31,7 @@ using VRCOSC.App.UI.Views.Packages;
 using VRCOSC.App.UI.Views.Profiles;
 using VRCOSC.App.UI.Views.Router;
 using VRCOSC.App.UI.Views.Run;
+using VRCOSC.App.UI.Views.Settings;
 using VRCOSC.App.Utils;
 using Application = System.Windows.Application;
 
