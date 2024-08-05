@@ -14,7 +14,7 @@ using VRCOSC.App.Utils;
 
 // ReSharper disable MemberCanBePrivate.Global
 
-namespace VRCOSC.App.Pages.Modules.Parameters;
+namespace VRCOSC.App.UI.Windows.Modules;
 
 public sealed partial class ModuleParametersWindow
 {

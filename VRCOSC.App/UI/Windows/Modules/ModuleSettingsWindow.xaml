@@ -55,7 +55,7 @@
                                                                             </StackPanel>
                                                                             <ContentControl
                                                                                 Name="SettingContentControl"
-                                                                                Content="{Binding ViewInstance}" Margin="0 5" />
+                                                                                Content="{Binding ViewInstance}" Margin="0 5" VerticalAlignment="Top" />
                                                                         </core:SpacedStackPanel>
                                                                     </Border>
                                                                     <Border

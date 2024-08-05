@@ -1,16 +1,16 @@
-﻿<Window x:Class="VRCOSC.App.Pages.Modules.Parameters.ModuleParametersWindow"
+﻿<Window x:Class="VRCOSC.App.UI.Windows.Modules.ModuleParametersWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
-        xmlns:parameters="clr-namespace:VRCOSC.App.Pages.Modules.Parameters"
+        xmlns:modules="clr-namespace:VRCOSC.App.UI.Windows.Modules"
         mc:Ignorable="d" Width="1366" Height="768" MinWidth="1200" MinHeight="540">
     <Window.Resources>
         <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
                                          Colour2="{StaticResource CBackground4}" />
         <core:TypeToReadableTypeConverter x:Key="TypeToReadableTypeConverter" />
-        <parameters:ParameterModeToStringConverter x:Key="ParameterModeToStringConverter" />
+        <modules:ParameterModeToStringConverter x:Key="ParameterModeToStringConverter" />
     </Window.Resources>
     <Grid>
         <Border Padding="10" Background="{StaticResource CBackground2}">

@@ -3,7 +3,6 @@
 
 using System.Windows;
 using VRCOSC.App.Modules;
-using VRCOSC.App.Pages.Modules.Parameters;
 using VRCOSC.App.Profiles;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.UI.Windows.Modules;
