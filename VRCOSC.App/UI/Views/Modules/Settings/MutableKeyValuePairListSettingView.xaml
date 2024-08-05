@@ -8,10 +8,9 @@
              mc:Ignorable="d">
     <UserControl.Resources>
         <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
-                                         Colour2="{StaticResource CBackground4}" />
+                                         Colour2="{StaticResource CBackground2}" />
     </UserControl.Resources>
-    <core:HeaderFooterListView Visibility="{Binding ContentVisibility}" AlternationCount="2"
-                               ItemsSource="{Binding ModuleSetting.Attribute}" ShouldTruncateHeight="False">
+    <core:HeaderFooterListView AlternationCount="2" ItemsSource="{Binding ModuleSetting.Attribute}" ShouldTruncateHeight="False">
         <core:HeaderFooterListView.Header>
             <Border Grid.Row="0" Background="{StaticResource CBackground1}" Height="30">
                 <Grid Margin="5">
@@ -19,12 +18,13 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="5" />
                         <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="20" />
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text="{Binding ModuleSetting.Metadata.KeyTitle}"
-                               Foreground="{StaticResource CForeground1}" FontSize="16" TextAlignment="Center"
+                    <TextBlock Grid.Column="0" Text="{Binding ModuleSetting.KeyTitle}"
+                               Foreground="{StaticResource CForeground2}" FontSize="16" TextAlignment="Center"
                                VerticalAlignment="Center" />
-                    <TextBlock Grid.Column="2" Text="{Binding ModuleSetting.Metadata.ValueTitle}"
-                               Foreground="{StaticResource CForeground1}" FontSize="16" TextAlignment="Center"
+                    <TextBlock Grid.Column="2" Text="{Binding ModuleSetting.ValueTitle}"
+                               Foreground="{StaticResource CForeground2}" FontSize="16" TextAlignment="Center"
                                VerticalAlignment="Center" />
                 </Grid>
             </Border>
@@ -35,8 +35,7 @@
                     <Setter.Value>
                         <ControlTemplate>
                             <Border
-                                Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}"
-                                Padding="2">
+                                Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}">
                                 <Grid Margin="5">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
@@ -87,16 +86,13 @@
                                             </ControlTemplate>
                                         </TextBox.Template>
                                     </TextBox>
-                                    <core:VRCOSCButton Grid.Column="4" ButtonColour="Red"
+                                    <core:IconButton Grid.Column="4" ButtonColour="Red"
                                                        Click="RemoveButton_OnClick"
-                                                       Height="25" Width="25">
-                                        <core:VRCOSCButton.Tag>
+                                                       Height="25" Width="25" Icon="Solid_Minus">
+                                        <core:IconButton.Tag>
                                             <Binding />
-                                        </core:VRCOSCButton.Tag>
-                                        <fa6:ImageAwesome Icon="Solid_Minus"
-                                                          PrimaryColor="{StaticResource CForeground1}"
-                                                          Margin="4" />
-                                    </core:VRCOSCButton>
+                                        </core:IconButton.Tag>
+                                    </core:IconButton>
                                 </Grid>
                             </Border>
                         </ControlTemplate>

@@ -8,10 +8,10 @@
              mc:Ignorable="d">
     <UserControl.Resources>
         <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
-                                         Colour2="{StaticResource CBackground4}" />
+                                         Colour2="{StaticResource CBackground2}" />
     </UserControl.Resources>
-    <core:HeaderFooterListView Visibility="{Binding ContentVisibility}" AlternationCount="2"
-                               ItemsSource="{Binding ModuleSetting.Attribute}" ShouldTruncateHeight="False">
+    <core:HeaderFooterListView AlternationCount="2" ItemsSource="{Binding ModuleSetting.Attribute}"
+                               ShouldTruncateHeight="False" VerticalAlignment="Top" HideHeaderWhenEmpty="True">
         <core:HeaderFooterListView.Header>
             <Border Background="{StaticResource CBackground1}" Height="5" />
         </core:HeaderFooterListView.Header>
@@ -23,7 +23,7 @@
                             <Border
                                 Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}"
                                 Padding="2">
-                                <Grid Margin="5">
+                                <Grid Margin="5" VerticalAlignment="Top">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="5" />
@@ -68,11 +68,8 @@
         </ListView.ItemContainerStyle>
         <core:HeaderFooterListView.Footer>
             <Border Background="{StaticResource CBackground1}" Height="30">
-                <core:VRCOSCButton Width="90" Height="20" Click="AddButton_OnClick" ButtonColour="Green">
-                    <fa6:ImageAwesome Icon="Solid_Plus"
-                                      PrimaryColor="{StaticResource CForeground1}"
-                                      Margin="3" />
-                </core:VRCOSCButton>
+                <core:IconButton Width="90" Height="20" Click="AddButton_OnClick" ButtonColour="Green"
+                                 Icon="Solid_Plus" />
             </Border>
         </core:HeaderFooterListView.Footer>
     </core:HeaderFooterListView>
