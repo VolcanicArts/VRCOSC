@@ -73,7 +73,7 @@ public abstract class Module
     private SerialisationManager moduleSerialisationManager = null!;
     private SerialisationManager persistenceSerialisationManager = null!;
 
-    internal Page? RuntimePage;
+    internal UserControl? RuntimeView { get; private set; }
 
     private readonly object loadLock = new();
 
@@ -737,13 +737,13 @@ public abstract class Module
     #endregion
 
     /// <summary>
-    /// Allows you to set the page that shows up in the `runtime` tab of the run screen
+    /// Allows you to set the view that shows up in the `runtime` tab of the run screen
     /// </summary>
-    /// <param name="page">This should be the instance of your page</param>
-    /// <remarks>You are required to manage your runtime page based on what your module is doing. If you want to remove the runtime page, pass null</remarks>
-    protected void SetRuntimePage(Page? page)
+    /// <param name="view">This should be the instance of your view</param>
+    /// <remarks>You are required to manage your runtime view based on what your module is doing. If you want to remove the runtime view, pass null</remarks>
+    protected void SetRuntimeView(UserControl? view)
     {
-        RuntimePage = page;
+        RuntimeView = view;
     }
 
     /// <summary>

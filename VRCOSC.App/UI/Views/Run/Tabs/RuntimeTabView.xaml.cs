@@ -12,7 +12,7 @@ namespace VRCOSC.App.UI.Views.Run.Tabs;
 
 public partial class RuntimeTabView
 {
-    public ObservableCollection<RuntimePage> Pages { get; } = new();
+    public ObservableCollection<RuntimeView> Pages { get; } = new();
     public Observable<Visibility> PageListVisibility { get; } = new(Visibility.Collapsed);
 
     public RuntimeTabView()
@@ -24,10 +24,10 @@ public partial class RuntimeTabView
         AppManager.GetInstance().State.Subscribe(_ => Dispatcher.Invoke(() =>
         {
             Pages.Clear();
-            Pages.AddRange(ModuleManager.GetInstance().RunningModules.Where(module => module.RuntimePage is not null).Select(module => new RuntimePage(module.Title, module.RuntimePage!)));
+            Pages.AddRange(ModuleManager.GetInstance().RunningModules.Where(module => module.RuntimeView is not null).Select(module => new RuntimeView(module.Title, module.RuntimeView!)));
             PageListVisibility.Value = AppManager.GetInstance().State.Value == AppManagerState.Started ? Visibility.Visible : Visibility.Collapsed;
         }));
     }
 }
 
-public record RuntimePage(string Title, Page Page);
+public record RuntimeView(string Title, UserControl View);
