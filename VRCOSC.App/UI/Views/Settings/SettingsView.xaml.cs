@@ -6,9 +6,9 @@ using VRCOSC.App.VRChatAPI;
 
 namespace VRCOSC.App.Pages.Settings;
 
-public partial class SettingsPage
+public partial class SettingsView
 {
-    public SettingsPage()
+    public SettingsView()
     {
         InitializeComponent();
 

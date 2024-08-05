@@ -1,4 +1,4 @@
-﻿<Page x:Class="VRCOSC.App.Pages.Settings.SettingsPage"
+﻿<UserControl x:Class="VRCOSC.App.Pages.Settings.SettingsView"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -29,4 +29,4 @@
             </core:SpacedStackPanel>
         </Border>
     </ScrollViewer>
-</Page>
+</UserControl>

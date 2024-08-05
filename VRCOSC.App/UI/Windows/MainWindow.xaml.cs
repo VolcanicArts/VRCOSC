@@ -44,7 +44,7 @@ public partial class MainWindow
     public readonly PackagesView PackagesView;
     public readonly ModulesView ModulesView;
     public readonly RouterView RouterView;
-    public readonly SettingsPage SettingsPage;
+    public readonly SettingsView SettingsView;
     public readonly ChatBoxView ChatBoxView;
     public readonly RunView RunView;
     public readonly AppDebugView AppDebugView;
@@ -76,7 +76,7 @@ public partial class MainWindow
         PackagesView = new PackagesView();
         ModulesView = new ModulesView();
         RouterView = new RouterView();
-        SettingsPage = new SettingsPage();
+        SettingsView = new SettingsView();
         ChatBoxView = new ChatBoxView();
         RunView = new RunView();
         AppDebugView = new AppDebugView();
@@ -116,7 +116,7 @@ public partial class MainWindow
     {
         var loadingAction = new LoadGameAction();
 
-        //loadingAction.AddAction(new DynamicAsyncProgressAction("Checking for updates", () => AppManager.GetInstance().VelopackUpdater.CheckForUpdatesAsync()));
+        //loadingAction.AddAction(new DynamicAsyncProgressAction("Checking for updates", async () => await AppManager.GetInstance().VelopackUpdater.CheckForUpdatesAsync()));
         loadingAction.AddAction(new DynamicProgressAction("Loading profiles", () => ProfileManager.GetInstance().Load()));
         loadingAction.AddAction(PackageManager.GetInstance().Load());
         loadingAction.AddAction(new DynamicProgressAction("Loading modules", () => ModuleManager.GetInstance().LoadAllModules()));
@@ -345,7 +345,7 @@ public partial class MainWindow
 
     private void SettingsButton_OnClick(object sender, RoutedEventArgs e)
     {
-        setContent(SettingsPage);
+        setContent(SettingsView);
     }
 
     private void ChatBoxButton_OnClick(object sender, RoutedEventArgs e)
