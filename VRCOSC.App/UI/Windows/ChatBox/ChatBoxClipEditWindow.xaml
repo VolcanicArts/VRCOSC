@@ -88,8 +88,8 @@
                     </Grid.RowDefinitions>
                     <!--> Clip element list <-->
                     <Border Grid.Row="0" Background="{StaticResource CBackground5}" CornerRadius="5">
-                        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="10 0">
-                            <core:SpacedStackPanel Orientation="Vertical" Spacing="7">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="10">
+                            <core:SpacedStackPanel Orientation="Vertical" Spacing="10">
                                 <TextBlock Text="States" FontWeight="Bold" FontSize="30"
                                            Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center"
                                            Visibility="{Binding HasStates, Converter={StaticResource BoolToVisibilityConverter}}" />
@@ -126,7 +126,7 @@
                                                                     FontSize="16"
                                                                     Foreground="{StaticResource CForeground1}"
                                                                     Background="{StaticResource CBackground4}"
-                                                                    Text="{Binding Format.Value, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TextBoxParsingConverter}}"/>
+                                                                    Text="{Binding Format.Value, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TextBoxParsingConverter}}" />
                                                                 <!--> Variables List <-->
                                                                 <core:HeaderFooterListView
                                                                     ItemsSource="{Binding Variables}"
@@ -343,7 +343,7 @@
                                                                     FontSize="16"
                                                                     Foreground="{StaticResource CForeground1}"
                                                                     Background="{StaticResource CBackground4}"
-                                                                    Text="{Binding Format.Value, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TextBoxParsingConverter}}"/>
+                                                                    Text="{Binding Format.Value, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TextBoxParsingConverter}}" />
                                                                 <!--> Variables List <-->
                                                                 <core:HeaderFooterListView
                                                                     ItemsSource="{Binding Variables}"
@@ -645,7 +645,8 @@
                                                                     <Setter Property="Template">
                                                                         <Setter.Value>
                                                                             <ControlTemplate>
-                                                                                <Border Height="30" Width="180"
+                                                                                <Border Width="180"
+                                                                                    VerticalAlignment="Top"
                                                                                     Background="{StaticResource CBackground7}"
                                                                                     CornerRadius="5" Padding="5"
                                                                                     Cursor="Hand"
@@ -658,19 +659,23 @@
                                                                                             FontSize="13"
                                                                                             Foreground="{StaticResource CForeground1}"
                                                                                             Text="{Binding DisplayName.Value, Mode=OneWay}"
-                                                                                            VerticalAlignment="Center"
-                                                                                            HorizontalAlignment="Center" />
+                                                                                            Margin="15 0"
+                                                                                            TextWrapping="Wrap"
+                                                                                            TextAlignment="Center"
+                                                                                            VerticalAlignment="Center" />
                                                                                         <fa6:ImageAwesome
                                                                                             Icon="Solid_GripLinesVertical"
                                                                                             VerticalAlignment="Center"
                                                                                             HorizontalAlignment="Left"
                                                                                             Margin="3"
+                                                                                            Height="13"
                                                                                             PrimaryColor="{StaticResource CForeground2}" />
                                                                                         <fa6:ImageAwesome
                                                                                             Icon="Solid_GripLinesVertical"
                                                                                             VerticalAlignment="Center"
                                                                                             HorizontalAlignment="Right"
                                                                                             Margin="3"
+                                                                                            Height="13"
                                                                                             PrimaryColor="{StaticResource CForeground2}" />
                                                                                     </Grid>
                                                                                 </Border>
