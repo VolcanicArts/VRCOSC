@@ -658,7 +658,7 @@
                                                                                         <TextBlock
                                                                                             FontSize="13"
                                                                                             Foreground="{StaticResource CForeground1}"
-                                                                                            Text="{Binding DisplayName.Value, Mode=OneWay}"
+                                                                                            Text="{Binding DisplayName.Value, Mode=OneTime}"
                                                                                             Margin="15 0"
                                                                                             TextWrapping="Wrap"
                                                                                             TextAlignment="Center"
