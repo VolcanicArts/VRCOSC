@@ -18,6 +18,8 @@ public class IntClipVariable : ClipVariable
 
     protected override string Format(object value)
     {
-        return ((int)value).ToString(CultureInfo.CurrentCulture);
+        var intValue = (int)value;
+
+        return intValue == int.MaxValue ? "\u221e" : intValue.ToString(CultureInfo.CurrentCulture);
     }
 }

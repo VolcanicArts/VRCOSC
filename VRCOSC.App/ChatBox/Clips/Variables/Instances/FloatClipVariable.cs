@@ -33,9 +33,14 @@ public class FloatClipVariable : ClipVariable
 
     protected override string Format(object value)
     {
+        var floatValue = (float)value;
+
+        if (float.IsPositiveInfinity(floatValue)) return "\u221e";
+        if (float.IsNegativeInfinity(floatValue)) return "-\u221e";
+
         try
         {
-            return ((float)value).ToString(FloatFormat, CultureInfo.CurrentCulture);
+            return floatValue.ToString(FloatFormat, CultureInfo.CurrentCulture);
         }
         catch (Exception)
         {

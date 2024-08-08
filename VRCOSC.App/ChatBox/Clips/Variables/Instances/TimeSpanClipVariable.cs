@@ -42,8 +42,8 @@ public class TimeSpanClipVariable : ClipVariable
         {
             if (IncludeNegativeSign && timeSpan < TimeSpan.Zero)
                 return $"-{timeSpan.ToString(TimeFormat)}";
-            else
-                return timeSpan.ToString(TimeFormat);
+
+            return timeSpan.ToString(TimeFormat);
         }
         catch (Exception)
         {

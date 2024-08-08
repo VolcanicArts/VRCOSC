@@ -52,9 +52,13 @@ public class ProgressClipVariable : ClipVariable
 
     protected override string Format(object value)
     {
+        var floatValue = (float)value;
+        floatValue = MathF.Max(0, floatValue);
+        floatValue = MathF.Min(1, floatValue);
+
         if (UseVisual)
         {
-            var dotPosition = VisualResolution * (float)value;
+            var dotPosition = VisualResolution * floatValue;
 
             var visual = string.Empty;
             visual += VisualStart;
@@ -69,6 +73,6 @@ public class ProgressClipVariable : ClipVariable
             return visual;
         }
 
-        return $"{(int)MathF.Round((float)value * 100f)}%";
+        return $"{(int)MathF.Round(floatValue * 100f)}%";
     }
 }
