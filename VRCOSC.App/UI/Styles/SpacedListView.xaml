@@ -8,14 +8,15 @@
             <Setter.Value>
                 <ItemsPanelTemplate>
                     <core:SpacedStackPanel
-                        Spacing="{Binding Spacing, RelativeSource={RelativeSource AncestorType={x:Type core:SpacedListView}}}" />
+                        Spacing="{Binding Spacing, RelativeSource={RelativeSource AncestorType={x:Type core:SpacedListView}}}"
+                        VerticalAlignment="Top" />
                 </ItemsPanelTemplate>
             </Setter.Value>
         </Setter>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type core:SpacedListView}">
-                    <ScrollViewer Background="{TemplateBinding Background}" PanningMode="VerticalOnly"
+                    <ScrollViewer PanningMode="VerticalOnly" HorizontalScrollBarVisibility="Disabled"
                                   VerticalScrollBarVisibility="Auto" CanContentScroll="False">
                         <ItemsPresenter VerticalAlignment="Top" Margin="{TemplateBinding Padding}">
                             <b:Interaction.Behaviors>

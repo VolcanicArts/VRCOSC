@@ -13,6 +13,7 @@
                 <ResourceDictionary Source="UI/Styles/TextBoxStyle.xaml" />
                 <ResourceDictionary Source="UI/Styles/HeaderFooterListViewStyle.xaml" />
                 <ResourceDictionary Source="UI/Styles/SpacedListView.xaml" />
+                <ResourceDictionary Source="UI/Styles/TitleDescriptionContentStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <Style TargetType="{x:Type core:IPPortTextBox}" BasedOn="{StaticResource {x:Type TextBox}}" />
             <Style TargetType="{x:Type ScrollViewer}">

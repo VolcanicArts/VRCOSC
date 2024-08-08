@@ -7,38 +7,17 @@
         mc:Ignorable="d"
         MinWidth="600" MinHeight="600" Width="600" Height="768">
     <Border Background="{StaticResource CBackground2}">
-        <core:SpacedListView ItemsSource="{Binding UIOptions}" Padding="10" Spacing="10">
+        <core:SpacedListView ItemsSource="{Binding UIOptions}" Padding="10" Spacing="10" Background="{StaticResource CBackground1}">
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate TargetType="ListViewItem">
-                                <Border Background="{StaticResource CBackground7}"
-                                        Padding="10 5"
-                                        CornerRadius="5">
-                                    <core:SpacedStackPanel
-                                        Orientation="Vertical" Spacing="5">
-                                        <StackPanel>
-                                            <TextBlock
-                                                Text="{Binding DisplayName}"
-                                                Foreground="{StaticResource CForeground1}"
-                                                FontSize="18"
-                                                VerticalAlignment="Top"
-                                                TextWrapping="Wrap"
-                                                FontWeight="DemiBold"
-                                                Padding="2 0" />
-                                            <TextBlock
-                                                Text="{Binding Description}"
-                                                Foreground="{StaticResource CForeground2}"
-                                                FontSize="14"
-                                                VerticalAlignment="Bottom"
-                                                TextWrapping="Wrap"
-                                                Padding="2 0" />
-                                        </StackPanel>
-                                        <ContentControl Content="{Binding ViewInstance}" Margin="0 5"
-                                                        VerticalAlignment="Top" />
-                                    </core:SpacedStackPanel>
-                                </Border>
+                                <core:TitleDescriptionContent Title="{Binding DisplayName}"
+                                                              Description="{Binding Description}">
+                                    <ContentControl Content="{Binding ViewInstance}"
+                                                    VerticalAlignment="Top" />
+                                </core:TitleDescriptionContent>
                             </ControlTemplate>
                         </Setter.Value>
                     </Setter>

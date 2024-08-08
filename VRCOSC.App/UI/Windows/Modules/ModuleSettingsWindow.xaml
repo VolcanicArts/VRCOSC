@@ -30,34 +30,9 @@
                                                         <Setter.Value>
                                                             <ControlTemplate TargetType="ListViewItem">
                                                                 <Grid>
-                                                                    <Border
-                                                                        Background="{StaticResource CBackground7}"
-                                                                        Padding="10 5"
-                                                                        CornerRadius="5">
-                                                                        <core:SpacedStackPanel
-                                                                            Orientation="Vertical" Spacing="5">
-                                                                            <StackPanel>
-                                                                                <TextBlock
-                                                                                    Text="{Binding Title}"
-                                                                                    Foreground="{StaticResource CForeground1}"
-                                                                                    FontSize="18"
-                                                                                    VerticalAlignment="Top"
-                                                                                    TextWrapping="Wrap"
-                                                                                    FontWeight="DemiBold"
-                                                                                    Padding="2 0" />
-                                                                                <TextBlock
-                                                                                    Text="{Binding Description}"
-                                                                                    Foreground="{StaticResource CForeground2}"
-                                                                                    FontSize="14"
-                                                                                    VerticalAlignment="Bottom"
-                                                                                    TextWrapping="Wrap"
-                                                                                    Padding="2 0" />
-                                                                            </StackPanel>
-                                                                            <ContentControl
-                                                                                Name="SettingContentControl"
-                                                                                Content="{Binding ViewInstance}" Margin="0 5" VerticalAlignment="Top" />
-                                                                        </core:SpacedStackPanel>
-                                                                    </Border>
+                                                                    <core:TitleDescriptionContent Title="{Binding Title}" Description="{Binding Description}">
+                                                                        <ContentControl Content="{Binding ViewInstance}" VerticalAlignment="Top" />
+                                                                    </core:TitleDescriptionContent>
                                                                     <Border
                                                                         Background="{StaticResource CBackground1}"
                                                                         Opacity="0.5"
