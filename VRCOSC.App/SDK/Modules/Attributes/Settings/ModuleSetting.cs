@@ -11,6 +11,8 @@ namespace VRCOSC.App.SDK.Modules.Attributes.Settings;
 
 public abstract class ModuleSetting : ModuleAttribute, INotifyPropertyChanged
 {
+    internal Module ParentModule { get; set; }
+
     /// <summary>
     /// The type of <see cref="UserControl"/> to instance when this <see cref="ModuleSetting"/> needs to be rendered
     /// </summary>
@@ -30,7 +32,7 @@ public abstract class ModuleSetting : ModuleAttribute, INotifyPropertyChanged
         {
             try
             {
-                return (UserControl)Activator.CreateInstance(ViewType, this)!;
+                return (UserControl)Activator.CreateInstance(ViewType, ParentModule, this)!;
             }
             catch (Exception e)
             {

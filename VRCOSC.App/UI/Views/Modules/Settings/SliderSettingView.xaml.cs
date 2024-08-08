@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
+using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.Modules.Attributes.Settings;
 using VRCOSC.App.Utils;
 
@@ -15,7 +16,7 @@ public partial class SliderSettingView
     public SliderModuleSetting SliderModuleSetting { get; }
     public Observable<float> SliderValue { get; } = new();
 
-    public SliderSettingView(SliderModuleSetting sliderModuleSetting)
+    public SliderSettingView(Module _, SliderModuleSetting sliderModuleSetting)
     {
         InitializeComponent();
 

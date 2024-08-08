@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Windows;
+using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.Modules.Attributes.Settings;
 
 namespace VRCOSC.App.UI.Views.Modules.Settings;
@@ -12,7 +13,7 @@ public partial class ListTextBoxSettingView
 
     private readonly IListModuleSetting listModuleSetting;
 
-    public ListTextBoxSettingView(IListModuleSetting moduleSetting)
+    public ListTextBoxSettingView(Module _, IListModuleSetting moduleSetting)
     {
         listModuleSetting = moduleSetting;
         ModuleSetting = (ModuleSetting)moduleSetting;

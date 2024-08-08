@@ -2,7 +2,7 @@
     <PropertyGroup>
         <GlobalVersionYear>$([System.DateTime]::Now.ToString("yyyy"))</GlobalVersionYear>
         <GlobalVersionMonthDay>$([System.DateTime]::Now.ToString("Mdd"))</GlobalVersionMonthDay>
-        <GlobalBuild>0</GlobalBuild>
+        <GlobalBuild>12</GlobalBuild>
         <GlobalVersion>$(GlobalVersionYear).$(GlobalVersionMonthDay).$(GlobalBuild).0</GlobalVersion>
     </PropertyGroup>
 </Project>

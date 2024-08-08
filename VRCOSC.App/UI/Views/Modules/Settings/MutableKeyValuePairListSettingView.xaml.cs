@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Windows;
+using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.Modules.Attributes.Types;
 
 namespace VRCOSC.App.UI.Views.Modules.Settings;
@@ -10,7 +11,7 @@ public partial class MutableKeyValuePairListSettingView
 {
     public MutableKeyValuePairListModuleSetting ModuleSetting { get; }
 
-    public MutableKeyValuePairListSettingView(MutableKeyValuePairListModuleSetting moduleSetting)
+    public MutableKeyValuePairListSettingView(Module _, MutableKeyValuePairListModuleSetting moduleSetting)
     {
         ModuleSetting = moduleSetting;
 
