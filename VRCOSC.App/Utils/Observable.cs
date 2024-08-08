@@ -40,7 +40,7 @@ public class ObservableConverter : JsonConverter<ISerialisableObservable>
     }
 }
 
-public sealed class Observable<T> : IObservable, INotifyPropertyChanged, ISerialisableObservable
+public sealed class Observable<T> : IObservable, INotifyPropertyChanged, ISerialisableObservable, ICloneable, IEquatable<Observable<T>>
 {
     private T value;
 
@@ -63,7 +63,7 @@ public sealed class Observable<T> : IObservable, INotifyPropertyChanged, ISerial
     private readonly List<Action<T>> actions = new();
 
     [JsonConstructor]
-    private Observable()
+    public Observable()
     {
     }
 
@@ -154,4 +154,23 @@ public sealed class Observable<T> : IObservable, INotifyPropertyChanged, ISerial
             Logger.Error(e, "Observable could not deserialise value");
         }
     }
+
+    public object Clone()
+    {
+        var clone = (Observable<T>)Activator.CreateInstance(GetType(), args: [DefaultValue])!;
+        clone.Value = Value;
+        return clone;
+    }
+
+    public bool Equals(Observable<T>? other)
+    {
+        if (ReferenceEquals(null, other)) return false;
+        if (ReferenceEquals(this, other)) return true;
+
+        return EqualityComparer<T>.Default.Equals(value, other.value) && EqualityComparer<T>.Default.Equals(DefaultValue, other.DefaultValue);
+    }
+
+    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is Observable<T> other && Equals(other);
+
+    public override int GetHashCode() => HashCode.Combine(value, DefaultValue);
 }

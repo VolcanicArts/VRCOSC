@@ -18,7 +18,7 @@ public interface IListModuleSetting
     public void Remove(object instance);
 }
 
-public abstract class ListModuleSetting<T> : ModuleSetting, IListModuleSetting
+public abstract class ListModuleSetting<T> : ModuleSetting, IListModuleSetting where T : ICloneable, IEquatable<T>, new()
 {
     public ObservableCollection<T> Attribute { get; private set; } = null!;
     protected readonly IEnumerable<T> DefaultValues;
@@ -42,10 +42,9 @@ public abstract class ListModuleSetting<T> : ModuleSetting, IListModuleSetting
     private IEnumerable<T> getClonedDefaults() => DefaultValues.Select(CloneValue);
     private IEnumerable<T> jArrayToEnumerable(JArray array) => array.Select(ConstructValue);
 
-    protected abstract T CloneValue(T value);
-    protected abstract T ConstructValue(JToken token);
-
-    protected abstract T CreateNewItem();
+    protected virtual T CloneValue(T value) => (T)value.Clone();
+    protected virtual T ConstructValue(JToken token) => token.ToObject<T>()!;
+    protected virtual T CreateNewItem() => new();
 
     public override bool Deserialise(object value)
     {
@@ -96,7 +95,7 @@ public abstract class ValueListModuleSetting<T> : ListModuleSetting<Observable<T
         }
     }
 
-    protected override Observable<T> CloneValue(Observable<T> value) => new(value.Value!);
+    protected override Observable<T> CloneValue(Observable<T> value) => (Observable<T>)value.Clone();
     protected override Observable<T> ConstructValue(JToken token) => new(token.Value<T>()!);
 
     protected ValueListModuleSetting(string title, string description, Type viewType, IEnumerable<Observable<T>> defaultValues)

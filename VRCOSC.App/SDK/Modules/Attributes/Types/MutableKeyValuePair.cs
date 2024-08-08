@@ -4,13 +4,12 @@
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using VRCOSC.App.SDK.Modules.Attributes.Settings;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.Modules.Attributes.Types;
 
-public class MutableKeyValuePair : IEquatable<MutableKeyValuePair>
+public class MutableKeyValuePair : IEquatable<MutableKeyValuePair>, ICloneable
 {
     [JsonProperty("key")]
     public Observable<string> Key { get; } = new(string.Empty);
@@ -34,6 +33,8 @@ public class MutableKeyValuePair : IEquatable<MutableKeyValuePair>
 
         return Key.Value.Equals(other.Key.Value) && Value.Value.Equals(other.Value.Value);
     }
+
+    public object Clone() => new MutableKeyValuePair(this);
 }
 
 public class MutableKeyValuePairListModuleSetting : ListModuleSetting<MutableKeyValuePair>
@@ -47,10 +48,4 @@ public class MutableKeyValuePairListModuleSetting : ListModuleSetting<MutableKey
         KeyTitle = keyTitle;
         ValueTitle = valueTitle;
     }
-
-    protected override MutableKeyValuePair CloneValue(MutableKeyValuePair value) => new(value);
-
-    protected override MutableKeyValuePair ConstructValue(JToken token) => token.ToObject<MutableKeyValuePair>()!;
-
-    protected override MutableKeyValuePair CreateNewItem() => new();
 }
