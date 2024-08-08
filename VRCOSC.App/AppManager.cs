@@ -13,6 +13,7 @@ using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
 using NAudio.CoreAudioApi;
+using org.mariuszgromada.math.mxparser;
 using Valve.VR;
 using VRCOSC.App.Audio;
 using VRCOSC.App.Audio.Whisper;
@@ -75,6 +76,8 @@ public class AppManager
 
     public AppManager()
     {
+        License.iConfirmNonCommercialUse("VolcanicArts");
+
         State.Subscribe(newState => Logger.Log("AppManager changed state to " + newState));
     }
 
