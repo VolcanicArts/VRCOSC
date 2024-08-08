@@ -404,6 +404,12 @@ public abstract class Module
         Settings.Add(lookup.ToLookup(), new FloatModuleSetting(title, description, typeof(TextBoxSettingView), defaultValue));
     }
 
+    protected void CreatePasswordTextBox(Enum lookup, string title, string description, string defaultValue)
+    {
+        validateSettingsLookup(lookup);
+        Settings.Add(lookup.ToLookup(), new StringModuleSetting(title, description, typeof(PasswordTextBoxSettingView), defaultValue));
+    }
+
     protected void CreateSlider(Enum lookup, string title, string description, int defaultValue, int minValue, int maxValue, int tickFrequency = 1)
     {
         validateSettingsLookup(lookup);
